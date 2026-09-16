@@ -10,7 +10,7 @@
 
 <div class="demo-bar">
   <span><strong>CONTOH TAMPILAN</strong> — Kedai Oasis · Laporan hari ini (data contoh)</span>
-  <span class="center small"><a href="index.html">halaman awal</a> · <a href="02-kasir.html">kasir</a> · <a href="03-katalog.html">katalog</a></span>
+  <span class="center small"><a href="index.html">halaman awal</a> · <a href="02-kasir.html">kasir</a> · <a href="04-tema.html">10 tema</a> · <a href="03-katalog.html">katalog</a> · <a href="04-tema.html">10 tema</a></span>
 </div>
 
 <header class="wrap between" style="padding-bottom:0">
@@ -19,12 +19,22 @@
     <div class="small muted">Selasa, 16 Sep 2026 · Shift 1 (09.00–15.00) · Kasir: Rina</div>
   </div>
   <div class="row wrap-row">
-    <nav class="theme-switch" aria-label="Pilih tema">
-      <button type="button" data-set-tema="terang">Terang</button>
-      <button type="button" data-set-tema="hangat">Hangat</button>
-      <button type="button" data-set-tema="gelap">Gelap</button>
-      <button type="button" data-set-tema="kontras">Kontras</button>
-    </nav>
+    <details class="picker">
+  <summary class="btn btn-sm"><i class="swatch" data-swatch-tema></i> Tema: <span data-nama-tema>Terang Bersih</span></summary>
+  <div class="picker-panel" aria-label="Pilih tema">
+        <button type="button" data-set-tema="terang"><span class="sw-3" data-theme="terang" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Terang Bersih</strong><small>Bersih & terang — bawaan</small></span></button>
+        <button type="button" data-set-tema="hangat"><span class="sw-3" data-theme="hangat" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Hangat Kedai</strong><small>Krem & coklat, ramah</small></span></button>
+        <button type="button" data-set-tema="gelap"><span class="sw-3" data-theme="gelap" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Gelap Dapur</strong><small>Gelap, untuk layar dapur</small></span></button>
+        <button type="button" data-set-tema="kontras"><span class="sw-3" data-theme="kontras" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Kontras Tinggi</strong><small>Hitam-putih, garis tebal</small></span></button>
+        <button type="button" data-set-tema="bara"><span class="sw-3" data-theme="bara" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Bara Panggang</strong><small>Hitam + emas (dari gambar kirimanmu)</small></span></button>
+        <button type="button" data-set-tema="vintage"><span class="sw-3" data-theme="vintage" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Vintage Klasik</strong><small>Kertas tua, serif, garis ganda</small></span></button>
+        <button type="button" data-set-tema="alam"><span class="sw-3" data-theme="alam" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Alam Hijau</strong><small>Hijau daun, membulat lembut</small></span></button>
+        <button type="button" data-set-tema="tropis"><span class="sw-3" data-theme="tropis" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Tropis Segar</strong><small>Teal laut, ceria</small></span></button>
+        <button type="button" data-set-tema="pastel"><span class="sw-3" data-theme="pastel" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Pastel Manis</strong><small>Pastel lembut, tebal (clay)</small></span></button>
+        <button type="button" data-set-tema="etnik"><span class="sw-3" data-theme="etnik" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Etnik Nusantara</strong><small>Ivory, terakota, motif batik</small></span></button>
+    <a class="picker-all" href="04-tema.html">Lihat 10 tema berdampingan &rarr;</a>
+  </div>
+</details>
     <button class="btn" type="button">Cetak</button>
     <button class="btn btn-primary" type="button">Tutup Kas</button>
   </div>

@@ -1,0 +1,4 @@
+
+# Berkas sementara Python
+__pycache__/
+*.pyc

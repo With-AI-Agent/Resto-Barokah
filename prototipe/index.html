@@ -21,22 +21,33 @@
       <div class="small muted">Contoh tampilan &amp; tema — bisa diklik</div>
     </div>
   </div>
-  <nav class="theme-switch" aria-label="Pilih tema">
-    <button type="button" data-set-tema="terang"><i class="swatch sw-terang"></i>Terang Bersih</button>
-    <button type="button" data-set-tema="hangat"><i class="swatch sw-hangat"></i>Hangat Kedai</button>
-    <button type="button" data-set-tema="gelap"><i class="swatch sw-gelap"></i>Gelap Dapur</button>
-    <button type="button" data-set-tema="kontras"><i class="swatch sw-kontras"></i>Kontras Tinggi</button>
-  </nav>
+  <details class="picker">
+  <summary class="btn btn-sm"><i class="swatch" data-swatch-tema></i> Tema: <span data-nama-tema>Terang Bersih</span></summary>
+  <div class="picker-panel" aria-label="Pilih tema">
+        <button type="button" data-set-tema="terang"><span class="sw-3" data-theme="terang" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Terang Bersih</strong><small>Bersih & terang — bawaan</small></span></button>
+        <button type="button" data-set-tema="hangat"><span class="sw-3" data-theme="hangat" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Hangat Kedai</strong><small>Krem & coklat, ramah</small></span></button>
+        <button type="button" data-set-tema="gelap"><span class="sw-3" data-theme="gelap" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Gelap Dapur</strong><small>Gelap, untuk layar dapur</small></span></button>
+        <button type="button" data-set-tema="kontras"><span class="sw-3" data-theme="kontras" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Kontras Tinggi</strong><small>Hitam-putih, garis tebal</small></span></button>
+        <button type="button" data-set-tema="bara"><span class="sw-3" data-theme="bara" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Bara Panggang</strong><small>Hitam + emas (dari gambar kirimanmu)</small></span></button>
+        <button type="button" data-set-tema="vintage"><span class="sw-3" data-theme="vintage" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Vintage Klasik</strong><small>Kertas tua, serif, garis ganda</small></span></button>
+        <button type="button" data-set-tema="alam"><span class="sw-3" data-theme="alam" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Alam Hijau</strong><small>Hijau daun, membulat lembut</small></span></button>
+        <button type="button" data-set-tema="tropis"><span class="sw-3" data-theme="tropis" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Tropis Segar</strong><small>Teal laut, ceria</small></span></button>
+        <button type="button" data-set-tema="pastel"><span class="sw-3" data-theme="pastel" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Pastel Manis</strong><small>Pastel lembut, tebal (clay)</small></span></button>
+        <button type="button" data-set-tema="etnik"><span class="sw-3" data-theme="etnik" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Etnik Nusantara</strong><small>Ivory, terakota, motif batik</small></span></button>
+    <a class="picker-all" href="04-tema.html">Lihat 10 tema berdampingan &rarr;</a>
+  </div>
+</details>
 </header>
 
 <main class="wrap">
   <div class="card mt-16">
     <div class="card-head">
-      <h2>Tiga contoh tampilan untuk diperiksa</h2>
-      <span class="chip chip-accent">Langkah 2 dari rencana desain</span>
+      <h2>Contoh tampilan &amp; 10 tema</h2>
+      <span class="chip chip-accent">10 tema · 130 pemeriksaan kontras lolos</span>
     </div>
-    <p class="muted">Coba tekan tombol tema di atas: semua halaman langsung berubah warna tanpa susunannya rusak. Itulah yang dimaksud
-      <em>“beberapa tema tinggal dipilih”</em>. Tema pilihanmu diingat di perangkat ini saja.</p>
+    <p class="muted">Coba tekan <strong>Tema</strong> di kanan atas: semua halaman langsung berubah warna, huruf, dan bentuknya
+      tanpa susunannya rusak. Itulah yang dimaksud <em>“beberapa tema tinggal dipilih”</em>. Tema pilihanmu diingat di perangkat ini saja.
+      Mau melihat semuanya sekaligus? Buka <a href="04-tema.html">galeri 10 tema</a>.</p>
   </div>
 
   <section class="pick mt-16">
@@ -58,13 +69,44 @@
       <p class="muted small">Halaman yang dilihat pelanggan dari HP: banner, kategori, menu berfoto, dan pintu masuk voucher undang-teman.</p>
       <span class="chip chip-accent">Pola P08 · P14 · P15 · P16</span>
     </a>
+    <a class="card" href="04-tema.html">
+      <span class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/></svg></span>
+      <h3>4. Galeri 10 Tema</h3>
+      <p class="muted small">Sepuluh tema berdampingan dalam satu halaman: Terang Bersih, Hangat Kedai, Gelap Dapur, Kontras Tinggi,
+        <strong>Bara Panggang</strong> (dari gambar kirimanmu), Vintage Klasik, Alam Hijau, Tropis Segar, Pastel Manis, Etnik Nusantara.</p>
+      <span class="chip chip-success">Semua lolos uji kontras</span>
+    </a>
   </section>
+
+  <div class="card mt-16">
+    <div class="card-head"><h3>Sepuluh tema, satu sistem</h3></div>
+    <p class="muted small">Semua tema memakai <strong>susunan &amp; komponen yang sama</strong> — hanya warna, huruf, bentuk sudut, dan hiasan latar yang berubah.
+      Jadi pemilik resto cukup <em>memilih</em> tema lewat Pengaturan, tanpa koding, dan tidak ada layar yang rusak.</p>
+    <div class="row wrap-row mt-16" style="gap:10px">
+      <span class="chip" data-theme="terang"><i class="dot"></i>Terang Bersih</span>
+      <span class="chip" data-theme="hangat"><i class="dot"></i>Hangat Kedai</span>
+      <span class="chip" data-theme="gelap"><i class="dot"></i>Gelap Dapur</span>
+      <span class="chip" data-theme="kontras"><i class="dot"></i>Kontras Tinggi</span>
+      <span class="chip" data-theme="bara"><i class="dot"></i>Bara Panggang</span>
+      <span class="chip" data-theme="vintage"><i class="dot"></i>Vintage Klasik</span>
+      <span class="chip" data-theme="alam"><i class="dot"></i>Alam Hijau</span>
+      <span class="chip" data-theme="tropis"><i class="dot"></i>Tropis Segar</span>
+      <span class="chip" data-theme="pastel"><i class="dot"></i>Pastel Manis</span>
+      <span class="chip" data-theme="etnik"><i class="dot"></i>Etnik Nusantara</span>
+    </div>
+    <p class="small muted mt-16">Menambah tema baru itu murah: sekitar 30 baris nilai warna + huruf. Kalau nanti kamu punya ide warna khas Kedai Oasis, tinggal bilang.</p>
+  </div>
 
   <div class="card mt-16">
     <div class="card-head"><h3>Catatan jujur</h3></div>
     <ul class="muted small" style="margin:0;padding-left:20px">
       <li>Ini <strong>contoh tampilan (mockup) berbentuk halaman web asli</strong>, bukan gambar buatan. Angka &amp; nama di dalamnya <strong>data contoh</strong>.</li>
       <li>Foto menu di halaman katalog adalah <strong>foto contoh buatan</strong> — nanti diganti foto asli Kedai Oasis.</li>
+      <li><strong>Huruf</strong> diambil dari skill yang terpasang (<code>skills/ui-styling/canvas-fonts</code>, lisensi terbuka OFL) dan disimpan lokal,
+        jadi tampilan tetap rapi tanpa internet. Ukurannya aku rampingkan dari 1,4 MB menjadi 311 KB.</li>
+      <li><strong>10 tema semuanya diuji</strong> — 130 pemeriksaan kontras (teks, teks redup, tulisan di tombol, semua label status), hasilnya lolos semua.
+        Alat ujinya: <code>python3 prototipe/uji-kontras.py</code>.</li>
+      <li>Dua tema (<em>Tropis Segar</em> &amp; <em>Etnik Nusantara</em>) aku susun sendiri karena basis data skill tidak punya padanan yang cocok — ini aku sebut apa adanya.</li>
       <li>Yang belum ada: masuk/PIN, pengiriman ke dapur, cetak struk, dan penyimpanan data. Itu pekerjaan Tahap 3 (rancangan teknis) setelah tampilan ini disetujui.</li>
       <li>Setiap tema wajib lolos aturan: kontras ≥4,5:1 · area sentuh ≥44px · huruf dasar 16px.</li>
     </ul>

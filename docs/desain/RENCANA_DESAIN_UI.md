@@ -47,11 +47,25 @@ Kode `P…` = gambar kiriman pemilik (`docs/desain/referensi/pemilik/`); angka `
 | ~~Kolase promosi~~ | P09 | **Ditolak** | Materi pemasaran, bukan rancangan layar |
 
 ## 3. Rancangan sistem tema (menjawab permintaan "beberapa tema tinggal dipilih")
-**4 tema bawaan** (pemilik resto cukup memilih, tanpa koding) — masing-masing punya rujukan gambar nyata dari kiriman pemilik:
-1. **Terang Bersih** *(bawaan)* — latar putih/abu sangat terang, warna aksen tegas. Paling mudah dibaca di kasir yang ramai. *Rujukan: P16 Grill & Co. / P08 katalog terang.*
-2. **Hangat Kedai** — latar krem, sudut membulat, aksen hangat. Kesan ramah (cocok cafe/kedai). *Rujukan: P15 Brew & Bliss / P25 katalog kopi / P22 toko kue.*
-3. **Gelap Dapur** — latar gelap. Untuk layar dapur (ruangan panas/silau) dan pemakaian malam. *Rujukan: P17 Jaegar Resto / P03 Burger gelap / P31 dashboard gelap.*
-4. **Kontras Tinggi** — teks & garis paling tegas, warna lebih sedikit. Untuk pegawai yang sulit membaca layar kecil / layar kena matahari.
+**10 tema** (pemilik resto cukup memilih, tanpa koding) — permintaan pemilik 2026-09-16: *"aku mau ada beberapa tema, misalnya seperti gambar yang aku upload ini, terus ada juga tema vintage, ada juga tema nature, dan sebagainya"*.
+Warna & huruf diambil dari arah gaya di basis data skill `ui-ux-pro-max` bila ada padanannya, dan disusun sendiri bila tidak (disebut apa adanya).
+
+| # | Tema | Kesan | Rujukan / arah gaya | Huruf (dari `skills/ui-styling/canvas-fonts`) |
+|---|---|---|---|---|
+| 1 | **Terang Bersih** *(bawaan)* | Bersih & terang, paling mudah dibaca kasir ramai | kiriman pemilik P16/P08 | Outfit + WorkSans |
+| 2 | **Hangat Kedai** | Krem & coklat, ramah (cafe/kedai) | P15 Brew & Bliss, P22 | Lora (serif) + WorkSans |
+| 3 | **Gelap Dapur** | Gelap, untuk dapur (silau/panas) & malam | P17 Jaegar Resto, P03, P31 | Outfit + WorkSans |
+| 4 | **Kontras Tinggi** | Hitam-putih, garis tebal, aksesibilitas | — | huruf sistem |
+| 5 | **Bara Panggang** | Hitam pekat + emas, judul HURUF BESAR tinggi, tombol bulat | **gambar yang pemilik kirim (P16 Grill & Co.)** | BigShoulders + InstrumentSans |
+| 6 | **Vintage Klasik** | Kertas tua bertekstur, marun/mustard, bingkai garis ganda | arah gaya `vintage-analog-retro-film` | ArsenalSC (kapital kecil) + CrimsonPro |
+| 7 | **Alam Hijau** | Hijau daun, membulat lembut, hiasan daun samar | arah gaya `organic-biophilic` | NationalPark + WorkSans |
+| 8 | **Tropis Segar** | Teal laut, ceria, hiasan ombak | disusun sendiri (tidak ada padanan) | Outfit + WorkSans |
+| 9 | **Pastel Manis** | Pastel lembut, bentuk tebal "tanah liat" (clay) | arah gaya `claymorphism` | Bricolage + Outfit |
+| 10 | **Etnik Nusantara** | Ivory, terakota, hiasan motif batik | disusun sendiri (tidak ada padanan) | YoungSerif + WorkSans |
+
+**Yang berubah antar tema:** warna (token), huruf judul & isi, bentuk sudut, ketebalan garis, bayangan, dan hiasan latar.
+**Yang TIDAK berubah:** susunan layar, ukuran sentuh, alur kerja, dan seluruh fungsi — inilah jaminan "ganti tema tidak merusak apa pun".
+**Menambah tema baru:** ±30 baris nilai warna + huruf, tanpa menyentuh susunan layar (sudah dibuktikan: dari 4 tema menjadi 10 tema dalam satu langkah).
 
 **Tambahan: 2 tingkat kepadatan tampilan (dipilih per perangkat, tanpa koding)** — hasil pelajaran dari kiriman pemilik:
 - **Mode Kasir (padat & cepat):** tanpa foto besar; fokus nama menu, harga, dan tombol. Muat banyak item sekaligus → kasir cepat melayani antrean. *Rujukan: P04, P17, P32.*
@@ -86,7 +100,7 @@ Setiap kombinasi tema × kepadatan tetap wajib lolos uji kontras & ukuran sentuh
 ## 6. Hasil uji aturan wajib (contoh tampilan, 2026-09-16)
 | Aturan | Hasil |
 |---|---|
-| Kontras ≥ 4,5:1 | **52 dari 52 pemeriksaan LOLOS** di 4 tema (alat: `prototipe/uji-kontras.py`) |
+| Kontras ≥ 4,5:1 (teks) & ≥ 3:1 (elemen) | **130 dari 130 pemeriksaan LOLOS** di **10 tema** (alat: `prototipe/uji-kontras.py`) |
 | Area sentuh ≥ 44 px | Tombol, tab, tombol +/−, tombol tambah (dibuat 40 px visual + jarak aman) |
 | Huruf dasar 16 px, jarak baris 1,5 | Terpasang di `prototipe/css/tokens.css` |
 | Ikon SVG, bukan emoji | Semua ikon sebaris SVG |
@@ -107,3 +121,8 @@ Setiap kombinasi tema × kepadatan tetap wajib lolos uji kontras & ukuran sentuh
 | 2026-09-16 | Pemilik: **"Lanjut"** → rekomendasi agent disetujui: pola kasir P04/P17/P32 · tema bawaan **Terang Bersih** · tema boleh beda per perangkat · lanjut ke 3 contoh tampilan | Pemilik mempercayakan pilihan terbaik; bukti pola sudah kuat (3 contoh bebas, pola sama) |
 | 2026-09-16 | Contoh tampilan dibuat sebagai **halaman web asli yang bisa diklik** (bukan gambar) di `prototipe/` | Browser headless tidak bisa dipasang di lingkungan ini (unduhan diblokir) → halaman asli justru lebih berguna: pemilik bisa mencoba ganti tema & mode kasir sendiri, dan berkasnya menjadi fondasi sistem desain tahap pengembangan |
 | 2026-09-16 | Foto menu di katalog memakai **foto contoh buatan** dan disebut terang-terangan | Menjaga kejujuran (bukan foto Kedai Oasis) sekaligus menunjukkan tempat foto asli yang akan diisi lewat Pengaturan tanpa koding |
+| 2026-09-16 | Pemilik minta tema diperbanyak ("ada theme vintage, nature, dan sebagainya") + mengirim gambar "Grill & Co." | Kebutuhan nyata tiap resto berbeda; tema = merek resto, jadi pilihan wajib banyak |
+| 2026-09-16 | Tema ditambah dari **4 → 10** (tambah Bara Panggang, Vintage Klasik, Alam Hijau, Tropis Segar, Pastel Manis, Etnik Nusantara) | Memenuhi permintaan pemilik; 2 tema punya padanan arah gaya di basis data skill, 2 disusun sendiri (disebut apa adanya) |
+| 2026-09-16 | **Tema "Bara Panggang" dibuat khusus meniru gambar kiriman pemilik** (hitam + emas, judul HURUF BESAR, tombol bulat) | Pemilik menunjukkan contoh itu secara langsung; hurufnya memakai BigShoulders (tebal-tinggi) supaya mendekati kesannya |
+| 2026-09-16 | **13 huruf dari skill** (`skills/ui-styling/canvas-fonts`, lisensi OFL) dirampingkan ke woff2 (**1,4 MB → 311 KB**) dan disimpan lokal | Aplikasi tetap rapi tanpa internet — penting karena resto bisa punya jaringan lemah; lisensi terbuka jadi aman dipakai |
+| 2026-09-16 | Ditambahkan alat bantu: `uji-kontras.py` (uji semua tema) dan `buat-palet.py` (gambar palet dari kode) | Aturan "setiap tema wajib lolos kontras" jadi bisa **diperiksa mesin**, bukan diklaim; gambar palet selalu sama dengan kode |
