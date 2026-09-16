@@ -233,7 +233,9 @@ export default function LayarContoh() {
       <Kartu judul="Pengaturan rahasia (T0-05)">
         <p className="small muted">
           Hanya dua nilai ini yang boleh dibaca aplikasi (aman untuk publik). Kunci rahasia lain
-          hanya hidup di sisi peladen.
+          hanya hidup di sisi peladen. Di komputer pengembang nilainya dibaca dari berkas
+          aplikasi/.env yang tidak ikut Git; kalau belum ada, lencana di bawah berwarna kuning dan
+          aplikasi tetap terbuka.
         </p>
         <div className="row wrap-row">
           {env.map((butir) => (
