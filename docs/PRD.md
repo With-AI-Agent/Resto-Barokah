@@ -1,7 +1,8 @@
 # PRD — Resto Barokah
 
-> **Status dokumen: DRAF** — ditulis 2026-09-16, menunggu pemeriksaan & persetujuan pemilik.
-> Setelah disetujui, status berubah menjadi **Disetujui** dan proyek lanjut ke **Desain & UI** lalu **Tahap 3 (Tech Spec)**.
+> **Status dokumen: DISETUJUI** — ditulis 2026-09-16 dan **dikunci atas persetujuan pemilik pada 2026-09-16**
+> (pemilik: *"Mari lanjut"* setelah pemeriksaan). Lanjutan: **sesi Desain & UI**, lalu **Tahap 3 (Tech Spec)**.
+> Dokumen tetap **dokumen hidup** — perubahan wajib dicatat di **Log Pembaruan Dokumen (bagian 11)**.
 >
 > Dokumen ini menerjemahkan `docs/DISCOVERY.md` (yang sudah disetujui) menjadi: **apa yang dibangun
 > lebih dulu (MVP), bagaimana aturannya, dan bagaimana kami tahu fitur itu sudah benar-benar selesai.**
@@ -296,4 +297,5 @@ Mode offline · integrasi pembayaran otomatis (QRIS dinamis/e-wallet) · integra
 
 | Tanggal | Pembaruan | Oleh |
 |---|---|---|
-| 2026-09-16 | Dokumen dibuat (DRAF) dari Tahap 1 Discovery yang disetujui + pemilahan MoSCoW (2 giliran PRD: batas MVP, peran 6, voucher & katalog masuk MVP, alur campur, pajak configurable, hak akses berjenjang + approval, void bertingkat, diskon configurable, metrik sukses) | Agent, menunggu pemeriksaan pemilik |
+| 2026-09-16 | Dokumen dibuat (DRAF) dari Tahap 1 Discovery yang disetujui + pemilahan MoSCoW (2 giliran PRD: batas MVP, peran 6, voucher & katalog masuk MVP, alur campur, pajak configurable, hak akses berjenjang + approval, void bertingkat, diskon configurable, metrik sukses) | Agent |
+| 2026-09-16 | **Dokumen DISETUJUI & dikunci oleh pemilik** ("Mari lanjut") → lanjut ke sesi Desain & UI lalu Tahap 3 Tech Spec | Pemilik + Agent |

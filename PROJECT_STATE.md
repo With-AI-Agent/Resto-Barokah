@@ -5,6 +5,6 @@
 > selesai atau saat checkpoint. Ini bukan pengganti ROADMAP.md atau
 > DECISIONS_LOG.md — ini cuma penunjuk cepat harus mulai dari mana.
 
-STATUS: FONDASI_TAHAP_2_PRD
-DETAIL: Tahap 2 PRD — DRAF PRD.md sudah ditulis (12 kelompok fitur MVP M1-M12 dengan cerita pengguna/kriteria selesai/kasus tepi, fase 2 & 3, non-goals, alur pengguna, 13 aturan bisnis, risiko) dan MENUNGGU PEMERIKSAAN/PERSETUJUAN pemilik. Setelah disetujui: sesi Desain & UI (permintaan pemilik) lalu status naik ke FONDASI_TAHAP_3_TECH_SPEC
+STATUS: FONDASI_TAHAP_3_TECH_SPEC
+DETAIL: Tahap 2 PRD SELESAI (PRD.md dikunci pemilik 2026-09-16). SISIPAN atas permintaan pemilik: sesi DESAIN & UI berjalan — 10 contoh gambar + papan referensi siap (docs/desain/), pola desain & rancangan 4 tema ditulis di docs/desain/RENCANA_DESAIN_UI.md, menunggu keputusan pemilik (pola layar kasir, tema bawaan, tema per-peran) lalu mockup 3 gaya + prototipe bisa diklik. TECH_SPEC.md belum ditulis
 UPDATE TERAKHIR: 2026-09-16
