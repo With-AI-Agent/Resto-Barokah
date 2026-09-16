@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Jalankan SEMUA pemeriksaan yang sama dengan CI, di komputer sendiri.
+# Dipakai sebelum setiap kirim kode supaya CI tidak pernah kaget.
+#   bash aplikasi/alat/periksa-semua.sh
+set -euo pipefail
+
+APLIKASI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO="$(dirname "$APLIKASI")"
+
+echo "== aplikasi: kerapian kode =="
+(cd "$APLIKASI" && npm run format:check)
+echo "== aplikasi: aturan kode =="
+(cd "$APLIKASI" && npm run lint)
+echo "== aplikasi: tipe =="
+(cd "$APLIKASI" && npm run typecheck)
+echo "== aplikasi: uji unit =="
+(cd "$APLIKASI" && npm test)
+echo "== aplikasi: bangun =="
+(cd "$APLIKASI" && npm run build)
+echo "== pemeriksa Python =="
+(cd "$REPO" && python3 _sistem/validate_system.py)
+(cd "$REPO" && python3 alat/periksa-roadmap.py)
+(cd "$REPO" && python3 alat/periksa-fondasi-independen.py)
+(cd "$REPO" && python3 aplikasi/alat/periksa-struktur.py)
+(cd "$REPO" && python3 aplikasi/alat/periksa-komponen-env.py)
+(cd "$REPO" && python3 aplikasi/alat/uji-kontras.py)
+echo
+echo "SEMUA PEMERIKSAAN LOLOS."

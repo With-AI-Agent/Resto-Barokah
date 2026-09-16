@@ -77,7 +77,16 @@ python3 alat/periksa-fondasi-independen.py  # pemeriksa independen (sesi review)
 ```
 
 Semua pemeriksa juga dijalankan otomatis di GitHub Actions (`.github/workflows/ci.yml`)
-setiap kali ada kiriman kode.
+setiap kali ada kiriman kode. **Sebelum mengirim kode, jalankan semuanya dulu di
+komputer sendiri** supaya CI tidak pernah kaget:
+
+```bash
+bash aplikasi/alat/periksa-semua.sh
+```
+
+Pelajaran nyata (2026-09-16): CI pertama gagal dua kali justru karena hal yang tidak
+terlihat di komputer — folder kosong tidak ikut Git, dan satu berkas Markdown belum
+dirapikan. Karena itu perintah di atas wajib dijalankan sebelum kirim kode.
 
 ## Tautan dokumen proyek
 
