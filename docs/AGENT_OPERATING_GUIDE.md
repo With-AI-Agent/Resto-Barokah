@@ -131,7 +131,7 @@ Semua fase juga membaca `skills/find-skills` (untuk mencari skill yang belum ter
 
 - **Pesan ke pengguna:** (a) masalahnya dalam bahasa manusia · (b) yang bisa dilakukan sekarang · (c) kode pendek.
   Contoh: *"Maaf, pesanan belum tersimpan karena koneksi terputus. Pesanan ada di antrean dan akan terkirim sendiri. Kode: PS-104."*
-- **Bentuk seragam dari peladen:** `{ ok: true|false, data?, kode?, pesan? }`. Klien hanya menampilkan `pesan`, tidak menebak.
+- **Bentuk seragam dari peladen:** `{ berhasil: bool, kode: teks, pesan: teks, data: … }` (mengikuti `TECH_SPEC.md` §5 — sumber kebenaran). Klien hanya menampilkan `pesan`, tidak menebak.
 - **Kode error** berkelompok: `PS-1xx` pesanan · `BY-2xx` pembayaran · `VC-3xx` voucher · `KS-4xx` kas/shift ·
   `PR-5xx` printer · `AK-6xx` akun/izin · `UM-9xx` umum. Kode ditulis di tabel rujukan saat dibuat.
 - **Catatan masalah:** tabel `catatan_kesalahan` (waktu, peran, kode, konteks, tanpa data sensitif).

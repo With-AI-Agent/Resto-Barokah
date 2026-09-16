@@ -24,18 +24,19 @@ Kalau sudah dijawab → pindahkan barisnya ke tabel **Butir selesai** dengan sta
 
 | ID | Tanggal | Hal yang ditangguhkan | Kenapa boleh ditunda | Nilai sementara yang dipakai | Wajib selesai sebelum | Dijawab oleh | Status |
 |---|---|---|---|---|---|---|---|
-| T-001 | 2026-09-16 | **Nama produk platform** (kandidat: Langgan · Baraka · **Sajian** · Rame · Nota) | Tidak menghambat coding: hanya dipakai di judul aplikasi, manifest, dan domain | **"Sajian"** (bisa diganti 1 baris) | F0 tugas manifest PWA | pemilik | [ ] terbuka |
 | T-002 | 2026-09-16 | **Merek & tipe printer** Kedai Oasis + cara menyambungnya (Bluetooth/USB) | Belum dipakai sampai fase cetak; bisa dibangun lebih dulu dengan jalur cadangan digital | Protokol ESC/POS generik + cadangan digital | **F6 (cetak termal) mulai** | pemilik (tanya pengelola kedai) | [ ] terbuka |
 | T-003 | 2026-09-16 | **Daftar perangkat** yang dipakai (Android/iPhone/komputer) | Tidak menghambat: cadangan digital wajib; iPhone hanya perlu uji tambahan | Uji utama Android/Windows (Web Bluetooth didukung) | F11 (uji terima & uji perangkat) | pemilik | [ ] terbuka |
-| T-004 | 2026-09-16 | Apakah **semua pegawai punya email aktif** | Baru relevan saat penyiapan akun pegawai | Email + PIN; bila ada yang belum punya → opsi "admin membuatkan" | F2 (masuk aplikasi) saat penyiapan | pemilik | [ ] terbuka |
-| T-005 | 2026-09-16 | **Nilai pajak (PB1) & service charge nyata**, jam operasional, jumlah shift | Semuanya pengaturan yang bisa diubah tanpa koding (bawaan 10% & 5%) | PB1 10% · service 5% · 1 shift | F7 (kas & laporan) saat penyiapan Kedai Oasis | pemilik | [ ] terbuka |
-| T-006 | 2026-09-16 | **Tema bawaan aplikasi** (rekomendasi agent: "Terang Bersih") | Bisa diganti kapan saja tanpa koding (10 tema sudah jadi) | "Terang Bersih" | F9 (pengaturan tampilan) | pemilik | [ ] terbuka |
-| T-007 | 2026-09-16 | **Domain email sendiri** untuk pengiriman email verifikasi (Resend) | Email bisa jalan tanpa domain (batas lebih kecil & nama pengirim kurang rapi) | Kirim lewat Resend tanpa domain khusus | F8 (voucher/pelanggan) saat uji email nyata | pemilik | [ ] terbuka |
-| T-008 | 2026-09-16 | **Alamat domain aplikasi** (mis. sajian.app) | Baru dipakai saat deploy produksi | Domain sementara dari Cloudflare (gratis, *.workers.dev) | F11 (deploy produksi) | pemilik | [ ] terbuka |
-| T-009 | 2026-09-16 | **Aset sistem `skills/` (±26 MB) tetap dibawa di repo aplikasi?** | Tidak menghambat; hanya soal berat repo & kecepatan unduh | Tetap dibawa (dibutuhkan bootstrap skill tiap sesi) | F0 (rapikan repo aplikasi) | pemilik | [ ] terbuka |
+| T-010 | 2026-09-16 | **Pelatihan pegawai & penunjukan admin cabang** Kedai Oasis | Baru dibutuhkan di akhir gelombang; tidak menghambat pembangunan | Panduan pegawai 1 halaman (T11-09) + daftar uji terima | F11 (uji terima & pelatihan) | pemilik | [ ] terbuka |
+| T-011 | 2026-09-16 | **Kebijakan privasi & persetujuan data pelanggan** (PRD §10.7) | Harus ada SEBELUM data pelanggan dikumpulkan; sekarang belum ada data siapa pun | Agent menyiapkan draf sederhana berbahasa Indonesia + kotak persetujuan saat pendaftaran | **sebelum F8 (data pelanggan masuk)** | agent (draf) → pemilik (tinjau) | [ ] terbuka |
 
 ## Butir selesai
 
 | ID | Selesai | Hal | Jawaban/akhirnya |
 |---|---|---|---|
-| — | — | (belum ada) | — |
+| T-001 | 2026-09-16 | Nama produk platform | **Dipakai nama kerja "Sajian"** atas usul agent (pemilik menyerahkan keputusan). Bisa diganti kapan saja tanpa koding — kalau pemilik memilih nama lain, buat butir baru. |
+| T-004 | 2026-09-16 | Apakah semua pegawai punya email aktif | **Asumsi: ya**; kalau ada yang belum punya, admin membuatkan email saat penyiapan akun pegawai (opsi sudah ada di T2-03). |
+| T-005 | 2026-09-16 | Nilai pajak & service charge, jam operasional, jumlah shift | **Nilai awal: PB1 10% · service 5% · 1 shift.** Nilai nyata diisi saat penyiapan Kedai Oasis; semuanya pengaturan yang bisa diubah tanpa koding. |
+| T-006 | 2026-09-16 | Tema bawaan aplikasi | **"Terang Bersih"** (bisa diganti kapan saja, 10 tema sudah tersedia). |
+| T-007 | 2026-09-16 | Domain email sendiri untuk Resend | **Mulai tanpa domain khusus** (kirim lewat Resend). Ditinjau ulang bila email verifikasi sering masuk folder spam. |
+| T-008 | 2026-09-16 | Alamat domain aplikasi | **Mulai dengan alamat gratis `*.workers.dev`.** Domain sendiri menyusul bila pemilik sudah siap; penggantian tidak butuh ubah kode. |
+| T-009 | 2026-09-16 | Aset sistem `skills/` (±26 MB) di repo aplikasi | **Tetap dibawa** — dibutuhkan bootstrap sesi (`alat/mulai-sesi.py`) agar agent baru otomatis memasang skill. Ditinjau ulang bila repo terasa berat. |

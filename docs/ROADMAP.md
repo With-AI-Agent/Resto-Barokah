@@ -13,6 +13,29 @@
 > Rujukan: `docs/PRD.md` (M1–M12) · `docs/TECH_SPEC.md` (dikunci, ART-1…ART-10) · `docs/AGENT_OPERATING_GUIDE.md`
 > Lambang: ⚠️ = menyentuh Area Berisiko Tinggi (wajib tulis `docs/DECISIONS_LOG.md`) · ❓ = menunggu jawaban pemilik
 
+## Peta nama RPC resmi → tugas (hasil pemeriksaan silang Tahap 6)
+
+Sumber kebenaran nama: `docs/TECH_SPEC.md` §5. Setiap nama WAJIB dipakai persis oleh kode yang dibangun.
+
+| RPC (TECH_SPEC §5) | Dikerjakan di tugas |
+|---|---|
+| `buat_penyewa`, `set_status_penyewa`, `tambah_cabang` | T9-10, T9-09 |
+| `simpan_pengaturan`, `simpan_menu`, `simpan_meja`, `simpan_metode_bayar` | T9-01…T9-07, T9-11 |
+| `set_izin`, `simpan_pin`, `verifikasi_pin`, `ganti_pin` | T9-08, T1-06, T2-02 |
+| `simpan_pesanan`, `tambah_item`, `pindah_meja`, `kirim_ke_dapur` | T3-05, T3-06, T3-08 |
+| `set_status_item`, `tandai_habis` | T4-04, T4-05, T3-07 |
+| `bayar_pesanan`, `batal_pesanan`, `batal_item` | T5-02, T5-06, T5-07, T3-13 |
+| `buka_shift`, `tutup_shift`, `kas_pergerakan` | T7-01, T7-02, T7-03 |
+| `laporan_shift`, `laporan_harian`, `lihat_laporan` | T7-07…T7-12 |
+| `set_stok`, `opname_stok` | T4-06, T4-07 |
+| `katalog_publik` | T8-01 |
+| `cek_voucher`, `pakai_voucher`, `daftar_voucher` | T1-19, T1-20, T8-09 |
+| `set_akses_cabang` | T9-09 |
+| `keluar_semua_perangkat` | T10-06 |
+| `hitung_total` (fungsi, bukan RPC terpisah) | T1-15, T1-16 |
+
+Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: teks, pesan: teks, data: … }`.
+
 ---
 
 ## Fase 0 — Persiapan & rangka kerja
@@ -1025,6 +1048,7 @@
   - **Tujuan:** satu orang tidak bisa mengklaim berkali-kali dengan email berbeda-beda.
   - **Ref:** PRD M10 (pengaman anti-kecurangan 1–8); TECH_SPEC §9 ART-5/ART-10
   - **File:** `supabase/functions/verifikasi_pelanggan/index.ts`, `aplikasi/src/lib/emailNormalisasi.ts`, `supabase/tes/anti_email_palsu.sql`
+  - **Catatan:** ❓ T-011 (kebijakan privasi + kotak persetujuan) wajib ada SEBELUM tugas ini mengumpulkan data pelanggan pertama
   - **DoD:** email wajib terverifikasi (kecuali didaftarkan kasir dengan izin pelanggan & tercatat); email sekali-pakai ditolak; titik & tanda `+` pada Gmail dinormalisasi; satu identitas = satu voucher per kampanye; uji lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5) & Privasi (ART-10); mitigasi: daftar domain sekali-pakai + normalisasi + uji kasus.
@@ -1360,7 +1384,7 @@
 - [ ] T11-09 — Panduan pegawai (1 halaman) + pelatihan
   - **Tujuan:** pegawai baru bisa memakai sistem dalam 15 menit.
   - **Ref:** PRD §3 (metrik sukses: tanpa balik ke kertas)
-  - **File:** `docs/ops/PANDUAN_PEGAWAI.md`
+  - **File:** `docs/ops/PANDUAN_PEGAWAI.md` ❓ T-010 (pelatihan & penunjukan admin cabang)
   - **DoD:** panduan 1 halaman berisi 5 alur (buka kas → pesan → kirim dapur → bayar → tutup kas), 1 halaman untuk dapur, 1 halaman untuk pemilik (laporan); bahasa sangat sederhana; ada bagian "kalau ada masalah, lakukan ini".
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** panduan tidak dibaca → mitigasi: ditempel di dekat kasir & dapur + versi ringkas 6 langkah.
@@ -1387,7 +1411,7 @@
 - [x] Integrasi pihak ketiga punya task setup + uji: Supabase T0-08/T1-* · Google T2-04 · Resend T2-04/T2-05/T8-07 ❓ T-007 · Cloudflare+Wrangler T0-09/T11-07 · pg_cron T10-08
 - [x] Hal kecil tidak terlupakan: `README.md` T0-06 · `.env.example` T0-05 · favicon T0-01 · halaman error T2-08 · keadaan memuat/kosong/gagal T0-04/T3-15/T4-10 · a11y T0-04/T3-10/T11-05 · responsif T11-05 · panduan pegawai T11-09 · cadangan T11-10
 
-**Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-001 (nama produk) → T2-11 · T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-004 (email pegawai) → T2-03 · T-005 (pajak/jam) → T9-03 · T-007 (domain email) → T8-07 · T-008 (domain aplikasi) → T0-09, T11-07
+**Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07. Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009 sudah **ditutup** 2026-09-16 atas persetujuan pemilik (lihat tabel Butir selesai).
 
 **Jumlah tugas:** F0 10 · F1 22 · F2 12 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 14 · F9 12 · F10 8 · F11 10 = **146 tugas**, semuanya ber-7 atribut.
 
