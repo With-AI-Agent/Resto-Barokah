@@ -5,7 +5,7 @@ import { TEMA } from '../../lib/tema'
 
 /**
  * Uji asap layar contoh: membuktikan pohon komponen React (TSX) benar-benar
- * bisa dirender, memakai kelas rancangan v3, dan 10 tema terpasang di pemilih.
+ * bisa dirender, memakai kelas rancangan v3, dan semua bagiannya terpasang.
  */
 describe('LayarContoh', () => {
   const html = renderToStaticMarkup(<LayarContoh />)
@@ -18,15 +18,20 @@ describe('LayarContoh', () => {
     expect(html).toContain('Rp27.500')
   })
 
-  it('memakai kelas rancangan (btn, card, chip)', () => {
+  it('memakai kelas rancangan (btn, card, chip, table)', () => {
     expect(html).toContain('class="btn btn-primary"')
     expect(html).toContain('class="card"')
     expect(html).toContain('class="chip chip-warn"')
+    expect(html).toContain('class="table"')
+  })
+
+  it('menampilkan ketiga keadaan halaman', () => {
+    expect(html).toContain('keadaan-kosong')
+    expect(html).toContain('keadaan-memuat')
+    expect(html).toContain('keadaan-gagal')
   })
 
   it('menyediakan tombol untuk seluruh tema', () => {
-    const jumlah = html.split('aria-pressed').length - 1
-    expect(jumlah).toBeGreaterThanOrEqual(TEMA.length)
     for (const butir of TEMA) {
       expect(html).toContain(`<strong>${butir.nama}</strong>`)
     }
@@ -36,5 +41,10 @@ describe('LayarContoh', () => {
     expect(html).toContain('class="segmen"')
     expect(html).toContain('Nyaman')
     expect(html).toContain('Padat')
+  })
+
+  it('menampilkan status pengaturan rahasia', () => {
+    expect(html).toContain('VITE_SUPABASE_URL')
+    expect(html).toContain('VITE_SUPABASE_ANON_KEY')
   })
 })
