@@ -23,15 +23,17 @@ Kalau ADA: baca isinya, lihat nilai STATUS-nya, lalu ikuti instruksi yang sesuai
 
 Setelah kamu tahu posisi kita:
 
-1. Baca SYSTEM_MANIFEST.md dan STATUS.md di folder sistem-building-aplikasi/ (atau root bila standalone) untuk paham identitas, tahap, dan pekerjaan belum tersimpan.
-2. Verifikasi kondisi branch/working tree — branch arena/... dibuat otomatis platform lmarena; jangan asumsi main. Laporkan branch aktif, commit terakhir, dan working tree bersih/kotor.
-3. Cek dan laporkan semua PR yang masih terbuka (gh pr list --state all) — PR menggantung dari sesi lama bisa membuatmu bekerja dari dasar ketinggalan.
-4. Cari file LOG_SESI_*.md terbaru (di _log-sesi/ atau folder sistem-building-aplikasi/_log-sesi/). Kalau keadaannya OPEN, BACA dan laporkan keadaan sesi sebelumnya SEBELUM bertanya tujuan — jangan minta aku menjelaskan ulang konteks yang sudah tercatat di sana.
-5. Laporkan posisi: sedang di tahap/fase apa, dan apa yang akan kamu kerjakan sekarang — sebelum mulai bekerja.
-6. Berdasarkan jawabanku tentang tujuan sesi, baca sendiri file yang relevan (/docs/*, PROJECT_STATE.md, DECISIONS_LOG.md) — TANPA perlu aku tempel manual.
-7. Jangan menulis/eksekusi apa pun sebelum tujuan sesi dikonfirmasi.
+0. JALANKAN BOOTSTRAP SESI: python3 alat/mulai-sesi.py — script ini mencetak KARTU SESI: posisi proyek, keadaan branch/PR, log sesi terbaru, DAFTAR SKILL yang wajib kamu baca untuk fase sekarang, dan berkas fondasi yang wajib dibaca. Kalau script tidak ada/gagal, pakai tabel fase-ke-skill di docs/AGENT_OPERATING_GUIDE.md bagian 2.
+1. BACA sungguhan setiap berkas SKILL.md yang tercantum di KARTU SESI (beserta referensi yang ditunjuknya bila relevan) — jangan hanya menyebutnya. Semua skill sudah tersimpan lokal di skills/ (tidak perlu internet, tidak perlu npx). Kalau ada skill yang dibutuhkan fase ini tapi tidak ada di repo, LAPORKAN — jangan dilewati diam-diam.
+2. Baca SYSTEM_MANIFEST.md dan STATUS.md (identitas, tahap, pekerjaan belum tersimpan) + PROJECT_STATE.md (posisi sekarang).
+3. Verifikasi branch/working tree. Ingat fakta platform: branch arena/... dibuat otomatis dan tidak bisa diganti; base branch dipilih di awal sesi (rekomendasi: main); setiap sesi bisa memakai MODEL AI YANG BERBEDA; setelah PR di-merge atau di-close, akses sesi itu hilang. Laporkan branch aktif, jarak commit terhadap main, commit terakhir, dan working tree bersih/kotor.
+4. Cek dan laporkan semua PR (gh pr list --state all) — PR menggantung dari sesi lama bisa membuatmu bekerja dari dasar yang ketinggalan.
+5. Cari file LOG_SESI_*.md terbaru di _log-sesi/. Kalau keadaannya OPEN, BACA header Keadaan Sesi + kronologi terakhir, lalu LAPORKAN keadaan sesi sebelumnya SEBELUM bertanya tujuan — jangan minta aku menjelaskan ulang konteks yang sudah tercatat di sana.
+6. Laporkan posisi + KARTU SESI yang sudah terisi (termasuk: "Skill terpasang: N berkas dari M skill", fondasi yang dibaca, posisi sekarang, rencana sesi ini, yang dibutuhkan dariku) — SEBELUM mulai bekerja.
+7. Berdasarkan jawabanku tentang tujuan sesi, baca sendiri file yang relevan (docs/*, PROJECT_STATE.md, ROADMAP.md, DECISIONS_LOG.md) — TANPA perlu aku tempel manual.
+8. Jangan menulis/mengeksekusi apa pun sebelum tujuan sesi dikonfirmasi.
 
-Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task selesai, atau karena aku minta checkpoint), WAJIB update PROJECT_STATE.md + STATUS.md + tutup LOG_SESI (CLOSED) supaya sesi berikutnya tahu harus lanjut dari mana.
+Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task selesai, atau karena aku minta checkpoint): WAJIB perbarui PROJECT_STATE.md + STATUS.md + tutup LOG_SESI (CLOSED), COMMIT & PUSH semua pekerjaan (tanpa push, pekerjaan bisa hilang dan sesi berikutnya tidak bisa melanjutkan), lalu laporkan bahwa sesi aman ditutup.
 ```
 
 ---

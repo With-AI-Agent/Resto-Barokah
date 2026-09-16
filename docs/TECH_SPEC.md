@@ -123,7 +123,7 @@ peladen yang memutuskan dan mencatat.
   /tes/*.sql                    ← uji RLS & uji hitungan uang
 /prototipe                      ← contoh tampilan (sudah ada, tetap dipakai sebagai acuan desain)
 /docs                           ← DISCOVERY, PRD, TECH_SPEC (dokumen ini), ROADMAP, AGENT_OPERATING_GUIDE
-/tools                          ← skrip bantu (denyut harian, cadangan, pemeriksa)
+/alat                           ← skrip bantu (bootstrap sesi mulai-sesi.py, denyut harian, cadangan, pemeriksa)
 ```
 
 ---
