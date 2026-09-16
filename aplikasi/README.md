@@ -23,7 +23,10 @@ npm install        # sekali saja, mengunduh pustaka
 npm run dev        # aplikasi jalan; alamat muncul di layar
 ```
 
-Buka alamat yang muncul (biasanya `http://localhost:5173`). Halaman yang tampil
+Buka alamat yang muncul (biasanya `http://localhost:5173`). Kalau muncul pesan
+`vite: not found` (pustaka hilang setelah ruang kerja dinyalakan ulang), jalankan
+`bash aplikasi/alat/pratinjau.sh` — perintah itu memasang pustaka kalau perlu lalu
+menyalakan pratinjau. Halaman yang tampil
 sekarang adalah **layar contoh Fase 0** — dipakai untuk membuktikan tema,
 komponen, dan keadaan halaman sudah hidup. Layar sungguhan dibuat mulai Fase 2.
 
