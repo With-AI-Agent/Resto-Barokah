@@ -16,5 +16,14 @@ Desain produk Resto Barokah akan dibuat sendiri (orisinil) — tidak menyalin ka
 | 09-waiter-booking-app.webp | https://dribbble.com/tags/waiter-app | Contoh tema hangat (oranye) |
 | 10-waiter-android.webp | https://dribbble.com/tags/waiter_app | Contoh tampilan minimal satu warna |
 
-**Catatan kejujuran:** dari 10 gambar, **6 berguna** sebagai rujukan; 2 hanya slide presentasi; 2 resolusi terlalu kecil.
-Kesimpulan pola desain ada di `docs/desain/RENCANA_DESAIN_UI.md`.
+## Tambahan (pencarian kedua, 2026-09-16, menyusul kiriman pemilik)
+
+| Berkas | Sumber (halaman publik) | Catatan |
+|---|---|---|
+| 11-alur-keranjang-checkout.webp | https://www.behance.net/gallery/191213389/Food-App-Check-out-and-Cart-Page-UI | Alur HP: detail produk → keranjang → checkout (paling rapi di pencarian kedua) |
+| 12-dashboard-laporan-resto.jpg | https://multipurposethemes.com/blog/restaurant-dashboard-for-orders-sales-management | Contoh layar laporan: kartu angka + grafik + tabel |
+| 13-dashboard-gelap.webp | https://dribbble.com/tags/dark-admin | Contoh panel tema gelap |
+
+**Catatan kejujuran:** dari 10 gambar pertama, **6 berguna** sebagai rujukan; 2 hanya slide presentasi; 2 resolusi terlalu kecil.
+Dari pencarian kedua (3 gambar), hanya **11 dan 12** yang berguna; **13 sekadar contoh tema gelap**.
+Kesimpulan pola desain ada di `docs/desain/RENCANA_DESAIN_UI.md`; penilaian kiriman pemilik ada di `docs/desain/PENILAIAN_REFERENSI.md`.
