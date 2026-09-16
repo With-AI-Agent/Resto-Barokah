@@ -93,3 +93,15 @@ Format:
 - **File terkait:** `aplikasi/src/gaya/token/tema.css`, `aplikasi/src/gaya/token/dasar.css`, `aplikasi/src/gaya/komponen.css`, `aplikasi/src/lib/tema.ts`, `aplikasi/src/hook/useTema.ts`, `aplikasi/alat/periksa-struktur.py`, `aplikasi/tsconfig*.json`
 - **Implikasi:** menyentuh `tema.css` (mis. menyesuaikan tema) berarti mengubah kesepakatan desain → wajib lulus pemeriksa kontras + catatan di sini. Komponen baru wajib memakai kelas rancangan atau token; warna mentah akan menyalakan pemeriksa.
 
+### [Fase 0/2026-09-16] Bentuk komponen dasar, penanganan rahasia, dan gerbang CI
+- **Area:** Fondasi kode (dipakai semua layar; belum menyentuh uang/izin)
+- **Keputusan:**
+  1. **Satu komponen satu berkas** di `aplikasi/src/komponen/` (10 berkas) dan semuanya memakai kelas rancangan v3 (`btn`, `card`, `chip`, `table`, `input`, `segmen`) — dilarang menulis warna mentah; semua nilai dari token.
+  2. **Setiap layar wajib punya tiga keadaan**: kosong, memuat, gagal. Komponennya sudah disiapkan (`KeadaanKosong`, `KeadaanMemuat`, `KeadaanGagal`). `Tabel` otomatis menampilkan keadaan kosong kalau tidak ada baris — jadi tidak ada tabel kosong tanpa penjelasan.
+  3. **Lapis mengambang** (`Lapis`) memakai `role="dialog"` + `aria-modal`, menutup dengan Esc/klik latar, dan mengunci guliran halaman belakang. **Toast** memakai `role="status"` + `aria-live="polite"`, **KeadaanGagal** memakai `role="alert"`.
+  4. **Rahasia:** hanya `VITE_SUPABASE_URL` & `VITE_SUPABASE_ANON_KEY` boleh dibaca aplikasi; variabel rahasia **tidak boleh berawalan `VITE_`** (kalau berawalan, ikut terbundel ke peramban). `.env` diabaikan Git, `.env.example` ikut Git. `src/lib/env.ts` tidak meledak saat nilai belum diisi — layar yang membutuhkannya menampilkan `KeadaanGagal` dengan pesan bahasa Indonesia.
+  5. **Gerbang CI = sumber kebenaran.** Pemeriksaan yang sama wajib bisa dijalankan di komputer lewat `bash aplikasi/alat/periksa-semua.sh`. Pemeriksa Python ikut jalan di CI (bukan hanya di komputer agent).
+- **Alasan:** (1) keseragaman tampilan & satu tempat perbaikan; (2) syarat pemilik “tidak ada halaman kosong tanpa penjelasan” dan pengalaman pegawai di lapangan (jaringan kedai tidak selalu bagus); (3) aksesibilitas + keselamatan kerja (toast tidak boleh merebut fokus kasir); (4) kebocoran kunci adalah risiko Termahal yang bisa dicegah gratis; (5) CI pertama menemukan **dua cacat nyata** yang tidak terlihat di komputer (folder kosong tidak ikut Git, berkas Markdown belum dirapikan) — jadi “hijau di komputer” tidak boleh dipercaya tanpa CI.
+- **File terkait:** `aplikasi/src/komponen/*.tsx`, `aplikasi/src/gaya/komponen.css`, `aplikasi/src/lib/env.ts`, `aplikasi/.env.example`, `.github/workflows/ci.yml`, `aplikasi/alat/periksa-komponen-env.py`, `aplikasi/alat/periksa-semua.sh`
+- **Implikasi:** layar baru wajib memakai komponen ini (bukan menulis ulang gaya sendiri) dan wajib menyiapkan tiga keadaan. Nilai rahasia baru: tambahkan di tabel `TECH_SPEC.md` §6 dulu, lalu di `.env.example` sebagai komentar (tanpa awalan `VITE_`). Setiap kirim kode wajib menjalankan `periksa-semua.sh`.
+

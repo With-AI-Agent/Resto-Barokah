@@ -78,41 +78,41 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** token tercecer saat diubah manual → mitigasi: pindahkan berkas apa adanya, jangan ketik ulang.
   - **Verifikasi:** `prototipe/uji-kontras.py` versi aplikasi dijalankan (dibuat di T0-04) + inspeksi 3 tema secara visual. · **Bukti 2026-09-16:** `tema.css` identik byte-per-byte dengan `prototipe/css/tokens.css` (diperiksa otomatis), 19 berkas huruf tersalin dan semua rujukan `url()` di dalamnya ada di disk; 10 kode tema di `src/lib/tema.ts` sama persis dengan kode tema di token (diperiksa otomatis); warna `theme-color` peramban diambil dari token `--accent`, bukan ditulis di `index.html`; 20 uji unit hijau (format uang/tanggal/jam, tema & kerapatan, render layar contoh).
 
-- [ ] T0-04 — Komponen dasar + keadaan kosong/memuat/gagal + uji kontras aplikasi
+- [ ] T0-04 — Komponen dasar + keadaan kosong/memuat/gagal + uji kontras aplikasi (otomatis selesai 2026-09-16; menunggu bukti visual pemilik)
   - **Tujuan:** semua layar memakai komponen yang sama dan tidak pernah menampilkan halaman kosong tanpa penjelasan.
   - **Ref:** TECH_SPEC §3 (folder komponen); AGENT_OPERATING_GUIDE §3 (a11y)
-  - **File:** `aplikasi/src/komponen/*.tsx`, `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-kontras.py`
+  - **File:** `aplikasi/src/komponen/*.tsx`, `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-kontras.py`, `aplikasi/alat/periksa-komponen-env.py`, `aplikasi/src/layar/contoh/LayarContoh.tsx`
   - **DoD:** komponen Tombol, Kartu, Lapis (mengambang), Toast, Tabel, KolomIsian, KeadaanKosong, KeadaanMemuat, KeadaanGagal ada; target sentuh ≥44 px; fokus keyboard terlihat; uji kontras ≥95% pemeriksaan lulus.
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** komponen tidak konsisten → mitigasi: satu komponen satu berkas + token wajib + uji kontras otomatis.
-  - **Verifikasi:** `python3 aplikasi/alat/uji-kontras.py` lulus + tangkapan layar 1 halaman contoh. · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima.
+  - **Verifikasi:** `python3 aplikasi/alat/uji-kontras.py` lulus + tangkapan layar 1 halaman contoh. · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima. · **Bukti otomatis 2026-09-16:** `uji-kontras.py` versi aplikasi **166 lolos · 0 gagal** (130 pemeriksaan warna 10 tema + 36 aturan desain, termasuk tinggi sentuh ≥44 px); 10 komponen ada dan diperiksa `aplikasi/alat/periksa-komponen-env.py`; 17 uji komponen + 22 uji lain hijau; layar contoh `aplikasi/src/layar/contoh/LayarContoh.tsx` memperagakan semua komponen & ketiga keadaan halaman. **Yang masih kurang: bukti visual pemilik** (lihat pratinjau aplikasi) — setelah itu tugas ini ditandai `[x]`.
 
-- [ ] T0-05 — Berkas rahasia & variabel lingkungan
+- [x] T0-05 — Berkas rahasia & variabel lingkungan
   - **Tujuan:** kunci rahasia tidak pernah ikut ke git maupun ke perangkat pengguna.
   - **Ref:** TECH_SPEC §6 (env vars)
   - **File:** `aplikasi/.env.example`, `aplikasi/.gitignore`, `aplikasi/src/lib/env.ts`
   - **DoD:** `.env.example` memuat SEMUA var dari TECH_SPEC §6; `.gitignore` memuat `.env*` kecuali `.env.example`; hanya `VITE_SUPABASE_URL` & `VITE_SUPABASE_ANON_KEY` yang bisa dibaca klien; service-role key hanya di sisi peladen.
   - **Kompleksitas:** kecil (1 jam)
   - **Risiko & mitigasi:** kebocoran kunci rahasia → mitigasi: pemeriksa pola kunci di CI + tinjauan manual setiap commit yang menyentuh env.
-  - **Verifikasi:** `git check-ignore -v aplikasi/.env` (diabaikan) + `grep -r "service_role" aplikasi/src` tidak menemukan apa pun.
+  - **Verifikasi:** `git check-ignore -v aplikasi/.env` (diabaikan) + `grep -r "service_role" aplikasi/src` tidak menemukan apa pun. · **Bukti 2026-09-16:** `.env.example` memuat **semua 8 nama variabel** dari TECH_SPEC §6 (diperiksa otomatis dari dokumen, bukan dari daftar manual), hanya `VITE_SUPABASE_URL` & `VITE_SUPABASE_ANON_KEY` yang aktif (dua-duanya aman publik), variabel rahasia sengaja tidak berawalan `VITE_` dan hanya dikomentari; `git check-ignore` membuktikan `.env` diabaikan dan `.env.example` ikut Git; tidak ada kata `service_role` di dalam `aplikasi/src`; 10 pemeriksaan `python3 aplikasi/alat/periksa-komponen-env.py` hijau.
 
-- [ ] T0-06 — README aplikasi (cara menjalankan & peta folder)
+- [x] T0-06 — README aplikasi (cara menjalankan & peta folder)
   - **Tujuan:** agent sesi berikutnya (model apa pun) bisa menjalankan proyek tanpa menebak.
   - **Ref:** AGENT_OPERATING_GUIDE §8 (kerja lintas sesi)
   - **File:** `aplikasi/README.md`
   - **DoD:** memuat: prasyarat, langkah menjalankan, penjelasan tiap folder, daftar perintah npm, tautan ke `/docs`.
   - **Kompleksitas:** kecil (1 jam)
   - **Risiko & mitigasi:** README basi → mitigasi: diperbarui bila perintah berubah (dicatat di DoD tugas terkait).
-  - **Verifikasi:** ikuti README dari nol di folder sementara → berhasil.
+  - **Verifikasi:** ikuti README dari nol di folder sementara → berhasil. · **Bukti 2026-09-16:** folder `aplikasi/` disalin ke tempat bersih (tanpa `node_modules`/`dist`), lalu `npm ci` → Prettier → ESLint → TypeScript → 39 uji → build: **semuanya hijau** mengikuti langkah di README; README memuat prasyarat, cara menjalankan, peta folder, daftar perintah, aturan rahasia, daftar pemeriksa, dan bagian “sebelum mengirim kode”.
 
-- [ ] T0-07 — CI dasar (lint + tipe + uji unit)
+- [x] T0-07 — CI dasar (lint + tipe + uji unit)
   - **Tujuan:** setiap push diperiksa otomatis; tidak ada kode rusak yang lolos.
   - **Ref:** AGENT_OPERATING_GUIDE §5 (testing) & §4 (commit)
   - **File:** `.github/workflows/ci.yml`
   - **DoD:** CI menjalankan `npm ci`, `lint`, `typecheck`, `test`; gagal bila ada yang gagal; berlaku untuk branch sesi maupun PR.
   - **Kompleksitas:** kecil (1 jam)
   - **Risiko & mitigasi:** CI lambat/berbiaya → mitigasi: hanya GitHub Actions gratis untuk repo publik, tanpa langkah berbayar.
-  - **Verifikasi:** status CI hijau pada push pertama; sengaja membuat lint gagal di uji coba → CI merah.
+  - **Verifikasi:** status CI hijau pada push pertama; sengaja membuat lint gagal di uji coba → CI merah. · **Bukti 2026-09-16:** CI menyala di setiap push & pull request; gerbangnya benar-benar bekerja — (a) run 35121292973 **MERAH di langkah ESLint** saat sengaja dipasang variabel tidak terpakai (kode ujinya lalu dihapus), (b) run 35120922393 merah karena folder layar kosong tidak ikut Git, (c) run 35121062046 merah karena satu berkas Markdown belum dirapikan, dan (d) run **35121525551 hijau penuh** (npm ci → Prettier → ESLint → TypeScript → Vitest → build → 5 pemeriksa Python). Artinya: dua cacat nyata tertangkap CI, bukan cuma “hijau karena kebetulan”. Semua ini memakai jatah gratis GitHub Actions (repo privat 2.000 menit/bulan).
 
 - [ ] T0-08 — Proyek Supabase dibuat + klien aman tersambung
   - **Tujuan:** aplikasi bisa membaca data dari Supabase dengan kunci publik saja.
@@ -1483,3 +1483,6 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 | 2026-09-16 | Fase 0 dimulai: **T0-01, T0-02, T0-03 ditandai `[x]`** (repo React+TS+Vite, aturan kode otomatis, token v3 + pemilih tema/kerapatan) | Tiga tugas sudah bisa dibuktikan otomatis; sisa Fase 0 (T0-04…T0-07) menyusul, sedangkan T0-08/T0-09 menunggu akun pemilik (T0-00) |
 | 2026-09-16 | T0-01 memakai `favicon.svg` + `robots.txt`, bukan `favicon.ico` | Tidak ada alat pengubah ICO di lingkungan ini; SVG tetap tajam di semua ukuran dan didukung semua peramban modern; robots sengaja `Disallow: /` karena halaman butuh masuk |
 | 2026-09-16 | Pemeriksa baru `aplikasi/alat/periksa-struktur.py` (pohon folder dibaca dari `TECH_SPEC.md` §3, token diperiksa identik dengan prototipe, larangan warna mentah di luar token, kode tema aplikasi vs token) | Syarat pemilik "hasil tanpa masalah" harus dibuktikan alat, bukan klaim; uji mutasi membuktikan pemeriksa ini benar-benar menyala |
+| 2026-09-16 | T0-04…T0-07 selesai otomatis (komponen dasar + keadaan · rahasia/env · README · CI); T0-04 menunggu bukti visual pemilik sebelum ditandai `[x]` | Pemisahan tugas seperti itu sudah ditetapkan di tugasnya sendiri (bukti visual diambil manusia) |
+| 2026-09-16 | CI pertama menemukan 2 cacat nyata: **folder layar kosong tidak ikut Git** (clone bersih kehilangan 7 folder) dan satu berkas Markdown belum dirapikan | Bukti bahwa “hijau di komputer” tidak sama dengan “hijau di tempat lain” — pemeriksa struktur diperkuat (folder wajib harus terlacak Git) + dibuat `aplikasi/alat/periksa-semua.sh` yang menjalankan persis pemeriksaan CI |
+| 2026-09-16 | Pemeriksa baru `aplikasi/alat/periksa-komponen-env.py` + `aplikasi/alat/uji-kontras.py` (versi aplikasi) dan `aplikasi/alat/periksa-semua.sh` | Semua klaim Fase 0 harus dibuktikan alat: komponen wajib ada, kontras 166/166, tinggi sentuh ≥44 px, variabel rahasia lengkap, `.env` diabaikan Git |
