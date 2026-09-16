@@ -31,7 +31,9 @@ Tujuan: menyiapkan **dua akun gratis** supaya agent bisa menyambungkan aplikasi.
 
 ## Setelah selesai
 
-Katakan ke agent: **"akun Supabase & Cloudflare sudah siap"**, lalu berikan **Project URL** dan **anon key** saja. Agent mencatatnya di berkas rahasia lokal (tidak masuk Git) dan melanjutkan ke T0-01.
+Katakan ke agent: **"akun Supabase & Cloudflare sudah siap"**, lalu berikan **Project URL** dan **anon key** saja. Agent mencatatnya di berkas rahasia lokal (tidak masuk Git), menyambungkan aplikasi ke Supabase, lalu memasang aplikasi supaya bisa dibuka publik.
+
+**Posisi sekarang (2026-09-16):** persiapan aplikasi (T0-01 sampai T0-07, termasuk T0-10) **sudah selesai** — repo, aturan kode, tema, komponen, berkas rahasia, README, dan CI hijau. Sisa Fase 0 hanya **T0-08** (menyambung Supabase) dan **T0-09** (memasang aplikasi ke alamat publik), dan keduanya **baru bisa dikerjakan setelah dua akun di atas jadi**. Jadi panduan ini adalah langkah berikutnya yang ditunggu.
 
 ## Kalau macet
 

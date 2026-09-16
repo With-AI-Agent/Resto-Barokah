@@ -74,6 +74,8 @@ Berkas `.env` diabaikan Git; `.env.example` (contoh kosong) ikut Git.
 ```bash
 python3 aplikasi/alat/periksa-struktur.py   # struktur folder, token, larangan warna mentah
 python3 aplikasi/alat/uji-kontras.py        # kontras warna + aturan desain (10 tema)
+python3 aplikasi/alat/periksa-uji.py        # setiap berkas logika wajib punya uji
+python3 aplikasi/alat/periksa-komponen-env.py  # komponen wajib + aturan rahasia
 python3 _sistem/validate_system.py          # aturan dokumen & rahasia di repositori
 python3 alat/periksa-roadmap.py             # kelengkapan ROADMAP
 python3 alat/periksa-fondasi-independen.py  # pemeriksa independen (sesi review)

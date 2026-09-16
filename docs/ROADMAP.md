@@ -78,14 +78,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** token tercecer saat diubah manual → mitigasi: pindahkan berkas apa adanya, jangan ketik ulang.
   - **Verifikasi:** `prototipe/uji-kontras.py` versi aplikasi dijalankan (dibuat di T0-04) + inspeksi 3 tema secara visual. · **Bukti 2026-09-16:** `tema.css` identik byte-per-byte dengan `prototipe/css/tokens.css` (diperiksa otomatis), 19 berkas huruf tersalin dan semua rujukan `url()` di dalamnya ada di disk; 10 kode tema di `src/lib/tema.ts` sama persis dengan kode tema di token (diperiksa otomatis); warna `theme-color` peramban diambil dari token `--accent`, bukan ditulis di `index.html`; 20 uji unit hijau (format uang/tanggal/jam, tema & kerapatan, render layar contoh).
 
-- [ ] T0-04 — Komponen dasar + keadaan kosong/memuat/gagal + uji kontras aplikasi (otomatis selesai 2026-09-16; menunggu bukti visual pemilik)
+- [x] T0-04 — Komponen dasar + keadaan kosong/memuat/gagal + uji kontras aplikasi
   - **Tujuan:** semua layar memakai komponen yang sama dan tidak pernah menampilkan halaman kosong tanpa penjelasan.
   - **Ref:** TECH_SPEC §3 (folder komponen); AGENT_OPERATING_GUIDE §3 (a11y)
   - **File:** `aplikasi/src/komponen/*.tsx`, `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-kontras.py`, `aplikasi/alat/periksa-komponen-env.py`, `aplikasi/src/layar/contoh/LayarContoh.tsx`
   - **DoD:** komponen Tombol, Kartu, Lapis (mengambang), Toast, Tabel, KolomIsian, KeadaanKosong, KeadaanMemuat, KeadaanGagal ada; target sentuh ≥44 px; fokus keyboard terlihat; uji kontras ≥95% pemeriksaan lulus.
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** komponen tidak konsisten → mitigasi: satu komponen satu berkas + token wajib + uji kontras otomatis.
-  - **Verifikasi:** `python3 aplikasi/alat/uji-kontras.py` lulus + tangkapan layar 1 halaman contoh. · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima. · **Bukti otomatis 2026-09-16:** `uji-kontras.py` versi aplikasi **166 lolos · 0 gagal** (130 pemeriksaan warna 10 tema + 36 aturan desain, termasuk tinggi sentuh ≥44 px); 10 komponen ada dan diperiksa `aplikasi/alat/periksa-komponen-env.py`; 17 uji komponen + 22 uji lain hijau; layar contoh `aplikasi/src/layar/contoh/LayarContoh.tsx` memperagakan semua komponen & ketiga keadaan halaman. **Yang masih kurang: bukti visual pemilik** (lihat pratinjau aplikasi) — setelah itu tugas ini ditandai `[x]`.
+  - **Verifikasi:** `python3 aplikasi/alat/uji-kontras.py` lulus + tangkapan layar 1 halaman contoh. · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima. · **Bukti otomatis 2026-09-16:** `uji-kontras.py` versi aplikasi **166 lolos · 0 gagal** (130 pemeriksaan warna 10 tema + 36 aturan desain, termasuk tinggi sentuh ≥44 px); 10 komponen ada dan diperiksa `aplikasi/alat/periksa-komponen-env.py`; 17 uji komponen + 22 uji lain hijau; layar contoh `aplikasi/src/layar/contoh/LayarContoh.tsx` memperagakan semua komponen & ketiga keadaan halaman. **Bukti visual (pemilik) 2026-09-16:** pemilik membuka pratinjau aplikasi lalu menyatakan **“Lanjut”** — tampilan tema (10), kerapatan (nyaman/padat), lapis mengambang, dan ketiga keadaan halaman dinilai pantas. Dengan bukti otomatis + bukti visual itu, tugas ini ditandai `[x]`.
 
 - [x] T0-05 — Berkas rahasia & variabel lingkungan
   - **Tujuan:** kunci rahasia tidak pernah ikut ke git maupun ke perangkat pengguna.
@@ -133,14 +133,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** kuota gratis (100.000 permintaan/hari) → mitigasi: berkas statis tanpa batas; tidak memakai fungsi boros.
   - **Verifikasi:** buka URL publik di luar jaringan lokal; `curl -I` mengembalikan 200.
 
-- [ ] T0-10 — Vitest + uji contoh + skrip pemeriksa roadmap
+- [x] T0-10 — Vitest + uji contoh + skrip pemeriksa roadmap
   - **Tujuan:** kerangka uji siap sebelum kode uang/keamanan ditulis (TDD sejak awal).
   - **Ref:** AGENT_OPERATING_GUIDE §5; TECH_SPEC §11
-  - **File:** `aplikasi/vitest.config.ts`, `aplikasi/src/lib/format.test.ts`, `alat/periksa-roadmap.py`
+  - **File:** `aplikasi/vitest.config.ts`, `aplikasi/src/lib/format.test.ts`, `aplikasi/src/lib/tema.test.ts`, `aplikasi/src/lib/env.test.ts`, `aplikasi/src/hook/useJam.test.tsx`, `aplikasi/src/hook/useTema.test.tsx`, `aplikasi/src/komponen/komponen.test.tsx`, `aplikasi/alat/periksa-uji.py`, `alat/periksa-roadmap.py`
   - **DoD:** `npm test` lulus; uji contoh format rupiah ada; `python3 alat/periksa-roadmap.py` lulus di dokumen ROADMAP ini.
   - **Kompleksitas:** kecil (1,5 jam)
-  - **Risiko & mitigasi:** uji hanya formalitas → mitigasi: uji wajib untuk setiap fungsi uang/izin mulai Fase 1.
-  - **Verifikasi:** `npm test` hijau + `python3 alat/periksa-roadmap.py` hijau.
+  - **Risiko & mitigasi:** uji hanya formalitas → mitigasi: uji wajib untuk setiap fungsi uang/izin mulai Fase 1 — **dijaga alat**: `aplikasi/alat/periksa-uji.py` menolak kiriman kode kalau ada berkas logika di `src/lib` atau `src/hook` yang tidak punya berkas ujinya sendiri.
+  - **Verifikasi:** `npm test` hijau + `python3 alat/periksa-roadmap.py` hijau. · **Bukti 2026-09-16:** **51 uji hijau dalam 7 berkas** (uang/tanggal/jam · tema & kerapatan · pembacaan pengaturan · jam berdenyut · pemilih tema dengan jsdom · 17 uji komponen · layar contoh); kerangka siap untuk kode uang/izin — jsdom + @testing-library/react terpasang supaya hook bisa diuji seperti pemakaian nyata; pemeriksa baru `aplikasi/alat/periksa-uji.py` (6 OK · 0 GAGAL) menolak berkas logika tanpa uji (dibuktikan lewat uji mutasi); pemeriksa itu ikut jalan di CI; `alat/periksa-roadmap.py` LOLOS.
 
 ---
 
@@ -1486,3 +1486,6 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 | 2026-09-16 | T0-04…T0-07 selesai otomatis (komponen dasar + keadaan · rahasia/env · README · CI); T0-04 menunggu bukti visual pemilik sebelum ditandai `[x]` | Pemisahan tugas seperti itu sudah ditetapkan di tugasnya sendiri (bukti visual diambil manusia) |
 | 2026-09-16 | CI pertama menemukan 2 cacat nyata: **folder layar kosong tidak ikut Git** (clone bersih kehilangan 7 folder) dan satu berkas Markdown belum dirapikan | Bukti bahwa “hijau di komputer” tidak sama dengan “hijau di tempat lain” — pemeriksa struktur diperkuat (folder wajib harus terlacak Git) + dibuat `aplikasi/alat/periksa-semua.sh` yang menjalankan persis pemeriksaan CI |
 | 2026-09-16 | Pemeriksa baru `aplikasi/alat/periksa-komponen-env.py` + `aplikasi/alat/uji-kontras.py` (versi aplikasi) dan `aplikasi/alat/periksa-semua.sh` | Semua klaim Fase 0 harus dibuktikan alat: komponen wajib ada, kontras 166/166, tinggi sentuh ≥44 px, variabel rahasia lengkap, `.env` diabaikan Git |
+| 2026-09-16 | **T0-04 ditandai `[x]`** setelah bukti visual pemilik diterima (pemilik membuka pratinjau & menyatakan “Lanjut”) | Aturan bukti visual di tugas itu sendiri; bukti otomatis sudah lengkap sebelumnya |
+| 2026-09-16 | **T0-10 selesai**: kerangka uji diperkuat (jsdom + @testing-library/react, 51 uji) + pemeriksa baru `aplikasi/alat/periksa-uji.py` yang menolak berkas logika tanpa uji | Tujuan T0-10 adalah TDD sejak awal; risiko “uji hanya formalitas” dijawab dengan gerbang otomatis, bukan janji |
+| 2026-09-16 | Aturan baru: **pemulihan setelah ruang kerja dinyalakan ulang** (`aplikasi/alat/pratinjau.sh` + `alat/pulihkan-git.sh`) masuk `AGENT_OPERATING_GUIDE.md` §0 dan prompt pembuka universal | Kejadian nyata: setelah restart, pustaka aplikasi hilang (pratinjau mati) dan salinan Git lokal mundur ke `main` — sesi berikutnya (model apa pun) harus tahu cara memulihkan tanpa menebak |

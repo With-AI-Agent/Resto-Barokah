@@ -39,6 +39,22 @@ dari branch dasar yang dipilih di awal sesi.
 - **Status per 2026-09-16:** seluruh pekerjaan masih berada di branch `arena/01a0a8a2-resto-barokah` dan
   **BELUM masuk `main`**. Sebelum membuka sesi baru, PR-nya harus di-merge lebih dulu.
 
+### Kalau ruang kerja dinyalakan ulang (pulih cepat — pelajaran 2026-09-16)
+
+Ruang kerja bisa restart di tengah proyek. Dua hal yang biasa rusak **bukan karena kode kita**:
+
+| Gejala | Sebab | Pemulihan |
+|---|---|---|
+| Pratinjau mati, pesan `vite: not found` | `node_modules` hilang (sengaja tidak disimpan) | `bash aplikasi/alat/pratinjau.sh` (memasang pustaka ±3 detik lalu menyalakan pratinjau) |
+| Riwayat Git lokal mundur (HEAD kembali ke `main`, berkas kerja hilang) | salinan Git lokal ter-reset; pekerjaan terbaru hanya ada di GitHub | `bash alat/pulihkan-git.sh` (memeriksa) → `bash alat/pulihkan-git.sh --perbaiki` (memulihkan) |
+
+Aturan yang tidak boleh dilanggar saat memulihkan:
+
+- **Jangan menulis ulang berkas dari ingatan.** Ambil dari GitHub (`git fetch` lalu `git restore --source=origin/<cabang>`); ingatan model bukan sumber kebenaran.
+- **Jangan pernah** `git reset --hard`, `git push --force`, atau menghapus branch. Pemulihan resmi = `git reset --soft` + `git restore --source=…` (lihat `alat/pulihkan-git.sh`).
+- Kalau ada perubahan belum di-commit, **berhenti**: periksa dulu (`git status`), commit/simpan, baru pulihkan. Pemulih sengaja menolak jalan pada ruang kerja kotor.
+- Setelah pulih: jalankan `bash aplikasi/alat/periksa-semua.sh`, lalu **commit + push lagi** — supaya kejadian yang sama tidak mengulang.
+
 ---
 
 ## 1. Profil User (pemilik non-teknis)
@@ -264,3 +280,4 @@ yang aman) tanpa pertanyaan; pemilik hanya perlu mengetik "lanjut" lagi untuk ba
 | 2026-09-16 | Penamaan folder alat disamakan → `alat/` (draf `docs/TECH_SPEC.md` §3 sebelumnya menulis `/tools`) | Menghindari dua nama untuk hal yang sama saat coding dimulai (perubahan kecil-teknis, dicatat) |
 | 2026-09-16 | §0 ditambah **Gerbang pindah sesi**: pekerjaan hanya terlihat sesi berikutnya bila sudah di-merge ke `main` | Temuan nyata: `main` masih di commit lama sementara seluruh pekerjaan ada di branch sesi — tanpa merge, sesi baru akan "buta" |
 | 2026-09-16 | §13 **Mode Maraton & Daftar Tunggu** + berkas baru `docs/TERTANGGUH.md` + `alat/mulai-sesi.py` membacakannya | Permintaan pemilik: agent lanjut bekerja tanpa berhenti; yang bisa ditunda ditangguhkan, tetapi **wajib tercatat & wajib terbaca tiap sesi** |
+| 2026-09-16 | §0 ditambah **Kalau ruang kerja dinyalakan ulang** + alat baru `alat/pulihkan-git.sh` & `aplikasi/alat/pratinjau.sh`, dan satu butir pemulihan di prompt pembuka universal | Kejadian nyata: setelah restart, `node_modules` hilang (pratinjau mati dengan `vite: not found`) dan salinan Git lokal mundur ke `main`. Tanpa prosedur tertulis, sesi berikutnya (model berbeda) bisa menebak-nebak atau — lebih buruk — menulis ulang berkas dari ingatan |

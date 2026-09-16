@@ -23,6 +23,7 @@ echo "== pemeriksa Python =="
 (cd "$REPO" && python3 alat/periksa-fondasi-independen.py)
 (cd "$REPO" && python3 aplikasi/alat/periksa-struktur.py)
 (cd "$REPO" && python3 aplikasi/alat/periksa-komponen-env.py)
+(cd "$REPO" && python3 aplikasi/alat/periksa-uji.py)
 (cd "$REPO" && python3 aplikasi/alat/uji-kontras.py)
 echo
 echo "SEMUA PEMERIKSAAN LOLOS."
