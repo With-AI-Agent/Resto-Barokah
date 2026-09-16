@@ -315,6 +315,31 @@ def uji_terlacak_git(pohon: list[tuple[str, bool]]) -> None:
         catat(ok, "OK", "semua folder wajib ikut Git (aman di clone bersih)")
 
 
+def uji_artefak_build() -> None:
+    """Artefak build tidak boleh ikut Git.
+
+    Pelajaran 2026-09-16: `tsconfig.app.tsbuildinfo` (berkas kerja alat pemeriksa
+    tipe) ikut ter-commit sejak commit Fase 0 pertama. Sampah seperti ini membuat
+    repo membengkak dan diff berisik.
+    """
+    if not (AKAR_REPO / ".git").exists():
+        catat(info, "INFO", "bukan repositori Git: pemeriksaan artefak build dilewati")
+        return
+    hasil = subprocess.run(
+        ["git", "ls-files"], cwd=str(AKAR_REPO), capture_output=True, text=True
+    )
+    terlarang = [
+        baris
+        for baris in hasil.stdout.splitlines()
+        if baris.startswith(("aplikasi/node_modules/", "aplikasi/dist/", "aplikasi/coverage/"))
+        or baris.endswith((".tsbuildinfo", ".log"))
+    ]
+    if terlarang:
+        catat(gagal, "GAGAL", f"artefak build ikut Git (harus diabaikan): {terlarang[:5]}")
+    else:
+        catat(ok, "OK", "tidak ada artefak build yang ikut Git (node_modules/dist/*.tsbuildinfo)")
+
+
 def main() -> int:
     pohon = jelaskan_baris(pohon_dari_tech_spec())
     uji_pohon(pohon)
@@ -323,6 +348,7 @@ def main() -> int:
     uji_berkas_dasar()
     uji_berkas_gaya()
     uji_warna_dan_tema()
+    uji_artefak_build()
 
     for baris in ok:
         print(baris)
