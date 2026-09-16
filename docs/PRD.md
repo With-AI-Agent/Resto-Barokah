@@ -174,15 +174,23 @@ harus terbukti) + **kasus tepi** (hal-hal yang biasanya bikin aplikasi gagal di 
 - **Kriteria selesai:** tambah cabang · tiap cabang punya nama/alamat & printer sendiri · laporan per cabang + gabungan untuk owner · admin cabang hanya melihat cabangnya · **harga & menu boleh berbeda per cabang** (diatur, tidak wajib).
 - **Kasus tepi:** pegawai merangkap dua cabang (izin per cabang) · cabang ditutup sementara (dinonaktifkan, data lama tetap ada).
 
-### M12. Keamanan fondasi (lintas fitur)
-- **Cerita:** Sebagai **Pemilik semua pihak**, saya ingin yakin data & uang aman dari kesalahan maupun kecurangan, supaya platform layak dipercaya.
+### M12. Keamanan fondasi (lintas fitur) — **diperdalam 2026-09-17**
+> **Rujukan resmi: `docs/KEAMANAN.md`.** Bagian ini adalah janji ke pemilik; aturan teknisnya ada di sana.
+- **Cerita:** Sebagai **Pemilik semua pihak**, saya ingin yakin data & uang aman dari kesalahan maupun kecurangan — termasuk bila perangkat hilang atau pegawai berhenti — supaya platform layak dipercaya.
 - **Kriteria selesai:**
-  - Data terisolasi antar-penyewa dan antar-cabang (diuji dengan akun berbeda).
-  - Setiap pegawai punya akun + PIN sendiri; sesi berakhir otomatis saat tidak dipakai.
-  - Tindakan sensitif butuh PIN + tercatat (jejak audit).
-  - Verifikasi pelanggan: Google Sign-In (utama) / email terverifikasi (kedua); tanpa SMS di tahap ini.
-  - **Tidak ada data keuangan yang bisa dihapus permanen** oleh pengguna biasa; koreksi selalu berbentuk pencatatan baru.
-- **Kasus tepi:** akun pegawai dipakai orang lain (PIN + catatan aktivitas) · perangkat hilang (sesi bisa diakhiri dari perangkat lain oleh owner) · percobaan masuk berulang (dibatasi).
+  - Data terisolasi antar-penyewa dan antar-cabang; diuji **otomatis untuk setiap peran × tabel × tindakan**, bukan sekadar dua akun contoh.
+  - **Satu akun = satu peran.** Satu orang dengan dua fungsi punya **dua akun** (PIN berbeda); izin (centang) tetap boleh berbeda per pegawai.
+  - **Bagian staf hanya bisa dibuka dari perangkat terdaftar**: perangkat didaftarkan admin/owner lewat kode sekali pakai, dan pegawai baru yang pertama memakai perangkat itu **harus disetujui pemilik**. Perangkat menyimpan identitas rahasianya; "Tablet Kasir" tidak bisa dipakai masuk sebagai owner.
+  - **Masuk cepat:** kasir/pelayan/dapur = pilih nama + **PIN 6 digit** (hanya sah di perangkat terdaftar). Admin/owner/pemilik platform = kata sandi ≥12 karakter + **kunci kedua (TOTP/authenticator)** yang **wajib**.
+  - **Perangkat hilang/dicuri:** owner menekan "Cabut perangkat" → akses mati **seketika** (bukan menunggu kedaluwarsa); bisa menandai "hilang", mengakhiri sesi, dan melihat perangkat terakhir aktif.
+  - **Sesi:** token pendek (15 menit), umur maksimum sesi (staf 12 jam · admin/owner 30 hari · pemilik platform 8 jam), **kunci otomatis saat menganggur** (15–60 menit sesuai peran) + tombol "Kunci sekarang"; percobaan masuk dibatasi (5×/15 menit per akun, 12×/15 menit per perangkat) dan semuanya tercatat.
+  - **PIN:** unik antar pegawai, dilarang pola lemah, disimpan ter-hash, tidak pernah ditulis di log, dipakai juga untuk menyetujui tindakan sensitif (void setelah dapur, diskon di atas batas, pakai voucher).
+  - **Jejak audit tidak bisa diakali:** hanya-tambah **dan** berantai hash — perubahan/penghapusan langsung di database bisa dideteksi dan ditunjuk barisnya.
+  - **Ringkasan peringatan harian ke owner** (1 email/hari): omzet, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat.
+  - **Privasi pelanggan (UU PDP):** persetujuan eksplisit, data seminimal mungkin, hak akses/hapus (anonimisasi tanpa menghapus catatan keuangan), dan pemberitahuan kebocoran ≤3×24 jam.
+  - **Pemilik platform tidak melihat isi data penyewa** kecuali lewat "mode dukungan" (beralasan, berbatas waktu, hanya-baca, tercatat, owner penyewa diberitahu).
+  - **Tidak ada data keuangan yang bisa dihapus permanen**; koreksi selalu pencatatan baru.
+- **Kasus tepi:** PIN dilihat/dibagikan orang lain (PIN unik + batas percobaan + laporan "siapa menyetujui apa") · perangkat hilang (cabut + ganti PIN) · pegawai berhenti (nonaktif = sesi & perangkat dicabut seketika) · HP admin hilang (MFA direset atasan dengan langkah terdokumentasi) · internet kedai mati saat perangkat terkunci (prosedur catat manual sementara di Buku Insiden) · percobaan masuk berulang (dibatasi + dicatat) · pegawai pindah cabang (daftar cabang akun diubah, tercatat).
 
 ---
 
@@ -262,6 +270,11 @@ Mode offline · integrasi pembayaran otomatis (QRIS dinamis/e-wallet) · integra
 11. **Tidak ada penghapusan permanen** data transaksi oleh pengguna; koreksi = pencatatan baru (koreksi) yang tercatat.
 12. **Zona waktu & mata uang** per penyewa (bawaan: Waktu Indonesia Barat, Rupiah).
 13. **Fitur baru hanya rilis setelah diuji**; fitur yang belum teruji tidak ditampilkan ke pengguna (prinsip "tidak ada yang cacat").
+14. **Satu akun = satu peran.** Satu orang dengan dua fungsi memakai dua akun dengan PIN berbeda; izin (centang) boleh berbeda per pegawai.
+15. **Bagian staf hanya bisa dibuka dari perangkat terdaftar**; pegawai baru yang pertama memakai perangkat harus disetujui pemilik. Perangkat hilang/dicuri → akses dicabut **seketika** (berlaku pada permintaan berikutnya) dan wajib dicatat.
+16. **Kunci kedua (TOTP) wajib untuk Pemilik Platform, Owner Pusat, dan Admin Cabang**; kasir/pelayan/dapur sudah dua lapis (perangkat + PIN).
+17. **Setiap tombol/aksi di aplikasi wajib terdaftar dan diuji** (Registri Aksi + pemeriksa otomatis); tidak ada tombol tanpa fungsi, tidak ada layar tanpa penanganan keadaan kosong/memuat/gagal/tanpa-akses.
+18. **Data pelanggan diproses dengan persetujuan & minimalisasi** (UU PDP): data boleh dianonimkan atas permintaan, tetapi catatan keuangan tidak dihapus.
 
 ---
 
@@ -277,6 +290,9 @@ Mode offline · integrasi pembayaran otomatis (QRIS dinamis/e-wallet) · integra
 | 6 | Ruang lingkup besar (semua alur, semua bisa diatur) | Tidak ada yang selesai | Gelombang G1→G2→G3 + aturan "gelombang berikutnya tidak dimulai sebelum lulus uji" |
 | 7 | Pengalaman pemilik nol coding | Salah paham saat pengujian | Semua laporan uji memakai bahasa sehari-hari + langkah satu-satu |
 | 8 | Kebijakan/aturan data pelanggan (privasi) | Kehilangan kepercayaan penyewa | Sampaikan kebijakan data & persetujuan pelanggan di Tahap 3/4; data pelanggan seminimal mungkin |
+| 9 | **Perangkat staf hilang/dicuri** (tablet kasir, HP admin) | Orang lain bisa memakai akun kasir; MFA admin tidak bisa dibuka | Perangkat terdaftar + PIN + kunci otomatis + **pencabutan seketika**; jalan pemulihan MFA (owner/pemilik platform) ada di `docs/teknis/BUKU_INSIDEN.md` |
+| 10 | **Ketaatan UU PDP** (data pelanggan voucher) | Denda administratif s.d. 2% pendapatan tahunan + risiko pidana | Persetujuan eksplisit, minimalisasi, anonimisasi atas permintaan, pemberitahuan kebocoran ≤3×24 jam (template disiapkan) |
+| 11 | **HP pegawai hilang = kerja terhenti** (karena TOTP wajib) | Admin cabang tidak bisa bekerja sampai MFA direset | Jalan pemulihan cepat & terdokumentasi (owner pusat / pemilik platform) + dicatat + dinotifikasi |
 
 ---
 
@@ -288,8 +304,10 @@ Mode offline · integrasi pembayaran otomatis (QRIS dinamis/e-wallet) · integra
 4. **Daftar pegawai Kedai Oasis yang akan dilatih pertama & siapa admin cabangnya** — perlu saat uji pilot.
 5. **Berapa lama periode uji pilot** sebelum dianggap memenuhi metrik (usulan: 1 bulan operasional penuh).
 6. **Rencana penyewa kedua** — calon berikutnya & kapan ditawarkan (menentukan prioritas fitur fase 2).
-7. **Kebijakan privasi & persetujuan data pelanggan** — dibahas di Tahap 3/4.
+7. **Kebijakan privasi & persetujuan data pelanggan** — sejak 2026-09-17 menjadi bagian **Fase 1B** (`docs/KEAMANAN.md` §11): agent menulis draf berbahasa Indonesia + kalimat persetujuan di halaman voucher; pemilik meninjau **sebelum data pelanggan pertama masuk** (butir tertangguh T-011).
 8. **Keputusan mode offline untuk penyewa selain Kedai Oasis** — fase 3, dikaji saat ada calon penyewa dengan internet lemah.
+9. **Region proyek Supabase** (usul: Singapore) — diputuskan pemilik saat T0-08; menentukan lokasi data pelanggan & dasar transfer (T-014).
+10. **Tablet Android yang dipakai untuk mode terkunci satu-aplikasi (kiosk)** — daftar perangkat nyata dibutuhkan saat penyiapan Kedai Oasis; panduan mode kiosk ditulis agent (T-015).
 
 ---
 
@@ -299,3 +317,4 @@ Mode offline · integrasi pembayaran otomatis (QRIS dinamis/e-wallet) · integra
 |---|---|---|
 | 2026-09-16 | Dokumen dibuat (DRAF) dari Tahap 1 Discovery yang disetujui + pemilahan MoSCoW (2 giliran PRD: batas MVP, peran 6, voucher & katalog masuk MVP, alur campur, pajak configurable, hak akses berjenjang + approval, void bertingkat, diskon configurable, metrik sukses) | Agent |
 | 2026-09-16 | **Dokumen DISETUJUI & dikunci oleh pemilik** ("Mari lanjut") → lanjut ke sesi Desain & UI lalu Tahap 3 Tech Spec | Pemilik + Agent |
+| 2026-09-17 | **M12 diperdalam** atas permintaan pemilik (pesan ke-14): satu akun satu peran · perangkat terdaftar (kode pendaftaran + persetujuan pemilik) · masuk staf = perangkat + PIN 6 digit · TOTP wajib untuk Pemilik Platform/Owner/Admin Cabang + jalan pemulihan · kunci otomatis & batas umur sesi · pencabutan seketika · ringkasan peringatan harian · audit berantai · privasi UU PDP · mode dukungan · **Aturan Bisnis 14–18 baru** · risiko #9–#11 baru | Pemilik (permintaan) + Agent (rancangan & riset; rincian di `docs/KEAMANAN.md`) |

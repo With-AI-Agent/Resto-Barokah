@@ -136,7 +136,17 @@ Semua fase juga membaca `skills/find-skills` (untuk mencari skill yang belum ter
 3. **Uji tampilan statis** — `prototipe/uji-kontras.py` + `prototipe/alat/periksa-halaman.py` (diperluas ke aplikasi):
    kontras, aturan desain, target sentuh, struktur halaman.
 4. **Uji alur (Playwright, di CI/lingkungan pengembangan)** — 7 alur wajib: buka shift → pesan → kirim dapur → bayar →
-   cetak → void berjenjang → tutup kas, ditambah alur voucher & katalog publik.
+   cetak → void berjenjang → tutup kas, ditambah alur voucher & katalog publik. **Catatan 2026-09-17:** Chromium
+   **tidak bisa diunduh di ruang kerja agent** (sudah dicoba, gagal) → uji peramban **hanya jalan di CI**; jaring lokal
+   penggantinya = uji SQL + uji komponen (jsdom) + pemeriksa statis. Dilarang mengklaim "teruji di peramban" bila
+   uji itu belum jalan di CI.
+4b. **Uji komponen per layar (WAJIB sejak 2026-09-17, rincian `docs/SPESIFIKASI_UI.md` §6):** tiap aksi di Registri Aksi
+   dibuktikan memanggil RPC yang benar untuk peran yang berizin, dan **tidak ada** untuk peran terlarang; ketujuh keadaan
+   (kosong/memuat/gagal/menunggu terkirim/tanpa akses/data sebagian/berhasil) punya ujinya sendiri.
+4c. **Uji keamanan akun & perangkat (WAJIB, `docs/KEAMANAN.md` §14):** peran × aksi · perangkat tidak terdaftar ·
+   pencabutan seketika · sesi lewat umur · kunci percobaan masuk · PIN lemah/kembar · rantai audit · mode dukungan.
+4d. **Uji pemanggilan RPC langsung:** penolakan **tidak boleh** hanya di layar — peran tanpa izin yang memanggil RPC
+   langsung (tanpa lewat UI) wajib ditolak database; ini yang membedakan "disembunyikan" dari "diamankan".
 5. **Uji mesin/nyata** — cetak struk di printer Kedai Oasis (risiko #1 PRD) sebelum gelombang berikutnya dimulai.
 6. **Daftar uji terima bahasa manusia** ditulis di akhir tiap gelombang untuk pemilik (contoh:
    *"Coba bayar tanpa memilih meja → harus muncul pesan jelas"*).
@@ -166,6 +176,16 @@ Sebuah task hanya boleh ditandai `[x]` bila **semua** tercentang:
 - [ ] Commit + push; repo bersih
 - [ ] `PROJECT_STATE.md` + `STATUS.md` + LOG_SESI diperbarui (langkah terakhir)
 - [ ] Laporan bahasa manusia ke pemilik: apa yang berubah · artinya · apa berikutnya
+
+**Tambahan untuk tugas UI (DoD v2 — 2026-09-17; rincian `docs/SPESIFIKASI_UI.md` §6):**
+
+- [ ] Kontrak layar ditulis lengkap (tujuan · peran · jalan masuk · data · aksi · **7 keadaan** · bukti)
+- [ ] Semua aksi layar ada di **Registri Aksi** (`aplikasi/src/lib/aksi.ts`) dengan izin/RPC/pesan/uji
+- [ ] Tombol dirender lewat `TombolAksi` (tombol mentah dilarang di folder `layar/`)
+- [ ] Uji komponen per peran lulus (aksi berizin memanggil RPC benar; aksi terlarang tidak tampil)
+- [ ] Pemeriksa `python3 alat/peta-ui.py --periksa` lulus + `docs/PETA_UI.md` sudah diperbarui (hasil generate)
+- [ ] Naskah jalan bernomor `W-<fase>-<nomor>` ditulis & **dijalankan** di pratinjau; hasil dicatat di blok Bukti ROADMAP
+- [ ] Izin ditegakkan di database (dibuktikan uji SQL), bukan hanya disembunyikan di layar
 
 ## 8. Cara Kerja Agent Lintas Sesi
 
@@ -227,7 +247,8 @@ Bila sesi berlanjut di hari sama → `LOG_SESI_2026-09-16_2.md`. Penutupan log: 
 - **Perubahan yang menyentuh janji ke pemilik** (fitur, tampilan, biaya, waktu, aturan bisnis): **STOP** →
   tulis usulan 2–3 pilihan + untung/rugi + rekomendasi → tunggu keputusan pemilik → **baru** ubah dokumen + catat tanggal & alasan.
 - Dokumen yang sudah dikunci **tidak dihapus/ditimpa tanpa jejak** — riwayat selalu ditulis.
-- Khusus `docs/TECH_SPEC.md`: apa pun yang menyentuh **ART-1…ART-10** wajib lewat `DECISIONS_LOG.md` + persetujuan pemilik.
+- Khusus `docs/TECH_SPEC.md`: apa pun yang menyentuh **ART-1…ART-15** wajib lewat `DECISIONS_LOG.md` + persetujuan pemilik.
+- **Dokumen mengikat yang ditambahkan 2026-09-17** (disetujui pemilik): `docs/KEAMANAN.md` (aturan keamanan akun/perangkat/sesi/uang/audit/privasi — mengalahkan ringkasan di TECH_SPEC §8 bila berbeda) dan `docs/SPESIFIKASI_UI.md` (kelengkapan layar/tombol — mengikat semua tugas UI). Perubahannya mengikuti aturan yang sama: menyentuh janji ke pemilik → usul dulu; teknis → catat di Log Keputusan dokumen itu + DECISIONS_LOG.md.
 
 ## 12. Stop Conditions (wajib berhenti & bertanya)
 
@@ -281,3 +302,4 @@ yang aman) tanpa pertanyaan; pemilik hanya perlu mengetik "lanjut" lagi untuk ba
 | 2026-09-16 | §0 ditambah **Gerbang pindah sesi**: pekerjaan hanya terlihat sesi berikutnya bila sudah di-merge ke `main` | Temuan nyata: `main` masih di commit lama sementara seluruh pekerjaan ada di branch sesi — tanpa merge, sesi baru akan "buta" |
 | 2026-09-16 | §13 **Mode Maraton & Daftar Tunggu** + berkas baru `docs/TERTANGGUH.md` + `alat/mulai-sesi.py` membacakannya | Permintaan pemilik: agent lanjut bekerja tanpa berhenti; yang bisa ditunda ditangguhkan, tetapi **wajib tercatat & wajib terbaca tiap sesi** |
 | 2026-09-16 | §0 ditambah **Kalau ruang kerja dinyalakan ulang** + alat baru `alat/pulihkan-git.sh` & `aplikasi/alat/pratinjau.sh`, dan satu butir pemulihan di prompt pembuka universal | Kejadian nyata: setelah restart, `node_modules` hilang (pratinjau mati dengan `vite: not found`) dan salinan Git lokal mundur ke `main`. Tanpa prosedur tertulis, sesi berikutnya (model berbeda) bisa menebak-nebak atau — lebih buruk — menulis ulang berkas dari ingatan |
+| 2026-09-17 | §5 ditambah **uji komponen per layar**, **uji keamanan akun/perangkat**, dan **uji pemanggilan RPC langsung**; §7 ditambah **DoD v2 untuk tugas UI**; §11 menyebut dokumen mengikat baru (`docs/KEAMANAN.md`, `docs/SPESIFIKASI_UI.md`) & ART-1…ART-15 | Permintaan pemilik (pesan ke-14): pengalaman proyek sebelumnya banyak tombol kurang & fungsi "katanya ada"; plus keamanan akun/perangkat harus matang sebelum lanjut. Rincian: `docs/SPESIFIKASI_UI.md` + `docs/KEAMANAN.md` |

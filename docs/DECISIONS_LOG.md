@@ -208,3 +208,120 @@ Format:
 - **File terkait:** `supabase/migrations/0010_pembayaran.sql`, `supabase/tes/pembayaran.sql`, `alat/sql/data-uji.sql`
 - **Implikasi:** 1) `hitung_total()` (T1-15) **wajib** SECURITY DEFINER + menulis kelima kolom uang sekaligus, dan **wajib** memeriksa ulang total setelah diskon berubah. 2) `bayar_pesanan` (T5-02) memakai `total_dibayar()` sebagai sumber tunggal. 3) `diskon_transaksi.voucher_id` masih belum berkunci asing — kuncinya dipasang di **T1-12** saat tabel `voucher` ada; begitu juga `pembayaran.shift_id` di **T1-11**. 4) Uji `pembayaran.sql` terbukti bisa MERAH lewat 6 uji mutasi, dan **dua uji yang lulus karena sebab yang salah** ditemukan lewat uji mutasi itu lalu diperbaiki — aturan kerjanya: uji negatif wajib memilih kasus yang hanya bisa ditolak oleh satu sebab.
 
+### [Fase 1B/2026-09-17] Satu akun = satu peran (identitas tidak boleh bercampur) — keputusan pemilik, dikuatkan agent
+- **Area:** Role & Permission (ART-2) + Keamanan Akun (ART-12 baru)
+- **Keputusan:**
+  1. **Setiap akun hanya punya SATU peran**, berlaku di semua cabang yang ditugaskan. Orang yang punya dua fungsi (mis. kasir merangkap pelayan) **wajib punya dua akun** dengan **PIN berbeda**.
+  2. **`pengguna_cabang` disederhanakan**: hanya menyimpan **daftar cabang** tempat akun itu bertugas (kolom `peran` per cabang dihapus/diabaikan). Peran datang dari satu tempat saja (`pengguna.peran`).
+  3. **PIN wajib unik antar pegawai dalam satu resto** (PIN tidak boleh dipakai dua akun), dan PIN tidak boleh berpola lemah (semua angka sama, berurutan, tanggal lahir `ddmmyy`).
+  4. **Izin (centang) tetap boleh berbeda per akun** — itu penyetelan di dalam satu peran, bukan peran kedua.
+  5. Pengelompokan "satu orang, dua akun" untuk laporan dilakukan lewat **nama pegawai yang sama + peran berbeda**; tabel `orang` (HR ringan) **tidak** dibuat di G1.
+- **Alasan:** (1) ide pemilik & memang benar: bila satu akun boleh dua peran, maka "siapa berwenang apa" tidak lagi bisa dibuktikan hanya dari data — dan izin berjenjang yang sudah dibuktikan di T1-05 jadi kabur; (2) satu peran = satu jalur pemeriksaan, jadi uji matriks izin × peran bisa dibuat otomatis dan tidak ada kombinasi tersembunyi; (3) jejak audit menjadi tegas: setiap tindakan punya peran yang jelas; (4) PIN unik mencegah "PIN bertukar" yang membuat tindakan seseorang tercatat atas nama orang lain.
+- **File terkait:** `docs/KEAMANAN.md` (bagian identitas), `supabase/migrations/0011_peran_tunggal.sql`, `supabase/tes/peran_tunggal.sql`
+- **Implikasi:** 1) Migrasi baru wajib (tidak boleh mengubah `0002` yang sudah jalan): menegakkan peran tunggal, memasang kunci pada `pengguna_cabang`, dan menyesuaikan fungsi `peran_saya()`/`cabang_ids_saya()` bila perlu. 2) Perangkat terdaftar menyimpan **peran yang diizinkan** — sehingga satu tablet kasir tidak bisa dipakai masuk sebagai owner. 3) Uji matriks (T1-29) memakai daftar peran dari `pengguna.peran`, bukan dari beberapa sumber. 4) Laporan "pegawai merangkap" tetap bisa dibuat dengan menggabungkan baris akun bernama orang yang sama.
+
+### [Fase 1B/2026-09-17] Perangkat terdaftar: kode pendaftaran + persetujuan pemilik + pencabutan seketika
+- **Area:** Keamanan Akun & Perangkat (ART-11 baru)
+- **Keputusan:**
+  1. **Setiap peran staf (kasir/pelayan/dapur/admin cabang/owner pusat) hanya bisa memakai aplikasi dari perangkat yang TERDAFTAR**; pendaftaran memakai **kode sekali pakai** (masa berlaku 15 menit) yang dibuat admin/owner, dan perangkat menyimpan **rahasia acak 32 byte** yang di server hanya tersimpan sebagai **SHA-256** (rahasia 256-bit tidak bisa ditebak, jadi tidak perlu bcrypt yang lambat).
+  2. **Persetujuan pemilik saat pegawai pertama kali memakai perangkat itu** (pilihan pemilik): perangkat terdaftar belum cukup; setiap pasangan (pegawai × perangkat) baru wajib disetujui owner/admin yang berizin — bisa dari jauh, dan tercatat.
+  3. **Perangkat punya `peran_diizinkan`** (mis. "Tablet Kasir 1" hanya untuk peran kasir) + `cabang_id` + nama + status (`aktif`/`dicabut`/`hilang`).
+  4. **Pencabutan seketika**: status perangkat dan sesi diperiksa **di database pada setiap permintaan**, bukan hanya saat masuk. Alasannya teknis dan penting: dokumentasi Supabase menyatakan **token akses yang sudah diterbitkan tidak bisa dicabut sebelum kedaluwarsa** — jadi pencabutan tidak boleh bergantung pada token.
+  5. **Pemilik platform (`pemilik_platform`) dikecualikan** dari pengikatan perangkat (harus bisa menolong dari mana saja), sebagai gantinya: TOTP wajib + umur sesi pendek (8 jam) + **tidak punya akses isi data penyewa** kecuali mode dukungan.
+  6. **Bootstrap**: perangkat pertama milik owner pusat boleh didaftarkan sendiri dengan **kata sandi + TOTP** (dia akar kepercayaan restonya); perangkat berikutnya butuh persetujuan dari perangkat aktif.
+- **Alasan:** (1) inilah jawaban langsung atas kekhawatiran pemilik: perangkat kecurian tanpa PIN tidak membuka apa pun, dan begitu dilaporkan hilang, aksesnya mati dalam hitungan detik; (2) pola kode perangkat adalah praktik industri POS (Square memakai "device code" per perangkat & per lokasi) — bukan eksperimen; (3) memeriksa di database (bukan di aplikasi) membuat aturan ini tidak bisa dilangkahi lewat API langsung; (4) mengecualikan pemilik platform menjaga jalan darurat tetap ada, dengan pengaman setara (TOTP + sesi pendek + tanpa data penyewa).
+- **File terkait:** `supabase/migrations/0012_perangkat.sql`, `supabase/migrations/0013_sesi_perangkat.sql`, `supabase/tes/perangkat.sql`, `supabase/tes/sesi_perangkat.sql`, `docs/KEAMANAN.md`
+- **Implikasi:** 1) Seluruh policy RLS untuk peran staf wajib memakai `perangkat_sah()` — pola ini dipasang sebelum migrasi `kas/shift` (T1-11) supaya tidak dibongkar dua kali. 2) Bukti perangkat dikirim sebagai header permintaan dan dibaca lewat `current_setting('request.headers')`; **wajib dibuktikan di Supabase nyata (T0-08)** sebelum dijadikan syarat tunggal — jaring pengaman `sesi_perangkat` tetap berlaku tanpa header. 3) Fungsi `perangkat_sah()` wajib `stable`, `search_path` dipaku, dan dipanggil `(select public.perangkat_sah())` agar tidak dievaluasi ulang per baris. 4) Uji wajib: perangkat tidak terdaftar → tabel staf tertutup; cabut perangkat → permintaan berikutnya gagal; perangkat dengan peran lain → ditolak.
+
+### [Fase 1B/2026-09-17] Masuk staf satset tapi aman: PIN 6 digit HANYA sah di perangkat terdaftar
+- **Area:** Keamanan Akun (ART-12 baru) + Role & Permission (ART-2)
+- **Keputusan:**
+  1. **Kasir/pelayan/dapur masuk dengan "pilih nama → PIN 6 digit"**, dan kombinasi itu hanya berlaku dari perangkat terdaftar yang `peran_diizinkan`-nya cocok. Tanpa perangkat terdaftar, PIN sekuat apa pun tidak menghasilkan sesi yang bisa dipakai (ikatan sesi ditolak).
+  2. **Akun staf tidak memakai email nyata**: email Supabase memakai **alias internal** resto (tidak pernah dipakai mengirim email). Konsekuensi jujur: **pemulihan akun/PIN staf dilakukan admin/owner** (wajib izin `kelola_pegawai`, tercatat) — dan justru itu yang menutup pintu pengambilalihan akun lewat email.
+  3. **Ditolak dengan sadar:** (a) PIN sebagai kunci enkripsi lokal (PIN 6 digit bisa dibobol luring dari perangkat curian); (b) Edge Function yang menerbitkan sesi sendiri (menambah jalur rahasia baru yang harus dijaga sempurna — risiko jauh lebih besar daripada manfaatnya di proyek ini); (c) PIN bisa dipakai dari perangkat mana saja.
+  4. **Kata sandi panjang** hanya untuk admin cabang, owner pusat, dan pemilik platform; staf tidak perlu menghafal kata sandi apa pun.
+- **Alasan:** (1) permintaan pemilik: "mudah tapi aman, mereka perlu kerja satset" — 2 detik, tanpa kata sandi tertulis di meja kasir; (2) keamanan sesungguhnya berasal dari KOMBINASI (perangkat yang harus ada + PIN yang harus diketahui), bukan dari panjang PIN; (3) memakai mekanisme bawaan Supabase (kata sandi + sesi) menghindari kriptografi buatan sendiri yang paling sering menjadi sumber cacat.
+- **File terkait:** `docs/KEAMANAN.md`, `supabase/migrations/0013_sesi_perangkat.sql`, `supabase/migrations/0014_percobaan_masuk.sql`, `supabase/tes/percobaan_masuk.sql`
+- **Implikasi:** 1) PIN staf **sama** dengan PIN persetujuan (satu rahasia per pegawai, dua kegunaan) — tidak ada dua PIN yang membuat staf bingung. 2) Tabel uji wajib membuktikan: PIN benar + perangkat tidak terdaftar = **gagal**; PIN salah + perangkat terdaftar = **gagal** + tercatat; PIN benar + perangkat terdaftar = **berhasil**. 3) Kunci otomatis (idle) berarti sesi dihapus dari perangkat, jadi perangkat yang ditinggal tidak menyimpan apa pun. 4) Kalau internet mati saat perangkat terkunci, staf tidak bisa membuka sampai internet kembali — dicatat sebagai kasus tepi di PRD & Buku Insiden.
+
+### [Fase 1B/2026-09-17] TOTP wajib untuk 3 peran berkuasa + jalan pemulihan yang tidak memacetkan kerja
+- **Area:** Keamanan Akun (ART-12 baru)
+- **Keputusan:**
+  1. **TOTP (aplikasi authenticator) WAJIB untuk `pemilik_platform`, `owner_pusat`, dan `admin_cabang`.** TOTP gratis di semua paket Supabase (TOTP MFA tersedia bawaan).
+  2. **Kasir/pelayan/dapur tidak memakai TOTP** — keamanan akun mereka sudah dua lapis (perangkat terdaftar + PIN), dan memaksa TOTP di dapur/kasir justru mendorong PIN ditempel atau HP dipinjam-pinjamkan.
+  3. **Jalan pemulihan (agar tidak memacetkan kerja):** admin cabang yang kehilangan HP → **owner pusat bisa mengatur ulang MFA-nya** (tercatat + notifikasi); owner pusat yang kehilangan HP → **pemilik platform** yang mengatur ulang lewat panel; pemilik platform kehilangan HP → langkahnya ada di Buku Insiden.
+  4. **Tanpa kode pemulihan mandiri di G1** (sengaja): kode pemulihan menambah jalur rahasia baru yang harus dijaga; ditinjau lagi di Fase 10 bila terasa perlu (dicatat di TERTANGGUH T-016).
+- **Alasan:** (1) jawaban atas kebimbangan pemilik: admin cabang memang memegang akses penting (harga cabang, printer, opname stok, laporan cabang) sehingga pantas dilindungi TOTP; (2) tetapi mewajibkan tanpa jalan pemulihan = risiko operasional nyata (HP hilang = pegawai berhenti kerja) → karena itu jalan pemulihan dibuat lebih dulu, bukan belakangan; (3) memberi TOTP ke kasir/pelayan/dapur menambah friksi harian terbesar dengan tambahan keamanan terkecil — kombinasi perangkat+PIN sudah setara.
+- **File terkait:** `docs/KEAMANAN.md`, `supabase/functions/atur_ulang_mfa/index.ts`, `alat/periksa-fungsi-mfa.py`, `supabase/tes/mfa.sql`
+- **Implikasi:** 1) Edge Function `atur_ulang_mfa` wajib **tipis**: pemeriksaan wewenang dilakukan di database (RPC memakai `boleh('kelola_pegawai')` + target harus satu resto + peran target lebih rendah), fungsi Deno hanya meneruskan; dilarang memakai `console.*`. 2) Setiap pengaturan ulang MFA menulis `catatan_audit` + mengirim pemberitahuan. 3) Pendaftaran TOTP dilakukan **saat penyiapan/training**, bukan saat jam sibuk (masuk daftar langkah Fase 11). 4) Uji: admin cabang tanpa TOTP tidak bisa masuk; setelah diatur ulang, TOTP bisa didaftarkan lagi; pengaturan ulang oleh yang tidak berizin ditolak.
+
+### [Fase 1B/2026-09-17] Kendali sesi dibuat sendiri (karena batas paket gratis) — dan justru lebih kuat
+- **Area:** Keamanan Sesi (ART-11 baru)
+- **Keputusan:**
+  1. **Kebijakan sesi ditegakkan di database kita** (`sesi_perangkat`): umur maksimum sesi staf **12 jam** (satu shift), admin/owner **30 hari**, pemilik platform **8 jam**; sesi kedaluwarsa ditolak walau tokennya masih sah.
+  2. **Token akses dipendekkan (15 menit)** lewat pengaturan Supabase (gratis), dan **kunci otomatis saat menganggur** (kasir/pelayan/dapur 15 menit · admin 30 menit · owner/platform 60 menit) dengan tombol "Kunci sekarang" di semua layar staf.
+  3. **Kunci = sesi dihapus dari perangkat**; membuka lagi wajib PIN/kata sandi (membuka sesi baru). Jadi perangkat yang ditinggal tidak menyimpan token sama sekali.
+  4. **Batas percobaan masuk: 5×/15 menit per akun dan 12×/15 menit per perangkat**, semua percobaan (berhasil/gagal/diblokir) masuk `percobaan_masuk`; kunci bertambah tidak memperpendek masa tunggu.
+  5. **Catatan jujur:** "time-box sesi", "inactivity timeout", "satu sesi per pengguna", dan pemeriksa kata sandi bocor (HaveIBeenPwned) adalah fitur **Pro**. Untuk kata sandi owner/admin, kompensasinya: panjang minimum 12 karakter, dilarang pola umum, dan TOTP wajib.
+- **Alasan:** (1) pencabutan lewat database berlaku **seketika**, sedangkan kendali bawaan (bila ada) baru berlaku saat token diperbarui — untuk kasus perangkat hilang, detik itu penting; (2) kunci otomatis menutup celah terbesar di kedai: tablet ditinggal di meja; (3) batas percobaan harus milik kita karena Supabase hanya membatasi per IP dan tidak mengunci per pengguna.
+- **File terkait:** `supabase/migrations/0013_sesi_perangkat.sql`, `supabase/migrations/0014_percobaan_masuk.sql`, `aplikasi/src/lib/sesi.ts` (T2-16)
+- **Implikasi:** 1) Aplikasi wajib menyimpan penanda WAKTU aktif terakhir per perangkat dan mengunci sendiri (`onVisibilityChange` + pengatur waktu). 2) Uji SQL wajib: sesi lewat umur → ditolak; sesi dicabut → ditolak; percobaan ke-6 → diblokir 15 menit. 3) Sesi yang dikunci di tengah antrean offline berarti antrean baru terkirim setelah masuk lagi — dicatat di ART-8 & Buku Insiden. 4) Pengaturan "kunci otomatis" dibuat per peran dan bisa diubah owner tanpa koding.
+
+### [Fase 1B/2026-09-17] Kecurangan uang: rekonsiliasi non-tunai + ringkasan peringatan harian
+- **Area:** Kalkulasi Keuangan (ART-3) + Kas & Shift (ART-6)
+- **Keputusan:**
+  1. **Setiap pembayaran non-tunai wajib menyimpan `referensi`** (nomor transaksi QRIS/transfer/kartu) — sudah ada di T1-10; sekarang **ditampilkan sebagai daftar di layar tutup kas** agar owner bisa mencocokkan dengan aplikasi QRIS/bank.
+  2. **Ringkasan peringatan harian ke owner (1 email/hari, gratis lewat Resend):** omzet, jumlah transaksi, void (siapa/nilai/alasan), diskon (siapa/nilai), selisih kas, percobaan masuk gagal, dan perubahan perangkat. Tujuannya bukan laporan lengkap, tetapi **membuat hal aneh terlihat tanpa owner harus membuka aplikasi**.
+  3. **Laporan "siapa menyetujui apa" per bulan** (PIN persetujuan): mencegah PIN atasan dipakai berulang tanpa terasa.
+- **Alasan:** (1) pembayaran non-tunai adalah tempat paling mudah "menandai lunas tanpa uang masuk" — pencocokan berkala menutupnya tanpa integrasi berbayar; (2) kecurangan kecil biasanya ketahuan terlambat karena tidak ada yang melihat; email harian menghilangkan alasan "tidak sempat membuka laporan"; (3) ini semua memakai data yang sudah ada — tambahannya kecil, nilainya besar.
+- **File terkait:** `docs/KEAMANAN.md`, `supabase/functions/ringkasan_harian/index.ts`
+- **Implikasi:** 1) RPC laporan baru wajib membaca **salinan** (`harga_saat_itu`) dan tidak boleh menghitung ulang dari menu. 2) Email ringkasan tidak boleh memuat data pribadi pelanggan (UU PDP) — hanya angka & nama pegawai. 3) Uji: ringkasan memuat baris void & selisih yang benar untuk data uji yang sudah ada.
+
+### [Fase 1B/2026-09-17] `catatan_audit` hanya-tambah DITAMBAH penguncian rantai hash
+- **Area:** Jejak Audit (ART-13 baru)
+- **Keputusan:**
+  1. `catatan_audit` tetap **hanya-tambah** (tidak ada hak ubah/hapus untuk siapa pun, termasuk owner).
+  2. Setiap baris menyimpan **`hash_sebelumnya` dan `hash_baris`** (SHA-256 atas isi baris kanonik + hash sebelumnya). Rantai dihitung pemicu, bukan oleh aplikasi.
+  3. Pemeriksa `alat/periksa-audit.py` bisa memverifikasi rantai dan **menunjuk baris pertama yang putus** — mis. bila seseorang dengan akses database mengubah atau menghapus satu baris.
+- **Alasan:** hak "hanya-tambah" melindungi dari pengguna aplikasi, tetapi tidak dari seseorang yang bisa menulis langsung ke database; rantai hash mengubah "tidak bisa diubah" dari janji menjadi **bukti yang bisa diperiksa** — penting untuk sengketa uang dengan pegawai/pelanggan.
+- **File terkait:** `supabase/migrations/0015_audit.sql`, `supabase/tes/audit.sql`, `alat/periksa-audit.py`
+- **Implikasi:** 1) Pemicu wajib mengambil baris terakhir dengan kunci (lock) agar dua penyisipan bersamaan tidak menghasilkan rantai bercabang. 2) Uji wajib: ubah satu baris → pemeriksa menunjuk baris itu; hapus satu baris → putus terdeteksi. 3) Verifikasi rantai dijalankan berkala (pg_cron) dan hasilnya dikirim sebagai bagian ringkasan harian bila putus.
+
+### [Fase 1B/2026-09-17] Privasi pelanggan & UU PDP (Indonesia): persetujuan, minimalisasi, anonimisasi, lapor 3×24 jam
+- **Area:** Data Pelanggan (ART-14 baru)
+- **Keputusan:**
+  1. **Persetujuan eksplisit** sebelum data pelanggan disimpan (kalimat singkat: apa yang disimpan, untuk apa, berapa lama, cara minta dihapus) — bukan centang tersembunyi.
+  2. **Minimalisasi:** hanya nama, kontak (opsional), dan catatan voucher. Tidak ada NIK, tidak ada lokasi, tidak ada data biometrik, tidak ada pelacakan.
+  3. **Hak pelanggan:** permintaan akses/hapus → data pribadi **dianonimkan** (nama/kontak dihapus atau diganti), sementara catatan keuangan tetap utuh (Aturan Bisnis 11). Waktu tanggap 3×24 jam.
+  4. **Kebocoran data:** pemberitahuan tertulis maksimal **3×24 jam** kepada subjek data + lembaga pengawas (UU PDP Pasal 46), dengan isi: data apa, kapan/bagaimana, dan langkah pemulihan. Template & langkah ada di `docs/teknis/BUKU_INSIDEN.md`.
+  5. **Lokasi data:** region proyek Supabase ditetapkan pemilik saat T0-08 (usul: Singapore); bila di luar Indonesia, dasar transfer = persetujuan + pengamanan kontrak penyedia.
+- **Alasan:** (1) proyek ini menyimpan data pelanggan (voucher undang-teman) — jadi kewajiban UU PDP berlaku sejak pilot, bukan "nanti"; (2) denda administratif sampai 2% pendapatan tahunan + ancaman pidana jauh lebih mahal daripada menulis kalimat persetujuan; (3) anonimisasi menjaga dua kepentingan sekaligus: hak pelanggan dan keutuhan catatan uang.
+- **File terkait:** `docs/KEAMANAN.md`, `docs/teknis/BUKU_INSIDEN.md`, `supabase/migrations/0017_privasi_pelanggan.sql`, `supabase/tes/privasi.sql`
+- **Implikasi:** 1) T-011 (kebijakan privasi) berubah menjadi pekerjaan agent di Fase 1B, ditinjau pemilik sebelum Fase 8. 2) Halaman pendaftaran voucher wajib menampilkan kalimat persetujuan + tautan kebijakan. 3) Laporan/email tidak boleh memuat kontak pelanggan. 4) Uji: pelanggan tanpa persetujuan ditolak; permintaan anonimisasi menghapus kontak tetapi tidak menghapus transaksi.
+
+### [Fase 1B/2026-09-17] Mode dukungan pemilik platform: beralasan, berbatas waktu, tercatat, diberitahukan
+- **Area:** Akses Lintas Penyewa (ART-15 baru) + RLS (ART-1)
+- **Keputusan:**
+  1. **Bawaan: `pemilik_platform` TIDAK bisa melihat isi data penyewa** — hanya daftar penyewa, cabang, dan status.
+  2. Bila ada masalah nyata, pemilik platform membuka **mode dukungan**: wajib **alasan**, berbatas waktu (bawaan 60 menit, tidak bisa diperpanjang otomatis), dan **hanya-baca**.
+  3. Setiap mode dukungan menulis `catatan_audit` **dan** mengirim pemberitahuan ke owner penyewa (email) — sehingga tidak ada pengintaian diam-diam.
+  4. Mode dukungan **tidak** memberi hak mengubah data; perbaikan data selalu lewat jalur normal pemilik resto (atau jalur pemulihan bencana yang terdokumentasi di Buku Insiden).
+- **Alasan:** (1) ini janji di PRD §9 yang harus punya bentuk teknis, bukan sekadar niat; (2) tanpa jalan dukungan, pemilik platform akan terdorong memakai kunci penuh (`service_role`) di luar prosedur — jauh lebih berbahaya; (3) pemberitahuan otomatis membuat penyewa merasa aman tanpa menghalangi bantuan.
+- **File terkait:** `supabase/migrations/0016_mode_dukungan.sql`, `supabase/tes/mode_dukungan.sql`, `docs/KEAMANAN.md`
+- **Implikasi:** 1) Policy RLS wajib membedakan "pemilik platform biasa" dan "mode dukungan aktif" — diuji keduanya. 2) Mode dukungan berakhir otomatis (pg_cron) dan berakhir bila pemilik platform keluar. 3) Uji: tanpa mode dukungan → 0 baris; dengan mode dukungan → hanya-baca (perintah tulis ditolak); setelah kedaluwarsa → 0 baris lagi.
+
+### [Fase 1C/2026-09-17] Kelengkapan UI: Registri Aksi + Peta Layar + pemeriksa otomatis (anti "tombol mati")
+- **Area:** Arsitektur Klien & Kelengkapan Fitur (bukan Area Berisiko Tinggi, tetapi mengikat semua tugas UI)
+- **Keputusan:**
+  1. **Registri Aksi** (`aplikasi/src/lib/aksi.ts`) menjadi **satu-satunya sumber kebenaran** untuk setiap tombol/menu/gestur: id, label, layar, peran, izin, RPC, jenis, konfirmasi, butuh-PIN, pesan sukses/gagal, dan daftar uji. **Semua tombol dirender lewat `<TombolAksi id="…">`**; aksi tanpa entri tidak bisa dirender.
+  2. **Peta Layar** (`aplikasi/src/lib/layar.ts`): id, rute, judul, peran yang boleh, dan **7 keadaan wajib** (kosong · memuat · gagal · menunggu terkirim · tidak punya akses · data sebagian · berhasil).
+  3. **Kontrak layar** wajib ditulis untuk setiap layar di `docs/SPESIFIKASI_UI.md` sebelum layar dikerjakan (tujuan, jalan masuk, data, aksi, 7 keadaan, bukti uji, nomor naskah jalan).
+  4. **Pemeriksa otomatis** `alat/peta-ui.py` men-generate `docs/PETA_UI.md` dari kedua registri dan **menggagalkan CI** bila: RPC aksi tidak ada di migrasi · kode izin tidak ada · aksi tanpa uji · layar tanpa berkas/rute · dokumen peta basi · fitur PRD M1–M12 tanpa jejak layar/aksi.
+  5. **Uji komponen tiap layar** (jsdom + Testing Library, sudah terpasang): dirender per peran; tombol yang seharusnya ada benar-benar **memanggil RPC yang benar** (ditiru); tombol terlarang tidak ada; 7 keadaan tampil. Ini yang membuktikan "tombol benar-benar bisa dipakai", bukan sekadar ada.
+  6. **Naskah jalan pemilik** bernomor (`W-<fase>-<nomor>`, bahasa manusia "tekan ini → harus muncul itu") wajib ditulis & dijalankan di pratinjau untuk setiap tugas UI.
+  7. **DoD versi baru** untuk tugas UI: kontrak layar · aksi terdaftar · 7 keadaan · uji komponen hijau · pemeriksa peta-UI hijau · naskah jalan dijalankan · **izin dicek di database** (bukan hanya disembunyikan di layar).
+  8. **Uji peramban (Playwright) ditaruh di GitHub Actions**, bukan di ruang kerja agent: Chromium **tidak bisa diunduh** di ruang kerja ini (sudah dicoba 2026-09-17) tetapi CI menjalankannya pada mesin Ubuntu. Kalau ternyata gagal, dilaporkan jujur dan diganti — bukan diklaim.
+- **Alasan:** (1) ini jawaban langsung atas pengalaman pemilik ("banyak tombol kurang, fungsi katanya ada tapi tak bisa dipakai") — penyebabnya bukan AI-nya, melainkan tidak ada daftar tombol, tidak ada uji pemanggilan, dan "selesai" yang berarti "kode ditulis"; (2) registri membuat tombol **tidak bisa lahir tanpa uji**, dan pemeriksa membuat dokumen tidak bisa basi; (3) kontrak layar memaksa 7 keadaan diputuskan sebelum dikoding — tempat paling sering muncul "fitur palsu" (layar yang jalan hanya bila data ada).
+- **File terkait:** `aplikasi/src/lib/aksi.ts`, `aplikasi/src/lib/layar.ts`, `aplikasi/src/komponen/TombolAksi.tsx`, `alat/peta-ui.py`, `docs/SPESIFIKASI_UI.md`, `docs/PETA_UI.md`
+- **Implikasi:** 1) Fase 1C dikerjakan **sebelum** layar pertama Fase 3 dibuat, supaya semua layar mengikutinya sejak awal. 2) Layar contoh (`LayarContoh`) dijadikan contoh kontrak pertama. 3) Setiap tugas UI di ROADMAP wajib menyebut nomor kontrak layar & naskah jalan. 4) Menambah aksi berarti mengubah registri + uji + dokumen hasil generate; tidak ada jalur pintas.
+

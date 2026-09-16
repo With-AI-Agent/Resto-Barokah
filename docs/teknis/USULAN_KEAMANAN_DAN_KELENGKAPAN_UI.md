@@ -86,7 +86,7 @@
 
 ### B3. Perangkat terdaftar (device binding) — inti jawaban "perangkat yang ditentukan"
 
-Tabel baru (calon migrasi `0011_perangkat.sql`):
+Tabel baru (calon migrasi `0012_perangkat.sql`):
 
 | Tabel | Isi penting |
 |---|---|

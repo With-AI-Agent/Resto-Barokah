@@ -16,6 +16,7 @@
 2. **Tempat tinggalnya:** halaman aplikasi di **Cloudflare** (gratis, boleh untuk usaha, tanpa tagihan kejutan) dan data, akun, foto, serta fungsi rahasia di **Supabase** (gratis, boleh untuk usaha).
 3. **Uang tidak bisa "dikira-kira":** semua hitungan total, pajak, service, diskon, dan kembalian dihitung **di sisi peladen (server)**, bukan di HP. Nominal disimpan sebagai bilangan bulat rupiah.
 4. **Yang bikin orang tidak bisa curang:** setiap data terpisah per resto & per cabang, setiap tindakan sensitif butuh PIN dan tercatat di buku catatan yang **tidak bisa dihapus atau diubah**.
+5. **Perangkat yang boleh kerja (baru 2026-09-17):** bagian staf (kasir, dapur, pelayan, admin cabang, owner) hanya bisa dibuka dari **perangkat yang sudah didaftarkan** admin/owner — tablet kasir tidak bisa dipakai masuk sebagai owner, dan kalau perangkat hilang/dicuri, aksesnya **mati seketika** begitu dicabut dari aplikasi. Masuk kerjanya tetap cepat: pilih nama → PIN 6 digit, hanya dari perangkat itu.
 5. **Kalau internet putus sebentar:** kasir tetap bisa mencatat, pesanan menunggu di antrean dan terkirim sendiri saat internet kembali — tanpa dobel.
 6. **Cetak struk:** printer termal tersambung ke perangkat kasir (Bluetooth/USB). Kalau printer bermasalah, selalu ada jalur cadangan: tiket dapur tetap di layar dan struk bisa ditampilkan/dibagikan.
 7. **Batas gratis yang jujur:** data 500 MB · foto 1 GB · lalu lintas 5 GB/bulan · 50.000 pelanggan aktif · proyek Supabase "tidur" bila 7 hari tidak dipakai (tidak masalah untuk kedai harian, dan tetap dijaga oleh penjadwal otomatis). Perkiraan pemakaian Kedai Oasis 1 cabang: **jauh di bawah** batas itu.
@@ -145,8 +146,8 @@ peladen yang memutuskan dan mencatat.
 |---|---|---|
 | `penyewa` | `id`, `nama`, `slug`, `status` (aktif/nonaktif), `zona_waktu`, `mata_uang`, `dibuat_pada` | Isolasi tingkat 1 (resto) |
 | `cabang` | `id`, `penyewa_id`, `nama`, `alamat`, `telepon`, `aktif` | Isolasi tingkat 2 (cabang) |
-| `pengguna` | `id` (= id Auth), `penyewa_id` (boleh null untuk Pemilik Platform), `nama`, `email`, `peran`, `pin_hash`, `aktif`, `terakhir_masuk` | `peran`: `pemilik_platform` · `owner_pusat` · `admin_cabang` · `kasir` · `pelayan` · `dapur` |
-| `pengguna_cabang` | `pengguna_id`, `cabang_id`, `peran`, `aktif` | Pegawai merangkap 2 cabang |
+| `pengguna` | `id` (= id Auth), `penyewa_id` (boleh null untuk Pemilik Platform), `nama`, `email` (alias internal untuk staf), `peran`, `pin_hash`, `aktif`, `terakhir_masuk`, `mfa_wajib`, `mfa_terdaftar_pada`, `catatan` | `peran`: `pemilik_platform` · `owner_pusat` · `admin_cabang` · `kasir` · `pelayan` · `dapur`. **Satu akun = satu peran** (DECISIONS_LOG 2026-09-17); staf memakai alias email internal sehingga pemulihan lewat admin, bukan email |
+| `pengguna_cabang` | `pengguna_id`, `cabang_id`, `aktif` | **Daftar cabang** tempat akun bertugas (peran per cabang tidak lagi menjadi sumber wewenang — satu peran berlaku di semua cabangnya) |
 | `izin` | `pengguna_id`, `kode_izin`, `boleh` (bool), `batas_nominal`, `batas_persen` | Centang izin per pegawai (M3). Kode: `ubah_harga`, `beri_diskon`, `void_sebelum_dapur`, `void_sesudah_dapur`, `lihat_laporan`, `kelola_pegawai`, `atur_pengaturan`, `pakai_voucher`, `tutup_kas`, `ubah_stok` |
 | `pengaturan` | `penyewa_id`, `pajak_pb1_persen`, `service_persen`, `pembulatan` (none/100/500/1000), `tumpuk_diskon` (bool), `batas_maks_potongan_persen`, `batas_maks_potongan_nominal`, `header_struk`, `footer_struk`, `cara_pesan`, `jam_buka` | Aturan Bisnis 1, 2 |
 | `metode_bayar` | `penyewa_id`, `kode` (tunai/qris/transfer/ewallet/kartu), `aktif`, `urutan` | Pencatatan, bukan integrasi otomatis |
@@ -195,9 +196,21 @@ peladen yang memutuskan dan mencatat.
 | `percobaan_pin` | `id`, `pengguna_id`, `perangkat`, `berhasil`, `waktu` | Batas percobaan PIN (anti tebak) |
 | `catatan_kesalahan` | `id`, `penyewa_id`, `cabang_id`, `jenis`, `pesan`, `data` (jsonb), `perangkat`, `waktu` | Bantu perbaikan tanpa membocorkan data keuangan |
 
+### 4.6 Perangkat, sesi & percobaan masuk (ditambahkan 2026-09-17 — lihat `docs/KEAMANAN.md`)
+
+| Tabel | Kolom inti | Catatan |
+|---|---|---|
+| `perangkat` | `id`, `penyewa_id`, `cabang_id`, `nama`, `jenis`, `peran_diizinkan`, `rahasia_hash`, `status` (aktif/dicabut/hilang), `terakhir_aktif`, `terdaftar_oleh`, `dicabut_oleh`, `catatan` | Perangkat terdaftar: peran staf hanya bisa bekerja dari perangkat ini. Rahasia 32 byte, disimpan SHA-256 |
+| `kode_pendaftaran_perangkat` | `id`, `penyewa_id`, `kode`, `kedaluwarsa_pada`, `dibuat_oleh`, `dipakai_pada`, `perangkat_id` | Kode sekali pakai, masa berlaku 15 menit |
+| `sesi_perangkat` | `session_id` (dari token Supabase), `perangkat_id`, `pengguna_id`, `cabang_id`, `mulai`, `berakhir_pada`, `status` (aktif/selesai/dicabut), `disetujui_oleh` | Dasar pencabutan seketika & umur maksimum sesi |
+| `persetujuan_perangkat` | `perangkat_id`, `pengguna_id`, `disetujui_oleh`, `waktu` | Persetujuan pemilik saat pegawai pertama memakai perangkat itu |
+| `percobaan_masuk` | `id`, `pengguna_id` (boleh null), `perangkat_id` (boleh null), `berhasil`, `sebab`, `waktu` | Semua percobaan masuk (berhasil/gagal/diblokir) — dasar kunci 5×/15 menit per akun & 12×/15 menit per perangkat |
+
 **Indeks wajib (contoh):** `pesanan(cabang_id, dibuat_pada desc)`, `pesanan(shift_id)`, `pesanan_item(pesanan_id)`,
 `menu_cabang(cabang_id, habis)`, `voucher(kode) unique`, `voucher(kampanye_id, status)`,
-`catatan_audit(penyewa_id, waktu desc)`, `pembayaran(shift_id)`, `pelanggan(penyewa_id, email)`.
+`catatan_audit(penyewa_id, waktu desc)`, `pembayaran(shift_id)`, `pelanggan(penyewa_id, email)`,
+`sesi_perangkat(session_id) unique`, `sesi_perangkat(perangkat_id, status)`, `perangkat(penyewa_id, status)`,
+`kode_pendaftaran_perangkat(kode) unique`, `percobaan_masuk(pengguna_id, waktu desc)`, `percobaan_masuk(perangkat_id, waktu desc)`.
 
 ---
 
@@ -223,6 +236,17 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 | M10 voucher | `rpc/cek_voucher` (**hanya membaca**) · `rpc/pakai_voucher` (PIN + sekali pakai) · `rpc/daftar_voucher` | kode, pelanggan | potongan / sebab gagal |
 | M11 multi-cabang | `rpc/tambah_cabang` · `rpc/set_akses_cabang` | cabang, pengguna | hasil |
 | M12 keamanan | `rpc/keluar_semua_perangkat` · `rpc/ganti_pin` | pengguna | hasil |
+
+### 5.1 RPC keamanan akun, perangkat & sesi (ditambahkan 2026-09-17 — rincian di `docs/KEAMANAN.md`)
+
+| Fitur | Panggilan | Masukan | Keluaran |
+|---|---|---|---|
+| Perangkat | `rpc/buat_kode_perangkat` · `rpc/daftarkan_perangkat` · `rpc/setujui_perangkat_pegawai` · `rpc/cabut_perangkat` · `rpc/daftar_perangkat` | nama perangkat, peran yang diizinkan, cabang, kode | id perangkat / daftar perangkat & status |
+| Sesi | `rpc/ikat_sesi_perangkat` · `rpc/daftar_sesi` · `rpc/keluar_semua_perangkat` | session id + bukti perangkat / pengguna / perangkat | sesi aktif tercatat / daftar sesi / jumlah sesi yang diakhiri |
+| Akun & MFA | `rpc/atur_ulang_mfa` · `rpc/simpan_pin` · `rpc/ganti_pin` · `rpc/set_izin` | pengguna target, alasan | hasil + jejak audit |
+| Mode dukungan | `rpc/mode_dukungan` | penyewa, alasan, lama (menit) | mode aktif/berakhir + catatan audit |
+
+**Edge Functions (pintu tipis, logika tetap di database):** `verifikasi_pin` (ada) · `atur_ulang_mfa` (pengaturan ulang TOTP oleh peran di atasnya) · `ringkasan_harian` (email peringatan harian owner). Ketiganya: hanya POST, tanpa `console.*`, memakai token pemanggil + kunci publik (bukan `service_role`) kecuali `atur_ulang_mfa` yang memang butuh hak admin Auth — dengan pemeriksaan wewenang di database lebih dulu.
 
 **Aturan bentuk jawaban (semua RPC):** selalu `{ berhasil: bool, kode: teks, pesan: teks, data: … }` dengan
 `pesan` berbahasa Indonesia siap ditampilkan (mis. *"Voucher sudah dipakai pada 12.04 oleh kasir Rina di Cabang Pusat"*).
@@ -258,20 +282,25 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 
 ---
 
-## 8. Pertimbangan Keamanan
+## 8. Pertimbangan Keamanan (ringkasan — rujukan resmi: `docs/KEAMANAN.md`)
 
-1. **Pemisahan data (multi-penyewa):** setiap tabel punya `penyewa_id`; RLS **menolak secara bawaan** (deny by default) dan hanya membuka baris yang boleh. Uji wajib: dua akun berbeda penyewa tidak boleh melihat data satu sama lain.
-2. **Pemisahan cabang:** `admin_cabang`, `kasir`, `pelayan`, `dapur` hanya melihat cabangnya; owner melihat semua cabang restonya; **pemilik platform tidak melihat isi transaksi** penyewa kecuali untuk dukungan yang dicatat.
-3. **Tindakan sensitif butuh PIN** (void sesudah dapur, diskon di atas batas, pakai voucher, koreksi modal, ubah harga) — PIN disimpan **ter-hash** (bcrypt), percobaan dibatasi, dan PIN tidak pernah ditulis di log.
-4. **Semua tindakan sensitif dicatat** di `catatan_audit` yang **hanya bisa ditambah** — tidak bisa diubah atau dihapus, bahkan oleh owner.
-5. **Uang dihitung di peladen**; klien tidak pernah mengirim total yang dipercaya.
-6. **Sesi berakhir otomatis** saat tidak dipakai (bawaan 8 jam kerja, dapat diatur); owner dapat **mengakhiri sesi semua perangkat** pegawai (perangkat hilang).
-7. **Pembatasan percobaan masuk & PIN** per perangkat dan per akun (anti tebak).
-8. **Foto menu** diunggah dengan batas ukuran & jenis, dirapikan (≤1000 px, webp) sebelum diunggah.
-9. **Cadangan:** gratis tidak menyediakan cadangan otomatis → alat cadangan mingguan (pg_dump) menjalankan dump ke berkas terenkripsi; langkah pemulihan ditulis di docs/teknis/PEMULIHAN.md (dibuat di Tahap 5/6, tanpa backtick karena belum ada).
-10. **Privasi pelanggan (PRD §10 no.7):** data seminimal mungkin (nama, kontak, catatan voucher); kebijakan & persetujuan ditulis sebelum pelanggan pertama mendaftar; tidak ada SMS berbayar.
-11. **Kunci rahasia** hanya di panel (lihat §6); rotasi bila ada kecurigaan bocor.
-12. **Rencana bila internet kedai mati:** antrean lokal + kunci idempoten supaya tidak ada dobel pesanan/pembayaran.
+> Sejak **2026-09-17**, rincian keamanan akun/perangkat/sesi/data pelanggan tinggal di **`docs/KEAMANAN.md`**.
+> Bagian ini sengaja dibuat ringkas supaya tidak ada dua aturan yang saling bertentangan; bila berbeda, `KEAMANAN.md` menang.
+
+1. **Pemisahan data (multi-penyewa):** setiap tabel punya `penyewa_id`; RLS **menolak secara bawaan**; uji dua akun beda penyewa wajib lulus.
+2. **Pemisahan cabang:** `admin_cabang`, `kasir`, `pelayan`, `dapur` hanya cabangnya; owner seluruh cabang restonya; **pemilik platform tidak melihat isi transaksi** kecuali **mode dukungan** (beralasan, berbatas waktu, tercatat, dan owner penyewa diberitahu).
+3. **Satu akun = satu peran**; orang dengan dua fungsi memakai dua akun (PIN berbeda). Izin dicentang per pegawai.
+4. **Perangkat terdaftar:** peran staf hanya bisa bekerja dari perangkat yang didaftarkan admin/owner (kode sekali pakai) + disetujui pemilik saat pegawai baru pertama memakai perangkat itu; **pencabutan seketika** (diperiksa di database tiap permintaan).
+5. **Masuk satset:** kasir/pelayan/dapur = **perangkat + PIN 6 digit** (unik antar pegawai); admin/owner/pemilik platform = **kata sandi ≥12 + TOTP wajib**; pelanggan = Google (utama) / email terverifikasi.
+6. **Sesi:** token akses 15 menit; umur maksimum sesi (staf 12 jam · admin/owner 30 hari · pemilik platform 8 jam); **kunci otomatis** saat menganggur (15/15/15/30/60 menit); semua kendali ditegakkan di database/aplikasi karena fitur serupa di Supabase adalah paket Pro.
+7. **Batas percobaan masuk:** 5×/15 menit per akun dan 12×/15 menit per perangkat; semua percobaan masuk `percobaan_masuk`; PIN salah berkali-kali terkunci, bukan menunggu.
+8. **Tindakan sensitif butuh PIN** dan disetujui pengguna berizin (`boleh_untuk()`); PIN disimpan ter-hash (bcrypt), tidak pernah ditulis di log.
+9. **Semua tindakan sensitif dicatat** di `catatan_audit` **hanya-tambah** + **rantai hash** (perubahan/penghapusan langsung di database terdeteksi).
+10. **Uang dihitung di peladen**; klien tidak pernah mengirim total yang dipercaya; non-tunai wajib referensi + ringkasan peringatan harian ke owner.
+11. **Fungsi istimewa dijaga:** `SECURITY DEFINER` wajib `search_path` dipaku + `revoke execute from public` + `grant` eksplisit + pemeriksaan izin di dalam badan fungsi.
+12. **Privasi pelanggan (UU PDP):** persetujuan eksplisit, minimalisasi data, hak akses/hapus (anonimisasi), pemberitahuan kebocoran ≤ 3×24 jam (template di `docs/teknis/BUKU_INSIDEN.md`).
+13. **Cadangan & pemulihan:** dump mingguan terenkripsi (T-012) + latihan pemulihan minimal sekali sebelum pilot.
+14. **Rencana bila internet kedai mati:** antrean lokal + kunci idempoten (ART-8) + prosedur catat manual sementara (Buku Insiden).
 
 ---
 
@@ -337,6 +366,37 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 - Jangan menyimpan lebih dari yang diperlukan; nomor HP/email hanya untuk voucher & pemulihan.
 - Tampilkan persetujuan singkat saat pendaftaran voucher; ada cara menghapus data pelanggan (permintaan) tanpa menghapus catatan keuangan (anonymize).
 
+### ART-11. Perangkat terdaftar & sesi (pencabutan seketika)
+- **Aturan:** peran staf (kasir/pelayan/dapur/admin cabang/owner pusat) **wajib** memakai perangkat terdaftar (`perangkat.status = aktif`, `peran_diizinkan` cocok, ada sesi aktif di `sesi_perangkat` yang belum kedaluwarsa).
+- **Pencabutan** (perangkat hilang/dicuri, pegawai berhenti, kecurigaan) **wajib** berlaku seketika: karena token akses yang sudah terbit tidak bisa ditarik, pemeriksaan perangkat/sesi **wajib** dilakukan di database pada setiap permintaan — dilarang hanya mengandalkan klaim JWT.
+- **Bukti perangkat** (header → `current_setting('request.headers')`) adalah penguat tambahan; bila terbukti tidak andal di Supabase nyata, penegakan lewat `sesi_perangkat` tetap berlaku. Jangan menjadikan bukti perangkat sebagai satu-satunya penjaga tanpa membuktikannya lebih dulu.
+- **Dilarang** menambah jalan pintas "perangkat sementara" tanpa persetujuan pemilik (lewat `DECISIONS_LOG.md`).
+- **Uji wajib:** perangkat tidak terdaftar → tabel staf tertutup · cabut perangkat → permintaan berikutnya gagal · sesi lewat umur → ditolak · perangkat dengan peran lain → ditolak.
+
+### ART-12. Identitas & cara masuk (satu akun satu peran)
+- **Aturan:** satu akun = satu peran (di semua cabangnya); orang dengan dua fungsi memakai dua akun dengan **PIN berbeda**; PIN wajib **unik** antar pegawai dan bukan pola lemah.
+- **Masuk:** staf = perangkat terdaftar + PIN 6 digit; admin cabang/owner pusat/pemilik platform = kata sandi ≥12 karakter + **TOTP wajib**; pelanggan = Google (utama) / email terverifikasi (kedua).
+- **Pemulihan:** PIN staf direset admin/owner (izin `kelola_pegawai`, tercatat); MFA admin cabang direset owner pusat; MFA owner pusat direset pemilik platform. **Dilarang** menambah pemulihan mandiri lewat email untuk akun staf.
+- **Dilarang:** PIN sebagai kunci enkripsi lokal, Edge Function yang menerbitkan sesi sendiri, atau memakai `user_metadata` untuk keputusan otorisasi.
+- **Uji wajib:** PIN benar + perangkat tidak terdaftar = gagal · PIN salah = gagal + tercatat · PIN benar + perangkat terdaftar = berhasil · PIN kembar/lemah ditolak · admin tanpa TOTP tidak bisa masuk.
+
+### ART-13. Jejak audit berantai
+- **Aturan:** `catatan_audit` hanya-tambah (tidak ada hak ubah/hapus untuk siapa pun) + **rantai hash** (`hash_sebelumnya`, `hash_baris`) dihitung pemicu, bukan aplikasi.
+- Semua tindakan sensitif **wajib** menulis catatan: void, diskon manual, ubah harga, buka laci tanpa transaksi, pakai voucher, perubahan pengaturan/izin/pegawai/PIN, pendaftaran & pencabutan perangkat, persetujuan PIN, mode dukungan, percobaan masuk.
+- **Uji wajib:** mengubah satu baris → pemeriksa menunjuk baris itu; menghapus satu baris → rantai putus terdeteksi; penyisipan bersamaan tidak menghasilkan rantai bercabang.
+
+### ART-14. Data pelanggan & privasi (UU PDP)
+- **Aturan:** persetujuan eksplisit sebelum menyimpan; minimalisasi (nama, kontak opsional, catatan voucher); tidak ada NIK/lokasi/biometrik/pelacakan.
+- Permintaan akses/hapus → **anonimisasi** data pribadi; catatan keuangan tetap utuh (Aturan Bisnis 11); tanggap 3×24 jam.
+- Kebocoran → pemberitahuan tertulis ≤3×24 jam (subjek data + lembaga pengawas) memakai template `docs/teknis/BUKU_INSIDEN.md`.
+- Laporan/email **dilarang** memuat kontak pelanggan.
+- **Uji wajib:** pelanggan tanpa persetujuan ditolak; anonimisasi menghapus kontak tetapi tidak menghapus transaksi.
+
+### ART-15. Mode dukungan pemilik platform
+- **Aturan:** bawaan `pemilik_platform` **tidak** punya akses isi data penyewa; akses hanya lewat **mode dukungan**: wajib alasan, berbatas waktu (bawaan 60 menit), **hanya-baca**, tercatat di `catatan_audit`, dan **owner penyewa diberi tahu**.
+- Mode berakhir otomatis (pg_cron) dan saat pemilik platform keluar; **dilarang** memberi hak mengubah data.
+- **Uji wajib:** tanpa mode → 0 baris · dengan mode → perintah tulis ditolak · setelah kedaluwarsa → 0 baris lagi · catatan audit & pemberitahuan terkirim.
+
 ---
 
 ## 10. Batas gratis & rencana naik kelas (keputusan K6)
@@ -361,6 +421,9 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 5. **Uji tampilan** memakai alat yang sudah ada: `prototipe/uji-kontras.py` (kontras & aturan desain) dan `prototipe/alat/periksa-halaman.py` — diperluas ke aplikasi.
 6. **Definisi selesai satu fitur:** kode + migrasi + uji otomatis lulus + daftar uji terima manual ditulis + bahasa Indonesia + laporkan ke pemilik dalam bahasa sehari-hari.
 7. **Aturan gelombang:** G2 tidak dimulai sebelum G1 lulus semua uji & dipakai harian tanpa masalah.
+8. **Uji keamanan akun & perangkat** (baru 2026-09-17): peran × aksi (matriks) · perangkat tidak terdaftar ditolak · pencabutan seketika · sesi lewat umur · kunci percobaan masuk · PIN lemah/kembar · rantai audit · mode dukungan — daftar lengkap di `docs/KEAMANAN.md` §14.
+9. **Uji kelengkapan UI** (baru 2026-09-17): setiap layar punya **kontrak layar** + **7 keadaan** wajib + **uji komponen** (jsdom + Testing Library) yang membuktikan setiap tombol memanggil RPC yang benar sesuai peran; pemeriksa `alat/peta-ui.py` menggagalkan CI bila ada aksi tanpa uji, RPC/izin yang tidak ada, layar tanpa berkas, dokumen peta basi, atau fitur PRD tanpa jejak layar.
+10. **Uji peramban (Playwright) dijalankan di CI**, bukan di ruang kerja agent (Chromium tidak bisa diunduh di ruang kerja ini — sudah dicoba 2026-09-17); 9 alur wajib + naskah jalan pemilik bernomor (`W-<fase>-<nomor>`) untuk setiap tugas UI.
 
 ---
 
@@ -374,6 +437,8 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 | 4 | Nama produk platform | Dipakai sebagai nama aplikasi & domain | Pilihan: Langgan · Baraka · Sajian · Rame · Nota |
 | 5 | Domain sendiri untuk email verifikasi | Beberapa penyedia email butuh domain (Resend bisa tanpa domain dengan batas terbatas) | Putuskan di Tahap 4 |
 | 6 | Apakah semua pegawai punya email aktif | Masuk pegawai memakai email + PIN | Tanya saat penyiapan |
+| 7 | **Region proyek Supabase** (usul: Singapore) | Menentukan lokasi data pelanggan & dasar transfer UU PDP | Dipilih pemilik saat T0-08 — dicatat sebagai **T-014** |
+| 8 | **Tablet Android yang dipakai untuk mode terkunci satu-aplikasi (kiosk)** | Menentukan langkah penyiapan perangkat di panduan pegawai | Ditulis agent sebagai panduan (tanpa biaya) — dicatat sebagai **T-015** |
 
 ---
 
@@ -391,3 +456,5 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 | 2026-09-16 | **Teknologi aplikasi: React + Vite (SPA/PWA)**, bukan Next.js | Mengurangi lapisan & pemakaian fungsi Cloudflare; cukup untuk kebutuhan kasir/laporan; tetap memakai aturan React dari skill |
 | 2026-09-16 | **Dokumen TECH_SPEC disetujui & DIKUNCI pemilik** (jawaban: "Ya, setuju") | Fondasi teknis resmi — sesi berikutnya berpedoman ke dokumen ini, bukan menebak ulang dari kode |
 | 2026-09-16 | **Aturan perubahan dokumen:** apa pun yang menyentuh ART-1…ART-10 wajib lewat `DECISIONS_LOG.md` **dan** persetujuan pemilik dulu | Menjaga keputusan berisiko tinggi tidak diubah diam-diam oleh sesi berikutnya |
+| 2026-09-17 | **Keamanan akun diperdalam (pesan pemilik ke-14)**: satu akun satu peran · perangkat terdaftar (kode + persetujuan pemilik) · masuk staf = perangkat + PIN 6 digit · TOTP wajib untuk 3 peran berkuasa + jalan pemulihan · kendali sesi dibuat sendiri · mode dukungan · privasi UU PDP · audit berantai. Rincian resmi pindah ke **`docs/KEAMANAN.md`**; ART baru: **ART-11…ART-15** | Pemilik meminta jeda sadar sebelum lanjut karena merasa keamanan belum dibahas sempurna (perangkat hilang, peran ganda, login satset); riset menunjukkan kendali sesi bawaan Supabase (time-box/inactivity/HIBP) ada di paket **Pro**, jadi kendali dibuat sendiri agar pencabutan berlaku seketika |
+| 2026-09-17 | **Kelengkapan UI dijadikan gerbang otomatis**: Registri Aksi (satu sumber kebenaran tombol) + Peta Layar + kontrak layar + pemeriksa `alat/peta-ui.py` + uji komponen per layar + naskah jalan pemilik + DoD v2 | Pengalaman pemilik pada proyek sebelumnya: banyak tombol kurang dan fungsi "katanya ada" tapi tidak bisa dipakai, walaupun dokumen fondasi detail — penyebabnya tidak ada daftar tombol, tidak ada uji pemanggilan, dan "selesai" berarti "kode ditulis" |

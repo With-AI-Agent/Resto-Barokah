@@ -114,7 +114,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** CI lambat/berbiaya → mitigasi: hanya GitHub Actions gratis untuk repo publik, tanpa langkah berbayar.
   - **Verifikasi:** status CI hijau pada push pertama; sengaja membuat lint gagal di uji coba → CI merah. · **Bukti 2026-09-16:** CI menyala di setiap push & pull request; gerbangnya benar-benar bekerja — (a) run 35121292973 **MERAH di langkah ESLint** saat sengaja dipasang variabel tidak terpakai (kode ujinya lalu dihapus), (b) run 35120922393 merah karena folder layar kosong tidak ikut Git, (c) run 35121062046 merah karena satu berkas Markdown belum dirapikan, dan (d) run **35121525551 hijau penuh** (npm ci → Prettier → ESLint → TypeScript → Vitest → build → 5 pemeriksa Python). Artinya: dua cacat nyata tertangkap CI, bukan cuma “hijau karena kebetulan”. Semua ini memakai jatah gratis GitHub Actions (repo privat 2.000 menit/bulan).
 
-- [ ] T0-08 — Proyek Supabase dibuat + klien aman tersambung
+- [ ] T0-08 — Proyek Supabase dibuat + klien aman tersambung ❓ T-014
   - **Tujuan:** aplikasi bisa membaca data dari Supabase dengan kunci publik saja.
   - **Ref:** TECH_SPEC §1 & §6; AGENT_OPERATING_GUIDE §3
   - **File:** `aplikasi/src/lib/supabase.ts`, `supabase/config.toml`, `aplikasi/.env.local` (tidak di-commit)
@@ -239,7 +239,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-11 — Migrasi kas & shift + printer
   - **Tujuan:** uang kas selalu bisa diaudit (modal, masuk, keluar, hasil hitung, selisih).
   - **Ref:** TECH_SPEC §4 & §9 ART-6; PRD M7
-  - **File:** `supabase/migrations/0011_kas_shift.sql`
+  - **File:** `supabase/migrations/0018_kas_shift.sql`
   - **DoD:** `shift_kas` (buka/tutup, modal, seharusnya, fisik, selisih, alasan) + `kas_pergerakan` + `printer` (per perangkat/cabang); uji lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); shift menggantung → mitigasi: aturan & pengingat (T7-05).
@@ -248,7 +248,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-12 — Migrasi pelanggan, kampanye voucher, voucher, percobaan voucher ⚠️
   - **Tujuan:** voucher tidak bisa dipakai dua kali dan data pelanggan sesedikit mungkin (privasi).
   - **Ref:** TECH_SPEC §4 (tabel: pelanggan, kampanye_voucher, voucher, voucher_percobaan) & §9 ART-5/ART-10; PRD M10
-  - **File:** `supabase/migrations/0012_voucher.sql`
+  - **File:** `supabase/migrations/0019_voucher.sql`
   - **DoD:** tabel pelanggan (nama, email, opsi alamat, persetujuan), kampanye (nilai, minimum, batas potongan, masa berlaku, kuota, anggaran, cabang), voucher (kode acak, status), percobaan (log semua cek/scan); indeks unik mencegah dobel; uji lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5) & Privasi (ART-10); dobel pakai → mitigasi: kunci unik + transaksi atomik di T1-20.
@@ -257,7 +257,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-13 — Migrasi catatan_audit (hanya-tambah) ⚠️
   - **Tujuan:** jejak tindakan sensitif tidak bisa diubah atau dihapus siapa pun.
   - **Ref:** TECH_SPEC §4 & §9 ART-6; PRD M3
-  - **File:** `supabase/migrations/0013_catatan_audit.sql`, `supabase/tes/audit.sql`
+  - **File:** `supabase/migrations/0020_catatan_audit.sql`, `supabase/tes/audit.sql`
   - **DoD:** hanya bisa INSERT; UPDATE/DELETE ditolak untuk semua peran (termasuk owner & service role via policy/trigger); uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Audit (ART-6); hapus jejak untuk menutupi kecurangan → mitigasi: larangan di tingkat database, bukan aplikasi.
@@ -266,7 +266,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-14 — Migrasi antrean kirim & catatan kesalahan
   - **Tujuan:** pesanan saat internet putus tidak hilang dan masalah bisa diperiksa tanpa menebak.
   - **Ref:** TECH_SPEC §4 & §9 ART-8; PRD §9 (risiko)
-  - **File:** `supabase/migrations/0014_antrean_kesalahan.sql`
+  - **File:** `supabase/migrations/0021_antrean_kesalahan.sql`
   - **DoD:** tabel `antrean_kirim` (kunci idempoten unik) + `catatan_kesalahan` (tingkat, kode, konteks) ada; tidak menyimpan sandi/PIN; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Antrean Offline (ART-8); data sensitif tercatat → mitigasi: daftar kolom terbatas + tinjauan manual.
@@ -275,8 +275,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-15 — Fungsi hitung_total() + 12 uji uang ⚠️
   - **Tujuan:** satu-satunya tempat menghitung uang, supaya tidak ada dua rumus yang bisa berselisih.
   - **Ref:** TECH_SPEC §5 & §9 ART-3; PRD M6
-  - **File:** `supabase/migrations/0015_hitung_total.sql`, `supabase/tes/uang.sql`
-  - **DoD:** mengembalikan rincian {subtotal, diskon, pb1, service, pembulatan, total}; 12 kasus lulus (pajak 0%, service 0%, diskon penuh, pembulatan .01, uang pas, uang lebih, void sebagian); tidak ada tipe pecahan untuk nominal.
+  - **File:** `supabase/migrations/0022_hitung_total.sql`, `supabase/tes/uang.sql`
+  - **DoD:** mengembalikan rincian {subtotal, diskon, pb1, service, pembulatan, total}; 12 kasus lulus (pajak 0%, service 0%, diskon penuh, pembulatan .01, uang pas, uang lebih, void sebagian); tidak ada tipe pecahan untuk nominal; **wajib `SECURITY DEFINER` + `search_path` dipaku + `revoke execute from public` + `grant` hanya `authenticated`/`service_role`** (fungsi istimewa di skema `public` bisa dipanggil semua peran bila haknya tidak dicabut); menulis **kelima kolom uang sekaligus** dan menutup celah sementara T1-10 (“batas lebih bayar dilewati saat total = 0”).
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3); dua rumus berbeda → mitigasi: klien DILARANG menghitung; semua pemanggilan lewat RPC ini.
   - **Verifikasi:** `supabase test` 12 kasus hijau + bandingkan 3 contoh struk dengan kalkulator manual.
@@ -284,7 +284,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-16 — Urutan hitungan resmi & aturan pembulatan dari pengaturan ⚠️
   - **Tujuan:** urutan (subtotal → diskon → PB1 → service → pembulatan) tidak bisa ditafsirkan berbeda antar sesi.
   - **Ref:** TECH_SPEC §9 ART-3 & §13 (log keputusan); PRD M2 & M6
-  - **File:** `supabase/migrations/0016_urutan_pembulatan.sql`, `supabase/tes/urutan.sql`
+  - **File:** `supabase/migrations/0023_urutan_pembulatan.sql`, `supabase/tes/urutan.sql`
   - **DoD:** diskon dihitung dari subtotal; pajak & service dari subtotal setelah diskon; pembulatan sesuai pengaturan (0/100/500); uji lulus dan hasilnya dicatat di `DECISIONS_LOG.md`.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3); urutan salah → selisih kas → mitigasi: uji contoh nyata + satu fungsi sumber.
@@ -293,7 +293,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-17 — Penomoran pesanan harian per zona waktu penyewa ⚠️
   - **Tujuan:** nomor pesanan tidak bentrok, termasuk saat tengah malam.
   - **Ref:** TECH_SPEC §9 ART-9; PRD M8 (kasus tepi tengah malam)
-  - **File:** `supabase/migrations/0017_penomoran.sql`, `supabase/tes/penomoran.sql`
+  - **File:** `supabase/migrations/0024_penomoran.sql`, `supabase/tes/penomoran.sql`
   - **DoD:** nomor urut per penyewa/cabang/hari memakai zona waktu penyewa; dua pesanan bersamaan tidak dapat nomor sama; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Zona waktu & penomoran (ART-9); balapan bersamaan → mitigasi: urutan di database (bukan di aplikasi).
@@ -302,7 +302,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-18 — State machine pesanan + uji transisi ⚠️
   - **Tujuan:** status pesanan hanya bisa berubah lewat jalur yang sah.
   - **Ref:** TECH_SPEC §9 ART-4; PRD M4, M5, M6
-  - **File:** `supabase/migrations/0018_state_machine.sql`, `supabase/tes/status.sql`
+  - **File:** `supabase/migrations/0025_state_machine.sql`, `supabase/tes/status.sql`
   - **DoD:** daftar status resmi **persis seperti `TECH_SPEC.md` §4.3** (draf → dikirim → dimasak → siap → lunas; batal) + aturan transisi; transisi terlarang ditolak; uji lulus untuk 6 skenario.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4); status "nyangkut" → mitigasi: aturan + uji + tampilan yang selalu menunjukkan langkah berikutnya.
@@ -311,7 +311,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-19 — RPC cek_voucher (BACA SAJA) ⚠️
   - **Tujuan:** kasir bisa memeriksa voucher tanpa mengubah statusnya sedikit pun.
   - **Ref:** TECH_SPEC §5 & §9 ART-5; PRD M10 · RPC resmi: `pakai_voucher`, `daftar_voucher`
-  - **File:** `supabase/migrations/0019_cek_voucher.sql`, `supabase/tes/cek_voucher.sql`
+  - **File:** `supabase/migrations/0026_cek_voucher.sql`, `supabase/tes/cek_voucher.sql`
   - **DoD:** fungsi tidak menulis apa pun (dibuktikan uji: status voucher tidak berubah, tidak ada baris baru); mengembalikan alasan gagal yang spesifik; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5); "cek" tidak sengaja memakai voucher → mitigasi: hak database hanya SELECT + uji "tidak ada perubahan".
@@ -320,7 +320,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-20 — RPC pakai_voucher (atomik, sekali pakai, + PIN) ⚠️
   - **Tujuan:** voucher tidak mungkin terpakai dua kali walau ada dua kasir bersamaan.
   - **Ref:** TECH_SPEC §5 & §9 ART-5; PRD M10
-  - **File:** `supabase/migrations/0020_pakai_voucher.sql`, `supabase/tes/pakai_voucher.sql`
+  - **File:** `supabase/migrations/0027_pakai_voucher.sql`, `supabase/tes/pakai_voucher.sql`
   - **DoD:** memakai transaksi + penguncian baris; memeriksa masa berlaku, minimum belanja, cabang, batas potongan, anggaran kampanye, kuota; wajib PIN kasir/atasan yang berizin; uji lulus termasuk dua pemanggilan bersamaan.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5); balapan ganda → mitigasi: `SELECT ... FOR UPDATE` + constraint unik + uji paralel.
@@ -343,6 +343,140 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1); tabel baru mengulang kesalahan yang sama → mitigasi: uji ini otomatis di CI, bukan disiplin manual.
   - **Verifikasi:** CI hijau + sengaja menambah tabel tanpa policy → CI merah.
+
+---
+
+## Fase 1B — Keamanan akun, perangkat & jejak (⚠️ disisipkan 2026-09-17, dikerjakan SEBELUM T1-11)
+
+> **Kenapa disisipkan:** pemilik (pesan ke-14) meminta keamanan dimatangkan sebelum lanjut. Pola RLS & cara masuk
+> dipakai oleh seluruh migrasi/layar berikutnya — kalau T1-11 dilanjutkan dulu, pembongkaran dilakukan dua kali.
+> **Nomor migrasi:** penyisipan ini memakai **0011–0016**; rencana lama (kas & shift dst.) digeser **+7** menjadi
+> 0018 dst. **Urutan penerapan = urutan tugas di ROADMAP**, bukan urutan nomor berkas rencana lama.
+> **Rujukan resmi:** `docs/KEAMANAN.md`; keputusan: `docs/DECISIONS_LOG.md` 2026-09-17.
+
+- [ ] T1-23 — Migrasi 0011: peran tunggal + PIN unik & kuat ⚠️
+  - **Tujuan:** satu akun hanya punya satu peran (orang dua fungsi = dua akun) dan PIN tidak bisa dipakai dua orang atau dipilih dari pola lemah.
+  - **Ref:** TECH_SPEC §4.1 & §9 ART-12; PRD M3 & M12
+  - **File:** `supabase/migrations/0011_peran_tunggal.sql`, `supabase/tes/peran_tunggal.sql`
+  - **DoD:** `pengguna_cabang` hanya menyimpan daftar cabang; peran tunggal ditegakkan database; PIN wajib 6 digit, **unik antar pegawai**, pola lemah ditolak; uji SQL lulus; matriks peran tidak berubah setelah migrasi.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-12); peran ganda terselundup lewat tabel lain → mitigasi: pemicu penegak + uji & pemeriksa peran tunggal.
+  - **Verifikasi:** uji SQL: sisipkan peran kedua untuk satu akun → ditolak · PIN kembar → ditolak · PIN `123456` → ditolak · akun merangkap dua cabang tetap boleh.
+
+- [ ] T1-24 — Migrasi 0012: perangkat terdaftar + `perangkat_sah()` + RLS staf diperketat ⚠️
+  - **Tujuan:** bagian staf hanya bisa dibuka dari perangkat terdaftar; perangkat curian/hilang mati seketika; perangkat tidak bisa dipakai masuk sebagai peran lain.
+  - **Ref:** TECH_SPEC §4.6 & §9 ART-11; PRD M12
+  - **File:** `supabase/migrations/0012_perangkat.sql`, `supabase/tes/perangkat.sql`
+  - **DoD:** tabel `perangkat`, `kode_pendaftaran_perangkat`, `persetujuan_perangkat` ada; kode sekali pakai 15 menit; rahasia 32 byte disimpan SHA-256; `peran_diizinkan` ditegakkan; fungsi `perangkat_sah()` `stable` + `search_path` dipaku; policy tabel staf memakai `(select public.perangkat_sah())`; RPC `buat_kode_perangkat`, `daftarkan_perangkat`, `setujui_perangkat_pegawai`, `cabut_perangkat`, `daftar_perangkat`; uji SQL lulus.
+  - **Kompleksitas:** besar (6 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); policy salah membuat semua staf terkunci atau justru terbuka → mitigasi: uji dua arah (perangkat sah boleh · tidak sah ditolak) + uji pencabutan seketika; bukti perangkat lewat header **wajib diuji di Supabase nyata** dulu (T0-08), jaring `sesi_perangkat` tetap berlaku.
+  - **Verifikasi:** uji SQL: perangkat tidak terdaftar → tabel staf tertutup · cabut perangkat → permintaan berikutnya gagal · "Tablet Kasir" dipakai masuk sebagai owner → ditolak · kode kadaluwarsa/dipakai dua kali → ditolak.
+
+- [ ] T1-25 — Migrasi 0013: sesi perangkat, umur maksimum & pencabutan seketika ⚠️
+  - **Tujuan:** sesi punya umur jelas, bisa dicabut seketika, dan perangkat yang ditinggal tidak menyimpan akses.
+  - **Ref:** TECH_SPEC §4.6 & §9 ART-11; PRD M12
+  - **File:** `supabase/migrations/0013_sesi_perangkat.sql`, `supabase/tes/sesi_perangkat.sql`
+  - **DoD:** tabel `sesi_perangkat` (+ kunci unik `session_id`); RPC `ikat_sesi_perangkat`, `daftar_sesi`, `cabut_perangkat`, `keluar_semua_perangkat`; umur maksimum (staf 12 jam · admin/owner 30 hari · pemilik platform 8 jam) ditolak di database; sesi perangkat dicabut saat akun nonaktif; uji SQL lulus.
+  - **Kompleksitas:** besar (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); token terbit tetap sah sampai kedaluwarsa (batas Supabase) → mitigasi: pemeriksaan sesi di database tiap permintaan + token akses 15 menit.
+  - **Verifikasi:** uji SQL: sesi lewat umur → ditolak · dicabut → ditolak pada permintaan berikutnya · sesi akun nonaktif → ditolak · `session_id` ganda → ditolak.
+
+- [ ] T1-26 — Migrasi 0014: percobaan masuk + kunci 5×/15 menit (akun) & 12×/15 menit (perangkat) ⚠️
+  - **Tujuan:** PIN tidak bisa ditebak walau dari perangkat terdaftar.
+  - **Ref:** TECH_SPEC §4.6 & §9 ART-12; PRD M12
+  - **File:** `supabase/migrations/0014_percobaan_masuk.sql`, `supabase/tes/percobaan_masuk.sql`
+  - **DoD:** tabel `percobaan_masuk` mencatat semua percobaan (berhasil/gagal/diblokir); kunci dua lapis berlaku; percobaan yang ditolak karena terkunci tetap dihitung; percobaan gagal memicu pemberitahuan ke owner; uji SQL lulus.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); kunci terlalu ketat membuat kasir tidak bisa kerja di jam sibuk → mitigasi: nilai dapat diatur owner + pesan jelas + penghitung mundur di layar.
+  - **Verifikasi:** uji SQL: 6 kali salah → ditolak walau PIN benar · 12 kali salah dari satu perangkat (dibagi beberapa akun) → perangkat terkunci · pemulihan setelah 15 menit.
+
+- [ ] T1-27 — Migrasi 0015: `catatan_audit` hanya-tambah + rantai hash ⚠️
+  - **Tujuan:** jejak audit tidak bisa diubah/dihapus, dan perubahan langsung di database pun bisa dideteksi.
+  - **Ref:** TECH_SPEC §4.3 & §9 ART-13; PRD M12
+  - **File:** `supabase/migrations/0015_audit.sql`, `supabase/tes/audit.sql`, `alat/periksa-audit.py`
+  - **DoD:** tabel `catatan_audit` ada tanpa hak ubah/hapus; `hash_sebelumnya` & `hash_baris` dihitung pemicu (aman untuk penyisipan bersamaan); pemeriksa rantai menunjuk baris pertama yang putus; audit ditulis oleh perubahan izin, PIN, perangkat, mode dukungan; uji SQL lulus.
+  - **Kompleksitas:** besar (5 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Jejak Audit (ART-13); rantai bercabang saat dua penulisan bersamaan → mitigasi: kunci baris terakhir saat pemicu berjalan + uji dua transaksi.
+  - **Verifikasi:** uji SQL + pemeriksa: ubah satu baris → pemeriksa menunjuk baris itu; hapus satu baris → putus terdeteksi; audit tidak bisa diubah/dihapus oleh peran mana pun.
+
+- [ ] T1-28 — Migrasi 0016: mode dukungan pemilik platform (beralasan, berbatas waktu, tercatat) ⚠️
+  - **Tujuan:** pemilik platform tetap bisa menolong tanpa pernah mengintip data penyewa diam-diam.
+  - **Ref:** TECH_SPEC §9 ART-15; PRD §9 & M12
+  - **File:** `supabase/migrations/0016_mode_dukungan.sql`, `supabase/tes/mode_dukungan.sql`
+  - **DoD:** RPC `mode_dukungan` (alasan wajib, bawaan 60 menit, hanya-baca); policy membedakan pemilik platform biasa vs mode aktif; berakhir otomatis (pg_cron) & saat keluar; catatan audit + pemberitahuan ke owner penyewa; uji SQL lulus.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Lintas Penyewa (ART-15); mode lupa ditutup → data terbuka lebih lama → mitigasi: kedaluwarsa otomatis + pemeriksa berkala.
+  - **Verifikasi:** uji SQL: tanpa mode → 0 baris · dengan mode → tulis ditolak · setelah kedaluwarsa → 0 baris lagi · catatan audit & pemberitahuan ada.
+
+- [ ] T1-29 — Uji matriks peran × aksi (otomatis, semua peran) ⚠️
+  - **Tujuan:** setiap peran terbukti boleh/tidak boleh untuk setiap aksi — bukan sampel.
+  - **Ref:** TECH_SPEC §8 & §11; AGENT_OPERATING_GUIDE §5
+  - **File:** `supabase/tes/matriks_izin.sql`, `supabase/tes/matriks_staf.sql`
+  - **DoD:** matriks dibuat dari daftar izin & peran (bukan ditulis satu per satu); 6 peran × semua aksi RPC diperiksa; peran tanpa izin **ditolak walau RPC dipanggil langsung**; laporan matriks tercetak di log CI; uji lulus.
+  - **Kompleksitas:** besar (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-12) & RLS (ART-1); matriks basi saat aksi baru ditambah → mitigasi: daftar aksi diambil dari registri + pemeriksa CI.
+  - **Verifikasi:** uji SQL mutasi: longgarkan satu izin → matriks GAGAL; kembalikan → LOLOS.
+
+- [ ] T1-30 — Pemeriksa keamanan SQL + rahasia + dependensi di CI ⚠️
+  - **Tujuan:** aturan keamanan yang mudah terlupa diperiksa mesin, bukan ingatan.
+  - **Ref:** TECH_SPEC §8 & §11; docs/KEAMANAN.md §16
+  - **File:** `alat/periksa-keamanan-sql.py`, `alat/periksa-rahasia.py`, `.github/workflows/ci.yml`
+  - **DoD:** pemeriksa menolak: fungsi `SECURITY DEFINER` tanpa `search_path` · tanpa `revoke execute from public` · tabel baru tanpa RLS/policy · policy tanpa `(select …)` untuk fungsi · berkas `.env`/kunci di repo; `npm audit` dijalankan; ketiganya di CI; dibuktikan bisa MERAH.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1) & Fungsi Istimewa (ART-11); pemeriksa terlalu longgar = hijau palsu → mitigasi: uji mutasi wajib (matikan satu aturan → pemeriksa GAGAL).
+  - **Verifikasi:** jalankan pemeriksa dengan sengaja menyisipkan cacat → GAGAL; setelah dipulihkan → LOLOS; dijalankan di CI.
+
+## Fase 1C — Kontrak UI & peta aksi (⚠️ disisipkan 2026-09-17, dikerjakan SEBELUM layar pertama Fase 3)
+
+> **Kenapa disisipkan:** pengalaman pemilik pada proyek sebelumnya — banyak tombol kurang dan fungsi "katanya ada"
+> tetapi tidak bisa dipakai, walau dokumen fondasi detail. Sebabnya: tidak ada daftar tombol, tidak ada uji
+> pemanggilan, dan "selesai" berarti "kode ditulis". Fase ini membuat ketiganya **tidak mungkin** terjadi.
+> **Rujukan:** `docs/SPESIFIKASI_UI.md`, `docs/PETA_UI.md` (hasil generate), keputusan `DECISIONS_LOG.md` 2026-09-17.
+
+- [ ] T1-31 — Peta Layar + kontrak layar (template & pengisian awal) ⚠️
+  - **Tujuan:** setiap layar punya janji tertulis sebelum dikoding: untuk siapa, jalan masuk, data, aksi, dan **7 keadaan wajib**.
+  - **Ref:** docs/SPESIFIKASI_UI.md §3 & §4; AGENT_OPERATING_GUIDE §7
+  - **File:** `aplikasi/src/lib/layar.ts`, `docs/SPESIFIKASI_UI.md`, `docs/PETA_UI.md`
+  - **DoD:** registri layar (id, rute, peran, izin, 7 keadaan) ada; kontrak layar diisi untuk layar contoh + kerangka layar masuk; peta peran → layar ditulis; pemeriksa `alat/peta-ui.py` mengenali registri.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; layar ditambah tanpa kontrak → mitigasi: pemeriksa CI menolak layar tanpa berkas/kontrak.
+  - **Verifikasi:** jalankan `python3 alat/peta-ui.py --periksa` → LOLOS; hapus satu kontrak layar → GAGAL.
+
+- [ ] T1-32 — Registri Aksi + komponen `TombolAksi` (satu sumber kebenaran tombol) ⚠️
+  - **Tujuan:** tidak ada tombol tanpa entri; izin, konfirmasi, PIN, pesan, dan uji tercatat di satu tempat.
+  - **Ref:** docs/SPESIFIKASI_UI.md §2; AGENT_OPERATING_GUIDE §7
+  - **File:** `aplikasi/src/lib/aksi.ts`, `aplikasi/src/komponen/TombolAksi.tsx`, `aplikasi/src/komponen/TombolAksi.test.tsx`
+  - **DoD:** entri aksi memuat id, label, layar, peran, izin, RPC, jenis, konfirmasi, butuh-PIN, pesan sukses/gagal, uji; `TombolAksi` menolak id tak dikenal (gagal saat pembangunan); peran tanpa izin → disembunyikan/nonaktif + alasan; uji komponen lulus.
+  - **Kompleksitas:** besar (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; komponen lama memakai tombol mentah → mitigasi: pemeriksa statis menolak `<button` di luar `TombolAksi` pada folder layar.
+  - **Verifikasi:** uji komponen: klik aksi → RPC tiruan terpanggil dengan argumen benar; aksi tanpa uji → pemeriksa GAGAL.
+
+- [ ] T1-33 — Pemeriksa peta aksi/layar + jejak fitur M1–M12 (CI) ⚠️
+  - **Tujuan:** dokumen tidak bisa basi dan tidak ada aksi/layar/fitur yang lepas dari jejak.
+  - **Ref:** docs/SPESIFIKASI_UI.md §5; docs/PRD.md M1–M12
+  - **File:** `alat/peta-ui.py`, `.github/workflows/ci.yml`, `docs/PETA_UI.md`
+  - **DoD:** CI gagal bila: RPC aksi tidak ada di migrasi · kode izin tidak ada · aksi tanpa uji · layar tanpa berkas/rute · `docs/PETA_UI.md` berbeda dari hasil generate · fitur PRD M1–M12 tanpa layar/aksi; dibuktikan bisa MERAH untuk keenam sebab.
+  - **Kompleksitas:** besar (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; pemeriksa hijau palsu → mitigasi: enam uji mutasi (satu per sebab) dijalankan dan dilaporkan.
+  - **Verifikasi:** `python3 alat/peta-ui.py --periksa` di CI + enam uji mutasi MERAH.
+
+- [ ] T1-34 — Harness uji komponen per layar (jsdom + Testing Library) + DoD UI ⚠️
+  - **Tujuan:** setiap tombol dibuktikan benar-benar memanggil fungsi yang benar, sesuai peran, dengan 7 keadaan.
+  - **Ref:** AGENT_OPERATING_GUIDE §5 & §7; docs/SPESIFIKASI_UI.md §6
+  - **File:** `aplikasi/src/uji/harness.tsx`, `aplikasi/src/uji/harness.test.tsx`, `docs/AGENT_OPERATING_GUIDE.md`
+  - **DoD:** harness menyediakan data contoh + tiruan RPC + konteks peran; uji contoh membuktikan aksi berizin terpanggil, aksi terlarang tidak ada, keadaan kosong/memuat/gagal/antrean tampil; DoD UI ditulis di panduan; `npm test` lulus.
+  - **Kompleksitas:** besar (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; uji yang hanya memeriksa tampilan (bukan pemanggilan) → mitigasi: aturan "tiap aksi wajib ada uji pemanggilan" + pemeriksa peta aksi.
+  - **Verifikasi:** `npm test` + mutasi: alihkan satu aksi ke RPC salah → uji GAGAL.
+
+- [ ] T1-35 — Naskah jalan pemilik bernomor (`W-<fase>-<nomor>`) + aturan bukti pratinjau ⚠️
+  - **Tujuan:** setiap fitur bisa diuji pemilik sendiri di pratinjau, langkah demi langkah, sebelum dianggap selesai.
+  - **Ref:** docs/SPESIFIKASI_UI.md §7; AGENT_OPERATING_GUIDE §7
+  - **File:** `docs/uji/NASKAH_JALAN.md`, `docs/SPESIFIKASI_UI.md`
+  - **DoD:** format naskah (langkah, hasil yang harus muncul, kode) ditulis; tugas Fase 1B & layar contoh punya naskahnya; setiap tugas UI di ROADMAP wajib menyebut nomor naskah di DoD-nya; pratinjau menyala dengan data contoh.
+  - **Kompleksitas:** sedang (2 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; naskah dianggap cukup tanpa dijalankan → mitigasi: aturan "naskah dijalankan sebelum `[x]`" + bukti di ROADMAP.
+  - **Verifikasi:** jalankan 3 langkah pertama naskah di pratinjau → hasil sesuai; pemeriksa menolak tugas UI tanpa nomor naskah.
 
 ---
 
@@ -458,6 +592,69 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
+- [ ] T2-13 — Kunci kedua (TOTP) untuk peran berkuasa + jalan pemulihannya ⚠️
+  - **Tujuan:** akun yang bisa mengubah uang & pegawai dilindungi dua lapis, tanpa memacetkan kerja saat HP hilang.
+  - **Ref:** TECH_SPEC §5.1 & §9 ART-12; PRD M12 & Aturan Bisnis 16
+  - **File:** `aplikasi/src/layar/masuk/Totp.tsx`, `supabase/functions/atur_ulang_mfa/index.ts`, `alat/periksa-fungsi-mfa.py`, `supabase/tes/mfa.sql`
+  - **DoD:** pendaftaran & verifikasi TOTP untuk `pemilik_platform`, `owner_pusat`, `admin_cabang`; akun tanpa TOTP tidak bisa masuk; RPC + Edge Function `atur_ulang_mfa` (tipis, tanpa `console.*`, wewenang diperiksa di database) mengatur ulang MFA dengan catatan audit + pemberitahuan; uji lulus.
+  - **Kompleksitas:** besar (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); admin terkunci karena HP hilang → mitigasi: jalan pemulihan diuji lebih dulu + langkah di Buku Insiden.
+  - **Verifikasi:** uji SQL + uji komponen: masuk tanpa TOTP → ditolak; pengaturan ulang oleh yang tidak berizin → ditolak; pengaturan ulang berizin → akun bisa masuk lagi + jejak audit ada.
+
+- [ ] T2-14 — Layar masuk staf: pilih nama → PIN (hanya perangkat terdaftar) ⚠️
+  - **Tujuan:** kasir & pelayan masuk dalam hitungan detik dari tablet yang sudah didaftarkan.
+  - **Ref:** TECH_SPEC §5.1 & §9 ART-12; PRD M12
+  - **File:** `aplikasi/src/layar/masuk/MasukStaf.tsx`, `aplikasi/src/lib/sesi.ts`, `docs/SPESIFIKASI_UI.md`
+  - **DoD:** daftar akun di perangkat itu (sesuai `peran_diizinkan`) + papan angka besar; PIN salah → pesan jelas + sisa percobaan; PIN benar tetapi perangkat tidak terdaftar → pesan tegas + arahan minta persetujuan admin; kontrak layar + 7 keadaan + uji komponen lulus.
+  - **Kompleksitas:** besar (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); staf tidak bisa masuk saat jam sibuk → mitigasi: papan angka besar, tanpa kata sandi, pesan berbahasa Indonesia, dan tombol "minta bantuan admin".
+  - **Verifikasi:** uji komponen (aksi terdaftar `masuk.pin` memanggil RPC yang benar) + naskah jalan pemilik.
+
+- [ ] T2-15 — Pendaftaran perangkat (kode/QR) + persetujuan pegawai baru ⚠️ ❓ T-015
+  - **Tujuan:** hanya perangkat yang didaftarkan admin/owner yang bisa dipakai kerja, dan pegawai baru harus disetujui pemilik.
+  - **Ref:** TECH_SPEC §4.6 & §9 ART-11; PRD M12
+  - **File:** `aplikasi/src/layar/pengaturan/Perangkat.tsx`, `supabase/functions/kode_perangkat/index.ts`, `docs/SPESIFIKASI_UI.md`
+  - **DoD:** admin membuat kode sekali pakai (15 menit) + QR; perangkat baru mendaftar & menyimpan rahasia; pemilik menyetujui pasangan (pegawai × perangkat); perangkat dengan peran lain tidak bisa dipakai masuk; uji komponen + SQL lulus.
+  - **Kompleksitas:** besar (5 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); kode disalin orang lain → mitigasi: sekali pakai, 15 menit, tercatat, dan tetap butuh persetujuan pemilik per pegawai.
+  - **Verifikasi:** uji SQL + naskah jalan: daftar perangkat baru → tampil di daftar; pakai kode dua kali → ditolak.
+
+- [ ] T2-16 — Kunci otomatis saat menganggur + tombol "Kunci sekarang" ⚠️
+  - **Tujuan:** tablet yang ditinggal tidak menyimpan sesi apa pun.
+  - **Ref:** TECH_SPEC §9 ART-11; PRD M12
+  - **File:** `aplikasi/src/hook/useKunciOtomatis.ts`, `aplikasi/src/komponen/KunciSekarang.tsx`, `aplikasi/src/hook/useKunciOtomatis.test.tsx`
+  - **DoD:** batas menganggur per peran (15/15/15/30/60 menit) dapat diatur owner; saat kunci → sesi dihapus dari perangkat + antrean offline tetap terjaga; tombol Kunci selalu tampil di layar staf; uji unit lulus.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); pesanan di antrean hilang saat kunci → mitigasi: antrean disimpan di IndexedDB (ART-8) + uji khusus.
+  - **Verifikasi:** uji unit: lewat batas → terkunci; buka lagi → wajib PIN; antrean utuh setelah kunci.
+
+- [ ] T2-17 — Layar Perangkat & Sesi: daftar, cabut, tandai hilang ⚠️
+  - **Tujuan:** owner bisa mematikan akses perangkat hilang dalam hitungan detik dan melihat apa yang sedang aktif.
+  - **Ref:** TECH_SPEC §5.1 & §9 ART-11; PRD M12
+  - **File:** `aplikasi/src/layar/pengaturan/DaftarPerangkat.tsx`, `docs/uji/NASKAH_JALAN.md`
+  - **DoD:** daftar perangkat (nama, cabang, peran, terakhir aktif, status) + daftar sesi aktif; aksi cabut/hilang dengan konfirmasi + alasan; cabut berlaku seketika (uji SQL); kontrak layar + uji komponen lulus.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); salah cabut perangkat yang sedang dipakai → mitigasi: konfirmasi menyebut nama perangkat + pesan bahwa kasir akan langsung keluar.
+  - **Verifikasi:** uji komponen + naskah jalan: cabut → perangkat lain langsung tidak bisa melakukan permintaan berikutnya.
+
+- [ ] T2-18 — Masuk admin/owner: kata sandi + TOTP + perangkat (dengan bootstrap) ⚠️
+  - **Tujuan:** peran berkuasa masuk dengan aman di perangkat yang terdaftar, tanpa terkunci saat gagal.
+  - **Ref:** TECH_SPEC §5.1 & §9 ART-11/ART-12; PRD M12
+  - **File:** `aplikasi/src/layar/masuk/MasukPengelola.tsx`, `docs/SPESIFIKASI_UI.md`
+  - **DoD:** alur kata sandi → TOTP → cek perangkat; perangkat pertama owner boleh didaftarkan sendiri (bootstrap); perangkat berikutnya butuh persetujuan perangkat aktif; pesan gagal tidak membocorkan apakah akun ada; uji komponen lulus.
+  - **Kompleksitas:** besar (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); owner terkunci di luar restonya sendiri → mitigasi: bootstrap diuji + langkah pemulihan di Buku Insiden + akses pemilik platform.
+  - **Verifikasi:** uji komponen + uji SQL: perangkat belum disetujui → ditolak; setelah disetujui → berhasil.
+
+- [ ] T2-19 — Uji menyeluruh masuk & perangkat (6 peran × skenario) ⚠️
+  - **Tujuan:** membuktikan aturan masuk benar untuk semua peran, termasuk kasus jahat.
+  - **Ref:** TECH_SPEC §11 & §9 ART-11/ART-12; docs/KEAMANAN.md §14
+  - **File:** `supabase/tes/masuk_perangkat.sql`, `aplikasi/src/layar/masuk/masuk.test.tsx`
+  - **DoD:** matriks skenario diuji: perangkat tidak terdaftar · peran tidak cocok · kode kadaluwarsa · sesi lewat umur · perangkat dicabut · akun nonaktif · percobaan berulang · TOTP hilang → jalur pemulihan; semua lulus.
+  - **Kompleksitas:** besar (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-11/ART-12); uji hanya jalur bahagia → mitigasi: wajib ada uji negatif untuk setiap skenario.
+  - **Verifikasi:** uji SQL + komponen hijau + ringkasan matriks tercetak di laporan batch.
+
 ## Fase 3 — Pesanan & kasir (M4)
 
 - [ ] T3-01 — Layar kasir: katalog nyata dari database
@@ -499,7 +696,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T3-05 — RPC simpan_pesanan + kunci idempoten ⚠️
   - **Tujuan:** pesanan tersimpan sekali saja walau tombol ditekan berkali-kali atau internet putus.
   - **Ref:** TECH_SPEC §5 (RPC) & §9 ART-4/ART-8 · RPC resmi: `tambah_item`, `pindah_meja`, `kirim_ke_dapur`
-  - **File:** `supabase/migrations/0021_simpan_pesanan.sql`, `supabase/tes/simpan_pesanan.sql`
+  - **File:** `supabase/migrations/0028_simpan_pesanan.sql`, `supabase/tes/simpan_pesanan.sql`
   - **DoD:** RPC menolak duplikat dengan kunci idempoten; menolak pesanan tanpa item; menolak di luar shift terbuka; hak akses diperiksa; uji lulus (termasuk 5 pemanggilan kunci sama).
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4) & Antrean (ART-8); pesanan dobel → mitigasi: kunci unik di database + uji paralel.
@@ -508,7 +705,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T3-06 — Pindah meja + status meja
   - **Tujuan:** pelanggan pindah meja tanpa membingungkan dapur/kasir.
   - **Ref:** PRD M4 (kasus tepi)
-  - **File:** `aplikasi/src/layar/kasir/PindahMeja.tsx`, `supabase/migrations/0022_pindah_meja.sql`
+  - **File:** `aplikasi/src/layar/kasir/PindahMeja.tsx`, `supabase/migrations/0029_pindah_meja.sql`
   - **DoD:** pindah meja tercatat (dari → ke, oleh siapa); status meja otomatis (kosong/terisi/siap); riwayat tetap.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** salah pindah → mitigasi: konfirmasi + catatan audit.
@@ -517,7 +714,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T3-07 — Penguncian menu habis di kasir
   - **Tujuan:** pelanggan tidak memesan yang sudah habis.
   - **Ref:** PRD M9 (kriteria selesai); TECH_SPEC §4.2 (`stok_pergerakan`, jenis `opname`)
-  - **File:** `aplikasi/src/layar/kasir/Katalog.tsx` (penanda habis), `supabase/migrations/0023_menu_habis.sql`
+  - **File:** `aplikasi/src/layar/kasir/Katalog.tsx` (penanda habis), `supabase/migrations/0030_menu_habis.sql`
   - **DoD:** menandai habis dari kasir & dapur; item habis tidak bisa ditambahkan; pencabutan penanda butuh izin; perubahan tampil di katalog publik.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** penanda lupa dicabut → mitigasi: daftar "menu habis hari ini" di layar kasir + pengingat pagi.
@@ -526,7 +723,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T3-08 — Kirim ke dapur (status pesanan berubah)
   - **Tujuan:** dapur mulai bekerja begitu pesanan dikirim, dan kasir tahu statusnya.
   - **Ref:** PRD M4 & M5; TECH_SPEC §9 ART-4
-  - **File:** `aplikasi/src/layar/kasir/KirimDapur.tsx`, `supabase/migrations/0024_kirim_dapur.sql`
+  - **File:** `aplikasi/src/layar/kasir/KirimDapur.tsx`, `supabase/migrations/0031_kirim_dapur.sql`
   - **DoD:** status berpindah draf → dikirim lewat jalur sah; item makanan/minuman bertanda tujuan; kasir melihat status (dikirim/dimasak/siap).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4); kiriman ganda → mitigasi: kunci idempoten dari T3-05 dipakai ulang.
@@ -571,7 +768,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T3-13 — Pembatalan sebelum dapur mulai (dari kasir) ⚠️
   - **Tujuan:** salah input bisa dibatalkan cepat, tetapi selalu tercatat dengan alasan.
   - **Ref:** PRD M6 (aturan pembatalan bertingkat); TECH_SPEC §9 ART-4
-  - **File:** `aplikasi/src/layar/kasir/BatalPesanan.tsx`, `supabase/migrations/0025_batal_pra_dapur.sql`
+  - **File:** `aplikasi/src/layar/kasir/BatalPesanan.tsx`, `supabase/migrations/0032_batal_pra_dapur.sql`
   - **DoD:** hanya untuk pesanan yang belum dimasak; alasan wajib (daftar + ketik); masuk laporan pembatalan; tidak ada data yang dihapus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4); pembatalan untuk menutupi kecurangan → mitigasi: wajib alasan + catatan audit + laporan harian.
@@ -620,7 +817,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T4-02 — Layar bar (minuman) terpisah
   - **Tujuan:** bar menerima hanya minuman, tidak tercampur.
   - **Ref:** PRD M5 (kriteria selesai)
-  - **File:** `aplikasi/src/layar/dapur/LayarBar.tsx`, `supabase/migrations/0026_tujuan_item.sql`
+  - **File:** `aplikasi/src/layar/dapur/LayarBar.tsx`, `supabase/migrations/0033_tujuan_item.sql`
   - **DoD:** pesanan dipisah otomatis berdasarkan kategori/tujuan item; satu pesanan bisa muncul di dua layar (bagian masing-masing); status per bagian.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** item tanpa kategori → tidak muncul di mana pun → mitigasi: kategori wajib + uji "semua item punya tujuan".
@@ -638,7 +835,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T4-04 — Ubah status per item & seluruh pesanan (anti-dobel) ⚠️
   - **Tujuan:** dua orang menandai item sama tidak menghasilkan status ganda/salah.
   - **Ref:** PRD M5 (kasus tepi); TECH_SPEC §9 ART-4 · RPC resmi: `set_status_item`, `tandai_habis`
-  - **File:** `supabase/migrations/0027_status_item.sql`, `supabase/tes/status_item.sql`
+  - **File:** `supabase/migrations/0034_status_item.sql`, `supabase/tes/status_item.sql`
   - **DoD:** status per item (menunggu → dimasak → siap) dan per pesanan; perubahan ganda dari dua perangkat hanya menghasilkan satu perubahan tercatat; uji paralel lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4); mitigasi: transisi divalidasi di database + kunci idempoten.
@@ -647,7 +844,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T4-05 — Tombol menu habis dari dapur (mengunci kasir + katalog)
   - **Tujuan:** satu tombol di dapur langsung mencegah penjualan menu yang habis.
   - **Ref:** PRD M5 & M9
-  - **File:** `aplikasi/src/layar/dapur/TombolHabis.tsx`, `supabase/migrations/0028_menu_habis_sumber.sql`
+  - **File:** `aplikasi/src/layar/dapur/TombolHabis.tsx`, `supabase/migrations/0035_menu_habis_sumber.sql`
   - **DoD:** penanda habis dari dapur langsung berlaku di kasir & katalog publik (realtime); tercatat siapa & kapan; pencabutan butuh izin.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** penanda tidak tersinkron → mitigasi: satu sumber kebenaran di database + uji lintas layar.
@@ -656,7 +853,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T4-06 — Stok sederhana per bahan + riwayat
   - **Tujuan:** owner tahu persediaan tanpa buku catatan terpisah.
   - **Ref:** PRD M9; TECH_SPEC §4.2 (tabel resmi: `stok_bahan`, `stok_pergerakan`) · RPC resmi: `set_stok`, `opname_stok`
-  - **File:** `aplikasi/src/layar/dapur/Stok.tsx`, `supabase/migrations/0029_stok.sql`
+  - **File:** `aplikasi/src/layar/dapur/Stok.tsx`, `supabase/migrations/0036_stok.sql`
   - **DoD:** bahan bisa dicatat/diabaikan (opsional); penambahan/pengurangan; riwayat perubahan (siapa, kapan, berapa); uji lulus.
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** stok tidak akurat → mitigasi: dinyatakan tegas "pencatatan sederhana, bukan resep otomatis (fase 2)" + opname berkala.
@@ -665,7 +862,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T4-07 — Opname berkala + selisih
   - **Tujuan:** selisih stok terlihat, bukan disembunyikan.
   - **Ref:** PRD M9 (kriteria selesai)
-  - **File:** `aplikasi/src/layar/dapur/Opname.tsx`, `supabase/migrations/0030_opname.sql`
+  - **File:** `aplikasi/src/layar/dapur/Opname.tsx`, `supabase/migrations/0037_opname.sql`
   - **DoD:** mengisi jumlah nyata; sistem menampilkan selisih; tercatat siapa & kapan; koreksi tidak menghapus riwayat.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** opname dijadikan alat menutupi kehilangan → mitigasi: riwayat hanya-tambah + laporan selisih ke owner.
@@ -714,7 +911,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T5-02 — RPC bayar_pesanan (tunai + kembalian) ⚠️
   - **Tujuan:** pembayaran tercatat sekali, benar, dan tidak bisa hilang walau jaringan goyah.
   - **Ref:** TECH_SPEC §5 & §9 ART-3 · RPC resmi: `batal_pesanan`, `batal_item`
-  - **File:** `supabase/migrations/0031_bayar_pesanan.sql`, `supabase/tes/bayar.sql`
+  - **File:** `supabase/migrations/0038_bayar_pesanan.sql`, `supabase/tes/bayar.sql`
   - **DoD:** memvalidasi status pesanan, jumlah bayar ≥ total (kecuali dicatat sebagai kurang), menghitung kembalian lewat `hitung_total()`, menulis catatan audit, idempoten (kunci sama = satu pembayaran); uji lulus.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3) & State Machine (ART-4); uang tidak cocok → mitigasi: kembalian dihitung peladen, uji 8 kasus.
@@ -732,7 +929,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T5-04 — Diskon: satu per transaksi (bawaan) + opsi tumpuk dengan batas ⚠️
   - **Tujuan:** diskon terkendali dan tidak bisa menumpuk tanpa izin.
   - **Ref:** PRD M6 & M2; TECH_SPEC §9 ART-3
-  - **File:** `supabase/migrations/0032_diskon.sql`, `supabase/tes/diskon.sql`
+  - **File:** `supabase/migrations/0039_diskon.sql`, `supabase/tes/diskon.sql`
   - **DoD:** bawaan menolak diskon kedua; bila pengaturan mengizinkan tumpuk, total diskon tidak boleh melebihi batas; uji lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3); kombinasi diskon merugikan → mitigasi: batas total + uji kombinasi.
@@ -741,7 +938,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T5-05 — Diskon manual butuh izin + PIN di atas batas ⚠️
   - **Tujuan:** kasir bisa memberi diskon kecil, tetapi tidak bisa memberi diskon besar tanpa atasan.
   - **Ref:** PRD M3 (batas maksimal %) & M6; TECH_SPEC §9 ART-2
-  - **File:** `aplikasi/src/layar/kasir/DiskonManual.tsx`, `supabase/migrations/0033_diskon_izin.sql`
+  - **File:** `aplikasi/src/layar/kasir/DiskonManual.tsx`, `supabase/migrations/0040_diskon_izin.sql`
   - **DoD:** batas per pegawai dari pengaturan izin; di atas batas → wajib PIN atasan; tercatat (pelaku, nilai, alasan).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); mitigasi: gerbang `boleh()` + PIN + audit.
@@ -750,7 +947,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T5-06 — Void sebelum dapur mulai (alasan wajib) ⚠️
   - **Tujuan:** salah input cepat dibereskan, selalu dengan jejak.
   - **Ref:** PRD M6 (aturan bertingkat); TECH_SPEC §9 ART-4
-  - **File:** `supabase/migrations/0034_void_pra.sql`, `supabase/tes/void_pra.sql`
+  - **File:** `supabase/migrations/0041_void_pra.sql`, `supabase/tes/void_pra.sql`
   - **DoD:** hanya sebelum dimasak; alasan wajib dari daftar/ketik; masuk laporan; tidak ada penghapusan data; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4); mitigasi: aturan di database + laporan harian.
@@ -759,7 +956,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T5-07 — Void setelah dapur mulai: PIN atasan + bahan terbuang ⚠️
   - **Tujuan:** kerugian terlihat sebagai angka, bukan hilang diam-diam.
   - **Ref:** PRD M6 (dikunci pemilik); TECH_SPEC §9 ART-4
-  - **File:** `supabase/migrations/0035_void_pasca.sql`, `aplikasi/src/layar/kasir/VoidPasca.tsx`
+  - **File:** `supabase/migrations/0042_void_pasca.sql`, `aplikasi/src/layar/kasir/VoidPasca.tsx`
   - **DoD:** wajib PIN atasan/owner + alasan; nilai bahan terbuang dihitung dari harga saat itu; muncul di laporan harian sebagai kerugian; uji lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4) & Kalkulasi (ART-3); mitigasi: PIN + audit + laporan.
@@ -804,7 +1001,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T5-12 — Laporan pembatalan (siapa, nilai, alasan)
   - **Tujuan:** owner bisa memeriksa setiap pembatalan, bukan hanya jumlahnya.
   - **Ref:** PRD M8 (kriteria laporan) & M6
-  - **File:** `supabase/migrations/0036_laporan_pembatalan.sql`, `aplikasi/src/layar/laporan/DaftarPembatalan.tsx`
+  - **File:** `supabase/migrations/0043_laporan_pembatalan.sql`, `aplikasi/src/layar/laporan/DaftarPembatalan.tsx`
   - **DoD:** daftar pembatalan per hari/cabang dengan pelaku, nilai, alasan, jenis (pra/pasca dapur); angka cocok dengan data transaksi (uji golden).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** laporan tidak cocok dengan data → mitigasi: uji golden membandingkan hasil laporan dengan data mentah.
@@ -871,7 +1068,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T6-07 — Printer per perangkat & per cabang
   - **Tujuan:** setiap cabang/perangkat bisa punya printer sendiri tanpa saling mengganggu.
   - **Ref:** PRD M11 (printer per cabang); TECH_SPEC §4 (printer)
-  - **File:** `supabase/migrations/0037_printer.sql`, `aplikasi/src/layar/pengaturan/PengaturanPrinter.tsx`
+  - **File:** `supabase/migrations/0044_printer.sql`, `aplikasi/src/layar/pengaturan/PengaturanPrinter.tsx`
   - **DoD:** pengaturan printer tersimpan per perangkat + catatan cabang; pencetakan memakai printer yang dipasangkan di perangkat itu; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** salah printer tercetak di cabang lain → mitigasi: pemasangan wajib per perangkat + tampilkan nama printer aktif.
@@ -893,7 +1090,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T7-01 — Buka kas (modal awal) ⚠️
   - **Tujuan:** setiap shift dimulai dengan modal yang tercatat, sehingga selisih bisa dihitung jujur.
   - **Ref:** PRD M7; TECH_SPEC §9 ART-6 · RPC resmi: `tutup_shift`, `kas_pergerakan`
-  - **File:** `supabase/migrations/0038_buka_shift.sql`, `aplikasi/src/layar/kasir/BukaKas.tsx`
+  - **File:** `supabase/migrations/0045_buka_shift.sql`, `aplikasi/src/layar/kasir/BukaKas.tsx`
   - **DoD:** modal awal wajib; satu shift terbuka per kasir per cabang; tercatat siapa & kapan; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); mitigasi: aturan satu shift terbuka + audit.
@@ -902,7 +1099,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T7-02 — Tutup kas (seharusnya vs fisik) + alasan selisih ⚠️
   - **Tujuan:** kasir tidak pernah dituduh selisih, owner melihat kenyataan.
   - **Ref:** PRD M7 (kriteria selesai)
-  - **File:** `supabase/migrations/0039_tutup_shift.sql`, `aplikasi/src/layar/kasir/TutupKas.tsx`
+  - **File:** `supabase/migrations/0046_tutup_shift.sql`, `aplikasi/src/layar/kasir/TutupKas.tsx`
   - **DoD:** sistem menghitung uang seharusnya (modal + tunai masuk − tunai keluar); kasir memasukkan hasil hitung fisik; bila selisih → alasan wajib; nilai & alasan muncul di laporan.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); mitigasi: rumus di peladen + uji golden.
@@ -911,7 +1108,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T7-03 — Kas pergerakan (masuk/keluar tunai, setoran) ⚠️
   - **Tujuan:** uang yang keluar-masuk di luar penjualan tetap tercatat.
   - **Ref:** PRD M7; TECH_SPEC §4 (kas_pergerakan)
-  - **File:** `supabase/migrations/0040_kas_pergerakan.sql`, `aplikasi/src/layar/kasir/KasKeluarMasuk.tsx`
+  - **File:** `supabase/migrations/0047_kas_pergerakan.sql`, `aplikasi/src/layar/kasir/KasKeluarMasuk.tsx`
   - **DoD:** pencatatan keluar (belanja mendadak, ambil setoran) & masuk (tambahan modal) dengan alasan & izin; masuk hitungan tutup kas.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); mitigasi: izin + audit.
@@ -920,7 +1117,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T7-04 — Transaksi hanya dalam shift terbuka ⚠️
   - **Tujuan:** tidak ada penjualan "di luar kas" yang tidak bisa diaudit.
   - **Ref:** PRD M7 (kriteria selesai)
-  - **File:** `supabase/migrations/0041_wajib_shift.sql`, `supabase/tes/wajib_shift.sql`
+  - **File:** `supabase/migrations/0048_wajib_shift.sql`, `supabase/tes/wajib_shift.sql`
   - **DoD:** memesan/membayar di luar shift terbuka ditolak dengan pesan jelas; uji lulus.
   - **Kompleksitas:** sedang (2,5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); kasir lupa buka kas saat sibuk → mitigasi: pengingat + tombol buka kas cepat.
@@ -929,7 +1126,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T7-05 — Pengingat shift belum ditutup
   - **Tujuan:** shift menggantung tidak menumpuk dan tidak merusak laporan.
   - **Ref:** PRD M7 (kasus tepi)
-  - **File:** `aplikasi/src/komponen/PengingatShift.tsx`, `supabase/migrations/0042_pengingat_shift.sql`
+  - **File:** `aplikasi/src/komponen/PengingatShift.tsx`, `supabase/migrations/0049_pengingat_shift.sql`
   - **DoD:** pengingat saat jam tutup, banner di layar kasir, catatan di laporan bila shift melewati tengah malam.
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** pengingat diabaikan → mitigasi: tercatat di laporan harian owner.
@@ -938,7 +1135,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T7-06 — Koreksi modal awal dengan izin atasan ⚠️
   - **Tujuan:** salah isi modal bisa dibetulkan tanpa menghapus data.
   - **Ref:** PRD M7 (kasus tepi)
-  - **File:** `supabase/migrations/0043_koreksi_modal.sql`
+  - **File:** `supabase/migrations/0050_koreksi_modal.sql`
   - **DoD:** koreksi tercatat sebagai baris baru (bukan menimpa), wajib PIN atasan + alasan, muncul di laporan.
   - **Kompleksitas:** sedang (2,5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); mitigasi: hanya-tambah + PIN.
@@ -947,7 +1144,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T7-07 — Laporan A: kas harian per shift
   - **Tujuan:** owner membuka satu layar dan langsung tahu kondisi hari ini.
   - **Ref:** PRD M8 (kriteria selesai — laporan A dikunci untuk G1) · RPC resmi: `laporan_shift`, `laporan_harian`
-  - **File:** `supabase/migrations/0044_laporan_kas.sql`, `aplikasi/src/layar/laporan/LaporanKas.tsx`
+  - **File:** `supabase/migrations/0051_laporan_kas.sql`, `aplikasi/src/layar/laporan/LaporanKas.tsx`
   - **DoD:** memuat omzet (makanan/minuman/lainnya), jumlah transaksi, rincian metode bayar, diskon & voucher, pembatalan, kas awal/masuk/seharusnya/fisik/selisih, nama kasir & jam shift; filter cabang sesuai peran; angka dari peladen.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** angka tidak cocok → mitigasi: uji golden (T7-12) + satu sumber hitung.
@@ -956,7 +1153,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T7-08 — Laporan penjualan dasar (kategori, metode)
   - **Tujuan:** owner tahu dari mana uang datang.
   - **Ref:** PRD M8
-  - **File:** `supabase/migrations/0045_laporan_penjualan.sql`, `aplikasi/src/layar/laporan/LaporanPenjualan.tsx`
+  - **File:** `supabase/migrations/0052_laporan_penjualan.sql`, `aplikasi/src/layar/laporan/LaporanPenjualan.tsx`
   - **DoD:** omzet per kategori, tren harian sederhana, rincian metode bayar; bisa dilihat per cabang & gabungan (owner).
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** laporan berat → mitigasi: agregasi di peladen + batas rentang tanggal.
@@ -965,7 +1162,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T7-09 — Laporan menu terlaris + diskon/voucher terpakai
   - **Tujuan:** owner tahu menu andalan & biaya promosi.
   - **Ref:** PRD M8 & M10
-  - **File:** `supabase/migrations/0046_laporan_menu.sql`, `aplikasi/src/layar/laporan/LaporanMenu.tsx`
+  - **File:** `supabase/migrations/0053_laporan_menu.sql`, `aplikasi/src/layar/laporan/LaporanMenu.tsx`
   - **DoD:** peringkat menu (jumlah & nilai), daftar diskon manual, daftar voucher terpakai (kampanye, nilai, kasir pemakai).
   - **Kompleksitas:** sedang (3,5 jam)
   - **Risiko & mitigasi:** data menu berubah → mitigasi: memakai `nama_saat_itu` agar laporan lama tidak berubah.
@@ -1005,7 +1202,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T8-01 — RPC katalog_publik (tanpa data sensitif) ⚠️
   - **Tujuan:** pelanggan bisa melihat menu tanpa pernah menyentuh data internal resto.
   - **Ref:** TECH_SPEC §5 & §9 ART-10; PRD M10
-  - **File:** `supabase/migrations/0047_katalog_publik.sql`, `supabase/tes/katalog_publik.sql`
+  - **File:** `supabase/migrations/0054_katalog_publik.sql`, `supabase/tes/katalog_publik.sql`
   - **DoD:** hanya mengembalikan menu, harga, foto, jam buka, kontak publik; tidak ada data pegawai/pelanggan/keuangan; item habis dikembalikan sebagai tidak tersedia; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10) & RLS (ART-1); mitigasi: fungsi memakai daftar kolom tegas (bukan `select *`) + uji "tidak ada kolom sensitif".
@@ -1069,7 +1266,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T8-08 — Terbitkan kode voucher acak + barcode
   - **Tujuan:** kode tidak bisa ditebak atau dibuat sendiri oleh orang luar.
   - **Ref:** PRD M10 (kode acak tidak berurutan)
-  - **File:** `supabase/migrations/0048_voucher_terbit.sql`, `aplikasi/src/layar/voucher/KartuVoucher.tsx`
+  - **File:** `supabase/migrations/0055_voucher_terbit.sql`, `aplikasi/src/layar/voucher/KartuVoucher.tsx`
   - **DoD:** kode acak (bukan berurutan), barcode + kode teks, masa berlaku terlihat; satu voucher per identitas per kampanye.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** kode terguess → mitigasi: panjang memadai + pembatasan percobaan (T8-12).
@@ -1096,7 +1293,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T8-11 — Pengaturan kampanye voucher oleh admin
   - **Tujuan:** admin bisa mengatur kampanye sendiri tanpa koding.
   - **Ref:** PRD M10 (aturan diatur admin) & M2
-  - **File:** `aplikasi/src/layar/pengaturan/Kampanye.tsx`, `supabase/migrations/0049_kampanye_aturan.sql`
+  - **File:** `aplikasi/src/layar/pengaturan/Kampanye.tsx`, `supabase/migrations/0056_kampanye_aturan.sql`
   - **DoD:** persen/nominal, minimum belanja, batas potongan, masa berlaku, kuota, anggaran, cabang berlaku; pratinjau aturan dalam bahasa manusia; validasi mencegah aturan mustahil.
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** aturan salah → mitigasi: validasi + pratinjau ("pelanggan belanja 50rb → potongan maksimal 15rb").
@@ -1105,7 +1302,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T8-12 — Pengaman anti-kecurangan (10 lapis) + batas klaim + log percobaan ⚠️
   - **Tujuan:** kampanye tidak bisa diborong satu orang atau satu perangkat.
   - **Ref:** PRD M10 (pengaman 1–10); TECH_SPEC §9 ART-5
-  - **File:** `supabase/migrations/0050_pengaman_voucher.sql`, `supabase/tes/pengaman_voucher.sql`
+  - **File:** `supabase/migrations/0057_pengaman_voucher.sql`, `supabase/tes/pengaman_voucher.sql`
   - **DoD:** satu voucher per identitas per kampanye; batas per outlet per hari; anggaran kampanye tidak bisa dilampaui; semua cek/scan tercatat; batas percobaan per perangkat; uji lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5); mitigasi: batas berlapis di database + laporan anomali.
@@ -1114,7 +1311,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T8-13 — Laporan klaim voucher + dasar deteksi anomali
   - **Tujuan:** owner melihat apakah kampanye berjalan wajar atau ada pola aneh.
   - **Ref:** PRD M10 (laporan anomali fase 2 → dasar di G1)
-  - **File:** `supabase/migrations/0051_laporan_voucher.sql`, `aplikasi/src/layar/laporan/LaporanVoucher.tsx`
+  - **File:** `supabase/migrations/0058_laporan_voucher.sql`, `aplikasi/src/layar/laporan/LaporanVoucher.tsx`
   - **DoD:** jumlah klaim & pemakaian per kampanye/cabang/hari, nilai potongan, daftar identitas klaim berulang, peringatan sederhana (mis. >3 klaim dari satu identitas).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** salah tuduh pelanggan → mitigasi: istilah "perlu diperiksa", bukan "curang".
@@ -1131,12 +1328,21 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
+- [ ] T8-15 — Migrasi 0017: privasi pelanggan (persetujuan & anonimisasi) ⚠️ ❓ T-011
+  - **Tujuan:** data pelanggan hanya disimpan dengan persetujuan, dan bisa dianonimkan atas permintaan (UU PDP).
+  - **Ref:** TECH_SPEC §9 ART-14; PRD M10 & M12; docs/KEAMANAN.md §11
+  - **File:** `supabase/migrations/0017_privasi_pelanggan.sql`, `supabase/tes/privasi.sql`, `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx`
+  - **DoD:** kolom persetujuan + waktu + versi kebijakan; fungsi anonimisasi menghapus kontak tanpa menghapus catatan keuangan; halaman kebijakan berbahasa Indonesia; uji SQL lulus; draf kebijakan ditinjau pemilik sebelum data pelanggan pertama masuk.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Data Pelanggan (ART-14); data terlanjur tersimpan tanpa persetujuan → mitigasi: pendaftaran tanpa centang = ditolak database; anonimisasi menyisakan jejak audit.
+  - **Verifikasi:** uji SQL: pelanggan tanpa persetujuan ditolak · anonimisasi menghapus kontak · transaksi & voucher tetap ada.
+
 ## Fase 9 — Pengaturan tanpa koding & multi-cabang (M1, M2, M3, M11)
 
 - [ ] T9-01 — Pengaturan identitas & tampilan resto
   - **Tujuan:** owner mengubah nama, logo, banner, tagline sendiri tanpa menghubungi siapa pun.
   - **Ref:** PRD M2 (identitas & tampilan) · RPC resmi: `simpan_pengaturan`, `simpan_menu`, `simpan_meja`, `simpan_metode_bayar`
-  - **File:** `aplikasi/src/layar/pengaturan/Identitas.tsx`, `supabase/migrations/0052_unggah_gambar.sql`
+  - **File:** `aplikasi/src/layar/pengaturan/Identitas.tsx`, `supabase/migrations/0059_unggah_gambar.sql`
   - **DoD:** unggah logo & banner (dengan validasi ukuran/jenis), tagline, nama resto; perubahan langsung terlihat di katalog & struk baru; struk/laporan lama tidak berubah.
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** gambar besar → mitigasi: perkecil otomatis + batas ukuran + penyimpanan gratis 1 GB dipantau (T11-06).
@@ -1154,7 +1360,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T9-03 — Pengaturan operasional (pajak, service, pembulatan, cara pesan, struk)  <!-- T-005 sudah ditutup 2026-09-16: nilai awal PB1 10% · service 5% · 1 shift -->
   - **Tujuan:** aturan uang & layanan sesuai kenyataan kedai, bisa diubah sendiri.
   - **Ref:** PRD M2 & M6; TECH_SPEC §9 ART-3
-  - **File:** `aplikasi/src/layar/pengaturan/Operasional.tsx`, `supabase/migrations/0053_pengaturan_operasional.sql`
+  - **File:** `aplikasi/src/layar/pengaturan/Operasional.tsx`, `supabase/migrations/0060_pengaturan_operasional.sql`
   - **DoD:** jam buka, PB1 %, service %, aturan pembulatan, cara pesan (dilayani/ambil/dua-duanya), header & footer struk; nilai wajib divalidasi (0–100%); perubahan tercatat di audit dan tidak mengubah transaksi lama.
   - **Kompleksitas:** sedang (3,5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3); perubahan pajak mengubah laporan lama → mitigasi: nilai pajak disalin ke transaksi saat dibuat.
@@ -1172,7 +1378,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T9-05 — Pengelolaan menu lengkap (kategori, varian, tambahan, foto, urutan)
   - **Tujuan:** menu bisa diperbarui owner sendiri tanpa koding.
   - **Ref:** PRD M2 (menu)
-  - **File:** `aplikasi/src/layar/pengaturan/Menu.tsx`, `supabase/migrations/0054_urut_menu.sql`
+  - **File:** `aplikasi/src/layar/pengaturan/Menu.tsx`, `supabase/migrations/0061_urut_menu.sql`
   - **DoD:** CRUD kategori/menu/varian/tambahan; foto (perkecil otomatis); harga; urutan tampil; item unggulan; penanda habis manual; pratinjau seperti katalog.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** perubahan harga mengubah riwayat → mitigasi: `harga_saat_itu` (T1-09) + peringatan di layar.
@@ -1199,7 +1405,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T9-08 — Kelola pegawai: peran, izin, PIN ⚠️
   - **Tujuan:** owner memberi kepercayaan bertingkat tanpa kehilangan kendali.
   - **Ref:** PRD M3; TECH_SPEC §9 ART-2 · RPC resmi: `set_izin`, `simpan_pin`, `verifikasi_pin`, `ganti_pin`
-  - **File:** `aplikasi/src/layar/pengaturan/Izin.tsx`, `supabase/migrations/0055_kelola_izin.sql`
+  - **File:** `aplikasi/src/layar/pengaturan/Izin.tsx`, `supabase/migrations/0062_kelola_izin.sql`
   - **DoD:** centang izin per pegawai (termasuk batas diskon %/nominal), reset PIN, nonaktifkan akun, riwayat tetap; perubahan izin tercatat di audit.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); izin salah memberi akses uang → mitigasi: daftar izin jelas + audit perubahan + uji peran (T2-12).
@@ -1208,7 +1414,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T9-09 — Kelola cabang (tambah, printer, nonaktifkan) ⚠️
   - **Tujuan:** membuka cabang baru tidak butuh bantuan teknis.
   - **Ref:** PRD M11; TECH_SPEC §9 ART-1 · RPC resmi: `set_akses_cabang`
-  - **File:** `aplikasi/src/layar/pengaturan/Cabang.tsx`, `supabase/migrations/0056_kelola_cabang.sql`
+  - **File:** `aplikasi/src/layar/pengaturan/Cabang.tsx`, `supabase/migrations/0063_kelola_cabang.sql`
   - **DoD:** tambah cabang (nama, alamat, printer), nonaktifkan sementara (data lama tetap); pegawai merangkap 2 cabang bisa diatur; uji isolasi lintas cabang lulus.
   - **Kompleksitas:** sedang (3,5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1); mitigasi: uji isolasi otomatis (T1-04/T10-05).
@@ -1257,7 +1463,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T10-02 — Kunci idempoten menyeluruh di semua penulisan ⚠️
   - **Tujuan:** satu tindakan tidak pernah tercatat dua kali, dari layar mana pun.
   - **Ref:** TECH_SPEC §9 ART-8
-  - **File:** `supabase/migrations/0057_idempoten.sql`, `supabase/tes/idempoten.sql`
+  - **File:** `supabase/migrations/0064_idempoten.sql`, `supabase/tes/idempoten.sql`
   - **DoD:** semua RPC penulisan menerima kunci idempoten (pesanan, pembayaran, voucher, shift, stok); uji paralel untuk masing-masing; laporan cakupan 100%.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Antrean Offline (ART-8); mitigasi: uji otomatis "setiap RPC penulisan punya kunci" (daftar diperiksa).
@@ -1311,7 +1517,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T10-08 — Denyut harian + pembersih data sementara
   - **Tujuan:** proyek gratis tidak "tidur" dan data sementara tidak menumpuk.
   - **Ref:** TECH_SPEC §1 (pg_cron) & §10 (batas gratis)
-  - **File:** `supabase/migrations/0058_pg_cron.sql`, `alat/denyut.py`
+  - **File:** `supabase/migrations/0065_pg_cron.sql`, `alat/denyut.py`
   - **DoD:** tugas terjadwal harian (denyut) berjalan; pembersih data sementara (mis. percobaan lama) berjalan malam; log hasil terjadwal; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** pembersih menghapus data penting → mitigasi: daftar tabel yang boleh dibersihkan ditulis eksplisit + uji.
@@ -1339,7 +1545,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T10-11 — Perubahan pengaturan bersamaan tidak saling menimpa
   - **Tujuan:** dua orang yang mengubah pengaturan pada saat yang sama tidak membuat perubahan satunya hilang diam-diam.
   - **Ref:** TECH_SPEC §5 (M2 mengembalikan "versi pengaturan (stempel waktu)"); PRD M2 (kasus tepi)
-  - **File:** `supabase/migrations/0059_versi_pengaturan.sql`, `supabase/tes/pengaturan_bersamaan.sql`
+  - **File:** `supabase/migrations/0066_versi_pengaturan.sql`, `supabase/tes/pengaturan_bersamaan.sql`
   - **DoD:** `simpan_pengaturan`/`simpan_menu` menolak simpanan yang memakai versi lama dengan pesan jelas ("data sudah diubah orang lain, muat ulang dulu"); perubahan yang ditolak tidak hilang dari layar; tercatat di audit.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan & pengaturan (ART-3, menyentuh pajak/service); mitigasi: penolakan di peladen, bukan hanya peringatan di layar.
@@ -1356,6 +1562,42 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Verifikasi:** uji SQL: akun nonaktif ditolak masuk, tetapi laporan bulan lalu tetap menampilkan namanya.
 
 ---
+
+- [ ] T10-13 — Ringkasan peringatan harian ke owner (email) ⚠️
+  - **Tujuan:** hal aneh (void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat) terlihat tanpa owner membuka aplikasi.
+  - **Ref:** TECH_SPEC §5.1 & §9 ART-13; docs/KEAMANAN.md §9
+  - **File:** `supabase/functions/ringkasan_harian/index.ts`, `supabase/migrations/0066_ringkasan_harian.sql`, `supabase/tes/ringkasan.sql`
+  - **DoD:** laporan ringkas 1×/hari (pg_cron) memuat omzet, transaksi, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat; **tanpa** data pribadi pelanggan; rantai audit diperiksa dan dilaporkan bila putus; uji SQL lulus.
+  - **Kompleksitas:** besar (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Jejak Audit (ART-13) & Data Pelanggan (ART-14); email bocor/tersalah kirim → mitigasi: hanya angka + nama pegawai, tanpa kontak pelanggan; penerima dapat diatur owner.
+  - **Verifikasi:** uji SQL + kirim percobaan ke email pemilik pada tahap uji terima.
+
+- [ ] T10-14 — Pemeriksa rahasia, dependensi & header keamanan halaman ⚠️
+  - **Tujuan:** kunci rahasia tidak bocor dan aplikasi tidak dibuka dengan pengaturan peramban yang longgar.
+  - **Ref:** TECH_SPEC §6 & §8; docs/KEAMANAN.md §16
+  - **File:** `alat/periksa-rahasia.py`, `aplikasi/public/_headers`, `.github/workflows/ci.yml`
+  - **DoD:** pemeriksa menolak berkas rahasia & pola kunci di repo; `npm audit` dijalankan; header keamanan (CSP, `X-Frame-Options`, `Referrer-Policy`) terpasang di Cloudflare; kontras & struktur halaman tetap hijau setelah CSP.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kunci & Penerapan; CSP terlalu ketat mematikan aplikasi → mitigasi: diuji di pratinjau sebelum produksi + laporan bila ada pelanggaran.
+  - **Verifikasi:** pemeriksa + `npm audit` + halaman pratinjau berjalan tanpa galat CSP.
+
+- [ ] T10-15 — Latihan pemulihan cadangan & uji Buku Insiden ⚠️
+  - **Tujuan:** cadangan terbukti bisa dipulihkan, dan langkah darurat bisa diikuti orang lain tanpa bertanya.
+  - **Ref:** TECH_SPEC §8 & §11; docs/teknis/BUKU_INSIDEN.md
+  - **File:** `docs/teknis/PEMULIHAN.md`, `docs/teknis/BUKU_INSIDEN.md`, `alat/pulihkan-cadangan.sh`
+  - **DoD:** dump cadangan dipulihkan ke database bersih → jumlah baris tabel inti cocok dengan sumber; langkah perangkat hilang & akun diduga bocor diuji berurutan pada salinan; temuan dicatat & diperbaiki.
+  - **Kompleksitas:** besar (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Ketahanan; cadangan rusak tanpa disadari → mitigasi: latihan nyata minimal sekali sebelum pilot + pemeriksa cadangan berjadwal.
+  - **Verifikasi:** laporan latihan (tanggal, jumlah baris, temuan) + langkah Buku Insiden dijalankan.
+
+- [ ] T10-16 — Tinjauan kode pemulihan MFA & kata sandi bocor (T-016) ⚠️ ❓ T-016
+  - **Tujuan:** menutup dua celah yang kini sengaja dibiarkan (pemulihan MFA mandiri & pemeriksa kata sandi bocor), dengan keputusan pemilik bila ada biaya.
+  - **Ref:** docs/KEAMANAN.md §7 & §15; docs/TERTANGGUH.md T-016
+  - **File:** `docs/teknis/TINJAUAN_KEAMANAN_F10.md`, `supabase/tes/mfa.sql`
+  - **DoD:** tinjauan tertulis berisi: apakah kode pemulihan mandiri diperlukan (dan bagaimana aman), status nyata pemeriksa HaveIBeenPwned di paket gratis, serta rekomendasi + dampak biaya = nol; keputusan pemilik dicatat.
+  - **Kompleksitas:** sedang (2 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); keputusan diambil tanpa data → mitigasi: tinjauan memuat bukti (dokumentasi resmi) + uji perilaku.
+  - **Verifikasi:** tinjauan ditinjau pemilik + uji MFA tetap hijau.
 
 ## Fase 11 — Uji terima, deploy produksi, audit (penutup G1)
 
@@ -1451,6 +1693,24 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
+- [ ] T11-11 — Uji peramban (Playwright) 9 alur wajib di CI
+  - **Tujuan:** membuktikan alur nyata bisa diklik dari awal sampai akhir tanpa tangan manusia.
+  - **Ref:** TECH_SPEC §11 & §9 ART-7/ART-8; AGENT_OPERATING_GUIDE §5
+  - **File:** `.github/workflows/e2e.yml`, `uji-e2e/*.spec.ts`
+  - **DoD:** 9 alur (buka shift → pesan → dapur → bayar → cetak → void berjenjang → tutup kas, voucher, katalog publik) berjalan di CI dengan data contoh; tangkapan layar & rekaman disimpan sebagai artefak; kegagalan menunjuk langkah & sebabnya.
+  - **Kompleksitas:** besar (6 jam)
+  - **Risiko & mitigasi:** Chromium **tidak bisa diunduh di ruang kerja agent** (sudah dicoba 2026-09-17) sehingga uji ini hanya jalan di CI → mitigasi: jaring lokal tetap uji komponen + uji SQL; bila CI juga gagal, dilaporkan jujur dan diganti (bukan diklaim hijau).
+  - **Verifikasi:** CI hijau + artefak tangkapan layar tiap alur + satu uji mutasi (matikan satu aksi → alur GAGAL).
+
+- [ ] T11-12 — Uji terima keamanan bersama pemilik (naskah W + perangkat nyata)
+  - **Tujuan:** pemilik sendiri membuktikan perangkat hilang, PIN salah, dan pencabutan bekerja di perangkat yang sebenarnya.
+  - **Ref:** docs/uji/NASKAH_JALAN.md; docs/KEAMANAN.md §14
+  - **File:** `docs/uji/NASKAH_JALAN.md`, `docs/uji/HASIL_UJI_TERIMA_KEAMANAN.md`
+  - **DoD:** naskah keamanan dijalankan pemilik di Kedai Oasis (perangkat nyata): daftar perangkat · cabut perangkat saat dipakai · PIN salah 5× · kunci otomatis · TOTP · mode dukungan; hasil dicatat (lulus/cacat) dan cacat diperbaiki sebelum pilot.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** pemilik menemukan hal yang tidak nyaman di akhir → mitigasi: naskah keamanan dijalankan **lebih awal** (setelah Fase 2) sebagai uji antara, bukan hanya di akhir.
+  - **Verifikasi:** naskah bertanda tangan pemilik (setuju/cacat) + daftar cacat ditutup.
+
 ## Checklist kelengkapan sebelum ROADMAP disetujui (Tahap 5)
 
 - [x] Semua fitur **Must Have** M1–M12 punya task: M1 → T9-10 · M2 → T9-01…T9-07 · M3 → T1-05/T1-06/T9-08 · M4 → T3-01…T3-16 · M5 → T4-01…T4-05 · M6 → T5-01…T5-12 · M7 → T7-01…T7-06 · M8 → T7-07…T7-12 · M9 → T4-06/T4-07/T3-07 · M10 → T8-01…T8-14 · M11 → T9-06/T9-09 · M12 → T1-01…T1-22, T2-09/T2-10/T2-12, T10-05/T10-06, T11-05
@@ -1463,7 +1723,12 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 **Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07 · Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009, **T-012** (cadangan di artefak terenkripsi repo privat) dan **T-013** (penutup shift = Admin Cabang → Owner Pusat) sudah **ditutup** 2026-09-16 (lihat tabel Butir selesai di `docs/TERTANGGUH.md`).
 
-**Jumlah tugas:** F0 11 · F1 22 · F2 12 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 14 · F9 12 · F10 12 · F11 10 = **151 tugas**, semuanya ber-7 atribut.
+**Jumlah tugas:** F0 11 · F1 35 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 12 = **178 tugas**, semuanya ber-7 atribut.
+
+> **Catatan 2026-09-17:** angka di atas **diukur ulang** dari berkas ini setelah penyisipan keamanan & kelengkapan UI
+> (Fase 1B `T1-23…T1-30` · Fase 1C `T1-31…T1-35` · perluasan Fase 2/8/10/11). **Nomor migrasi rencana lama bergeser +7**
+> (kas & shift 0011 → **0018**, dst.) supaya 0011–0017 dipakai penyisipan; urutan penerapan mengikuti **urutan tugas**.
+> Pelajaran T1-07/…/T1-10 diulang: jumlah tugas **tidak boleh** ditulis dari ingatan — ambil dari hasil pemeriksa.
 
 **Uji terima antar-fase (aturan gelombang):** fase N+1 tidak dimulai sebelum (a) semua tugas fase N `[x]`, (b) uji otomatisnya hijau, (c) `python3 alat/periksa-roadmap.py` lulus, (d) `DECISIONS_LOG.md` diperbarui untuk tugas bertanda ⚠️, (e) ringkasan 5 baris ditulis di LOG_SESI.
 
@@ -1473,6 +1738,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 |---|---|---|
 | 2026-09-16 | `ROADMAP.md` ditulis (146 tugas, 11 fase) | Urutan fase disetujui pemilik via delegasi; Tahap 5 selesai |
 | 2026-09-16 | Tugas **T0-00** ditambah di awal Fase 0 (pemilik membuat akun Supabase & Cloudflare, dipandu) → 151 tugas | Temuan review independen W5-01: tanpa itu Fase 0 berhenti di T0-08 menunggu sesuatu yang tidak dijelaskan siapa-siapa; akun hanya bisa dibuat pemilik |
+| 2026-09-17 | **Penyisipan keamanan & kelengkapan UI** (pesan pemilik ke-14): Fase 1B (peran tunggal, perangkat terdaftar, sesi & pencabutan, percobaan masuk, audit berantai, mode dukungan, matriks izin, pemeriksa keamanan) + Fase 1C (peta layar, registri aksi, pemeriksa peta UI, harness uji komponen, naskah jalan) + perluasan Fase 2 (TOTP, masuk staf, pendaftaran perangkat, kunci otomatis, daftar & cabut perangkat, masuk pengelola, uji masuk) + Fase 8 T8-15 (privasi) + Fase 10 (+4) + Fase 11 (+2) → **178 tugas** | Pemilik meminta matangkan dulu keamanan akun/perangkat & rencana UI sebelum lanjut; dua fase disisipkan **sebelum** Fase 2 supaya pola RLS/cara masuk tidak dibongkar dua kali; rujukan `docs/KEAMANAN.md` |
 | 2026-09-16 | Nama RPC resmi disisipkan ke blok tugas yang mengerjakannya (12 tugas) + `lihat_laporan` dikeluarkan dari peta RPC (itu kode izin, bukan RPC) | Temuan review independen W3-03: peta RPC ada di luar blok tugas, sehingga pemeriksa hanya bisa mencari di seluruh dokumen |
 | 2026-09-16 | 4 tugas (T0-04, T4-03, T9-10, T11-03) diberi catatan bukti visual diambil manusia; T1-18 disamakan dengan enum `TECH_SPEC.md` §4.3; T0-08 diberi catatan bangunkan database setelah jeda >7 hari | Temuan review independen W4-01, W1-02, W5-03 |
 | 2026-09-16 | Review independen: 4 tugas ditambah di Fase 10 (T10-09 pemulihan listrik · T10-10 cadangan+uji pemulihan · T10-11 pengaturan bersamaan · T10-12 pegawai berhenti) → 150 tugas | Skenario operasional nyata belum punya tugas sama sekali; cadangan hanya disebut di TECH_SPEC §8 dan di DoD T11-10, tanpa tugas pelaksana sendiri |
