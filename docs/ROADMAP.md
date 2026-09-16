@@ -40,6 +40,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 0 — Persiapan & rangka kerja
 
+- **Gerbang masuk (wajib, atas permintaan pemilik 2026-09-16):** review independen oleh sesi baru (`docs/uji/PROMPT_REVIEW_INDEPENDEN.md`) sudah selesai, putusannya bukan `BELUM SIAP`, dan PR hasil review sudah di-merge ke `main`. Selama gerbang ini belum lewat, tugas Fase 0 belum boleh dicentang.
+
 - [ ] T0-01 — Repo aplikasi React + TypeScript + Vite + struktur folder
   - **Tujuan:** aplikasi bisa dijalankan lokal sejak commit pertama dan strukturnya sama dengan rancangan.
   - **Ref:** TECH_SPEC §1 (stack) & §3 (struktur folder); PRD §6 Non-Goals
