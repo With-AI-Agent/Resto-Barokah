@@ -24,6 +24,13 @@ Desain produk Resto Barokah akan dibuat sendiri (orisinil) — tidak menyalin ka
 | 12-dashboard-laporan-resto.jpg | https://multipurposethemes.com/blog/restaurant-dashboard-for-orders-sales-management | Contoh layar laporan: kartu angka + grafik + tabel |
 | 13-dashboard-gelap.webp | https://dribbble.com/tags/dark-admin | Contoh panel tema gelap |
 
-**Catatan kejujuran:** dari 10 gambar pertama, **6 berguna** sebagai rujukan; 2 hanya slide presentasi; 2 resolusi terlalu kecil.
+## Kiriman pemilik (folder `pemilik/`)
+
+Pemilik mengirim **34 gambar** sendiri (via `Referensi.zip`, dibongkar agent 2026-09-16) dengan kode `P01`–`P34`.
+Daftar isi, penilaian, dan arti tiap kode ada di `docs/desain/referensi/pemilik/README.md`;
+papan visualnya `docs/desain/papan-referensi-pemilik.jpg`. **Sumber asli tiap gambar tidak diketahui**
+(kumpulan simpanan pemilik dari Pinterest/web) — keterangan "asal/isi asli" pada README adalah judul berkas saat diterima.
+
+**Catatan kejujuran:** dari 10 gambar pertama (pencarian agent), **6 berguna** sebagai rujukan; 2 hanya slide presentasi; 2 resolusi terlalu kecil.
 Dari pencarian kedua (3 gambar), hanya **11 dan 12** yang berguna; **13 sekadar contoh tema gelap**.
 Kesimpulan pola desain ada di `docs/desain/RENCANA_DESAIN_UI.md`; penilaian kiriman pemilik ada di `docs/desain/PENILAIAN_REFERENSI.md`.

@@ -3,6 +3,11 @@
 > **Status: DRAF DISKUSI** — dibahas bersama pemilik 2026-09-16 (sesi Desain & UI, sisipan sebelum Tahap 3).
 > Permintaan pemilik yang menjadi dasar: *(a)* minta sesi desain & UI, *(b)* minta **beberapa tema yang bisa diubah hanya dengan memilih**,
 > *(c)* minta contoh gambar untuk dibahas bersama, *(d)* aplikasi dipakai di **HP, tablet, dan laptop/PC**.
+>
+> **Referensi pendukung:** `docs/desain/referensi/` (13 gambar hasil pencarian agent) ·
+> `docs/desain/referensi/pemilik/` (**34 gambar kiriman pemilik**, kode `P01`–`P34`) ·
+> papan visual: `docs/desain/papan-referensi.jpg` dan `docs/desain/papan-referensi-pemilik.jpg` ·
+> penilaian lengkap: `docs/desain/PENILAIAN_REFERENSI.md`.
 
 ## 1. Aturan desain yang WAJIB dipatuhi (dari panduan resmi yang dibaca agent)
 Sumber: `skills/web-design-guidelines` (Vercel, fetch berkas panduan terbaru), `skills/frontend-designer`, `skills/design-system`, `skills/ui-ux-pro-max`.
@@ -20,55 +25,64 @@ Sumber: `skills/web-design-guidelines` (Vercel, fetch berkas panduan terbaru), `
 | 9 | Warna | Wajib lewat **token** (bukan kode warna keras di tiap tempat) — inilah yang membuat ganti tema mungkin |
 
 ## 2. Pola desain yang diambil dari contoh (dan yang ditolak)
+Kode `P…` = gambar kiriman pemilik (`docs/desain/referensi/pemilik/`); angka `01`–`13` = pencarian agent.
+
 | Pola | Dari contoh | Dipakai untuk | Alasan |
 |---|---|---|---|
-| **Papan pesanan berkolom status** (Baru → Diproses → Siap → Selesai) | 03, 05 | **Layar dapur (KDS)** & papan pemantauan pesanan | Koki langsung tahu mana yang paling lama menunggu |
-| **Panel menu + keranjang di samping** | 02 | **Layar kasir (tablet/laptop)** | Sekali lihat: menu, isi pesanan, total, tombol bayar |
-| **Kartu pesanan berwarna + tombol aksi besar** | 05 | Layar dapur | Cepat dibaca dari jauh, tombol besar tidak salah tekan |
-| **Mobile-first: kategori ikon + kisi menu + keranjang bawah** | 04, 08 | **Layar pelayan (HP)** | Dipakai sambil berdiri di samping meja pelanggan |
-| **Warna aksen kuat sebagai identitas** | 09, 10 | Pembuktian bahwa tema bisa diganti | Menunjukkan pengaruh besar warna terhadap kesan keseluruhan |
-| **Kartu menu: foto + nama + harga + tombol tambah melingkar besar** | kiriman pemilik (Grill & Co., Burger House, Brew & Bliss) | Katalog pelanggan & "mode katalog" | Sudah terbukti nyaman dipakai di HP |
-| **Keranjang menempel di kanan + ringkasan bertingkat (subtotal → pajak → diskon → total) + kolom kode promo** | kiriman pemilik (Burger District) | **Layar kasir tablet/laptop** | Paling dekat dengan cara kasir bekerja; kolom kode promo jadi pintu masuk voucher kita |
-| **Chip/label status berwarna** | kiriman pemilik (download.jfif) | Papan pesanan & daftar transaksi | Status terbaca sekilas, tanpa membaca kalimat |
-| **Bilah bawah dengan tombol tengah menonjol** | kiriman pemilik (Grill & Co.) | Layar HP (pelayan & kasir mobile) | Terjangkau jempol; aksi utama selalu terlihat |
-| **Pilihan varian ukuran (S/M/L) & label menu unggulan** | kiriman pemilik (coffee shop, Grill & Co.) | Detail menu (panas/es, ukuran, porsi) | Kebutuhan nyata menu kedai |
-| ~~Slide presentasi~~ | 06, 07 | **Ditolak** | Bukan desain layar aplikasi (hanya materi presentasi) |
+| **POS: tab kategori + kisi menu + panel keranjang menempel di kanan** (ringkasan Sub Total → Pajak → Diskon → **Total** + tombol bayar besar) | **P04, P17, P32**, P02 | **Layar kasir (tablet & laptop)** | Tiga contoh independen memakai pola yang sama — inilah cara kasir bekerja: sekali lihat, semua terbaca |
+| **POS desktop gelap + tab pesanan (Dine In / To Go / Delivery)** | **P17** | Layar kasir desktop & antrean pesanan | Cocok untuk resto dengan beberapa jenis pesanan sekaligus (Kedai Oasis: alur campur) |
+| **POS tablet: tab kategori besar + kartu menu berharga rapat** | **P32** | Layar kasir tablet (mode sentuh) | Jari menekan lebih mudah; banyak item terlihat sekaligus |
+| **Papan pesanan dengan chip status berwarna** (Paid / On Progress / Unpaid) | **P31**, 03, 05 | **Dapur (KDS)** + papan pemantauan pesanan | Status terbaca sekilas, tanpa membaca kalimat |
+| **Kartu pesanan berwarna + tombol aksi besar** | 05, P31 | Layar dapur | Cepat dibaca dari jauh, tombol besar tidak salah tekan |
+| **Laporan/dashboard: kartu angka besar + tabel + grafik sederhana** | **P26, P31** | Laporan harian, dashboard pemilik & pemilik platform | Ringkas, langsung menjawab "hari ini bagaimana?" |
+| **Keranjang menempel di kanan + kolom kode promo** | P02, P05, P23, P31 | Layar kasir & halaman pelanggan | Pintu masuk alami untuk **voucher undang-teman** |
+| **Kartu menu: foto + nama + harga + tombol tambah melingkar besar** | P02, P08, P14, P15, P16, P18 | Katalog pelanggan & "mode katalog" | Sudah terbukti nyaman dipakai di HP |
+| **Label di kartu** (Best Seller / Chef's Pick / Populer) | P03, P16 | Menu unggulan, promo, dan penanda **habis** | Pembeli cepat tahu mana yang direkomendasikan |
+| **Kategori ikon bulat** mendatar | P03, P14, P15, P24 | HP (pelayan & pelanggan) | Mudah dijangkau jempol, menghemat ruang |
+| **Bilah bawah dengan tombol tengah menonjol** | P03, P14, P16, P21 | Layar HP (pelayan & kasir mobile) | Aksi utama selalu terlihat |
+| **Pilihan varian (ukuran / porsi / berat)** | P22, P23, P25 | Detail menu (panas/es, ukuran, porsi) | Kebutuhan nyata menu kedai |
+| **Perkiraan waktu siap pesanan** | P28 | Daftar & detail pesanan | Murah dibuat, sangat membantu pelanggan |
+| **Satu susunan, dua mode (terang/gelap) berdampingan** | **P12**, P25 vs P27, P03 vs P16 | Dasar **sistem tema** | Membuktikan tema bisa diganti tanpa mengubah susunan |
+| ~~Poster & infografis~~ | P06, P07, 06, 07 | **Ditolak** sebagai desain layar | Bukan antarmuka yang bisa dipakai (berguna hanya untuk warna/identitas) |
+| ~~Kolase promosi~~ | P09 | **Ditolak** | Materi pemasaran, bukan rancangan layar |
 
 ## 3. Rancangan sistem tema (menjawab permintaan "beberapa tema tinggal dipilih")
-**4 tema bawaan** (pemilik resto cukup memilih, tanpa koding) — masing-masing sudah punya contoh nyata dari kiriman pemilik:
-1. **Terang Bersih** *(bawaan)* — latar putih/abu sangat terang, warna aksen tegas. Paling mudah dibaca di kasir yang ramai. *Rujukan: Grill & Co. versi terang.*
-2. **Hangat Kedai** — latar krem, sudut membulat, aksen hangat. Kesan ramah (cocok cafe/kedai). *Rujukan: Brew & Bliss / bakery coklat-krem.*
-3. **Gelap Dapur** — latar gelap. Untuk layar dapur (ruangan panas/silau) dan pemakaian malam. *Rujukan: Burger House versi gelap.*
+**4 tema bawaan** (pemilik resto cukup memilih, tanpa koding) — masing-masing punya rujukan gambar nyata dari kiriman pemilik:
+1. **Terang Bersih** *(bawaan)* — latar putih/abu sangat terang, warna aksen tegas. Paling mudah dibaca di kasir yang ramai. *Rujukan: P16 Grill & Co. / P08 katalog terang.*
+2. **Hangat Kedai** — latar krem, sudut membulat, aksen hangat. Kesan ramah (cocok cafe/kedai). *Rujukan: P15 Brew & Bliss / P25 katalog kopi / P22 toko kue.*
+3. **Gelap Dapur** — latar gelap. Untuk layar dapur (ruangan panas/silau) dan pemakaian malam. *Rujukan: P17 Jaegar Resto / P03 Burger gelap / P31 dashboard gelap.*
 4. **Kontras Tinggi** — teks & garis paling tegas, warna lebih sedikit. Untuk pegawai yang sulit membaca layar kecil / layar kena matahari.
 
 **Tambahan: 2 tingkat kepadatan tampilan (dipilih per perangkat, tanpa koding)** — hasil pelajaran dari kiriman pemilik:
-- **Mode Kasir (padat & cepat):** tanpa foto besar; fokus nama menu, harga, dan tombol. Muat banyak item sekaligus → kasir cepat melayani antrean.
-- **Mode Katalog (menawan):** kartu besar dengan foto, label, dan tombol melingkar seperti kiriman pemilik → untuk halaman pelanggan, papan menu, dan tampilan promo.
+- **Mode Kasir (padat & cepat):** tanpa foto besar; fokus nama menu, harga, dan tombol. Muat banyak item sekaligus → kasir cepat melayani antrean. *Rujukan: P04, P17, P32.*
+- **Mode Katalog (menawan):** kartu besar dengan foto, label, dan tombol melingkar → untuk halaman pelanggan, papan menu, dan tampilan promo. *Rujukan: P02, P08, P14, P15, P16.*
 Setiap kombinasi tema × kepadatan tetap wajib lolos uji kontras & ukuran sentuh.
 
 **Dapat diatur per-resto tanpa koding:** pilihan tema · warna aksen (dari palet terkurasi ±8 warna yang sudah dijamin kontras) · logo · banner · gambar latar halaman pelanggan · nama resto · tagline.
 
-**Bisa berbeda per perangkat/peran** (contoh: kasir memakai Terang Bersih, dapur memakai Gelap Dapur).
+**Bisa berbeda per perangkat/peran** (contoh: kasir memakai Terang Bersih, dapur memakai Gelap Dapur). Bukti dari kiriman pemilik: P12 (satu aplikasi, dua mode) dan P25 vs P27.
 
 **Jaminan tema:**
 - Ganti tema **tidak mengubah susunan layar maupun fungsi** — hanya warna, bentuk, dan kesan.
 - Setiap tema wajib **lolos uji kontras**; tema yang gagal tidak dirilis (prinsip "tidak ada yang cacat").
 - Halaman pelanggan (katalog & voucher) memakai tema resto tersebut → pelanggan melihat merek restonya, bukan merek platform.
 
+**Pelajaran lokal dari kiriman pemilik:** P21 memakai format **Rupiah (Rp 70.000)** dan P30 memuat menu Indonesia (Mie Ayam, Nasi Uduk, Ayam Geprek, Nasi Goreng Special) → format harga, istilah, dan contoh menu aplikasi kita memakai asumsi pasar Indonesia.
+
 ## 4. Layar yang akan dirancang untuk MVP (urutan pengerjaan)
 1. Masuk & pilih peran (PIN)
-2. **Kasir** — menu + keranjang + bayar
-3. **Dapur (KDS)** — papan pesanan berkolom
-4. **Pelayan** — meja & catat pesanan (HP)
-5. **Tutup kas + laporan harian**
+2. **Kasir** — menu + keranjang + bayar *(pola P04/P17/P32)*
+3. **Dapur (KDS)** — papan pesanan berkolom *(pola chip status P31)*
+4. **Pelayan** — meja & catat pesanan (HP) *(pola bilah bawah P03/P14/P16)*
+5. **Tutup kas + laporan harian** *(pola P26/P31)*
 6. **Pengaturan resto** (identitas, tema, pajak, meja, menu, pegawai)
-7. **Katalog pelanggan + pendaftaran voucher + tukar voucher di kasir**
+7. **Katalog pelanggan + pendaftaran voucher + tukar voucher di kasir** *(pola P08/P14/P15/P16 + kolom kode promo P02/P05/P23)*
 8. Daftar penyewa (Pemilik Platform)
 
 ## 5. Langkah berikutnya
-1. **Pemilihan arah** (sedang dibahas bersama pemilik) — pola layar kasir, tema bawaan, dan tema per-peran.
-2. **Aku buat 3 contoh tampilan (mockup)** dalam arah yang dipilih — supaya pemilik bisa membandingkan gambar, bukan penjelasan.
-3. **Prototipe bisa diklik** di layar (HP/tablet/laptop) untuk dirasakan sendiri.
+1. **Arah sudah cukup bukti** (pola kasir, sistem tema, 2 tingkat kepadatan) — menunggu konfirmasi pemilik atas 4 pilihan yang diajukan (pola kasir · tema bawaan · tema per perangkat · langkah berikutnya). Bila pemilik tidak keberatan, agent memakai rekomendasi sendiri.
+2. **Aku buat 3 contoh tampilan (mockup)** — usulan urutan: (a) **Laporan/pemantauan** (paling mudah disetujui & tidak berisiko), (b) **Kasir**, (c) **Katalog pelanggan**. Supaya pemilik menilai gambar, bukan penjelasan.
+3. **Prototipe bisa diklik** di layar (HP/tablet/laptop) untuk dirasakan sendiri — termasuk **pencoba ganti tema**.
 4. Setelah disetujui → masuk **Tahap 3 (Tech Spec)** dengan desain sebagai acuan.
 
 ## Log Keputusan
@@ -76,10 +90,10 @@ Setiap kombinasi tema × kepadatan tetap wajib lolos uji kontras & ukuran sentuh
 |---|---|---|
 | 2026-09-16 | Aturan desain mengikuti panduan resmi yang tersedia (kontras 4,5:1, sentuh 44px, huruf 16px, tema lewat token warna) | Tema bisa diganti tanpa merusak keterbacaan — inilah syarat pemilik "beberapa tema tinggal dipilih" |
 | 2026-09-16 | Contoh gambar dipakai sebagai **inspirasi**, desain produk dibuat sendiri (orisinil) | Menghormati karya orang lain + tetap bebas biaya |
-| 2026-09-16 | Kiriman 10 gambar pemilik dinilai: **dipakai sebagai rujukan utama bahasa visual** (kartu menu, keranjang samping, chip status, bilah bawah) | Kualitas paling konsisten dari semua contoh; sekaligus membuktikan tema terang & gelap bisa satu susunan |
+| 2026-09-16 | Kiriman gambar pemilik dinilai: **dipakai sebagai rujukan utama bahasa visual** (kartu menu, keranjang samping, chip status, bilah bawah) | Kualitas paling konsisten dari semua contoh; sekaligus membuktikan tema terang & gelap bisa satu susunan |
 | 2026-09-16 | Ditambah **2 tingkat kepadatan** (Mode Kasir / Mode Katalog) | Foto besar bagus untuk pelanggan, tapi memperlambat kasir saat antre |
 | 2026-09-16 | Foto besar, banner promo, dan animasi dekoratif **tidak dipakai di layar kerja** (kasir/dapur) | Menjaga kecepatan & fokus pegawai — prinsip "layar kerja untuk kerja" |
-
-> **Catatan kejujuran penyimpanan:** 10 gambar kiriman pemilik **tidak bisa disimpan** ke repo (berkasnya tidak sampai ke
-> ruang kerja — hanya terlihat di percakapan). Isi & penilaiannya dicatat lengkap di `docs/desain/PENILAIAN_REFERENSI.md`
-> supaya tidak hilang. Gambar asli dari pencarian agent tersimpan di `docs/desain/referensi/`.
+| 2026-09-16 | **34 gambar kiriman pemilik masuk repo** (`docs/desain/referensi/pemilik/`, kode P01–P34) via `Referensi.zip` | Gambar kini bisa dipakai ulang di sesi mana pun; zip dihapus setelah isinya terbukti lengkap |
+| 2026-09-16 | Pola kasir dikunci mengikuti **P04/P17/P32** (tab kategori + kisi menu + panel keranjang kanan + ringkasan biaya bertingkat) | Tiga contoh bebas memakai pola sama = pola teruji, bukan selera agent |
+| 2026-09-16 | Format harga & istilah memakai asumsi **Indonesia** (Rupiah, nama menu lokal) — rujukan P21 & P30 | Aplikasi akan dipakai di Kedai Oasis (Indonesia); contohnya pun sudah lokal |
+| 2026-09-16 | Poster (P06, P07) & kolase promosi (P09) **ditolak sebagai desain layar** | Bukan antarmuka; hanya berguna untuk warna/identitas |
