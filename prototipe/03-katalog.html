@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="terang" data-density="nyaman">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Katalog Pelanggan — Contoh Tampilan</title>
+<link rel="stylesheet" href="css/tokens.css">
+</head>
+<body>
+
+<div class="demo-bar">
+  <span><strong>CONTOH TAMPILAN</strong> — halaman yang dilihat pelanggan (data contoh, foto contoh)</span>
+  <span class="center small"><a href="index.html">halaman awal</a> · <a href="01-laporan.html">laporan</a> · <a href="02-kasir.html">kasir</a></span>
+</div>
+
+<header class="wrap between" style="padding-bottom:0">
+  <div>
+    <h1>Katalog Pelanggan</h1>
+    <div class="small muted">Dibuka dari QR meja, tautan, atau pencarian di HP</div>
+  </div>
+  <nav class="theme-switch" aria-label="Pilih tema">
+    <button type="button" data-set-tema="terang">Terang Bersih</button>
+    <button type="button" data-set-tema="hangat">Hangat Kedai</button>
+    <button type="button" data-set-tema="gelap">Gelap Dapur</button>
+    <button type="button" data-set-tema="kontras">Kontras Tinggi</button>
+  </nav>
+</header>
+
+<main class="wrap">
+  <div class="row wrap-row mt-16" style="gap:20px;align-items:flex-start;justify-content:center">
+
+    <!-- ================= HP 1: BERANDA KATALOG ================= -->
+    <div class="phone">
+      <div class="phone-screen">
+
+        <div class="between" style="padding:12px">
+          <div class="center">
+            <span style="width:34px;height:34px;border-radius:10px;background:var(--accent);color:var(--accent-contrast);display:grid;place-items:center;font-weight:800;font-size:13px">KO</span>
+            <div>
+              <div style="font-weight:700">Kedai Oasis</div>
+              <div class="small" style="color:var(--success)">● Buka · 09.00–21.00</div>
+            </div>
+          </div>
+          <button class="btn btn-sm" type="button">Bagikan</button>
+        </div>
+
+        <div style="padding:0 12px">
+          <div class="search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input class="input" type="search" placeholder="Cari makanan atau minuman…" aria-label="Cari menu">
+          </div>
+        </div>
+
+        <div class="hero">
+          <img src="aset/banner-kedai.jpg" alt="">
+          <span class="scrim"></span>
+          <div class="txt">
+            <span class="chip" style="background:#fff;color:#111">Paket hemat</span>
+            <h3 class="mt-8">Makan Berdua Cukup Rp 45.000</h3>
+            <p class="small">Nasi Goreng Spesial + Es Teh ×2 · berlaku sampai 30 Sep</p>
+          </div>
+        </div>
+
+        <div class="cat-row" aria-label="Kategori">
+          <a class="cat" href="#">
+            <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11h16a8 8 0 01-16 0z"/><path d="M8 11V7M12 11V6M16 11V7"/></svg></span>
+            Makanan
+          </a>
+          <a class="cat" href="#">
+            <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h11v6a5 5 0 01-10 0z"/><path d="M16 9h2a3 3 0 010 6h-2M4 21h14"/></svg></span>
+            Minuman
+          </a>
+          <a class="cat" href="#">
+            <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l-2 6H8z"/><path d="M8 9l1 12h6l1-12"/></svg></span>
+            Camilan
+          </a>
+          <a class="cat" href="#">
+            <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></svg></span>
+            Paket
+          </a>
+          <a class="cat" href="#">
+            <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12l-8 8-9-9V4h7z"/><circle cx="8" cy="8" r="1.5"/></svg></span>
+            Promo
+          </a>
+        </div>
+
+        <div class="between" style="padding:4px 12px">
+          <h3>Menu Favorit</h3>
+          <a class="small" href="#">Lihat semua</a>
+        </div>
+
+        <div class="cards2">
+          <div class="food">
+            <div class="ph"><img src="aset/nasi-goreng.jpg" alt=""></div>
+            <div class="body">
+              <span class="chip chip-accent" style="align-self:flex-start">Favorit</span>
+              <div class="nm">Nasi Goreng Spesial</div>
+              <div class="between"><span class="pr num">Rp 25.000</span><button class="add-btn" type="button" aria-label="Tambah Nasi Goreng Spesial">+</button></div>
+            </div>
+          </div>
+          <div class="food">
+            <div class="ph"><img src="aset/ayam-geprek.jpg" alt=""></div>
+            <div class="body">
+              <span class="chip chip-warn" style="align-self:flex-start">Pedas</span>
+              <div class="nm">Ayam Geprek</div>
+              <div class="between"><span class="pr num">Rp 22.000</span><button class="add-btn" type="button" aria-label="Tambah Ayam Geprek">+</button></div>
+            </div>
+          </div>
+          <div class="food">
+            <div class="ph"><img src="aset/mie-ayam.jpg" alt=""></div>
+            <div class="body">
+              <div class="nm">Mie Ayam Bakso</div>
+              <div class="between"><span class="pr num">Rp 20.000</span><button class="add-btn" type="button" aria-label="Tambah Mie Ayam Bakso">+</button></div>
+            </div>
+          </div>
+          <div class="food">
+            <div class="ph"><img src="aset/kopi-susu.jpg" alt=""></div>
+            <div class="body">
+              <div class="nm">Kopi Susu Gula Aren</div>
+              <div class="between"><span class="pr num">Rp 18.000</span><button class="add-btn" type="button" aria-label="Tambah Kopi Susu">+</button></div>
+            </div>
+          </div>
+          <div class="food">
+            <div class="ph"><img src="aset/es-teh.jpg" alt=""></div>
+            <div class="body">
+              <div class="nm">Es Teh Manis</div>
+              <div class="between"><span class="pr num">Rp 6.000</span><button class="add-btn" type="button" aria-label="Tambah Es Teh Manis">+</button></div>
+            </div>
+          </div>
+          <div class="food">
+            <div class="ph"><img src="aset/pisang-goreng.jpg" alt=""></div>
+            <div class="body">
+              <div class="nm">Pisang Goreng (3 pcs)</div>
+              <div class="between"><span class="pr num">Rp 12.000</span><button class="add-btn" type="button" aria-label="Tambah Pisang Goreng">+</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin:14px 12px 4px">
+          <div class="between">
+            <div>
+              <strong>Punya kode undangan?</strong>
+              <p class="small muted">Dapat dari teman atau promosi. Tunjukkan di kasir untuk potongan harga.</p>
+            </div>
+          </div>
+          <button class="btn btn-primary mt-8" type="button" style="width:100%">Daftar &amp; dapatkan voucher</button>
+        </div>
+
+        <div class="cart-bar">
+          <div class="grow">
+            <div class="small muted">3 item</div>
+            <strong class="num">Rp 81.600</strong>
+          </div>
+          <button class="btn btn-primary" type="button">Lihat Pesanan</button>
+        </div>
+
+        <nav class="bottom-nav">
+          <a href="#" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7v9H4z"/></svg>Beranda</a>
+          <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Menu</a>
+          <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12l-8 8-9-9V4h7z"/></svg>Voucher</a>
+          <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Pesanan</a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- ================= HP 2: DETAIL MENU ================= -->
+    <div class="phone">
+      <div class="phone-screen">
+        <div style="position:relative">
+          <img src="aset/ayam-geprek.jpg" alt="" style="width:100%;height:250px;object-fit:cover;display:block">
+          <button class="btn btn-sm" type="button" style="position:absolute;top:10px;left:10px;background:#fff">← Kembali</button>
+          <span class="chip" style="position:absolute;top:10px;right:10px;background:#fff;color:#111">★ 4,8</span>
+        </div>
+
+        <div class="card" style="margin:-24px 12px 0;position:relative">
+          <h3>Ayam Geprek</h3>
+          <p class="small muted">Ayam goreng tepung digeprek dengan sambal bawang, disajikan dengan nasi hangat dan lalapan.</p>
+          <div class="between mt-8">
+            <strong class="num" style="font-size:22px;color:var(--accent)">Rp 22.000</strong>
+            <span class="chip chip-success">Siap 10–15 menit</span>
+          </div>
+        </div>
+
+        <div style="padding:14px 12px 0">
+          <h4 class="small muted">LEVEL PEDAS</h4>
+          <div class="tabs mt-8">
+            <button class="tab" type="button" aria-selected="true">1 · Sedikit</button>
+            <button class="tab" type="button" aria-selected="false">2 · Sedang</button>
+            <button class="tab" type="button" aria-selected="false">3 · Pedas</button>
+            <button class="tab" type="button" aria-selected="false">4 · Sangat pedas</button>
+          </div>
+
+          <h4 class="small muted mt-16">TAMBAHAN (OPSIONAL)</h4>
+          <div class="stack-sm mt-8">
+            <label class="between card tight" style="cursor:pointer"><span>Nasi tambah</span><span class="num">+ Rp 5.000</span></label>
+            <label class="between card tight" style="cursor:pointer"><span>Telur ceplok</span><span class="num">+ Rp 6.000</span></label>
+            <label class="between card tight" style="cursor:pointer"><span>Keju</span><span class="num">+ Rp 7.000</span></label>
+          </div>
+
+          <h4 class="small muted mt-16">CATATAN</h4>
+          <div class="card tight mt-8"><span class="small muted">contoh: “sambal dipisah, tanpa timun”</span></div>
+
+          <label class="between card tight mt-16" style="cursor:pointer">
+            <span>Jumlah porsi</span>
+            <span class="qty"><button type="button" data-qty="minus" aria-label="Kurangi">−</button><span>1</span><button type="button" data-qty="plus" aria-label="Tambah">+</button></span>
+          </label>
+        </div>
+
+        <div class="cart-bar">
+          <div class="grow">
+            <div class="small muted">Total</div>
+            <strong class="num">Rp 22.000</strong>
+          </div>
+          <button class="btn btn-primary" type="button">Tambah ke Pesanan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="card mt-24">
+    <div class="card-head"><h3>Kenapa begini &amp; apa yang perlu diputuskan</h3></div>
+    <ul class="small muted" style="margin:0;padding-left:20px">
+      <li><strong>Urutannya mengikuti kebiasaan pelanggan Indonesia</strong> (P21 &amp; P30 kiriman pemilik): kode resto → pencarian → banner promo → kategori ikon → menu favorit berfoto → keranjang di bawah.</li>
+      <li><strong>Tombol tambah bulat besar</strong> — sengaja lebih dari 44px supaya tidak salah tekan di HP.</li>
+      <li><strong>Voucher undang-teman punya pintu masuknya sendiri</strong> (kartu “Punya kode undangan?”) dan tetap dipakai lewat kasir — sesuai aturan anti-kecurangan di PRD.</li>
+      <li><strong>Foto menu masih contoh buatan</strong> — tanda bahwa tempat foto sudah siap; nanti diisi foto asli Kedai Oasis lewat Pengaturan (tanpa koding).</li>
+      <li>Pertanyaan untuk pemilik: <em>perlu tidak fitur “pesan sendiri dari HP” (self-order) di katalog ini, atau cukup lihat menu lalu pesan lewat kasir?</em> (Di PRD sudah diputuskan: <strong>self-order = fase 2</strong>.)</li>
+    </ul>
+  </section>
+</main>
+
+<script src="js/ui.js"></script>
+</body>
+</html>

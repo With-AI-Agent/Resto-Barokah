@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="terang" data-density="padat">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kasir (POS) — Contoh Tampilan</title>
+<link rel="stylesheet" href="css/tokens.css">
+</head>
+<body>
+
+<div class="demo-bar">
+  <span><strong>CONTOH TAMPILAN</strong> — Kedai Oasis · Layar Kasir (data contoh)</span>
+  <span class="center small"><a href="index.html">halaman awal</a> · <a href="01-laporan.html">laporan</a> · <a href="03-katalog.html">katalog</a></span>
+</div>
+
+<header class="wrap between" style="padding-bottom:0">
+  <div class="center">
+    <span style="width:40px;height:40px;border-radius:12px;background:var(--accent);color:var(--accent-contrast);display:grid;place-items:center;font-weight:800">KO</span>
+    <div>
+      <h1 style="font-size:20px">Kedai Oasis</h1>
+      <div class="small muted">Kasir: Rina · Shift 1 · <span data-jam>12:10</span> WIB</div>
+    </div>
+  </div>
+  <div class="row wrap-row">
+    <nav class="theme-switch" aria-label="Pilih tema">
+      <button type="button" data-set-tema="terang">Terang</button>
+      <button type="button" data-set-tema="hangat">Hangat</button>
+      <button type="button" data-set-tema="gelap">Gelap</button>
+      <button type="button" data-set-tema="kontras">Kontras</button>
+    </nav>
+    <nav class="theme-switch" aria-label="Pilih kerapatan tampilan">
+      <button type="button" data-set-rapat="padat">Mode Kasir (padat)</button>
+      <button type="button" data-set-rapat="nyaman">Mode Katalog (berfoto)</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap mt-16">
+  <div class="pos">
+
+    <!-- ============ KIRI: MENU ============ -->
+    <section class="stack">
+      <div class="card">
+        <div class="row">
+          <div class="search grow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input class="input" type="search" placeholder="Cari menu… (contoh: nasi, teh, kopi)" aria-label="Cari menu">
+          </div>
+          <button class="btn" type="button">Scan meja</button>
+        </div>
+
+        <div class="tabs mt-16" role="tablist" aria-label="Kategori menu">
+          <button class="tab" role="tab" aria-selected="true">Semua</button>
+          <button class="tab" role="tab" aria-selected="false">Makanan</button>
+          <button class="tab" role="tab" aria-selected="false">Minuman</button>
+          <button class="tab" role="tab" aria-selected="false">Camilan</button>
+          <button class="tab" role="tab" aria-selected="false">Paket</button>
+        </div>
+      </div>
+
+      <div class="menu-grid">
+        <button class="menu-item" type="button">
+          <span class="thumb"><img src="aset/nasi-goreng.jpg" alt=""></span>
+          <span class="nm">Nasi Goreng Spesial</span>
+          <span class="between"><span class="pr num">Rp 25.000</span><span class="chip chip-accent">Favorit</span></span>
+        </button>
+        <button class="menu-item" type="button">
+          <span class="thumb"><img src="aset/ayam-geprek.jpg" alt=""></span>
+          <span class="nm">Ayam Geprek</span>
+          <span class="between"><span class="pr num">Rp 22.000</span><span class="chip chip-warn">Pedas</span></span>
+        </button>
+        <button class="menu-item" type="button">
+          <span class="thumb"><img src="aset/mie-ayam.jpg" alt=""></span>
+          <span class="nm">Mie Ayam Bakso</span>
+          <span class="pr num">Rp 20.000</span>
+        </button>
+        <button class="menu-item" type="button">
+          <span class="thumb"><img src="aset/kopi-susu.jpg" alt=""></span>
+          <span class="nm">Kopi Susu Gula Aren</span>
+          <span class="pr num">Rp 18.000</span>
+        </button>
+        <button class="menu-item" type="button">
+          <span class="thumb"><img src="aset/es-teh.jpg" alt=""></span>
+          <span class="nm">Es Teh Manis</span>
+          <span class="pr num">Rp 6.000</span>
+        </button>
+        <button class="menu-item" type="button">
+          <span class="thumb"><img src="aset/pisang-goreng.jpg" alt=""></span>
+          <span class="nm">Pisang Goreng (3 pcs)</span>
+          <span class="pr num">Rp 12.000</span>
+        </button>
+        <button class="menu-item" type="button">
+          <span class="nm">Nasi Uduk Komplit</span>
+          <span class="pr num">Rp 23.000</span>
+        </button>
+        <button class="menu-item" type="button">
+          <span class="nm">Air Mineral</span>
+          <span class="pr num">Rp 4.000</span>
+        </button>
+        <button class="menu-item" type="button" data-habis="1" aria-disabled="true">
+          <span class="nm">Kerupuk Udang</span>
+          <span class="between"><span class="pr num">Rp 5.000</span><span class="chip chip-danger">Habis</span></span>
+        </button>
+      </div>
+
+      <p class="small muted">Menu bertanda <strong>Habis</strong> otomatis terkunci di kasir <em>dan</em> di halaman pelanggan — supaya tidak ada pesanan yang tidak bisa dibuat.</p>
+    </section>
+
+    <!-- ============ KANAN: KERANJANG ============ -->
+    <aside class="card cart">
+      <div class="card-head">
+        <div>
+          <h3>Pesanan #1024</h3>
+          <span class="small muted">Meja 3 · Dine-in · dibuka 12.04</span>
+        </div>
+        <button class="btn btn-sm" type="button">Ganti</button>
+      </div>
+
+      <div class="stack-sm">
+        <div class="cart-line">
+          <div>
+            <strong>Nasi Goreng Spesial</strong>
+            <div class="small muted">Rp 25.000 × 2</div>
+          </div>
+          <div class="row" style="align-items:center">
+            <span class="qty"><button type="button" data-qty="minus" aria-label="Kurangi">−</button><span>2</span><button type="button" data-qty="plus" aria-label="Tambah">+</button></span>
+            <strong class="num" style="width:84px;text-align:right">Rp 50.000</strong>
+          </div>
+        </div>
+        <div class="cart-line">
+          <div>
+            <strong>Ayam Geprek</strong>
+            <div class="small muted">Rp 22.000 × 1 · <em>pedas sedang, tanpa timun</em></div>
+          </div>
+          <div class="row" style="align-items:center">
+            <span class="qty"><button type="button" data-qty="minus" aria-label="Kurangi">−</button><span>1</span><button type="button" data-qty="plus" aria-label="Tambah">+</button></span>
+            <strong class="num" style="width:84px;text-align:right">Rp 22.000</strong>
+          </div>
+        </div>
+        <div class="cart-line">
+          <div>
+            <strong>Es Teh Manis</strong>
+            <div class="small muted">Rp 6.000 × 2 · <em>es sedikit</em></div>
+          </div>
+          <div class="row" style="align-items:center">
+            <span class="qty"><button type="button" data-qty="minus" aria-label="Kurangi">−</button><span>2</span><button type="button" data-qty="plus" aria-label="Tambah">+</button></span>
+            <strong class="num" style="width:84px;text-align:right">Rp 12.000</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-16">
+        <label class="small muted" for="kode-voucher">Kode voucher undang-teman</label>
+        <div class="row mt-8">
+          <input class="input grow" id="kode-voucher" placeholder="UNDANG-7K2M" autocomplete="off">
+          <button class="btn" type="button" data-cek-voucher>Cek</button>
+        </div>
+        <div class="small muted mt-8" data-hasil-voucher>Tekan <strong>Cek</strong> = hanya membaca status voucher. Voucher <em>belum</em> terpakai sampai pembayaran.</div>
+      </div>
+
+      <div class="mt-16">
+        <div class="sum-row"><span>Sub total</span><span class="num">Rp 84.000</span></div>
+        <div class="sum-row"><span>PB1 10% <span class="muted small">(diatur pemilik)</span></span><span class="num">Rp 8.400</span></div>
+        <div class="sum-row"><span>Service 5% <span class="muted small">(diatur pemilik)</span></span><span class="num">Rp 4.200</span></div>
+        <div class="sum-row"><span>Diskon voucher</span><span class="num" style="color:var(--accent)">− Rp 15.000</span></div>
+        <div class="sum-total"><span>Total</span><span class="num">Rp 81.600</span></div>
+      </div>
+
+      <div class="mt-16">
+        <div class="small muted">Cara bayar</div>
+        <div class="pay-methods mt-8">
+          <button class="pay" type="button" aria-pressed="false">Tunai</button>
+          <button class="pay" type="button" aria-pressed="true">QRIS</button>
+          <button class="pay" type="button" aria-pressed="false">E-Wallet</button>
+          <button class="pay" type="button" aria-pressed="false">Transfer</button>
+        </div>
+        <div class="small muted mt-8" data-hint-bayar>Metode dipilih: QRIS</div>
+      </div>
+
+      <div class="mt-16">
+        <div class="sum-row"><span>Uang diterima</span><span class="num">Rp 100.000</span></div>
+        <div class="sum-row"><span>Kembalian</span><span class="num">Rp 18.400</span></div>
+      </div>
+
+      <button class="btn btn-primary btn-lg mt-16" type="button">Bayar Sekarang · Rp 81.600</button>
+      <div class="row mt-8">
+        <button class="btn grow" type="button">Simpan (belum bayar)</button>
+        <button class="btn" type="button">Kirim ke Dapur</button>
+      </div>
+      <button class="btn btn-danger mt-8" type="button" style="width:100%">Batalkan pesanan…</button>
+      <p class="small muted mt-8">Sebelum dapur mulai: kasir boleh membatalkan dengan alasan. Setelah dapur mulai: perlu PIN atasan dan tercatat sebagai bahan terbuang.</p>
+    </aside>
+  </div>
+
+  <div class="card mt-16">
+    <div class="card-head"><h3>Kenapa begini?</h3></div>
+    <ul class="small muted" style="margin:0;padding-left:20px">
+      <li><strong>Keranjang menempel di kanan</strong> — sekali lihat: menu, isi pesanan, pajak, diskon, total, tombol bayar. (Pola dari contoh P04, P17, P32 yang pemilik kirim.)</li>
+      <li><strong>Mode Kasir (padat) vs Mode Katalog (berfoto)</strong> — tekan tombol di atas. Saat antrean ramai, kasir pakai mode padat (tanpa foto) supaya lebih banyak menu terlihat dan layar lebih cepat.</li>
+      <li><strong>PB1 &amp; Service ditampilkan terpisah</strong> dan angkanya diatur pemilik di Pengaturan — tidak dipaku di program.</li>
+      <li><strong>Cek voucher tidak memakai voucher</strong> — hanya membaca; baru hangus saat pembayaran (satu kali pakai).</li>
+    </ul>
+  </div>
+</main>
+
+<script src="js/ui.js"></script>
+</body>
+</html>

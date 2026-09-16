@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="terang" data-density="padat">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laporan &amp; Pemantauan — Contoh Tampilan</title>
+<link rel="stylesheet" href="css/tokens.css">
+</head>
+<body>
+
+<div class="demo-bar">
+  <span><strong>CONTOH TAMPILAN</strong> — Kedai Oasis · Laporan hari ini (data contoh)</span>
+  <span class="center small"><a href="index.html">halaman awal</a> · <a href="02-kasir.html">kasir</a> · <a href="03-katalog.html">katalog</a></span>
+</div>
+
+<header class="wrap between" style="padding-bottom:0">
+  <div>
+    <h1>Laporan Hari Ini</h1>
+    <div class="small muted">Selasa, 16 Sep 2026 · Shift 1 (09.00–15.00) · Kasir: Rina</div>
+  </div>
+  <div class="row wrap-row">
+    <nav class="theme-switch" aria-label="Pilih tema">
+      <button type="button" data-set-tema="terang">Terang</button>
+      <button type="button" data-set-tema="hangat">Hangat</button>
+      <button type="button" data-set-tema="gelap">Gelap</button>
+      <button type="button" data-set-tema="kontras">Kontras</button>
+    </nav>
+    <button class="btn" type="button">Cetak</button>
+    <button class="btn btn-primary" type="button">Tutup Kas</button>
+  </div>
+</header>
+
+<main class="wrap stack">
+
+  <!-- KARTU ANGKA -->
+  <section class="kpi">
+    <div class="card">
+      <span class="label">Omzet hari ini</span>
+      <span class="value num">Rp 3.450.000</span>
+      <span class="delta up">▲ 12% dari kemarin</span>
+    </div>
+    <div class="card">
+      <span class="label">Jumlah transaksi</span>
+      <span class="value num">87</span>
+      <span class="delta muted">Rata-rata Rp 39.655</span>
+    </div>
+    <div class="card">
+      <span class="label">Pesanan aktif</span>
+      <span class="value num">9</span>
+      <span class="delta muted">3 baru · 4 dimasak · 2 siap</span>
+    </div>
+    <div class="card">
+      <span class="label">Kas di laci (seharusnya)</span>
+      <span class="value num">Rp 1.250.000</span>
+      <span class="chip chip-success">Selisih Rp 0</span>
+    </div>
+  </section>
+
+  <section class="row wrap-row" style="align-items:stretch">
+    <!-- GRAFIK OMZET PER JAM -->
+    <div class="card grow" style="min-width:340px">
+      <div class="card-head">
+        <h3>Omzet per jam</h3>
+        <span class="legend"><span><i></i>Omzet</span></span>
+      </div>
+      <div class="bars" role="img" aria-label="Grafik omzet per jam, tertinggi pukul 12.00">
+        <div class="bar"><span style="height:22%"></span></div>
+        <div class="bar"><span style="height:35%"></span></div>
+        <div class="bar"><span style="height:58%"></span></div>
+        <div class="bar"><span style="height:96%"></span></div>
+        <div class="bar"><span style="height:74%"></span></div>
+        <div class="bar"><span style="height:40%"></span></div>
+        <div class="bar"><span style="height:30%"></span></div>
+        <div class="bar"><span style="height:62%"></span></div>
+        <div class="bar"><span style="height:84%"></span></div>
+        <div class="bar"><span style="height:48%"></span></div>
+      </div>
+      <div class="bars-x"><span>09</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span></div>
+      <p class="small muted mt-8">Jam tersibuk: <strong>12.00–13.00</strong> (makan siang). Siapkan 1 kasir tambahan.</p>
+    </div>
+
+    <!-- CARA BAYAR -->
+    <div class="card grow" style="min-width:300px">
+      <div class="card-head"><h3>Cara bayar</h3></div>
+      <div class="stack-sm">
+        <div class="pline"><span>Tunai</span><span class="track"><i style="width:40%"></i></span><span class="num">Rp 1.380.000</span></div>
+        <div class="pline"><span>QRIS</span><span class="track"><i style="width:35%"></i></span><span class="num">Rp 1.207.500</span></div>
+        <div class="pline"><span>E-Wallet</span><span class="track"><i style="width:15%"></i></span><span class="num">Rp 517.500</span></div>
+        <div class="pline"><span>Transfer</span><span class="track"><i style="width:10%"></i></span><span class="num">Rp 345.000</span></div>
+      </div>
+      <div class="card-head mt-16"><h3>Menu terlaris</h3></div>
+      <div class="stack-sm">
+        <div class="pline"><span>Nasi Goreng</span><span class="track"><i style="width:88%"></i></span><span class="num">31 porsi</span></div>
+        <div class="pline"><span>Ayam Geprek</span><span class="track"><i style="width:66%"></i></span><span class="num">23 porsi</span></div>
+        <div class="pline"><span>Es Teh Manis</span><span class="track"><i style="width:54%"></i></span><span class="num">19 gelas</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAPAN PESANAN AKTIF -->
+  <section class="card">
+    <div class="card-head">
+      <h3>Pesanan aktif</h3>
+      <span class="small muted">Label warna = status, terbaca sekilas dari jauh</span>
+    </div>
+    <div class="row wrap-row">
+      <div class="card tight" style="min-width:210px;flex:1">
+        <div class="between"><strong>#1024 · Meja 3</strong><span class="chip chip-info"><i class="dot"></i>Baru</span></div>
+        <p class="small muted mt-8">Nasi Goreng ×2, Es Teh ×2<br>Masuk 12.04 · 3 menit</p>
+      </div>
+      <div class="card tight" style="min-width:210px;flex:1">
+        <div class="between"><strong>#1023 · Ojol (manual)</strong><span class="chip chip-warn"><i class="dot"></i>Dimasak</span></div>
+        <p class="small muted mt-8">Ayam Geprek ×3, Mie Ayam ×1<br>Masuk 11.56 · 11 menit</p>
+      </div>
+      <div class="card tight" style="min-width:210px;flex:1">
+        <div class="between"><strong>#1022 · Takeaway</strong><span class="chip chip-success"><i class="dot"></i>Siap</span></div>
+        <p class="small muted mt-8">Kopi Susu ×2, Pisang Goreng ×1<br>Masuk 11.48 · 19 menit</p>
+      </div>
+      <div class="card tight" style="min-width:210px;flex:1">
+        <div class="between"><strong>#1019 · Meja 7</strong><span class="chip chip-accent"><i class="dot"></i>Belum bayar</span></div>
+        <p class="small muted mt-8">Open bill · Rp 156.000<br>Dibuka 11.30 · 37 menit</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABEL TRANSAKSI -->
+  <section class="card">
+    <div class="card-head">
+      <h3>Transaksi terakhir</h3>
+      <span class="small muted">Tindakan penting selalu tercatat (siapa, kapan, alasan)</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Jam</th><th>No. struk</th><th>Meja / Tipe</th><th>Item</th><th>Cara bayar</th><th>Status</th><th class="right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">12:04</td><td class="num">#1024</td><td>Meja 3 · Dine-in</td><td>Nasi Goreng ×2, Es Teh ×2</td><td>QRIS</td>
+            <td><span class="chip chip-info"><i class="dot"></i>Baru</span></td><td class="right num">Rp 81.600</td>
+          </tr>
+          <tr>
+            <td class="num">11:58</td><td class="num">#1021</td><td>Meja 5 · Dine-in</td><td>Ayam Geprek ×2, Kopi Susu ×2</td><td>Tunai</td>
+            <td><span class="chip chip-success"><i class="dot"></i>Lunas</span></td><td class="right num">Rp 90.000</td>
+          </tr>
+          <tr>
+            <td class="num">11:52</td><td class="num">#1020</td><td>Takeaway</td><td>Mie Ayam ×1</td><td>E-Wallet</td>
+            <td><span class="chip chip-success"><i class="dot"></i>Lunas</span></td><td class="right num">Rp 22.000</td>
+          </tr>
+          <tr>
+            <td class="num">11:47</td><td class="num">#1018</td><td>Meja 2 · Dine-in</td><td>Paket Hemat Keluarga ×1 <span class="chip chip-accent">Voucher UNDANG-7K2M</span></td><td>QRIS</td>
+            <td><span class="chip chip-success"><i class="dot"></i>Lunas</span></td><td class="right num">Rp 128.000</td>
+          </tr>
+          <tr>
+            <td class="num">11:41</td><td class="num">#1017</td><td>Meja 6 · Dine-in</td><td>Nasi Goreng ×1 <span class="muted small">(dibatalkan)</span></td><td>—</td>
+            <td><span class="chip chip-danger"><i class="dot"></i>Dibatalkan</span></td><td class="right num">Rp 0</td>
+          </tr>
+          <tr>
+            <td class="num">11:36</td><td class="num">#1016</td><td>Meja 8 · Dine-in</td><td>Es Teh ×3, Pisang Goreng ×2</td><td>Tunai</td>
+            <td><span class="chip chip-success"><i class="dot"></i>Lunas</span></td><td class="right num">Rp 42.000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card tight mt-16" style="background:var(--warn-soft);border-color:transparent">
+      <strong class="small">Catatan pembatalan #1017:</strong>
+      <span class="small">Dibatalkan oleh kasir setelah dapur mulai — butuh PIN atasan (Badrun), tercatat sebagai <strong>bahan terbuang</strong> dan masuk laporan. Alasan: “salah input, tamu minta menu lain”.</span>
+    </div>
+  </section>
+
+  <p class="small muted">Aturan terkait: pajak &amp; service bisa diatur pemilik · pembatalan berjenjang · semua tindakan penting tercatat · laporan bisa dicetak per shift.</p>
+</main>
+
+<script src="js/ui.js"></script>
+</body>
+</html>

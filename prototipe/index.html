@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="terang">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contoh Tampilan — Resto Barokah</title>
+<link rel="stylesheet" href="css/tokens.css">
+</head>
+<body>
+
+<div class="demo-bar">
+  <span><strong>CONTOH TAMPILAN</strong> — Kedai Oasis (data contoh, bukan aplikasi jadi)</span>
+  <span class="center small">Untuk pemilik · <a href="index.html">halaman awal</a></span>
+</div>
+
+<header class="wrap between" style="padding-bottom:0">
+  <div class="center">
+    <span style="width:40px;height:40px;border-radius:12px;background:var(--accent);color:var(--accent-contrast);display:grid;place-items:center;font-weight:800">RB</span>
+    <div>
+      <h1 style="font-size:20px">Resto Barokah</h1>
+      <div class="small muted">Contoh tampilan &amp; tema — bisa diklik</div>
+    </div>
+  </div>
+  <nav class="theme-switch" aria-label="Pilih tema">
+    <button type="button" data-set-tema="terang"><i class="swatch sw-terang"></i>Terang Bersih</button>
+    <button type="button" data-set-tema="hangat"><i class="swatch sw-hangat"></i>Hangat Kedai</button>
+    <button type="button" data-set-tema="gelap"><i class="swatch sw-gelap"></i>Gelap Dapur</button>
+    <button type="button" data-set-tema="kontras"><i class="swatch sw-kontras"></i>Kontras Tinggi</button>
+  </nav>
+</header>
+
+<main class="wrap">
+  <div class="card mt-16">
+    <div class="card-head">
+      <h2>Tiga contoh tampilan untuk diperiksa</h2>
+      <span class="chip chip-accent">Langkah 2 dari rencana desain</span>
+    </div>
+    <p class="muted">Coba tekan tombol tema di atas: semua halaman langsung berubah warna tanpa susunannya rusak. Itulah yang dimaksud
+      <em>“beberapa tema tinggal dipilih”</em>. Tema pilihanmu diingat di perangkat ini saja.</p>
+  </div>
+
+  <section class="pick mt-16">
+    <a class="card" href="01-laporan.html">
+      <span class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></span>
+      <h3>1. Laporan &amp; Pemantauan</h3>
+      <p class="muted small">Layar Pemilik/Admin: omzet hari ini, kas di laci, pesanan aktif, transaksi terakhir.</p>
+      <span class="chip chip-success">Aman · tidak berisiko</span>
+    </a>
+    <a class="card" href="02-kasir.html">
+      <span class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 20h10M8 9h8M8 13h5"/></svg></span>
+      <h3>2. Kasir (POS)</h3>
+      <p class="muted small">Menu + keranjang di kanan + pajak, service, diskon voucher, lalu bayar. Bisa Mode Kasir (padat) / Mode Katalog (berfoto).</p>
+      <span class="chip chip-accent">Pola P04 · P17 · P32</span>
+    </a>
+    <a class="card" href="03-katalog.html">
+      <span class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
+      <h3>3. Katalog Pelanggan</h3>
+      <p class="muted small">Halaman yang dilihat pelanggan dari HP: banner, kategori, menu berfoto, dan pintu masuk voucher undang-teman.</p>
+      <span class="chip chip-accent">Pola P08 · P14 · P15 · P16</span>
+    </a>
+  </section>
+
+  <div class="card mt-16">
+    <div class="card-head"><h3>Catatan jujur</h3></div>
+    <ul class="muted small" style="margin:0;padding-left:20px">
+      <li>Ini <strong>contoh tampilan (mockup) berbentuk halaman web asli</strong>, bukan gambar buatan. Angka &amp; nama di dalamnya <strong>data contoh</strong>.</li>
+      <li>Foto menu di halaman katalog adalah <strong>foto contoh buatan</strong> — nanti diganti foto asli Kedai Oasis.</li>
+      <li>Yang belum ada: masuk/PIN, pengiriman ke dapur, cetak struk, dan penyimpanan data. Itu pekerjaan Tahap 3 (rancangan teknis) setelah tampilan ini disetujui.</li>
+      <li>Setiap tema wajib lolos aturan: kontras ≥4,5:1 · area sentuh ≥44px · huruf dasar 16px.</li>
+    </ul>
+  </div>
+
+  <p class="small muted mt-16">Berkas: <code>prototipe/index.html</code> · aturan desain: <code>docs/desain/RENCANA_DESAIN_UI.md</code></p>
+</main>
+
+<script src="js/ui.js"></script>
+</body>
+</html>

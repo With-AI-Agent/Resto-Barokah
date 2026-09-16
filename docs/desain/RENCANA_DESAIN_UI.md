@@ -80,10 +80,17 @@ Setiap kombinasi tema × kepadatan tetap wajib lolos uji kontras & ukuran sentuh
 8. Daftar penyewa (Pemilik Platform)
 
 ## 5. Langkah berikutnya
-1. **Arah sudah cukup bukti** (pola kasir, sistem tema, 2 tingkat kepadatan) — menunggu konfirmasi pemilik atas 4 pilihan yang diajukan (pola kasir · tema bawaan · tema per perangkat · langkah berikutnya). Bila pemilik tidak keberatan, agent memakai rekomendasi sendiri.
-2. **Aku buat 3 contoh tampilan (mockup)** — usulan urutan: (a) **Laporan/pemantauan** (paling mudah disetujui & tidak berisiko), (b) **Kasir**, (c) **Katalog pelanggan**. Supaya pemilik menilai gambar, bukan penjelasan.
-3. **Prototipe bisa diklik** di layar (HP/tablet/laptop) untuk dirasakan sendiri — termasuk **pencoba ganti tema**.
-4. Setelah disetujui → masuk **Tahap 3 (Tech Spec)** dengan desain sebagai acuan.
+1. **Contoh tampilan sudah jadi & bisa diklik** (folder `prototipe/`) — pemilik memeriksa, lalu menyetujui atau meminta perubahan.
+2. Setelah disetujui: pola layar & tema bawaan dikunci di dokumen ini, lalu masuk **Tahap 3 (Tech Spec)** dengan desain sebagai acuan.
+
+## 6. Hasil uji aturan wajib (contoh tampilan, 2026-09-16)
+| Aturan | Hasil |
+|---|---|
+| Kontras ≥ 4,5:1 | **52 dari 52 pemeriksaan LOLOS** di 4 tema (alat: `prototipe/uji-kontras.py`) |
+| Area sentuh ≥ 44 px | Tombol, tab, tombol +/−, tombol tambah (dibuat 40 px visual + jarak aman) |
+| Huruf dasar 16 px, jarak baris 1,5 | Terpasang di `prototipe/css/tokens.css` |
+| Ikon SVG, bukan emoji | Semua ikon sebaris SVG |
+| Umpan balik tiap aksi | Tombol +/−, "Cek voucher", dan pemilih metode bayar menjawab langsung |
 
 ## Log Keputusan
 | Tanggal | Keputusan | Alasan |
@@ -97,3 +104,6 @@ Setiap kombinasi tema × kepadatan tetap wajib lolos uji kontras & ukuran sentuh
 | 2026-09-16 | Pola kasir dikunci mengikuti **P04/P17/P32** (tab kategori + kisi menu + panel keranjang kanan + ringkasan biaya bertingkat) | Tiga contoh bebas memakai pola sama = pola teruji, bukan selera agent |
 | 2026-09-16 | Format harga & istilah memakai asumsi **Indonesia** (Rupiah, nama menu lokal) — rujukan P21 & P30 | Aplikasi akan dipakai di Kedai Oasis (Indonesia); contohnya pun sudah lokal |
 | 2026-09-16 | Poster (P06, P07) & kolase promosi (P09) **ditolak sebagai desain layar** | Bukan antarmuka; hanya berguna untuk warna/identitas |
+| 2026-09-16 | Pemilik: **"Lanjut"** → rekomendasi agent disetujui: pola kasir P04/P17/P32 · tema bawaan **Terang Bersih** · tema boleh beda per perangkat · lanjut ke 3 contoh tampilan | Pemilik mempercayakan pilihan terbaik; bukti pola sudah kuat (3 contoh bebas, pola sama) |
+| 2026-09-16 | Contoh tampilan dibuat sebagai **halaman web asli yang bisa diklik** (bukan gambar) di `prototipe/` | Browser headless tidak bisa dipasang di lingkungan ini (unduhan diblokir) → halaman asli justru lebih berguna: pemilik bisa mencoba ganti tema & mode kasir sendiri, dan berkasnya menjadi fondasi sistem desain tahap pengembangan |
+| 2026-09-16 | Foto menu di katalog memakai **foto contoh buatan** dan disebut terang-terangan | Menjaga kejujuran (bukan foto Kedai Oasis) sekaligus menunjukkan tempat foto asli yang akan diisi lewat Pengaturan tanpa koding |
