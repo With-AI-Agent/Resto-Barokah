@@ -99,3 +99,17 @@ di `docs/ROADMAP.md`. Estimasi waktu keseluruhan G1 tetap **10–14 minggu kerja
 - Ada pekerjaan yang menurutmu kurang/berlebihan di daftar fase di atas?
 - Kalau setuju: jawab **"cukup"** → agent menulis `docs/ROADMAP.md` lengkap (± 136 pekerjaan, masing-masing 7 keterangan),
   lalu checkpoint: **Tahap 6 (pemeriksaan silang seluruh dokumen)** → baru coding G1 dimulai.
+
+---
+
+## Catatan 2026-09-16 (setelah pemilik menjawab)
+
+Pemilik menyampaikan **tidak paham detail teknisnya** dan menyerahkan keputusan (*"Aku mau yang terbaik dari kamu"*)
+sekaligus meminta **MODE MARATON**. Sesuai aturan delegasi yang sudah disepakati:
+
+1. **Urutan 11 fase di atas dianggap DISETUJUI** (dipilih atas rekomendasi agent, bukan tebakan diam-diam).
+2. **Mode Maraton diadopsi penuh** — aturannya ditulis di `docs/AGENT_OPERATING_GUIDE.md` §13, buku tunggunya
+   `docs/TERTANGGUH.md` (saat ini 9 butir terbuka, batas 12), dan `alat/mulai-sesi.py` otomatis membacakan butir terbuka
+   di KARTU SESI sehingga sesi berikutnya (model apa pun) tidak bisa melewatkannya.
+3. Langkah berikutnya: menulis `docs/ROADMAP.md` lengkap (tiap task 7 keterangan); tugas yang menunggu jawaban pemilik
+   ditandai **❓ T-xxx** dan **dilewati** dalam mode maraton.

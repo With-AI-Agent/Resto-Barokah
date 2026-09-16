@@ -80,8 +80,26 @@ SELALU = ["find-skills"]  # untuk mencari skill yang belum terpasang (usulkan du
 
 FONDASI_WAJIB = ["AGENT_SYSTEM.md", "PROFIL_PENGGUNA.md", "PROJECT_STATE.md", "STATUS.md",
                  "docs/DISCOVERY.md", "docs/PRD.md", "docs/TECH_SPEC.md",
-                 "docs/AGENT_OPERATING_GUIDE.md"]
+                 "docs/AGENT_OPERATING_GUIDE.md", "docs/TERTANGGUH.md"]
 FONDASI_CODING = ["docs/ROADMAP.md", "docs/DECISIONS_LOG.md", "prototipe/README.md"]
+
+
+def butir_tertangguh(path: Path) -> list[tuple[str, str, str]]:
+    """Ambil butir terbuka dari docs/TERTANGGUH.md → [(ID, judul singkat, tenggat)]."""
+    if not path.is_file():
+        return []
+    hasil = []
+    for baris in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        m = re.match(r"^\|\s*(T-\d{3})\s*\|(.+)\|\s*$", baris)
+        if not m:
+            continue
+        sel = [x.strip() for x in m.group(2).split("|")]
+        if len(sel) < 7 or "terbuka" not in sel[-1].lower():
+            continue
+        judul = re.sub(r"[*`]", "", sel[1])[:60]
+        hasil.append((m.group(1), judul, sel[4]))
+    return hasil
+
 
 
 def judul_skill(path: Path) -> str:
@@ -177,6 +195,15 @@ def main() -> int:
         tanda = "ADA  " if (ROOT / rel).is_file() else "TIDAK"
         print(f"  [{tanda}] {rel}")
     print()
+    tunggu = butir_tertangguh(ROOT / "docs" / "TERTANGGUH.md")
+    print("DAFTAR TUNGGU (docs/TERTANGGUH.md) — WAJIB DIBACA & DILAPORKAN")
+    if tunggu:
+        print(f"  Terbuka: {len(tunggu)} butir" + (" — MELAMPAUI BATAS 12: WAJIB BERHENTI & MINTA KEPUTUSAN PEMILIK" if len(tunggu) > 12 else ""))
+        for tid, judul, tenggat in tunggu:
+            print(f"  [ ] {tid} — {judul} (tenggat: {tenggat})")
+    else:
+        print("  (tidak ada butir terbuka / berkas belum ada — bila fase coding, laporkan sebagai temuan)")
+    print()
     print("KARTU SESI YANG WAJIB DILAPORKAN KE PEMILIK (salin, isi bagian dalam <...>)")
     print("  ---------------------------------------------------------------")
     print(f"  KARTU SESI {hari_ini}")
@@ -186,6 +213,7 @@ def main() -> int:
     print("  - Working tree          : BERSIH/KOTOR (+ jumlah berkas)")
     print("  - LOG_SESI sebelumnya   : " + (f"{log_baru.name} ({keadaan_log})" if log_baru else "(tidak ada)"))
     print(f"  - Skill terpasang       : <jumlah> berkas dari <jumlah> skill (daftar di atas)")
+    print(f"  - Tertangguh dibaca     : {len(tunggu)} butir terbuka" + (f" (ID: {', '.join(t[0] for t in tunggu)})" if tunggu else "") + " — <bukti sudah dibaca>")
     print("  - Fondasi yang dibaca   : <daftar berkas yang benar-benar dibaca>")
     print("  - Posisi sekarang       : <1 baris: sedang di tahap/fase apa>")
     print("  - Rencana sesi ini      : <1-2 baris>")

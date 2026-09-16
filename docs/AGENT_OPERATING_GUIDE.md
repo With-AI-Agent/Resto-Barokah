@@ -226,6 +226,32 @@ Bila sesi berlanjut di hari sama → `LOG_SESI_2026-09-16_2.md`. Penutupan log: 
 
 Bentuk pertanyaan yang benar: bahasa sederhana + 2–3 pilihan + rekomendasi + dampak tiap pilihan.
 
+## 13. Mode Maraton (kerja terus-menerus) & Daftar Tunggu
+
+**Atas permintaan pemilik 2026-09-16:** agent bekerja **terus-menerus** dan **hanya berhenti kalau benar-benar butuh
+keputusan pemilik**. Pertanyaan yang bisa ditunda → **ditunda, dicatat di `docs/TERTANGGUH.md`, lalu pekerjaan jalan terus.**
+
+**Batas jujur platform:** agent bekerja per sesi/percakapan — tidak ada proses latar yang jalan tanpa sesi.
+"Maraton" berarti: satu perintah **"lanjut"** dari pemilik = agent mengerjakan **satu batch besar** (sebanyak mungkin tugas
+yang aman) tanpa pertanyaan; pemilik hanya perlu mengetik "lanjut" lagi untuk batch berikutnya.
+
+**Aturan Mode Maraton:**
+
+1. **Hanya §12 (Stop Conditions) yang menghentikan kerja.** Selain itu: **catat → tunda → lanjut**.
+2. Kerjakan tugas `ROADMAP.md` berikutnya yang **tidak** tertangguh (lihat aturan 8), dalam **batch**;
+   setiap batch diakhiri **commit + push + update penanda** (`ROADMAP`/`PROJECT_STATE`/`STATUS`/`LOG_SESI`) + **laporan 5 baris**.
+3. **`docs/TERTANGGUH.md` = buku tunggu wajib.** Dibacakan otomatis oleh `alat/mulai-sesi.py` di KARTU SESI,
+   dan agent **wajib melaporkan** ("Tertangguh dibaca: N butir terbuka"). Bila butirnya tidak disebut → sesi tidak sah.
+4. Format butir: ID · tanggal · hal · kenapa boleh ditunda · nilai sementara · **tenggat (fase/task)** · penanggung jawab · status.
+5. **Dilarang menutup butir tertangguh tanpa jawaban pemilik**, kecuali bisa dibuktikan dari dokumen yang sudah dikunci
+   (tulis alasannya + tandai siapa yang memutuskan).
+6. **Batas penumpukan: 12 butir terbuka.** Lewat itu → **wajib berhenti** dan minta pemilik memutuskan (ringkas: 3 pilihan + rekomendasi).
+7. **Tenggat mengikat:** butir yang tenggatnya sudah lewat = **hard stop** untuk fase itu (jangan dikerjakan setengah).
+8. Tugas ROADMAP yang menunggu butir tertangguh ditandai **`❓ T-xxx`** dan **dilewati**; agent melanjutkan tugas lain yang tidak tertangguh.
+9. Setiap akhir batch: agent **menawarkan jawaban** untuk seluruh butir terbuka → pemilik cukup bilang **"setuju semua"**.
+10. **Yang tidak pernah ditunda:** keamanan/uang/data pelanggan yang belum jelas · biaya apa pun · perubahan keputusan
+    yang sudah dikunci · tindakan merusak/tak bisa dibatalkan (hapus data, force push, deploy publik).
+
 ---
 
 ## Log Keputusan (riwayat dokumen ini)
@@ -237,3 +263,4 @@ Bentuk pertanyaan yang benar: bahasa sederhana + 2–3 pilihan + rekomendasi + d
 | 2026-09-16 | §0 **Fakta platform lmarena** ditulis eksplisit (model berbeda, branch otomatis, base branch di awal, akses hilang setelah merge/close) | Penegasan pemilik 2026-09-16; memengaruhi aturan commit/push & penutupan sesi |
 | 2026-09-16 | Penamaan folder alat disamakan → `alat/` (draf `docs/TECH_SPEC.md` §3 sebelumnya menulis `/tools`) | Menghindari dua nama untuk hal yang sama saat coding dimulai (perubahan kecil-teknis, dicatat) |
 | 2026-09-16 | §0 ditambah **Gerbang pindah sesi**: pekerjaan hanya terlihat sesi berikutnya bila sudah di-merge ke `main` | Temuan nyata: `main` masih di commit lama sementara seluruh pekerjaan ada di branch sesi — tanpa merge, sesi baru akan "buta" |
+| 2026-09-16 | §13 **Mode Maraton & Daftar Tunggu** + berkas baru `docs/TERTANGGUH.md` + `alat/mulai-sesi.py` membacakannya | Permintaan pemilik: agent lanjut bekerja tanpa berhenti; yang bisa ditunda ditangguhkan, tetapi **wajib tercatat & wajib terbaca tiap sesi** |
