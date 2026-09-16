@@ -26,8 +26,8 @@ values ('eeee0000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-1111111
 insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, subtotal)
 values ('eeee0000-0000-0000-0000-000000000001', 'beef0000-0000-0000-0000-000000000001',
         'Nasi Goreng', 27000, 2, 54000);
-select uji.sama((select count(*) from public.pesanan), 1::bigint, 'kasir berhasil membuat pesanan');
-select uji.sama((select count(*) from public.pesanan_item), 1::bigint, 'item pesanan tersimpan');
+select uji.sama((select count(*) from public.pesanan), 2::bigint, 'kasir melihat pesanannya sendiri + 1 pesanan data uji di cabangnya');
+select uji.sama((select count(*) from public.pesanan_item), 2::bigint, 'item pesanan tersimpan (1 baru + 1 data uji)');
 reset role;
 select uji.klaim(null);
 
@@ -172,6 +172,6 @@ select uji.klaim(null);
 
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner pusat
 set local role authenticated;
-select uji.sama((select count(*) from public.pesanan), 1::bigint, 'owner pusat melihat pesanan seluruh cabang restonya');
+select uji.sama((select count(*) from public.pesanan), 2::bigint, 'owner pusat melihat pesanan seluruh cabang restonya');
 reset role;
 select uji.klaim(null);

@@ -114,3 +114,20 @@ insert into public.meja (id, cabang_id, nama, area, status) values
   ('aaa00000-0000-0000-0000-000000000003', 'a1a1a1a1-0000-0000-0000-000000000002', 'Meja 1', 'Dalam', 'kosong'),
   ('aaa00000-0000-0000-0000-000000000004', 'b1b1b1b1-0000-0000-0000-000000000001', 'Meja 1', null, 'kosong');
 
+-- ---------------------------------------------------------------------------
+-- Uang: satu pesanan contoh dengan SALINAN harga & total dari "peladen"
+-- (data uji berjalan sebagai pemilik tabel, jadi penjaga angka uang tidak berlaku)
+-- ---------------------------------------------------------------------------
+insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, meja_id,
+                            status, subtotal, pajak, service, total, kunci_idempoten)
+values ('eeee0000-0000-0000-0000-000000000010', '11111111-1111-1111-1111-111111111111',
+        'a1a1a1a1-0000-0000-0000-000000000001', 10, current_date, 'dinein',
+        'aaa00000-0000-0000-0000-000000000001', 'dikirim',
+        54000, 5400, 2700, 62100, 'keranjang-uji-uang');
+update public.pesanan set dikirim_ke_dapur_pada = now() - interval '5 minutes'
+ where id = 'eeee0000-0000-0000-0000-000000000010';
+
+insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, subtotal)
+values ('eeee0000-0000-0000-0000-000000000010', 'beef0000-0000-0000-0000-000000000001',
+        'Nasi Goreng', 27000, 2, 54000);
+
