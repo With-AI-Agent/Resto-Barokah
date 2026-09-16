@@ -28,6 +28,8 @@ Kalau sudah dijawab → pindahkan barisnya ke tabel **Butir selesai** dengan sta
 | T-003 | 2026-09-16 | **Daftar perangkat** yang dipakai (Android/iPhone/komputer) | Tidak menghambat: cadangan digital wajib; iPhone hanya perlu uji tambahan | Uji utama Android/Windows (Web Bluetooth didukung) | F11 (uji terima & uji perangkat) | pemilik | [ ] terbuka |
 | T-010 | 2026-09-16 | **Pelatihan pegawai & penunjukan admin cabang** Kedai Oasis | Baru dibutuhkan di akhir gelombang; tidak menghambat pembangunan | Panduan pegawai 1 halaman (T11-09) + daftar uji terima | F11 (uji terima & pelatihan) | pemilik | [ ] terbuka |
 | T-011 | 2026-09-16 | **Kebijakan privasi & persetujuan data pelanggan** (PRD §10.7) | Harus ada SEBELUM data pelanggan dikumpulkan; sekarang belum ada data siapa pun | Agent menyiapkan draf sederhana berbahasa Indonesia + kotak persetujuan saat pendaftaran | **sebelum F8 (data pelanggan masuk)** | agent (draf) → pemilik (tinjau) | [ ] terbuka |
+| T-012 | 2026-09-16 | **Di mana berkas cadangan mingguan disimpan** (akun penyimpanan milik pemilik) | Belum dibutuhkan sampai ada data nyata; sampai itu cadangan diuji ke berkas lokal sesi | Artefak terenkripsi di GitHub Actions (masa simpan 90 hari, gratis) | **sebelum T10-10 selesai** | pemilik | [ ] terbuka |
+| T-013 | 2026-09-16 | **Siapa yang boleh menutup shift kasir yang ditinggal pegawai berhenti** | Aturan sementara sudah aman (harus atasan); hanya perlu ditegaskan siapa 'atasan' di Kedai Oasis | Admin cabang atau owner | F7 (kas & shift) selesai | pemilik | [ ] terbuka |
 
 ## Butir selesai
 

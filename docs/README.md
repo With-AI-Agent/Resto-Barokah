@@ -1,16 +1,27 @@
-# /docs — Fondasi 6 Dokumen Aplikasi
+# /docs — Fondasi 6 Dokumen Aplikasi "Sajian" (Resto Barokah)
 
-Folder ini **hanya berisi `README.md` ini** di Sistem Building Aplikasi (belum ada artefak fondasi) — karena Building Aplikasi adalah **sistem untuk MEMBANGUN aplikasi**, bukan aplikasinya sendiri.
+Folder ini berisi dokumen fondasi aplikasi yang sedang dibangun. **Fondasi 6 dokumen sudah SELESAI**
+(status proyek: `CODING_AKTIF` di `PROJECT_STATE.md`).
 
-Saat kamu mulai membangun aplikasi pertama (Tahap 1 Discovery) di repo target, agent akan membuat 6 dokumen Fondasi di `/docs` repo target tersebut:
+| Berkas | Isinya | Keadaan |
+|---|---|---|
+| `DISCOVERY.md` | Masalah, pengguna, ide fitur mentah | **dikunci** — usulkan perubahan, jangan sunting |
+| `PRD.md` | Prioritas, fitur wajib M1–M12, aturan bisnis, non-goals | **dikunci** — usulkan perubahan, jangan sunting |
+| `TECH_SPEC.md` | Stack, arsitektur, data model §4, kontrak RPC §5, Area Berisiko Tinggi ART-1…ART-10 | **dikunci** — usulkan perubahan, jangan sunting |
+| `AGENT_OPERATING_GUIDE.md` | Standar kerja agent (konvensi, uji, DoD, Stop Conditions, Mode Maraton) | berlaku |
+| `ROADMAP.md` | 146 tugas dalam 11 fase (F0–F11), tiap tugas ber-7 atribut | berlaku — kontrak kerja harian |
+| `DECISIONS_LOG.md` | Keputusan nyata di Area Berisiko Tinggi, diisi SELAMA coding | berlaku |
+| `TERTANGGUH.md` | Buku tunggu: hal yang sengaja ditunda + tenggatnya (maks. 12 terbuka) | wajib dibaca tiap sesi |
 
-1. `DISCOVERY.md` — Problem, Persona, Ide Fitur mentah
-2. `PRD.md` — Prioritas MoSCoW, User Story, Non-Goals
-3. `TECH_SPEC.md` — Stack, Arsitektur, Data Model, Area Berisiko Tinggi
-4. `AGENT_OPERATING_GUIDE.md` — Standar kerja agent
-5. `ROADMAP.md` — Pecahan task atomik
-6. `DECISIONS_LOG.md` — Catatan keputusan Area Berisiko Tinggi (diisi selama Coding)
+Sub-folder: `teknis/` (catatan diskusi per tahap) · `uji/` (laporan pemeriksaan silang & review) ·
+`desain/` (papan referensi, mockup, rencana UI).
 
-Template starter untuk keenamnya ada di `../_sistem/templates/` (folder itu berisi **10** template: 6 dokumen Fondasi + `PROJECT_STATE.md`, `STATUS.md`, `LOG_SESI.md`, `PROFIL_PENGGUNA.md`) (copy-paste saat mulai, atau biarkan agent generate sesuai AGENT_SYSTEM.md).
+**Pemeriksa otomatis yang menjaga folder ini:**
 
-Jangan membuat file manual di sini sebelum Tahap 1 — agent akan memandu diskusi dulu.
+```
+python3 alat/periksa-roadmap.py                 # kelengkapan ROADMAP
+python3 alat/periksa-fondasi-independen.py      # pemeriksa kedua, ditulis terpisah (review independen)
+python3 _sistem/validate_system.py              # struktur sistem kerja agent
+```
+
+Template starter keenam dokumen ada di `../_sistem/templates/`.

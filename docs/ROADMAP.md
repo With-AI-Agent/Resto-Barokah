@@ -114,7 +114,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** proyek gratis "tidur" setelah 7 hari → mitigasi: dijadwalkan denyut harian (T10-08).
   - **Verifikasi:** buka aplikasi di dev → tampilkan hasil `select 1` di console/​halaman uji.
 
-- [ ] T0-09 — Deploy halaman kosong ke Cloudflare Workers + Static Assets ❓ T-008
+- [ ] T0-09 — Deploy halaman kosong ke Cloudflare Workers + Static Assets  <!-- T-008 sudah ditutup 2026-09-16: pakai alamat gratis *.workers.dev -->
   - **Tujuan:** membuktikan jalur deploy bekerja sejak awal (bukan mendadak di akhir).
   - **Ref:** TECH_SPEC §1 (halaman aplikasi) & §7 (integrasi)
   - **File:** `aplikasi/wrangler.toml`, `aplikasi/package.json` (script deploy)
@@ -192,7 +192,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T1-07 — Migrasi katalog: kategori, menu, varian, tambahan, harga per cabang, stok
   - **Tujuan:** menu bisa berbeda harga per cabang dan penanda habis bekerja lintas layar.
-  - **Ref:** TECH_SPEC §4 (tabel: kategori, menu_item, menu_varian, menu_tambahan, menu_cabang, stok); PRD M2, M9, M11
+  - **Ref:** TECH_SPEC §4.2 (tabel resmi: `kategori_menu`, `menu_item`, `menu_varian`, `menu_tambahan`, `menu_cabang`, `stok_bahan`, `stok_pergerakan`); PRD M2, M9, M11
   - **File:** `supabase/migrations/0007_katalog.sql`
   - **DoD:** tabel & relasi sesuai TECH_SPEC §4; harga per cabang opsional (bila kosong → pakai harga pusat); RLS + uji lulus.
   - **Kompleksitas:** besar (4 jam)
@@ -356,7 +356,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); PIN mudah ditebak → mitigasi: PIN minimal 6 angka, pembatasan percobaan, catatan audit.
   - **Verifikasi:** uji manual 3 kasus (PIN benar, PIN salah, akun nonaktif).
 
-- [ ] T2-03 — Pembuatan & pengelolaan akun pegawai oleh admin ❓ T-004
+- [ ] T2-03 — Pembuatan & pengelolaan akun pegawai oleh admin  <!-- T-004 sudah ditutup 2026-09-16: semua pegawai dianggap punya email; admin bisa membuatkan -->
   - **Tujuan:** Owner/Admin Cabang bisa menambah pegawai tanpa bantuan teknis.
   - **Ref:** PRD M3; TECH_SPEC §4 (pengguna) & §9 ART-2
   - **File:** `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`, `supabase/functions/undang_pegawai/index.ts`
@@ -428,7 +428,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); memblokir pengguna sah → mitigasi: jeda bertahap, bukan blokir permanen, + jalur atasan.
   - **Verifikasi:** uji fungsi: 10 percobaan berurutan → ditolak dengan pesan jelas.
 
-- [ ] T2-11 — PWA dasar: manifest + ikon + service worker ❓ T-001
+- [ ] T2-11 — PWA dasar: manifest + ikon + service worker  <!-- T-001 sudah ditutup 2026-09-16: nama kerja "Sajian" -->
   - **Tujuan:** aplikasi bisa dipasang di layar utama perangkat dan tetap terbuka saat internet putus sebentar.
   - **Ref:** TECH_SPEC §1 (PWA) & §3 (`public/`)
   - **File:** `aplikasi/public/manifest.webmanifest`, `aplikasi/public/sw.js`, `aplikasi/public/ikon/*`
@@ -506,7 +506,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T3-07 — Penguncian menu habis di kasir
   - **Tujuan:** pelanggan tidak memesan yang sudah habis.
-  - **Ref:** PRD M9 (kriteria selesai)
+  - **Ref:** PRD M9 (kriteria selesai); TECH_SPEC §4.2 (`stok_pergerakan`, jenis `opname`)
   - **File:** `aplikasi/src/layar/kasir/Katalog.tsx` (penanda habis), `supabase/migrations/0023_menu_habis.sql`
   - **DoD:** menandai habis dari kasir & dapur; item habis tidak bisa ditambahkan; pencabutan penanda butuh izin; perubahan tampil di katalog publik.
   - **Kompleksitas:** sedang (3 jam)
@@ -645,7 +645,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T4-06 — Stok sederhana per bahan + riwayat
   - **Tujuan:** owner tahu persediaan tanpa buku catatan terpisah.
-  - **Ref:** PRD M9; TECH_SPEC §4 (stok)
+  - **Ref:** PRD M9; TECH_SPEC §4.2 (tabel resmi: `stok_bahan`, `stok_pergerakan`)
   - **File:** `aplikasi/src/layar/dapur/Stok.tsx`, `supabase/migrations/0029_stok.sql`
   - **DoD:** bahan bisa dicatat/diabaikan (opsional); penambahan/pengurangan; riwayat perubahan (siapa, kapan, berapa); uji lulus.
   - **Kompleksitas:** sedang (4 jam)
@@ -990,7 +990,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
-## Fase 8 — Katalog pelanggan & voucher undang-teman (M10) ⚠️ ART-5, ART-10 ❓ T-007
+## Fase 8 — Katalog pelanggan & voucher undang-teman (M10) ⚠️ ART-5, ART-10  <!-- T-007 sudah ditutup 2026-09-16: Resend tanpa domain khusus -->
 
 - [ ] T8-01 — RPC katalog_publik (tanpa data sensitif) ⚠️
   - **Tujuan:** pelanggan bisa melihat menu tanpa pernah menyentuh data internal resto.
@@ -1046,7 +1046,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pendaftaran gagal karena verifikasi → mitigasi: jalur bantuan "didaftarkan kasir" (T8-07) + pesan jelas.
   - **Verifikasi:** uji manual dua jalur (Google & email) di HP.
 
-- [ ] T8-07 — Verifikasi email + anti email sekali-pakai + normalisasi Gmail ⚠️ ❓ T-007
+- [ ] T8-07 — Verifikasi email + anti email sekali-pakai + normalisasi Gmail ⚠️ ❓ T-011
   - **Tujuan:** satu orang tidak bisa mengklaim berkali-kali dengan email berbeda-beda.
   - **Ref:** PRD M10 (pengaman anti-kecurangan 1–8); TECH_SPEC §9 ART-5/ART-10
   - **File:** `supabase/functions/verifikasi_pelanggan/index.ts`, `aplikasi/src/lib/emailNormalisasi.ts`, `supabase/tes/anti_email_palsu.sql`
@@ -1141,7 +1141,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** warna merek merusak keterbacaan → mitigasi: uji kontras otomatis menolak kombinasi gagal.
   - **Verifikasi:** uji kontras untuk 10 tema × 3 warna merek.
 
-- [ ] T9-03 — Pengaturan operasional (pajak, service, pembulatan, cara pesan, struk) ❓ T-005
+- [ ] T9-03 — Pengaturan operasional (pajak, service, pembulatan, cara pesan, struk)  <!-- T-005 sudah ditutup 2026-09-16: nilai awal PB1 10% · service 5% · 1 shift -->
   - **Tujuan:** aturan uang & layanan sesuai kenyataan kedai, bisa diubah sendiri.
   - **Ref:** PRD M2 & M6; TECH_SPEC §9 ART-3
   - **File:** `aplikasi/src/layar/pengaturan/Operasional.tsx`, `supabase/migrations/0053_pengaturan_operasional.sql`
@@ -1307,6 +1307,44 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pembersih menghapus data penting → mitigasi: daftar tabel yang boleh dibersihkan ditulis eksplisit + uji.
   - **Verifikasi:** jalankan manual + periksa log terjadwal 2 hari.
 
+- [ ] T10-09 — Pemulihan setelah listrik/perangkat mati mendadak (kasir & dapur)
+  - **Tujuan:** kedai bisa lanjut jualan setelah listrik padam tanpa kehilangan pesanan yang sedang berjalan.
+  - **Ref:** PRD §9 risiko; TECH_SPEC §9 ART-8; PRD M4 & M7
+  - **File:** `aplikasi/src/lib/pemulihan-sesi.ts`, `aplikasi/uji/e2e/mati-mendadak.spec.ts`, `docs/ops/PEMULIHAN_LISTRIK.md`
+  - **DoD:** keranjang yang belum terkirim tersimpan lokal dan ditawarkan kembali saat aplikasi dibuka ulang; shift yang masih terbuka dikenali dan dilanjutkan (bukan shift baru); pesanan yang sudah masuk dapur tetap tampil; langkah pemulihan ditulis 1 halaman bahasa manusia untuk pegawai.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** pemulihan menggandakan pesanan → mitigasi: kunci idempoten (T10-02) dipakai juga untuk pemulihan; uji "buka ulang 3x" hanya menghasilkan satu pesanan.
+  - **Verifikasi:** uji e2e mematikan tab/aplikasi di tengah pesanan → data utuh, tidak dobel.
+
+- [ ] T10-10 — Cadangan mingguan otomatis + uji pemulihan terjadwal
+  - **Tujuan:** data kedai tidak hilang selamanya kalau terjadi kesalahan besar (paket gratis tidak punya cadangan otomatis).
+  - **Ref:** TECH_SPEC §8 butir 9 (cadangan) & §10; PRD M12
+  - **File:** `alat/cadangan.sh`, `docs/teknis/PEMULIHAN.md`, `.github/workflows/cadangan.yml`
+  - **DoD:** `pg_dump` mingguan berjalan otomatis (GitHub Actions gratis) dan hasilnya tersimpan terenkripsi di luar basis data; `docs/teknis/PEMULIHAN.md` memuat langkah pulih bernomor; **pemulihan diuji ke basis data kosong minimal sekali** dan hasilnya dicatat; tidak ada rahasia di dalam repo.
+  - **Kompleksitas:** sedang (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Data pelanggan & privasi (ART-10); berkas cadangan berisi data pelanggan → mitigasi: enkripsi + akses terbatas + masa simpan dibatasi.
+  - **Catatan:** ❓ T-012 (tempat simpan berkas cadangan milik pemilik) wajib dijawab sebelum tugas ini ditandai selesai; sampai itu cadangan diuji ke artefak sementara.
+  - **Verifikasi:** jalankan pemulihan dari satu berkas cadangan → jumlah baris tiap tabel sama dengan sumbernya.
+
+- [ ] T10-11 — Perubahan pengaturan bersamaan tidak saling menimpa
+  - **Tujuan:** dua orang yang mengubah pengaturan pada saat yang sama tidak membuat perubahan satunya hilang diam-diam.
+  - **Ref:** TECH_SPEC §5 (M2 mengembalikan "versi pengaturan (stempel waktu)"); PRD M2 (kasus tepi)
+  - **File:** `supabase/migrations/0059_versi_pengaturan.sql`, `supabase/tes/pengaturan_bersamaan.sql`
+  - **DoD:** `simpan_pengaturan`/`simpan_menu` menolak simpanan yang memakai versi lama dengan pesan jelas ("data sudah diubah orang lain, muat ulang dulu"); perubahan yang ditolak tidak hilang dari layar; tercatat di audit.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan & pengaturan (ART-3, menyentuh pajak/service); mitigasi: penolakan di peladen, bukan hanya peringatan di layar.
+  - **Verifikasi:** uji SQL dua penyimpanan paralel → satu berhasil, satu ditolak dengan kode jelas.
+
+- [ ] T10-12 — Pegawai berhenti: cabut akses cepat & serah terima
+  - **Tujuan:** pegawai yang keluar tidak bisa lagi membuka data kedai, tanpa merusak riwayat transaksinya.
+  - **Ref:** PRD M3 & M12; TECH_SPEC §9 ART-2
+  - **File:** `aplikasi/src/layar/pengaturan/CabutAkses.tsx`, `supabase/tes/cabut_akses.sql`
+  - **DoD:** satu tombol "pegawai berhenti" → akun nonaktif + semua sesi perangkat diakhiri (T10-06) + PIN dimatikan + shift terbuka miliknya ditandai untuk ditutup atasan; nama & riwayat transaksinya TETAP ada di laporan lama.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); menghapus akun akan merusak laporan → mitigasi: nonaktif, bukan hapus (Aturan Bisnis 11).
+  - **Catatan:** ❓ T-013 (siapa 'atasan' yang berhak menutup shift pegawai yang berhenti di Kedai Oasis) — nilai sementara: admin cabang atau owner.
+  - **Verifikasi:** uji SQL: akun nonaktif ditolak masuk, tetapi laporan bulan lalu tetap menampilkan namanya.
+
 ---
 
 ## Fase 11 — Uji terima, deploy produksi, audit (penutup G1)
@@ -1365,7 +1403,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** batas terlampaui tanpa terasa → mitigasi: peringatan otomatis 70%/90% + laporan bulanan.
   - **Verifikasi:** jalankan pemantau → laporan angka + perintah peringatan diuji.
 
-- [ ] T11-07 — Deploy produksi + domain + HTTPS ❓ T-008
+- [ ] T11-07 — Deploy produksi + domain + HTTPS  <!-- T-008 sudah ditutup 2026-09-16: mulai dengan alamat gratis *.workers.dev -->
   - **Tujuan:** aplikasi bisa dipakai harian oleh pegawai Kedai Oasis.
   - **Ref:** TECH_SPEC §1 & §7; PRD M12
   - **File:** `aplikasi/wrangler.toml`, `docs/ops/DEPLOY.md`
@@ -1410,12 +1448,12 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] Semua **API/RPC** punya task endpoint + uji: `simpan_pesanan` T3-05 · `bayar_pesanan` T5-02 · `batal_pesanan` T3-13/T5-06/T5-07 · `buka_shift` T7-01 · `tutup_shift` T7-02 · `cek_voucher` T1-19/T8-09 · `pakai_voucher` T1-20/T8-09 · `katalog_publik` T8-01 · `hitung_total` T1-15/T1-16 · laporan T7-07…T7-12
 - [x] Semua **Area Berisiko Tinggi** ada di Fase 1 + bertanda `⚠️` (ART-1 T1-01/T1-04/T1-22 · ART-2 T1-05/T1-06 · ART-3 T1-15/T1-16 · ART-4 T1-18/T3-05 · ART-5 T1-19/T1-20 · ART-6 T1-11/T1-13 · ART-7 T6-01/T6-06/T6-08 · ART-8 T1-14/T10-01/T10-02 · ART-9 T1-17 · ART-10 T1-12/T5-08/T8-01)
 - [x] Setup repo, env, lint, uji, CI, deploy: T0-01…T0-03, T0-05, T0-07, T0-09, T0-10, T11-07
-- [x] Integrasi pihak ketiga punya task setup + uji: Supabase T0-08/T1-* · Google T2-04 · Resend T2-04/T2-05/T8-07 ❓ T-007 · Cloudflare+Wrangler T0-09/T11-07 · pg_cron T10-08
+- [x] Integrasi pihak ketiga punya task setup + uji: Supabase T0-08/T1-* · Google T2-04 · Resend T2-04/T2-05/T8-07 · Cloudflare+Wrangler T0-09/T11-07 · pg_cron T10-08
 - [x] Hal kecil tidak terlupakan: `README.md` T0-06 · `.env.example` T0-05 · favicon T0-01 · halaman error T2-08 · keadaan memuat/kosong/gagal T0-04/T3-15/T4-10 · a11y T0-04/T3-10/T11-05 · responsif T11-05 · panduan pegawai T11-09 · cadangan T11-10
 
-**Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07. Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009 sudah **ditutup** 2026-09-16 atas persetujuan pemilik (lihat tabel Butir selesai).
+**Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07 · T-012 (tempat simpan cadangan) → T10-10 · T-013 (siapa penutup shift) → T10-12. Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009 sudah **ditutup** 2026-09-16 atas persetujuan pemilik (lihat tabel Butir selesai).
 
-**Jumlah tugas:** F0 10 · F1 22 · F2 12 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 14 · F9 12 · F10 8 · F11 10 = **146 tugas**, semuanya ber-7 atribut.
+**Jumlah tugas:** F0 10 · F1 22 · F2 12 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 14 · F9 12 · F10 12 · F11 10 = **150 tugas**, semuanya ber-7 atribut.
 
 **Uji terima antar-fase (aturan gelombang):** fase N+1 tidak dimulai sebelum (a) semua tugas fase N `[x]`, (b) uji otomatisnya hijau, (c) `python3 alat/periksa-roadmap.py` lulus, (d) `DECISIONS_LOG.md` diperbarui untuk tugas bertanda ⚠️, (e) ringkasan 5 baris ditulis di LOG_SESI.
 
@@ -1424,4 +1462,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 | Tanggal | Perubahan | Alasan |
 |---|---|---|
 | 2026-09-16 | `ROADMAP.md` ditulis (146 tugas, 11 fase) | Urutan fase disetujui pemilik via delegasi; Tahap 5 selesai |
+| 2026-09-16 | Review independen: 4 tugas ditambah di Fase 10 (T10-09 pemulihan listrik · T10-10 cadangan+uji pemulihan · T10-11 pengaturan bersamaan · T10-12 pegawai berhenti) → 150 tugas | Skenario operasional nyata belum punya tugas sama sekali; cadangan hanya disebut di TECH_SPEC §8 dan di DoD T11-10, tanpa tugas pelaksana sendiri |
+| 2026-09-16 | Review independen: tanda `❓` basi (T-001/T-004/T-005/T-007/T-008 yang sudah ditutup) dibersihkan dari 7 tempat | Tanda itu membuat agent maraton MELEWATI tugas yang sebenarnya sudah boleh dikerjakan — termasuk T0-09 (deploy Fase 0) |
+| 2026-09-16 | Review independen: nama tabel di Ref T1-07/T4-06/T4-07 diselaraskan dengan TECH_SPEC §4.2 (`kategori_menu`, `stok_bahan`, `stok_pergerakan`) | ROADMAP memakai nama pendek (`kategori`, `stok`) yang tidak ada di skema — agent coding bisa membuat tabel bernama salah |
 | 2026-09-16 | Tugas yang menunggu jawaban pemilik ditandai `❓ T-xxx` dan dilewati (mode maraton) | Aturan `AGENT_OPERATING_GUIDE.md` §13: tunda-catat-lanjut, jangan mengerjakan setengah |
