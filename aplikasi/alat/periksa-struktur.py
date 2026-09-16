@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -283,9 +284,41 @@ def uji_berkas_gaya() -> None:
             catat(gagal, "GAGAL", f"{wajib} tidak ada")
 
 
+def uji_terlacak_git(pohon: list[tuple[str, bool]]) -> None:
+    """Folder wajib harus benar-benar ikut Git.
+
+    Pelajaran nyata dari CI pertama (2026-09-16): folder layar yang kosong tidak
+    ikut tersimpan Git, jadi di clone bersih folder itu HILANG walau di komputer
+    pengembang ada. Pemeriksa ini menangkap masalah itu sebelum sampai CI.
+    """
+    if not (AKAR_REPO / ".git").exists():
+        catat(info, "INFO", "bukan repositori Git: pemeriksaan 'terlacak Git' dilewati")
+        return
+    tidak_ikut = []
+    for path, folder in pohon:
+        if not folder or "*" in path:
+            continue
+        if not (AKAR_REPO / path).is_dir():
+            continue  # sudah dilaporkan GAGAL oleh uji_pohon
+        hasil = subprocess.run(
+            ["git", "ls-files", path], cwd=str(AKAR_REPO), capture_output=True, text=True
+        )
+        if not hasil.stdout.strip():
+            tidak_ikut.append(path)
+    if tidak_ikut:
+        catat(
+            gagal,
+            "GAGAL",
+            f"folder ada di komputer tetapi TIDAK ikut Git (clone bersih akan kehilangan): {tidak_ikut}",
+        )
+    else:
+        catat(ok, "OK", "semua folder wajib ikut Git (aman di clone bersih)")
+
+
 def main() -> int:
     pohon = jelaskan_baris(pohon_dari_tech_spec())
     uji_pohon(pohon)
+    uji_terlacak_git(pohon)
     uji_token()
     uji_berkas_dasar()
     uji_berkas_gaya()
