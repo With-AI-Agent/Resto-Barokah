@@ -53,6 +53,12 @@ jobs:
         working-directory: aplikasi
         run: npm run build
 
+      - name: Pasang alat uji SQL
+        run: npm ci --prefix alat
+
+      - name: Uji SQL — RLS, isolasi resto & fungsi identitas
+        run: node alat/uji-sql.mjs --daftar
+
       - name: Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras
         run: |
           python3 _sistem/validate_system.py

@@ -6,6 +6,12 @@ Tujuan: menyiapkan **dua akun gratis** supaya agent bisa menyambungkan aplikasi.
 
 ---
 
+## Kabar baik: kamu boleh santai — pekerjaan tetap jalan
+
+Kamu bilang sedang sibuk dan minta maraton tetap berjalan. **Bisa.** Aplikasi belum perlu akun ini untuk dikerjakan lebih lanjut: bagian database & keamanan diuji memakai PostgreSQL asli yang dijalankan di dalam komputer (gratis, tanpa akun) — 22 tugas Fase 1 berjalan sekarang, termasuk uji isolasi data antar-resto.
+
+Jadi **tidak ada yang tertunda karena kamu**. Kerjakan panduan di bawah **kapan saja** saat sudah longgar (sekitar 30 menit). Yang nanti dibutuhkan dari kamu hanya **dua nilai** dari Bagian 1 langkah 6: `Project URL` dan kunci `anon public`. Setelah itu agent melanjutkan T0-08 (menyambungkan database) dan T0-09 (menayangkan aplikasi ke internet) lalu mengulang semua uji di database sungguhan.
+
 ## Bagian 1 — Akun Supabase (tempat data kedai disimpan)
 
 1. Buka `supabase.com`, tekan **Start your project**.

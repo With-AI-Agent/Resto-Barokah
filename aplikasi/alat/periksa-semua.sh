@@ -17,7 +17,14 @@ echo "== aplikasi: uji unit =="
 (cd "$APLIKASI" && npm test)
 echo "== aplikasi: bangun =="
 (cd "$APLIKASI" && npm run build)
+echo "== uji SQL (RLS & isolasi resto, tanpa server) =="
+if [ ! -d "$REPO/alat/node_modules" ]; then
+  (cd "$REPO/alat" && npm ci --no-audit --no-fund)
+fi
+(cd "$REPO" && node alat/uji-sql.mjs)
+
 echo "== pemeriksa Python =="
+
 (cd "$REPO" && python3 _sistem/validate_system.py)
 (cd "$REPO" && python3 alat/periksa-roadmap.py)
 (cd "$REPO" && python3 alat/periksa-fondasi-independen.py)

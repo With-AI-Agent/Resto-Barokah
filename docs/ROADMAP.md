@@ -146,41 +146,41 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 1 — Database, keamanan & uang (⚠️ Area Berisiko Tinggi — dikerjakan paling awal)
 
-- [ ] T1-01 — Migrasi 0001: penyewa + cabang + RLS ⚠️
+- [x] T1-01 — Migrasi 0001: penyewa + cabang + RLS ⚠️
   - **Tujuan:** data dua resto terpisah total sejak tabel pertama ada.
   - **Ref:** TECH_SPEC §4 (penyewa/cabang) & §9 ART-1; PRD M1 & M11
   - **File:** `supabase/migrations/0001_penyewa_cabang.sql`, `supabase/tes/rls_penyewa.sql`
   - **DoD:** tabel `penyewa` & `cabang` ada; RLS aktif; anon tidak melihat satu baris pun; akun penyewa A tidak melihat data penyewa B; uji SQL lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS/Auth (ART-1); salah policy → kebocoran data antar-resto → mitigasi: satu pola policy untuk semua tabel + uji dua penyewa.
-  - **Verifikasi:** `supabase test` (uji SQL) + pemeriksaan manual dengan dua akun berbeda.
+  - **Verifikasi:** `supabase test` (uji SQL) + pemeriksaan manual dengan dua akun berbeda. · **Bukti 2026-09-16:** migrasi `0001` diterapkan pada PostgreSQL asli lalu diuji `supabase/tes/rls_penyewa.sql` — pengunjung belum masuk melihat **0 baris** penyewa & cabang, kasir resto A hanya melihat **1 penyewa & 2 cabangnya**, kasir resto B **tidak melihat satu baris pun** milik resto A; perintah ubah cabang dari resto lain **tidak mengubah apa pun** (RLS menyaring, bukan melempar error — dibuktikan dengan membaca ulang nama cabang dari akun owner). RLS sudah aktif sejak tabel pertama ada, policy-nya sengaja ditulis di `0004` (tolak-dulu).
 
-- [ ] T1-02 — Migrasi 0002: pengguna, pengguna_cabang, izin, pengaturan ⚠️
+- [x] T1-02 — Migrasi 0002: pengguna, pengguna_cabang, izin, pengaturan ⚠️
   - **Tujuan:** pegawai punya peran & cabang, dan pengaturan per resto tersimpan rapi.
   - **Ref:** TECH_SPEC §4; PRD M2 & M3
   - **File:** `supabase/migrations/0002_pengguna_izin_pengaturan.sql`
   - **DoD:** tabel-tabel ada dengan kunci asing benar; `pengguna_cabang` mendukung pegawai merangkap cabang; `pengaturan` per penyewa (bukan per cabang, kecuali dinyatakan); RLS + uji lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); salah model cabang → laporan salah → mitigasi: uji pegawai di dua cabang sejak awal.
-  - **Verifikasi:** uji SQL: pegawai cabang 1 tidak bisa melihat data cabang 2.
+  - **Verifikasi:** uji SQL: pegawai cabang 1 tidak bisa melihat data cabang 2. · **Bukti 2026-09-16:** `supabase/tes/rls_pengguna.sql` — kasir hanya melihat **baris dirinya sendiri**, admin cabang Pusat melihat **3 pegawai** cabangnya (bukan yang hanya bertugas di Cabang Dua), owner pusat melihat **seluruh pegawai restonya** dan **0 pegawai resto lain**; izin hanya terlihat oleh yang berhak (kasir **2 baris miliknya**, admin **seluruh izin restonya**, resto lain **0**) dan kasir **ditolak** saat mengubah izin lewat tabel; pengaturan hanya bisa diubah owner pusat — perintah ubah dari resto lain **tidak mengubah nilai apa pun**. Pegawai merangkap dua cabang didukung (`pengguna_cabang` kunci primer gabungan).
 
-- [ ] T1-03 — Fungsi bantu identitas: penyewa_id(), cabang_ids(), peran() ⚠️
+- [x] T1-03 — Fungsi bantu identitas: penyewa_id(), cabang_ids(), peran() ⚠️
   - **Tujuan:** semua policy memakai satu sumber identitas yang sama (tidak ada logika ganda).
   - **Ref:** TECH_SPEC §4 & §9 ART-1/ART-2
   - **File:** `supabase/migrations/0003_helper_identitas.sql`, `supabase/tes/helper.sql`
   - **DoD:** tiga fungsi mengembalikan nilai benar untuk 6 peran; dipakai oleh seluruh policy; uji lulus (termasuk akun tanpa cabang).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS/Auth (ART-1); fungsi bocor hak → mitigasi: `SECURITY DEFINER` hanya bila perlu + uji peran terbatas.
-  - **Verifikasi:** uji SQL memanggil ketiga fungsi sebagai anon, pelayan, admin cabang, owner.
+  - **Verifikasi:** uji SQL memanggil ketiga fungsi sebagai anon, pelayan, admin cabang, owner. · **Bukti 2026-09-16:** `supabase/migrations/0003_helper_identitas.sql` + `supabase/tes/helper.sql` — diuji untuk **7 akun** (pemilik platform, owner pusat, admin cabang, kasir, pelayan merangkap dua cabang, dapur, kasir resto lain): pemilik platform tidak punya penyewa/cabang, owner pusat punya penyewa tanpa cabang, pelayan mengembalikan **2 cabang**, akun tanpa cabang mengembalikan **null/kosong** (bukan error). Fungsi juga diuji **negatif**: sebelum masuk (anon) **ditolak** karena hak jalannya hanya untuk `authenticated` & `service_role`; klaim cabang palsu milik resto lain **ditolak** (diverifikasi ulang ke `pengguna_cabang`); akun nonaktif kehilangan seluruh identitas. Uji ini menangkap **satu cacat nyata** pada rancangan awal (`cabang_saya()`/`cabang_ids_saya()` masih memberi cabang ke akun nonaktif) yang langsung diperbaiki.
 
-- [ ] T1-04 — Pola RLS seragam + uji isolasi menyeluruh ⚠️
+- [x] T1-04 — Pola RLS seragam + uji isolasi menyeluruh ⚠️
   - **Tujuan:** satu pola seragam supaya tidak ada tabel yang lupa dikunci.
   - **Ref:** TECH_SPEC §9 ART-1; PRD M12
   - **File:** `supabase/migrations/0004_pola_rls.sql`, `supabase/tes/rls_semua_tabel.sql`
   - **DoD:** uji "setiap tabel ber-penyewa_id punya policy" lulus; uji akses silang (penyewa A ↔ B, cabang 1 ↔ 2) lulus untuk semua peran; daftar tabel tanpa policy = kosong.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1); tabel baru lupa dikunci → mitigasi: uji otomatis "tanpa policy = gagal" dijalankan di CI.
-  - **Verifikasi:** `supabase test` + laporan daftar tabel & policy dicetak ke log CI.
+  - **Verifikasi:** `supabase test` + laporan daftar tabel & policy dicetak ke log CI. · **Bukti 2026-09-16:** `supabase/migrations/0004_pola_rls.sql` + `supabase/tes/rls_semua_tabel.sql`. Uji ini **membaca katalog PostgreSQL**, tidak menyebut nama tabel satu per satu — jadi tabel baru di fase mana pun otomatis diperiksa (RLS aktif · punya policy · yang punya `penyewa_id` wajib menyebut `penyewa_saya()`), plus pemindaian pembocoran baris antar-resto. Daftar saat ini: **6 tabel, semuanya RLS aktif & ber-policy** (penyewa 1 · cabang 3 · pengguna 1 · pengguna_cabang 1 · izin 1 · pengaturan 2). Gerbang ini dijalankan di CI dengan `--daftar` sehingga daftar tabel & policy **tercetak di log setiap kiriman kode**. Dibuktikan bisa MERAH lewat **3 uji mutasi**: RLS dimatikan → GAGAL · policy dibuka lebar → GAGAL · cacat akun nonaktif dikembalikan → GAGAL; setelah dipulihkan → LOLOS.
 
 - [ ] T1-05 — Peran & izin berjenjang (centang owner) + fungsi boleh() ⚠️
   - **Tujuan:** tindakan di luar izin tidak bisa dilakukan, bahkan lewat API langsung.
