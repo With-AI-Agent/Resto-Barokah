@@ -1,0 +1,315 @@
+import { test, describe, before, after } from "node:test";
+import assert from "node:assert/strict";
+import { mkdtemp, writeFile, mkdir, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+
+/**
+ * End-to-end: launch the real server over stdio, speak the real protocol.
+ *
+ * The unit tests prove the analyzers work. This proves the server actually
+ * starts, registers its tools, and returns results a client can read — which
+ * unit tests cannot tell you.
+ */
+let client;
+let transport;
+let fixture;
+
+before(async () => {
+  // A deliberately bad Swift project.
+  fixture = await mkdtemp(join(tmpdir(), "ios-agent-mcp-"));
+  await mkdir(join(fixture, "Sources", "Views"), { recursive: true });
+  await writeFile(
+    join(fixture, "Sources", "Views", "FeedView.swift"),
+    [
+      "import SwiftUI",
+      "",
+      "@Observable",
+      "final class FeedModel {",
+      "    var posts: [String] = []",
+      "    func load() {",
+      "        Task.detached {",
+      "            DispatchQueue.main.async { self.posts = [] }",
+      "        }",
+      "    }",
+      "}",
+      "",
+      "struct FeedView: View {",
+      "    var body: some View {",
+      "        AnyView(Text(\"Feed\").font(.system(size: 17)))",
+      "    }",
+      "}",
+      "",
+    ].join("\n"),
+  );
+  await writeFile(join(fixture, "Package.swift"), "// swift-tools-version: 5.9\n");
+
+  transport = new StdioClientTransport({
+    command: "node",
+    args: [new URL("../dist/index.js", import.meta.url).pathname],
+  });
+  client = new Client({ name: "smoke-test", version: "1.0.0" });
+  await client.connect(transport);
+});
+
+after(async () => {
+  await client?.close();
+  if (fixture) await rm(fixture, { recursive: true, force: true });
+});
+
+describe("cli flags", () => {
+  const bin = new URL("../dist/index.js", import.meta.url).pathname;
+
+  // Regression: without flag handling, `--help` started the stdio server and
+  // blocked on stdin forever — indistinguishable from a hang, and the first
+  // thing anyone tries after installing.
+  test("--help prints usage and exits 0", () => {
+    const result = spawnSync("node", [bin, "--help"], { encoding: "utf8", timeout: 10_000 });
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /ios-agent-mcp/);
+    assert.match(result.stdout, /analyze_swift_project/);
+    assert.match(result.stdout, /claude mcp add/);
+  });
+
+  test("--version prints just the version and exits 0", () => {
+    const result = spawnSync("node", [bin, "--version"], { encoding: "utf8", timeout: 10_000 });
+    assert.equal(result.status, 0);
+    assert.match(result.stdout.trim(), /^\d+\.\d+\.\d+$/);
+  });
+
+  test("-h and -v are accepted too", () => {
+    for (const flag of ["-h", "-v"]) {
+      const result = spawnSync("node", [bin, flag], { encoding: "utf8", timeout: 10_000 });
+      assert.equal(result.status, 0, `${flag} should exit 0`);
+      assert.ok(result.stdout.length > 0, `${flag} should print something`);
+    }
+  });
+});
+
+describe("mcp server", () => {
+  test("starts and advertises every tool", async () => {
+    const { tools } = await client.listTools();
+    const names = tools.map((t) => t.name).sort();
+    assert.deepEqual(names, [
+      "analyze_swift_project",
+      "audit_app_store_readiness",
+      "check_availability_guards",
+      "lint_skill",
+      "review_swift_architecture",
+      "review_swift_concurrency",
+      "review_swift_memory",
+      "review_swift_performance",
+      "review_swift_security",
+      "review_swift_testing",
+      "review_swiftui",
+    ]);
+  });
+
+  test("every tool has a description stating when to use it", async () => {
+    const { tools } = await client.listTools();
+    for (const tool of tools) {
+      assert.ok(tool.description, `${tool.name} has no description`);
+      assert.ok(
+        tool.description.length >= 80,
+        `${tool.name} description is too vague to route on`,
+      );
+      assert.match(tool.description, /Use when|Use this|Use before/,
+        `${tool.name} description does not say WHEN to use it`);
+    }
+  });
+
+  test("finds the planted concurrency defects", async () => {
+    const result = await client.callTool({
+      name: "review_swift_concurrency",
+      arguments: { path: fixture },
+    });
+    const text = result.content[0].text;
+    assert.match(text, /observable-without-mainactor/);
+    assert.match(text, /task-detached/);
+    assert.match(text, /dispatchqueue-main-async/);
+    assert.match(text, /FeedView\.swift:\d+/);
+  });
+
+  test("project analysis summarizes structure and categories", async () => {
+    const result = await client.callTool({
+      name: "analyze_swift_project",
+      arguments: { path: fixture },
+    });
+    const text = result.content[0].text;
+    assert.match(text, /Swift files:\*\* 1/);
+    assert.match(text, /Concurrency/);
+    assert.match(text, /review_swift_concurrency/);
+  });
+
+  test("review tools return structuredContent, not only prose", async () => {
+    const result = await client.callTool({
+      name: "review_swift_concurrency",
+      arguments: { path: fixture },
+    });
+    const structured = result.structuredContent;
+    assert.ok(structured, "expected structuredContent alongside the markdown");
+    assert.equal(typeof structured.score, "number");
+    assert.equal(typeof structured.files_checked, "number");
+    assert.ok(Array.isArray(structured.issues));
+    assert.ok(structured.issues.length > 0, "the fixture has planted defects");
+    assert.equal(typeof structured.counts.total, "number");
+    // The markdown half must still be there — both audiences, always.
+    assert.match(result.content[0].text, /observable-without-mainactor/);
+  });
+
+  test("the project overview reports architecture with its evidence", async () => {
+    const result = await client.callTool({
+      name: "analyze_swift_project",
+      arguments: { path: fixture },
+    });
+    const project = result.structuredContent?.project;
+    assert.ok(project, "expected a project block");
+    assert.equal(typeof project.architecture, "string");
+    assert.ok(Array.isArray(project.architecture_evidence));
+    assert.ok(Array.isArray(project.dependencies));
+    assert.match(result.content[0].text, /## Shape/);
+  });
+
+  test("lint_skill reports over the wire on this repository", async () => {
+    const result = await client.callTool({
+      name: "lint_skill",
+      arguments: { path: new URL("../../", import.meta.url).pathname },
+    });
+    const text = result.content[0].text;
+    assert.match(text, /# Skill Repository Lint/);
+    assert.match(text, /\*\*Subagent definitions:\*\* 24/);
+    assert.match(text, /No findings/);
+  });
+
+  test("lint_skill on a non-skill directory says so rather than passing silently", async () => {
+    const result = await client.callTool({
+      name: "lint_skill",
+      arguments: { path: fixture },
+    });
+    assert.match(result.content[0].text, /skill-file-missing|not found/);
+  });
+
+  test("a bad path returns an error, not a false clean bill of health", async () => {
+    const result = await client.callTool({
+      name: "review_swiftui",
+      arguments: { path: "/nonexistent/path/xyz" },
+    });
+    assert.equal(result.isError, true);
+    assert.match(result.content[0].text, /does not exist/i);
+  });
+
+  test("a clean project reports zero findings explicitly", async () => {
+    const clean = await mkdtemp(join(tmpdir(), "ios-agent-mcp-clean-"));
+    await mkdir(join(clean, "Sources"), { recursive: true });
+    await writeFile(
+      join(clean, "Sources", "Model.swift"),
+      [
+        "import Foundation",
+        "",
+        "@MainActor",
+        "@Observable",
+        "final class Model {",
+        "    private(set) var items: [String] = []",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    const result = await client.callTool({
+      name: "review_swift_concurrency",
+      arguments: { path: clean },
+    });
+    assert.match(result.content[0].text, /No findings/);
+    await rm(clean, { recursive: true, force: true });
+  });
+});
+
+describe("resources", () => {
+  let resourceClient;
+  let resourceTransport;
+
+  before(async () => {
+    // A second server instance, launched with --project pointed at this repo's
+    // own sample package — the resource root is a launch-time decision, so it
+    // cannot be exercised by the shared client above.
+    resourceTransport = new StdioClientTransport({
+      command: "node",
+      args: [
+        new URL("../dist/index.js", import.meta.url).pathname,
+        "--project",
+        new URL("../../samples/SkillPatterns/", import.meta.url).pathname,
+      ],
+    });
+    resourceClient = new Client({ name: "resource-test", version: "1.0.0" });
+    await resourceClient.connect(resourceTransport);
+  });
+
+  after(async () => {
+    await resourceClient?.close();
+  });
+
+  test("advertises the project resources", async () => {
+    const { resources } = await resourceClient.listResources();
+    const uris = resources.map((r) => r.uri).sort();
+    assert.deepEqual(uris, [
+      "ios://project/dependencies",
+      "ios://project/info",
+      "ios://project/issues",
+    ]);
+  });
+
+  test("project/info reports architecture with its evidence", async () => {
+    const result = await resourceClient.readResource({ uri: "ios://project/info" });
+    const body = JSON.parse(result.contents[0].text);
+    assert.equal(body.available, true);
+    assert.ok(body.swift_files > 0);
+    assert.equal(typeof body.architecture, "string");
+    assert.ok(Array.isArray(body.architecture_evidence));
+    assert.ok(body.architecture_evidence.length > 0, "a verdict must ship its evidence");
+    // The root is implicit, so every payload must say which one it used.
+    assert.match(body.project_root, /SkillPatterns/);
+  });
+
+  test("project/issues reports counts and categories", async () => {
+    const result = await resourceClient.readResource({ uri: "ios://project/issues" });
+    const body = JSON.parse(result.contents[0].text);
+    assert.equal(body.available, true);
+    assert.equal(typeof body.counts.total, "number");
+    assert.ok(Array.isArray(body.issues));
+    assert.ok(body.by_category.concurrency !== undefined);
+  });
+
+  test("project/dependencies distinguishes third-party from Apple frameworks", async () => {
+    const result = await resourceClient.readResource({
+      uri: "ios://project/dependencies",
+    });
+    const body = JSON.parse(result.contents[0].text);
+    assert.ok(Array.isArray(body.third_party));
+    assert.ok(Array.isArray(body.apple_frameworks));
+    assert.ok(body.apple_frameworks.includes("Foundation"));
+  });
+});
+
+describe("project root resolution", () => {
+  test("--project wins over the environment", async () => {
+    const { projectRootFrom } = await import("../dist/resources.js");
+    assert.equal(
+      projectRootFrom(["--project", "/tmp/explicit"], { IOS_AGENT_PROJECT: "/tmp/env" }),
+      "/tmp/explicit",
+    );
+  });
+
+  test("the environment is used when no flag is given", async () => {
+    const { projectRootFrom } = await import("../dist/resources.js");
+    assert.equal(projectRootFrom([], { IOS_AGENT_PROJECT: "/tmp/env" }), "/tmp/env");
+  });
+
+  test("falls back to the working directory rather than throwing", async () => {
+    const { projectRootFrom } = await import("../dist/resources.js");
+    assert.equal(projectRootFrom([], { PWD: "/tmp/cwd" }), "/tmp/cwd");
+  });
+});

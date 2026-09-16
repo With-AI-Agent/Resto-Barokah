@@ -1,0 +1,594 @@
+name: Docs Consistency
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Without this, work on a branch with no open PR gets no CI at all — which is
+  # how eleven commits once accumulated with zero runs. Lets any branch be
+  # checked on demand, including against the macOS runner.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# GitHub's default shell is `bash -e` WITHOUT pipefail, so `cmd | tail` reports
+# tail's exit code and a step passes on a failing command — a check that cannot
+# fail. `shell: bash` maps to `bash --noprofile --norc -eo pipefail`, which fixes
+# it for every step at once rather than relying on per-step discipline.
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mirrors are in sync with SKILL.md
+        run: ./scripts/sync-mirrors.sh --check
+
+      - name: SKILL.md frontmatter is valid
+        run: |
+          python3 - <<'PY'
+          import sys, re
+
+          text = open("SKILL.md", encoding="utf-8").read()
+          match = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
+          if not match:
+              sys.exit("SKILL.md is missing its YAML frontmatter block")
+
+          block = match.group(1)
+          keys = set(re.findall(r"^([A-Za-z][A-Za-z0-9_-]*):", block, re.MULTILINE))
+
+          required = {"name", "description", "version", "license"}
+          missing = required - keys
+          if missing:
+              sys.exit(f"SKILL.md frontmatter is missing: {', '.join(sorted(missing))}")
+
+          name = re.search(r"^name:\s*(.+)$", block, re.MULTILINE).group(1).strip()
+          if not re.fullmatch(r"[a-z0-9-]+", name):
+              sys.exit(f"skill name must be lowercase-kebab-case, got: {name!r}")
+
+          description = re.search(r"^description:\s*(.+)$", block, re.MULTILINE).group(1).strip()
+          if len(description) < 40:
+              sys.exit("description must state concrete trigger conditions (>= 40 chars)")
+
+          print(f"OK - {name} v{re.search(r'^version:\s*(.+)$', block, re.MULTILINE).group(1).strip()}")
+          PY
+
+      - name: Referenced documentation files exist
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+
+          # Every `path/to/doc.md` in a backticked reference inside the index files.
+          sources = ["SKILL.md", "README.md"]
+          pattern = re.compile(r"`((?:docs|patterns|checklists|templates|scripts)/[^`\s]+)`")
+
+          missing = []
+          for source in sources:
+              if not os.path.exists(source):
+                  continue
+              for line_number, line in enumerate(open(source, encoding="utf-8"), 1):
+                  for path in pattern.findall(line):
+                      if "*" in path:
+                          continue          # deliberate glob, e.g. docs/frameworks/**
+                      # Directory references end in a slash.
+                      target = path.rstrip("/")
+                      if os.path.isdir(target) or os.path.isfile(target):
+                          continue
+                      missing.append(f"{source}:{line_number}: {path}")
+
+          if missing:
+              print("Referenced paths that do not exist:")
+              print("\n".join(missing))
+              sys.exit(1)
+          print("OK - every referenced path exists")
+          PY
+
+      - name: Subagent definitions are valid
+        run: |
+          python3 - <<'PY'
+          import glob, re, sys
+
+          paths = sorted(glob.glob(".claude/agents/*.md"))
+          if not paths:
+              sys.exit(".claude/agents/ contains no subagent definitions")
+
+          problems, names = [], {}
+          for path in paths:
+              text = open(path, encoding="utf-8").read()
+              match = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
+              if not match:
+                  problems.append(f"{path}: missing YAML frontmatter")
+                  continue
+
+              block = match.group(1)
+              keys = set(re.findall(r"^([A-Za-z][A-Za-z0-9_-]*):", block, re.MULTILINE))
+              for required in ("name", "description"):
+                  if required not in keys:
+                      problems.append(f"{path}: frontmatter missing '{required}'")
+
+              name_match = re.search(r"^name:\s*(.+)$", block, re.MULTILINE)
+              if name_match:
+                  name = name_match.group(1).strip()
+                  if not re.fullmatch(r"[a-z0-9-]+", name):
+                      problems.append(f"{path}: name must be lowercase-kebab-case, got {name!r}")
+                  if name in names:
+                      problems.append(f"{path}: duplicate name {name!r} (also in {names[name]})")
+                  names[name] = path
+
+              # The description is the routing signal - a vague one never gets invoked.
+              desc_match = re.search(r"^description:\s*(.+(?:\n\s+.+)*)$", block, re.MULTILINE)
+              if desc_match and len(desc_match.group(1).strip()) < 40:
+                  problems.append(f"{path}: description must state when to use the agent (>= 40 chars)")
+
+          if problems:
+              print("\n".join(problems))
+              sys.exit(1)
+          print(f"OK - {len(paths)} subagent definitions valid: {', '.join(sorted(names))}")
+          PY
+
+      - name: Subagent tool boundaries hold
+        run: ./scripts/eval-agents.sh
+
+      - name: Boundary checks are not vacuous
+        run: ./scripts/eval-agents.sh --self-test
+
+      - name: Hook scripts are executable and parse
+        run: |
+          status=0
+          for script in scripts/*.sh scripts/hooks/*.sh templates/hooks/*.sh; do
+            [ -e "$script" ] || continue
+            if [ ! -x "$script" ]; then
+              echo "NOT EXECUTABLE: $script"
+              status=1
+            fi
+            if ! bash -n "$script"; then
+              echo "SYNTAX ERROR: $script"
+              status=1
+            fi
+          done
+          [ $status -eq 0 ] && echo "OK - all shell scripts executable and syntactically valid"
+          exit $status
+
+      - name: Repo hooks behave correctly
+        run: |
+          # The guard hook must block a generated file and allow the source.
+          if echo '{"tool_input":{"file_path":"'"$PWD"'/CLAUDE.md"}}' \
+             | ./scripts/hooks/guard-generated-files.sh 2>/dev/null; then
+            echo "FAIL: guard hook did not block an edit to a generated mirror"
+            exit 1
+          fi
+          if ! echo '{"tool_input":{"file_path":"'"$PWD"'/SKILL.md"}}' \
+             | ./scripts/hooks/guard-generated-files.sh; then
+            echo "FAIL: guard hook blocked an edit to SKILL.md"
+            exit 1
+          fi
+          echo "OK - guard hook blocks mirrors and allows SKILL.md"
+
+      - name: Workflows enable pipefail
+        run: |
+          python3 - <<'PY'
+          import glob, sys, yaml
+
+          # A workflow must set `defaults.run.shell: bash` (which is
+          # `bash -eo pipefail`), otherwise a piped step reports the exit code of
+          # the LAST command in the pipeline's tail and can never fail.
+          # Checking for the declared default is reliable; parsing shell for
+          # pipelines is not — `||`, regex alternation, and pipes inside `if`
+          # conditions are all false positives.
+          problems = []
+          for path in sorted(glob.glob(".github/workflows/*.yml")):
+              data = yaml.safe_load(open(path, encoding="utf-8"))
+              shell = (data.get("defaults", {}).get("run", {}) or {}).get("shell")
+              if shell != "bash":
+                  problems.append(f"{path}: missing `defaults.run.shell: bash` (enables pipefail)")
+
+          if problems:
+              print("Workflows where a piped step could silently pass:")
+              print("\n".join(problems))
+              sys.exit(1)
+          print("OK - all workflows enable pipefail")
+          PY
+
+      - name: Swift templates have no placeholder stubs
+        run: |
+          if grep -rn --include='*.swift' -E '^\s*(// TODO|// FIXME|<#.*#>)' templates/ samples/; then
+            echo "Template and sample Swift files must be complete and compilable."
+            exit 1
+          fi
+          echo "OK - no placeholder stubs"
+
+      - name: Markdown links resolve
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+
+          # Relative markdown links: [text](path) — skip http(s), anchors, mailto.
+          # Code is skipped in both forms, because Swift like `[UInt8](data)` is
+          # not a link: fenced blocks by tracking state, inline spans by stripping
+          # them from the line before matching.
+          link = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
+          inline_code = re.compile(r"`[^`]*`")
+          broken = []
+
+          for root, dirs, files in os.walk("."):
+              dirs[:] = [d for d in dirs if d not in {".git", ".build", "node_modules"}]
+              for name in files:
+                  if not name.endswith(".md"):
+                      continue
+                  path = os.path.join(root, name)
+                  in_fence = False
+                  for number, line in enumerate(open(path, encoding="utf-8"), 1):
+                      if line.startswith("```"):
+                          in_fence = not in_fence
+                          continue
+                      if in_fence:
+                          continue
+                      line = inline_code.sub("", line)
+                      for text, target in link.findall(line):
+                          if target.startswith(("http://", "https://", "#", "mailto:")):
+                              continue
+                          target = target.split("#")[0].strip()
+                          if not target or "..." in target:
+                              continue          # placeholder path
+                          resolved = os.path.normpath(os.path.join(root, target))
+                          if not (os.path.isfile(resolved) or os.path.isdir(resolved)):
+                              broken.append(f"{path}:{number}: [{text}]({target})")
+
+          if broken:
+              print("Broken relative markdown links:")
+              print("\n".join(broken))
+              sys.exit(1)
+          print("OK - all relative markdown links resolve")
+          PY
+
+      - name: Backtick path references resolve
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+
+          # `docs/foo.md` style references, resolved relative to the file AND repo root.
+          ref = re.compile(r"`((?:docs|patterns|checklists|templates|scripts|samples|\.claude)/[^`\s]+)`")
+          broken = []
+
+          for root, dirs, files in os.walk("."):
+              dirs[:] = [d for d in dirs if d not in {".git", ".build", "node_modules"}]
+              for name in files:
+                  if not name.endswith(".md"):
+                      continue
+                  path = os.path.join(root, name)
+                  for number, line in enumerate(open(path, encoding="utf-8"), 1):
+                      for target in ref.findall(line):
+                          if "*" in target or "..." in target:
+                              continue          # deliberate glob or placeholder
+                          target = target.rstrip("/")
+                          from_root = os.path.normpath(target)
+                          from_here = os.path.normpath(os.path.join(root, target))
+                          if any(os.path.isfile(p) or os.path.isdir(p) for p in (from_root, from_here)):
+                              continue
+                          broken.append(f"{path}:{number}: `{target}`")
+
+          if broken:
+              print("Backtick path references that do not exist:")
+              print("\n".join(broken))
+              sys.exit(1)
+          print("OK - all backtick path references resolve")
+          PY
+
+      - name: Code fences declare a language
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+
+          KNOWN = {
+              "swift", "bash", "sh", "shell", "json", "yaml", "yml", "xml",
+              "python", "ruby", "text", "objc", "objective-c", "c", "cpp",
+              "markdown", "md", "diff", "console", "toml", "ini", "html", "css",
+              "metal",
+              "js", "javascript", "ts", "typescript", "sql", "mermaid",
+              "jsonc",   # JSON with comments — MCP client config samples
+          }
+
+          problems = []
+          for root, dirs, files in os.walk("."):
+              dirs[:] = [d for d in dirs if d not in {".git", ".build", "node_modules"}]
+              for name in files:
+                  if not name.endswith(".md"):
+                      continue
+                  path = os.path.join(root, name)
+                  lines = open(path, encoding="utf-8").read().split("\n")
+                  in_fence = False
+                  fence_line = 0
+                  for number, line in enumerate(lines, 1):
+                      if not line.startswith("```"):
+                          continue
+                      if not in_fence:
+                          in_fence = True
+                          fence_line = number
+                          # Fences may use 3+ backticks (a 4-backtick fence wraps
+                          # a block that itself contains a 3-backtick fence).
+                          info = line.lstrip("`").strip()
+                          lang = info.split()[0].lower() if info else ""
+                          # A bare fence is allowed for plain output blocks, but a
+                          # declared language must be one we recognize (catches typos
+                          # like ```swfit).
+                          if lang and lang not in KNOWN:
+                              problems.append(f"{path}:{number}: unknown fence language '{lang}'")
+                      else:
+                          in_fence = False
+                  if in_fence:
+                      problems.append(f"{path}:{fence_line}: unclosed code fence")
+
+          if problems:
+              print("Code fence problems:")
+              print("\n".join(problems))
+              sys.exit(1)
+          print("OK - all code fences closed with recognized languages")
+          PY
+
+      - name: Docs frontmatter is consistent
+        run: |
+          python3 - <<'PY'
+          import glob, re, sys
+
+          # SKILL.md, subagent definitions, and GitHub issue templates legitimately
+          # carry frontmatter. Any OTHER doc starting with '---' is almost certainly
+          # an accident (a stray fence or a copy-paste) that renders as raw YAML.
+          allowed = {"./SKILL.md"}
+          allowed.update(glob.glob("./plugins/*/skills/*/SKILL.md"))
+          allowed.update(glob.glob("./.claude/agents/*.md"))
+          allowed.update(glob.glob("./.github/ISSUE_TEMPLATE/*.md"))
+          allowed.update(glob.glob("./.github/*.md"))
+
+          import os
+          problems = []
+          for root, dirs, files in os.walk("."):
+              dirs[:] = [d for d in dirs if d not in {".git", ".build", "node_modules"}]
+              for name in files:
+                  if not name.endswith(".md"):
+                      continue
+                  path = os.path.join(root, name)
+                  with open(path, encoding="utf-8") as handle:
+                      first = handle.readline().rstrip("\n")
+                  if first == "---" and path not in allowed:
+                      problems.append(f"{path}: unexpected YAML frontmatter")
+
+          if problems:
+              print("Unexpected frontmatter:")
+              print("\n".join(problems))
+              sys.exit(1)
+          print("OK - frontmatter only where expected")
+          PY
+
+      # SKILL.md states a 4.5:1 body-text rule; nothing verified the shipped
+      # palettes against it until now. They pass — but 34 of the 40 colours
+      # need black text, not the white the pill guidance used to prescribe.
+      - name: Palette contrast ratios are published and correct
+        run: node scripts/check-contrast.mjs
+
+      - name: Full Apple directory has no duplicates or stale guides
+        run: |
+          python3 scripts/sync-apple-technologies.py --check
+          python3 -m unittest discover -s scripts/tests -p "test_apple_technologies.py"
+
+      - name: Local source index and retrieval tests
+        run: |
+          node scripts/index-local-library.mjs --check
+          node --test scripts/tests/local-library.test.mjs
+
+      - name: Apple technology catalog is fresh
+        run: node scripts/check-framework-catalog.mjs
+
+  mcp-server:
+    name: MCP server builds and tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mcp-server
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install
+        run: npm ci || npm install
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Versions agree with package.json
+        run: node scripts/sync-version.mjs --check
+
+      - name: Build
+        run: npm run build
+
+      # Unit tests cover the analyzers; the smoke test launches the real server
+      # and speaks the real MCP protocol over stdio, which unit tests cannot.
+      - name: Test
+        run: npm test
+
+      - name: Manifest is valid
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          manifest = json.load(open("mcp.json"))
+          for key in ("name", "description", "version", "runtime", "tools"):
+              if key not in manifest:
+                  sys.exit(f"mcp.json missing required key: {key}")
+          if not manifest["tools"]:
+              sys.exit("mcp.json declares no tools")
+          print(f"OK - {manifest['name']} v{manifest['version']}, {len(manifest['tools'])} tools")
+          PY
+
+      # The manifest and the server must not drift apart: a tool advertised in
+      # mcp.json but not registered would be a broken promise to any client.
+      - name: Manifest matches registered tools
+        run: node scripts/check-tool-manifest.mjs
+
+  cli:
+    name: CLI builds and tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      # The layout is path-shaped, so it has to be exercised on a case-insensitive
+      # filesystem and on Windows separators, not just on the Linux runner.
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        working-directory: cli
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install
+        run: npm ci || npm install
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      # The scaffold's central promise is what the user sees at the project
+      # root. Asserting it end to end catches a regression that unit tests on
+      # the layout table would not: a command that writes somewhere unexpected.
+      #
+      # Every path here is RELATIVE, deliberately. On the Windows runner `bash`
+      # is Git Bash, whose `/tmp/x` is not the `/tmp/x` a native Windows
+      # node.exe resolves — an absolute path from `mktemp -d` would have the
+      # shell and the CLI writing to two different directories, and the failure
+      # would look like the scaffold silently producing nothing.
+      - name: Scaffold a project and check what is visible
+        shell: bash
+        run: |
+          rm -rf .probe && mkdir -p .probe
+          node dist/index.js new CIProbe --into .probe
+
+          visible="$(ls .probe/CIProbe | sort | tr '\n' ' ')"
+          echo "visible at root: $visible"
+          if [ "$visible" != "App LICENSE README.md " ]; then
+            echo "Unexpected visible entries at the project root."
+            exit 1
+          fi
+
+          test -d .probe/CIProbe/.ios-agent || { echo "missing .ios-agent"; exit 1; }
+          test -f .probe/CIProbe/App/CIProbe/CIProbeApp.swift || { echo "missing entry point"; exit 1; }
+
+          # Discovery must work from a nested source directory, so this runs
+          # from one — reaching back to the CLI relatively for the same reason.
+          ( cd .probe/CIProbe/App/CIProbe \
+            && node ../../../../dist/index.js doctor \
+            && node ../../../../dist/index.js where --json > /dev/null )
+
+          # Exit codes are part of the interface, so they are asserted rather
+          # than assumed: 2 means unhealthy, 1 means called wrong.
+          printf 'broken' > .probe/CIProbe/.ios-agent/.gitignore
+          set +e
+          node dist/index.js doctor --project .probe/CIProbe > /dev/null 2>&1
+          unhealthy=$?
+          set -e
+          [ "$unhealthy" -eq 2 ] || { echo "doctor should exit 2 when unhealthy, got $unhealthy"; exit 1; }
+
+          node dist/index.js doctor --project .probe/CIProbe --fix > /dev/null
+          node dist/index.js doctor --project .probe/CIProbe > /dev/null \
+            || { echo "--fix did not restore health"; exit 1; }
+
+          node dist/index.js completions zsh | grep -q "_ios_agent" || { echo "zsh completions missing"; exit 1; }
+          node dist/index.js completions bash | grep -q "complete -F" || { echo "bash completions missing"; exit 1; }
+
+          rm -rf .probe
+          echo "OK - scaffold, nested discovery, doctor, --fix, exit codes, completions"
+
+  ios-simulator-mcp:
+    name: iOS Simulator MCP builds and tests
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ios-simulator-mcp
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install
+        run: npm ci || npm install
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+  sample-package:
+    name: Sample package builds and tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain versions
+        run: |
+          swift --version
+          xcodebuild -version || true
+
+      # This job is the point: it turns the skill's patterns from INSPECTED
+      # into VERIFIED. Strict concurrency is on, so an isolation regression
+      # fails the build.
+      #
+      # `set -o pipefail` is load-bearing. GitHub runs `run:` under `bash -e`
+      # WITHOUT pipefail, so `swift test | tail` would report the exit code of
+      # `tail` (always 0) and the job would pass on a failing test run — a check
+      # that cannot fail. See docs/orchestration/hooks.md.
+      - name: Build
+        working-directory: samples/SkillPatterns
+        run: |
+          set -o pipefail
+          swift build 2>&1 | tail -40
+
+      - name: Test
+        working-directory: samples/SkillPatterns
+        run: |
+          set -o pipefail
+          swift test 2>&1 | tee /tmp/swift-test.log | tail -60
+
+      # `| tail -60` keeps the log readable on success, and hides the failures
+      # on the runs that matter: with 49 tests the failing assertions scroll off
+      # the top and the job reports "6 failures" with no indication which six.
+      # This step exists so a red run says what broke.
+      - name: Show test failures
+        if: failure()
+        working-directory: samples/SkillPatterns
+        run: |
+          echo "::group::Failing assertions"
+          grep -E "error:|: failed|XCTAssert|Fatal error" /tmp/swift-test.log | head -60 || true
+          echo "::endgroup::"
+          echo "::group::Failing test names"
+          grep -E "' failed \(" /tmp/swift-test.log | head -40 || true
+          echo "::endgroup::"
+
+  apple-recipes:
+    name: AppleRecipes builds and tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and test original Apple recipes
+        working-directory: samples/AppleRecipes
+        run: swift test

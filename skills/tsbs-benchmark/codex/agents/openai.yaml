@@ -1,0 +1,3 @@
+interface:
+  display_name: "QuestDB TSBS Benchmark"
+  short_description: "Run repeated QuestDB TSBS ingestion and query benchmarks"

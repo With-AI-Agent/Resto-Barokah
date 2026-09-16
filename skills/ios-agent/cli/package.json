@@ -1,0 +1,41 @@
+{
+  "name": "@nagarjuna2002/ios-agent",
+  "version": "0.2.0",
+  "description": "Project scaffolding and layout management for iOS work. Keeps tool-owned files out of the user's way.",
+  "type": "module",
+  "bin": {
+    "ios-agent": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').chmodSync('dist/index.js', 0o755)\"",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.js",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "ios",
+    "swift",
+    "scaffolding",
+    "cli"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "typescript": "^5.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nagarjuna2997/ios-agent-skill.git",
+    "directory": "cli"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

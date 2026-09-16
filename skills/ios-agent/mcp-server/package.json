@@ -1,0 +1,62 @@
+{
+  "name": "ios-agent-mcp",
+  "version": "2.5.1",
+  "description": "MCP server for modern iOS/Swift development — concurrency isolation, architecture boundaries, SwiftUI, and App Store readiness analysis",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "ios-agent-mcp": "dist/unified.js",
+    "ios-agent-knowledge": "dist/knowledge-server.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "mcp.json",
+    "README.md",
+    "data"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/sync-version.mjs && node scripts/bundle-knowledge.mjs && tsc",
+    "test": "node --test test/*.test.js",
+    "typecheck": "node scripts/sync-version.mjs && node scripts/bundle-knowledge.mjs && tsc --noEmit",
+    "prepublishOnly": "npm run build && npm test",
+    "sync-version": "node scripts/sync-version.mjs"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ios",
+    "swift",
+    "swiftui",
+    "claude",
+    "cursor",
+    "chatgpt",
+    "codex",
+    "gemini",
+    "apple-documentation",
+    "icon-composer"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.23.8",
+    "@nagarjuna2002/ios-agent": "0.2.0",
+    "@nagarjuna2002/ios-simulator-mcp": "0.2.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nagarjuna2997/ios-agent-skill.git",
+    "directory": "mcp-server"
+  },
+  "homepage": "https://nagarjuna2997.github.io/ios-agent-skill/",
+  "bugs": {
+    "url": "https://github.com/Nagarjuna2997/ios-agent-skill/issues"
+  }
+}
