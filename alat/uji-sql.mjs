@@ -71,6 +71,48 @@ $$;
 create schema if not exists uji;
 grant usage on schema uji to public;
 
+-- Seperti di Supabase: pengguna yang sudah masuk (dan anon) memang boleh
+-- memanggil auth.uid()/auth.jwt() — yang dijaga adalah datanya, bukan fungsinya.
+grant usage on schema auth to anon, authenticated, service_role;
+grant execute on function auth.uid() to anon, authenticated, service_role;
+grant execute on function auth.jwt() to anon, authenticated, service_role;
+
+-- ================= tiruan pgcrypto — HANYA untuk uji lokal =================
+-- Supabase memuat pgcrypto (bcrypt asli). PGlite inti TIDAK memuat pgcrypto,
+-- jadi di sini dipasang tiruan yang meniru ANTARMUKA-nya saja:
+--     crypt(pin, gen_salt('bf', 10))   →   hash ber-garam
+--     crypt(pin, hash) = hash          →   verifikasi
+-- Algoritmanya SENGAJA murah (SHA-256 ber-ulang) dan BUKAN pengganti produksi;
+-- yang diuji adalah perilakunya (PIN tidak pernah tersimpan sebagai teks biasa,
+-- verifikasi benar/salah, pembatasan percobaan) — bukan kekuatan KDF-nya.
+create or replace function public.gen_salt(p_jenis text, p_putaran int default 10)
+returns text language sql volatile as $$
+  select '$tiruan$' || greatest(p_putaran, 1)::text || '$' ||
+         encode(sha256(gen_random_uuid()::text::bytea), 'hex')
+$$;
+
+create or replace function public.crypt(p_pin text, p_hash text)
+returns text language plpgsql immutable as $$
+declare
+  bagian text[];
+  putaran int;
+  garam text;
+  hasil bytea;
+  i int;
+begin
+  if p_hash is null or p_hash not like '$tiruan$%' then
+    return null;   -- hash asing (mis. bcrypt asli) tidak bisa diverifikasi tiruan ini
+  end if;
+  bagian := string_to_array(trim(both '$' from p_hash), '$');
+  putaran := bagian[2]::int;
+  garam := bagian[3];
+  hasil := sha256((garam || p_pin)::bytea);
+  for i in 2..putaran loop
+    hasil := sha256(hasil);
+  end loop;
+  return '$tiruan$' || putaran::text || '$' || garam || '$' || encode(hasil, 'hex');
+end $$;
+
 -- Menyetel klaim token (meniru token yang sudah diverifikasi Supabase).
 -- Peran sesi TIDAK diubah di sini: PostgreSQL melarang SET ROLE di dalam
 -- fungsi security definer. Berkas uji memakainya sebagai perintah biasa:
@@ -147,6 +189,9 @@ async function terapkan(db, label, sql) {
   } catch (e) {
     console.log(`  GAGAL ${label}`)
     console.log(`        ${String(e.message).split('\n')[0]}`)
+    if (process.env.UJI_SQL_RINCI) {
+      console.log(`        RINCI: ${JSON.stringify({ where: e.where, detail: e.detail, hint: e.hint, pos: e.position })}`)
+    }
     catatanGagal.push(`${label}: ${String(e.message).split('\n')[0]}`)
     hasil.gagal++
     return false
@@ -227,6 +272,9 @@ if (daftarUji.length > 0) {
     } catch (e) {
       const pesan = String(e.message).split('\n')[0]
       console.log(`  GAGAL ${label}`)
+      if (process.env.UJI_SQL_RINCI) {
+        console.log(`        RINCI: ${JSON.stringify({ where: e.where, detail: e.detail, hint: e.hint, pos: e.position, query: e.query && String(e.query).slice(0, 300) })}`)
+      }
       console.log(`        ${pesan}`)
       catatanGagal.push(`${label}: ${pesan}`)
       hasil.gagal++

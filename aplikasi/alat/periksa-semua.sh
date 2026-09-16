@@ -26,6 +26,7 @@ fi
 echo "== pemeriksa Python =="
 
 (cd "$REPO" && python3 _sistem/validate_system.py)
+(cd "$REPO" && python3 alat/periksa-fungsi-pin.py)
 (cd "$REPO" && python3 alat/periksa-roadmap.py)
 (cd "$REPO" && python3 alat/periksa-fondasi-independen.py)
 (cd "$REPO" && python3 aplikasi/alat/periksa-struktur.py)

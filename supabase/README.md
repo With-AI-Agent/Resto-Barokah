@@ -25,5 +25,16 @@ Cara ini meniru Supabase: peran `anon`, `authenticated`, `service_role`, skema
 `auth` + `auth.uid()`/`auth.jwt()`, dan alat bantu uji di skema `uji`
 (`uji.klaim(...)`, `uji.harap(...)`, `uji.harap_gagal(...)`).
 
+Mode rinci saat ada kegagalan (menampilkan letak galat dari PostgreSQL):
+
+```bash
+UJI_SQL_RINCI=1 node alat/uji-sql.mjs
+```
+
+Penjaga tambahan: `python3 alat/periksa-fungsi-pin.py` memastikan Edge Function
+PIN tidak pernah mencatat PIN ke log, tidak memakai kunci penuh (`service_role`),
+dan hanya menerima POST. Pemeriksa itu ikut berjalan di CI.
+
 Setelah akun Supabase jadi (T0-00), uji yang sama dijalankan ulang di proyek
-nyata untuk memastikan perilakunya sama.
+nyata (di sana bcrypt asli dari pgcrypto yang dipakai) untuk memastikan
+perilakunya sama.
