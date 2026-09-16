@@ -9,7 +9,7 @@ Folder ini berisi dokumen fondasi aplikasi yang sedang dibangun. **Fondasi 6 dok
 | `PRD.md` | Prioritas, fitur wajib M1–M12, aturan bisnis, non-goals | **dikunci** — usulkan perubahan, jangan sunting |
 | `TECH_SPEC.md` | Stack, arsitektur, data model §4, kontrak RPC §5, Area Berisiko Tinggi ART-1…ART-10 | **dikunci** — usulkan perubahan, jangan sunting |
 | `AGENT_OPERATING_GUIDE.md` | Standar kerja agent (konvensi, uji, DoD, Stop Conditions, Mode Maraton) | berlaku |
-| `ROADMAP.md` | 146 tugas dalam 11 fase (F0–F11), tiap tugas ber-7 atribut | berlaku — kontrak kerja harian |
+| `ROADMAP.md` | 151 tugas dalam 11 fase (F0–F11), tiap tugas ber-7 atribut | berlaku — kontrak kerja harian |
 | `DECISIONS_LOG.md` | Keputusan nyata di Area Berisiko Tinggi, diisi SELAMA coding | berlaku |
 | `TERTANGGUH.md` | Buku tunggu: hal yang sengaja ditunda + tenggatnya (maks. 12 terbuka) | wajib dibaca tiap sesi |
 

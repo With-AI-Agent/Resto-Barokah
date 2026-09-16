@@ -41,7 +41,7 @@ grep -m1 '^STATUS:' PROJECT_STATE.md 2>/dev/null
 ```
 Kalau `docs/ROADMAP.md` ada dan `PROJECT_STATE.md` memuat `STATUS: CODING_AKTIF` → **fondasi = checkout-mu**. Lanjut ke bagian 1.
 
-**B. Kalau tidak ada → ambil sendiri dari cabang remote (TANPA pindah cabang, TANPA merge):**
+**B. Kalau tidak ada → baru pakai rute ini (TANPA pindah cabang, TANPA merge):** Ambil sendiri dari cabang remote:
 ```
 git ls-remote --heads origin | grep 'arena/'
 git fetch origin <nama-cabang-arena>
@@ -86,7 +86,7 @@ Periksa kesepuluh wilayah ini; tiap wilayah hasilnya = temuan ber-bukti ATAU `0 
 
 - **W1 — Dokumen fondasi:** `docs/DISCOVERY.md`, `docs/PRD.md`, `docs/TECH_SPEC.md`, `docs/AGENT_OPERATING_GUIDE.md`, `docs/ROADMAP.md`, `docs/DECISIONS_LOG.md`, `docs/TERTANGGUH.md`, `docs/README.md`, `docs/teknis/*`, `docs/uji/*`, `docs/desain/*`. Uji: saling bertentangan? janji tanpa tugas / tugas tanpa janji? keputusan pemilik hilang atau berubah diam-diam? istilah konsisten?
 - **W2 — Klaim vs bukti:** kumpulkan tiap klaim kuantitatif di dokumen/laporan (jumlah tugas, sebaran fase, jumlah tugas berisiko, jumlah entitas, jumlah RPC, jumlah temuan yang diklaim sudah diperbaiki) lalu **uji ulang sendiri**; nyatakan TERBUKTI / TIDAK TERBUKTI / TIDAK BISA DIVERIFIKASI.
-- **W3 — Pemeriksa otomatis:** jalankan `python3 _sistem/validate_system.py` dan `python3 alat/periksa-roadmap.py`, catat keluaran persisnya. Lalu **tulis pemeriksa barumu sendiri** di `alat/periksa-fondasi-independen.py` (di checkout-mu) yang **tidak menyalin logika** pemeriksa lama, dijalankan satu perintah, exit 0 bersih / 1 ada temuan, minimal memeriksa: 7 atribut lengkap & bukan pengisi kosong; tugas berisiko tinggi punya kewajiban DECISIONS_LOG; setiap `Ref` menunjuk bagian yang benar-benar ada; butir `T-xxx` yang dirujuk ada di TERTANGGUH (dan sebaliknya); M1–M12, entitas basis data, ART-1..ART-10 punya tugas; tidak ada nomor tugas ganda/fase terlewat. Sertakan hasil jalannya.
+- **W3 — Pemeriksa otomatis:** jalankan `python3 _sistem/validate_system.py` dan `python3 alat/periksa-roadmap.py`, catat keluaran persisnya. Lalu **tulis pemeriksa barumu sendiri** di `alat/periksa-fondasi-independen.py` (di checkout-mu) yang **tidak menyalin logika** pemeriksa lama dan **memakai sumber data berbeda** (mis. tarik daftar entitas/RPC langsung dari `docs/TECH_SPEC.md`, jangan pakai daftar tangan), dijalankan satu perintah, exit 0 bersih / 1 ada temuan, minimal memeriksa: 7 atribut lengkap & bukan pengisi kosong; tugas berisiko tinggi punya kewajiban DECISIONS_LOG; setiap `Ref` menunjuk bagian yang benar-benar ada; butir `T-xxx` yang dirujuk ada di TERTANGGUH (dan sebaliknya); M1–M12, entitas basis data, ART-1..ART-10 punya tugas; tidak ada nomor tugas ganda/fase terlewat. Sertakan hasil jalannya.
 - **W4 — Mutu isi tugas (uji tangan):** ambil **minimal 15 tugas acak** (sebutkan cara mengacak; minimal 3 dari Fase 0) + periksa **seluruh Fase 0 (T0-01..T0-10)** satu per satu: tujuan masuk akal? berkas wajar? DoD bisa diuji? verifikasi bisa dijalankan? ada langkah tersembunyi? kalau dikerjakan persis, hasilnya benar?
 - **W5 — Kesiapan Fase 0:** semua informasi ada (versi Node, paket, langkah Supabase, langkah Cloudflare, cara simpan rahasia, alamat deploy, urutan commit)? ada langkah mustahil tanpa akun/alat? urutan benar? **Uji khusus:** ada tugas membuat akun & proyek Supabase? ada tugas menjaga database gratis tetap hidup saat resto libur panjang (database gratis bisa "tertidur")?
 - **W6 — Sistem kerja agent:** baca `_sistem/validate_system.py` (logikanya masuk akal? ada celah lolos? ada aturan bertabrakan?), `_sistem/templates/*`, `_sistem/AUDIT_*.md`, dan berkas akar `AGENT_SYSTEM.md`, `START_DI_SINI.md`, `10_LOG_SESI.md`, `ACCEPTANCE_TESTS.md`, `ACCEPTANCE_TEST_LOG.md`, `REKAM-KLINIK.md`, `PROFIL_PENGGUNA.md`, `PROMPT_ENTRI_UNIVERSAL.md`, `SYSTEM_MANIFEST.md`, `_Notes.md`, `_salinan-meta/`, `_log-sesi/*`. Masih cocok untuk proyek nyata? ada aturan bertabrakan? ada berkas berstatus lama yang menyesatkan? Jalankan uji penerimaan yang bisa dijalankan; tandai yang belum teruji.
@@ -97,7 +97,7 @@ Periksa kesepuluh wilayah ini; tiap wilayah hasilnya = temuan ber-bukti ATAU `0 
 
 ## 4. Tabel cakupan berkas — WAJIB
 
-Daftar **semua berkas yang dilacak Git** (dari `git ls-files`; isi `node_modules/` dan isi `skills/` diperiksa sebagai kebijakan), status per berkas: `DIPERIKSA MENDALAM` · `DIPERIKSA SEKILAS` · `TIDAK DIPERIKSA (alasan)`. Berkas "tidak relevan" tetap dicantumkan. Tujuannya: tidak ada yang terlewat tanpa alasan yang terlihat.
+Daftar **semua berkas yang dilacak Git** (dari `git ls-files`; isi `node_modules/` dan isi `skills/` diperiksa sebagai kebijakan), status per berkas: `DIPERIKSA MENDALAM` · `DIPERIKSA SEKILAS` · `TIDAK DIPERIKSA (alasan)`. Berkas "tidak relevan" tetap dicantumkan. Tujuannya: tidak ada yang terlewat tanpa alasan yang terlihat. Isi `skills/` (ribuan berkas vendor) **boleh diringkas menjadi satu baris kebijakan** — sebutkan jumlah berkas, ukuran, dan cara pemeriksaannya; tidak perlu satu baris per berkas.
 
 ## 5. Simulasi tiga sudut pandang (wajib)
 
@@ -121,7 +121,7 @@ Tiap sudut pandang: minimal 3 kelemahan konkret + sudah tertutup atau belum.
 
 1. `docs/uji/LAPORAN_REVIEW_INDEPENDEN.md` (di checkout cabangmu), urutan:
    1. Laporan 5 baris untuk pemilik.
-   2. **Putusan:** `SIAP MULAI CODING` / `SIAP SETELAH PERBAIKAN` (sebutkan daftar) / `BELUM SIAP` (sebutkan penghalang). `SIAP MULAI CODING` hanya bila **0 Kritis dan 0 Mayor terbuka**.
+   2. **Putusan:** `SIAP MULAI CODING` / `SIAP SETELAH PERBAIKAN` (sebutkan daftar) / `BELUM SIAP` (sebutkan penghalang). `SIAP MULAI CODING` hanya bila **0 Kritis dan 0 Mayor terbuka**. **Tafsir wajib:** temuan yang kamu perbaiki sendiri di cabangmu tetapi **belum digabung** ke cabang sesi pembangun dihitung **belum berlaku** → putusan paling hati-hati adalah `SIAP SETELAH PERBAIKAN`, dengan daftar apa yang harus digabung.
    3. **Apa yang ditinjau:** nama cabang + commit (dan rute A/B yang kamu pakai).
    4. Metode & perintah yang dijalankan (bisa diulang orang lain).
    5. Tabel cakupan berkas (bagian 4).
@@ -160,3 +160,4 @@ Gunakan `Stop Conditions` di `AGENT_SYSTEM.md`. Untuk tugas ini, berhenti dan ta
 - 2026-09-16 — Berkas dibuat atas permintaan pemilik: *"aku mau lakukan review independen dulu... siapkan prompt untuk sesi baru agar sesi tersebut melakukan pemeriksaan mendalam terhadap semua ini."*
 - 2026-09-16 (versi 2) — Permintaan pemilik: *"membuka sesi baru untuk reviewer independen tanpa menutup sesi ini"* → alur tanpa merge; base branch cabang arena; reviewer dilarang merge/close; hasil dibawa ke sesi pembangun; reviewer tidak menyentuh berkas keadaan/log.
 - 2026-09-16 (versi 3) — **Percobaan pertama gagal**: sesi reviewer mulai dari `main` (fondasi tidak terlihat) sehingga putusannya `BELUM SIAP` untuk alasan yang salah (lihat `docs/uji/CATATAN_REVIEW_SESI_01a0aab1.md`). Versi 3 menghapus ketergantungan pada base branch: bagian 0 menyuruh reviewer **menemukan sendiri** cabang fondasi dari remote (`git ls-remote` → `git fetch` → `git archive` ke `/tmp/fondasi-review`), memakai checkout-nya bila sudah benar, dan **berhenti + melapor** bila fondasi tidak ada di mana pun. Ditambahkan juga kewajiban mencantumkan cabang + commit yang ditinjau.
+- 2026-09-16 (versi 3, catatan hasil putaran 2) — Putaran 2 berhasil lewat rute A. Masukan reviewer yang diterapkan: (a) tafsir "perbaikan yang belum digabung = belum berlaku"; (b) tabel cakupan boleh meringkas `skills/` jadi satu baris kebijakan; (c) pemeriksa baru wajib memakai **sumber data berbeda** (tarik dari TECH_SPEC, bukan daftar tangan); (d) rute B ditegaskan sebagai cadangan, bukan jalan utama.

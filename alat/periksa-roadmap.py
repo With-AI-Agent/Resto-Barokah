@@ -31,14 +31,26 @@ ATRIBUT = ["**Tujuan:**", "**Ref:**", "**File:**", "**DoD", "**Kompleksitas:**",
 
 FITUR = [f"M{i}" for i in range(1, 13)]
 
-ENTITAS = ["penyewa", "cabang", "pengguna", "pengguna_cabang", "izin", "pengaturan", "metode_bayar",
-           "printer", "kategori", "menu_item", "menu_varian", "menu_tambahan", "menu_cabang", "stok",
-           "shift_kas", "kas_pergerakan", "pesanan", "pesanan_item", "pembayaran", "diskon_transaksi",
-           "pembatalan", "meja", "catatan_audit", "pelanggan", "kampanye_voucher", "voucher",
-           "voucher_percobaan", "antrean_kirim", "percobaan_pin", "catatan_kesalahan"]
+TEK_SPEC = ROOT / "docs" / "TECH_SPEC.md"
 
-RPC = ["simpan_pesanan", "bayar_pesanan", "batal_pesanan", "buka_shift", "tutup_shift",
-       "cek_voucher", "pakai_voucher", "katalog_publik", "hitung_total"]
+
+def nama_entitas() -> list[str]:
+    """Nama tabel diambil LANGSUNG dari dokumen terkunci `TECH_SPEC.md` §4 (bukan daftar tangan yang bisa basi).
+
+    Dasar perubahan (temuan review independen W3-03): daftar tangan lama memuat nama pendek
+    (`kategori`, `stok`) yang bukan nama tabel resmi, sehingga gerbangnya hijau palsu.
+    """
+    if not TEK_SPEC.is_file():
+        return []
+    return sorted(set(re.findall(r"^\|\s*`([a-z_]+)`\s*\|", TEK_SPEC.read_text(encoding="utf-8"), re.M)))
+
+
+def nama_rpc() -> list[str]:
+    """Nama RPC diambil dari `rpc/nama` di `TECH_SPEC.md` §5."""
+    if not TEK_SPEC.is_file():
+        return []
+    return sorted(set(re.findall(r"`rpc/([a-z_]+)`", TEK_SPEC.read_text(encoding="utf-8"))))
+
 
 ART = [f"ART-{i}" for i in range(1, 11)]
 
@@ -90,22 +102,24 @@ def main() -> int:
         if "⚠️" in isi and "DECISIONS_LOG" not in isi:
             gagal.append(f"{tid}: bertanda ⚠️ tetapi tidak menyebut DECISIONS_LOG")
 
+    isi_tugas = "\n".join(isi for _, isi in tugas)
     for m in FITUR:
         if not re.search(rf"\b{m}\b", teks):
             gagal.append(f"fitur wajib {m} tidak punya tugas")
-    for e in ENTITAS:
-        if e not in teks:
-            gagal.append(f"entitas '{e}' tidak punya tugas")
-    for r in RPC:
-        if r not in teks:
-            gagal.append(f"RPC '{r}' tidak punya tugas")
+    for e in nama_entitas():
+        if e not in isi_tugas:
+            gagal.append(f"entitas '{e}' (TECH_SPEC §4) tidak disebut di blok tugas mana pun")
+    for r in nama_rpc():
+        if r not in isi_tugas:
+            gagal.append(f"RPC '{r}' (TECH_SPEC §5) tidak disebut di blok tugas mana pun")
     for a in ART:
         if not re.search(rf"{a}\b", teks):
             gagal.append(f"Area Berisiko Tinggi {a} tidak disinggung")
         elif f"{a} " not in teks and f"{a}(" not in teks and f"{a}/" not in teks and f"({a})" not in teks:
             catatan.append(f"{a} disinggung tanpa konteks jelas — periksa manual")
-    if teks.count("⚠️") < 20:
-        gagal.append(f"tanda ⚠️ hanya {teks.count('⚠️')} — Area Berisiko seharusnya tersebar di banyak tugas")
+    tugas_berisiko = sum(1 for _, isi in tugas if "⚠️" in isi)
+    if tugas_berisiko < 20:
+        gagal.append(f"hanya {tugas_berisiko} tugas bertanda ⚠️ — Area Berisiko seharusnya tersebar di banyak tugas")
 
     ids_tertangguh = set(re.findall(r"\|\s*(T-\d{3})\s*\|", TERTANGGUH.read_text(encoding="utf-8"))) if TERTANGGUH.is_file() else set()
     tanda_tanya = set(re.findall(r"❓\s*(T-\d{3})", teks))
@@ -130,7 +144,9 @@ def main() -> int:
     print(f"  Tugas        : {len(tugas)}  ({', '.join(f'{k}:{v}' for k, v in sorted(per_fase.items()))})")
     print(f"  Atribut 7x   : {'lengkap' if not any('atribut hilang' in g for g in gagal) else 'ADA YANG KURANG'}")
     print(f"  Fitur M1-M12 : {'lengkap' if not any('fitur wajib' in g for g in gagal) else 'ADA YANG KURANG'}")
-    print(f"  ⚠️ DECISIONS : {teks.count('⚠️')} tugas bertanda")
+    print(f"  ⚠️ DECISIONS : {tugas_berisiko} tugas bertanda (dihitung per blok tugas, bukan kemunculan lambang)")
+    print(f"  Entitas §4   : {len(nama_entitas())} tabel resmi TECH_SPEC — semuanya wajib disebut di blok tugas")
+    print(f"  RPC §5       : {len(nama_rpc())} nama resmi TECH_SPEC — semuanya wajib disebut di blok tugas")
     print(f"  ❓ tertangguh : {len(tanda_tanya)} rujukan" + (" (semua sah)" if tanda_tanya <= ids_tertangguh else " (ADA YANG MATI)"))
     if catatan:
         print("  Catatan      : " + "; ".join(catatan))

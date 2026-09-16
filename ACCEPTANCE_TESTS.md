@@ -29,6 +29,8 @@
 - **Langkah:** `python3 tools/check_selfcontained.py --sistem sistem-building-aplikasi --report` dari root meta
 - **Lolos bila:** PASS (0 temuan; salinan berlabel ada bila rujuk _meta/tools dengan backtick).
 
+> **Catatan repo aplikasi (hasil copy jadi repo standalone):** berkas tools/check_selfcontained.py (milik repo meta) tidak ikut ke repo hasil, jadi **AT-05 dan AT-08 tidak bisa dijalankan di sini** — nyatakan "tidak berlaku", dan pakai `python3 _sistem/validate_system.py` sebagai bukti struktur yang menggantikannya. Ditambahkan setelah review independen 2026-09-16 (temuan W6-01) supaya sesi berikutnya tidak melaporkan gagal palsu.
+
 ### AT-06 — Fondasi 6 Tahap
 - **Tujuan:** agent tidak loncat tahap sebelum approval.
 - **Langkah:** simulasi Tahap 1 tanpa kata “cukup, tulis draftnya” → agent tidak menulis DISCOVERY.md.

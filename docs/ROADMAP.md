@@ -26,7 +26,7 @@ Sumber kebenaran nama: `docs/TECH_SPEC.md` §5. Setiap nama WAJIB dipakai persis
 | `set_status_item`, `tandai_habis` | T4-04, T4-05, T3-07 |
 | `bayar_pesanan`, `batal_pesanan`, `batal_item` | T5-02, T5-06, T5-07, T3-13 |
 | `buka_shift`, `tutup_shift`, `kas_pergerakan` | T7-01, T7-02, T7-03 |
-| `laporan_shift`, `laporan_harian`, `lihat_laporan` | T7-07…T7-12 |
+| `laporan_shift`, `laporan_harian` | T7-07…T7-12 |
 | `set_stok`, `opname_stok` | T4-06, T4-07 |
 | `katalog_publik` | T8-01 |
 | `cek_voucher`, `pakai_voucher`, `daftar_voucher` | T1-19, T1-20, T8-09 |
@@ -41,6 +41,15 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 ## Fase 0 — Persiapan & rangka kerja
 
 - **Gerbang masuk (wajib, atas permintaan pemilik 2026-09-16):** review independen oleh sesi baru (prompt siap pakai di `docs/uji/PROMPT_REVIEW_INDEPENDEN.md`; sesi review dibuat dengan base branch `arena/01a0a8a2-resto-barokah`, tanpa merge PR apa pun, dan dilarang merge/menutup PR) sudah selesai, **temuannya sudah ditangani sesi pembangun**, dan putusan akhirnya bukan `BELUM SIAP`. Selama gerbang ini belum lewat, tugas Fase 0 belum boleh dicentang.
+
+- [ ] T0-00 — Pemilik membuat akun Supabase & Cloudflare (dipandu, gratis) — **hanya pemilik yang bisa**
+  - **Tujuan:** dua akun gratis siap dipakai agent. Ini satu-satunya tugas Fase 0 yang **harus** dikerjakan pemilik: agent tidak punya email dan tidak bisa menerima kode verifikasi.
+  - **Ref:** TECH_SPEC §1 (stack & layanan), §6 (rahasia tidak boleh ikut ke aplikasi); `docs/ops/SIAP_AKUN_PEMILIK.md`
+  - **File:** `docs/ops/SIAP_AKUN_PEMILIK.md` (panduan langkah bernomor bahasa awam, ditulis sebelum tugas ini dimulai)
+  - **DoD:** akun Supabase + proyek gratis (wilayah Singapura) dan akun Cloudflare aktif; **URL proyek + kunci `anon`** diserahkan ke agent; kunci `service_role` **tidak pernah ditempel ke chat** (langsung ditaruh di berkas rahasia lokal / secrets Cloudflare); catatan "akun sudah ada" ditulis di README aplikasi.
+  - **Kompleksitas:** kecil (30 menit dipandu)
+  - **Risiko & mitigasi:** kunci rahasia bocor lewat chat atau repo → mitigasi: panduan hanya mengizinkan nilai `anon` ditempel, `.env*` diabaikan Git (T0-05), kunci `service_role` disimpan di secrets Cloudflare.
+  - **Verifikasi:** pemilik bisa membuka dashboard kedua layanan; agent menyimpan nilai dari pemilik di berkas rahasia lokal (tidak di-commit) dan `git check-ignore` membuktikan berkas itu diabaikan.
 
 - [ ] T0-01 — Repo aplikasi React + TypeScript + Vite + struktur folder
   - **Tujuan:** aplikasi bisa dijalankan lokal sejak commit pertama dan strukturnya sama dengan rancangan.
@@ -76,7 +85,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **DoD:** komponen Tombol, Kartu, Lapis (mengambang), Toast, Tabel, KolomIsian, KeadaanKosong, KeadaanMemuat, KeadaanGagal ada; target sentuh ≥44 px; fokus keyboard terlihat; uji kontras ≥95% pemeriksaan lulus.
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** komponen tidak konsisten → mitigasi: satu komponen satu berkas + token wajib + uji kontras otomatis.
-  - **Verifikasi:** `python3 aplikasi/alat/uji-kontras.py` lulus + tangkapan layar 1 halaman contoh.
+  - **Verifikasi:** `python3 aplikasi/alat/uji-kontras.py` lulus + tangkapan layar 1 halaman contoh. · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima.
 
 - [ ] T0-05 — Berkas rahasia & variabel lingkungan
   - **Tujuan:** kunci rahasia tidak pernah ikut ke git maupun ke perangkat pengguna.
@@ -112,6 +121,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **DoD:** koneksi uji (`select 1`) berhasil dari aplikasi; tidak ada kunci rahasia di klien; catatan pembuatan proyek ditulis di README.
   - **Kompleksitas:** kecil (1 jam)
   - **Risiko & mitigasi:** proyek gratis "tidur" setelah 7 hari → mitigasi: dijadwalkan denyut harian (T10-08).
+  - **Catatan jeda:** kalau pembangunan berhenti lebih dari 7 hari (libur/menunggu jawaban), proyek gratis bisa "tertidur" → buka panel Supabase, tekan **Restore/Unpause** sebelum melanjutkan; penyebab paling umum "koneksi gagal" di sesi berikutnya.
   - **Verifikasi:** buka aplikasi di dev → tampilkan hasil `select 1` di console/​halaman uji.
 
 - [ ] T0-09 — Deploy halaman kosong ke Cloudflare Workers + Static Assets  <!-- T-008 sudah ditutup 2026-09-16: pakai alamat gratis *.workers.dev -->
@@ -293,14 +303,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Tujuan:** status pesanan hanya bisa berubah lewat jalur yang sah.
   - **Ref:** TECH_SPEC §9 ART-4; PRD M4, M5, M6
   - **File:** `supabase/migrations/0018_state_machine.sql`, `supabase/tes/status.sql`
-  - **DoD:** daftar status resmi (draf → dikirim → dimasak → siap → dibayar → selesai; dibatalkan) + aturan transisi; transisi terlarang ditolak; uji lulus untuk 6 skenario.
+  - **DoD:** daftar status resmi **persis seperti `TECH_SPEC.md` §4.3** (draf → dikirim → dimasak → siap → lunas; batal) + aturan transisi; transisi terlarang ditolak; uji lulus untuk 6 skenario.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4); status "nyangkut" → mitigasi: aturan + uji + tampilan yang selalu menunjukkan langkah berikutnya.
-  - **Verifikasi:** uji SQL menolak 4 transisi terlarang (mis. draf → dibayar).
+  - **Verifikasi:** uji SQL menolak 4 transisi terlarang (mis. draf → lunas).
 
 - [ ] T1-19 — RPC cek_voucher (BACA SAJA) ⚠️
   - **Tujuan:** kasir bisa memeriksa voucher tanpa mengubah statusnya sedikit pun.
-  - **Ref:** TECH_SPEC §5 & §9 ART-5; PRD M10
+  - **Ref:** TECH_SPEC §5 & §9 ART-5; PRD M10 · RPC resmi: `pakai_voucher`, `daftar_voucher`
   - **File:** `supabase/migrations/0019_cek_voucher.sql`, `supabase/tes/cek_voucher.sql`
   - **DoD:** fungsi tidak menulis apa pun (dibuktikan uji: status voucher tidak berubah, tidak ada baris baru); mengembalikan alasan gagal yang spesifik; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
@@ -488,7 +498,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T3-05 — RPC simpan_pesanan + kunci idempoten ⚠️
   - **Tujuan:** pesanan tersimpan sekali saja walau tombol ditekan berkali-kali atau internet putus.
-  - **Ref:** TECH_SPEC §5 (RPC) & §9 ART-4/ART-8
+  - **Ref:** TECH_SPEC §5 (RPC) & §9 ART-4/ART-8 · RPC resmi: `tambah_item`, `pindah_meja`, `kirim_ke_dapur`
   - **File:** `supabase/migrations/0021_simpan_pesanan.sql`, `supabase/tes/simpan_pesanan.sql`
   - **DoD:** RPC menolak duplikat dengan kunci idempoten; menolak pesanan tanpa item; menolak di luar shift terbuka; hak akses diperiksa; uji lulus (termasuk 5 pemanggilan kunci sama).
   - **Kompleksitas:** besar (5 jam)
@@ -623,11 +633,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **DoD:** jenis pesanan (dine-in/bawa pulang/ojol) jelas dengan warna & label; catatan khusus tampil besar; nomor meja jelas.
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** informasi penting tenggelam → mitigasi: uji keterbacaan dari jarak 2 meter (foto bukti).
-  - **Verifikasi:** uji manual + pemeriksaan kontras aplikasi.
+  - **Verifikasi:** uji manual + pemeriksaan kontras aplikasi. · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima.
 
 - [ ] T4-04 — Ubah status per item & seluruh pesanan (anti-dobel) ⚠️
   - **Tujuan:** dua orang menandai item sama tidak menghasilkan status ganda/salah.
-  - **Ref:** PRD M5 (kasus tepi); TECH_SPEC §9 ART-4
+  - **Ref:** PRD M5 (kasus tepi); TECH_SPEC §9 ART-4 · RPC resmi: `set_status_item`, `tandai_habis`
   - **File:** `supabase/migrations/0027_status_item.sql`, `supabase/tes/status_item.sql`
   - **DoD:** status per item (menunggu → dimasak → siap) dan per pesanan; perubahan ganda dari dua perangkat hanya menghasilkan satu perubahan tercatat; uji paralel lulus.
   - **Kompleksitas:** besar (4 jam)
@@ -645,7 +655,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T4-06 — Stok sederhana per bahan + riwayat
   - **Tujuan:** owner tahu persediaan tanpa buku catatan terpisah.
-  - **Ref:** PRD M9; TECH_SPEC §4.2 (tabel resmi: `stok_bahan`, `stok_pergerakan`)
+  - **Ref:** PRD M9; TECH_SPEC §4.2 (tabel resmi: `stok_bahan`, `stok_pergerakan`) · RPC resmi: `set_stok`, `opname_stok`
   - **File:** `aplikasi/src/layar/dapur/Stok.tsx`, `supabase/migrations/0029_stok.sql`
   - **DoD:** bahan bisa dicatat/diabaikan (opsional); penambahan/pengurangan; riwayat perubahan (siapa, kapan, berapa); uji lulus.
   - **Kompleksitas:** sedang (4 jam)
@@ -703,7 +713,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T5-02 — RPC bayar_pesanan (tunai + kembalian) ⚠️
   - **Tujuan:** pembayaran tercatat sekali, benar, dan tidak bisa hilang walau jaringan goyah.
-  - **Ref:** TECH_SPEC §5 & §9 ART-3
+  - **Ref:** TECH_SPEC §5 & §9 ART-3 · RPC resmi: `batal_pesanan`, `batal_item`
   - **File:** `supabase/migrations/0031_bayar_pesanan.sql`, `supabase/tes/bayar.sql`
   - **DoD:** memvalidasi status pesanan, jumlah bayar ≥ total (kecuali dicatat sebagai kurang), menghitung kembalian lewat `hitung_total()`, menulis catatan audit, idempoten (kunci sama = satu pembayaran); uji lulus.
   - **Kompleksitas:** besar (5 jam)
@@ -882,7 +892,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T7-01 — Buka kas (modal awal) ⚠️
   - **Tujuan:** setiap shift dimulai dengan modal yang tercatat, sehingga selisih bisa dihitung jujur.
-  - **Ref:** PRD M7; TECH_SPEC §9 ART-6
+  - **Ref:** PRD M7; TECH_SPEC §9 ART-6 · RPC resmi: `tutup_shift`, `kas_pergerakan`
   - **File:** `supabase/migrations/0038_buka_shift.sql`, `aplikasi/src/layar/kasir/BukaKas.tsx`
   - **DoD:** modal awal wajib; satu shift terbuka per kasir per cabang; tercatat siapa & kapan; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
@@ -936,7 +946,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T7-07 — Laporan A: kas harian per shift
   - **Tujuan:** owner membuka satu layar dan langsung tahu kondisi hari ini.
-  - **Ref:** PRD M8 (kriteria selesai — laporan A dikunci untuk G1)
+  - **Ref:** PRD M8 (kriteria selesai — laporan A dikunci untuk G1) · RPC resmi: `laporan_shift`, `laporan_harian`
   - **File:** `supabase/migrations/0044_laporan_kas.sql`, `aplikasi/src/layar/laporan/LaporanKas.tsx`
   - **DoD:** memuat omzet (makanan/minuman/lainnya), jumlah transaksi, rincian metode bayar, diskon & voucher, pembatalan, kas awal/masuk/seharusnya/fisik/selisih, nama kasir & jam shift; filter cabang sesuai peran; angka dari peladen.
   - **Kompleksitas:** besar (5 jam)
@@ -1125,7 +1135,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T9-01 — Pengaturan identitas & tampilan resto
   - **Tujuan:** owner mengubah nama, logo, banner, tagline sendiri tanpa menghubungi siapa pun.
-  - **Ref:** PRD M2 (identitas & tampilan)
+  - **Ref:** PRD M2 (identitas & tampilan) · RPC resmi: `simpan_pengaturan`, `simpan_menu`, `simpan_meja`, `simpan_metode_bayar`
   - **File:** `aplikasi/src/layar/pengaturan/Identitas.tsx`, `supabase/migrations/0052_unggah_gambar.sql`
   - **DoD:** unggah logo & banner (dengan validasi ukuran/jenis), tagline, nama resto; perubahan langsung terlihat di katalog & struk baru; struk/laporan lama tidak berubah.
   - **Kompleksitas:** sedang (4 jam)
@@ -1188,7 +1198,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T9-08 — Kelola pegawai: peran, izin, PIN ⚠️
   - **Tujuan:** owner memberi kepercayaan bertingkat tanpa kehilangan kendali.
-  - **Ref:** PRD M3; TECH_SPEC §9 ART-2
+  - **Ref:** PRD M3; TECH_SPEC §9 ART-2 · RPC resmi: `set_izin`, `simpan_pin`, `verifikasi_pin`, `ganti_pin`
   - **File:** `aplikasi/src/layar/pengaturan/Izin.tsx`, `supabase/migrations/0055_kelola_izin.sql`
   - **DoD:** centang izin per pegawai (termasuk batas diskon %/nominal), reset PIN, nonaktifkan akun, riwayat tetap; perubahan izin tercatat di audit.
   - **Kompleksitas:** besar (4 jam)
@@ -1197,7 +1207,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T9-09 — Kelola cabang (tambah, printer, nonaktifkan) ⚠️
   - **Tujuan:** membuka cabang baru tidak butuh bantuan teknis.
-  - **Ref:** PRD M11; TECH_SPEC §9 ART-1
+  - **Ref:** PRD M11; TECH_SPEC §9 ART-1 · RPC resmi: `set_akses_cabang`
   - **File:** `aplikasi/src/layar/pengaturan/Cabang.tsx`, `supabase/migrations/0056_kelola_cabang.sql`
   - **DoD:** tambah cabang (nama, alamat, printer), nonaktifkan sementara (data lama tetap); pegawai merangkap 2 cabang bisa diatur; uji isolasi lintas cabang lulus.
   - **Kompleksitas:** sedang (3,5 jam)
@@ -1206,12 +1216,12 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T9-10 — Pemilik Platform: daftar penyewa baru (M1) ⚠️
   - **Tujuan:** penyewa baru bisa diaktifkan sendiri oleh Pemilik Platform, dengan data terpisah total.
-  - **Ref:** PRD M1; TECH_SPEC §9 ART-1
+  - **Ref:** PRD M1; TECH_SPEC §9 ART-1 · RPC resmi: `buat_penyewa`, `set_status_penyewa`, `tambah_cabang`
   - **File:** `aplikasi/src/layar/platform/Penyewa.tsx`, `supabase/functions/daftar_penyewa/index.ts`, `supabase/tes/daftar_penyewa.sql`
   - **DoD:** membuat penyewa + cabang pertama + akun Owner; menonaktifkan penyewa (data tidak dihapus); **uji pembuktian dua penyewa tidak saling melihat** (wajib ditunjukkan buktinya).
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1); mitigasi: satu pola RLS + uji dua penyewa setiap kali tabel baru ditambah.
-  - **Verifikasi:** uji SQL + uji manual dengan dua akun Owner berbeda (bukti berupa tangkapan layar).
+  - **Verifikasi:** uji SQL + uji manual dengan dua akun Owner berbeda (bukti berupa tangkapan layar). · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima.
 
 - [ ] T9-11 — Pratinjau perubahan & pengaman riwayat
   - **Tujuan:** owner melihat dampak perubahan sebelum menyimpan, dan data lama tidak berubah diam-diam.
@@ -1282,7 +1292,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T10-06 — Akhiri sesi dari perangkat lain (perangkat hilang) ⚠️
   - **Tujuan:** perangkat pegawai yang hilang tidak menjadi pintu masuk.
-  - **Ref:** PRD M12 (kasus tepi)
+  - **Ref:** PRD M12 (kasus tepi) · RPC resmi: `keluar_semua_perangkat`
   - **File:** `aplikasi/src/layar/pengaturan/SesiAktif.tsx`, `supabase/functions/akhiri_sesi/index.ts`
   - **DoD:** owner melihat daftar sesi aktif (perangkat, waktu, peran) dan bisa mengakhirinya; catatan audit dibuat; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
@@ -1323,7 +1333,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **DoD:** `pg_dump` mingguan berjalan otomatis (GitHub Actions gratis) dan hasilnya tersimpan terenkripsi di luar basis data; `docs/teknis/PEMULIHAN.md` memuat langkah pulih bernomor; **pemulihan diuji ke basis data kosong minimal sekali** dan hasilnya dicatat; tidak ada rahasia di dalam repo.
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Data pelanggan & privasi (ART-10); berkas cadangan berisi data pelanggan → mitigasi: enkripsi + akses terbatas + masa simpan dibatasi.
-  - **Catatan:** ❓ T-012 (tempat simpan berkas cadangan milik pemilik) wajib dijawab sebelum tugas ini ditandai selesai; sampai itu cadangan diuji ke artefak sementara.
+  - **Catatan:** T-012 sudah ditutup 2026-09-16 → cadangan disimpan sebagai **artefak terenkripsi GitHub Actions (repo privat, masa simpan 90 hari)** + pemilik mengunduh salinannya sebulan sekali.
   - **Verifikasi:** jalankan pemulihan dari satu berkas cadangan → jumlah baris tiap tabel sama dengan sumbernya.
 
 - [ ] T10-11 — Perubahan pengaturan bersamaan tidak saling menimpa
@@ -1342,7 +1352,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **DoD:** satu tombol "pegawai berhenti" → akun nonaktif + semua sesi perangkat diakhiri (T10-06) + PIN dimatikan + shift terbuka miliknya ditandai untuk ditutup atasan; nama & riwayat transaksinya TETAP ada di laporan lama.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); menghapus akun akan merusak laporan → mitigasi: nonaktif, bukan hapus (Aturan Bisnis 11).
-  - **Catatan:** ❓ T-013 (siapa 'atasan' yang berhak menutup shift pegawai yang berhenti di Kedai Oasis) — nilai sementara: admin cabang atau owner.
+  - **Catatan:** T-013 sudah ditutup 2026-09-16 → penutup shift = **Admin Cabang**; bila yang berhenti Admin Cabang → **Owner Pusat**.
   - **Verifikasi:** uji SQL: akun nonaktif ditolak masuk, tetapi laporan bulan lalu tetap menampilkan namanya.
 
 ---
@@ -1374,7 +1384,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **DoD:** struk & tiket tercetak benar di printer nyata; masalah nyata dicatat + solusi; bila merek printer belum diketahui → **STOP & tanya pemilik**.
   - **Kompleksitas:** sedang (2 jam + koordinasi)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Cetak (ART-7); mitigasi: jalur cadangan digital tetap wajib.
-  - **Verifikasi:** foto struk & tiket nyata + lembar hasil bertanda tangan.
+  - **Verifikasi:** foto struk & tiket nyata + lembar hasil bertanda tangan. · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima.
 
 - [ ] T11-04 — Uji perangkat kedua (iPhone/Android lain) ❓ T-003
   - **Tujuan:** memastikan aplikasi benar-benar "jalan di perangkat apa pun" seperti syarat pemilik.
@@ -1448,12 +1458,12 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] Semua **API/RPC** punya task endpoint + uji: `simpan_pesanan` T3-05 · `bayar_pesanan` T5-02 · `batal_pesanan` T3-13/T5-06/T5-07 · `buka_shift` T7-01 · `tutup_shift` T7-02 · `cek_voucher` T1-19/T8-09 · `pakai_voucher` T1-20/T8-09 · `katalog_publik` T8-01 · `hitung_total` T1-15/T1-16 · laporan T7-07…T7-12
 - [x] Semua **Area Berisiko Tinggi** ada di Fase 1 + bertanda `⚠️` (ART-1 T1-01/T1-04/T1-22 · ART-2 T1-05/T1-06 · ART-3 T1-15/T1-16 · ART-4 T1-18/T3-05 · ART-5 T1-19/T1-20 · ART-6 T1-11/T1-13 · ART-7 T6-01/T6-06/T6-08 · ART-8 T1-14/T10-01/T10-02 · ART-9 T1-17 · ART-10 T1-12/T5-08/T8-01)
 - [x] Setup repo, env, lint, uji, CI, deploy: T0-01…T0-03, T0-05, T0-07, T0-09, T0-10, T11-07
-- [x] Integrasi pihak ketiga punya task setup + uji: Supabase T0-08/T1-* · Google T2-04 · Resend T2-04/T2-05/T8-07 · Cloudflare+Wrangler T0-09/T11-07 · pg_cron T10-08
+- [x] Integrasi pihak ketiga punya task setup + uji: Supabase T0-00/T0-08/T1-* · Google T2-04 · Resend T2-04/T2-05/T8-07 · Cloudflare+Wrangler T0-00/T0-09/T11-07 · pg_cron T10-08
 - [x] Hal kecil tidak terlupakan: `README.md` T0-06 · `.env.example` T0-05 · favicon T0-01 · halaman error T2-08 · keadaan memuat/kosong/gagal T0-04/T3-15/T4-10 · a11y T0-04/T3-10/T11-05 · responsif T11-05 · panduan pegawai T11-09 · cadangan T11-10
 
-**Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07 · T-012 (tempat simpan cadangan) → T10-10 · T-013 (siapa penutup shift) → T10-12. Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009 sudah **ditutup** 2026-09-16 atas persetujuan pemilik (lihat tabel Butir selesai).
+**Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07 · Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009, **T-012** (cadangan di artefak terenkripsi repo privat) dan **T-013** (penutup shift = Admin Cabang → Owner Pusat) sudah **ditutup** 2026-09-16 (lihat tabel Butir selesai di `docs/TERTANGGUH.md`).
 
-**Jumlah tugas:** F0 10 · F1 22 · F2 12 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 14 · F9 12 · F10 12 · F11 10 = **150 tugas**, semuanya ber-7 atribut.
+**Jumlah tugas:** F0 11 · F1 22 · F2 12 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 14 · F9 12 · F10 12 · F11 10 = **151 tugas**, semuanya ber-7 atribut.
 
 **Uji terima antar-fase (aturan gelombang):** fase N+1 tidak dimulai sebelum (a) semua tugas fase N `[x]`, (b) uji otomatisnya hijau, (c) `python3 alat/periksa-roadmap.py` lulus, (d) `DECISIONS_LOG.md` diperbarui untuk tugas bertanda ⚠️, (e) ringkasan 5 baris ditulis di LOG_SESI.
 
@@ -1462,7 +1472,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 | Tanggal | Perubahan | Alasan |
 |---|---|---|
 | 2026-09-16 | `ROADMAP.md` ditulis (146 tugas, 11 fase) | Urutan fase disetujui pemilik via delegasi; Tahap 5 selesai |
+| 2026-09-16 | Tugas **T0-00** ditambah di awal Fase 0 (pemilik membuat akun Supabase & Cloudflare, dipandu) → 151 tugas | Temuan review independen W5-01: tanpa itu Fase 0 berhenti di T0-08 menunggu sesuatu yang tidak dijelaskan siapa-siapa; akun hanya bisa dibuat pemilik |
+| 2026-09-16 | Nama RPC resmi disisipkan ke blok tugas yang mengerjakannya (12 tugas) + `lihat_laporan` dikeluarkan dari peta RPC (itu kode izin, bukan RPC) | Temuan review independen W3-03: peta RPC ada di luar blok tugas, sehingga pemeriksa hanya bisa mencari di seluruh dokumen |
+| 2026-09-16 | 4 tugas (T0-04, T4-03, T9-10, T11-03) diberi catatan bukti visual diambil manusia; T1-18 disamakan dengan enum `TECH_SPEC.md` §4.3; T0-08 diberi catatan bangunkan database setelah jeda >7 hari | Temuan review independen W4-01, W1-02, W5-03 |
 | 2026-09-16 | Review independen: 4 tugas ditambah di Fase 10 (T10-09 pemulihan listrik · T10-10 cadangan+uji pemulihan · T10-11 pengaturan bersamaan · T10-12 pegawai berhenti) → 150 tugas | Skenario operasional nyata belum punya tugas sama sekali; cadangan hanya disebut di TECH_SPEC §8 dan di DoD T11-10, tanpa tugas pelaksana sendiri |
 | 2026-09-16 | Review independen: tanda `❓` basi (T-001/T-004/T-005/T-007/T-008 yang sudah ditutup) dibersihkan dari 7 tempat | Tanda itu membuat agent maraton MELEWATI tugas yang sebenarnya sudah boleh dikerjakan — termasuk T0-09 (deploy Fase 0) |
+| 2026-09-16 | T-012 & T-013 ditutup dengan nilai usulan agent (cadangan di artefak terenkripsi repo privat + unduhan bulanan pemilik; penutup shift = Admin Cabang → Owner Pusat) — tanda ❓ basi di T10-10/T10-12 dibersihkan | Aturan maraton melewati tugas bertanda ❓; setelah butirnya ditutup, tanda itu justru menyesatkan (kelas cacat yang sama dengan 7 tanda basi sebelumnya) |
 | 2026-09-16 | Review independen: nama tabel di Ref T1-07/T4-06/T4-07 diselaraskan dengan TECH_SPEC §4.2 (`kategori_menu`, `stok_bahan`, `stok_pergerakan`) | ROADMAP memakai nama pendek (`kategori`, `stok`) yang tidak ada di skema — agent coding bisa membuat tabel bernama salah |
 | 2026-09-16 | Tugas yang menunggu jawaban pemilik ditandai `❓ T-xxx` dan dilewati (mode maraton) | Aturan `AGENT_OPERATING_GUIDE.md` §13: tunda-catat-lanjut, jangan mengerjakan setengah |

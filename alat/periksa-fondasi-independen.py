@@ -101,8 +101,12 @@ for t in tugas:
     per_fase.setdefault(int(f), []).append(int(n))
 for f in sorted(per_fase):
     nomor = sorted(per_fase[f])
-    if nomor != list(range(1, len(nomor) + 1)):
-        temuan.append(f"Fase {f}: nomor tugas tidak berurutan 1..n → {nomor}")
+    # Nomor tugas wajib berurutan. Fase 0 boleh mulai dari 00 karena ada satu tugas
+    # yang HARUS jalan paling awal dan dikerjakan PEMILIK (T0-00: membuat akun Supabase
+    # & Cloudflare) — ditambahkan 2026-09-16 sesi pembangun setelah review independen W5-01.
+    awal = 0 if nomor and nomor[0] == 0 else 1
+    if nomor != list(range(awal, awal + len(nomor))):
+        temuan.append(f"Fase {f}: nomor tugas tidak berurutan {awal}..n → {nomor}")
 fase_ada = sorted(per_fase)
 bolong = [f for f in range(0, max(fase_ada) + 1) if f not in per_fase]
 if bolong:

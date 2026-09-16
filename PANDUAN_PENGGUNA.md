@@ -66,7 +66,7 @@ Tutup sesi ini dengan benar:
 - **Commit** — "menyimpan" perubahan di branch.
 - **Push** — mengirim commit ke GitHub (baru bener-bener aman; kalau sesi crash sebelum push, kerja hilang).
 - **PR (Pull Request)** — "usulan" memindahkan hasil branch ke `main`. Kamu review dulu, baru merge.
-- **Merge** — kamu setuju & menggabungkan PR ke `main`. Hasil kerja resmi jadi.
+- **Merge** — kamu setuju & menggabungkan PR ke `main`. Hasil kerja resmi jadi. **Jangan merge selagi ada sesi lain yang masih terbuka di cabang itu** — sesi tersebut langsung kehilangan akses dan pekerjaannya bisa menggantung.
 - **PROJECT_STATE.md** — file penunjuk "kita lagi di tahap apa" — dibaca otomatis agent tiap sesi, supaya kamu nggak perlu jelaskan ulang.
 - **DECISIONS_LOG.md** — catatan keputusan teknis nyata selama coding (misal: "RLS pakai policy X") — wajib dibaca sebelum ubah area berisiko.
 - **Fondasi vs Coding** — Fondasi = 6 dokumen perencanaan (belum ada kode); Coding = eksekusi task di ROADMAP jadi kode betulan.
@@ -114,7 +114,7 @@ Ikuti Tahap 0.5 di AGENT_SYSTEM.md.
 
 1. Agent kerja di branch → commit + push → buka PR (tanpa auto-merge).
 2. Kamu buka PR di GitHub, lihat file yang berubah (tab Files changed). **Periksa arahnya: `compare` = cabang sesi (arena/...), `base` = main — jangan terbalik.**
-3. Kalau oke → **Merge pull request** (tombol hijau). Kalau belum → tulis komentar di PR, agent perbaiki di sesi baru.
+3. Kalau oke → **Merge pull request** (tombol hijau). Kalau belum → tulis komentar di PR, agent perbaiki di sesi baru. **Sebelum menekan merge, pastikan tidak ada sesi lain yang masih bekerja** (mis. sesi reviewer); merge = sesi itu kehilangan akses.
 4. **Setelah merge, sesi itu tidak bisa push lagi** — ini batasan platform lmarena, bukan aturan kita. Kerja lanjutan = buka sesi baru dari `main`.
 
 ---

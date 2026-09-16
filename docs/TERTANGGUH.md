@@ -28,8 +28,6 @@ Kalau sudah dijawab → pindahkan barisnya ke tabel **Butir selesai** dengan sta
 | T-003 | 2026-09-16 | **Daftar perangkat** yang dipakai (Android/iPhone/komputer) | Tidak menghambat: cadangan digital wajib; iPhone hanya perlu uji tambahan | Uji utama Android/Windows (Web Bluetooth didukung) | F11 (uji terima & uji perangkat) | pemilik | [ ] terbuka |
 | T-010 | 2026-09-16 | **Pelatihan pegawai & penunjukan admin cabang** Kedai Oasis | Baru dibutuhkan di akhir gelombang; tidak menghambat pembangunan | Panduan pegawai 1 halaman (T11-09) + daftar uji terima | F11 (uji terima & pelatihan) | pemilik | [ ] terbuka |
 | T-011 | 2026-09-16 | **Kebijakan privasi & persetujuan data pelanggan** (PRD §10.7) | Harus ada SEBELUM data pelanggan dikumpulkan; sekarang belum ada data siapa pun | Agent menyiapkan draf sederhana berbahasa Indonesia + kotak persetujuan saat pendaftaran | **sebelum F8 (data pelanggan masuk)** | agent (draf) → pemilik (tinjau) | [ ] terbuka |
-| T-012 | 2026-09-16 | **Di mana berkas cadangan mingguan disimpan** (akun penyimpanan milik pemilik) | Belum dibutuhkan sampai ada data nyata; sampai itu cadangan diuji ke berkas lokal sesi | Artefak terenkripsi di GitHub Actions (masa simpan 90 hari, gratis) | **sebelum T10-10 selesai** | pemilik | [ ] terbuka |
-| T-013 | 2026-09-16 | **Siapa yang boleh menutup shift kasir yang ditinggal pegawai berhenti** | Aturan sementara sudah aman (harus atasan); hanya perlu ditegaskan siapa 'atasan' di Kedai Oasis | Admin cabang atau owner | F7 (kas & shift) selesai | pemilik | [ ] terbuka |
 
 ## Butir selesai
 
@@ -41,4 +39,6 @@ Kalau sudah dijawab → pindahkan barisnya ke tabel **Butir selesai** dengan sta
 | T-006 | 2026-09-16 | Tema bawaan aplikasi | **"Terang Bersih"** (bisa diganti kapan saja, 10 tema sudah tersedia). |
 | T-007 | 2026-09-16 | Domain email sendiri untuk Resend | **Mulai tanpa domain khusus** (kirim lewat Resend). Ditinjau ulang bila email verifikasi sering masuk folder spam. |
 | T-008 | 2026-09-16 | Alamat domain aplikasi | **Mulai dengan alamat gratis `*.workers.dev`.** Domain sendiri menyusul bila pemilik sudah siap; penggantian tidak butuh ubah kode. |
+| T-012 | 2026-09-16 | Di mana berkas cadangan mingguan disimpan | **Artefak terenkripsi dari GitHub Actions (repo privat, masa simpan 90 hari) + pemilik mengunduh salinannya sebulan sekali ke komputer atau Google Drive miliknya.** Tidak ada salinan cadangan di tempat publik; berkas selalu terenkripsi dan tidak pernah masuk Git. Bisa diubah tanpa koding. |
+| T-013 | 2026-09-16 | Siapa yang berhak menutup shift kasir yang ditinggal pegawai berhenti | **Admin Cabang; bila yang berhenti justru Admin Cabang → Owner Pusat.** Aturan izin bisa diubah di pengaturan tanpa koding. |
 | T-009 | 2026-09-16 | Aset sistem `skills/` (±26 MB) di repo aplikasi | **Tetap dibawa** — dibutuhkan bootstrap sesi (`alat/mulai-sesi.py`) agar agent baru otomatis memasang skill. Ditinjau ulang bila repo terasa berat. |

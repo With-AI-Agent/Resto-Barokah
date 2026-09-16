@@ -8,6 +8,7 @@ node_modules
 # ⚠️ RAHASIA — jangan pernah masuk Git (kunci Supabase/Cloudflare/Resend)
 .env
 .env.*
+!.env.example
 *.local
 
 # Hasil build & cache
