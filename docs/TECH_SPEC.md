@@ -1,11 +1,11 @@
 # TECH_SPEC.md — Rancangan Teknis Resto Barokah
 
-> **Status: DRAF — menunggu persetujuan pemilik.** Dokumen ini ditulis setelah pemilik menjawab **"Lanjut"**
-> dua kali dan menyerahkan pilihan teknis kepada agent (keputusan K1–K6 diambil sesuai usul agent —
-> dicatat di `_log-sesi/LOG_SESI_2026-09-16.md`). Dokumen fondasi **baru dianggap terkunci setelah pemilik
-> menyetujui**; sesudah itu perubahan besar wajib lewat catatan keputusan.
+> **Status: DISETUJUI & DIKUNCI PEMILIK — 2026-09-16** (jawaban pemilik: **"Ya, setuju"**). Dokumen ini ditulis
+> setelah pemilik menyerahkan pilihan teknis kepada agent (keputusan K1–K6 diambil sesuai usul agent —
+> dicatat di `_log-sesi/LOG_SESI_2026-09-16.md`). Sejak dikunci: **perubahan yang menyentuh Area Berisiko Tinggi
+> (ART-1…ART-10) WAJIB lewat `DECISIONS_LOG.md` + persetujuan pemilik** — dilarang mengubah diam-diam.
 >
-> Ditulis: 2026-09-16 · Rujukan: `docs/PRD.md` (dikunci) · `docs/DISCOVERY.md` (dikunci) ·
+> Ditulis: 2026-09-16 · Disetujui: 2026-09-16 · Rujukan: `docs/PRD.md` (dikunci) · `docs/DISCOVERY.md` (dikunci) ·
 > `docs/teknis/DISKUSI_TEKNIS_TAHAP3.md` (bahan diskusi putaran 1) · sistem desain `prototipe/css/tokens.css` (v3)
 
 ---
@@ -268,7 +268,7 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 6. **Sesi berakhir otomatis** saat tidak dipakai (bawaan 8 jam kerja, dapat diatur); owner dapat **mengakhiri sesi semua perangkat** pegawai (perangkat hilang).
 7. **Pembatasan percobaan masuk & PIN** per perangkat dan per akun (anti tebak).
 8. **Foto menu** diunggah dengan batas ukuran & jenis, dirapikan (≤1000 px, webp) sebelum diunggah.
-9. **Cadangan:** gratis tidak menyediakan cadangan otomatis → alat `tools/cadangan.sh` menjalankan `pg_dump` mingguan ke berkas terenkripsi; langkah pemulihan ditulis di `docs/teknis/PEMULIHAN.md` (dibuat saat Tahap 4).
+9. **Cadangan:** gratis tidak menyediakan cadangan otomatis → alat cadangan mingguan (pg_dump) menjalankan dump ke berkas terenkripsi; langkah pemulihan ditulis di docs/teknis/PEMULIHAN.md (dibuat di Tahap 5/6, tanpa backtick karena belum ada).
 10. **Privasi pelanggan (PRD §10 no.7):** data seminimal mungkin (nama, kontak, catatan voucher); kebijakan & persetujuan ditulis sebelum pelanggan pertama mendaftar; tidak ada SMS berbayar.
 11. **Kunci rahasia** hanya di panel (lihat §6); rotasi bila ada kecurigaan bocor.
 12. **Rencana bila internet kedai mati:** antrean lokal + kunci idempoten supaya tidak ada dobel pesanan/pembayaran.
@@ -389,3 +389,5 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 | 2026-09-16 | **K6 = bayar setelah ada pemasukan**, dengan peringatan otomatis 70% & 90% | Menjaga prinsip biaya nol tanpa jebakan mendadak |
 | 2026-09-16 | **Urutan hitungan uang dikunci:** subtotal → diskon → PB1 → service → pembulatan (diskon dari subtotal; pajak & service dari subtotal setelah diskon) | Menghindari tafsir berbeda antar sesi (ART-3) |
 | 2026-09-16 | **Teknologi aplikasi: React + Vite (SPA/PWA)**, bukan Next.js | Mengurangi lapisan & pemakaian fungsi Cloudflare; cukup untuk kebutuhan kasir/laporan; tetap memakai aturan React dari skill |
+| 2026-09-16 | **Dokumen TECH_SPEC disetujui & DIKUNCI pemilik** (jawaban: "Ya, setuju") | Fondasi teknis resmi — sesi berikutnya berpedoman ke dokumen ini, bukan menebak ulang dari kode |
+| 2026-09-16 | **Aturan perubahan dokumen:** apa pun yang menyentuh ART-1…ART-10 wajib lewat `DECISIONS_LOG.md` **dan** persetujuan pemilik dulu | Menjaga keputusan berisiko tinggi tidak diubah diam-diam oleh sesi berikutnya |
