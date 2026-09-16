@@ -2,3 +2,6 @@
 # Berkas sementara Python
 __pycache__/
 *.pyc
+
+# Simpul alat (tidak ikut disimpan)
+node_modules

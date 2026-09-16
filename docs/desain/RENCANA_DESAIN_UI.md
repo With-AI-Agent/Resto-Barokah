@@ -104,7 +104,38 @@ Setiap kombinasi tema × kepadatan tetap wajib lolos uji kontras & ukuran sentuh
 | Area sentuh ≥ 44 px | Tombol, tab, tombol +/−, tombol tambah (dibuat 40 px visual + jarak aman) |
 | Huruf dasar 16 px, jarak baris 1,5 | Terpasang di `prototipe/css/tokens.css` |
 | Ikon SVG, bukan emoji | Semua ikon sebaris SVG |
-| Umpan balik tiap aksi | Tombol +/−, "Cek voucher", dan pemilih metode bayar menjawab langsung |
+| Umpan balik tiap aksi | Tombol +/−, "Cek voucher", pemilih metode bayar, jendela mengambang, dan pesan berhasil (toast) menjawab langsung |
+| Tidak ada objek bertumpuk/terpotong | Diperiksa dengan papan mockup (lihat §7) + `prototipe/alat/periksa-halaman.py` (**135/135 lolos**: aset ada, id jendela mengambang cocok, tag seimbang, token terdefinisi) |
+
+
+## 7. Standar kehalusan (ronde 3 — menanggapi catatan pemilik 2026-09-16)
+Pemilik menilai hasil ronde 2 **belum cukup bagus** dan meminta semua aspek desain dimaksimalkan:
+*"font nya, layout nya, penjarakan antar objek nya, shadow nya, glow nya, transisi nya, mode laman mengambang nya, blur nya, dan semua yang berkaitan dengan desain"*.
+Delapan hal itu dijadikan **standar wajib** dan sudah dipasang di `prototipe/css/tokens.css` (lapis komponen):
+
+| # | Aspek (kata pemilik) | Yang dipasang | Angka |
+|---|---|---|---|
+| 1 | **Font** | Dua peran huruf: huruf *display* (judul & angka besar) + huruf isi (nyaman dibaca). Tiap tema punya pasangannya sendiri | 13 berkas woff2 lokal (311 KB), dasar 16 px, baris 1,5 |
+| 2 | **Layout** | Skala jarak tunggal dipakai semua halaman; kartu angka, kisi menu, keranjang kanan, papan pesanan | kelipatan 4 · 8 · 12 · 16 · 20 · 24 · 32 px |
+| 3 | **Penjarakan antar objek** | Tiap blok punya jarak eksplisit (bukan jarak bawaan peramban): kartu ↔ kartu, judul ↔ isi, tombol ↔ tepi | 16 px antar kartu, 12 px dalam kartu, 20 px tepi halaman |
+| 4 | **Shadow** | **Bayangan berlapis 2 tingkat** (dekat tajam + jauh lembut) pada setiap kartu, tombol, dan bilah | contoh: `0 1px 2px` + `0 10px 28px` |
+| 5 | **Glow** | Cahaya aksen lembut pada tombol utama, ikon kategori aktif, dan bilah keranjang — bukan pada teks | 18–28 px blur, kekuatan aksen 25–45% |
+| 6 | **Transisi** | Semua perubahan halus & konsisten; kursor yang lewat membuat kartu terangkat 2 px; tombol menekan 0,98 | 180–260 ms, `cubic-bezier(.22,.61,.36,1)` |
+| 7 | **Mode laman mengambang** | Jendela konfirmasi (bayar, batal berjenjang, tutup kas) tampil di tengah sebagai lapisan mengambang + pesan berhasil di kanan bawah; bisa ditutup dengan tombol Esc | masuk 240 ms, latar gelap 45% |
+| 8 | **Blur (kaca)** | Bilah atas, bilah keranjang, panel pemilih tema, dan lapisan mengambang memakai kaca (buram + tembus pandang) | `backdrop-filter: blur(8–20px) saturate(150%)` |
+
+Aturan pengaman yang tetap dijaga: **kontras 130/130 lolos**, area sentuh ≥44 px, halaman tetap terbaca bila peramban belum mendukung `color-mix` atau `backdrop-filter`
+(disediakan warna cadangan), dan **animasi otomatis mati** bila pengguna memilih "kurangi gerak".
+
+**Cara memeriksa sendiri tanpa membuka browser (bukti mandiri):**
+1. `node prototipe/alat/mockup.js` → 5 papan gambar di `docs/desain/mockup/` (katalog Bara Panggang & Terang Bersih, hangat, kasir terang, kasir gelap).
+   Papan digambar dari **kode tema yang sama** + foto & huruf asli, jadi gambar bukti tidak bisa berbeda dari halaman.
+2. `python3 prototipe/uji-kontras.py` → 130/130 lolos di 10 tema.
+3. `python3 prototipe/alat/periksa-halaman.py` → 135/135 lolos (aset, id lapisan, tag seimbang, token).
+
+**Perbaikan cacat yang ditemukan lewat papan gambar (bukan diklaim, tapi dibereskan):**
+layar HP terpotong di bawah · tombol bulat `+` menabrak nama/harga di kartu POS · baris **Total** melewati tepi panel keranjang ·
+nama menu panjang terpotong tanpa elipsis · kotak pilihan tema menutupi catatan · label hero bertumpuk dengan judul besar. Semua sudah diperbaiki sebelum halaman dikirim.
 
 ## Log Keputusan
 | Tanggal | Keputusan | Alasan |
@@ -126,3 +157,11 @@ Setiap kombinasi tema × kepadatan tetap wajib lolos uji kontras & ukuran sentuh
 | 2026-09-16 | **Tema "Bara Panggang" dibuat khusus meniru gambar kiriman pemilik** (hitam + emas, judul HURUF BESAR, tombol bulat) | Pemilik menunjukkan contoh itu secara langsung; hurufnya memakai BigShoulders (tebal-tinggi) supaya mendekati kesannya |
 | 2026-09-16 | **13 huruf dari skill** (`skills/ui-styling/canvas-fonts`, lisensi OFL) dirampingkan ke woff2 (**1,4 MB → 311 KB**) dan disimpan lokal | Aplikasi tetap rapi tanpa internet — penting karena resto bisa punya jaringan lemah; lisensi terbuka jadi aman dipakai |
 | 2026-09-16 | Ditambahkan alat bantu: `uji-kontras.py` (uji semua tema) dan `buat-palet.py` (gambar palet dari kode) | Aturan "setiap tema wajib lolos kontras" jadi bisa **diperiksa mesin**, bukan diklaim; gambar palet selalu sama dengan kode |
+| 2026-09-16 | Pemilik menilai hasil ronde 2 **belum cukup bagus** ("malah yang sebelumnya lebih rapih") dan meminta 8 aspek dimaksimalkan | Ukuran keindahan ditentukan pemilik, bukan agent — hasil ronde 2 terlalu sibuk: terlalu banyak kartu catatan di halaman, jarak tidak seragam, dan tidak ada lapisan mengambang/blur |
+| 2026-09-16 | **Standar kehalusan 8 aspek** (§7) dijadikan aturan wajib di `tokens.css` | Menjawab kata-per-kata catatan pemilik: font, layout, penjarakan, shadow, glow, transisi, mode laman mengambang, blur |
+| 2026-09-16 | Halaman contoh **ditulis ulang** dengan lapis komponen baru (kartu, tombol, chip, tab, kisi menu, keranjang kaca, jendela mengambang) | Memasang kehalusan lewat satu lapis komponen = semua halaman ikut rapi sekaligus, bukan tempelan per halaman |
+| 2026-09-16 | **Bayangan berlapis + glow + kaca** dipakai sebagai bahasa visual utama (mengikuti P16/P32 dan pola aplikasi modern) | Inilah yang membuat tampilan terasa "hidup" dan mahal tanpa menambah gambar atau pustaka luar (tetap nol biaya) |
+| 2026-09-16 | Ditambahkan **papan bukti gambar** (`docs/desain/mockup/`, 5 papan) yang digambar dari kode tema yang sama | Pemeriksaan mandiri tanpa browser: agent bisa melihat sendiri cacat tumpang-tindih sebelum pemilik menemukannya |
+| 2026-09-16 | Ditambahkan alat `prototipe/alat/periksa-halaman.py` (135/135) | Menangkap kerusakan yang tidak terlihat mata pemilik (aset hilang, id jendela salah, tag tidak seimbang) |
+| 2026-09-16 | 6 cacat tumpang-tindih dibersihkan **sebelum** halaman dikirim | Prinsip "tidak ada yang cacat": cacat lebih murah dihapus di meja gambar daripada ditemukan pemilik |
+| 2026-09-16 | Tema tetap **10 pilihan** (tidak dikurangi, tidak ditambah di ronde ini) | Permintaan ronde 3 adalah memperhalus, bukan menambah tema; menambah pilihan saat kualitas sedang dikejar justru memperbesar risiko |

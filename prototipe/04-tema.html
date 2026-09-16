@@ -13,17 +13,44 @@
   <span class="center small"><a href="index.html">halaman awal</a> · <a href="01-laporan.html">laporan</a> · <a href="02-kasir.html">kasir</a> · <a href="03-katalog.html">katalog</a></span>
 </div>
 
-<header class="wrap">
-  <h1>10 Tema untuk Resto Barokah</h1>
+<header class="topbar" style="margin:12px 20px 0">
+  <div class="center">
+    <span class="logo">10</span>
+    <div>
+      <h1>Galeri 10 Tema</h1>
+      <div class="small muted">Satu susunan, sepuluh suasana — bandingkan berdampingan</div>
+    </div>
+  </div>
+  <details class="picker">
+    <summary><i class="swatch" data-swatch-tema></i> Tema: <span data-nama-tema>Terang Bersih</span></summary>
+    <div class="picker-panel" aria-label="Pilih tema">
+      <button type="button" data-set-tema="terang"><span class="sw-3" data-theme="terang" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Terang Bersih</strong><small>Bawaan</small></span></button>
+      <button type="button" data-set-tema="hangat"><span class="sw-3" data-theme="hangat" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Hangat Kedai</strong><small>Krem &amp; coklat</small></span></button>
+      <button type="button" data-set-tema="gelap"><span class="sw-3" data-theme="gelap" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Gelap Dapur</strong><small>Untuk malam</small></span></button>
+      <button type="button" data-set-tema="kontras"><span class="sw-3" data-theme="kontras" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Kontras Tinggi</strong><small>Garis tebal</small></span></button>
+      <button type="button" data-set-tema="bara"><span class="sw-3" data-theme="bara" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Bara Panggang</strong><small>Hitam + emas</small></span></button>
+      <button type="button" data-set-tema="vintage"><span class="sw-3" data-theme="vintage" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Vintage Klasik</strong><small>Kertas tua</small></span></button>
+      <button type="button" data-set-tema="alam"><span class="sw-3" data-theme="alam" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Alam Hijau</strong><small>Hijau daun</small></span></button>
+      <button type="button" data-set-tema="tropis"><span class="sw-3" data-theme="tropis" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Tropis Segar</strong><small>Teal laut</small></span></button>
+      <button type="button" data-set-tema="pastel"><span class="sw-3" data-theme="pastel" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Pastel Manis</strong><small>Pastel lembut</small></span></button>
+      <button type="button" data-set-tema="etnik"><span class="sw-3" data-theme="etnik" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Etnik Nusantara</strong><small>Terakota &amp; batik</small></span></button>
+      <a class="picker-all" href="index.html">← Kembali ke halaman awal</a>
+    </div>
+  </details>
+</header>
+
+<div class="wrap" style="padding-bottom:0">
+  <h2 class="mt-24">Sepuluh tema, satu susunan</h2>
   <p class="muted mt-8">Semua tema di bawah memakai <strong>susunan, komponen, dan aturan yang sama</strong> — yang berubah hanya warna, huruf,
     bentuk sudut, dan hiasan latar. Itu sebabnya pemilik resto cukup <em>memilih</em>, tanpa koding, dan tidak ada layar yang rusak.</p>
 
   <div class="card mt-16">
     <div class="card-head"><h3>Hasil uji aturan wajib</h3><span class="chip chip-success">130 pemeriksaan · 0 gagal</span></div>
     <p class="small muted">Alat uji: <code>python3 prototipe/uji-kontras.py</code> — memeriksa kontras teks, teks redup, tulisan di tombol, dan seluruh label status
-      di <strong>setiap</strong> tema (minimum teks 4,5:1 · elemen 3:1). Area sentuh ≥44px, huruf dasar 16px, ikon SVG.</p>
+      di <strong>setiap</strong> tema (minimum teks 4,5:1 · elemen 3:1). Area sentuh ≥44px, huruf dasar 16px, ikon SVG.
+      Pemeriksaan tambahan: <code>python3 prototipe/alat/periksa-halaman.py</code> (aset, tautan jendela mengambang, tag seimbang).</p>
   </div>
-</header>
+</div>
 
 <main class="wrap stack">
 
@@ -242,6 +269,13 @@
 
   <p class="small muted">Berkas: <code>prototipe/04-tema.html</code> · sistem desain: <code>prototipe/css/tokens.css</code> · uji: <code>prototipe/uji-kontras.py</code></p>
 </main>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span class="tanda" aria-hidden="true">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12.5l5 5L20 6.5"/></svg>
+  </span>
+  <span data-toast-teks>Tema dipasang</span>
+</div>
 
 <script src="js/ui.js"></script>
 </body>

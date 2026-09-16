@@ -1,88 +1,67 @@
 # Contoh Tampilan (Mockup) — Resto Barokah
 
-> **Status: CONTOH UNTUK DIPERIKSA PEMILIK** (2026-09-16). Bukan aplikasi jadi — angkanya data contoh.
-> Tujuan: supaya pemilik memutuskan dari **tampilan yang bisa dilihat & diklik**, bukan dari penjelasan.
+> **Status:** contoh tampilan berbentuk **halaman web asli yang bisa diklik** + **papan bukti gambar**.
+> Dibuat 2026-09-16 · diperhalus pada ronde 3 (standar kehalusan 8 aspek, lihat `docs/desain/RENCANA_DESAIN_UI.md` §7).
+> Halaman ini **bukan aplikasi jadi** — angkanya data contoh, dan tidak ada data yang disimpan.
 
-## Isi folder
+## Apa isinya
 
-| Berkas | Isinya |
+| Berkas | Isi |
 |---|---|
-| `index.html` | Halaman awal: penjelasan, daftar halaman contoh, dan daftar 10 tema |
-| `01-laporan.html` | **Laporan & Pemantauan** — kartu omzet, kas di laci, grafik per jam, papan pesanan aktif (label status berwarna), tabel transaksi, catatan pembatalan |
-| `02-kasir.html` | **Kasir (POS)** — kiri: pencarian + tab kategori + kisi menu (menu habis terkunci); kanan: keranjang, Sub total → PB1 → Service → Diskon voucher → **Total**, cara bayar, kembalian, tombol bayar besar |
-| `03-katalog.html` | **Katalog pelanggan** (tampak HP) — banner, kategori ikon, menu favorit berfoto, pintu masuk voucher undang-teman, keranjang bawah; + halaman detail menu (level pedas, tambahan, porsi) |
-| `04-tema.html` | **Galeri 10 tema** — semua tema berdampingan dalam satu halaman (tiap kartu memakai tokennya sendiri) |
-| `css/tokens.css` | **Sistem desain**: 10 tema + komponen dasar. Token 3 lapis (primitif → semantik → komponen) |
-| `js/ui.js` | Ganti tema (10 pilihan), ganti kerapatan, tombol +/−, tombol tambah, contoh "Cek voucher" (hanya membaca) |
-| `js/pasang-pemilih-tema.py` | Alat penyisip pemilih tema ke semua halaman (sekali pakai) |
-| `aset/*.jpg` | **Foto contoh buatan** (nasi goreng, ayam geprek, mie ayam, kopi susu, es teh, pisang goreng, banner) — nanti diganti foto asli Kedai Oasis |
-| `aset/font/*.woff2` (23 berkas) | **13 huruf** dari `skills/ui-styling/canvas-fonts` (lisensi OFL), dirampingkan: **1,4 MB → 311 KB**, disimpan lokal (tanpa internet) |
-| `uji-kontras.py` | Uji otomatis kontras **semua tema** (token 3 lapis + urai `var()`) |
-| `buat-palet.py` | Membuat gambar ikhtisar palet `docs/desain/palet-tema.png` (warna dibaca dari kode) |
+| `index.html` | Halaman awal: 4 pintu masuk + ringkasan apa yang diperhalus di ronde 3 |
+| `01-laporan.html` | Laporan & pemantauan pemilik/admin: kartu angka, grafik omzet per jam (tumbuh saat dibuka), papan pesanan, tabel transaksi, tombol Tutup Kas (jendela mengambang) |
+| `02-kasir.html` | Layar kasir (POS): rel menu kiri, kisi menu, keranjang menempel kanan (PB1 10% + Service 5% + diskon voucher), pilihan cara bayar, tombol bayar → jendela mengambang + pesan berhasil |
+| `03-katalog.html` | Katalog pelanggan (2 layar HP): beranda (hero promo, kategori bulat, kartu menu, bilah keranjang kaca, navigasi bawah) dan detail menu (level pedas, tambahan, catatan, jumlah) |
+| `04-tema.html` | Galeri **10 tema** berdampingan — susunan sama, suasana berbeda |
+| `css/tokens.css` | Sistem desain: token 3 lapis (dasar → arti → komponen), 10 tema, 13 `@font-face` lokal, seluruh komponen |
+| `js/ui.js` | Tanpa pustaka luar: pemilih 10 tema, kerapatan (Mode Kasir / Mode Katalog), keranjang +/−, jendela mengambang, pesan berhasil, animasi masuk, contoh "Cek Voucher" |
+| `aset/` | 7 foto menu **contoh buatan** + `aset/font/` 13 huruf woff2 (lisensi OFL, ada berkas lisensinya) |
+| `uji-kontras.py` | Uji kontras otomatis semua tema → **130/130 lolos** |
+| `buat-palet.py` | Menggambar `docs/desain/palet-tema.png` langsung dari `tokens.css` |
+| `alat/gambar.js` | Alat gambar papan bukti (membaca warna & huruf yang sama dengan `tokens.css`) |
+| `alat/mockup.js` | Membuat **5 papan bukti** di `docs/desain/mockup/` |
+| `alat/periksa-halaman.py` | Periksa halaman: aset ada, id jendela mengambang cocok, tag seimbang, token terdefinisi → **135/135 lolos** |
 
 ## Cara melihat
 
-**Cara 1 — lewat pratinjau (paling mudah):** server contoh tampilan dinyalakan agent, halaman langsung terbuka.
-
-**Cara 2 — di komputer sendiri:**
 ```bash
-cd prototipe
-python3 -m http.server 8080      # lalu buka http://localhost:8080
+# dari folder prototipe/
+python3 -m http.server 8080
+# lalu buka http://localhost:8080
 ```
-Bisa juga dibuka langsung dengan klik-dua-kali `index.html` (tanpa server pun jalan).
 
-## Sepuluh tema
+Klik **Tema** di kanan atas untuk mencoba 10 tema; pilihanmu diingat di perangkat ini saja
+(`localStorage` kunci `rb-tema`, `rb-kerapatan`). Halaman juga menyediakan pengaturan "kurangi gerak":
+bila perangkat memintanya, semua animasi & transisi mati otomatis.
 
-| # | Tema | Kesan | Rujukan / arah gaya | Huruf |
-|---|---|---|---|---|
-| 1 | **Terang Bersih** *(bawaan)* | Bersih & terang, paling mudah dibaca kasir | gambar pemilik P16/P08 | Outfit + WorkSans |
-| 2 | **Hangat Kedai** | Krem & coklat, ramah | P15 Brew & Bliss, P22 | Lora + WorkSans |
-| 3 | **Gelap Dapur** | Gelap, nyaman untuk dapur & malam | P17 Jaegar Resto, P03, P31 | Outfit + WorkSans |
-| 4 | **Kontras Tinggi** | Hitam-putih, garis tebal (aksesibilitas) | — | huruf sistem |
-| 5 | **Bara Panggang** | Hitam pekat + emas, judul HURUF BESAR tinggi | **gambar yang pemilik kirim (P16)** | BigShoulders + InstrumentSans |
-| 6 | **Vintage Klasik** | Kertas tua, marun, bingkai garis ganda | arah gaya `vintage-analog-retro-film` | ArsenalSC + CrimsonPro |
-| 7 | **Alam Hijau** | Hijau daun, membulat lembut, hiasan daun | arah gaya `organic-biophilic` | NationalPark + WorkSans |
-| 8 | **Tropis Segar** | Teal laut, ceria, hiasan ombak | disusun sendiri¹ | Outfit + WorkSans |
-| 9 | **Pastel Manis** | Pastel lembut, bentuk tebal "tanah liat" | arah gaya `claymorphism` | Bricolage + Outfit |
-| 10 | **Etnik Nusantara** | Ivory, terakota, hiasan motif batik | disusun sendiri¹ | YoungSerif + WorkSans |
+## Cara memeriksa sendiri (tanpa perlu jeli)
 
-¹ *Jujur: saat ditanyakan ke basis data skill (`ui-ux-pro-max`), tidak ada padanan yang cocok untuk kedua arah ini — jadi nilai warnanya disusun sendiri, bukan hasil pencarian basis data.*
+```bash
+python3 prototipe/uji-kontras.py            # 130/130 lolos · 10 tema
+python3 prototipe/alat/periksa-halaman.py   # 135/135 lolos · aset & kaitan halaman
+python3 prototipe/buat-palet.py             # gambar palet dari kode
 
-**Menambah tema baru itu murah** — sekitar 30 baris nilai warna + huruf, tanpa menyentuh susunan layar.
+# papan bukti gambar (perlu Node + @napi-rs/canvas terpasang di luar repo):
+node prototipe/alat/mockup.js               # semua papan -> docs/desain/mockup/
+node prototipe/alat/mockup.js bara          # satu papan saja
+```
 
-## Dua tingkat kepadatan (khusus layar kasir)
+Papan bukti digambar dari **nilai tema yang sama** (`tokens.css`), memakai **foto & huruf asli** yang dipakai halaman.
+Jadi gambar bukti tidak bisa berbeda dari halaman — kalau kode berubah, papannya ikut berubah.
 
-- **Mode Kasir (padat):** tanpa foto, kisi 4 kolom → banyak menu terlihat, cepat melayani antrean.
-- **Mode Katalog (berfoto):** kartu berfoto 3 kolom → untuk pameran menu/tablet pelanggan.
+## Aturan yang dijaga di setiap tema
 
-## Hasil uji aturan wajib
+- Kontras teks ≥ 4,5:1 · elemen ≥ 3:1 → **130/130 lolos** (`uji-kontras.py`)
+- Area sentuh ≥ 44 px · huruf dasar 16 px jarak baris 1,5
+- Ikon SVG (bukan emoji) · tombol ikon selalu punya label
+- Setiap aksi memberi umpan balik (tombol berubah, pesan berhasil, atau jendela konfirmasi)
+- Bila peramban belum mendukung `color-mix`/`backdrop-filter`, tersedia warna cadangan → halaman tetap terbaca
+- Animasi mati bila pengguna memilih "kurangi gerak"
 
-| Aturan | Hasil |
-|---|---|
-| Kontras teks ≥ 4,5:1 · elemen ≥ 3:1 | **130 dari 130 pemeriksaan LOLOS** di **10 tema** (`python3 prototipe/uji-kontras.py`) |
-| Area sentuh ≥ 44 px | Tombol, tab, tombol +/−, dan tombol tambah bulat (kini tepat 44 px) |
-| Huruf dasar 16 px, jarak baris 1,5 | Terpasang di `tokens.css` |
-| Ikon vektor (bukan emoji) | Semua ikon SVG sebaris |
-| Umpan balik tiap aksi | +/−, tombol tambah (centang sebentar), "Cek voucher", metode bayar |
-| Kurangi gerak | `prefers-reduced-motion` dihormati (animasi dimatikan) |
+## Yang belum ada (jujur)
 
-## Perlengkapan yang dipakai (skill terpasang)
+Masuk/PIN, pengiriman ke dapur, cetak struk, penyimpanan data, dan pengaturan pemilik.
+Itu pekerjaan **Tahap 3 (Tech Spec)** setelah pemilik menyetujui tampilan ini.
 
-| Skill | Yang diambil |
-|---|---|
-| `design-system` | Arsitektur token 3 lapis (primitif → semantik → komponen) |
-| `ui-ux-pro-max` | Arah gaya & palet (vintage-analog-retro-film, organic-biophilic, claymorphism, dark-mode-oled), pasangan huruf "Restaurant Menu" |
-| `ui-styling` | 13 huruf dari `canvas-fonts` (OFL), dirampingkan ke woff2 |
-| `frontend-designer`, `web-design-guidelines` | Kontras, ukuran sentuh, fokus keyboard, kurangi gerak, mobile-first |
-| `brand` | Gagasan identitas: tema = merek resto, bukan merek platform |
-
-## Yang sengaja BELUM ada di contoh ini
-
-Masuk & PIN · pengiriman pesanan ke dapur (KDS penuh) · cetak struk/tiket · penyimpanan data · hak akses per peran ·
-pengaturan resto · tampilan pemilik platform. Semuanya dikerjakan di **Tahap 3 (rancangan teknis)** dan tahap pengembangan.
-
-## Setelah pemilik menyetujui
-
-1. Tema bawaan & pola layar dikunci di `docs/desain/RENCANA_DESAIN_UI.md`.
-2. Sistem desain ini dipakai sebagai acuan **Tahap 3 — Tech Spec** (teknologi, struktur data, keamanan).
-3. Foto contoh diganti foto asli Kedai Oasis lewat Pengaturan (tanpa koding).
+Aturan desain lengkap: `docs/desain/RENCANA_DESAIN_UI.md` · papan bukti: `docs/desain/mockup/` ·
+palet: `docs/desain/palet-tema.png`
