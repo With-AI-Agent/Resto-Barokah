@@ -20,12 +20,6 @@ NAMA = {
     'alam': '7. ALAM HIJAU', 'tropis': '8. TROPIS SEGAR', 'pastel': '9. PASTEL MANIS',
     'etnik': '10. ETNIK NUSANTARA',
 }
-HURUF = {
-    'terang': 'Outfit + WorkSans', 'hangat': 'Lora (serif) + WorkSans', 'gelap': 'Outfit + WorkSans',
-    'kontras': 'huruf sistem', 'bara': 'BigShoulders + InstrumentSans', 'vintage': 'ArsenalSC + CrimsonPro',
-    'alam': 'NationalPark + WorkSans', 'tropis': 'Outfit + WorkSans', 'pastel': 'Bricolage + Outfit',
-    'etnik': 'YoungSerif + WorkSans',
-}
 ASAL = {
     'terang': 'bawaan · rujukan P16/P08', 'hangat': 'rujukan P15/P22', 'gelap': 'rujukan P17/P03',
     'kontras': 'aksesibilitas', 'bara': 'dari gambar kiriman pemilik (P16)',
@@ -33,17 +27,62 @@ ASAL = {
     'tropis': 'disusun sendiri', 'pastel': 'arah gaya: claymorphism', 'etnik': 'disusun sendiri',
 }
 
-# baca token tiap tema (semua token pada satu baris)
-blok, tema = {}, None
-for baris in css.splitlines():
-    m = re.match(r'^\s*(:root|\[data-theme="([a-z]+)"\])', baris)
-    if m:
-        tema = m.group(2) or 'terang'
-        blok.setdefault(tema, {})
-        continue
-    if tema:
-        for nama, nilai in re.findall(r'(--[a-z0-9-]+):\s*([^;]+);', baris):
-            blok[tema][nama] = nilai.strip()
+
+def isi_blok(teks, pos):
+    """Ambil isi {...} mulai dari posisi '{' (kurung seimbang)."""
+    j, dalam = pos + 1, 1
+    while j < len(teks) and dalam:
+        if teks[j] == '{':
+            dalam += 1
+        elif teks[j] == '}':
+            dalam -= 1
+        j += 1
+    return teks[pos + 1:j - 1]
+
+
+def token_dari(isi):
+    """Pecah isi blok jadi {nama: nilai}; ';' di dalam kurung/kutip diabaikan."""
+    hasil, buf, petik, kurung = {}, '', None, 0
+    for ch in isi + ';':
+        if petik:
+            if ch == petik:
+                petik = None
+            buf += ch
+            continue
+        if ch in ('"', "'"):
+            petik = ch
+            buf += ch
+            continue
+        if ch == '(':
+            kurung += 1
+        elif ch == ')':
+            kurung = max(0, kurung - 1)
+        if ch == ';' and kurung == 0:
+            m = re.match(r'^\s*(--[a-z0-9-]+)\s*:\s*(.+)$', buf, re.S)
+            if m:
+                hasil[m.group(1)] = ' '.join(m.group(2).split())
+            buf = ''
+            continue
+        buf += ch
+    return hasil
+
+
+# baca token tiap tema (hanya blok tema yang selektornya berdiri sendiri)
+blok = {}
+for m in re.finditer(r'\[data-theme="([a-z]+)"\]\s*\{', css):
+    awal_baris = css.rfind('\n', 0, m.start()) + 1
+    if css[awal_baris:m.start()].strip():
+        continue  # menempel dengan selektor lain -> lewati
+    blok.setdefault(m.group(1), {}).update(token_dari(isi_blok(css, m.end() - 1)))
+
+
+def nama_huruf(nilai):
+    m = re.match(r"^\s*'([^']+)'", nilai or '') or re.match(r'^\s*([A-Za-z][\w-]*)', nilai or '')
+    return m.group(1) if m else '?'
+
+
+HURUF = {k: f'{nama_huruf(v.get("--font-display"))} + {nama_huruf(v.get("--font-body"))}'
+         for k, v in blok.items()}
 
 KUNCI = ['--bg', '--surface', '--surface-2', '--accent', '--text', '--text-muted',
          '--success', '--warn', '--danger', '--info']
@@ -61,7 +100,7 @@ perintah = ['convert', '-size', f'{L}x{T}', 'xc:#ffffff',
             '-font', 'DejaVu-Sans-Bold', '-pointsize', '34', '-fill', '#111111',
             '-annotate', '+40+58', 'RESTO BAROKAH - 10 TEMA (warna diambil langsung dari kode)',
             '-font', 'DejaVu-Sans', '-pointsize', '19', '-fill', '#555555',
-            '-annotate', '+40+88', 'Semua tema lolos uji kontras: 130 pemeriksaan, 0 gagal (python3 prototipe/uji-kontras.py)',
+            '-annotate', '+40+88', 'Semua tema lolos uji: 130 pemeriksaan warna + 36 aturan desain, 0 gagal (python3 prototipe/uji-kontras.py)',
             '-font', 'DejaVu-Sans-Bold', '-pointsize', '17', '-fill', '#333333',
             '-annotate', '+40+124', 'TEMA']
 
@@ -91,7 +130,7 @@ for j, kunci in enumerate(KUNCI):
 
 perintah += ['-font', 'DejaVu-Sans', '-pointsize', '15', '-fill', '#666666',
              '-annotate', '+40+1108', 'Cara lihat: buka halaman prototipe/04-tema.html untuk melihat semua tema hidup, atau tekan tombol "Tema" di halaman contoh tampilan.',
-             '-annotate', '+40+1134', 'Huruf dari skills/ui-styling/canvas-fonts (lisensi OFL), dirampingkan ke woff2: 1,4 MB menjadi 311 KB, disimpan lokal tanpa internet.']
+             '-annotate', '+40+1134', 'Huruf dari skills/ui-styling/canvas-fonts (lisensi OFL), dirampingkan ke woff2: 13 keluarga, 19 berkas, 604 KB, disimpan lokal tanpa internet.']
 
 os.makedirs(os.path.dirname(keluar), exist_ok=True)
 subprocess.run(perintah + [keluar], check=True)

@@ -137,6 +137,34 @@ Aturan pengaman yang tetap dijaga: **kontras 130/130 lolos**, area sentuh ≥44 
 layar HP terpotong di bawah · tombol bulat `+` menabrak nama/harga di kartu POS · baris **Total** melewati tepi panel keranjang ·
 nama menu panjang terpotong tanpa elipsis · kotak pilihan tema menutupi catatan · label hero bertumpuk dengan judul besar. Semua sudah diperbaiki sebelum halaman dikirim.
 
+## 8. Ronde 3 lanjutan — v3 "KERAJINAN" (penyempurnaan menyeluruh, 2026-09-16)
+
+Sesudah pemilik menilai hasil ronde 2 belum cukup rapih, ronde 3 dikerjakan **dua tahap**. Tahap 1 memasang 8 standar kehalusan + 5 papan bukti. Tahap 2 (v3) menulis ulang seluruh sistem desain dan 5 halaman, karena masih ada yang bisa dinaikkan.
+
+**Yang berubah di v3:**
+
+| Aspek | Ronde 2 / ronde 3 tahap 1 | v3 "KERAJINAN" |
+|---|---|---|
+| Huruf | 1 pasang huruf berulang; judul & angka belum dibedakan tegas | 3 peran huruf: **judul** (display), **isi** (bacaan), **angka/struk** (Mono); 13 keluarga lokal, 504 KB |
+| Jarak | angka jarak campur | **tangga jarak 4→72 px** dipakai seragam (jarak eksplisit antar objek) |
+| Ukuran huruf | beberapa ukuran ad hoc | **tangga huruf 11→72 px** (8 ukuran + 2 judul besar) |
+| Bayangan | 1 bayangan datar | **4 tingkat** bayangan **berlapis & berwarna** sesuai tema (tema Kontras sengaja rata + garis tegas) |
+| Glow | belum ada | glow aksen per tema (tombol utama, kategori aktif, tombol tengah bilah bawah) |
+| Kaca/blur | belum ada | `--blur` 16 px & `--blur-kuat` 26 px untuk bilah atas, panel mengambang, bilah keranjang |
+| Lapis mengambang | konfirmasi berupa kartu biasa | `.lapis/.kotak` di tengah (bayar, batal berjenjang, tutup kas) + `.bilah-melayang` + `.toast` |
+| Pola latar | rata | pola halus per tema (bintik, daun, ombak, batik) — boleh "none" |
+| Halaman tema | galeri teks + kotak warna | tiap tema = **HP mini hidup** + palet heksa **dibaca dari warna asli** + tombol "Pakai tema ini" |
+
+**Alat yang menjaga janji "tidak ada yang cacat":**
+
+- `prototipe/uji-kontras.py` — **166 pemeriksaan**: 130 warna (13 pasangan × 10 tema) + 36 aturan desain (kelengkapan token tiap tema, tangga jarak/huruf, area sentuh ≥ 44 px, cincin fokus, mode kurangi gerak, bayangan berlapis, huruf benar-benar tersimpan). Hasil terakhir: **0 gagal**.
+- `prototipe/alat/periksa-halaman.py` — **183 pemeriksaan** halaman (aset ada, id lapis mengambang cocok, kaitan JS ada, tag seimbang, 10 tema tersedia, token terdefinisi). Hasil terakhir: **183/183 lolos**.
+- `prototipe/alat/mockup.js` + `gambar.js` — menggambar 5 papan bukti dari **warna `tokens.css` + huruf TTF asli**; papan wajib digambar ulang setiap kali token berubah supaya tidak berbohong.
+- `prototipe/buat-palet.py` — gambar palet juga membaca warna **dan nama huruf** dari kode.
+- `prototipe/buat-galeri-tema.py` — 10 kartu tema dibuat dari satu daftar, jadi tidak ada kartu yang kelewat.
+
+**Batas yang diakui:** tangkapan layar browser tidak bisa dipasang di lingkungan kerja ini; papan bukti adalah gambar yang dibuat alat sendiri (wujud gaya, bukan tangkapan layar). Halaman aslinya diperiksa langsung dengan membuka server pratinjau.
+
 ## Log Keputusan
 | Tanggal | Keputusan | Alasan |
 |---|---|---|

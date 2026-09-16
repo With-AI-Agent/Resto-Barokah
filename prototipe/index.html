@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="terang">
+<html lang="id" data-theme="terang" data-density="padat">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,159 +9,209 @@
 <body>
 
 <div class="demo-bar">
-  <span><strong>CONTOH TAMPILAN</strong> — Kedai Oasis (data contoh, bukan aplikasi jadi)</span>
-  <span class="center small">Untuk pemilik · <a href="index.html">halaman awal</a></span>
+  <span><strong>CONTOH TAMPILAN</strong> · Kedai Oasis · data contoh, bukan aplikasi jadi</span>
+  <nav class="center small" aria-label="Pindah ke halaman contoh lain"><a href="01-laporan.html">Laporan</a> · <a href="02-kasir.html">Kasir</a> · <a href="03-katalog.html">Katalog</a> · <a href="04-tema.html">10 Tema</a></nav>
 </div>
 
-<header class="topbar" style="margin:12px 20px 0">
-  <div class="center">
-    <span class="logo">RB</span>
-    <div>
-      <h1>Resto Barokah</h1>
-      <div class="small muted">Contoh tampilan &amp; 10 tema — semuanya bisa diklik</div>
+<!-- bilah atas kaca (mode mengambang) -->
+<header class="bilah-atas">
+  <div class="wrap between" style="min-height:64px">
+    <a class="center" href="index.html" style="text-decoration:none;color:inherit">
+      <span style="width:40px;height:40px;border-radius:13px;background:linear-gradient(180deg,var(--accent),var(--accent-hover));color:var(--accent-contrast);display:grid;place-items:center;box-shadow:var(--glow)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3c3 4 6 5 6 9a6 6 0 11-12 0c0-4 3-5 6-9z"/></svg>
+      </span>
+      <span>
+        <span class="display" style="font-size:18px;font-weight:700;display:block;line-height:1.1">Resto Barokah</span>
+        <span class="label" style="font-size:10px">Satu aplikasi · banyak cabang</span>
+      </span>
+    </a>
+    <div class="center" style="gap:var(--s-3)">
+      <span class="chip chip-success" style="display:none" data-hanya-lebar><i class="dot denyut"></i>Contoh hidup</span>
+      <span data-pemilih-tema></span>
     </div>
   </div>
-  <details class="picker">
-    <summary><i class="swatch" data-swatch-tema></i> Tema: <span data-nama-tema>Terang Bersih</span></summary>
-    <div class="picker-panel" aria-label="Pilih tema">
-      <button type="button" data-set-tema="terang"><span class="sw-3" data-theme="terang" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Terang Bersih</strong><small>Bersih &amp; terang — bawaan</small></span></button>
-      <button type="button" data-set-tema="hangat"><span class="sw-3" data-theme="hangat" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Hangat Kedai</strong><small>Krem &amp; coklat, ramah</small></span></button>
-      <button type="button" data-set-tema="gelap"><span class="sw-3" data-theme="gelap" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Gelap Dapur</strong><small>Gelap, untuk layar dapur</small></span></button>
-      <button type="button" data-set-tema="kontras"><span class="sw-3" data-theme="kontras" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Kontras Tinggi</strong><small>Hitam-putih, garis tebal</small></span></button>
-      <button type="button" data-set-tema="bara"><span class="sw-3" data-theme="bara" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Bara Panggang</strong><small>Hitam + emas (dari gambar kirimanmu)</small></span></button>
-      <button type="button" data-set-tema="vintage"><span class="sw-3" data-theme="vintage" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Vintage Klasik</strong><small>Kertas tua, serif, garis ganda</small></span></button>
-      <button type="button" data-set-tema="alam"><span class="sw-3" data-theme="alam" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Alam Hijau</strong><small>Hijau daun, membulat lembut</small></span></button>
-      <button type="button" data-set-tema="tropis"><span class="sw-3" data-theme="tropis" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Tropis Segar</strong><small>Teal laut, ceria</small></span></button>
-      <button type="button" data-set-tema="pastel"><span class="sw-3" data-theme="pastel" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Pastel Manis</strong><small>Pastel lembut, tebal (clay)</small></span></button>
-      <button type="button" data-set-tema="etnik"><span class="sw-3" data-theme="etnik" aria-hidden="true"><i style="background:var(--bg)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i></span><span><strong>Etnik Nusantara</strong><small>Ivory, terakota, motif batik</small></span></button>
-      <a class="picker-all" href="04-tema.html">Lihat 10 tema berdampingan →</a>
-    </div>
-  </details>
 </header>
 
 <main class="wrap">
-  <div class="card mt-16 muncul" data-muncul>
-    <div class="card-head">
-      <h2>Contoh tampilan &amp; 10 tema</h2>
-      <span class="chip chip-accent">Ronde 3 · diperhalus</span>
-    </div>
-    <p class="muted">Empat halaman di bawah bisa kamu klik. Coba tekan <strong>Tema</strong> di kanan atas: warna, huruf, sudut, dan hiasan
-      langsung berubah — susunannya tetap rapi. Pilihan temamu diingat di perangkat ini saja.</p>
-    <div class="row wrap-row mt-16" style="gap:8px">
-      <span class="chip chip-success">Huruf dipilih per tema</span>
-      <span class="chip chip-success">Jarak antar objek kelipatan 4·8·12·16</span>
-      <span class="chip chip-success">Bayangan berlapis</span>
-      <span class="chip chip-success">Glow lembut pada tombol utama</span>
-      <span class="chip chip-success">Transisi 180–260 ms</span>
-      <span class="chip chip-success">Halaman mengambang + blur kaca</span>
-      <span class="chip chip-success">130/130 uji kontras lolos</span>
-    </div>
-  </div>
 
-  <section class="pick mt-16">
-    <a class="card lift" href="01-laporan.html" aria-label="Buka halaman Laporan dan Pemantauan">
-      <span class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></span>
-      <h3>1. Laporan &amp; Pemantauan</h3>
-      <p class="muted small">Layar Pemilik/Admin: omzet hari ini, kas di laci, pesanan aktif, transaksi terakhir. Grafik tumbuh saat dibuka.</p>
-      <span class="chip chip-success">Aman · tidak berisiko</span>
-    </a>
-    <a class="card lift" href="02-kasir.html" aria-label="Buka halaman Kasir POS">
-      <span class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 20h10M8 9h8M8 13h5"/></svg></span>
-      <h3>2. Kasir (POS)</h3>
-      <p class="muted small">Menu + keranjang kanan + pajak, service, diskon voucher, lalu bayar. Tekan tombol bayar → muncul jendela mengambang.</p>
-      <span class="chip chip-accent">Pola P04 · P17 · P32</span>
-    </a>
-    <a class="card lift" href="03-katalog.html" aria-label="Buka halaman Katalog Pelanggan">
-      <span class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
-      <h3>3. Katalog Pelanggan</h3>
-      <p class="muted small">Yang dilihat pelanggan dari HP: hero promo, kategori bulat, menu berfoto, bilah keranjang mengambang berkaca.</p>
-      <span class="chip chip-accent">Pola P08 · P14 · P15 · P16</span>
-    </a>
-    <a class="card lift" href="04-tema.html" aria-label="Buka galeri 10 tema">
-      <span class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/></svg></span>
-      <h3>4. Galeri 10 Tema</h3>
-      <p class="muted small">Sepuluh tema berdampingan dengan susunan yang sama: Terang Bersih, Hangat Kedai, Gelap Dapur, Kontras Tinggi,
-        <strong>Bara Panggang</strong> (dari gambar kirimanmu), Vintage Klasik, Alam Hijau, Tropis Segar, Pastel Manis, Etnik Nusantara.</p>
-      <span class="chip chip-success">Semua lolos uji kontras</span>
-    </a>
+  <!-- ============ HERO dengan kartu kaca mengambang ============ -->
+  <section class="hero-beranda naik">
+    <img class="latar" src="aset/hero-warung.jpg" alt="">
+    <span class="selubung"></span>
+    <div class="isi">
+      <span class="pil-kaca"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>Contoh tampilan untuk Kedai Oasis</span>
+      <h1>Rapi di layar,<br>enak dipakai<br>saat ramai.</h1>
+      <p>Kasir cepat, dapur jelas, laporan bisa dibaca sekilas — dan <strong>10 tema</strong> yang tinggal dipilih tanpa koding.</p>
+      <div class="row wrap-row">
+        <a class="btn btn-primary btn-lg" href="02-kasir.html" style="width:auto">Lihat layar kasir</a>
+        <a class="btn btn-lg" href="04-tema.html" style="width:auto;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);color:#fff">Bandingkan 10 tema</a>
+      </div>
+    </div>
+    <div class="kartu-kaca">
+      <div class="label" style="color:rgba(255,255,255,.75)">Omzet hari ini</div>
+      <div class="display" style="font-size:34px;font-weight:700;margin:2px 0 10px">Rp 3.450.000</div>
+      <div class="row" style="gap:var(--s-5)">
+        <div><div class="label" style="color:rgba(255,255,255,.7)">Transaksi</div><strong>87</strong></div>
+        <div><div class="label" style="color:rgba(255,255,255,.7)">Pesanan aktif</div><strong>9</strong></div>
+        <div><div class="label" style="color:rgba(255,255,255,.7)">Selisih kas</div><strong>Rp 0</strong></div>
+      </div>
+    </div>
   </section>
 
-  <div class="card mt-16">
-    <div class="card-head"><h3>Yang aku perhalus di ronde ini</h3><span class="petunjuk">jawaban atas catatanmu</span></div>
-    <div class="tema-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
-      <div class="card tight" style="border-radius:16px">
-        <strong>1 · Huruf</strong>
-        <p class="petunjuk">Judul &amp; angka memakai huruf “display” (tebal, tegas), isi memakai huruf yang enak dibaca. Ukuran dasar 16 px, jarak baris 1,5.</p>
-      </div>
-      <div class="card tight" style="border-radius:16px">
-        <strong>2 · Susunan &amp; jarak</strong>
-        <p class="petunjuk">Semua jarak mengikuti kelipatan 4 · 8 · 12 · 16 · 20 · 24 · 32 px, jadi tidak ada objek yang menempel atau menabrak.</p>
-      </div>
-      <div class="card tight" style="border-radius:16px">
-        <strong>3 · Bayangan berlapis</strong>
-        <p class="petunjuk">Tiap kartu punya dua bayangan (dekat + jauh), bukan satu bayangan datar — benda terlihat “berdiri”, tidak menempel di kertas.</p>
-      </div>
-      <div class="card tight" style="border-radius:16px">
-        <strong>4 · Glow &amp; transisi</strong>
-        <p class="petunjuk">Tombol utama dan elemen aktif memberi cahaya lembut. Semua perubahan 180–260 ms; kursor yang lewat membuat kartu terangkat 2 px.</p>
-      </div>
-      <div class="card tight" style="border-radius:16px">
-        <strong>5 · Halaman mengambang</strong>
-        <p class="petunjuk">Konfirmasi bayar &amp; pembatalan muncul sebagai lapisan mengambang di tengah, dengan pesan berhasil di kanan bawah.</p>
-      </div>
-      <div class="card tight" style="border-radius:16px">
-        <strong>6 · Blur (kaca)</strong>
-        <p class="petunjuk">Bilah atas, bilah keranjang, panel tema, dan lapisan mengambang memakai efek kaca (buram + tembus pandang) seperti aplikasi modern.</p>
+  <!-- ============ HALAMAN CONTOH ============ -->
+  <section class="bagian">
+    <div class="judul-bagian">
+      <div>
+        <span class="aksen">Empat layar untuk diperiksa</span>
+        <h2>Mulai dari yang paling penting</h2>
       </div>
     </div>
-    <p class="small muted mt-16">Bukti pemeriksaan: <code>python3 prototipe/uji-kontras.py</code> (130/130 lolos) dan
-      <code>python3 prototipe/alat/periksa-halaman.py</code> (kaitan halaman &amp; aset). Aturan lengkap: <code>docs/desain/RENCANA_DESAIN_UI.md</code>.</p>
-  </div>
-
-  <div class="card mt-16">
-    <div class="card-head"><h3>Sepuluh tema, satu sistem</h3></div>
-    <p class="muted small">Semua tema memakai <strong>susunan &amp; komponen yang sama</strong> — hanya warna, huruf, bentuk sudut, dan hiasan latar yang berubah.
-      Jadi pemilik resto cukup <em>memilih</em> tema lewat Pengaturan, tanpa koding, dan tidak ada layar yang rusak.</p>
-    <div class="row wrap-row mt-16" style="gap:10px">
-      <span class="chip" data-theme="terang"><i class="dot"></i>Terang Bersih</span>
-      <span class="chip" data-theme="hangat"><i class="dot"></i>Hangat Kedai</span>
-      <span class="chip" data-theme="gelap"><i class="dot"></i>Gelap Dapur</span>
-      <span class="chip" data-theme="kontras"><i class="dot"></i>Kontras Tinggi</span>
-      <span class="chip" data-theme="bara"><i class="dot"></i>Bara Panggang</span>
-      <span class="chip" data-theme="vintage"><i class="dot"></i>Vintage Klasik</span>
-      <span class="chip" data-theme="alam"><i class="dot"></i>Alam Hijau</span>
-      <span class="chip" data-theme="tropis"><i class="dot"></i>Tropis Segar</span>
-      <span class="chip" data-theme="pastel"><i class="dot"></i>Pastel Manis</span>
-      <span class="chip" data-theme="etnik"><i class="dot"></i>Etnik Nusantara</span>
+    <div class="punya-grid bertahap" role="list" aria-label="Empat bagian yang bisa dibuka">
+      <a class="punya card card-hover" role="listitem" href="01-laporan.html">
+        <div class="pratinjau"><img src="aset/interior.jpg" alt=""></div>
+        <div class="isi">
+          <span class="nomer">1</span>
+          <h3>Laporan &amp; Pemantauan</h3>
+          <p class="small muted">Omzet, kas di laci, grafik per jam, papan pesanan dengan label status, dan transaksi terakhir.</p>
+          <span class="label">Untuk Pemilik &amp; Admin</span>
+        </div>
+      </a>
+      <a class="punya card card-hover" href="02-kasir.html">
+        <div class="pratinjau"><img src="aset/nasi-goreng.jpg" alt=""></div>
+        <div class="isi">
+          <span class="nomer">2</span>
+          <h3>Kasir (POS)</h3>
+          <p class="small muted">Menu berfoto, keranjang di kanan, pajak &amp; service terpisah, voucher, lalu bayar. Ada Mode Kasir (padat) dan Mode Katalog.</p>
+          <span class="label">Coba tekan menu — keranjangnya benar-benar menghitung</span>
+        </div>
+      </a>
+      <a class="punya card card-hover" href="03-katalog.html">
+        <div class="pratinjau"><img src="aset/kopi-susu.jpg" alt=""></div>
+        <div class="isi">
+          <span class="nomer">3</span>
+          <h3>Katalog Pelanggan</h3>
+          <p class="small muted">Tiga layar HP: katalog, detail menu dengan pilihan pedas &amp; porsi, dan pendaftaran voucher undang-teman.</p>
+          <span class="label">Tampak HP, ramah jempol</span>
+        </div>
+      </a>
+      <a class="punya card card-hover" href="04-tema.html">
+        <div class="pratinjau"><img src="aset/hero-warung.jpg" alt=""></div>
+        <div class="isi">
+          <span class="nomer">4</span>
+          <h3>Galeri 10 Tema</h3>
+          <p class="small muted">Sepuluh tema berdampingan, masing-masing memperlihatkan contoh layar HP-nya sendiri.</p>
+          <span class="label">Semua lolos uji kontras</span>
+        </div>
+      </a>
     </div>
-    <p class="small muted mt-16">Menambah tema baru itu murah: sekitar 30 baris nilai warna + huruf. Kalau nanti kamu punya ide warna khas Kedai Oasis, tinggal bilang.</p>
-  </div>
+  </section>
 
-  <div class="card mt-16">
-    <div class="card-head"><h3>Catatan jujur</h3></div>
-    <ul class="muted small" style="margin:0;padding-left:20px;line-height:1.65">
-      <li>Ini <strong>contoh tampilan (mockup) berbentuk halaman web asli</strong>, bukan gambar buatan. Angka &amp; nama di dalamnya <strong>data contoh</strong>.</li>
-      <li>Foto menu di halaman katalog adalah <strong>foto contoh buatan</strong> — nanti diganti foto asli Kedai Oasis.</li>
-      <li><strong>Huruf</strong> dari skill yang terpasang (<code>skills/ui-styling/canvas-fonts</code>, lisensi terbuka OFL), disimpan lokal,
-        jadi tampilan tetap rapi tanpa internet. Ukurannya aku rampingkan dari 1,4 MB menjadi 311 KB.</li>
-      <li><strong>10 tema semuanya diuji</strong> — 130 pemeriksaan kontras, lolos semua. Ada juga pemeriksaan halaman
-        (aset, tautan jendela mengambang, tag seimbang) lewat <code>prototipe/alat/periksa-halaman.py</code>.</li>
-      <li>Dua tema (<em>Tropis Segar</em> &amp; <em>Etnik Nusantara</em>) aku susun sendiri karena basis data skill tidak punya padanan yang cocok — ini aku sebut apa adanya.</li>
-      <li>Yang belum ada: masuk/PIN, pengiriman ke dapur, cetak struk, dan penyimpanan data. Itu pekerjaan Tahap 3 (rancangan teknis) setelah tampilan ini disetujui.</li>
-      <li>Setiap tema wajib lolos aturan: kontras ≥4,5:1 · area sentuh ≥44px · huruf dasar 16px.</li>
-    </ul>
-  </div>
+  <!-- ============ PILIH TEMA LANGSUNG ============ -->
+  <section class="bagian card lega naik">
+    <div class="between" style="align-items:flex-start">
+      <div>
+        <span class="aksen">Satu susunan, sepuluh wajah</span>
+        <h2 class="mt-8">Coba ganti tema dari sini</h2>
+        <p class="muted small mt-8">Tekan salah satu — seluruh halaman berganti warna, huruf, bentuk sudut, dan hiasannya, tanpa susunan yang berubah.</p>
+      </div>
+      <span class="chip chip-accent"><i class="dot"></i>166 pemeriksaan · 0 gagal</span>
+    </div>
+    <div class="row wrap-row mt-16" style="gap:var(--s-3)" role="group" aria-label="Coba 10 tema">
+      <button class="btn btn-sm" type="button" data-set-tema="terang"><span class="sw-3" data-sw-3="terang"></span>Terang Bersih</button>
+      <button class="btn btn-sm" type="button" data-set-tema="hangat"><span class="sw-3" data-sw-3="hangat"></span>Hangat Kedai</button>
+      <button class="btn btn-sm" type="button" data-set-tema="gelap"><span class="sw-3" data-sw-3="gelap"></span>Gelap Dapur</button>
+      <button class="btn btn-sm" type="button" data-set-tema="kontras"><span class="sw-3" data-sw-3="kontras"></span>Kontras Tinggi</button>
+      <button class="btn btn-sm" type="button" data-set-tema="bara"><span class="sw-3" data-sw-3="bara"></span>Bara Panggang</button>
+      <button class="btn btn-sm" type="button" data-set-tema="vintage"><span class="sw-3" data-sw-3="vintage"></span>Vintage Klasik</button>
+      <button class="btn btn-sm" type="button" data-set-tema="alam"><span class="sw-3" data-sw-3="alam"></span>Alam Hijau</button>
+      <button class="btn btn-sm" type="button" data-set-tema="tropis"><span class="sw-3" data-sw-3="tropis"></span>Tropis Segar</button>
+      <button class="btn btn-sm" type="button" data-set-tema="pastel"><span class="sw-3" data-sw-3="pastel"></span>Pastel Manis</button>
+      <button class="btn btn-sm" type="button" data-set-tema="etnik"><span class="sw-3" data-sw-3="etnik"></span>Etnik Nusantara</button>
+    </div>
+  </section>
 
-  <p class="small muted mt-16">Berkas: <code>prototipe/index.html</code> · aturan desain: <code>docs/desain/RENCANA_DESAIN_UI.md</code></p>
+  <!-- ============ ETALASE KERAJINAN ============ -->
+  <section class="bagian">
+    <div class="judul-bagian">
+      <div>
+        <span class="aksen">Kerajinan yang dipakai</span>
+        <h2>Detail yang membuat terasa mahal</h2>
+      </div>
+    </div>
+    <div class="row wrap-row" style="align-items:stretch">
+      <div class="card grow" style="min-width:300px">
+        <div class="card-head"><h3>Tombol &amp; label</h3><span class="label">hierarki</span></div>
+        <div class="row wrap-row" style="align-items:center">
+          <button class="btn btn-primary" type="button">Bayar Sekarang</button>
+          <button class="btn" type="button">Simpan</button>
+          <button class="btn btn-ikon" type="button" aria-label="Tambah"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></button>
+          <span class="chip chip-success"><i class="dot"></i>Lunas</span>
+          <span class="chip chip-warn"><i class="dot"></i>Dimasak</span>
+          <span class="chip chip-info"><i class="dot"></i>Baru</span>
+          <span class="chip chip-danger"><i class="dot"></i>Dibatalkan</span>
+        </div>
+        <p class="small muted mt-16">Setiap tombol punya keadaan <em>normal · arahkan · tekan · fokus keyboard</em>, dengan bayangan dan cahaya aksen yang mengikuti tema.</p>
+      </div>
+      <div class="card grow" style="min-width:300px">
+        <div class="card-head"><h3>Permukaan &amp; lapis mengambang</h3></div>
+        <div class="stack-sm">
+          <div class="card tight" style="box-shadow:var(--sh-1)"><span class="small muted">Kartu rata (diam)</span></div>
+          <div class="card tight" style="box-shadow:var(--sh-2)"><span class="small muted">Kartu sedang (isi halaman)</span></div>
+          <div class="card tight kaca"><span class="small muted">Kartu kaca + blur (mengambang)</span></div>
+        </div>
+        <button class="btn mt-16" type="button" data-buka-lapis="#lapis-contoh">Buka lapis mengambang</button>
+      </div>
+      <div class="card grow" style="min-width:300px">
+        <div class="card-head"><h3>Huruf &amp; angka</h3><span class="label">skala</span></div>
+        <div class="display" style="font-size:34px;line-height:1.05">Rp 3.450.000</div>
+        <div class="aksen mt-8">Panas. Pedas. Pas.</div>
+        <p class="small muted mt-8" style="line-height:1.6">Teks isi 16 px, jarak baris 1,55. Angka memakai lebar tetap supaya kolom rupiah selalu lurus — penting di laporan.</p>
+        <div class="row mt-16"><span class="mono small">#1024</span><span class="mono small">12:04</span><span class="label">No. struk</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CATATAN JUJUR ============ -->
+  <section class="bagian card lega naik">
+    <div class="card-head"><h2 style="font-size:var(--t-7)">Catatan jujur</h2><span class="chip">penting</span></div>
+    <div class="row wrap-row" style="gap:var(--s-5)">
+      <ul class="small muted grow" style="margin:0;padding-left:20px;min-width:280px">
+        <li>Ini <strong>contoh tampilan berbentuk halaman web asli</strong> — bisa diklik, bukan gambar. Semua angka &amp; nama adalah <strong>data contoh</strong>.</li>
+        <li><strong>Foto menu adalah foto contoh buatan</strong>, bukan foto Kedai Oasis. Nanti diganti foto asli lewat Pengaturan, tanpa koding.</li>
+        <li><strong>19 berkas huruf</strong> diambil dari skill yang terpasang (<code>skills/ui-styling/canvas-fonts</code>, lisensi terbuka) dan disimpan lokal — tetap rapi tanpa internet.</li>
+      </ul>
+      <ul class="small muted grow" style="margin:0;padding-left:20px;min-width:280px">
+        <li><strong>10 tema diuji mesin:</strong> 130 pemeriksaan kontras + 36 aturan desain, 0 gagal (<code>python3 prototipe/uji-kontras.py</code>); halaman juga diperiksa otomatis: 183/183 lolos (<code>python3 prototipe/alat/periksa-halaman.py</code>).</li>
+        <li><em>Tropis Segar</em> &amp; <em>Etnik Nusantara</em> disusun sendiri karena basis data skill tidak punya padanannya — disebut apa adanya.</li>
+        <li>Belum ada: masuk/PIN, papan dapur penuh, cetak struk, penyimpanan data, pengaturan resto. Itu <strong>Tahap 3 — Rancangan Teknis</strong>.</li>
+      </ul>
+    </div>
+  </section>
 </main>
 
-<div class="toast" id="toast" role="status" aria-live="polite">
-  <span class="tanda" aria-hidden="true">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12.5l5 5L20 6.5"/></svg>
-  </span>
-  <span data-toast-teks>Simpan · siap</span>
+<!-- lapis contoh -->
+<div class="lapis" id="lapis-contoh" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Contoh lapis mengambang">
+  <div class="kotak">
+    <span class="label">Mode mengambang</span>
+    <h3 class="mt-8" style="font-size:var(--t-7)">Lapis di atas halaman</h3>
+    <p class="muted small mt-8">Latar belakang diredupkan dan diburamkan, kotak ini muncul dengan gerak lembut. Dipakai untuk hal yang perlu perhatian penuh: pembayaran, tutup kas, izin atasan.</p>
+    <div class="row mt-16">
+      <button class="btn grow btn-primary" type="button" data-tutup-lapis>Mengerti</button>
+    </div>
+  </div>
 </div>
 
 <script src="js/ui.js"></script>
+<script>
+/* isi kotak warna kecil pada tombol daftar tema */
+document.querySelectorAll('[data-sw-3]').forEach(function (el) {
+  var kode = el.getAttribute('data-sw-3');
+  var p = document.createElement('span'); p.setAttribute('data-theme', kode);
+  p.style.cssText = 'position:absolute;left:-9999px'; document.documentElement.appendChild(p);
+  var s = getComputedStyle(p);
+  el.innerHTML = '<i style="background:' + s.getPropertyValue('--bg') + '"></i><i style="background:' + s.getPropertyValue('--accent') + '"></i><i style="background:' + s.getPropertyValue('--text') + '"></i>';
+  p.remove();
+});
+</script>
 </body>
 </html>

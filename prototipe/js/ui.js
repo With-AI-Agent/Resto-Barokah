@@ -1,210 +1,299 @@
-/* Resto Barokah — prototipe desain (tanpa pustaka luar, tanpa internet)
-   Isi: ganti tema (10 pilihan) · ganti kerapatan · keranjang +/− ·
-        modal mengambang (konfirmasi bayar) · toast (pesan berhasil) ·
-        animasi masuk berjenjang · contoh "Cek Voucher" (hanya membaca). */
-
+/* ==========================================================================
+   RESTO BAROKAH — mesin contoh tampilan (tanpa pustaka luar, tanpa internet)
+   Isi: pemilih 10 tema (dengan pratinjau warna asli dari token), kerapatan,
+   keranjang hidup (tambah item, qty, hitung pajak/diskon/kembalian),
+   lapis mengambang (modal), toast, dan gerak masuk saat digulir.
+   ========================================================================== */
 (function () {
-  var KEY_TEMA = 'rb-tema';
-  var KEY_RAPAT = 'rb-kerapatan';
+  'use strict';
 
-  var NAMA_TEMA = {
-    terang: 'Terang Bersih', hangat: 'Hangat Kedai', gelap: 'Gelap Dapur', kontras: 'Kontras Tinggi',
-    bara: 'Bara Panggang', vintage: 'Vintage Klasik', alam: 'Alam Hijau',
-    tropis: 'Tropis Segar', pastel: 'Pastel Manis', etnik: 'Etnik Nusantara'
-  };
-  var RUPIAH = function (n) { return 'Rp ' + n.toLocaleString('id-ID'); };
+  var KEY_TEMA = 'rb-tema', KEY_RAPAT = 'rb-kerapatan';
+  var TEMA = [
+    ['terang', 'Terang Bersih', 'bersih & terang — bawaan'],
+    ['hangat', 'Hangat Kedai', 'krem & coklat, ramah'],
+    ['gelap', 'Gelap Dapur', 'gelap untuk layar dapur'],
+    ['kontras', 'Kontras Tinggi', 'hitam-putih, garis tebal'],
+    ['bara', 'Bara Panggang', 'hitam + emas (gambar kirimanmu)'],
+    ['vintage', 'Vintage Klasik', 'kertas tua, serif, garis ganda'],
+    ['alam', 'Alam Hijau', 'hijau daun, membulat lembut'],
+    ['tropis', 'Tropis Segar', 'teal laut, ceria'],
+    ['pastel', 'Pastel Manis', 'pastel lembut, tebal (clay)'],
+    ['etnik', 'Etnik Nusantara', 'ivory, terakota, motif batik']
+  ];
 
   function simpan(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function baca(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function rupiah(n) { return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
+  function namaTema(kode) { for (var i = 0; i < TEMA.length; i++) if (TEMA[i][0] === kode) return TEMA[i][1]; return 'Terang Bersih'; }
 
-  /* ---------------- TEMA ---------------- */
-  function pasangTema(nama) {
-    if (!NAMA_TEMA[nama]) nama = 'terang';
-    document.documentElement.setAttribute('data-theme', nama);
-    document.querySelectorAll('[data-set-tema]').forEach(function (b) {
-      b.setAttribute('aria-pressed', String(b.getAttribute('data-set-tema') === nama));
-    });
-    document.querySelectorAll('[data-nama-tema]').forEach(function (el) { el.textContent = NAMA_TEMA[nama]; });
-    var warna = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-    document.querySelectorAll('[data-swatch-tema]').forEach(function (el) { el.style.background = warna || 'var(--accent)'; });
-    simpan(KEY_TEMA, nama);
+  // ---- membaca warna asli sebuah tema dari token (tanpa menulis warna ulang di JS) ----
+  var probe = document.createElement('div');
+  probe.setAttribute('style', 'position:absolute;left:-9999px;top:0');
+  document.documentElement.appendChild(probe);
+  function warna(kode) {
+    probe.setAttribute('data-theme', kode);
+    var s = getComputedStyle(probe);
+    return [s.getPropertyValue('--bg').trim() || '#fff',
+            s.getPropertyValue('--accent').trim() || '#000',
+            s.getPropertyValue('--text').trim() || '#000'];
   }
 
-  /* ---------------- KERAPATAN ---------------- */
+  // ------------------------------ TEMA --------------------------------------
+  function pasangTema(kode) {
+    document.documentElement.setAttribute('data-theme', kode);
+    var w = warna(kode), rgb = 'background:' + w[1];
+    document.querySelectorAll('[data-set-tema]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set-tema') === kode));
+    });
+    document.querySelectorAll('[data-nama-tema]').forEach(function (el) { el.textContent = namaTema(kode); });
+    document.querySelectorAll('[data-swatch-tema]').forEach(function (el) { el.setAttribute('style', rgb); });
+    simpan(KEY_TEMA, kode);
+  }
+
+  function buatPemilih() {
+    document.querySelectorAll('[data-pemilih-tema]').forEach(function (wadah) {
+      var tombol = TEMA.map(function (t) {
+        var w = warna(t[0]);
+        return '<button type="button" data-set-tema="' + t[0] + '">' +
+          '<span class="sw-3" aria-hidden="true"><i style="background:' + w[0] + '"></i><i style="background:' + w[1] + '"></i><i style="background:' + w[2] + '"></i></span>' +
+          '<span><strong>' + t[1] + '</strong><small>' + t[2] + '</small></span></button>';
+      }).join('');
+      wadah.innerHTML =
+        '<details class="picker"><summary class="btn btn-sm" aria-label="Pilih tema">' +
+        '<i class="swatch" data-swatch-tema aria-hidden="true"></i> Tema: <span data-nama-tema>Terang Bersih</span></summary>' +
+        '<div class="picker-panel" role="group" aria-label="Pilih tema">' + tombol +
+        '<a class="picker-all" href="04-tema.html">Lihat 10 tema berdampingan &amp; rapi &rarr;</a></div></details>';
+    });
+  }
+
+  // ------------------------------ KERAPATAN --------------------------------
   function pasangKerapatan(nama) {
     if (nama !== 'padat' && nama !== 'nyaman') nama = 'padat';
     document.documentElement.setAttribute('data-density', nama);
     document.querySelectorAll('[data-set-rapat]').forEach(function (b) {
       b.setAttribute('aria-pressed', String(b.getAttribute('data-set-rapat') === nama));
     });
-    var label = document.querySelector('[data-label-rapat]');
-    if (label) label.textContent = nama === 'padat' ? 'Mode Kasir (padat)' : 'Mode Katalog (berfoto)';
     simpan(KEY_RAPAT, nama);
   }
 
-  /* ---------------- MODAL & TOAST ---------------- */
-  function bukaLapisan(id) {
-    var el = document.getElementById(id);
+  // ------------------------------ TOAST ------------------------------------
+  var toastEl, toastTimer;
+  function toast(pesan) {
+    if (!toastEl) {
+      toastEl = document.createElement('div');
+      toastEl.className = 'toast';
+      toastEl.setAttribute('role', 'status');
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = pesan;
+    toastEl.classList.add('tampil');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('tampil'); }, 2200);
+  }
+
+  // ------------------------------ LAPIS MENGAMBANG --------------------------
+  function bukaLapis(sel) {
+    var el = document.querySelector(sel);
     if (!el) return;
-    el.classList.add('buka');
-    var fokus = el.querySelector('button, [href], input');
-    if (fokus) fokus.focus();
+    el.classList.add('terbuka');
+    el.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    var fokus = el.querySelector('input,button,textarea,select');
+    if (fokus) setTimeout(function () { fokus.focus(); }, 60);
   }
-  function tutupLapisan(el) {
-    if (typeof el === 'string') el = document.getElementById(el);
-    if (el) el.classList.remove('buka');
-  }
-  function pesanBerhasil(teks) {
-    var t = document.getElementById('toast');
-    if (!t) return;
-    var isi = t.querySelector('[data-toast-teks]');
-    if (isi && teks) isi.textContent = teks;
-    t.classList.add('tampil');
-    clearTimeout(t._waktu);
-    t._waktu = setTimeout(function () { t.classList.remove('tampil'); }, 2600);
+  function tutupLapis(el) {
+    if (typeof el === 'string') el = document.querySelector(el);
+    if (!el) return;
+    el.classList.remove('terbuka');
+    el.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
   }
 
-  /* ---------------- KERANJANG ---------------- */
-  function hitungUlang() {
-    var baris = document.querySelectorAll('[data-baris-keranjang]');
-    if (!baris.length) return;
-    var subtotal = 0, jumlah = 0;
-    baris.forEach(function (b) {
-      var harga = parseInt(b.getAttribute('data-harga'), 10) || 0;
-      var q = b.querySelector('.qty span');
-      var n = parseInt(q ? q.textContent : '0', 10) || 0;
-      var total = harga * n;
-      subtotal += total; jumlah += n;
-      var out = b.querySelector('[data-total-baris]');
-      if (out) out.textContent = RUPIAH(total);
-    });
-    var pb1 = Math.round(subtotal * 0.1), service = Math.round(subtotal * 0.05), diskon = jumlah ? 15000 : 0;
-    var total = subtotal + pb1 + service - diskon;
-    var set = function (sel, nilai) { var el = document.querySelector(sel); if (el) el.textContent = nilai; };
-    set('[data-subtotal]', RUPIAH(subtotal));
-    set('[data-pb1]', RUPIAH(pb1));
-    set('[data-service]', RUPIAH(service));
-    set('[data-diskon]', '− ' + RUPIAH(diskon));
-    set('[data-total]', RUPIAH(total));
-    set('[data-tombol-bayar]', 'Bayar Sekarang · ' + RUPIAH(total));
-    set('[data-jumlah-item]', jumlah + ' item');
-    set('[data-total-ringkas]', RUPIAH(total));
-    var uang = document.getElementById('uang-diterima');
-    if (uang) uang.placeholder = RUPIAH(subtotal + 20000);
-    var kembali = document.querySelector('[data-kembalian]');
-    if (kembali) kembali.textContent = RUPIAH(20000);
-  }
+  // ------------------------------ KERANJANG --------------------------------
+  var keranjang = { baris: [], diskon: 0, pb1: 0.10, service: 0.05, metode: 'QRIS', uang: 100000 };
 
-  /* ---------------- ANIMASI MASUK BERJENJANG ---------------- */
-  function animasiMasuk() {
-    var target = document.querySelectorAll('[data-muncul]');
-    target.forEach(function (el, i) {
-      el.style.animationDelay = (i * 55) + 'ms';
-      el.classList.add('muncul');
-    });
-    // grafik batang: tumbuhkan setelah tampil
-    setTimeout(function () {
-      document.querySelectorAll('.bars .bar > span').forEach(function (s) {
-        var h = s.getAttribute('data-tinggi');
-        if (h) s.style.height = h;
+  function cariBaris(nama) {
+    for (var i = 0; i < keranjang.baris.length; i++) if (keranjang.baris[i].nama === nama) return keranjang.baris[i];
+    return null;
+  }
+  function tambah(nama, harga, diam) {
+    var b = cariBaris(nama);
+    if (b) b.qty++; else keranjang.baris.push({ nama: nama, harga: parseInt(harga, 10), qty: 1, catatan: '' });
+    gambarKeranjang();
+    if (!diam) toast(nama + ' ditambahkan');
+  }
+  function hitung() {
+    var sub = keranjang.baris.reduce(function (a, b) { return a + b.harga * b.qty; }, 0);
+    var pb1 = sub * keranjang.pb1, svc = sub * keranjang.service;
+    var total = Math.max(0, sub + pb1 + svc - keranjang.diskon);
+    return { sub: sub, pb1: pb1, svc: svc, total: total, kembali: keranjang.uang - total };
+  }
+  function gambarKeranjang() {
+    var daftar = document.querySelector('[data-daftar-pesanan]');
+    var h = hitung();
+    if (daftar) {
+      if (!keranjang.baris.length) {
+        daftar.innerHTML = '<p class="muted small" style="padding:var(--s-4) 0">Belum ada pesanan. Tekan menu di sebelah kiri.</p>';
+      } else {
+        daftar.innerHTML = keranjang.baris.map(function (b, i) {
+          return '<div class="baris-pesanan">' +
+            '<div><strong>' + b.nama + '</strong><div class="small muted">' + rupiah(b.harga) + ' × ' + b.qty + '</div></div>' +
+            '<div class="row" style="align-items:center">' +
+            '<span class="qty"><button type="button" data-qty="kurang" data-i="' + i + '" aria-label="Kurangi ' + b.nama + '">−</button>' +
+            '<span>' + b.qty + '</span>' +
+            '<button type="button" data-qty="tambah" data-i="' + i + '" aria-label="Tambah ' + b.nama + '">+</button></span>' +
+            '<strong class="num" style="width:92px;text-align:right">' + rupiah(b.harga * b.qty) + '</strong></div></div>';
+        }).join('');
+      }
+    }
+    var isi = {
+      '[data-subtotal]': h.sub, '[data-pb1]': h.pb1, '[data-service]': h.svc,
+      '[data-total]': h.total, '[data-kembalian]': Math.max(0, h.kembali), '[data-uang-nilai]': keranjang.uang,
+      '[data-jml-item]': keranjang.baris.reduce(function (a, b) { return a + b.qty; }, 0)
+    };
+    Object.keys(isi).forEach(function (sel) {
+      document.querySelectorAll(sel).forEach(function (el) {
+        el.textContent = sel === '[data-jml-item]' ? isi[sel] + ' item' : rupiah(isi[sel]);
       });
-      document.querySelectorAll('.track > i').forEach(function (s) {
-        var w = s.getAttribute('data-lebar');
-        if (w) s.style.width = w;
-      });
-    }, 120);
+    });
+    var d = document.querySelector('[data-diskon]');
+    if (d) d.textContent = '− ' + rupiah(keranjang.diskon);
+    var btn = document.querySelector('[data-bayar]');
+    if (btn) {
+      btn.disabled = !keranjang.baris.length;
+      btn.textContent = 'Bayar Sekarang · ' + rupiah(h.total);
+    }
   }
 
-  /* ---------------- KLIK ---------------- */
+  // ------------------------------ INTERAKSI --------------------------------
   document.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-set-tema]');
-    if (t) { pasangTema(t.getAttribute('data-set-tema')); var p = t.closest('details'); if (p) p.open = false; return; }
+    var t;
 
-    var r = e.target.closest('[data-set-rapat]');
-    if (r) { pasangKerapatan(r.getAttribute('data-set-rapat')); return; }
-
-    var q = e.target.closest('[data-qty]');
-    if (q) {
-      var kotak = q.closest('.qty'), out = kotak.querySelector('span');
-      var n = parseInt(out.textContent, 10) + (q.getAttribute('data-qty') === 'plus' ? 1 : -1);
-      if (n < 0) n = 0;
-      out.textContent = n;
-      var baris = q.closest('[data-baris-keranjang]');
-      if (baris) baris.style.opacity = n === 0 ? '.45' : '1';
-      hitungUlang();
+    if ((t = e.target.closest('[data-set-tema]'))) {
+      pasangTema(t.getAttribute('data-set-tema'));
+      var p = t.closest('details'); if (p) p.open = false;
+      if (t.hasAttribute('data-ke-atas')) window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+    if ((t = e.target.closest('[data-set-rapat]'))) { pasangKerapatan(t.getAttribute('data-set-rapat')); return; }
+    if ((t = e.target.closest('[data-buka-lapis]'))) { bukaLapis(t.getAttribute('data-buka-lapis')); return; }
+    if ((t = e.target.closest('[data-tutup-lapis]'))) { tutupLapis(t.closest('.lapis')); return; }
+    if (e.target.classList && e.target.classList.contains('lapis')) { tutupLapis(e.target); return; }
 
-    var tab = e.target.closest('.tab');
-    if (tab && tab.parentElement && tab.parentElement.classList.contains('tabs')) {
-      tab.parentElement.querySelectorAll('.tab').forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
-      tab.setAttribute('aria-selected', 'true');
+    if ((t = e.target.closest('.tombol-tambah,[data-tambah]'))) {
+      var nama = t.getAttribute('data-nama') || (t.closest('[data-nama]') && t.closest('[data-nama]').getAttribute('data-nama'));
+      var harga = t.getAttribute('data-harga');
+      if (nama && harga) { tambah(nama, harga); return; }
+    }
+    if ((t = e.target.closest('[data-qty]'))) {
+      var i = parseInt(t.getAttribute('data-i'), 10);
+      if (!isNaN(i) && keranjang.baris[i]) {
+        keranjang.baris[i].qty += t.getAttribute('data-qty') === 'tambah' ? 1 : -1;
+        if (keranjang.baris[i].qty <= 0) keranjang.baris.splice(i, 1);
+        gambarKeranjang();
+      }
       return;
     }
-
-    var add = e.target.closest('.add-btn, [data-tambah]');
-    if (add) {
-      e.preventDefault();
-      var asal = add.innerHTML;
-      add.innerHTML = '✓';
-      setTimeout(function () { add.innerHTML = asal; }, 800);
-      pesanBerhasil('Ditambahkan ke pesanan · ' + (add.getAttribute('data-nama') || 'menu'));
+    if ((t = e.target.closest('.qty [data-langkah]'))) {   // stepper di halaman katalog
+      var box = t.closest('.qty'), out = box.querySelector('span');
+      var n = parseInt(out.textContent, 10) + (t.getAttribute('data-langkah') === 'naik' ? 1 : -1);
+      out.textContent = Math.max(1, n);
       return;
     }
-
-    var menu = e.target.closest('.menu-item');
-    if (menu && !e.target.closest('[data-tambah]')) {
-      pesanBerhasil('Ditambahkan ke keranjang · ' + (menu.getAttribute('data-nama') || ''));
-      hitungUlang();
+    if ((t = e.target.closest('.pay'))) {
+      keranjang.metode = t.getAttribute('data-metode') || t.textContent.trim();
+      t.parentElement.querySelectorAll('.pay').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+      t.setAttribute('aria-pressed', 'true');
       return;
     }
-
-    var pay = e.target.closest('.pay');
-    if (pay) {
-      pay.parentElement.querySelectorAll('.pay').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
-      pay.setAttribute('aria-pressed', 'true');
-      var hint = document.querySelector('[data-hint-bayar]');
-      if (hint) hint.textContent = 'Metode dipilih: ' + pay.textContent.trim();
+    if ((t = e.target.closest('button[data-uang]'))) {
+      keranjang.uang = parseInt(t.getAttribute('data-uang'), 10);
+      document.querySelectorAll('button[data-uang]').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+      t.setAttribute('aria-pressed', 'true');
+      gambarKeranjang();
       return;
     }
-
-    var buka = e.target.closest('[data-buka-lapisan]');
-    if (buka) { e.preventDefault(); bukaLapisan(buka.getAttribute('data-buka-lapisan')); return; }
-
-    if (e.target.closest('[data-tutup-lapisan]')) { tutupLapisan(e.target.closest('.lapisan')); return; }
-    if (e.target.classList && e.target.classList.contains('lapisan')) { tutupLapisan(e.target); return; }
-
-    if (e.target.closest('[data-bayar-selesai]')) {
-      tutupLapisan('modal-bayar');
-      pesanBerhasil('Pembayaran berhasil · struk dikirim');
+    if ((t = e.target.closest('[data-cek-voucher]'))) {
+      var inp = document.querySelector('#kode-voucher');
+      var kode = ((inp && inp.value) || '').trim().toUpperCase();
+      toast(kode ? 'Voucher ' + kode + ' sah · diskon Rp 15.000 · BELUM dipakai' : 'Masukkan kode voucher dulu, contoh: UNDANG-7K2M');
       return;
     }
-
-    var cek = e.target.closest('[data-cek-voucher]');
-    if (cek) {
-      var input = document.getElementById('kode-voucher');
-      var hasil = document.querySelector('[data-hasil-voucher]');
-      var kode = ((input && input.value) || '').trim().toUpperCase();
-      if (!hasil) return;
-      if (!kode) { hasil.textContent = 'Masukkan kode voucher dulu, contoh: UNDANG-7K2M.'; hasil.className = 'chip chip-warn'; return; }
-      hasil.textContent = 'Voucher ' + kode + ' sah · Diskon Rp 15.000 · berlaku sampai 30 Sep · BELUM dipakai (aman)';
-      hasil.className = 'chip chip-success';
+    if (e.target.closest('[data-pakai-voucher]')) {
+      var inp2 = document.querySelector('#kode-voucher');
+      var kode2 = ((inp2 && inp2.value) || '').trim().toUpperCase() || 'UNDANG-7K2M';
+      keranjang.diskon = 15000;
+      gambarKeranjang();
+      toast('Voucher ' + kode2 + ' dipakai · potongan Rp 15.000');
       return;
     }
-
+    if (e.target.closest('[data-bayar]')) {
+      var h = hitung();
+      var set = { '[data-bayar-total]': rupiah(h.total), '[data-bayar-metode]': keranjang.metode, '[data-bayar-kembali]': rupiah(Math.max(0, h.kembali)) };
+      Object.keys(set).forEach(function (sel) {
+        document.querySelectorAll(sel).forEach(function (el) { el.textContent = set[sel]; });
+      });
+      bukaLapis('#lapis-bayar');
+      return;
+    }
+    if (e.target.closest('[data-aksi]')) { toast(e.target.closest('[data-aksi]').getAttribute('data-aksi')); return; }
+    if ((t = e.target.closest('.tab')) && t.parentElement.classList.contains('tabs')) {
+      t.parentElement.querySelectorAll('.tab').forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+      t.setAttribute('aria-selected', 'true');
+      return;
+    }
+    if ((t = e.target.closest('.segmen button')) && t.parentElement.classList.contains('segmen')) {
+      t.parentElement.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+      t.setAttribute('aria-pressed', 'true');
+      return;
+    }
     document.querySelectorAll('details.picker[open]').forEach(function (d) { if (!d.contains(e.target)) d.open = false; });
   });
 
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') document.querySelectorAll('.lapisan.buka').forEach(tutupLapisan);
+    if (e.key === 'Escape') document.querySelectorAll('.lapis.terbuka').forEach(tutupLapis);
   });
 
+  // selisih kas pada modal "Tutup Kas"
+  document.addEventListener('input', function (e) {
+    if (e.target.matches('[data-kas-fisik]')) {
+      var nila = parseInt((e.target.value || '0').replace(/\D/g, ''), 10) || 0;
+      var seharusnya = 1250000, selisih = nila - seharusnya;
+      var out = document.querySelector('[data-selisih]');
+      if (out) {
+        out.textContent = (selisih === 0 ? 'Pas — tidak ada selisih' : (selisih > 0 ? 'Lebih ' : 'Kurang ') + rupiah(Math.abs(selisih)));
+        out.className = 'chip ' + (selisih === 0 ? 'chip-success' : 'chip-warn');
+      }
+    }
+  });
+
+  // ------------------------------ GERAK MASUK ------------------------------
+  function siapkanGerak() {
+    var el = document.querySelectorAll('.naik,.bertahap');
+    if (!('IntersectionObserver' in window)) {
+      el.forEach(function (x) { x.classList.add('tampil'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (masuk) {
+      masuk.forEach(function (m) { if (m.isIntersecting) { m.target.classList.add('tampil'); io.unobserve(m.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: .08 });
+    el.forEach(function (x) { io.observe(x); });
+  }
+
+  // dipakai halaman kasir untuk mengisi contoh pesanan saat dibuka
+  window.RB = { tambah: tambah, hitung: hitung, toast: toast, rupiah: rupiah };
+
+  // ------------------------------ SAAT DIBUKA ------------------------------
   document.addEventListener('DOMContentLoaded', function () {
-    pasangTema(baca(KEY_TEMA) || 'terang');
-    pasangKerapatan(baca(KEY_RAPAT) || 'padat');
-    hitungUlang();
-    animasiMasuk();
+    buatPemilih();
+    pasangTema(baca(KEY_TEMA) || document.documentElement.getAttribute('data-theme') || 'terang');
+    pasangKerapatan(baca(KEY_RAPAT) || document.documentElement.getAttribute('data-density') || 'padat');
+    gambarKeranjang();
+    siapkanGerak();
     var jam = document.querySelector('[data-jam]');
-    if (jam) { var d = new Date(); jam.textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+    if (jam) {
+      var d = new Date();
+      jam.textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    }
   });
 })();
