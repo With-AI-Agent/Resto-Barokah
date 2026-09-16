@@ -76,7 +76,7 @@ Kalau ada yang mau diubah, sebut nomornya (contoh: "nomor 3 jangan push tiap lan
    voucher hanya sekali pakai, `catatan_audit` tidak bisa diubah/dihapus.
 2. **Uji unit** — fungsi hitungan uang & format wajib 100% lulus (Vitest); angkanya diuji dengan kasus nyata
    (pajak, service, diskon, pembulatan, void).
-3. **Uji tampilan statis** — memakai alat yang sudah ada (`uji-kontras.py`, `alat/periksa-halaman.py`), diperluas ke aplikasi.
+3. **Uji tampilan statis** — memakai alat yang sudah ada (`uji-kontras.py`, `prototipe/alat/periksa-halaman.py`), diperluas ke aplikasi.
 4. **Uji alur (Playwright)** — 7 alur wajib: buka shift → pesan → kirim dapur → bayar → cetak → void berjenjang → tutup kas (+ voucher & katalog publik).
 5. **Daftar uji terima bahasa manusia** untuk pemilik di akhir tiap gelombang (contoh: "Coba bayar tanpa memilih meja → harus muncul pesan jelas").
 6. Aturan: **tidak ada naik gelombang sebelum semua uji hijau**; cacat yang ketemu → dicatat, diperbaiki, diuji ulang, dilaporkan.

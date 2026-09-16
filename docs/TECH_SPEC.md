@@ -35,7 +35,7 @@
 | **Email verifikasi** | **Resend** (gratis 3.000/bulan; cadangan Brevo 300/hari atau Mailjet) | Email bawaan Supabase hanya 2 email/jam (tidak layak produksi) — sudah tercatat di PRD. |
 | **Waktu & tugas berkala** | **pg_cron** di Supabase | Penutup hari otomatis, penagihan laporan harian, "denyut" harian agar proyek gratis tidak tidur, dan pembersih data sementara. |
 | **Cetak** | ESC/POS langsung dari browser: **Web Bluetooth** (Android/Windows) & **WebUSB**; jalur cadangan cetak PDF/bagikan | Sesuai keputusan K3 (printer tersambung perangkat + cadangan digital). **Ditolak:** printer jaringan sebagai jalur utama (bergantung Wi-Fi kedai). |
-| **Uji** | **Vitest** (unit) + **Uji SQL RLS** (pgtap/psql) + **Playwright** (end-to-end di lingkungan pengembangan) + `uji-kontras.py` & `alat/periksa-halaman.py` yang sudah ada | Prinsip "tidak ada yang cacat": setiap gelombang wajib lulus uji otomatis + daftar uji terima manual. |
+| **Uji** | **Vitest** (unit) + **Uji SQL RLS** (pgtap/psql) + **Playwright** (end-to-end di lingkungan pengembangan) + `uji-kontras.py` & `prototipe/alat/periksa-halaman.py` yang sudah ada | Prinsip "tidak ada yang cacat": setiap gelombang wajib lulus uji otomatis + daftar uji terima manual. |
 | **Bahasa** | Seluruh teks aplikasi Bahasa Indonesia; kode & nama tabel Bahasa Indonesia agar mudah dibaca agent berikutnya | Menghindari salah tafsir antar sesi (pemilik tidak memakai istilah Inggris). |
 
 > Catatan kejujuran: lingkungan kerja agent saat ini **tidak bisa memasang peramban** untuk tangkapan layar, dan
