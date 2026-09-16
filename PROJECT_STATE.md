@@ -6,5 +6,5 @@
 > DECISIONS_LOG.md — ini cuma penunjuk cepat harus mulai dari mana.
 
 STATUS: FONDASI_TAHAP_1_DISCOVERY
-DETAIL: Tahap 1 Discovery berjalan (5 ronde dijawab 2026-09-16) — terkonfirmasi platform multi-penyewa multi-cabang untuk usaha F&B, pilot cafe, perangkat bebas, penyesuaian tanpa koding (G1 diperluas), laporan A (kas harian) untuk G1, stok bertahap. DISCOVERY.md BELUM ditulis — menunggu pemilik menyampaikan hal tambahan (pemilik masih menyimpan sesuatu untuk disampaikan)
+DETAIL: Tahap 1 Discovery — DRAF DISCOVERY.md sudah ditulis (103 butir ide fitur, 7 bagian + 13 keputusan awal) dan MENUNGGU PEMERIKSAAN/PERSETUJUAN pemilik sebelum status naik ke FONDASI_TAHAP_2_PRD. Saringan fitur disetujui; verifikasi voucher = Google Sign-In utama + email kedua; pilot = Kedai Oasis (cafe teman, ada printer & internet lancar)
 UPDATE TERAKHIR: 2026-09-16
