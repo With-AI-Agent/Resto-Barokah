@@ -1,7 +1,9 @@
 # DISCOVERY — Resto Barokah
 
-> **Status dokumen: DRAF** — ditulis 2026-09-16, menunggu pemeriksaan & persetujuan pemilik.
-> Setelah pemilik menyetujui, status berubah menjadi **Disetujui** dan proyek lanjut ke Tahap 2 (PRD).
+> **Status dokumen: DISETUJUI** — ditulis 2026-09-16 dan **dikunci atas persetujuan pemilik pada 2026-09-16**
+> (pemilik: *"Setuju — kunci draf DISCOVERY"*). Proyek lanjut ke **Tahap 2 (PRD)**.
+> Dokumen ini **tetap dokumen hidup** — ide/koreksi baru boleh masuk kapan saja; setiap perubahan
+> wajib dicatat di **Log Pembaruan Dokumen (bagian 8)** dan di catatan sesi, bukan ditulis diam-diam.
 >
 > Dokumen ini adalah **catatan mentah yang lengkap** — semua ide dikumpulkan tanpa dipangkas, termasuk
 > yang belum akan dikerjakan. Pemilahan prioritas resmi (MoSCoW) baru dilakukan di Tahap 2.
@@ -304,4 +306,5 @@ pilot terbukti; G3 setelah ada pemasukan; **Tidak diambil** = sengaja dikeluarka
 
 | Tanggal | Pembaruan | Oleh |
 |---|---|---|
-| 2026-09-16 | Dokumen dibuat (DRAF) dari 6 ronde diskusi Discovery + 3 riset internet (pesaing & harga, loyalitas/referral, keamanan verifikasi) + saringan fitur 4 keranjang | Agent, menunggu pemeriksaan pemilik |
+| 2026-09-16 | Dokumen dibuat (DRAF) dari 6 ronde diskusi Discovery + 3 riset internet (pesaing & harga, loyalitas/referral, keamanan verifikasi) + saringan fitur 4 keranjang | Agent |
+| 2026-09-16 | **Dokumen DISETUJUI & dikunci oleh pemilik** (7 ronde diskusi selesai) → proyek lanjut ke Tahap 2 (PRD). Setelah dikunci: saringan fitur disetujui, verifikasi pelanggan = "Daftar dengan Google" utama + email kedua, "Kedai Oasis" terkonfirmasi sebagai cafe pilot | Pemilik + Agent |

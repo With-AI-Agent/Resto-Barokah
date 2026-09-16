@@ -5,6 +5,6 @@
 > selesai atau saat checkpoint. Ini bukan pengganti ROADMAP.md atau
 > DECISIONS_LOG.md — ini cuma penunjuk cepat harus mulai dari mana.
 
-STATUS: FONDASI_TAHAP_1_DISCOVERY
-DETAIL: Tahap 1 Discovery — DRAF DISCOVERY.md sudah ditulis (103 butir ide fitur, 7 bagian + 13 keputusan awal) dan MENUNGGU PEMERIKSAAN/PERSETUJUAN pemilik sebelum status naik ke FONDASI_TAHAP_2_PRD. Saringan fitur disetujui; verifikasi voucher = Google Sign-In utama + email kedua; pilot = Kedai Oasis (cafe teman, ada printer & internet lancar)
+STATUS: FONDASI_TAHAP_2_PRD
+DETAIL: Tahap 1 Discovery SELESAI (DISCOVERY.md disetujui & dikunci pemilik 2026-09-16, 103 ide fitur). Tahap 2 PRD baru dimulai — pemilahan prioritas MoSCoW + menggali detail fitur wajib (user story, kriteria selesai, kasus tepi). PRD.md belum ditulis (menunggu pemilik bilang "cukup, tulis draftnya")
 UPDATE TERAKHIR: 2026-09-16
