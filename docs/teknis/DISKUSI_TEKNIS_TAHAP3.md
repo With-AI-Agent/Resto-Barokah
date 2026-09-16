@@ -108,6 +108,12 @@ batas gratis** — dengan catatan foto menu dirapikan ukurannya (sudah kami laku
 
 Jawaban singkat yang cukup: **"semua pakai usulmu"** — atau sebutkan kode yang mau diubah (contoh: "K3 pakai B").
 
+> **Catatan 2026-09-16:** pemilik membaca bahan ini, **melewati** pertanyaan pilihan, dan menjawab **"Lanjut"** →
+> sesuai aturan keputusan yang disepakati ("terserah/kamu yang tahu/kamu yang terbaik = persetujuan resmi & dicatat"),
+> keenam keputusan diambil **sesuai usul agent**: K1 A · K2 A · K3 A+C · K4 A · K5 A · K6 A. Keputusan itu dicatat
+> di `docs/TECH_SPEC.md` §13 dan `_log-sesi/LOG_SESI_2026-09-16.md`. Pemilik tetap boleh mengubah kapan saja —
+> cukup sebut kodenya (contoh: "K4 pakai B").
+
 ## 5. Dua hal yang saya butuhkan dari lapangan (bukan keputusan, tapi data)
 
 1. **Printer di Kedai Oasis**: merek & tipe, dan disambung ke apa (HP/tablet/laptop kasir)? Bila belum ada, kami belikan rekomendasi yang sudah terbukti (Rp 300–600 rb).
