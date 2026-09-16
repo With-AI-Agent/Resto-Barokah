@@ -51,32 +51,32 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** kunci rahasia bocor lewat chat atau repo → mitigasi: panduan hanya mengizinkan nilai `anon` ditempel, `.env*` diabaikan Git (T0-05), kunci `service_role` disimpan di secrets Cloudflare.
   - **Verifikasi:** pemilik bisa membuka dashboard kedua layanan; agent menyimpan nilai dari pemilik di berkas rahasia lokal (tidak di-commit) dan `git check-ignore` membuktikan berkas itu diabaikan.
 
-- [ ] T0-01 — Repo aplikasi React + TypeScript + Vite + struktur folder
+- [x] T0-01 — Repo aplikasi React + TypeScript + Vite + struktur folder
   - **Tujuan:** aplikasi bisa dijalankan lokal sejak commit pertama dan strukturnya sama dengan rancangan.
   - **Ref:** TECH_SPEC §1 (stack) & §3 (struktur folder); PRD §6 Non-Goals
-  - **File:** `aplikasi/package.json`, `aplikasi/vite.config.ts`, `aplikasi/tsconfig.json`, `aplikasi/index.html`, `aplikasi/public/favicon.ico`, `aplikasi/public/robots.txt`
-  - **DoD:** `npm install && npm run dev` jalan tanpa error; folder `/src/{gaya,komponen,layar,lib,hook}` ada; favicon terpasang; `tsc --noEmit` bersih.
+  - **File:** `aplikasi/package.json`, `aplikasi/vite.config.ts`, `aplikasi/tsconfig.json`, `aplikasi/tsconfig.app.json`, `aplikasi/tsconfig.node.json`, `aplikasi/index.html`, `aplikasi/public/favicon.svg`, `aplikasi/public/robots.txt`, `aplikasi/src/layar/contoh/LayarContoh.tsx`
+  - **DoD:** `npm install && npm run dev` jalan tanpa error; folder `/src/{gaya,komponen,layar,lib,hook}` ada; favicon terpasang; `tsc -b --noEmit` bersih (dipakai mode proyek — `tsc --noEmit` biasa memeriksa nol berkas pada susunan referensi, dibuktikan lewat uji mutasi 2026-09-16).
   - **Kompleksitas:** kecil (1 jam)
   - **Risiko & mitigasi:** salah struktur → mitigasi: salin persis struktur `TECH_SPEC.md` §3, jangan improvisasi nama folder.
-  - **Verifikasi:** `npm run dev` + buka URL dev; `git status` bersih setelah commit.
+  - **Verifikasi:** `npm run dev` + buka URL dev; `git status` bersih setelah commit. · **Bukti 2026-09-16:** `npm run dev` melayani halaman (HTTP 200), `main.tsx`, `tema.css`, dan berkas huruf (font/woff2); 7 folder layar + `supabase/{migrations,functions,tes}` ada; 31 berkas huruf pindah; favicon dipakai format SVG (bukan ICO) karena tidak butuh alat pengubah gambar dan tetap tajam di semua ukuran; pemeriksa `aplikasi/alat/periksa-struktur.py` memeriksa pohon folder langsung dari `TECH_SPEC.md` §3.
 
-- [ ] T0-02 — Aturan kode otomatis (ESLint + Prettier + TypeScript ketat)
+- [x] T0-02 — Aturan kode otomatis (ESLint + Prettier + TypeScript ketat)
   - **Tujuan:** kode asal-asalan ditolak otomatis sebelum masuk repo.
   - **Ref:** AGENT_OPERATING_GUIDE §3 (konvensi koding)
-  - **File:** `aplikasi/eslint.config.js`, `aplikasi/.prettierrc`, `aplikasi/tsconfig.json`, `aplikasi/package.json`
+  - **File:** `aplikasi/eslint.config.js`, `aplikasi/.prettierrc.json`, `aplikasi/.prettierignore`, `aplikasi/tsconfig.app.json`, `aplikasi/tsconfig.node.json`, `aplikasi/vitest.config.ts`, `aplikasi/package.json`
   - **DoD:** `npm run lint` & `npm run format:check` & `npm run typecheck` tersedia dan lulus di repo bersih; `strict: true`; aturan `no-explicit-any` aktif.
   - **Kompleksitas:** kecil (1 jam)
   - **Risiko & mitigasi:** aturan terlalu galak bikin lambat → mitigasi: mulai dari preset standar React+TS, tambah aturan hanya bila terbukti perlu.
-  - **Verifikasi:** tiga perintah di atas keluar dengan kode 0.
+  - **Verifikasi:** tiga perintah di atas keluar dengan kode 0. · **Bukti 2026-09-16:** ESLint 9.39 (typescript-eslint 8.70) + Prettier 3.9 + TypeScript 5.7 ketat (`strict`, `noUnusedLocals`, `noUnusedParameters`); gerbang dibuktikan menyala lewat uji mutasi — berkas dengan `any` ditolak lint, berkas dengan salah tipe ditolak `tsc -b --noEmit`, berkas belum diformat ditolak `format:check`; sesudah dibersihkan ketiganya hijau.
 
-- [ ] T0-03 — Token desain v3 dipindah ke aplikasi (10 tema)
+- [x] T0-03 — Token desain v3 dipindah ke aplikasi (10 tema)
   - **Tujuan:** tampilan aplikasi memakai bahasa desain yang sudah disetujui pemilik, bukan karangan baru.
   - **Ref:** TECH_SPEC §1 (gaya/tampilan); `prototipe/css/tokens.css`
-  - **File:** `aplikasi/src/gaya/token/tema.css`, `aplikasi/src/gaya/token/dasar.css`
-  - **DoD:** 10 tema + 2 kerapatan tersedia sebagai variabel CSS; pemilih tema bisa mengganti tanpa memuat ulang halaman; tidak ada warna mentah di luar token.
+  - **File:** `aplikasi/src/gaya/token/tema.css`, `aplikasi/src/gaya/token/dasar.css`, `aplikasi/src/gaya/komponen.css`, `aplikasi/src/lib/tema.ts`, `aplikasi/src/hook/useTema.ts`
+  - **DoD:** 10 tema + 2 kerapatan (`nyaman` & `padat`) tersedia sebagai variabel CSS; pemilih tema bisa mengganti tanpa memuat ulang halaman; tidak ada warna mentah di luar token.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** token tercecer saat diubah manual → mitigasi: pindahkan berkas apa adanya, jangan ketik ulang.
-  - **Verifikasi:** `prototipe/uji-kontras.py` versi aplikasi dijalankan (dibuat di T0-04) + inspeksi 3 tema secara visual.
+  - **Verifikasi:** `prototipe/uji-kontras.py` versi aplikasi dijalankan (dibuat di T0-04) + inspeksi 3 tema secara visual. · **Bukti 2026-09-16:** `tema.css` identik byte-per-byte dengan `prototipe/css/tokens.css` (diperiksa otomatis), 19 berkas huruf tersalin dan semua rujukan `url()` di dalamnya ada di disk; 10 kode tema di `src/lib/tema.ts` sama persis dengan kode tema di token (diperiksa otomatis); warna `theme-color` peramban diambil dari token `--accent`, bukan ditulis di `index.html`; 20 uji unit hijau (format uang/tanggal/jam, tema & kerapatan, render layar contoh).
 
 - [ ] T0-04 — Komponen dasar + keadaan kosong/memuat/gagal + uji kontras aplikasi
   - **Tujuan:** semua layar memakai komponen yang sama dan tidak pernah menampilkan halaman kosong tanpa penjelasan.
@@ -1480,3 +1480,6 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 | 2026-09-16 | T-012 & T-013 ditutup dengan nilai usulan agent (cadangan di artefak terenkripsi repo privat + unduhan bulanan pemilik; penutup shift = Admin Cabang → Owner Pusat) — tanda ❓ basi di T10-10/T10-12 dibersihkan | Aturan maraton melewati tugas bertanda ❓; setelah butirnya ditutup, tanda itu justru menyesatkan (kelas cacat yang sama dengan 7 tanda basi sebelumnya) |
 | 2026-09-16 | Review independen: nama tabel di Ref T1-07/T4-06/T4-07 diselaraskan dengan TECH_SPEC §4.2 (`kategori_menu`, `stok_bahan`, `stok_pergerakan`) | ROADMAP memakai nama pendek (`kategori`, `stok`) yang tidak ada di skema — agent coding bisa membuat tabel bernama salah |
 | 2026-09-16 | Tugas yang menunggu jawaban pemilik ditandai `❓ T-xxx` dan dilewati (mode maraton) | Aturan `AGENT_OPERATING_GUIDE.md` §13: tunda-catat-lanjut, jangan mengerjakan setengah |
+| 2026-09-16 | Fase 0 dimulai: **T0-01, T0-02, T0-03 ditandai `[x]`** (repo React+TS+Vite, aturan kode otomatis, token v3 + pemilih tema/kerapatan) | Tiga tugas sudah bisa dibuktikan otomatis; sisa Fase 0 (T0-04…T0-07) menyusul, sedangkan T0-08/T0-09 menunggu akun pemilik (T0-00) |
+| 2026-09-16 | T0-01 memakai `favicon.svg` + `robots.txt`, bukan `favicon.ico` | Tidak ada alat pengubah ICO di lingkungan ini; SVG tetap tajam di semua ukuran dan didukung semua peramban modern; robots sengaja `Disallow: /` karena halaman butuh masuk |
+| 2026-09-16 | Pemeriksa baru `aplikasi/alat/periksa-struktur.py` (pohon folder dibaca dari `TECH_SPEC.md` §3, token diperiksa identik dengan prototipe, larangan warna mentah di luar token, kode tema aplikasi vs token) | Syarat pemilik "hasil tanpa masalah" harus dibuktikan alat, bukan klaim; uji mutasi membuktikan pemeriksa ini benar-benar menyala |

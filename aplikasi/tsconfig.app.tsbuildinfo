@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/hook/useJam.ts","./src/hook/useTema.ts","./src/komponen/Toko.tsx","./src/layar/contoh/LayarContoh.test.tsx","./src/layar/contoh/LayarContoh.tsx","./src/lib/format.test.ts","./src/lib/format.ts","./src/lib/tema.test.ts","./src/lib/tema.ts"],"version":"5.7.3"}
