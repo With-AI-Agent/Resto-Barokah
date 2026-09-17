@@ -793,12 +793,26 @@ def main() -> int:
     if a.siapkan:
         dasar, kepala, nama = a.dasar, a.kepala, a.nama
         if a.pr:
-            rc, keluaran = jalankan(["gh", "pr", "view", a.pr, "--json", "baseRefName,headRefName,number,title"])
+            rc, keluaran = jalankan(["gh", "pr", "view", a.pr, "--json",
+                                     "baseRefName,headRefName,number,title,headRefOid"])
             if rc == 0:
                 data = json.loads(keluaran)
                 dasar = f"origin/{data['baseRefName']}"
                 kepala = f"origin/{data['headRefName']}"
                 nama = nama or f"pr-{data['number']}"
+                # Ref pelacak lokal bisa KETINGGALAN dari GitHub → paket pernah mengikat commit basi
+                # (ditemukan 2026-09-17: paket pr-01-putaran6 menunjuk a003d2d padahal kepala PR ec875b9).
+                # Karena itu: segarkan ref-nya dulu, lalu WAJIB sama dengan kepala PR menurut GitHub.
+                jalankan(["git", "fetch", "--quiet", "origin",
+                          f"refs/heads/{data['baseRefName']}:refs/remotes/origin/{data['baseRefName']}",
+                          f"refs/heads/{data['headRefName']}:refs/remotes/origin/{data['headRefName']}"])
+                sha_gh = (data.get("headRefOid") or "")[:40]
+                sha_lokal = (sha_ringkas(kepala) or "")[:40]
+                if sha_gh and sha_gh != sha_lokal:
+                    print(f"GAGAL: kepala PR di GitHub ({sha_gh[:8]}) masih BEDA dari ref lokal ({sha_lokal[:8]}) "
+                          f"setelah fetch — paket TIDAK dibuat supaya peninjau tidak menilai commit basi.")
+                    print("       Periksa: git fetch origin && git rev-parse origin/" + data["headRefName"])
+                    return 1
             else:
                 print(f"CATATAN: tidak bisa membaca PR {a.pr} via gh — memakai dasar/kepala dari argumen")
         return siapkan(dasar, kepala, nama)
