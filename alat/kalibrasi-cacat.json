@@ -10,7 +10,12 @@
       "ganti": "-- SENGAJA (kalibrasi): hak public TIDAK dicabut",
       "ringkas": "Hak execute gerbang izin boleh(text,uuid) tidak dicabut dari public sehingga anon bisa memanggilnya",
       "harapan_mesin": "ya (uji izin.sql bagian 3: anon memanggil boleh() harus ditolak)",
-      "katakunci": ["revoke", "boleh(text", "hak public", "public"]
+      "katakunci": [
+        "revoke",
+        "boleh(text",
+        "hak public",
+        "public"
+      ]
     },
     {
       "id": "P2",
@@ -21,18 +26,28 @@
       "ganti": "create policy pengaturan_pilih on public.pengaturan\n  for select to authenticated\n  using (penyewa_id is not null);",
       "ringkas": "Policy pengaturan dibuka: semua penyewa bisa membaca pengaturan resto lain",
       "harapan_mesin": "ya (rls_semua_tabel.sql: policy tabel ber-penyewa_id wajib menyebut penyewa_saya())",
-      "katakunci": ["pengaturan", "penyewa_id is not null", "policy"]
+      "katakunci": [
+        "pengaturan",
+        "penyewa_id is not null",
+        "policy"
+      ]
     },
     {
       "id": "P3",
       "tingkat": "K-2",
       "kelas": "uang-lebih-bayar",
       "berkas": "supabase/migrations/0010_pembayaran.sql",
-      "cari": "    if v_sebelum > v_pesanan.total then",
-      "ganti": "    if v_sebelum > v_pesanan.total + 100000 then",
+      "cari": "  if v_sebelum > v_pesanan.total then",
+      "ganti": "  if false then",
       "ringkas": "Batas lebih bayar dilonggarkan 100.000 → pembayaran bisa melebihi total pesanan tanpa ditolak",
-      "harapan_mesin": "ya (pembayaran.sql: 50.000+20.000 > 62.100 harus ditolak)",
-      "katakunci": ["lebih bayar", "melebihi total", "v_sebelum", "100000", "100.000"]
+      "harapan_mesin": "ya (supabase/tes/pembayaran.sql: pembayaran melebihi total harus ditolak)",
+      "katakunci": [
+        "lebih bayar",
+        "melebihi total",
+        "v_sebelum",
+        "100000",
+        "100.000"
+      ]
     },
     {
       "id": "P4",
@@ -42,8 +57,13 @@
       "cari": "join public.pengguna p on p.id = pc.pengguna_id and p.aktif   -- akun nonaktif kehilangan akses",
       "ganti": "join public.pengguna p on p.id = pc.pengguna_id   -- SENGAJA (kalibrasi)",
       "ringkas": "cabang_saya() tidak lagi memeriksa akun aktif → pegawai nonaktif masih mendapat cabang",
-      "harapan_mesin": "ya (helper.sql: akun nonaktif kehilangan seluruh identitas)",
-      "katakunci": ["nonaktif", "cabang_saya", "p.aktif", "aktif"]
+      "harapan_mesin": "ya (supabase/tes/cabang_sesi.sql — satu uji khusus menangkapnya; sebelum temuan review PR-01/PR-12 tidak ada uji yang menangkap)",
+      "katakunci": [
+        "nonaktif",
+        "cabang_saya",
+        "p.aktif",
+        "aktif"
+      ]
     },
     {
       "id": "P5",
@@ -54,7 +74,12 @@
       "ganti": "4. **Batas percobaan dua lapis:** 10×/15 menit per akun · 12×/15 menit per perangkat;",
       "ringkas": "KEAMANAN.md menyebut batas 10×/15 menit padahal kode (0006_pin.sql) memakai 5 kali per akun",
       "harapan_mesin": "tidak (hanya ketangkap auditor yang membandingkan dokumen dengan kode)",
-      "katakunci": ["10×", "10x", "batas percobaan", "KEAMANAN"]
+      "katakunci": [
+        "10×",
+        "10x",
+        "batas percobaan",
+        "KEAMANAN"
+      ]
     },
     {
       "id": "P6",
@@ -65,7 +90,12 @@
       "ganti": "    if tugas_berisiko < 5:",
       "ringkas": "Aturan 'minimal 20 tugas berisiko' dilonggarkan jadi 5 → pemeriksa tetap hijau walau Aturan Berisiko Tinggi menghilang dari ROADMAP",
       "harapan_mesin": "tidak (pemeriksa tidak memeriksa dirinya sendiri)",
-      "katakunci": ["periksa-roadmap", "tugas_berisiko", "20", "pemeriksa"]
+      "katakunci": [
+        "periksa-roadmap",
+        "tugas_berisiko",
+        "20",
+        "pemeriksa"
+      ]
     }
   ]
 }

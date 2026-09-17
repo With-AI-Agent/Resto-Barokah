@@ -87,6 +87,25 @@ def statistik(dasar: str, kepala: str) -> tuple[int, int]:
     return tambah, kurang
 
 
+def _baris_bukti(teks: str) -> list[str]:
+    """Baris yang bisa disebut BUKTI: isi blok kode, atau baris berisi perintah ber-backtick
+    disertai jejak hasil (panah/status kata). Dipakai menilai kedalaman Jalur Merah tanpa
+    memaksa satu gaya penulisan tertentu (fence, indentasi, atau tabel semuanya dihitung)."""
+    hasil: list[str] = []
+    dalam_blok = False
+    for ln in teks.splitlines():
+        telanjang = ln.strip()
+        if telanjang.startswith("```") or telanjang.startswith("~~~"):
+            dalam_blok = not dalam_blok
+            continue
+        if dalam_blok or ln.startswith("    "):
+            hasil.append(ln)
+            continue
+        if "`" in ln and re.search(r"(→|->|\bhasil\b|rc=|LULUS|GAGAL|MERAH|HIJAU|exit=|tidak ada|nol\b)", ln):
+            hasil.append(ln)
+    return hasil
+
+
 def pesan_commit(dasar: str, kepala: str) -> list[str]:
     _, keluaran = jalankan(["git", "log", "--no-merges", "--format=%s%n%b%n---", f"{dasar}..{kepala}"])
     blok = [b.strip() for b in keluaran.split("---") if b.strip()]
@@ -102,12 +121,22 @@ def tugas_roadmap_berubah(dasar: str, kepala: str) -> list[str]:
 
 
 def klaim_dari_commit(dasar: str, kepala: str) -> list[str]:
+    """Klaim diambil HANYA dari butir daftar pada pesan commit (judul + baris "- ...").
+
+    Dua cacat yang ditemukan review RV-2 putaran8 (PR-01b/PR-05/PR-17):
+      * bug operator (`not b or b.startswith("- ") and len(b) > 12`) membuat baris acak —
+        termasuk baris kosong dan kalimat sambungan — ikut jadi "klaim" (7 butir kosong);
+      * butir yang terlalu pendek ("- uji", "- fix") tidak layak disebut klaim.
+    Sekarang: baris kosong dibuang, butir harus berawalan "- " atau "* " dan panjang ≥ 16.
+    """
     klaim: list[str] = []
     for blok in pesan_commit(dasar, kepala):
         for baris in blok.splitlines():
             b = baris.strip()
-            if not b or b.startswith("- ") and len(b) > 12:
-                klaim.append(b.lstrip("- ").strip())
+            butir = b.startswith("- ") or b.startswith("* ")
+            if not butir or len(b) < 16:
+                continue
+            klaim.append(b[2:].strip())
     # klaim khas yang wajib dibantah pada perubahan berisiko
     bawaan = [
         "Uji otomatis membuktikan perilaku baru/bebas regresi pada commit ini (bukan commit sebelumnya).",
@@ -155,7 +184,10 @@ def siapkan(dasar: str, kepala: str, nama: str | None) -> int:
     jalur_dominan = next((j for j in JALUR_URUT if per_jalur[j]), "Hijau")
 
     # ringkasan per tujuan (dari judul commit)
-    tujuan = [b.splitlines()[0].strip() for b in pesan_commit(dasar, kepala)][:12]
+    semua_commit = [b.splitlines()[0].strip() for b in pesan_commit(dasar, kepala)]
+    # PR-18: dulu paket hanya memuat 12 judul untuk PR berisi puluhan commit → peninjau mengira
+    # PR-nya kecil. Sekarang SELURUH judul ditulis (dengan jumlahnya), bukan contoh terpotong.
+    tujuan = semua_commit
     tugas = tugas_roadmap_berubah(dasar, kepala)
     klaim = klaim_dari_commit(dasar, kepala)
     kal = bahan_kalibrasi_terbaru()
@@ -171,7 +203,11 @@ def siapkan(dasar: str, kepala: str, nama: str | None) -> int:
         for j in JALUR_URUT
     )
     klaim_md = "\n".join(f"{i+1}. {k}" for i, k in enumerate(klaim))
-    tujuan_md = "\n".join(f"- {t}" for t in tujuan) or "- (judul commit tidak terbaca)"
+    if tujuan:
+        tujuan_md = (f"**{len(tujuan)} commit** dalam rentang ini (seluruhnya, bukan contoh):\n"
+                     + "\n".join(f"- {t}" for t in tujuan))
+    else:
+        tujuan_md = "- (judul commit tidak terbaca)"
     tugas_md = ", ".join(tugas) if tugas else "—"
 
     gerbang_merah = ""
@@ -383,6 +419,11 @@ def periksa_laporan(berkas: pathlib.Path, cek_sha: bool = True) -> tuple[int, li
                 continue
             sel = [s.strip() for s in ln.strip("|").split("|")]
             if all(set(s) <= set("-: ") for s in sel if s):
+                # baris pemisah markdown: baris TEPAT SEBELUMNYA adalah kepala kolom,
+                # bukan data → buang supaya ambang minimum tidak dihitung dari kepala
+                # (temuan review RV-2 putaran8 PR-14: satu berkas "cukup" karena kepalanya ikut dihitung).
+                if baris:
+                    baris.pop()
                 continue
             baris.append(sel)
         return baris
@@ -453,42 +494,79 @@ def periksa_laporan(berkas: pathlib.Path, cek_sha: bool = True) -> tuple[int, li
         angka["risiko"] = r_m.group(1)
     berat = re.findall(r"- \*\*Tingkat:\*\*\s*(K-[12])\b", teks)
     terverifikasi = len(re.findall(r"- \*\*Status verifikasi:\*\*\s*TERVERIFIKASI", teks))
-    angka["berat_terverifikasi"] = len(re.findall(r"### \[PR-\d+\][\s\S]*?- \*\*Status verifikasi:\*\*\s*TERVERIFIKASI", teks))
+    # Hitung temuan BERAT (K-1/K-2) yang TERVERIFIKASI — dihitung PER TEMUAN, bukan dengan
+    # regex melintasi temuan: versi lama menghitung temuan K-3 terverifikasi sebagai "berat"
+    # (temuan review RV-2 putaran8 PR-09), sehingga aturan verdict bisa salah menuduh.
+    blok_temuan = re.split(r"^### \[PR-\d+\]", teks, flags=re.M)[1:]
+    berat_terverifikasi = 0
+    for blok in blok_temuan:
+        tingkat_b = re.search(r"- \*\*Tingkat:\*\*\s*(K-\d)", blok)
+        if tingkat_b and tingkat_b.group(1) in ("K-1", "K-2") and re.search(r"- \*\*Status verifikasi:\*\*\s*TERVERIFIKASI", blok):
+            berat_terverifikasi += 1
+    angka["berat_terverifikasi"] = berat_terverifikasi
     if berat and terverifikasi == 0:
         gagal.append("ada temuan K-1/K-2 tetapi tidak ada yang berstatus TERVERIFIKASI")
-    if angka.get("berat_terverifikasi", 0) > 0 and v_m and v_m.group(1) == "BERSIH":
-        gagal.append("verdict BERSIH padahal ada temuan K-1/K-2 TERVERIFIKASI — wajib TIDAK-BERSIH")
+    if angka.get("berat_terverifikasi", 0) > 0 and v_m and v_m.group(1) != "TIDAK-BERSIH":
+        gagal.append(
+            f"verdict {v_m.group(1)} padahal ada temuan K-1/K-2 TERVERIFIKASI — wajib TIDAK-BERSIH "
+            "(temuan review RV-2 putaran8 PR-09: dulu 'BERSIH-DENGAN-CATATAN' masih diterima)"
+        )
 
     # 5. kedalaman sesuai jalur (PROTOKOL §3)
     if r_m and r_m.group(1) == "Merah":
-        if "mutasi" not in teks.lower():
-            gagal.append("jalur Merah tanpa bukti uji mutasi (§3 protokol)")
-        if not re.search(r"RLS|izin|hak", teks, re.I):
-            gagal.append("jalur Merah tanpa pemeriksaan izin/RLS")
-        if not re.search(r"pemulihan|rollback|dikembalikan", teks, re.I):
+        # PR-14b: dulu cukup ADA kata di mana pun (termasuk prosa). Sekarang kata kuncinya harus
+        # muncul di BARIS BUKTI — baris yang memuat perintah/keluaran nyata (blok kode, atau baris
+        # dengan perintah ber-backtick disertai hasil). Peninjau tetap bebas memakai tabel/inline
+        # (ketiga laporan nyata memakainya) — yang ditutup hanyalah klaim kosong tanpa bukti.
+        baris_bukti = _baris_bukti(teks)
+        isi_bukti = "\n".join(baris_bukti).lower()
+        if len(baris_bukti) < 8:
+            gagal.append(f"jalur Merah hanya memuat {len(baris_bukti)} baris bukti (minimum 8) — kedalaman tidak terbukti")
+        if "mutasi" not in isi_bukti:
+            gagal.append("jalur Merah tanpa bukti uji mutasi DI DALAM blok bukti (§3 protokol)")
+        if not re.search(r"(rls|policy|izin|hak|grant)", isi_bukti):
+            gagal.append("jalur Merah tanpa pemeriksaan izin/RLS di dalam blok bukti")
+        # Rencana pemulihan = NIAT, bukan bukti kerja → boleh berupa prosa (laporan nyata menulisnya
+        # sebagai paragraf), jadi diperiksa di seluruh teks, tidak dipaksa ada di baris bukti.
+        if not re.search(r"(pemulihan|rollback|dikembalikan|revert|jangan merge)", teks, re.I):
             gagal.append("jalur Merah tanpa rencana pemulihan / sisa risiko")
-        if not re.search(r"L1|L2|L4|lensa", teks, re.I):
+        if not re.search(r"(l1|l2|l4|lensa)", teks, re.I):
             gagal.append("jalur Merah tanpa menyebut lensa yang diwajibkan (L1/L2/L4)")
 
-    # 6. kalibrasi: wajib bila paket menyebut bahan kalibrasi
+    # 6. kalibrasi: wajib bila paket benar-benar mengirim berkas bahan kalibrasi
     paket_m = re.search(r"- \*\*Paket review:\*\*\s*`?([^`\n]+)`?", teks)
     if paket_m:
         berkas_paket = AKAR / paket_m.group(1).strip()
-        if berkas_paket.is_file():
+        if not berkas_paket.is_file():
+            # PR-14: dulu berkas paket yang tidak ada membuat seluruh pemeriksaan kalibrasi
+            # DIAM-DIAM dilewati (gagal terbuka). Sekarang: wajib ada.
+            gagal.append(f"berkas paket review tidak ada: {paket_m.group(1).strip()}")
+        else:
             isi_paket = berkas_paket.read_text(encoding="utf-8")
-            if "pr-bahan-" in isi_paket:
+            # Bahan kalibrasi WAJIB dinilai bila paket mengirimkannya ATAU bila ada bahan kalibrasi
+            # terbaru di repo yang menargetkan commit yang direview (dulu cukup satu kata kunci).
+            # Hanya penanda KUAT yang dihitung: jalur berkas bahan kalibrasi (bukan sekadar kata
+            # "kalibrasi" — baris "tidak disiapkan" pun memuat kata itu, temuan uji-diri).
+            wajib_kalibrasi = "pr-bahan-" in isi_paket or "docs/uji/kalibrasi/" in isi_paket
+            if wajib_kalibrasi:
                 m_kal = re.search(r"Ditemukan:\s*(\d+)\s*dari\s*(\d+)", teks)
                 angka["kalibrasi"] = (int(m_kal.group(1)), int(m_kal.group(2))) if m_kal else (0, 0)
                 if not m_kal:
-                    gagal.append("paket memuat bahan kalibrasi tetapi laporan tidak menulis 'Ditemukan: X dari Y'")
+                    gagal.append("ada bahan kalibrasi untuk commit ini tetapi laporan tidak menulis 'Ditemukan: X dari Y'")
                 if not re.search(r"temuan palsu", teks, re.I):
                     gagal.append("laporan kalibrasi tanpa jumlah temuan palsu")
                 if m_kal:
-                    x, y = angka["kalibrasi"]
+                    ditemukan, total = int(m_kal.group(1)), int(m_kal.group(2))
+                    if total <= 0:
+                        gagal.append("laporan kalibrasi menulis total cacat 0 — tidak masuk akal")
+                    elif ditemukan < total and v_m and v_m.group(1) != "TIDAK-BERSIH":
+                        gagal.append(
+                            f"kalibrasi tidak penuh ({ditemukan}/{total}) tetapi verdict bukan TIDAK-BERSIH — "
+                            "kemampuan menemukan cacat terbukti belum memadai (PR-14)"
+                        )
+                    x, y = ditemukan, total
                     if y and x / y < 0.7:
                         catatan.append(f"tingkat deteksi kalibrasi {x}/{y} < 70% — verdict BERSIH tidak boleh dipercaya")
-        else:
-            catatan.append("paket review tidak ditemukan — kedalaman/kalibrasi tidak bisa dicocokkan")
 
     # 7. pernyataan
     if "tidak mengubah" not in teks.lower():
@@ -687,23 +765,34 @@ def kalibrasi_pr_siapkan(jumlah: int | None) -> int:
     if gagal:
         jalankan(["git", "worktree", "remove", "--force", str(kerja)])
         print("GAGAL menyiapkan kalibrasi PR:"); [print(f"  - {g}") for g in gagal]; return 1
-    _, diff = jalankan(["git", "diff"], cwd=kerja)
+    # PENTING (dua cacat yang ditemukan review RV-2 putaran8, PR-04 & PR-06): penanda
+    # "-- SENGAJA (kalibrasi)" TIDAK boleh ikut ke bahan (peninjau tinggal mencari kata itu),
+    # dan kalau baris dibuang SESUDAH diff dibuat, hitungan hunk jadi rusak → `git apply` gagal.
+    # Perbaikan: rapikan ISI BERKAS dulu, baru minta `git diff` — diff-nya selalu sah.
+    for c in cacat:
+        berkas = kerja / c["berkas"]
+        teks = berkas.read_text(encoding="utf-8")
+        berkas.write_text(re.sub(r"\s*--\s*SENGAJA[^\n]*", "", teks), encoding="utf-8")
+    # PENTING: jangan lewat `jalankan()` — pembungkus itu `.strip()` hasilnya, dan `strip()`
+    # membuang baris konteks terakhir (baris kosong) sehingga hunk kurang satu baris →
+    # "corrupt patch" (temuan review RV-2 putaran8 PR-06). Ambil stdout apa adanya.
+    diff = subprocess.run(["git", "diff"], cwd=str(kerja), capture_output=True, text=True).stdout
 
-    # PENTING (cacat yang ditemukan sendiri saat verifikasi 2026-09-17): katalog cacat menuliskan
-    # penanda "-- SENGAJA (kalibrasi)" pada baris yang diubah. Kalau penanda itu ikut di diff bahan,
-    # peninjau cukup mencari kata "SENGAJA" untuk menemukan SEMUA cacat → kalibrasi jadi tidak berarti.
-    # Perbaikan: penanda & komentar pembocornya dibuang dari diff sebelum ditulis.
-    baris_bersih: list[str] = []
-    for ln in diff.splitlines():
-        if ln.startswith("+") and "SENGAJA" in ln:
-            ln = re.sub(r"--\s*SENGAJA[^\n]*", "", ln).rstrip()
-            if ln.strip() in ("+", "++", ""):
-                continue  # replacement-nya hanya komentar penanda → jangan dimunculkan
-        baris_bersih.append(ln)
-    diff = "\n".join(baris_bersih)
+    # Penjaga: bahan wajib benar-benar bisa dipasang di commit ini. Caranya: di worktree yang
+    # SUDAH bermutasi, `git apply --check --reverse` hanya berhasil bila patch-nya persis kebalikan
+    # dari yang terpasang — jadi hitungan hunk & konteksnya sah. Kalau gagal, alat MENOLAK memberi
+    # bahan (dulu menghasilkan bahan korup yang membuat RV-3 tidak bisa dijalankan — PR-04/PR-06).
+    berkas_uji_pasang = pathlib.Path("/tmp/periksa-bahan-kalibrasi.diff")
+    berkas_uji_pasang.write_text(diff, encoding="utf-8")
+    cek = jalankan(["git", "apply", "--check", "--reverse", str(berkas_uji_pasang)], cwd=kerja)
+    if cek[0] != 0:
+        print("GAGAL: bahan kalibrasi tidak bisa dipasang-balik di commit ini (katalog cacat tidak cocok):")
+        print(f"  {cek[1].strip()}")
+        jalankan(["git", "worktree", "remove", "--force", str(kerja)])
+        return 1
     FOLDER_KAL.mkdir(parents=True, exist_ok=True)
     keluar = FOLDER_KAL / f"pr-bahan-{tanda}.diff"
-    keluar.write_text(diff + "\n", encoding="utf-8")
+    keluar.write_text(diff, encoding="utf-8")
     kunci = pathlib.Path(f"/tmp/KUNCI-KALIBRASI-PR-{tanda}.md")
     kunci.write_text(
         "# KUNCI JAWABAN KALIBRASI REVIEW PR (JANGAN DIBACA PENINJAU)\n\n"
@@ -729,6 +818,11 @@ def uji_diri() -> int:
         "bagus.md": (0, "laporan lengkap & konsisten"),
         "buruk-tanpa-bukti.md": (1, "temuan tanpa bukti + verdict terlalu tinggi"),
         "buruk-klaim-kurang.md": (1, "klaim dibantah & gerbang terlalu sedikit"),
+        # Tiga contoh ini lahir dari temuan review RV-2 putaran8 (PR-09 & PR-14):
+        # gate-nya dulu tumpul, jadi tiap perbaikan wajib punya contoh yang HARUS ditolak.
+        "buruk-verdict-longgar.md": (1, "verdict bukan TIDAK-BERSIH padahal ada K-1/K-2 TERVERIFIKASI"),
+        "buruk-kedalaman-kata.md": (1, "jalur Merah hanya cocok kata di prosa, tanpa blok bukti"),
+        "buruk-paket-hilang.md": (1, "paket review yang dirujuk tidak ada (kalibrasi tak bisa dicocokkan)"),
     }
     lulus = 0
     for nama, (harus, alasan) in harapan.items():
