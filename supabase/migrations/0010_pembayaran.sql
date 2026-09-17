@@ -149,22 +149,6 @@ alter table public.pembatalan enable row level security;
 
 create index if not exists pembatalan_pesanan_idx on public.pembatalan (pesanan_id);
 
--- ================================ PEMBANTU: total uang yang sudah dibayar ===
-create or replace function public.total_dibayar(p_pesanan_id uuid)
-returns integer
-language sql
-stable
-security definer
-set search_path = public, pg_temp
-as $$
-  select coalesce(sum(pb.jumlah), 0)::integer
-    from public.pembayaran pb
-   where pb.pesanan_id = p_pesanan_id
-$$;
-
-comment on function public.total_dibayar(uuid) is
-  'Jumlah uang yang sudah tercatat masuk untuk satu pesanan. Dipakai pemicu pembayaran & RPC pembayaran.';
-
 -- ============================ PENJAGA 1: angka uang hanya dari peladen ======
 -- "Peran peladen" = sedang berjalan sebagai pemilik tabel (inilah keadaan di dalam
 -- fungsi SECURITY DEFINER seperti hitung_total) atau sebagai service_role.
@@ -191,6 +175,33 @@ $$;
 
 comment on function public.peran_peladen() is
   'Benar bila perintah sedang dijalankan oleh fungsi peladen (pemilik tabel) atau service_role. Dipakai penjaga angka uang.';
+
+-- ================================ PEMBANTU: total uang yang sudah dibayar ===
+-- ISOLASI LINTAS RESTO (temuan audit AUD-3 K-1, 2026-09-17): fungsi SECURITY DEFINER
+-- melewati RLS, jadi tanpa pemeriksaan di sini siapa pun yang masuk bisa membaca angka
+-- uang pesanan resto LAIN hanya dengan menebak UUID pesanannya. Pemeriksaan keterlihatan
+-- disamakan dengan policy baris `pembayaran` (pesanan_sepenyewa).
+--
+-- PENTING — jangan pakai peran_peladen() di sini: di dalam fungsi SECURITY DEFINER
+-- `current_user` adalah PEMILIK fungsi (postgres), sehingga peran_peladen() akan SELALU
+-- menjawab "peladen" dan penjaganya buta (terbukti saat uji: kebocoran tetap terjadi
+-- pada percobaan pertama). Yang dipakai adalah identitas PEMANGGIL (auth.uid() dari token,
+-- tidak bisa dipalsukan klien): tanpa identitas = jalur peladen (service_role/penyiapan).
+create or replace function public.total_dibayar(p_pesanan_id uuid)
+returns integer
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select coalesce(sum(pb.jumlah), 0)::integer
+    from public.pembayaran pb
+   where pb.pesanan_id = p_pesanan_id
+     and (auth.uid() is null or public.pesanan_sepenyewa(pb.pesanan_id))
+$$;
+
+comment on function public.total_dibayar(uuid) is
+  'Jumlah uang yang sudah tercatat masuk untuk satu pesanan. Dipakai pemicu pembayaran & RPC pembayaran. Mengembalikan 0 bila pesanan itu bukan milik resto/cabang pemanggil (isolasi lintas penyewa, audit AUD-3 K-1).';
 
 create or replace function public.picu_pesanan_jaga_uang()
 returns trigger
@@ -288,14 +299,18 @@ begin
     new.kasir_id := auth.uid();
   end if;
 
-  -- Pembayaran tidak boleh melebihi total pesanan. Bila total belum dihitung
-  -- (masih 0, sebelum hitung_total berjalan) pemeriksaan ini dilewati supaya
-  -- pencatatan tidak macet — angka total dihitung ulang di T1-15.
-  if coalesce(v_pesanan.total, 0) > 0 then
-    v_sebelum := public.total_dibayar(new.pesanan_id) + new.jumlah;
-    if v_sebelum > v_pesanan.total then
-      raise exception 'Total pembayaran (%) melebihi total pesanan (%).', v_sebelum, v_pesanan.total;
-    end if;
+  -- Total pesanan WAJIB sudah dihitung sebelum uang boleh dicatat (temuan audit AUD-3 K-1,
+  -- 2026-09-17). Sebelumnya pemeriksaan dilewati saat total masih 0 — dan karena hitung_total
+  -- (T1-15) belum ada, semua pesanan bertotal 0 sehingga berapa pun uangnya diterima tanpa
+  -- penjaga, sementara baris uang tidak bisa diubah/dihapus (tidak ada jalan pemulihan).
+  -- Menolak di sini membuat uang tidak pernah tercatat di atas angka yang belum pasti.
+  if coalesce(v_pesanan.total, 0) <= 0 then
+    raise exception 'Total pesanan belum dihitung — pembayaran belum boleh dicatat.';
+  end if;
+
+  v_sebelum := public.total_dibayar(new.pesanan_id) + new.jumlah;
+  if v_sebelum > v_pesanan.total then
+    raise exception 'Total pembayaran (%) melebihi total pesanan (%).', v_sebelum, v_pesanan.total;
   end if;
 
   return new;

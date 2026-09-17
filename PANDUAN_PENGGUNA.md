@@ -60,7 +60,7 @@ Lee tidak perlu menyentuh kode. Lee **memutuskan**; agent **mengerjakan + membuk
 | Sudah jadi & teruji | Belum jadi (jangan dipakai untuk kedai dulu) |
 |---|---|
 | Dokumen fondasi (Discovery, PRD, Tech Spec, aturan agent, Roadmap) — **dikunci** | Layar aplikasi untuk dipakai kedai (baru kerangka; layar fitur menyusul Fase 2–10) |
-| Database: penyewa, cabang, pengguna, izin, pengaturan, katalog, stok, meja, pesanan, pembayaran — diuji otomatis di PostgreSQL nyata (10 berkas uji, semua LULUS) | Perangkat terdaftar & login staf (Fase 1B), kontrak UI (Fase 1C) |
+| Database: penyewa, cabang, pengguna, izin, pengaturan, katalog, stok, meja, pesanan, pembayaran — diuji otomatis di PostgreSQL nyata (12 berkas uji, semua LULUS) | Perangkat terdaftar & login staf (Fase 1B), kontrak UI (Fase 1C) |
 | Alat pemeriksa otomatis + CI (uji SQL, uji unit, pemeriksa dokumen & buku ini) | Akun cloud (Supabase/Cloudflare) — menunggu Lee (T0-00/T0-08); region **Singapore** sudah diputuskan |
 | Mekanisme audit independen + review PR independen (protokol, alat, kalibrasi cacat) | Pekerjaan ulang artefak lama (T1-37) — daftarnya sudah ada & terukur |
 
@@ -512,7 +512,7 @@ Lee **tidak perlu** membaca *Files changed*. Alurnya:
 | `python3 alat/review-pr.py --kalibrasi-pr-siapkan` | (dijalankan agent) | Membuat **bahan kalibrasi** untuk review PR (diff berisi cacat sengaja) | berkas `docs/uji/kalibrasi/pr-bahan-*.diff` + kunci di luar repo | katalog cacat basi → agent memperbarui katalog |
 | `python3 alat/review-pr.py --uji-diri` | (bagian dari "uji semuanya") | Membuktikan pemeriksa laporan review PR **bisa MENOLAK** laporan buruk (3 contoh: 1 bagus, 2 buruk) | LOLOS + daftar contoh | GAGAL → mekanisme review tidak boleh dipercaya; agent memperbaiki alatnya dulu |
 | `python3 alat/periksa-panduan.py` | `Uji buku pedoman.` | Menjaga **buku ini**: bagian wajib ada, prompt berlabel & identik sumbernya, semua rujukan berkas hidup | LOLOS + jumlah baris/mekanisme/rujukan | ada rujukan mati / prompt tidak identik → buku diperbaiki di batch itu juga |
-| `node alat/uji-sql.mjs` | `Uji semuanya.` | Menjalankan **uji database nyata** (PostgreSQL di dalam Node) | `uji: 10 LULUS · 0 GAGAL` | ada GAGAL → jangan lanjut; agent memperbaiki + menambah uji yang gagal itu sebagai uji tetap |
+| `node alat/uji-sql.mjs` | `Uji semuanya.` | Menjalankan **uji database nyata** (PostgreSQL di dalam Node) | baris `uji: <jumlah> LULUS · 0 GAGAL` (jumlahnya bertambah setiap ada uji baru) | ada GAGAL → jangan lanjut; agent memperbaiki + menambah uji yang gagal itu sebagai uji tetap |
 | `bash aplikasi/alat/periksa-semua.sh` | `Uji semuanya.` | Menjalankan **seluruh pemeriksa**: dokumen, roadmap, struktur, kontras desain, uji unit | `RINGKASAN: N lolos, 0 gagal` | ada gagal → agent memperbaiki sebelum melapor |
 | `python3 _sistem/validate_system.py` | (bagian dari "uji semuanya") | Memeriksa **kesehatan sistem kerja** (berkas wajib, penanda arsip, klaim) | `VALIDATOR: PASS` | GAGAL → ada berkas/aturan sistem yang tidak konsisten |
 | `python3 alat/periksa-roadmap.py` | (bagian dari "uji semuanya") | Memeriksa **kelengkapan 7 atribut & konsistensi** tugas ROADMAP | LOLOS + jumlah tugas | GAGAL → ada tugas tidak lengkap |

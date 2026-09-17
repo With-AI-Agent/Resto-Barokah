@@ -105,6 +105,15 @@ begin
     return;
   end if;
 
+  -- ISOLASI LINTAS RESTO (temuan audit AUD-3 K-1, 2026-09-17): fungsi ini SECURITY DEFINER
+  -- sehingga melewati RLS — tanpa pemeriksaan ini, pegawai resto A bisa membaca izin dan
+  -- BATAS DISKON pegawai resto B hanya dengan menebak UUID-nya. Pemanggil tanpa identitas
+  -- (auth.uid() null) adalah jalur peladen (service_role / penyiapan) dan tetap diizinkan.
+  if auth.uid() is not null and v_penyewa is distinct from public.penyewa_saya() then
+    return query select false, null::integer, null::numeric;
+    return;
+  end if;
+
   if p_cabang_id is not null then
     select pc.peran
       into v_peran
@@ -178,10 +187,15 @@ $$;
 comment on function public.boleh_untuk(uuid, text, uuid) is
   'Apakah pegawai tertentu (bukan yang sedang masuk) berizin melakukan aksi — dipakai saat memeriksa PIN penyetuju.';
 
-revoke all on function public.izin_efektif_untuk(uuid, text, uuid) from public;
-revoke all on function public.boleh_untuk(uuid, text, uuid) from public;
-grant execute on function public.izin_efektif_untuk(uuid, text, uuid) to authenticated, service_role;
-grant execute on function public.boleh_untuk(uuid, text, uuid) to authenticated, service_role;
+-- HAK EXECUTE (temuan audit AUD-3 K-1, 2026-09-17): dua fungsi ini menjawab "apa izin ORANG LAIN" —
+-- klien tidak membutuhkannya (aplikasi memakai `izin_efektif()`/`boleh()` untuk DIRI SENDIRI, dan
+-- gerbang persetujuan PIN berjalan di peladen). Sebelumnya keduanya diberikan ke `authenticated`,
+-- sehingga siapa pun yang masuk bisa mengintip izin & batas diskon pegawai resto lain. Kini hanya
+-- service_role; pemicu/fungsi SECURITY DEFINER tetap bisa memanggilnya sebagai pemilik fungsi.
+revoke all on function public.izin_efektif_untuk(uuid, text, uuid) from public, authenticated;
+revoke all on function public.boleh_untuk(uuid, text, uuid) from public, authenticated;
+grant execute on function public.izin_efektif_untuk(uuid, text, uuid) to service_role;
+grant execute on function public.boleh_untuk(uuid, text, uuid) to service_role;
 
 -- ================================================== SIMPAN / GANTI PIN =======
 create or replace function public.simpan_pin(

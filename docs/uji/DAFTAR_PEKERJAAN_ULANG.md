@@ -46,7 +46,7 @@ keputusan: **satu akun = satu peran** (ART-12) dan **perangkat terdaftar** (ART-
 |---|---|---|
 | `0001_penyewa_cabang.sql` | Tidak menyentuh peran/perangkat | `node alat/uji-sql.mjs` → `rls_penyewa.sql` LULUS |
 | `0007_katalog.sql`, `0008_meja.sql`, `0009_pesanan.sql`, `0010_pembayaran.sql` | Logika harga/uang/salinan beku tidak bergantung pada cara orang masuk | Uji katalog/meja/pesanan/pembayaran LULUS; pagar uang diuji 13 mutasi |
-| 10 uji SQL yang sudah ada | Tetap berlaku; hanya `tes/izin.sql` §8 & `tes/pin.sql` yang berubah (B.3, B.8) | Hasil uji terakhir: 10 LULUS · 0 GAGAL |
+| uji SQL yang sudah ada (12 berkas) | Tetap berlaku; hanya `tes/izin.sql` §8 & `tes/pin.sql` yang berubah (B.3, B.8) | Hasil uji terakhir: 12 LULUS · 0 GAGAL |
 | Desain & komponen UI (`aplikasi/src/komponen/*`) | Belum ada layar fitur; kontrak UI baru menyentuh tugas UI ke depan | 7 berkas uji vitest LULUS (51 uji) |
 
 ## D. Aturan supaya ini tidak terulang
