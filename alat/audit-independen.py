@@ -284,7 +284,7 @@ Ambang lulus (dinilai pembangun setelah laporan masuk): semua cacat K-1/K-2 tert
 > Setelah auditor selesai, kembali ke sesi kerja dan bilang: **"Laporan audit sudah masuk, periksa."**
 
 - **Tingkat audit:** {tingkat}
-- **Commit yang diaudit:** `{sha}`
+- **Commit yang diaudit:** `{sha}` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
 - **Tugas dalam lingkup:** {", ".join(ids)}
 - **Lensa wajib:** {", ".join(lensa)}
 - **Mode cakupan:** {"menyeluruh" if semua else "terarah"}
@@ -349,7 +349,7 @@ Kamu juga **wajib**: (a) memakai `skills/find-skills` atau `skills/agent-skills-
 - **Auditor:** <nama sesi/model yang benar-benar dipakai>
 - **Tanggal:** {tanggal}
 - **Tingkat audit:** {tingkat}
-- **Commit yang diaudit:** `{sha}`
+- **Commit yang diaudit:** `{sha}` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
 - **Paket audit:** `{keluar.relative_to(AKAR)}`
 - **Mode cakupan:** {"menyeluruh" if semua else "terarah"}
 - **Verdict:** BERSIH | BERSIH-DENGAN-CATATAN | TIDAK-BERSIH
