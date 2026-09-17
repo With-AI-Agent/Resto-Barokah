@@ -53,6 +53,31 @@ PERINTAH_BUKTI = [
     "git log --oneline -20 && git status --short",
 ]
 
+GRUP_SEMUA: list[tuple[str, str, str]] = [
+    ("aplikasi/src", "kode aplikasi (layar, komponen, lib, uji)", "aplikasi/src/"),
+    ("aplikasi/alat", "perkakas pemeriksa aplikasi", "aplikasi/alat/"),
+    ("aplikasi (konfigurasi)", "package.json, tsconfig, vite, index.html", "aplikasi/"),
+    ("supabase/migrations", "migrasi database", "supabase/migrations/"),
+    ("supabase/tes", "uji SQL", "supabase/tes/"),
+    ("supabase/functions", "Edge Functions", "supabase/functions/"),
+    ("alat", "perkakas repo (uji SQL, pemeriksa, mekanisme audit)", "alat/"),
+    ("_sistem", "mesin kerja agent (validator, template)", "_sistem/"),
+    ("docs (fondasi)", "PRD, TECH_SPEC, ROADMAP, KEAMANAN, SPESIFIKASI_UI, dll", "docs/"),
+    ("docs/uji", "protokol & laporan uji/audit", "docs/uji/"),
+    ("docs/teknis", "catatan teknis & Buku Insiden", "docs/teknis/"),
+    ("docs/ops", "panduan operasional", "docs/ops/"),
+    ("docs/desain", "catatan desain", "docs/desain/"),
+    ("prototipe", "prototipe desain (acuan visual)", "prototipe/"),
+    ("_log-sesi", "log sesi kerja", "_log-sesi/"),
+    ("berkas pengguna di akar", "PANDUAN_*, PROMPT_*, START_DI_SINI, PROFIL_PENGGUNA, AGENT_SYSTEM, STATUS, PROJECT_STATE, dll", "AKAR"),
+    (".github/workflows", "alur CI", ".github/"),
+]
+DIKECUALIKAN: list[tuple[str, str]] = [
+    ("skills/", "kumpulan skill pihak ketiga (vendored) — bukan kode proyek; dipakai, tidak diubah"),
+    ("_salinan-meta/", "arsip provenance sistem"),
+    ("_Notes.md", "catatan pribadi pemilik (tidak ikut template)"),
+]
+
 LENSA = {
     "L1": ("Ancaman & Akses", "Bisakah orang tanpa hak masuk/naik peran? Sesi/perangkat yang dicabut masih bisa dipakai? "
                               "Ada fungsi istimewa (security definer) yang bisa dipanggil siapa saja? Ada jalur membaca data penyewa lain?"),
@@ -90,6 +115,40 @@ def baca_tugas_roadmap() -> dict[str, str]:
     return hasil
 
 
+def berkas_terlacak() -> list[str]:
+    _, keluaran = jalankan(["git", "ls-files"])
+    return [b for b in keluaran.splitlines() if b.strip()]
+
+
+def kelompokkan_berkas() -> tuple[dict[str, list[str]], dict[str, int]]:
+    """Kelompokkan berkas terlacak ke grup proyek; kembalikan (grup->berkas, jumlah yang dikecualikan)."""
+    grup: dict[str, list[str]] = {nama: [] for nama, _, _ in GRUP_SEMUA}
+    dikecualikan: dict[str, int] = {nama: 0 for nama, _ in DIKECUALIKAN}
+    for b in berkas_terlacak():
+        if any(b == nama.rstrip("/") or b.startswith(nama) for nama, _ in DIKECUALIKAN):
+            for nama, _ in DIKECUALIKAN:
+                if b == nama.rstrip("/") or b.startswith(nama):
+                    dikecualikan[nama] += 1
+                    break
+            continue
+        cocok = False
+        # prefiks terpanjang menang: docs/uji harus masuk grupnya sendiri, bukan "docs/"
+        grup_urut = sorted(GRUP_SEMUA, key=lambda x: -len(x[2]))
+        for nama, _, prefiks in grup_urut:
+            if prefiks == "AKAR":
+                if "/" not in b:
+                    grup[nama].append(b)
+                    cocok = True
+                    break
+            elif b.startswith(prefiks):
+                grup[nama].append(b)
+                cocok = True
+                break
+        if not cocok:
+            grup["aplikasi (konfigurasi)"].append(b) if b.startswith("aplikasi/") else grup["_sistem"].append(b)
+    return grup, dikecualikan
+
+
 def pisah_rentang(spes: str) -> list[str]:
     """'T1-01..T1-10' -> ['T1-01'..'T1-10']; 'T1-23,T1-24' juga boleh."""
     if ".." in spes:
@@ -103,13 +162,16 @@ def pisah_rentang(spes: str) -> list[str]:
 
 
 # --------------------------------------------------------------- mode: paket
-def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None) -> int:
+def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bool = False) -> int:
     semua = baca_tugas_roadmap()
     if not semua:
         print("GAGAL: tidak bisa membaca tugas dari docs/ROADMAP.md")
         return 1
     if tugas_spec:
         ids = pisah_rentang(tugas_spec)
+    elif semua:
+        # audit menyeluruh = SELURUH tugas (bukan sampel)
+        ids = sorted(semua.keys(), key=lambda x: (int(x[1:].split("-")[0]), int(x.split("-")[1])))
     elif fase:
         ids = sorted([t for t in semua if t.startswith(f"T{fase}-")])
     else:
@@ -153,6 +215,57 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None) -> int:
     siap.append("pemeriksa Python — selalu siap")
 
     lensa = LENSA_MINIMUM[tingkat]
+    grup, dikecualikan = kelompokkan_berkas()
+    total_proyek = sum(len(v) for v in grup.values())
+    blok_menyeluruh = ""
+    if semua:
+        baris_grup = "\n".join(
+            f"| {nama} | {ket} | {len(v)} | {', '.join('`'+x+'`' for x in v[:2])}{' …' if len(v) > 2 else ''} |"
+            for nama, ket, _ in GRUP_SEMUA for v in [grup[nama]]
+        )
+        baris_kecuali = "\n".join(f"- `{nama}` ({n} berkas) — {alasan}" for nama, alasan in DIKECUALIKAN for n in [dikecualikan[nama]])
+        blok_menyeluruh = f"""
+## 0. LINGKUP MENYELURUH (wajib — audit ini memeriksa SEMUA berkas proyek)
+
+- **Jumlah berkas dalam lingkup:** {total_proyek}
+- **Mode cakupan yang wajib kamu tulis di laporan:** `menyeluruh`
+
+**Grup berkas yang wajib kamu sentuh (minimal satu baris bukti per grup):**
+
+| Grup | Isi | Jumlah berkas | Contoh |
+|---|---|---|---|
+{baris_grup}
+
+**Dikecualikan dari lingkup (dan wajib kamu setujui/tolak dengan alasan):**
+
+{baris_kecuali}
+
+**Kewajiban khusus mode menyeluruh (divalidasi mesin):**
+1. Tulis di kepala laporan: `- **Mode cakupan:** menyeluruh`.
+2. Tulis ringkasan: `Cakupan menyeluruh: X dari {total_proyek} berkas` (X = berkas yang benar-benar kamu periksa; angka ini diperiksa mesin).
+3. Bagian 1 harus memuat **setiap grup** di atas minimal satu baris (dengan bukti perintah/baris).
+4. Tambahkan sub-bagian `### 1a. Berkas untuk pengguna` (minimal 3 baris): berkas pengguna di akar (PANDUAN_*, PROMPT_*, START_DI_SINI, PROFIL_PENGGUNA, AGENT_SYSTEM, STATUS, PROJECT_STATE), `docs/PANDUAN_PEMILIK.md`, `docs/uji/PROMPT_AUDIT_INDEPENDEN.md`,
+   `docs/teknis/BUKU_INSIDEN.md`, `docs/ops/*`, dan `PANDUAN_PENGGUNA.md` → **periksa dengan cara pengguna**: apakah langkahnya bisa diikuti orang non-teknis, apakah prompt bisa disalin apa adanya dan bekerja, apakah ada langkah yang menyebut berkas/perintah yang tidak ada, apakah isi buku induk lengkap (semua mekanisme & semua prompt ada).
+5. Auditor yang **tidak** memeriksa berkas untuk pengguna dianggap **belum menyeluruh** dan laporannya ditolak.
+"""
+    if semua:
+        bahan = sorted((AKAR / "docs" / "uji" / "kalibrasi").glob("bahan-*")) if (AKAR / "docs" / "uji" / "kalibrasi").is_dir() else []
+        daftar_bahan = "\n".join(f"- `{b.relative_to(AKAR)}/` ({len(list(b.rglob('*')))} berkas)" for b in bahan) or "- (BELUM ADA bahan kalibrasi — laporkan ke pemilik: AUD-3 tanpa kalibrasi tidak sah)"
+        blok_menyeluruh += f"""
+## 0b. Kalibrasi cacat tanaman (wajib untuk AUD-3 — jangan dilewati)
+
+Folder bahan kalibrasi **berisi cacat yang disengaja** (defect injection). Tugasmu: temukan cacat itu.
+
+{daftar_bahan}
+
+Aturan main (dikutip dari `docs/uji/kalibrasi/CARA-PAKAI.md`):
+1. Kamu **tidak** diberi tahu berapa jumlah cacatnya, di berkas mana, atau kelasnya. Periksa seperti kode/dokumen sungguhan.
+2. Cacat di folder `bahan-*/` **tidak dihitung** sebagai temuan proyek — tulis hasilnya terpisah di `## 5. Kalibrasi cacat tanaman`.
+3. Format bagian 5: `Ditemukan: X dari Y` (Y = jumlah cacat yang kamu yakini ada), daftar cacat temuanmu (berkas + kelas + bukti), dan jumlah **temuan palsu** (yang kamu klaim cacat padahal bukan).
+4. **Dilarang mencari kunci jawaban** (ada di luar repo). Menemukan/memakai kunci = kalibrasi batal dan wajib kamu laporkan.
+
+Ambang lulus (dinilai pembangun setelah laporan masuk): semua cacat K-1/K-2 tertanam ditemukan + ≥70% total + 0 temuan palsu.
+"""
     baris_berkas = "\n".join(f"| {i+1} | `{b}` |" for i, b in enumerate(berkas)) or "| 1 | (tidak ada berkas terbaca — periksa manual) |"
     baris_klaim = "\n".join(f"| {i+1} | {t} | {k} |" for i, (t, k) in enumerate(klaim)) or "| 1 | — | (tidak ada klaim Bukti pada tugas terpilih) |"
     baris_lensa = "\n".join(f"- **{k} {LENSA[k][0]}** — {LENSA[k][1]}" for k in lensa)
@@ -167,7 +280,8 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None) -> int:
 - **Commit yang diaudit:** `{sha}`
 - **Tugas dalam lingkup:** {", ".join(ids)}
 - **Lensa wajib:** {", ".join(lensa)}
-- **Minimum laporan:** ≥6 artefak diperiksa · ≥5 klaim dibantah · ≥{SERANGAN_MIN[tingkat]} serangan dijalankan · masing-masing temuan punya perintah bukti
+- **Mode cakupan:** {"menyeluruh" if semua else "terarah"}
+- **Minimum laporan:** ≥{len(grup) if semua else 6} artefak diperiksa · ≥5 klaim dibantah · ≥{SERANGAN_MIN[tingkat]} serangan dijalankan · masing-masing temuan punya perintah bukti
 - **Perintah validasi laporan (wajib hijau):** periksa dengan alat `alat/audit-independen.py --periksa-laporan` (berkas laporan ditulis di folder docs/uji/audit/). Bila repo yang kamu pakai adalah klon dangkal, alat akan memberi CATATAN (bukan menolak) untuk SHA yang riwayatnya tidak ada.
 
 ## ATURAN INDEPENDENSI (tidak bisa ditawar)
@@ -181,6 +295,7 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None) -> int:
    **K-3** = tidak konsisten / uji kurang / dokumen basi; **K-4** = kerapian, tidak menghambat.
 6. Verdict: `BERSIH` / `BERSIH-DENGAN-CATATAN` / `TIDAK-BERSIH`. **Ada K-1/K-2 TERVERIFIKASI → verdict wajib TIDAK-BERSIH.**
 
+{blok_menyeluruh}
 ## 1. Artefak yang harus diperiksa (minimal)
 
 | # | Berkas |
@@ -229,9 +344,11 @@ Kamu juga **wajib**: (a) memakai `skills/find-skills` atau `skills/agent-skills-
 - **Tingkat audit:** {tingkat}
 - **Commit yang diaudit:** `{sha}`
 - **Paket audit:** `{keluar.relative_to(AKAR)}`
+- **Mode cakupan:** {"menyeluruh" if semua else "terarah"}
 - **Verdict:** BERSIH | BERSIH-DENGAN-CATATAN | TIDAK-BERSIH
 
 ## 1. Cakupan
+{"Cakupan menyeluruh: X dari Y berkas (ganti angka sesuai kenyataan) — WAJIB untuk mode menyeluruh" if semua else ""}
 | # | Artefak | Diperiksa | Bukti (perintah/baris) |
 |---|---|---|---|
 
@@ -362,8 +479,45 @@ def periksa_laporan(berkas: pathlib.Path, cek_git: bool = True, cek_sha: bool = 
     # cakupan
     cakupan = _tabel_baris(teks, "## 1. Cakupan")
     angka["artefak"] = len(cakupan)
+    menyeluruh = bool(re.search(r"- \*\*Mode cakupan:\*\*\s*`?menyeluruh`?", teks))
+    angka["menyeluruh"] = menyeluruh
     if len(cakupan) < 6:
         gagal.append(f"cakupan terlalu sedikit: {len(cakupan)} artefak (minimum 6)")
+
+    if menyeluruh:
+        # 1. ringkasan jumlah berkas wajib & dibandingkan dengan paket
+        ringkas_m = re.search(r"Cakupan menyeluruh:\s*(\d+)\s*dari\s*(\d+)\s*berkas", teks)
+        if not ringkas_m:
+            gagal.append("mode menyeluruh: wajib memuat 'Cakupan menyeluruh: X dari Y berkas'")
+        else:
+            x, y = int(ringkas_m.group(1)), int(ringkas_m.group(2))
+            angka["cakupan_menyeluruh"] = (x, y)
+            paket_m = re.search(r"- \*\*Paket audit:\*\*\s*`?([^`\n]+)`?", teks)
+            if paket_m:
+                berkas_paket = AKAR / paket_m.group(1).strip()
+                if berkas_paket.is_file():
+                    isi_paket = berkas_paket.read_text(encoding="utf-8")
+                    n_m = re.search(r"- \*\*Jumlah berkas dalam lingkup:\*\*\s*(\d+)", isi_paket)
+                    if n_m and int(n_m.group(1)) != y:
+                        gagal.append(f"mode menyeluruh: jumlah berkas di laporan ({y}) ≠ paket ({n_m.group(1)})")
+                    grup_paket = re.findall(r"^\| ([^|]+?) \| [^|]+ \| (\d+) \|", isi_paket, re.M)
+                    teks_cakupan = teks.split("## 1. Cakupan")[-1].split("## 2.")[0]
+                    for nama, _jml in grup_paket:
+                        nama = nama.strip()
+                        if nama and nama not in teks_cakupan:
+                            gagal.append(f"mode menyeluruh: grup '{nama}' tidak muncul di tabel cakupan")
+                else:
+                    catatan.append("paket audit tidak ditemukan — grup berkas tidak bisa dicocokkan")
+            if y and x / y < 0.9:
+                gagal.append(f"mode menyeluruh: baru {x}/{y} berkas ({x/y*100:.0f}%) — minimum 90%")
+        # 2. berkas untuk pengguna wajib diperiksa
+        if "### 1a. Berkas untuk pengguna" not in teks:
+            gagal.append("mode menyeluruh: wajib ada sub-bagian '### 1a. Berkas untuk pengguna'")
+        else:
+            baris_pengguna = _tabel_baris(teks, "### 1a. Berkas untuk pengguna")
+            angka["berkas_pengguna"] = len(baris_pengguna)
+            if len(baris_pengguna) < 3:
+                gagal.append(f"mode menyeluruh: berkas untuk pengguna baru {len(baris_pengguna)} baris (minimum 3)")
     for i, baris in enumerate(cakupan, 1):
         if len(baris) < 3 or not baris[-1]:
             gagal.append(f"cakupan baris {i}: kolom bukti kosong")
@@ -467,6 +621,12 @@ def mode_periksa_laporan(berkas_str: str, cek_git: bool = True) -> int:
     print(f"  klaim dibantah    : {angka.get('klaim')}")
     print(f"  serangan          : {angka.get('serangan')}")
     print(f"  temuan            : {angka.get('temuan')}")
+    if angka.get("menyeluruh"):
+        print(f"  mode              : menyeluruh")
+        if angka.get("cakupan_menyeluruh"):
+            x, y = angka["cakupan_menyeluruh"]
+            print(f"  cakupan berkas    : {x}/{y} ({x/y*100:.0f}%)" if y else "  cakupan berkas    : -")
+        print(f"  berkas pengguna   : {angka.get('berkas_pengguna', 0)} baris")
     if angka.get("kalibrasi"):
         print(f"  kalibrasi         : {angka['kalibrasi'][0]}/{angka['kalibrasi'][1]} cacat ditemukan")
     for c in catatan:
@@ -657,6 +817,7 @@ def main() -> int:
     p.add_argument("--paket", choices=["AUD-2", "AUD-3"], help="buat paket audit untuk sesi auditor")
     p.add_argument("--tugas", help="rentang tugas, mis. T1-01..T1-10")
     p.add_argument("--fase", help="seluruh tugas satu fase, mis. 1")
+    p.add_argument("--semua", action="store_true", help="mode menyeluruh: seluruh berkas proyek masuk lingkup (AUD-3)")
     p.add_argument("--periksa-laporan", dest="periksa", help="validasi laporan auditor")
     p.add_argument("--tanpa-cek-git", action="store_true", help="lewati pemeriksaan repo bersih")
     p.add_argument("--kalibrasi-siapkan", action="store_true", help="tanam cacat pada salinan HEAD")
@@ -669,7 +830,7 @@ def main() -> int:
     if a.uji_diri:
         return mode_uji_diri()
     if a.paket:
-        return mode_paket(a.paket, a.tugas, a.fase)
+        return mode_paket(a.paket, a.tugas, a.fase, semua=a.semua)
     if a.periksa:
         return mode_periksa_laporan(a.periksa, cek_git=not a.tanpa_cek_git)
     if a.kalibrasi_siapkan:

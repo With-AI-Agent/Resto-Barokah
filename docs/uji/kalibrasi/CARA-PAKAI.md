@@ -1,0 +1,27 @@
+# Kalibrasi cacat tanaman — cara pakai (jangan hapus cara ini)
+
+**Kenapa ada:** auditor yang tidak pernah diuji ketajamannya tidak boleh dipercaya. Berkas di folder ini dipakai
+untuk menguji auditor **tanpa memberitahu di mana cacatnya** (defect injection). Ini standar riset inspeksi
+(Perspective-Based Reading + benchmark cacat tanam) dan sudah diwajibkan di `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §7.
+
+**Ada dua jalur kalibrasi — keduanya wajib jalan:**
+
+| Jalur | Bahan | Kunci jawaban | Menjawab pertanyaan |
+|---|---|---|---|
+| **Mesin** | salinan repo dari `git worktree` + `alat/kalibrasi-cacat.json` | berkas di luar repo (dibuat `--kalibrasi-siapkan`) | *apakah pemeriksa otomatis kita menangkap cacat berbahaya?* |
+| **Auditor** | folder `bahan-<tanggal>/` **di dalam repo ini** (ikut ter-commit) | berkas di luar repo (dibuat agent saat penyiapan, **tidak pernah** ditulis di repo/chat auditor) | *apakah auditor manusia/AI-nya tajam?* |
+
+**Kenapa bahan auditor harus berada di dalam repo:** sesi auditor berjalan di **ruang kerja baru** — berkas di luar
+repo (mis. `/tmp`) tidak ikut berpindah, jadi kalibrasi lama **tidak bisa jalan lintas sesi** (ini cacat mekanisme
+yang ditemukan & ditutup 2026-09-17). Dengan bahan di dalam repo, auditor bisa memeriksanya dari sesi mana pun.
+
+**Aturan untuk auditor (dikutip di paket audit):** folder `bahan-*/` **berisi cacat yang disengaja**. Tugasmu
+menemukannya. Kamu **tidak** diberi tahu berapa jumlahnya, di berkas mana, atau kelas apa. Cacat di folder
+`bahan-*/` **tidak dihitung** sebagai temuan proyek — hanya sebagai skor kalibrasi. Dilarang mencari kunci
+jawaban (di luar repo); menemukan kunci = kalibrasi batal dan dicatat.
+
+**Ambang lulus (`docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §7):** semua K-1/K-2 tertanam **wajib** ditemukan, minimal
+70% total, dan nol temuan palsu (mengklaim cacat yang tidak ada). Gagal kalibrasi → verdict "BERSIH" tidak sah.
+
+**Riwayat bahan:** `bahan-2026-09-17/` (bahan pertama, dibuat setelah pemilik meminta audit menyeluruh lebih dulu).
+Bahan lama **jangan dihapus** — riwayat bahan = bukti bahwa kalibrasi tidak dipakai ulang dari jawaban yang bocor.

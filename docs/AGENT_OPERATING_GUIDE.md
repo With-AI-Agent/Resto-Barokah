@@ -151,6 +151,8 @@ Semua fase juga membaca `skills/find-skills` (untuk mencari skill yang belum ter
    `python3 alat/audit-independen.py --periksa-laporan <berkas>` · **AUD-3** audit adversarial 6 lensa + **kalibrasi
    cacat tanaman** sebelum pilot/atas permintaan pemilik. Temuan **K-1/K-2 TERVERIFIKASI = fase tidak boleh ditutup**.
    Mekanismenya sendiri wajib teruji: `python3 alat/audit-independen.py --uji-diri` (ikut CI).
+4f. **Buku pedoman induk = bagian dari kode (WAJIB sejak 2026-09-17):** setiap kali menambah/mengubah **mekanisme** (audit, keamanan, biaya, uji, laporan, alur kerja baru) atau menambah **prompt** untuk pemilik, batch yang sama **wajib** memperbarui bagian terkait di `PANDUAN_PENGGUNA.md` (Bagian C mekanisme · Bagian D prompt · Bagian F masalah · Bagian G peta berkas). Pemeriksa `alat/periksa-panduan.py` (ikut CI) menahan CI bila buku menyusut, kehilangan topik wajib, kehilangan mekanisme, blok promptnya tidak lagi identik dengan sumbernya, atau menunjuk berkas yang tidak ada. Alasan: mekanisme yang tidak bisa dipakai pemilik = mekanisme yang tidak ada; buku basi = cacat K-2/K-3 yang paling lama tersembunyi.
+
 4d. **Uji pemanggilan RPC langsung:** penolakan **tidak boleh** hanya di layar — peran tanpa izin yang memanggil RPC
    langsung (tanpa lewat UI) wajib ditolak database; ini yang membedakan "disembunyikan" dari "diamankan".
 5. **Uji mesin/nyata** — cetak struk di printer Kedai Oasis (risiko #1 PRD) sebelum gelombang berikutnya dimulai.
@@ -182,6 +184,7 @@ Sebuah task hanya boleh ditandai `[x]` bila **semua** tercentang:
 - [ ] Commit + push; repo bersih
 - [ ] `PROJECT_STATE.md` + `STATUS.md` + LOG_SESI diperbarui (langkah terakhir)
 - [ ] Laporan bahasa manusia ke pemilik: apa yang berubah · artinya · apa berikutnya
+- [ ] **Buku pedoman induk** (`PANDUAN_PENGGUNA.md`) diperbarui bila batch menyentuh mekanisme/prompt/berkas untuk pengguna — dibuktikan `python3 alat/periksa-panduan.py` LOLOS
 - [ ] **Bila menyentuh uang/keamanan/data pelanggan:** AUD-2 (audit independen) sudah dijalankan & laporannya LOLOS kontrak, dan **tidak ada** temuan K-1/K-2 terbuka
 
 **Tambahan untuk tugas UI (DoD v2 — 2026-09-17; rincian `docs/SPESIFIKASI_UI.md` §6):**
@@ -315,4 +318,5 @@ yang aman) tanpa pertanyaan; pemilik hanya perlu mengetik "lanjut" lagi untuk ba
 | 2026-09-16 | §0 ditambah **Kalau ruang kerja dinyalakan ulang** + alat baru `alat/pulihkan-git.sh` & `aplikasi/alat/pratinjau.sh`, dan satu butir pemulihan di prompt pembuka universal | Kejadian nyata: setelah restart, `node_modules` hilang (pratinjau mati dengan `vite: not found`) dan salinan Git lokal mundur ke `main`. Tanpa prosedur tertulis, sesi berikutnya (model berbeda) bisa menebak-nebak atau — lebih buruk — menulis ulang berkas dari ingatan |
 | 2026-09-17 | §5 ditambah **uji komponen per layar**, **uji keamanan akun/perangkat**, dan **uji pemanggilan RPC langsung**; §7 ditambah **DoD v2 untuk tugas UI**; §11 menyebut dokumen mengikat baru (`docs/KEAMANAN.md`, `docs/SPESIFIKASI_UI.md`) & ART-1…ART-15 | Permintaan pemilik (pesan ke-14): pengalaman proyek sebelumnya banyak tombol kurang & fungsi "katanya ada"; plus keamanan akun/perangkat harus matang sebelum lanjut. Rincian: `docs/SPESIFIKASI_UI.md` + `docs/KEAMANAN.md` |
 | 2026-09-17 | §11 & §12: **penyimpangan teknis wajib ditanyakan lebih dulu** + dijelaskan bahasa sederhana + dicatat | Jawaban pemilik 2026-09-17: *"Harus tanyakan dulu ke aku… jelasin alasannya dengan bahasa yang mudah aku pahami… harus tercatat"* |
+| 2026-09-17 | §5 butir **4f buku pedoman induk wajib ikut diperbarui** + §7 DoD menambahkan bukti `alat/periksa-panduan.py` | Permintaan pemilik 2026-09-17: buku pedoman pengguna harus jadi induk yang lengkap & tidak boleh basi (mekanisme yang tidak bisa dipakai pemilik = mekanisme yang tidak ada) |
 | 2026-09-17 | §5 butir 4e **Audit independen AUD-0…AUD-3** + §7 DoD menyebut AUD-2 + §12 dua Stop Condition (temuan K-1/K-2 terbuka · permintaan audit pemilik) | Permintaan pemilik 2026-09-17: mekanisme audit/pemeriksaan/review independen yang teliti & terukur, memakai skill + riset, dan bisa ia picu sendiri (`docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`) |

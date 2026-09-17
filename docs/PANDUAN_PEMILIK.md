@@ -1,5 +1,7 @@
 # PANDUAN_PEMILIK.md — Cara Bapak Mengendalikan Proyek Ini
 
+> **Buku induk (lengkap):** `PANDUAN_PENGGUNA.md` — semua mekanisme, semua prompt, glosarium, dan penanganan masalah. Berkas ini = pelengkap khusus AUDIT (cara memicu, arti verdict, kalibrasi).
+
 > Ditulis untuk **pemilik**, bukan programmer. Semua istilah teknis dijelaskan di tempat.
 > Bila panduan ini dan kenyataan berbeda, **kenyataan yang benar** — laporkan supaya panduan diperbaiki (aturan pemilik 2026-09-17).
 
@@ -35,6 +37,18 @@
 5. Auditor bekerja (hanya membaca, tidak mengubah apa pun) dan menulis laporan.
 6. Kembali ke sesi kerja, Bapak bilang: **"Laporan audit sudah masuk, periksa dan tindak lanjuti."**
 7. Agent: memvalidasi laporan dengan mesin → memperbaiki temuan **K-1 (Kritis)** & **K-2 (Tinggi)** lebih dulu → melaporkan ke Bapak.
+
+### 3b. Audit menyeluruh (AUD-3) — untuk keadaan sekarang, sebelum pekerjaan ulang
+
+Bapak minta: **"Siapkan audit menyeluruh"** (tanpa lingkup — menyeluruh berarti **semua berkas proyek**, termasuk **berkas untuk pengguna**). Yang agent siapkan dalam batch yang sama:
+
+1. Paket `python3 alat/audit-independen.py --paket AUD-3 --semua` → daftar **semua grup berkas** + jumlah berkasnya (contoh terakhir: ratusan berkas proyek; kumpulan skill pihak ketiga dikecualikan dengan alasan tertulis).
+2. Salinan kalibrasi cacat tanaman (`--kalibrasi-siapkan`) supaya ketajaman auditor **terukur** — jangan pernah memakai AUD-3 tanpa kalibrasi.
+3. Kalimat pembuka yang harus Bapak tempel (Bagian D1 buku induk / `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` §B).
+
+Laporan AUD-3 **ditolak mesin** bila tidak memuat: mode `menyeluruh`, ringkasan `Cakupan menyeluruh: X dari Y berkas`, satu baris bukti per grup berkas, sub-bagian `### 1a. Berkas untuk pengguna`, atau cakupan < 90%. Artinya: tidak ada jalan pintas "audit contoh".
+
+**Gerbang yang Bapak pilih (2026-09-17): `tahan_semua`** — temuan **K-1 dan K-2** sama-sama **menahan fase** sampai diperbaiki & diverifikasi; K-3/K-4 masuk daftar perbaikan.
 
 **Bila Bapak tidak mau repot membuka chat baru:** Bapak bisa minta agent melakukannya, tetapi hasilnya lebih lemah (sesi yang mengerjakan cenderung membela pekerjaannya sendiri). Agent **wajib jujur** menyebut kelemahan ini, bukan menyamarkan.
 

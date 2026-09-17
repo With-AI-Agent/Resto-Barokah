@@ -33,9 +33,25 @@
 | **AUD-0 — Audit dampak** | Setiap kali sebuah **keputusan berubah** dan bisa membatalkan pekerjaan lama (mis. keamanan akun diperdalam) | Agent pembangun (boleh sesi yang sama) | `docs/uji/DAFTAR_PEKERJAAN_ULANG.md` — daftar artefak yang bertentangan + tugas ulang | ≤ 1 jam |
 | **AUD-1 — Periksa batch** | Setiap batch pekerjaan, sebelum laporan ke pemilik | Mesin (pemeriksa Python, uji SQL, vitest, CI) + agent | CI hijau + uji mutasi membuktikan gerbang bisa MERAH | otomatis |
 | **AUD-2 — Review independen** | Akhir setiap **fase**, atau setiap perubahan yang menyentuh **uang/keamanan/data pelanggan** | **Sesi baru, model berbeda, hanya-baca** | Laporan dengan format §6, lolos `alat/audit-independen.py --periksa-laporan` | 1 sesi |
-| **AUD-3 — Audit adversarial menyeluruh** | Sebelum pilot/produksi, sebelum Fase 11 ditutup, dan **kapan pun pemilik meminta** | **Sesi baru, model berbeda**, semua lensa + **kalibrasi cacat tanaman** | Laporan AUD-3 + hasil kalibrasi + verdict | 1–2 sesi |
+| **AUD-3 — Audit adversarial menyeluruh** | Sebelum pilot/produksi, sebelum Fase 11 ditutup, dan **kapan pun pemilik meminta** (termasuk **audit lebih dulu** sebelum pekerjaan ulang) | **Sesi baru, model berbeda**, semua lensa + **kalibrasi cacat tanaman**, **lingkup menyeluruh** (§2b) | Laporan AUD-3 + hasil kalibrasi + verdict | 1–2 sesi |
 
 **Aturan gerbang:** fase **tidak boleh** ditutup, dan pekerjaan bergelombang **tidak boleh** lanjut, selama masih ada temuan **K-1 (Kritis)** atau **K-2 (Tinggi)** berstatus TERVERIFIKASI. Temuan K-3/K-4 masuk daftar perbaikan fase (boleh ditunda dengan catatan).
+
+**Pilihan gerbang (diputuskan pemilik 2026-09-17): `tahan_semua`** — temuan **K-1 dan K-2** sama-sama **menahan fase** sampai diperbaiki dan diverifikasi ulang. K-3/K-4 boleh masuk daftar perbaikan fase dengan catatan.
+
+---
+
+## 2b. Lingkup menyeluruh (WAJIB untuk AUD-3 — dikunci pemilik 2026-09-17)
+
+Permintaan pemilik: *"bener-bener menyeluruh… semuanya diperiksa dan diperbaiki. bukan hanya pada hasil codingan, ataupun pada fondasi saja… termasuk file2 yang disiapkan untuk pengguna."* Karena itu AUD-3 **bukan** audit contoh:
+
+1. **Paket dibuat dengan mode menyeluruh:** `python3 alat/audit-independen.py --paket AUD-3 --semua` → mesin menuliskan **seluruh grup berkas proyek** (kode aplikasi · migrasi & uji SQL · Edge Functions · perkakas repo · mesin kerja agent `_sistem/` · dokumen fondasi · dokumen uji/audit · dokumen teknis & operasional · desain & prototipe · **berkas untuk pengguna di akar repo** · CI) beserta jumlah berkas nyatanya.
+2. **Berkas untuk pengguna wajib diperiksa dengan cara pengguna:** buku induk `PANDUAN_PENGGUNA.md`, `PROMPT_ENTRI_UNIVERSAL.md`, `PROFIL_PENGGUNA.md`, `START_DI_SINI.md`, `AGENT_SYSTEM.md`, `STATUS.md`, `PROJECT_STATE.md`, `docs/PANDUAN_PEMILIK.md`, `docs/uji/PROMPT_AUDIT_INDEPENDEN.md`, `docs/teknis/BUKU_INSIDEN.md`, `docs/ops/*`. Auditor wajib menjawab: apakah langkahnya bisa diikuti orang non-teknis? apakah prompt bisa disalin apa adanya dan benar-benar bekerja? apakah ada langkah menyebut berkas/perintah yang tidak ada? **apakah buku induk benar-benar lengkap** (semua mekanisme + semua prompt ada)?
+3. **Laporan wajib memuat** `- **Mode cakupan:** menyeluruh`, ringkasan `Cakupan menyeluruh: X dari Y berkas`, satu baris bukti untuk **setiap** grup berkas di paket, dan sub-bagian **`### 1a. Berkas untuk pengguna`**. Mesin **menolak** laporan yang lupa salah satunya, atau yang cakupannya < 90% berkas.
+4. **Berkas yang dikecualikan** (kumpulan skill pihak ketiga `skills/`, `_salinan-meta/`, `_Notes.md`) wajib disebut auditor + alasan setuju/tolaknya — bukan diam-diam dilewati.
+5. **Temuan yang wajib diperbaiki lebih dulu**: selain K-1/K-2, setiap langkah pengguna yang **tidak bisa dijalankan apa adanya** (salah rujukan, perintah tidak ada, prompt yang menuntun ke jalan buntu) diperlakukan minimal **K-2**. Buku pedoman yang basi = temuan, bukan kerapian.
+
+**Penjaga mekanisme ini:** `alat/periksa-panduan.py` (ikut CI, bersama `--uji-diri`) memastikan buku induk tetap lengkap — bagian A–H ada, topik wajib ada, ≥10 mekanisme terdaftar, blok **Prompt Pembuka** identik dengan `PROMPT_ENTRI_UNIVERSAL.md`, blok **Prompt Auditor** identik dengan berkas kanonik, dan **semua rujukan berkas ber-backtick benar-benar ada** (kecuali ditandai `(rencana)`). Tanpa penjaga ini, buku induk akan basi pelan-pelan — persis jenis cacat K-3 yang paling sulit dilihat.
 
 ---
 
@@ -111,7 +127,14 @@ Tujuh bagian wajib, dengan nama **persis**:
 
 Riset *defect injection*: kemampuan pemeriksa **diukur** dengan menyuntikkan cacat yang jawabannya sudah diketahui. Tanpa ini, "BERSIH" hanya keyakinan.
 
-**Cara kerja (dijalankan pembangun, dinilai setelah audit):**
+Ada **dua jalur kalibrasi** — keduanya wajib, karena keduanya mengukur hal berbeda:
+
+| Jalur | Mengukur | Bahan | Kunci jawaban |
+|---|---|---|---|
+| **Mesin** | apakah pemeriksa otomatis menangkap cacat berbahaya | salinan `worktree` + katalog `alat/kalibrasi-cacat.json` | di luar repo (`/tmp/...-KUNCI.md`) |
+| **Auditor** | apakah auditor (manusia/AI) tajam | folder `docs/uji/kalibrasi/bahan-<tanggal>/` **ikut ter-commit** | di luar repo; **tidak pernah** ditulis di repo atau diberikan ke auditor |
+
+**Cara kerja jalur mesin (dijalankan pembangun, dinilai setelah audit):**
 
 1. Pembangun menjalankan: `python3 alat/audit-independen.py --kalibrasi-siapkan`
    → menyalin HEAD ke `worktree` bersih, **menanam 6 cacat** dari katalog `alat/kalibrasi-cacat.json`
@@ -121,8 +144,27 @@ Riset *defect injection*: kemampuan pemeriksa **diukur** dengan menyuntikkan cac
 3. Setelah laporan masuk: `python3 alat/audit-independen.py --kalibrasi-nilai <laporan> --kunci <kunci>`
    → menghitung **tingkat deteksi** (per tingkat bahaya), **temuan palsu**, dan memutuskan
    `TERKALIBRASI` / `BELUM TERKALIBRASI`.
-4. Hasil kalibrasi **dicatat permanen** di `docs/uji/AUDIT_RIWAYAT.md` (tren deteksi lintas audit).
-5. Katalog cacat **tumbuh**: setiap cacat nyata baru yang lolos ke repo wajib ditambahkan sebagai butir kalibrasi baru (praktik *"defects → inspection scenarios"*).
+
+**Cara kerja jalur auditor (dipakai untuk AUD-3 — bisa lintas sesi):**
+
+1. Bahan kalibrasi ada **di dalam repo**: `docs/uji/kalibrasi/bahan-<tanggal>/` (berisi cacat yang disengaja,
+   termasuk cacat pada **dokumen untuk pengguna** — kelas yang paling sering lolos).
+   Ini perbaikan cacat mekanisme yang ditemukan 2026-09-17: bahan di `/tmp` **tidak ikut berpindah** ke ruang kerja
+   sesi auditor, sehingga kalibrasi tidak bisa dijalankan lintas sesi.
+2. Paket audit menyuruh auditor: *"folder `bahan-*/` berisi cacat yang disengaja — temukan; kamu tidak diberi tahu
+   berapa jumlahnya, di berkas mana, atau kelasnya. Cacat di folder itu tidak dihitung sebagai temuan proyek."*
+   (Pengungkapan "ada cacat di sini" itu **sengaja**: yang diuji kerahasiaannya adalah **lokasi & jumlah**, bukan
+   keberadaan latihannya.)
+3. Setelah laporan masuk, pembangun mencocokkan bagian `## 5. Kalibrasi cacat tanaman` dengan kunci di luar repo
+   → `Ditemukan: X dari Y` + temuan palsu; hasilnya masuk `docs/uji/AUDIT_RIWAYAT.md`.
+4. Bahan **berbeda setiap audit** (nama folder bertanggal). Bahan lama tidak dihapus — supaya tidak ada audit yang
+   memakai bahan yang jawabannya sudah bocor di riwayat.
+
+**Ambang & pencatatan (berlaku untuk kedua jalur):**
+
+- Ambang §7: **semua cacat K-1/K-2 wajib ditemukan** + **≥70% total** + **0 temuan palsu** → `TERKALIBRASI`.
+- Hasil kalibrasi **dicatat permanen** di `docs/uji/AUDIT_RIWAYAT.md` (tren deteksi lintas audit).
+- Katalog/bahan cacat **tumbuh**: setiap cacat nyata baru yang lolos ke repo wajib ditambahkan sebagai butir kalibrasi baru (praktik *"defects → inspection scenarios"*).
 
 ---
 
@@ -188,6 +230,7 @@ pekerjaan **dihentikan** dan pemilik diberi penjelasan bahasa sederhana (3 pilih
 1. **Otomatis:** akhir setiap fase (AUD-2) · sebelum tugas bertanda uang/keamanan/data pelanggan di-`[x]` (AUD-2 pada perubahan itu) · sebelum pilot & sebelum Fase 11 ditutup (AUD-3).
 2. **Saat keputusan berubah:** AUD-0 audit dampak (menghasilkan daftar pekerjaan ulang).
 3. **Atas permintaan pemilik:** kalimat pemicu bebas, mis. **"Audit independen sekarang"** + lingkup (mis. "seluruh sistem", "keamanan akun", "Fase 1"). Agent **wajib**: menyiapkan paket dalam batch yang sama, menulis cara memulai sesi audit di `docs/PANDUAN_PEMILIK.md`, dan **tidak mengerjakan pekerjaan lain** sampai laporan masuk (kecuali tugas yang tidak menyentuh lingkup audit).
+4. **Audit lebih dulu (audit-first):** bila pemilik meminta audit **sebelum** pekerjaan ulang/lanjutan (2026-09-17), agent **menahan** pekerjaan baru yang menyentuh lingkup audit, menyiapkan paket **menyeluruh** (`--semua`) di batch itu juga, lalu menunggu. Pekerjaan ulang dimulai setelah temuan audit masuk dan diperbaiki — auditor yang memeriksa keadaan sekarang, bukan keadaan setelah diubah.
 
 ---
 
@@ -203,6 +246,7 @@ tertentu ditulis di berkas paket (§5) sehingga pemilik cukup menyalin dari sana
 | Tanggal | Perubahan | Alasan |
 |---|---|---|
 | 2026-09-17 | Dokumen dibuat & BERLAKU; alat `alat/audit-independen.py` (paket · periksa laporan · kalibrasi · uji diri) + `alat/kalibrasi-cacat.json` + `docs/PANDUAN_PEMILIK.md` | Permintaan pemilik: menanam mekanisme audit/review independen yang matang, terukur, dan bisa ia picu sendiri; riset: maker–checker separation, Perspective-Based Reading, defect injection, refutation-before-report |
+| 2026-09-17 (putaran 4) | §2b **lingkup menyeluruh** + gerbang **`tahan_semua`** + pemicu **audit-first** (§11) + atas permintaan pemilik buku induk `PANDUAN_PENGGUNA.md` dijadikan **manual book lengkap** (semua mekanisme + semua prompt) dengan penjaga `alat/periksa-panduan.py` di CI; alat dapat `--paket AUD-3 --semua` | Permintaan pemilik: *"sekarang aku mau audit dulu"*; mekanisme harus *"bener-bener menyeluruh… termasuk file2 yang disiapkan untuk pengguna"*; dan *"satu file untuk pengguna yang betul-betul isinya lengkap… semacam manual book"* |
 
 ## 14. Risiko sisa yang diakui (jujur, bukan disembunyikan)
 
@@ -210,3 +254,5 @@ tertentu ditulis di berkas paket (§5) sehingga pemilik cukup menyalin dari sana
 2. **Auditor & pembangun bisa berbagi model yang sama.** Bila platform hanya menyediakan satu keluarga model, korelasi cacat tetap ada — dicatat di laporan sebagai keterbatasan, dan dikompensasi lensa + kalibrasi.
 3. **Kunci jawaban kalibrasi ada di sistem berkas.** Auditor dilarang membacanya; pelanggaran hanya bisa dideteksi tidak langsung (temuan tanpa bukti → ditolak mesin). Ini kontrol proses, bukan kontrol teknis — dicatat terbuka.
 4. **Audit tidak menggantikan uji terima manusia.** Keputusan akhir tetap di tangan pemilik.
+5. **Agent pembangun tidak bisa mengaudit dirinya sendiri.** Auditor wajib sesi terpisah (dan bila mungkin model berbeda). Konsekuensi jujur: **pemilik harus membuka sesi baru** untuk menjalankan audit; agent pembangun hanya menyiapkan paket, menahan fase, dan menindaklanjuti temuan. Bila platform hanya menyediakan satu keluarga model, hasilnya tetap dicatat sebagai keterbatasan (butir 2) — bukan diklaim sebagai independensi penuh.
+6. **Cakupan menyeluruh menambah waktu.** AUD-3 menyentuh ratusan berkas; satu sesi bisa tidak cukup. Auditor **boleh** menulis laporan bertahap, tetapi verdict akhir hanya sah bila syarat §2b butir 3 terpenuhi (semua grup berkas + berkas pengguna + ≥90% cakupan).

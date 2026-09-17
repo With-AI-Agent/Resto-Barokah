@@ -7,7 +7,7 @@
 
 | # | Tanggal | Tingkat | Lingkup | Auditor | Commit | Temuan K-1 | K-2 | K-3 | K-4 | Tingkat deteksi kalibrasi | Verdict | Catatan |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| — | 2026-09-17 | — | (mekanisme dipasang; belum ada sesi auditor independen) | mesin + pembangun | `5ecd10b` | 0 | 0 | 0 | 0 | belum dijalankan | — | Paket AUD-2 untuk T1-01…T1-10 sudah disiapkan (`docs/uji/paket-audit/AUD-2-2026-09-17.md`) dan **menunggu sesi auditor** |
+| — | 2026-09-17 | — | (mekanisme dipasang; belum ada sesi auditor independen) | mesin + pembangun | `5ecd10b` | 0 | 0 | 0 | 0 | belum dijalankan | — | Paket AUD-2 (T1-01…T1-10) & paket **AUD-3 menyeluruh** (`docs/uji/paket-audit/AUD-3-2026-09-17.md`, seluruh berkas proyek) sudah disiapkan dan **menunggu sesi auditor**; mekanisme diperluas ke lingkup menyeluruh + penjaga buku induk (DECISIONS_LOG 2026-09-17 «Mekanisme audit diperluas…») |
 
 **Cara mengisi:** satu baris per audit. `Tingkat deteksi kalibrasi` = `X/Y` dari `--kalibrasi-nilai`.
 Kolom `Auditor` wajib menyebut model/keluarga model yang dipakai (atau "tidak bisa dipilih" bila platform hanya menyediakan satu).
@@ -48,6 +48,11 @@ kalibrasi: `uji: 6 LULUS · 4 GAGAL`.
 | 2 | Penghitung **temuan palsu** melewatkan baris yang tidak diberi awalan `P` | Uji-diri dengan contoh laporan berisi temuan palsu (`X1`) — tidak terhitung | Perbaikan logika + uji-diri kini menguji penilai kalibrasi juga (bukan hanya pemeriksa laporan) |
 | 3 | Pustaka uji SQL **hilang** dari ruang kerja (sisa restart) → semua klaim "uji LULUS" menjadi tak bisa direproduksi | Pre-flight paket audit & percobaan menjalankan uji | `npm ci --prefix alat` dijalankan; pre-flight sekarang memperingatkan bila alat bukti tidak siap |
 | 4 | Pemeriksa laporan **menolak laporan yang sah di klon dangkal** (CI memakai `fetch-depth: 1`, sehingga SHA historis pada contoh laporan tidak ada) → CI MERAH | CI kiriman `7f3974f` gagal di langkah pemeriksa; diagnosis: `git cat-file -e <sha-lama>` gagal di klon dangkal (dibuktikan dengan klon dangkal sungguhan) | Pemeriksa memberi **CATATAN** (bukan penolakan) bila `.git/shallow` ada; `--uji-diri` memakai `cek_sha=False` untuk contoh historis. Diuji ulang di klon dangkal nyata: semua pemeriksa OK |
+| 5 | **Rujukan berkas basi di berkas untuk pengguna**: `PROMPT_ENTRI_UNIVERSAL.md` & buku induk menyuruh membaca `` `ROADMAP.md` `` padahal berkas itu ada di `docs/ROADMAP.md` (bagian dari kelas cacat "panduan menunjuk jalan buntu") | Penjaga buku baru (`alat/periksa-panduan.py`) menolak karena rujukan ber-`backtick` tidak hidup | Rujukan diperbaiki **di sumber kanoniknya** (`PROMPT_ENTRI_UNIVERSAL.md`) lalu buku induk dibangun ulang dari sumber itu — bukan disunting terpisah. Rujukan serupa di `AGENT_SYSTEM.md`/`STATUS.md`/`SYSTEM_MANIFEST.md`/`AGENT_OPERATING_GUIDE.md` **diserahkan ke audit menyeluruh** (tidak diubah diam-diam oleh sesi pembangun) |
+| 6 | `docs/PANDUAN_PEMILIK.md` & `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` **tidak menunjuk balik** ke buku induk → pengguna bisa tersesat di antara pedoman | Penjaga buku (aturan "berkas pengguna wajib menunjuk ke induk") | Pointer ditambahkan; aturan ini kini diperiksa mesin di CI |
+| 7 | **Kalibrasi auditor tidak bisa dijalankan lintas sesi**: `--kalibrasi-siapkan` menaruh salinan di `/tmp` (di luar repo) — sedangkan sesi auditor berjalan di ruang kerja **baru**, sehingga bahan itu tidak ikut berpindah dan AUD-3 praktis **tidak bisa dikalibrasi** | Ditemukan saat menyiapkan AUD-3: menelusuri apakah auditor sesi baru bisa mencapai bahan | Ditambah **jalur kalibrasi auditor**: bahan cacat disengaja di-commit di `docs/uji/kalibrasi/bahan-<tanggal>/` (kunci tetap di luar repo), dijelaskan di `docs/uji/kalibrasi/CARA-PAKAI.md`, diwajibkan di PROTOKOL §7, dan dimasukkan ke paket AUD-3 oleh mesin; `validate_system` diberi **pengecualian sempit** (hanya folder `docs/uji/kalibrasi/bahan-*/`) karena rujukan menggantung di sana memang disengaja |
+
+
 
 ## 5. Uji-diri mekanisme (wajib hijau sebelum mekanisme dianggap terpasang)
 

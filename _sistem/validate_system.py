@@ -329,6 +329,11 @@ def check_no_dangling_internal_refs(errs):
     """Rujukan ber-backtick berprefix internal wajib ADA di dalam folder (scan AT-08, versi gerbang)."""
     rencana = _path_rencana_dari_roadmap() | set(BERKAS_RENCANA)
     for rel in _dokumen_scan():
+        # Bahan kalibrasi cacat tanaman (docs/uji/kalibrasi/bahan-*/) SENGAJA berisi rujukan
+        # menggantung & cacat lain: itu materi uji ketajaman auditor, bukan dokumen aktif.
+        # Dikecualikan secara sempit (hanya folder itu) supaya penjaga tetap kuat di tempat lain.
+        if str(rel).replace("\\", "/").startswith("docs/uji/kalibrasi/bahan-"):
+            continue
         p = SYS_DIR / rel
         if not p.is_file():
             continue

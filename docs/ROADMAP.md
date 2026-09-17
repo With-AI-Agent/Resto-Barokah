@@ -144,6 +144,24 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
+- [x] T0-11 — Buku pedoman induk (manual book) + penjaga otomatis
+  - **Tujuan:** pemilik punya **satu buku lengkap** yang memuat semua mekanisme, semua prompt, glosarium, penanganan masalah, dan peta berkas — serta tidak bisa basi pelan-pelan.
+  - **Ref:** permintaan pemilik 2026-09-17 (*"satu file untuk pengguna yang betul-betul isinya lengkap… semacam manual book"*); `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §2b
+  - **File:** `PANDUAN_PENGGUNA.md` (Bagian A–H) · `alat/periksa-panduan.py` · `.github/workflows/ci.yml` · `docs/PANDUAN_PEMILIK.md`
+  - **DoD:** buku memuat A peta cepat · B prompt & kalimat siap pakai · C semua mekanisme (≥10, masing-masing dengan berkas rujukan) · D semua prompt kanonik (termasuk prompt auditor) · E istilah awam + istilah audit · F penanganan masalah · G peta berkas · H template & kebiasaan; blok Prompt Pembuka identik dengan `PROMPT_ENTRI_UNIVERSAL.md`; blok Prompt Auditor identik dengan `docs/uji/PROMPT_AUDIT_INDEPENDEN.md`; setiap rujukan ber-`backtick` hidup (kecuali ditandai "(rencana)"); penjaga ikut CI & `aplikasi/alat/periksa-semua.sh`.
+  - **Kompleksitas:** sedang (2,5 jam)
+  - **Risiko & mitigasi:** buku dibangun dengan menyalin potongan berkas lama → risiko isi ganda/berbeda; mitigasi: blok prompt **diambil langsung dari sumber kanonik** saat pembangunan + pemeriksa identitas; rujukan basi → pemeriksa rujukan hidup (terbukti menangkap 1 rujukan nyata: `ROADMAP.md` → `docs/ROADMAP.md`).
+  - **Verifikasi:** `python3 alat/periksa-panduan.py` LOLOS (478 baris · 10 mekanisme · 60 rujukan diperiksa) · `python3 _sistem/validate_system.py` PASS · pemeriksa-panduan muncul di CI & periksa-semua · contoh penolakan nyata tercatat di `docs/uji/AUDIT_RIWAYAT.md` §4 butir 5–6.
+
+- [ ] T0-12 — Audit independen menyeluruh (AUD-3) atas keadaan sekarang + tindak lanjut temuan ⚠️
+  - **Tujuan:** sebelum pekerjaan ulang (T1-37) dan sebelum melanjutkan Fase 1, **seluruh keadaan sekarang diperiksa sesi auditor independen** dengan lingkup menyeluruh (semua berkas proyek, termasuk berkas untuk pengguna) — sesuai urutan yang diputuskan pemilik: **audit lebih dulu**.
+  - **Ref:** `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §2b & §11 · permintaan pemilik 2026-09-17 (*"sekarang aku mau audit dulu"*, gerbang `tahan_semua`)
+  - **File:** `docs/uji/paket-audit/AUD-3-<tanggal>.md` · `docs/uji/audit/LAPORAN_AUD-3_<tanggal>_menyeluruh.md` · `docs/uji/AUDIT_RIWAYAT.md` · `docs/TERTANGGUH.md` (temuan K-3/K-4 yang ditunda)
+  - **DoD:** paket dibuat `--paket AUD-3 --semua`; salinan kalibrasi cacat tanaman disiapkan & dinilai; auditor **sesi baru (idealnya model berbeda)** menjalankan semua lensa; laporan memuat mode `menyeluruh` + `Cakupan menyeluruh: X dari Y berkas` + sub-bagian `### 1a. Berkas untuk pengguna` dan **lolos** `--periksa-laporan`; semua K-1/K-2 ditutup **atau** fase tetap ditahan; verdict + tingkat deteksi dicatat di `docs/uji/AUDIT_RIWAYAT.md`.
+  - **Kompleksitas:** besar (1–2 sesi auditor + 1 batch perbaikan)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` bila perbaikan menyentuh keputusan terkunci; audit menyeluruh bisa menemukan banyak K-3/K-4 → dikelola lewat `docs/TERTANGGUH.md` (maks 12) tanpa menutup K-1/K-2; auditor tidak bisa dijalankan di sesi yang sama → pemilik membuka sesi baru (risiko sisa §14 butir 5).
+  - **Verifikasi:** laporan lolos kontrak mesin · kalibrasi memenuhi ambang (semua K-1/K-2 tertanam ditemukan, ≥70% total, 0 temuan palsu) · nol K-1/K-2 terbuka sebelum `[x]`.
+
 ## Fase 1 — Database, keamanan & uang (⚠️ Area Berisiko Tinggi — dikerjakan paling awal)
 
 - [x] T1-01 — Migrasi 0001: penyewa + cabang + RLS ⚠️
@@ -1760,7 +1778,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 **Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07 · Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009, **T-012** (cadangan di artefak terenkripsi repo privat) dan **T-013** (penutup shift = Admin Cabang → Owner Pusat) sudah **ditutup** 2026-09-16 (lihat tabel Butir selesai di `docs/TERTANGGUH.md`).
 
-**Jumlah tugas:** F0 11 · F1 38 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 13 = **182 tugas**, semuanya ber-7 atribut.
+**Jumlah tugas:** F0 13 · F1 38 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 13 = **184 tugas**, semuanya ber-7 atribut.
+| 2026-09-17 (putaran 4) | **Buku pedoman induk + penjaga mesin** (+T0-11 `[x]`) dan **audit menyeluruh lebih dulu** (+T0-12 ⚠️) → **184 tugas**; AUD-3 memakai lingkup menyeluruh (`--semua`) & gerbang `tahan_semua` | Permintaan pemilik: *"sekarang aku mau audit dulu"*; mekanisme harus menyeluruh *"termasuk file2 yang disiapkan untuk pengguna"*; *"satu file untuk pengguna yang betul-betul isinya lengkap… semacam manual book"* |
 
 > **Catatan 2026-09-17:** angka di atas **diukur ulang** dari berkas ini setelah penyisipan keamanan & kelengkapan UI (+T1-36 jalur pemulihan perangkat · +T1-37 pekerjaan ulang & T1-38 audit independen · +T11-13 audit adversarial)
 > (Fase 1B `T1-23…T1-30` · Fase 1C `T1-31…T1-35` · perluasan Fase 2/8/10/11). **Nomor migrasi rencana lama bergeser +7**

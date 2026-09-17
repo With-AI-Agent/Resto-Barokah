@@ -2,7 +2,8 @@
 
 > Dipakai bersama `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`. Paket khusus untuk satu lingkup audit ditulis mesin ke
 > docs/uji/paket-audit/ — **paket itulah yang disalin**, bukan berkas ini.
-> Cara pemilik memicunya ada di `docs/PANDUAN_PEMILIK.md`.
+> Cara pemilik memicunya ada di `docs/PANDUAN_PEMILIK.md`; penjelasan lengkap + semua prompt ada di
+> buku induk `PANDUAN_PENGGUNA.md`.
 
 ---
 
