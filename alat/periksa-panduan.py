@@ -35,7 +35,9 @@ BIDANG_ALUR = (
     r"\*\*Langkah Lee[^*]*:\*\*", r"\*\*Yang agent lakukan[^*]*:\*\*",
     r"\*\*Bukti yang Lee terima[^*]*:\*\*", r"\*\*Lama[^*]*:\*\*", r"\*\*Kalau macet[^*]*:\*\*",
 )
-MIN_ALUR = 10
+# Ambang = jumlah NYATA (temuan audit B-F-12: ambang 10 dengan isi 12 berarti dua alur
+# bisa terhapus tanpa ketahuan). Kalau alur bertambah, naikkan angka ini — jangan sebaliknya.
+MIN_ALUR = 12
 KOLOM_PERINTAH = ("Kalimat Lee", "Fungsinya", "Kalau GAGAL artinya")
 LARANGAN_SAPAAN = ("Bapak", "Pak ")  # Lee minta dipanggil "Lee" (2026-09-17)
 
@@ -82,13 +84,15 @@ def cari_blok_kanonik(teks: str) -> str:
     return blok_pertama(bagian)
 
 
-def main() -> int:
+def main(akar: pathlib.Path | None = None) -> int:
+    akar = akar or AKAR
+    buku = akar / "PANDUAN_PENGGUNA.md"
     errs: list[str] = []
     catatan: list[str] = []
     angka: dict = {}
-    if not BUKU.is_file():
+    if not buku.is_file():
         print("GAGAL: PANDUAN_PENGGUNA.md tidak ada"); return 1
-    teks = BUKU.read_text(encoding="utf-8")
+    teks = buku.read_text(encoding="utf-8")
     baris = teks.splitlines()
 
     if len(baris) < MIN_BARIS:
@@ -162,7 +166,7 @@ def main() -> int:
             errs.append(f"baris mekanisme tanpa rujukan berkas / kolom kurang: {b.strip()[:70]}")
 
     # 4. blok prompt pembuka harus identik
-    pe = AKAR / "PROMPT_ENTRI_UNIVERSAL.md"
+    pe = akar / "PROMPT_ENTRI_UNIVERSAL.md"
     if pe.is_file():
         kanonik = blok_pertama(pe.read_text(encoding="utf-8"))
         if not kanonik:
@@ -173,7 +177,7 @@ def main() -> int:
         errs.append("PROMPT_ENTRI_UNIVERSAL.md tidak ada")
 
     # 5. blok prompt auditor harus identik
-    pa = AKAR / "docs" / "uji" / "PROMPT_AUDIT_INDEPENDEN.md"
+    pa = akar / "docs" / "uji" / "PROMPT_AUDIT_INDEPENDEN.md"
     if pa.is_file():
         kanonik_audit = cari_blok_kanonik(pa.read_text(encoding="utf-8"))
         if not kanonik_audit:
@@ -216,7 +220,7 @@ def main() -> int:
     for t in sorted(kandidat):
         if t in {"main", "arena/...", "docs/..."}:
             continue
-        jalur = AKAR / t
+        jalur = akar / t
         if jalur.exists():
             continue
         # baris yang menyebut berkas ini (+ nomor barisnya)
@@ -233,12 +237,12 @@ def main() -> int:
 
     # 7. berkas untuk pengguna wajib ada + menunjuk balik
     for rel in BERKAS_PENGGUNA_WAJIB:
-        if not (AKAR / rel).is_file():
+        if not (akar / rel).is_file():
             errs.append(f"berkas untuk pengguna hilang: {rel}")
-    pm = AKAR / "docs" / "PANDUAN_PEMILIK.md"
+    pm = akar / "docs" / "PANDUAN_PEMILIK.md"
     if pm.is_file() and "PANDUAN_PENGGUNA.md" not in pm.read_text(encoding="utf-8"):
         errs.append("docs/PANDUAN_PEMILIK.md tidak menunjuk balik ke buku induk PANDUAN_PENGGUNA.md — pengguna bisa tersesat")
-    pp = AKAR / "docs" / "uji" / "PROMPT_AUDIT_INDEPENDEN.md"
+    pp = akar / "docs" / "uji" / "PROMPT_AUDIT_INDEPENDEN.md"
     if pp.is_file() and "PANDUAN_PENGGUNA" not in pp.read_text(encoding="utf-8"):
         errs.append("docs/uji/PROMPT_AUDIT_INDEPENDEN.md tidak menunjuk ke buku induk")
 
@@ -255,5 +259,52 @@ def main() -> int:
     return 0
 
 
+def uji_diri() -> int:
+    """Standar proyek: pemeriksa yang tidak bisa MERAH dianggap belum terpasang (B-F-12)."""
+    from bantu_uji_diri import jalankan_pemeriksa, laporkan, salin_pohon
+
+    hasil = []
+    with salin_pohon() as tmp:
+        kode, keluar = jalankan_pemeriksa(main, tmp)
+        hasil.append(("salinan utuh", kode == 0, f"kode {kode}"))
+        if kode != 0:
+            print(keluar[:1500])
+
+        # Mutasi 1: satu alur dihapus → harus GAGAL (ambang = jumlah nyata)
+        with salin_pohon() as tmp2:
+            berkas = tmp2 / "PANDUAN_PENGGUNA.md"
+            isi = berkas.read_text(encoding="utf-8")
+            awal = [m.start() for m in re.finditer(r"^### AL-\d+ — ", isi, re.MULTILINE)]
+            potong_awal = awal[1]
+            potong_akhir = isi.find("\n### ", potong_awal + 4)
+            berkas.write_text(isi[:potong_awal] + isi[potong_akhir:], encoding="utf-8")
+            kode2, _ = jalankan_pemeriksa(main, tmp2)
+            hasil.append(("mutasi: satu alur dihapus dari Bagian B", kode2 != 0,
+                          "ditolak" if kode2 != 0 else "DILOLOSKAN (ambang longgar)"))
+
+        # Mutasi 2: label pemakai prompt dihapus → harus GAGAL
+        with salin_pohon() as tmp3:
+            berkas = tmp3 / "PANDUAN_PENGGUNA.md"
+            isi = berkas.read_text(encoding="utf-8")
+            for lab in ("[LEE → AGENT]", "[LEE → PENINJAU]"):
+                isi = isi.replace(lab, "[PROMPT]")
+            berkas.write_text(isi, encoding="utf-8")
+            kode3, _ = jalankan_pemeriksa(main, tmp3)
+            hasil.append(("mutasi: label pemakai prompt dihapus", kode3 != 0,
+                          "ditolak" if kode3 != 0 else "DILOLOSKAN (label tidak dijaga)"))
+
+        # Mutasi 3: buku memanggil Lee dengan "Bapak" → harus GAGAL
+        with salin_pohon() as tmp4:
+            berkas = tmp4 / "PANDUAN_PENGGUNA.md"
+            isi = berkas.read_text(encoding="utf-8")
+            berkas.write_text(isi + "\nSilakan tanya Bapak kalau bingung.\n", encoding="utf-8")
+            kode4, _ = jalankan_pemeriksa(main, tmp4)
+            hasil.append(("mutasi: buku memanggil \"Bapak\"", kode4 != 0,
+                          "ditolak" if kode4 != 0 else "DILOLOSKAN (sapaan tidak dijaga)"))
+    return laporkan("periksa-panduan", hasil)
+
+
 if __name__ == "__main__":
+    if "--uji-diri" in sys.argv:
+        sys.exit(uji_diri())
     sys.exit(main())

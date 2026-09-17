@@ -31,21 +31,35 @@
 
 ### 1b. Status penutupan temuan AUD-3 (diperbarui setiap batch perbaikan)
 
-| Temuan | Tingkat | Status | Bukti penutup |
-|---|---|---|---|
-| Uang lebih bayar diterima saat total pesanan masih 0 (laporan A F-04 · B F-04 · F-10) | K-1 | **DITUTUP 2026-09-17** | `supabase/tes/gerbang_uang.sql` (merah sebelum, hijau sesudah) · `docs/uji/audit/bukti-verifikasi-2026-09-17.sql` bagian A |
-| `total_dibayar(uuid)` bocor lintas resto (laporan B F-04) | K-1 | **DITUTUP 2026-09-17** | `supabase/tes/isolasi_lintas_penyewa.sql` (dulu mengembalikan 777.000 kepada kasir resto lain, kini 0) |
-| `izin_efektif_untuk()` / `boleh_untuk()` bocor lintas resto (laporan B F-05) | K-1 | **DITUTUP 2026-09-17** | pintu ditutup untuk klien (hak `authenticated` dicabut) + saringan penyewa di dalam fungsi — diuji di `supabase/tes/isolasi_lintas_penyewa.sql` |
-| PIN sendiri bisa diganti tanpa PIN lama (A F-01) | K-2 | **DITUTUP 2026-09-17** | `supabase/tes/kredensial_pin.sql` — penggantian PIN sendiri wajib PIN lama, termasuk saat uuid diri sendiri disebutkan |
-| `pin_hash` bisa dibaca pegawai lain (A F-02, B F-10) | K-2 | **DITUTUP 2026-09-17** | rahasia pindah ke tabel `kredensial_pin` (hak klien dicabut, policy menolak semua): `supabase/tes/kredensial_pin.sql` + `pin.sql` |
-| Jejak pelaku bisa dipalsukan (A F-05) | K-2 | **DITUTUP 2026-09-17** | pelaku diisi sistem (`auth.uid()`), nilai lain DITOLAK — `supabase/tes/jejak_pelaku.sql` (pembayaran, diskon, pembatalan, catatan stok) |
-| Batas persen diskon dilewati saat kolom persen kosong (B F-06) | K-2 | **DITUTUP 2026-09-17** | persen efektif dihitung dari uang — `supabase/tes/diskon_persen.sql`; uji lama `pembayaran.sql` juga diperbaiki (dulu lulus karena sebab yang salah: 20.000 = 37 % dianggap "dalam batas") |
-| Void sesudah dapur dengan penyetuju karangan (A F-03) | K-2 | **DITUTUP 2026-09-17** | persetujuan wajib TERBUKTI: PIN benar untuk aksi itu & baru saja (jendela 5 menit), dicatat di `percobaan_pin` — `supabase/tes/persetujuan_void.sql` |
-| Status pesanan bisa dipindah klien (lunas tanpa uang) (A F-03/B F-02) | K-2 | **DITUTUP 2026-09-17** | penjaga perpindahan status per peran; `lunas`/`batal` hanya peladen; tanda kirim ke dapur tak bisa dihapus — `supabase/tes/status_pesanan.sql` |
-| Penjaga stok dilewati dengan peubah sesi klien (A F-06) | K-2 | **DITUTUP 2026-09-17** | penjaga memakai bukti peladen yang tak bisa dipalsukan klien (`peran_peladen()`), penanda sesi dibuang — `supabase/tes/penjaga_stok.sql` |
-| Lapis kedua pembatasan PIN memakai nama perangkat kiriman klien (B F-11) | K-3 | **TERBUKA (dipagari)** | **Tingkat dikoreksi K-2 → K-3** (mengikuti laporan B §F-11; lapis akun terbukti bekerja). Yang bisa dikerjakan sekarang sudah: batas akun dikunci uji regresi `supabase/tes/percobaan_pin_perangkat.sql` (2 uji mutasi memerah: batas akun dimatikan · lapis perangkat dihapus). Perbaikan sebenarnya butuh `perangkat_id` terverifikasi → T1-24 (Fase 1B) yang **wajib** memperketat uji itu (tertulis di DoD/Verifikasi T1-24) dan menutup baris ini dengan bukti ujinya. Catatan: butir ini **sengaja TIDAK** masuk `docs/TERTANGGUH.md` — TERTANGGUH untuk hal yang menunggu jawaban/keputusan, sedangkan ini pekerjaan terjadwal (siapa pun bisa menutupnya dengan bukti) |
-| Kontrol wajib `docs/KEAMANAN.md` belum ada di kode (A F-07) | K-2 | **TERBUKA (sebagian mendarat)** | Fase 1B. **Kemajuan 2026-09-17:** T1-23 selesai — satu akun satu peran (migrasi 0011, `pengguna_cabang.peran` dibongkar) + PIN 6 angka, bukan pola lemah, **unik** antar pegawai, dengan pembatas anti-oracle; sisa kontrol (perangkat terdaftar, sesi, TOTP, matriks izin, percobaan masuk) masih T1-24…T1-30 |
-| Kertas kerja K-3/K-4 (rujukan mati, `npm audit`, uji batas, dll.) | K-3/K-4 | **TERBUKA** | dikelola lewat `docs/TERTANGGUH.md` pada batch K-2 |
+> **Aturan (dijaga mesin oleh `alat/periksa-temuan-audit.py`):** laporan A punya 10 temuan, laporan B punya 17.
+> **Setiap** temuan wajib punya baris sendiri di sini. Baris `DITUTUP` wajib menunjuk bukti yang benar-benar ada
+> di repo; baris `TERBUKA` wajib menunjuk tugas ROADMAP yang benar-benar ada — temuan tanpa bukti/pemilik
+> adalah temuan yang akan terlupakan. Dulu tabel ini memakai satu baris gelondongan ("kertas kerja K-3/K-4")
+> dan beberapa temuan tidak punya status; itu cacat ketertelusuran yang diperbaiki 2026-09-17.
+
+| Laporan | Tingkat | Temuan (ringkas) | Status | Bukti penutup / pemilik penyelesaian |
+|---|---|---|---|---|
+| A F-04 · B F-03 · A F-10 | K-1/K-2 | Uang lebih bayar diterima saat total pesanan masih 0 (uji batas lama hanya untuk total > 0) | **DITUTUP 2026-09-17** | `supabase/tes/gerbang_uang.sql` (merah sebelum, hijau sesudah) · `docs/uji/audit/bukti-verifikasi-2026-09-17.sql` |
+| B F-04 | K-1 | `total_dibayar(uuid)` bocor lintas resto | **DITUTUP 2026-09-17** | `supabase/tes/isolasi_lintas_penyewa.sql` (dulu mengembalikan 777.000 ke kasir resto lain, kini 0) |
+| B F-05 | K-1 | `izin_efektif_untuk()` / `boleh_untuk()` bocor lintas resto | **DITUTUP 2026-09-17** | pintu klien ditutup + saringan penyewa di dalam fungsi — `supabase/tes/isolasi_lintas_penyewa.sql` |
+| B F-01 | K-1 | Status pesanan bisa dipindah klien: "lunas" tanpa uang, "batal" tanpa jejak | **DITUTUP 2026-09-17** | penjaga perpindahan status per peran; `lunas`/`batal` hanya peladen — `supabase/tes/status_pesanan.sql` |
+| B F-02 · A F-03 | K-1/K-2 | Void sesudah dapur lolos dengan penyetuju karangan (PIN tidak pernah diverifikasi) | **DITUTUP 2026-09-17** | persetujuan wajib TERBUKTI (PIN benar untuk aksi itu, jendela 5 menit, tercatat) — `supabase/tes/persetujuan_void.sql` |
+| A F-01 · B F-07 | K-2 | PIN sendiri bisa diganti tanpa PIN lama → persetujuan bisa dipalsukan | **DITUTUP 2026-09-17** | `supabase/tes/kredensial_pin.sql` — penggantian PIN sendiri wajib PIN lama, termasuk saat uuid diri sendiri disebut |
+| A F-02 · B F-10 | K-2/K-3 | `pin_hash` bisa dibaca klien (diri sendiri & seluruh pegawai oleh admin/owner) | **DITUTUP 2026-09-17** | rahasia pindah ke `kredensial_pin` (hak klien dicabut, policy menolak semua) — `supabase/tes/kredensial_pin.sql` · `supabase/tes/rls_semua_tabel.sql` |
+| A F-05 | K-2 | Identitas pelaku/penyetuju di tiga tabel bisa dipalsukan klien | **DITUTUP 2026-09-17** | pelaku diisi sistem (`auth.uid()`) — `supabase/tes/jejak_pelaku.sql` |
+| B F-06 | K-2 | Batas **persen** diskon dilewati dengan mengosongkan kolom `persen` | **DITUTUP 2026-09-17** | persen efektif dihitung dari uang — `supabase/tes/diskon_persen.sql` |
+| A F-06 | K-2 | Penjaga stok bisa dilewati dengan peubah sesi klien | **DITUTUP 2026-09-17** | bukti peladen `peran_peladen()` — `supabase/tes/penjaga_stok.sql` |
+| A F-07 | K-2 | Kontrol wajib `docs/KEAMANAN.md` belum ada di kode | **TERBUKA (sebagian mendarat)** | T1-23 mendarat 2026-09-17 (`supabase/migrations/0011_peran_tunggal.sql`); sisa kontrol dijadwalkan `T1-24`, `T1-25`, `T1-26`, `T1-27`, `T1-28`, `T1-29`, `T1-30` |
+| A F-08 · B F-08 | K-2/K-3 | Rujukan mati di dokumen pengikat — Buku Insiden menyuruh memakai alat yang tidak ada | **DITUTUP 2026-09-17** | 3 rujukan mati diperbaiki di dokumen pengikat (Buku Insiden: alat denyut & berkas catatan pemulihan; KEAMANAN: pemeriksa rantai audit) — kini ditandai rencana + tugasnya, dan dijaga penjaga baru `alat/periksa-rujukan.py` (mode `--uji-diri`) |
+| A F-09 | K-3 | 5 kerentanan dependency dev & CI tidak memeriksanya | **DITUTUP 2026-09-17** | `aplikasi/package.json` (vitest 5) + langkah `npm audit` di `.github/workflows/ci.yml` · `npm audit` → 0 kerentanan |
+| B F-09 | K-2 | Paket audit ter-commit menunjuk commit lain → `--verifikasi-lingkup` menyuruh auditor berhenti padahal commit-nya benar | **TERBUKA** | perketat mekanisme paket (lingkup dari commit target + CI wajib hijau) → `T1-44` |
+| B F-11 | K-3 | Lapis kedua pembatasan PIN memakai nama perangkat kiriman klien | **TERBUKA (dipagari)** | dipagari `supabase/tes/percobaan_pin_perangkat.sql`; perbaikan asli butuh perangkat terdaftar → `T1-24` |
+| B F-12 | K-3 | Penjaga buku induk: ambang longgar (10 dari 12 alur) & tidak punya uji-diri | **DITUTUP 2026-09-17** | `alat/periksa-panduan.py` (`MIN_ALUR = 12` + mode `--uji-diri` 3 mutasi) + langkah di `.github/workflows/ci.yml` |
+| B F-13 | K-3 | Klaim bukti T0-01 "31 berkas huruf pindah" tidak bisa direproduksi | **DITUTUP 2026-09-17** | klaim dicabut & diganti angka terhitung + perintah hitungnya di `docs/ROADMAP.md` |
+| B F-14 | K-3 | Sapuan isolasi lintas resto hanya tabel ber-`penyewa_id` + pencocokan teks policy | **TERBUKA** | perkuat sapuan di `T1-22` (dasar: `supabase/tes/rls_semua_tabel.sql`) |
+| B F-15 | K-3 | `docs/SPESIFIKASI_UI.md` menyebut pemeriksa `alat/peta-ui.py` di CI padahal berkas & langkah CI belum ada | **DITUTUP (klaim dikoreksi) 2026-09-17** | `docs/SPESIFIKASI_UI.md` §5 kini menandai alat itu sebagai rencana Fase 1C (`T1-33`); pembuatan alatnya sendiri tetap tugas `T1-33` |
+| B F-16 | K-4 | Tabel lingkup paket audit tidak menutup berkasnya sendiri (333/334) & satu grup angkanya meleset | **TERBUKA** | perketat mekanisme paket (hitungan mesin + berkas paket sendiri) → `T1-44` |
+| B F-17 | K-3 | Commit yang diaudit tidak pernah dilewatkan CI — tidak ada satu pun run untuknya | **TERBUKA** | wajibkan & periksa CI hijau sebelum paket audit dibuat → `T1-44` |
 
 **Cara mengisi:** satu baris per audit. `Tingkat deteksi kalibrasi` = `X/Y` dari `--kalibrasi-nilai`.
 Kolom `Auditor` wajib menyebut model/keluarga model yang dipakai (atau "tidak bisa dipilih" bila platform hanya menyediakan satu).

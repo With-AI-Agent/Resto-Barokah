@@ -19,7 +19,7 @@
 | 3 | "Selesai" = kode ditulis | **DoD UI** (§6) — butuh bukti uji + naskah jalan dijalankan |
 | 4 | Data contoh menyembunyikan kegagalan | Data uji & **seed** yang sama dipakai uji komponen, uji SQL, dan pratinjau |
 | 5 | Tidak ada yang mencoba tombolnya sampai pemilik menemukannya | **Uji komponen per layar** + **naskah jalan pemilik** (§7) |
-| 6 | Dokumen & kode bisa saling tinggal (drift) | **Pemeriksa `alat/peta-ui.py`** di CI (§5) |
+| 6 | Dokumen & kode bisa saling tinggal (drift) | **Pemeriksa `alat/peta-ui.py`** di CI (§5) — *alat ini **belum dibuat**; dibuat di Fase 1C (**T1-33**)* |
 
 ## 2. Registri Aksi — satu sumber kebenaran tombol
 
@@ -76,7 +76,7 @@ Berkas: `aplikasi/src/lib/layar.ts` (registri) + tabel kontrak di bawah ini.
 
 ## 5. Pemeriksa otomatis (gerbang CI)
 
-`alat/peta-ui.py` men-generate `docs/PETA_UI.md` dari `aksi.ts` + `layar.ts`, lalu **menggagalkan CI** bila:
+`alat/peta-ui.py` (**belum ada — dibuat di T1-33**) akan men-generate `docs/PETA_UI.md` dari `aksi.ts` + `layar.ts`, lalu **menggagalkan CI** bila:
 1. aksi menunjuk RPC yang tidak ada di `supabase/migrations/*.sql`;
 2. aksi menunjuk kode izin yang tidak ada di tabel `izin_kode`;
 3. aksi `tulis` tanpa uji (id uji tidak ditemukan di berkas uji);
@@ -94,7 +94,7 @@ Sebuah tugas layar/fitur hanya boleh `[x]` bila **semua** benar:
 2. Semua aksinya ada di Registri Aksi, lengkap dengan izin/RPC/pesan/uji.
 3. Ketujuh keadaan ditangani (dan dapat dilihat di pratinjau).
 4. Uji komponen per peran lulus: aksi berizin memanggil RPC yang benar; aksi terlarang tidak ada; keadaan tampil.
-5. Pemeriksa `alat/peta-ui.py` lulus.
+5. Pemeriksa `alat/peta-ui.py` lulus (**setelah alatnya dibuat di T1-33**).
 6. Izin ditegakkan **di database** (bukan hanya disembunyikan di layar) — dibuktikan uji SQL.
 7. Naskah jalan bernomor ditulis & **dijalankan** di pratinjau; hasilnya dicatat di blok Bukti ROADMAP.
 8. `DECISIONS_LOG.md` diperbarui bila menyentuh uang/keamanan/data pelanggan.

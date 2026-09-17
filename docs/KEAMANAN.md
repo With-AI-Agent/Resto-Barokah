@@ -146,7 +146,7 @@
 ## 10. Jejak audit
 
 - `catatan_audit` **hanya-tambah** (tidak ada hak ubah/hapus untuk siapa pun, termasuk owner).
-- Sejak Fase 1B: **rantai hash** (`hash_sebelumnya`, `hash_baris`) dihitung pemicu; pemeriksa `alat/periksa-audit.py` menunjuk baris pertama yang putus bila ada perubahan/penghapusan langsung di database.
+- Sejak Fase 1B: **rantai hash** (`hash_sebelumnya`, `hash_baris`) dihitung pemicu; pemeriksa `alat/periksa-audit.py` (dibuat bersama rantai hashnya di `T1-27`, lalu dipasang di CI pada `T1-30`) menunjuk baris pertama yang putus bila ada perubahan/penghapusan langsung di database.
 - Yang dicatat minimal: void, diskon manual, perubahan harga, buka laci tanpa transaksi, pakai voucher, perubahan pengaturan, perubahan izin, perubahan pegawai/PIN, pendaftaran/pencabutan perangkat, persetujuan PIN, mode dukungan, percobaan masuk.
 
 ## 11. Data pelanggan & UU PDP (UU 27/2022)

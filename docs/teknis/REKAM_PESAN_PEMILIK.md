@@ -31,6 +31,7 @@ sejauh tercatat, dan **keputusan yang lahir dari permintaan itu**, supaya tidak 
 | 11 | 2026-09-17 **[verbatim]** (lihat §2 di bawah) | Tanam **mekanisme audit/pemeriksaan/review independen** yang teliti & terukur; jelaskan caranya di panduan pengguna; **nilai dulu idenya** | ✅ ditanam (AUD-0…AUD-3) + dinilai bagus dengan 3 koreksi | `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`, `alat/audit-independen.py` |
 | 12 | 2026-09-17 **[verbatim]** *"sekarang aku mau audit dulu"* + *"bener-bener menyeluruh… termasuk file2 yang disiapkan untuk pengguna"* + *"satu file untuk pengguna yang betul-betul isinya lengkap… semacam manual book"* + gerbang **`tahan_semua`** | Audit dulu sebelum kerja ulang; lingkup menyeluruh termasuk berkas pengguna; satu buku induk lengkap; K-1 & K-2 menahan fase | ✅ mekanisme diperluas + buku induk dibuat (**diperbaiki lagi** di putaran 5, lihat §4) | `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §2b, `PANDUAN_PENGGUNA.md` |
 | 13 | 2026-09-17 (putaran 5) | Lihat **§4** — 7 permintaan baru | ✅ semuanya dikerjakan (P1–P7) | bukti di §3 di bawah |
+| 14 | 2026-09-17 (putaran 7) | Lihat **§9** — "pastikan semua permintaanku sudah dikerjakan" + bantuan tiap laman + Buku Uji Pemilik bertahap (juga ditampilkan di chat) | 🟡 **diverifikasi**: 6 cacat ketertelusuran ditemukan & diperbaiki; 6 temuan audit masih terbuka (bertugas) · 2 permintaan baru dijadwalkan (`T1-42`, `T1-43`) | `docs/teknis/REKAM_PESAN_PEMILIK.md` §9 · `docs/uji/AUDIT_RIWAYAT.md` §1b |
 
 **Bukti P1–P7 (putaran 5):** P1 berkas ini · P2 `alat/audit-independen.py --verifikasi-lingkup` + PROTOKOL §5b + LANGKAH 0 di paket · P3 `PANDUAN_PENGGUNA.md` v2 (12 alur, prompt berlabel, perintah berpenjelasan) + `alat/periksa-panduan.py` diperluas · P4 panggilan Lee (+ PROFIL_PENGGUNA) · P5 `docs/uji/PROTOKOL_REVIEW_PR_INDEPENDEN.md` + `alat/review-pr.py` + `docs/uji/PROMPT_REVIEW_PR_INDEPENDEN.md` + `docs/uji/REVIEW_PR_RIWAYAT.md` · P6 dijelaskan di buku Bagian C4/C5 (dua cara memakai; SIAP-TEMPEL = termudah) · P7 dijawab jujur di §6 bawah + `docs/SPESIFIKASI_UI.md` §9 & tugas ROADMAP baru.
 
@@ -170,6 +171,49 @@ sejauh tercatat, dan **keputusan yang lahir dari permintaan itu**, supaya tidak 
 1. **Jalur pulang laporan** (celah nyata: protokol menyuruh auditor menulis laporan, tetapi tidak pernah menjelaskan bagaimana laporan itu kembali ke sesi kerja) → alat baru `--ambil-laporan` di kedua alat (audit & review PR) + §5c di protokol audit + §6b di protokol review PR + langkah push di kedua prompt kanonik + buku (AL-5, AL-7, Bagian E).
 2. **Lee benar soal "memenuhi syarat"** → aturan anti-teater dikunci: ambang minimum = **lantai, bukan target**; **temuan di luar cakupan wajib dilaporkan** (bagian 8 baru di kedua kontrak laporan); **dilarang menyusun laporan agar lolos pemeriksa**; mesin menandai laporan yang berhenti tepat di ambang sebagai CATATAN.
 3. **Dua laporan lama tidak ada** di cabang mana pun saat diperiksa (`git ls-remote` → hanya cabang sesi lama 15–16 Sep) → karena itu jalur pulang dibuat wajib di prompt, bukan opsional.
+
+## §9. Putaran 7 (2026-09-17) — "pastikan semua permintaanku sudah dikerjakan" + dua permintaan baru
+
+**Kata Lee (verbatim, diringkas):** *"Semua yang aku minta matangkan sebelumnya udh belum? Tolong pastikan dulu.
+Kamu kan menyimpan chat aku yang panjang itu. Pastikan itu bukan cuma disimpan, tapi juga dibaca."* —
+lalu dua permintaan baru: **(a)** bantuan/panduan di **setiap laman** supaya pengguna tidak perlu mengingat sosialisasi;
+**(b)** **buku panduan uji** untuk Lee: berisi apa yang harus dicoba, langkah lengkap bahasa sederhana, tempat mengisi
+"sudah/belum & bagaimana hasilnya", **ditulis bertahap mengikuti jalannya proyek**, dan **juga ditampilkan di chat**;
+hal yang harus Lee **lakukan** (mis. penyiapan Supabase) diperlakukan sama. Lee juga minta **dikritisi** bila idenya kurang tepat.
+
+### 9a. Hasil verifikasi (dijalankan 2026-09-17, bukan mengandalkan centang lama)
+
+Diperiksa: berkas fondasi · keamanan (§3–§6 `docs/KEAMANAN.md`) · darurat (Buku Insiden) · desain · bahasa ·
+alat audit/review · buku induk · daftar tunggu · rujukan · lingkungan CI. **Cara:** jalankan pemeriksa + cek berkas + greps.
+
+| Temuan verifikasi | Sifat | Tindakan |
+|---|---|---|
+| Rujukan mati di dokumen pengikat **3 berkas** (Buku Insiden menyuruh alat denyut yang tidak ada & berkas catatan pemulihan; KEAMANAN §10 menyebut pemeriksa rantai audit) | cacat nyata | diperbaiki (ditandai rencana + tugasnya) + penjaga baru `alat/periksa-rujukan.py` (uji-diri 2 mutasi) |
+| Daftar temuan audit **gelondongan**: 27 temuan laporan (A: 10 · B: 17) tidak semuanya berstatus; beberapa id tertukar | cacat ketertelusuran | `docs/uji/AUDIT_RIWAYAT.md` §1b ditulis per temuan (21 baris; 15 ditutup · 6 terbuka) + penjaga `alat/periksa-temuan-audit.py` |
+| Klaim bukti `T0-01` "31 berkas huruf pindah" tidak bisa direproduksi | klaim tanpa bukti | klaim dicabut, diganti angka terhitung (57 berkas `.woff2`) + perintah hitungnya |
+| `docs/SPESIFIKASI_UI.md` menyebut `alat/peta-ui.py` seolah sudah ada | klaim tanpa bukti | ditandai rencana + tugas `T1-33` |
+| Kerentanan dependency dev 5 (1 kritis) & CI tidak memeriksa | cacat nyata | vitest → 5.0.1 (0 kerentanan) + langkah `npm audit --audit-level=low` di CI |
+| Penjaga buku induk ambang longgar (10 dari 12 alur) & tanpa uji-diri | cacat nyata | `MIN_ALUR = 12` + `--uji-diri` (3 mutasi) + langkah CI |
+| Akun/proyek Supabase (`T0-00`) **tidak tercatat** di daftar tunggu, padahal diketahui menunggu Lee | cacat ketertelusuran | dicatat sebagai `T-018` + ditandai ❓ di ROADMAP |
+
+**Masih terbuka (jujur, ada pemiliknya):** A-F-07 (kontrol keamanan → `T1-24`…`T1-30`) · B-F-09/B-F-16/B-F-17
+(mekanisme paket audit → `T1-44`) · B-F-11 (lapis perangkat → `T1-24`) · B-F-14 (sapuan isolasi → `T1-22`).
+
+### 9b. Tanggapan atas dua permintaan baru (dikritisi, bukan langsung di-iya-kan)
+
+- **Bantuan di setiap laman — bagus, tapi ada syaratnya.** Bantuan yang ditulis terpisah dari kode akan **basi**.
+  Karena itu teks bantuan dibuat **satu sumber dengan registri aksi** (T1-32) dan dijaga pemeriksa: aksi/layar tanpa bantuan → CI GAGAL.
+  Batas panjang: 1–2 kalimat + maksimal 5 langkah + "kalau macet" + "siapa yang boleh". Bantuan **tidak** menggantikan pelatihan;
+  ia menggantikan **mengingat**.
+- **Buku Uji Pemilik — bagus dan justru menutup lubang maraton.** Risiko yang harus ditahan: (1) buku jadi daftar raksasa yang
+  tak diisi → satu baris = satu hal, maksimal 5 langkah, peta cepat + penanda "sejak kapan menunggu"; (2) buku dianggap
+  pengganti uji mesin → ditulis tegas di kepala buku: **uji mesin tetap di CI**; buku ini hanya untuk yang butuh mata manusia;
+  (3) dokumen dan chat bisa berbeda → aturan: **dokumen = sumber kebenaran, chat = ringkasan baris baru** di batch yang sama.
+  Tambahan dari agent: kolom **bukti** (tautan/tangkapan layar) dan kolom **"yang seharusnya terjadi"** wajib ada —
+  tanpa itu, "sudah saya coba" tidak bisa dinilai.
+- **Kejujuran penting:** sampai layar pertama ada, isi buku uji untuk Lee masih **sedikit** (database tidak bisa diuji manusia
+  dengan mata). Agent **tidak akan mengarang baris** supaya buku terlihat penuh.
+- Keduanya masuk ROADMAP: **T1-42** (bantuan) · **T1-43** (Buku Uji Pemilik + pemeriksa + gema chat).
 
 ## §8. Putaran 6 (2026-09-17) — bahasa aplikasi
 

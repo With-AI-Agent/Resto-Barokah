@@ -17,6 +17,8 @@ echo "== aplikasi: uji unit =="
 (cd "$APLIKASI" && npm test)
 echo "== aplikasi: bangun =="
 (cd "$APLIKASI" && npm run build)
+echo "== aplikasi: kerentanan dependency =="
+(cd "$APLIKASI" && npm audit --audit-level=low)
 echo "== uji SQL (RLS & isolasi resto, tanpa server) =="
 if [ ! -d "$REPO/alat/node_modules" ]; then
   (cd "$REPO/alat" && npm ci --no-audit --no-fund)
@@ -31,6 +33,13 @@ echo "== pemeriksa Python =="
 (cd "$REPO" && python3 alat/periksa-fondasi-independen.py
 python3 alat/audit-independen.py --uji-diri
 python3 alat/periksa-panduan.py
+python3 alat/periksa-panduan.py --uji-diri
+python3 alat/periksa-rujukan.py
+python3 alat/periksa-rujukan.py --uji-diri
+python3 alat/periksa-temuan-audit.py
+python3 alat/periksa-temuan-audit.py --uji-diri
+python3 alat/periksa-buku-uji.py
+python3 alat/periksa-buku-uji.py --uji-diri
 python3 alat/review-pr.py --uji-diri)
 (cd "$REPO" && python3 aplikasi/alat/periksa-struktur.py)
 (cd "$REPO" && python3 aplikasi/alat/periksa-komponen-env.py)

@@ -53,6 +53,10 @@ jobs:
         working-directory: aplikasi
         run: npm run build
 
+      - name: Kerentanan dependency (npm audit — 0 toleransi)
+        working-directory: aplikasi
+        run: npm audit --audit-level=low
+
       - name: Pasang alat uji SQL
         run: npm ci --prefix alat
 
@@ -67,6 +71,13 @@ jobs:
           python3 alat/periksa-fondasi-independen.py
           python3 alat/audit-independen.py --uji-diri
           python3 alat/periksa-panduan.py
+          python3 alat/periksa-panduan.py --uji-diri
+          python3 alat/periksa-rujukan.py
+          python3 alat/periksa-rujukan.py --uji-diri
+          python3 alat/periksa-temuan-audit.py
+          python3 alat/periksa-temuan-audit.py --uji-diri
+          python3 alat/periksa-buku-uji.py
+          python3 alat/periksa-buku-uji.py --uji-diri
           python3 alat/review-pr.py --uji-diri
           python3 aplikasi/alat/periksa-struktur.py
           python3 aplikasi/alat/periksa-komponen-env.py

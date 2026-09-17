@@ -42,7 +42,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - **Gerbang masuk (wajib, atas permintaan pemilik 2026-09-16):** review independen oleh sesi baru (prompt siap pakai di `docs/uji/PROMPT_REVIEW_INDEPENDEN.md`; sesi review dibuat dengan base branch `arena/01a0a8a2-resto-barokah`, tanpa merge PR apa pun, dan dilarang merge/menutup PR) sudah selesai, **temuannya sudah ditangani sesi pembangun**, dan putusan akhirnya bukan `BELUM SIAP`. Selama gerbang ini belum lewat, tugas Fase 0 belum boleh dicentang.
 
-- [ ] T0-00 — Pemilik membuat akun Supabase & Cloudflare (dipandu, gratis) — **hanya pemilik yang bisa**
+- [ ] T0-00 — Pemilik membuat akun Supabase & Cloudflare (dipandu, gratis) — **hanya pemilik yang bisa** ❓ T-018
   - **Tujuan:** dua akun gratis siap dipakai agent. Ini satu-satunya tugas Fase 0 yang **harus** dikerjakan pemilik: agent tidak punya email dan tidak bisa menerima kode verifikasi.
   - **Ref:** TECH_SPEC §1 (stack & layanan), §6 (rahasia tidak boleh ikut ke aplikasi); `docs/ops/SIAP_AKUN_PEMILIK.md`
   - **File:** `docs/ops/SIAP_AKUN_PEMILIK.md` (panduan langkah bernomor bahasa awam, ditulis sebelum tugas ini dimulai)
@@ -58,7 +58,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **DoD:** `npm install && npm run dev` jalan tanpa error; folder `/src/{gaya,komponen,layar,lib,hook}` ada; favicon terpasang; `tsc -b --noEmit` bersih (dipakai mode proyek — `tsc --noEmit` biasa memeriksa nol berkas pada susunan referensi, dibuktikan lewat uji mutasi 2026-09-16).
   - **Kompleksitas:** kecil (1 jam)
   - **Risiko & mitigasi:** salah struktur → mitigasi: salin persis struktur `TECH_SPEC.md` §3, jangan improvisasi nama folder.
-  - **Verifikasi:** `npm run dev` + buka URL dev; `git status` bersih setelah commit. · **Bukti 2026-09-16:** `npm run dev` melayani halaman (HTTP 200), `main.tsx`, `tema.css`, dan berkas huruf (font/woff2); 7 folder layar + `supabase/{migrations,functions,tes}` ada; 31 berkas huruf pindah; favicon dipakai format SVG (bukan ICO) karena tidak butuh alat pengubah gambar dan tetap tajam di semua ukuran; pemeriksa `aplikasi/alat/periksa-struktur.py` memeriksa pohon folder langsung dari `TECH_SPEC.md` §3.
+  - **Verifikasi:** `npm run dev` + buka URL dev; `git status` bersih setelah commit. · **Bukti 2026-09-16:** `npm run dev` melayani halaman (HTTP 200), `main.tsx`, `tema.css`, dan berkas huruf (font/woff2); 7 folder layar + `supabase/{migrations,functions,tes}` ada; berkas huruf **57 berkas** `.woff2` (dihitung ulang 2026-09-17: `find aplikasi -name '*.woff2' | wc -l`) — klaim lama "31 berkas huruf pindah" **dicabut** karena tidak bisa direproduksi (temuan audit B-F-13); favicon dipakai format SVG (bukan ICO) karena tidak butuh alat pengubah gambar dan tetap tajam di semua ukuran; pemeriksa `aplikasi/alat/periksa-struktur.py` memeriksa pohon folder langsung dari `TECH_SPEC.md` §3.
 
 - [x] T0-02 — Aturan kode otomatis (ESLint + Prettier + TypeScript ketat)
   - **Tujuan:** kode asal-asalan ditolak otomatis sebelum masuk repo.
@@ -573,6 +573,33 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (2–3 jam)
   - **Risiko & mitigasi:** ⚠️ RTL menyentuh hampir semua tata letak → dikerjakan **sebelum** layar G1 diperbanyak, dengan 2 layar contoh sebagai bukti; huruf Mandarin besar → wajib subset + ambang ukuran diperiksa mesin.
   - **Verifikasi:** 2 layar contoh RTL benar · pemeriksa arah & ukuran huruf LOLOS (uji mutasi MERAH) · dalamnya tetap hijau: kontras 166 lolos · halaman prototipe 183/183.
+
+- [ ] T1-42 — Bantuan kontekstual di SETIAP laman (tanda "?" + isi bantuan dijaga mesin)
+  - **Tujuan:** pegawai baru bisa memakai setiap laman tanpa harus mengingat sosialisasi — bantuan singkat muncul di tempat kerja, bukan di buku terpisah. (Permintaan Lee 2026-09-17.)
+  - **Ref:** permintaan Lee 2026-09-17 (`docs/teknis/REKAM_PESAN_PEMILIK.md` §9) · `docs/SPESIFIKASI_UI.md` §11 · ART-13 (kontrak layar)
+  - **File:** `docs/SPESIFIKASI_UI.md` §11 · `aplikasi/src/kontrak/bantuan.ts` · `aplikasi/src/komponen/LembarBantuan.tsx` · `alat/periksa-bantuan.py`
+  - **DoD:** setiap layar di registri punya tanda "?"; isi bantuan satu sumber dengan registri aksi (1–2 kalimat + maksimal 5 langkah + "kalau macet" + siapa yang boleh memakai); petunjuk pertama kali muncul sekali per perangkat lalu bisa ditutup permanen; teks tersedia dalam 3 bahasa lewat kerangka T1-40; ada 1 halaman ringkas per peran untuk dicetak.
+  - **Kompleksitas:** sedang (3–4 jam)
+  - **Risiko & mitigasi:** bantuan basi (dokumen tumbuh, kode berubah) → pemeriksa wajib memastikan setiap aksi di registri punya bantuan **dan** setiap teks bantuan menunjuk aksi/layar yang ada (uji mutasi MERAH); bantuan terlalu panjang → batas 5 langkah, selebihnya materi pelatihan.
+  - **Verifikasi:** `alat/periksa-bantuan.py` LOLOS + uji mutasi MERAH (hapus bantuan satu aksi → GAGAL) · uji komponen: "?" membuka & menutup tanpa menghalangi pekerjaan · tangkapan layar 3 tema.
+
+- [ ] T1-43 — Buku Uji Pemilik (lembar uji bertahap + kolom hasil + gema di chat)
+  - **Tujuan:** Lee punya SATU lembar kerja untuk mencoba & menilai sendiri hal-hal yang memang harus dinilai manusia — ditulis bertahap mengikuti jalannya proyek (bukan dibuat di akhir), dengan kolom "sudah dilakukan? hasilnya?"; setiap baris baru juga ditampilkan di chat supaya Lee tidak perlu mencari berkas.
+  - **Ref:** permintaan Lee 2026-09-17 (`docs/teknis/REKAM_PESAN_PEMILIK.md` §9) · `PANDUAN_PENGGUNA.md` Bagian B · `docs/AGENT_OPERATING_GUIDE.md`
+  - **File:** `docs/uji/BUKU_UJI_PEMILIK.md` · `alat/periksa-buku-uji.py` · `alat/tambah-uji.py`
+  - **DoD:** buku punya dua bagian tetap — (1) yang harus Lee **lakukan** (mis. penyiapan Supabase, keputusan biaya) dan (2) yang harus Lee **coba**; tiap baris wajib punya langkah (maksimal 5), "yang seharusnya terjadi", kotak hasil (OK/gagal), dan catatan; setiap tugas ROADMAP yang DoD-nya menyebut uji pemilik punya minimal satu baris; aturan menulis: baris ditambahkan **bersamaan** pekerjaan itu selesai, dan diringkas di chat batch yang sama.
+  - **Kompleksitas:** sedang (2–3 jam)
+  - **Risiko & mitigasi:** buku jadi daftar raksasa yang tidak diisi → satu baris = satu hal, maksimal 5 langkah, peta cepat di atas + penanda "sejak kapan menunggu diisi"; buku dianggap pengganti uji mesin → ditulis tegas di kepala buku: uji mesin tetap di CI, buku ini hanya untuk yang butuh mata manusia.
+  - **Verifikasi:** `alat/periksa-buku-uji.py` LOLOS + uji mutasi MERAH (hapus langkah · hapus harapan · rusak kotak hasil → GAGAL) · 3 baris pertama benar-benar dikerjakan Lee (pratinjau desain · jalankan pemeriksaan · jalankan sesi review PR) dan hasilnya tercatat.
+
+- [ ] T1-44 — Perketat mekanisme paket audit & review (lingkup dari commit target + CI wajib hijau)
+  - **Tujuan:** menutup tiga temuan mekanisme sekaligus (B F-09, B F-16, B F-17): paket selalu menunjuk commit yang benar, memuat lingkup beserta hitungan yang dibuat mesin (termasuk berkas paket itu sendiri), dan tidak pernah menyuruh auditor memeriksa commit yang belum pernah lewat CI.
+  - **Ref:** `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §5b–§5c · `docs/uji/AUDIT_RIWAYAT.md` §1b · `docs/uji/PROTOKOL_REVIEW_PR_INDEPENDEN.md` §RV-1
+  - **File:** `alat/audit-independen.py` · `alat/review-pr.py` · `docs/uji/paket-audit/` · `docs/uji/review-pr/`
+  - **DoD:** daftar lingkup dihitung dari **pohon commit target** (bukan meja kerja sesi), dengan penanda eksplisit untuk berkas paket sendiri; angka tiap grup dihitung mesin; pembuatan paket **ditolak** bila CI commit target bukan hijau (atau tidak ada run-nya).
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** lingkungan tanpa `gh`/GitHub membuat paket tidak bisa dibuat → sediakan `--tanpa-ci` yang **mencatat jujur** "CI belum diperiksa" di kepala paket (bukan lolos diam-diam); hitungan dari pohon commit bisa berbeda dari meja kerja → perbedaan itu justru yang dicari.
+  - **Verifikasi:** 3 uji mutasi pada salinan (lingkup diambil dari meja kerja → GAGAL · angka grup ditulis tangan → GAGAL · CI merah/tanpa run → paket ditolak) · paket berikutnya dibuat dengan mekanisme baru dan tetap bisa ditarik lewat `--ambil-laporan`.
 
 ## Fase 2 — Masuk & kerangka aplikasi
 
@@ -1826,7 +1853,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 **Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07 · Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009, **T-012** (cadangan di artefak terenkripsi repo privat) dan **T-013** (penutup shift = Admin Cabang → Owner Pusat) sudah **ditutup** 2026-09-16 (lihat tabel Butir selesai di `docs/TERTANGGUH.md`).
 
-**Jumlah tugas:** F0 15 · F1 41 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 13 = **189 tugas**, semuanya ber-7 atribut.
+**Jumlah tugas:** F0 15 · F1 44 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 13 = **192 tugas**, semuanya ber-7 atribut. (F1 naik 41 → 44 pada 2026-09-17: +T1-42 bantuan kontekstual · +T1-43 Buku Uji Pemilik · +T1-44 perketat paket audit.)
 | 2026-09-17 (putaran 4) | **Buku pedoman induk + penjaga mesin** (+T0-11 `[x]`) dan **audit menyeluruh lebih dulu** (+T0-12 ⚠️) → **184 tugas**; AUD-3 memakai lingkup menyeluruh (`--semua`) & gerbang `tahan_semua` | Permintaan pemilik: *"sekarang aku mau audit dulu"*; mekanisme harus menyeluruh *"termasuk file2 yang disiapkan untuk pengguna"*; *"satu file untuk pengguna yang betul-betul isinya lengkap… semacam manual book"* |
 
 | 2026-09-17 (putaran 5) | **Mekanisme review PR independen** (T0-13 `[x]`) + **buku pedoman induk v2** (T0-14 `[x]`) → **186 tugas**; ditambah: independensi base branch audit (`--verifikasi-lingkup`), rekam pesan Lee (`docs/teknis/REKAM_PESAN_PEMILIK.md`), panggilan **Lee** | Permintaan Lee: (a) tidak bisa menilai *Files changed* → butuh review PR independen + kartu keputusan; (b) buku masih kurang & cacat (cara, prompt tanpa panduan, prompt yang kata-katanya untuk pengguna); (c) jangan panggil "Bapak"; (d) base branch peninjau jangan harus ditentukan presisi |
@@ -1842,6 +1869,10 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 **Uji terima antar-fase (aturan gelombang):** fase N+1 tidak dimulai sebelum (a) semua tugas fase N `[x]`, (b) uji otomatisnya hijau, (c) `python3 alat/periksa-roadmap.py` lulus, (d) `DECISIONS_LOG.md` diperbarui untuk tugas bertanda ⚠️, (e) ringkasan 5 baris ditulis di LOG_SESI.
 
 ## Log Keputusan
+
+| Tanggal | Keputusan | Alasan |
+|---|---|---|
+| 2026-09-17 | **+3 tugas Fase 1C** (T1-42 bantuan kontekstual · T1-43 Buku Uji Pemilik · T1-44 perketat paket audit) | Permintaan Lee 2026-09-17: bantuan di setiap laman; lembar uji bertahap dengan kolom hasil (ditulis mengikuti proyek + diringkas di chat); serta tiga temuan mekanisme audit yang harus ditutup (B F-09/F-16/F-17) |
 
 | Tanggal | Perubahan | Alasan |
 |---|---|---|

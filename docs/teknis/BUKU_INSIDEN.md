@@ -128,7 +128,7 @@ Kerjakan **di hari terakhir**, jangan menunda:
 1. Buka panel Supabase (akun pemilik platform) → kalau proyek tertulis "paused", tekan **Restore/Unpause**. Data tidak hilang; proyek tidur karena 7 hari tanpa aktivitas.
 2. Setelah hidup: cek aplikasi masih normal (buka 1 layar kasir).
 3. Kalau yang muncul adalah **peringatan batas pemakaian** (data/pengiriman): jangan panik — ukur dulu (bagian ini mencatat angkanya), lalu putuskan bersama pemilik: rapikan foto/laporan, atau naik kelas (berbayar) — **keputusan pemilik**, karena menyentuh biaya.
-4. Nyalakan kembali "denyut harian" (pg_cron) supaya proyek tidak tidur lagi (alat: `alat/denyut.py`).
+4. Supaya tidak tidur lagi: buka panel Supabase **sekali setiap beberapa hari** sampai "denyut harian" otomatis (pg_cron) terpasang — pemasangannya bagian dari penyiapan Supabase (tugas **T0-08**). Catatan jujur: sebelum itu terpasang, tidak ada alat bantu khusus; jangan mengandalkan berkas yang belum ada.
 
 ---
 
@@ -145,7 +145,7 @@ Kerjakan **di hari terakhir**, jangan menunda:
 ## 10. Cadangan & pemulihan (latihan sebelum pilot)
 
 1. Cadangan otomatis berjalan mingguan (dump terenkripsi); pemilik mengunduh salinannya **sebulan sekali** ke komputer/Drive miliknya.
-2. **Latihan pemulihan** (dilakukan agent bersama pemilik platform, minimal sekali sebelum pilot): pulihkan cadangan ke database bersih → bandingkan jumlah baris tabel inti → tulis hasilnya di `docs/teknis/PEMULIHAN.md`.
+2. **Latihan pemulihan** (dilakukan agent bersama pemilik platform, minimal sekali sebelum pilot): pulihkan cadangan ke database bersih → bandingkan jumlah baris tabel inti → tulis hasilnya di `docs/teknis/PEMULIHAN.md` (berkas ini **belum dibuat**; dibuat saat latihan pemulihan dijalankan pada tugas `T11-10`).
 3. Kalau ada data yang tidak sengaja terhapus/berubah: **jangan** menambal dengan mengubah data lama — catat sebagai koreksi baru (aplikasi memang dirancang begitu untuk data keuangan), dan kalau perlu pulihkan dari cadangan **ke lingkungan uji dulu**.
 
 ---
