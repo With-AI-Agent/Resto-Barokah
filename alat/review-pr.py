@@ -191,6 +191,21 @@ def siapkan(dasar: str, kepala: str, nama: str | None) -> int:
     tugas = tugas_roadmap_berubah(dasar, kepala)
     klaim = klaim_dari_commit(dasar, kepala)
     kal = bahan_kalibrasi_terbaru()
+    # Penjaga integritas bahan kalibrasi (temuan review RV-2 putaran8 PR-04/PR-06): bahan yang
+    # tidak bisa dipasang di commit yang direview = paket bohong — peninjau tidak akan pernah
+    # bisa menjalankan RV-3. Karena itu paket MENOLAK dibuat, bukan sekadar memberi catatan.
+    if kal is not None:
+        kerja_cek = pathlib.Path("/tmp/cek-bahan-kalibrasi")
+        jalankan(["git", "worktree", "remove", "--force", str(kerja_cek)])
+        if jalankan(["git", "worktree", "add", "--detach", str(kerja_cek), kepala])[0] != 0:
+            print("GAGAL: tidak bisa menyiapkan salinan untuk memeriksa bahan kalibrasi"); return 1
+        cek = jalankan(["git", "apply", "--check", str(kal.resolve())], cwd=kerja_cek)
+        jalankan(["git", "worktree", "remove", "--force", str(kerja_cek)])
+        if cek[0] != 0:
+            print(f"GAGAL: bahan kalibrasi {kal.name} tidak bisa dipasang di commit {sha[:8]} —")
+            print(f"       paket TIDAK dibuat. Perbaiki dengan: python3 alat/review-pr.py --kalibrasi-pr-siapkan")
+            print(f"       ({cek[1].splitlines()[0] if cek[1] else 'git apply menolak'})")
+            return 1
 
     lensa = {
         "Merah": "L1 (ancaman & akses) + L2 (uang & jejak) + L4 (mutu uji) — WAJIB ketiganya",
