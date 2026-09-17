@@ -241,9 +241,9 @@ select uji.harap_gagal(
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner (penyetuju)
 set local role authenticated;
-select uji.sama(public.simpan_pin('1122', null), 'PIN tersimpan.', 'owner memasang PIN untuk hak menyetujui');
+select uji.sama(public.simpan_pin('738294', null), 'PIN tersimpan.', 'owner memasang PIN untuk hak menyetujui');
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '1122', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
   true, 'PIN penyetuju diverifikasi untuk aksi void_sesudah_dapur'
 );
 reset role;

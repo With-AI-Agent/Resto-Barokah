@@ -146,7 +146,7 @@ peladen yang memutuskan dan mencatat.
 |---|---|---|
 | `penyewa` | `id`, `nama`, `slug`, `status` (aktif/nonaktif), `zona_waktu`, `mata_uang`, `dibuat_pada` | Isolasi tingkat 1 (resto) |
 | `cabang` | `id`, `penyewa_id`, `nama`, `alamat`, `telepon`, `aktif` | Isolasi tingkat 2 (cabang) |
-| `pengguna` | `id` (= id Auth), `penyewa_id` (boleh null untuk Pemilik Platform), `nama`, `email` (alias internal untuk staf), `peran`, `pin_hash`, `aktif`, `terakhir_masuk`, `mfa_wajib`, `mfa_terdaftar_pada`, `catatan` | `peran`: `pemilik_platform` · `owner_pusat` · `admin_cabang` · `kasir` · `pelayan` · `dapur`. **Satu akun = satu peran** (DECISIONS_LOG 2026-09-17); staf memakai alias email internal sehingga pemulihan lewat admin, bukan email |
+| `pengguna` | `id` (= id Auth), `penyewa_id` (boleh null untuk Pemilik Platform), `nama`, `email` (alias internal untuk staf), `peran`, `pin_diubah_pada`, `aktif`, `terakhir_masuk`, `mfa_wajib`, `mfa_terdaftar_pada`, `catatan` | `peran`: `pemilik_platform` · `owner_pusat` · `admin_cabang` · `kasir` · `pelayan` · `dapur`. **Satu akun = satu peran** (DECISIONS_LOG 2026-09-17); staf memakai alias email internal sehingga pemulihan lewat admin, bukan email |
 | `pengguna_cabang` | `pengguna_id`, `cabang_id`, `aktif` | **Daftar cabang** tempat akun bertugas (peran per cabang tidak lagi menjadi sumber wewenang — satu peran berlaku di semua cabangnya) |
 | `izin` | `pengguna_id`, `kode_izin`, `boleh` (bool), `batas_nominal`, `batas_persen` | Centang izin per pegawai (M3). Kode: `ubah_harga`, `beri_diskon`, `void_sebelum_dapur`, `void_sesudah_dapur`, `lihat_laporan`, `kelola_pegawai`, `atur_pengaturan`, `pakai_voucher`, `tutup_kas`, `ubah_stok` |
 | `pengaturan` | `penyewa_id`, `pajak_pb1_persen`, `service_persen`, `pembulatan` (none/100/500/1000), `tumpuk_diskon` (bool), `batas_maks_potongan_persen`, `batas_maks_potongan_nominal`, `header_struk`, `footer_struk`, `cara_pesan`, `jam_buka` | Aturan Bisnis 1, 2 |
@@ -193,7 +193,9 @@ peladen yang memutuskan dan mencatat.
 | Tabel | Kolom inti | Catatan |
 |---|---|---|
 | `antrean_kirim` | `id`, `jenis`, `muatan` (jsonb), `status`, `percobaan`, `dibuat_pada`, `kunci_idempoten` | Untuk K4: antrean kirim ulang saat internet putus |
-| `percobaan_pin` | `id`, `pengguna_id`, `perangkat`, `berhasil`, `waktu` | Batas percobaan PIN (anti tebak) |
+| `kredensial_pin` | `pengguna_id`, `pin_hash`, `diubah_pada` | Rahasia PIN dipisah dari `pengguna` (yang bisa dibaca klien) — laporan AUD-3 K-2; tidak ada hak baca untuk klien |
+| `percobaan_pin` | `id`, `pengguna_id`, `perangkat`, `berhasil`, `aksi`, `waktu` | Batas percobaan **verifikasi** PIN (anti tebak) + bukti persetujuan (aksi yang diminta) |
+| `percobaan_simpan_pin` | `id`, `pengguna_id`, `perangkat`, `berhasil`, `alasan`, `waktu` | Catatan pemasangan PIN (T1-23) — dasar pembatas anti-oracle keunikan PIN (20×/15 menit) |
 | `catatan_kesalahan` | `id`, `penyewa_id`, `cabang_id`, `jenis`, `pesan`, `data` (jsonb), `perangkat`, `waktu` | Bantu perbaikan tanpa membocorkan data keuangan |
 
 ### 4.6 Perangkat, sesi & percobaan masuk (ditambahkan 2026-09-17 — lihat `docs/KEAMANAN.md`)

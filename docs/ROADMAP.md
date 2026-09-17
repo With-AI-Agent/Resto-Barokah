@@ -390,7 +390,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 > 0018 dst. **Urutan penerapan = urutan tugas di ROADMAP**, bukan urutan nomor berkas rencana lama.
 > **Rujukan resmi:** `docs/KEAMANAN.md`; keputusan: `docs/DECISIONS_LOG.md` 2026-09-17.
 
-- [ ] T1-23 — Migrasi 0011: peran tunggal + PIN unik & kuat ⚠️
+- [x] T1-23 — Migrasi 0011: peran tunggal + PIN unik & kuat ⚠️
   - **Tujuan:** satu akun hanya punya satu peran (orang dua fungsi = dua akun) dan PIN tidak bisa dipakai dua orang atau dipilih dari pola lemah.
   - **Ref:** TECH_SPEC §4.1 & §9 ART-12; PRD M3 & M12
   - **File:** `supabase/migrations/0011_peran_tunggal.sql`, `supabase/tes/peran_tunggal.sql`
@@ -398,6 +398,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-12); peran ganda terselundup lewat tabel lain → mitigasi: pemicu penegak + uji & pemeriksa peran tunggal.
   - **Verifikasi:** uji SQL: sisipkan peran kedua untuk satu akun → ditolak · PIN kembar → ditolak · PIN `123456` → ditolak · akun merangkap dua cabang tetap boleh.
+  - **Bukti 2026-09-17:** `supabase/migrations/0011_peran_tunggal.sql` (migrasi BARU; 0002/0005 dibekukan) · uji `supabase/tes/peran_tunggal.sql` (baru), `supabase/tes/kredensial_pin.sql` §5, `supabase/tes/pin_batas_pasang.sql` (baru), `supabase/tes/izin.sql` §8 diganti. **Peran tunggal:** kolom `pengguna_cabang.peran` dihapus (peran kedua mustahil disimpan) + penjaga keanggotaan (akun & cabang wajib satu resto; pemilik platform tidak didaftarkan ke cabang) + `izin_efektif()` membaca `pengguna.peran` dan tetap MENOLAK cabang yang bukan tempatnya bertugas. **PIN:** wajib tepat 6 angka; pola lemah ditolak (semua digit sama · deret · blok berulang · pasangan berurutan · bentuk tanggal) lewat fungsi `pin_lemah()`; **unik antar pegawai satu resto** (bukan lintas resto — supaya angka PIN resto lain tidak bocor). **Pembatas anti-oracle (baru, penting):** uji keunikan bisa dipakai menebak PIN kolega, jadi setiap percobaan pemasangan dicatat di tabel `percobaan_simpan_pin` (tidak bisa dibaca klien) dan dibatasi **20 kali / 15 menit**; penolakan kembar & batas dikembalikan sebagai PESAN (bukan error) — sebab `raise exception` membatalkan baris catatannya sendiri di savepoint, sehingga pembatasnya tidak akan pernah menyala (ditemukan saat uji, ditulis di komentar migrasi + DECISIONS_LOG). **Gerbang dibuktikan bisa MERAH lewat 6 uji mutasi:** peran per cabang dihidupkan lagi · keanggotaan cabang diabaikan · pola lemah dimatikan · keunikan dimatikan · pembatas anti-oracle dimatikan · format verifikasi kembali 4–6 angka — semuanya GAGAL, LOLOS setelah dipulihkan (mutasi ke-6 awalnya **lolos** → mengungkap celah uji, lalu uji jalur verifikasi ditambahkan). Hasil: `node alat/uji-sql.mjs` **21 berkas LULUS · 0 GAGAL**; matriks 10 izin × 5 peran tetap utuh.
 
 - [ ] T1-24 — Migrasi 0012: perangkat terdaftar + `perangkat_sah()` + RLS staf diperketat ⚠️
   - **Tujuan:** bagian staf hanya bisa dibuka dari perangkat terdaftar; perangkat curian/hilang mati seketika; perangkat tidak bisa dipakai masuk sebagai peran lain.
@@ -478,6 +479,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Ref:** `docs/uji/DAFTAR_PEKERJAAN_ULANG.md` (hasil AUD-0) · TECH_SPEC §4.1 & §9 ART-11/ART-12; PRD M12
   - **File:** `supabase/migrations/0011_peran_tunggal.sql`, `supabase/tes/peran_tunggal.sql`, `supabase/tes/izin.sql`, `alat/sql/data-uji.sql`, `supabase/tes/pin.sql`
   - **DoD:** butir B.1–B.9 daftar kerja ulang selesai: `pengguna_cabang.peran` dibongkar lewat 0011 · `izin_efektif()` ditulis ulang membaca `pengguna.peran` · uji `tes/izin.sql` §8 (peran berbeda per cabang) diganti uji peran tunggal · fixture perangkat ditambahkan · uji lama yang mengasumsikan peran per cabang tidak ada lagi; seluruh uji lulus.
+  - **Catatan kemajuan 2026-09-17:** **B.1–B.3 SELESAI** lewat migrasi 0011 (T1-23 `[x]`) — peran per cabang dibongkar, `izin_efektif()` ditulis ulang, uji `izin.sql` §8 diganti uji peran tunggal. Sisa **B.4–B.9** memang milik T1-24/T1-25/T1-26 (perangkat terdaftar, sesi, percobaan masuk, fixture perangkat); tugas ini baru boleh `[x]` setelah semuanya mendarat.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-12) & RLS (ART-1); membongkar kolom yang dipakai fungsi izin bisa membuat semua peran kehilangan izin → mitigasi: matriks 10 izin × 5 peran dijalankan ulang sebelum & sesudah, dan uji mutasi membuktikan gerbang izin masih bisa MERAH.
   - **Verifikasi:** `node alat/uji-sql.mjs` 12 berkas LULUS · matriks izin utuh (kasir tetap tidak boleh apa yang tadinya tidak boleh) · `python3 alat/periksa-roadmap.py` LOLOS.

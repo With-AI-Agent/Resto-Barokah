@@ -105,15 +105,19 @@ select uji.sama(public.boleh('ubah_harga'), false, 'pelayan TIDAK boleh mengubah
 reset role;
 select uji.klaim(null);
 
--- 8. IZIN PER CABANG: pegawai merangkap dapat peran berbeda per cabang.
---    (Bima: peran se-resto = kasir, tetapi di cabang Pusat bertugas sebagai dapur.)
+-- 8. IZIN PER CABANG dengan PERAN TUNGGAL (diganti 2026-09-17 · AUD-0 B.3).
+--    Uji lama bagian ini ("pegawai merangkap dapat peran berbeda per cabang")
+--    DIHAPUS karena menguji perilaku yang kini DILARANG. Yang diuji sekarang:
+--    keanggotaan cabang tetap menentukan DI CABANG MANA seseorang boleh bekerja,
+--    sedangkan PERANNYA satu dan sama di semua cabang (lihat juga
+--    `supabase/tes/peran_tunggal.sql`).
 reset role;
 select uji.klaim(null);
 insert into auth.users (id, email) values ('90000000-0000-0000-0000-000000000008', 'bima@contoh.test');
 insert into public.pengguna (id, penyewa_id, nama, email, peran)
 values ('90000000-0000-0000-0000-000000000008', '11111111-1111-1111-1111-111111111111', 'Bima', 'bima@contoh.test', 'kasir');
-insert into public.pengguna_cabang (pengguna_id, cabang_id, peran)
-values ('90000000-0000-0000-0000-000000000008', 'a1a1a1a1-0000-0000-0000-000000000001', 'dapur');
+insert into public.pengguna_cabang (pengguna_id, cabang_id)
+values ('90000000-0000-0000-0000-000000000008', 'a1a1a1a1-0000-0000-0000-000000000001');
 
 select uji.klaim('90000000-0000-0000-0000-000000000008');
 set local role authenticated;
@@ -122,13 +126,13 @@ select uji.sama(public.boleh('beri_diskon'), true, 'sebagai kasir Bima boleh mem
 select uji.sama(public.boleh('ubah_stok'), false, 'sebagai kasir Bima tidak boleh mengubah stok');
 select uji.sama(
   public.boleh('ubah_stok', 'a1a1a1a1-0000-0000-0000-000000000001'::uuid),
-  true,
-  'di cabang Pusat (peran dapur) Bima boleh mengubah stok'
+  false,
+  'di cabang Pusat pun Bima TETAP kasir (peran tidak lagi bisa berbeda per cabang)'
 );
 select uji.sama(
   public.boleh('tutup_kas', 'a1a1a1a1-0000-0000-0000-000000000001'::uuid),
-  false,
-  'di cabang Pusat Bima TIDAK boleh menutup kas (perannya di sana dapur)'
+  true,
+  'di cabang tempatnya bertugas, hak kasirnya berlaku'
 );
 -- Diuji dengan tindakan yang BOLEH di tingkat akun (tutup_kas) tetapi TIDAK BOLEH
 -- di cabang itu: kalau cabang asing diam-diam jatuh ke peran se-resto, uji ini gagal.
@@ -136,11 +140,6 @@ select uji.sama(
   public.boleh('tutup_kas', 'b1b1b1b1-0000-0000-0000-000000000001'::uuid),
   false,
   'cabang milik resto lain ditolak, bukan jatuh ke peran se-resto (kasir se-resto memang boleh tutup kas)'
-);
-select uji.sama(
-  public.boleh('ubah_stok', 'b1b1b1b1-0000-0000-0000-000000000001'::uuid),
-  false,
-  'cabang milik resto lain juga ditolak untuk tindakan dapur'
 );
 select uji.sama(
   public.boleh('lihat_laporan', 'a1a1a1a1-0000-0000-0000-000000000002'::uuid),

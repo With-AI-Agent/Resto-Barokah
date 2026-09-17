@@ -48,26 +48,98 @@ select uji.klaim(null);
 --    (Owner memasang PIN awal dulu supaya sasaran sudah punya PIN.)
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner
 set local role authenticated;
-select uji.sama(public.simpan_pin('2468', null, '90000000-0000-0000-0000-000000000004'),
+select uji.sama(public.simpan_pin('516372', null, '90000000-0000-0000-0000-000000000004'),
                 'PIN tersimpan.', 'owner memasang PIN awal kasir');
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir
 set local role authenticated;
 select uji.harap_gagal(
-  $$select public.simpan_pin('8888', null)$$,
+  $$select public.simpan_pin('917426', null)$$,
   'ganti PIN sendiri tanpa PIN lama DITOLAK (argumen uuid dikosongkan)'
 );
 select uji.harap_gagal(
-  $$select public.simpan_pin('8888', null, '90000000-0000-0000-0000-000000000004')$$,
+  $$select public.simpan_pin('917426', null, '90000000-0000-0000-0000-000000000004')$$,
   'ganti PIN sendiri tanpa PIN lama DITOLAK (uuid diri sendiri disebutkan)'
 );
 select uji.harap_gagal(
-  $$select public.simpan_pin('8888', '9999', '90000000-0000-0000-0000-000000000004')$$,
+  $$select public.simpan_pin('917426', '135791', '90000000-0000-0000-0000-000000000004')$$,
   'ganti PIN dengan PIN lama SALAH tetap DITOLAK'
 );
-select uji.sama(public.simpan_pin('8888', '2468', '90000000-0000-0000-0000-000000000004'),
+select uji.sama(public.simpan_pin('917426', '516372', '90000000-0000-0000-0000-000000000004'),
                 'PIN tersimpan.', 'ganti PIN sendiri BERHASIL bila PIN lama benar');
-select uji.sama((public.verifikasi_pin('90000000-0000-0000-0000-000000000004', '8888', null, 'hp-uji')).berhasil,
+select uji.sama((public.verifikasi_pin('90000000-0000-0000-0000-000000000004', '917426', null, 'hp-uji')).berhasil,
                 true, 'PIN baru benar-benar terpasang');
+reset role;
+select uji.klaim(null);
+
+-- ============================================================================
+-- 5. ATURAN PIN BARU (T1-23 · ART-12): 6 angka, bukan pola lemah, dan UNIK
+--    antar pegawai satu resto. (Format 4 angka yang dulu diizinkan sudah
+--    ditutup: PIN 4 angka hanya 10.000 kemungkinan — dengan batas 5/15 menit
+--    pun masih bisa ditebak dalam hitungan hari.)
+-- ============================================================================
+select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner
+set local role authenticated;
+
+-- 5a. Wajib 6 angka.
+select uji.harap_gagal($$select public.simpan_pin('2468', null, '90000000-0000-0000-0000-000000000003')$$,
+                       'PIN 4 angka DITOLAK (dulu diizinkan)');
+select uji.harap_gagal($$select public.simpan_pin('2468135', null, '90000000-0000-0000-0000-000000000003')$$,
+                       'PIN 7 angka ditolak');
+select uji.harap_gagal($$select public.simpan_pin('24681x', null, '90000000-0000-0000-0000-000000000003')$$,
+                       'PIN bukan angka ditolak');
+-- Jalur VERIFIKASI juga menolak bentuk yang bukan 6 angka (dijawab sebagai pesan,
+-- bukan "PIN salah", supaya tidak ikut menghabiskan jatah tebak).
+select uji.sama(
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '1234', null, 'hp-uji')).pesan,
+  'PIN harus tepat 6 angka.',
+  'verifikasi menolak PIN yang bukan 6 angka dengan pesan yang jelas');
+select uji.sama(
+  (select count(*) from public.percobaan_pin where pengguna_id = '90000000-0000-0000-0000-000000000003'),
+  0::bigint,
+  'bentuk PIN yang salah tidak dihitung sebagai percobaan menebak');
+
+-- 5b. Pola lemah ditolak: semua digit sama · urutan · blok berulang · tanggal.
+select uji.harap_gagal($$select public.simpan_pin('111111', null, '90000000-0000-0000-0000-000000000003')$$,
+                       'PIN semua digit sama ditolak');
+select uji.harap_gagal($$select public.simpan_pin('123456', null, '90000000-0000-0000-0000-000000000003')$$,
+                       'PIN berurutan naik ditolak');
+select uji.harap_gagal($$select public.simpan_pin('654321', null, '90000000-0000-0000-0000-000000000003')$$,
+                       'PIN berurutan turun ditolak');
+select uji.harap_gagal($$select public.simpan_pin('121212', null, '90000000-0000-0000-0000-000000000003')$$,
+                       'PIN blok berulang ditolak');
+select uji.harap_gagal($$select public.simpan_pin('010190', null, '90000000-0000-0000-0000-000000000003')$$,
+                       'PIN berbentuk tanggal (ddmmyy) ditolak');
+select uji.harap_gagal($$select public.simpan_pin('456789', null, '90000000-0000-0000-0000-000000000003')$$,
+                       'PIN deret panjang (456789) ditolak');
+select uji.harap_gagal($$select public.simpan_pin('112233', null, '90000000-0000-0000-0000-000000000003')$$,
+                       'PIN pasangan berurutan (112233) ditolak');
+select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000003'),
+                'PIN tersimpan.', 'PIN 6 angka yang kuat DITERIMA');
+
+-- 5c. PIN wajib unik antar pegawai satu resto.
+select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000006'),
+                'PIN itu sudah dipakai pegawai lain di resto ini — pilih angka lain.',
+                'PIN yang sudah dipakai pegawai lain di resto yang sama DITOLAK (via pesan, supaya tercatat)');
+select uji.sama(public.simpan_pin('692735', null, '90000000-0000-0000-0000-000000000006'),
+                'PIN tersimpan.', 'PIN lain yang belum dipakai tetap diterima');
+reset role;
+select uji.klaim(null);
+
+-- 5d. Keunikan berlaku per resto: resto lain boleh memakai angka yang sama
+--     (kalau tidak, angka PIN pegawai satu resto bisa dibaca dari resto lain).
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000007');   -- kasir resto LAIN (memasang PIN-nya sendiri)
+set local role authenticated;
+select uji.sama(public.simpan_pin('274918'),
+                'PIN tersimpan.', 'pegawai resto LAIN boleh memakai angka PIN yang sama');
+reset role;
+select uji.klaim(null);
+
+-- 5e. Ganti PIN sendiri ke angka yang sama tetap boleh (keunikan mengecualikan diri sendiri).
+select uji.klaim('90000000-0000-0000-0000-000000000003');   -- admin, PIN 334455
+set local role authenticated;
+select uji.sama(public.simpan_pin('274918', '274918'),
+                'PIN tersimpan.', 'memasang ulang PIN sendiri dengan angka yang sama tidak dianggap kembar');
 reset role;
 select uji.klaim(null);

@@ -60,8 +60,10 @@ Deno.serve(async (req: Request) => {
   const aksi = typeof isi['aksi'] === 'string' ? isi['aksi'] : null
   const perangkat = typeof isi['perangkat'] === 'string' ? isi['perangkat'] : 'tidak-diketahui'
 
-  if (!/^[0-9a-f-]{36}$/i.test(penggunaId) || !/^\d{4,6}$/.test(pin)) {
-    return balasan({ pesan: 'PIN harus berupa 4 sampai 6 angka.' }, 400)
+  // Sejak T1-23 (migrasi 0011) PIN wajib TEPAT 6 angka — dijaga di sini sebagai
+  // saringan awal, dan tetap ditegakkan database (simpan_pin/verifikasi_pin).
+  if (!/^[0-9a-f-]{36}$/i.test(penggunaId) || !/^\d{6}$/.test(pin)) {
+    return balasan({ pesan: 'PIN harus tepat 6 angka.' }, 400)
   }
 
   const jawab = await fetch(`${alamat}/rest/v1/rpc/${RPC}`, {

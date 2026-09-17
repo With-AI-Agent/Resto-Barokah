@@ -39,14 +39,16 @@ insert into public.pengguna (id, penyewa_id, nama, email, peran) values
   ('90000000-0000-0000-0000-000000000006', '11111111-1111-1111-1111-111111111111', 'Sari', 'dapur.a2@contoh.test', 'dapur'),
   ('90000000-0000-0000-0000-000000000007', '22222222-2222-2222-2222-222222222222', 'Ujang', 'kasir.b1@contoh.test', 'kasir');
 
--- Dedi (pelayan) merangkap dua cabang; perannya bisa berbeda per cabang.
-insert into public.pengguna_cabang (pengguna_id, cabang_id, peran) values
-  ('90000000-0000-0000-0000-000000000003', 'a1a1a1a1-0000-0000-0000-000000000001', 'admin_cabang'),
-  ('90000000-0000-0000-0000-000000000004', 'a1a1a1a1-0000-0000-0000-000000000001', 'kasir'),
-  ('90000000-0000-0000-0000-000000000005', 'a1a1a1a1-0000-0000-0000-000000000001', 'pelayan'),
-  ('90000000-0000-0000-0000-000000000005', 'a1a1a1a1-0000-0000-0000-000000000002', 'pelayan'),
-  ('90000000-0000-0000-0000-000000000006', 'a1a1a1a1-0000-0000-0000-000000000002', 'dapur'),
-  ('90000000-0000-0000-0000-000000000007', 'b1b1b1b1-0000-0000-0000-000000000001', 'kasir');
+-- Dedi (pelayan) merangkap dua cabang; perannya SATU (pelayan) di kedua cabang itu.
+-- Sejak migrasi 0011 kolom `peran` TIDAK ada lagi di sini: peran tunggal dari
+-- `pengguna.peran` berlaku di semua cabang (ART-12). Tabel ini hanya daftar cabang.
+insert into public.pengguna_cabang (pengguna_id, cabang_id) values
+  ('90000000-0000-0000-0000-000000000003', 'a1a1a1a1-0000-0000-0000-000000000001'),
+  ('90000000-0000-0000-0000-000000000004', 'a1a1a1a1-0000-0000-0000-000000000001'),
+  ('90000000-0000-0000-0000-000000000005', 'a1a1a1a1-0000-0000-0000-000000000001'),
+  ('90000000-0000-0000-0000-000000000005', 'a1a1a1a1-0000-0000-0000-000000000002'),
+  ('90000000-0000-0000-0000-000000000006', 'a1a1a1a1-0000-0000-0000-000000000002'),
+  ('90000000-0000-0000-0000-000000000007', 'b1b1b1b1-0000-0000-0000-000000000001');
 
 -- Centang izin (M3): owner & admin lengkap, kasir terbatas, dapur hampir kosong.
 insert into public.izin (pengguna_id, kode_izin, boleh, batas_nominal, batas_persen) values

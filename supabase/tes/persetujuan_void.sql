@@ -12,7 +12,7 @@
 -- Persiapan: owner memasang PIN-nya sendiri (PIN pertama boleh tanpa PIN lama).
 select uji.klaim('90000000-0000-0000-0000-000000000002');
 set local role authenticated;
-select uji.sama(public.simpan_pin('1122', null), 'PIN tersimpan.', 'owner memasang PIN-nya sendiri');
+select uji.sama(public.simpan_pin('738294', null), 'PIN tersimpan.', 'owner memasang PIN-nya sendiri');
 reset role;
 select uji.klaim(null);
 
@@ -29,7 +29,7 @@ select uji.harap_gagal(
 
 -- 2. PIN yang benar tetapi untuk AKSI LAIN juga bukan bukti.
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '1122', null, 'hp-atasan')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', null, 'hp-atasan')).berhasil,
   true, 'kontrol: PIN penyetuju benar (tanpa menyebut aksi)');
 select uji.harap_gagal(
   $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
@@ -40,7 +40,7 @@ select uji.harap_gagal(
 
 -- 3. Bukti yang benar: penyetuju memasukkan PIN-nya untuk aksi ini → diterima.
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '1122', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
   true, 'PIN penyetuju diverifikasi UNTUK aksi void_sesudah_dapur');
 insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, bahan_terbuang)
 values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur',
@@ -65,7 +65,7 @@ update public.pesanan set dikirim_ke_dapur_pada = now() - interval '5 minutes'
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '1122', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
   true, 'kontrol: bukti kedua dibuat');
 reset role;
 -- Pemilik tabel memundurkan waktu bukti (meniru persetujuan 1 jam lalu).

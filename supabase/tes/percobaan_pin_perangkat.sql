@@ -33,8 +33,8 @@
 delete from public.percobaan_pin;
 select uji.klaim('90000000-0000-0000-0000-000000000002');
 set local role authenticated;
-select uji.sama(public.simpan_pin('3141', null, '90000000-0000-0000-0000-000000000003'), 'PIN tersimpan.', 'PIN admin disiapkan sebagai korban uji');
-select uji.sama(public.simpan_pin('2718', null, '90000000-0000-0000-0000-000000000006'), 'PIN tersimpan.', 'PIN dapur disiapkan sebagai korban uji');
+select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000003'), 'PIN tersimpan.', 'PIN admin disiapkan sebagai korban uji');
+select uji.sama(public.simpan_pin('692735', null, '90000000-0000-0000-0000-000000000006'), 'PIN tersimpan.', 'PIN dapur disiapkan sebagai korban uji');
 reset role;
 select uji.klaim(null);
 
@@ -54,7 +54,7 @@ begin
   v_dilayani := 0; v_terkunci := 0;
   for i in 1..8 loop
     select r.pesan into v_pesan
-      from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '0000', null, 'hp-palsu-' || i) r;
+      from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '135791', null, 'hp-palsu-' || i) r;
     if v_pesan = 'PIN salah.' then
       v_dilayani := v_dilayani + 1;
     elsif v_pesan like 'PIN terkunci%' then
@@ -70,7 +70,7 @@ begin
   v_dilayani := 0; v_terkunci := 0;
   for i in 1..8 loop
     select r.pesan into v_pesan
-      from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '0000', null, 'hp-tetap-uji') r;
+      from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '135791', null, 'hp-tetap-uji') r;
     if v_pesan = 'PIN salah.' then
       v_dilayani := v_dilayani + 1;
     elsif v_pesan like 'PIN terkunci%' then
@@ -104,7 +104,7 @@ declare
 begin
   for i in 1..13 loop
     select r.pesan into v_pesan
-      from public.verifikasi_pin(v_target[1 + ((i - 1) % 4)]::uuid, '0000', null, 'hp-stabil-uji') r;
+      from public.verifikasi_pin(v_target[1 + ((i - 1) % 4)]::uuid, '135791', null, 'hp-stabil-uji') r;
     v_panggil := v_panggil + 1;
     if v_pesan like 'PIN terkunci%' then
       v_terkunci := v_terkunci + 1;

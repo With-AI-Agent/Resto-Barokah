@@ -34,7 +34,7 @@ select uji.sama(
 -- 2. Hanya pemegang izin yang boleh menyimpan PIN pegawai lain.
 select uji.klaim(null);
 set local role anon;
-select uji.harap_gagal($$select public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '1122')$$, 'anon tidak boleh memakai gerbang PIN');
+select uji.harap_gagal($$select public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294')$$, 'anon tidak boleh memakai gerbang PIN');
 select uji.harap_gagal($$select public.simpan_pin('1234')$$, 'anon tidak boleh menyimpan PIN');
 reset role;
 select uji.klaim(null);
@@ -42,7 +42,7 @@ select uji.klaim(null);
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 select uji.harap_gagal(
-  $$select public.simpan_pin('4321', null, '90000000-0000-0000-0000-000000000005')$$,
+  $$select public.simpan_pin('560812', null, '90000000-0000-0000-0000-000000000005')$$,
   'kasir tanpa izin kelola_pegawai tidak boleh menyimpan PIN pegawai lain'
 );
 select uji.harap_gagal($$select public.simpan_pin('12')$$, 'PIN terlalu pendek ditolak');
@@ -54,16 +54,16 @@ select uji.klaim(null);
 -- 3. Owner memasang PIN awal pegawai (PIN pertama boleh tanpa PIN lama).
 select uji.klaim('90000000-0000-0000-0000-000000000002');
 set local role authenticated;
-select uji.sama(public.simpan_pin('2468', null, '90000000-0000-0000-0000-000000000004'), 'PIN tersimpan.', 'PIN kasir tersimpan oleh owner');
-select uji.sama(public.simpan_pin('3344', null, '90000000-0000-0000-0000-000000000003'), 'PIN tersimpan.', 'PIN admin tersimpan oleh owner');
-select uji.sama(public.simpan_pin('4455', null, '90000000-0000-0000-0000-000000000006'), 'PIN tersimpan.', 'PIN dapur tersimpan oleh owner');
-select uji.sama(public.simpan_pin('1122', null), 'PIN tersimpan.', 'owner memasang PIN-nya sendiri');
+select uji.sama(public.simpan_pin('516372', null, '90000000-0000-0000-0000-000000000004'), 'PIN tersimpan.', 'PIN kasir tersimpan oleh owner');
+select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000003'), 'PIN tersimpan.', 'PIN admin tersimpan oleh owner');
+select uji.sama(public.simpan_pin('692735', null, '90000000-0000-0000-0000-000000000006'), 'PIN tersimpan.', 'PIN dapur tersimpan oleh owner');
+select uji.sama(public.simpan_pin('738294', null), 'PIN tersimpan.', 'owner memasang PIN-nya sendiri');
 reset role;
 select uji.klaim(null);
 
 -- 4. Yang tersimpan BENAR-BENAR hash, bukan PIN.
 select uji.harap(
-  (select k.pin_hash from public.kredensial_pin k where k.pengguna_id = '90000000-0000-0000-0000-000000000004') <> '2468',
+  (select k.pin_hash from public.kredensial_pin k where k.pengguna_id = '90000000-0000-0000-0000-000000000004') <> '516372',
   'hash PIN tidak sama dengan PIN'
 );
 select uji.harap(
@@ -86,10 +86,10 @@ select uji.harap(
 -- 5. PIN salah dijawab salah, PIN benar diterima; semuanya TERCATAT.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '9999', 'void_sesudah_dapur', 'HP-KASIR-1') v), false, 'PIN salah ditolak');
-select uji.sama((select v.pesan from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '9999', 'void_sesudah_dapur', 'HP-KASIR-2') v), 'PIN salah.', 'pesan PIN salah jelas');
-select uji.sama((select v.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '9999', 'void_sesudah_dapur', 'HP-KASIR-3') v), 2, 'sisa percobaan berkurang setelah tiga kali salah');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '1122', 'void_sesudah_dapur', 'HP-KASIR-1') v), true, 'PIN owner diterima untuk menyetujui void sesudah dapur');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '135791', 'void_sesudah_dapur', 'HP-KASIR-1') v), false, 'PIN salah ditolak');
+select uji.sama((select v.pesan from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '135791', 'void_sesudah_dapur', 'HP-KASIR-2') v), 'PIN salah.', 'pesan PIN salah jelas');
+select uji.sama((select v.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '135791', 'void_sesudah_dapur', 'HP-KASIR-3') v), 2, 'sisa percobaan berkurang setelah tiga kali salah');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'HP-KASIR-1') v), true, 'PIN owner diterima untuk menyetujui void sesudah dapur');
 reset role;
 select uji.klaim(null);
 
@@ -108,17 +108,17 @@ select uji.sama(
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 select uji.sama(
-  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '4455', 'void_sesudah_dapur', 'HP-KASIR-1') v),
+  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '692735', 'void_sesudah_dapur', 'HP-KASIR-1') v),
   false,
   'PIN pegawai dapur tidak bisa dipakai menyetujui void (tidak berizin)'
 );
 select uji.sama(
-  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '4455', 'ubah_stok', 'HP-KASIR-1') v),
+  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '692735', 'ubah_stok', 'HP-KASIR-1') v),
   true,
   'PIN pegawai dapur berlaku untuk aksi yang memang haknya'
 );
 select uji.sama(
-  (select v.pesan from public.verifikasi_pin('90000000-0000-0000-0000-000000000007', '4455', 'ubah_stok', 'HP-KASIR-1') v),
+  (select v.pesan from public.verifikasi_pin('90000000-0000-0000-0000-000000000007', '692735', 'ubah_stok', 'HP-KASIR-1') v),
   'PIN tidak dikenali.',
   'PIN pegawai resto lain ditolak dengan pesan yang tidak membocorkan apa pun'
 );
@@ -128,15 +128,15 @@ select uji.klaim(null);
 -- 7. Pegawai mengganti PIN-nya sendiri: PIN lama salah → ditolak; PIN lama benar → boleh.
 select uji.klaim('90000000-0000-0000-0000-000000000006');
 set local role authenticated;
-select uji.harap_gagal($$select public.ganti_pin('0000', '44551')$$, 'ganti PIN dengan PIN lama salah ditolak');
-select uji.sama(public.ganti_pin('4455', '44551'), 'PIN tersimpan.', 'ganti PIN dengan PIN lama benar berhasil');
+select uji.harap_gagal($$select public.ganti_pin('135791', '445577')$$, 'ganti PIN dengan PIN lama salah ditolak');
+select uji.sama(public.ganti_pin('692735', '445577'), 'PIN tersimpan.', 'ganti PIN dengan PIN lama benar berhasil');
 reset role;
 select uji.klaim(null);
 
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '44551', 'ubah_stok', 'HP-KASIR-1') v), true, 'PIN baru berlaku');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '4455', 'ubah_stok', 'HP-KASIR-1') v), false, 'PIN lama tidak berlaku lagi');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '445577', 'ubah_stok', 'HP-KASIR-1') v), true, 'PIN baru berlaku');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '692735', 'ubah_stok', 'HP-KASIR-1') v), false, 'PIN lama tidak berlaku lagi');
 reset role;
 select uji.klaim(null);
 
@@ -144,7 +144,7 @@ select uji.klaim(null);
 select uji.klaim('90000000-0000-0000-0000-000000000002');
 set local role authenticated;
 select uji.harap_gagal(
-  $$select public.simpan_pin('7777', null, '90000000-0000-0000-0000-000000000007')$$,
+  $$select public.simpan_pin('625084', null, '90000000-0000-0000-0000-000000000007')$$,
   'owner resto A tidak boleh menyimpan PIN pegawai resto B'
 );
 reset role;
@@ -180,7 +180,7 @@ update public.pengguna set aktif = false where id = '90000000-0000-0000-0000-000
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 select uji.sama(
-  (select v.pesan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '3344', 'void_sesudah_dapur', 'HP-KASIR-1') v),
+  (select v.pesan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '274918', 'void_sesudah_dapur', 'HP-KASIR-1') v),
   'PIN tidak dikenali.',
   'PIN pegawai nonaktif tidak berlaku lagi'
 );
@@ -195,19 +195,19 @@ delete from public.percobaan_pin;
 
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.sama((select v.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '0000', 'void_sesudah_dapur', 'HP-LOCK-1') v), 4, 'sisa percobaan 4 setelah salah pertama');
-select uji.sama((select v.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '0000', 'void_sesudah_dapur', 'HP-LOCK-1') v), 3, 'sisa percobaan 3');
-select uji.sama((select v.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '0000', 'void_sesudah_dapur', 'HP-LOCK-1') v), 2, 'sisa percobaan 2');
-select uji.sama((select v.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '0000', 'void_sesudah_dapur', 'HP-LOCK-1') v), 1, 'sisa percobaan 1');
-select uji.sama((select v.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '0000', 'void_sesudah_dapur', 'HP-LOCK-1') v), 0, 'sisa percobaan 0 setelah lima kali salah');
+select uji.sama((select v.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '135791', 'void_sesudah_dapur', 'HP-LOCK-1') v), 4, 'sisa percobaan 4 setelah salah pertama');
+select uji.sama((select v.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '135791', 'void_sesudah_dapur', 'HP-LOCK-1') v), 3, 'sisa percobaan 3');
+select uji.sama((select v.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '135791', 'void_sesudah_dapur', 'HP-LOCK-1') v), 2, 'sisa percobaan 2');
+select uji.sama((select v.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '135791', 'void_sesudah_dapur', 'HP-LOCK-1') v), 1, 'sisa percobaan 1');
+select uji.sama((select v.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '135791', 'void_sesudah_dapur', 'HP-LOCK-1') v), 0, 'sisa percobaan 0 setelah lima kali salah');
 
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '3344', 'void_sesudah_dapur', 'HP-LOCK-1') v), false, 'percobaan keenam DITOLAK walau PIN-nya benar');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '274918', 'void_sesudah_dapur', 'HP-LOCK-1') v), false, 'percobaan keenam DITOLAK walau PIN-nya benar');
 select uji.harap(
-  (select v.pesan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '3344', 'void_sesudah_dapur', 'HP-LOCK-1') v) like '%terkunci%',
+  (select v.pesan from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '274918', 'void_sesudah_dapur', 'HP-LOCK-1') v) like '%terkunci%',
   'pesan menjelaskan PIN terkunci sementara'
 );
 select uji.sama(
-  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '3344', 'void_sesudah_dapur', 'HP-LOCK-2') v),
+  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '274918', 'void_sesudah_dapur', 'HP-LOCK-2') v),
   false,
   'ganti HP tidak menembus pembatasan per akun'
 );
@@ -220,7 +220,7 @@ update public.percobaan_pin set waktu = now() - interval '20 minutes' where not 
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 select uji.sama(
-  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '3344', 'void_sesudah_dapur', 'HP-LOCK-3') v),
+  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '274918', 'void_sesudah_dapur', 'HP-LOCK-3') v),
   true,
   'setelah 15 menit lewat, PIN yang benar diterima lagi'
 );
@@ -233,21 +233,21 @@ select uji.klaim(null);
 delete from public.percobaan_pin;
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '0000', null, 'HP-ALAT') v), false, 'salah 1 dari akun owner');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '0000', null, 'HP-ALAT') v), false, 'salah 2 dari akun owner');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '0000', null, 'HP-ALAT') v), false, 'salah 3 dari akun owner');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '0000', null, 'HP-ALAT') v), false, 'salah 4 dari akun owner');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '0000', null, 'HP-ALAT') v), false, 'salah 1 dari akun admin');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '0000', null, 'HP-ALAT') v), false, 'salah 2 dari akun admin');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '0000', null, 'HP-ALAT') v), false, 'salah 3 dari akun admin');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '0000', null, 'HP-ALAT') v), false, 'salah 4 dari akun admin');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '0000', null, 'HP-ALAT') v), false, 'salah 1 dari akun dapur');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '0000', null, 'HP-ALAT') v), false, 'salah 2 dari akun dapur');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '0000', null, 'HP-ALAT') v), false, 'salah 3 dari akun dapur');
-select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '0000', null, 'HP-ALAT') v), false, 'salah 4 dari akun dapur');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '135791', null, 'HP-ALAT') v), false, 'salah 1 dari akun owner');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '135791', null, 'HP-ALAT') v), false, 'salah 2 dari akun owner');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '135791', null, 'HP-ALAT') v), false, 'salah 3 dari akun owner');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '135791', null, 'HP-ALAT') v), false, 'salah 4 dari akun owner');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '135791', null, 'HP-ALAT') v), false, 'salah 1 dari akun admin');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '135791', null, 'HP-ALAT') v), false, 'salah 2 dari akun admin');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '135791', null, 'HP-ALAT') v), false, 'salah 3 dari akun admin');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '135791', null, 'HP-ALAT') v), false, 'salah 4 dari akun admin');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '135791', null, 'HP-ALAT') v), false, 'salah 1 dari akun dapur');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '135791', null, 'HP-ALAT') v), false, 'salah 2 dari akun dapur');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '135791', null, 'HP-ALAT') v), false, 'salah 3 dari akun dapur');
+select uji.sama((select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000006', '135791', null, 'HP-ALAT') v), false, 'salah 4 dari akun dapur');
 
 select uji.sama(
-  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '1122', null, 'HP-ALAT') v),
+  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', null, 'HP-ALAT') v),
   false,
   'setelah 12 kali salah, HP itu terkunci walau PIN-nya benar'
 );
@@ -265,13 +265,13 @@ set local role authenticated;
 -- jadi mengetuk terus-menerus tidak memperpendek masa tunggu. Akibatnya akun
 -- owner kini juga mencapai batas per akun:
 select uji.sama(
-  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '1122', null, 'HP-BERSIH') v),
+  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', null, 'HP-BERSIH') v),
   false,
   'akun owner ikut terkunci karena percobaan yang ditolak tetap dihitung'
 );
 -- Tetapi akun lain (admin, 4 kali salah) masih bisa dari HP lain:
 select uji.sama(
-  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '3344', null, 'HP-BERSIH') v),
+  (select v.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '274918', null, 'HP-BERSIH') v),
   true,
   'HP lain + akun yang belum mencapai batas tetap bisa memakai PIN'
 );

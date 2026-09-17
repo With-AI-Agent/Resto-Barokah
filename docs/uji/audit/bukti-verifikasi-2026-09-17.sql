@@ -79,15 +79,15 @@ select uji.harap_gagal($$select pin_hash from public.kredensial_pin$$,
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner
 set local role authenticated;
-select uji.sama(public.simpan_pin('2468', null, '90000000-0000-0000-0000-000000000004'),
+select uji.sama(public.simpan_pin('516372', null, '90000000-0000-0000-0000-000000000004'),
                 'PIN tersimpan.', 'kontrol: owner memasang PIN awal kasir');
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir
 set local role authenticated;
 select uji.harap_gagal(
-  $$select public.simpan_pin('8888', null, '90000000-0000-0000-0000-000000000004')$$,
+  $$select public.simpan_pin('917426', null, '90000000-0000-0000-0000-000000000004')$$,
   'K-2a tertutup: simpan_pin tanpa PIN lama untuk DIRI SENDIRI ditolak');
-select uji.sama(public.simpan_pin('8888', '2468', '90000000-0000-0000-0000-000000000004'),
+select uji.sama(public.simpan_pin('917426', '516372', '90000000-0000-0000-0000-000000000004'),
                 'PIN tersimpan.', 'kontrol: ganti PIN tetap bisa bila PIN lama benar');
 
 -- [6] K-2a: jejak pelaku diisi sistem, tidak bisa dikarang — DITUTUP
@@ -113,9 +113,9 @@ select uji.klaim(null);
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000002');
 set local role authenticated;
-select uji.sama(public.simpan_pin('1122', null), 'PIN tersimpan.', 'owner memasang PIN-nya');
+select uji.sama(public.simpan_pin('738294', null), 'PIN tersimpan.', 'owner memasang PIN-nya');
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '1122', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
   true, 'bukti PIN penyetuju tercatat untuk aksi void_sesudah_dapur');
 reset role;
 
