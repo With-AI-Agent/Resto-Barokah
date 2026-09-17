@@ -47,7 +47,7 @@ Paket audit:
 > Setelah auditor selesai, kembali ke sesi kerja dan bilang: **"Laporan audit sudah masuk, periksa."**
 
 - **Tingkat audit:** AUD-3
-- **Commit yang diaudit:** `5ed041a7e4e14b1bda4dda3224900d246e1c9b91` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
+- **Commit yang diaudit:** `a151b3cc704fcd2a407f8fad13bc8ad073fb5b1f` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
 - **Tugas dalam lingkup:** T0-00, T0-01, T0-02, T0-03, T0-04, T0-05, T0-06, T0-07, T0-08, T0-09, T0-10, T0-11, T0-12, T0-13, T0-14, T1-01, T1-02, T1-03, T1-04, T1-05, T1-06, T1-07, T1-08, T1-09, T1-10, T1-11, T1-12, T1-13, T1-14, T1-15, T1-16, T1-17, T1-18, T1-19, T1-20, T1-21, T1-22, T1-23, T1-24, T1-25, T1-26, T1-27, T1-28, T1-29, T1-30, T1-31, T1-32, T1-33, T1-34, T1-35, T1-36, T1-37, T1-38, T1-39, T2-01, T2-02, T2-03, T2-04, T2-05, T2-06, T2-07, T2-08, T2-09, T2-10, T2-11, T2-12, T2-13, T2-14, T2-15, T2-16, T2-17, T2-18, T2-19, T3-01, T3-02, T3-03, T3-04, T3-05, T3-06, T3-07, T3-08, T3-09, T3-10, T3-11, T3-12, T3-13, T3-14, T3-15, T3-16, T4-01, T4-02, T4-03, T4-04, T4-05, T4-06, T4-07, T4-08, T4-09, T4-10, T5-01, T5-02, T5-03, T5-04, T5-05, T5-06, T5-07, T5-08, T5-09, T5-10, T5-11, T5-12, T6-01, T6-02, T6-03, T6-04, T6-05, T6-06, T6-07, T6-08, T7-01, T7-02, T7-03, T7-04, T7-05, T7-06, T7-07, T7-08, T7-09, T7-10, T7-11, T7-12, T8-01, T8-02, T8-03, T8-04, T8-05, T8-06, T8-07, T8-08, T8-09, T8-10, T8-11, T8-12, T8-13, T8-14, T8-15, T9-01, T9-02, T9-03, T9-04, T9-05, T9-06, T9-07, T9-08, T9-09, T9-10, T9-11, T9-12, T10-01, T10-02, T10-03, T10-04, T10-05, T10-06, T10-07, T10-08, T10-09, T10-10, T10-11, T10-12, T10-13, T10-14, T10-15, T10-16, T11-01, T11-02, T11-03, T11-04, T11-05, T11-06, T11-07, T11-08, T11-09, T11-10, T11-11, T11-12, T11-13
 - **Lensa wajib:** L1, L2, L3, L4, L5, L6
 - **Mode cakupan:** menyeluruh
@@ -56,7 +56,7 @@ Paket audit:
 
 ## 0a. LANGKAH 0 (WAJIB) — pastikan kamu memeriksa commit yang benar
 
-Paket ini menargetkan commit **`5ed041a7e4e14b1bda4dda3224900d246e1c9b91`**. **Cabang/base apa pun yang Lee pilih tidak masalah** — yang menentukan adalah commit-nya.
+Paket ini menargetkan commit **`a151b3cc704fcd2a407f8fad13bc8ad073fb5b1f`**. **Cabang/base apa pun yang Lee pilih tidak masalah** — yang menentukan adalah commit-nya.
 
 ```
 # (a) di repo ini, satu perintah memeriksa semuanya:
@@ -64,12 +64,12 @@ python3 alat/audit-independen.py --verifikasi-lingkup
 
 # (b) atau manual:
 git rev-parse HEAD                 # commit yang sedang kamu lihat
-git cat-file -e 5ed041a7e4e14b1bda4dda3224900d246e1c9b91            # apakah commit target ada di repo ini?
+git cat-file -e a151b3cc704fcd2a407f8fad13bc8ad073fb5b1f            # apakah commit target ada di repo ini?
 ```
 
-- **Sama** (`HEAD` = `5ed041a7e4e14b1bda4dda3224900d246e1c9b91`) → langsung lanjut.
+- **Sama** (`HEAD` = `a151b3cc704fcd2a407f8fad13bc8ad073fb5b1f`) → langsung lanjut.
 - **Berbeda tetapi commit target ada** → pindah hanya-baca lalu lanjut (aman, tidak mengubah apa pun):
-  `git fetch origin && git checkout --detach 5ed041a7e4e14b1bda4dda3224900d246e1c9b91`
+  `git fetch origin && git checkout --detach a151b3cc704fcd2a407f8fad13bc8ad073fb5b1f`
 - **Commit target tidak ada** → coba `git fetch origin` sekali lagi. Kalau tetap tidak ada, **JANGAN mengaudit commit lain**:
   tulis di bagian "Yang tidak bisa saya verifikasi" dan hentikan (minta Lee membuka sesi dari sumber yang benar).
 - Tulis di kepala laporan: `- **Commit yang diaudit:** <commit yang benar-benar kamu periksa>`.
@@ -88,7 +88,7 @@ git cat-file -e 5ed041a7e4e14b1bda4dda3224900d246e1c9b91            # apakah com
 
 ## 0. LINGKUP MENYELURUH (wajib — audit ini memeriksa SEMUA berkas proyek)
 
-- **Jumlah berkas dalam lingkup:** 331
+- **Jumlah berkas dalam lingkup:** 334
 - **Mode cakupan yang wajib kamu tulis di laporan:** `menyeluruh`
 
 **Grup berkas yang wajib kamu sentuh (minimal satu baris bukti per grup):**
@@ -104,7 +104,7 @@ git cat-file -e 5ed041a7e4e14b1bda4dda3224900d246e1c9b91            # apakah com
 | alat | perkakas repo (uji SQL, pemeriksa, mekanisme audit) | 24 | `alat/audit-independen.py`, `alat/contoh-laporan-review/bagus.md` … |
 | _sistem | mesin kerja agent (validator, template) | 16 | `_sistem/02_TAWARAN_KAPABILITAS_PLUS_AUDIT.md`, `_sistem/03_AUDIT_VERCEL_SKILLS.md` … |
 | docs (fondasi) | PRD, TECH_SPEC, ROADMAP, KEAMANAN, SPESIFIKASI_UI, dll | 11 | `docs/AGENT_OPERATING_GUIDE.md`, `docs/DECISIONS_LOG.md` … |
-| docs/uji | protokol & laporan uji/audit | 23 | `docs/uji/AUDIT_RIWAYAT.md`, `docs/uji/CATATAN_REVIEW_SESI_01a0aab1.md` … |
+| docs/uji | protokol & laporan uji/audit | 26 | `docs/uji/AUDIT_RIWAYAT.md`, `docs/uji/CATATAN_REVIEW_SESI_01a0aab1.md` … |
 | docs/teknis | catatan teknis & Buku Insiden | 6 | `docs/teknis/BUKU_INSIDEN.md`, `docs/teknis/DISKUSI_TAHAP4_ATURAN_KERJA.md` … |
 | docs/ops | panduan operasional | 1 | `docs/ops/SIAP_AKUN_PEMILIK.md` |
 | docs/desain | catatan desain | 59 | `docs/desain/PENILAIAN_REFERENSI.md`, `docs/desain/RENCANA_DESAIN_UI.md` … |
@@ -121,7 +121,7 @@ git cat-file -e 5ed041a7e4e14b1bda4dda3224900d246e1c9b91            # apakah com
 
 **Kewajiban khusus mode menyeluruh (divalidasi mesin):**
 1. Tulis di kepala laporan: `- **Mode cakupan:** menyeluruh`.
-2. Tulis ringkasan: `Cakupan menyeluruh: X dari 331 berkas` (X = berkas yang benar-benar kamu periksa; angka ini diperiksa mesin).
+2. Tulis ringkasan: `Cakupan menyeluruh: X dari 334 berkas` (X = berkas yang benar-benar kamu periksa; angka ini diperiksa mesin).
 3. Bagian 1 harus memuat **setiap grup** di atas minimal satu baris (dengan bukti perintah/baris).
 4. Tambahkan sub-bagian `### 1a. Berkas untuk pengguna` (minimal 3 baris): berkas pengguna di akar (PANDUAN_*, PROMPT_*, START_DI_SINI, PROFIL_PENGGUNA, AGENT_SYSTEM, STATUS, PROJECT_STATE), `docs/PANDUAN_PEMILIK.md`, `docs/uji/PROMPT_AUDIT_INDEPENDEN.md`,
    `docs/teknis/BUKU_INSIDEN.md`, `docs/ops/*`, dan `PANDUAN_PENGGUNA.md` → **periksa dengan cara pengguna**: apakah langkahnya bisa diikuti orang non-teknis, apakah prompt bisa disalin apa adanya dan bekerja, apakah ada langkah yang menyebut berkas/perintah yang tidak ada, apakah isi buku induk lengkap (semua mekanisme & semua prompt ada).
@@ -571,7 +571,7 @@ Kamu juga **wajib**: (a) memakai `skills/find-skills` atau `skills/agent-skills-
 - **Auditor:** <nama sesi/model yang benar-benar dipakai>
 - **Tanggal:** 2026-09-17
 - **Tingkat audit:** AUD-3
-- **Commit yang diaudit:** `5ed041a7e4e14b1bda4dda3224900d246e1c9b91` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
+- **Commit yang diaudit:** `a151b3cc704fcd2a407f8fad13bc8ad073fb5b1f` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
 - **Paket audit:** `docs/uji/paket-audit/AUD-3-2026-09-17.md`
 - **Mode cakupan:** menyeluruh
 - **Verdict:** BERSIH | BERSIH-DENGAN-CATATAN | TIDAK-BERSIH
