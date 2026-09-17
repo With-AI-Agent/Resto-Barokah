@@ -392,13 +392,32 @@ Saya hanya-baca dan tidak mengubah berkas apa pun. Bukti: `git status --short` k
 
 ## 7. Kalibrasi cacat tanaman (khusus AUD-3)
 
-Pembangun menyiapkan salinan berisi **cacat yang sengaja ditanam** dan menyimpan kunci jawabannya di luar repo.
-Catatan: di **salinan kalibrasi** `git status` memang **tidak** bersih (itu cacatnya) — aturan "repo bersih" hanya berlaku di repo kerja saat laporannya diperiksa.
-Instruksi & jalur salinan akan disampaikan bersama paket ini. Isi bagian 5 laporan dengan daftar cacat yang kamu temukan
-(`berkas` + penjelasan singkat) dan jumlah temuan palsu. **Kalibrasi ini menentukan apakah verdict BERSIH-mu boleh dipercaya.**
+Bahan kalibrasi ada **di dalam repo ini** (folder yang disebut §0b di atas) dan berisi **cacat yang sengaja ditanam**;
+kunci jawabannya disimpan **di luar repo** dan tidak boleh kamu cari. Isi `## 5. Kalibrasi cacat tanaman` dengan daftar
+cacat yang kamu temukan (`berkas` + kelas + bukti), `Ditemukan: X dari Y`, dan jumlah temuan palsu.
+**Kalibrasi ini menentukan apakah verdict BERSIH-mu boleh dipercaya.** Cacat di folder bahan **tidak** dihitung sebagai temuan proyek.
 """
     keluar.write_text(isi_paket, encoding="utf-8")
     print(f"PAKET AUDIT dibuat: {keluar.relative_to(AKAR)}")
+
+    # Berkas siap-tempel: kalimat pembuka auditor (diambil dari sumber kanonik, bukan disalin tangan)
+    # + seluruh paket. Tujuannya menghapus kegagalan praktis "pemilik hanya menempel separuh".
+    sumber_prompt = AKAR / "docs" / "uji" / "PROMPT_AUDIT_INDEPENDEN.md"
+    if sumber_prompt.is_file():
+        kanonik = sumber_prompt.read_text(encoding="utf-8").split("## B.")[-1]
+        m = re.search(r"```\n(.*?)\n```", kanonik, re.DOTALL)
+        if m:
+            siap = (
+                "> BERKAS SIAP-TEMPEL — salin SELURUH isi berkas ini ke chat/percakapan BARU (idealnya model berbeda).\n"
+                "> Dibuat mesin oleh `alat/audit-independen.py`; kalimat pembuka diambil apa adanya dari sumber kanonik.\n\n"
+                "===== MULAI SALIN DARI SINI =====\n\n"
+                + m.group(1).strip()
+                + "\n\n===== SAMBUNGAN: PAKET AUDIT =====\n\n"
+                + isi_paket
+            )
+            keluar_siap = keluar.with_name(keluar.stem + "-SIAP-TEMPEL.md")
+            keluar_siap.write_text(siap, encoding="utf-8")
+            print(f"SIAP-TEMPEL    : {keluar_siap.relative_to(AKAR)}   (pemilik cukup menyalin berkas ini)")
     print(f"  tugas       : {len(ids)} ({', '.join(ids[:3])}{'…' if len(ids) > 3 else ''})")
     print(f"  berkas      : {len(berkas)}")
     print(f"  klaim Bukti : {len(klaim)}")

@@ -85,6 +85,10 @@ Riset *Perspective-Based Reading*: reviewer dengan **skenario tertentu** menemuk
 
 ## 5. Paket audit (dibuat mesin, bukan diingat)
 
+Selain paket, mesin menulis **berkas siap-tempel** `<paket>-SIAP-TEMPEL.md`: kalimat pembuka auditor (diambil apa adanya
+dari `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` bagian B — bukan disalin tangan) + seluruh paket. Pemilik cukup menyalin
+**satu berkas** ke chat baru; ini menutup kegagalan praktis "pemilik hanya menempel separuh berkas".
+
 Perintah: `python3 alat/audit-independen.py --paket AUD-2 --tugas T1-01..T1-10`
 Keluaran: berkas paket di docs/uji/paket-audit/ berisi:
 

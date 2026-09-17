@@ -33,7 +33,9 @@
 1. Di sesi kerja biasa, Bapak bilang: **"Siapkan audit independen untuk <lingkup>."**
 2. Agent menjawab dengan: nama berkas paket (folder docs/uji/paket-audit/), tingkat audit (AUD-2 biasa / AUD-3 menyeluruh), dan lama perkiraan.
 3. Bapak **buka chat baru**, pilih **model lain** bila tersedia.
-4. Salin **isi berkas paket** + **kalimat pembuka** dari `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` ke chat baru itu.
+4. Salin **satu berkas saja**: `docs/uji/paket-audit/<paket>-SIAP-TEMPEL.md` — berkas itu sudah memuat kalimat pembuka
+   auditor **dan** seluruh paket (dibuat mesin, jadi tidak mungkin salah tempel). Kalau berkas itu belum ada (paket lama),
+   salin isi paket + kalimat pembuka dari `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` bagian B.
 5. Auditor bekerja (hanya membaca, tidak mengubah apa pun) dan menulis laporan.
 6. Kembali ke sesi kerja, Bapak bilang: **"Laporan audit sudah masuk, periksa dan tindak lanjuti."**
 7. Agent: memvalidasi laporan dengan mesin → memperbaiki temuan **K-1 (Kritis)** & **K-2 (Tinggi)** lebih dulu → melaporkan ke Bapak.

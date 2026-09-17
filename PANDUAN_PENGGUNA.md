@@ -161,8 +161,9 @@ Ikuti Tahap 0.5 di AGENT_SYSTEM.md.
 **Situasi: Mau audit / pemeriksaan independen (Bapak paling sering butuh ini)**
 ```
 Siapkan audit independen dulu. Lingkupnya: <seluruh sistem / keamanan akun / Fase 1 / bebas>.
-Setelah paketnya siap, tunjukkan nama berkas paket + kalimat pembuka yang harus aku tempel di chat baru,
-dan beri tahu aku jalur salinan kalibrasi (kalau ada). Jangan kerjakan pekerjaan lain sebelum laporan audit masuk.
+Setelah paketnya siap, tunjukkan nama berkas **SIAP-TEMPEL**-nya (satu berkas yang sudah memuat kalimat pembuka +
+paket, di folder docs/uji/paket-audit/) dan beri tahu aku lokasi bahan kalibrasinya. Jangan kerjakan pekerjaan lain
+sebelum laporan audit masuk.
 ```
 
 **Situasi: Sudah menjalankan audit di chat baru, ingin ditindaklanjuti**
@@ -218,7 +219,7 @@ Aku akan bilang "setuju semua" atau memilih.
 | Bapak minta | Perintah | Fungsinya |
 |---|---|---|
 | "Siapkan audit" | `python3 alat/audit-independen.py --paket AUD-2 --tugas T1-01..T1-10` | Menyiapkan paket audit terarah |
-| "Siapkan audit menyeluruh" | `python3 alat/audit-independen.py --paket AUD-3 --semua` | Paket audit **seluruh berkas proyek** |
+| "Siapkan audit menyeluruh" | `python3 alat/audit-independen.py --paket AUD-3 --semua` | Paket audit **seluruh berkas proyek** + berkas **SIAP-TEMPEL** (pemilik cukup menyalin satu berkas) |
 | "Siapkan kalibrasi" | `python3 alat/audit-independen.py --kalibrasi-siapkan` | Menanam cacat uji ketajaman auditor |
 | "Periksa laporan audit" | `python3 alat/audit-independen.py --periksa-laporan <berkas>` | Menolak laporan malas/tanpa bukti |
 | "Nilai kalibrasi" | `python3 alat/audit-independen.py --kalibrasi-nilai <laporan> --kunci <kunci>` | Mengukur ketajaman auditor |
