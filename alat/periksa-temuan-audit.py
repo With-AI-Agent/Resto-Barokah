@@ -78,6 +78,48 @@ def jalur_ada(akar: pathlib.Path, rujukan: list[str]) -> list[str]:
     return [r for r in rujukan if not (akar / r).exists()]
 
 
+LUAR_CAKUPAN = "docs/uji/TEMUAN_LUAR_CAKUPAN_REVIEW.md"
+
+
+def periksa_luar_cakupan(akar: pathlib.Path, errs: list[str]) -> int:
+    """Temuan peninjau yang DI LUAR cakupan diff wajib punya daftar tunggal yang hidup.
+
+    Aturan kerja (Lee, 2026-09-17): temuan luar cakupan tidak boleh hilang di dalam laporan saja.
+    Pemeriksa ini memastikan: berkas daftarnya ada, setiap baris punya status yang dikenali
+    (DITANGANI / DITUNDA / DICATAT), dan setiap baris berstatus punya bukti ber-backtick yang
+    benar-benar ada (atau perintah yang bisa dijalankan).
+    """
+    berkas = akar / LUAR_CAKUPAN
+    if not berkas.is_file():
+        errs.append(f"daftar temuan luar cakupan tidak ada: {LUAR_CAKUPAN}")
+        return 0
+    baris = 0
+    for i, ln in enumerate(berkas.read_text(encoding="utf-8").splitlines(), 1):
+        b = ln.strip()
+        if not b.startswith("| L-"):
+            continue
+        kolom = [k.strip() for k in b.strip("|").split("|")]
+        if len(kolom) < 5:
+            errs.append(f"{LUAR_CAKUPAN}:{i}: kolom kurang ({len(kolom)})")
+            continue
+        baris += 1
+        status = kolom[3].upper()
+        if not any(s in status for s in ("DITANGANI", "DITUNDA", "DICATAT")):
+            errs.append(f"{LUAR_CAKUPAN}:{i}: status tidak jelas ('{kolom[3][:30]}') — wajib DITANGANI/DITUNDA/DICATAT")
+        rujukan = re.findall(r"`([^`\n]+)`", " ".join(kolom))
+        if not rujukan:
+            errs.append(f"{LUAR_CAKUPAN}:{i}: tanpa bukti ber-backtick (perintah/berkas) — temuan luar cakupan wajib berjejak")
+        for r in rujukan:
+            if "/" in r and not r.startswith(("http", "python", "node", "git", "bash")):
+                if not (akar / r).exists():
+                    errs.append(f"{LUAR_CAKUPAN}:{i}: bukti menunjuk berkas yang TIDAK ADA: {r}")
+        if "DITUNDA" in status and not re.search(r"T\d+-\d+|TERTANGGUH|butir tunggu", " ".join(kolom)):
+            errs.append(f"{LUAR_CAKUPAN}:{i}: baris DITUNDA wajib menyebut sarana penutupnya (tugas T\d+-\d+ atau butir tunggu)")
+    if baris == 0:
+        errs.append(f"{LUAR_CAKUPAN}: tidak ada baris temuan (tabel kosong?)")
+    return baris
+
+
 def periksa(akar: pathlib.Path) -> int:
     errs: list[str] = []
     temuan = temuan_laporan(akar)
@@ -133,6 +175,7 @@ def periksa(akar: pathlib.Path) -> int:
                 errs.append(f"temuan {nama} {fid} BELUM punya baris di daftar §1b — temuan tidak boleh hilang")
 
     total = sum(len(v) for v in temuan.values())
+    jumlah_luar = periksa_luar_cakupan(akar, errs)
     print(f"PERIKSA TEMUAN AUDIT — laporan A: {len(temuan.get('A', set()))} temuan · laporan B: {len(temuan.get('B', set()))} temuan "
           f"· daftar §1b: {len(baris)} baris ({tertutup} ditutup · {terbuka} terbuka)")
     if errs:
@@ -140,7 +183,8 @@ def periksa(akar: pathlib.Path) -> int:
         for e in errs:
             print(f"  [X] {e}")
         return 1
-    print(f"\nHASIL: LOLOS — {total} temuan terlacak semua, tiap DITUTUP punya bukti hidup, tiap TERBUKA punya tugas.")
+    print(f"\nHASIL: LOLOS — {total} temuan terlacak semua, tiap DITUTUP punya bukti hidup, tiap TERBUKA punya tugas; "
+          f"{jumlah_luar} temuan luar cakupan review berjejak di daftar tunggal.")
     return 0
 
 
@@ -195,6 +239,34 @@ def uji_diri() -> int:
                 kode4, _ = jalankan_pemeriksa(periksa, tmp4)
                 hasil.append(("mutasi: temuan terbuka menunjuk tugas palsu", kode4 != 0,
                               "ditolak" if kode4 != 0 else "DILOLOSKAN (tumpul)"))
+        # Mutasi 4: baris temuan luar cakupan diberi status karangan → harus GAGAL
+        with salin_pohon() as tmp5:
+            berkas = tmp5 / LUAR_CAKUPAN
+            baris = berkas.read_text(encoding="utf-8").splitlines()
+            idx = next((i for i, b in enumerate(baris) if b.strip().startswith("| L-")), None)
+            if idx is None:
+                hasil.append(("mutasi status luar cakupan", False,
+                              "daftar temuan luar cakupan tidak punya baris untuk dimutasi"))
+            else:
+                kolom = [k.strip() for k in baris[idx].strip().strip("|").split("|")]
+                kolom[3] = "SEDANG DIPIKIRKAN"
+                baris[idx] = "| " + " | ".join(kolom) + " |"
+                berkas.write_text("\n".join(baris) + "\n", encoding="utf-8")
+                kode5, _ = jalankan_pemeriksa(periksa, tmp5)
+                hasil.append(("mutasi: status temuan luar cakupan dikarang", kode5 != 0,
+                              "ditolak" if kode5 != 0 else "DILOLOSKAN (status tak dijaga)"))
+
+        # Mutasi 5: baris DITUNDA dihapus sarananya → harus GAGAL
+        with salin_pohon() as tmp6:
+            berkas = tmp6 / LUAR_CAKUPAN
+            isi = berkas.read_text(encoding="utf-8")
+            isi = isi.replace("masuk tugas `T1-44` (paket audit diperketat)", "masuk rencana nanti")
+            isi = isi.replace("`docs/TERTANGGUH.md`; ditutup oleh `T1-24`", "dibiarkan saja")
+            berkas.write_text(isi, encoding="utf-8")
+            kode6, _ = jalankan_pemeriksa(periksa, tmp6)
+            hasil.append(("mutasi: baris DITUNDA tanpa sarana penutup", kode6 != 0,
+                          "ditolak" if kode6 != 0 else "DILOLOSKAN (penundaan tanpa sarana)"))
+
     return laporkan("periksa-temuan-audit", hasil)
 
 

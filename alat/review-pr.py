@@ -21,6 +21,7 @@ import argparse
 import datetime as dt
 import json
 import pathlib
+import random
 import re
 import subprocess
 import sys
@@ -759,8 +760,19 @@ def kalibrasi_pr_siapkan(jumlah: int | None) -> int:
     if not KATALOG.is_file():
         print(f"GAGAL: katalog cacat tidak ada: {KATALOG}"); return 1
     cacat = json.loads(KATALOG.read_text(encoding="utf-8"))["cacat"]
-    # pilih campuran: utamakan K-1/K-2
-    cacat = sorted(cacat, key=lambda c: (c["tingkat"] != "K-1", c["tingkat"] != "K-2"))[: (jumlah or 4)]
+    # Pilih campuran: utamakan K-1/K-2, TETAPI diacak dengan benih tanggal.
+    # Alasan (temuan luar-cakupan review putaran8 #3): katalog cacat ikut ter-commit di repo yang
+    # sama, jadi peninjau yang membacanya bisa menebak cacat yang ditanam bila pilihannya selalu
+    # sama. Dengan pengacakan, bahan tiap putaran berbeda dan menebak dari katalog tidak lagi
+    # menolong; katalog tetap satu-satunya tempat pasangan cari/ganti (kunci ada di luar repo).
+    berat = [c for c in cacat if c["tingkat"] in ("K-1", "K-2")]
+    ringan = [c for c in cacat if c["tingkat"] not in ("K-1", "K-2")]
+    benih = int(dt.date.today().strftime("%Y%m%d"))
+    acak = random.Random(benih)
+    acak.shuffle(berat)
+    acak.shuffle(ringan)
+    campuran = berat + ringan
+    cacat = campuran[: (jumlah or 4)]
     tanda = dt.date.today().isoformat()
     kerja = pathlib.Path(f"/tmp/kalibrasi-pr-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}")
     rc, keluaran = jalankan(["git", "worktree", "add", "--detach", str(kerja), "HEAD"])

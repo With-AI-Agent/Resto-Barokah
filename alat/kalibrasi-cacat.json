@@ -96,6 +96,46 @@
         "20",
         "pemeriksa"
       ]
+    },
+    {
+      "id": "P7",
+      "tingkat": "K-1",
+      "kelas": "uang/diskon",
+      "berkas": "supabase/migrations/0012_penutup_celah_review.sql",
+      "cari": "    raise exception 'Diskon promo otomatis belum aktif (menunggu T1-19/T1-20). Pakai diskon manual dengan persetujuan.';",
+      "ganti": "    null;  -- SENGAJA (kalibrasi)",
+      "ringkas": "diskon jenis 'promo' kembali lolos tanpa pemeriksaan izin",
+      "harapan_mesin": "ya (supabase/tes/diskon_cap.sql: diskon promo wajib ditolak)"
+    },
+    {
+      "id": "P8",
+      "tingkat": "K-2",
+      "kelas": "uang/harga",
+      "berkas": "supabase/migrations/0012_penutup_celah_review.sql",
+      "cari": "      if not public.boleh('ubah_harga') then",
+      "ganti": "      if false then  -- SENGAJA (kalibrasi)",
+      "ringkas": "harga karangan klien diterima tanpa izin ubah_harga",
+      "harapan_mesin": "ya (supabase/tes/harga_item.sql: harga tanpa izin wajib ditolak)"
+    },
+    {
+      "id": "P9",
+      "tingkat": "K-1",
+      "kelas": "keamanan/bukti-PIN",
+      "berkas": "supabase/migrations/0012_penutup_celah_review.sql",
+      "cari": "       and pp.dipakai_pada is null",
+      "ganti": "       and (pp.dipakai_pada is null or true)  -- SENGAJA (kalibrasi)",
+      "ringkas": "bukti persetujuan PIN bisa dipakai berulang",
+      "harapan_mesin": "ya (supabase/tes/persetujuan_void.sql: bukti sekali pakai)"
+    },
+    {
+      "id": "P10",
+      "tingkat": "K-2",
+      "kelas": "stok",
+      "berkas": "supabase/migrations/0012_penutup_celah_review.sql",
+      "cari": "    v_jumlah := -abs(p_jumlah);",
+      "ganti": "    v_jumlah := p_jumlah;  -- SENGAJA (kalibrasi)",
+      "ringkas": "catat_stok('keluar') menambah stok lagi",
+      "harapan_mesin": "ya (supabase/tes/stok_arah.sql: keluar wajib mengurangi)"
     }
   ]
 }

@@ -12,10 +12,10 @@ index 3996436..978f31a 100644
       and pc.aktif
       and pc.cabang_id = nullif(auth.jwt() ->> 'cabang_id', '')::uuid
 diff --git a/supabase/migrations/0004_pola_rls.sql b/supabase/migrations/0004_pola_rls.sql
-index 3a9dd3d..899af1a 100644
+index 0b7702a..d301f5c 100644
 --- a/supabase/migrations/0004_pola_rls.sql
 +++ b/supabase/migrations/0004_pola_rls.sql
-@@ -76,7 +76,7 @@ create policy izin_pilih on public.izin
+@@ -82,7 +82,7 @@ create policy izin_pilih on public.izin
  -- -------------------------------------------------------------- pengaturan
  create policy pengaturan_pilih on public.pengaturan
    for select to authenticated
@@ -36,16 +36,16 @@ index 879ab55..18fa12f 100644
  revoke all on function public.boleh(text, integer, uuid) from public;
  revoke all on function public.boleh(text, integer, numeric, uuid) from public;
  revoke all on function public.pasang_izin_peran_bawaan(uuid) from public;
-diff --git a/supabase/migrations/0010_pembayaran.sql b/supabase/migrations/0010_pembayaran.sql
-index edc8e4e..90cd535 100644
---- a/supabase/migrations/0010_pembayaran.sql
-+++ b/supabase/migrations/0010_pembayaran.sql
-@@ -315,7 +315,7 @@ begin
+diff --git a/supabase/migrations/0012_penutup_celah_review.sql b/supabase/migrations/0012_penutup_celah_review.sql
+index cb02d13..7dd7a87 100644
+--- a/supabase/migrations/0012_penutup_celah_review.sql
++++ b/supabase/migrations/0012_penutup_celah_review.sql
+@@ -78,7 +78,7 @@ begin
+     -- dan cabang `if` yang tidak ditulis berarti TIDAK ADA pemeriksaan sama sekali:
+     -- kasir bisa mencatat diskon 100% subtotal dengan jenis ini. Selama mesinnya belum
+     -- ada, jalur ini DITUTUP (gagal-aman), bukan dibiarkan tanpa aturan.
+-    raise exception 'Diskon promo otomatis belum aktif (menunggu T1-19/T1-20). Pakai diskon manual dengan persetujuan.';
++    null;
+   else
+     raise exception 'Jenis diskon tidak dikenal: %.', new.jenis;
    end if;
- 
-   v_sebelum := public.total_dibayar(new.pesanan_id) + new.jumlah;
--  if v_sebelum > v_pesanan.total then
-+  if false then
-     raise exception 'Total pembayaran (%) melebihi total pesanan (%).', v_sebelum, v_pesanan.total;
-   end if;
- 
