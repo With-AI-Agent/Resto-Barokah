@@ -7,6 +7,8 @@ ikut ter-commit**. Pemeriksa ini menjaga dua hal sekaligus:
 
  1. **Berkas rahasia tidak pernah masuk Git.** Pola `*.local.md` dan `.env*` wajib ada di
     `.gitignore`, dan tidak boleh ada berkas rahasia yang terlacak (`git ls-files`).
+    Formulir kosongnya (`docs/ops/DAFTAR_KUNCI_PEMILIK.template.md`) wajib ada — formulir inilah
+    yang ikut Git, berkas kerja terisi yang tidak ikut Git.
  2. **Tidak ada kunci bertekanan tinggi di berkas yang terlacak** — JWT panjang, kunci
     privat, token penyedia (Supabase/Resend/OpenAI/AWS). Ini bukan pengganti pemeriksa
     rahasia penuh (itu tugas `T1-30`), tetapi penjaga minimum yang bekerja hari ini.
@@ -34,6 +36,7 @@ POLA_RAHASIA = [
     ("kunci AWS", re.compile(r"\bAKIA" + r"[0-9A-Z]{16}\b")),
 ]
 BERKAS_RAHASIA_POLA = ("*.local.md", "*.local", ".env", ".env.*")
+FORMULIR = "docs/ops/DAFTAR_KUNCI_PEMILIK.template.md"  # ikut Git; berkas kerja terisinya tidak
 BERKAS_DIABAIKAN = {"alat/periksa-rahasia.py"}  # pemeriksa sendiri (polanya ada di kodenya)
 
 
@@ -56,6 +59,13 @@ def periksa(akar: pathlib.Path) -> int:
             errs.append(f"pola '{pola}' tidak ada di .gitignore")
     if "*.local.md" not in isi_gi:
         errs.append("pola '*.local.md' tidak ada di .gitignore — lembar kunci pemilik bisa ikut ter-commit")
+
+    # 1b. formulir kosong wajib ada — tanpa formulir, tidak ada tempat menyalin yang aman
+    if not (akar / FORMULIR).is_file():
+        errs.append(
+            f"formulir {FORMULIR} tidak ada — formulir kosong ini yang ikut Git "
+            "(berkas kerja terisi yang tidak ikut Git dibuat dengan menyalinnya)"
+        )
 
     # 2. berkas rahasia tidak boleh terlacak
     terlacak = berkas_terlacak(akar)
@@ -130,6 +140,14 @@ def uji_diri() -> int:
             kode3, _ = jalankan_pemeriksa(periksa, tmp3)
             hasil.append(("mutasi: pola '*.local.md' dihapus dari .gitignore", kode3 != 0,
                           "ditolak" if kode3 != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 3: formulir kosong dihapus → harus GAGAL
+        with salin_pohon() as tmp4:
+            (tmp4 / FORMULIR).unlink()
+            siapkan_git_salinan(tmp4)
+            kode4, _ = jalankan_pemeriksa(periksa, tmp4)
+            hasil.append((f"mutasi: formulir {FORMULIR.split('/')[-1]} dihapus", kode4 != 0,
+                          "ditolak" if kode4 != 0 else "DILOLOSKAN (tumpul)"))
     return laporkan("periksa-rahasia", hasil)
 
 

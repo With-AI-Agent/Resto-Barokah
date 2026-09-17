@@ -43,6 +43,8 @@ python3 alat/periksa-buku-uji.py --uji-diri
 python3 alat/review-pr.py --uji-diri)
 (cd "$REPO" && python3 alat/periksa-rahasia.py
 python3 alat/periksa-rahasia.py --uji-diri
+python3 alat/periksa-bersih.py
+python3 alat/periksa-bersih.py --uji-diri
 python3 aplikasi/alat/periksa-kerapatan.py
 python3 aplikasi/alat/periksa-kerapatan.py --uji-diri
 python3 aplikasi/alat/periksa-struktur.py)
