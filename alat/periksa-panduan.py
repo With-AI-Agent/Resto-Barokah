@@ -26,6 +26,19 @@ import sys
 AKAR = pathlib.Path(__file__).resolve().parent.parent
 BUKU = AKAR / "PANDUAN_PENGGUNA.md"
 MIN_BARIS = 350
+# --- aturan v2 (permintaan Lee 2026-09-17): setiap prompt wajib berlabel pemakainya,
+# setiap alur wajib punya 8 bidang tetap, dan tabel perintah wajib menjelaskan fungsi & cara pakai.
+LABEL_PROMPT = ("[LEE → AGENT]", "[LEE → PENINJAU]")
+# bidang alur boleh punya keterangan dalam tanda kurung, mis. "**Langkah Lee (4 langkah):**"
+BIDANG_ALUR = (
+    r"\*\*Apa ini[^*]*:\*\*", r"\*\*Kapan dipakai[^*]*:\*\*", r"\*\*Kalimat Lee[^*]*:\*\*",
+    r"\*\*Langkah Lee[^*]*:\*\*", r"\*\*Yang agent lakukan[^*]*:\*\*",
+    r"\*\*Bukti yang Lee terima[^*]*:\*\*", r"\*\*Lama[^*]*:\*\*", r"\*\*Kalau macet[^*]*:\*\*",
+)
+MIN_ALUR = 10
+KOLOM_PERINTAH = ("Kalimat Lee", "Fungsinya", "Kalau GAGAL artinya")
+LARANGAN_SAPAAN = ("Bapak", "Pak ")  # Lee minta dipanggil "Lee" (2026-09-17)
+
 TOPIK_WAJIB = {
     "prompt pembuka": r"Prompt Pembuka Universal",
     "prompt penutup": r"Prompt Penutup Sesi",
@@ -39,6 +52,10 @@ TOPIK_WAJIB = {
     "review & merge": r"review & merge|Review & Merge",
     "template": r"(?i)sebagai template",
     "titik masuk sesi baru": r"PROMPT_ENTRI_UNIVERSAL",
+    "review PR independen": r"Review PR independen|review PR",
+    "label prompt": r"\[LEE → (AGENT|PENINJAU)\]",
+    "penjelasan perintah": r"Fungsinya",
+    "rekam pesan Lee": r"REKAM_PESAN_PEMILIK",
 }
 BERKAS_PENGGUNA_WAJIB = [
     "docs/PANDUAN_PEMILIK.md",
@@ -68,6 +85,7 @@ def cari_blok_kanonik(teks: str) -> str:
 def main() -> int:
     errs: list[str] = []
     catatan: list[str] = []
+    angka: dict = {}
     if not BUKU.is_file():
         print("GAGAL: PANDUAN_PENGGUNA.md tidak ada"); return 1
     teks = BUKU.read_text(encoding="utf-8")
@@ -84,13 +102,57 @@ def main() -> int:
         if not re.search(pola, teks):
             errs.append(f"topik wajib hilang: {nama} (pola {pola!r}) — tambahkan ke buku")
 
+    # --- v2: alur (Bagian B) ---
+    judul_alur = re.findall(r"^### (AL-\d+) — (.+)$", teks, re.MULTILINE)
+    if len(judul_alur) < MIN_ALUR:
+        errs.append(f"alur terlalu sedikit: {len(judul_alur)} (minimum {MIN_ALUR}) — Bagian B wajib memuat semua cara melakukan")
+    for nomor, nama in judul_alur:
+        i = teks.index(f"### {nomor} —")
+        j = teks.find("\n### ", i + 4)
+        blok = teks[i: j if j > 0 else len(teks)]
+        hilang = [b for b in BIDANG_ALUR if not re.search(b, blok)]
+        if hilang:
+            errs.append(f"{nomor} ({nama[:40]}): bidang wajib hilang {hilang} — setiap alur harus punya 8 bidang tetap")
+        if len(blok.splitlines()) < 8:
+            errs.append(f"{nomor} ({nama[:40]}): alur terlalu pendek ({len(blok.splitlines())} baris)")
+
+    # --- v2: prompt wajib berlabel ---
+    blok_kode = list(re.finditer(r"^```\n(.*?)^```$", teks, re.MULTILINE | re.DOTALL))
+    angka["blok_prompt"] = len(blok_kode)
+    for m in blok_kode:
+        awal_baris = teks[: m.start()].count("\n") + 1
+        sebelum = "\n".join(baris[max(0, awal_baris - 8): awal_baris])
+        if not any(lab in sebelum for lab in LABEL_PROMPT):
+            errs.append(f"blok prompt di baris {awal_baris} TIDAK berlabel siapa yang memakainya "
+                        f"(wajib ada {LABEL_PROMPT[0]} atau {LABEL_PROMPT[1]} dalam 8 baris sebelum blok)")
+
+    # --- v2: tabel perintah mesin menjelaskan fungsi & cara pakai ---
+    kepala_perintah = [b for b in baris if "Kalimat Lee" in b and "Fungsinya" in b]
+    if not kepala_perintah:
+        errs.append("tabel perintah mesin wajib punya kolom 'Kalimat Lee', 'Fungsinya', dan 'Kalau GAGAL artinya'")
+    baris_perintah = [b for b in baris if b.strip().startswith("| `")]
+    angka["perintah"] = len(baris_perintah)
+    if len(baris_perintah) < 10:
+        errs.append(f"tabel perintah mesin hanya {len(baris_perintah)} baris perintah (minimum 10)")
+    for b in baris_perintah:
+        kolom = [k.strip() for k in b.strip("|").split("|")]
+        if len(kolom) < 5:
+            errs.append(f"baris perintah tanpa penjelasan lengkap: {b.strip()[:60]}")
+
+    # --- v2: sapaan (boleh menyebut "Bapak" HANYA dalam kalimat larangan/koreksi) ---
+    for i, baris_ in enumerate(baris, 1):
+        if any(s in baris_ for s in LARANGAN_SAPAAN):
+            if not re.search(r"bukan|jangan|tidak boleh|→|panggil", baris_, re.I):
+                errs.append(f"baris {i}: buku memanggil Lee dengan 'Bapak' — Lee minta dipanggil 'Lee' (2026-09-17): {baris_[:60]}")
+
     baris_mekanisme = [b for b in baris if re.match(r"\|\s*C\d+\s*\|", b)]
     if len(baris_mekanisme) < 10:
         errs.append(f"tabel mekanisme hanya {len(baris_mekanisme)} baris (minimum 10 mekanisme terdaftar)")
     for b in baris_mekanisme:
         kolom = [k.strip() for k in b.strip("|").split("|")]
-        if len(kolom) < 5 or not re.search(r"`|—\s*$", kolom[2]):
-            errs.append(f"baris mekanisme tanpa rujukan berkas: {b.strip()[:70]}")
+        punya_rujukan = any(re.search(r"`[^`]*\.(md|py|sh|mjs|ts|tsx|sql|yml|json)|\.md`", k) for k in kolom)
+        if len(kolom) < 6 or not punya_rujukan:
+            errs.append(f"baris mekanisme tanpa rujukan berkas / kolom kurang: {b.strip()[:70]}")
 
     # 4. blok prompt pembuka harus identik
     pe = AKAR / "PROMPT_ENTRI_UNIVERSAL.md"
@@ -156,7 +218,7 @@ def main() -> int:
             catatan.append(f"rujukan di dalam blok kanonik yang disematkan (milik sumber lain): {t}")
             lewat += 1
             continue
-        if any(re.search(r"\(rencana\)|belum ada|belum jadi|akan ditulis|observasi", b) for _, b in pola_baris):
+        if any(re.search(r"\(rencana|belum ada|belum jadi|akan ditulis|observasi", b) for _, b in pola_baris):
             catatan.append(f"rujukan berkas yang belum ada (ditandai rencana): {t}")
             lewat += 1
             continue
@@ -173,7 +235,8 @@ def main() -> int:
     if pp.is_file() and "PANDUAN_PENGGUNA" not in pp.read_text(encoding="utf-8"):
         errs.append("docs/uji/PROMPT_AUDIT_INDEPENDEN.md tidak menunjuk ke buku induk")
 
-    print(f"PERIKSA BUKU PEDOMAN INDUK — {len(baris)} baris · {len(baris_mekanisme)} mekanisme · {len(kandidat)} rujukan berkas")
+    print(f"PERIKSA BUKU PEDOMAN INDUK — {len(baris)} baris · {len(judul_alur)} alur · {angka.get('blok_prompt', 0)} blok prompt "
+          f"· {angka.get('perintah', 0)} perintah · {len(baris_mekanisme)} mekanisme · {len(kandidat)} rujukan berkas")
     for c in catatan:
         print(f"  [catatan] {c}")
     if errs:

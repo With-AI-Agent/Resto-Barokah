@@ -30,7 +30,8 @@ echo "== pemeriksa Python =="
 (cd "$REPO" && python3 alat/periksa-roadmap.py)
 (cd "$REPO" && python3 alat/periksa-fondasi-independen.py
 python3 alat/audit-independen.py --uji-diri
-python3 alat/periksa-panduan.py)
+python3 alat/periksa-panduan.py
+python3 alat/review-pr.py --uji-diri)
 (cd "$REPO" && python3 aplikasi/alat/periksa-struktur.py)
 (cd "$REPO" && python3 aplikasi/alat/periksa-komponen-env.py)
 (cd "$REPO" && python3 aplikasi/alat/periksa-uji.py)

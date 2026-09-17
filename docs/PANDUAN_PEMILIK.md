@@ -1,103 +1,68 @@
-# PANDUAN_PEMILIK.md — Cara Bapak Mengendalikan Proyek Ini
+# PANDUAN PEMILIK — tiga hal besar yang bisa Lee perintahkan kapan saja
 
-> **Buku induk (lengkap):** `PANDUAN_PENGGUNA.md` — semua mekanisme, semua prompt, glosarium, dan penanganan masalah. Berkas ini = pelengkap khusus AUDIT (cara memicu, arti verdict, kalibrasi).
-
-> Ditulis untuk **pemilik**, bukan programmer. Semua istilah teknis dijelaskan di tempat.
-> Bila panduan ini dan kenyataan berbeda, **kenyataan yang benar** — laporkan supaya panduan diperbaiki (aturan pemilik 2026-09-17).
+> **Buku induk (semua cara + semua prompt + semua perintah):** `PANDUAN_PENGGUNA.md`.
+> Berkas ini = ringkasan cepat untuk tiga hal yang paling sering Lee pakai: **audit independen**, **review PR**, dan **menutup sesi aman**.
+> Semua istilah di sini dijelaskan di buku induk Bagian F. Tempat lain: `docs/teknis/REKAM_PESAN_PEMILIK.md` (rekam permintaan Lee).
 
 ---
 
-## 1. Tiga hal yang bisa Bapak perintahkan kapan saja
+## 1. Tiga perintah utama
 
-| Bapak bilang | Yang terjadi | Bukti yang Bapak terima |
+| Lee bilang | Yang terjadi | Bukti yang Lee terima |
 |---|---|---|
-| **"Siapkan audit independen"** (+ lingkup: "seluruh sistem" / "keamanan akun" / "Fase 1") | Agent menyiapkan **paket audit**; Bapak membuka **chat baru dengan model berbeda**, menempel paket + kalimat pembuka (§3 di bawah) | Laporan audit + verdict + daftar temuan; agent memperbaiki temuan berat sebelum lanjut |
-| **"Kerjakan ulang X"** | Agent mengulang pekerjaan yang Bapak sebut (mis. kode lama yang bertentangan dengan aturan baru) | Daftar pekerjaan ulang + bukti uji setelah selesai |
-| **"Berhenti dulu"** | Agent berhenti di batas bersih: semua tersimpan di Git + laporan 5 baris | Tidak ada pekerjaan menggantung tanpa catatan |
+| **"Siapkan audit menyeluruh"** (atau: *untuk keamanan akun / Fase 1 / seluruh sistem*) | Agent menyiapkan **paket audit** + berkas **SIAP-TEMPEL** di `docs/uji/paket-audit/`; bahan kalibrasi disiapkan untuk mengukur ketajaman peninjau | Laporan peninjau → agent memvalidasi, memperbaiki K-1/K-2 → ringkasan + verdict |
+| **"Siapkan review PR"** | Agent menyiapkan **paket review PR** + berkas **SIAP-TEMPEL** di `docs/uji/review-pr/`, dan menyebut **jalur risiko** PR (🔴/🟡/🟢) | **Kartu Keputusan** 7 baris: verdict · jumlah K-1/K-2/K-3 · cakupan · kalibrasi · **BOLEH/JANGAN MERGE** |
+| **"Tutup sesi ini dengan benar"** | Agent menyimpan semua (commit + push), memperbarui papan keadaan, menutup log sesi | Pernyataan **"sesi aman ditutup"** + commit terakhir + status PR |
 
 ---
 
-## 2. Kabar rutin yang Bapak terima
+## 2. Cara Lee menjalankan audit / review (langkah yang sama untuk keduanya)
 
-- **Setiap batch pekerjaan:** laporan **5 baris** — apa yang berubah · artinya untuk Bapak · bukti (uji/pemeriksa) · cacat yang jujur dilaporkan · langkah berikutnya.
-- **Setiap akhir fase:** **audit independen** (sesi & model berbeda) sebelum fase berikutnya boleh dimulai.
-- **Buku tunggu** (`docs/TERTANGGUH.md`): hal-hal yang sengaja ditunda + tenggatnya. Batas 12 butir; kalau penuh, agent wajib berhenti dan minta keputusan Bapak.
-- **Laporan Harian** (setelah fitur jadi): 1 email/hari + daftar peringatan di aplikasi (omzet, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat).
+1. Kirim kalimatnya di **sesi kerja** (sesi ini).
+2. Agent menjawab: nama berkas **SIAP-TEMPEL** + perkiraan lama.
+3. Lee **buka chat/percakapan BARU** (idealnya pilih **model berbeda** dari sesi kerja).
+4. Lee **salin seluruh isi berkas SIAP-TEMPEL** ke chat baru itu — **satu berkas saja**, tidak perlu menambah apa pun.
+5. Peninjau bekerja (hanya membaca) lalu menulis laporan.
+6. Lee kembali ke sesi kerja dan bilang: **"Laporan audit sudah masuk, periksa."** / **"Laporan review sudah masuk, periksa."**
+7. Agent: memvalidasi laporan dengan pemeriksa mesin → memperbaiki **K-1 (Kritis)** dan **K-2 (Tinggi)** lebih dulu → melaporkan.
 
----
-
-## 3. Cara meminta audit independen (langkah demi langkah)
-
-**Kenapa langkahnya begini:** pemeriksa harus **orang/sesi lain** dari yang mengerjakan. Model AI cenderung meloloskan pekerjaannya sendiri (terbukti dalam riset), jadi pemeriksa wajib sesi baru — dan bila bisa, **model berbeda**.
-
-1. Di sesi kerja biasa, Bapak bilang: **"Siapkan audit independen untuk <lingkup>."**
-2. Agent menjawab dengan: nama berkas paket (folder docs/uji/paket-audit/), tingkat audit (AUD-2 biasa / AUD-3 menyeluruh), dan lama perkiraan.
-3. Bapak **buka chat baru**, pilih **model lain** bila tersedia.
-4. Salin **satu berkas saja**: `docs/uji/paket-audit/<paket>-SIAP-TEMPEL.md` — berkas itu sudah memuat kalimat pembuka
-   auditor **dan** seluruh paket (dibuat mesin, jadi tidak mungkin salah tempel). Kalau berkas itu belum ada (paket lama),
-   salin isi paket + kalimat pembuka dari `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` bagian B.
-5. Auditor bekerja (hanya membaca, tidak mengubah apa pun) dan menulis laporan.
-6. Kembali ke sesi kerja, Bapak bilang: **"Laporan audit sudah masuk, periksa dan tindak lanjuti."**
-7. Agent: memvalidasi laporan dengan mesin → memperbaiki temuan **K-1 (Kritis)** & **K-2 (Tinggi)** lebih dulu → melaporkan ke Bapak.
-
-### 3b. Audit menyeluruh (AUD-3) — untuk keadaan sekarang, sebelum pekerjaan ulang
-
-Bapak minta: **"Siapkan audit menyeluruh"** (tanpa lingkup — menyeluruh berarti **semua berkas proyek**, termasuk **berkas untuk pengguna**). Yang agent siapkan dalam batch yang sama:
-
-1. Paket `python3 alat/audit-independen.py --paket AUD-3 --semua` → daftar **semua grup berkas** + jumlah berkasnya (contoh terakhir: ratusan berkas proyek; kumpulan skill pihak ketiga dikecualikan dengan alasan tertulis).
-2. Salinan kalibrasi cacat tanaman (`--kalibrasi-siapkan`) supaya ketajaman auditor **terukur** — jangan pernah memakai AUD-3 tanpa kalibrasi.
-3. Kalimat pembuka yang harus Bapak tempel (Bagian D1 buku induk / `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` §B).
-
-Laporan AUD-3 **ditolak mesin** bila tidak memuat: mode `menyeluruh`, ringkasan `Cakupan menyeluruh: X dari Y berkas`, satu baris bukti per grup berkas, sub-bagian `### 1a. Berkas untuk pengguna`, atau cakupan < 90%. Artinya: tidak ada jalan pintas "audit contoh".
-
-**Gerbang yang Bapak pilih (2026-09-17): `tahan_semua`** — temuan **K-1 dan K-2** sama-sama **menahan fase** sampai diperbaiki & diverifikasi; K-3/K-4 masuk daftar perbaikan.
-
-**Bila Bapak tidak mau repot membuka chat baru:** Bapak bisa minta agent melakukannya, tetapi hasilnya lebih lemah (sesi yang mengerjakan cenderung membela pekerjaannya sendiri). Agent **wajib jujur** menyebut kelemahan ini, bukan menyamarkan.
+**Kenapa peninjau harus sesi baru:** penelitian menunjukkan model AI cenderung meloloskan pekerjaannya sendiri. Peninjau harus orang lain (sesi lain) dari yang mengerjakan. Kalau Lee tidak sempat membuka sesi baru, agent **tidak boleh** mengaku sudah diaudit — pekerjaan berhenti di titik bersih.
 
 ---
 
-## 4. Cara membaca hasil audit (arti istilah)
+## 3. Arti istilah hasil (ringkas)
 
-| Istilah | Arti untuk Bapak |
+| Istilah | Arti untuk Lee |
 |---|---|
-| **K-1 Kritis** | Bisa membuat uang salah, data bocor, atau jejak hilang. **Wajib diperbaiki sebelum pekerjaan lain.** |
-| **K-2 Tinggi** | Janji di dokumen dilanggar / pengaman wajib hilang. Wajib diperbaiki sebelum fase ditutup. |
-| **K-3 Sedang** | Tidak konsisten, uji kurang, dokumen basi. Diperbaiki di fase berjalan. |
-| **K-4 Catatan** | Kerapian; tidak menghambat. Boleh masuk daftar tunggu. |
-| **BERSIH** | Tidak ada temuan K-1/K-2, semua temuan punya bukti, dan (untuk audit menyeluruh) auditor lulus **kalibrasi cacat tanaman**. |
-| **BERSIH-DENGAN-CATATAN** | Tidak ada masalah berat; ada perbaikan kecil yang dicatat. |
-| **TIDAK-BERSIH** | Ada masalah berat; pekerjaan **dihentikan** sampai diperbaiki. |
-| **Terkalibrasi / Belum terkalibrasi** | Apakah auditor sudah terbukti bisa menemukan cacat yang sengaja ditanam. Kalau "belum", verdict BERSIH-nya **tidak boleh dipercaya** dan audit harus diulang. |
-| **Gagal kalibrasi** | Bukan bencana: artinya mekanisme bekerja — ketidaktajaman terdeteksi **sebelum** merugikan Bapak. |
+| **K-1 Kritis** | Bisa membuat uang salah / data bocor / tidak bisa dipulihkan → wajib diperbaiki lebih dulu |
+| **K-2 Tinggi** | Janji dokumen dilanggar / pengaman wajib hilang → wajib sebelum fase ditutup atau sebelum merge |
+| **K-3 / K-4** | Sedang / catatan — dicatat, tidak menghambat |
+| **Verdict** | `BERSIH` · `BERSIH-DENGAN-CATATAN` · `TIDAK-BERSIH` |
+| **Jalur risiko PR** | 🔴 Merah (uang/keamanan/data/migrasi) · 🟡 Kuning (logika, alat, dokumen fondasi) · 🟢 Hijau (dokumen biasa) |
+| **Kalibrasi** | Latihan dengan cacat sengaja: `Ditemukan: X dari Y`. Gagal kalibrasi → verdict "BERSIH" tidak dipercaya |
+| **Gerbang `tahan_semua`** (pilihan Lee) | K-1 **dan** K-2 menahan fase **dan** menahan merge sampai ditutup |
+| **Kartu Keputusan** | Ringkasan 7 baris untuk keputusan merge (dibuat mesin dari laporan peninjau) |
 
 ---
 
-## 5. Kalibrasi cacat tanaman (kenapa ini penting, bahasa sederhana)
+## 4. Kabar rutin yang Lee terima
 
-Sebelum auditor boleh bilang "semua aman", agent menanam **beberapa kesalahan yang sengaja dibuat** di salinan
-kode (termasuk kesalahan yang tersembunyi), lalu auditor mencari tanpa tahu jawabannya. Kalau auditor menemukan
-hampir semuanya → kemampuannya terbukti, verdict "BERSIH"-nya bermakna. Kalau banyak yang terlewat → laporan
-ditandai **belum terkalibrasi** dan hasilnya tidak dipakai sebagai bukti.
-
-**Jujur soal batas:** mustahil menjamin 100% tidak ada yang terlewat — penelitian inspeksi pun menunjukkan tim
-profesional menemukan sekitar 58% cacat. Karena itu ada berlapis-lapis: uji otomatis (mesin) → auditor independen
-→ kalibrasi → dan **uji terima oleh Bapak sendiri** di perangkat nyata. Yang kami lakukan adalah menaikkan angka
-deteksi dan **mengukurnya**, bukan menjanjikan keajaiban.
+- **Setiap batch:** laporan **5 baris** — apa yang berubah · artinya untuk Lee · bukti (uji/pemeriksa) · cacat jujur · berikutnya.
+- **Setiap akhir fase:** audit independen (sesi & model berbeda) sebelum fase berikutnya.
+- **Setiap PR:** review independen + Kartu Keputusan sebelum Lee diminta merge.
+- **Buku tunggu** (`docs/TERTANGGUH.md`): hal yang sengaja ditunda + tenggatnya (batas 12 butir).
+- **Laporan Harian** (setelah fitur jadi): 1 email/hari + daftar peringatan di aplikasi.
 
 ---
 
-## 6. Hal-hal yang tidak boleh ditunda (agent wajib berhenti & bertanya)
+## 5. Kalau ada yang tidak beres
 
-1. Keamanan, uang, atau data pelanggan yang belum jelas.
-2. Muncul **biaya** (walau kecil).
-3. Permintaan yang bertentangan dengan keputusan yang sudah dikunci.
-4. Dua dokumen saling bertentangan.
-5. Agent ingin **menyimpang** dari deskripsi/rancangan Bapak (walau niatnya memperbaiki) — aturan Bapak 2026-09-17: **tanya dulu, jelaskan bahasa sederhana, baru kerjakan, lalu dicatat**.
+| Kejadian | Yang Lee lakukan |
+|---|---|
+| Peninjau gagal kalibrasi (banyak cacat sengaja terlewat) | Itu penemuan, bukan bencana: minta audit/review ulang (idealnya model lain) |
+| Kartu Keputusan berkata `JANGAN MERGE DULU` | Jangan merge; agent menjelaskan apa yang kurang dengan bahasa sederhana |
+| Ruang kerja baru dinyalakan ulang & kerja "hilang" | Minta agent memulihkan (`bash alat/pulihkan-git.sh`) — aman, tidak menghapus apa pun |
+| Lee merasa penjelasan terlalu teknis | Bilang: **"Terlalu teknis, sederhanakan."** |
+| Lee merasa dipaksa/tergesa-gesa | Ingatkan: **kualitas di atas kecepatan** — minta berhenti di batas bersih |
 
----
-
-## 7. Riwayat dokumen ini
-
-| Tanggal | Perubahan | Alasan |
-|---|---|---|
-| 2026-09-17 | Dibuat; bagian audit independen ditambahkan | Permintaan pemilik: *"Aku mau setelah mekanisme ini tertanam, di panduan pengguna dijelaskan cara ketika aku mau melakukan ini"* |
+Rincian lengkap semua alur: `PANDUAN_PENGGUNA.md` **Bagian B**.

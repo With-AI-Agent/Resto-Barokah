@@ -162,6 +162,24 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` bila perbaikan menyentuh keputusan terkunci; audit menyeluruh bisa menemukan banyak K-3/K-4 → dikelola lewat `docs/TERTANGGUH.md` (maks 12) tanpa menutup K-1/K-2; auditor tidak bisa dijalankan di sesi yang sama → pemilik membuka sesi baru (risiko sisa §14 butir 5).
   - **Verifikasi:** laporan lolos kontrak mesin · kalibrasi memenuhi ambang (semua K-1/K-2 tertanam ditemukan, ≥70% total, 0 temuan palsu) · nol K-1/K-2 terbuka sebelum `[x]`.
 
+- [x] T0-13 — Mekanisme review PR independen + Kartu Keputusan untuk Lee
+  - **Tujuan:** Lee bisa mengambil keputusan merge **tanpa membaca kode**: peninjau sesi baru menilai diff per jalur risiko, dan mesin mencetak Kartu Keputusan 7 baris.
+  - **Ref:** permintaan Lee 2026-09-17 (*"aku sendiri ga bisa melakukan review itu… aku bingung ketika liat komparasi file changed"*); riset industri 2026 (lihat `docs/uji/PROTOKOL_REVIEW_PR_INDEPENDEN.md` §7)
+  - **File:** `docs/uji/PROTOKOL_REVIEW_PR_INDEPENDEN.md` · `docs/uji/PROMPT_REVIEW_PR_INDEPENDEN.md` · `alat/review-pr.py` · `docs/uji/REVIEW_PR_RIWAYAT.md` · `docs/uji/review-pr/`
+  - **DoD:** tiga tingkat RV-1…RV-3 · jalur risiko Merah/Kuning/Hijau menentukan kedalaman review · 5 syarat merge wajib · kartu keputusan dapat dibuat mesin · kalibrasi diff berisi cacat sengaja (kunci di luar repo) · `--uji-diri` membuktikan pemeriksa bisa MENOLAK laporan buruk (3 contoh) · CI menjalankannya.
+  - **Kompleksitas:** besar (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: gerbang merge & mutu; risiko reviewer "ramah"/hijau palsu → mitigasi: laporan wajib bukti perintah + kalibrasi + verdict dipaksa `TIDAK-BERSIH` bila ada K-1/K-2 TERVERIFIKASI; risiko PR besar campur-risiko → aturan pemisahan jalur.
+  - **Verifikasi:** `python3 alat/review-pr.py --uji-diri` LOLOS · `--siapkan` menghasilkan paket + SIAP-TEMPEL (diuji pada repo ini) · `--kesiapan` melaporkan SIAP/BELUM dengan benar · prosedur tercatat di `PANDUAN_PENGGUNA.md` (AL-6) & `docs/PANDUAN_PEMILIK.md`.
+
+- [x] T0-14 — Buku pedoman induk v2 (berbasis alur + prompt berlabel + penjelasan perintah)
+  - **Tujuan:** memperbaiki keluhan Lee bahwa buku masih kurang & cacat: banyak *cara* tidak dijelaskan, prompt tanpa panduan langkah, tabel perintah tanpa penjelasan fungsi, dan ada prompt yang kata-katanya untuk pengguna tetapi disajikan sebagai perintah.
+  - **Ref:** pesan Lee 2026-09-17 (lihat `docs/teknis/REKAM_PESAN_PEMILIK.md` §4); `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §2b
+  - **File:** `PANDUAN_PENGGUNA.md` · `alat/periksa-panduan.py` · `docs/PANDUAN_PEMILIK.md` · `docs/teknis/REKAM_PESAN_PEMILIK.md` · `PROFIL_PENGGUNA.md`
+  - **DoD:** Bagian B = **12 alur** dengan 8 bidang tetap (Apa ini · Kapan dipakai · Kalimat Lee · Langkah Lee · Yang agent lakukan · Bukti yang Lee terima · Lama · Kalau macet) · **setiap blok prompt berlabel** `[LEE → AGENT]` / `[LEE → PENINJAU]` · Bagian E menjelaskan **fungsi, cara pakai, dan arti bila GAGAL** untuk setiap perintah · perintah teknis yang seharusnya tugas agent dipindahkan dari prompt Lee ke deskripsi tugas agent (§C3) · panggilan **Lee** (bukan "Bapak") · pemeriksa menolak buku yang kehilangan bidang/label/penjelasan.
+  - **Kompleksitas:** besar (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md`; risiko buku menjadi terlalu panjang dan justru sulit dipakai → mitigasi: §0 tabel "mau melakukan apa → alur mana", tiap alur berformat sama, dan ringkasan terpisah di `docs/PANDUAN_PEMILIK.md`.
+  - **Verifikasi:** `python3 alat/periksa-panduan.py` LOLOS (12 alur · 4 blok prompt berlabel · 18 perintah berpenjelasan) · penjaga baru ini **terbukti menolak** saat bidang alur atau label prompt dihapus (uji coba dijalankan sebelum commit).
+
 ## Fase 1 — Database, keamanan & uang (⚠️ Area Berisiko Tinggi — dikerjakan paling awal)
 
 - [x] T1-01 — Migrasi 0001: penyewa + cabang + RLS ⚠️
@@ -525,6 +543,15 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Verifikasi:** jalankan 3 langkah pertama naskah di pratinjau → hasil sesuai; pemeriksa menolak tugas UI tanpa nomor naskah.
 
 ---
+
+- [ ] T1-39 — Isi PETA_UI untuk SEMUA layar G1 (kontrak + registri aksi) ⚠️
+  - **Tujuan:** menutup celah yang ditemukan Lee — *"banyak tombol yang kurang, fungsi yang katanya ada tapi ga bisa dipake"*: isi **setiap** layar (daftar tombol, aksi, keadaan, masuk-dari-mana, keluar-ke-mana, perilaku & gerakan) ditulis lebih dulu sebagai data, bukan diserahkan ke ingatan saat mengoding.
+  - **Ref:** `docs/SPESIFIKASI_UI.md` §2–§4 & **§9 (perilaku & gerakan, baru)**; pesan Lee ke-14 & putaran 5 (`docs/teknis/REKAM_PESAN_PEMILIK.md` §6)
+  - **File:** `docs/PETA_UI.md` · `aplikasi/src/lib/layar.ts` · `aplikasi/src/lib/aksi.ts` · `alat/peta-ui.py`
+  - **DoD:** setiap layar G1 punya baris kontrak lengkap (id · rute · tujuan · peran · masuk dari mana · data · daftar aksi · 8 keadaan §9.1 · aturan tampilan · berkas uji · nomor naskah jalan); setiap aksi punya entri Registri Aksi lengkap (nama · RPC/tabel · peran yang boleh · syarat · umpan balik · akibat gagal); pemeriksa `alat/peta-ui.py` **hijau** dan **terbukti bisa MERAH** (sengaja hapus satu aksi → MERAH).
+  - **Kompleksitas:** besar (4 jam, dikerjakan bersama T1-31/T1-32)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` bila pola kontrak berubah; risiko daftar layar G1 tidak lengkap → mitigasi: diambil dari `docs/ROADMAP.md` Fase 3–9 (per fase ada daftar layar) + uji silang pemeriksa.
+  - **Verifikasi:** `python3 alat/peta-ui.py` LOLOS · uji mutasi MERAH saat satu aksi/tombol dihapus · naskah jalan tiap layar bisa dijalankan Lee.
 
 ## Fase 2 — Masuk & kerangka aplikasi
 
@@ -1778,8 +1805,12 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 **Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07 · Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009, **T-012** (cadangan di artefak terenkripsi repo privat) dan **T-013** (penutup shift = Admin Cabang → Owner Pusat) sudah **ditutup** 2026-09-16 (lihat tabel Butir selesai di `docs/TERTANGGUH.md`).
 
-**Jumlah tugas:** F0 13 · F1 38 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 13 = **184 tugas**, semuanya ber-7 atribut.
+**Jumlah tugas:** F0 15 · F1 39 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 13 = **187 tugas**, semuanya ber-7 atribut.
 | 2026-09-17 (putaran 4) | **Buku pedoman induk + penjaga mesin** (+T0-11 `[x]`) dan **audit menyeluruh lebih dulu** (+T0-12 ⚠️) → **184 tugas**; AUD-3 memakai lingkup menyeluruh (`--semua`) & gerbang `tahan_semua` | Permintaan pemilik: *"sekarang aku mau audit dulu"*; mekanisme harus menyeluruh *"termasuk file2 yang disiapkan untuk pengguna"*; *"satu file untuk pengguna yang betul-betul isinya lengkap… semacam manual book"* |
+
+| 2026-09-17 (putaran 5) | **Mekanisme review PR independen** (T0-13 `[x]`) + **buku pedoman induk v2** (T0-14 `[x]`) → **186 tugas**; ditambah: independensi base branch audit (`--verifikasi-lingkup`), rekam pesan Lee (`docs/teknis/REKAM_PESAN_PEMILIK.md`), panggilan **Lee** | Permintaan Lee: (a) tidak bisa menilai *Files changed* → butuh review PR independen + kartu keputusan; (b) buku masih kurang & cacat (cara, prompt tanpa panduan, prompt yang kata-katanya untuk pengguna); (c) jangan panggil "Bapak"; (d) base branch peninjau jangan harus ditentukan presisi |
+
+| 2026-09-17 (putaran 5b) | **+T1-39** (isi PETA_UI semua layar G1) + `docs/SPESIFIKASI_UI.md` **§9 perilaku & gerakan** → **187 tugas** | Jawaban jujur atas pertanyaan Lee: yang belum matang bukan mekanisme kelengkapan UI, melainkan **isinya** (daftar tombol/aksi per layar) dan **spesifikasi gerakan/perilaku** |
 
 > **Catatan 2026-09-17:** angka di atas **diukur ulang** dari berkas ini setelah penyisipan keamanan & kelengkapan UI (+T1-36 jalur pemulihan perangkat · +T1-37 pekerjaan ulang & T1-38 audit independen · +T11-13 audit adversarial)
 > (Fase 1B `T1-23…T1-30` · Fase 1C `T1-31…T1-35` · perluasan Fase 2/8/10/11). **Nomor migrasi rencana lama bergeser +7**

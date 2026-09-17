@@ -102,6 +102,21 @@ Keluaran: berkas paket di docs/uji/paket-audit/ berisi:
 
 ---
 
+## 5b. Independensi terhadap base branch (dikunci 2026-09-17)
+
+Pertanyaan Lee: *"kamu ga jelasin aku harus buat sesi baru dengan base branch apa… klo bisa, aku lebih suka klo mekanisme ini dibuat ga perlu nentuin base branch secara presisi."*
+
+**Jawabannya: ya, bisa — dan tetap maksimal.** Yang menentukan hasil audit bukan cabang, melainkan **commit**:
+
+1. Mesin menulis **commit target** di setiap paket audit (`- **Commit yang diaudit:** <sha>`), dan paket memuat **LANGKAH 0 (wajib)** beserta perintah verifikasinya.
+2. Auditor menjalankan `python3 alat/audit-independen.py --verifikasi-lingkup` (atau perintah manual `git rev-parse HEAD` + `git cat-file -e <sha>`).
+   - **Cocok** → lanjut mengaudit.
+   - **Beda commit tetapi target ada** → `git fetch origin && git checkout --detach <sha>` (hanya-baca) lalu lanjut.
+   - **Target tidak ada** → `git fetch origin` sekali lagi; kalau tetap tidak ada, auditor **berhenti dan melaporkan** — bukan mengaudit commit lain. Alasan: mengaudit commit yang salah lebih berbahaya daripada tidak mengaudit, karena menghasilkan rasa aman yang palsu.
+3. Laporan tetap mencatat branch/commit apa yang **benar-benar** diperiksa; mesin memvalidasi commit itu ada di repo.
+
+**Konsekuensi untuk Lee:** Lee boleh memilih base branch **mana pun** yang paling mudah (cabang sesi ini, `main`, atau cabang lain) — paket akan mengarahkan peninjau ke commit yang tepat. Satu-satunya syarat: repo yang dipakai peninjau **memuat** commit itu (kalau sesi dibuka dari `main` sementara pekerjaan belum di-merge, `git fetch origin` + `checkout --detach` menyelesaikannya).
+
 ## 6. Kontrak laporan (divalidasi mesin — tanpa ini audit tidak diakui)
 
 Judul & kepala laporan wajib memuat: Auditor · Tanggal · Tingkat audit · **Commit yang diaudit (SHA penuh)** ·

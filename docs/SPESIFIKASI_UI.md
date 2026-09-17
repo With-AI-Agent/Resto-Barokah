@@ -123,3 +123,62 @@ pada uji terima fase. Naskah yang gagal = cacat; dicatat & diperbaiki, bukan dih
 - `docs/PETA_UI.md` — **hasil generate** (daftar layar & aksi); jangan disunting tangan.
 - `docs/desain/RENCANA_DESAIN_UI.md` — keputusan visual (tema, susunan, komponen) yang tetap berlaku; dokumen ini mengatur **kelengkapan & bukti**, bukan gaya visual.
 - `docs/AGENT_OPERATING_GUIDE.md` §5 & §7 — uji & DoD tingkat kerja agent.
+
+## 9. Perilaku & gerakan (spesifikasi rinci — ditambahkan 2026-09-17)
+
+> **Kenapa baru sekarang:** pesan Lee ke-14 meminta *"setiap fitur, fungsi, laman, UI, tombol-tombol, dan lain nya
+> secara lebih matang … gerakan/animasi/perilaku"*. Aturan dasar (8 standar kehalusan) sudah ada di
+> `docs/desain/RENCANA_DESAIN_UI.md` §7–§8 dan sudah dipasang di prototipe; bagian ini menutup celah yang Lee temukan:
+> **aturan perilakunya belum ditulis sebagai spesifikasi yang bisa diperiksa.**
+
+### 9.1 Delapan keadaan layar (diperluas dari 7 keadaan §3)
+
+| Keadaan | Yang terlihat | Yang bisa dilakukan pengguna |
+|---|---|---|
+| Kosong | pesan + **satu** tombol tindakan utama | tindakan utama |
+| Memuat | kerangka bentuk (skeleton), bukan lingkaran berputar di tengah | tidak ada (tetap bisa berpindah) |
+| Gagal | sebab singkat + tombol **Coba lagi** | coba lagi |
+| Menunggu terkirim | penanda "menunggu" pada baris data + jumlah antrean di bilah atas | batalkan (bila belum terkirim) |
+| Tidak punya akses | pesan tegas + siapa yang boleh membuka | kembali |
+| Data sebagian | data tampil + spanduk "sebagian data belum masuk" | segarkan |
+| Berhasil | pesan singkat 2 detik di kanan bawah + jejak di daftar | lanjut kerja |
+| Konflik/ditolak peladen | sebab dalam bahasa manusia + nomor rujukan | ulangi / hubungi admin |
+
+### 9.2 Gerakan (motion) — angka wajib
+
+| Kejadian | Gerakan | Lama | Kurva |
+|---|---|---|---|
+| Kursor menyentuh kartu | terangkat 2 px + bayangan menguat | 180 ms | `cubic-bezier(.22,.61,.36,1)` |
+| Tombol ditekan | skala 0,98 | 120 ms | kurva sama |
+| Jendela konfirmasi muncul | naik 8 px + memudar masuk, latar gelap 45% | 240 ms | kurva sama |
+| Pesan berhasil | meluncur masuk dari kanan bawah | 200 ms | kurva sama |
+| Perpindahan tab/segmen | sorotan bergeser (bukan berkedip) | 180 ms | kurva sama |
+| Baris baru di papan pesanan | masuk + sorotan 1× (menandai "baru") | 260 ms | kurva sama |
+
+**Aturan pengaman (tidak bisa ditawar):** semua gerakan **mati** bila pengguna memilih *"kurangi gerak"*
+(`prefers-reduced-motion`) · tidak ada gerakan yang menahan kerja (durasi maksimum 260 ms) · tidak ada kedipan
+berulang (aksesibilitas) · angka di atas **diuji** lewat pemeriksa kontras & aturan desain yang sudah ada.
+
+### 9.3 Perilaku masukan (input) yang wajib
+
+1. **Tombol utama tahan ganda-tekan:** menekan dua kali cepat tidak mengirim dua pesanan (dikunci saat proses).
+2. **Angka & uang:** kolom uang hanya menerima angka; titik ribuan ditampilkan otomatis; nilai akhir **selalu dihitung ulang di peladen** sebelum disimpan.
+3. **Tombol wajib:** setiap aksi di Registri Aksi (`docs/SPESIFIKASI_UI.md` §2) harus punya tombol yang bisa ditekan dari layar tempat aksi itu dijanjikan — tidak boleh "fungsi ada tapi tak bisa dipakai".
+4. **Keadaan menunggu:** aksi yang memanggil peladen wajib menampilkan penanda dan **melarang** aksi ganda pada baris yang sama.
+5. **Umpan balik gagal:** kegagalan tidak boleh berupa "tidak terjadi apa-apa" — wajib ada sebab singkat + langkah berikutnya.
+6. **Fokus & papan tulis (kiosk):** masuk kembali ke aplikasi setelah terkunci tidak boleh mengubah isi keranjang/pesanan yang sedang dikerjakan.
+
+### 9.4 Perilaku perangkat & sesi (ringkas, rujuk `docs/KEAMANAN.md`)
+
+- Sesi menganggur **panjang** yang diatur owner → kunci ringan: layar terkunci, keranjang tetap tersimpan.
+- Perangkat dicabut → pada percobaan aksi berikutnya layar menampilkan "perangkat tidak terdaftar" + langkah menghubungi admin.
+- Mode dukungan aktif → bilah merah "mode dukungan" selalu terlihat + bisa dihentikan siapa pun yang berwenang.
+
+### 9.5 Cara memeriksa (bukti yang harus ada di setiap tugas UI)
+
+| Yang diperiksa | Alat/perintah | Kapan |
+|---|---|---|
+| 8 keadaan ada & bisa dipanggil | pemeriksa peta UI (`alat/peta-ui.py`, Fase 1C) + uji komponen | setiap tugas layar |
+| Gerakan sesuai angka + menghormati "kurangi gerak" | uji komponen + pemeriksa aturan desain (`aplikasi/alat/uji-kontras.py`) | batch UI pertama |
+| Tidak ada tombol janji tanpa aksi & sebaliknya | pemeriksa peta UI: Registri Aksi ↔ kontrak layar ↔ kode | setiap batch UI |
+| Perilaku bisa dicoba manusia | naskah jalan bernomor `W-<fase>-<nomor>` + bukti pratinjau | setiap akhir fase UI |

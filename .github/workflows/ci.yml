@@ -67,6 +67,7 @@ jobs:
           python3 alat/periksa-fondasi-independen.py
           python3 alat/audit-independen.py --uji-diri
           python3 alat/periksa-panduan.py
+          python3 alat/review-pr.py --uji-diri
           python3 aplikasi/alat/periksa-struktur.py
           python3 aplikasi/alat/periksa-komponen-env.py
           python3 aplikasi/alat/periksa-uji.py

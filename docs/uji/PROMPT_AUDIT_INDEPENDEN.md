@@ -2,6 +2,8 @@
 
 > Dipakai bersama `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`. Paket khusus untuk satu lingkup audit ditulis mesin ke
 > docs/uji/paket-audit/ — **paket itulah yang disalin**, bukan berkas ini.
+> Sejak 2026-09-17 mesin juga menulis berkas **`<paket>-SIAP-TEMPEL.md`** yang sudah memuat kalimat pembuka (bagian B) **+** paketnya:
+> **cukup salin satu berkas itu** ke chat baru — cara ini paling kecil kemungkinan salah.
 > Cara pemilik memicunya ada di `docs/PANDUAN_PEMILIK.md`; penjelasan lengkap + semua prompt ada di
 > buku induk `PANDUAN_PENGGUNA.md`.
 
@@ -12,8 +14,8 @@
 1. Minta ke agent: **"Siapkan audit independen"** + lingkupnya (contoh: *"siapkan audit independen untuk seluruh keamanan akun"*).
 2. Agent menjalankan `python3 alat/audit-independen.py --paket AUD-2 --tugas <lingkup>` dan memberi tahu **nama berkas paket**-nya.
 3. **Buka percakapan/chat BARU** (idealnya pilih **model yang berbeda** dari yang dipakai sesi coding), lalu tempelkan:
-   - isi berkas paket audit (berkas paket di folder docs/uji/paket-audit/), **dan**
-   - kalimat pembuka di bagian B di bawah.
+   - **cara termudah:** seluruh isi berkas **`<paket>-SIAP-TEMPEL.md`** (sudah memuat kalimat pembuka + paket); atau
+   - cara manual: isi berkas paket audit (folder docs/uji/paket-audit/) **dan** kalimat pembuka di bagian B di bawah.
 4. Auditor bekerja **hanya-baca**. Setelah selesai, ia menulis laporan ke `docs/uji/audit/`.
 5. Kembali ke sesi coding, bilang: **"Laporan audit sudah masuk, periksa."**
    Agent menjalankan `python3 alat/audit-independen.py --periksa-laporan <berkas>` dan menindaklanjuti temuan.

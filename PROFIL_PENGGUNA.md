@@ -3,6 +3,7 @@
 > File ini dibaca OTOMATIS oleh agent di awal setiap sesi (sebelum baca PROJECT_STATE). JANGAN dihapus. Diperbarui sekali di sesi pertama, bisa diubah kapan saja bila preferensi berubah.
 
 ## Bahasa & Komunikasi
+- **Nama panggilan:** **Lee** — agent **DILARANG** memanggil "Bapak"/"Pak" (aturan Lee 2026-09-17).
 - **Bahasa pilihan:** Indonesia (dikonfirmasi pemilik 2026-09-16)
 - **Gaya komunikasi:** Menyesuaikan kebutuhan — ramah orang non-teknis, tanpa jargon. Kalau bisa singkat, singkat; kalau memang perlu rinci, rinci. Jawaban pemilik: "Sesuai kebutuhan aja. Yang pastinya kamu harus sesuain sama aku yang ga paham coding dan programing dan hal-hal berkaitan dengan itu"
 - **Tingkat detail penjelasan:** Sedang — setiap istilah teknis wajib diterjemahkan ke bahasa sehari-hari; kalau pemilik perlu melakukan sesuatu, tulis langkah-langkahnya satu per satu (step-by-step), bukan daftar istilah
@@ -37,4 +38,5 @@
 | Tanggal | Perubahan | Alasan |
 |---|---|---|
 | 2026-09-15 | Template dibuat (prinsip komunikasi adaptif) | Agar agent tidak kaku Indonesia/teknis, tapi menyesuaikan otak pengguna — dibaca tiap sesi sebelum PROJECT_STATE |
+| 2026-09-17 | Panggilan resmi: **Lee** (bukan "Bapak") | Permintaan Lee: *"mulai sekarang agent ga boleh sebut aku bapak. Nama aku Lee."* |
 | 2026-09-16 | Profil diisi pertama kali di sesi aplikasi Resto Barokah (Tahap 1 Discovery) | 4 pertanyaan wajib dijawab pemilik: Indonesia; gaya menyesuaikan kebutuhan tapi wajib ramah non-teknis; nol coding; rekomendasi terbaik + alasan (boleh ditambah usulan lain) — LANGKAH 0 AGENT_SYSTEM.md terpenuhi |

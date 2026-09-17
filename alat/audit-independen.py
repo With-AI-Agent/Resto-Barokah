@@ -291,6 +291,26 @@ Ambang lulus (dinilai pembangun setelah laporan masuk): semua cacat K-1/K-2 tert
 - **Minimum laporan:** ≥{len(grup) if semua else 6} artefak diperiksa · ≥5 klaim dibantah · ≥{SERANGAN_MIN[tingkat]} serangan dijalankan · masing-masing temuan punya perintah bukti
 - **Perintah validasi laporan (wajib hijau):** periksa dengan alat `alat/audit-independen.py --periksa-laporan` (berkas laporan ditulis di folder docs/uji/audit/). Bila repo yang kamu pakai adalah klon dangkal, alat akan memberi CATATAN (bukan menolak) untuk SHA yang riwayatnya tidak ada.
 
+## 0a. LANGKAH 0 (WAJIB) — pastikan kamu memeriksa commit yang benar
+
+Paket ini menargetkan commit **`{sha}`**. **Cabang/base apa pun yang Lee pilih tidak masalah** — yang menentukan adalah commit-nya.
+
+```
+# (a) di repo ini, satu perintah memeriksa semuanya:
+python3 alat/audit-independen.py --verifikasi-lingkup
+
+# (b) atau manual:
+git rev-parse HEAD                 # commit yang sedang kamu lihat
+git cat-file -e {sha}^{commit}     # apakah commit target ada di repo ini?
+```
+
+- **Sama** (`HEAD` = `{sha}`) → langsung lanjut.
+- **Berbeda tetapi commit target ada** → pindah hanya-baca lalu lanjut (aman, tidak mengubah apa pun):
+  `git fetch origin && git checkout --detach {sha}`
+- **Commit target tidak ada** → coba `git fetch origin` sekali lagi. Kalau tetap tidak ada, **JANGAN mengaudit commit lain**:
+  tulis di bagian "Yang tidak bisa saya verifikasi" dan hentikan (minta Lee membuka sesi dari sumber yang benar).
+- Tulis di kepala laporan: `- **Commit yang diaudit:** <commit yang benar-benar kamu periksa>`.
+
 ## ATURAN INDEPENDENSI (tidak bisa ditawar)
 
 1. Kamu **hanya-baca**: dilarang mengubah/memperbaiki berkas apa pun (temuan ditulis, bukan dibetulkan).
@@ -667,6 +687,60 @@ def mode_periksa_laporan(berkas_str: str, cek_git: bool = True) -> int:
 
 
 # ------------------------------------------------------------ mode: kalibrasi
+def mode_verifikasi_lingkup(berkas_paket: str | None) -> int:
+    """Pastikan repo ini memuat commit yang diminta paket audit.
+
+    Kenapa ada (pertanyaan Lee 2026-09-17): sesi auditor bisa dibuka dari base branch mana pun.
+    Supaya mekanisme ini TIDAK bergantung pada pilihan cabang Lee, commit target ditulis di paket
+    dan diperiksa lewat perintah ini — hasilnya langkah pasti, bukan tebakan.
+    """
+    _, lokal = jalankan(["git", "rev-parse", "HEAD"])
+    lokal = lokal.strip()
+    if not lokal:
+        print("GAGAL: bukan repo git / HEAD tidak terbaca"); return 1
+
+    if berkas_paket:
+        berkas = pathlib.Path(berkas_paket)
+    else:
+        folder = AKAR / "docs" / "uji" / "paket-audit"
+        kandidat = sorted(folder.glob("*.md")) if folder.is_dir() else []
+        berkas = kandidat[-1] if kandidat else None
+    if berkas is None:
+        print("CATATAN: tidak ada paket audit. Pakai: --verifikasi-lingkup <berkas paket>"); return 1
+    if not berkas.is_absolute():
+        berkas = AKAR / berkas
+    if not berkas.is_file():
+        print(f"GAGAL: paket tidak ada: {berkas}"); return 1
+    m = re.search(r"- \*\*Commit yang diaudit:\*\*\s*`?([0-9a-f]{7,40})`?", berkas.read_text(encoding="utf-8"))
+    if not m:
+        print(f"GAGAL: paket {berkas.name} tidak menyebut commit yang diaudit"); return 1
+    target = m.group(1)
+
+    print(f"Paket audit   : {berkas.relative_to(AKAR)}")
+    print(f"Commit target : {target}")
+    print(f"Commit lokal  : {lokal}")
+
+    if lokal.startswith(target[:12]) or target.startswith(lokal[:12]):
+        print("\nHASIL: COCOK — kamu berada tepat di commit yang diminta paket. Lanjutkan audit.")
+        return 0
+    rc, _ = jalankan(["git", "cat-file", "-e", f"{target}^{{commit}}"])
+    if rc == 0:
+        print("\nHASIL: BEDA COMMIT, tetapi target tersedia di repo ini. Lanjutkan hanya-baca:")
+        print(f"          git fetch origin && git checkout --detach {target}")
+        return 2
+    print("\nTarget belum ada di repo ini. Mencoba mengambil dari origin…")
+    jalankan(["git", "fetch", "origin"])
+    rc2, _ = jalankan(["git", "cat-file", "-e", f"{target}^{{commit}}"])
+    if rc2 == 0:
+        print("HASIL: target berhasil diambil. Pindah hanya-baca lalu lanjut:")
+        print(f"        git checkout --detach {target}")
+        return 2
+    print("\nHASIL: TARGET TIDAK ADA di repo ini setelah fetch.")
+    print("        JANGAN mengaudit commit lain. Laporkan ke Lee: minta sesi dibuka dari cabang yang")
+    print(f"        memuat commit {target} (cabang sesi kerja, atau main bila sudah di-merge).")
+    return 3
+
+
 def mode_kalibrasi_siapkan(jumlah: int | None) -> int:
     if not KATALOG.is_file():
         print(f"GAGAL: katalog cacat tidak ada: {KATALOG}")
@@ -851,8 +925,12 @@ def main() -> int:
     p.add_argument("--kalibrasi-nilai", help="nilai laporan auditor terhadap kunci jawaban")
     p.add_argument("--kunci", help="berkas kunci jawaban")
     p.add_argument("--uji-diri", action="store_true", help="uji pemeriksa laporan")
+    p.add_argument("--verifikasi-lingkup", nargs="?", const="", metavar="PAKET",
+                   help="pastikan repo ini memuat commit yang diminta paket audit (bebas base branch)")
     a = p.parse_args()
 
+    if a.verifikasi_lingkup is not None:
+        return mode_verifikasi_lingkup(a.verifikasi_lingkup or None)
     if a.uji_diri:
         return mode_uji_diri()
     if a.paket:

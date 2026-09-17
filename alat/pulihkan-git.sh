@@ -32,6 +32,18 @@ CABANG="$(git rev-parse --abbrev-ref HEAD)"
 echo "Cabang sekarang : $CABANG"
 echo "Commit sekarang : $(git log --oneline -1)"
 
+# Klon dangkal (shallow): ruang kerja baru kadang hanya membawa 1 commit, sehingga
+# commit di GitHub tidak ada di salinan lokal dan perbandingan HEAD..KABAR gagal
+# ("Invalid revision range"). Perbaikan 2026-09-17: penuhi riwayatnya lebih dulu.
+if [ -f .git/shallow ]; then
+  echo "Catatan: salinan lokal ini KLON DANGKAL (hanya sebagian riwayat)."
+  echo "Meminta riwayat penuh dari GitHub (git fetch --unshallow)…"
+  if ! git fetch --quiet --unshallow origin 2>/dev/null; then
+    echo "  (--unshallow tidak bisa; mencoba memperdalam riwayat 200 commit)"
+    git fetch --quiet --deepen=200 origin || true
+  fi
+fi
+
 echo "Menyegarkan kabar dari GitHub (git fetch)…"
 git fetch --quiet origin
 
