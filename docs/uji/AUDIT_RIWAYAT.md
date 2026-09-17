@@ -36,11 +36,13 @@
 | Uang lebih bayar diterima saat total pesanan masih 0 (laporan A F-04 · B F-04 · F-10) | K-1 | **DITUTUP 2026-09-17** | `supabase/tes/gerbang_uang.sql` (merah sebelum, hijau sesudah) · `docs/uji/audit/bukti-verifikasi-2026-09-17.sql` bagian A |
 | `total_dibayar(uuid)` bocor lintas resto (laporan B F-04) | K-1 | **DITUTUP 2026-09-17** | `supabase/tes/isolasi_lintas_penyewa.sql` (dulu mengembalikan 777.000 kepada kasir resto lain, kini 0) |
 | `izin_efektif_untuk()` / `boleh_untuk()` bocor lintas resto (laporan B F-05) | K-1 | **DITUTUP 2026-09-17** | pintu ditutup untuk klien (hak `authenticated` dicabut) + saringan penyewa di dalam fungsi — diuji di `supabase/tes/isolasi_lintas_penyewa.sql` |
-| PIN sendiri bisa diganti tanpa PIN lama (A F-01) · `pin_hash` bisa dibaca pegawai lain (A F-02, B F-10) | K-2 | **TERBUKA** | batch perbaikan K-2 |
-| Void sesudah dapur dengan penyetuju karangan (A F-03) · jejak pelaku bisa dipalsukan (A F-05) | K-2 | **TERBUKA** | batch perbaikan K-2 |
-| Batas persen diskon dilewati saat kolom persen kosong (B F-06) | K-2 | **TERBUKA** | batch perbaikan K-2 |
-| Status pesanan bisa dipindah klien (lunas tanpa uang) (A F-03/B F-02) | K-2 | **TERBUKA** | batch perbaikan K-2 |
-| Penjaga stok dilewati dengan peubah sesi klien (A F-06) | K-2 | **TERBUKA** | batch perbaikan K-2 |
+| PIN sendiri bisa diganti tanpa PIN lama (A F-01) | K-2 | **DITUTUP 2026-09-17** | `supabase/tes/kredensial_pin.sql` — penggantian PIN sendiri wajib PIN lama, termasuk saat uuid diri sendiri disebutkan |
+| `pin_hash` bisa dibaca pegawai lain (A F-02, B F-10) | K-2 | **DITUTUP 2026-09-17** | rahasia pindah ke tabel `kredensial_pin` (hak klien dicabut, policy menolak semua): `supabase/tes/kredensial_pin.sql` + `pin.sql` |
+| Jejak pelaku bisa dipalsukan (A F-05) | K-2 | **DITUTUP 2026-09-17** | pelaku diisi sistem (`auth.uid()`), nilai lain DITOLAK — `supabase/tes/jejak_pelaku.sql` (pembayaran, diskon, pembatalan, catatan stok) |
+| Batas persen diskon dilewati saat kolom persen kosong (B F-06) | K-2 | **DITUTUP 2026-09-17** | persen efektif dihitung dari uang — `supabase/tes/diskon_persen.sql`; uji lama `pembayaran.sql` juga diperbaiki (dulu lulus karena sebab yang salah: 20.000 = 37 % dianggap "dalam batas") |
+| Void sesudah dapur dengan penyetuju karangan (A F-03) | K-2 | **TERBUKA** | batch K-2b (menyentuh alur persetujuan PIN/void) |
+| Status pesanan bisa dipindah klien (lunas tanpa uang) (A F-03/B F-02) | K-2 | **TERBUKA** | batch perbaikan K-2b |
+| Penjaga stok dilewati dengan peubah sesi klien (A F-06) | K-2 | **TERBUKA** | batch perbaikan K-2b |
 | Lapis kedua pembatasan PIN memakai nama perangkat kiriman klien (B F-11) | K-2 | **TERBUKA** | batch perbaikan K-2 (menyentuh perangkat terdaftar, Fase 1B) |
 | Kontrol wajib `docs/KEAMANAN.md` belum ada di kode (A F-07) | K-2 | **TERBUKA (dijadwalkan)** | Fase 1B (T1-23…T1-30) — memang belum dibangun |
 | Kertas kerja K-3/K-4 (rujukan mati, `npm audit`, uji batas, dll.) | K-3/K-4 | **TERBUKA** | dikelola lewat `docs/TERTANGGUH.md` pada batch K-2 |

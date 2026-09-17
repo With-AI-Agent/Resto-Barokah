@@ -237,6 +237,10 @@ begin
   if new.pelaku_id is null then
     new.pelaku_id := auth.uid();
   end if;
+  -- Jejak pelaku tidak boleh dikarang klien (temuan audit AUD-3 K-2, 2026-09-17).
+  if auth.uid() is not null and new.pelaku_id is distinct from auth.uid() then
+    raise exception 'Pelaku catatan stok diisi sistem — tidak boleh menyebut orang lain.';
+  end if;
   return new;
 end
 $$;

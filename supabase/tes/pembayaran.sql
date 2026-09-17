@@ -158,8 +158,12 @@ select uji.harap_gagal(
   $$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, persen, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 3000, 20, 3000, 'diskon persen besar')$$,
   'diskon melebihi batas persen kasir ditolak'
 );
+-- CATATAN: dulu di sini tertulis 20.000 — padahal 20.000 dari subtotal 54.000 = 37 %,
+-- jauh di atas batas kasir 5 %. Uji ini LULUS karena sebab yang salah (pemeriksaan persen
+-- dilewati saat kolom `persen` kosong — temuan audit AUD-3 K-2/B F-06). Sekarang nilainya
+-- 2.000 (3,7 %) supaya benar-benar "diskon dalam batas kasir".
 insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan)
-values ('eeee0000-0000-0000-0000-000000000010', 'manual', 20000, 20000, 'pelanggan langganan');
+values ('eeee0000-0000-0000-0000-000000000010', 'manual', 2000, 2000, 'pelanggan langganan');
 select uji.sama(
   (select count(*) from public.diskon_transaksi where pesanan_id = 'eeee0000-0000-0000-0000-000000000010'),
   1::bigint,

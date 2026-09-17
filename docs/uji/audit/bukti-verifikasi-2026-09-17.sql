@@ -2,16 +2,16 @@
 -- BUKTI VERIFIKASI TEMUAN AUDIT — sesi kerja, 2026-09-17
 --
 -- Cara pakai:  node alat/uji-sql.mjs docs/uji/audit/bukti-verifikasi-2026-09-17.sql
--- Status: JALAN & LOLOS pada commit sesudah perbaikan K-1.
+-- Status: JALAN & LOLOS pada commit sesudah perbaikan K-1 dan K-2a.
 --
 -- Isi berkas ini: pemeriksaan yang MEMBUKTIKAN temuan auditor AUD-3 benar-benar ada,
 -- dijalankan sendiri oleh sesi kerja (bukan mempercayai laporan). Dibagi dua:
 --   A. Sudah diperbaiki → pemeriksaan di sini mengunci PERILAKU BENAR
 --      (uji regresi permanennya ada di `supabase/tes/gerbang_uang.sql` dan
 --       `supabase/tes/isolasi_lintas_penyewa.sql`, dijalankan setiap CI).
---   B. Belum diperbaiki (K-2) → pemeriksaan di sini mengunci perilaku buruk yang
---      MASIH berlaku sebagai barang bukti; bagian ini dipindahkan/dibalik begitu
---      perbaikannya mendarat.
+--   B. Belum diperbaiki (K-2 sisa: status pesanan & penjaga stok) → pemeriksaan di sini
+--      mengunci perilaku buruk yang MASIH berlaku sebagai barang bukti; bagian ini
+--      dipindahkan/dibalik begitu perbaikannya mendarat.
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
@@ -63,6 +63,48 @@ select uji.sama(
     where pesanan_id = '00000000-0000-0000-0000-00000000a001'),
   0, 'K-1 tertutup: tidak ada uang tercatat untuk pesanan bertotal 0');
 
+-- [4] K-2a: rahasia PIN tidak lagi di tabel yang bisa dibaca klien — DITUTUP
+select uji.sama(
+  (select count(*) from information_schema.columns
+    where table_schema = 'public' and table_name = 'pengguna' and column_name = 'pin_hash'),
+  0::bigint, 'K-2a tertutup: kolom pin_hash TIDAK ada lagi di public.pengguna (pindah ke kredensial_pin)');
+select uji.sama(has_table_privilege('authenticated', 'public.kredensial_pin', 'select'), false,
+                'K-2a tertutup: peran authenticated tidak punya hak baca kredensial_pin');
+select uji.harap_gagal($$select pin_hash from public.kredensial_pin$$,
+                       'K-2a tertutup: kasir tidak bisa membaca kredensial_pin');
+
+-- [5] K-2a: ganti PIN sendiri WAJIB PIN lama — DITUTUP.
+-- Pemasangan PIN PERTAMA memang boleh tanpa PIN lama (memang belum punya), jadi yang diuji
+-- adalah penggantian: owner memasang PIN awal dulu, baru kasir mencoba menggantinya.
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner
+set local role authenticated;
+select uji.sama(public.simpan_pin('2468', null, '90000000-0000-0000-0000-000000000004'),
+                'PIN tersimpan.', 'kontrol: owner memasang PIN awal kasir');
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir
+set local role authenticated;
+select uji.harap_gagal(
+  $$select public.simpan_pin('8888', null, '90000000-0000-0000-0000-000000000004')$$,
+  'K-2a tertutup: simpan_pin tanpa PIN lama untuk DIRI SENDIRI ditolak');
+select uji.sama(public.simpan_pin('8888', '2468', '90000000-0000-0000-0000-000000000004'),
+                'PIN tersimpan.', 'kontrol: ganti PIN tetap bisa bila PIN lama benar');
+
+-- [6] K-2a: jejak pelaku diisi sistem, tidak bisa dikarang — DITUTUP
+select uji.harap_gagal(
+  $$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kasir_id, kunci_idempoten)
+      select 'eeee0000-0000-0000-0000-000000000010', mb.id, 1000, 1000,
+             '90000000-0000-0000-0000-000000000002', 'verifikasi-atribusi'
+        from public.metode_bayar mb
+       where mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$,
+  'K-2a tertutup: kasir tidak bisa menuliskan nama OWNER sebagai kasir pembayaran');
+
+-- [7] K-2a: batas PERSEN diskon dihitung dari uang — DITUTUP
+select uji.harap_gagal(
+  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 20000, 20000, 'uji persen kosong')$$,
+  'K-2a tertutup: diskon 37 persen ditolak walau kolom persen dikosongkan');
+
 reset role;
 select uji.klaim(null);
 
@@ -73,40 +115,6 @@ select uji.klaim(null);
 -- ---------------------------------------------------------------- sebagai KASIR A
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-
--- [4] K-2 (dua laporan): hak kolom pin_hash masih terbuka bagi peran terautentikasi
-select uji.sama(has_column_privilege('authenticated', 'public.pengguna', 'pin_hash', 'select'),
-                true, 'K-2 MASIH TERBUKA: peran authenticated punya hak baca kolom pin_hash');
-
--- [5] K-2: ganti PIN sendiri TANPA PIN lama lewat p_pengguna_id = uuid sendiri
-select uji.sama(public.simpan_pin('8888', null, '90000000-0000-0000-0000-000000000004', 'hp-uji'),
-                'PIN tersimpan.',
-                'K-2 MASIH TERBUKA: simpan_pin tanpa PIN lama untuk DIRI SENDIRI diterima');
-
--- [6] K-2: atribusi pelaku bisa dipalsukan klien (kasir menulis nama owner)
-insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kasir_id, kunci_idempoten)
-select 'eeee0000-0000-0000-0000-000000000010', mb.id, 1000, 1000,
-       '90000000-0000-0000-0000-000000000002', 'verifikasi-atribusi'
-  from public.metode_bayar mb
- where mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai';
-select uji.sama((select kasir_id from public.pembayaran where kunci_idempoten = 'verifikasi-atribusi'),
-                '90000000-0000-0000-0000-000000000002'::uuid,
-                'K-2 MASIH TERBUKA: kasir menuliskan nama OWNER sebagai kasir pembayaran');
-
--- [7] K-2: batas PERSEN diskon dilewati dengan mengosongkan kolom persen
--- (batas kasir 25.000 / 5 persen; diskon 20.000 pada subtotal 54.000 = 37 persen)
-select uji.sama((select batas_persen from public.izin_efektif('beri_diskon', 'a1a1a1a1-0000-0000-0000-000000000001')),
-                5::numeric, 'kontrol: batas kasir 25.000 / 5 persen');
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'manual', 37, 20000, 20000, 'uji batas persen')$$,
-  'kontrol: diskon 37 persen DITOLAK bila kolom persen diisi jujur');
-insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-  values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 20000, 20000, 'uji batas persen kosong');
-select uji.sama(
-  (select nilai from public.diskon_transaksi
-    where pesanan_id = 'eeee0000-0000-0000-0000-000000000010' and nilai = 20000),
-  20000, 'K-2 MASIH TERBUKA: diskon 37 persen DITERIMA saat kolom persen dikosongkan');
 
 -- [8] K-2: status pesanan bisa dipindahkan klien (lunas tanpa uang)
 select uji.sama(

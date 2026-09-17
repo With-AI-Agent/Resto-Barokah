@@ -11,15 +11,24 @@
 -- ============================================================================
 
 -- 1. PIN mentah DITOLAK database (bukan hanya oleh kode aplikasi).
+--    Rahasianya ada di tabel sendiri (`kredensial_pin`) sejak audit AUD-3 K-2 — tabel itu
+--    tidak diberi hak apa pun kepada klien, berbeda dari `pengguna` yang bisa dibaca klien.
 select uji.harap_gagal(
-  $$update public.pengguna set pin_hash = '123456' where id = '90000000-0000-0000-0000-000000000004'$$,
+  $$insert into public.kredensial_pin (pengguna_id, pin_hash)
+      values ('90000000-0000-0000-0000-000000000004', '123456')$$,
   'PIN mentah tidak boleh disimpan di kolom pin_hash'
 );
 select uji.sama(
   (select count(*) from information_schema.columns
-    where table_schema = 'public' and table_name = 'pengguna' and column_name = 'pin_hash'),
+    where table_schema = 'public' and table_name = 'kredensial_pin' and column_name = 'pin_hash'),
   1::bigint,
-  'kolom pin_hash ada'
+  'kolom pin_hash ada di tabel rahasia kredensial_pin'
+);
+select uji.sama(
+  (select count(*) from information_schema.columns
+    where table_schema = 'public' and table_name = 'pengguna' and column_name = 'pin_hash'),
+  0::bigint,
+  'kolom pin_hash TIDAK ada lagi di pengguna (yang bisa dibaca klien)'
 );
 
 -- 2. Hanya pemegang izin yang boleh menyimpan PIN pegawai lain.
@@ -54,15 +63,15 @@ select uji.klaim(null);
 
 -- 4. Yang tersimpan BENAR-BENAR hash, bukan PIN.
 select uji.harap(
-  (select p.pin_hash from public.pengguna p where p.id = '90000000-0000-0000-0000-000000000004') <> '2468',
+  (select k.pin_hash from public.kredensial_pin k where k.pengguna_id = '90000000-0000-0000-0000-000000000004') <> '2468',
   'hash PIN tidak sama dengan PIN'
 );
 select uji.harap(
-  (select p.pin_hash from public.pengguna p where p.id = '90000000-0000-0000-0000-000000000004') not like '%2468%',
+  (select k.pin_hash from public.kredensial_pin k where k.pengguna_id = '90000000-0000-0000-0000-000000000004') not like '%2468%',
   'hash PIN tidak memuat PIN mentah'
 );
 select uji.harap(
-  (select p.pin_hash from public.pengguna p where p.id = '90000000-0000-0000-0000-000000000004') ~ '^\$',
+  (select k.pin_hash from public.kredensial_pin k where k.pengguna_id = '90000000-0000-0000-0000-000000000004') ~ '^\$',
   'hash PIN berbentuk hash bersandi'
 );
 select uji.harap(

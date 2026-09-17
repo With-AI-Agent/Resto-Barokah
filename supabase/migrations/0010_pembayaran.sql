@@ -298,6 +298,12 @@ begin
   if new.kasir_id is null then
     new.kasir_id := auth.uid();
   end if;
+  -- Jejak pelaku TIDAK boleh dikarang klien (temuan audit AUD-3 K-2, 2026-09-17):
+  -- sebelumnya kasir bisa menuliskan nama owner sebagai kasir pembayaran, dan karena
+  -- barisnya append-only kesalahan atribusi itu permanen.
+  if auth.uid() is not null and new.kasir_id is distinct from auth.uid() then
+    raise exception 'Nama kasir diisi sistem — tidak boleh menyebut orang lain.';
+  end if;
 
   -- Total pesanan WAJIB sudah dihitung sebelum uang boleh dicatat (temuan audit AUD-3 K-1,
   -- 2026-09-17). Sebelumnya pemeriksaan dilewati saat total masih 0 — dan karena hitung_total
@@ -334,6 +340,7 @@ declare
   v_sudah     integer;      -- total nilai diskon yang sudah ada
   v_jumlah    integer;      -- berapa diskon yang sudah tercatat
   v_tumpuk    boolean;      -- apakah resto mengizinkan tumpuk diskon
+  v_persen    numeric;      -- persen EFEKTIF (dihitung dari uang, bukan dari klien)
 begin
   select p.id, p.subtotal, p.penyewa_id into v_pesanan
     from public.pesanan p where p.id = new.pesanan_id;
@@ -342,7 +349,17 @@ begin
   end if;
 
   if new.jenis = 'manual' then
-    if not public.boleh('beri_diskon', new.nilai, coalesce(new.persen, 0)) then
+    -- Persen EFEKTIF dihitung dari UANG (nilai diskon / subtotal pesanan), bukan dari kolom
+    -- `persen` kiriman klien — temuan audit AUD-3 K-2 (B F-06): dengan `coalesce(new.persen, 0)`,
+    -- mengosongkan kolom `persen` membuat batas persen tidak diperiksa sama sekali.
+    -- Bila subtotal belum dihitung (0), pakai persen kiriman; bila itu pun kosong → anggap 100%
+    -- (paling ketat: hanya pemegang izin penuh yang lolos).
+    v_persen := coalesce(
+      case when coalesce(v_pesanan.subtotal, 0) > 0
+           then round(new.nilai::numeric * 100 / v_pesanan.subtotal, 2) end,
+      new.persen,
+      100);
+    if not public.boleh('beri_diskon', new.nilai, v_persen) then
       raise exception 'Diskon ini melebihi batas izin Anda. Minta persetujuan atasan (PIN).';
     end if;
   elsif new.jenis = 'voucher' then
@@ -373,6 +390,10 @@ begin
 
   if new.pelaku_id is null then
     new.pelaku_id := auth.uid();
+  end if;
+  -- Jejak pelaku tidak boleh dikarang klien (temuan audit AUD-3 K-2, 2026-09-17).
+  if auth.uid() is not null and new.pelaku_id is distinct from auth.uid() then
+    raise exception 'Pelaku diskon diisi sistem — tidak boleh menyebut orang lain.';
   end if;
   return new;
 end
@@ -456,6 +477,10 @@ begin
 
   if new.pelaku_id is null then
     new.pelaku_id := auth.uid();
+  end if;
+  -- Jejak pelaku tidak boleh dikarang klien (temuan audit AUD-3 K-2, 2026-09-17).
+  if auth.uid() is not null and new.pelaku_id is distinct from auth.uid() then
+    raise exception 'Pelaku pembatalan diisi sistem — tidak boleh menyebut orang lain.';
   end if;
   return new;
 end

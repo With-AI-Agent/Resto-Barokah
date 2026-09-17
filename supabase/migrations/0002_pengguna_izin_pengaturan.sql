@@ -21,7 +21,6 @@ create table if not exists public.pengguna (
   peran          text not null check (
                    peran in ('pemilik_platform', 'owner_pusat', 'admin_cabang', 'kasir', 'pelayan', 'dapur')
                  ),
-  pin_hash       text,
   aktif          boolean not null default true,
   terakhir_masuk timestamptz,
   dibuat_pada    timestamptz not null default now(),

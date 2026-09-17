@@ -26,21 +26,33 @@ exception when others then
 end
 $$;
 
--- ------------------------------------------------------- kolom PIN di pengguna
-alter table public.pengguna add column if not exists pin_hash text;
+-- ------------------------------------------------------- rahasia PIN (tabel sendiri)
+-- Kenapa tabel SENDIRI (temuan audit AUD-3 K-2, 2026-09-17): RLS menyaring BARIS,
+-- bukan KOLOM. Selama `pin_hash` menempel di `public.pengguna` — tabel yang di-grant
+-- select ke `authenticated` — seluruh hash PIN satu resto bisa ditarik lewat API
+-- otomatis, lalu dipecahkan offline tanpa kena batas percobaan. Tabel ini TIDAK diberi
+-- hak apa pun kepada anon/authenticated dan RLS-nya menyala tanpa policy: klien tidak
+-- punya jalan membacanya, sedangkan fungsi SECURITY DEFINER (simpan_pin/verifikasi_pin)
+-- membacanya sebagai pemilik tabel.
+create table if not exists public.kredensial_pin (
+  pengguna_id uuid primary key references public.pengguna (id) on delete cascade,
+  pin_hash    text not null check (pin_hash ~ '^\$[a-z0-9]+\$'),
+  diubah_pada timestamptz not null default now()
+);
+
+comment on table public.kredensial_pin is
+  'Rahasia PIN pegawai (hash bcrypt). Tidak pernah diberikan ke anon/authenticated — hanya fungsi peladen. Batas (CHECK) menolak nilai yang bukan berbentuk hash.';
+
+alter table public.kredensial_pin enable row level security;
+revoke all on public.kredensial_pin from public, anon, authenticated;
+
+-- Policy resmi yang MENOLAK semua: haknya memang sudah dicabut, dan policy ini membuat
+-- aturan "setiap tabel wajib punya policy" (dijaga `supabase/tes/rls_semua_tabel.sql`)
+-- tetap berlaku — sekaligus tegas bahwa klien tidak punya jalan membaca rahasia PIN.
+create policy kredensial_pin_tolak_semua on public.kredensial_pin
+  for select to authenticated, anon using (false);
+
 alter table public.pengguna add column if not exists pin_diubah_pada timestamptz;
-
-do $$
-begin
-  alter table public.pengguna
-    add constraint pengguna_pin_hash_berbentuk_hash
-    check (pin_hash is null or pin_hash ~ '^\$[a-z0-9]+\$');
-exception when duplicate_object then null;
-end
-$$;
-
-comment on column public.pengguna.pin_hash is
-  'Hash PIN (bcrypt). Tidak pernah berisi PIN mentah — dijaga batas (CHECK) di tingkat tabel.';
 
 -- ------------------------------------------------------------- catatan percobaan
 create table if not exists public.percobaan_pin (
@@ -233,10 +245,13 @@ begin
   end if;
 
   -- Ganti PIN sendiri WAJIB memakai PIN lama (kecuali belum pernah punya PIN).
-  if v_target = v_saya and p_pengguna_id is null then
+  -- CATATAN AUDIT (AUD-3 K-2, 2026-09-17): syaratnya dulu `... and p_pengguna_id is null`,
+  -- sehingga memanggil simpan_pin dengan uuid DIRI SENDIRI melewati pemeriksaan ini —
+  -- PIN baru bisa dipasang tanpa PIN lama lalu dipakai menyetujui void/diskon.
+  if v_target = v_saya then
     select * into v_periksa
       from public.verifikasi_pin(v_target, coalesce(p_pin_lama, ''), null, p_perangkat);
-    if (select pin_hash from public.pengguna where id = v_target) is not null
+    if exists (select 1 from public.kredensial_pin k where k.pengguna_id = v_target)
        and not v_periksa.berhasil then
       raise exception 'PIN lama salah. %', v_periksa.pesan;
     end if;
@@ -244,10 +259,12 @@ begin
 
   v_hash := crypt(p_pin_baru, gen_salt('bf', 10));
 
-  update public.pengguna
-     set pin_hash = v_hash,
-         pin_diubah_pada = now()
-   where id = v_target;
+  insert into public.kredensial_pin (pengguna_id, pin_hash, diubah_pada)
+  values (v_target, v_hash, now())
+  on conflict (pengguna_id) do update
+     set pin_hash = excluded.pin_hash, diubah_pada = now();
+
+  update public.pengguna set pin_diubah_pada = now() where id = v_target;
 
   return 'PIN tersimpan.';
 end
@@ -303,9 +320,10 @@ begin
 
   -- Sasaran harus pegawai AKTIF di resto pemanggil. Akun nonaktif kehilangan
   -- PIN-nya juga (bukan hanya izinnya).
-  select p.penyewa_id, p.aktif, p.pin_hash
+  select p.penyewa_id, p.aktif, k.pin_hash
     into v_penyewa_target, v_aktif_target, v_hash
     from public.pengguna p
+    left join public.kredensial_pin k on k.pengguna_id = p.id
    where p.id = p_pengguna_id;
 
   if v_penyewa_target is null or v_penyewa_target <> public.penyewa_saya() or not coalesce(v_aktif_target, false) then
