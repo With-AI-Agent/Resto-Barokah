@@ -36,6 +36,10 @@ Kerjakan berurutan:
    tempel keluaran nyatanya (bukan ringkasan keyakinan).
 5. Setiap calon temuan: uji ulang di kode sekarang (buka berkas, telusuri pemanggil, jalankan perintah). Tidak bisa
    dibuktikan → tandai DUGAAN. Bisa dibuktikan → TERVERIFIKASI + perintahnya.
+5b. Temuan tentang **gerbang/CI** (mis. "langkah ini tidak menjalankan uji", "ambang diturunkan") WAJIB kamu buktikan dengan
+   MENJALANKAN perintahnya dan menempelkan keluaran mentah + kode keluar. Membaca potongan kode tidak cukup: di putaran11
+   ada peninjau menyimpulkan `node alat/uji-sql.mjs --daftar` "tidak menjalankan 28 berkas uji" — padahal ia menjalankannya
+   (dibuktikan: uji sengaja dirusak → `uji: 27 LULUS · 1 GAGAL`, exit 1). Temuan seperti itu dicatat sebagai **temuan palsu**.
 6. Jalankan pemeriksaan gerbang yang diminta paket (mis. `bash aplikasi/alat/periksa-semua.sh`, `node alat/uji-sql.mjs`)
    dan tulis hasil nyatanya. Bila tidak bisa dijalankan (pustaka belum terpasang), tulis di bagian
    "Yang tidak bisa saya verifikasi" — jangan menebak.

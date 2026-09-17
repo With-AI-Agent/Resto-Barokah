@@ -25,7 +25,8 @@
  *
  * Cara pakai:
  *   node alat/uji-sql.mjs                 # semua migrasi + semua uji
- *   node alat/uji-sql.mjs --daftar        # cetak daftar tabel, RLS, jumlah policy
+ *   node alat/uji-sql.mjs --daftar        # semua uji DIJALANKAN, plus cetak daftar tabel/RLS/policy
+ *                                        #   (opsi ini TIDAK menggantikan uji — hanya menambah cetakan)
  *   node alat/uji-sql.mjs supabase/tes/helper.sql   # satu berkas uji saja
  * ============================================================================
  */

@@ -226,6 +226,33 @@ alat audit/review · buku induk · daftar tunggu · rujukan · lingkungan CI. **
   dengan mata). Agent **tidak akan mengarang baris** supaya buku terlihat penuh.
 - Keduanya masuk ROADMAP: **T1-42** (bantuan) · **T1-43** (Buku Uji Pemilik + pemeriksa + gema chat).
 
+## §12. Putaran 11 (2026-09-17) — review PR dijalankan Lee (3 sesi, satu cabang)
+
+**Kata Lee:** *"review udh selesai, aku menjalankan review PR nya di 3 sesi sekaligus. Namun 3 sesi itu melakukan nya di satu branch yang sama, yaitu arena/01a0b093-resto-barokah. Silahkan mulai periksa hasilnya."*
+
+**Yang masuk:** 2 laporan dari cabang `arena/01a0b093-resto-barokah` (ditarik lewat `python3 alat/review-pr.py --ambil-laporan`):
+`LAPORAN_2026-09-17_pr-01-putaran11__01a0b093.md` (verdict **BERSIH**) dan `LAPORAN_2026-09-17_pr-01-putaran11__01a0b093-reviewer.md`
+(verdict **BERSIH-DENGAN-CATATAN**, 2 temuan). Keduanya **LOLOS kontrak** pemeriksa, keduanya mengikat commit `750889a`
+(paket `PKT-2026-09-17-pr-01-putaran11.md` seperti yang dibaca). Kalibrasi: **4 dari 4 cacat ditemukan · 0 temuan palsu** (dua sesi).
+
+**Hasil bantah-balik (aturan protokol §6a — sesi kerja WAJIB menguji ulang temuan, bukan mempercayainya):**
+
+| Temuan | Hasil uji ulang | Tindakan |
+|---|---|---|
+| **PR-01**: "CI tidak menjalankan 28 tes SQL, hanya `--daftar`" | **PALSU.** `--daftar` hanya menambah cetakan daftar; seluruh berkas uji tetap dijalankan. Dibuktikan dengan menyisipkan uji yang sengaja dirusak → `uji: 27 LULUS · 1 GAGAL`, exit 1 | Dicatat sebagai temuan palsu (`REVIEW_PR_RIWAYAT.md` §2b). Akarnya nama opsi yang menjebak → langkah CI diganti perintah penuh, nama langkah "Uji SQL penuh", komentar `alat/uji-sql.mjs` diperjelas, dan lahir penjaga baru `alat/periksa-gerbang-ci.py` (gerbang CI tidak boleh hilang/dilemahkan) |
+| **PR-02**: "penjaga buku uji lebih longgar dari klaim" | **BENAR.** Sebelumnya: menghapus petunjuk paket dari U-04 → pemeriksa tetap LOLOS | Diperbaiki: penjaga menilai **baris petunjuk paket** dan menolak bila tidak menunjuk paket; uji-diri kini 5 mutasi |
+
+**Temuan luar-cakupan peninjau** (wajib dilaporkan, aturan §8): `owner_pusat` & `pilih_cabang` → diverifikasi **bukan cacat hari ini**
+(policy owner tidak memakai `cabang_saya()`; `boleh()` punya jalur khusus owner) — sisa pertanyaan produknya dicatat; salinan tanpa `.git`;
+dan cakupan harness mutasi → semuanya masuk daftar tunggal sebagai `L-09`, `L-10`, `L-11`.
+
+**Yang belum selesai (jujur):** sesi peninjau **ke-3** belum mengirim laporannya ke cabang itu. Lee cukup meminta sesi itu push berkasnya
+(nama berkas wajib memakai penanda sesi), lalu bilang lagi "Laporan review sudah masuk, periksa" — penarik laporan akan mengambilnya.
+
+**Catatan kejujuran untuk Lee:** verdict "BERSIH"/"BERSIH-DENGAN-CATATAN" datang dari peninjau, bukan dari saya; saya tetap **tidak**
+menyarankan merge sekarang, karena setelah review tip sudah bergerak (perbaikan PR-02 + penguatan CI) sehingga pemeriksaan sebaiknya
+dilakukan pada tip yang baru bila Lee mau keputusan merge — dan keputusan itu tetap milik Lee.
+
 ## §11. Putaran 10 (2026-09-17) — pesan ke-28 & ke-29
 
 **Kata Lee (verbatim, diringkas):**

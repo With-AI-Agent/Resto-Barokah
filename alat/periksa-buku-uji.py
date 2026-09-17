@@ -62,31 +62,52 @@ def _paket_terbaru(akar: pathlib.Path) -> str | None:
 
 
 def _cek_paket_disebut(akar: pathlib.Path, teks: str, errs: list[str]) -> None:
-    """Buku uji yang menyuruh Lee menempel paket BASI = cacat.
+    """Baris PETUNJUK paket review wajib jelas — dan wajib menunjuk paket yang berlaku.
 
-    Kenapa ada: temuan review RV-2 putaran8 (PR-03/PR-07/PR-10) — baris U-04 menyuruh Lee
-    menyalin paket putaran7 padahal paket berlaku sudah putaran8, sehingga sesi peninjau
-    menilai kode lama. Sekarang: nama paket yang disebut buku wajib ada DAN wajib yang
-    paling baru; begitu ada putaran berikutnya, pemeriksa ini MERAH sampai bukunya disegarkan.
+    Kenapa ada: temuan review RV-2 (PR-03/PR-07/PR-10) — baris U-04 menyuruh Lee menyalin paket
+    putaran lama padahal paket berlaku sudah berganti, sehingga sesi peninjau menilai kode basi.
+
+    Aturan (dipelajari dari temuan peninjau PR-02, putaran11): yang dinilai adalah BARIS PETUNJUK
+    (baris yang menyuruh menyalin SIAP-TEMPEL), bukan seluruh dokumen — sebab catatan log di buku
+    boleh menyebut folder/kata "paling baru" tanpa itu berarti petunjuknya benar. Setiap baris
+    petunjuk harus memenuhi SALAH SATU:
+      (a) menyebut berkas `PKT-…-SIAP-TEMPEL.md` yang ADA dan PALING BARU, atau
+      (b) menunjuk folder `review-pr` DAN memakai kata "paling baru"
+          (dipakai supaya buku tidak perlu disunting tiap putaran; agent menyebut nama di chat).
+    Dulu jalan ketiga "tidak menyebut apa pun" ikut lolos → buku bisa kehilangan petunjuk memilih
+    paket tanpa ada yang menangkap (temuan PR-02).
     """
-    disebut = sorted(set(re.findall(r"PKT-[\w\-.]*SIAP-TEMPEL\.md", teks)))
-    if not disebut:
-        # Boleh juga: buku tidak menyebut nama tetap, asal menunjuk folder + kata "paling baru"
-        # (dipakai supaya buku tidak perlu disunting tiap putaran; agent yang menyebut nama di chat).
-        if "review-pr" in teks and re.search(r"paling baru", teks, re.I):
-            if _paket_terbaru(akar) is None:
-                errs.append("buku menyuruh memakai paket paling baru, tetapi belum ada paket SIAP-TEMPEL di docs/uji/review-pr/")
-            return
+    baris_petunjuk = [
+        b for b in teks.splitlines()
+        if "SIAP-TEMPEL" in b and re.search(r"salin|siapkan", b, re.I)
+    ]
+    if not baris_petunjuk:
+        errs.append(
+            "buku uji tidak punya baris petunjuk menyalin paket review (cari baris berisi "
+            "\"SIAP-TEMPEL\" + kata salin/siapkan)"
+        )
         return
     terbaru = _paket_terbaru(akar)
-    for nama in disebut:
-        if not (akar / FOLDER_PAKET / nama).is_file():
-            errs.append(f"buku uji menyebut paket review yang TIDAK ADA: {nama}")
-        elif terbaru and nama != terbaru:
+    for b in baris_petunjuk:
+        nama = sorted(set(re.findall(r"PKT-[\w\-.]*SIAP-TEMPEL\.md", b)))
+        if nama:
+            for n in nama:
+                if not (akar / FOLDER_PAKET / n).is_file():
+                    errs.append(f"buku uji menyebut paket review yang TIDAK ADA: {n}")
+                elif terbaru and n != terbaru:
+                    errs.append(
+                        f"buku uji masih menyuruh Lee memakai paket LAMA ({n}); paket berlaku sekarang {terbaru} "
+                        "— segarkan baris U-04 supaya sesi peninjau tidak menilai kode basi"
+                    )
+            continue
+        if not ("review-pr" in b and re.search(r"paling baru", b, re.I)):
             errs.append(
-                f"buku uji masih menyuruh Lee memakai paket LAMA ({nama}); paket berlaku sekarang {terbaru} "
-                "— segarkan baris U-04 supaya sesi peninjau tidak menilai kode basi"
+                "baris petunjuk paket review tidak menyebut paket mana yang harus disalin "
+                "(butuh salah satu: nama berkas PKT-…-SIAP-TEMPEL.md yang ada & paling baru, "
+                "ATAU rujukan folder review-pr + kata \"paling baru\")"
             )
+        elif terbaru is None:
+            errs.append("buku menyuruh memakai paket paling baru, tetapi belum ada paket SIAP-TEMPEL di docs/uji/review-pr/")
 
 
 def periksa(akar: pathlib.Path) -> int:
@@ -191,6 +212,22 @@ def uji_diri() -> int:
         with salin_pohon() as tmp_basi:
             berkas = tmp_basi / BUKU
             isi = berkas.read_text(encoding="utf-8")
+            # Mutasi PR-02: hapus BAIK nama paket, BAIK rujukan folder/"paling baru" → harus GAGAL.
+            # (sebelum perbaikan: pemeriksa LOLOS di keadaan ini — temuan peninjau PR-02)
+            if "SIAP-TEMPEL" in isi and re.search(r"salin", isi, re.I):
+                l3 = re.sub(
+                    r"^.*SIAP-TEMPEL.*$",
+                    "2) Bilang `Siapkan review PR.`; salin SELURUH isi berkas itu kapan saja",
+                    isi,
+                    flags=re.M,
+                )
+                l3 = l3.replace("review-pr", "folder paket").replace("paling baru", "terkini")
+                berkas.write_text(l3, encoding="utf-8")
+                kode_basi, _ = jalankan_pemeriksa(periksa, tmp_basi)
+                hasil.append(("mutasi: paket review tidak disebut sama sekali", kode_basi != 0,
+                              "ditolak" if kode_basi != 0 else "DILOLOSKAN (buku tanpa petunjuk paket lolos)"))
+                berkas.write_text(isi, encoding="utf-8")
+
             m = re.search(r"PKT-[\w\-.]*SIAP-TEMPEL\.md", isi)
             if not m:
                 # Buku memakai pola "paling baru" (tanpa nama tetap). Untuk menguji penjaganya,

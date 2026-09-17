@@ -266,6 +266,12 @@ def siapkan(dasar: str, kepala: str, nama: str | None) -> int:
 2. Kamu **bukan** sesi penulis PR. Tugasmu **membantah** klaim di bawah, bukan mempercayainya.
 3. Dilarang memuji, dilarang "looks good", dilarang melaporkan soal gaya penulisan sebagai temuan.
 4. Setiap calon temuan wajib diuji ulang di kode sekarang (buka berkas, jalankan perintah). Tidak bisa dibuktikan → **DUGAAN**.
+4b. **Temuan tentang gerbang/CI WAJIB dibuktikan dengan MENJALANKAN perintahnya dan menempelkan keluaran mentahnya**
+   (termasuk kode keluar). Membaca potongan kode TIDAK cukup untuk menyimpulkan sebuah langkah "tidak mengerjakan apa pun".
+   Pelajaran nyata (putaran11, temuan PR-01): peninjau menyimpulkan `node alat/uji-sql.mjs --daftar` "tidak menjalankan
+   28 berkas uji" hanya dari membaca `if (hanyaDaftar) {{ … }}`; padahal opsi itu HANYA menambah cetakan daftar dan seluruh
+   uji tetap dijalankan. Temuan itu terbantah (uji yang sengaja dirusak → `uji: 27 LULUS · 1 GAGAL`, exit 1). Temuan
+   semacam ini dicatat sebagai **temuan palsu** dan menurunkan nilai kalibrasi sesi peninjau.
 5. Periksa **commit yang dimaksud** (paket menyebut sha-nya). Kalau commit itu tidak ada di repo yang kamu buka,
    jalankan `git fetch origin` lalu periksa sha itu; kalau tetap tidak bisa → **BERHENTI** dan laporkan ke Lee,
    jangan mereview commit lain.

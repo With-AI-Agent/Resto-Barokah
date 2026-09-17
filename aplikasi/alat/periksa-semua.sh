@@ -53,6 +53,8 @@ python3 alat/periksa-temuan-audit.py
 python3 alat/periksa-temuan-audit.py --uji-diri
 python3 alat/periksa-buku-uji.py
 python3 alat/periksa-buku-uji.py --uji-diri
+python3 alat/periksa-gerbang-ci.py
+python3 alat/periksa-gerbang-ci.py --uji-diri
 python3 alat/review-pr.py --uji-diri)
 (cd "$REPO" && python3 alat/periksa-rahasia.py
 python3 alat/periksa-rahasia.py --uji-diri

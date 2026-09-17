@@ -60,8 +60,12 @@ jobs:
       - name: Pasang alat uji SQL
         run: npm ci --prefix alat
 
-      - name: Uji SQL — RLS, isolasi resto & fungsi identitas
-        run: node alat/uji-sql.mjs --daftar
+      # Perintah penuh (tanpa `--daftar`). Opsi `--daftar` TETAP menjalankan seluruh uji,
+      # tetapi namanya menjebak: peninjau putaran11 membacanya sebagai "hanya cetak daftar"
+      # lalu melaporkan CI tidak menguji apa pun. Pakai bentuk penuh supaya tidak bisa
+      # disalahbaca siapa pun.
+      - name: Uji SQL penuh — RLS, isolasi resto & fungsi identitas (28 berkas)
+        run: node alat/uji-sql.mjs
 
       - name: Bukti mutasi pagar migrasi 0012 (kontrol hijau + 12/12 wajib MERAH)
         run: python3 alat/uji-mutasi-0012.py
@@ -87,6 +91,8 @@ jobs:
           python3 alat/periksa-rahasia.py
           python3 alat/periksa-rahasia.py --uji-diri
           python3 alat/periksa-bersih.py
+          python3 alat/periksa-gerbang-ci.py
+          python3 alat/periksa-gerbang-ci.py --uji-diri
           python3 alat/periksa-bersih.py --uji-diri
           python3 aplikasi/alat/periksa-struktur.py
           python3 aplikasi/alat/periksa-komponen-env.py

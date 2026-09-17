@@ -95,6 +95,25 @@ Bagian wajib (urutan tetap):
 
 ---
 
+## 6a. Aturan temuan tentang gerbang/CI + bantah-balik (ditambahkan 2026-09-17, putaran11)
+
+**Untuk peninjau:**
+1. Temuan yang menyatakan sebuah langkah CI/gerbang "tidak mengerjakan apa pun", "tidak menjalankan uji", atau "dilemahkan"
+   **WAJIB** disertai **keluaran mentah** perintah yang dijalankan peninjau sendiri + kode keluar — bukan kutipan potongan kode.
+2. Membaca kode boleh menjadi dugaan; dugaan bukan temuan. Tanpa eksekusi → tulis di kolom **DUGAAN**.
+
+**Untuk sesi kerja (diwajibkan, bukan opsional):**
+3. **Setiap temuan K-3 ke atas wajib dibantah ulang** (uji ulang di tip: jalankan perintahnya, suntikkan mutasi bila perlu),
+   sebelum diterima sebagai cacat. Hasilnya dicatat di `docs/uji/REVIEW_PR_RIWAYAT.md` — termasuk bila temuannya **PALSU**.
+4. Temuan palsu yang terbukti **tidak dihapus** dari riwayat: dicatat sebagai "temuan palsu" + bukti pembantahnya, supaya
+   angka kejujuran tetap bisa diaudit (minimum = lantai, bukan target; laporan tidak boleh dirapikan agar enak dibaca).
+
+**Kenapa ada:** putaran11 — peninjau melaporkan "CI tidak menjalankan 28 tes SQL, hanya `--daftar`". Setelah diuji, klaimnya
+salah (`--daftar` tetap menjalankan seluruh uji). Akarnya: **nama opsi yang menjebak** + peninjau menyimpulkan tanpa menjalankan.
+Perbaikan yang dikerjakan: langkah CI memakai perintah penuh (`node alat/uji-sql.mjs`, nama langkah "Uji SQL penuh"),
+komentar `alat/uji-sql.mjs` menjelaskan bahwa `--daftar` tidak menggantikan uji, dan pemeriksa baru
+`alat/periksa-gerbang-ci.py` (9 gerbang wajib + larangan `|| true`/`continue-on-error`/ambang turun, uji-diri 6 mutasi).
+
 ## 6b. Jalur pulang laporan (dikunci 2026-09-17) + aturan anti-teater
 
 **Jalur pulang (sama seperti audit):** peninjau menulis **satu** berkas `docs/uji/review-pr/LAPORAN_*.md`, lalu
@@ -147,3 +166,4 @@ Alasan: laporan harus berupa **berkas di Git** (ada jejak, bisa diverifikasi, ti
 | Tanggal | Perubahan | Alasan |
 |---|---|---|
 | 2026-09-17 | Dokumen dibuat & BERLAKU; alat `alat/review-pr.py` (`--siapkan` · `--periksa-laporan` · `--kartu-keputusan` · `--kalibrasi-pr-siapkan` · `--kesiapan` · `--uji-diri`) | Permintaan Lee: mekanisme review PR independen karena ia tidak bisa membaca *Files changed*; riset industri 2026 (lihat §7) |
+| 2026-09-17 | §6a **aturan temuan gerbang/CI + bantah-balik wajib** + pemeriksa `alat/periksa-gerbang-ci.py` | Temuan palsu peninjau PR-01 (putaran11): menyimpulkan CI tidak menguji apa pun dari membaca kode; dibantah dengan eksekusi (`--daftar` tetap menjalankan 28 uji) |
