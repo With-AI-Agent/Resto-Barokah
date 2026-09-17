@@ -1,218 +1,265 @@
 # LAPORAN AUDIT INDEPENDEN — AUD-3 — 2026-09-17
 
-- **Auditor:** Arena AI Agent — arena/01a0aeb0-resto-barokah (model tidak terekspos, sesi independen hanya-baca)
+- **Auditor:** Arena.ai Agent Mode (sesi `arena/01a0aeb0-resto-barokah` — sesi terpisah dari sesi pembangun)
 - **Tanggal:** 2026-09-17
 - **Tingkat audit:** AUD-3
-- **Commit yang diaudit:** `253d1297a3b81433d7f5809afd257d8a1b40958f` (HEAD aktual; target paket `442913e4b7ae6d09ed060fe17dd90fa499d449b3` **TIDAK ADA** di repo ini — `git cat-file -e` gagal)
-- **Paket audit:** `docs/uji/paket-audit/AUD-3-2026-09-17.md` (berkas paket tidak ditemukan di repo ini — dicari via `find . -name "*paket-audit*"` kosong)
+- **Commit yang diaudit:** `442913e4b7ae6d09ed060fe17dd90fa499d449b3`
+- **Paket audit:** `docs/uji/paket-audit/AUD-3-2026-09-17.md`
 - **Mode cakupan:** menyeluruh
 - **Verdict:** TIDAK-BERSIH
+- **Alasan commit berbeda:** HEAD repo sesi = `253d1297a3b81433d7f5809afd257d8a1b40958f` (sistem template); commit target hanya ada di cabang lain. Audit dijalankan di worktree terpisah `git worktree add --detach /home/user/audit-442913e4 442913e4…` supaya berkas sesi tidak tersentuh; seluruh perintah di laporan ini dijalankan di dalam worktree itu.
 
 ## 1. Cakupan
-Cakupan menyeluruh: 23 dari 334 berkas (ganti angka sesuai kenyataan) — WAJIB untuk mode menyeluruh
 
-Repo yang diperiksa BUKAN repo aplikasi Resto Barokah melainkan **Sistem Building Aplikasi** (template). Buktinya: `docs/README.md` berisi "# /docs — Fondasi 6 Dokumen Aplikasi" dan menjelaskan folder ini hanya berisi README di Sistem Building. `git log --oneline` hanya 1 commit `253d129 Input Sistem`. Tidak ada folder `aplikasi/`, `supabase/`, `alat/`, `prototipe/` yang dijanjikan paket. Perintah `python3 alat/audit-independen.py --verifikasi-lingkup` gagal karena `alat/audit-independen.py` tidak ada. Oleh karena itu cakupan menyeluruh 334 berkas tidak terpenuhi.
+Cakupan menyeluruh: 334 dari 334 berkas (mode menyeluruh; `python3 -c "import importlib.util; … kelompokkan_berkas()"` → 17 grup, 334 berkas; dikecualikan oleh paket: `skills/` 1802, `_salinan-meta/` 2, `_Notes.md` 1 — **saya setuju** dengan pengecualian itu, alasannya di bagian 6).
 
-| # | Artefak | Diperiksa | Bukti (perintah/baris) |
-|---|---|---|---|
-| 1 | aplikasi/src | TIDAK ADA | `ls aplikasi` → `no aplikasi` ; `find . -type d -name aplikasi` kosong |
-| 2 | aplikasi/alat | TIDAK ADA | `ls aplikasi/alat` gagal; bukti sama di atas |
-| 3 | aplikasi (konfigurasi) | TIDAK ADA | `ls aplikasi/.env.example` gagal; `find . -name package.json` hanya di `skills/` vendor |
-| 4 | supabase/migrations | TIDAK ADA | `ls supabase` → `no supabase` ; `find . -type d -name migrations` kosong |
-| 5 | supabase/tes | TIDAK ADA | sama — tidak ada folder supabase |
-| 6 | supabase/functions | TIDAK ADA | sama |
-| 7 | alat | TIDAK ADA | `ls -la alat` → `no alat` ; `find . -maxdepth 2 -type d -name alat` kosong, hanya `aplikasi/alat` yang diharapkan juga tidak ada |
-| 8 | _sistem | ADA | `ls -la _sistem` → 6 berkas termasuk `validate_system.py`; `python3 _sistem/validate_system.py` → `SYSTEM-BUILDING-APLIKASI VALIDATOR: PASS` |
-| 9 | docs (fondasi) | ADA SEBAGIAN | `ls -R docs` → hanya `docs/README.md` (1116 bytes) berisi penjelasan fondasi belum ada; `cat docs/README.md` baris 1: "# /docs — Fondasi 6 Dokumen Aplikasi" |
-| 10 | docs/uji | TIDAK ADA | `ls docs/uji` → `No such file or directory` ; `find . -type d -name uji` kosong |
-| 11 | docs/teknis | TIDAK ADA | `find . -type d -name teknis` kosong |
-| 12 | docs/ops | TIDAK ADA | `find . -type d -name ops` kosong |
-| 13 | docs/desain | TIDAK ADA | `find . -type d -name desain` kosong |
-| 14 | prototipe | TIDAK ADA | `find . -type d -name prototipe` kosong |
-| 15 | _log-sesi | ADA | `ls _log-sesi/` → `LOG_SESI_2026-09-15.md` ; `cat _log-sesi/LOG_SESI_2026-09-15.md | head -20` menunjukkan log klinik |
-| 16 | berkas pengguna di akar | ADA | `ls -la *.md` → 10 berkas: `PANDUAN_PENGGUNA.md`, `AGENT_SYSTEM.md`, `STATUS.md`, etc.; `cat PANDUAN_PENGGUNA.md | head -30` |
-| 17 | .github/workflows | TIDAK ADA | `ls .github/workflows` → `No such file or directory` ; `find . -type d -name workflows` kosong |
-| 18 | skills/ (excluded) | ADA (vendored) | `ls skills/ | wc -l` → 58 dirs; `cat skills/README.md | head -20` |
-| 19 | docs/uji/paket-audit/AUD-3-2026-09-17.md | TIDAK ADA | `ls docs/uji/paket-audit/` → `No such file or directory` |
-| 20 | alat/audit-independen.py | TIDAK ADA | `python3 alat/audit-independen.py --verifikasi-lingkup` → `can't open file` |
-| 21 | docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md | TIDAK ADA | `find . -name PROTOKOL_AUDIT_INDEPENDEN.md` kosong |
-| 22 | docs/uji/kalibrasi/bahan-2026-09-17/ | TIDAK ADA | `ls docs/uji/kalibrasi/bahan-2026-09-17/` → `No such file or directory` |
-| 23 | PANDUAN_PENGGUNA.md Bagian C4 | ADA SEBAGIAN | `grep -n "C4\|AUDITOR INDEPENDEN" PANDUAN_PENGGUNA.md` kosong; file tidak mengandung Bagian C4 yang dirujuk paket |
+Arti "Diperiksa" di tabel ini: berkas tersentuh bukti yang benar-benar dijalankan/dibaca — yaitu (a) dijalankan atau diurai pemeriksa otomatis (Prettier/ESLint/tsc/Vitest/kontras/uji-SQL/pemeriksa Python), (b) dibaca isinya, atau (c) dipindai pemeriksaan properti untuk seluruh repo (pemindai rujukan mati, pemindai rahasia, `git ls-files`, inventaris). Ini **bukan** klaim bahwa setiap baris saya baca manual; batasnya ditulis di bagian 6.
+
+| # | Grup (paket §0) | Berkas | Diperiksa | Bukti (perintah atau berkas:baris) |
+|---|---|---|---|---|
+| 1 | aplikasi/src | 67 | 67 | `cd aplikasi && npm test && npm run lint && npm run typecheck` → 51 uji lulus, ESLint & tsc bersih |
+| 2 | aplikasi/alat | 6 | 6 | `python3 aplikasi/alat/periksa-struktur.py` · `periksa-komponen-env.py` · `periksa-uji.py` · `uji-kontras.py` · 2 skrip bash dibaca |
+| 3 | aplikasi (konfigurasi) | 16 | 16 | `cd aplikasi && npm run format:check && npm run build` → Prettier bersih, build EXIT=0 |
+| 4 | supabase/migrations | 11 | 11 | `node alat/uji-sql.mjs --daftar` → 10 migrasi diterapkan; 10 berkas .sql dibaca penuh + `.gitkeep` |
+| 5 | supabase/tes | 11 | 11 | `node alat/uji-sql.mjs` → `uji: 10 LULUS · 0 GAGAL` (semua berkas uji dieksekusi) |
+| 6 | supabase/functions | 2 | 2 | `cat supabase/functions/verifikasi_pin/index.ts` (94 baris) + `.gitkeep` |
+| 7 | alat | 24 | 24 | `python3 alat/audit-independen.py --uji-diri` → LOLOS; 8 alat dijalankan; `audit-independen.py` dibaca penuh |
+| 8 | _sistem | 16 | 16 | `python3 _sistem/validate_system.py` → PASS |
+| 9 | docs (fondasi) | 11 | 11 | `python3 alat/periksa-fondasi-independen.py` → BERSIH; PRD/TECH_SPEC/KEAMANAN/DECISIONS_LOG dibaca & dicari |
+| 10 | docs/uji | 26 | 26 | `python3 alat/periksa-panduan.py` → LOLOS; paket audit + protokol + bahan kalibrasi dibaca |
+| 11 | docs/teknis | 6 | 6 | pemindai rujukan-mati + `grep -rn` (BUKU_INSIDEN.md:131, USULAN_KEAMANAN §B1, REKAM_PESAN_PEMILIK) |
+| 12 | docs/ops | 1 | 1 | `docs/ops/SIAP_AKUN_PEMILIK.md` dibaca (20 baris pertama + pencarian klaim) |
+| 13 | docs/desain | 59 | 59 | inventaris berkas + `python3 aplikasi/alat/uji-kontras.py` → 166 lolos (10 tema, 19 huruf woff2) |
+| 14 | prototipe | 58 | 58 | `python3 prototipe/alat/periksa-halaman.py` → `183/183 lolos` |
+| 15 | _log-sesi | 3 | 3 | pemindai rahasia `git grep -nIE …` (7 kena di LOG_SESI_2026-09-16.md) + pembacaan bagian |
+| 16 | berkas pengguna di akar | 16 | 16 | `git ls-files` + pemindai rujukan-mati + `python3 _sistem/validate_system.py` → PASS |
+| 17 | .github/workflows | 1 | 1 | `cat .github/workflows/ci.yml` + `gh api repos/…/actions/runs/35121292973/jobs` |
 
 ### 1a. Berkas untuk pengguna
-- **PANDUAN_PENGGUNA.md** — Diperiksa: `cat PANDUAN_PENGGUNA.md | wc -l` → 187 baris; berisi Prompt Pembuka Universal dan Prompt Penutup Sesi, tapi **tidak** mengandung Bagian C4 "Kalimat pembuka auditor" yang disebut paket. Langkahnya bisa diikuti non-teknis untuk copy template (`cp -r sistem-building-aplikasi/* my-app-baru/`), tapi tidak relevan untuk audit Resto Barokah. Bukti: `grep -n "C4\|Kalimat Pembuka.*Auditor\|PROMPT_AUDIT_INDEPENDEN" PANDUAN_PENGGUNA.md` kosong.
-- **PROMPT_ENTRI_UNIVERSAL.md** — Diperiksa: `cat PROMPT_ENTRI_UNIVERSAL.md` 2446 bytes, identik dengan blok di PANDUAN_PENGGUNA.md (dicek `diff` antara blok pertama). Bisa disalin apa adanya dan bekerja untuk sesi baru. Bukti: `python3 _sistem/validate_system.py` memeriksa identitas blok → PASS.
-- **docs/PANDUAN_PEMILIK.md** — TIDAK ADA di repo ini. `find . -name PANDUAN_PEMILIK.md` kosong. Paket menyebut berkas ini wajib ada, tapi tidak ditemukan. Ini cacat dokumentasi.
-- **docs/uji/PROMPT_AUDIT_INDEPENDEN.md** — TIDAK ADA. `find . -name PROMPT_AUDIT_INDEPENDEN.md` kosong. Paket merujuk file ini untuk kalimat pembuka auditor, tapi tidak ada.
-- **docs/teknis/BUKU_INSIDEN.md** — TIDAK ADA. `find . -name BUKU_INSIDEN.md` kosong.
-- **docs/ops/* (SIAP_AKUN_PEMILIK.md, DEPLOY.md, dll)** — TIDAK ADA. `ls docs/ops/` gagal.
-- **START_DI_SINI.md** — ADA: `cat START_DI_SINI.md` 4437 bytes, menjelaskan cara pakai template. Bisa diikuti non-teknis. Bukti: `ls -la START_DI_SINI.md`.
-- **PROFIL_PENGGUNA.md** — ADA: `cat PROFIL_PENGGUNA.md` 2818 bytes, template 4 pertanyaan. Bisa diikuti.
-- **STATUS.md** — ADA: `cat STATUS.md` menunjukkan status `siap-pakai v0.2.0`, tahap berikutnya Discovery aplikasi pertama. Format `Pekerjaan belum tersimpan: Tidak ada` dan `Waktu pembaruan: YYYY-MM-DD — peristiwa` terpenuhi (PASS di validator).
-- **10_LOG_SESI.md** — ADA: `cat 10_LOG_SESI.md` 3927 bytes, menjelaskan mekanisme anti-hilang konteks.
-- **SYSTEM_MANIFEST.md** — ADA: `cat SYSTEM_MANIFEST.md | head -40` menunjukkan versi 0.2.0, W-01 s/d W-09, mekanisme hidup.
-- **AGENT_SYSTEM.md** — ADA: 51460 bytes, aturan kerja agent, kewajiban skill adaptif.
 
-Kesimpulan 1a: Berkas untuk pengguna yang ada (PANDUAN_PENGGUNA, PROMPT_ENTRI_UNIVERSAL, START_DI_SINI, STATUS, dll) **bisa** diikuti non-teknis untuk **template building system**, tapi **tidak** untuk audit Resto Barokah karena dokumen yang dirujuk paket (PANDUAN_PEMILIK, PROMPT_AUDIT_INDEPENDEN, BUKU_INSIDEN, ops/*) tidak ada. Langkah "salin SELURUH isi paket audit ke chat baru" tidak bisa dijalankan di repo ini karena paket tidak ada.
+| # | Berkas | Diperiksa | Bukti |
+|---|---|---|---|
+| 1 | `PANDUAN_PENGGUNA.md` (647 baris) | ya | `python3 alat/periksa-panduan.py` → LOLOS · 2 catatan berkas rencana |
+| 2 | `START_DI_SINI.md` | ya | pemindai rujukan-mati → 6 rujukan pendek (konteks folder `docs/`, lihat F-08) |
+| 3 | `STATUS.md` | ya | `sed -n '1,12p' STATUS.md` → status `coding-aktif`, Fase 1 dijeda di T1-10 (cocok dengan `PROJECT_STATE.md`) |
+| 4 | `PROJECT_STATE.md` | ya | `sed -n '1,20p' PROJECT_STATE.md` → STATUS `CODING_DIJEDA_SADAR`, SELANJUTNYA menunjuk AUD-3 |
+| 5 | `SYSTEM_MANIFEST.md` | ya | `grep -n 'TECH_SPEC' SYSTEM_MANIFEST.md` + pemindai rujukan-mati → 12 rujukan mati (F-08) |
+| 6 | `AGENT_SYSTEM.md` | ya | pemindai rujukan-mati → `supabase/migrations/001_users.sql`, `src/lib/supabase.ts` tidak ada |
+| 7 | `PANDUAN_PEMAKAIAN.md` | ya | `head -20 PANDUAN_PEMAKAIAN.md` + `python3 alat/periksa-panduan.py` → LOLOS |
+| 8 | `PROMPT_ENTRI_UNIVERSAL.md` | ya | dibaca (bagian pemulihan ruang kerja, `aplikasi/alat/pratinjau.sh` benar) |
+| 9 | `10_LOG_SESI.md` · `REKAM-KLINIK.md` · `PROFIL_PENGGUNA.md` · `ACCEPTANCE_TESTS.md` · `ACCEPTANCE_TEST_LOG.md` · `.gitignore` | ya | `git ls-files` + pemindai rahasia + `git check-ignore -v aplikasi/.env` → `aplikasi/.gitignore:4:.env` |
 
 ## 2. Klaim pembangun yang saya coba falsifikasi
+
 | # | Klaim (lokasi) | Cara uji | Hasil |
 |---|---|---|---|
-| 1 | T0-01: `npm run dev` melayani halaman HTTP 200, main.tsx, tema.css, font woff2, 7 folder layar + supabase/{migrations,functions,tes} ada | `ls aplikasi/src` , `find . -name main.tsx` , `ls supabase` , `cat aplikasi/package.json` | **GAGAL**: `aplikasi/` tidak ada, `supabase/` tidak ada, `find . -name main.tsx` kosong, `npm run dev` tidak bisa dijalankan. Bukti: `ls -la aplikasi` → no aplikasi. Klaim tidak terbukti di HEAD aktual. |
-| 2 | T0-02: ESLint 9.39 + Prettier 3.9 + TypeScript 5.7 ketat, gerbang mutasi any ditolak | `ls aplikasi/package.json` , `cat aplikasi/.prettierrc.json` , `cd aplikasi && npm run lint` | **GAGAL**: `aplikasi/package.json` tidak ada, `aplikasi/.prettierrc.json` tidak ada, perintah lint tidak bisa dijalankan. Bukti: `ls aplikasi/` gagal. |
-| 3 | T0-03: tema.css identik byte-per-byte dengan prototipe/css/tokens.css, 19 font, 10 kode tema sama | `ls prototipe/css/tokens.css` , `ls aplikasi/src/gaya/aset/font/` , `cat aplikasi/src/lib/tema.ts` | **GAGAL**: `prototipe/` tidak ada, `aplikasi/src/lib/tema.ts` tidak ada. Bukti: `find . -name tokens.css` kosong. |
-| 4 | T0-04: uji-kontras.py 166 lolos 0 gagal, 10 komponen, 17 uji komponen +22 uji lain hijau | `python3 aplikasi/alat/uji-kontras.py` , `ls aplikasi/src/komponen/*.tsx` , `cd aplikasi && npm test` | **GAGAL**: `aplikasi/alat/uji-kontras.py` tidak ada, `aplikasi/src/komponen/` tidak ada, `npm test` tidak bisa. Bukti: `ls aplikasi/alat/` gagal. |
-| 5 | T0-05: .env.example memuat semua 8 variabel TECH_SPEC §6, git check-ignore | `cat aplikasi/.env.example` , `git check-ignore -v .env` , `find . -name .env.example` | **GAGAL**: `aplikasi/.env.example` tidak ada, `find . -name .env.example` kosong, `git check-ignore` tidak relevan. Bukti: `ls -la | grep env` kosong. |
-| 6 | T0-06: folder aplikasi/ disalin bersih, npm ci → Prettier → ESLint → TypeScript → 39 uji → build hijau | `ls aplikasi/README.md` , `cat aplikasi/README.md | head -30` , `cd aplikasi && npm ci` | **GAGAL**: `aplikasi/README.md` tidak ada, tidak ada `package.json`. Bukti: `find . -name README.md` hanya ada `docs/README.md` dan `skills/README.md`. |
-| 7 | T0-07: CI menyala push & PR, run 35121292973 MERAH di ESLint saat variabel tidak terpakai | `cat .github/workflows/ci.yml` , `ls .github/` , `gh run list` (jika ada) | **GAGAL**: `.github/workflows/ci.yml` tidak ada, `ls .github/` gagal. Bukti: `find . -name ci.yml` kosong. CI tidak ada di repo ini. |
-| 8 | T0-10: 51 uji hijau dalam 7 berkas, jsdom + @testing-library/react | `cd aplikasi && npm test` , `ls aplikasi/src/lib/*.test.ts` | **GAGAL**: tidak ada `aplikasi/`, tidak ada `vitest.config.ts`, tidak ada berkas uji. Bukti: `find . -name "*.test.ts" | grep -v skills | head` kosong (hanya skills). |
-| 9 | T1-01: migrasi 0001 diterapkan PostgreSQL asli, uji rls_penyewa.sql — pengunjung 0 baris, kasir 1 penyewa & 2 cabang | `cat supabase/migrations/0001_penyewa_cabang.sql` , `cat supabase/tes/rls_penyewa.sql` , `node alat/uji-sql.mjs --daftar` | **GAGAL**: `supabase/migrations/` tidak ada, `supabase/tes/` tidak ada, `alat/uji-sql.mjs` tidak ada. Bukti: `ls supabase/migrations/` gagal. |
-| 10 | T1-06: PIN disimpan hanya hash crypt(pin, gen_salt('bf',10)), CHECK menolak bukan hash, Edge Function verifikasi_pin | `cat supabase/migrations/0006_pin.sql` , `cat supabase/functions/verifikasi_pin/index.ts` , `cat supabase/tes/pin.sql` | **GAGAL**: semua berkas tidak ada. Bukti: `find . -name "*pin*"` kosong kecuali di skills. |
+| 1 | Klaim #14 T1-06: “PIN disimpan hanya sebagai hash … tidak ada fungsi yang mengembalikan hash” | sebagai kasir: `select nama, substr(pin_hash,1,14) from public.pengguna` | **DIBANTAH** — `[{"nama":"Rina","awalan_hash":"$tiruan$10$eb2"}]` (F-02) |
+| 2 | Klaim #14 T1-06 + KEAMANAN.md §6.6: “ganti PIN sendiri wajib PIN lama” | `select public.simpan_pin('8888', null, '<uuid sendiri>', 'hp-uji')` sebagai kasir yang sudah punya PIN | **DIBANTAH** — `"PIN tersimpan."`; lalu `verifikasi_pin(…,'8888')` → `berhasil=true` (F-01) |
+| 3 | Klaim #14 T1-06: “PIN benar belum cukup untuk aksi — persetujuan lewat `boleh_untuk()`” | insert `pembatalan` `tahap='sesudah_dapur'`, `disetujui_oleh=<owner>` sebagai kasir tanpa PIN | **DIBANTAH** — DITERIMA, `nilai_kerugian: 54000` (F-03) |
+| 4 | Klaim #18 T1-10: “pembayaran tidak boleh melebihi total pesanan” | 2× insert pembayaran Rp 1.000.000 pada pesanan baru (total 0) | **DIBANTAH** — `{dibayar: 2000000, total_pesanan: 0}` (F-04) |
+| 5 | Klaim #18 T1-10: identitas pelaku uang diisi sistem | insert `pembayaran.kasir_id`/`diskon_transaksi.pelaku_id` = pegawai lain | **DIBANTAH** — DITERIMA, atribusi palsu (F-05) |
+| 6 | Klaim #15 T1-07: “stok hanya berubah lewat catatan pergerakan stok” | `select set_config('app.stok_dari_buku_besar','1',true)` lalu `update public.stok_bahan set jumlah=999` | **DIBANTAH** — DITERIMA `jumlah: "999.000"` (F-06) |
+| 7 | `docs/KEAMANAN.md` §1.4 (dokumen “BERLAKU”, “mengikat”): PIN hanya sah di perangkat terdaftar; pencabutan diperiksa di database setiap permintaan | `grep -rlE "create table (if not exists )?public\.(perangkat|sesi_perangkat|catatan_audit)\b" supabase/migrations/` | **DIBANTAH** — tidak ada satu pun tabel itu; skema berhenti di `0010` (F-07) |
+| 8 | Klaim #4 T0-04: `uji-kontras.py` 166 lolos · 0 gagal; 10 komponen ada | `python3 aplikasi/alat/uji-kontras.py` | **TIDAK DIBANTAH** — `RINGKASAN: 166 lolos, 0 gagal - 10 tema, 130 pemeriksaan warna, 36 aturan desain` (exit 0) |
+| 9 | Klaim #4 T0-04: 17 uji komponen + 22 uji lain hijau | `cd aplikasi && npm test` | **TIDAK DIBANTAH** — `Test Files 7 passed (7) · Tests 51 passed (51)` |
+| 10 | Klaim #7 T0-07: run `35121292973` MERAH di langkah ESLint | `gh api repos/With-AI-Agent/Resto-Barokah/actions/runs/35121292973/jobs` | **TIDAK DIBANTAH** — job `Periksa` conclusion=failure, `LANGKAH GAGAL=['Aturan kode (ESLint)']`, head 538ccb45 |
+| 11 | Klaim #12 T1-04: uji membaca katalog PostgreSQL, tabel baru otomatis diperiksa | `node alat/uji-sql.mjs --daftar` | **TIDAK DIBANTAH** — 23 tabel, semua `RLS=ya` + berpolicy; `10 LULUS · 0 GAGAL` |
+| 12 | Klaim #17 T1-09: salinan beku `nama_saat_itu`/`harga_saat_itu` tidak bisa diubah | `update public.pesanan_item set harga_saat_itu=1` sebagai kasir | **TIDAK DIBANTAH** — ditolak `Nama & harga yang sudah tercatat tidak boleh diubah.` |
+| 13 | Klaim #13 T1-05: gerbang tunggal `boleh(aksi, nominal, persen)` menegakkan batas diskon | insert diskon Rp 54.000 & Rp 1.000 sebagai kasir (batas kasir 25.000/5 %) | **TIDAK DIBANTAH** untuk batas nominal (`Diskon ini melebihi batas izin Anda`) — cacatnya ada di identitas penyetuju, bukan di batas (F-03/F-05) |
+| 14 | Klaim #10 T1-02 & #1 penyewa: isolasi antar-resto | 12 tabel ber-`penyewa_id` + 11 tabel anak dibaca sebagai kasir resto A, lalu lintas-cabang | **TIDAK DIBANTAH** — hanya baris restonya; lintas resto 0 baris; lintas cabang 0 baris (S10–S12) |
+| 15 | Klaim #5 T0-05: rahasia tidak ada di klien, hanya 2 variabel publik aktif | `python3 aplikasi/alat/periksa-komponen-env.py` + pemindai rahasia repo | **TIDAK DIBANTAH** — `10 OK · 0 GAGAL`; terpisah dari itu, 5 kerentanan dev-dependency dicatat di F-09 |
+| 16 | Klaim #6 T0-06: langkah README (npm ci → uji → build) hijau di tempat bersih | `npm ci` + `npm run format:check` + `npm run build` | **TIDAK DIBANTAH** — `✓ built in 1.19s`, EXIT=0 |
+| 17 | Klaim #1 T0-01: `npm run dev` melayani halaman (HTTP 200) + favicon SVG | tidak dijalankan (dev server tidak saya nyalakan) | **TIDAK DIUJI** — ditulis apa adanya di bagian 6 |
 
-Tambahan (melebihi minimum 5): Semua klaim T1-02 s/d T11-13 yang disebut di paket (total 100+ tugas) juga **GAGAL** dengan alasan sama: berkas sumber tidak ada di HEAD aktual. Contoh `supabase/migrations/0002_pengguna_izin_pengaturan.sql` tidak ada, `supabase/tes/rls_pengguna.sql` tidak ada, dst. Perintah `find . -type f | grep supabase | head` kosong.
+Ringkas: **7 klaim DIBANTAH** (#1-#7 di atas) yang melahirkan 6 temuan K-1/K-2 (F-01…F-07); #13 ditinjau dan terbukti benar pada bagian batasnya; sisanya tidak terbantah atau tidak diuji.
 
 ## 3. Serangan yang dijalankan (kill attempts)
+
+Semua serangan dijalankan pada klon lokal skema (PGlite = PostgreSQL asli dikompilasi ke WASM) dengan peran `anon` / `authenticated` + `auth.uid()` tiruan, di dalam **satu transaksi dengan SAVEPOINT per serangan** lalu di-rollback. Perkakas serangan saya simpan di luar repo (`/tmp/serang/…`) karena audit ini hanya-baca.
+
 | # | Skenario | Cara | Hasil |
 |---|---|---|---|
-| 1 | L1 — Cek hardcoded secret di repo | `grep -R -n "sk-\|ghp_\|AKIA\|BEGIN PRIVATE KEY" --include="*.ts" --include="*.js" --include="*.md" . \| head -20` | **TIDAK DITEMUKAN** secret hardcoded di luar referensi dokumentasi. Hasil hanya di ACCEPTANCE_TEST_LOG.md yang mencatat "Kredensial nyata 0". Bukti: output grep di atas hanya 1 baris di log yang menyatakan 0. |
-| 2 | L1 — Cek SECURITY DEFINER bisa dipanggil publik | `grep -R -n "SECURITY DEFINER" --include="*.sql" .` , `find . -name "*.sql"` | **TIDAK RELEVAN / TIDAK ADA**: tidak ada file SQL di repo ini kecuali di skills vendor. `find . -name "*.sql" | grep -v skills` kosong. Tidak ada fungsi SECURITY DEFINER yang bisa disalahgunakan. |
-| 3 | L1 — Cek RLS bypass via view | `grep -R -n "CREATE VIEW" --include="*.sql" .` , `grep -R "security_invoker"` | **TIDAK ADA**: tidak ada view. Repo ini bukan DB. Bukti: `find . -name "*.sql"` kosong. |
-| 4 | L1 — Cek jalur baca data penyewa lain (tenant isolation) | `ls supabase/migrations/` , `cat supabase/tes/sisir_rls.sql` (jika ada) | **GAGAL UJI**: file tidak ada, tidak bisa verifikasi isolasi penyewa. Ini justru temuan: kontrol wajib hilang karena kode tidak ada. Bukti: `ls supabase` → no supabase. |
-| 5 | L2 — Cek angka uang bisa dibuat/ubah dari klien | `ls aplikasi/src/lib/uang.ts` , `cat supabase/migrations/0010_pembayaran.sql` , `grep -R "SECURITY DEFINER\|boleh(" supabase/` | **TIDAK ADA**: tidak ada tabel pembayaran, tidak ada RPC hitung_total. Bukti: `find . -name "*uang*"` kosong. |
-| 6 | L2 — Cek pembayaran dobel / idempoten | `cat supabase/migrations/0064_idempoten.sql` , `cat supabase/tes/idempoten.sql` | **TIDAK ADA**: migrasi idempoten tidak ada. Bukti: `find . -name "*idempoten*"` kosong. |
-| 7 | L2 — Cek void tanpa jejak audit | `cat supabase/migrations/0020_catatan_audit.sql` , `cat supabase/tes/audit.sql` | **TIDAK ADA**: tabel audit tidak ada. Bukti: `find . -name "*audit*"` hanya `skills/security-review` dll, bukan tabel. |
-| 8 | L2 — Cek diskon lewat batas & kas tanpa shift | `cat supabase/migrations/0039_diskon.sql` , `cat supabase/migrations/0048_wajib_shift.sql` , `cat supabase/tes/wajib_shift.sql` | **TIDAK ADA**: semua file tidak ada. Bukti: `ls supabase/migrations/` gagal. |
-| 9 | L3 — Cek janji PRD/TECH_SPEC punya kode DAN uji | `ls docs/PRD.md docs/TECH_SPEC.md docs/ROADMAP.md` , `cat docs/README.md` | **GAGAL**: `docs/PRD.md` tidak ada, `TECH_SPEC.md` tidak ada, `ROADMAP.md` tidak ada, hanya `docs/README.md` placeholder. Bukti: `ls -R docs` → hanya README. Janji tanpa implementasi. |
-| 10 | L3 — Cek klaim ROADMAP bisa direproduksi hari ini | `python3 alat/periksa-roadmap.py` , `cat docs/ROADMAP.md` | **GAGAL**: `alat/periksa-roadmap.py` tidak ada, `docs/ROADMAP.md` tidak ada. Bukti: `find . -name "periksa-roadmap.py"` kosong. |
-| 11 | L4 — Cek uji yang lulus karena sebab salah, negatif-test tumpul | `cd aplikasi && npm test` , `python3 _sistem/validate_system.py` , `ls aplikasi/src/lib/*.test.ts` | **TIDAK BISA**: `npm test` tidak ada, tidak ada vitest config. Satu-satunya validator yang ada `python3 _sistem/validate_system.py` → PASS untuk building system, bukan untuk Resto Barokah. Bukti: output PASS di atas. |
-| 12 | L4 — Cek gerbang CI pernah MERAH | `cat .github/workflows/ci.yml` , `gh run list --limit 20` | **TIDAK ADA**: CI file tidak ada, `gh` tidak bisa list karena bukan repo app. Bukti: `ls .github/` gagal. Gerbang tidak bisa dibuktikan pernah MERAH. |
-| 13 | L5 — Alur nyata tablet kasir bisa selesai, 7 keadaan, tombol tanpa fungsi | `ls aplikasi/src/layar/kasir/*.tsx` , `ls prototipe/*.html` , `cat docs/SPESIFIKASI_UI.md` | **TIDAK ADA**: `aplikasi/src/layar/kasir/` tidak ada, `prototipe/` tidak ada, `SPESIFIKASI_UI.md` tidak ada. Bukti: `find . -name "*.tsx"` kosong (hanya skills vendor .tsx). |
-| 14 | L5 — Printer/offline antrean | `cat aplikasi/src/lib/printer/expos.ts` , `cat aplikasi/src/lib/antrean-offline.ts` , `ls supabase/migrations/0064_idempoten.sql` | **TIDAK ADA**: semua file printer/offline tidak ada. Bukti: `find . -name "*printer*" -o -name "*antrean*"` kosong. |
-| 15 | L6 — Data pelanggan minimal, persetujuan, anonimisasi, rahasia tidak masuk repo/log | `grep -R "pelanggan\|PII\|email" --include="*.sql" supabase/` , `grep -R "VITE_SUPABASE" aplikasi/.env.example` , `cat docs/KEAMANAN.md` | **TIDAK ADA**: `supabase/` tidak ada, `aplikasi/.env.example` tidak ada, `docs/KEAMANAN.md` tidak ada. Bukti: `find . -name "KEAMANAN.md"` kosong. Tidak bisa verifikasi privasi. |
-
-Total serangan dijalankan: 15 (melebihi minimum 12).
+| 1 | anon memanggil fungsi istimewa | `select public.verifikasi_pin(…)/catat_stok(…)/simpan_pin(…)` sebagai anon | ditolak `permission denied` (fungsi `SECURITY DEFINER` sudah di-revoke) |
+| 2 | anon membaca tabel | `select count(*)` pada 23 tabel sebagai anon | 0 baris atau `permission denied`; tidak ada kebocoran |
+| 3 | anon membaca `izin_kode` (katalog global) | `select count(*) from public.izin_kode` sebagai anon | 0 baris (policy hanya untuk `authenticated`) |
+| 4 | kasir mengganti PIN sendiri tanpa PIN lama | `simpan_pin('8888', null, '<id sendiri>', 'hp-uji')` | **DITERIMA** → “PIN tersimpan.” (S4 · F-01) |
+| 5 | kasir mengganti PIN lewat `ganti_pin` dengan PIN lama salah | `select public.ganti_pin('0000','7777')` | ditolak `PIN lama salah.` (jalur ini benar — jadi cacatnya spesifik di `simpan_pin`) |
+| 6 | kasir membaca hash PIN rekan | `select nama, substr(pin_hash,1,14) from public.pengguna` | **DITERIMA** → `$tiruan$10$eb2…` (S5b · F-02) |
+| 7 | kasir membatalkan pesanan sesudah dapur dengan penyetuju palsu | insert `pembatalan(tahap='sesudah_dapur', disetujui_oleh=<owner>)` | **DITERIMA** → `nilai_kerugian 54000` (S6a · F-03) |
+| 8 | kasir membatalkan sesudah dapur tanpa penyetuju | insert tanpa `disetujui_oleh` | ditolak `…wajib disetujui pengguna berizin (PIN)` |
+| 9 | kasir mengaku disetujui pelayan (tanpa izin) | `disetujui_oleh=<pelayan>` | ditolak (pemeriksaan izin penyetuju jalan; yang tidak ada adalah pembuktian persetujuan) |
+| 10 | kasir menerima uang melebihi total (total masih 0) | 2× insert `pembayaran` Rp 1.000.000 | **DITERIMA** → `{dibayar: 2000000, total: 0}` (S6b · F-04) |
+| 11 | kasir mencatat pembayaran melebihi total (total terisi 62.100) | insert pembayaran 20.000 setelah 50.000 | ditolak `Total pembayaran … melebihi total pesanan` |
+| 12 | kasir menulis nama kasir lain di baris pembayaran | insert dengan `kasir_id=<owner>` | **DITERIMA** → atribusi palsu (S6c · F-05) |
+| 13 | kasir menulis nama pelaku diskon lain | insert `diskon_transaksi` dengan `pelaku_id=<owner>` | **DITERIMA** → atribusi palsu (F-05) |
+| 14 | kasir mengubah total pesanan langsung | `update public.pesanan set total=1` | ditolak penjaga `total` hanya-boleh-peladen |
+| 15 | dapur mengubah stok langsung | `update public.stok_bahan set jumlah=999` | ditolak `Jumlah stok hanya boleh berubah lewat catatan pergerakan stok` |
+| 16 | dapur memalsukan “berasal dari buku besar” | `set_config('app.stok_dari_buku_besar','1',true)` lalu update stok | **DITERIMA** → `jumlah: "999.000"` (S8 · F-06) |
+| 17 | dapur mencatat stok lintas penyewa | `catat_stok` dengan `penyewa_id` resto lain | ditolak |
+| 18 | pelayan menulis `stok_pergerakan` langsung | `insert into public.stok_pergerakan` | ditolak RLS |
+| 19 | kasir resto A membaca 12 tabel ber-`penyewa_id` | `select *` di `penyewa, cabang, pengguna, pengaturan, izin_peran, kategori_menu, menu_item, menu_tambahan, stok_bahan, stok_pergerakan, metode_bayar, pesanan` | hanya baris resto A; resto B tidak terlihat |
+| 20 | kasir resto A membaca 11 tabel anak tanpa `penyewa_id` | `select count(*)` di `pengguna_cabang, izin, izin_kode, menu_varian, menu_cabang, pesanan_item, pembayaran, diskon_transaksi, pembatalan, percobaan_pin, meja` | hanya baris cabangnya; jumlah ≤ jumlah nyata (S11) |
+| 21 | kasir cabang A1 menyentuh pesanan/meja cabang A2 (resto sama) | `select`/`update` pesanan cabang A2 | 0 baris; mencatat pembayarannya ditolak RLS |
+| 22 | dapur menaikkan harga cabang | `update public.menu_cabang set harga=…` | ditolak `Menetapkan/mengubah harga hanya boleh oleh owner pusat atau admin cabang.` |
+| 23 | kasir & owner mengubah/menghapus jejak uang | `update`/`delete` pada `pembayaran, pembatalan, stok_pergerakan, pesanan_item` | semua ditolak `permission denied` / penjaga salinan beku (jejak uang benar-benar append-only) |
+| 24 | PIN ditebak berulang | 7× `verifikasi_pin` salah lalu 1× PIN benar | terkunci setelah 5 salah; PIN benar pun ditolak `PIN terkunci sementara … 15 menit` (S15) |
+| 25 | owner resto A memverifikasi PIN pegawai resto B | `verifikasi_pin(<pegawai B>, '4321')` sebagai owner A | `berhasil=false`, `PIN tidak dikenali.` |
+| 26 | akun dinonaktifkan mencoba bekerja | `update pengguna set aktif=false` lalu akses sebagai akun itu | 0 baris & `boleh()` false (klaim “nonaktif = cabut seketika” bertahan) |
+| 27 | pemilik platform membaca data penyewa | `select count(*) from public.penyewa / pesanan / pengguna` sebagai pemilik platform | 1 baris (dirinya), 0 penyewa, 0 pesanan → peran ada tetapi tanpa jalan dukungan (bagian F-07) |
+| 28 | `boleh(aksi)` tanpa cabang dipakai untuk naik hak | `boleh('tutup_kas'/'beri_diskon'/'ubah_stok'/'kelola_pegawai')` untuk kasir, pelayan, owner | nilai sesuai izin peran (kasir: tutup_kas & beri_diskon true, ubah_stok & kelola_pegawai false) — **tidak ditemukan eskalasi** |
 
 ## 4. Temuan
-### [F-01] Commit target audit tidak ada di repo — repo yang ada adalah Sistem Building Aplikasi, bukan Resto Barokah
+
+| Kode | Judul | Tingkat | Status |
+|---|---|---|---|
+| F-01 | PIN sendiri bisa diganti tanpa PIN lama → persetujuan bisa dipalsukan | K-2 | TERVERIFIKASI |
+| F-02 | Kolom `pin_hash` bisa dibaca pegawai lain | K-2 | TERVERIFIKASI |
+| F-03 | Void sesudah dapur dengan penyetuju yang tidak pernah menyetujui (tanpa PIN) | K-2 | TERVERIFIKASI |
+| F-04 | Pembayaran melebihi total diterima saat total masih 0, dan tidak bisa dibatalkan | K-1 | TERVERIFIKASI |
+| F-05 | Identitas pelaku/penyetuju di tiga tabel bisa dipalsukan klien | K-2 | TERVERIFIKASI |
+| F-06 | Penjaga stok bisa dilewati dengan GUC `app.stok_dari_buku_besar` | K-2 | TERVERIFIKASI |
+| F-07 | Kontrol wajib `docs/KEAMANAN.md` (perangkat, sesi, TOTP, mode dukungan, rantai hash) belum ada di kode | K-2 | TERVERIFIKASI |
+| F-08 | Rujukan mati di dokumen yang mengikat (alat pemeriksa & berkas yang tidak ada) | K-3 | TERVERIFIKASI |
+| F-09 | 5 kerentanan dependency dev (1 critical, 1 high) dan CI tidak memeriksanya | K-3 | TERVERIFIKASI |
+| F-10 | Uji batas lebih bayar hanya ada untuk total > 0 → lubang nyata lolos dari 10 LULUS | K-3 | TERVERIFIKASI |
+
+### [F-01] PIN sendiri bisa diganti tanpa PIN lama → persetujuan bisa dipalsukan
+
 - **Tingkat:** K-2
-- **Artefak:** `git:HEAD` vs `paket:442913e4b7ae6d09ed060fe17dd90fa499d449b3`
-- **Klaim yang dilanggar:** Paket audit §0a "Pastikan kamu memeriksa commit yang benar" — commit `442913e4b7ae6d09ed060fe17dd90fa499d449b3` harus ada; HEAD aktual `253d1297a3b81433d7f5809afd257d8a1b40958f` berbeda dan `git cat-file -e 442913e4b7ae6d09ed060fe17dd90fa499d449b3` → exit 1 (not exists)
-- **Bukti:** `git rev-parse HEAD` → `253d1297a3b81433d7f5809afd257d8a1b40958f` ; `git cat-file -e 442913e4b7ae6d09ed060fe17dd90fa499d449b3 && echo exists || echo not exists` → `not exists` ; `git log --oneline -20` hanya 1 commit "Input Sistem"
-- **Skenario gagal:** Auditor membuka sesi dari repo yang salah (building system, bukan aplikasi), sehingga seluruh cakupan 334 berkas tidak bisa diperiksa; laporan apapun akan berverdict tidak terpercaya
-- **Dugaan penyebab:** Repo GitHub `With-AI-Agent/Resto-Barokah` saat ini berisi template building system (sesuai `docs/README.md`), bukan kode aplikasi Resto Barokah yang sudah di-migrate 66+ file. Kemungkinan aplikasi belum di-push ke main, atau repo terpisah.
-- **Cara membuktikan perbaikan:** `git fetch origin && git cat-file -e 442913e4b7ae6d09ed060fe17dd90fa499d449b3 && echo OK` harus hijau; `ls aplikasi/src/App.tsx` dan `ls supabase/migrations/` harus ada; `python3 alat/audit-independen.py --verifikasi-lingkup` harus PASS
+- **Artefak:** `supabase/migrations/0006_pin.sql:222` (penjaga `simpan_pin`), dipakai `supabase/functions/verifikasi_pin/index.ts:58-79`
+- **Klaim yang dilanggar:** `docs/KEAMANAN.md` §6 butir 6 (“Ganti PIN sendiri wajib PIN lama”) dan klaim #14 paket (T1-06, “PIN disimpan hanya sebagai hash … persetujuan lewat `boleh_untuk()`”)
+- **Bukti:** `node /tmp/serang/02-akses-pin.mjs /home/user/audit-442913e4` → `DITERIMA select public.simpan_pin('8888', null, '90000000-…-0004','hp-uji') → "PIN tersimpan."` lalu `verifikasi_pin(…,'8888',null,'hp-uji') → {berhasil:true, pesan:"PIN diterima."}`; bandingkan jalur benar `select public.ganti_pin('0000','7777')` → `PIN lama salah.`
+- **Skenario gagal:** pegawai membuka aplikasi di perangkat kasir yang tidak terkunci → memanggil RPC `simpan_pin('8888', null, <uuid akun owner>, …)` (uuid boleh miliknya sendiri sesuai bentuk yang dikirim Edge Function) → PIN baru terpasang tanpa PIN lama → memakai akun itu untuk menyetujui void/diskon besar; jejak audit menulis nama owner, bukan pelakunya.
+- **Dugaan penyebab:** syarat di baris 222 hanya menyala bila `p_pengguna_id is null`; ketika pemanggil mengirim uuid dirinya sendiri, `v_target = v_saya` tetap benar tetapi cabang pemeriksaan PIN lama dilewati, dan karena `v_target = v_saya` blok `kelola_pegawai` juga tidak menyala.
+- **Cara membuktikan perbaikan:** jalankan uji baru di `supabase/tes/pin.sql` — sebagai kasir yang sudah punya PIN, `select public.simpan_pin('8888', null, '<uuid sendiri>', 'hp')` harus GAGAL dengan pesan PIN lama salah — lalu `node alat/uji-sql.mjs` harus tetap `10 LULUS · 0 GAGAL`.
 - **Status verifikasi:** TERVERIFIKASI
 
-### [F-02] Seluruh kode aplikasi Resto Barokah (aplikasi/, supabase/, alat/, prototipe/, .github/) tidak ada — kontrol keamanan wajib hilang
+### [F-02] Kolom `pin_hash` bisa dibaca pegawai lain
+
 - **Tingkat:** K-2
-- **Artefak:** `aplikasi/src/*`, `supabase/migrations/*`, `supabase/tes/*`, `alat/*`, `prototipe/*`, `.github/workflows/*`
-- **Klaim yang dilanggar:** Paket audit §0 LINGKUP MENYELURUH — 334 berkas wajib ada; klaim T0-01 s/d T11-13 yang menyatakan migrasi RLS, PIN hash, katalog, meja, pesanan, pembayaran, kas shift, voucher, printer, offline, dll sudah diterapkan
-- **Bukti:** `ls aplikasi` → `no aplikasi` ; `ls supabase` → `no supabase` ; `ls alat` → `no alat` ; `ls prototipe` → `no prototipe` ; `ls .github/workflows` → `No such file or directory` ; `find . -type f -name "*.sql" | grep -v skills | wc -l` → 0 ; `find . -type f -name "*.tsx" | grep -v skills | wc -l` → 0
-- **Skenario gagal:** Tidak ada RLS, tidak ada policy `penyewa_saya()`, tidak ada `boleh()`, tidak ada hash PIN, tidak ada perhitungan uang, tidak ada audit trail — jika aplikasi dianggap "sudah jadi", maka semua kontrol L1 dan L2 hilang, data bisa bocor lintas penyewa, uang bisa dimanipulasi
-- **Dugaan penyebab:** Repo ini adalah template, bukan aplikasi; atau aplikasi ada di branch lain / repo lain yang tidak ter-fetch karena shallow clone
-- **Cara membuktikan perbaikan:** `ls aplikasi/src/layar/kasir/LayarKasir.tsx` ada; `ls supabase/migrations/0001_penyewa_cabang.sql` ada; `node alat/uji-sql.mjs --daftar` menampilkan daftar tabel & policy; `python3 _sistem/validate_system.py` tetap PASS
-- **Status verifikasi:** TERVERIFIKASI
+- **Artefak:** `supabase/migrations/0002_pengguna_izin_pengaturan.sql` (grant tabel `pengguna`), `supabase/migrations/0006_pin.sql` (kolom `pin_hash`)
+- **Klaim yang dilanggar:** `docs/KEAMANAN.md` §6 butir 2-3 (“Disimpan hanya sebagai hash bcrypt … tidak ada fungsi yang mengembalikan hash”) dan klaim #14 paket
+- **Bukti:** `node /tmp/serang/02-akses-pin.mjs /home/user/audit-442913e4` → sebagai kasir: `select nama, substr(pin_hash,1,14) from public.pengguna` → `[{"nama":"Rina","awalan_hash":"$tiruan$10$eb2"}]`; admin cabang melihat rekan-rekannya, owner pusat melihat seluruh restonya, kasir resto B nihil.
+- **Skenario gagal:** siapa pun yang bisa masuk sebagai pegawai (PIN rendah / perangkat tidak terkunci) menarik seluruh hash PIN rekan sedaerah → brute-force offline 4-6 angka (ruang 10^4-10^6) tanpa kena batas percobaan 5× karena batas itu hanya berlaku di fungsi `verifikasi_pin`, bukan pada hash yang sudah dicuri; hasilnya dipakai untuk menyetujui void/diskon atas nama atasan.
+- **Dugaan penyebab:** RLS hanya menyaring baris, bukan kolom; `grant select` diberikan pada tingkat tabel sehingga seluruh kolom `pengguna` (termasuk `pin_hash`) terekspos lewat API otomatis Supabase/PostgREST. Supabase mendokumentasikan bahwa RLS tidak membatasi kolom dan pengecualian kolom harus lewat hak istimewa tingkat kolom — lihat https://supabase.com/docs/guides/database/postgres/column-level-security (dan catatan PostgreSQL bahwa cabut tingkat kolom tidak membatalkan grant tingkat tabel: https://www.postgresql.org/docs/current/sql-grant.html).
+- **Cara membuktikan perbaikan:** sebagai kasir, `select pin_hash from public.pengguna` harus GAGAL (kolom dicabut / diganti tampilan `pengguna_aman`), lalu `node alat/uji-sql.mjs` tetap 10 LULUS dan `python3 alat/periksa-fungsi-pin.py` tetap 9 lolos (pemeriksa itu saat ini memeriksa berkas, bukan hak kolom).
+- **Status verifikasi:** TERVERIFIKASI (catatan: di klon lokal hash-nya `$tiruan$`; di Supabase hash bcrypt sungguhan — serangan tetap berlaku karena yang dicuri adalah hash, bukan PIN)
 
-### [F-03] Alat audit dan paket audit tidak ada — validasi laporan tidak bisa dijalankan
-- **Tingkat:** K-3
-- **Artefak:** `alat/audit-independen.py`, `docs/uji/paket-audit/AUD-3-2026-09-17.md`, `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`
-- **Klaim yang dilanggar:** Paket audit § "Perintah validasi laporan (wajib hijau): periksa dengan alat `alat/audit-independen.py --periksa-laporan`" dan §0b Kalibrasi
-- **Bukti:** `python3 alat/audit-independen.py --verifikasi-lingkup` → `can't open file ... [Errno 2] No such file or directory` ; `ls docs/uji/paket-audit/` → `No such file or directory` ; `find . -name "audit-independen.py"` kosong ; `find . -name "PROTOKOL_AUDIT_INDEPENDEN.md"` kosong
-- **Skenario gagal:** Auditor tidak bisa menjalankan `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/<berkas>.md` sampai LOLOS, sehingga laporan dianggap belum valid menurut paket; kalibrasi cacat tanaman tidak bisa dilakukan karena `docs/uji/kalibrasi/bahan-2026-09-17/` tidak ada
-- **Dugaan penyebab:** Alat audit hanya ada di repo aplikasi Resto Barokah, tidak ikut ter-copy ke template building system
-- **Cara membuktikan perbaikan:** `ls alat/audit-independen.py` ada; `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/LAPORAN_AUD-3_2026-09-17_menyeluruh.md` → `LOLOS` atau `PASS`
-- **Status verifikasi:** TERVERIFIKASI
+### [F-03] Void sesudah dapur dengan penyetuju yang tidak pernah menyetujui (tanpa PIN)
 
-### [F-04] Dokumen fondasi dan operasional Resto Barokah tidak ada — L3 Kesepakatan Dokumen tidak bisa diverifikasi
 - **Tingkat:** K-2
-- **Artefak:** `docs/PRD.md`, `docs/TECH_SPEC.md`, `docs/ROADMAP.md`, `docs/KEAMANAN.md`, `docs/SPESIFIKASI_UI.md`, `docs/ops/SIAP_AKUN_PEMILIK.md`, `docs/teknis/BUKU_INSIDEN.md`, `docs/PANDUAN_PEMILIK.md`
-- **Klaim yang dilanggar:** L3 — Setiap janji PRD/TECH_SPEC punya kode DAN uji; ROADMAP 7 atribut; KEAMANAN § kontrol wajib
-- **Bukti:** `ls -R docs` → hanya `docs/README.md` (1116 bytes) berisi "# /docs — Fondasi 6 Dokumen Aplikasi" dan penjelasan bahwa folder ini hanya README di Sistem Building; `find docs -type f | wc -l` → 1 ; `grep -R "PRD\|TECH_SPEC" docs/` hanya di README
-- **Skenario gagal:** Tidak ada PRD untuk di-cross-check dengan kode, tidak ada TECH_SPEC untuk validasi RLS, tidak ada KEAMANAN untuk audit; orphan requirement dan orphan test tidak bisa dideteksi karena dokumen tidak ada
-- **Dugaan penyebab:** Repo template belum memulai Tahap 1 Discovery aplikasi pertama
-- **Cara membuktikan perbaikan:** `ls docs/PRD.md docs/TECH_SPEC.md docs/ROADMAP.md docs/KEAMANAN.md docs/AGENT_OPERATING_GUIDE.md docs/DECISIONS_LOG.md` semua ada; `python3 _sistem/validate_system.py` tetap PASS; `python3 alat/periksa-roadmap.py` PASS
+- **Artefak:** `supabase/migrations/0010_pembayaran.sql` (`picu_pembatalan_sah`, `disetujui_oleh`), `supabase/migrations/0006_pin.sql` (`verifikasi_pin` tidak pernah dipanggil dari pemicu)
+- **Klaim yang dilanggar:** klaim #14 paket (“persetujuan lewat `boleh_untuk()`”, “PIN benar belum cukup untuk aksi”), PRD Aturan Bisnis void bertingkat, `docs/KEAMANAN.md` §6 butir 5
+- **Bukti:** `node /tmp/serang/03-uang-approval.mjs /home/user/audit-442913e4` → sebagai kasir (yang `void_sesudah_dapur=false`): `insert into public.pembatalan (pesanan_id, tahap, alasan, disetujui_oleh) values (<pesanan>, 'sesudah_dapur', 'uji', '<owner>')` → **DITERIMA**, `nilai_kerugian: 54000`; hanya bentuk tanpa `disetujui_oleh` dan penyetuju tanpa izin yang ditolak.
+- **Skenario gagal:** kasir membatalkan pesanan yang sudah dimasak (kerugian bahan tercatat sebagai “bahan terbuang”) lalu menuliskan nama owner sebagai penyetuju tanpa owner menyentuh perangkat; laporan harian menampilkan void yang “disetujui atasan”.
+- **Dugaan penyebab:** pemicu memanggil `boleh_untuk(new.disetujui_oleh, …)` — yaitu memeriksa apakah orang itu **berwenang**, bukan apakah orang itu **menyetujui**; tidak ada bukti PIN/`percobaan_pin` yang diikat ke baris pembatalan.
+- **Cara membuktikan perbaikan:** uji baru di `supabase/tes/pembatalan` (atau `supabase/tes/pembayaran.sql`) — insert `pembatalan` sesudah dapur tanpa token persetujuan yang sah harus GAGAL — lalu `node alat/uji-sql.mjs` harus tetap `10 LULUS · 0 GAGAL`.
 - **Status verifikasi:** TERVERIFIKASI
 
-### [F-05] PANDUAN_PENGGUNA.md tidak mengandung Bagian C4 / kalimat pembuka auditor — langkah audit tidak bisa diikuti persis
-- **Tingkat:** K-3
-- **Artefak:** `PANDUAN_PENGGUNA.md:Bagian C4`, `docs/uji/PROMPT_AUDIT_INDEPENDEN.md`
-- **Klaim yang dilanggar:** Paket audit § "Susulkan kalimat pembuka auditor dari buku induk PANDUAN_PENGGUNA.md Bagian C4 (sama persis dengan docs/uji/PROMPT_AUDIT_INDEPENDEN.md bagian B)"
-- **Bukti:** `grep -n "C4\|AUDIT_INDEPENDEN\|Kalimat Pembuka.*Auditor" PANDUAN_PENGGUNA.md` → kosong ; `grep -n "AUDITOR INDEPENDEN" PANDUAN_PENGGUNA.md` → kosong ; `cat PANDUAN_PENGGUNA.md | grep -n "Prompt.*Audit"` → kosong ; file hanya 187 baris berisi Prompt Pembuka Universal dan Penutup Sesi
-- **Skenario gagal:** Pemilik yang mengikuti "CARA PAKAI — 3 langkah mudah" di paket akan gagal di langkah 3 karena tidak menemukan kalimat pembuka auditor di lokasi yang disebut; audit tidak bisa dimulai sesuai instruksi
-- **Dugaan penyebab:** PANDUAN_PENGGUNA.md di template building system versi 0.2.0 belum memiliki Bagian C4; bagian itu mungkin ada di repo aplikasi Resto Barokah yang sebenarnya
-- **Cara membuktikan perbaikan:** `grep -n "AUDITOR INDEPENDEN\|Bagian C4" PANDUAN_PENGGUNA.md` harus ada; `cat docs/uji/PROMPT_AUDIT_INDEPENDEN.md` harus ada dan identik
+### [F-04] Pembayaran melebihi total diterima saat total masih 0, dan tidak bisa dibatalkan
+
+- **Tingkat:** K-1
+- **Artefak:** `supabase/migrations/0010_pembayaran.sql:292-299` (`picu_pembayaran_jujur` melewati batas bila `coalesce(total,0) > 0` salah); `hitung_total` (T1-15) belum ada
+- **Klaim yang dilanggar:** klaim #18 paket (“pembayaran tidak boleh melebihi total pesanan”); `docs/PANDUAN_PENGGUNA.md` (batas lebih bayar); dokumen kalibrasi mengulang janji yang sama
+- **Bukti:** `node /tmp/serang/03-uang-approval.mjs /home/user/audit-442913e4` → sebagai kasir pada pesanan baru: 2× `insert into public.pembayaran (… jumlah 1000000 …)` → DITERIMA; `select coalesce(sum(jumlah),0) from public.pembayaran` → `{dibayar: 2000000}`, sedangkan `select total from public.pesanan` → `0`.
+- **Skenario gagal:** kasir (atau perangkat yang disalahgunakan) mencatat uang masuk dua kali lipat/lebih; karena `total` pesanan masih 0 sampai `hitung_total()` dikerjakan (T1-15 belum ada di commit ini), seluruh alur kasir berjalan dengan total 0 → tidak ada satu pun penjaga yang menghentikan; baris uang itu **tidak bisa diubah dan tidak bisa dihapus oleh peran apa pun** (serangan #23), jadi kelebihan bayar tidak punya jalan pemulihan di aplikasi → laporan kas dan setoran tidak akan cocok dengan uang fisik.
+- **Dugaan penyebab:** komentar di kode mengakui pemeriksaan “dilewati supaya pencatatan tidak macet — angka total dihitung ulang di T1-15”; kompensasi itu diterima sebagai keadaan sementara oleh builder, tetapi pada commit yang diaudit tidak ada `hitung_total()` maupun penjaga pengganti, sehingga lubangnya terbuka di sistem yang sudah dipakai.
+- **Cara membuktikan perbaikan:** setelah `hitung_total()` ada, uji baru di `supabase/tes/pembayaran.sql` — pesanan baru (total 0) yang menerima pembayaran > 0 harus memicu perhitungan total lebih dulu atau DITOLAK; jalankan `node alat/uji-sql.mjs` dan pastikan masih `10 LULUS · 0 GAGAL` dengan uji baru itu ikut jalan.
 - **Status verifikasi:** TERVERIFIKASI
 
-### [F-06] Folder kalibrasi cacat tanaman tidak ada — AUD-3 wajib kalibrasi tapi tidak bisa
-- **Tingkat:** K-3
-- **Artefak:** `docs/uji/kalibrasi/bahan-2026-09-17/`, `docs/uji/kalibrasi/CARA-PAKAI.md`
-- **Klaim yang dilanggar:** Paket audit §0b dan §7 — AUD-3 wajib kalibrasi, ambang lulus semua cacat K-1/K-2 tertanam ditemukan + ≥70% total + 0 palsu
-- **Bukti:** `ls docs/uji/kalibrasi/bahan-2026-09-17/` → `No such file or directory` ; `find . -type d -name kalibrasi` kosong ; `find . -type d -name bahan*` kosong
-- **Skenario gagal:** Auditor tidak bisa mengisi bagian "## 5. Kalibrasi cacat tanaman" dengan temuan nyata; verdict BERSIH tidak bisa dipercaya karena kalibrasi batal
-- **Dugaan penyebab:** Bahan kalibrasi hanya ada di repo aplikasi, tidak di template
-- **Cara membuktikan perbaikan:** `ls docs/uji/kalibrasi/bahan-2026-09-17/ | wc -l` → 5 berkas sesuai paket; `cat docs/uji/kalibrasi/CARA-PAKAI.md` ada
+### [F-05] Identitas pelaku/penyetuju di tiga tabel bisa dipalsukan klien
+
+- **Tingkat:** K-2
+- **Artefak:** `supabase/migrations/0010_pembayaran.sql` (`kasir_id` hanya diisi bila null di `picu_pembayaran_jujur`; `diskon_transaksi.pelaku_id` tidak diperiksa; `pembatalan.disetujui_oleh` lihat F-03)
+- **Klaim yang dilanggar:** `docs/KEAMANAN.md` §1 butir 7 (“Setiap tindakan sensitif meninggalkan jejak”) dan PRD “jejak persetujuan PIN”
+- **Bukti:** `node /tmp/serang/03-uang-approval.mjs /home/user/audit-442913e4` → sebagai kasir: `insert into public.pembayaran (… kasir_id='<owner>')` → DITERIMA; `insert into public.diskon_transaksi (… pelaku_id='<owner>')` → DITERIMA.
+- **Skenario gagal:** kasir mencatat diskon/void atas nama owner atau rekan lain; ketika terjadi selisih kas, laporan “siapa mengerjakan apa” menunjuk orang yang salah, dan karena barisnya append-only (tidak bisa dikoreksi), kesalahan atribusi itu permanen.
+- **Dugaan penyebab:** kolom pelaku diisi dari nilai yang dikirim klien (`new.kasir_id`) alih-alih selalu `auth.uid()`; tidak ada penjaga yang menolak `kasir_id` bukan pemanggil.
+- **Cara membuktikan perbaikan:** uji baru — `insert into public.pembayaran (… kasir_id='<pengguna lain>')` dan `insert into public.diskon_transaksi (… pelaku_id='<pengguna lain>')` harus GAGAL/dinormalkan ke `auth.uid()` — lalu `node alat/uji-sql.mjs` harus 10 LULUS.
 - **Status verifikasi:** TERVERIFIKASI
 
-### [F-07] Berkas pengguna di akar yang wajib ada untuk mode menyeluruh sebagian tidak ada
+### [F-06] Penjaga stok bisa dilewati dengan GUC `app.stok_dari_buku_besar`
+
+- **Tingkat:** K-2
+- **Artefak:** `supabase/migrations/0007_katalog.sql` (penjaga `stok_bahan.jumlah` memakai `current_setting('app.stok_dari_buku_besar', true)`)
+- **Klaim yang dilanggar:** klaim #15 paket (T1-07, stok hanya berubah lewat catatan pergerakan) dan `docs/KEAMANAN.md` §1 butir 5 (tidak ada angka dari perangkat)
+- **Bukti:** `node /tmp/serang/02-akses-pin.mjs /home/user/audit-442913e4` → sebagai dapur: `update public.stok_bahan set jumlah=999 …` ditolak `Jumlah stok hanya boleh berubah lewat catatan pergerakan stok`; setelah `select set_config('app.stok_dari_buku_besar','1',true)` perintah yang sama **DITERIMA** (`jumlah: "999.000"`).
+- **Skenario gagal:** siapa pun yang punya izin `ubah_stok` (dapur) menulis angka stok langsung tanpa baris `stok_pergerakan`; selisih opname, HPP, dan laporan bahan menjadi tidak dapat dipercaya, dan tidak ada jejak siapa mengubahnya.
+- **Dugaan penyebab:** penjaga mempercayai peubah sesi yang bisa disetel klien; bandingkan dengan penjaga uang yang sengaja memakai `current_user`/kepemilikan tabel (“tidak bisa dipalsukan klien” di komentar 0010) — jadi standarnya tidak konsisten di dalam repo yang sama.
+- **Cara membuktikan perbaikan:** penjaga harus memakai penanda yang tidak bisa disetel klien (mis. fungsi khusus pemilik tabel atau argumen dari fungsi `catat_stok` yang di-revoke dari peran lain); uji baru: `set_config('app.stok_dari_buku_besar','1',true)` lalu `update stok_bahan` harus tetap GAGAL; jalankan `node alat/uji-sql.mjs` (10 LULUS) setelah perbaikan.
+- **Status verifikasi:** TERVERIFIKASI
+
+### [F-07] Kontrol wajib `docs/KEAMANAN.md` belum ada di kode
+
+- **Tingkat:** K-2
+- **Artefak:** `docs/KEAMANAN.md` §1 butir 3-4, §3, §4, §5, §7 (dokumen “BERLAKU sejak 2026-09-17”, “mengikat”) vs `supabase/migrations/` yang berhenti di `0010`
+- **Klaim yang dilanggar:** KEAMANAN.md §1 butir 4 (“semua pemeriksaan perangkat/sesi dilakukan di database pada setiap permintaan”), §4 (`perangkat`, `kode_pendaftaran_perangkat`, `sesi_perangkat`), §7 (“jejak audit … berantai hash … `alat/periksa-audit.py`”)
+- **Bukti:** `grep -rlE "create table (if not exists )?public\.(perangkat|sesi_perangkat|kode_pendaftaran_perangkat|voucher|shift|catatan_audit|mode_dukungan)\b" supabase/migrations/` → **kosong**; `ls alat/periksa-audit.py` → `No such file or directory`; `git ls-files supabase/migrations` → 10 berkas `0001…0010` saja; serangan #27 (pemilik platform hanya melihat 1 baris dirinya, 0 penyewa) menunjukkan peran dukungan tidak punya jalan apa pun.
+- **Skenario gagal:** pada commit ini, staf masuk hanya dengan PIN (tanpa perangkat terdaftar) dan tidak ada satu pun mekanisme pencabutan perangkat/sesi; perangkat hilang atau pegawai berhenti tidak bisa dicabut “pada detik berikutnya” seperti yang dijanjikan. Siapa pun yang memegang PIN bisa masuk dari perangkat mana pun, dan perubahan izin/pengaturan pegawai tidak meninggalkan jejak audit karena `catatan_audit` tidak ada.
+- **Dugaan penyebab:** dokumen keamanan dan ROADMAP memperkenalkan Fase 1B (migrasi 0011-0016b) tetapi Fase 1 dijeda di T1-10 atas permintaan pemilik; dokumen ditandai “BERLAKU” lebih awal daripada kodenya, sehingga janji kontrol wajib sudah mengikat sementara implementasinya nol.
+- **Cara membuktikan perbaikan:** setelah Fase 1B — `node alat/uji-sql.mjs --daftar` harus menampilkan tabel `perangkat`, `sesi_perangkat`, `catatan_audit`, dan uji negatif “perangkat dicabut → permintaan berikutnya ditolak di database” harus GAGAL saat kontrol dimatikan; `python3 alat/periksa-fondasi-independen.py` tetap BERSIH.
+- **Status verifikasi:** TERVERIFIKASI
+
+### [F-08] Rujukan mati di dokumen yang mengikat
+
 - **Tingkat:** K-3
-- **Artefak:** `docs/PANDUAN_PEMILIK.md`, `docs/uji/PROMPT_AUDIT_INDEPENDEN.md`, `docs/teknis/BUKU_INSIDEN.md`, `docs/ops/*`, `PANDUAN_PENGGUNA.md` (lengkap)
-- **Klaim yang dilanggar:** Paket §0 "Kewajiban khusus mode menyeluruh" sub-bagian 1a — minimal 3 baris: berkas pengguna di akar, PANDUAN_PEMILIK, PROMPT_AUDIT_INDEPENDEN, BUKU_INSIDEN, ops/*, dan PANDUAN_PENGGUNA.md harus diperiksa dengan cara pengguna
-- **Bukti:** `find . -name "PANDUAN_PEMILIK.md"` kosong ; `find . -name "PROMPT_AUDIT_INDEPENDEN.md"` kosong ; `find . -name "BUKU_INSIDEN.md"` kosong ; `ls docs/ops/` gagal ; `ls docs/teknis/` gagal ; hanya `PANDUAN_PENGGUNA.md`, `START_DI_SINI.md`, `PROFIL_PENGGUNA.md`, `STATUS.md` ada
-- **Skenario gagal:** Auditor yang tidak memeriksa berkas untuk pengguna dianggap belum menyeluruh dan laporannya ditolak (sesuai paket); karena berkas tidak ada, laporan tidak bisa LOLOS validasi mesin
-- **Dugaan penyebab:** Berkas-berkas tersebut adalah bagian dari aplikasi Resto Barokah, bukan template
-- **Cara membuktikan perbaikan:** `ls docs/PANDUAN_PEMILIK.md docs/uji/PROMPT_AUDIT_INDEPENDEN.md docs/teknis/BUKU_INSIDEN.md docs/ops/SIAP_AKUN_PEMILIK.md` semua ada; `cat PANDUAN_PENGGUNA.md | grep -A2 "Bagian C4"` ada
+- **Artefak:** `docs/KEAMANAN.md:149` (`alat/periksa-audit.py`), `docs/teknis/BUKU_INSIDEN.md:131` (`alat/denyut.py`), `docs/AGENT_OPERATING_GUIDE.md:323` (`docs/PETA_UI.md`), `STATUS.md:13` (`alat/periksa-halaman.py`)
+- **Klaim yang dilanggar:** kebenaran dokumen rujukan (L6) dan `docs/AGENT_OPERATING_GUIDE.md` aturan “rujukan harus hidup”
+- **Bukti:** `python3 -c "…pemindai rujukan ber-backtick…"` → 87 rujukan mati di 12 dokumen; contoh yang benar-benar menyesatkan: `ls alat/periksa-audit.py` → tidak ada padahal KEAMANAN.md:149 menyebutnya sebagai pemeriksa rantai hash; `ls alat/denyut.py` → tidak ada padahal BUKU_INSIDEN.md:131 menyuruh memakainya saat pg_cron dimatikan.
+- **Skenario gagal:** saat insiden (database tidur, jejak audit dicurigai diubah), petugas mengikuti dokumen darurat dan mengetik perintah untuk berkas yang tidak ada → waktu tanggap habis, atau lebih buruk: petugas menganggap “sudah diperiksa pemeriksa” padahal pemeriksa itu tidak pernah ada.
+- **Dugaan penyebab:** dokumen ditulis lebih dulu untuk lintas fase (banyak ditandai “rencana”), lalu sebagian rujukan tidak diberi penanda rencana sehingga terbaca sebagai alat yang sudah ada.
+- **Cara membuktikan perbaikan:** `python3 alat/periksa-panduan.py` dan pemeriksa rujukan harus menolak (bukan hanya mencatat) rujukan tanpa penanda “rencana”; setelah diperbaiki, `python3 alat/periksa-panduan.py` LOLOS tanpa catatan rujukan mati.
+- **Status verifikasi:** TERVERIFIKASI
+
+### [F-09] 5 kerentanan dependency dev dan CI tidak memeriksanya
+
+- **Tingkat:** K-3
+- **Artefak:** `aplikasi/package-lock.json` (`vitest ≤3.2.5`, `vite ≤6.4.2`, `esbuild ≤0.24.2`), `.github/workflows/ci.yml` (tidak ada langkah `npm audit`)
+- **Klaim yang dilanggar:** klaim #5/#6 paket (kebersihan & keamanan langkah README/CI) — bukan klaim eksplisit “bebas kerentanan”, jadi tingkatnya K-3
+- **Bukti:** `cd aplikasi && npm audit` → `5 vulnerabilities (3 moderate, 1 high, 1 critical)`; rincian: `vitest` critical 9.8 (arbitrary file read & execute saat Vitest UI menyala), `vite` high 7.5 (`server.fs.deny` bypass), `esbuild` moderate (dev server bisa dibaca situs lain).
+- **Skenario gagal:** perangkat pengembang menjalankan dev server/Uji Vitest di jaringan kedai atau jaringan bersama → orang lain di jaringan membaca berkas proyek (termasuk `.env`) lewat celah dev server; CI hijau membuat tim mengira tidak ada masalah karena tidak ada langkah yang memeriksanya.
+- **Dugaan penyebab:** dependency dev tidak pernah diaudit; CI memeriksa kerapian, tipe, uji, build, dan pemeriksa proyek, tetapi tidak `npm audit`.
+- **Cara membuktikan perbaikan:** jalankan `cd aplikasi && npm audit --audit-level=high` dan pastikan 0 high/critical; tambahkan langkah itu ke `ci.yml` (atau kunci versi yang sudah ditambal) lalu buktikan CI masih hijau.
+- **Status verifikasi:** TERVERIFIKASI
+
+### [F-10] Uji batas lebih bayar hanya ada untuk total > 0 → lubang nyata lolos dari 10 LULUS
+
+- **Tingkat:** K-3
+- **Artefak:** `supabase/tes/pembayaran.sql:133-146` (memakai `_uji_set_total(…, 54000, 62100)` sebelum menguji lebih bayar)
+- **Klaim yang dilanggar:** L4 (uji yang lulus karena sebab yang salah) dan klaim #4/#18 paket soal mutu uji
+- **Bukti:** `sed -n '133,146p' supabase/tes/pembayaran.sql` → total diisi 62.100 lewat helper pemilik tabel sebelum uji lebih bayar; `node alat/uji-sql.mjs` → `uji: 10 LULUS · 0 GAGAL` padahal serangan #10 (total 0) berhasil → rangkaian uji hijau tidak menyentuh keadaan nyata pesanan di commit ini (semua pesanan baru bertotal 0).
+- **Skenario gagal:** bug F-04 lolos ke produksi dengan gerbang “10 LULUS · 0 GAGAL” sebagai bukti; pembangun mengira batas lebih bayar sudah diuji, padahal hanya diuji pada keadaan yang di commit ini tidak pernah terjadi.
+- **Dugaan penyebab:** uji dibuat dari keadaan yang diinginkan (total terisi) alih-alih keadaan sistem hari ini (total 0 sampai `hitung_total` ada); tidak ada uji yang mengikat “keadaan sementara” ke tanggal/fase.
+- **Cara membuktikan perbaikan:** tambahkan uji lebih bayar untuk pesanan bertotal 0 (harus ditolak atau memicu perhitungan total) dan pastikan `node alat/uji-sql.mjs` tetap `10 LULUS · 0 GAGAL` setelah F-04 diperbaiki; uji itu harus MERAH bila penjaga dilepas kembali.
 - **Status verifikasi:** TERVERIFIKASI
 
 ## 5. Kalibrasi cacat tanaman
-Ditemukan: 0 dari 0 (Y tidak diketahui karena bahan tidak ada)
 
-Bahan kalibrasi `docs/uji/kalibrasi/bahan-2026-09-17/` tidak ada di repo ini. Perintah `ls docs/uji/kalibrasi/bahan-2026-09-17/` → `No such file or directory`. `find . -type d -name kalibrasi` kosong. Oleh karena itu kalibrasi tidak bisa dilakukan. Sesuai aturan paket, cacat di folder bahan tidak dihitung sebagai temuan proyek, dan kunci jawaban disimpan di luar repo dan tidak boleh dicari — saya tidak mencari kunci jawaban.
+`Ditemukan: 5 dari 5` · **temuan palsu: 0**. Semua cacat di bawah ini ada di `docs/uji/kalibrasi/bahan-2026-09-17/` (bahan kalibrasi, **bukan** temuan proyek). Kunci jawaban ada di luar repo dan tidak saya cari.
 
-Daftar cacat temuan: (tidak ada bahan untuk diperiksa)
-- Berkas: (tidak ada)
-- Kelas: (tidak ada)
-- Bukti: `ls docs/uji/kalibrasi/bahan-2026-09-17/` gagal
+| # | Berkas | Kelas cacat | Bukti nyata |
+|---|---|---|---|
+| 1 | `01_gerbang_izin.sql` | Fungsi `SECURITY DEFINER` tanpa `revoke execute from public` (menabrak aturan yang ditulis di komentarnya sendiri dan `docs/KEAMANAN.md` §5.3) | `grep -c revoke 01_gerbang_izin.sql` → 0; kelas dibuktikan dengan fungsi contoh tanpa revoke: `has_function_privilege('anon', …)` → true, sedangkan fungsi proyek yang di-revoke (`catat_stok`) → false |
+| 2 | `02_policy_pengaturan.sql` | Policy `pengaturan_pilih` memakai `penyewa_id is not null` → bocor lintas penyewa; policy ubah juga tidak menyaring peran owner | `node /tmp/serang/05-kalibrasi.mjs` → kasir resto A **dan** resto B sama-sama membaca 2 baris `pengaturan` (resto A dan B); kasir resto B berhasil mengubah pajak resto B (bukan owner) dan `update … where penyewa_id=resto A` mengembalikan 0 baris |
+| 3 | `03_fungsi_terima_bayar.sql` | Penjaga lebih bayar membandingkan **sebelum** insert (`v_sebelum > total`) sehingga tidak pernah menangkap kelebihan; kolom `metode`/`dibuat_oleh` tidak ada di skema nyata → fungsi tidak pernah bisa dipakai | `node /tmp/serang/05-kalibrasi.mjs` → `column "metode" of relation "pembayaran" does not exist`; sesudah itu `sum(jumlah)=0` (fungsi selalu error sebelum menangkap kasus lebih bayar) |
+| 4 | `04_panduan_singkat.md` | Panduan menyebut perintah/berkas yang tidak ada + kebijakan keamanan yang bukan milik proyek | `aplikasi/pratinjau.sh` (aslinya `aplikasi/alat/pratinjau.sh`), `alat/periksa-struktur.py` (aslinya `aplikasi/alat/…`), `docs/PANDUAN_KEAMANAN.md` (tidak ada di mana pun — hanya di bahan kalibrasi ini); kebijakan PIN “10 kali / 15 menit” vs kode `BATAS_AKUN := 5`; “PIN wajib 6 angka” vs `^\d{4,6}$`; janji “lebih bayar ditolak sistem” bertabrakan dengan F-04 |
+| 5 | `05_pemeriksa_ambang.py` | Pemeriksa tumpul yang tidak pernah bisa MERAH: ambang 5 vs ambang nyata 20, dan glob `aplikasi/src/layar/*.tsx` tidak cocok dengan struktur nyata (`aplikasi/src/layar/contoh/LayarContoh.tsx`) sehingga selalu “SKIP” lalu exit 0 | `python3 05_pemeriksa_ambang.py` → `exit=0`, `SKIP: layar baru 0 — di bawah ambang 5`; `ls aplikasi/src/layar/*.tsx` → 0 berkas (layar nyata ada di subfolder) |
 
-Jumlah temuan palsu: 0
-
-Catatan: Karena bahan tidak ada, ambang lulus "semua cacat K-1/K-2 tertanam ditemukan + ≥70% total + 0 temuan palsu" tidak bisa dinilai. Ini adalah keterbatasan lingkungan, bukan kegagalan auditor. Saya telah mematuhi larangan mencari kunci jawaban.
+Catatan kalibrasi: saya tidak mencari kunci jawaban, tidak memakai `--kalibrasi-nilai`/`--kunci`, dan tidak menghitung cacat bahan sebagai temuan proyek. Bahan kalibrasi juga **tidak** saya jadikan dasar verdict.
 
 ## 6. Yang tidak bisa saya verifikasi
-- Commit target `442913e4b7ae6d09ed060fe17dd90fa499d449b3` — `git cat-file -e` gagal, `git fetch origin` sudah shallow dan tidak menambah commit; HEAD aktual `253d1297a3b81433d7f5809afd257d8a1b40958f` adalah "Input Sistem" building system, bukan aplikasi. Sesuai paket §0a: "Commit target tidak ada → coba git fetch origin sekali lagi. Kalau tetap tidak ada, JANGAN mengaudit commit lain: tulis di bagian 'Yang tidak bisa saya verifikasi' dan hentikan".
-- `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` — tidak ada di repo ini (`find . -name PROTOKOL_AUDIT_INDEPENDEN.md` kosong)
-- `docs/uji/paket-audit/AUD-3-2026-09-17.md` — tidak ada (`ls docs/uji/paket-audit/` gagal)
-- `alat/audit-independen.py` — tidak ada, sehingga `python3 alat/audit-independen.py --verifikasi-lingkup` dan `--periksa-laporan` tidak bisa dijalankan
-- `docs/uji/kalibrasi/bahan-2026-09-17/` — 5 berkas kalibrasi tidak ada
-- Seluruh artefak aplikasi Resto Barokah: `aplikasi/*` (67 berkas dijanjikan), `supabase/migrations/*` (11), `supabase/tes/*` (11), `supabase/functions/*` (2), `alat/*` (24), `prototipe/*` (58), `.github/workflows/*` (1), `docs/ops/*`, `docs/teknis/*`, `docs/desain/*`, `docs/uji/*` — semua tidak ada, sehingga klaim T0-00 s/d T11-13 tidak bisa dibantah secara mendalam, hanya bisa dibantah keberadaannya
-- Perintah `node alat/uji-sql.mjs --daftar` — `alat/uji-sql.mjs` tidak ada
-- Perintah `cd aplikasi && npm test` — `aplikasi/package.json` tidak ada, `npm` tidak bisa dijalankan di konteks ini (hanya-baca, tidak boleh install)
-- Perintah `python3 alat/periksa-roadmap.py`, `python3 alat/periksa-panduan.py`, `python3 _sistem/validate_system.py` — hanya yang terakhir ada dan PASS; sisanya tidak ada
-- Lensa L1-L6 untuk Resto Barokah: tidak bisa dijalankan penuh karena tidak ada kode RLS, fungsi SECURITY DEFINER, tabel pembayaran, printer, offline queue, dll. Saya hanya bisa memeriksa building system yang ada, yang tidak relevan dengan Resto Barokah
-- `PANDUAN_PENGGUNA.md` Bagian C4 dan `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` — tidak ada, sehingga langkah 3 "CARA PAKAI" paket tidak bisa diikuti
-- `docs/uji/kalibrasi/CARA-PAKAI.md` — tidak ada
 
-Keterbatasan mesin saat paket dibuat (dicek otomatis) yang disebut di paket:
-- UJI SQL (PGlite) — `node alat/uji-sql.mjs` → tidak ada di repo ini, dilaporkan sebagai keterbatasan
-- uji unit/komponen — `cd aplikasi && npm test` → tidak ada
-- pemeriksa Python — hanya `python3 _sistem/validate_system.py` yang ada dan PASS
-
-Saya tidak memasang apa pun (hanya-baca) dan tidak menebak.
+- **Platform Supabase sungguhan** (PostgREST, Auth, Edge Function Deno, pg_cron, kuota paket gratis) tidak tersedia: tidak ada akun/kunci di lingkungan ini (T0-00/T0-08/T0-09 belum selesai — memang belum ada akun). Semua uji database dijalankan pada PGlite (PostgreSQL asli di WASM) dengan skema `auth` tiruan, jadi jawaban RLS/trigger/hak aksesnya sahih, tetapi **jalur HTTP Supabase** (termasuk klaim F-02 bahwa kolom terekspos lewat API otomatis) saya dasarkan pada hak istimewa Postgres + dokumentasi Supabase, bukan pada pemanggilan REST sungguhan.
+- **`npm run dev` HTTP 200, favicon SVG, berkas `main.tsx`/`tema.css`/31 huruf saat dev** (klaim #1 T0-01) tidak saya jalankan karena audit ini hanya-baca dan tidak menyalakan peladen jangka panjang; yang saya jalankan adalah `npm ci`, `npm run build` (EXIT=0), Prettier, ESLint, tsc, dan Vitest.
+- **Log GitHub Actions** hanya lewat API (`gh api …/jobs`): saya melihat nama langkah & kesimpulannya, bukan isi log penuh; run lain (T0-08/T0-09) belum ada karena menunggu akun pemilik.
+- **Penilaian visual**: 59 berkas `docs/desain/` (gambar/mockup/huruf) dan 58 berkas `prototipe/` hanya saya periksa lewat inventaris + pemeriksa otomatis (`183/183 lolos`, `166 lolos`); keindahan/kejelasan tampilan bukan penilaian saya, dan saya tidak membuka setiap gambar.
+- **Kualitas baris demi baris** tidak dilakukan untuk seluruh 334 berkas: berkas yang saya baca utuh adalah migrasi `0001-0010`, berkas uji SQL, `alat/audit-independen.py`, paket audit, protokol, bahan kalibrasi, `ci.yml`, `verifikasi_pin/index.ts`, dan dokumen pengguna utama; sisanya lewat pemeriksa/pemindai. Berkas `.gitkeep` kosong saya hitung sebagai “ada” bukan “diperiksa isinya”.
+- **Pengecualian paket `skills/` (1802 berkas) tidak saya buka**: setuju dengan alasan paket (pustaka pihak ketiga yang dibawa apa adanya) — kecuali karena itu, isi skill tidak ikut dinilai; hal yang sama untuk `_salinan-meta/` (provenance sistem template) dan `_Notes.md` (catatan pribadi).
+- **Kesimpulan perilaku eksternal yang saya pakai**: hak istimewa tingkat kolom di Supabase/PostgreSQL — https://supabase.com/docs/guides/database/postgres/column-level-security dan https://www.postgresql.org/docs/current/sql-grant.html (keduanya diakses 2026-09-17).
 
 ## 7. Pernyataan tidak mengubah apa pun
-Saya hanya-baca dan tidak mengubah berkas apa pun. Bukti: `git status --short` kosong (sebelum laporan ini dibuat, status kosong; setelah laporan dibuat, file laporan baru muncul sebagai untracked, tapi tidak ada modifikasi pada berkas yang sudah ada).
 
-Perintah bukti:
-- `git status --short` sebelum tulis laporan → (kosong, tidak ada output)
-- `git status --short` setelah tulis laporan → `?? docs/uji/audit/LAPORAN_AUD-3_2026-09-17_menyeluruh.md` (hanya file laporan baru, bukan perubahan berkas lama)
-- `python3 _sistem/validate_system.py` → `SYSTEM-BUILDING-APLIKASI VALIDATOR: PASS`
+Saya hanya-baca dan **tidak mengubah apa pun** pada berkas proyek: semua temuan ditulis, tidak ada yang saya betulkan. Bukti: `git status --short` di worktree audit sebelum laporan ditulis **kosong**, dan sesudah laporan ditulis hanya memuat satu berkas baru milik audit itu sendiri (`?? docs/uji/audit/LAPORAN_AUD-3_2026-09-17_menyeluruh.md`) — tidak ada berkas proyek yang tersentuh, tidak ada berkas yang saya hapus/ubah. Perkakas serangan & bukti tambahan saya simpan **di luar repo** (`/tmp/serang/`) justru supaya repo tetap bersih. Hasil kedua bentuk pemeriksaan kontrak, apa adanya:
 
-Catatan tambahan untuk pemilik:
-Repo yang sedang diaudit (`With-AI-Agent/Resto-Barokah` commit `253d129`) saat ini berisi **Sistem Building Aplikasi** (template), bukan aplikasi Resto Barokah. Untuk audit yang valid, buka sesi dari repo yang benar-benar berisi kode aplikasi Resto Barokah (yang memiliki folder `aplikasi/`, `supabase/migrations/`, `alat/audit-independen.py`, dan commit `442913e4b7ae6d09ed060fe17dd90fa499d449b3`). Setelah itu, jalankan `python3 alat/audit-independen.py --verifikasi-lingkup` dan `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/LAPORAN_AUD-3_2026-09-17_menyeluruh.md` sampai LOLOS.
-
-Referensi internet yang dirujuk (sesuai kewajiban skill):
-- Supabase RLS best practices: https://supabase.com/docs/guides/auth/row-level-security
-- Supabase Security Checklist: https://supabase.com/docs/guides/security/product-security.md
-- PostgreSQL RLS docs: https://www.postgresql.org/docs/current/ddl-rowsecurity.html
-- OWASP Top 10: https://owasp.org/www-project-top-ten/
-- Supabase Views bypass RLS: https://supabase.com/docs/guides/database/database-linter?lint=0010_security_definer_view (security_invoker)
-- SECURITY DEFINER callable by PUBLIC: https://www.postgresql.org/docs/current/sql-createfunction.html (EXECUTE privilege)
+- `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/LAPORAN_AUD-3_2026-09-17_menyeluruh.md --tanpa-cek-git` → `HASIL: LOLOS KONTRAK` (cakupan 334/334, klaim 17, serangan 28, temuan 10, kalibrasi 5/5).
+- tanpa `--tanpa-cek-git` → `HASIL: DITOLAK (1 alasan) - repo TIDAK bersih saat laporan diperiksa`, satu-satunya penyebab adalah berkas laporan ini sendiri yang belum terlacak Git (`?? docs/uji/audit/…`). Alat ini tidak bisa menerima laporan yang ditulis di dalam repo bila pemeriksaan Git dinyalakan; itu keterbatasan alat, bukan tanda ada berkas proyek yang berubah (`git diff --stat` kosong).
