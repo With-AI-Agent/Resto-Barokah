@@ -10,13 +10,14 @@
 
 - **PR / cabang:** `pr-01-putaran5`
 - **Dasar (base):** `origin/main` → **Kepala (head):** `HEAD`
-- **Commit yang direview:** `3a8f8225df4c1970a6c9863a5b4d64ae7d7644c6`
-- **Perubahan:** 313 berkas · +37806 / −132 baris
+- **Commit yang direview:** `4fccc9d5a812df0a5ecd9a722c77909232566a01`
+- **Perubahan:** 313 berkas · +38225 / −132 baris
 - **Jalur risiko (mesin):** **Merah** — kedalaman review yang diwajibkan: **L1 (ancaman & akses) + L2 (uang & jejak) + L4 (mutu uji) — WAJIB ketiganya**
 - **Tugas ROADMAP yang berubah:** - [ ] T0-00, - [ ] T0-08, - [ ] T0-09, - [ ] T0-12, - [ ] T1-11, - [ ] T1-12, - [ ] T1-13, - [ ] T1-14, - [ ] T1-15, - [ ] T1-16, - [ ] T1-17, - [ ] T1-18, - [ ] T1-19, - [ ] T1-20, - [ ] T1-21, - [ ] T1-22, - [ ] T1-23, - [ ] T1-24, - [ ] T1-25, - [ ] T1-26, - [ ] T1-27, - [ ] T1-28, - [ ] T1-29, - [ ] T1-30, - [ ] T1-31, - [ ] T1-32, - [ ] T1-33, - [ ] T1-34, - [ ] T1-35, - [ ] T1-36, - [ ] T1-37, - [ ] T1-38, - [ ] T1-39, - [ ] T10-01, - [ ] T10-02, - [ ] T10-03, - [ ] T10-04, - [ ] T10-05, - [ ] T10-06, - [ ] T10-07, - [ ] T10-08, - [ ] T10-09, - [ ] T10-10, - [ ] T10-11, - [ ] T10-12, - [ ] T10-13, - [ ] T10-14, - [ ] T10-15, - [ ] T10-16, - [ ] T11-01, - [ ] T11-02, - [ ] T11-03, - [ ] T11-04, - [ ] T11-05, - [ ] T11-06, - [ ] T11-07, - [ ] T11-08, - [ ] T11-09, - [ ] T11-10, - [ ] T11-11, - [ ] T11-12, - [ ] T11-13, - [ ] T2-01, - [ ] T2-02, - [ ] T2-03, - [ ] T2-04, - [ ] T2-05, - [ ] T2-06, - [ ] T2-07, - [ ] T2-08, - [ ] T2-09, - [ ] T2-10, - [ ] T2-11, - [ ] T2-12, - [ ] T2-13, - [ ] T2-14, - [ ] T2-15, - [ ] T2-16, - [ ] T2-17, - [ ] T2-18, - [ ] T2-19, - [ ] T3-01, - [ ] T3-02, - [ ] T3-03, - [ ] T3-04, - [ ] T3-05, - [ ] T3-06, - [ ] T3-07, - [ ] T3-08, - [ ] T3-09, - [ ] T3-10, - [ ] T3-11, - [ ] T3-12, - [ ] T3-13, - [ ] T3-14, - [ ] T3-15, - [ ] T3-16, - [ ] T4-01, - [ ] T4-02, - [ ] T4-03, - [ ] T4-04, - [ ] T4-05, - [ ] T4-06, - [ ] T4-07, - [ ] T4-08, - [ ] T4-09, - [ ] T4-10, - [ ] T5-01, - [ ] T5-02, - [ ] T5-03, - [ ] T5-04, - [ ] T5-05, - [ ] T5-06, - [ ] T5-07, - [ ] T5-08, - [ ] T5-09, - [ ] T5-10, - [ ] T5-11, - [ ] T5-12, - [ ] T6-01, - [ ] T6-02, - [ ] T6-03, - [ ] T6-04, - [ ] T6-05, - [ ] T6-06, - [ ] T6-07, - [ ] T6-08, - [ ] T7-01, - [ ] T7-02, - [ ] T7-03, - [ ] T7-04, - [ ] T7-05, - [ ] T7-06, - [ ] T7-07, - [ ] T7-08, - [ ] T7-09, - [ ] T7-10, - [ ] T7-11, - [ ] T7-12, - [ ] T8-01, - [ ] T8-02, - [ ] T8-03, - [ ] T8-04, - [ ] T8-05, - [ ] T8-06, - [ ] T8-07, - [ ] T8-08, - [ ] T8-09, - [ ] T8-10, - [ ] T8-11, - [ ] T8-12, - [ ] T8-13, - [ ] T8-14, - [ ] T8-15, - [ ] T9-01, - [ ] T9-02, - [ ] T9-03, - [ ] T9-04, - [ ] T9-05, - [ ] T9-06, - [ ] T9-07, - [ ] T9-08, - [ ] T9-09, - [ ] T9-10, - [ ] T9-11, - [ ] T9-12, - [x] T0-01, - [x] T0-02, - [x] T0-03, - [x] T0-04, - [x] T0-05, - [x] T0-06, - [x] T0-07, - [x] T0-10, - [x] T0-11, - [x] T0-13, - [x] T0-14, - [x] T1-01, - [x] T1-02, - [x] T1-03, - [x] T1-04, - [x] T1-05, - [x] T1-06, - [x] T1-07, - [x] T1-08, - [x] T1-09, - [x] T1-10
 
 ## ATURAN INDEPENDENSI (tidak bisa ditawar)
-1. Kamu **hanya-baca**: dilarang mengubah/memperbaiki berkas apa pun (temuan ditulis, bukan dibetulkan).
+1. Kamu **hanya-baca**: SATU-SATUNYA berkas yang boleh kamu buat adalah laporan (§6 format laporan). Selain berkas itu,
+   jangan mengubah/memperbaiki apa pun (temuan ditulis, bukan dibetulkan).
 2. Kamu **bukan** sesi penulis PR. Tugasmu **membantah** klaim di bawah, bukan mempercayainya.
 3. Dilarang memuji, dilarang "looks good", dilarang melaporkan soal gaya penulisan sebagai temuan.
 4. Setiap calon temuan wajib diuji ulang di kode sekarang (buka berkas, jalankan perintah). Tidak bisa dibuktikan → **DUGAAN**.
@@ -24,7 +25,17 @@
    jalankan `git fetch origin` lalu periksa sha itu; kalau tetap tidak bisa → **BERHENTI** dan laporkan ke Lee,
    jangan mereview commit lain.
 
+## 0b. Setelah laporan selesai — kirim ke sesi kerja (wajib)
+
+```
+git add docs/uji/review-pr/ && git commit -m "laporan review PR <nama>" && git push -u origin HEAD
+```
+
+Hanya berkas laporan yang di-commit. Bila push tidak bisa, tulis "belum ter-push" + beri tahu Lee di chat.
+
 ## 1. Ringkasan perubahan per tujuan (dari judul commit)
+- Jalur pulang laporan + aturan anti-teater (jawaban Lee putaran 6)
+- Kalibrasi review PR: penanda SENGAJA dibuang dari bahan (cacat mekanisme #8) + paket disegarkan
 - Paket audit & paket review PR disegarkan (commit kode terakhir)
 - Prompt pembuka: langkah 2b baca REKAM_PESAN_PEMILIK (permintaan Lee tidak boleh terlewat di sesi baru)
 - Paket AUD-3 & paket review PR #1 disegarkan pada commit kode terakhir
@@ -35,8 +46,6 @@
 - Putaran 5: rekam pesan Lee, buku induk v2, review PR independen, base branch bebas
 - Paket AUD-2 & AUD-3 dibuat ulang: berkas SIAP-TEMPEL + catatan commit yang diaudit
 - Berkas SIAP-TEMPEL untuk paket audit + buku/panduan/protokol menyesuaikan
-- Buang angka berkas yang cepat basi (DECISIONS_LOG, ROADMAP) - prinsip C5/AT-16
-- LOG_SESI: catatan putaran 4 (buku induk, audit menyeluruh, kalibrasi dua jalur)
 
 ## 2. Berkas per jalur risiko
 | Jalur | Jumlah | Contoh berkas |
@@ -47,17 +56,17 @@
 
 ## 3. Klaim yang wajib kamu bantah
 1. 
-2. docs/teknis/REKAM_PESAN_PEMILIK.md: 13 permintaan + status + kutipan verbatim + aturan tetap
-3. Base branch bebas: LANGKAH 0 di paket + alat --verifikasi-lingkup + PROTOKOL audit §5b
-4. Buku induk v2 (642 baris): Bagian B = 12 alur berformat 8 bidang; prompt BERLABEL
-5. Penjaga alat/periksa-panduan.py diperluas (alur, bidang, label prompt, tabel perintah,
-6. Mekanisme REVIEW PR INDEPENDEN: docs/uji/PROTOKOL_REVIEW_PR_INDEPENDEN.md (RV-1..RV-3,
-7. docs/PANDUAN_PEMILIK.md ditulis ulang (3 perintah utama + langkah Lee + arti hasil)
-8. docs/SPESIFIKASI_UI.md §9: perilaku & gerakan (8 keadaan, angka motion, perilaku input)
-9. Uji otomatis membuktikan perilaku baru/bebas regresi pada commit ini (bukan commit sebelumnya).
-10. Tidak ada gerbang keamanan/CI yang dilemahkan (ambang diturunkan, uji dimatikan, revoke/hak dicabut dihapus).
-11. Perubahan pada jalur uang/keamanan/data pelanggan tidak bisa dilewati lewat pemanggilan langsung (RPC/API).
-12. Dokumen yang menyatakan perilaku (fondasi, buku induk, panduan Lee) sudah ikut diperbarui — tidak ada klaim basi.
+2. Jalur pulang laporan: auditor/peninjau WAJIB commit+push HANYA berkas laporan ke cabang
+3. Aturan anti-teater dikunci: ambang minimum = LANTAI bukan target; temuan di luar cakupan
+4. Kontrak laporan: bagian 7 kini menyatakan laporan itu satu-satunya berkas yang dibuat
+5. Uji: --uji-diri audit kini juga menguji jalur pulang laporan (mock); contoh laporan
+6. pulihkan-git.sh: mode pemulihan aman saat berkas kerja masih utuh (kejadian ruang kerja
+7. Gerbang lokal: 166 lolos, 0 gagal.
+8. Uji otomatis membuktikan perilaku baru/bebas regresi pada commit ini (bukan commit sebelumnya).
+9. Tidak ada gerbang keamanan/CI yang dilemahkan (ambang diturunkan, uji dimatikan, revoke/hak dicabut dihapus).
+10. Perubahan pada jalur uang/keamanan/data pelanggan tidak bisa dilewati lewat pemanggilan langsung (RPC/API).
+11. Dokumen yang menyatakan perilaku (fondasi, buku induk, panduan Lee) sudah ikut diperbarui — tidak ada klaim basi.
+12. Setiap berkas baru benar-benar dipakai (tidak ada berkas mati / rujukan menggantung).
 
 ## 4. Pemeriksaan gerbang yang wajib dijalankan (tempel hasil nyatanya)
 1. `bash aplikasi/alat/periksa-semua.sh` — seluruh pemeriksa repo + aplikasi (harus LOLOS).
@@ -117,5 +126,17 @@ Ditemukan: X dari Y · temuan palsu: n · daftar cacat yang saya temukan: …
 - …
 
 ## 7. Pernyataan tidak mengubah apa pun
-Saya hanya-baca, bukan sesi penulis PR, dan tidak mengubah berkas apa pun. Bukti: `git status --short` kosong.
+Saya hanya-baca, bukan sesi penulis PR. SATU-SATUNYA berkas yang saya buat adalah laporan ini; tidak ada berkas lain
+yang saya ubah. Bukti: `git status --short` menampilkan hanya berkas laporan ini.
+
+## 8. Temuan di luar cakupan diff (WAJIB — boleh "tidak ada")
+| # | Temuan | Mengapa di luar cakupan diff | Bukti | Saran ditindaklanjuti |
+|---|---|---|---|---|
 ```
+
+**Aturan penulisan laporan (ditegakkan, bukan imbauan):**
+- **Ambang minimum adalah LANTAI, bukan target** — jangan berhenti di angka minimum, jangan menambah baris demi syarat.
+- **Semua temuan wajib dilaporkan**, termasuk yang kamu temukan **di luar diff** (berkas lain, dokumen, mekanisme) → bagian 8.
+  Cakupan menentukan sedalam apa sesuatu **wajib** diperiksa, bukan apa yang **boleh** dilaporkan.
+- **Jangan menyusun laporan agar lolos pemeriksa**; format sudah lengkap di paket ini. Jalankan pemeriksa **sekali di akhir**;
+  bila ditolak, perbaiki kelengkapan format — bukan menambah temuan yang tidak kamu yakini.
