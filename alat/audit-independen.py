@@ -276,6 +276,13 @@ Ambang lulus (dinilai pembangun setelah laporan masuk): semua cacat K-1/K-2 tert
 > Dibuat mesin oleh `alat/audit-independen.py`. Berkas ini **untuk auditor** (sesi baru, model berbeda, hanya-baca).
 > Aturan penuh: `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`.
 
+> **CARA PAKAI — untuk pemilik (3 langkah, mudah):**
+> 1. Buka **chat/percakapan BARU** (kalau bisa pilih **model yang berbeda** dari sesi kerja).
+> 2. Salin **SELURUH isi berkas ini** ke chat baru itu.
+> 3. Susulkan **kalimat pembuka auditor** dari buku induk `PANDUAN_PENGGUNA.md` **Bagian D1** (sama persis dengan
+>    `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` bagian B) — satu blok, apa adanya, tidak perlu diubah.
+> Setelah auditor selesai, kembali ke sesi kerja dan bilang: **"Laporan audit sudah masuk, periksa."**
+
 - **Tingkat audit:** {tingkat}
 - **Commit yang diaudit:** `{sha}`
 - **Tugas dalam lingkup:** {", ".join(ids)}
