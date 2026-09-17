@@ -220,6 +220,9 @@ def siapkan(dasar: str, kepala: str, nama: str | None) -> int:
 
 ## 0b. Setelah laporan selesai — kirim ke sesi kerja (wajib)
 
+Beri nama berkas dengan **penanda sesimu** di belakang (mis. `__01a0aeb4`) supaya dua sesi peninjau tidak
+bertabrakan; penarik laporan menyimpan nama bentrok secara terpisah, tidak menimpa.
+
 ```
 git add docs/uji/review-pr/ && git commit -m "laporan review PR <nama>" && git push -u origin HEAD
 ```
@@ -325,6 +328,23 @@ yang saya ubah. Bukti: `git status --short` menampilkan hanya berkas laporan ini
 
 
 # ---------------------------------------------------------------- --periksa-laporan
+def _nama_cabang_ringkas(cabang: str) -> str:
+    """`origin/arena/01a0aeb4-resto-barokah` → `01a0aeb4` (penanda asal laporan)."""
+    n = cabang.replace("origin/", "").replace("arena/", "").replace("-resto-barokah", "")
+    return n[:16] or "tanpa-nama"
+
+
+def _kontrak_target_memuat(sha: str, berkas_alat: str = "alat/review-pr.py") -> bool | None:
+    """Apakah kontrak di commit TARGET sudah memuat bagian 8? True/False/None (tak bisa dipastikan)."""
+    if not sha:
+        return None
+    rc, _ = jalankan(["git", "cat-file", "-e", f"{sha}:{berkas_alat}"])
+    if rc != 0:
+        return None
+    _, isi = jalankan(["git", "show", f"{sha}:{berkas_alat}"])
+    return "## 8. Temuan di luar cakupan diff" in isi
+
+
 def periksa_laporan(berkas: pathlib.Path, cek_sha: bool = True) -> tuple[int, list[str], list[str], dict]:
     gagal: list[str] = []
     catatan: list[str] = []
@@ -356,6 +376,16 @@ def periksa_laporan(berkas: pathlib.Path, cek_sha: bool = True) -> tuple[int, li
                    "## 4. Temuan", "## 5. Kalibrasi cacat tanaman", "## 6. Yang tidak bisa saya verifikasi",
                    "## 7. Pernyataan tidak mengubah apa pun", "## 8. Temuan di luar cakupan diff"):
         if bagian not in teks:
+            if bagian == "## 8. Temuan di luar cakupan diff":
+                # kontrak §8 baru berlaku sejak 2026-09-17 → laporan atas paket lama dinilai kontrak lama
+                m8 = re.search(r"- \*\*Commit yang direview:\*\*\s*`?([0-9a-f]{7,40})`?", teks)
+                status8 = _kontrak_target_memuat(m8.group(1)) if m8 else None
+                if status8 is False:
+                    catatan.append("bagian 8 tidak ada, tetapi kontrak §8 belum berlaku di commit yang direview "
+                                   "— dinilai dengan kontrak lama (bukan pelanggaran)")
+                else:
+                    gagal.append(f"bagian wajib hilang: '{bagian}'")
+                continue
             gagal.append(f"bagian wajib hilang: '{bagian}'")
 
     sha_m = re.search(r"- \*\*Commit yang direview:\*\*\s*`?([0-9a-f]{7,40})`?", teks)
@@ -546,13 +576,17 @@ def ambil_laporan() -> int:
             target = AKAR / jalur
             if target.is_file() and target.read_text(encoding="utf-8") == isi:
                 continue
-            status = "diperbarui" if target.is_file() else "baru"
             if target.is_file():
-                cadangan = target.with_suffix(".sebelumnya.md")
-                cadangan.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
-                status = f"diperbarui (salinan lama: {cadangan.name})"
-            target.write_text(isi, encoding="utf-8")
-            ditemukan.append((ref.replace("origin/", ""), jalur, status))
+                # cacat mekanisme #9: nama sama dari sesi lain — jangan timpa, simpan terpisah
+                pendamping = target.with_name(f"{target.stem}.dari-{_nama_cabang_ringkas(ref)}{target.suffix}")
+                if pendamping.is_file() and pendamping.read_text(encoding="utf-8") == isi:
+                    continue  # tarik ulang harus idempoten
+                pendamping.write_text(isi, encoding="utf-8")
+                tujuan_tertulis, status = pendamping, f"nama sama dari sesi lain — disimpan terpisah: {pendamping.name}"
+            else:
+                target.write_text(isi, encoding="utf-8")
+                tujuan_tertulis, status = target, "baru"
+            ditemukan.append((ref.replace("origin/", ""), str(tujuan_tertulis.relative_to(AKAR)), status))
     print()
     if not ditemukan:
         print("TIDAK ADA laporan review baru di cabang arena/*.")

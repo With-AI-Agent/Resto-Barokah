@@ -123,7 +123,10 @@ Pertanyaan Lee: *"kamu ga jelasin aku harus buat sesi baru dengan base branch ap
 berkas di sana. Tanpa jalur pulang, laporan bisa hilang di chat, dan Lee harus menyalin manual.
 
 **Jalur resmi (dua arah, keduanya wajib ada di paket & prompt):**
-1. Auditor menulis **satu** berkas: `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>.md` (satu-satunya berkas yang boleh ia buat).
+1. Auditor menulis **satu** berkas: `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>__<penanda-sesi>.md`
+   (satu-satunya berkas yang boleh ia buat). `<penanda-sesi>` = potongan nama cabang sesi auditor, supaya dua sesi
+   auditor tidak memakai nama berkas yang sama (kejadian 2026-09-17 — laporan pertama hampir tertimpa). Bila tetap
+   bertabrakan, penarik laporan menyimpannya terpisah sebagai `<nama>.dari-<cabang>.md`; tidak ada laporan yang ditimpa.
 2. Auditor **commit + push HANYA berkas itu** ke **cabang sesinya sendiri** (`arena/...` yang diberikan platform):
    `git add docs/uji/audit/ && git commit -m "laporan audit ..." && git push -u origin HEAD`
 3. Sesi kerja (pembangun) menjalankan `python3 alat/audit-independen.py --ambil-laporan`, yang:

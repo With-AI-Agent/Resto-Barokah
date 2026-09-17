@@ -313,6 +313,14 @@ git cat-file -e {sha}            # apakah commit target ada di repo ini?
 
 ## 0c. Setelah laporan selesai — kirim ke sesi kerja (wajib)
 
+Beri nama berkas dengan **penanda sesimu** di belakang supaya dua sesi auditor tidak bertabrakan
+(kejadian nyata 2026-09-17: dua sesi memilih nama yang sama sehingga laporan pertama nyaris tertimpa):
+
+```
+docs/uji/audit/LAPORAN_{tingkat}_{tanggal}_{lingkup}__<penanda-sesi>.md
+```
+`<penanda-sesi>` = potongan nama cabang sesimu, mis. `01a0aeb4` (lihat `git branch --show-current`).
+
 Laporan harus menjadi **berkas di Git**, bukan hanya teks di chat:
 
 ```
@@ -499,6 +507,37 @@ def _tabel_baris(teks: str, judul: str) -> list[list[str]]:
     return baris
 
 
+def _kenali_cabang_asal(teks: str, folder: str = "docs/uji/audit/") -> dict:
+    """Cari cabang auditor yang isinya persis laporan ini → bukti berkas-tunggal dari cabang itu.
+
+    Kenapa ada: pemeriksaan "repo bersih" di meja kerja SESI KERJA bisa menolak laporan sah
+    (draf kerja sesi itu sendiri, atau berkas laporan yang baru ditarik). Bukti dari cabang auditor
+    tidak bisa dikotori sesi kerja — jadi ia yang dipakai bila tersedia (cacat mekanisme #10).
+    """
+    _, refs = jalankan(["git", "for-each-ref", "--format=%(refname:short)", "refs/remotes/origin/"])
+    for ref in [r.strip() for r in refs.splitlines() if r.strip()]:
+        _, berkas = jalankan(["git", "ls-tree", "-r", "--name-only", ref, "--", folder])
+        for jalur in [b.strip() for b in berkas.splitlines() if b.strip().lower().endswith(".md")]:
+            _, isi = jalankan(["git", "show", f"{ref}:{jalur}"])
+            if isi.strip() and isi == teks:
+                bukti = _bukti_cabang_laporan(ref, folder)
+                if bukti:
+                    bukti["berkas"] = jalur
+                    return bukti
+    return {}
+
+
+def _kontrak_target_memuat(sha: str, penanda: str, berkas_alat: str = "alat/audit-independen.py") -> bool | None:
+    """Apakah kontrak di commit TARGET sudah memuat penanda ini? True/False/None (tak bisa dipastikan)."""
+    if not sha:
+        return None
+    rc, _ = jalankan(["git", "cat-file", "-e", f"{sha}:{berkas_alat}"])
+    if rc != 0:
+        return None
+    _, isi = jalankan(["git", "show", f"{sha}:{berkas_alat}"])
+    return penanda in isi
+
+
 def periksa_laporan(berkas: pathlib.Path, cek_git: bool = True, cek_sha: bool = True) -> tuple[int, list[str], list[str], dict]:
     teks = berkas.read_text(encoding="utf-8")
     gagal: list[str] = []
@@ -546,6 +585,16 @@ def periksa_laporan(berkas: pathlib.Path, cek_git: bool = True, cek_sha: bool = 
               "## 7. Pernyataan tidak mengubah apa pun", "## 8. Temuan di luar cakupan"]
     for b in bagian:
         if b not in teks:
+            if b == "## 8. Temuan di luar cakupan":
+                # Kontrak §8 baru berlaku sejak 2026-09-17. Laporan atas commit yang LEBIH TUA dinilai
+                # dengan kontrak yang berlaku saat itu — bukan pelanggaran (cacat mekanisme #10).
+                status8 = _kontrak_target_memuat(sha, b) if sha else None
+                if status8 is False:
+                    catatan.append("bagian 8 tidak ada, tetapi kontrak §8 belum berlaku di commit yang diaudit "
+                                   "— dinilai dengan kontrak lama (bukan pelanggaran)")
+                else:
+                    gagal.append(f"bagian wajib hilang: {b}")
+                continue
             gagal.append(f"bagian wajib hilang: {b}")
 
     # cakupan
@@ -689,9 +738,32 @@ def periksa_laporan(berkas: pathlib.Path, cek_git: bool = True, cek_sha: bool = 
     if angka.get("serangan") is not None and angka["serangan"] == SERANGAN_MIN.get(tingkat or "", 5):
         catatan.append(f"serangan persis {angka['serangan']} (ambang minimum) — periksa apakah auditor berhenti di ambang")
     if cek_git:
-        _, status = jalankan(["git", "status", "--porcelain"])
-        if status.strip():
-            gagal.append("repo TIDAK bersih saat laporan diperiksa — auditor wajib hanya-baca (git status kosong)")
+        bukti = _kenali_cabang_asal(teks)
+        if bukti:
+            tanda = ("hanya menambah berkas laporan" if bukti["hanya_laporan"]
+                     else "MENYENTUH BERKAS DI LUAR FOLDER LAPORAN")
+            catatan.append(f"bukti cabang {bukti['cabang']}@{bukti['commit'][:8]}: {tanda} "
+                           f"({', '.join(bukti['perubahan'][:4]) or '-'}) — cek kebersihan meja kerja dilewati, "
+                           "bukti dari cabang auditor lebih kuat")
+            if not bukti["hanya_laporan"]:
+                gagal.append(f"cabang laporan {bukti['cabang']} menyentuh berkas di luar folder laporan "
+                             f"({', '.join(bukti['perubahan'][:4])}) — auditor wajib hanya-baca")
+        else:
+            _, status = jalankan(["git", "status", "--porcelain"])
+            diabaikan: list[str] = []
+            kotor: list[str] = []
+            for baris_status in status.splitlines():
+                j = baris_status[3:].strip().strip('"')
+                if j.startswith(("docs/uji/audit/", "docs/uji/review-pr/")):
+                    diabaikan.append(j)  # saluran pengiriman laporan (termasuk berkas laporan ini sendiri)
+                else:
+                    kotor.append(j)
+            if diabaikan:
+                catatan.append("saat cek kebersihan, berkas saluran laporan diabaikan: "
+                               + ", ".join(diabaikan[:4]) + (" …" if len(diabaikan) > 4 else ""))
+            if kotor:
+                gagal.append("repo TIDAK bersih saat laporan diperiksa — auditor wajib hanya-baca "
+                             f"(contoh: {', '.join(kotor[:3])})")
 
     # commit berbeda dari HEAD
     if sha:
@@ -736,6 +808,36 @@ def mode_periksa_laporan(berkas_str: str, cek_git: bool = True) -> int:
 
 
 # ------------------------------------------------------------ mode: kalibrasi
+def _nama_cabang_ringkas(cabang: str) -> str:
+    """`origin/arena/01a0aeb4-resto-barokah` → `01a0aeb4` (dipakai sebagai penanda asal laporan)."""
+    n = cabang.replace("origin/", "").replace("arena/", "").replace("-resto-barokah", "")
+    return n[:16] or "tanpa-nama"
+
+
+def _bukti_cabang_laporan(ref: str, folder: str) -> dict:
+    """Bukti dari cabang laporan itu sendiri: berkas apa yang ditambah/diubah relatif titik pisah.
+
+    Kenapa ada: pemeriksaan "repo bersih" lewat `git status` sesi kerja menolak laporan yang SAH
+    (berkas laporan yang baru ditarik ikut terbaca kotor) — cacat mekanisme #10, ditemukan 2026-09-17.
+    Bukti dari cabang jauh lebih kuat: yang diperiksa adalah isi cabang auditor, bukan meja kerja kita.
+    """
+    dasar = ""
+    for kandidat in ("origin/main", "origin/HEAD", "HEAD"):
+        rc, kel = jalankan(["git", "merge-base", kandidat, ref])
+        if rc == 0 and kel.strip():
+            dasar = kel.strip()
+            break
+    if not dasar:
+        return {}
+    rc, kel = jalankan(["git", "diff", "--name-only", dasar, ref])
+    if rc != 0:
+        return {}
+    _, sha = jalankan(["git", "rev-parse", ref])
+    berkas = [b.strip() for b in kel.splitlines() if b.strip()]
+    return {"cabang": ref.replace("origin/", ""), "commit": sha.strip(), "dasar": dasar,
+            "perubahan": berkas, "hanya_laporan": bool(berkas) and all(b.startswith(folder) for b in berkas)}
+
+
 def mode_ambil_laporan() -> int:
     """Ambil laporan audit dari cabang sesi auditor (arena/*) — jalur pulang laporan (§5c protokol).
 
@@ -758,8 +860,14 @@ def mode_ambil_laporan() -> int:
     tujuan = AKAR / "docs" / "uji" / "audit"
     tujuan.mkdir(parents=True, exist_ok=True)
     ditemukan: list[tuple[str, str, str]] = []  # (cabang, berkas, status)
+    bukti: list[str] = []
     for ref in daftar:
+        cabang_nama = ref.replace("origin/", "")
         _, berkas = jalankan(["git", "ls-tree", "-r", "--name-only", ref, "--", "docs/uji/audit/"])
+        b_cabang = _bukti_cabang_laporan(ref, "docs/uji/audit/")
+        if b_cabang:
+            tanda = "hanya menambah berkas laporan" if b_cabang["hanya_laporan"] else "MENYENTUH BERKAS DI LUAR FOLDER LAPORAN"
+            bukti.append(f"  · [{cabang_nama}@{b_cabang['commit'][:8]}] {tanda}: {', '.join(b_cabang['perubahan'][:4]) or '-'}")
         for jalur in [b.strip() for b in berkas.splitlines() if b.strip().lower().endswith(".md")]:
             _, isi = jalankan(["git", "show", f"{ref}:{jalur}"])
             if not isi.strip():
@@ -767,14 +875,18 @@ def mode_ambil_laporan() -> int:
             target = AKAR / jalur
             if target.is_file() and target.read_text(encoding="utf-8") == isi:
                 continue  # sudah ada & sama
-            status = "diperbarui" if target.is_file() else "baru"
             if target.is_file():
-                # jangan menimpa laporan yang sudah ada di sesi ini dengan isi yang berbeda tanpa jejak
-                cadangan = target.with_suffix(".sebelumnya.md")
-                cadangan.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
-                status = f"diperbarui (salinan lama: {cadangan.name})"
-            target.write_text(isi, encoding="utf-8")
-            ditemukan.append((ref.replace("origin/", ""), jalur, status))
+                # CACAT MEKANISME #9 (ditemukan 2026-09-17): dua sesi auditor bisa memilih nama berkas
+                # yang sama. Jangan pernah menimpa laporan sesi lain — simpan terpisah dengan nama cabang.
+                pendamping = target.with_name(f"{target.stem}.dari-{_nama_cabang_ringkas(cabang_nama)}{target.suffix}")
+                if pendamping.is_file() and pendamping.read_text(encoding="utf-8") == isi:
+                    continue  # sudah pernah ditarik & isinya sama (tarik ulang harus idempoten)
+                pendamping.write_text(isi, encoding="utf-8")
+                tujuan_tertulis, status = pendamping, f"nama sama dari sesi lain — disimpan terpisah: {pendamping.name}"
+            else:
+                target.write_text(isi, encoding="utf-8")
+                tujuan_tertulis, status = target, "baru"
+            ditemukan.append((cabang_nama, str(tujuan_tertulis.relative_to(AKAR)), status))
 
     print()
     if not ditemukan:
@@ -786,6 +898,10 @@ def mode_ambil_laporan() -> int:
     print(f"DITEMUKAN {len(ditemukan)} laporan:")
     for cabang_nama, jalur, status in ditemukan:
         print(f"  · [{cabang_nama}] {jalur} — {status}")
+    if bukti:
+        print("\nBukti dari cabangnya sendiri (aturan berkas-tunggal, diperiksa dari GitHub):")
+        for b in bukti:
+            print(b)
     print("\nLangkah berikutnya (wajib berurutan):")
     for _, jalur, _ in ditemukan:
         print(f"  python3 alat/audit-independen.py --periksa-laporan {jalur}")
@@ -976,20 +1092,23 @@ def _uji_jalur_pulang_laporan() -> tuple[bool, str]:
     hanya keyakinan — dan justru itu cacat yang ditutup 2026-09-17.
     """
     contoh = "# LAPORAN AUDIT INDEPENDEN — uji-coba\n\n- **Verdict:** BERSIH\n"
+    contoh2 = "# LAPORAN AUDIT INDEPENDEN — uji-coba (sesi kedua)\n\n- **Verdict:** TIDAK-BERSIH\n"
     asli = globals()["jalankan"]
 
     def palsu(perintah: list[str], cwd=None):  # noqa: ANN001
         if perintah[:2] == ["git", "fetch"]:
             return 0, ""
         if perintah[:2] == ["git", "for-each-ref"]:
-            return 0, "origin/arena/uji-coba\n"
+            # DUA sesi, nama berkas SAMA → meniru cacat mekanisme #9 (2026-09-17)
+            return 0, "origin/arena/uji-coba\norigin/arena/uji-coba-2\n"
         if perintah[:3] == ["git", "ls-tree", "-r"]:
             return 0, "docs/uji/audit/LAPORAN_UJI_COBA.md\n"
         if perintah[:2] == ["git", "show"]:
-            return 0, contoh
+            return 0, (contoh2 if perintah[2].startswith("origin/arena/uji-coba-2") else contoh)
         return asli(perintah, cwd)
 
     target = AKAR / "docs" / "uji" / "audit" / "LAPORAN_UJI_COBA.md"
+    pendamping = AKAR / "docs" / "uji" / "audit" / "LAPORAN_UJI_COBA.dari-uji-coba-2.md"
     try:
         globals()["jalankan"] = palsu
         import contextlib, io
@@ -997,16 +1116,18 @@ def _uji_jalur_pulang_laporan() -> tuple[bool, str]:
         with contextlib.redirect_stdout(buf):
             kode = mode_ambil_laporan()
         keluaran = buf.getvalue()
-        ok = (kode == 0 and target.is_file()
-              and target.read_text(encoding="utf-8") == contoh
-              and "DITEMUKAN 1 laporan" in keluaran)
-        pesan = ("laporan ditarik dari cabang sesi auditor & ditulis ke docs/uji/audit/"
-                 if ok else f"gagal: kode={kode}, ada_berkas={target.is_file()}")
+        ok = (kode == 0 and target.is_file() and pendamping.is_file()
+              and target.read_text(encoding="utf-8") == contoh          # laporan sesi 1 tidak tertimpa
+              and pendamping.read_text(encoding="utf-8") == contoh2      # laporan sesi 2 tersimpan terpisah
+              and "DITEMUKAN 2 laporan" in keluaran)
+        pesan = ("laporan ditarik dari cabang sesi auditor; nama berkas sama dari dua sesi tidak saling menimpa"
+                 if ok else f"gagal: kode={kode}, ada_berkas={target.is_file()}, ada_pendamping={pendamping.is_file()}")
         return ok, pesan
     finally:
         globals()["jalankan"] = asli
-        if target.is_file():
-            target.unlink()
+        for f in (target, pendamping):
+            if f.is_file():
+                f.unlink()
 
 
 def mode_uji_diri() -> int:

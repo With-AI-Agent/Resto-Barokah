@@ -49,7 +49,9 @@ Kerjakan berurutan:
    Ambang minimum di paket adalah LANTAI, bukan target: jangan berhenti setelah mencapai angka minimum, dan jangan
    menambah baris demi memenuhi syarat. Jangan menyusun laporan supaya lolos pemeriksa — formatnya sudah lengkap di paket.
 8. Tulis laporan dengan format PERSIS seperti di paket (bagian "6. Format laporan") ke
-   `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>.md`. Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
+   `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>__<penanda-sesi>.md`, dengan `<penanda-sesi>`
+   = potongan nama cabangmu (mis. `01a0aeb4`) supaya tidak bertabrakan dengan sesi auditor lain.
+   Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
 9. Jalankan `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/<berkas-laporan>.md` (sekali di akhir).
    Bila ditolak: perbaiki KELENGKAPAN FORMAT-nya, bukan menambah temuan yang tidak kamu yakini.
 10. Supaya hasilmu sampai ke sesi kerja, commit + push HANYA berkas laporan itu ke cabang sesi ini. Contoh:

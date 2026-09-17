@@ -332,7 +332,14 @@ def check_no_dangling_internal_refs(errs):
         # Bahan kalibrasi cacat tanaman (docs/uji/kalibrasi/bahan-*/) SENGAJA berisi rujukan
         # menggantung & cacat lain: itu materi uji ketajaman auditor, bukan dokumen aktif.
         # Dikecualikan secara sempit (hanya folder itu) supaya penjaga tetap kuat di tempat lain.
-        if str(rel).replace("\\", "/").startswith("docs/uji/kalibrasi/bahan-"):
+        jalur = str(rel).replace("\\", "/")
+        if jalur.startswith("docs/uji/kalibrasi/bahan-"):
+            continue
+        # Laporan auditor/peninjau = BARANG BUKTI: isinya tidak boleh kami sunting (mengubahnya sama
+        # dengan memalsukan bukti). Mereka justru MENGUTIP rujukan mati sebagai temuan — jadi penjaga
+        # rujukan tidak berlaku di sini, alasannya sama dengan bahan kalibrasi. Dikecualikan sempit:
+        # hanya berkas LAPORAN_* di folder audit/review-pr, bukan seluruh folder.
+        if jalur.startswith(("docs/uji/audit/LAPORAN_", "docs/uji/review-pr/LAPORAN_")):
             continue
         p = SYS_DIR / rel
         if not p.is_file():
