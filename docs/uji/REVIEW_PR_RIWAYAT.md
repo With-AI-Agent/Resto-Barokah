@@ -9,7 +9,7 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | 2026-09-17 | PR #1 (`arena/01a0a8a2-resto-barokah`) | `be69049` | Merah | **menunggu sesi peninjau** | — | — | — | — | belum disiapkan | — | — | Mekanisme baru dipasang; paket siap dibuat dengan `python3 alat/review-pr.py --siapkan --dasar origin/main --nama pr-01` |
 | 1b | 2026-09-17 | PR #1 (`arena/01a0a8a2-resto-barokah`) | `4fccc9d` | Merah | **menunggu sesi peninjau** | — | — | — | — | belum disiapkan | — | — | Paket `pr-01-putaran5` (berkasnya tetap tersimpan sebagai riwayat) — **digantikan** oleh baris 2 karena kode sudah jauh berubah: perbaikan K-1/K-2 dari audit AUD-3 |
-| 2 | 2026-09-17 | PR #1 (`arena/01a0a8a2-resto-barokah`) | `ec875b9` | Merah | **menunggu sesi peninjau** | — | — | — | — | belum disiapkan | — | — | **Paket berlaku: `docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran6-SIAP-TEMPEL.md`** (326 berkas · +40599/−132; memuat semua perbaikan audit AUD-3 K-1/K-2). Lee: buka chat baru (idealnya model berbeda) → salin seluruh berkas SIAP-TEMPEL → setelah selesai bilang "Laporan review sudah masuk, periksa" |
+| 2 | 2026-09-17 | PR #1 (`arena/01a0a8a2-resto-barokah`) | `00e7ce6` | Merah | **menunggu sesi peninjau** | — | — | — | — | belum disiapkan | — | — | **Paket berlaku: `docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran6-SIAP-TEMPEL.md`** (328 berkas · +40945/−132; memuat semua perbaikan audit AUD-3 K-1/K-2 **dan** perbaikan mekanisme paket-basi). Lee: buka chat baru (idealnya model berbeda) → salin seluruh berkas SIAP-TEMPEL → setelah selesai bilang "Laporan review sudah masuk, periksa" |
 
 ## 2. Riwayat kalibrasi review PR (RV-3)
 

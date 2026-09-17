@@ -55,8 +55,8 @@ kelulusan pemeriksa — itu teater, bukan review.
 
 - **PR / cabang:** `pr-01-putaran6`
 - **Dasar (base):** `origin/main` → **Kepala (head):** `origin/arena/01a0a8a2-resto-barokah`
-- **Commit yang direview:** `9ce6f2530e1395e77495624f1d423a08b0eebe3b`
-- **Perubahan:** 328 berkas · +40945 / −132 baris
+- **Commit yang direview:** `00e7ce6b9277d9c5bdbb60b7bdcdce10176a28e0`
+- **Perubahan:** 328 berkas · +40948 / −132 baris
 - **Jalur risiko (mesin):** **Merah** — kedalaman review yang diwajibkan: **L1 (ancaman & akses) + L2 (uang & jejak) + L4 (mutu uji) — WAJIB ketiganya**
 - **Tugas ROADMAP yang berubah:** - [ ] T0-00, - [ ] T0-08, - [ ] T0-09, - [ ] T0-12, - [ ] T1-11, - [ ] T1-12, - [ ] T1-13, - [ ] T1-14, - [ ] T1-15, - [ ] T1-16, - [ ] T1-17, - [ ] T1-18, - [ ] T1-19, - [ ] T1-20, - [ ] T1-21, - [ ] T1-22, - [ ] T1-23, - [ ] T1-24, - [ ] T1-25, - [ ] T1-26, - [ ] T1-27, - [ ] T1-28, - [ ] T1-29, - [ ] T1-30, - [ ] T1-31, - [ ] T1-32, - [ ] T1-33, - [ ] T1-34, - [ ] T1-35, - [ ] T1-36, - [ ] T1-37, - [ ] T1-38, - [ ] T1-39, - [ ] T1-40, - [ ] T1-41, - [ ] T10-01, - [ ] T10-02, - [ ] T10-03, - [ ] T10-04, - [ ] T10-05, - [ ] T10-06, - [ ] T10-07, - [ ] T10-08, - [ ] T10-09, - [ ] T10-10, - [ ] T10-11, - [ ] T10-12, - [ ] T10-13, - [ ] T10-14, - [ ] T10-15, - [ ] T10-16, - [ ] T11-01, - [ ] T11-02, - [ ] T11-03, - [ ] T11-04, - [ ] T11-05, - [ ] T11-06, - [ ] T11-07, - [ ] T11-08, - [ ] T11-09, - [ ] T11-10, - [ ] T11-11, - [ ] T11-12, - [ ] T11-13, - [ ] T2-01, - [ ] T2-02, - [ ] T2-03, - [ ] T2-04, - [ ] T2-05, - [ ] T2-06, - [ ] T2-07, - [ ] T2-08, - [ ] T2-09, - [ ] T2-10, - [ ] T2-11, - [ ] T2-12, - [ ] T2-13, - [ ] T2-14, - [ ] T2-15, - [ ] T2-16, - [ ] T2-17, - [ ] T2-18, - [ ] T2-19, - [ ] T3-01, - [ ] T3-02, - [ ] T3-03, - [ ] T3-04, - [ ] T3-05, - [ ] T3-06, - [ ] T3-07, - [ ] T3-08, - [ ] T3-09, - [ ] T3-10, - [ ] T3-11, - [ ] T3-12, - [ ] T3-13, - [ ] T3-14, - [ ] T3-15, - [ ] T3-16, - [ ] T4-01, - [ ] T4-02, - [ ] T4-03, - [ ] T4-04, - [ ] T4-05, - [ ] T4-06, - [ ] T4-07, - [ ] T4-08, - [ ] T4-09, - [ ] T4-10, - [ ] T5-01, - [ ] T5-02, - [ ] T5-03, - [ ] T5-04, - [ ] T5-05, - [ ] T5-06, - [ ] T5-07, - [ ] T5-08, - [ ] T5-09, - [ ] T5-10, - [ ] T5-11, - [ ] T5-12, - [ ] T6-01, - [ ] T6-02, - [ ] T6-03, - [ ] T6-04, - [ ] T6-05, - [ ] T6-06, - [ ] T6-07, - [ ] T6-08, - [ ] T7-01, - [ ] T7-02, - [ ] T7-03, - [ ] T7-04, - [ ] T7-05, - [ ] T7-06, - [ ] T7-07, - [ ] T7-08, - [ ] T7-09, - [ ] T7-10, - [ ] T7-11, - [ ] T7-12, - [ ] T8-01, - [ ] T8-02, - [ ] T8-03, - [ ] T8-04, - [ ] T8-05, - [ ] T8-06, - [ ] T8-07, - [ ] T8-08, - [ ] T8-09, - [ ] T8-10, - [ ] T8-11, - [ ] T8-12, - [ ] T8-13, - [ ] T8-14, - [ ] T8-15, - [ ] T9-01, - [ ] T9-02, - [ ] T9-03, - [ ] T9-04, - [ ] T9-05, - [ ] T9-06, - [ ] T9-07, - [ ] T9-08, - [ ] T9-09, - [ ] T9-10, - [ ] T9-11, - [ ] T9-12, - [x] T0-01, - [x] T0-02, - [x] T0-03, - [x] T0-04, - [x] T0-05, - [x] T0-06, - [x] T0-07, - [x] T0-10, - [x] T0-11, - [x] T0-13, - [x] T0-14, - [x] T1-01, - [x] T1-02, - [x] T1-03, - [x] T1-04, - [x] T1-05, - [x] T1-06, - [x] T1-07, - [x] T1-08, - [x] T1-09, - [x] T1-10
 
@@ -82,6 +82,8 @@ git add docs/uji/review-pr/ && git commit -m "laporan review PR <nama>" && git p
 Hanya berkas laporan yang di-commit. Bila push tidak bisa, tulis "belum ter-push" + beri tahu Lee di chat.
 
 ## 1. Ringkasan perubahan per tujuan (dari judul commit)
+- review-pr: berkas riwayat (REVIEW_PR/AUDIT_RIWAYAT) masuk daftar berkas-netral
+- Paket review PR #1 disegarkan ke kepala 9ce6f25 (memuat perbaikan mekanisme paket-basi)
 - Catatan sesi: batch RV-2 (paket review putaran6) + cacat mekanisme paket-basi
 - RV-2 siap: paket review PR #1 disegarkan + cacat mekanisme paket-basi diperbaiki
 - Temuan K-3 audit AUD-3 F-11: pagar + uji regresi yang bisa MERAH + koreksi klaim
@@ -92,8 +94,6 @@ Hanya berkas laporan yang di-commit. Bila push tidak bisa, tulis "belum ter-push
 - Anomali sesi audit paralel: laporan tertimpa diselamatkan (cacat mekanisme #12)
 - Laporan AUD-3 diperiksa: 3 cacat mekanisme ditutup + temuan diverifikasi ulang
 - Paket AUD-3 & paket review PR disegarkan (aturan berkas-tunggal + langkah push laporan)
-- Jalur pulang laporan + aturan anti-teater (jawaban Lee putaran 6)
-- Kalibrasi review PR: penanda SENGAJA dibuang dari bahan (cacat mekanisme #8) + paket disegarkan
 
 ## 2. Berkas per jalur risiko
 | Jalur | Jumlah | Contoh berkas |
