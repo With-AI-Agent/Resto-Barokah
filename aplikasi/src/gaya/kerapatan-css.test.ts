@@ -18,6 +18,27 @@ import './komponen.css'
  * efeknya lagi (seperti kejadian itu), uji ini MERAH.
  */
 
+/** Semua teks aturan gaya yang benar-benar terpasang, termasuk yang di dalam @media. */
+function aturanGaya(): string[] {
+  const kumpul: string[] = []
+  const telusuri = (daftar: CSSRuleList) => {
+    for (const aturan of Array.from(daftar)) {
+      const teks = aturan.cssText ?? ''
+      if (teks) kumpul.push(teks)
+      const anak = (aturan as CSSMediaRule).cssRules
+      if (anak && anak.length) telusuri(anak)
+    }
+  }
+  for (const lembar of Array.from(document.styleSheets)) {
+    try {
+      telusuri(lembar.cssRules)
+    } catch {
+      /* lembar lintas-asal diabaikan */
+    }
+  }
+  return kumpul
+}
+
 function pasang(density: string, theme = 'terang') {
   document.documentElement.setAttribute('data-density', density)
   document.documentElement.setAttribute('data-theme', theme)
@@ -27,6 +48,13 @@ function pasang(density: string, theme = 'terang') {
       <div class="kisi-2"><div class="card">a</div><div class="card">b</div></div>
       <div class="baris-rapat" id="baris">a</div>
       <table class="table"><tbody><tr><td id="sel">x</td></tr></tbody></table>
+      <button class="btn" id="tombol">Simpan</button>
+      <input class="input" id="isian" />
+      <span class="lencana" id="lencana">Baru</span>
+      <details class="picker" open><summary class="btn btn-sm">Ganti tema</summary>
+        <div class="picker-panel" id="panel-tema"><button>tema</button></div>
+      </details>
+      <div class="segmen" id="segmen"><button>Nyaman</button></div>
     </div>`
 }
 
@@ -39,6 +67,24 @@ function selesaikan(nilai: string): string {
   )
 }
 
+/**
+ * jsdom tidak mengurai shorthand yang memuat var() menjadi longhand (padding-left bisa
+ * kosong). Karena itu sumbu diambil dari nilai shorthand `padding` lalu diurai sendiri;
+ * rumusnya sama seperti CSS: 1 nilai = semua sisi, 2 nilai = atas-bawah / kiri-kanan.
+ */
+function ukuranSumbu(selector: string, sumbu: 'kiri' | 'atas' = 'kiri'): number {
+  const el = document.querySelector(selector)
+  expect(el, `elemen ${selector} tidak ada`).toBeTruthy()
+  const mentah = getComputedStyle(el as Element)
+    .getPropertyValue('padding')
+    .trim()
+  const bagian = selesaikan(mentah).split(/\s+/)
+  const nilai = bagian.length >= 2 ? bagian[sumbu === 'kiri' ? 1 : 0] : bagian[0]
+  const angka = Number.parseFloat(nilai)
+  expect(Number.isNaN(angka), `${selector} padding = "${mentah}" tidak bisa dibaca`).toBe(false)
+  return angka
+}
+
 function ukuran(selector: string, properti: string): number {
   const el = document.querySelector(selector)
   expect(el, `elemen ${selector} tidak ada`).toBeTruthy()
@@ -49,7 +95,26 @@ function ukuran(selector: string, properti: string): number {
 }
 
 describe('kerapatan (Nyaman vs Padat) benar-benar mengubah ukuran', () => {
-  const hasil: Record<string, { kartu: number; sel: number; baris: number; huruf: number }> = {}
+  type Angka = {
+    kartu: number
+    sel: number
+    baris: number
+    huruf: number
+    lencana: number
+    tombolIsi: number
+    tombolTinggi: number
+    isianIsi: number
+    isianTinggi: number
+    segmenTinggi: number
+  }
+  const hasil: Record<string, Angka> = {}
+
+  function tinggiMinimal(selector: string): number {
+    const nilai = selesaikan(
+      getComputedStyle(document.querySelector(selector) as Element).getPropertyValue('min-height'),
+    )
+    return Number.parseFloat(nilai) || 0
+  }
 
   beforeAll(() => {
     for (const mode of ['nyaman', 'padat']) {
@@ -59,6 +124,12 @@ describe('kerapatan (Nyaman vs Padat) benar-benar mengubah ukuran', () => {
         sel: ukuran('#sel', 'padding'),
         baris: ukuran('#baris', 'padding'),
         huruf: Number.parseFloat(getComputedStyle(document.body).fontSize),
+        lencana: ukuranSumbu('#lencana'),
+        tombolIsi: ukuranSumbu('#tombol'),
+        tombolTinggi: tinggiMinimal('#tombol'),
+        isianIsi: ukuranSumbu('#isian'),
+        isianTinggi: tinggiMinimal('#isian'),
+        segmenTinggi: tinggiMinimal('#segmen button'),
       }
     }
   })
@@ -78,6 +149,46 @@ describe('kerapatan (Nyaman vs Padat) benar-benar mengubah ukuran', () => {
 
   it('huruf TIDAK dikecilkan (keterbacaan & daerah sentuh dijaga)', () => {
     expect(hasil.padat.huruf).toBe(hasil.nyaman.huruf)
+  })
+
+  it('BLOK ikut menyesuaikan, bukan cuma jarak (laporan pemilik kedua)', () => {
+    expect(hasil.padat.lencana, 'lencana harus lebih ramping di mode Padat').toBeLessThan(
+      hasil.nyaman.lencana,
+    )
+    expect(hasil.padat.tombolIsi, 'tombol harus lebih ramping di mode Padat').toBeLessThan(
+      hasil.nyaman.tombolIsi,
+    )
+    expect(hasil.padat.isianIsi, 'isian harus lebih ramping di mode Padat').toBeLessThan(
+      hasil.nyaman.isianIsi,
+    )
+  })
+
+  it('daerah SENTUH tetap minimal 44 px walau mode Padat (jangan sampai salah pencet)', () => {
+    expect(hasil.padat.tombolTinggi).toBeGreaterThanOrEqual(44)
+    expect(hasil.padat.isianTinggi).toBeGreaterThanOrEqual(44)
+    expect(hasil.padat.segmenTinggi).toBeGreaterThanOrEqual(36)
+  })
+
+  it('panel tema dipaku ke sudut layar dan tingginya dibatasi (dulu terpotong)', () => {
+    pasang('nyaman')
+    const gaya = getComputedStyle(document.querySelector('#panel-tema') as Element)
+    expect(gaya.position, 'panel harus position:fixed supaya tidak melewati tepi layar').toBe(
+      'fixed',
+    )
+    // jsdom tidak bisa menghitung min()/vh, jadi batas tinggi diperiksa dari deklarasi
+    // gaya nyata: wajib memakai satuan vh dan angkanya tidak melebihi 80% layar.
+    const semua = aturanGaya()
+    const kunci = semua.filter((teks) => teks.includes('.picker-panel'))
+    const tinggi = kunci
+      .map((teks) => /max-height:\s*([^;}]+)/.exec(teks)?.[1]?.trim())
+      .filter((nilai): nilai is string => Boolean(nilai))
+    expect(tinggi.length, 'aturan .picker-panel tanpa batas tinggi').toBeGreaterThan(0)
+    for (const nilai of tinggi) {
+      const angka = Number.parseFloat(nilai.replace(/^min\(/, ''))
+      expect(angka, `batas tinggi "${nilai}" tidak terukur`).toBeGreaterThan(0)
+      expect(nilai, `batas tinggi "${nilai}" tidak dikunci ke tinggi layar`).toContain('vh')
+      expect(angka, `batas tinggi "${nilai}" terlalu besar`).toBeLessThanOrEqual(80)
+    }
   })
 
   it('ganti kerapatan tidak mengubah warna (hanya jarak)', () => {

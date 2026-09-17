@@ -477,6 +477,11 @@ small,.small{font-size:var(--t-3)}
   --s-1:3px; --s-2:6px; --s-3:9px; --s-4:12px; --s-5:15px;
   --s-6:18px; --s-7:24px; --s-8:30px; --s-9:42px; --s-10:54px;
 }
+/* Laporan pemilik 2026-09-17 (kedua): "Padat" hanya merapatkan JARAK sehingga terasa
+   kurang rapi — ukuran BLOK-nya (tinggi baris, tepi dalam, lebar tombol) belum ikut
+   menyesuaikan. Di bawah ini blok ikut dirapatkan: tepi dalam, tinggi baris, dan
+   lebar tombol. DUA hal sengaja TIDAK disentuh: (1) ukuran huruf, (2) daerah sentuh
+   minimal 44 px untuk apa pun yang bisa ditekan — dijaga uji kontras. */
 [data-density="padat"] .card{padding:var(--s-4)}
 [data-density="padat"] .card-head{margin-bottom:var(--s-3)}
 [data-density="padat"] .kisi-2{gap:var(--s-3)}
@@ -484,6 +489,29 @@ small,.small{font-size:var(--t-3)}
 [data-density="padat"] .pemisah{margin:var(--s-4) 0}
 [data-density="padat"] .baris-tombol{gap:var(--s-2)}
 [data-density="padat"] .baris-rapat{padding:var(--s-2) 0}
+
+/* blok: tepi dalam & tinggi baris mengecil, tinggi minimal sentuh TETAP */
+[data-density="padat"] .lapis-panel{padding:var(--s-4)}
+[data-density="padat"] .lapis-isi{gap:var(--s-2)}
+[data-density="padat"] .keadaan{padding:var(--s-5) var(--s-3);gap:var(--s-2)}
+[data-density="padat"] .kolom-isian{gap:var(--s-1)}
+[data-density="padat"] .kepala-halaman{padding-bottom:var(--s-4)}
+[data-density="padat"] .kpi,[data-density="padat"] .kpi-3{gap:var(--s-3)}
+[data-density="padat"] .btn{padding:0 var(--s-3)}
+[data-density="padat"] .btn-sm{padding:0 var(--s-2)}
+[data-density="padat"] .input{padding:0 var(--s-3)}
+[data-density="padat"] .segmen{padding:2px;gap:2px}
+[data-density="padat"] .segmen button{padding:0 var(--s-3)}
+[data-density="padat"] .tab{padding:8px var(--s-3)}
+[data-density="padat"] .lencana{padding:2px 6px;border-radius:5px}
+[data-density="padat"] .kolom{padding:var(--s-2)}
+[data-density="padat"] .tiket{padding:var(--s-2);margin-bottom:var(--s-2)}
+[data-density="padat"] .baris-pesanan{padding:var(--s-2) 0}
+[data-density="padat"] .sum-baris{padding:2px 0}
+[data-density="padat"] .qty button{height:34px}
+[data-density="padat"] .picker-panel button{padding:var(--s-2);min-height:48px}
+[data-density="padat"] .menu-kartu .isi{padding:var(--s-3)}
+[data-density="padat"] .menu-kartu .nm{margin-bottom:2px}
 /* efek khusus halaman prototipe (katalog): kisi lebih rapat, keterangan disembunyikan */
 [data-density="padat"] .kisi-menu{grid-template-columns:repeat(4,1fr);gap:var(--s-3)}
 [data-density="padat"] .menu-kartu .foto{aspect-ratio:16/9}
@@ -662,8 +690,14 @@ small,.small{font-size:var(--t-3)}
 .picker > summary{list-style:none;cursor:pointer;user-select:none}
 .picker > summary::-webkit-details-marker{display:none}
 .picker[open] > summary{box-shadow:0 0 0 3px var(--cincin)}
-.picker-panel{position:absolute;right:0;z-index:70;margin-top:var(--s-2);width:min(560px,92vw);padding:var(--s-3);
-  display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2);max-height:74vh;overflow:auto;
+/* Laporan pemilik 2026-09-17: daftar tema terpotong karena panelnya menggantung DI BAWAH
+   tombol (absolute) lalu melewati tepi layar. Sekarang panel dipaku ke sudut layar
+   (position:fixed) — selalu utuh, tidak peduli letak tombolnya — dan tingginya dibatasi
+   tinggi layar dengan daftar yang bisa digeser di dalam. */
+.picker-panel{position:fixed;right:var(--s-5);bottom:var(--s-5);top:auto;left:auto;z-index:70;margin:0;
+  width:min(560px,calc(100vw - 2 * var(--s-5)));padding:var(--s-3);
+  display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2);align-content:start;
+  max-height:min(72vh,560px);overflow:auto;overscroll-behavior:contain;
   background:var(--kaca);backdrop-filter:blur(var(--blur-kuat)) saturate(160%);-webkit-backdrop-filter:blur(var(--blur-kuat)) saturate(160%);
   border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--sh-4)}
 .picker-panel button{appearance:none;cursor:pointer;text-align:left;font:inherit;font-family:var(--font-body);display:flex;gap:10px;
@@ -714,6 +748,7 @@ small,.small{font-size:var(--t-3)}
   .galeri{grid-template-columns:1fr}
 }
 @media (max-width:560px){
+  .picker-panel{grid-template-columns:1fr;left:var(--s-4);right:var(--s-4);bottom:var(--s-4);width:auto;max-height:min(66vh,520px)}
   .kpi,.kpi-3{grid-template-columns:1fr}
   .kisi-menu{grid-template-columns:repeat(2,1fr);gap:var(--s-3)}
   .bilah-melayang{bottom:var(--s-10);left:var(--s-4);right:var(--s-4);transform:none;max-width:none}

@@ -175,10 +175,16 @@ def main() -> int:
                 # Mutasi 3: yang tersisa hanya aturan kelas prototipe → di aplikasi tombolnya mati lagi
                 f = tmp4 / "aplikasi/src/gaya/token/tema.css"
                 isi = f.read_text(encoding="utf-8")
+                # Buang SEMUA aturan yang menyasar kelas APLIKASI, sisakan yang prototipe.
+                def _kelas_di_baris(baris: str) -> str | None:
+                    m = re.match(r'\[data-density="padat"\]\s*\.([a-zA-Z][\w-]*)', baris)
+                    return m.group(1) if m else None
+
                 potong = "\n".join(
                     baris for baris in isi.splitlines()
                     if not (baris.startswith('[data-density="padat"] .')
-                            and any(k in baris for k in ("card", "kisi-2", "table", "pemisah", "baris-tombol", "baris-rapat")))
+                            and (_kelas_di_baris(baris) or "") != ""
+                            and dipakai_aplikasi(_kelas_di_baris(baris) or ""))
                 )
                 f.write_text(potong, encoding="utf-8")
                 kode4, _ = jalankan_pemeriksa(periksa, tmp4)
