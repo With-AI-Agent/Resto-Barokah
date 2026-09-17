@@ -243,8 +243,9 @@ select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner (penyetuju)
 set local role authenticated;
 select uji.sama(public.simpan_pin('738294', null), 'PIN tersimpan.', 'owner memasang PIN untuk hak menyetujui');
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
-  true, 'PIN penyetuju diverifikasi untuk aksi void_sesudah_dapur'
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
+                         'eeee0000-0000-0000-0000-000000000010')).berhasil,
+  true, 'PIN penyetuju diverifikasi untuk aksi & pesanan void_sesudah_dapur'
 );
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kembali sebagai kasir
@@ -270,6 +271,19 @@ select uji.harap_gagal(
 );
 
 -- Disetujui owner (punya izin) → diterima, dan nilai kerugian dihitung dari salinan harga.
+-- Sejak penutup celah (0012) bukti persetujuan = KUPON SEKALI PAKAI, jadi owner menyetujui
+-- ulang untuk pembatalan berikutnya pada pesanan yang sama.
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner (penyetuju)
+set local role authenticated;
+select uji.sama(
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
+                         'eeee0000-0000-0000-0000-000000000010')).berhasil,
+  true, 'kontrol: persetujuan baru untuk pembatalan berikutnya'
+);
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kembali sebagai kasir
+set local role authenticated;
 insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, bahan_terbuang)
 values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', 'pelanggan membatalkan, makanan sudah dimasak', true);
 select uji.sama(

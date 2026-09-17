@@ -25,9 +25,10 @@ reset role;
 select uji.klaim(null);
 
 -- 3. Admin cabang: hanya pegawai yang bertugas di cabangnya (Pusat), bukan cabang lain.
---    Saat masuk, klaim token memuat cabang aktif — itu yang dipakai policy.
-select uji.klaim('90000000-0000-0000-0000-000000000003', '{"cabang_id":"a1a1a1a1-0000-0000-0000-000000000001"}'::jsonb);
+--    Cabang aktif dipilih lewat RPC pilih_cabang (satu sumber: tabel sesi_cabang).
+select uji.klaim('90000000-0000-0000-0000-000000000003');
 set local role authenticated;
+select public.pilih_cabang('a1a1a1a1-0000-0000-0000-000000000001');
 select uji.sama((select count(*) from public.pengguna), 3::bigint, 'admin cabang melihat dirinya + 2 pegawai cabang Pusat');
 select uji.harap(
   not exists (select 1 from public.pengguna where id = '90000000-0000-0000-0000-000000000006'),

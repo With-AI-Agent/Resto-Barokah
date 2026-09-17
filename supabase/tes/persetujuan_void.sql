@@ -40,8 +40,9 @@ select uji.harap_gagal(
 
 -- 3. Bukti yang benar: penyetuju memasukkan PIN-nya untuk aksi ini → diterima.
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
-  true, 'PIN penyetuju diverifikasi UNTUK aksi void_sesudah_dapur');
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
+                         'eeee0000-0000-0000-0000-000000000010')).berhasil,
+  true, 'PIN penyetuju diverifikasi UNTUK aksi & PESANAN void_sesudah_dapur');
 insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, bahan_terbuang)
 values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur',
         '90000000-0000-0000-0000-000000000002', 'void dengan bukti PIN', true);
@@ -65,8 +66,9 @@ update public.pesanan set dikirim_ke_dapur_pada = now() - interval '5 minutes'
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
-  true, 'kontrol: bukti kedua dibuat');
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
+                         '00000000-0000-0000-0000-00000000c001')).berhasil,
+  true, 'kontrol: bukti kedua dibuat untuk pesanan kedua');
 reset role;
 -- Pemilik tabel memundurkan waktu bukti (meniru persetujuan 1 jam lalu).
 update public.percobaan_pin set waktu = now() - interval '1 hour'
@@ -79,6 +81,47 @@ select uji.harap_gagal(
       values ('00000000-0000-0000-0000-00000000c001', 'sesudah_dapur',
               '90000000-0000-0000-0000-000000000002', 'void dengan bukti lama')$$,
   'pembatalan DITOLAK bila bukti persetujuannya sudah kedaluwarsa'
+);
+reset role;
+select uji.klaim(null);
+
+-- 5. KUPON SEKALI PAKAI (temuan review putaran8 PR-04): persetujuan PIN untuk SATU pesanan
+--    tidak boleh dipakai membatalkan pesanan lain.
+insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status,
+                            subtotal, pajak, service, total, kunci_idempoten)
+values ('00000000-0000-0000-0000-00000000c002', '11111111-1111-1111-1111-111111111111',
+        'a1a1a1a1-0000-0000-0000-000000000001', 94, current_date, 'dinein', 'dikirim',
+        10000, 0, 0, 10000, 'void-replay');
+update public.pesanan set dikirim_ke_dapur_pada = now() - interval '5 minutes'
+ where id = '00000000-0000-0000-0000-00000000c002';
+
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner menyetujui yang KEDUA
+set local role authenticated;
+select uji.sama(
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
+                         '00000000-0000-0000-0000-00000000c002')).berhasil,
+  true, 'kontrol: persetujuan untuk pesanan kedua dibuat'
+);
+
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir
+set local role authenticated;
+insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
+values ('00000000-0000-0000-0000-00000000c002', 'sesudah_dapur',
+        '90000000-0000-0000-0000-000000000002', 'pembatalan pertama (pesanan yang disetujui)');
+select uji.harap_gagal(
+  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
+      values ('00000000-0000-0000-0000-00000000c001', 'sesudah_dapur',
+              '90000000-0000-0000-0000-000000000002', 'mencoba memakai ulang bukti pesanan lain')$$,
+  'satu persetujuan PIN tidak bisa dipakai untuk pesanan LAIN (kupon sekali pakai)'
+);
+select uji.harap_gagal(
+  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, pesanan_item_id)
+      values ('00000000-0000-0000-0000-00000000c002', 'sesudah_dapur',
+              '90000000-0000-0000-0000-000000000002', 'memakai ulang bukti yang sudah habis',
+              null)$$,
+  'bukti yang sudah dipakai tidak bisa dipakai lagi untuk pesanan yang sama'
 );
 reset role;
 select uji.klaim(null);

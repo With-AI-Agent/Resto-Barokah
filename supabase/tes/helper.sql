@@ -74,15 +74,26 @@ select uji.sama(
   'cabang pertama pelayan'
 );
 
--- 7. Cabang aktif diambil dari klaim token TAPI diverifikasi ke tabel:
---    klaim yang tidak berhak HARUS menghasilkan null (ART-1: jangan percaya klien).
-select uji.klaim('90000000-0000-0000-0000-000000000005', '{"cabang_id":"a1a1a1a1-0000-0000-0000-000000000002"}'::jsonb);
+-- 7. Cabang aktif: SATU SUMBER = tabel `sesi_cabang` (bukan klaim token, lihat 0012).
+--    Pelayan memilih cabang lewat RPC; database memverifikasi keanggotaannya.
+select uji.klaim('90000000-0000-0000-0000-000000000005');
 set local role authenticated;
-select uji.sama(public.cabang_saya(), 'a1a1a1a1-0000-0000-0000-000000000002'::uuid, 'cabang aktif sesuai klaim yang sah');
+select uji.sama(public.cabang_saya(), null::uuid, 'sebelum memilih, belum ada cabang aktif');
 
-select uji.klaim('90000000-0000-0000-0000-000000000005', '{"cabang_id":"b1b1b1b1-0000-0000-0000-000000000001"}'::jsonb);
-set local role authenticated;
-select uji.sama(public.cabang_saya(), null::uuid, 'klaim cabang milik resto lain DITOLAK (diverifikasi ulang)');
+-- Klaim token palsu TIDAK lagi berpengaruh sama sekali (ART-1: jangan percaya klien).
+select uji.klaim('90000000-0000-0000-0000-000000000005', '{"cabang_id":"a1a1a1a1-0000-0000-0000-000000000002"}'::jsonb);
+select uji.sama(public.cabang_saya(), null::uuid, 'klaim token palsu tidak memberi cabang aktif');
+
+-- Jalur sah: pilih cabang yang benar-benar ia tempati.
+select uji.sama(public.pilih_cabang('a1a1a1a1-0000-0000-0000-000000000002'), 'a1a1a1a1-0000-0000-0000-000000000002'::uuid, 'pilih_cabang mengembalikan cabang yang dipilih');
+select uji.sama(public.cabang_saya(), 'a1a1a1a1-0000-0000-0000-000000000002'::uuid, 'cabang aktif = cabang yang dipilih');
+
+-- Cabang milik resto lain: pemanggil TIDAK bertugas di sana → DITOLAK.
+select uji.harap_gagal(
+  $$select public.pilih_cabang('b1b1b1b1-0000-0000-0000-000000000001')$$,
+  'memilih cabang milik resto lain ditolak (diverifikasi ke keanggotaan)'
+);
+select uji.sama(public.cabang_saya(), 'a1a1a1a1-0000-0000-0000-000000000002'::uuid, 'cabang aktif tidak berubah setelah percobaan curang');
 
 -- 8. Pegawai tidak aktif tidak mendapat identitas apa pun.
 reset role;

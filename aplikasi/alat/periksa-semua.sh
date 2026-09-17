@@ -24,6 +24,8 @@ if [ ! -d "$REPO/alat/node_modules" ]; then
   (cd "$REPO/alat" && npm ci --no-audit --no-fund)
 fi
 (cd "$REPO" && node alat/uji-sql.mjs)
+echo "== bukti mutasi pagar migrasi 0012 (harus 12/12 MERAH + kontrol hijau) =="
+(cd "$REPO" && python3 alat/uji-mutasi-0012.py | tail -3)
 
 echo "== pemeriksa Python =="
 

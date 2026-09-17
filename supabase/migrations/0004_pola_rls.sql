@@ -3,9 +3,15 @@
 --
 -- Pola yang dipakai — dan WAJIB dipakai tabel mana pun yang menyusul:
 --   * Setiap tabel: RLS aktif + minimal satu policy (deny by default).
---   * Policy hanya memakai fungsi identitas dari 0003 (penyewa_saya, cabang_saya,
---     cabang_ids_saya, peran_saya, sepenyewa) — TIDAK ada subquery langsung ke
---     tabel lain, supaya tidak ada RLS yang berputar/berulang.
+--   * Policy memakai fungsi identitas dari 0003 (penyewa_saya, cabang_saya,
+--     cabang_ids_saya, peran_saya, sepenyewa) sebagai alat utama.
+--     PENYIMPANGAN YANG DISENGAJA & SATU-SATUNYA (lihat `pengguna_pilih` di bawah):
+--     keanggotaan cabang diperiksa dengan subquery langsung ke `pengguna_cabang`,
+--     bukan lewat fungsi identitas. Alasannya: `pengguna_cabang` sendiri ber-RLS,
+--     jadi membungkusnya jadi fungsi SECURITY DEFINER justru menambah permukaan hak
+--     istimewa tanpa manfaat. Komentar lama berbunyi "TIDAK ada subquery langsung ke
+--     tabel lain" — itu **tidak lagi benar** dan sudah dikoreksi (temuan review RV-2
+--     putaran8 PR-19); tabel LAIN di luar jati diri tetap wajib lewat fungsi identitas.
 --   * Tabel yang punya `penyewa_id` → policy-nya WAJIB menyebut `penyewa_saya()`.
 --   * Menulis (insert/update) dibuka seperlunya dan tetap dibatasi di policy
 --     `with check`; perubahan izin/uang tetap lewat RPC (Fase berikutnya).

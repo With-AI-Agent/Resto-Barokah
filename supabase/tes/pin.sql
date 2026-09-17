@@ -79,7 +79,7 @@ select uji.harap(
   'waktu perubahan PIN tercatat'
 );
 select uji.harap(
-  pg_get_function_result('public.verifikasi_pin(uuid,text,text,text)'::regprocedure) not like '%hash%',
+  pg_get_function_result('public.verifikasi_pin(uuid,text,text,text,uuid)'::regprocedure) not like '%hash%',
   'verifikasi_pin tidak pernah mengembalikan hash'
 );
 

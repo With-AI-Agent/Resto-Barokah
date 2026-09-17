@@ -284,6 +284,28 @@ def uji_berkas_gaya() -> None:
             catat(gagal, "GAGAL", f"{wajib} tidak ada")
 
 
+def uji_klaim_angka(pohon: list[tuple[str, bool]]) -> None:
+    """Angka bukti di dokumen harus sama dengan hitungan nyata saat pemeriksa dijalankan.
+
+    Kenapa ada: review RV-2 putaran8 (PR-08/PR-02) menemukan klaim "57 berkas `.woff2`"
+    padahal perintah yang dikutip menghasilkan angka lain — kelas cacat "angka bukti basi":
+    dokumennya rapi, angkanya salah, dan tidak ada yang menangkap. Pemeriksa ini menjalankan
+    ulang perintah yang tertulis di dokumen dan membandingkan angkanya.
+    """
+    roadmap = AKAR_REPO / "docs" / "ROADMAP.md"
+    teks = roadmap.read_text(encoding="utf-8")
+    m = re.search(r"\*\*(\d+) berkas\*\* `\.woff2` di aplikasi[^\n]*?`find ([^`]+)`", teks)
+    if not m:
+        catat(gagal, "klaim angka", "klaim jumlah berkas .woff2 di docs/ROADMAP.md tidak ditemukan (format berubah?)")
+        return
+    tertulis, perintah = int(m.group(1)), m.group(2).strip()
+    nyata = len(list(APLIKASI.glob("src/gaya/aset/**/*.woff2")))
+    if nyata != tertulis:
+        catat(gagal, "klaim angka", f"docs/ROADMAP.md menulis {tertulis} berkas .woff2, nyatanya {nyata}")
+        return
+    catat(ok, "klaim angka", f"jumlah berkas .woff2 di dokumen = nyata ({nyata}) · perintah rujukan: {perintah}")
+
+
 def uji_terlacak_git(pohon: list[tuple[str, bool]]) -> None:
     """Folder wajib harus benar-benar ikut Git.
 
@@ -344,6 +366,7 @@ def main() -> int:
     pohon = jelaskan_baris(pohon_dari_tech_spec())
     uji_pohon(pohon)
     uji_terlacak_git(pohon)
+    uji_klaim_angka(pohon)
     uji_token()
     uji_berkas_dasar()
     uji_berkas_gaya()
