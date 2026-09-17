@@ -168,7 +168,7 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None) -> int:
 - **Tugas dalam lingkup:** {", ".join(ids)}
 - **Lensa wajib:** {", ".join(lensa)}
 - **Minimum laporan:** ≥6 artefak diperiksa · ≥5 klaim dibantah · ≥{SERANGAN_MIN[tingkat]} serangan dijalankan · masing-masing temuan punya perintah bukti
-- **Perintah validasi laporan (wajib hijau):** `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/<berkas-laporan>.md`
+- **Perintah validasi laporan (wajib hijau):** periksa dengan alat `alat/audit-independen.py --periksa-laporan` (berkas laporan ditulis di folder docs/uji/audit/). Bila repo yang kamu pakai adalah klon dangkal, alat akan memberi CATATAN (bukan menolak) untuk SHA yang riwayatnya tidak ada.
 
 ## ATURAN INDEPENDENSI (tidak bisa ditawar)
 
@@ -310,7 +310,7 @@ def _tabel_baris(teks: str, judul: str) -> list[list[str]]:
     return baris
 
 
-def periksa_laporan(berkas: pathlib.Path, cek_git: bool = True) -> tuple[int, list[str], list[str], dict]:
+def periksa_laporan(berkas: pathlib.Path, cek_git: bool = True, cek_sha: bool = True) -> tuple[int, list[str], list[str], dict]:
     teks = berkas.read_text(encoding="utf-8")
     gagal: list[str] = []
     catatan: list[str] = []
@@ -330,9 +330,15 @@ def periksa_laporan(berkas: pathlib.Path, cek_git: bool = True) -> tuple[int, li
         sha = sha_m.group(1)
         if len(sha) != 40:
             gagal.append(f"SHA commit harus 40 digit (tertulis: {sha})")
-        rc, _ = jalankan(["git", "cat-file", "-e", f"{sha}^{{commit}}"])
-        if rc != 0:
-            gagal.append(f"SHA {sha} tidak ada di repo ini (audit harus menunjuk commit nyata)")
+        if cek_sha:
+            rc, _ = jalankan(["git", "cat-file", "-e", f"{sha}^{{commit}}"])
+            if rc != 0:
+                # Klon dangkal (CI / sesi baru) tidak membawa seluruh riwayat → bukan cacat laporan.
+                dangkal = (AKAR / ".git" / "shallow").is_file()
+                if dangkal:
+                    catatan.append(f"SHA {sha[:8]} tidak bisa diverifikasi di klon dangkal — verifikasi riwayat penuh saat audit sungguhan")
+                else:
+                    gagal.append(f"SHA {sha} tidak ada di repo ini (audit harus menunjuk commit nyata)")
 
     verdict_m = re.search(r"- \*\*Verdict:\*\*\s*`?(BERSIH-DENGAN-CATATAN|TIDAK-BERSIH|BERSIH)`?", teks)
     verdict = verdict_m.group(1) if verdict_m else ""
@@ -612,7 +618,8 @@ def mode_uji_diri() -> int:
             print(f"  GAGAL: contoh hilang: {nama}")
             rusak += 1
             continue
-        kode, gagal, _, _ = periksa_laporan(berkas, cek_git=False)
+        # cek_sha=False: contoh laporan menunjuk commit historis; CI memakai klon dangkal (fetch-depth 1)
+        kode, gagal, _, _ = periksa_laporan(berkas, cek_git=False, cek_sha=False)
         tanda = "OK" if kode == kode_harap else "SALAH"
         if kode != kode_harap:
             rusak += 1

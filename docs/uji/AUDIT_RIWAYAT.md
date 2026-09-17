@@ -40,11 +40,14 @@ kalibrasi: `uji: 6 LULUS · 4 GAGAL`.
 
 ## 4. Cacat pada mekanisme ini sendiri (ditemukan saat pemasangan, 2026-09-17)
 
+> Semua cacat di bawah ditemukan **oleh mekanisme/uji sendiri**, bukan oleh pemilik — itulah gunanya.
+
 | # | Cacat | Bagaimana ketahuan | Perbaikan |
 |---|---|---|---|
 | 1 | Salinan kalibrasi tidak membawa `node_modules` → auditor **tidak bisa menjalankan uji SQL** (alat bukti utama hilang) | Dijalankan sendiri sebelum diserahkan (`node alat/uji-sql.mjs` → `ERR_MODULE_NOT_FOUND`) | `--kalibrasi-siapkan` menautkan `alat/node_modules` & `aplikasi/node_modules`; paket audit kini mencantumkan **kesiapan mesin** |
 | 2 | Penghitung **temuan palsu** melewatkan baris yang tidak diberi awalan `P` | Uji-diri dengan contoh laporan berisi temuan palsu (`X1`) — tidak terhitung | Perbaikan logika + uji-diri kini menguji penilai kalibrasi juga (bukan hanya pemeriksa laporan) |
 | 3 | Pustaka uji SQL **hilang** dari ruang kerja (sisa restart) → semua klaim "uji LULUS" menjadi tak bisa direproduksi | Pre-flight paket audit & percobaan menjalankan uji | `npm ci --prefix alat` dijalankan; pre-flight sekarang memperingatkan bila alat bukti tidak siap |
+| 4 | Pemeriksa laporan **menolak laporan yang sah di klon dangkal** (CI memakai `fetch-depth: 1`, sehingga SHA historis pada contoh laporan tidak ada) → CI MERAH | CI kiriman `7f3974f` gagal di langkah pemeriksa; diagnosis: `git cat-file -e <sha-lama>` gagal di klon dangkal (dibuktikan dengan klon dangkal sungguhan) | Pemeriksa memberi **CATATAN** (bukan penolakan) bila `.git/shallow` ada; `--uji-diri` memakai `cek_sha=False` untuk contoh historis. Diuji ulang di klon dangkal nyata: semua pemeriksa OK |
 
 ## 5. Uji-diri mekanisme (wajib hijau sebelum mekanisme dianggap terpasang)
 
