@@ -301,7 +301,7 @@ python3 alat/audit-independen.py --verifikasi-lingkup
 
 # (b) atau manual:
 git rev-parse HEAD                 # commit yang sedang kamu lihat
-git cat-file -e {sha}^{commit}     # apakah commit target ada di repo ini?
+git cat-file -e {sha}            # apakah commit target ada di repo ini?
 ```
 
 - **Sama** (`HEAD` = `{sha}`) → langsung lanjut.

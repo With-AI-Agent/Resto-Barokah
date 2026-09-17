@@ -1,0 +1,52 @@
+diff --git a/supabase/migrations/0003_helper_identitas.sql b/supabase/migrations/0003_helper_identitas.sql
+index 3996436..d99e944 100644
+--- a/supabase/migrations/0003_helper_identitas.sql
++++ b/supabase/migrations/0003_helper_identitas.sql
+@@ -63,7 +63,7 @@ set search_path = public, pg_temp
+ as $$
+   select pc.cabang_id
+     from public.pengguna_cabang pc
+-    join public.pengguna p on p.id = pc.pengguna_id and p.aktif   -- akun nonaktif kehilangan akses
++    join public.pengguna p on p.id = pc.pengguna_id   -- SENGAJA (kalibrasi)
+    where pc.pengguna_id = auth.uid()
+      and pc.aktif
+      and pc.cabang_id = nullif(auth.jwt() ->> 'cabang_id', '')::uuid
+diff --git a/supabase/migrations/0004_pola_rls.sql b/supabase/migrations/0004_pola_rls.sql
+index 3a9dd3d..899af1a 100644
+--- a/supabase/migrations/0004_pola_rls.sql
++++ b/supabase/migrations/0004_pola_rls.sql
+@@ -76,7 +76,7 @@ create policy izin_pilih on public.izin
+ -- -------------------------------------------------------------- pengaturan
+ create policy pengaturan_pilih on public.pengaturan
+   for select to authenticated
+-  using (penyewa_id = public.penyewa_saya());
++  using (penyewa_id is not null);
+ 
+ create policy pengaturan_ubah on public.pengaturan
+   for update to authenticated
+diff --git a/supabase/migrations/0005_izin_berjenjang.sql b/supabase/migrations/0005_izin_berjenjang.sql
+index 879ab55..e5565c9 100644
+--- a/supabase/migrations/0005_izin_berjenjang.sql
++++ b/supabase/migrations/0005_izin_berjenjang.sql
+@@ -298,7 +298,7 @@ grant select, insert, update, delete on public.izin_kode to service_role;
+ grant select, insert, update, delete on public.izin_peran to service_role;
+ 
+ revoke all on function public.izin_efektif(text, uuid) from public;
+-revoke all on function public.boleh(text, uuid) from public;
++-- SENGAJA (kalibrasi): hak public TIDAK dicabut
+ revoke all on function public.boleh(text, integer, uuid) from public;
+ revoke all on function public.boleh(text, integer, numeric, uuid) from public;
+ revoke all on function public.pasang_izin_peran_bawaan(uuid) from public;
+diff --git a/supabase/migrations/0010_pembayaran.sql b/supabase/migrations/0010_pembayaran.sql
+index 400e0ad..c3adf2f 100644
+--- a/supabase/migrations/0010_pembayaran.sql
++++ b/supabase/migrations/0010_pembayaran.sql
+@@ -293,7 +293,7 @@ begin
+   -- pencatatan tidak macet — angka total dihitung ulang di T1-15.
+   if coalesce(v_pesanan.total, 0) > 0 then
+     v_sebelum := public.total_dibayar(new.pesanan_id) + new.jumlah;
+-    if v_sebelum > v_pesanan.total then
++    if v_sebelum > v_pesanan.total + 100000 then
+       raise exception 'Total pembayaran (%) melebihi total pesanan (%).', v_sebelum, v_pesanan.total;
+     end if;
+   end if;

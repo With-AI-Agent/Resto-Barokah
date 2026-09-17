@@ -47,12 +47,32 @@ Paket audit:
 > Setelah auditor selesai, kembali ke sesi kerja dan bilang: **"Laporan audit sudah masuk, periksa."**
 
 - **Tingkat audit:** AUD-3
-- **Commit yang diaudit:** `8d0f72410098080b4833193605f15db70f7d0dfd` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
-- **Tugas dalam lingkup:** T0-00, T0-01, T0-02, T0-03, T0-04, T0-05, T0-06, T0-07, T0-08, T0-09, T0-10, T0-11, T0-12, T1-01, T1-02, T1-03, T1-04, T1-05, T1-06, T1-07, T1-08, T1-09, T1-10, T1-11, T1-12, T1-13, T1-14, T1-15, T1-16, T1-17, T1-18, T1-19, T1-20, T1-21, T1-22, T1-23, T1-24, T1-25, T1-26, T1-27, T1-28, T1-29, T1-30, T1-31, T1-32, T1-33, T1-34, T1-35, T1-36, T1-37, T1-38, T2-01, T2-02, T2-03, T2-04, T2-05, T2-06, T2-07, T2-08, T2-09, T2-10, T2-11, T2-12, T2-13, T2-14, T2-15, T2-16, T2-17, T2-18, T2-19, T3-01, T3-02, T3-03, T3-04, T3-05, T3-06, T3-07, T3-08, T3-09, T3-10, T3-11, T3-12, T3-13, T3-14, T3-15, T3-16, T4-01, T4-02, T4-03, T4-04, T4-05, T4-06, T4-07, T4-08, T4-09, T4-10, T5-01, T5-02, T5-03, T5-04, T5-05, T5-06, T5-07, T5-08, T5-09, T5-10, T5-11, T5-12, T6-01, T6-02, T6-03, T6-04, T6-05, T6-06, T6-07, T6-08, T7-01, T7-02, T7-03, T7-04, T7-05, T7-06, T7-07, T7-08, T7-09, T7-10, T7-11, T7-12, T8-01, T8-02, T8-03, T8-04, T8-05, T8-06, T8-07, T8-08, T8-09, T8-10, T8-11, T8-12, T8-13, T8-14, T8-15, T9-01, T9-02, T9-03, T9-04, T9-05, T9-06, T9-07, T9-08, T9-09, T9-10, T9-11, T9-12, T10-01, T10-02, T10-03, T10-04, T10-05, T10-06, T10-07, T10-08, T10-09, T10-10, T10-11, T10-12, T10-13, T10-14, T10-15, T10-16, T11-01, T11-02, T11-03, T11-04, T11-05, T11-06, T11-07, T11-08, T11-09, T11-10, T11-11, T11-12, T11-13
+- **Commit yang diaudit:** `5ed041a7e4e14b1bda4dda3224900d246e1c9b91` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
+- **Tugas dalam lingkup:** T0-00, T0-01, T0-02, T0-03, T0-04, T0-05, T0-06, T0-07, T0-08, T0-09, T0-10, T0-11, T0-12, T0-13, T0-14, T1-01, T1-02, T1-03, T1-04, T1-05, T1-06, T1-07, T1-08, T1-09, T1-10, T1-11, T1-12, T1-13, T1-14, T1-15, T1-16, T1-17, T1-18, T1-19, T1-20, T1-21, T1-22, T1-23, T1-24, T1-25, T1-26, T1-27, T1-28, T1-29, T1-30, T1-31, T1-32, T1-33, T1-34, T1-35, T1-36, T1-37, T1-38, T1-39, T2-01, T2-02, T2-03, T2-04, T2-05, T2-06, T2-07, T2-08, T2-09, T2-10, T2-11, T2-12, T2-13, T2-14, T2-15, T2-16, T2-17, T2-18, T2-19, T3-01, T3-02, T3-03, T3-04, T3-05, T3-06, T3-07, T3-08, T3-09, T3-10, T3-11, T3-12, T3-13, T3-14, T3-15, T3-16, T4-01, T4-02, T4-03, T4-04, T4-05, T4-06, T4-07, T4-08, T4-09, T4-10, T5-01, T5-02, T5-03, T5-04, T5-05, T5-06, T5-07, T5-08, T5-09, T5-10, T5-11, T5-12, T6-01, T6-02, T6-03, T6-04, T6-05, T6-06, T6-07, T6-08, T7-01, T7-02, T7-03, T7-04, T7-05, T7-06, T7-07, T7-08, T7-09, T7-10, T7-11, T7-12, T8-01, T8-02, T8-03, T8-04, T8-05, T8-06, T8-07, T8-08, T8-09, T8-10, T8-11, T8-12, T8-13, T8-14, T8-15, T9-01, T9-02, T9-03, T9-04, T9-05, T9-06, T9-07, T9-08, T9-09, T9-10, T9-11, T9-12, T10-01, T10-02, T10-03, T10-04, T10-05, T10-06, T10-07, T10-08, T10-09, T10-10, T10-11, T10-12, T10-13, T10-14, T10-15, T10-16, T11-01, T11-02, T11-03, T11-04, T11-05, T11-06, T11-07, T11-08, T11-09, T11-10, T11-11, T11-12, T11-13
 - **Lensa wajib:** L1, L2, L3, L4, L5, L6
 - **Mode cakupan:** menyeluruh
 - **Minimum laporan:** ≥17 artefak diperiksa · ≥5 klaim dibantah · ≥12 serangan dijalankan · masing-masing temuan punya perintah bukti
 - **Perintah validasi laporan (wajib hijau):** periksa dengan alat `alat/audit-independen.py --periksa-laporan` (berkas laporan ditulis di folder docs/uji/audit/). Bila repo yang kamu pakai adalah klon dangkal, alat akan memberi CATATAN (bukan menolak) untuk SHA yang riwayatnya tidak ada.
+
+## 0a. LANGKAH 0 (WAJIB) — pastikan kamu memeriksa commit yang benar
+
+Paket ini menargetkan commit **`5ed041a7e4e14b1bda4dda3224900d246e1c9b91`**. **Cabang/base apa pun yang Lee pilih tidak masalah** — yang menentukan adalah commit-nya.
+
+```
+# (a) di repo ini, satu perintah memeriksa semuanya:
+python3 alat/audit-independen.py --verifikasi-lingkup
+
+# (b) atau manual:
+git rev-parse HEAD                 # commit yang sedang kamu lihat
+git cat-file -e 5ed041a7e4e14b1bda4dda3224900d246e1c9b91            # apakah commit target ada di repo ini?
+```
+
+- **Sama** (`HEAD` = `5ed041a7e4e14b1bda4dda3224900d246e1c9b91`) → langsung lanjut.
+- **Berbeda tetapi commit target ada** → pindah hanya-baca lalu lanjut (aman, tidak mengubah apa pun):
+  `git fetch origin && git checkout --detach 5ed041a7e4e14b1bda4dda3224900d246e1c9b91`
+- **Commit target tidak ada** → coba `git fetch origin` sekali lagi. Kalau tetap tidak ada, **JANGAN mengaudit commit lain**:
+  tulis di bagian "Yang tidak bisa saya verifikasi" dan hentikan (minta Lee membuka sesi dari sumber yang benar).
+- Tulis di kepala laporan: `- **Commit yang diaudit:** <commit yang benar-benar kamu periksa>`.
 
 ## ATURAN INDEPENDENSI (tidak bisa ditawar)
 
@@ -68,7 +88,7 @@ Paket audit:
 
 ## 0. LINGKUP MENYELURUH (wajib — audit ini memeriksa SEMUA berkas proyek)
 
-- **Jumlah berkas dalam lingkup:** 320
+- **Jumlah berkas dalam lingkup:** 331
 - **Mode cakupan yang wajib kamu tulis di laporan:** `menyeluruh`
 
 **Grup berkas yang wajib kamu sentuh (minimal satu baris bukti per grup):**
@@ -81,11 +101,11 @@ Paket audit:
 | supabase/migrations | migrasi database | 11 | `supabase/migrations/.gitkeep`, `supabase/migrations/0001_penyewa_cabang.sql` … |
 | supabase/tes | uji SQL | 11 | `supabase/tes/.gitkeep`, `supabase/tes/helper.sql` … |
 | supabase/functions | Edge Functions | 2 | `supabase/functions/.gitkeep`, `supabase/functions/verifikasi_pin/index.ts` |
-| alat | perkakas repo (uji SQL, pemeriksa, mekanisme audit) | 19 | `alat/audit-independen.py`, `alat/contoh-laporan/kalibrasi-penuh.md` … |
+| alat | perkakas repo (uji SQL, pemeriksa, mekanisme audit) | 24 | `alat/audit-independen.py`, `alat/contoh-laporan-review/bagus.md` … |
 | _sistem | mesin kerja agent (validator, template) | 16 | `_sistem/02_TAWARAN_KAPABILITAS_PLUS_AUDIT.md`, `_sistem/03_AUDIT_VERCEL_SKILLS.md` … |
 | docs (fondasi) | PRD, TECH_SPEC, ROADMAP, KEAMANAN, SPESIFIKASI_UI, dll | 11 | `docs/AGENT_OPERATING_GUIDE.md`, `docs/DECISIONS_LOG.md` … |
-| docs/uji | protokol & laporan uji/audit | 18 | `docs/uji/AUDIT_RIWAYAT.md`, `docs/uji/CATATAN_REVIEW_SESI_01a0aab1.md` … |
-| docs/teknis | catatan teknis & Buku Insiden | 5 | `docs/teknis/BUKU_INSIDEN.md`, `docs/teknis/DISKUSI_TAHAP4_ATURAN_KERJA.md` … |
+| docs/uji | protokol & laporan uji/audit | 23 | `docs/uji/AUDIT_RIWAYAT.md`, `docs/uji/CATATAN_REVIEW_SESI_01a0aab1.md` … |
+| docs/teknis | catatan teknis & Buku Insiden | 6 | `docs/teknis/BUKU_INSIDEN.md`, `docs/teknis/DISKUSI_TAHAP4_ATURAN_KERJA.md` … |
 | docs/ops | panduan operasional | 1 | `docs/ops/SIAP_AKUN_PEMILIK.md` |
 | docs/desain | catatan desain | 59 | `docs/desain/PENILAIAN_REFERENSI.md`, `docs/desain/RENCANA_DESAIN_UI.md` … |
 | prototipe | prototipe desain (acuan visual) | 58 | `prototipe/01-laporan.html`, `prototipe/02-kasir.html` … |
@@ -101,7 +121,7 @@ Paket audit:
 
 **Kewajiban khusus mode menyeluruh (divalidasi mesin):**
 1. Tulis di kepala laporan: `- **Mode cakupan:** menyeluruh`.
-2. Tulis ringkasan: `Cakupan menyeluruh: X dari 320 berkas` (X = berkas yang benar-benar kamu periksa; angka ini diperiksa mesin).
+2. Tulis ringkasan: `Cakupan menyeluruh: X dari 331 berkas` (X = berkas yang benar-benar kamu periksa; angka ini diperiksa mesin).
 3. Bagian 1 harus memuat **setiap grup** di atas minimal satu baris (dengan bukti perintah/baris).
 4. Tambahkan sub-bagian `### 1a. Berkas untuk pengguna` (minimal 3 baris): berkas pengguna di akar (PANDUAN_*, PROMPT_*, START_DI_SINI, PROFIL_PENGGUNA, AGENT_SYSTEM, STATUS, PROJECT_STATE), `docs/PANDUAN_PEMILIK.md`, `docs/uji/PROMPT_AUDIT_INDEPENDEN.md`,
    `docs/teknis/BUKU_INSIDEN.md`, `docs/ops/*`, dan `PANDUAN_PENGGUNA.md` → **periksa dengan cara pengguna**: apakah langkahnya bisa diikuti orang non-teknis, apakah prompt bisa disalin apa adanya dan bekerja, apakah ada langkah yang menyebut berkas/perintah yang tidak ada, apakah isi buku induk lengkap (semua mekanisme & semua prompt ada).
@@ -168,303 +188,309 @@ Ambang lulus (dinilai pembangun setelah laporan masuk): semua cacat K-1/K-2 tert
 | 41 | `docs/uji/paket-audit/AUD-3-<tanggal>.md` |
 | 42 | `docs/uji/audit/LAPORAN_AUD-3_<tanggal>_menyeluruh.md` |
 | 43 | `docs/TERTANGGUH.md` |
-| 44 | `supabase/migrations/0001_penyewa_cabang.sql` |
-| 45 | `supabase/tes/rls_penyewa.sql` |
-| 46 | `supabase/migrations/0002_pengguna_izin_pengaturan.sql` |
-| 47 | `supabase/tes/rls_pengguna.sql` |
-| 48 | `supabase/migrations/0003_helper_identitas.sql` |
-| 49 | `supabase/tes/helper.sql` |
-| 50 | `supabase/migrations/0004_pola_rls.sql` |
-| 51 | `supabase/tes/rls_semua_tabel.sql` |
-| 52 | `supabase/migrations/0005_izin_berjenjang.sql` |
-| 53 | `supabase/tes/izin.sql` |
-| 54 | `supabase/migrations/0006_pin.sql` |
-| 55 | `supabase/functions/verifikasi_pin/index.ts` |
-| 56 | `supabase/tes/pin.sql` |
-| 57 | `alat/periksa-fungsi-pin.py` |
-| 58 | `supabase/migrations/0007_katalog.sql` |
-| 59 | `supabase/tes/katalog.sql` |
-| 60 | `supabase/migrations/0008_meja.sql` |
-| 61 | `supabase/tes/meja.sql` |
-| 62 | `supabase/migrations/0009_pesanan.sql` |
-| 63 | `supabase/tes/pesanan.sql` |
-| 64 | `supabase/migrations/0010_pembayaran.sql` |
-| 65 | `supabase/tes/pembayaran.sql` |
-| 66 | `supabase/migrations/0018_kas_shift.sql` |
-| 67 | `supabase/migrations/0019_voucher.sql` |
-| 68 | `supabase/migrations/0020_catatan_audit.sql` |
-| 69 | `supabase/tes/audit.sql` |
-| 70 | `supabase/migrations/0021_antrean_kesalahan.sql` |
-| 71 | `supabase/migrations/0022_hitung_total.sql` |
-| 72 | `supabase/tes/uang.sql` |
-| 73 | `supabase/migrations/0023_urutan_pembulatan.sql` |
-| 74 | `supabase/tes/urutan.sql` |
-| 75 | `supabase/migrations/0024_penomoran.sql` |
-| 76 | `supabase/tes/penomoran.sql` |
-| 77 | `supabase/migrations/0025_state_machine.sql` |
-| 78 | `supabase/tes/status.sql` |
-| 79 | `supabase/migrations/0026_cek_voucher.sql` |
-| 80 | `supabase/tes/cek_voucher.sql` |
-| 81 | `supabase/migrations/0027_pakai_voucher.sql` |
-| 82 | `supabase/tes/pakai_voucher.sql` |
-| 83 | `supabase/seed.sql` |
-| 84 | `supabase/seed_uji.sql` |
-| 85 | `supabase/tes/sisir_rls.sql` |
-| 86 | `docs/KEAMANAN.md` |
-| 87 | `docs/DECISIONS_LOG.md` |
-| 88 | `supabase/migrations/0011_peran_tunggal.sql` |
-| 89 | `supabase/tes/peran_tunggal.sql` |
-| 90 | `supabase/migrations/0012_perangkat.sql` |
-| 91 | `supabase/tes/perangkat.sql` |
-| 92 | `supabase/migrations/0013_sesi_perangkat.sql` |
-| 93 | `supabase/tes/sesi_perangkat.sql` |
-| 94 | `supabase/migrations/0014_percobaan_masuk.sql` |
-| 95 | `supabase/tes/percobaan_masuk.sql` |
-| 96 | `supabase/migrations/0015_audit.sql` |
-| 97 | `alat/periksa-audit.py` |
-| 98 | `supabase/migrations/0016_mode_dukungan.sql` |
-| 99 | `supabase/tes/mode_dukungan.sql` |
-| 100 | `supabase/tes/matriks_izin.sql` |
-| 101 | `supabase/tes/matriks_staf.sql` |
-| 102 | `alat/periksa-keamanan-sql.py` |
-| 103 | `alat/periksa-rahasia.py` |
-| 104 | `aplikasi/src/lib/layar.ts` |
-| 105 | `docs/SPESIFIKASI_UI.md` |
-| 106 | `docs/PETA_UI.md` |
-| 107 | `alat/peta-ui.py` |
-| 108 | `aplikasi/src/lib/aksi.ts` |
-| 109 | `aplikasi/src/komponen/TombolAksi.tsx` |
-| 110 | `aplikasi/src/komponen/TombolAksi.test.tsx` |
-| 111 | `aplikasi/src/uji/harness.tsx` |
-| 112 | `aplikasi/src/uji/harness.test.tsx` |
-| 113 | `docs/AGENT_OPERATING_GUIDE.md` |
-| 114 | `docs/uji/NASKAH_JALAN.md` |
-| 115 | `supabase/migrations/0016b_pemulihan_perangkat.sql` |
-| 116 | `supabase/tes/pemulihan.sql` |
-| 117 | `docs/ops/PEMULIHAN_PERANGKAT.md` |
-| 118 | `docs/uji/DAFTAR_PEKERJAAN_ULANG.md` |
-| 119 | `alat/sql/data-uji.sql` |
-| 120 | `tes/izin.sql` |
-| 121 | `node alat/uji-sql.mjs` |
-| 122 | `docs/uji/paket-audit/AUD-2-<tanggal>.md` |
-| 123 | `docs/uji/audit/LAPORAN_AUD-2_<tanggal>_keamanan.md` |
-| 124 | `aplikasi/src/lib/auth.ts` |
-| 125 | `aplikasi/src/hook/useSesi.ts` |
-| 126 | `aplikasi/src/layar/masuk/LayarMasukPegawai.tsx` |
-| 127 | `supabase/tes/masuk_pegawai.sql` |
-| 128 | `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx` |
-| 129 | `supabase/functions/undang_pegawai/index.ts` |
-| 130 | `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx` |
-| 131 | `aplikasi/src/lib/google.ts` |
-| 132 | `supabase/functions/pemulihan_pelanggan/index.ts` |
-| 133 | `aplikasi/src/layar/masuk/LupaAkses.tsx` |
-| 134 | `aplikasi/src/App.tsx` |
-| 135 | `aplikasi/src/komponen/Rangka.tsx` |
-| 136 | `aplikasi/src/komponen/Navigasi.tsx` |
-| 137 | `aplikasi/src/hook/useCabang.ts` |
-| 138 | `aplikasi/src/komponen/PemilihCabang.tsx` |
-| 139 | `aplikasi/src/layar/TidakPunyaAkses.tsx` |
-| 140 | `aplikasi/src/lib/pesan.ts` |
-| 141 | `aplikasi/src/hook/useKunciSesi.ts` |
-| 142 | `supabase/functions/pembatas_masuk/index.ts` |
-| 143 | `supabase/tes/pembatas.sql` |
-| 144 | `aplikasi/src/layar/masuk/*.test.ts` |
-| 145 | `supabase/tes/peran_masuk.sql` |
-| 146 | `aplikasi/src/layar/masuk/Totp.tsx` |
-| 147 | `supabase/functions/atur_ulang_mfa/index.ts` |
-| 148 | `alat/periksa-fungsi-mfa.py` |
-| 149 | `supabase/tes/mfa.sql` |
-| 150 | `aplikasi/src/layar/masuk/MasukStaf.tsx` |
-| 151 | `aplikasi/src/lib/sesi.ts` |
-| 152 | `aplikasi/src/layar/pengaturan/Perangkat.tsx` |
-| 153 | `supabase/functions/kode_perangkat/index.ts` |
-| 154 | `aplikasi/src/hook/useKunciOtomatis.ts` |
-| 155 | `aplikasi/src/komponen/KunciSekarang.tsx` |
-| 156 | `aplikasi/src/hook/useKunciOtomatis.test.tsx` |
-| 157 | `aplikasi/src/layar/pengaturan/DaftarPerangkat.tsx` |
-| 158 | `aplikasi/src/layar/masuk/MasukPengelola.tsx` |
-| 159 | `supabase/tes/masuk_perangkat.sql` |
-| 160 | `aplikasi/src/layar/masuk/masuk.test.tsx` |
-| 161 | `aplikasi/src/layar/kasir/LayarKasir.tsx` |
-| 162 | `aplikasi/src/layar/kasir/Katalog.tsx` |
-| 163 | `aplikasi/src/layar/kasir/Keranjang.tsx` |
-| 164 | `aplikasi/src/lib/uang.ts` |
-| 165 | `aplikasi/src/layar/kasir/PemilihMeja.tsx` |
-| 166 | `aplikasi/src/komponen/CatatanItem.tsx` |
-| 167 | `aplikasi/src/layar/kasir/DaftarTagihan.tsx` |
-| 168 | `supabase/migrations/0028_simpan_pesanan.sql` |
-| 169 | `supabase/tes/simpan_pesanan.sql` |
-| 170 | `aplikasi/src/layar/kasir/PindahMeja.tsx` |
-| 171 | `supabase/migrations/0029_pindah_meja.sql` |
-| 172 | `supabase/migrations/0030_menu_habis.sql` |
-| 173 | `aplikasi/src/layar/kasir/KirimDapur.tsx` |
-| 174 | `supabase/migrations/0031_kirim_dapur.sql` |
-| 175 | `aplikasi/src/layar/kasir/PeringatanMeja.tsx` |
-| 176 | `supabase/tes/konflik_meja.sql` |
-| 177 | `aplikasi/src/hook/usePintasan.ts` |
-| 178 | `aplikasi/src/layar/pelayan/LayarPelayan.tsx` |
-| 179 | `aplikasi/src/layar/kasir/DaftarPesanan.tsx` |
-| 180 | `aplikasi/src/layar/kasir/BatalPesanan.tsx` |
-| 181 | `supabase/migrations/0032_batal_pra_dapur.sql` |
-| 182 | `aplikasi/uji/e2e/kasir.spec.ts` |
-| 183 | `aplikasi/src/layar/kasir/*.tsx` |
-| 184 | `aplikasi/src/komponen/Keadaan*.tsx` |
-| 185 | `aplikasi/uji/beban/kasir.test.ts` |
-| 186 | `aplikasi/src/layar/dapur/LayarDapur.tsx` |
-| 187 | `aplikasi/src/layar/dapur/LayarBar.tsx` |
-| 188 | `supabase/migrations/0033_tujuan_item.sql` |
-| 189 | `aplikasi/src/layar/dapur/KartuPesanan.tsx` |
-| 190 | `supabase/migrations/0034_status_item.sql` |
-| 191 | `supabase/tes/status_item.sql` |
-| 192 | `aplikasi/src/layar/dapur/TombolHabis.tsx` |
-| 193 | `supabase/migrations/0035_menu_habis_sumber.sql` |
-| 194 | `aplikasi/src/layar/dapur/Stok.tsx` |
-| 195 | `supabase/migrations/0036_stok.sql` |
-| 196 | `aplikasi/src/layar/dapur/Opname.tsx` |
-| 197 | `supabase/migrations/0037_opname.sql` |
-| 198 | `aplikasi/uji/e2e/dapur.spec.ts` |
-| 199 | `supabase/tes/anti_dobel.sql` |
-| 200 | `aplikasi/src/layar/dapur/*.tsx` |
-| 201 | `aplikasi/src/layar/kasir/Bayar.tsx` |
-| 202 | `supabase/migrations/0038_bayar_pesanan.sql` |
-| 203 | `supabase/tes/bayar.sql` |
-| 204 | `aplikasi/src/komponen/Struk.tsx` |
-| 205 | `supabase/tes/pajak_service.sql` |
-| 206 | `supabase/migrations/0039_diskon.sql` |
-| 207 | `supabase/tes/diskon.sql` |
-| 208 | `aplikasi/src/layar/kasir/DiskonManual.tsx` |
-| 209 | `supabase/migrations/0040_diskon_izin.sql` |
-| 210 | `supabase/migrations/0041_void_pra.sql` |
-| 211 | `supabase/tes/void_pra.sql` |
-| 212 | `supabase/migrations/0042_void_pasca.sql` |
-| 213 | `aplikasi/src/layar/kasir/VoidPasca.tsx` |
-| 214 | `aplikasi/src/layar/kasir/DataPelanggan.tsx` |
-| 215 | `aplikasi/src/komponen/StrukDigital.tsx` |
-| 216 | `aplikasi/src/layar/kasir/DaftarTransaksi.tsx` |
-| 217 | `supabase/tes/pembayaran_sebagian.sql` |
-| 218 | `supabase/migrations/0043_laporan_pembatalan.sql` |
-| 219 | `aplikasi/src/layar/laporan/DaftarPembatalan.tsx` |
-| 220 | `aplikasi/src/lib/printer/expos.ts` |
-| 221 | `aplikasi/src/lib/printer/expos.test.ts` |
-| 222 | `aplikasi/src/lib/printer/bluetooth.ts` |
-| 223 | `aplikasi/src/layar/pengaturan/PasangPrinter.tsx` |
-| 224 | `aplikasi/src/lib/printer/usb.ts` |
-| 225 | `aplikasi/src/lib/printer/struk.ts` |
-| 226 | `aplikasi/src/lib/printer/tiket.ts` |
-| 227 | `aplikasi/src/lib/printer/antrean.ts` |
-| 228 | `aplikasi/src/komponen/StatusPrinter.tsx` |
-| 229 | `supabase/migrations/0044_printer.sql` |
-| 230 | `aplikasi/src/layar/pengaturan/PengaturanPrinter.tsx` |
-| 231 | `docs/uji/UJI_CETAK_KEDAI_OASIS.md` |
-| 232 | `supabase/migrations/0045_buka_shift.sql` |
-| 233 | `aplikasi/src/layar/kasir/BukaKas.tsx` |
-| 234 | `supabase/migrations/0046_tutup_shift.sql` |
-| 235 | `aplikasi/src/layar/kasir/TutupKas.tsx` |
-| 236 | `supabase/migrations/0047_kas_pergerakan.sql` |
-| 237 | `aplikasi/src/layar/kasir/KasKeluarMasuk.tsx` |
-| 238 | `supabase/migrations/0048_wajib_shift.sql` |
-| 239 | `supabase/tes/wajib_shift.sql` |
-| 240 | `aplikasi/src/komponen/PengingatShift.tsx` |
-| 241 | `supabase/migrations/0049_pengingat_shift.sql` |
-| 242 | `supabase/migrations/0050_koreksi_modal.sql` |
-| 243 | `supabase/migrations/0051_laporan_kas.sql` |
-| 244 | `aplikasi/src/layar/laporan/LaporanKas.tsx` |
-| 245 | `supabase/migrations/0052_laporan_penjualan.sql` |
-| 246 | `aplikasi/src/layar/laporan/LaporanPenjualan.tsx` |
-| 247 | `supabase/migrations/0053_laporan_menu.sql` |
-| 248 | `aplikasi/src/layar/laporan/LaporanMenu.tsx` |
-| 249 | `aplikasi/src/layar/laporan/FormatLaporan.tsx` |
-| 250 | `supabase/tes/tengah_malam.sql` |
-| 251 | `supabase/tes/golden_laporan.sql` |
-| 252 | `supabase/migrations/0054_katalog_publik.sql` |
-| 253 | `supabase/tes/katalog_publik.sql` |
-| 254 | `aplikasi/src/layar/pelanggan-publik/Katalog.tsx` |
-| 255 | `aplikasi/src/layar/pelanggan-publik/Menu.tsx` |
-| 256 | `aplikasi/src/layar/pengaturan/TautanKatalog.tsx` |
-| 257 | `aplikasi/src/layar/voucher/Kampanye.tsx` |
-| 258 | `aplikasi/src/layar/voucher/Daftar.tsx` |
-| 259 | `supabase/functions/verifikasi_pelanggan/index.ts` |
-| 260 | `aplikasi/src/lib/emailNormalisasi.ts` |
-| 261 | `supabase/tes/anti_email_palsu.sql` |
-| 262 | `supabase/migrations/0055_voucher_terbit.sql` |
-| 263 | `aplikasi/src/layar/voucher/KartuVoucher.tsx` |
-| 264 | `aplikasi/src/layar/kasir/Voucher.tsx` |
-| 265 | `aplikasi/src/layar/kasir/ScanVoucher.tsx` |
-| 266 | `aplikasi/src/layar/pengaturan/Kampanye.tsx` |
-| 267 | `supabase/migrations/0056_kampanye_aturan.sql` |
-| 268 | `supabase/migrations/0057_pengaman_voucher.sql` |
-| 269 | `supabase/tes/pengaman_voucher.sql` |
-| 270 | `supabase/migrations/0058_laporan_voucher.sql` |
-| 271 | `aplikasi/src/layar/laporan/LaporanVoucher.tsx` |
-| 272 | `supabase/tes/voucher_lengkap.sql` |
-| 273 | `aplikasi/uji/e2e/voucher.spec.ts` |
-| 274 | `supabase/migrations/0017_privasi_pelanggan.sql` |
-| 275 | `supabase/tes/privasi.sql` |
-| 276 | `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx` |
-| 277 | `aplikasi/src/layar/pengaturan/Identitas.tsx` |
-| 278 | `supabase/migrations/0059_unggah_gambar.sql` |
-| 279 | `prototipe/README.md` |
-| 280 | `aplikasi/src/layar/pengaturan/Tampilan.tsx` |
-| 281 | `aplikasi/src/layar/pengaturan/Operasional.tsx` |
-| 282 | `supabase/migrations/0060_pengaturan_operasional.sql` |
-| 283 | `aplikasi/src/layar/pengaturan/Meja.tsx` |
-| 284 | `aplikasi/src/layar/pengaturan/Menu.tsx` |
-| 285 | `supabase/migrations/0061_urut_menu.sql` |
-| 286 | `aplikasi/src/layar/pengaturan/MenuCabang.tsx` |
-| 287 | `aplikasi/src/layar/pengaturan/MetodeBayar.tsx` |
-| 288 | `aplikasi/src/layar/pengaturan/Izin.tsx` |
-| 289 | `supabase/migrations/0062_kelola_izin.sql` |
-| 290 | `aplikasi/src/layar/pengaturan/Cabang.tsx` |
-| 291 | `supabase/migrations/0063_kelola_cabang.sql` |
-| 292 | `aplikasi/src/layar/platform/Penyewa.tsx` |
-| 293 | `supabase/functions/daftar_penyewa/index.ts` |
-| 294 | `supabase/tes/daftar_penyewa.sql` |
-| 295 | `aplikasi/src/layar/pengaturan/Pratinjau.tsx` |
-| 296 | `supabase/tes/riwayat_tidak_berubah.sql` |
-| 297 | `docs/uji/UJI_TERIMA_PENGATURAN.md` |
-| 298 | `aplikasi/src/lib/antrean-offline.ts` |
-| 299 | `aplikasi/src/hook/useAntrean.ts` |
-| 300 | `supabase/migrations/0064_idempoten.sql` |
-| 301 | `supabase/tes/idempoten.sql` |
-| 302 | `aplikasi/src/komponen/StatusAntrean.tsx` |
-| 303 | `aplikasi/uji/e2e/luring.spec.ts` |
-| 304 | `supabase/tes/sisir_rls_akhir.sql` |
-| 305 | `aplikasi/src/layar/pengaturan/SesiAktif.tsx` |
-| 306 | `supabase/functions/akhiri_sesi/index.ts` |
-| 307 | `docs/uji/AUDIT_KEAMANAN.md` |
-| 308 | `supabase/migrations/0065_pg_cron.sql` |
-| 309 | `alat/denyut.py` |
-| 310 | `aplikasi/src/lib/pemulihan-sesi.ts` |
-| 311 | `aplikasi/uji/e2e/mati-mendadak.spec.ts` |
-| 312 | `docs/ops/PEMULIHAN_LISTRIK.md` |
-| 313 | `docs/teknis/PEMULIHAN.md` |
-| 314 | `.github/workflows/cadangan.yml` |
-| 315 | `supabase/migrations/0066_versi_pengaturan.sql` |
-| 316 | `supabase/tes/pengaturan_bersamaan.sql` |
-| 317 | `aplikasi/src/layar/pengaturan/CabutAkses.tsx` |
-| 318 | `supabase/tes/cabut_akses.sql` |
-| 319 | `supabase/functions/ringkasan_harian/index.ts` |
-| 320 | `supabase/migrations/0066_ringkasan_harian.sql` |
-| 321 | `aplikasi/src/layar/laporan/Peringatan.tsx` |
-| 322 | `supabase/tes/ringkasan.sql` |
-| 323 | `docs/teknis/BUKU_INSIDEN.md` |
-| 324 | `docs/teknis/TINJAUAN_KEAMANAN_F10.md` |
-| 325 | `aplikasi/uji/e2e/*.spec.ts` |
-| 326 | `docs/uji/UJI_TERIMA_G1.md` |
-| 327 | `docs/uji/UJI_PERANGKAT.md` |
-| 328 | `docs/uji/AUDIT_TAMPILAN.md` |
-| 329 | `alat/pantau_batas.py` |
-| 330 | `docs/uji/KINERJA_DAN_BATAS.md` |
-| 331 | `docs/ops/DEPLOY.md` |
-| 332 | `aplikasi/src/layar/pengaturan/StatusPemakaian.tsx` |
-| 333 | `supabase/functions/peringatan_batas/index.ts` |
-| 334 | `docs/ops/PANDUAN_PEGAWAI.md` |
-| 335 | `docs/ops/SERAH_TERIMA_G1.md` |
-| 336 | `.github/workflows/e2e.yml` |
-| 337 | `uji-e2e/*.spec.ts` |
-| 338 | `docs/uji/HASIL_UJI_TERIMA_KEAMANAN.md` |
-| 339 | `docs/uji/audit/LAPORAN_AUD-3_<tanggal>_pilot.md` |
-| 340 | `alat/audit-independen.py` |
+| 44 | `docs/uji/PROTOKOL_REVIEW_PR_INDEPENDEN.md` |
+| 45 | `docs/uji/PROMPT_REVIEW_PR_INDEPENDEN.md` |
+| 46 | `alat/review-pr.py` |
+| 47 | `docs/uji/REVIEW_PR_RIWAYAT.md` |
+| 48 | `docs/teknis/REKAM_PESAN_PEMILIK.md` |
+| 49 | `supabase/migrations/0001_penyewa_cabang.sql` |
+| 50 | `supabase/tes/rls_penyewa.sql` |
+| 51 | `supabase/migrations/0002_pengguna_izin_pengaturan.sql` |
+| 52 | `supabase/tes/rls_pengguna.sql` |
+| 53 | `supabase/migrations/0003_helper_identitas.sql` |
+| 54 | `supabase/tes/helper.sql` |
+| 55 | `supabase/migrations/0004_pola_rls.sql` |
+| 56 | `supabase/tes/rls_semua_tabel.sql` |
+| 57 | `supabase/migrations/0005_izin_berjenjang.sql` |
+| 58 | `supabase/tes/izin.sql` |
+| 59 | `supabase/migrations/0006_pin.sql` |
+| 60 | `supabase/functions/verifikasi_pin/index.ts` |
+| 61 | `supabase/tes/pin.sql` |
+| 62 | `alat/periksa-fungsi-pin.py` |
+| 63 | `supabase/migrations/0007_katalog.sql` |
+| 64 | `supabase/tes/katalog.sql` |
+| 65 | `supabase/migrations/0008_meja.sql` |
+| 66 | `supabase/tes/meja.sql` |
+| 67 | `supabase/migrations/0009_pesanan.sql` |
+| 68 | `supabase/tes/pesanan.sql` |
+| 69 | `supabase/migrations/0010_pembayaran.sql` |
+| 70 | `supabase/tes/pembayaran.sql` |
+| 71 | `supabase/migrations/0018_kas_shift.sql` |
+| 72 | `supabase/migrations/0019_voucher.sql` |
+| 73 | `supabase/migrations/0020_catatan_audit.sql` |
+| 74 | `supabase/tes/audit.sql` |
+| 75 | `supabase/migrations/0021_antrean_kesalahan.sql` |
+| 76 | `supabase/migrations/0022_hitung_total.sql` |
+| 77 | `supabase/tes/uang.sql` |
+| 78 | `supabase/migrations/0023_urutan_pembulatan.sql` |
+| 79 | `supabase/tes/urutan.sql` |
+| 80 | `supabase/migrations/0024_penomoran.sql` |
+| 81 | `supabase/tes/penomoran.sql` |
+| 82 | `supabase/migrations/0025_state_machine.sql` |
+| 83 | `supabase/tes/status.sql` |
+| 84 | `supabase/migrations/0026_cek_voucher.sql` |
+| 85 | `supabase/tes/cek_voucher.sql` |
+| 86 | `supabase/migrations/0027_pakai_voucher.sql` |
+| 87 | `supabase/tes/pakai_voucher.sql` |
+| 88 | `supabase/seed.sql` |
+| 89 | `supabase/seed_uji.sql` |
+| 90 | `supabase/tes/sisir_rls.sql` |
+| 91 | `docs/KEAMANAN.md` |
+| 92 | `docs/DECISIONS_LOG.md` |
+| 93 | `supabase/migrations/0011_peran_tunggal.sql` |
+| 94 | `supabase/tes/peran_tunggal.sql` |
+| 95 | `supabase/migrations/0012_perangkat.sql` |
+| 96 | `supabase/tes/perangkat.sql` |
+| 97 | `supabase/migrations/0013_sesi_perangkat.sql` |
+| 98 | `supabase/tes/sesi_perangkat.sql` |
+| 99 | `supabase/migrations/0014_percobaan_masuk.sql` |
+| 100 | `supabase/tes/percobaan_masuk.sql` |
+| 101 | `supabase/migrations/0015_audit.sql` |
+| 102 | `alat/periksa-audit.py` |
+| 103 | `supabase/migrations/0016_mode_dukungan.sql` |
+| 104 | `supabase/tes/mode_dukungan.sql` |
+| 105 | `supabase/tes/matriks_izin.sql` |
+| 106 | `supabase/tes/matriks_staf.sql` |
+| 107 | `alat/periksa-keamanan-sql.py` |
+| 108 | `alat/periksa-rahasia.py` |
+| 109 | `aplikasi/src/lib/layar.ts` |
+| 110 | `docs/SPESIFIKASI_UI.md` |
+| 111 | `docs/PETA_UI.md` |
+| 112 | `alat/peta-ui.py` |
+| 113 | `aplikasi/src/lib/aksi.ts` |
+| 114 | `aplikasi/src/komponen/TombolAksi.tsx` |
+| 115 | `aplikasi/src/komponen/TombolAksi.test.tsx` |
+| 116 | `aplikasi/src/uji/harness.tsx` |
+| 117 | `aplikasi/src/uji/harness.test.tsx` |
+| 118 | `docs/AGENT_OPERATING_GUIDE.md` |
+| 119 | `docs/uji/NASKAH_JALAN.md` |
+| 120 | `supabase/migrations/0016b_pemulihan_perangkat.sql` |
+| 121 | `supabase/tes/pemulihan.sql` |
+| 122 | `docs/ops/PEMULIHAN_PERANGKAT.md` |
+| 123 | `docs/uji/DAFTAR_PEKERJAAN_ULANG.md` |
+| 124 | `alat/sql/data-uji.sql` |
+| 125 | `tes/izin.sql` |
+| 126 | `node alat/uji-sql.mjs` |
+| 127 | `docs/uji/paket-audit/AUD-2-<tanggal>.md` |
+| 128 | `docs/uji/audit/LAPORAN_AUD-2_<tanggal>_keamanan.md` |
+| 129 | `python3 alat/peta-ui.py` |
+| 130 | `aplikasi/src/lib/auth.ts` |
+| 131 | `aplikasi/src/hook/useSesi.ts` |
+| 132 | `aplikasi/src/layar/masuk/LayarMasukPegawai.tsx` |
+| 133 | `supabase/tes/masuk_pegawai.sql` |
+| 134 | `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx` |
+| 135 | `supabase/functions/undang_pegawai/index.ts` |
+| 136 | `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx` |
+| 137 | `aplikasi/src/lib/google.ts` |
+| 138 | `supabase/functions/pemulihan_pelanggan/index.ts` |
+| 139 | `aplikasi/src/layar/masuk/LupaAkses.tsx` |
+| 140 | `aplikasi/src/App.tsx` |
+| 141 | `aplikasi/src/komponen/Rangka.tsx` |
+| 142 | `aplikasi/src/komponen/Navigasi.tsx` |
+| 143 | `aplikasi/src/hook/useCabang.ts` |
+| 144 | `aplikasi/src/komponen/PemilihCabang.tsx` |
+| 145 | `aplikasi/src/layar/TidakPunyaAkses.tsx` |
+| 146 | `aplikasi/src/lib/pesan.ts` |
+| 147 | `aplikasi/src/hook/useKunciSesi.ts` |
+| 148 | `supabase/functions/pembatas_masuk/index.ts` |
+| 149 | `supabase/tes/pembatas.sql` |
+| 150 | `aplikasi/src/layar/masuk/*.test.ts` |
+| 151 | `supabase/tes/peran_masuk.sql` |
+| 152 | `aplikasi/src/layar/masuk/Totp.tsx` |
+| 153 | `supabase/functions/atur_ulang_mfa/index.ts` |
+| 154 | `alat/periksa-fungsi-mfa.py` |
+| 155 | `supabase/tes/mfa.sql` |
+| 156 | `aplikasi/src/layar/masuk/MasukStaf.tsx` |
+| 157 | `aplikasi/src/lib/sesi.ts` |
+| 158 | `aplikasi/src/layar/pengaturan/Perangkat.tsx` |
+| 159 | `supabase/functions/kode_perangkat/index.ts` |
+| 160 | `aplikasi/src/hook/useKunciOtomatis.ts` |
+| 161 | `aplikasi/src/komponen/KunciSekarang.tsx` |
+| 162 | `aplikasi/src/hook/useKunciOtomatis.test.tsx` |
+| 163 | `aplikasi/src/layar/pengaturan/DaftarPerangkat.tsx` |
+| 164 | `aplikasi/src/layar/masuk/MasukPengelola.tsx` |
+| 165 | `supabase/tes/masuk_perangkat.sql` |
+| 166 | `aplikasi/src/layar/masuk/masuk.test.tsx` |
+| 167 | `aplikasi/src/layar/kasir/LayarKasir.tsx` |
+| 168 | `aplikasi/src/layar/kasir/Katalog.tsx` |
+| 169 | `aplikasi/src/layar/kasir/Keranjang.tsx` |
+| 170 | `aplikasi/src/lib/uang.ts` |
+| 171 | `aplikasi/src/layar/kasir/PemilihMeja.tsx` |
+| 172 | `aplikasi/src/komponen/CatatanItem.tsx` |
+| 173 | `aplikasi/src/layar/kasir/DaftarTagihan.tsx` |
+| 174 | `supabase/migrations/0028_simpan_pesanan.sql` |
+| 175 | `supabase/tes/simpan_pesanan.sql` |
+| 176 | `aplikasi/src/layar/kasir/PindahMeja.tsx` |
+| 177 | `supabase/migrations/0029_pindah_meja.sql` |
+| 178 | `supabase/migrations/0030_menu_habis.sql` |
+| 179 | `aplikasi/src/layar/kasir/KirimDapur.tsx` |
+| 180 | `supabase/migrations/0031_kirim_dapur.sql` |
+| 181 | `aplikasi/src/layar/kasir/PeringatanMeja.tsx` |
+| 182 | `supabase/tes/konflik_meja.sql` |
+| 183 | `aplikasi/src/hook/usePintasan.ts` |
+| 184 | `aplikasi/src/layar/pelayan/LayarPelayan.tsx` |
+| 185 | `aplikasi/src/layar/kasir/DaftarPesanan.tsx` |
+| 186 | `aplikasi/src/layar/kasir/BatalPesanan.tsx` |
+| 187 | `supabase/migrations/0032_batal_pra_dapur.sql` |
+| 188 | `aplikasi/uji/e2e/kasir.spec.ts` |
+| 189 | `aplikasi/src/layar/kasir/*.tsx` |
+| 190 | `aplikasi/src/komponen/Keadaan*.tsx` |
+| 191 | `aplikasi/uji/beban/kasir.test.ts` |
+| 192 | `aplikasi/src/layar/dapur/LayarDapur.tsx` |
+| 193 | `aplikasi/src/layar/dapur/LayarBar.tsx` |
+| 194 | `supabase/migrations/0033_tujuan_item.sql` |
+| 195 | `aplikasi/src/layar/dapur/KartuPesanan.tsx` |
+| 196 | `supabase/migrations/0034_status_item.sql` |
+| 197 | `supabase/tes/status_item.sql` |
+| 198 | `aplikasi/src/layar/dapur/TombolHabis.tsx` |
+| 199 | `supabase/migrations/0035_menu_habis_sumber.sql` |
+| 200 | `aplikasi/src/layar/dapur/Stok.tsx` |
+| 201 | `supabase/migrations/0036_stok.sql` |
+| 202 | `aplikasi/src/layar/dapur/Opname.tsx` |
+| 203 | `supabase/migrations/0037_opname.sql` |
+| 204 | `aplikasi/uji/e2e/dapur.spec.ts` |
+| 205 | `supabase/tes/anti_dobel.sql` |
+| 206 | `aplikasi/src/layar/dapur/*.tsx` |
+| 207 | `aplikasi/src/layar/kasir/Bayar.tsx` |
+| 208 | `supabase/migrations/0038_bayar_pesanan.sql` |
+| 209 | `supabase/tes/bayar.sql` |
+| 210 | `aplikasi/src/komponen/Struk.tsx` |
+| 211 | `supabase/tes/pajak_service.sql` |
+| 212 | `supabase/migrations/0039_diskon.sql` |
+| 213 | `supabase/tes/diskon.sql` |
+| 214 | `aplikasi/src/layar/kasir/DiskonManual.tsx` |
+| 215 | `supabase/migrations/0040_diskon_izin.sql` |
+| 216 | `supabase/migrations/0041_void_pra.sql` |
+| 217 | `supabase/tes/void_pra.sql` |
+| 218 | `supabase/migrations/0042_void_pasca.sql` |
+| 219 | `aplikasi/src/layar/kasir/VoidPasca.tsx` |
+| 220 | `aplikasi/src/layar/kasir/DataPelanggan.tsx` |
+| 221 | `aplikasi/src/komponen/StrukDigital.tsx` |
+| 222 | `aplikasi/src/layar/kasir/DaftarTransaksi.tsx` |
+| 223 | `supabase/tes/pembayaran_sebagian.sql` |
+| 224 | `supabase/migrations/0043_laporan_pembatalan.sql` |
+| 225 | `aplikasi/src/layar/laporan/DaftarPembatalan.tsx` |
+| 226 | `aplikasi/src/lib/printer/expos.ts` |
+| 227 | `aplikasi/src/lib/printer/expos.test.ts` |
+| 228 | `aplikasi/src/lib/printer/bluetooth.ts` |
+| 229 | `aplikasi/src/layar/pengaturan/PasangPrinter.tsx` |
+| 230 | `aplikasi/src/lib/printer/usb.ts` |
+| 231 | `aplikasi/src/lib/printer/struk.ts` |
+| 232 | `aplikasi/src/lib/printer/tiket.ts` |
+| 233 | `aplikasi/src/lib/printer/antrean.ts` |
+| 234 | `aplikasi/src/komponen/StatusPrinter.tsx` |
+| 235 | `supabase/migrations/0044_printer.sql` |
+| 236 | `aplikasi/src/layar/pengaturan/PengaturanPrinter.tsx` |
+| 237 | `docs/uji/UJI_CETAK_KEDAI_OASIS.md` |
+| 238 | `supabase/migrations/0045_buka_shift.sql` |
+| 239 | `aplikasi/src/layar/kasir/BukaKas.tsx` |
+| 240 | `supabase/migrations/0046_tutup_shift.sql` |
+| 241 | `aplikasi/src/layar/kasir/TutupKas.tsx` |
+| 242 | `supabase/migrations/0047_kas_pergerakan.sql` |
+| 243 | `aplikasi/src/layar/kasir/KasKeluarMasuk.tsx` |
+| 244 | `supabase/migrations/0048_wajib_shift.sql` |
+| 245 | `supabase/tes/wajib_shift.sql` |
+| 246 | `aplikasi/src/komponen/PengingatShift.tsx` |
+| 247 | `supabase/migrations/0049_pengingat_shift.sql` |
+| 248 | `supabase/migrations/0050_koreksi_modal.sql` |
+| 249 | `supabase/migrations/0051_laporan_kas.sql` |
+| 250 | `aplikasi/src/layar/laporan/LaporanKas.tsx` |
+| 251 | `supabase/migrations/0052_laporan_penjualan.sql` |
+| 252 | `aplikasi/src/layar/laporan/LaporanPenjualan.tsx` |
+| 253 | `supabase/migrations/0053_laporan_menu.sql` |
+| 254 | `aplikasi/src/layar/laporan/LaporanMenu.tsx` |
+| 255 | `aplikasi/src/layar/laporan/FormatLaporan.tsx` |
+| 256 | `supabase/tes/tengah_malam.sql` |
+| 257 | `supabase/tes/golden_laporan.sql` |
+| 258 | `supabase/migrations/0054_katalog_publik.sql` |
+| 259 | `supabase/tes/katalog_publik.sql` |
+| 260 | `aplikasi/src/layar/pelanggan-publik/Katalog.tsx` |
+| 261 | `aplikasi/src/layar/pelanggan-publik/Menu.tsx` |
+| 262 | `aplikasi/src/layar/pengaturan/TautanKatalog.tsx` |
+| 263 | `aplikasi/src/layar/voucher/Kampanye.tsx` |
+| 264 | `aplikasi/src/layar/voucher/Daftar.tsx` |
+| 265 | `supabase/functions/verifikasi_pelanggan/index.ts` |
+| 266 | `aplikasi/src/lib/emailNormalisasi.ts` |
+| 267 | `supabase/tes/anti_email_palsu.sql` |
+| 268 | `supabase/migrations/0055_voucher_terbit.sql` |
+| 269 | `aplikasi/src/layar/voucher/KartuVoucher.tsx` |
+| 270 | `aplikasi/src/layar/kasir/Voucher.tsx` |
+| 271 | `aplikasi/src/layar/kasir/ScanVoucher.tsx` |
+| 272 | `aplikasi/src/layar/pengaturan/Kampanye.tsx` |
+| 273 | `supabase/migrations/0056_kampanye_aturan.sql` |
+| 274 | `supabase/migrations/0057_pengaman_voucher.sql` |
+| 275 | `supabase/tes/pengaman_voucher.sql` |
+| 276 | `supabase/migrations/0058_laporan_voucher.sql` |
+| 277 | `aplikasi/src/layar/laporan/LaporanVoucher.tsx` |
+| 278 | `supabase/tes/voucher_lengkap.sql` |
+| 279 | `aplikasi/uji/e2e/voucher.spec.ts` |
+| 280 | `supabase/migrations/0017_privasi_pelanggan.sql` |
+| 281 | `supabase/tes/privasi.sql` |
+| 282 | `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx` |
+| 283 | `aplikasi/src/layar/pengaturan/Identitas.tsx` |
+| 284 | `supabase/migrations/0059_unggah_gambar.sql` |
+| 285 | `prototipe/README.md` |
+| 286 | `aplikasi/src/layar/pengaturan/Tampilan.tsx` |
+| 287 | `aplikasi/src/layar/pengaturan/Operasional.tsx` |
+| 288 | `supabase/migrations/0060_pengaturan_operasional.sql` |
+| 289 | `aplikasi/src/layar/pengaturan/Meja.tsx` |
+| 290 | `aplikasi/src/layar/pengaturan/Menu.tsx` |
+| 291 | `supabase/migrations/0061_urut_menu.sql` |
+| 292 | `aplikasi/src/layar/pengaturan/MenuCabang.tsx` |
+| 293 | `aplikasi/src/layar/pengaturan/MetodeBayar.tsx` |
+| 294 | `aplikasi/src/layar/pengaturan/Izin.tsx` |
+| 295 | `supabase/migrations/0062_kelola_izin.sql` |
+| 296 | `aplikasi/src/layar/pengaturan/Cabang.tsx` |
+| 297 | `supabase/migrations/0063_kelola_cabang.sql` |
+| 298 | `aplikasi/src/layar/platform/Penyewa.tsx` |
+| 299 | `supabase/functions/daftar_penyewa/index.ts` |
+| 300 | `supabase/tes/daftar_penyewa.sql` |
+| 301 | `aplikasi/src/layar/pengaturan/Pratinjau.tsx` |
+| 302 | `supabase/tes/riwayat_tidak_berubah.sql` |
+| 303 | `docs/uji/UJI_TERIMA_PENGATURAN.md` |
+| 304 | `aplikasi/src/lib/antrean-offline.ts` |
+| 305 | `aplikasi/src/hook/useAntrean.ts` |
+| 306 | `supabase/migrations/0064_idempoten.sql` |
+| 307 | `supabase/tes/idempoten.sql` |
+| 308 | `aplikasi/src/komponen/StatusAntrean.tsx` |
+| 309 | `aplikasi/uji/e2e/luring.spec.ts` |
+| 310 | `supabase/tes/sisir_rls_akhir.sql` |
+| 311 | `aplikasi/src/layar/pengaturan/SesiAktif.tsx` |
+| 312 | `supabase/functions/akhiri_sesi/index.ts` |
+| 313 | `docs/uji/AUDIT_KEAMANAN.md` |
+| 314 | `supabase/migrations/0065_pg_cron.sql` |
+| 315 | `alat/denyut.py` |
+| 316 | `aplikasi/src/lib/pemulihan-sesi.ts` |
+| 317 | `aplikasi/uji/e2e/mati-mendadak.spec.ts` |
+| 318 | `docs/ops/PEMULIHAN_LISTRIK.md` |
+| 319 | `docs/teknis/PEMULIHAN.md` |
+| 320 | `.github/workflows/cadangan.yml` |
+| 321 | `supabase/migrations/0066_versi_pengaturan.sql` |
+| 322 | `supabase/tes/pengaturan_bersamaan.sql` |
+| 323 | `aplikasi/src/layar/pengaturan/CabutAkses.tsx` |
+| 324 | `supabase/tes/cabut_akses.sql` |
+| 325 | `supabase/functions/ringkasan_harian/index.ts` |
+| 326 | `supabase/migrations/0066_ringkasan_harian.sql` |
+| 327 | `aplikasi/src/layar/laporan/Peringatan.tsx` |
+| 328 | `supabase/tes/ringkasan.sql` |
+| 329 | `docs/teknis/BUKU_INSIDEN.md` |
+| 330 | `docs/teknis/TINJAUAN_KEAMANAN_F10.md` |
+| 331 | `aplikasi/uji/e2e/*.spec.ts` |
+| 332 | `docs/uji/UJI_TERIMA_G1.md` |
+| 333 | `docs/uji/UJI_PERANGKAT.md` |
+| 334 | `docs/uji/AUDIT_TAMPILAN.md` |
+| 335 | `alat/pantau_batas.py` |
+| 336 | `docs/uji/KINERJA_DAN_BATAS.md` |
+| 337 | `docs/ops/DEPLOY.md` |
+| 338 | `aplikasi/src/layar/pengaturan/StatusPemakaian.tsx` |
+| 339 | `supabase/functions/peringatan_batas/index.ts` |
+| 340 | `docs/ops/PANDUAN_PEGAWAI.md` |
+| 341 | `docs/ops/SERAH_TERIMA_G1.md` |
+| 342 | `.github/workflows/e2e.yml` |
+| 343 | `uji-e2e/*.spec.ts` |
+| 344 | `docs/uji/HASIL_UJI_TERIMA_KEAMANAN.md` |
+| 345 | `docs/uji/audit/LAPORAN_AUD-3_<tanggal>_pilot.md` |
+| 346 | `alat/audit-independen.py` |
 
 ## 2. Klaim pembangun yang harus kamu coba bantah
 
@@ -545,7 +571,7 @@ Kamu juga **wajib**: (a) memakai `skills/find-skills` atau `skills/agent-skills-
 - **Auditor:** <nama sesi/model yang benar-benar dipakai>
 - **Tanggal:** 2026-09-17
 - **Tingkat audit:** AUD-3
-- **Commit yang diaudit:** `8d0f72410098080b4833193605f15db70f7d0dfd` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
+- **Commit yang diaudit:** `5ed041a7e4e14b1bda4dda3224900d246e1c9b91` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
 - **Paket audit:** `docs/uji/paket-audit/AUD-3-2026-09-17.md`
 - **Mode cakupan:** menyeluruh
 - **Verdict:** BERSIH | BERSIH-DENGAN-CATATAN | TIDAK-BERSIH
