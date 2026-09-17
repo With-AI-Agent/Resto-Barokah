@@ -226,6 +226,32 @@ alat audit/review · buku induk · daftar tunggu · rujukan · lingkungan CI. **
   dengan mata). Agent **tidak akan mengarang baris** supaya buku terlihat penuh.
 - Keduanya masuk ROADMAP: **T1-42** (bantuan) · **T1-43** (Buku Uji Pemilik + pemeriksa + gema chat).
 
+## §11. Putaran 10 (2026-09-17) — pesan ke-28 & ke-29
+
+**Kata Lee (verbatim, diringkas):**
+- *"tombol-tombol buat pilih theme nya malah kepotong begini (lihat image-1.png), dan munculnya malah ke arah yang bikin dia kepotong"* → panel tidak boleh terpotong.
+- *"kamu hanya memperkecil jarak, tapi ukuran blok-blok nya ga disesuain… ukuran tulisan memang ga usah dikecilin, tapi ukuran blok tulisan tersebut perlu disesuaikan… Gunakan semua skill-skill itu dengan maksimal."*
+- *"tolong baca hasilnya. Dan aku rasa sebaiknya kita ga usah merge dulu."* (3 laporan sesi peninjau)
+- *"Uji semuanya" / "Uji database" itu apa? Apakah itu mekanisme yang kamu tanam, atau gimana? Kalau iya, siapkan "Uji semuanya" dan siapkan "Uji database".*
+- *"Kenapa kamu berhenti? Lanjutkan"* (pesan ke-29)
+
+**Jawaban & tindakan agent:**
+
+| # | Permintaan | Jawaban & tindakan | Bukti |
+|---|---|---|---|
+| 1 | Panel pilih tema terpotong | Cacat nyata: panel dibuka di dalam wadah ber-`overflow` sehingga terpotong saat tombol ada di dekat tepi; perbaikan: panel diposisikan agar **tidak pernah** terpotong (di dalam batas layar, bisa digulir bila tinggi terbatas) + uji warna/desain diperluas | commit `597cc77`; uji 13 warna/desain hijau |
+| 2 | Mode **Padat** "kurang rapih" | Cacat nyata: yang dulu dikecilkan hanya **jarak**, sedangkan **ukuran blok** tetap → tampak sesak tak beraturan. Kini token Padat mengecilkan **padding + radius blok + tinggi baris** pada kelas aplikasi, **ukuran tulisan tidak diubah**; dijaga `aplikasi/alat/periksa-kerapatan.py` (wajib menyasar ≥3 kelas aplikasi, 4 uji mutasi merah) | commit `597cc77`; `periksa-kerapatan` LOLOS |
+| 3 | Baca 3 laporan peninjau + **jangan merge** | Dibaca seluruhnya (28·9·20, 11·9·11, 40·9·9 baris; ketiganya **LOLOS kontrak** + verdict **TIDAK-BERSIH**). Semua temuan lapis-database ditutup migrasi `0012` + 7 uji baru; dokumen menyesatkan dikoreksi; temuan mekanisme dikerjakan. **PR #1 tetap TIDAK di-merge** dan Lee tetap pemegang keputusan merge | `docs/uji/review-pr/LAPORAN_2026-09-17_pr-01-putaran8__*.md`; `REVIEW_PR_RIWAYAT.md` baris 4 |
+| 4 | *"Uji semuanya"/"Uji database" — mekanisme tanam atau bukan?* | **Jujur: itu kalimat pemicu biasa, bukan mekanisme rahasia.** Tidak ada pemeriksa yang mencari kata itu. Yang dijaga mesin adalah **isinya**: `bash aplikasi/alat/periksa-semua.sh` dan `bash alat/uji-database.sh` harus jalan dan hijau — keduanya diperiksa penjaga `periksa-struktur.py` + langkah CI | `PANDUAN_PENGGUNA.md` Bagian E + catatan kejujuran |
+| 5 | *"siapkan Uji semuanya & Uji database"* | Diartikan sebagai **perintahnya harus bisa dijalankan apa adanya di salinan baru** (temuan PR-07). Dulu: `periksa-semua.sh` mati di `prettier: not found` sebelum sempat memasang pustaka; `node alat/uji-sql.mjs` gagal tanpa `alat/node_modules`. Sekarang keduanya **memasang pustakanya sendiri** (`npm ci`) dan ada pembungkus `alat/uji-database.sh` | commit `1102e12`; bukti salinan baru: `uji: 28 LULUS · 0 GAGAL` · `HASIL: LOLOS` · `RINGKASAN: 166 lolos, 0 gagal` · `SEMUA PEMERIKSAAN LOLOS.` |
+| 6 | *"Kenapa kamu berhenti? Lanjutkan"* | Penyebabnya **galat alat sesaat** (salah `cwd` sebelum direktori ada), bukan masalah proyek; pekerjaan diteruskan di sesi yang sama sampai batas bersih. Aturan baru ditulis supaya tidak terulang: §13 butir 10 `AGENT_OPERATING_GUIDE.md` | commit menyesuaikan; log sesi |
+
+**Catatan kejujuran yang penting untuk Lee:** "Uji semuanya"/"Uji database" **tidak** menambah pemeriksaan baru dengan sendirinya —
+kalimat itu hanya memanggil pemeriksa yang sudah ada. Supaya kalimat itu benar-benar terjaga, yang ditambah adalah **penjaga atas perintah-perintahnya**
+(PR-07) dan **langkah CI** yang menjalankannya di tiap push. Jadi janjinya: *selama CI hijau, kedua perintah itu memang bisa dijalankan dan memang hijau di salinan baru.*
+
+---
+
 ## §8. Putaran 6 (2026-09-17) — bahasa aplikasi
 
 | # | Permintaan (kutipan) | Status |

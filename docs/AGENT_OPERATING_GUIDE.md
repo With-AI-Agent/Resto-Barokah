@@ -305,7 +305,10 @@ yang aman) tanpa pertanyaan; pemilik hanya perlu mengetik "lanjut" lagi untuk ba
 7. **Tenggat mengikat:** butir yang tenggatnya sudah lewat = **hard stop** untuk fase itu (jangan dikerjakan setengah).
 8. Tugas ROADMAP yang menunggu butir tertangguh ditandai **`❓ T-xxx`** dan **dilewati**; agent melanjutkan tugas lain yang tidak tertangguh.
 9. Setiap akhir batch: agent **menawarkan jawaban** untuk seluruh butir terbuka → pemilik cukup bilang **"setuju semua"**.
-10. **Yang tidak pernah ditunda:** keamanan/uang/data pelanggan yang belum jelas · biaya apa pun · perubahan keputusan
+10. **Galat alat sesaat bukan alasan berhenti.** Salah jalan/`cwd`/alat gagal sesaat → **perbaiki, ulangi, lanjut** dalam sesi yang sama;
+    berhenti hanya bila butuh keputusan pemilik atau §12 memerintahkan. Pemilik tidak boleh sampai mengetik *"Kenapa kamu berhenti?"*
+    untuk hal seperti ini (kejadian nyata 2026-09-17, pesan ke-29) — kalau memang terpaksa berhenti, tulis **sebabnya + satu langkah berikutnya**.
+11. **Yang tidak pernah ditunda:** keamanan/uang/data pelanggan yang belum jelas · biaya apa pun · perubahan keputusan
     yang sudah dikunci · tindakan merusak/tak bisa dibatalkan (hapus data, force push, deploy publik).
 
 ---
@@ -326,3 +329,4 @@ yang aman) tanpa pertanyaan; pemilik hanya perlu mengetik "lanjut" lagi untuk ba
 | 2026-09-17 | §5 butir **4g review PR independen** + §7 DoD + §12 Stop Conditions 12–13 | Permintaan Lee: ia tidak bisa menilai *Files changed*; mekanisme review PR independen dipasang (`docs/uji/PROTOKOL_REVIEW_PR_INDEPENDEN.md`, `alat/review-pr.py`) |
 | 2026-09-17 | §5 butir **4f buku pedoman induk wajib ikut diperbarui** + §7 DoD menambahkan bukti `alat/periksa-panduan.py` | Permintaan pemilik 2026-09-17: buku pedoman pengguna harus jadi induk yang lengkap & tidak boleh basi (mekanisme yang tidak bisa dipakai pemilik = mekanisme yang tidak ada) |
 | 2026-09-17 | §5 butir 4e **Audit independen AUD-0…AUD-3** + §7 DoD menyebut AUD-2 + §12 dua Stop Condition (temuan K-1/K-2 terbuka · permintaan audit pemilik) | Permintaan pemilik 2026-09-17: mekanisme audit/pemeriksaan/review independen yang teliti & terukur, memakai skill + riset, dan bisa ia picu sendiri (`docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`) |
+| 2026-09-17 | §13 aturan 10: **galat alat sesaat bukan alasan berhenti** (perbaiki → ulangi → lanjut; kalau terpaksa berhenti, tulis sebab + langkah berikutnya) | Permintaan Lee 2026-09-17 (pesan ke-29): *"Kenapa kamu berhenti? Lanjutkan"* — penyebabnya galat alat sesaat (salah `cwd`), bukan masalah proyek |
