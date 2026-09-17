@@ -40,9 +40,9 @@
 | `pin_hash` bisa dibaca pegawai lain (A F-02, B F-10) | K-2 | **DITUTUP 2026-09-17** | rahasia pindah ke tabel `kredensial_pin` (hak klien dicabut, policy menolak semua): `supabase/tes/kredensial_pin.sql` + `pin.sql` |
 | Jejak pelaku bisa dipalsukan (A F-05) | K-2 | **DITUTUP 2026-09-17** | pelaku diisi sistem (`auth.uid()`), nilai lain DITOLAK — `supabase/tes/jejak_pelaku.sql` (pembayaran, diskon, pembatalan, catatan stok) |
 | Batas persen diskon dilewati saat kolom persen kosong (B F-06) | K-2 | **DITUTUP 2026-09-17** | persen efektif dihitung dari uang — `supabase/tes/diskon_persen.sql`; uji lama `pembayaran.sql` juga diperbaiki (dulu lulus karena sebab yang salah: 20.000 = 37 % dianggap "dalam batas") |
-| Void sesudah dapur dengan penyetuju karangan (A F-03) | K-2 | **TERBUKA** | batch K-2b (menyentuh alur persetujuan PIN/void) |
-| Status pesanan bisa dipindah klien (lunas tanpa uang) (A F-03/B F-02) | K-2 | **TERBUKA** | batch perbaikan K-2b |
-| Penjaga stok dilewati dengan peubah sesi klien (A F-06) | K-2 | **TERBUKA** | batch perbaikan K-2b |
+| Void sesudah dapur dengan penyetuju karangan (A F-03) | K-2 | **DITUTUP 2026-09-17** | persetujuan wajib TERBUKTI: PIN benar untuk aksi itu & baru saja (jendela 5 menit), dicatat di `percobaan_pin` — `supabase/tes/persetujuan_void.sql` |
+| Status pesanan bisa dipindah klien (lunas tanpa uang) (A F-03/B F-02) | K-2 | **DITUTUP 2026-09-17** | penjaga perpindahan status per peran; `lunas`/`batal` hanya peladen; tanda kirim ke dapur tak bisa dihapus — `supabase/tes/status_pesanan.sql` |
+| Penjaga stok dilewati dengan peubah sesi klien (A F-06) | K-2 | **DITUTUP 2026-09-17** | penjaga memakai bukti peladen yang tak bisa dipalsukan klien (`peran_peladen()`), penanda sesi dibuang — `supabase/tes/penjaga_stok.sql` |
 | Lapis kedua pembatasan PIN memakai nama perangkat kiriman klien (B F-11) | K-2 | **TERBUKA** | batch perbaikan K-2 (menyentuh perangkat terdaftar, Fase 1B) |
 | Kontrol wajib `docs/KEAMANAN.md` belum ada di kode (A F-07) | K-2 | **TERBUKA (dijadwalkan)** | Fase 1B (T1-23…T1-30) — memang belum dibangun |
 | Kertas kerja K-3/K-4 (rujukan mati, `npm audit`, uji batas, dll.) | K-3/K-4 | **TERBUKA** | dikelola lewat `docs/TERTANGGUH.md` pada batch K-2 |

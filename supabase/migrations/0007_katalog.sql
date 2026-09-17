@@ -258,16 +258,13 @@ security definer
 set search_path = public, pg_temp
 as $$
 begin
-  -- Tanda tangan sementara supaya penjaga "jangan ubah jumlah langsung" tahu
-  -- bahwa perubahan ini SAH (datang dari buku besar), bukan ditulis langsung.
-  perform set_config('app.stok_dari_buku_besar', '1', true);
-
+  -- Tidak ada lagi penanda sesi: penjaga saldo memakai keadaan "sedang berjalan sebagai
+  -- pemilik tabel" (peladen) yang TIDAK bisa dipalsukan klien — temuan audit AUD-3 K-2/A F-06.
   update public.stok_bahan
      set jumlah = jumlah + new.jumlah,
          diubah_pada = now()
    where id = new.stok_bahan_id;
 
-  perform set_config('app.stok_dari_buku_besar', '0', true);
   return new;
 end
 $$;
@@ -278,15 +275,16 @@ create trigger stok_pergerakan_jumlahkan
   for each row execute function public.picu_stok_jumlahkan();
 
 -- Pemicu 3: menolak perubahan `jumlah` yang tidak lewat buku besar.
+-- PENTING: TIDAK SECURITY DEFINER — kalau definer, `current_user` menjadi pemilik fungsi
+-- sehingga `peran_peladen()` selalu benar dan penjaganya buta (pelajaran yang sama dengan
+-- penjaga uang & status). Versi sebelumnya memakai penanda sesi `app.stok_dari_buku_besar`
+-- yang bisa dipasang klien sendiri — temuan audit AUD-3 K-2/A F-06.
 create or replace function public.picu_jaga_jumlah_stok()
 returns trigger
 language plpgsql
-security definer
-set search_path = public, pg_temp
 as $$
 begin
-  if new.jumlah is distinct from old.jumlah
-     and coalesce(current_setting('app.stok_dari_buku_besar', true), '0') <> '1' then
+  if new.jumlah is distinct from old.jumlah and not public.peran_peladen() then
     raise exception 'Jumlah stok hanya boleh berubah lewat catatan pergerakan stok (bukan ditulis langsung).';
   end if;
   return new;

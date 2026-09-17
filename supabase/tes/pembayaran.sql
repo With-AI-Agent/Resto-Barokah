@@ -236,6 +236,19 @@ select uji.harap_gagal(
   'pembatalan dengan alasan kosong ditolak walau tahap & penyetujunya sah'
 );
 -- Pasangan positifnya: kalimat yang sama dengan alasan benar → diterima.
+-- SEJAK AUDIT AUD-3 K-2 (A F-03): persetujuan harus TERBUKTI — penyetuju memasukkan
+-- PIN-nya sendiri untuk aksi void_sesudah_dapur (bukan sekadar namanya ditulis).
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner (penyetuju)
+set local role authenticated;
+select uji.sama(public.simpan_pin('1122', null), 'PIN tersimpan.', 'owner memasang PIN untuk hak menyetujui');
+select uji.sama(
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '1122', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
+  true, 'PIN penyetuju diverifikasi untuk aksi void_sesudah_dapur'
+);
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kembali sebagai kasir
+set local role authenticated;
 insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
 values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', 'alasan benar sebagai pembanding');
 select uji.sama(

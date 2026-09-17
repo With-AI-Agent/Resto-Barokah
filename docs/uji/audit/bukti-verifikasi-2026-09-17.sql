@@ -2,16 +2,16 @@
 -- BUKTI VERIFIKASI TEMUAN AUDIT — sesi kerja, 2026-09-17
 --
 -- Cara pakai:  node alat/uji-sql.mjs docs/uji/audit/bukti-verifikasi-2026-09-17.sql
--- Status: JALAN & LOLOS pada commit sesudah perbaikan K-1 dan K-2a.
+-- Status: JALAN & LOLOS pada commit sesudah perbaikan K-1, K-2a, dan K-2b.
 --
 -- Isi berkas ini: pemeriksaan yang MEMBUKTIKAN temuan auditor AUD-3 benar-benar ada,
 -- dijalankan sendiri oleh sesi kerja (bukan mempercayai laporan). Dibagi dua:
 --   A. Sudah diperbaiki → pemeriksaan di sini mengunci PERILAKU BENAR
 --      (uji regresi permanennya ada di `supabase/tes/gerbang_uang.sql` dan
 --       `supabase/tes/isolasi_lintas_penyewa.sql`, dijalankan setiap CI).
---   B. Belum diperbaiki (K-2 sisa: status pesanan & penjaga stok) → pemeriksaan di sini
---      mengunci perilaku buruk yang MASIH berlaku sebagai barang bukti; bagian ini
---      dipindahkan/dibalik begitu perbaikannya mendarat.
+--   Semua temuan K-1/K-2 dari audit AUD-3 sudah ditutup per 2026-09-17; berkas ini
+--   seluruhnya berisi pemeriksaan yang mengunci PERILAKU BENAR (uji regresi tetapnya ada
+--   di `supabase/tes/*` dan berjalan setiap CI).
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
@@ -108,37 +108,41 @@ select uji.harap_gagal(
 reset role;
 select uji.klaim(null);
 
--- ---------------------------------------------------------------------------
--- BAGIAN B. TEMUAN K-2 YANG BELUM DIPERBAIKI (barang bukti, jangan dibalik dulu)
--- ---------------------------------------------------------------------------
+-- [8] K-2b: void sesudah dapur wajib terbukti PIN penyetuju — DITUTUP
+-- Pemasangan bukti: owner memasang PIN lalu memverifikasinya untuk aksi void_sesudah_dapur.
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000002');
+set local role authenticated;
+select uji.sama(public.simpan_pin('1122', null), 'PIN tersimpan.', 'owner memasang PIN-nya');
+select uji.sama(
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '1122', 'void_sesudah_dapur', 'hp-atasan')).berhasil,
+  true, 'bukti PIN penyetuju tercatat untuk aksi void_sesudah_dapur');
+reset role;
 
--- ---------------------------------------------------------------- sebagai KASIR A
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
+select uji.harap_gagal(
+  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur',
+              '90000000-0000-0000-0000-000000000006', 'tanpa bukti PIN')$$,
+  'K-2b tertutup: void sesudah dapur dengan penyetuju tanpa bukti PIN ditolak');
 
--- [8] K-2: status pesanan bisa dipindahkan klien (lunas tanpa uang)
-select uji.sama(
-  (select status from public.pesanan where id = '00000000-0000-0000-0000-00000000a001'),
-  'draf', 'mulai dari draf');
-update public.pesanan set status = 'lunas' where id = '00000000-0000-0000-0000-00000000a001';
-select uji.sama(
-  (select status from public.pesanan where id = '00000000-0000-0000-0000-00000000a001'),
-  'lunas', 'K-2 MASIH TERBUKA: kasir memindahkan status pesanan sendiri menjadi lunas');
+-- [9] K-2b: status pesanan tidak bisa dipindah klien (lunas tanpa uang) — DITUTUP
+select uji.harap_gagal(
+  $$update public.pesanan set status = 'lunas' where id = 'eeee0000-0000-0000-0000-000000000010'$$,
+  'K-2b tertutup: klien tidak bisa memindahkan status pesanan menjadi lunas');
 
+-- [10] K-2b: penjaga stok tidak lagi bisa dilewati penanda sesi klien — DITUTUP
+-- (diuji sebagai DAPUR, peran yang memang berizin mengubah stok)
 reset role;
-select uji.klaim(null);
-
--- [9] K-2: penjaga stok dilewati dengan peubah sesi yang bisa dipasang klien
-select uji.klaim('90000000-0000-0000-0000-000000000006');   -- dapur (izin ubah_stok)
+select uji.klaim('90000000-0000-0000-0000-000000000006');
 set local role authenticated;
-select uji.sama((select count(*) from public.stok_bahan where id = 'beef1000-0000-0000-0000-000000000001'),
-                1::bigint, 'kontrol: dapur melihat baris stoknya');
 select uji.harap_gagal(
   $$update public.stok_bahan set jumlah = 999 where id = 'beef1000-0000-0000-0000-000000000001'$$,
-  'kontrol: ubah stok langsung DITOLAK tanpa penanda buku besar');
+  'K-2b tertutup: ubah saldo stok langsung ditolak');
 select set_config('app.stok_dari_buku_besar', '1', true);
-update public.stok_bahan set jumlah = 999 where id = 'beef1000-0000-0000-0000-000000000001';
-select uji.sama(
-  (select jumlah::int from public.stok_bahan where id = 'beef1000-0000-0000-0000-000000000001'),
-  999, 'K-2 MASIH TERBUKA: penjaga stok dilewati dengan set_config klien');
+select uji.harap_gagal(
+  $$update public.stok_bahan set jumlah = 999 where id = 'beef1000-0000-0000-0000-000000000001'$$,
+  'K-2b tertutup: penanda sesi klien TIDAK membuka penjaga saldo stok');
 reset role;
+select uji.klaim(null);

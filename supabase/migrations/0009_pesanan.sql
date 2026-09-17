@@ -136,6 +136,57 @@ create trigger pesanan_jaga_konsisten
   before insert or update on public.pesanan
   for each row execute function public.picu_pesanan_konsisten();
 
+-- Status pesanan hanya berpindah lewat jalur resmi (temuan audit AUD-3 K-2, 2026-09-17:
+-- policy UPDATE mengizinkan kasir/pelayan menyentuh baris pesanan, dan tanpa penjaga ini
+-- klien bisa memindahkan pesanan menjadi `lunas` tanpa uang, atau melompat ke `dimasak`).
+-- PENTING: fungsi penjaga ini TIDAK boleh SECURITY DEFINER — kalau ia definer, `current_user`
+-- menjadi pemilik fungsi dan pemeriksaan "sedang dijalankan peladen?" selalu benar (buta).
+create or replace function public.picu_pesanan_jaga_status()
+returns trigger
+language plpgsql
+as $$
+declare
+  v_peran text;
+begin
+  if auth.uid() is null or public.peran_peladen() then
+    return new;   -- jalur peladen / penyiapan
+  end if;
+
+  if new.status is distinct from old.status then
+    v_peran := public.peran_saya();
+    if old.status = 'draf' and new.status = 'dikirim' then
+      if v_peran not in ('owner_pusat', 'admin_cabang', 'kasir', 'pelayan') then
+        raise exception 'Peran % tidak boleh mengirim pesanan ke dapur.', v_peran;
+      end if;
+      if new.dikirim_ke_dapur_pada is null then
+        raise exception 'Mengirim pesanan ke dapur wajib menyertakan waktu kirim (dikirim_ke_dapur_pada).';
+      end if;
+    elsif old.status in ('dikirim', 'dimasak') and new.status in ('dimasak', 'siap')
+          and old.status <> new.status then
+      if v_peran not in ('owner_pusat', 'admin_cabang', 'dapur') then
+        raise exception 'Peran % tidak boleh memajukan status dapur.', v_peran;
+      end if;
+    else
+      raise exception 'Perpindahan status pesanan % → % tidak diizinkan dari perangkat — status itu hanya boleh ditetapkan peladen (mis. setelah pembayaran sah atau lewat pembatalan).', old.status, new.status;
+    end if;
+  end if;
+
+  -- Tanda "sudah dikirim ke dapur" menentukan tahap pembatalan (sebelum/sesudah dapur).
+  -- Kalau klien boleh menghapusnya, pembatalan sesudah dapur bisa "diturunkan" jadi
+  -- sebelum dapur dan lolos tanpa persetujuan PIN.
+  if old.dikirim_ke_dapur_pada is not null
+     and new.dikirim_ke_dapur_pada is distinct from old.dikirim_ke_dapur_pada then
+    raise exception 'Tanda kirim ke dapur tidak boleh diubah atau dihapus.';
+  end if;
+  return new;
+end
+$$;
+
+drop trigger if exists pesanan_jaga_status on public.pesanan;
+create trigger pesanan_jaga_status
+  before update on public.pesanan
+  for each row execute function public.picu_pesanan_jaga_status();
+
 -- Item pesanan tidak boleh memakai menu resto lain (dan sekaligus mengisi salinan
 -- nama/harga bila pemanggil mengirimnya kosong? TIDAK — salinan WAJIB dari pemanggil
 -- supaya nilai yang dibekukan terlihat jelas di kode pemanggil, bukan tersembunyi).

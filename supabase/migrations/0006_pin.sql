@@ -60,8 +60,13 @@ create table if not exists public.percobaan_pin (
   pengguna_id uuid not null references public.pengguna (id) on delete cascade,
   perangkat   text not null default 'tidak-diketahui',
   berhasil    boolean not null,
+  aksi        text,                          -- aksi yang diminta saat PIN dimasukkan (mis. void_sesudah_dapur)
   waktu       timestamptz not null default now()
 );
+
+-- `aksi` ditambahkan setelah audit AUD-3 K-2 (2026-09-17): persetujuan void sesudah dapur
+-- harus TERBUKTI dengan PIN penyetuju untuk aksi itu, dan buktinya diambil dari tabel ini.
+alter table public.percobaan_pin add column if not exists aksi text;
 
 comment on table public.percobaan_pin is
   'Catatan setiap percobaan PIN (berhasil/gagal) per pegawai & perangkat. Dasar pembatasan anti-tebak dan bahan laporan keamanan.';
@@ -328,8 +333,8 @@ begin
 
   if v_penyewa_target is null or v_penyewa_target <> public.penyewa_saya() or not coalesce(v_aktif_target, false) then
     -- Jangan membocorkan apakah pegawai itu ada: jawab seperti PIN salah.
-    insert into public.percobaan_pin (pengguna_id, perangkat, berhasil)
-    values (v_saya, v_perangkat, false);
+    insert into public.percobaan_pin (pengguna_id, perangkat, berhasil, aksi)
+    values (v_saya, v_perangkat, false, p_aksi);
     return query select false, 0, 'PIN tidak dikenali.';
     return;
   end if;
@@ -347,8 +352,8 @@ begin
      and pp.waktu > now() - make_interval(mins => JENDELA_MENIT);
 
   if v_gagal_akun >= BATAS_AKUN or v_gagal_alat >= BATAS_PERANGKAT then
-    insert into public.percobaan_pin (pengguna_id, perangkat, berhasil)
-    values (p_pengguna_id, v_perangkat, false);
+    insert into public.percobaan_pin (pengguna_id, perangkat, berhasil, aksi)
+    values (p_pengguna_id, v_perangkat, false, p_aksi);
     return query select false, 0,
       format('PIN terkunci sementara karena terlalu banyak percobaan salah. Coba lagi setelah %s menit.', JENDELA_MENIT);
     return;
@@ -356,8 +361,8 @@ begin
 
   v_berhasil := v_hash is not null and crypt(p_pin, v_hash) = v_hash;
 
-  insert into public.percobaan_pin (pengguna_id, perangkat, berhasil)
-  values (p_pengguna_id, v_perangkat, v_berhasil);
+  insert into public.percobaan_pin (pengguna_id, perangkat, berhasil, aksi)
+  values (p_pengguna_id, v_perangkat, v_berhasil, p_aksi);
 
   if not v_berhasil then
     return query select false, greatest(BATAS_AKUN - v_gagal_akun - 1, 0),

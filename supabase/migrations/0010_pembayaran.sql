@@ -412,6 +412,7 @@ security definer
 set search_path = public, pg_temp
 as $$
 declare
+  JENDELA_SETUJU_MENIT constant integer := 5;   -- bukti persetujuan PIN dianggap sah selama ini
   v_pesanan record;
   v_item    record;
   v_nilai   integer;
@@ -449,6 +450,20 @@ begin
     end if;
     if not public.boleh_untuk(new.disetujui_oleh, 'void_sesudah_dapur') then
       raise exception 'Penyetuju itu tidak berizin menyetujui pembatalan setelah dapur mulai.';
+    end if;
+    -- BUKTI PERSETUJUAN (temuan audit AUD-3 K-2/A F-03, 2026-09-17): memeriksa kewenangan
+    -- penyetuju TIDAK sama dengan memeriksa bahwa ia benar-benar menyetujui. Sebelumnya kasir
+    -- bisa menuliskan nama owner sebagai penyetuju tanpa owner pernah memasukkan PIN.
+    -- Bukti diambil dari catatan PIN yang tidak bisa ditulis klien: PIN BENAR, untuk AKSI INI,
+    -- dan baru saja (jendela % menit).
+    if not exists (
+      select 1 from public.percobaan_pin pp
+       where pp.pengguna_id = new.disetujui_oleh
+         and pp.berhasil
+         and pp.aksi = 'void_sesudah_dapur'
+         and pp.waktu > now() - make_interval(mins => JENDELA_SETUJU_MENIT)
+    ) then
+      raise exception 'Persetujuan belum terbukti: penyetuju harus memasukkan PIN-nya sendiri untuk tindakan ini (maksimal % menit lalu).', JENDELA_SETUJU_MENIT;
     end if;
   else
     if not public.boleh('void_sebelum_dapur') then
