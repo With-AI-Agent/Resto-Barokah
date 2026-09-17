@@ -49,6 +49,7 @@ tetapi **memblokir** dua tugas yang butuh layanan sungguhan: `T0-08` dan `T0-09`
 | U-06 | **Tombol Nyaman/Padat & daftar 10 tema** (cacat yang kamu laporkan 2026-09-17: cuma terlihat 5 tema & kerapatan tidak berefek) | 1) Buka pratinjau, muat ulang halaman 2) Buka tombol `Ganti tema` → hitung sendiri jumlah pilihannya (harus 10) 3) Pilih 2–3 tema berbeda → warna berubah 4) Tekan `Padat` lalu `Nyaman` → jarak kartu & baris contoh berubah | Daftar tema memuat **10** pilihan; tiap tema mengubah warna; `Padat` merapatkan jarak, `Nyaman` melegakan kembali |  |  |
 
 | U-07 | **Panel tema tidak lagi terpotong & mode Padat lebih rapi** (dua laporan kamu 2026-09-17) | 1) Buka pratinjau, muat ulang halaman 2) Tekan `Ganti tema (10)` di dekat bawah halaman — panelnya terbuka utuh, tidak terpotong tepi layar 3) Geser daftar di dalam panel bila perlu 4) Tekan `Padat`, lalu bandingkan dengan `Nyaman` | Panel tema muncul **utuh** (bisa digeser di dalam kotak, tidak keluar layar); mode `Padat` merapatkan **ukuran blok** (kartu, tombol, isian, baris tabel) — bukan cuma jaraknya — dan **ukuran huruf tetap sama** |  |  |
+| 2026-09-17 | U-02 & U-03: janji "SEMUA PEMERIKSAAN LOLOS" dijaga — kedua perintah uji memasang pustakanya sendiri, jadi bisa dijalankan apa adanya di salinan baru (temuan review PR-07). U-04 disegarkan ke paket berlaku **putaran10** (temuan PR-03/PR-07/PR-10) dan penjaga `alat/periksa-buku-uji.py` menolak paket basi (urutan putaran dibandingkan sebagai angka) |
 
 ## 3. Log buku ini
 

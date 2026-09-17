@@ -7,6 +7,20 @@ set -euo pipefail
 APLIKASI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO="$(dirname "$APLIKASI")"
 
+# Kenapa ada langkah ini (temuan review RV-2 putaran8 PR-07): skrip ini dulu langsung
+# menjalankan `npm run format:check`. Di klon BARU (tanpa node_modules) perintah pertama itu
+# langsung gagal (`prettier: not found`) dan, karena `set -e`, ia mati SEBELUM sampai ke
+# pemasangan pustaka di bawah — sehingga buku uji menjanjikan "SEMUA PEMERIKSAAN LOLOS" yang
+# tidak bisa dicapai apa adanya. Sekarang pustaka dipasang lebih dulu bila belum ada.
+if [ ! -x "$APLIKASI/node_modules/.bin/prettier" ]; then
+  echo "== memasang pustaka aplikasi (sekali saja per salinan) =="
+  (cd "$APLIKASI" && npm ci --no-audit --no-fund)
+fi
+if [ ! -d "$REPO/alat/node_modules/@electric-sql/pglite" ]; then
+  echo "== memasang pustaka alat uji SQL (sekali saja per salinan) =="
+  (cd "$REPO/alat" && npm ci --no-audit --no-fund)
+fi
+
 echo "== aplikasi: kerapian kode =="
 (cd "$APLIKASI" && npm run format:check)
 echo "== aplikasi: aturan kode =="
@@ -20,12 +34,9 @@ echo "== aplikasi: bangun =="
 echo "== aplikasi: kerentanan dependency =="
 (cd "$APLIKASI" && npm audit --audit-level=low)
 echo "== uji SQL (RLS & isolasi resto, tanpa server) =="
-if [ ! -d "$REPO/alat/node_modules" ]; then
-  (cd "$REPO/alat" && npm ci --no-audit --no-fund)
-fi
 (cd "$REPO" && node alat/uji-sql.mjs)
-echo "== bukti mutasi pagar migrasi 0012 (harus 12/12 MERAH + kontrol hijau) =="
-(cd "$REPO" && python3 alat/uji-mutasi-0012.py | tail -3)
+echo "== bukti mutasi pagar migrasi 0012 (kontrol hijau + 12/12 WAJIB MERAH) =="
+(cd "$REPO" && python3 alat/uji-mutasi-0012.py | tail -2)
 
 echo "== pemeriksa Python =="
 

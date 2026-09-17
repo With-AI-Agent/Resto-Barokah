@@ -306,6 +306,44 @@ def uji_klaim_angka(pohon: list[tuple[str, bool]]) -> None:
     catat(ok, "klaim angka", f"jumlah berkas .woff2 di dokumen = nyata ({nyata}) · perintah rujukan: {perintah}")
 
 
+def uji_perintah_buku_uji(pohon: list[tuple[str, bool]]) -> None:
+    """Perintah yang dijanjikan Buku Uji wajib ada DAN sanggup memasang pustakanya sendiri.
+
+    Kenapa ada: review RV-2 putaran8 (PR-07) — dua baris Buku Uji menjanjikan "SEMUA
+    PEMERIKSAAN LOLOS", padahal di salinan yang baru dibuka perintah pertamanya gagal
+    (`prettier: not found`) karena pustaka belum ada dan `set -e` mematikan skrip sebelum
+    sempat memasangnya. Penjaga ini mengunci perbaikannya: tiap skrip wajib memeriksa
+    kekurangan pustaka yang SPESIFIK lalu memasangnya (bukan sekadar memuat kata `npm ci`).
+    """
+    syarat = {
+        "aplikasi/alat/periksa-semua.sh": (
+            '$APLIKASI/node_modules/.bin/prettier',
+            '$REPO/alat/node_modules/@electric-sql/pglite',
+        ),
+        "alat/uji-database.sh": (
+            'alat/node_modules/@electric-sql/pglite',
+            'npm ci --prefix alat',
+        ),
+    }
+    kurang: list[str] = []
+    for relatif, penanda in syarat.items():
+        berkas = AKAR_REPO / relatif
+        if not berkas.is_file():
+            kurang.append(f"{relatif} tidak ada")
+            continue
+        isi = berkas.read_text(encoding="utf-8")
+        for p_ in penanda:
+            if p_ not in isi:
+                kurang.append(f"{relatif} tidak memeriksa/memasang pustaka ({p_})")
+        if "set -euo pipefail" in isi and "node_modules" not in isi:
+            kurang.append(f"{relatif} memakai `set -e` tetapi tidak memeriksa `node_modules` lebih dulu")
+    if kurang:
+        for k in kurang:
+            catat(gagal, "perintah buku uji", k)
+        return
+    catat(ok, "perintah buku uji", "dua perintah uji memasang pustakanya sendiri (bisa dijalankan di salinan baru)")
+
+
 def uji_terlacak_git(pohon: list[tuple[str, bool]]) -> None:
     """Folder wajib harus benar-benar ikut Git.
 
@@ -367,6 +405,7 @@ def main() -> int:
     uji_pohon(pohon)
     uji_terlacak_git(pohon)
     uji_klaim_angka(pohon)
+    uji_perintah_buku_uji(pohon)
     uji_token()
     uji_berkas_dasar()
     uji_berkas_gaya()
