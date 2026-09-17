@@ -465,20 +465,44 @@ def kartu_keputusan(berkas: pathlib.Path) -> int:
 
 
 # ---------------------------------------------------------------- --kesiapan
+# Berkas yang boleh berubah setelah commit target tanpa membatalkan paket review:
+# paket/laporan/kalibrasi itu sendiri (dibuat SETELAH paket ditulis — ayam-dan-telur).
+BERKAS_NETRAL = ("docs/uji/review-pr/", "docs/uji/paket-audit/", "docs/uji/kalibrasi/", "docs/uji/audit/")
+
+
+def _selisih_hanya_netral(target: str) -> bool:
+    rc, keluaran = jalankan(["git", "diff", "--name-only", f"{target}..HEAD"])
+    if rc != 0:
+        return False
+    berkas = [b for b in keluaran.splitlines() if b.strip()]
+    return bool(berkas) and all(b.startswith(BERKAS_NETRAL) for b in berkas)
+
+
 def kesiapan() -> int:
     sha = sha_ringkas("HEAD")
     if not FOLDER.is_dir():
         print(f"BELUM: belum ada paket review di {FOLDER.relative_to(AKAR)}/")
         print("       Jalankan: python3 alat/review-pr.py --siapkan")
         return 1
-    cocok = []
-    for p in sorted(FOLDER.glob("PKT-*.md")):
-        isi = p.read_text(encoding="utf-8")
+    cocok: list[str] = []
+    netral: list[str] = []
+    for paket in sorted(FOLDER.glob("PKT-*.md")):
+        isi = paket.read_text(encoding="utf-8")
         m = re.search(r"- \*\*Commit yang direview:\*\*\s*`?([0-9a-f]{7,40})`?", isi)
-        if m and sha.startswith(m.group(1)[:12]):
-            cocok.append(p.name)
+        if not m:
+            continue
+        target = m.group(1)
+        if sha.startswith(target[:12]):
+            cocok.append(paket.name)
+        elif _selisih_hanya_netral(target):
+            # commit target ada di riwayat, dan perubahan setelahnya hanya berkas paket/laporan →
+            # paket masih berlaku (mis. commit yang menambahkan paket itu sendiri).
+            cocok.append(f"{paket.name} (target {target[:8]} + hanya berkas paket)")
+            netral.append(target[:8])
     if cocok:
-        print(f"SIAP: commit {sha[:8]} sudah punya paket review: {', '.join(cocok)}")
+        print(f"SIAP: commit {sha[:8]} punya paket review berlaku: {', '.join(cocok)}")
+        if netral:
+            print("       (paket menunjuk commit sebelum berkas paket ditulis — itu normal)")
         return 0
     print(f"BELUM: commit sekarang ({sha[:8]}) belum punya paket review.")
     print("       Jalankan: python3 alat/review-pr.py --siapkan   (lalu minta Lee membuka sesi peninjau)")
