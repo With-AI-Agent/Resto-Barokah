@@ -44,6 +44,45 @@ def baris_tabel(teks: str) -> list[tuple[int, list[str]]]:
     return hasil
 
 
+FOLDER_PAKET = "docs/uji/review-pr"
+
+
+def _paket_terbaru(akar: pathlib.Path) -> str | None:
+    """Nama berkas paket review SIAP-TEMPEL paling baru (diurutkan menurut nama)."""
+    folder = akar / FOLDER_PAKET
+    if not folder.is_dir():
+        return None
+    def kunci(nama: str) -> tuple:
+        # "putaran9" vs "putaran10": urut abjad salah, jadi angka di dalam nama dibandingkan
+        # sebagai bilangan (dan tanggal tetap ikut dibandingkan lebih dulu).
+        return tuple(int(b) if b.isdigit() else b for b in re.split(r"(\d+)", nama) if b)
+
+    kandidat = sorted((f.name for f in folder.glob("PKT-*-SIAP-TEMPEL.md")), key=kunci)
+    return kandidat[-1] if kandidat else None
+
+
+def _cek_paket_disebut(akar: pathlib.Path, teks: str, errs: list[str]) -> None:
+    """Buku uji yang menyuruh Lee menempel paket BASI = cacat.
+
+    Kenapa ada: temuan review RV-2 putaran8 (PR-03/PR-07/PR-10) — baris U-04 menyuruh Lee
+    menyalin paket putaran7 padahal paket berlaku sudah putaran8, sehingga sesi peninjau
+    menilai kode lama. Sekarang: nama paket yang disebut buku wajib ada DAN wajib yang
+    paling baru; begitu ada putaran berikutnya, pemeriksa ini MERAH sampai bukunya disegarkan.
+    """
+    disebut = sorted(set(re.findall(r"PKT-[\w\-.]*SIAP-TEMPEL\.md", teks)))
+    if not disebut:
+        return
+    terbaru = _paket_terbaru(akar)
+    for nama in disebut:
+        if not (akar / FOLDER_PAKET / nama).is_file():
+            errs.append(f"buku uji menyebut paket review yang TIDAK ADA: {nama}")
+        elif terbaru and nama != terbaru:
+            errs.append(
+                f"buku uji masih menyuruh Lee memakai paket LAMA ({nama}); paket berlaku sekarang {terbaru} "
+                "— segarkan baris U-04 supaya sesi peninjau tidak menilai kode basi"
+            )
+
+
 def periksa(akar: pathlib.Path) -> int:
     errs: list[str] = []
     berkas = akar / BUKU
@@ -112,6 +151,7 @@ def periksa(akar: pathlib.Path) -> int:
 
     if jumlah["P"] == 0 or jumlah["U"] == 0:
         errs.append("buku wajib punya minimal satu baris 'lakukan' (P-) dan satu baris 'coba' (U-)")
+    _cek_paket_disebut(akar, teks, errs)
 
     print(f"PERIKSA BUKU UJI PEMILIK — {jumlah['P']} baris lakukan · {jumlah['U']} baris coba · {len(id_terlihat)} baris total")
     if errs:
@@ -140,6 +180,28 @@ def uji_diri() -> int:
             kode2, _ = jalankan_pemeriksa(periksa, tmp2)
             hasil.append(("mutasi: baris dengan 6 langkah", kode2 != 0,
                           "ditolak" if kode2 != 0 else "DILOLOSKAN (batas langkah tidak dijaga)"))
+
+        # Mutasi 2b: paket review yang disebut buku dibuat BASI → harus GAGAL
+        with salin_pohon() as tmp_basi:
+            berkas = tmp_basi / BUKU
+            isi = berkas.read_text(encoding="utf-8")
+            m = re.search(r"PKT-[\w\-.]*SIAP-TEMPEL\.md", isi)
+            if not m:
+                hasil.append(("mutasi: paket review disebut lebih tua", False,
+                              "buku tidak menyebut paket SIAP-TEMPEL — tidak bisa dimutasi"))
+            else:
+                # arahkan ke paket lain yang ADA tapi bukan yang terbaru
+                folder = tmp_basi / FOLDER_PAKET
+                lain = [f.name for f in folder.glob("PKT-*-SIAP-TEMPEL.md") if f.name != m.group(0)]
+                if not lain:
+                    hasil.append(("mutasi: paket review disebut lebih tua", False,
+                                  "hanya ada satu paket — tidak bisa dimutasi"))
+                else:
+                    isi = isi.replace(m.group(0), sorted(lain)[0], 1)
+                    berkas.write_text(isi, encoding="utf-8")
+                    kode_basi, _ = jalankan_pemeriksa(periksa, tmp_basi)
+                    hasil.append(("mutasi: paket review disebut lebih tua", kode_basi != 0,
+                                  "ditolak" if kode_basi != 0 else "DILOLOSKAN (paket basi lolos)"))
 
         # Mutasi 2: kolom harapan dikosongkan → harus GAGAL
         with salin_pohon() as tmp3:
