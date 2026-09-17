@@ -328,6 +328,22 @@ yang saya ubah. Bukti: `git status --short` menampilkan hanya berkas laporan ini
 
 
 # ---------------------------------------------------------------- --periksa-laporan
+def _riwayat_berkas(ref: str, folder: str) -> list[tuple[str, str]]:
+    """[(commit, jalur)] semua versi berkas di riwayat cabang, terbaru dulu (cacat mekanisme #12)."""
+    _, log = jalankan(["git", "log", "--format=%H", "--name-only", ref, "--", folder])
+    hasil: list[tuple[str, str]] = []
+    sha = ""
+    for baris in log.splitlines():
+        b = baris.strip()
+        if not b:
+            continue
+        if re.fullmatch(r"[0-9a-f]{40}", b):
+            sha = b
+        elif b.lower().endswith(".md"):
+            hasil.append((sha, b))
+    return hasil
+
+
 def _nama_cabang_ringkas(cabang: str) -> str:
     """`origin/arena/01a0aeb4-resto-barokah` → `01a0aeb4` (penanda asal laporan)."""
     n = cabang.replace("origin/", "").replace("arena/", "").replace("-resto-barokah", "")
@@ -566,27 +582,35 @@ def ambil_laporan() -> int:
         print("CATATAN: tidak ada cabang arena/* di GitHub.")
         return 1
     FOLDER.mkdir(parents=True, exist_ok=True)
+    sudah_ada = {f.read_text(encoding='utf-8') for f in FOLDER.glob('*.md') if f.is_file()}
     ditemukan: list[tuple[str, str, str]] = []
     for ref in daftar:
-        _, berkas = jalankan(["git", "ls-tree", "-r", "--name-only", ref, "--", "docs/uji/review-pr/"])
-        for jalur in [b.strip() for b in berkas.splitlines() if "LAPORAN" in b.upper() and b.lower().endswith(".md")]:
-            _, isi = jalankan(["git", "show", f"{ref}:{jalur}"])
-            if not isi.strip():
+        # cacat mekanisme #12: versi lama bisa hanya hidup di RIWAYAT commit (nama berkas sama, satu cabang)
+        for sha_v, jalur in _riwayat_berkas(ref, "docs/uji/review-pr/"):
+            if not ("LAPORAN" in jalur.upper() and jalur.lower().endswith(".md")):
                 continue
-            target = AKAR / jalur
-            if target.is_file() and target.read_text(encoding="utf-8") == isi:
+            _, isi = jalankan(["git", "show", f"{sha_v}:{jalur}"])
+            if not isi.strip() or isi in sudah_ada:
                 continue
-            if target.is_file():
-                # cacat mekanisme #9: nama sama dari sesi lain — jangan timpa, simpan terpisah
-                pendamping = target.with_name(f"{target.stem}.dari-{_nama_cabang_ringkas(ref)}{target.suffix}")
-                if pendamping.is_file() and pendamping.read_text(encoding="utf-8") == isi:
-                    continue  # tarik ulang harus idempoten
-                pendamping.write_text(isi, encoding="utf-8")
-                tujuan_tertulis, status = pendamping, f"nama sama dari sesi lain — disimpan terpisah: {pendamping.name}"
-            else:
+            nama = pathlib.Path(jalur).name
+            target = FOLDER / nama
+            if not target.is_file():
                 target.write_text(isi, encoding="utf-8")
-                tujuan_tertulis, status = target, "baru"
-            ditemukan.append((ref.replace("origin/", ""), str(tujuan_tertulis.relative_to(AKAR)), status))
+                sudah_ada.add(isi)
+                ditemukan.append((ref.replace("origin/", ""), str(target.relative_to(AKAR)), "baru"))
+                continue
+            ringkas = _nama_cabang_ringkas(ref)
+            for kandidat in (f"{target.stem}.dari-{ringkas}{target.suffix}",
+                             f"{target.stem}.dari-{ringkas}-{sha_v[:8]}{target.suffix}"):
+                pendamping = target.with_name(kandidat)
+                if pendamping.is_file() and pendamping.read_text(encoding="utf-8") == isi:
+                    break
+                if not pendamping.is_file():
+                    pendamping.write_text(isi, encoding="utf-8")
+                    sudah_ada.add(isi)
+                    ditemukan.append((ref.replace("origin/", ""), str(pendamping.relative_to(AKAR)),
+                                      "nama sama / versi tertimpa — disimpan terpisah"))
+                    break
     print()
     if not ditemukan:
         print("TIDAK ADA laporan review baru di cabang arena/*.")

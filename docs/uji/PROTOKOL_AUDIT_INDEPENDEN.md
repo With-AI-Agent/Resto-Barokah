@@ -132,6 +132,10 @@ berkas di sana. Tanpa jalur pulang, laporan bisa hilang di chat, dan Lee harus m
 3. Sesi kerja (pembangun) menjalankan `python3 alat/audit-independen.py --ambil-laporan`, yang:
    mencari **semua cabang `arena/*`** di GitHub, menemukan berkas `docs/uji/audit/LAPORAN_*.md` yang belum ada di sesi ini,
    mengambilnya, dan menaruhnya di `docs/uji/audit/`.
+3b. **Dua sesi bisa berbagi SATU cabang** (kejadian nyata 2026-09-17: dua sesi paralel push ke cabang yang sama dengan
+   nama berkas yang sama; versi pertama lalu hanya hidup di **riwayat commit**). Karena itu penarik laporan menelusuri
+   **seluruh riwayat** berkas laporan di tiap cabang — bukan hanya ujung cabang — dan versi yang tertimpa diselamatkan
+   sebagai `<nama>.dari-<penanda-cabang>-<commit8>.md`. **Tidak ada laporan yang hilang atau ditimpa.**
 4. Sesi kerja memvalidasi tiap laporan (`--periksa-laporan`), menilai kalibrasi (`--kalibrasi-nilai`), lalu menindaklanjuti.
 
 **Kalau auditor tidak bisa push** (mis. izin): auditor menulis di laporan "belum ter-push" dan menempelkan laporan di chat;
