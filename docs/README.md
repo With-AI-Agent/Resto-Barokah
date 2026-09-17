@@ -17,6 +17,12 @@ Folder ini berisi dokumen fondasi aplikasi yang sedang dibangun. **Fondasi 6 dok
 | `TERTANGGUH.md` | Buku tunggu: hal yang sengaja ditunda + tenggatnya (maks. 12 terbuka; kini 7) | wajib dibaca tiap sesi |
 | `teknis/BUKU_INSIDEN.md` **(baru 2026-09-17)** | Langkah cepat saat masalah: perangkat hilang, akun dibobol, pegawai berhenti, data bocor (3×24 jam), internet mati, printer, cadangan, kunci bocor | berlaku — untuk pemilik & admin |
 | `teknis/USULAN_KEAMANAN_DAN_KELENGKAPAN_UI.md` | Naskah usulan 2026-09-17 yang disetujui pemilik (latar riset & keputusan) | arsip rujukan |
+| `PANDUAN_PEMILIK.md` **(baru 2026-09-17)** | Cara pemilik mengendalikan proyek: minta audit independen, membaca istilah K-1…K-4, arti "terkalibrasi", hal yang tidak boleh ditunda | berlaku — untuk pemilik |
+| `uji/PROTOKOL_AUDIT_INDEPENDEN.md` **(baru)** | Mekanisme audit AUD-0…AUD-3: independensi, 6 lensa, kontrak laporan, kalibrasi cacat tanaman, gate | berlaku — mengikat |
+| `uji/PROMPT_AUDIT_INDEPENDEN.md` **(baru)** | Kalimat pembuka + cara memulai sesi auditor independen | berlaku |
+| `uji/AUDIT_RIWAYAT.md` **(baru)** | Riwayat audit, tingkat deteksi kalibrasi, cacat yang lolos ke produksi | hidup |
+| `uji/DAFTAR_PEKERJAAN_ULANG.md` **(baru)** | Hasil AUD-0: pekerjaan lama yang wajib diulang karena keputusan keamanan (B.1–B.12) | hidup |
+| `uji/paket-audit/` & `uji/audit/` **(baru)** | Paket audit (hasil mesin) & laporan auditor | hidup |
 
 Sub-folder: `teknis/` (catatan diskusi per tahap) · `uji/` (laporan pemeriksaan silang & review) ·
 `desain/` (papan referensi, mockup, rencana UI).
@@ -27,6 +33,8 @@ Sub-folder: `teknis/` (catatan diskusi per tahap) · `uji/` (laporan pemeriksaan
 python3 alat/periksa-roadmap.py                 # kelengkapan ROADMAP
 python3 alat/periksa-fondasi-independen.py      # pemeriksa kedua, ditulis terpisah (review independen)
 python3 _sistem/validate_system.py              # struktur sistem kerja agent
+python3 alat/audit-independen.py --uji-diri     # mekanisme audit membuktikan dirinya bisa MENOLAK & MENERIMA
+python3 alat/audit-independen.py --paket AUD-2 --tugas T1-01..T1-10   # siapkan paket audit independen
 ```
 
 Template starter keenam dokumen ada di `../_sistem/templates/`.

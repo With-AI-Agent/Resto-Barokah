@@ -216,4 +216,5 @@
 5. Setiap fungsi `SECURITY DEFINER` baru: `search_path` dipaku + hak `execute` dicabut dari `public` + pemeriksaan izin di dalam badan fungsi.
 6. Setiap layar baru: kontrak layar + aksi terdaftar + 7 keadaan + uji komponen (lihat `docs/SPESIFIKASI_UI.md`).
 7. Kalau menemukan cacat pada pekerjaan yang sudah diklaim selesai → laporkan, jangan sembunyikan (Stop Condition §12).
+9. **Setiap perubahan yang menyentuh akun/perangkat/sesi/uang/data pelanggan wajib melalui AUD-2** (audit independen, sesi & model berbeda) sebelum ditandai selesai — aturan lengkap di `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`. Temuan K-1/K-2 menahan fase.
 8. **Aturan pemilik (2026-09-17):** menyimpang dari deskripsi/rancangan yang pemilik tulis **wajib ditanyakan lebih dulu**, dijelaskan dengan bahasa yang mudah dipahami, dan **dicatat** (di `DECISIONS_LOG.md` + laporan). Tidak ada penyimpangan diam-diam, walau niatnya memperbaiki.

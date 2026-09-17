@@ -145,6 +145,12 @@ Semua fase juga membaca `skills/find-skills` (untuk mencari skill yang belum ter
    (kosong/memuat/gagal/menunggu terkirim/tanpa akses/data sebagian/berhasil) punya ujinya sendiri.
 4c. **Uji keamanan akun & perangkat (WAJIB, `docs/KEAMANAN.md` §14):** peran × aksi · perangkat tidak terdaftar ·
    pencabutan seketika · sesi lewat umur · kunci percobaan masuk · PIN lemah/kembar · rantai audit · mode dukungan.
+4e. **Audit independen (WAJIB sejak 2026-09-17 — `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`):**
+   **AUD-0** audit dampak saat keputusan berubah · **AUD-1** periksa batch (CI, otomatis) · **AUD-2** review independen
+   akhir fase/perubahan berisiko oleh **sesi baru + model berbeda, hanya-baca**, laporan **wajib lolos**
+   `python3 alat/audit-independen.py --periksa-laporan <berkas>` · **AUD-3** audit adversarial 6 lensa + **kalibrasi
+   cacat tanaman** sebelum pilot/atas permintaan pemilik. Temuan **K-1/K-2 TERVERIFIKASI = fase tidak boleh ditutup**.
+   Mekanismenya sendiri wajib teruji: `python3 alat/audit-independen.py --uji-diri` (ikut CI).
 4d. **Uji pemanggilan RPC langsung:** penolakan **tidak boleh** hanya di layar — peran tanpa izin yang memanggil RPC
    langsung (tanpa lewat UI) wajib ditolak database; ini yang membedakan "disembunyikan" dari "diamankan".
 5. **Uji mesin/nyata** — cetak struk di printer Kedai Oasis (risiko #1 PRD) sebelum gelombang berikutnya dimulai.
@@ -176,6 +182,7 @@ Sebuah task hanya boleh ditandai `[x]` bila **semua** tercentang:
 - [ ] Commit + push; repo bersih
 - [ ] `PROJECT_STATE.md` + `STATUS.md` + LOG_SESI diperbarui (langkah terakhir)
 - [ ] Laporan bahasa manusia ke pemilik: apa yang berubah · artinya · apa berikutnya
+- [ ] **Bila menyentuh uang/keamanan/data pelanggan:** AUD-2 (audit independen) sudah dijalankan & laporannya LOLOS kontrak, dan **tidak ada** temuan K-1/K-2 terbuka
 
 **Tambahan untuk tugas UI (DoD v2 — 2026-09-17; rincian `docs/SPESIFIKASI_UI.md` §6):**
 
@@ -262,6 +269,8 @@ Bila sesi berlanjut di hari sama → `LOG_SESI_2026-09-16_2.md`. Penutupan log: 
 7. Butuh sesuatu yang hanya pemilik bisa beri (keputusan bisnis, data lapangan, akun/kunci layanan).
 8. Menemukan **cacat pada pekerjaan yang sudah diklaim selesai** → laporkan, jangan sembunyikan.
 9. **Merasa perlu menyimpang** dari deskripsi/rancangan pemilik (walau kecil atau niatnya memperbaiki) → berhenti, tanya dulu, jelaskan bahasa sederhana, catat setelah diputuskan (aturan pemilik 2026-09-17).
+10. **Ada temuan audit K-1/K-2 terbuka** → hentikan pekerjaan baru, perbaiki/verifikasi lebih dulu (kecuali pemilik memutuskan lain).
+11. **Pemilik meminta audit independen** → hentikan pekerjaan lain yang menyentuh lingkup audit; siapkan paket audit di batch itu juga, dan lanjutkan hanya setelah laporan masuk & ditindaklanjuti.
 
 Bentuk pertanyaan yang benar: bahasa sederhana + 2–3 pilihan + rekomendasi + dampak tiap pilihan.
 
@@ -306,3 +315,4 @@ yang aman) tanpa pertanyaan; pemilik hanya perlu mengetik "lanjut" lagi untuk ba
 | 2026-09-16 | §0 ditambah **Kalau ruang kerja dinyalakan ulang** + alat baru `alat/pulihkan-git.sh` & `aplikasi/alat/pratinjau.sh`, dan satu butir pemulihan di prompt pembuka universal | Kejadian nyata: setelah restart, `node_modules` hilang (pratinjau mati dengan `vite: not found`) dan salinan Git lokal mundur ke `main`. Tanpa prosedur tertulis, sesi berikutnya (model berbeda) bisa menebak-nebak atau — lebih buruk — menulis ulang berkas dari ingatan |
 | 2026-09-17 | §5 ditambah **uji komponen per layar**, **uji keamanan akun/perangkat**, dan **uji pemanggilan RPC langsung**; §7 ditambah **DoD v2 untuk tugas UI**; §11 menyebut dokumen mengikat baru (`docs/KEAMANAN.md`, `docs/SPESIFIKASI_UI.md`) & ART-1…ART-15 | Permintaan pemilik (pesan ke-14): pengalaman proyek sebelumnya banyak tombol kurang & fungsi "katanya ada"; plus keamanan akun/perangkat harus matang sebelum lanjut. Rincian: `docs/SPESIFIKASI_UI.md` + `docs/KEAMANAN.md` |
 | 2026-09-17 | §11 & §12: **penyimpangan teknis wajib ditanyakan lebih dulu** + dijelaskan bahasa sederhana + dicatat | Jawaban pemilik 2026-09-17: *"Harus tanyakan dulu ke aku… jelasin alasannya dengan bahasa yang mudah aku pahami… harus tercatat"* |
+| 2026-09-17 | §5 butir 4e **Audit independen AUD-0…AUD-3** + §7 DoD menyebut AUD-2 + §12 dua Stop Condition (temuan K-1/K-2 terbuka · permintaan audit pemilik) | Permintaan pemilik 2026-09-17: mekanisme audit/pemeriksaan/review independen yang teliti & terukur, memakai skill + riset, dan bisa ia picu sendiri (`docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`) |

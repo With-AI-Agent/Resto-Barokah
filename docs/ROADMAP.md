@@ -436,6 +436,24 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Verifikasi:** uji SQL: kode salah/kadaluwarsa/terpakai dua kali → ditolak · perangkat darurat belum bisa dipakai sebelum 30 menit · dibatalkan dari perangkat lain → batal · semua kejadian tercatat & dalam ringkasan harian.
   - **Catatan nomor:** ditambahkan setelah Fase 1C disisipkan (2026-09-17), karena itu bernomor T1-36; pengerjaannya **bersama T1-24/T1-25** (bukan di akhir).
 
+- [ ] T1-37 — Pekerjaan ulang artefak lama yang dibatalkan keputusan keamanan ⚠️
+  - **Tujuan:** membereskan pekerjaan T1-01…T1-10 yang bertentangan dengan aturan baru (satu akun satu peran · perangkat terdaftar · percobaan masuk) — dikerjakan lewat migrasi BARU, bukan menyunting migrasi lama.
+  - **Ref:** `docs/uji/DAFTAR_PEKERJAAN_ULANG.md` (hasil AUD-0) · TECH_SPEC §4.1 & §9 ART-11/ART-12; PRD M12
+  - **File:** `supabase/migrations/0011_peran_tunggal.sql`, `supabase/tes/peran_tunggal.sql`, `supabase/tes/izin.sql`, `alat/sql/data-uji.sql`, `supabase/tes/pin.sql`
+  - **DoD:** butir B.1–B.9 daftar kerja ulang selesai: `pengguna_cabang.peran` dibongkar lewat 0011 · `izin_efektif()` ditulis ulang membaca `pengguna.peran` · uji `tes/izin.sql` §8 (peran berbeda per cabang) diganti uji peran tunggal · fixture perangkat ditambahkan · uji lama yang mengasumsikan peran per cabang tidak ada lagi; seluruh uji lulus.
+  - **Kompleksitas:** besar (5 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-12) & RLS (ART-1); membongkar kolom yang dipakai fungsi izin bisa membuat semua peran kehilangan izin → mitigasi: matriks 10 izin × 5 peran dijalankan ulang sebelum & sesudah, dan uji mutasi membuktikan gerbang izin masih bisa MERAH.
+  - **Verifikasi:** `node alat/uji-sql.mjs` 12 berkas LULUS · matriks izin utuh (kasir tetap tidak boleh apa yang tadinya tidak boleh) · `python3 alat/periksa-roadmap.py` LOLOS.
+
+- [ ] T1-38 — Audit independen AUD-2 atas Fase 1B + bukti ulang pekerjaan lama ⚠️
+  - **Tujuan:** sebelum kembali ke T1-11, seluruh pekerjaan keamanan (dan pekerjaan lama yang sudah diulang) diperiksa sesi auditor independen dengan kalibrasi cacat tanaman.
+  - **Ref:** `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §2 & §6; AGENT_OPERATING_GUIDE §5
+  - **File:** `docs/uji/paket-audit/AUD-2-<tanggal>.md`, `docs/uji/audit/LAPORAN_AUD-2_<tanggal>_keamanan.md`, `docs/uji/AUDIT_RIWAYAT.md`
+  - **DoD:** paket audit dibuat mesin; auditor **sesi & model berbeda** menjalankan lensa L1/L3/L4 (+L2 untuk uang) · laporan LOLOS `--periksa-laporan` · kalibrasi cacat tanaman dijalankan & tingkat deteksi dicatat · semua temuan K-1/K-2 ditutup atau fase DIHENTIKAN; verdict tercatat di `docs/uji/AUDIT_RIWAYAT.md`.
+  - **Kompleksitas:** besar (4 jam, termasuk perbaikan temuan)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: seluruh kontrol keamanan; auditor malas/hijau palsu → mitigasi: kalibrasi cacat tanaman + pemeriksa laporan mesin + syarat "temuan wajib punya perintah bukti".
+  - **Verifikasi:** laporan audit LOLOS kontrak · tingkat deteksi kalibrasi ≥ 70% dengan semua K-1/K-2 ditemukan · nol temuan K-1/K-2 terbuka sebelum `[x]`.
+
 ## Fase 1C — Kontrak UI & peta aksi (⚠️ disisipkan 2026-09-17, dikerjakan SEBELUM layar pertama Fase 3)
 
 > **Kenapa disisipkan:** pengalaman pemilik pada proyek sebelumnya — banyak tombol kurang dan fungsi "katanya ada"
@@ -1721,6 +1739,15 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pemilik menemukan hal yang tidak nyaman di akhir → mitigasi: naskah keamanan dijalankan **lebih awal** (setelah Fase 2) sebagai uji antara, bukan hanya di akhir.
   - **Verifikasi:** naskah bertanda tangan pemilik (setuju/cacat) + daftar cacat ditutup.
 
+- [ ] T11-13 — Audit adversarial menyeluruh (AUD-3) + kalibrasi cacat tanaman sebelum pilot ⚠️
+  - **Tujuan:** pembuktian terakhir sebelum Kedai Oasis memakai sistem: seluruh janji (PRD → kode → uji) diperiksa sesi independen dengan enam lensa, termasuk serangan nyata (perangkat hilang, PIN ditebak, penyewa lain mengintip, uang dikarang).
+  - **Ref:** `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §2 (AUD-3), §7; `docs/PANDUAN_PEMILIK.md` §3
+  - **File:** `docs/uji/paket-audit/AUD-3-<tanggal>.md`, `docs/uji/audit/LAPORAN_AUD-3_<tanggal>_pilot.md`, `docs/uji/AUDIT_RIWAYAT.md`
+  - **DoD:** semua enam lensa dijalankan · ≥12 serangan nyata dilakukan · kalibrasi cacat tanaman: semua K-1/K-2 ditemukan & ≥70% total · laporan LOLOS kontrak · temuan K-1/K-2 nol yang terbuka · hasil + angka kalibrasi dicatat di `docs/uji/AUDIT_RIWAYAT.md`.
+  - **Kompleksitas:** besar (6 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: seluruh Area Berisiko Tinggi; audit dianggap formalitas → mitigasi: pemeriksa laporan menolak laporan tanpa bukti & kalibrasi menentukan apakah verdict boleh dipercaya; pemilik mengikuti naskah jalan sendiri (`docs/uji/NASKAH_JALAN.md`).
+  - **Verifikasi:** laporan AUD-3 LOLOS kontrak + tingkat deteksi kalibrasi memenuhi ambang + naskah jalan pemilik dijalankan di perangkat nyata.
+
 ## Checklist kelengkapan sebelum ROADMAP disetujui (Tahap 5)
 
 - [x] Semua fitur **Must Have** M1–M12 punya task: M1 → T9-10 · M2 → T9-01…T9-07 · M3 → T1-05/T1-06/T9-08 · M4 → T3-01…T3-16 · M5 → T4-01…T4-05 · M6 → T5-01…T5-12 · M7 → T7-01…T7-06 · M8 → T7-07…T7-12 · M9 → T4-06/T4-07/T3-07 · M10 → T8-01…T8-14 · M11 → T9-06/T9-09 · M12 → T1-01…T1-22, T2-09/T2-10/T2-12, T10-05/T10-06, T11-05
@@ -1733,9 +1760,9 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 **Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07 · Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009, **T-012** (cadangan di artefak terenkripsi repo privat) dan **T-013** (penutup shift = Admin Cabang → Owner Pusat) sudah **ditutup** 2026-09-16 (lihat tabel Butir selesai di `docs/TERTANGGUH.md`).
 
-**Jumlah tugas:** F0 11 · F1 36 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 12 = **179 tugas**, semuanya ber-7 atribut.
+**Jumlah tugas:** F0 11 · F1 38 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 13 = **182 tugas**, semuanya ber-7 atribut.
 
-> **Catatan 2026-09-17:** angka di atas **diukur ulang** dari berkas ini setelah penyisipan keamanan & kelengkapan UI (+T1-36 jalur pemulihan perangkat)
+> **Catatan 2026-09-17:** angka di atas **diukur ulang** dari berkas ini setelah penyisipan keamanan & kelengkapan UI (+T1-36 jalur pemulihan perangkat · +T1-37 pekerjaan ulang & T1-38 audit independen · +T11-13 audit adversarial)
 > (Fase 1B `T1-23…T1-30` · Fase 1C `T1-31…T1-35` · perluasan Fase 2/8/10/11). **Nomor migrasi rencana lama bergeser +7**
 > (kas & shift 0011 → **0018**, dst.) supaya 0011–0017 dipakai penyisipan; urutan penerapan mengikuti **urutan tugas**.
 > Pelajaran T1-07/…/T1-10 diulang: jumlah tugas **tidak boleh** ditulis dari ingatan — ambil dari hasil pemeriksa.
@@ -1748,6 +1775,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 |---|---|---|
 | 2026-09-16 | `ROADMAP.md` ditulis (146 tugas, 11 fase) | Urutan fase disetujui pemilik via delegasi; Tahap 5 selesai |
 | 2026-09-16 | Tugas **T0-00** ditambah di awal Fase 0 (pemilik membuat akun Supabase & Cloudflare, dipandu) → 151 tugas | Temuan review independen W5-01: tanpa itu Fase 0 berhenti di T0-08 menunggu sesuatu yang tidak dijelaskan siapa-siapa; akun hanya bisa dibuat pemilik |
+| 2026-09-17 | **Mekanisme audit independen ditanam** (`docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`, `alat/audit-independen.py`, `docs/PANDUAN_PEMILIK.md`) + **3 tugas baru**: T1-37 pekerjaan ulang · T1-38 audit independen Fase 1B · T11-13 audit adversarial sebelum pilot → **182 tugas** | Permintaan pemilik: audit/pemeriksaan/review independen yang teliti, terukur, bisa ia picu sendiri; plus kesadaran bahwa pekerjaan lama mungkin perlu diulang (terbukti: AUD-0 menemukan 9 butir kerja ulang) |
 | 2026-09-17 | **Penyisipan keamanan & kelengkapan UI** (pesan pemilik ke-14): Fase 1B (peran tunggal, perangkat terdaftar, sesi & pencabutan, percobaan masuk, audit berantai, mode dukungan, matriks izin, pemeriksa keamanan) + Fase 1C (peta layar, registri aksi, pemeriksa peta UI, harness uji komponen, naskah jalan) + perluasan Fase 2 (TOTP, masuk staf, pendaftaran perangkat, kunci otomatis, daftar & cabut perangkat, masuk pengelola, uji masuk) + Fase 8 T8-15 (privasi) + Fase 10 (+4) + Fase 11 (+2) → **178 tugas** | Pemilik meminta matangkan dulu keamanan akun/perangkat & rencana UI sebelum lanjut; dua fase disisipkan **sebelum** Fase 2 supaya pola RLS/cara masuk tidak dibongkar dua kali; rujukan `docs/KEAMANAN.md` |
 | 2026-09-16 | Nama RPC resmi disisipkan ke blok tugas yang mengerjakannya (12 tugas) + `lihat_laporan` dikeluarkan dari peta RPC (itu kode izin, bukan RPC) | Temuan review independen W3-03: peta RPC ada di luar blok tugas, sehingga pemeriksa hanya bisa mencari di seluruh dokumen |
 | 2026-09-16 | 4 tugas (T0-04, T4-03, T9-10, T11-03) diberi catatan bukti visual diambil manusia; T1-18 disamakan dengan enum `TECH_SPEC.md` §4.3; T0-08 diberi catatan bangunkan database setelah jeda >7 hari | Temuan review independen W4-01, W1-02, W5-03 |
