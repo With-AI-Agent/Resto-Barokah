@@ -247,6 +247,7 @@ Bila sesi berlanjut di hari sama → `LOG_SESI_2026-09-16_2.md`. Penutupan log: 
 - **Perubahan yang menyentuh janji ke pemilik** (fitur, tampilan, biaya, waktu, aturan bisnis): **STOP** →
   tulis usulan 2–3 pilihan + untung/rugi + rekomendasi → tunggu keputusan pemilik → **baru** ubah dokumen + catat tanggal & alasan.
 - Dokumen yang sudah dikunci **tidak dihapus/ditimpa tanpa jejak** — riwayat selalu ditulis.
+- **Aturan pemilik 2026-09-17 (berlaku mutlak):** agent **dilarang menyimpang** dari deskripsi/rancangan yang pemilik tulis tanpa bertanya lebih dulu. Urutannya: **tanya → jelaskan dengan bahasa sederhana (tanpa istilah teknis) + alasan + pilihan → kerjakan setelah diputuskan → catat di `DECISIONS_LOG.md` & laporkan**. Berlaku walau niat penyimpangan itu memperbaiki; yang "sekadar teknis" pun dijelaskan dulu, bukan diputuskan sendiri.
 - Khusus `docs/TECH_SPEC.md`: apa pun yang menyentuh **ART-1…ART-15** wajib lewat `DECISIONS_LOG.md` + persetujuan pemilik.
 - **Dokumen mengikat yang ditambahkan 2026-09-17** (disetujui pemilik): `docs/KEAMANAN.md` (aturan keamanan akun/perangkat/sesi/uang/audit/privasi — mengalahkan ringkasan di TECH_SPEC §8 bila berbeda) dan `docs/SPESIFIKASI_UI.md` (kelengkapan layar/tombol — mengikat semua tugas UI). Perubahannya mengikuti aturan yang sama: menyentuh janji ke pemilik → usul dulu; teknis → catat di Log Keputusan dokumen itu + DECISIONS_LOG.md.
 
@@ -260,6 +261,7 @@ Bila sesi berlanjut di hari sama → `LOG_SESI_2026-09-16_2.md`. Penutupan log: 
 6. Mau **mengubah keputusan** yang sudah tercatat di `DECISIONS_LOG.md`.
 7. Butuh sesuatu yang hanya pemilik bisa beri (keputusan bisnis, data lapangan, akun/kunci layanan).
 8. Menemukan **cacat pada pekerjaan yang sudah diklaim selesai** → laporkan, jangan sembunyikan.
+9. **Merasa perlu menyimpang** dari deskripsi/rancangan pemilik (walau kecil atau niatnya memperbaiki) → berhenti, tanya dulu, jelaskan bahasa sederhana, catat setelah diputuskan (aturan pemilik 2026-09-17).
 
 Bentuk pertanyaan yang benar: bahasa sederhana + 2–3 pilihan + rekomendasi + dampak tiap pilihan.
 
@@ -303,3 +305,4 @@ yang aman) tanpa pertanyaan; pemilik hanya perlu mengetik "lanjut" lagi untuk ba
 | 2026-09-16 | §13 **Mode Maraton & Daftar Tunggu** + berkas baru `docs/TERTANGGUH.md` + `alat/mulai-sesi.py` membacakannya | Permintaan pemilik: agent lanjut bekerja tanpa berhenti; yang bisa ditunda ditangguhkan, tetapi **wajib tercatat & wajib terbaca tiap sesi** |
 | 2026-09-16 | §0 ditambah **Kalau ruang kerja dinyalakan ulang** + alat baru `alat/pulihkan-git.sh` & `aplikasi/alat/pratinjau.sh`, dan satu butir pemulihan di prompt pembuka universal | Kejadian nyata: setelah restart, `node_modules` hilang (pratinjau mati dengan `vite: not found`) dan salinan Git lokal mundur ke `main`. Tanpa prosedur tertulis, sesi berikutnya (model berbeda) bisa menebak-nebak atau — lebih buruk — menulis ulang berkas dari ingatan |
 | 2026-09-17 | §5 ditambah **uji komponen per layar**, **uji keamanan akun/perangkat**, dan **uji pemanggilan RPC langsung**; §7 ditambah **DoD v2 untuk tugas UI**; §11 menyebut dokumen mengikat baru (`docs/KEAMANAN.md`, `docs/SPESIFIKASI_UI.md`) & ART-1…ART-15 | Permintaan pemilik (pesan ke-14): pengalaman proyek sebelumnya banyak tombol kurang & fungsi "katanya ada"; plus keamanan akun/perangkat harus matang sebelum lanjut. Rincian: `docs/SPESIFIKASI_UI.md` + `docs/KEAMANAN.md` |
+| 2026-09-17 | §11 & §12: **penyimpangan teknis wajib ditanyakan lebih dulu** + dijelaskan bahasa sederhana + dicatat | Jawaban pemilik 2026-09-17: *"Harus tanyakan dulu ke aku… jelasin alasannya dengan bahasa yang mudah aku pahami… harus tercatat"* |

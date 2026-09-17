@@ -3,7 +3,9 @@
 > **Status: BERLAKU sejak 2026-09-17** setelah pemilik menyetujui usulan
 > `docs/teknis/USULAN_KEAMANAN_DAN_KELENGKAPAN_UI.md` (jawaban pemilik: masuk staf = PIN di perangkat terdaftar ·
 > perangkat = kode pendaftaran + persetujuan pemilik · mode dukungan = berbatas waktu & tercatat ·
-> rencana dokumen & dua fase baru = **setuju semua**). Dua hal diserahkan pemilik kepada agent dan ditetapkan
+> rencana dokumen & dua fase baru = **setuju semua**; lanjutan 2026-09-17: kode perangkat diterbitkan owner pusat & admin cabang ·
+> wilayah data = Singapore · kunci otomatis mengikuti jam aktif yang diatur owner · pemberitahuan lewat email **dan** dalam aplikasi ·
+> setiap penyimpangan teknis wajib ditanyakan & dicatat). Dua hal diserahkan pemilik kepada agent dan ditetapkan
 > agent dengan alasan tertulis: **(a) satu akun = satu peran** dan **(b) TOTP wajib untuk tiga peran berkuasa
 > + jalan pemulihannya** — keduanya tercatat di `docs/DECISIONS_LOG.md` 2026-09-17.
 >
@@ -50,11 +52,43 @@
 
 - Tabel: `perangkat` (`penyewa_id`, `cabang_id`, `nama`, `jenis`, `peran_diizinkan`, `rahasia_hash`, `status`, `terakhir_aktif`, `terdaftar_oleh`, `dicabut_oleh`, `catatan`) · `kode_pendaftaran_perangkat` (kode sekali pakai, 15 menit) · `sesi_perangkat` (`session_id`, `perangkat_id`, `pengguna_id`, `mulai`, `berakhir_pada`, `status`).
 - **Alur pendaftaran:** admin/owner membuat kode → perangkat baru memasukkan kode → rahasia acak 32 byte dibuat di perangkat, server hanya menyimpan **SHA-256** → perangkat aktif dengan peran yang diizinkan.
+- **Siapa yang boleh membuat kode (keputusan pemilik 2026-09-17):** **owner pusat** (semua cabang restonya) dan **admin cabang** (khusus cabangnya). Kode **sekali pakai**, sah **15 menit**, dan tercatat siapa yang membuat. Pemilik platform tidak membuat kode kecuali lewat mode dukungan beralasan.
+- **Perangkat pertama owner (bootstrap):** boleh didaftarkan sendiri dengan kata sandi + TOTP **hanya selama resto itu belum punya satu pun perangkat aktif**; setelah ada perangkat aktif, jalur bootstrap tertutup dan perangkat baru wajib lewat persetujuan perangkat aktif (atau jalur pemulihan §4b).
+- **Perangkat cadangan wajib (keputusan pemilik):** setiap peran berkuasa (`owner_pusat`, `admin_cabang`) minimal **2 perangkat terdaftar** (satu utama + satu cadangan, boleh HP pribadi). Aplikasi memperingatkan (dalam aplikasi + email) bila tinggal satu — supaya kehilangan satu perangkat tidak pernah menghalangi kerja.
 - **Persetujuan pemilik untuk pasangan (pegawai × perangkat) baru** (keputusan pemilik): pegawai pertama yang memakai perangkat terdaftar harus disetujui owner/admin berizin; berlaku juga saat pegawai lama memakai perangkat berbeda untuk pertama kali.
 - **Peran dibatasi per perangkat:** "Tablet Kasir 1" hanya untuk `kasir`; tidak bisa dipakai masuk sebagai `owner_pusat`.
 - **Pencabutan seketika:** menekan "Cabut perangkat" (atau menandai "hilang") membuat semua permintaan dari perangkat itu ditolak **di database** pada detik berikutnya; alasan & pelaku dicatat.
 - **Pengecualian:** `pemilik_platform` tidak butuh pengikatan perangkat (jalan darurat lintas penyewa), diganti TOTP wajib + umur sesi 8 jam + tanpa akses data penyewa (kecuali mode dukungan).
 - **Bukti perangkat per permintaan** dikirim sebagai header dan dibaca `current_setting('request.headers')`; **wajib diverifikasi di Supabase nyata** (T0-08). Bila tidak andal, penegakan tetap berjalan lewat `sesi_perangkat` (perangkat aktif + sesi aktif + belum kedaluwarsa) — jadi tidak ada ketergantungan pada satu mekanisme.
+
+## 4b. Jalan keluar saat perangkat hilang / dicuri (tangga pemulihan)
+
+> Ditulis 2026-09-17 menjawab pertanyaan pemilik: *"gimana kalau perangkat admin hilang atau dicuri?"*
+> **Status: USULAN agent — menunggu konfirmasi pemilik** (keputusan pemilik: setiap penyimpangan/rancangan baru
+> dijelaskan dulu dalam bahasa sederhana, baru dikerjakan). Setelah dikonfirmasi, bagian ini naik status BERLAKU.
+
+**Prinsip:** kehilangan perangkat **tidak boleh** menghentikan kedai, tetapi pemulihan **tidak boleh** menjadi pintu belakang yang lebih lemah daripada masuk biasa.
+
+| Tingkat | Kejadian | Jalan keluar | Waktu | Siapa yang bisa |
+|---|---|---|---|---|
+| 1 | Satu perangkat staf hilang (mis. tablet kasir) | Perangkat dicabut dari perangkat lain → pegawai masuk dari **perangkat terdaftar lain** (PIN melekat pada orang, bukan perangkat) | < 2 menit | Owner pusat · admin cabang (cabangnya) |
+| 2 | Perangkat admin cabang hilang (HP-nya juga berisi TOTP) | Admin masuk dari **perangkat cadangan** yang sudah terdaftar; kalau tidak ada → owner pusat **reset MFA** admin itu, lalu daftarkan perangkat baru lewat kode biasa | < 10 menit | Owner pusat |
+| 3 | Perangkat owner pusat hilang / seluruh perangkat peran itu hilang | **Kunci induk**: kode pemulihan darurat + kata sandi + TOTP → **pendaftaran perangkat darurat** dengan **masa tenggang 30 menit** | ~40 menit | Owner pusat (kode pemulihan) |
+| 4 | Kode pemulihan ikut hilang / semua cara di atas gagal | **Pemulihan oleh pemilik platform lewat panel Supabase** (di luar aplikasi, dipandu langkah demi langkah di `docs/ops/`), lalu perangkat pertama didaftarkan ulang lewat jalur bootstrap | < 1 jam | Pemilik platform (akun Supabase) |
+
+**Aturan kunci induk (kode pemulihan darurat) — dibuat saat penyiapan, sekali pakai:**
+1. Dibuat **satu kali** saat penyiapan resto: 8 kata acak (mudah dibaca manusia, sulit ditebak mesin); database **hanya menyimpan hash**-nya.
+2. Disimpan **tercetak/tertulis di luar kedai** (mis. di rumah pemilik) — bukan di folder ponsel, bukan di chat, bukan di aplikasi.
+3. Memakai kode ini **wajib** disertai kata sandi akun + TOTP, dan **hanya** membuka **pendaftaran perangkat darurat** — bukan akses data langsung.
+4. **Masa tenggang 30 menit:** perangkat darurat belum bisa dipakai; pemberitahuan dikirim ke email owner + tampil di layar Peringatan; bisa **dibatalkan** dari perangkat lain selama masa itu. Ini yang membuat pencuri kode tidak dapat akses instan.
+5. Setelah dipakai, kode itu **hangus**; owner membuat kode baru dari perangkat yang sudah aktif (menu Perangkat & Sesi).
+6. **Sakelar penghentian (kill switch):** bila kode diduga bocor, pemilik platform menutup jalur pemulihan sementara (satu tombol di panel) sampai kode baru dibuat & perangkat dicabut.
+
+**Aturan pencegahan (dijadikan syarat penyiapan, bukan imbauan):**
+- Penyiapan belum dianggap selesai sebelum: (a) ≥1 perangkat `owner_pusat` + ≥1 perangkat `admin_cabang` terdaftar; (b) kode pemulihan tercetak & disimpan pemilik; (c) nomor pemilik platform & langkah pemulihan diuji sekali (latihan, bukan diasumsikan).
+- Pesan peringatan otomatis: (a) perangkat berkuasa tinggal 1; (b) ada pendaftaran perangkat darurat (masa tenggang); (c) ada pencabutan perangkat; (d) ada pengaturan ulang PIN/MFA.
+
+**Yang tetap tidak boleh:** jalur pemulihan yang mengirim akses lewat email/WhatsApp · pemulihan tanpa catatan · masa tenggang yang bisa dilewati sendiri · menambah perangkat lewat `service_role` di aplikasi klien.
 
 ## 5. Cara masuk per peran
 
@@ -84,7 +118,8 @@
 |---|---|---|
 | Umur token akses | 15 menit | Supabase (pengaturan, gratis) |
 | Umur maksimum sesi | Staf 12 jam · admin/owner 30 hari · pemilik platform 8 jam | Database (`sesi_perangkat`) |
-| Kunci otomatis saat menganggur | 15 / 15 / 15 / 30 / 60 menit (kasir/pelayan/dapur/admin/owner) | Aplikasi + aturan dokumen |
+| Kunci otomatis saat menganggur | 15 / 15 / 15 / 30 / 60 menit (kasir/pelayan/dapur/admin/owner) — **hanya berlaku di luar jam aktif**; di dalam jam aktif perangkat tetap terkunci saat ditinggal sesuai batas peran | Aplikasi + aturan dokumen |
+| Jam aktif per cabang (**keputusan pemilik 2026-09-17**) | Diatur owner di Pengaturan (mis. buka 09.00 – tutup 22.00, ditambah masa persiapan/pembersihan); di luar jam itu kunci otomatis **15 menit** | Pengaturan + aplikasi |
 | Kunci = | sesi dihapus dari perangkat; buka lagi wajib PIN/kata sandi | Aplikasi |
 | Batas percobaan masuk | 5×/15 menit per akun · 12×/15 menit per perangkat | Database |
 | Pencabutan | per perangkat · per akun · semua perangkat | Database + RPC (seketika) |
@@ -102,7 +137,7 @@
 
 1. Angka uang hanya ditulis fungsi peladen; pembayaran tidak bisa diubah/dihapus; kembalian dihitung database (T1-10).
 2. **Non-tunai wajib referensi**; layar tutup kas menampilkan daftar referensi untuk dicocokkan dengan QRIS/bank.
-3. **Ringkasan peringatan harian** ke email owner: omzet, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat.
+3. **Ringkasan peringatan harian** ke email owner **dan** daftar peringatan di dalam aplikasi (keputusan pemilik 2026-09-17: dua-duanya): omzet, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat, pemakaian jalur pemulihan.
 4. Laporan **"siapa menyetujui apa"** per bulan (semua penggunaan PIN persetujuan) — mencegah PIN atasan dipakai berulang tanpa terasa.
 5. Transaksi hanya dalam shift terbuka; selisih wajib beralasan; setelah shift ditutup, koreksi = baris baru (ART-6).
 
@@ -118,7 +153,7 @@
 - **Minimalisasi**: nama, kontak (opsional), catatan voucher. Tidak ada NIK, lokasi, biometrik, atau pelacakan.
 - **Hak pelanggan**: akses & hapus → data pribadi **dianonimkan**; catatan keuangan tetap utuh (Aturan Bisnis 11). Tanggap 3×24 jam.
 - **Kebocoran**: pemberitahuan tertulis ≤ **3×24 jam** ke subjek data + lembaga pengawas (Pasal 46), memuat data apa, kapan/bagaimana, dan langkah pemulihan → template di `BUKU_INSIDEN.md`.
-- **Lokasi data**: region Supabase ditetapkan pemilik saat T0-08 (usul Singapore); dasar transfer = persetujuan + pengamanan penyedia.
+- **Lokasi data**: region proyek Supabase = **Singapore (Asia Tenggara)** — diputuskan pemilik 2026-09-17 (T-014 selesai); dasar transfer = persetujuan + pengamanan penyedia.
 - Email/laporan tidak boleh memuat kontak pelanggan.
 
 ## 12. Mode dukungan (pemilik platform)
@@ -151,6 +186,9 @@
 | Hak istimewa fungsi (`security definer`, `grant execute`) | pemeriksa statis SQL | T1-30 |
 | Rahasia tidak masuk repo · `npm audit` bersih | pemeriksa CI | T1-30 |
 | Setiap aksi UI → RPC & izin benar (per peran) | uji komponen + pemeriksa peta aksi | T1-31…T1-35 |
+| Kode pemulihan: kadaluwarsa/terpakai dua kali/hash tidak pernah kembali | SQL otomatis | T1-36 |
+| Perangkat darurat: masa tenggang 30 menit, bisa dibatalkan, tercatat & dinotifikasi | SQL otomatis | T1-36 |
+| Peringatan perangkat berkuasa tinggal 1 | uji SQL + uji komponen | T1-36, T10-13 |
 | 9 alur wajib di peramban | Playwright di CI | T11-11 |
 
 ## 15. Risiko sisa yang diterima (dicatat terbuka, bukan disembunyikan)
@@ -164,6 +202,8 @@
 | 5 | Pemilik platform tidak terikat perangkat | Jalan darurat lintas penyewa | TOTP wajib + sesi 8 jam + tanpa data penyewa + mode dukungan tercatat |
 | 6 | HP pegawai hilang = kerja terhenti sampai MFA direset | Harga dari TOTP wajib | Jalan pemulihan cepat (owner/pemilik platform) + langkah di Buku Insiden |
 | 7 | Internet mati = tidak bisa masuk (sesi terkunci) | Keamanan didahulukan | Kunci otomatis diperpanjang wajar + prosedur catat manual sementara (Buku Insiden) |
+| 8 | **Kode pemulihan darurat** menjadi sasaran pencurian (satu kertas bisa membuka pendaftaran perangkat) | Alternatifnya justru lebih lemah (pemulihan lewat email/WhatsApp) atau lebih lambat (menunggu pemilik platform) | Hanya hash yang disimpan · wajib kata sandi + TOTP · sekali pakai · masa tenggang 30 menit + pemberitahuan & pembatalan · tercatat · kata sandi ≥12 |
+| 9 | **Semua perangkat berkuasa hilang serentak** (mis. dirampok) = kerja pengelolaan terhenti sampai jalur pemulihan dipakai | Sangat jarang; ada 4 tingkat pemulihan | Perangkat cadangan wajib · latihan pemulihan saat penyiapan · jalur pemilik platform sebagai jaring terakhir |
 
 ## 16. Aturan untuk sesi agent berikutnya
 
@@ -174,3 +214,4 @@
 5. Setiap fungsi `SECURITY DEFINER` baru: `search_path` dipaku + hak `execute` dicabut dari `public` + pemeriksaan izin di dalam badan fungsi.
 6. Setiap layar baru: kontrak layar + aksi terdaftar + 7 keadaan + uji komponen (lihat `docs/SPESIFIKASI_UI.md`).
 7. Kalau menemukan cacat pada pekerjaan yang sudah diklaim selesai → laporkan, jangan sembunyikan (Stop Condition §12).
+8. **Aturan pemilik (2026-09-17):** menyimpang dari deskripsi/rancangan yang pemilik tulis **wajib ditanyakan lebih dulu**, dijelaskan dengan bahasa yang mudah dipahami, dan **dicatat** (di `DECISIONS_LOG.md` + laporan). Tidak ada penyimpangan diam-diam, walau niatnya memperbaiki.

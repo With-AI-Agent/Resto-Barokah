@@ -325,3 +325,30 @@ Format:
 - **File terkait:** `aplikasi/src/lib/aksi.ts`, `aplikasi/src/lib/layar.ts`, `aplikasi/src/komponen/TombolAksi.tsx`, `alat/peta-ui.py`, `docs/SPESIFIKASI_UI.md`, `docs/PETA_UI.md`
 - **Implikasi:** 1) Fase 1C dikerjakan **sebelum** layar pertama Fase 3 dibuat, supaya semua layar mengikutinya sejak awal. 2) Layar contoh (`LayarContoh`) dijadikan contoh kontrak pertama. 3) Setiap tugas UI di ROADMAP wajib menyebut nomor kontrak layar & naskah jalan. 4) Menambah aksi berarti mengubah registri + uji + dokumen hasil generate; tidak ada jalur pintas.
 
+### [Fase 1B/2026-09-17] Penerbit kode perangkat + peran berkuasa tetap wajib perangkat terdaftar
+- **Area:** Akses Perangkat (ART-11) & Role (ART-12)
+- **Keputusan:** (1) Kode pendaftaran perangkat dibuat **owner pusat (semua cabangnya)** dan **admin cabang (cabangnya saja)** — sekali pakai, sah 15 menit, tercatat pembuatnya. (2) **Semua peran** — termasuk `owner_pusat`, `admin_cabang`, `pemilik_platform` (kecuali pemilik platform yang memang lintas penyewa) — **wajib memakai perangkat terdaftar**; perangkat pertama owner didaftarkan sekali saat penyiapan (bootstrap), perangkat berikutnya lewat persetujuan perangkat aktif. (3) Perangkat cadangan **wajib** untuk peran berkuasa (minimal 2 terdaftar) + peringatan bila tinggal 1.
+- **Alasan:** pemilik menyetujui rekomendasi tetapi mengangkat risiko nyata: *"gimana kalau perangkat admin hilang atau dicuri? Itu harus dipikirkan"*. Karena itu pemulihan dirancang sekaligus (keputusan berikutnya), bukan ditambahkan kemudian. Keuntungan perangkat wajib: tablet kasir tidak akan pernah bisa dibuka sebagai owner meski kata sandi bocor.
+- **File terkait:** `supabase/migrations/0012_perangkat.sql`, `supabase/tes/perangkat.sql`, `docs/KEAMANAN.md` §4, ROADMAP T2-15
+- **Implikasi:** 1) Bootstrap hanya berlaku selama belum ada perangkat aktif. 2) Perangkat berkuasa minimal 2 → peringatan otomatis. 3) Uji wajib: perangkat tidak terdaftar ditolak untuk **semua** peran, termasuk owner.
+
+### [Fase 1B/2026-09-17] Tangga pemulihan perangkat hilang (kunci induk + masa tenggang 30 menit)
+- **Area:** Akses Perangkat (ART-11)
+- **Keputusan:** Kehilangan perangkat diselesaikan bertingkat: **(1)** cabut perangkat, kerja lanjut dari perangkat terdaftar lain (PIN melekat pada orang) · **(2)** perangkat admin hilang → perangkat cadangan, atau owner pusat reset MFA lalu daftarkan perangkat baru lewat kode biasa · **(3)** perangkat owner hilang → **kode pemulihan darurat** (8 kata, sekali pakai, hanya hash tersimpan, disimpan tercetak di luar kedai) + kata sandi + TOTP → perangkat darurat dengan **masa tenggang 30 menit** (dinotifikasi & bisa dibatalkan) · **(4)** semua gagal → pemulihan lewat panel Supabase oleh pemilik platform (dipandu `docs/ops/`). Ditambah sakelar penghentian jalur pemulihan.
+- **Alasan:** tanpa jalur pemulihan, "perangkat wajib" berubah menjadi risiko operasional (kedai bisa berhenti hanya karena satu HP hilang). Masa tenggang + pemberitahuan + pembatalan dibuat agar kode pemulihan yang dicuri tidak memberikan akses instan; menghindari pemulihan lewat email/WhatsApp yang justru lebih lemah.
+- **File terkait:** `supabase/migrations/0016b_pemulihan_perangkat.sql`, `supabase/tes/pemulihan.sql`, `docs/ops/PEMULIHAN_PERANGKAT.md`, `docs/KEAMANAN.md` §4b, ROADMAP T1-36
+- **Implikasi:** 1) Kode pemulihan dibuat saat penyiapan (bagian dari syarat "penyiapan selesai"). 2) Latihan pemulihan wajib sekali sebelum pilot. 3) Semua pemakaian jalur pemulihan masuk ringkasan harian. **Status: usulan agent — menunggu konfirmasi pemilik (dijelaskan bahasa sederhana).**
+
+### [Fase 2/2026-09-17] Kunci otomatis mengikuti jam aktif cabang + pemberitahuan dua jalur
+- **Area:** Sesi (ART-11) & Pemberitahuan (ART-13)
+- **Keputusan:** (1) Batas menganggur (15/15/15/30/60 menit) hanya berlaku **di luar jam aktif**; **jam aktif per cabang diatur owner** di Pengaturan (bawaan: jam buka–tutup + masa persiapan); di luar jam aktif kunci otomatis **15 menit**. (2) Semua pemberitahuan penting (ringkasan harian, perangkat dicabut, percobaan masuk gagal beruntun, reset PIN/MFA, pemakaian jalur pemulihan) dikirim **via email owner DAN tampil di layar Peringatan dalam aplikasi**. (3) Data Supabase berlokasi **Singapore (Asia Tenggara)** — menutup T-014.
+- **Alasan:** pemilik memilih "owner mengatur sendiri jamnya" supaya tablet yang tertinggal di kedai malam hari tidak bisa dipakai; memilih email **dan** dalam aplikasi agar hal aneh terlihat dari dua jalur; memilih Singapore karena paling dekat (aplikasi terasa cepat) dan tetap sesuai kewajiban UU PDP (persetujuan + pengamanan penyedia).
+- **File terkait:** `aplikasi/src/hook/useKunciOtomatis.ts`, `aplikasi/src/layar/laporan/Peringatan.tsx`, `supabase/functions/ringkasan_harian/index.ts`, `docs/KEAMANAN.md` §7 & §9, ROADMAP T2-16 & T10-13
+- **Implikasi:** 1) Pengaturan baru: jam aktif per cabang (dengan nilai bawaan aman). 2) Uji: pesanan di antrean tetap utuh saat perangkat terkunci di luar jam aktif. 3) Daftar Peringatan masuk Registri Aksi Fase 1C.
+
+### [Semua fase/2026-09-17] Aturan pemilik: penyimpangan teknis wajib ditanyakan lebih dulu & dicatat
+- **Area:** Tata kelola pekerjaan (bukan fitur)
+- **Keputusan:** Agent **dilarang** menyimpang dari deskripsi/rancangan yang pemilik tulis tanpa bertanya lebih dulu. Bentuknya: **tanya** → **jelaskan dengan bahasa yang mudah dipahami** (plus alasan & pilihan) → **baru dikerjakan** → **dicatat** (`DECISIONS_LOG.md` + laporan). Berlaku juga untuk perbaikan yang niatnya baik.
+- **Alasan:** jawaban pemilik (2026-09-17) atas pertanyaan bebas menyimpang: *"Harus tanyakan dulu ke aku. Dia harus kasih tau dan jelasin alasannya dengan bahasa yang mudah aku pahami. Dan kemudian itu harus tercatat."*
+- **File terkait:** `docs/AGENT_OPERATING_GUIDE.md` §11 & §12, `docs/KEAMANAN.md` §16, `docs/SPESIFIKASI_UI.md`
+- **Implikasi:** 1) Stop Condition baru di panduan agent. 2) Penjelasan wajib tanpa istilah teknis. 3) Semua penyimpangan yang tetap diputuskan masuk DECISIONS_LOG + laporan batch.

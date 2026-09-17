@@ -114,7 +114,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** CI lambat/berbiaya → mitigasi: hanya GitHub Actions gratis untuk repo publik, tanpa langkah berbayar.
   - **Verifikasi:** status CI hijau pada push pertama; sengaja membuat lint gagal di uji coba → CI merah. · **Bukti 2026-09-16:** CI menyala di setiap push & pull request; gerbangnya benar-benar bekerja — (a) run 35121292973 **MERAH di langkah ESLint** saat sengaja dipasang variabel tidak terpakai (kode ujinya lalu dihapus), (b) run 35120922393 merah karena folder layar kosong tidak ikut Git, (c) run 35121062046 merah karena satu berkas Markdown belum dirapikan, dan (d) run **35121525551 hijau penuh** (npm ci → Prettier → ESLint → TypeScript → Vitest → build → 5 pemeriksa Python). Artinya: dua cacat nyata tertangkap CI, bukan cuma “hijau karena kebetulan”. Semua ini memakai jatah gratis GitHub Actions (repo privat 2.000 menit/bulan).
 
-- [ ] T0-08 — Proyek Supabase dibuat + klien aman tersambung ❓ T-014
+- [ ] T0-08 — Proyek Supabase dibuat + klien aman tersambung
   - **Tujuan:** aplikasi bisa membaca data dari Supabase dengan kunci publik saja.
   - **Ref:** TECH_SPEC §1 & §6; AGENT_OPERATING_GUIDE §3
   - **File:** `aplikasi/src/lib/supabase.ts`, `supabase/config.toml`, `aplikasi/.env.local` (tidak di-commit)
@@ -426,6 +426,16 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1) & Fungsi Istimewa (ART-11); pemeriksa terlalu longgar = hijau palsu → mitigasi: uji mutasi wajib (matikan satu aturan → pemeriksa GAGAL).
   - **Verifikasi:** jalankan pemeriksa dengan sengaja menyisipkan cacat → GAGAL; setelah dipulihkan → LOLOS; dijalankan di CI.
 
+- [ ] T1-36 — Kunci induk: kode pemulihan darurat + pendaftaran perangkat darurat ⚠️ ❓ (menunggu konfirmasi pemilik)
+  - **Tujuan:** kehilangan perangkat owner/admin (bahkan seluruhnya) tidak menghentikan kedai, tanpa membuka pintu belakang yang lebih lemah daripada masuk biasa.
+  - **Ref:** TECH_SPEC §9 ART-11 & §5.1; docs/KEAMANAN.md §4b; PRD M12
+  - **File:** `supabase/migrations/0016b_pemulihan_perangkat.sql`, `supabase/tes/pemulihan.sql`, `docs/ops/PEMULIHAN_PERANGKAT.md`
+  - **DoD:** RPC `buat_kode_pemulihan` (8 kata acak sekali pakai, hanya hash tersimpan, dibuat saat penyiapan), `pulihkan_perangkat` (wajib kode + kata sandi + TOTP → perangkat darurat dengan **masa tenggang 30 menit**), `batalkan_pemulihan`; pemberitahuan email + Peringatan dalam aplikasi; peringatan bila perangkat berkuasa tinggal 1; sakelar penghentian jalur pemulihan; langkah pemulihan pemilik platform ditulis di `docs/ops/`; uji SQL + uji mutasi lulus.
+  - **Kompleksitas:** besar (5 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); kode pemulihan dicuri/difoto orang lain → mitigasi: hanya hash, sekali pakai, wajib kata sandi + TOTP, masa tenggang 30 menit + pemberitahuan + bisa dibatalkan + tercatat; dilarang menyimpan kode di ponsel/chat.
+  - **Verifikasi:** uji SQL: kode salah/kadaluwarsa/terpakai dua kali → ditolak · perangkat darurat belum bisa dipakai sebelum 30 menit · dibatalkan dari perangkat lain → batal · semua kejadian tercatat & dalam ringkasan harian.
+  - **Catatan nomor:** ditambahkan setelah Fase 1C disisipkan (2026-09-17), karena itu bernomor T1-36; pengerjaannya **bersama T1-24/T1-25** (bukan di akhir).
+
 ## Fase 1C — Kontrak UI & peta aksi (⚠️ disisipkan 2026-09-17, dikerjakan SEBELUM layar pertama Fase 3)
 
 > **Kenapa disisipkan:** pengalaman pemilik pada proyek sebelumnya — banyak tombol kurang dan fungsi "katanya ada"
@@ -614,7 +624,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Tujuan:** hanya perangkat yang didaftarkan admin/owner yang bisa dipakai kerja, dan pegawai baru harus disetujui pemilik.
   - **Ref:** TECH_SPEC §4.6 & §9 ART-11; PRD M12
   - **File:** `aplikasi/src/layar/pengaturan/Perangkat.tsx`, `supabase/functions/kode_perangkat/index.ts`, `docs/SPESIFIKASI_UI.md`
-  - **DoD:** admin membuat kode sekali pakai (15 menit) + QR; perangkat baru mendaftar & menyimpan rahasia; pemilik menyetujui pasangan (pegawai × perangkat); perangkat dengan peran lain tidak bisa dipakai masuk; uji komponen + SQL lulus.
+  - **DoD:** **owner pusat (semua cabang) & admin cabang (cabangnya)** membuat kode sekali pakai (15 menit) + QR; perangkat baru mendaftar & menyimpan rahasia; pemilik menyetujui pasangan (pegawai × perangkat); perangkat dengan peran lain tidak bisa dipakai masuk; perangkat pertama owner didaftarkan sekali saat penyiapan (bootstrap); peringatan bila perangkat berkuasa tinggal 1; uji komponen + SQL lulus.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); kode disalin orang lain → mitigasi: sekali pakai, 15 menit, tercatat, dan tetap butuh persetujuan pemilik per pegawai.
   - **Verifikasi:** uji SQL + naskah jalan: daftar perangkat baru → tampil di daftar; pakai kode dua kali → ditolak.
@@ -623,7 +633,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Tujuan:** tablet yang ditinggal tidak menyimpan sesi apa pun.
   - **Ref:** TECH_SPEC §9 ART-11; PRD M12
   - **File:** `aplikasi/src/hook/useKunciOtomatis.ts`, `aplikasi/src/komponen/KunciSekarang.tsx`, `aplikasi/src/hook/useKunciOtomatis.test.tsx`
-  - **DoD:** batas menganggur per peran (15/15/15/30/60 menit) dapat diatur owner; saat kunci → sesi dihapus dari perangkat + antrean offline tetap terjaga; tombol Kunci selalu tampil di layar staf; uji unit lulus.
+  - **DoD:** batas menganggur per peran (15/15/15/30/60 menit) **hanya berlaku di luar jam aktif**; **jam aktif per cabang diatur owner di Pengaturan** (bawaan: jam buka–tutup + masa persiapan) dan di luar itu kunci otomatis 15 menit; saat kunci → sesi dihapus dari perangkat + antrean offline tetap terjaga; tombol Kunci selalu tampil di layar staf; uji unit lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); pesanan di antrean hilang saat kunci → mitigasi: antrean disimpan di IndexedDB (ART-8) + uji khusus.
   - **Verifikasi:** uji unit: lewat batas → terkunci; buka lagi → wajib PIN; antrean utuh setelah kunci.
@@ -1566,8 +1576,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T10-13 — Ringkasan peringatan harian ke owner (email) ⚠️
   - **Tujuan:** hal aneh (void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat) terlihat tanpa owner membuka aplikasi.
   - **Ref:** TECH_SPEC §5.1 & §9 ART-13; docs/KEAMANAN.md §9
-  - **File:** `supabase/functions/ringkasan_harian/index.ts`, `supabase/migrations/0066_ringkasan_harian.sql`, `supabase/tes/ringkasan.sql`
-  - **DoD:** laporan ringkas 1×/hari (pg_cron) memuat omzet, transaksi, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat; **tanpa** data pribadi pelanggan; rantai audit diperiksa dan dilaporkan bila putus; uji SQL lulus.
+  - **File:** `supabase/functions/ringkasan_harian/index.ts`, `supabase/migrations/0066_ringkasan_harian.sql`, `aplikasi/src/layar/laporan/Peringatan.tsx`, `supabase/tes/ringkasan.sql`
+  - **DoD:** laporan ringkas 1×/hari (pg_cron) dikirim **via email owner DAN dapat dilihat di layar Peringatan dalam aplikasi** (keputusan pemilik 2026-09-17), memuat omzet, transaksi, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat, pemakaian jalur pemulihan; **tanpa** data pribadi pelanggan; rantai audit diperiksa dan dilaporkan bila putus; uji SQL lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Jejak Audit (ART-13) & Data Pelanggan (ART-14); email bocor/tersalah kirim → mitigasi: hanya angka + nama pegawai, tanpa kontak pelanggan; penerima dapat diatur owner.
   - **Verifikasi:** uji SQL + kirim percobaan ke email pemilik pada tahap uji terima.
@@ -1723,9 +1733,9 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 **Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07 · Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009, **T-012** (cadangan di artefak terenkripsi repo privat) dan **T-013** (penutup shift = Admin Cabang → Owner Pusat) sudah **ditutup** 2026-09-16 (lihat tabel Butir selesai di `docs/TERTANGGUH.md`).
 
-**Jumlah tugas:** F0 11 · F1 35 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 12 = **178 tugas**, semuanya ber-7 atribut.
+**Jumlah tugas:** F0 11 · F1 36 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 12 = **179 tugas**, semuanya ber-7 atribut.
 
-> **Catatan 2026-09-17:** angka di atas **diukur ulang** dari berkas ini setelah penyisipan keamanan & kelengkapan UI
+> **Catatan 2026-09-17:** angka di atas **diukur ulang** dari berkas ini setelah penyisipan keamanan & kelengkapan UI (+T1-36 jalur pemulihan perangkat)
 > (Fase 1B `T1-23…T1-30` · Fase 1C `T1-31…T1-35` · perluasan Fase 2/8/10/11). **Nomor migrasi rencana lama bergeser +7**
 > (kas & shift 0011 → **0018**, dst.) supaya 0011–0017 dipakai penyisipan; urutan penerapan mengikuti **urutan tugas**.
 > Pelajaran T1-07/…/T1-10 diulang: jumlah tugas **tidak boleh** ditulis dari ingatan — ambil dari hasil pemeriksa.
