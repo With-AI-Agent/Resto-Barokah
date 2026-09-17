@@ -279,7 +279,7 @@ Ambang lulus (dinilai pembangun setelah laporan masuk): semua cacat K-1/K-2 tert
 > **CARA PAKAI — untuk pemilik (3 langkah, mudah):**
 > 1. Buka **chat/percakapan BARU** (kalau bisa pilih **model yang berbeda** dari sesi kerja).
 > 2. Salin **SELURUH isi berkas ini** ke chat baru itu.
-> 3. Susulkan **kalimat pembuka auditor** dari buku induk `PANDUAN_PENGGUNA.md` **Bagian D1** (sama persis dengan
+> 3. Susulkan **kalimat pembuka auditor** dari buku induk `PANDUAN_PENGGUNA.md` **Bagian C4** (sama persis dengan
 >    `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` bagian B) — satu blok, apa adanya, tidak perlu diubah.
 > Setelah auditor selesai, kembali ke sesi kerja dan bilang: **"Laporan audit sudah masuk, periksa."**
 

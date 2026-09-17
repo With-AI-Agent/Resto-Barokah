@@ -139,6 +139,13 @@ def main() -> int:
         if len(kolom) < 5:
             errs.append(f"baris perintah tanpa penjelasan lengkap: {b.strip()[:60]}")
 
+    # --- v2b: setiap rujukan bernomor ("Bagian C4", "Bagian D2") wajib punya heading-nya ---
+    for m in re.finditer(r"Bagian ([A-H])(\d+)\b", teks):
+        huruf, nomor = m.group(1), m.group(2)
+        pola_heading = rf"^###\s*{huruf}{nomor}\."
+        if not re.search(pola_heading, teks, re.MULTILINE):
+            errs.append(f"rujukan 'Bagian {huruf}{nomor}' menunjuk bagian yang tidak ada di buku (heading '### {huruf}{nomor}.' hilang)")
+
     # --- v2: sapaan (boleh menyebut "Bapak" HANYA dalam kalimat larangan/koreksi) ---
     for i, baris_ in enumerate(baris, 1):
         if any(s in baris_ for s in LARANGAN_SAPAAN):
