@@ -285,6 +285,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Tujuan:** voucher tidak bisa dipakai dua kali dan data pelanggan sesedikit mungkin (privasi).
   - **Ref:** TECH_SPEC §4 (tabel: pelanggan, kampanye_voucher, voucher, voucher_percobaan) & §9 ART-5/ART-10; PRD M10
   - **File:** `supabase/migrations/0019_voucher.sql`
+  - **Catatan penutup celah (review putaran11 PR-01, migrasi `0013`):** selama tabel voucher belum ada, diskon `jenis='voucher'` **DITOLAK gagal-aman** (dulu hanya diperiksa izin `pakai_voucher` sehingga kasir bisa mencatat diskon 100% subtotal tanpa voucher). Saat tugas ini mendarat: pasang kunci asing `voucher_id` dan buka kembali jalur itu **hanya** dengan pemeriksaan sungguhan.
   - **DoD:** tabel pelanggan (nama, email, opsi alamat, persetujuan), kampanye (nilai, minimum, batas potongan, masa berlaku, kuota, anggaran, cabang), voucher (kode acak, status), percobaan (log semua cek/scan); indeks unik mencegah dobel; uji lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5) & Privasi (ART-10); dobel pakai → mitigasi: kunci unik + transaksi atomik di T1-20.
@@ -349,6 +350,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Ref:** TECH_SPEC §5 & §9 ART-5; PRD M10 · RPC resmi: `pakai_voucher`, `daftar_voucher`
   - **File:** `supabase/migrations/0026_cek_voucher.sql`, `supabase/tes/cek_voucher.sql`
   - **DoD:** fungsi tidak menulis apa pun (dibuktikan uji: status voucher tidak berubah, tidak ada baris baru); mengembalikan alasan gagal yang spesifik; uji lulus.
+  - **Tambahan wajib (review putaran11 PR-01 + migrasi `0013`):** T1-19/T1-20 **mengganti** cabang gagal-aman `jenis='voucher'` di `picu_diskon_batas` dengan pemeriksaan nyata (voucher wajib ada, milik resto ini, belum pernah dipakai, nilainya sama dengan diskon yang dicatat) + uji `supabase/tes/diskon_voucher.sql` diperluas (dulu hanya menguji PENOLAKAN). Sampai itu terjadi, membuka kembali jalur voucher tanpa pemeriksaan = regresi K-2 dan akan memerahkan uji mutasi M12.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5); "cek" tidak sengaja memakai voucher → mitigasi: hak database hanya SELECT + uji "tidak ada perubahan".
   - **Verifikasi:** uji SQL membandingkan seluruh isi tabel sebelum & sesudah pemanggilan (harus identik).

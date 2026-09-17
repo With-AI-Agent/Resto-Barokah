@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """uji-mutasi-0012.py — bukti bahwa pagar penutup celah review PR BENAR-BENAR bekerja.
 
+Mencakup dua migrasi penutup celah:
+  * `0012` — temuan review putaran8 (diskon, harga, PIN, stok, izin, jejak)
+  * `0013` — temuan review putaran11 (voucher gagal-aman, status awal pesanan, nilai kerugian)
+
+
 Cara kerjanya: salin repo ke folder sementara, MATIKAN satu penjaga di migrasi 0012,
 lalu jalankan uji yang seharusnya menangkapnya. Kalau uji tetap hijau, pagar itu
 tumpul (dan alat ini GAGAL). Prinsipnya dari pelajaran mahal: gerbang yang tidak bisa
@@ -46,6 +51,21 @@ def segarkan_salinan() -> None:
 segarkan_salinan()
 
 MIG = KERJA / "supabase/migrations/0012_penutup_celah_review.sql"
+MIG13 = KERJA / "supabase/migrations/0013_penutup_celah_putaran11.sql"
+
+
+def berkas_berlaku(cari: str) -> pathlib.Path | None:
+    """Berkas migrasi tempat pola itu BERLAKU = migrasi terakhir yang memuatnya.
+
+    Urutan pencarian: `0013` (terbaru) dulu, lalu `0012`. Kalau pola tidak ada di keduanya
+    atau muncul lebih dari sekali di satu berkas, kembalikan None (mutasi dilewati, bukan
+    dilaporkan hijau).
+    """
+    for berkas in (MIG13, MIG):
+        isi = berkas.read_text(encoding="utf-8")
+        if isi.count(cari) == 1:
+            return berkas
+    return None
 
 
 def jalankan(uji):
@@ -97,6 +117,28 @@ DAFTAR = [
      "and p.aktif   -- akun nonaktif kehilangan akses", "", "supabase/tes/cabang_sesi.sql"),
 ]
 
+DAFTAR13 = [
+    ("M12 diskon 'voucher' dibuka lagi (mesin voucher belum ada)",
+     "raise exception 'Diskon voucher belum aktif (mesin voucher menunggu T1-12/T1-19/T1-20). Pakai diskon manual dengan persetujuan.';",
+     "perform 1;",
+     "supabase/tes/diskon_voucher.sql"),
+    ("M13 pesanan boleh LAHIR berstatus lain (penjaga status awal dimatikan)",
+     "if new.status is distinct from 'draf' then",
+     "if false then",
+     "supabase/tes/pesanan_status_awal.sql"),
+    ("M13b penjaga status awal kembali `security definer` (current_user = pemilik → selalu dianggap peladen)",
+     "language plpgsql\n-- SENGAJA BUKAN `security definer`",
+     "language plpgsql\nsecurity definer\n-- SENGAJA BUKAN `security definer`",
+     "supabase/tes/pesanan_status_awal.sql"),
+    ("M14 nilai kerugian boleh dikarang klien lagi",
+     """  if new.nilai_kerugian <> 0 and new.nilai_kerugian is distinct from coalesce(v_nilai, 0) then
+    raise exception 'Nilai kerugian dihitung peladen dari salinan harga (%); angka kiriman (%) tidak boleh dikarang.',
+      coalesce(v_nilai, 0), new.nilai_kerugian;
+  end if;""",
+     "  if false then\n    raise exception 'x';\n  end if;",
+     "supabase/tes/nilai_kerugian.sql"),
+]
+
 # Mutasi tunggal yang hasilnya HIJAU memang diharapkan hijau (pertahanan berlapis) —
 # dilaporkan apa adanya, tidak dihitung ke dalam "mutasi wajib MERAH".
 BERTUMPUK = {"M3a", "M3b"}
@@ -122,28 +164,42 @@ GABUNGAN = [
 ]
 
 hasil = []
-print("\nUJI MUTASI — penutup celah review putaran8 (0012)")
-for nama, cari, ganti, uji in DAFTAR:
-    asli = MIG.read_text(encoding="utf-8")
-    if asli.count(cari) != 1:
-        print(f"  LEWAT {nama}: pola tidak unik ({asli.count(cari)})")
-        hasil.append(False); continue
-    MIG.write_text(asli.replace(cari, ganti), encoding="utf-8")
-    kode, keluar = jalankan(uji)
-    MIG.write_text(asli, encoding="utf-8")
-    sakti = "ERR_MODULE_NOT_FOUND" in keluar or "SyntaxError" in keluar
-    merah = kode != 0 and not sakti
-    if nama.startswith(tuple(BERTUMPUK)):
-        print(f"  INFO {nama}: {'MERAH' if merah else 'HIJAU (sesuai dugaan: penjaga kembarnya masih menahan)'}"
-              f" ({uji.split('/')[-1]})")
-        continue
-    print(f"  {'OK  ' if merah else 'X   '}{nama}: {'MERAH' if merah else 'HIJAU (pagar tumpul)'} ({uji.split('/')[-1]})")
-    if not merah:
-        print("      " + "\n      ".join(keluar.splitlines()[-6:]))
-    hasil.append(merah)
+
+
+def jalankan_daftar(judul: str, mig: pathlib.Path, daftar: list) -> None:
+    print(f"\n{judul}")
+    for nama, cari, ganti, uji in daftar:
+        berkas = berkas_berlaku(cari) or mig
+        asli = berkas.read_text(encoding="utf-8")
+        if asli.count(cari) != 1:
+            print(f"  LEWAT {nama}: pola tidak unik di {berkas.name} ({asli.count(cari)})")
+            hasil.append(False)
+            continue
+        berkas.write_text(asli.replace(cari, ganti), encoding="utf-8")
+        kode, keluar = jalankan(uji)
+        berkas.write_text(asli, encoding="utf-8")
+        sakti = "ERR_MODULE_NOT_FOUND" in keluar or "SyntaxError" in keluar
+        merah = kode != 0 and not sakti
+        if sakti:
+            print(f"  X   {nama}: salinan rusak (bukan bukti) — {keluar.splitlines()[-1] if keluar.splitlines() else ''}")
+            hasil.append(False)
+            continue
+        if nama.startswith(tuple(BERTUMPUK)):
+            print(f"  INFO {nama}: {'MERAH' if merah else 'HIJAU (sesuai dugaan: penjaga kembarnya masih menahan)'}"
+                  f" ({uji.split('/')[-1]})")
+            continue
+        print(f"  {'OK  ' if merah else 'X   '}{nama}: {'MERAH' if merah else 'HIJAU (pagar tumpul)'} ({uji.split('/')[-1]})")
+        if not merah:
+            print("      " + "\n      ".join(keluar.splitlines()[-6:]))
+        hasil.append(merah)
+
+
+jalankan_daftar("UJI MUTASI — penutup celah review putaran8 (0012)", MIG, DAFTAR)
+jalankan_daftar("UJI MUTASI — penutup celah review putaran11 (0013)", MIG13, DAFTAR13)
 
 for nama, pasangan, uji in GABUNGAN:
-    asli = MIG.read_text(encoding="utf-8")
+    berkas = berkas_berlaku(pasangan[0][0]) or MIG
+    asli = berkas.read_text(encoding="utf-8")
     isi = asli
     ok = True
     for cari, ganti in pasangan:
@@ -152,12 +208,12 @@ for nama, pasangan, uji in GABUNGAN:
             break
         isi = isi.replace(cari, ganti)
     if not ok:
-        print(f"  LEWAT {nama}: pola tidak unik")
+        print(f"  LEWAT {nama}: pola tidak unik di {berkas.name}")
         hasil.append(False)
         continue
-    MIG.write_text(isi, encoding="utf-8")
+    berkas.write_text(isi, encoding="utf-8")
     kode, keluar = jalankan(uji)
-    MIG.write_text(asli, encoding="utf-8")
+    berkas.write_text(asli, encoding="utf-8")
     merah = kode != 0 and "ERR_MODULE_NOT_FOUND" not in keluar
     print(f"  {'OK  ' if merah else 'X   '}{nama}: {'MERAH' if merah else 'HIJAU (pagar tumpul)'} ({uji.split('/')[-1]})")
     if not merah:

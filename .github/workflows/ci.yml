@@ -67,7 +67,7 @@ jobs:
       - name: Uji SQL penuh — RLS, isolasi resto & fungsi identitas (28 berkas)
         run: node alat/uji-sql.mjs
 
-      - name: Bukti mutasi pagar migrasi 0012 (kontrol hijau + 12/12 wajib MERAH)
+      - name: Bukti mutasi pagar migrasi 0012 + 0013 (kontrol hijau + semua mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0012.py
 
       - name: Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras

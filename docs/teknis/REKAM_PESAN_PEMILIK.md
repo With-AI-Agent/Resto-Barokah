@@ -226,6 +226,41 @@ alat audit/review · buku induk · daftar tunggu · rujukan · lingkungan CI. **
   dengan mata). Agent **tidak akan mengarang baris** supaya buku terlihat penuh.
 - Keduanya masuk ROADMAP: **T1-42** (bantuan) · **T1-43** (Buku Uji Pemilik + pemeriksa + gema chat).
 
+## §13. Putaran 11b (2026-09-17) — "Apakah laporannya sudah dipush?" → 3 laporan lengkap masuk
+
+**Kata Lee:** *"Aku katakan ke setiap hakim begini: 'Apakah laporan hasil review nya sudah dipush? Jika blm, lakukan push'."* — lalu ia menempelkan jawaban ketiga sesi.
+
+**Hasilnya:** sesi pertama (hakim 1) ternyata punya **laporan penuh 390 baris dengan verdict TIDAK-BERSIH dan 4 temuan**, dan laporan itu
+**menimpa** berkas bernama sama milik sesi lain (79 baris, BERSIH). Jadi putaran review ini benar-benar menghasilkan 3 laporan:
+
+| Sesi | Berkas | Baris | Verdict | Temuan |
+|---|---|---|---|---|
+| Hakim 3 (pertama sampai) | `…__01a0b093-pendek-tertimpa.md` | 79 | BERSIH | 0 |
+| Hakim 2 | `…__01a0b093-reviewer.md` | 127 | BERSIH-DENGAN-CATATAN | 2 (1 nyata, 1 palsu) |
+| **Hakim 1** | `…__01a0b093.md` | **390** | **TIDAK-BERSIH** | **4 (semuanya nyata)** |
+
+**Yang saya kerjakan (bantah-balik wajib — tidak mempercayai laporan):** keempat temuan hakim 1 saya uji ulang dengan probe SQL sendiri, dan
+**keempatnya terbukti hidup**:
+
+| Temuan | Inti (bahasa awam) | Bukti probe | Perbaikan |
+|---|---|---|---|
+| PR-01 (K-2, uang) | Kasir bisa mencatat "diskon voucher" sampai 100% nota **tanpa voucher apa pun** — batas diskon manual 25.000 dilewati hanya dengan mengganti jenis | Diskon manual 54.000 ditolak; nilai yang sama berlabel `voucher` **tercatat** | Diskon voucher **ditutup** (gagal-aman) sampai mesin voucher benar-benar ada; uji + mutasi baru |
+| PR-02 (K-3, status) | Pesanan bisa **lahir** langsung berstatus "batal" (tanpa jejak pembatalan) atau "lunas" (tanpa pembayaran) | Insert `batal` diterima tanpa satu pun baris pembatalan | Pesanan dari perangkat wajib lahir `draf`; uji + 2 mutasi baru |
+| PR-03 (K-3, jejak) | Nilai kerugian pembatalan **bisa dikarang**: pesanan 54.000 dicatat rugi 1 rupiah | Kerugian 1 rupiah diterima | Nilai kerugian dihitung peladen; angka klien yang berbeda ditolak |
+| PR-04 (K-4, dokumen) | Dokumen menulis "21 berkas uji" padahal sudah 28 | Angka tidak cocok dengan isi folder | Angka disegarkan + pemeriksa baru yang menolak angka basi |
+
+**Kenapa ini kabar baik, bukan kabar buruk.** Dua sesi bilang "bersih", satu sesi menemukan 4 cacat nyata — dan yang menemukan itu **hakim 1**,
+sesi yang mengerjakan paling dalam (390 baris, memeriksa hal-hal yang tidak dilihat sesi lain: mencoba **menyalahgunakan** jalur uang lewat
+SQL langsung, bukan membaca kode saja). Artinya mekanisme review-nya bekerja: sesi yang lebih tekun menghasilkan temuan yang lebih keras,
+dan sesi kerja **tidak** boleh serta-merta mempercayai verdict mana pun.
+
+**Catatan mekanisme yang jujur:** ketiga sesi memakai penanda sesi yang sama (`01a0b093` = nama cabang), sehingga laporan penuh menimpa
+laporan pendek. Penarik laporan (`--ambil-laporan`) menyelamatkan versi yang tertimpa, dan prompt peninjau sekarang mewajibkan
+memeriksa daftar berkas dulu + memakai pembeda unik.
+
+**Arti bagi Lee:** PR #1 tetap **jangan di-merge dulu**. Empat temuan sudah ditutup, tetapi penutupnya (migrasi `0013`, 3 uji baru, 4 mutasi
+baru, gerbang CI) belum pernah dilihat peninjau — kalau nanti mau merge, saya siapkan paket review baru untuk tip tersebut.
+
 ## §12. Putaran 11 (2026-09-17) — review PR dijalankan Lee (3 sesi, satu cabang)
 
 **Kata Lee:** *"review udh selesai, aku menjalankan review PR nya di 3 sesi sekaligus. Namun 3 sesi itu melakukan nya di satu branch yang sama, yaitu arena/01a0b093-resto-barokah. Silahkan mulai periksa hasilnya."*

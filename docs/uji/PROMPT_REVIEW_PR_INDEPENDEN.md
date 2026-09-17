@@ -50,7 +50,10 @@ Kerjakan berurutan:
    adalah LANTAI, bukan target: jangan berhenti di angka minimum dan jangan menambah baris demi syarat. Jangan menyusun
    laporan agar lolos pemeriksa; formatnya sudah lengkap di paket.
 9. Tulis laporan PERSIS dengan format di paket (bagian "Format laporan") ke
-   `docs/uji/review-pr/LAPORAN_<tanggal>_<nama-pr>.md`. Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
+   `docs/uji/review-pr/LAPORAN_<tanggal>_<nama-pr>__<penanda-sesimu>.md`. Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
+   **Sebelum menulis, periksa daftar berkas di folder itu** (`ls docs/uji/review-pr/`). Kalau penandamu sudah dipakai sesi lain,
+   **JANGAN menimpa** — tambahkan pembeda unik (mis. `__<penanda>-2` atau angka unik) supaya dua laporan tidak saling menghapus.
+   (Pelajaran nyata 2026-09-17: tiga sesi pada satu cabang memakai penanda yang sama; laporan 79 baris tertimpa laporan 390 baris.)
 10. Jalankan `python3 alat/review-pr.py --periksa-laporan docs/uji/review-pr/<berkas-laporan>.md` (sekali di akhir).
     Bila ditolak: perbaiki KELENGKAPAN FORMAT-nya, bukan menambah temuan yang tidak kamu yakini.
 11. Supaya hasilmu sampai ke sesi kerja, commit + push HANYA berkas laporan itu ke cabang sesi ini. Contoh:

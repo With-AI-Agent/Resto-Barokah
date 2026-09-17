@@ -142,6 +142,18 @@
 3. **Ringkasan peringatan harian** ke email owner **dan** daftar peringatan di dalam aplikasi (keputusan pemilik 2026-09-17: dua-duanya): omzet, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat, pemakaian jalur pemulihan.
 4. Laporan **"siapa menyetujui apa"** per bulan (semua penggunaan PIN persetujuan) — mencegah PIN atasan dipakai berulang tanpa terasa.
 5. Transaksi hanya dalam shift terbuka; selisih wajib beralasan; setelah shift ditutup, koreksi = baris baru (ART-6).
+6. **Jenis diskon yang mesinnya belum ada = DITOLAK (gagal-aman).** Sejak migrasi `0013` (temuan review putaran11 PR-01, K-2): `promo`
+   **dan** `voucher` ditolak selama mesinnya belum ada — sebelumnya cabang `voucher` hanya memeriksa izin `pakai_voucher` (bawaan kasir
+   `true`), sehingga kasir bisa mencatat diskon 100% subtotal tanpa voucher apa pun. Uji `supabase/tes/diskon_voucher.sql` mengunci
+   penolakan itu; membukanya kembali **wajib** lewat pemeriksaan sungguhan (T1-12/T1-19/T1-20) dan akan memerahkan mutasi M12.
+7. **Status pesanan tidak bisa dikarang saat pesanan dibuat.** Sejak `0013` (temuan PR-02): penjaga status dulu hanya dipasang pada
+   UPDATE, sehingga pesanan bisa lahir `batal` (tanpa jejak pembatalan → Aturan Bisnis 7 dilewati) atau lahir `lunas` (tanpa pembayaran).
+   Sekarang pesanan dari perangkat wajib lahir `draf`, tanpa tanda kirim/bayar/batal. Uji: `supabase/tes/pesanan_status_awal.sql`.
+   Catatan teknis penting: penjaga ini **wajib berjalan dengan hak pemanggil** — begitu ditulis `security definer`, `current_user`
+   menjadi pemilik fungsi dan penjaganya tidak pernah menolak (mutasi M13b menjaga jebakan itu).
+8. **Nilai kerugian pembatalan dihitung peladen.** Sejak `0013` (temuan PR-03): angka kiriman klien yang berbeda dari hitungan
+   salinan harga ditolak — dulu kasir bisa menulis kerugian Rp1 untuk pesanan Rp54.000 dan angka itu mengendap permanen
+   (kolom append-only). Uji: `supabase/tes/nilai_kerugian.sql`.
 
 ## 10. Jejak audit
 

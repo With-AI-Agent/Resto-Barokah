@@ -102,6 +102,9 @@ def main(akar: pathlib.Path | None = None) -> int:
         if not re.search(rf"^## Bagian {huruf}\b", teks, re.MULTILINE):
             errs.append(f"bagian {huruf} hilang (buku induk wajib punya bagian A–H)")
 
+    for pesan in cek_angka_berkas_uji(akar):
+        errs.append(pesan)
+
     for nama, pola in TOPIK_WAJIB.items():
         if not re.search(pola, teks):
             errs.append(f"topik wajib hilang: {nama} (pola {pola!r}) — tambahkan ke buku")
@@ -259,6 +262,33 @@ def main(akar: pathlib.Path | None = None) -> int:
     return 0
 
 
+def cek_angka_berkas_uji(akar: pathlib.Path) -> list[str]:
+    """Angka "N berkas uji" di dokumen hidup wajib sama dengan jumlah berkas uji NYATA.
+
+    Kenapa ada: temuan review putaran11 PR-04 (K-4). `PANDUAN_PENGGUNA.md` dan
+    `docs/TERTANGGUH.md` masih menulis "21 berkas uji" padahal repo sudah punya 28
+    (dan sekarang 31) — padahal buku induk justru yang paling gampang dicek angkanya,
+    dan pemeriksa ini LOLOS saja. Angka yang basi membuat Lee salah menilai cakupan uji.
+    """
+    nyata = len(list((akar / "supabase" / "tes").glob("*.sql")))
+    if nyata == 0:
+        return ["tidak ada berkas uji di supabase/tes — pemeriksa angka tidak bisa dinilai"]
+    salah: list[str] = []
+    for relatif in ("PANDUAN_PENGGUNA.md", "docs/TERTANGGUH.md", "docs/KEAMANAN.md"):
+        berkas = akar / relatif
+        if not berkas.is_file():
+            continue
+        for i, baris in enumerate(berkas.read_text(encoding="utf-8").splitlines(), start=1):
+            for m in re.finditer(r"(\d+)\s+berkas uji", baris):
+                angka = int(m.group(1))
+                if angka != nyata:
+                    salah.append(
+                        f"{relatif}:{i} menulis \"{angka} berkas uji\" padahal nyatanya {nyata} "
+                        f"— segarkan angkanya (atau cabut klaimnya); jangan biarkan dokumen basi"
+                    )
+    return salah
+
+
 def uji_diri() -> int:
     """Standar proyek: pemeriksa yang tidak bisa MERAH dianggap belum terpasang (B-F-12)."""
     from bantu_uji_diri import jalankan_pemeriksa, laporkan, salin_pohon
@@ -301,6 +331,20 @@ def uji_diri() -> int:
             kode4, _ = jalankan_pemeriksa(main, tmp4)
             hasil.append(("mutasi: buku memanggil \"Bapak\"", kode4 != 0,
                           "ditolak" if kode4 != 0 else "DILOLOSKAN (sapaan tidak dijaga)"))
+        # Mutasi 4: angka berkas uji dibuat basi → harus GAGAL (temuan review putaran11 PR-04)
+        with salin_pohon() as tmp5:
+            berkas = tmp5 / "PANDUAN_PENGGUNA.md"
+            isi = berkas.read_text(encoding="utf-8")
+            m = re.search(r"\d+(?=\s+berkas uji)", isi)
+            if not m:
+                hasil.append(("mutasi: angka berkas uji dibuat basi", False,
+                              "buku tidak menulis angka berkas uji — tidak bisa dimutasi"))
+            else:
+                basi = str(int(m.group(0)) - 1)
+                berkas.write_text(isi[:m.start()] + basi + isi[m.end():], encoding="utf-8")
+                kode5, _ = jalankan_pemeriksa(main, tmp5)
+                hasil.append(("mutasi: angka berkas uji dibuat basi", kode5 != 0,
+                              "ditolak" if kode5 != 0 else "DILOLOSKAN (angka basi tidak dijaga)"))
     return laporkan("periksa-panduan", hasil)
 
 
