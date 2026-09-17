@@ -71,6 +71,12 @@ def _cek_paket_disebut(akar: pathlib.Path, teks: str, errs: list[str]) -> None:
     """
     disebut = sorted(set(re.findall(r"PKT-[\w\-.]*SIAP-TEMPEL\.md", teks)))
     if not disebut:
+        # Boleh juga: buku tidak menyebut nama tetap, asal menunjuk folder + kata "paling baru"
+        # (dipakai supaya buku tidak perlu disunting tiap putaran; agent yang menyebut nama di chat).
+        if "review-pr" in teks and re.search(r"paling baru", teks, re.I):
+            if _paket_terbaru(akar) is None:
+                errs.append("buku menyuruh memakai paket paling baru, tetapi belum ada paket SIAP-TEMPEL di docs/uji/review-pr/")
+            return
         return
     terbaru = _paket_terbaru(akar)
     for nama in disebut:
@@ -187,8 +193,24 @@ def uji_diri() -> int:
             isi = berkas.read_text(encoding="utf-8")
             m = re.search(r"PKT-[\w\-.]*SIAP-TEMPEL\.md", isi)
             if not m:
-                hasil.append(("mutasi: paket review disebut lebih tua", False,
-                              "buku tidak menyebut paket SIAP-TEMPEL — tidak bisa dimutasi"))
+                # Buku memakai pola "paling baru" (tanpa nama tetap). Untuk menguji penjaganya,
+                # sisipkan nama paket LAMA ke dalam baris U-04 lalu pastikan pemeriksa menolak.
+                folder0 = tmp_basi / FOLDER_PAKET
+                semua0 = sorted(f.name for f in folder0.glob("PKT-*-SIAP-TEMPEL.md"))
+                if len(semua0) < 2:
+                    hasil.append(("mutasi: paket review disebut lebih tua", False,
+                                  "paket kurang dari dua — tidak bisa dimutasi"))
+                else:
+                    lama0 = semua0[0]
+                    isi2 = re.sub(r"(\|\s*U-04\s*\|)", r"\1 `" + lama0 + "`", isi, count=1)
+                    if isi2 == isi:
+                        hasil.append(("mutasi: paket review disebut lebih tua", False,
+                                      "baris U-04 tidak ditemukan untuk disisipi nama paket lama"))
+                    else:
+                        berkas.write_text(isi2, encoding="utf-8")
+                        kode_basi2, _ = jalankan_pemeriksa(periksa, tmp_basi)
+                        hasil.append(("mutasi: paket review disebut lebih tua", kode_basi2 != 0,
+                                      "ditolak" if kode_basi2 != 0 else "DILOLOSKAN (paket basi lolos)"))
             else:
                 # arahkan ke paket lain yang ADA tapi bukan yang terbaru
                 folder = tmp_basi / FOLDER_PAKET
