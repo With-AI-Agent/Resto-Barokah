@@ -64,8 +64,9 @@
 ## 4b. Jalan keluar saat perangkat hilang / dicuri (tangga pemulihan)
 
 > Ditulis 2026-09-17 menjawab pertanyaan pemilik: *"gimana kalau perangkat admin hilang atau dicuri?"*
-> **Status: USULAN agent — menunggu konfirmasi pemilik** (keputusan pemilik: setiap penyimpangan/rancangan baru
-> dijelaskan dulu dalam bahasa sederhana, baru dikerjakan). Setelah dikonfirmasi, bagian ini naik status BERLAKU.
+> **Status: BERLAKU — disetujui pemilik 2026-09-17** ("setuju seperti rancangan"). Rincian penyimpanan kode
+> pemulihan (dua salinan amplop tersegel + rotasi) ditetapkan agent atas permintaan pemilik
+> ("aku minta saran kamu") — alasannya dicatat di `docs/DECISIONS_LOG.md` 2026-09-17.
 
 **Prinsip:** kehilangan perangkat **tidak boleh** menghentikan kedai, tetapi pemulihan **tidak boleh** menjadi pintu belakang yang lebih lemah daripada masuk biasa.
 
@@ -79,7 +80,8 @@
 **Aturan kunci induk (kode pemulihan darurat) — dibuat saat penyiapan, sekali pakai:**
 1. Dibuat **satu kali** saat penyiapan resto: 8 kata acak (mudah dibaca manusia, sulit ditebak mesin); database **hanya menyimpan hash**-nya.
 2. Disimpan **tercetak/tertulis di luar kedai** (mis. di rumah pemilik) — bukan di folder ponsel, bukan di chat, bukan di aplikasi.
-3. Memakai kode ini **wajib** disertai kata sandi akun + TOTP, dan **hanya** membuka **pendaftaran perangkat darurat** — bukan akses data langsung.
+3. **Hanya `owner_pusat` yang boleh memakainya** (keputusan pemilik). Admin cabang yang terkunci dipulihkan owner pusat lewat reset TOTP + kode pendaftaran biasa. Memakai kode ini **wajib** disertai kata sandi akun + TOTP, dan **hanya** membuka **pendaftaran perangkat darurat** — bukan akses data langsung.
+3b. **Cara menyimpan (ditetapkan agent 2026-09-17):** dicetak/ditulis di kertas → dimasukkan **amplop yang disegel** (lakban/lem + tanda tangan & tanggal di lipatan) → **dua salinan**: satu di rumah pemilik, satu di lemari arsip kantor kedai (**di luar ruang kasir**). Segel rusak = kode dianggap bocor → langsung dibuat kode baru dari perangkat aktif. **Kode diganti** setiap habis dipakai, sekali setahun, dan saat pegawai yang mengetahui tempat penyimpanannya berhenti.
 4. **Masa tenggang 30 menit:** perangkat darurat belum bisa dipakai; pemberitahuan dikirim ke email owner + tampil di layar Peringatan; bisa **dibatalkan** dari perangkat lain selama masa itu. Ini yang membuat pencuri kode tidak dapat akses instan.
 5. Setelah dipakai, kode itu **hangus**; owner membuat kode baru dari perangkat yang sudah aktif (menu Perangkat & Sesi).
 6. **Sakelar penghentian (kill switch):** bila kode diduga bocor, pemilik platform menutup jalur pemulihan sementara (satu tombol di panel) sampai kode baru dibuat & perangkat dicabut.
@@ -202,7 +204,7 @@
 | 5 | Pemilik platform tidak terikat perangkat | Jalan darurat lintas penyewa | TOTP wajib + sesi 8 jam + tanpa data penyewa + mode dukungan tercatat |
 | 6 | HP pegawai hilang = kerja terhenti sampai MFA direset | Harga dari TOTP wajib | Jalan pemulihan cepat (owner/pemilik platform) + langkah di Buku Insiden |
 | 7 | Internet mati = tidak bisa masuk (sesi terkunci) | Keamanan didahulukan | Kunci otomatis diperpanjang wajar + prosedur catat manual sementara (Buku Insiden) |
-| 8 | **Kode pemulihan darurat** menjadi sasaran pencurian (satu kertas bisa membuka pendaftaran perangkat) | Alternatifnya justru lebih lemah (pemulihan lewat email/WhatsApp) atau lebih lambat (menunggu pemilik platform) | Hanya hash yang disimpan · wajib kata sandi + TOTP · sekali pakai · masa tenggang 30 menit + pemberitahuan & pembatalan · tercatat · kata sandi ≥12 |
+| 8 | **Kode pemulihan darurat** menjadi sasaran pencurian (satu kertas bisa membuka pendaftaran perangkat) | Alternatifnya justru lebih lemah (pemulihan lewat email/WhatsApp) atau lebih lambat (menunggu pemilik platform) | Hanya hash yang disimpan · **wajib kata sandi + TOTP** (kertas saja tidak cukup) · hanya owner pusat · sekali pakai · masa tenggang 30 menit + pemberitahuan & pembatalan · **amplop tersegel + rotasi** · tercatat · kata sandi ≥12 |
 | 9 | **Semua perangkat berkuasa hilang serentak** (mis. dirampok) = kerja pengelolaan terhenti sampai jalur pemulihan dipakai | Sangat jarang; ada 4 tingkat pemulihan | Perangkat cadangan wajib · latihan pemulihan saat penyiapan · jalur pemilik platform sebagai jaring terakhir |
 
 ## 16. Aturan untuk sesi agent berikutnya

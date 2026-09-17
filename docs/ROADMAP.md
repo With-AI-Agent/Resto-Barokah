@@ -426,11 +426,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1) & Fungsi Istimewa (ART-11); pemeriksa terlalu longgar = hijau palsu → mitigasi: uji mutasi wajib (matikan satu aturan → pemeriksa GAGAL).
   - **Verifikasi:** jalankan pemeriksa dengan sengaja menyisipkan cacat → GAGAL; setelah dipulihkan → LOLOS; dijalankan di CI.
 
-- [ ] T1-36 — Kunci induk: kode pemulihan darurat + pendaftaran perangkat darurat ⚠️ ❓ (menunggu konfirmasi pemilik)
+- [ ] T1-36 — Kunci induk: kode pemulihan darurat + pendaftaran perangkat darurat ⚠️
   - **Tujuan:** kehilangan perangkat owner/admin (bahkan seluruhnya) tidak menghentikan kedai, tanpa membuka pintu belakang yang lebih lemah daripada masuk biasa.
   - **Ref:** TECH_SPEC §9 ART-11 & §5.1; docs/KEAMANAN.md §4b; PRD M12
   - **File:** `supabase/migrations/0016b_pemulihan_perangkat.sql`, `supabase/tes/pemulihan.sql`, `docs/ops/PEMULIHAN_PERANGKAT.md`
-  - **DoD:** RPC `buat_kode_pemulihan` (8 kata acak sekali pakai, hanya hash tersimpan, dibuat saat penyiapan), `pulihkan_perangkat` (wajib kode + kata sandi + TOTP → perangkat darurat dengan **masa tenggang 30 menit**), `batalkan_pemulihan`; pemberitahuan email + Peringatan dalam aplikasi; peringatan bila perangkat berkuasa tinggal 1; sakelar penghentian jalur pemulihan; langkah pemulihan pemilik platform ditulis di `docs/ops/`; uji SQL + uji mutasi lulus.
+  - **DoD:** RPC `buat_kode_pemulihan` (8 kata acak sekali pakai, hanya hash tersimpan, dibuat saat penyiapan), `pulihkan_perangkat` (wajib kode + kata sandi + TOTP → perangkat darurat dengan **masa tenggang 30 menit**), `batalkan_pemulihan`; **kode pemulihan hanya boleh dipakai `owner_pusat`**; kode dibuat sekali saat penyiapan dengan **penyimpanan amplop tersegel dua salinan** (rumah pemilik + arsip kantor di luar ruang kasir) + rotasi setelah dipakai/tahunan; pemberitahuan email + Peringatan dalam aplikasi; peringatan bila perangkat berkuasa tinggal 1; sakelar penghentian jalur pemulihan; langkah pemulihan pemilik platform ditulis di `docs/ops/`; uji SQL + uji mutasi lulus.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); kode pemulihan dicuri/difoto orang lain → mitigasi: hanya hash, sekali pakai, wajib kata sandi + TOTP, masa tenggang 30 menit + pemberitahuan + bisa dibatalkan + tercatat; dilarang menyimpan kode di ponsel/chat.
   - **Verifikasi:** uji SQL: kode salah/kadaluwarsa/terpakai dua kali → ditolak · perangkat darurat belum bisa dipakai sebelum 30 menit · dibatalkan dari perangkat lain → batal · semua kejadian tercatat & dalam ringkasan harian.
