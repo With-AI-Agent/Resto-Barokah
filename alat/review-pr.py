@@ -557,7 +557,10 @@ def kartu_keputusan(berkas: pathlib.Path) -> int:
 # ---------------------------------------------------------------- --kesiapan
 # Berkas yang boleh berubah setelah commit target tanpa membatalkan paket review:
 # paket/laporan/kalibrasi itu sendiri (dibuat SETELAH paket ditulis — ayam-dan-telur).
-BERKAS_NETRAL = ("docs/uji/review-pr/", "docs/uji/paket-audit/", "docs/uji/kalibrasi/", "docs/uji/audit/")
+BERKAS_NETRAL = ("docs/uji/review-pr/", "docs/uji/paket-audit/", "docs/uji/kalibrasi/", "docs/uji/audit/",
+                 # buku besar mekanisme ini sendiri: mengisi baris riwayat (verdict/commit yang dinilai)
+                 # adalah tindakan yang WAJAR sesudah paket dibuat — bukan perubahan kode/klaim
+                 "docs/uji/REVIEW_PR_RIWAYAT.md", "docs/uji/AUDIT_RIWAYAT.md")
 
 
 def _selisih_hanya_netral(target: str) -> bool:
