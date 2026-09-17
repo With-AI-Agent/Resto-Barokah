@@ -182,3 +182,31 @@ berulang (aksesibilitas) · angka di atas **diuji** lewat pemeriksa kontras & at
 | Gerakan sesuai angka + menghormati "kurangi gerak" | uji komponen + pemeriksa aturan desain (`aplikasi/alat/uji-kontras.py`) | batch UI pertama |
 | Tidak ada tombol janji tanpa aksi & sebaliknya | pemeriksa peta UI: Registri Aksi ↔ kontrak layar ↔ kode | setiap batch UI |
 | Perilaku bisa dicoba manusia | naskah jalan bernomor `W-<fase>-<nomor>` + bukti pratinjau | setiap akhir fase UI |
+
+## 10. Bahasa & arah teks (multi-bahasa — ditambahkan 2026-09-17)
+
+> Dasar: keputusan pemilik 2026-09-17 (**Opsi 1**) — rilis G1 memakai **Indonesia · Inggris · Mandarin**; **Arab** disiapkan kuncinya + tata letak diuji di G1, teksnya menyusul **G2**. Rujukan: `docs/DECISIONS_LOG.md` «Bahasa aplikasi».
+
+### 10.1 Aturan dasar
+
+1. **Tidak ada kalimat di dalam kode layar.** Semua teks UI diambil dari berkas bahasa (`aplikasi/src/bahasa/id.ts` sebagai sumber; `en.ts`, `zh.ts`, `ar.ts`). Pemeriksa otomatis menolaknya di CI — bukan imbauan.
+2. **Berkas `id.ts` adalah sumber kunci.** Menambah kalimat = menambah kunci di `id.ts`; bahasa lain wajib menyusul kunci yang sama (kunci hilang = CI merah).
+3. **Pilihan bahasa per pengguna**, dengan **bawaan per resto** untuk perangkat bersama (kasir asing bisa memakai Inggris di perangkat yang sama dengan owner berbahasa Indonesia).
+4. **Istilah uang & pajak tidak diterjemahkan bebas**: istilah baku (mis. PPN/PB1, service charge, diskon, void/pembatalan) memakai padanan tetap yang disetujui Lee sebelum dipakai, supaya tidak menimbulkan salah arti di menu keuangan.
+5. **Yang TIDAK diterjemahkan:** format uang & tanggal (**selalu Indonesia: `Rp`, `id-ID`**), isi database (nama menu, nama pegawai, catatan — itu data kedai apa adanya), dan dokumen internal proyek.
+
+### 10.2 Arah teks (RTL) & huruf
+
+1. **Tata letak memakai ukuran logis** (`inline-start`/`inline-end`), bukan kiri/kanan, supaya arah bisa dibalik tanpa mengubah kode layar — token arah di `aplikasi/src/gaya/arah.css`.
+2. **Arab diverifikasi di G1** lewat **dua layar contoh bercermin** (satu layar transaksi + satu layar laporan) sebagai bukti bahwa tata letak siap; terjemahan Arab masuk G2.
+3. **Huruf Mandarin dipotong (subset)** ke karakter yang benar-benar dipakai dan **ukuran berkasnya diperiksa mesin** (ambang ditetapkan saat T1-41) supaya perangkat kedai tetap ringan.
+4. **Angka di dalam teks Arab** tetap memakai angka Latin (0–9) agar cocok dengan uang `Rp` dan tidak membingungkan kasir.
+
+### 10.3 Bukti yang harus ada (masuk T1-40 & T1-41)
+
+| Yang diperiksa | Alat | Kapan |
+|---|---|---|
+| Tidak ada teks keras di komponen | `aplikasi/alat/periksa-bahasa.py` | setiap commit UI |
+| Kunci bahasa lengkap di semua bahasa rilis | pemeriksa yang sama (kunci `id` = acuan) | setiap commit UI |
+| Dua layar contoh benar saat arah dibalik | `aplikasi/alat/periksa-arah.py` + naskah jalan | T1-41 |
+| Ukuran huruf Mandarin di bawah ambang | `periksa-arah.py` (aturan ukuran) | T1-41 |

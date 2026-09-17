@@ -170,3 +170,10 @@ sejauh tercatat, dan **keputusan yang lahir dari permintaan itu**, supaya tidak 
 1. **Jalur pulang laporan** (celah nyata: protokol menyuruh auditor menulis laporan, tetapi tidak pernah menjelaskan bagaimana laporan itu kembali ke sesi kerja) → alat baru `--ambil-laporan` di kedua alat (audit & review PR) + §5c di protokol audit + §6b di protokol review PR + langkah push di kedua prompt kanonik + buku (AL-5, AL-7, Bagian E).
 2. **Lee benar soal "memenuhi syarat"** → aturan anti-teater dikunci: ambang minimum = **lantai, bukan target**; **temuan di luar cakupan wajib dilaporkan** (bagian 8 baru di kedua kontrak laporan); **dilarang menyusun laporan agar lolos pemeriksa**; mesin menandai laporan yang berhenti tepat di ambang sebagai CATATAN.
 3. **Dua laporan lama tidak ada** di cabang mana pun saat diperiksa (`git ls-remote` → hanya cabang sesi lama 15–16 Sep) → karena itu jalur pulang dibuat wajib di prompt, bukan opsional.
+
+## §8. Putaran 6 (2026-09-17) — bahasa aplikasi
+
+| # | Permintaan (kutipan) | Status |
+|---|---|---|
+| 1 | *"aku mau aplikasi ini mendukung multi bahasa, termasuk mandarin dan arab. Tapi aku blm tau apakah itu berat di awal atau tidak. Klo sekiranya ada kendala, maka setidaknya untuk versi rilis awal harus mendukung 2 bahasa, yaitu Inggris/english dan Indonesia"* | **DIPUTUSKAN — Opsi 1**: G1 memakai **Indonesia · Inggris · Mandarin**; **Arab** disiapkan kuncinya + tata letak RTL diuji di G1, teksnya G2. Analisis biaya + 3 opsi di `docs/DECISIONS_LOG.md` «Bahasa aplikasi»; tugas **T1-40** & **T1-41** + `docs/SPESIFIKASI_UI.md` **§10** |
+| 2 | *(alasan penyampaian)* *"Maaf aku sampaikan ini tidak pada tempat nya"* | Tidak ada masalah — permintaan diterima **sebelum** layar G1 ditulis (Fase 1C belum mulai), jadi justru waktu termurah; tidak ada pekerjaan yang terbuang |

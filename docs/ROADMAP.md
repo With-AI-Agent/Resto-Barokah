@@ -553,6 +553,24 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` bila pola kontrak berubah; risiko daftar layar G1 tidak lengkap → mitigasi: diambil dari `docs/ROADMAP.md` Fase 3–9 (per fase ada daftar layar) + uji silang pemeriksa.
   - **Verifikasi:** `python3 alat/peta-ui.py` LOLOS · uji mutasi MERAH saat satu aksi/tombol dihapus · naskah jalan tiap layar bisa dijalankan Lee.
 
+- [ ] T1-40 — Kerangka bahasa (i18n): teks tidak boleh ditulis di layar
+  - **Tujuan:** aplikasi mendukung banyak bahasa tanpa menyentuh logika — keputusan Lee 2026-09-17 (**Opsi 1**): rilis G1 memakai **Indonesia · Inggris · Mandarin**; **Arab** disiapkan kuncinya + tata letak RTL diuji di G1, teksnya menyusul G2.
+  - **Ref:** `docs/DECISIONS_LOG.md` «Bahasa aplikasi» · `docs/SPESIFIKASI_UI.md` §10 (bahasa & arah teks)
+  - **File:** `aplikasi/src/bahasa/id.ts` (sumber) · `en.ts` · `zh.ts` · `ar.ts` (kunci saja) · `aplikasi/src/bahasa/index.ts` · pengalih bahasa di `docs/PETA_UI.md` · `aplikasi/alat/periksa-bahasa.py`
+  - **DoD:** setiap kalimat UI diambil dari berkas bahasa (tidak ada teks keras di komponen — pemeriksa menolak, bukan mengimbau); pilihan bahasa per pengguna + bawaan per resto untuk perangkat bersama; format uang & tanggal tetap Indonesia (`Rp`, `id-ID`) di SEMUA bahasa; kunci yang hilang di satu bahasa = CI merah; pemeriksa **terbukti bisa MERAH** (sengaja hapus satu kunci → MERAH).
+  - **Kompleksitas:** sedang (2–3 jam, sebelum layar G1 pertama ditulis)
+  - **Risiko & mitigasi:** ⚠️ teks keras yang lolos sekali akan mahal dibereskan → pemeriksa di CI sejak commit pertama; risiko terjemahan salah arti di menu keuangan → istilah baku ditinjau Lee sebelum dipakai.
+  - **Verifikasi:** `python3 aplikasi/alat/periksa-bahasa.py` LOLOS di CI · uji mutasi MERAH · tiga bahasa berpindah tanpa memuat ulang (layar contoh) · angka & tanggal tidak berubah antar bahasa.
+
+- [ ] T1-41 — Arah teks (RTL) & huruf Mandarin/Arab
+  - **Tujuan:** memastikan tata letak siap Arab sejak awal (bukan tambalan belakangan) dan huruf Mandarin tidak memberatkan perangkat kedai.
+  - **Ref:** `docs/DECISIONS_LOG.md` «Bahasa aplikasi» (Opsi 1) · `docs/SPESIFIKASI_UI.md` §10
+  - **File:** `prototipe/` (2 layar contoh bercermin) · `aplikasi/src/gaya/arah.css` (token arah, logis `inline-start/end`) · berkas huruf Mandarin terpotong (subset) · `aplikasi/alat/periksa-arah.py`
+  - **DoD:** dua layar contoh tampil benar saat arah dibalik (RTL) tanpa mengubah kode layar (hanya token arah); tabel & keranjang tidak rusak; ukuran berkas huruf Mandarin di bawah ambang yang ditetapkan (diperiksa otomatis); pemeriksa **terbukti bisa MERAH**.
+  - **Kompleksitas:** sedang (2–3 jam)
+  - **Risiko & mitigasi:** ⚠️ RTL menyentuh hampir semua tata letak → dikerjakan **sebelum** layar G1 diperbanyak, dengan 2 layar contoh sebagai bukti; huruf Mandarin besar → wajib subset + ambang ukuran diperiksa mesin.
+  - **Verifikasi:** 2 layar contoh RTL benar · pemeriksa arah & ukuran huruf LOLOS (uji mutasi MERAH) · dalamnya tetap hijau: kontras 166 lolos · halaman prototipe 183/183.
+
 ## Fase 2 — Masuk & kerangka aplikasi
 
 - [ ] T2-01 — Pemasangan Supabase Auth di klien + penyimpanan sesi aman
@@ -1805,11 +1823,12 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 **Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07 · Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009, **T-012** (cadangan di artefak terenkripsi repo privat) dan **T-013** (penutup shift = Admin Cabang → Owner Pusat) sudah **ditutup** 2026-09-16 (lihat tabel Butir selesai di `docs/TERTANGGUH.md`).
 
-**Jumlah tugas:** F0 15 · F1 39 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 13 = **187 tugas**, semuanya ber-7 atribut.
+**Jumlah tugas:** F0 15 · F1 41 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 13 = **189 tugas**, semuanya ber-7 atribut.
 | 2026-09-17 (putaran 4) | **Buku pedoman induk + penjaga mesin** (+T0-11 `[x]`) dan **audit menyeluruh lebih dulu** (+T0-12 ⚠️) → **184 tugas**; AUD-3 memakai lingkup menyeluruh (`--semua`) & gerbang `tahan_semua` | Permintaan pemilik: *"sekarang aku mau audit dulu"*; mekanisme harus menyeluruh *"termasuk file2 yang disiapkan untuk pengguna"*; *"satu file untuk pengguna yang betul-betul isinya lengkap… semacam manual book"* |
 
 | 2026-09-17 (putaran 5) | **Mekanisme review PR independen** (T0-13 `[x]`) + **buku pedoman induk v2** (T0-14 `[x]`) → **186 tugas**; ditambah: independensi base branch audit (`--verifikasi-lingkup`), rekam pesan Lee (`docs/teknis/REKAM_PESAN_PEMILIK.md`), panggilan **Lee** | Permintaan Lee: (a) tidak bisa menilai *Files changed* → butuh review PR independen + kartu keputusan; (b) buku masih kurang & cacat (cara, prompt tanpa panduan, prompt yang kata-katanya untuk pengguna); (c) jangan panggil "Bapak"; (d) base branch peninjau jangan harus ditentukan presisi |
 
+| 2026-09-17 (putaran 6b) | **+T1-40** (kerangka bahasa: ID·EN·Mandarin di G1) + **T1-41** (RTL + huruf Mandarin/Arab) + `docs/SPESIFIKASI_UI.md` **§10 bahasa & arah teks** → **189 tugas** | Permintaan Lee: aplikasi multi-bahasa termasuk Mandarin & Arab; diputuskan **Opsi 1** — tiga bahasa di G1, Arab disiapkan kuncinya + tata letak diuji, teksnya G2 |
 | 2026-09-17 (putaran 5b) | **+T1-39** (isi PETA_UI semua layar G1) + `docs/SPESIFIKASI_UI.md` **§9 perilaku & gerakan** → **187 tugas** | Jawaban jujur atas pertanyaan Lee: yang belum matang bukan mekanisme kelengkapan UI, melainkan **isinya** (daftar tombol/aksi per layar) dan **spesifikasi gerakan/perilaku** |
 
 > **Catatan 2026-09-17:** angka di atas **diukur ulang** dari berkas ini setelah penyisipan keamanan & kelengkapan UI (+T1-36 jalur pemulihan perangkat · +T1-37 pekerjaan ulang & T1-38 audit independen · +T11-13 audit adversarial)
