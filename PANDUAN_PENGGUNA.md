@@ -60,7 +60,7 @@ Lee tidak perlu menyentuh kode. Lee **memutuskan**; agent **mengerjakan + membuk
 | Sudah jadi & teruji | Belum jadi (jangan dipakai untuk kedai dulu) |
 |---|---|
 | Dokumen fondasi (Discovery, PRD, Tech Spec, aturan agent, Roadmap) — **dikunci** | Layar aplikasi untuk dipakai kedai (baru kerangka; layar fitur menyusul Fase 2–10) |
-| Database: penyewa, cabang, pengguna, izin, pengaturan, katalog, stok, meja, pesanan, pembayaran — diuji otomatis di PostgreSQL nyata (18 berkas uji, semua LULUS) | Perangkat terdaftar & login staf (Fase 1B), kontrak UI (Fase 1C) |
+| Database: penyewa, cabang, pengguna, izin, pengaturan, katalog, stok, meja, pesanan, pembayaran — diuji otomatis di PostgreSQL nyata (19 berkas uji, semua LULUS) | Perangkat terdaftar & login staf (Fase 1B), kontrak UI (Fase 1C) |
 | Alat pemeriksa otomatis + CI (uji SQL, uji unit, pemeriksa dokumen & buku ini) | Akun cloud (Supabase/Cloudflare) — menunggu Lee (T0-00/T0-08); region **Singapore** sudah diputuskan |
 | Mekanisme audit independen + review PR independen (protokol, alat, kalibrasi cacat) | Pekerjaan ulang artefak lama (T1-37) — daftarnya sudah ada & terukur |
 
