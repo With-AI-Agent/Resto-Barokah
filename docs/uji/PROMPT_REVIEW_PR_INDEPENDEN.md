@@ -42,11 +42,19 @@ Kerjakan berurutan:
 7. Bila paket memuat **bahan kalibrasi cacat tanaman** (berkas diff terpisah yang berisi cacat sengaja), periksa bahan
    itu secara terpisah dan tulis hasilnya di bagian kalibrasi (`Ditemukan: X dari Y` + jumlah temuan palsu). Kamu tidak
    diberi tahu berapa jumlahnya, di berkas mana, atau kelasnya. Dilarang mencari kunci jawaban.
-8. Tulis laporan PERSIS dengan format di paket (bagian "Format laporan") ke
-   `docs/uji/review-pr/LAPORAN_<tanggal>_<nama-pr>.md`.
-9. Jalankan `python3 alat/review-pr.py --periksa-laporan docs/uji/review-pr/<berkas-laporan>.md` sampai LOLOS, lalu
-   laporkan verdict + tingkat risiko + ringkasan temuan ke saya.
+8. Laporkan SEMUA yang kamu temukan — termasuk yang di luar diff PR ini (bagian 8 laporan). Ambang minimum di paket
+   adalah LANTAI, bukan target: jangan berhenti di angka minimum dan jangan menambah baris demi syarat. Jangan menyusun
+   laporan agar lolos pemeriksa; formatnya sudah lengkap di paket.
+9. Tulis laporan PERSIS dengan format di paket (bagian "Format laporan") ke
+   `docs/uji/review-pr/LAPORAN_<tanggal>_<nama-pr>.md`. Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
+10. Jalankan `python3 alat/review-pr.py --periksa-laporan docs/uji/review-pr/<berkas-laporan>.md` (sekali di akhir).
+    Bila ditolak: perbaiki KELENGKAPAN FORMAT-nya, bukan menambah temuan yang tidak kamu yakini.
+11. Supaya hasilmu sampai ke sesi kerja, commit + push HANYA berkas laporan itu ke cabang sesi ini. Contoh:
+    `git add docs/uji/review-pr/ && git commit -m "laporan review PR <nama>" && git push -u origin HEAD`
+    (jangan mengubah/meng-commit berkas lain; bila push tidak bisa, tulis "belum ter-push" dan beri tahu saya).
+12. Laporkan verdict + tingkat risiko + ringkasan temuan ke saya di chat.
 
-Larangan keras: memuji, "looks good", melaporkan soal gaya penulisan sebagai temuan, mengubah berkas apa pun,
-mempercayai deskripsi PR tanpa membuktikan, dan menaikkan verdict di atas bukti yang kamu punya.
+Larangan keras: memuji, "looks good", melaporkan soal gaya penulisan sebagai temuan, mengubah berkas selain laporan,
+mempercayai deskripsi PR tanpa membuktikan, menaikkan verdict di atas bukti, dan menyusun laporan demi memenuhi ambang /
+kelulusan pemeriksa — itu teater, bukan review.
 ```

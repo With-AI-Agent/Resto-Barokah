@@ -117,6 +117,28 @@ Pertanyaan Lee: *"kamu ga jelasin aku harus buat sesi baru dengan base branch ap
 
 **Konsekuensi untuk Lee:** Lee boleh memilih base branch **mana pun** yang paling mudah (cabang sesi ini, `main`, atau cabang lain) — paket akan mengarahkan peninjau ke commit yang tepat. Satu-satunya syarat: repo yang dipakai peninjau **memuat** commit itu (kalau sesi dibuka dari `main` sementara pekerjaan belum di-merge, `git fetch origin` + `checkout --detach` menyelesaikannya).
 
+## 5c. Bagaimana laporan kembali ke sesi kerja (dikunci 2026-09-17)
+
+**Masalah yang ditutup (pertanyaan Lee):** auditor bekerja di **ruang kerja sendiri** — sesi kerja **tidak bisa melihat**
+berkas di sana. Tanpa jalur pulang, laporan bisa hilang di chat, dan Lee harus menyalin manual.
+
+**Jalur resmi (dua arah, keduanya wajib ada di paket & prompt):**
+1. Auditor menulis **satu** berkas: `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>.md` (satu-satunya berkas yang boleh ia buat).
+2. Auditor **commit + push HANYA berkas itu** ke **cabang sesinya sendiri** (`arena/...` yang diberikan platform):
+   `git add docs/uji/audit/ && git commit -m "laporan audit ..." && git push -u origin HEAD`
+3. Sesi kerja (pembangun) menjalankan `python3 alat/audit-independen.py --ambil-laporan`, yang:
+   mencari **semua cabang `arena/*`** di GitHub, menemukan berkas `docs/uji/audit/LAPORAN_*.md` yang belum ada di sesi ini,
+   mengambilnya, dan menaruhnya di `docs/uji/audit/`.
+4. Sesi kerja memvalidasi tiap laporan (`--periksa-laporan`), menilai kalibrasi (`--kalibrasi-nilai`), lalu menindaklanjuti.
+
+**Kalau auditor tidak bisa push** (mis. izin): auditor menulis di laporan "belum ter-push" dan menempelkan laporan di chat;
+Lee menyalinnya ke berkas di `docs/uji/audit/` (agent boleh membuatkannya kalau Lee menempel teks laporan di sesi kerja).
+
+**Kalau base branch sesi audit bukan cabang sesi kerja:** tidak masalah — laporan tetap diambil dari cabang auditor (§5b).
+
+**Kenapa begini:** laporan menjadi **berkas di Git** (bisa diverifikasi, ada jejaknya, tidak hilang), dan Lee tidak perlu
+menyalin apa pun kecuali bila push gagal.
+
 ## 6. Kontrak laporan (divalidasi mesin — tanpa ini audit tidak diakui)
 
 Judul & kepala laporan wajib memuat: Auditor · Tanggal · Tingkat audit · **Commit yang diaudit (SHA penuh)** ·
@@ -133,7 +155,13 @@ Tujuh bagian wajib, dengan nama **persis**:
    `Status verifikasi` (`TERVERIFIKASI` / `DUGAAN`). Bila tidak ada temuan → tulis `(tidak ada temuan)`.
 5. `## 5. Kalibrasi cacat tanaman` — **wajib untuk AUD-3**: `Ditemukan: X dari Y`, daftar cacat yang ditemukan, dan jumlah temuan palsu.
 6. `## 6. Yang tidak bisa saya verifikasi` — minimum 1 butir (jujur soal batas: tanpa akun Supabase, tanpa peramban, dsb.).
-7. `## 7. Pernyataan tidak mengubah apa pun` — kalimat berisi "tidak mengubah" + bukti `git status --short` kosong.
+7. `## 7. Pernyataan tidak mengubah apa pun` — kalimat berisi "tidak mengubah" + pernyataan bahwa **laporan ini satu-satunya berkas** yang dibuat auditor (sehingga kewajiban menulis laporan tidak bertabrakan dengan aturan "hanya-baca") + bukti `git status --short` yang menampilkan hanya berkas laporan.
+8. `## 8. Temuan di luar cakupan` — **wajib ada** (boleh "tidak ada"). Cakupan menentukan sedalam apa sesuatu **wajib** diperiksa, **bukan** apa yang boleh dilaporkan: setiap temuan yang ditemukan di luar cakupan/lensa tetap ditulis di sini beserta bukti + syarat ditindaklanjuti.
+
+**Aturan anti-teater (dikunci Lee 2026-09-17):**
+- **Ambang minimum = LANTAI, bukan target.** Berhenti tepat di ambang atau menambah baris demi syarat = cacat laporan (mesin menandainya sebagai CATATAN).
+- **Dilarang menyusun laporan agar lolos pemeriksa.** Format sudah lengkap di paket; membaca kode alat pemeriksa untuk menyesuaikan laporan adalah teater. Pemeriksa dijalankan **sekali di akhir**; bila ditolak, perbaiki kelengkapan format — bukan menambah temuan yang tidak diyakini.
+- **Temuan di luar cakupan wajib dilaporkan** (bagian 8) — temuan yang benar tidak boleh hilang hanya karena tidak diminta.
 
 **Aturan konsistensi yang ditegakkan mesin:**
 - Ada temuan **K-1/K-2** berstatus TERVERIFIKASI → verdict **wajib** `TIDAK-BERSIH` (laporan "BERSIH" ditolak mesin).

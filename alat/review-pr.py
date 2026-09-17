@@ -209,13 +209,22 @@ def siapkan(dasar: str, kepala: str, nama: str | None) -> int:
 - **Tugas ROADMAP yang berubah:** {tugas_md}
 
 ## ATURAN INDEPENDENSI (tidak bisa ditawar)
-1. Kamu **hanya-baca**: dilarang mengubah/memperbaiki berkas apa pun (temuan ditulis, bukan dibetulkan).
+1. Kamu **hanya-baca**: SATU-SATUNYA berkas yang boleh kamu buat adalah laporan (§6 format laporan). Selain berkas itu,
+   jangan mengubah/memperbaiki apa pun (temuan ditulis, bukan dibetulkan).
 2. Kamu **bukan** sesi penulis PR. Tugasmu **membantah** klaim di bawah, bukan mempercayainya.
 3. Dilarang memuji, dilarang "looks good", dilarang melaporkan soal gaya penulisan sebagai temuan.
 4. Setiap calon temuan wajib diuji ulang di kode sekarang (buka berkas, jalankan perintah). Tidak bisa dibuktikan → **DUGAAN**.
 5. Periksa **commit yang dimaksud** (paket menyebut sha-nya). Kalau commit itu tidak ada di repo yang kamu buka,
    jalankan `git fetch origin` lalu periksa sha itu; kalau tetap tidak bisa → **BERHENTI** dan laporkan ke Lee,
    jangan mereview commit lain.
+
+## 0b. Setelah laporan selesai — kirim ke sesi kerja (wajib)
+
+```
+git add docs/uji/review-pr/ && git commit -m "laporan review PR <nama>" && git push -u origin HEAD
+```
+
+Hanya berkas laporan yang di-commit. Bila push tidak bisa, tulis "belum ter-push" + beri tahu Lee di chat.
 
 ## 1. Ringkasan perubahan per tujuan (dari judul commit)
 {tujuan_md}
@@ -279,8 +288,20 @@ Ditemukan: X dari Y · temuan palsu: n · daftar cacat yang saya temukan: …
 - …
 
 ## 7. Pernyataan tidak mengubah apa pun
-Saya hanya-baca, bukan sesi penulis PR, dan tidak mengubah berkas apa pun. Bukti: `git status --short` kosong.
+Saya hanya-baca, bukan sesi penulis PR. SATU-SATUNYA berkas yang saya buat adalah laporan ini; tidak ada berkas lain
+yang saya ubah. Bukti: `git status --short` menampilkan hanya berkas laporan ini.
+
+## 8. Temuan di luar cakupan diff (WAJIB — boleh "tidak ada")
+| # | Temuan | Mengapa di luar cakupan diff | Bukti | Saran ditindaklanjuti |
+|---|---|---|---|---|
 ```
+
+**Aturan penulisan laporan (ditegakkan, bukan imbauan):**
+- **Ambang minimum adalah LANTAI, bukan target** — jangan berhenti di angka minimum, jangan menambah baris demi syarat.
+- **Semua temuan wajib dilaporkan**, termasuk yang kamu temukan **di luar diff** (berkas lain, dokumen, mekanisme) → bagian 8.
+  Cakupan menentukan sedalam apa sesuatu **wajib** diperiksa, bukan apa yang **boleh** dilaporkan.
+- **Jangan menyusun laporan agar lolos pemeriksa**; format sudah lengkap di paket ini. Jalankan pemeriksa **sekali di akhir**;
+  bila ditolak, perbaiki kelengkapan format — bukan menambah temuan yang tidak kamu yakini.
 """
 
     FOLDER.mkdir(parents=True, exist_ok=True)
@@ -333,7 +354,7 @@ def periksa_laporan(berkas: pathlib.Path, cek_sha: bool = True) -> tuple[int, li
     # 1. bagian wajib
     for bagian in ("## 1. Cakupan diff", "## 2. Klaim yang dibantah", "## 3. Pemeriksaan gerbang",
                    "## 4. Temuan", "## 5. Kalibrasi cacat tanaman", "## 6. Yang tidak bisa saya verifikasi",
-                   "## 7. Pernyataan tidak mengubah apa pun"):
+                   "## 7. Pernyataan tidak mengubah apa pun", "## 8. Temuan di luar cakupan diff"):
         if bagian not in teks:
             gagal.append(f"bagian wajib hilang: '{bagian}'")
 
@@ -431,6 +452,27 @@ def periksa_laporan(berkas: pathlib.Path, cek_sha: bool = True) -> tuple[int, li
     if len(_tabel("## 6. Yang tidak bisa saya verifikasi")) < 1 and "- " not in teks.split("## 6.")[-1].split("## 7.")[0]:
         gagal.append("bagian 6 kosong — minimal 1 butir jujur soal batas verifikasi")
 
+    # bagian 8: temuan di luar diff (boleh kosong, wajib ada)
+    if "## 8. Temuan di luar cakupan diff" in teks:
+        bagian8 = teks.split("## 8. Temuan di luar cakupan diff")[-1]
+        baris8 = _tabel("## 8. Temuan di luar cakupan diff")
+        angka["luar_cakupan"] = len(baris8)
+        if not baris8 and not re.search(r"tidak ada", bagian8, re.I):
+            gagal.append("bagian 8 kosong: tulis temuan di luar cakupan diff, atau tulis 'tidak ada'")
+
+    # pernyataan bagian 7 harus menyebut laporan sebagai satu-satunya berkas
+    bagian7 = teks.split("## 7. Pernyataan tidak mengubah apa pun")[-1].split("## 8.")[0]
+    if not re.search(r"laporan|satu-satunya berkas", bagian7, re.I):
+        gagal.append("bagian 7 wajib menyebut laporan ini adalah satu-satunya berkas yang dibuat peninjau")
+
+    # lantai vs target (anti-teater)
+    if angka.get("artefak") == MIN_ARTEFAK:
+        catatan.append(f"cakupan persis di ambang minimum ({MIN_ARTEFAK}) — ambang = lantai, bukan target")
+    if angka.get("klaim") == MIN_KLAIM:
+        catatan.append("klaim dibantah persis di ambang minimum — periksa apakah peninjau berhenti di ambang")
+    if angka.get("gerbang") == MIN_GERBANG:
+        catatan.append("pemeriksaan gerbang persis di ambang minimum — periksa apakah peninjau berhenti di ambang")
+
     return (1 if gagal else 0), gagal, catatan, angka
 
 
@@ -458,6 +500,8 @@ def kartu_keputusan(berkas: pathlib.Path) -> int:
     print(f"  Cakupan       : {angka.get('artefak', 0)} berkas · {angka.get('klaim', 0)} klaim dibantah · {angka.get('gerbang', 0)} gerbang dijalankan")
     if angka.get("kalibrasi"):
         print(f"  Kalibrasi     : {angka['kalibrasi'][0]}/{angka['kalibrasi'][1]} cacat ditemukan")
+    if "luar_cakupan" in angka:
+        print(f"  Luar cakupan  : {angka['luar_cakupan']} temuan")
     for c in catatan:
         print(f"  [catatan] {c}")
     print(f"  REKOMENDASI   : {rekom}")
@@ -476,6 +520,53 @@ def _selisih_hanya_netral(target: str) -> bool:
         return False
     berkas = [b for b in keluaran.splitlines() if b.strip()]
     return bool(berkas) and all(b.startswith(BERKAS_NETRAL) for b in berkas)
+
+
+def ambil_laporan() -> int:
+    """Tarik laporan review PR dari cabang sesi peninjau (arena/*) — jalur pulang laporan."""
+    print("Mencari laporan review PR di cabang sesi lain (arena/*)…")
+    rc, keluaran = jalankan(["git", "fetch", "origin",
+                             "+refs/heads/arena/*:refs/remotes/origin/arena/*", "--prune"])
+    if rc != 0:
+        print(f"GAGAL mengambil cabang: {keluaran}")
+        return 1
+    _, cabang = jalankan(["git", "for-each-ref", "--format=%(refname:short)", "refs/remotes/origin/arena/"])
+    daftar = [c.strip() for c in cabang.splitlines() if c.strip()]
+    if not daftar:
+        print("CATATAN: tidak ada cabang arena/* di GitHub.")
+        return 1
+    FOLDER.mkdir(parents=True, exist_ok=True)
+    ditemukan: list[tuple[str, str, str]] = []
+    for ref in daftar:
+        _, berkas = jalankan(["git", "ls-tree", "-r", "--name-only", ref, "--", "docs/uji/review-pr/"])
+        for jalur in [b.strip() for b in berkas.splitlines() if "LAPORAN" in b.upper() and b.lower().endswith(".md")]:
+            _, isi = jalankan(["git", "show", f"{ref}:{jalur}"])
+            if not isi.strip():
+                continue
+            target = AKAR / jalur
+            if target.is_file() and target.read_text(encoding="utf-8") == isi:
+                continue
+            status = "diperbarui" if target.is_file() else "baru"
+            if target.is_file():
+                cadangan = target.with_suffix(".sebelumnya.md")
+                cadangan.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
+                status = f"diperbarui (salinan lama: {cadangan.name})"
+            target.write_text(isi, encoding="utf-8")
+            ditemukan.append((ref.replace("origin/", ""), jalur, status))
+    print()
+    if not ditemukan:
+        print("TIDAK ADA laporan review baru di cabang arena/*.")
+        print("  • Pastikan peninjau sudah: tulis laporan → `git add docs/uji/review-pr/` → commit → push.")
+        print("  • Kalau tidak bisa push: minta ia menempelkan laporan di chat; agent membuatkan berkasnya.")
+        return 1
+    print(f"DITEMUKAN {len(ditemukan)} laporan:")
+    for cabang_nama, jalur, status in ditemukan:
+        print(f"  · [{cabang_nama}] {jalur} — {status}")
+    print("\nLangkah berikutnya:")
+    for _, jalur, _ in ditemukan:
+        print(f"  python3 alat/review-pr.py --periksa-laporan {jalur}")
+        print(f"  python3 alat/review-pr.py --kartu-keputusan {jalur}")
+    return 0
 
 
 def kesiapan() -> int:
@@ -608,6 +699,7 @@ def main() -> int:
     p.add_argument("--periksa-laporan", help="validasi laporan peninjau")
     p.add_argument("--kartu-keputusan", help="cetak kartu keputusan untuk Lee dari laporan peninjau")
     p.add_argument("--kesiapan", action="store_true", help="cek apakah commit sekarang sudah punya paket review")
+    p.add_argument("--ambil-laporan", action="store_true", help="tarik laporan review dari cabang sesi peninjau (arena/*)")
     p.add_argument("--kalibrasi-pr-siapkan", action="store_true", help="buat bahan kalibrasi review (diff dengan cacat sengaja)")
     p.add_argument("--jumlah", type=int, default=None, help="jumlah cacat kalibrasi (default 4)")
     p.add_argument("--uji-diri", action="store_true", help="uji pemeriksa laporan dengan contoh baik & buruk")
@@ -617,6 +709,8 @@ def main() -> int:
         return uji_diri()
     if a.kalibrasi_pr_siapkan:
         return kalibrasi_pr_siapkan(a.jumlah)
+    if a.ambil_laporan:
+        return ambil_laporan()
     if a.kesiapan:
         return kesiapan()
     if a.periksa_laporan:

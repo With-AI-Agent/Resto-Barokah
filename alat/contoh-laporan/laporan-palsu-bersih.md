@@ -61,3 +61,7 @@
 ## 7. Pernyataan tidak mengubah apa pun
 
 Saya tidak mengubah berkas apa pun. Bukti: `git status --short` kosong.
+
+## 8. Temuan di luar cakupan
+
+(tidak ada)

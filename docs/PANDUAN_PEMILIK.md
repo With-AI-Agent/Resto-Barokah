@@ -23,8 +23,14 @@
 3. Lee **buka chat/percakapan BARU** (idealnya pilih **model berbeda** dari sesi kerja).
 4. Lee **salin seluruh isi berkas SIAP-TEMPEL** ke chat baru itu — **satu berkas saja**, tidak perlu menambah apa pun.
 5. Peninjau bekerja (hanya membaca) lalu menulis laporan.
-6. Lee kembali ke sesi kerja dan bilang: **"Laporan audit sudah masuk, periksa."** / **"Laporan review sudah masuk, periksa."**
-7. Agent: memvalidasi laporan dengan pemeriksa mesin → memperbaiki **K-1 (Kritis)** dan **K-2 (Tinggi)** lebih dulu → melaporkan.
+6. Peninjau menyimpan laporannya sebagai **berkas** dan mengirimkannya (push) ke cabang sesinya — jadi laporan tidak hilang di chat.
+7. Lee kembali ke sesi kerja dan bilang: **"Laporan audit sudah masuk, periksa."** / **"Laporan review sudah masuk, periksa."**
+8. Agent **menarik laporan itu otomatis** dari GitHub (`--ambil-laporan`), memvalidasi dengan pemeriksa mesin, memperbaiki
+   **K-1 (Kritis)** dan **K-2 (Tinggi)** lebih dulu, lalu melaporkan.
+   *Kalau peninjau tidak bisa push:* Lee cukup **menempelkan isi laporan** di chat — agent membuatkan berkasnya.
+
+**Kalau laporan tidak ketemu** saat agent menariknya: artinya peninjau belum push. Minta peninjau mengirim berkasnya
+(perintahnya ada di akhir prompt peninjau), atau tempel laporannya di chat sesi kerja.
 
 **Kenapa peninjau harus sesi baru:** penelitian menunjukkan model AI cenderung meloloskan pekerjaannya sendiri. Peninjau harus orang lain (sesi lain) dari yang mengerjakan. Kalau Lee tidak sempat membuka sesi baru, agent **tidak boleh** mengaku sudah diaudit — pekerjaan berhenti di titik bersih.
 
@@ -40,6 +46,8 @@
 | **Verdict** | `BERSIH` · `BERSIH-DENGAN-CATATAN` · `TIDAK-BERSIH` |
 | **Jalur risiko PR** | 🔴 Merah (uang/keamanan/data/migrasi) · 🟡 Kuning (logika, alat, dokumen fondasi) · 🟢 Hijau (dokumen biasa) |
 | **Kalibrasi** | Latihan dengan cacat sengaja: `Ditemukan: X dari Y`. Gagal kalibrasi → verdict "BERSIH" tidak dipercaya |
+| **Lantai, bukan target** | Angka minimum di paket (mis. ≥12 serangan) adalah batas bawah, bukan target. Peninjau yang berhenti tepat di ambang atau menambah baris demi syarat ditandai mesin |
+| **Temuan di luar cakupan** | Temuan yang tidak diminta tetap wajib dilaporkan (bagian 8 laporan) — temuan yang benar tidak boleh hilang hanya karena tidak diminta |
 | **Gerbang `tahan_semua`** (pilihan Lee) | K-1 **dan** K-2 menahan fase **dan** menahan merge sampai ditutup |
 | **Kartu Keputusan** | Ringkasan 7 baris untuk keputusan merge (dibuat mesin dari laporan peninjau) |
 

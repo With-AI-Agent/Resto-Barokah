@@ -52,4 +52,11 @@ Tidak diminta paket ini (tidak ada berkas `pr-bahan-*.diff` di paket). temuan pa
 - Hasil CI GitHub pada commit ini (tidak ada akses jaringan pada sesi)
 
 ## 7. Pernyataan tidak mengubah apa pun
-Saya hanya-baca, bukan sesi penulis PR, dan tidak mengubah berkas apa pun. Bukti: `git status --short` kosong.
+Saya hanya-baca, bukan sesi penulis PR, dan tidak mengubah berkas apa pun selain laporan ini — laporan ini satu-satunya berkas yang saya buat. Bukti: `git status --short` menampilkan hanya berkas laporan ini.
+
+## 8. Temuan di luar cakupan diff
+
+| # | Temuan | Mengapa di luar cakupan diff | Bukti | Saran ditindaklanjuti |
+|---|---|---|---|---|
+| 1 | `docs/PANDUAN_PEMILIK.md` tidak menyebut kalibrasi review PR | berkas di luar diff PR ini | `grep -c kalibrasi docs/PANDUAN_PEMILIK.md` → 0 | audit dokumen pengguna berikutnya |
+

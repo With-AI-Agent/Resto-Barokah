@@ -158,7 +158,9 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
   1. Kirim kalimat di atas di **sesi kerja** (sesi ini).
   2. Agent menjawab: nama berkas paket + berkas **SIAP-TEMPEL** + perkiraan lama.
   3. Lee **buka chat/percakapan BARU** (kalau bisa pilih **model berbeda**), lalu **salin seluruh isi berkas SIAP-TEMPEL** ke situ. Tidak perlu menambah apa pun.
-  4. Setelah peninjau selesai (ia menulis laporan), Lee kembali ke sesi kerja dan bilang: `Laporan audit sudah masuk, periksa.`
+  4. Setelah peninjau selesai, ia **menyimpan laporannya sebagai berkas dan mengirimkannya (push)** ke cabang sesinya.
+     Lee kembali ke sesi kerja dan bilang: `Laporan audit sudah masuk, periksa.` — agent **menarik laporan itu otomatis**
+     dari GitHub (`--ambil-laporan`). Kalau peninjau tidak bisa push, Lee cukup menempelkan isi laporannya di chat.
 - **Yang agent lakukan:** menyiapkan paket (mesin yang menulis, bukan diingat) + bahan kalibrasi → **tidak mengerjakan pekerjaan lain** yang menyentuh lingkup audit sampai laporan masuk → memvalidasi laporan dengan pemeriksa mesin → memperbaiki temuan K-1/K-2 lebih dulu → melaporkan.
 - **Bukti yang Lee terima:** laporan peninjau (lolos pemeriksa) + **skor kalibrasi** (`Ditemukan: X dari Y`) + daftar temuan per tingkat + verdict.
 - **Lama:** AUD-2 satu sesi peninjau; AUD-3 satu sampai dua sesi peninjau.
@@ -184,7 +186,8 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
 - **Apa ini:** mengubah temuan peninjau menjadi perbaikan nyata + bukti.
 - **Kapan dipakai:** setiap kali laporan masuk (audit atau review).
 - **Kalimat Lee:** `Laporan audit sudah masuk, periksa.` / `Laporan review sudah masuk, periksa.`
-- **Langkah Lee:** cukup kirim kalimat itu. Setelah agent melapor, Lee membaca ringkasannya; kalau ada pilihan keputusan, agent menyebutkannya satu per satu.
+- **Langkah Lee:** cukup kirim kalimat itu. Agent menarik laporan dari cabang peninjau secara otomatis; kalau laporan hanya ada di chat,
+  Lee menempelkannya. Setelah agent melapor, Lee membaca ringkasannya; kalau ada pilihan keputusan, agent menyebutkannya satu per satu.
 - **Yang agent lakukan:** (1) memvalidasi laporan dengan pemeriksa mesin (laporan yang malas/tanpa bukti **ditolak**); (2) mencocokkan kalibrasi dengan kunci jawaban (kunci ada di luar repo); (3) memperbaiki **K-1 dan K-2 lebih dulu**; (4) menguji ulang memakai perintah "cara membuktikan perbaikan" dari tiap temuan; (5) mencatat temuan K-3/K-4 sebagai tugas atau ke buku tunggu; (6) mencatat hasilnya di `docs/uji/AUDIT_RIWAYAT.md` / `docs/uji/REVIEW_PR_RIWAYAT.md`.
 - **Bukti yang Lee terima:** tabel temuan → status (tertutup/terbuka) + perintah bukti yang sudah hijau + kesimpulan "fase boleh lanjut / masih ditahan".
 - **Lama:** tergantung jumlah temuan.
@@ -352,13 +355,21 @@ Kerjakan berurutan:
 5. Setiap calon temuan: uji ulang di kode sekarang (buka berkas, telusuri pemanggil, jalankan perintah). Tidak bisa
    dibuktikan → tandai DUGAAN. Bisa dibuktikan → TERVERIFIKASI + sertakan perintahnya.
 6. Kamu boleh (dan dianjurkan) mencari referensi internet untuk perilaku Supabase/PostgreSQL/OWASP; cantumkan tautannya.
-7. Tulis laporan dengan format PERSIS seperti di paket (bagian "6. Format laporan") ke
-   `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>.md`.
-8. Jalankan `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/<berkas-laporan>.md` sampai LOLOS,
-   lalu laporkan verdict + ringkasan temuan ke saya.
+7. Laporkan SEMUA yang kamu temukan — termasuk yang di luar cakupan/lensa yang diminta (isi bagian 8 laporan).
+   Ambang minimum di paket adalah LANTAI, bukan target: jangan berhenti setelah mencapai angka minimum, dan jangan
+   menambah baris demi memenuhi syarat. Jangan menyusun laporan supaya lolos pemeriksa — formatnya sudah lengkap di paket.
+8. Tulis laporan dengan format PERSIS seperti di paket (bagian "6. Format laporan") ke
+   `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>.md`. Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
+9. Jalankan `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/<berkas-laporan>.md` (sekali di akhir).
+   Bila ditolak: perbaiki KELENGKAPAN FORMAT-nya, bukan menambah temuan yang tidak kamu yakini.
+10. Supaya hasilmu sampai ke sesi kerja, commit + push HANYA berkas laporan itu ke cabang sesi ini. Contoh:
+    `git add docs/uji/audit/ && git commit -m "laporan audit <tingkat> <lingkup>" && git push -u origin HEAD`
+    (jangan mengubah/meng-commit berkas lain; bila push tidak bisa, tulis "belum ter-push" di laporan dan beri tahu saya).
+11. Laporkan verdict + ringkasan temuan ke saya di chat.
 
-Larangan keras: memuji, "looks good", melaporkan soal gaya penulisan sebagai temuan, mengubah berkas,
-mempercayai klaim tanpa membuktikannya, dan menaikkan verdict di atas bukti yang kamu punya.
+Larangan keras: memuji, "looks good", melaporkan soal gaya penulisan sebagai temuan, mengubah berkas selain laporan,
+mempercayai klaim tanpa membuktikannya, menaikkan verdict di atas bukti, dan menyusun laporan demi memenuhi ambang /
+kelulusan pemeriksa — itu teater, bukan audit.
 
 Paket audit:
 <<< TEMPEL ISI docs/uji/paket-audit/… DI SINI >>>
@@ -392,13 +403,21 @@ Kerjakan berurutan:
 7. Bila paket memuat **bahan kalibrasi cacat tanaman** (berkas diff terpisah yang berisi cacat sengaja), periksa bahan
    itu secara terpisah dan tulis hasilnya di bagian kalibrasi (`Ditemukan: X dari Y` + jumlah temuan palsu). Kamu tidak
    diberi tahu berapa jumlahnya, di berkas mana, atau kelasnya. Dilarang mencari kunci jawaban.
-8. Tulis laporan PERSIS dengan format di paket (bagian "Format laporan") ke
-   `docs/uji/review-pr/LAPORAN_<tanggal>_<nama-pr>.md`.
-9. Jalankan `python3 alat/review-pr.py --periksa-laporan docs/uji/review-pr/<berkas-laporan>.md` sampai LOLOS, lalu
-   laporkan verdict + tingkat risiko + ringkasan temuan ke saya.
+8. Laporkan SEMUA yang kamu temukan — termasuk yang di luar diff PR ini (bagian 8 laporan). Ambang minimum di paket
+   adalah LANTAI, bukan target: jangan berhenti di angka minimum dan jangan menambah baris demi syarat. Jangan menyusun
+   laporan agar lolos pemeriksa; formatnya sudah lengkap di paket.
+9. Tulis laporan PERSIS dengan format di paket (bagian "Format laporan") ke
+   `docs/uji/review-pr/LAPORAN_<tanggal>_<nama-pr>.md`. Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
+10. Jalankan `python3 alat/review-pr.py --periksa-laporan docs/uji/review-pr/<berkas-laporan>.md` (sekali di akhir).
+    Bila ditolak: perbaiki KELENGKAPAN FORMAT-nya, bukan menambah temuan yang tidak kamu yakini.
+11. Supaya hasilmu sampai ke sesi kerja, commit + push HANYA berkas laporan itu ke cabang sesi ini. Contoh:
+    `git add docs/uji/review-pr/ && git commit -m "laporan review PR <nama>" && git push -u origin HEAD`
+    (jangan mengubah/meng-commit berkas lain; bila push tidak bisa, tulis "belum ter-push" dan beri tahu saya).
+12. Laporkan verdict + tingkat risiko + ringkasan temuan ke saya di chat.
 
-Larangan keras: memuji, "looks good", melaporkan soal gaya penulisan sebagai temuan, mengubah berkas apa pun,
-mempercayai deskripsi PR tanpa membuktikan, dan menaikkan verdict di atas bukti yang kamu punya.
+Larangan keras: memuji, "looks good", melaporkan soal gaya penulisan sebagai temuan, mengubah berkas selain laporan,
+mempercayai deskripsi PR tanpa membuktikan, menaikkan verdict di atas bukti, dan menyusun laporan demi memenuhi ambang /
+kelulusan pemeriksa — itu teater, bukan review.
 ```
 
 ### C7. Cara review & merge perubahan (tanpa membaca kode)
@@ -480,12 +499,16 @@ Lee **tidak perlu** membaca *Files changed*. Alurnya:
 | `python3 alat/audit-independen.py --paket AUD-3 --semua` | `Siapkan audit menyeluruh.` | Menulis **paket audit menyeluruh** (semua berkas proyek + berkas untuk Lee) + berkas **SIAP-TEMPEL** | nama dua berkas di `docs/uji/paket-audit/` | berkas bahan kalibrasi belum ada → agent menyiapkannya dulu |
 | `python3 alat/audit-independen.py --paket AUD-2 --tugas T1-01..T1-10` | `Siapkan audit independen untuk Fase 1.` | Paket audit **terarah** pada lingkup tertentu | nama paket + berkas SIAP-TEMPEL | nomor tugas salah → agent memeriksa daftar tugas di `docs/ROADMAP.md` |
 | `python3 alat/audit-independen.py --periksa-laporan <berkas>` | `Laporan audit sudah masuk, periksa.` | **Memvalidasi laporan peninjau** (bagian wajib, bukti, konsistensi verdict) — laporan malas ditolak | LOLOS/GAGAL + daftar kekurangan | laporan tidak memenuhi kontrak → diminta dilengkapi (bukan diterima apa adanya) |
+| `python3 alat/audit-independen.py --ambil-laporan` | `Laporan audit sudah masuk, periksa.` | **Menarik laporan auditor** dari cabang sesinya di GitHub ke `docs/uji/audit/` (jalur pulang laporan) | daftar laporan + cabang asalnya | "TIDAK ADA laporan baru" → peninjau belum push; minta ia push atau tempel laporannya di chat |
+| `python3 alat/audit-independen.py --verifikasi-lingkup` | (dijalankan peninjau) | Memastikan peninjau memeriksa **commit yang benar**, dari base branch mana pun | COCOK / BEDA COMMIT / TARGET TIDAK ADA + langkah pastinya | TARGET TIDAK ADA → peninjau berhenti & lapor (bukan mengaudit commit lain) |
+| `python3 alat/review-pr.py --ambil-laporan` | `Laporan review sudah masuk, periksa.` | **Menarik laporan peninjau PR** dari cabang sesinya | daftar laporan + cabang asalnya | sama: minta peninjau push, atau tempel di chat |
 | `python3 alat/audit-independen.py --kalibrasi-nilai <laporan> --kunci <kunci>` | (dijalankan agent) | Menghitung **skor ketajaman peninjau** vs kunci jawaban | `X dari Y` + temuan palsu + status TERKALIBRASI | banyak cacat terlewat → verdict BERSIH tidak dipakai; audit ulang |
 | `python3 alat/review-pr.py --siapkan --dasar origin/main --nama pr-01` | `Siapkan review PR.` | Menulis **paket review PR** + berkas **SIAP-TEMPEL** (kalimat pembuka + paket) | nama dua berkas di `docs/uji/review-pr/` + jalur risiko | tidak ada perubahan antara dasar & kepala → agent memeriksa apakah PR sudah berisi pekerjaan |
 | `python3 alat/review-pr.py --kesiapan` | (dijalankan agent) | Menjawab: **"apakah commit sekarang sudah punya paket review?"** | SIAP/BELUM + nama paketnya | BELUM → agent wajib menyiapkan paket sebelum meminta merge ke Lee |
 | `python3 alat/review-pr.py --periksa-laporan <berkas>` | `Laporan review sudah masuk, periksa.` | Memvalidasi laporan peninjau PR | LOLOS/GAGAL + kekurangan | laporan ditolak → peninjau melengkapi |
 | `python3 alat/review-pr.py --kartu-keputusan <berkas>` | (dijalankan agent) | Mencetak **Kartu Keputusan** 7 baris untuk Lee | commit · risiko · verdict · K-1/K-2/K-3 · cakupan · kalibrasi · rekomendasi | rekomendasi **JANGAN MERGE DULU** → agent memperbaiki dulu |
 | `python3 alat/review-pr.py --kalibrasi-pr-siapkan` | (dijalankan agent) | Membuat **bahan kalibrasi** untuk review PR (diff berisi cacat sengaja) | berkas `docs/uji/kalibrasi/pr-bahan-*.diff` + kunci di luar repo | katalog cacat basi → agent memperbarui katalog |
+| `python3 alat/review-pr.py --uji-diri` | (bagian dari "uji semuanya") | Membuktikan pemeriksa laporan review PR **bisa MENOLAK** laporan buruk (3 contoh: 1 bagus, 2 buruk) | LOLOS + daftar contoh | GAGAL → mekanisme review tidak boleh dipercaya; agent memperbaiki alatnya dulu |
 | `python3 alat/periksa-panduan.py` | `Uji buku pedoman.` | Menjaga **buku ini**: bagian wajib ada, prompt berlabel & identik sumbernya, semua rujukan berkas hidup | LOLOS + jumlah baris/mekanisme/rujukan | ada rujukan mati / prompt tidak identik → buku diperbaiki di batch itu juga |
 | `node alat/uji-sql.mjs` | `Uji semuanya.` | Menjalankan **uji database nyata** (PostgreSQL di dalam Node) | `uji: 10 LULUS · 0 GAGAL` | ada GAGAL → jangan lanjut; agent memperbaiki + menambah uji yang gagal itu sebagai uji tetap |
 | `bash aplikasi/alat/periksa-semua.sh` | `Uji semuanya.` | Menjalankan **seluruh pemeriksa**: dokumen, roadmap, struktur, kontras desain, uji unit | `RINGKASAN: N lolos, 0 gagal` | ada gagal → agent memperbaiki sebelum melapor |
@@ -645,3 +668,4 @@ Lee **tidak perlu** membaca *Files changed*. Alurnya:
 | 2026-09-17 | Dinaikkan menjadi buku induk: bagian A–H + penjaga `alat/periksa-panduan.py` di CI | Permintaan Lee: satu berkas lengkap (manual book) |
 | 2026-09-17 | **DItulis ulang menjadi v2 berbasis ALUR**: Bagian B = 12 alur (Apa ini · Kapan · Kalimat Lee · Langkah Lee · Yang agent lakukan · Bukti · Lama · Kalau macet); **Bagian C = prompt berlabel** siapa yang memakai; **Bagian E = tiap perintah dijelaskan fungsinya + cara pakai + arti bila GAGAL**; ditambah peta berkas baru (rekam pesan, protokol review PR) | Keluhan Lee: *"isi nya masih banyak kurang dan cacat… banyak hal berkaitan cara tidak kamu sertakan… kamu hanya nyediakan prompt tapi ga ngasih panduan nya… tabel perintah tapi ga dijelasin fungsi dan cara pakainya… ada beberapa prompt yang justru isi kata-katanya bukan ditujukan untuk agent, melainkan untuk pengguna"* |
 | 2026-09-17 | Panggilan "Bapak" → **Lee** di seluruh berkas pengguna; aturan ini masuk `PROFIL_PENGGUNA.md` | Permintaan Lee: *"mulai sekarang agent ga boleh sebut aku bapak. Nama aku Lee."* |
+| 2026-09-17 | **Jalur pulang laporan** (peninjau push laporan → agent menarik otomatis) + **aturan anti-teater**: ambang minimum = lantai bukan target, temuan di luar cakupan WAJIB dilaporkan (bagian 8), dilarang menyusun laporan agar lolos pemeriksa | Pertanyaan & temuan Lee: laporan tidak jelas bagaimana kembali ke sesi kerja; salah satu sesi peninjau berkata *"Saya baca dulu aturan pemeriksa laporan supaya laporannya memenuhi syarat"* |

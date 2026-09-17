@@ -72,3 +72,7 @@ Tidak dijalankan pada audit ini.
 ## 7. Pernyataan tidak mengubah apa pun
 
 Saya hanya-baca dan tidak mengubah berkas apa pun. Bukti: `git status --short` kosong.
+
+## 8. Temuan di luar cakupan
+
+(tidak ada)

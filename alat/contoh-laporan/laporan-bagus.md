@@ -63,4 +63,10 @@
 
 ## 7. Pernyataan tidak mengubah apa pun
 
-Saya hanya-baca dan **tidak mengubah** berkas apa pun. Bukti: `git status --short` kosong.
+Saya hanya-baca dan **tidak mengubah** berkas apa pun selain laporan ini — laporan ini satu-satunya berkas yang saya buat. Bukti: `git status --short` menampilkan hanya berkas laporan ini.
+
+## 8. Temuan di luar cakupan
+
+| # | Temuan | Mengapa di luar cakupan | Bukti | Syarat dilanjutkan ke audit lain |
+|---|---|---|---|---|
+| 1 | `docs/PANDUAN_PEMILIK.md` belum menyebut kalibrasi (sudah diperbaiki dalam batch lain) | di luar lensa L3/L4 yang diminta paket | `grep -c kalibrasi docs/PANDUAN_PEMILIK.md` → 0 saat itu | audit dokumen pengguna putaran berikutnya |

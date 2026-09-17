@@ -157,3 +157,16 @@ sejauh tercatat, dan **keputusan yang lahir dari permintaan itu**, supaya tidak 
 | Roadmap diperbaiki menyeluruh | 🟡 sebagian: bertambah 151 → **186 tugas**, tetapi **penyempurnaan menyeluruh baru terjadi setelah audit AUD-3** (temuan audit bisa menambah/mengubah tugas) | `docs/ROADMAP.md` |
 
 **Kesimpulan:** pesan Lee ke-14 memang baru menuntaskan **keamanan** + **mekanisme** kelengkapan & desain; **isi** (daftar tombol per layar, spesifikasi gerakan/perilaku) dan **penyempurnaan roadmap** masih berjalan dan itu memang rencana sesudah audit.
+
+---
+
+## 7. Putaran 6 (2026-09-17) — laporan 3 sesi audit & temuan "memenuhi syarat"
+
+**Kata Lee:**
+- *"Aku udh menjalankan prompt docs/uji/paket-audit/AUD-3-2026-09-17-SIAP-TEMPEL.md. Bahkan aku menjalankan nya di 3 sesi agent sekaligus… Selanjutnya apa yang harus aku lakukan? Gimana caranya supaya kamu tau hasil dari audit… Apakah ada yang harus aku masukkan/laporkan? Atau kamu bisa cek sendiri…?"*
+- *"Tadi salah satu sesi bilang begini: 'Saya baca dulu aturan pemeriksa laporan supaya laporannya memenuhi syarat tanpa melebih-lebihkan cakupan.' Aku merasa janggal. Aku rasa seharusnya jika memang ada yang perlu dilaporkan maka seharusnya itu tetap dilaporkan biarpun tidak masuk dalam cakupan yang diminta."*
+
+**Jawaban & tindakan agent:**
+1. **Jalur pulang laporan** (celah nyata: protokol menyuruh auditor menulis laporan, tetapi tidak pernah menjelaskan bagaimana laporan itu kembali ke sesi kerja) → alat baru `--ambil-laporan` di kedua alat (audit & review PR) + §5c di protokol audit + §6b di protokol review PR + langkah push di kedua prompt kanonik + buku (AL-5, AL-7, Bagian E).
+2. **Lee benar soal "memenuhi syarat"** → aturan anti-teater dikunci: ambang minimum = **lantai, bukan target**; **temuan di luar cakupan wajib dilaporkan** (bagian 8 baru di kedua kontrak laporan); **dilarang menyusun laporan agar lolos pemeriksa**; mesin menandai laporan yang berhenti tepat di ambang sebagai CATATAN.
+3. **Dua laporan lama tidak ada** di cabang mana pun saat diperiksa (`git ls-remote` → hanya cabang sesi lama 15–16 Sep) → karena itu jalur pulang dibuat wajib di prompt, bukan opsional.

@@ -51,3 +51,8 @@ Tidak ada.
 
 ## 7. Pernyataan tidak mengubah apa pun
 Saya tidak mengubah berkas apa pun.
+
+## 8. Temuan di luar cakupan diff
+
+(tidak ada)
+

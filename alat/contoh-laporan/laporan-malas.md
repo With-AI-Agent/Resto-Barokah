@@ -27,3 +27,7 @@
 ## 7. Pernyataan tidak mengubah apa pun
 
 Kode terlihat rapi dan sesuai rencana.
+
+## 8. Temuan di luar cakupan
+
+(tidak ada)

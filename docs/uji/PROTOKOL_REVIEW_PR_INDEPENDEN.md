@@ -88,11 +88,26 @@ Bagian wajib (urutan tetap):
 4. `## 4. Temuan` — tiap temuan berkepala `### [PR-xx] Judul` + 8 bidang: Tingkat (K-1…K-4) · Artefak (berkas:baris) · Klaim yang dilanggar · Bukti (perintah → hasil) · Skenario gagal · Dugaan penyebab · **Cara membuktikan perbaikan** · Status (TERVERIFIKASI/DUGAAN).
 5. `## 5. Verdict & tingkat risiko` — satu baris: `Verdict: BERSIH|BERSIH-DENGAN-CATATAN|TIDAK-BERSIH` + `Tingkat risiko: Merah|Kuning|Hijau` + alasan singkat.
 6. `## 6. Yang tidak bisa saya verifikasi` — minimal 1 butir (jujur soal batas).
-7. `## 7. Pernyataan tidak mengubah apa pun` — kalimat "tidak mengubah" + `git status --short` kosong + pernyataan **bukan sesi penulis PR**.
+7. `## 7. Pernyataan tidak mengubah apa pun` — kalimat "tidak mengubah" + pernyataan **bukan sesi penulis PR** + pernyataan **laporan ini satu-satunya berkas** yang dibuat.
+8. `## 8. Temuan di luar cakupan diff` — **wajib ada** (boleh "tidak ada"): temuan yang tidak berasal dari diff PR ini (berkas lain, dokumen, mekanisme) tetap dilaporkan + saran ditindaklanjuti.
 
 **Aturan konsistensi ditegakkan mesin:** ada K-1/K-2 berstatus TERVERIFIKASI → verdict wajib `TIDAK-BERSIH`; Jalur Merah tanpa bukti uji mutasi/RLS → laporan ditolak; tanpa bagian kalibrasi (bila paket memintanya) → ditolak; klaim tanpa perintah bukti → ditolak.
 
 ---
+
+## 6b. Jalur pulang laporan (dikunci 2026-09-17) + aturan anti-teater
+
+**Jalur pulang (sama seperti audit):** peninjau menulis **satu** berkas `docs/uji/review-pr/LAPORAN_*.md`, lalu
+**commit + push HANYA berkas itu** ke cabang sesinya (`arena/...`). Sesi kerja menariknya dengan
+`python3 alat/review-pr.py --ambil-laporan`. Kalau peninjau tidak bisa push: laporan ditempel di chat, agent membuatkan berkasnya.
+Alasan: laporan harus berupa **berkas di Git** (ada jejak, bisa diverifikasi, tidak hilang di chat).
+
+**Aturan anti-teater (dikunci Lee 2026-09-17):**
+1. **Ambang minimum = LANTAI, bukan target.** Berhenti tepat di ambang / menambah baris demi syarat = cacat laporan
+   (mesin menandai CATATAN dan angka ambang tidak boleh dijadikan tujuan).
+2. **Semua temuan wajib dilaporkan**, termasuk di luar diff (bagian 8). Cakupan menentukan sedalam apa sesuatu **wajib**
+   diperiksa — bukan apa yang **boleh** dilaporkan.
+3. **Dilarang menyusun laporan agar lolos pemeriksa**; format sudah lengkap di paket. Pemeriksa dijalankan sekali di akhir.
 
 ## 7. Sumber riset (kenapa aturannya begini)
 

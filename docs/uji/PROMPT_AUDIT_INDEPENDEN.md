@@ -45,13 +45,21 @@ Kerjakan berurutan:
 5. Setiap calon temuan: uji ulang di kode sekarang (buka berkas, telusuri pemanggil, jalankan perintah). Tidak bisa
    dibuktikan → tandai DUGAAN. Bisa dibuktikan → TERVERIFIKASI + sertakan perintahnya.
 6. Kamu boleh (dan dianjurkan) mencari referensi internet untuk perilaku Supabase/PostgreSQL/OWASP; cantumkan tautannya.
-7. Tulis laporan dengan format PERSIS seperti di paket (bagian "6. Format laporan") ke
-   `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>.md`.
-8. Jalankan `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/<berkas-laporan>.md` sampai LOLOS,
-   lalu laporkan verdict + ringkasan temuan ke saya.
+7. Laporkan SEMUA yang kamu temukan — termasuk yang di luar cakupan/lensa yang diminta (isi bagian 8 laporan).
+   Ambang minimum di paket adalah LANTAI, bukan target: jangan berhenti setelah mencapai angka minimum, dan jangan
+   menambah baris demi memenuhi syarat. Jangan menyusun laporan supaya lolos pemeriksa — formatnya sudah lengkap di paket.
+8. Tulis laporan dengan format PERSIS seperti di paket (bagian "6. Format laporan") ke
+   `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>.md`. Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
+9. Jalankan `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/<berkas-laporan>.md` (sekali di akhir).
+   Bila ditolak: perbaiki KELENGKAPAN FORMAT-nya, bukan menambah temuan yang tidak kamu yakini.
+10. Supaya hasilmu sampai ke sesi kerja, commit + push HANYA berkas laporan itu ke cabang sesi ini. Contoh:
+    `git add docs/uji/audit/ && git commit -m "laporan audit <tingkat> <lingkup>" && git push -u origin HEAD`
+    (jangan mengubah/meng-commit berkas lain; bila push tidak bisa, tulis "belum ter-push" di laporan dan beri tahu saya).
+11. Laporkan verdict + ringkasan temuan ke saya di chat.
 
-Larangan keras: memuji, "looks good", melaporkan soal gaya penulisan sebagai temuan, mengubah berkas,
-mempercayai klaim tanpa membuktikannya, dan menaikkan verdict di atas bukti yang kamu punya.
+Larangan keras: memuji, "looks good", melaporkan soal gaya penulisan sebagai temuan, mengubah berkas selain laporan,
+mempercayai klaim tanpa membuktikannya, menaikkan verdict di atas bukti, dan menyusun laporan demi memenuhi ambang /
+kelulusan pemeriksa — itu teater, bukan audit.
 
 Paket audit:
 <<< TEMPEL ISI docs/uji/paket-audit/… DI SINI >>>

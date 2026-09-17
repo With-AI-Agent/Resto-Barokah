@@ -74,14 +74,31 @@ fi
 echo
 echo "TERDETEKSI: salinan lokal tertinggal $KETINGGALAN commit dari GitHub ($CABANG)."
 
-KOTOR="$(git status --porcelain | wc -l | tr -d ' ')"
-if [ "$KOTOR" != "0" ]; then
+# Kejadian nyata 2026-09-17 (dua kali): ruang kerja dibangun ulang dari klon dangkal → HEAD kembali
+# ke `main`, sedangkan BERKAS KERJA masih utuh. Dalam keadaan itu "kotor" bukan bahaya, melainkan
+# justru bukti kerja yang harus dipulihkan. Aman-nya: kalau TIDAK ADA berkas dari cabang yang hilang
+# dari kerja, cukup `git reset` (mixed) — HEAD ikut cabang, berkas tidak disentuh, editan tetap ada.
+HILANG="$(git ls-tree -r --name-only "$KABAR" | while read -r f; do [ -e "$f" ] || echo "$f"; done | wc -l | tr -d ' ')"
+if [ "$HILANG" = "0" ]; then
   echo
-  echo "BERHENTI: ada $KOTOR berkas yang belum di-commit di ruang kerja ini."
-  echo "Aman-nya: periksa dulu berkas itu (git status), commit atau simpan, BARU pulihkan."
-  echo "Setelah itu jalankan lagi: bash alat/pulihkan-git.sh --perbaiki"
-  exit 3
+  echo "Pemulihan AMAN bisa dilakukan: tidak ada satu pun berkas cabang yang hilang dari ruang kerja."
+  echo "Rencana: git reset $KABAR  (HEAD kembali ke cabang; berkas & editan yang belum di-commit TIDAK disentuh)"
+  if [ "$MODE_PERBAIKI" != "ya" ]; then
+    echo "Jalankan: bash alat/pulihkan-git.sh --perbaiki"
+    exit 0
+  fi
+  git reset --quiet "$KABAR"
+  echo "Selesai. Commit sekarang: $(git log --oneline -1)"
+  echo "Berkas yang berubah (editan yang belum di-commit, tidak ada yang hilang): $(git status --porcelain | wc -l | tr -d ' ')"
+  exit 0
 fi
+
+echo
+echo "BERHENTI: $HILANG berkas dari cabang tidak ada di ruang kerja ini — pemulihan otomatis TIDAK dijalankan."
+echo "Daftar berkas yang hilang (10 pertama):"
+git ls-tree -r --name-only "$KABAR" | while read -r f; do [ -e "$f" ] || echo "  - $f"; done | head -10
+echo "Tindakan aman: periksa dulu berkas itu, commit atau simpan karya yang masih ada, baru pulihkan."
+exit 3
 
 echo "Rencana pemulihan (tanpa paksa, tanpa --hard):"
 echo "  1) git reset --soft $KABAR"

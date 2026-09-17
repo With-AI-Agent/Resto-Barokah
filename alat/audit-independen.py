@@ -311,9 +311,20 @@ git cat-file -e {sha}            # apakah commit target ada di repo ini?
   tulis di bagian "Yang tidak bisa saya verifikasi" dan hentikan (minta Lee membuka sesi dari sumber yang benar).
 - Tulis di kepala laporan: `- **Commit yang diaudit:** <commit yang benar-benar kamu periksa>`.
 
+## 0c. Setelah laporan selesai — kirim ke sesi kerja (wajib)
+
+Laporan harus menjadi **berkas di Git**, bukan hanya teks di chat:
+
+```
+git add docs/uji/audit/ && git commit -m "laporan audit {tingkat} <lingkup>" && git push -u origin HEAD
+```
+
+Hanya berkas laporan yang di-commit. Bila push tidak bisa, tulis "belum ter-push" di laporan + beri tahu Lee di chat.
+
 ## ATURAN INDEPENDENSI (tidak bisa ditawar)
 
-1. Kamu **hanya-baca**: dilarang mengubah/memperbaiki berkas apa pun (temuan ditulis, bukan dibetulkan).
+1. Kamu **hanya-baca**: SATU-SATUNYA berkas yang boleh kamu buat adalah laporan (§6 format laporan). Selain berkas itu,
+   jangan mengubah/memperbaiki apa pun (temuan ditulis, bukan dibetulkan).
 2. Tugasmu **membantah** klaim pembangun di bawah — bukan mempercayainya.
 3. Dilarang memuji, dilarang "looks good", dilarang melaporkan soal gaya penulisan sebagai temuan.
 4. Setiap calon temuan wajib kamu **uji ulang** di kode sekarang (buka berkas, telusuri pemanggil, jalankan perintah).
@@ -407,8 +418,23 @@ Kamu juga **wajib**: (a) memakai `skills/find-skills` atau `skills/agent-skills-
 - …
 
 ## 7. Pernyataan tidak mengubah apa pun
-Saya hanya-baca dan tidak mengubah berkas apa pun. Bukti: `git status --short` kosong.
+Saya hanya-baca. SATU-SATUNYA berkas yang saya buat adalah laporan ini; tidak ada berkas lain yang saya ubah.
+Bukti: perintah `git status --short` yang saya jalankan menampilkan hanya berkas laporan ini.
+
+## 8. Temuan di luar cakupan (WAJIB — boleh "tidak ada")
+| # | Temuan | Mengapa di luar cakupan | Bukti | Syarat dilanjutkan ke audit lain |
+|---|---|---|---|---|
 ```
+
+**Aturan penulisan laporan (ditegakkan, bukan imbauan):**
+- **Ambang minimum adalah LANTAI, bukan target.** Jangan berhenti setelah mencapai angka minimum, dan jangan
+  menambah baris demi memenuhi syarat. Kalau kamu menemukan 30 hal, tulis 30.
+- **Semua temuan wajib dilaporkan — termasuk yang di luar cakupan/lingkup tugas.** Cakupan menentukan sedalam apa
+  sesuatu **wajib** diperiksa, bukan apa yang **boleh** kamu laporkan. Temuan yang tidak masuk lensa/cakupan tetap
+  masuk **bagian 8** dengan buktinya, supaya tidak hilang.
+- **Jangan menyusun laporan agar lolos pemeriksa.** Format sudah lengkap di paket ini; kamu tidak perlu membaca
+  kode alat pemeriksa (`alat/audit-independen.py`) untuk menyesuaikannya. Jalankan pemeriksa **sekali di akhir**;
+  bila ditolak, perbaiki **kelengkapan format**, bukan menambah temuan yang tidak kamu yakini.
 
 ## 7. Kalibrasi cacat tanaman (khusus AUD-3)
 
@@ -517,7 +543,7 @@ def periksa_laporan(berkas: pathlib.Path, cek_git: bool = True, cek_sha: bool = 
     bagian = ["## 1. Cakupan", "## 2. Klaim pembangun yang saya coba falsifikasi",
               "## 3. Serangan yang dijalankan (kill attempts)", "## 4. Temuan",
               "## 5. Kalibrasi cacat tanaman", "## 6. Yang tidak bisa saya verifikasi",
-              "## 7. Pernyataan tidak mengubah apa pun"]
+              "## 7. Pernyataan tidak mengubah apa pun", "## 8. Temuan di luar cakupan"]
     for b in bagian:
         if b not in teks:
             gagal.append(f"bagian wajib hilang: {b}")
@@ -638,9 +664,30 @@ def periksa_laporan(berkas: pathlib.Path, cek_git: bool = True, cek_sha: bool = 
         gagal.append("bagian 6 wajib memuat minimal satu butir (jujur soal batas)")
 
     # pernyataan hanya-baca
-    bagian7 = teks.split("## 7. Pernyataan tidak mengubah apa pun")[-1]
+    bagian7 = teks.split("## 7. Pernyataan tidak mengubah apa pun")[-1].split("## 8.")[0]
     if "tidak mengubah" not in bagian7.lower():
         gagal.append("bagian 7 wajib memuat pernyataan 'tidak mengubah apa pun'")
+    if not re.search(r"laporan|satu-satunya berkas", bagian7, re.I):
+        gagal.append("bagian 7 wajib menyebut bahwa laporan INI adalah satu-satunya berkas yang dibuat auditor "
+                     "(tanpa itu, aturan 'repo harus bersih' bertabrakan dengan kewajiban menulis laporan)")
+
+    # bagian 8: temuan di luar cakupan (boleh kosong, tetapi wajib ada — permintaan Lee 2026-09-17)
+    bagian8 = teks.split("## 8. Temuan di luar cakupan")[-1] if "## 8. Temuan di luar cakupan" in teks else ""
+    if bagian8:
+        isi8 = [b for b in bagian8.splitlines() if b.strip() and not b.strip().startswith(("|", "#", "-"))]
+        baris8 = _tabel_baris(teks, "## 8. Temuan di luar cakupan")
+        angka["luar_cakupan"] = len(baris8)
+        if not baris8 and not re.search(r"tidak ada", bagian8, re.I):
+            gagal.append("bagian 8 kosong: tulis temuan di luar cakupan, atau tulis 'tidak ada'")
+
+    # lantai vs target (anti-teater): laporkan bila angka persis di ambang minimum
+    if angka.get("artefak") is not None and angka["artefak"] in (6, 17):
+        catatan.append(f"cakupan persis di ambang minimum ({angka['artefak']}) — pastikan tidak ada penambahan demi syarat; "
+                       "ambang = lantai, bukan target")
+    if angka.get("klaim") == 5:
+        catatan.append("klaim dibantah persis 5 (ambang minimum) — periksa apakah ini kebetulan atau berhenti di ambang")
+    if angka.get("serangan") is not None and angka["serangan"] == SERANGAN_MIN.get(tingkat or "", 5):
+        catatan.append(f"serangan persis {angka['serangan']} (ambang minimum) — periksa apakah auditor berhenti di ambang")
     if cek_git:
         _, status = jalankan(["git", "status", "--porcelain"])
         if status.strip():
@@ -675,6 +722,8 @@ def mode_periksa_laporan(berkas_str: str, cek_git: bool = True) -> int:
         print(f"  berkas pengguna   : {angka.get('berkas_pengguna', 0)} baris")
     if angka.get("kalibrasi"):
         print(f"  kalibrasi         : {angka['kalibrasi'][0]}/{angka['kalibrasi'][1]} cacat ditemukan")
+    if "luar_cakupan" in angka:
+        print(f"  di luar cakupan   : {angka['luar_cakupan']} temuan")
     for c in catatan:
         print(f"  CATATAN: {c}")
     if kode == 0:
@@ -687,6 +736,63 @@ def mode_periksa_laporan(berkas_str: str, cek_git: bool = True) -> int:
 
 
 # ------------------------------------------------------------ mode: kalibrasi
+def mode_ambil_laporan() -> int:
+    """Ambil laporan audit dari cabang sesi auditor (arena/*) — jalur pulang laporan (§5c protokol).
+
+    Kenapa ada (pertanyaan Lee 2026-09-17): sesi auditor bekerja di ruang kerja sendiri; sesi kerja
+    tidak bisa melihat berkasnya. Satu-satunya jembatan: auditor push laporannya ke cabang sesinya,
+    lalu sesi kerja menariknya dari GitHub.
+    """
+    print("Mencari laporan audit di cabang sesi lain (arena/*)…")
+    rc, keluaran = jalankan(["git", "fetch", "origin",
+                             "+refs/heads/arena/*:refs/remotes/origin/arena/*", "--prune"])
+    if rc != 0:
+        print(f"GAGAL mengambil cabang: {keluaran}")
+        return 1
+    _, cabang = jalankan(["git", "for-each-ref", "--format=%(refname:short)", "refs/remotes/origin/arena/"])
+    daftar = [c.strip() for c in cabang.splitlines() if c.strip()]
+    if not daftar:
+        print("CATATAN: tidak ada cabang arena/* di GitHub.")
+        return 1
+
+    tujuan = AKAR / "docs" / "uji" / "audit"
+    tujuan.mkdir(parents=True, exist_ok=True)
+    ditemukan: list[tuple[str, str, str]] = []  # (cabang, berkas, status)
+    for ref in daftar:
+        _, berkas = jalankan(["git", "ls-tree", "-r", "--name-only", ref, "--", "docs/uji/audit/"])
+        for jalur in [b.strip() for b in berkas.splitlines() if b.strip().lower().endswith(".md")]:
+            _, isi = jalankan(["git", "show", f"{ref}:{jalur}"])
+            if not isi.strip():
+                continue
+            target = AKAR / jalur
+            if target.is_file() and target.read_text(encoding="utf-8") == isi:
+                continue  # sudah ada & sama
+            status = "diperbarui" if target.is_file() else "baru"
+            if target.is_file():
+                # jangan menimpa laporan yang sudah ada di sesi ini dengan isi yang berbeda tanpa jejak
+                cadangan = target.with_suffix(".sebelumnya.md")
+                cadangan.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
+                status = f"diperbarui (salinan lama: {cadangan.name})"
+            target.write_text(isi, encoding="utf-8")
+            ditemukan.append((ref.replace("origin/", ""), jalur, status))
+
+    print()
+    if not ditemukan:
+        print("TIDAK ADA laporan baru di cabang arena/*.")
+        print("  • Pastikan tiap sesi auditor sudah: tulis laporan → `git add docs/uji/audit/` → commit → push.")
+        print("  • Kalau auditor tidak bisa push: minta ia menempelkan laporan di chat, lalu simpan sebagai berkas di")
+        print("    docs/uji/audit/ (agent boleh membuatkan berkasnya).")
+        return 1
+    print(f"DITEMUKAN {len(ditemukan)} laporan:")
+    for cabang_nama, jalur, status in ditemukan:
+        print(f"  · [{cabang_nama}] {jalur} — {status}")
+    print("\nLangkah berikutnya (wajib berurutan):")
+    for _, jalur, _ in ditemukan:
+        print(f"  python3 alat/audit-independen.py --periksa-laporan {jalur}")
+    print("  python3 alat/audit-independen.py --kalibrasi-nilai <laporan> --kunci <kunci-di-luar-repo>")
+    return 0
+
+
 def mode_verifikasi_lingkup(berkas_paket: str | None) -> int:
     """Pastikan repo ini memuat commit yang diminta paket audit.
 
@@ -863,6 +969,46 @@ def mode_kalibrasi_nilai(laporan_str: str, kunci_str: str) -> int:
 
 
 # ------------------------------------------------------------- mode: uji diri
+def _uji_jalur_pulang_laporan() -> tuple[bool, str]:
+    """Uji terpisah (mock, tanpa git) untuk --ambil-laporan: pastikan jalur pulang laporan bekerja.
+
+    Dipakai oleh --uji-diri. Tanpa uji ini, mekanisme "auditor push laporan → sesi kerja menariknya"
+    hanya keyakinan — dan justru itu cacat yang ditutup 2026-09-17.
+    """
+    contoh = "# LAPORAN AUDIT INDEPENDEN — uji-coba\n\n- **Verdict:** BERSIH\n"
+    asli = globals()["jalankan"]
+
+    def palsu(perintah: list[str], cwd=None):  # noqa: ANN001
+        if perintah[:2] == ["git", "fetch"]:
+            return 0, ""
+        if perintah[:2] == ["git", "for-each-ref"]:
+            return 0, "origin/arena/uji-coba\n"
+        if perintah[:3] == ["git", "ls-tree", "-r"]:
+            return 0, "docs/uji/audit/LAPORAN_UJI_COBA.md\n"
+        if perintah[:2] == ["git", "show"]:
+            return 0, contoh
+        return asli(perintah, cwd)
+
+    target = AKAR / "docs" / "uji" / "audit" / "LAPORAN_UJI_COBA.md"
+    try:
+        globals()["jalankan"] = palsu
+        import contextlib, io
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            kode = mode_ambil_laporan()
+        keluaran = buf.getvalue()
+        ok = (kode == 0 and target.is_file()
+              and target.read_text(encoding="utf-8") == contoh
+              and "DITEMUKAN 1 laporan" in keluaran)
+        pesan = ("laporan ditarik dari cabang sesi auditor & ditulis ke docs/uji/audit/"
+                 if ok else f"gagal: kode={kode}, ada_berkas={target.is_file()}")
+        return ok, pesan
+    finally:
+        globals()["jalankan"] = asli
+        if target.is_file():
+            target.unlink()
+
+
 def mode_uji_diri() -> int:
     harapan = {
         "laporan-bagus.md": 0,
@@ -904,10 +1050,16 @@ def mode_uji_diri() -> int:
             rusak += 1
         print(f"  [{tanda}] penilai kalibrasi · {nama}: hasil={kode} harapan={kode_harap}")
 
+    ok_pulang, pesan_pulang = _uji_jalur_pulang_laporan()
+    print(f"  [{'OK' if ok_pulang else 'X '}] jalur pulang laporan (--ambil-laporan): {pesan_pulang}")
+    if not ok_pulang:
+        rusak += 1
+
     if rusak:
         print(f"\nHASIL: GAGAL — {rusak} contoh berperilaku salah (mekanisme belum bisa dipercaya)")
         return 1
-    print("\nHASIL: LOLOS — pemeriksa laporan & penilai kalibrasi terbukti bisa MENOLAK yang buruk dan MENERIMA yang baik.")
+    print("\nHASIL: LOLOS — pemeriksa laporan & penilai kalibrasi terbukti bisa MENOLAK yang buruk dan MENERIMA yang baik, "
+          "dan jalur pulang laporan (auditor → sesi kerja) terbukti bekerja.")
     return 0
 
 
@@ -925,10 +1077,13 @@ def main() -> int:
     p.add_argument("--kalibrasi-nilai", help="nilai laporan auditor terhadap kunci jawaban")
     p.add_argument("--kunci", help="berkas kunci jawaban")
     p.add_argument("--uji-diri", action="store_true", help="uji pemeriksa laporan")
+    p.add_argument("--ambil-laporan", action="store_true", help="ambil laporan audit dari cabang sesi auditor (arena/*)")
     p.add_argument("--verifikasi-lingkup", nargs="?", const="", metavar="PAKET",
                    help="pastikan repo ini memuat commit yang diminta paket audit (bebas base branch)")
     a = p.parse_args()
 
+    if a.ambil_laporan:
+        return mode_ambil_laporan()
     if a.verifikasi_lingkup is not None:
         return mode_verifikasi_lingkup(a.verifikasi_lingkup or None)
     if a.uji_diri:
