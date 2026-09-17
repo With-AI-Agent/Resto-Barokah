@@ -536,6 +536,19 @@ def kalibrasi_pr_siapkan(jumlah: int | None) -> int:
         jalankan(["git", "worktree", "remove", "--force", str(kerja)])
         print("GAGAL menyiapkan kalibrasi PR:"); [print(f"  - {g}") for g in gagal]; return 1
     _, diff = jalankan(["git", "diff"], cwd=kerja)
+
+    # PENTING (cacat yang ditemukan sendiri saat verifikasi 2026-09-17): katalog cacat menuliskan
+    # penanda "-- SENGAJA (kalibrasi)" pada baris yang diubah. Kalau penanda itu ikut di diff bahan,
+    # peninjau cukup mencari kata "SENGAJA" untuk menemukan SEMUA cacat → kalibrasi jadi tidak berarti.
+    # Perbaikan: penanda & komentar pembocornya dibuang dari diff sebelum ditulis.
+    baris_bersih: list[str] = []
+    for ln in diff.splitlines():
+        if ln.startswith("+") and "SENGAJA" in ln:
+            ln = re.sub(r"--\s*SENGAJA[^\n]*", "", ln).rstrip()
+            if ln.strip() in ("+", "++", ""):
+                continue  # replacement-nya hanya komentar penanda → jangan dimunculkan
+        baris_bersih.append(ln)
+    diff = "\n".join(baris_bersih)
     FOLDER_KAL.mkdir(parents=True, exist_ok=True)
     keluar = FOLDER_KAL / f"pr-bahan-{tanda}.diff"
     keluar.write_text(diff + "\n", encoding="utf-8")

@@ -7,7 +7,7 @@ index 3996436..d99e944 100644
    select pc.cabang_id
      from public.pengguna_cabang pc
 -    join public.pengguna p on p.id = pc.pengguna_id and p.aktif   -- akun nonaktif kehilangan akses
-+    join public.pengguna p on p.id = pc.pengguna_id   -- SENGAJA (kalibrasi)
++    join public.pengguna p on p.id = pc.pengguna_id
     where pc.pengguna_id = auth.uid()
       and pc.aktif
       and pc.cabang_id = nullif(auth.jwt() ->> 'cabang_id', '')::uuid
@@ -33,7 +33,6 @@ index 879ab55..e5565c9 100644
  
  revoke all on function public.izin_efektif(text, uuid) from public;
 -revoke all on function public.boleh(text, uuid) from public;
-+-- SENGAJA (kalibrasi): hak public TIDAK dicabut
  revoke all on function public.boleh(text, integer, uuid) from public;
  revoke all on function public.boleh(text, integer, numeric, uuid) from public;
  revoke all on function public.pasang_izin_peran_bawaan(uuid) from public;
