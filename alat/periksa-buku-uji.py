@@ -90,14 +90,22 @@ def periksa(akar: pathlib.Path) -> int:
             errs.append(f"baris {no} ({kid}): kolom 'Yang seharusnya terjadi' KOSONG — tanpa itu hasil tidak bisa dinilai")
         if not langkah:
             errs.append(f"baris {no} ({kid}): kolom Langkah kosong")
-        nomor = [int(m.group(1)) for m in re.finditer(r"(\d+)\)", langkah)]
+        # Ambil HANYA deret langkah yang benar-benar 1), 2), 3), … — angka lain di dalam
+        # kalimat (mis. "Ganti tema (10)") bukan langkah dan tidak boleh dihitung.
+        kandidat = [int(m.group(1)) for m in re.finditer(r"(?<![\d(])(\d+)\)", langkah)]
+        nomor: list[int] = []
+        harap = 1
+        for n in kandidat:
+            if n == harap:
+                nomor.append(n)
+                harap += 1
         if not nomor:
             errs.append(f"baris {no} ({kid}): langkah tidak bernomor (pakai bentuk '1) … 2) …')")
         else:
-            if nomor != list(range(1, len(nomor) + 1)):
-                errs.append(f"baris {no} ({kid}): nomor langkah melompat/berulang: {nomor}")
             if len(nomor) > MAKS_LANGKAH:
                 errs.append(f"baris {no} ({kid}): {len(nomor)} langkah — aturan buku maksimal {MAKS_LANGKAH} (pecah barisnya)")
+            if len(nomor) < 2:
+                errs.append(f"baris {no} ({kid}): hanya {len(nomor)} langkah bernomor — minimal 2")
         for t in set(re.findall(r"T\d+-\d+", " ".join(kolom))):
             if t not in tugas_roadmap:
                 errs.append(f"baris {no} ({kid}): menyebut tugas '{t}' yang tidak ada di ROADMAP")

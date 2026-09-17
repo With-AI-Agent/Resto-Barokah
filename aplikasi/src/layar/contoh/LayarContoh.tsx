@@ -47,6 +47,7 @@ export default function LayarContoh() {
   const sekarang = useJam()
   const { tema, kerapatan, gantiTema, gantiKerapatan } = useTema()
   const temaAktif = TEMA.find((butir) => butir.kode === tema) ?? TEMA[0]
+  const kerapatanAktif = KERAPATAN.find((butir) => butir.kode === kerapatan) ?? KERAPATAN[0]
 
   const [lapisBuka, setLapisBuka] = useState(false)
   const [toastTampil, setToastTampil] = useState(true)
@@ -61,7 +62,7 @@ export default function LayarContoh() {
         <p className="aksen">Kasir, dapur, laporan, dan pelanggan dalam satu tempat.</p>
         <p className="small muted">
           Sekarang {jamLokal(sekarang)} · {tanggalLokal(sekarang)} · tema aktif{' '}
-          <strong>{temaAktif.nama}</strong>
+          <strong>{temaAktif.nama}</strong> · kerapatan <strong>{kerapatanAktif.nama}</strong>
         </p>
       </header>
 
@@ -87,6 +88,10 @@ export default function LayarContoh() {
         <details className="picker">
           <summary className="btn btn-sm">Ganti tema ({TEMA.length})</summary>
           <div className="picker-panel">
+            <p className="picker-all">
+              Pilih tema — ada {TEMA.length}. Bila belum terlihat semua, geser daftar di dalam kotak
+              ini.
+            </p>
             {TEMA.map((butir) => (
               <button
                 key={butir.kode}
@@ -185,6 +190,26 @@ export default function LayarContoh() {
         }
       >
         <Tabel kolom={KOLOM_PESANAN} baris={CONTOH_PESANAN} />
+      </Kartu>
+
+      <Kartu judul="Kerapatan tampilan" aksi={<Lencana nada="info">Nyaman vs Padat</Lencana>}>
+        <p className="small muted">
+          Tombol Nyaman/Padat di atas mengubah jarak dan tepi di seluruh halaman. Huruf sengaja{' '}
+          <strong>tidak</strong> dikecilkan supaya tetap terbaca dan tombol tetap mudah dipijit.
+          Sekarang: <strong>{kerapatanAktif.nama}</strong>.
+        </p>
+        <div className="mt-16">
+          {CONTOH_PESANAN.map((baris) => (
+            <div className="baris-rapat" key={baris.meja}>
+              <span>
+                <strong>{baris.menu}</strong>
+                <br />
+                <small className="muted">{baris.meja}</small>
+              </span>
+              <span className="angka-besar">{rupiah(baris.total)}</span>
+            </div>
+          ))}
+        </div>
       </Kartu>
 
       <div className="kisi-2">

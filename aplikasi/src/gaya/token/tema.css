@@ -466,7 +466,25 @@ small,.small{font-size:var(--t-3)}
 .menu-kartu[data-habis="1"]{opacity:.6}
 .menu-kartu[data-habis="1"] .nm{text-decoration:line-through}
 .menu-kartu[data-habis="1"] .foto img{filter:grayscale(1)}
-/* kerapatan */
+/* ============================== KERAPATAN ==============================
+   Nyaman (lega) ↔ Padat (rapat). Kerapatan mengubah TOKEN JARAK, jadi SELURUH
+   halaman ikut memadat — bukan hanya daftar menu. Sebelum 2026-09-17 aturan di
+   sini hanya menyasar `kisi-menu`/`menu-kartu` (kelas prototipe), sehingga di
+   aplikasi tombolnya terasa "tidak berefek" (laporan pemilik).
+   Keputusan: yang dirapatkan hanya JARAK & TEPI; huruf TIDAK dikecilkan
+   (keterbacaan + daerah sentuh minimal 44 px tetap dijaga). */
+[data-density="padat"]{
+  --s-1:3px; --s-2:6px; --s-3:9px; --s-4:12px; --s-5:15px;
+  --s-6:18px; --s-7:24px; --s-8:30px; --s-9:42px; --s-10:54px;
+}
+[data-density="padat"] .card{padding:var(--s-4)}
+[data-density="padat"] .card-head{margin-bottom:var(--s-3)}
+[data-density="padat"] .kisi-2{gap:var(--s-3)}
+[data-density="padat"] .table th,[data-density="padat"] .table td{padding:var(--s-2) var(--s-3)}
+[data-density="padat"] .pemisah{margin:var(--s-4) 0}
+[data-density="padat"] .baris-tombol{gap:var(--s-2)}
+[data-density="padat"] .baris-rapat{padding:var(--s-2) 0}
+/* efek khusus halaman prototipe (katalog): kisi lebih rapat, keterangan disembunyikan */
 [data-density="padat"] .kisi-menu{grid-template-columns:repeat(4,1fr);gap:var(--s-3)}
 [data-density="padat"] .menu-kartu .foto{aspect-ratio:16/9}
 [data-density="padat"] .menu-kartu .ket{display:none}

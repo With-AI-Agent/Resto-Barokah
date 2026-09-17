@@ -172,6 +172,17 @@ sejauh tercatat, dan **keputusan yang lahir dari permintaan itu**, supaya tidak 
 2. **Lee benar soal "memenuhi syarat"** → aturan anti-teater dikunci: ambang minimum = **lantai, bukan target**; **temuan di luar cakupan wajib dilaporkan** (bagian 8 baru di kedua kontrak laporan); **dilarang menyusun laporan agar lolos pemeriksa**; mesin menandai laporan yang berhenti tepat di ambang sebagai CATATAN.
 3. **Dua laporan lama tidak ada** di cabang mana pun saat diperiksa (`git ls-remote` → hanya cabang sesi lama 15–16 Sep) → karena itu jalur pulang dibuat wajib di prompt, bukan opsional.
 
+## §10. Putaran 8 (2026-09-17) — laporan cacat tampilan, lembar kunci, cara menjalankan perintah
+
+| # | Permintaan/kata Lee (ringkas) | Jawaban & tindakan agent |
+|---|---|---|
+| 1 | *"Kamu bilang kamu bakal nyiapin 10 theme kan? Tapi kok aku cuma liat ada 5 theme doang?"* | **10 tema memang ada di kode** dan tombolnya berbunyi "Ganti tema (10)"; yang kurang: panel tidak memberi petunjuk daftar bisa digeser dan bisa terpotong di layar kecil. Diperbaiki: keterangan jumlah + cara menggeser. |
+| 2 | *"tombol 'Nyaman' dan 'Padat' … waktu aku klik dan switch ga ada efek apa apa. Pastikan berfungsi."* | **Benar, dan itu cacat nyata**: aturan kerapatan hanya menyasar kelas prototipe yang tidak dipakai aplikasi. Diperbaiki di **sumber desain** (prototipe) lalu disalin ke aplikasi + penjaga `aplikasi/alat/periksa-kerapatan.py` (4 uji mutasi) + 5 uji interaksi + 6 uji kaskade angka (`aplikasi/src/gaya/kerapatan-css.test.ts`). |
+| 3 | *"Terkait Jawab Butir Tunggu. aku kurang paham. Bahkan aku juga ngerasa ga nemu baris P-02."* | Baris itu ada di Bagian 1 `docs/uji/BUKU_UJI_PEMILIK.md`; judulnya dibuat lebih jelas + langkahnya kini cukup bilang `Tampilkan butir tunggu.` di chat. |
+| 4 | Lembar isian untuk hal yang harus dikumpulkan, **termasuk kunci rahasia** (risiko sudah diperhitungkan: data percobaan, rotasi sebelum rilis, repo privat) | `docs/ops/DAFTAR_KUNCI_PEMILIK.local.md` (tidak ikut Git) + penjaga `alat/periksa-rahasia.py`. Aturan tetap: nilai rahasia **tidak lewat chat**. |
+| 5 | *"Aku ga paham gimana caranya"* (menjalankan perintah) | Lee tidak perlu terminal: cukup bilang `Uji semuanya.` / `Uji database.` di chat; agent menjalankan dan **menempelkan hasilnya**. Langkah U-02/U-03 di Buku Uji diubah mengikuti ini. |
+| 6 | *"Review PR masih sedang berjalan."* | Ditunggu; paket putaran8 (`7e8c0b9`) tetap berlaku untuk sesi yang sedang berjalan — pekerjaan sesudahnya akan masuk putaran berikutnya setelah laporan masuk. |
+
 ## §9. Putaran 7 (2026-09-17) — "pastikan semua permintaanku sudah dikerjakan" + dua permintaan baru
 
 **Kata Lee (verbatim, diringkas):** *"Semua yang aku minta matangkan sebelumnya udh belum? Tolong pastikan dulu.
