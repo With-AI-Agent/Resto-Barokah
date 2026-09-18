@@ -121,3 +121,15 @@ Perintah: `python3 alat/audit-independen.py --uji-diri`
 - `laporan-palsu-bersih.md` → **DITOLAK** (verdict BERSIH padahal ada temuan K-1 TERVERIFIKASI)
 - `laporan-tanpa-kalibrasi.md` → **DITOLAK** (AUD-3 tanpa angka kalibrasi)
 - `kalibrasi-penuh.md` → **TERKALIBRASI** · `kalibrasi-sebagian.md` → **BELUM TERKALIBRASI** (67% < 70%)
+
+## 2026-09-18 — AUD-3 putaran ini: 15 temuan NYATA, ditutup `0014`
+
+| # | Peristiwa | Bukti |
+|---|---|---|
+| 1 | 4 sesi independen dijalankan Lee (2 review PR + 2 audit AUD-3). Laporan yang tertimpa **diselamatkan** lebih dulu lewat `python3 alat/audit-independen.py --ambil-laporan` — dan memang ada yang tertimpa (satu laporan sesi lain hidup hanya di riwayat commit). | 7 berkas laporan di `docs/uji/audit/` & `docs/uji/review-pr/`, semuanya ter-commit |
+| 2 | Setiap temuan **dibantah-balik lebih dulu dengan probe sendiri** (bukan dipercaya dari kalimat laporan): 12 temuan review + 15 temuan audit dinyatakan NYATA; sisanya dijelaskan. | probe `/tmp/probe2/*.sql` (uang, dapur/item, batal, PIN, jejak, baris tersentuh) |
+| 3 | Seluruh temuan ditutup migrasi `supabase/migrations/0014_penutup_celah_putaran13.sql` + 10 berkas uji baru; 6 berkas uji lama diselaraskan (nomor pesanan kini selalu dari sistem, dsb.). | `node alat/uji-sql.mjs` → 41 LULUS · 0 GAGAL |
+| 4 | Bukti pagar: 17 mutasi khusus 0014 + 16 mutasi pagar lama, semuanya WAJIB MERAH; penjaga berlapis dibuktikan lewat mutasi GABUNGAN (M3k/M5k/M8k). | `python3 alat/uji-mutasi-0014.py` → 17/17 · `python3 alat/uji-mutasi-0012.py` → 16/16 |
+| 5 | Dua cacat **alat audit itu sendiri** yang ditemukan di putaran ini ditutup: paket bisa menargetkan commit yang bukan induknya (F-11) dan bagian 1 paket memuat jalur berkas yang belum ada (F-12/F-13). Penjaganya: `alat/periksa-paket.py` (ikut CI, punya `--uji-diri`). | `python3 alat/periksa-paket.py --uji-diri` LOLOS; paket lama dikecualikan eksplisit (T-019) |
+| 6 | Dua cacat akibat suntingan dokumen tertangkap **CI, bukan gerbang lokal** (field wajib `STATUS.md` berubah; T-019 tidak ditandai dari ROADMAP). Keduanya diperbaiki, lalu CI hijau pada push & PR. | run push `35325266036` SUCCESS · PR `35325269977` SUCCESS |
+| 7 | Langkah uji SQL di CI kini menulis ringkasan hasil ke halaman Summary job. | sebabnya nyata: pada satu percobaan, langkah itu merah **dan log mentah GitHub tidak bisa dibaca** dari lingkungan kerja; ringkasan bisa dibaca lewat API |
