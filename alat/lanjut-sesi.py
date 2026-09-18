@@ -328,7 +328,10 @@ kamu berada di basis yang salah — jangan bekerja dulu, susul cabang di atas.
 ===== SAMBUNGAN: ARAHAN LANJUT PROYEK (dibuat mesin {hari_ini}) =====
 
 Proyek: **Resto Barokah** — repo `With-AI-Agent/Resto-Barokah`, cabang kerja terakhir
-`{nama_cabang}` @ `{sha}`. PR #1 **terbuka** — **JANGAN MERGE**: merge hanya keputusan Lee.
+`{nama_cabang}` @ `{sha}` — ini commit KEADAAN (induk dari commit handoff), jadi saat kamu menyusul
+cabang, ujung cabang akan berisi satu commit yang lebih baru: commit yang memuat berkas handoff ini.
+Cara memastikan kamu di ujung yang benar: `git log --oneline -1` menampilkan commit yang menyentuh
+`docs/ops/SIAP-LANJUT.md`. PR #1 **terbuka** — **JANGAN MERGE**: merge hanya keputusan Lee.
 
 Langkah pertama sesi ini (WAJIB, supaya tidak bekerja dari `main` yang tertinggal ≈123 commit):
 
