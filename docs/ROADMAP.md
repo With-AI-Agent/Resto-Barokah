@@ -153,7 +153,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** buku dibangun dengan menyalin potongan berkas lama → risiko isi ganda/berbeda; mitigasi: blok prompt **diambil langsung dari sumber kanonik** saat pembangunan + pemeriksa identitas; rujukan basi → pemeriksa rujukan hidup (terbukti menangkap 1 rujukan nyata: `ROADMAP.md` → `docs/ROADMAP.md`).
   - **Verifikasi:** `python3 alat/periksa-panduan.py` LOLOS (angka baris/mekanisme/rujukan dikeluarkan pemeriksa saat dijalankan — jangan dikutip sebagai angka tetap) · `python3 _sistem/validate_system.py` PASS · pemeriksa-panduan muncul di CI & periksa-semua · contoh penolakan nyata tercatat di `docs/uji/AUDIT_RIWAYAT.md` §4 butir 5–6.
 
-- [ ] T0-12 — Audit independen menyeluruh (AUD-3) atas keadaan sekarang + tindak lanjut temuan ⚠️
+- [ ] T0-12 — Audit independen menyeluruh (AUD-3) atas keadaan sekarang + tindak lanjut temuan ⚠️ ❓ T-019
   - **Tujuan:** sebelum pekerjaan ulang (T1-37) dan sebelum melanjutkan Fase 1, **seluruh keadaan sekarang diperiksa sesi auditor independen** dengan lingkup menyeluruh (semua berkas proyek, termasuk berkas untuk pengguna) — sesuai urutan yang diputuskan pemilik: **audit lebih dulu**.
   - **Ref:** `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §2b & §11 · permintaan pemilik 2026-09-17 (*"sekarang aku mau audit dulu"*, gerbang `tahan_semua`)
   - **File:** `docs/uji/paket-audit/AUD-3-<tanggal>.md` · `docs/uji/audit/LAPORAN_AUD-3_<tanggal>_menyeluruh.md` · `docs/uji/AUDIT_RIWAYAT.md` · `docs/TERTANGGUH.md` (temuan K-3/K-4 yang ditunda)
