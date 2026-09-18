@@ -3,6 +3,8 @@
 > Salin **seluruh blok** di bawah ke chat pertama setiap sesi baru (sesi fondasi, coding, audit, atau lanjut). Agent akan otomatis terorientasi tanpa perlu kamu tempel manual file lain.
 
 ```
+ATURAN BAHASA (wajib, jangan dilanggar): semua komunikasi dengan Lee memakai **bahasa Indonesia** yang sederhana dan mudah dipahami — laporan, ringkasan, pertanyaan, dan kartu sesi. Istilah teknis hanya bila perlu dan langsung dijelaskan singkat. Jangan menjawab dalam bahasa lain kecuali Lee memintanya.
+
 Cek dulu apakah ada file PROJECT_STATE.md di root repo ini.
 
 Kalau TIDAK ADA (repo kosong/baru): ini proyek baru. Baca AGENT_SYSTEM.md di repo ini secara penuh (di folder sistem-building-aplikasi/ bila sistem ini ada di repo meta, atau di root bila sudah jadi repo standalone), lalu mulai dari TAHAP 1 (Discovery) sesuai AGENT_SYSTEM.md.

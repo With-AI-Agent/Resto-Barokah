@@ -64,6 +64,9 @@ TOPIK_WAJIB = {
     "pindah sesi: penutup tak wajib": r"disarankan 1 kalimat, bukan wajib",
     "pindah sesi: pakai berkas terbaru": r"Wajib pakai berkas terbaru",
     "pindah sesi: jangan merge": r"Jangan merge PR #1",
+    # Koreksi Lee 2026-09-18: agent sempat menjawab dengan bahasa yang salah. Aturan bahasa
+    # sekarang WAJIB ada di prompt kanonik + buku induk, dan dijaga di sini.
+    "aturan bahasa ke Lee": r"ATURAN BAHASA",
 }
 BERKAS_PENGGUNA_WAJIB = [
     "docs/PANDUAN_PEMILIK.md",

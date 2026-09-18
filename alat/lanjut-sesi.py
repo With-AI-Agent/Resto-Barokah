@@ -156,6 +156,9 @@ def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
         if tempe and not re.search(pola_fakta, tempe):
             masalah.append(f"docs/ops/SIAP-TEMPEL-SESI-BARU.md tidak menjelaskan '{nama_fakta}' — "
                            "Lee bisa mengira harus melakukan langkah yang sebenarnya tidak perlu")
+    if tempe and "ATURAN BAHASA" not in tempe:
+        masalah.append("docs/ops/SIAP-TEMPEL-SESI-BARU.md tidak memuat ATURAN BAHASA — "
+                       "sesi baru bisa menjawab Lee dengan bahasa yang salah")
     if tempe and kanonik and tempe.count(kanonik) != 1:
         masalah.append(f"docs/ops/SIAP-TEMPEL-SESI-BARU.md memuat blok Prompt Pembuka {tempe.count(kanonik)}x "
                        "(harus tepat 1) — berkas tempel rusak/berulang")
@@ -343,6 +346,8 @@ kamu berada di basis yang salah — jangan bekerja dulu, susul cabang di atas.
 > 4. Pakai salinan TERBARU berkas ini (berkas berubah setiap batch): minta
 >    `Tampilkan berkas siap tempel.`
 > 5. JANGAN MERGE PR ini — merge keputusan Lee dan mengakhiri sesi cabang ini.
+> 6. Bahasa: balaslah SELALU dalam bahasa Indonesia sederhana (aturan ini sudah tertanam di
+>    Prompt Pembuka di bawah, tetapi diulang di sini supaya tidak pernah terlewat).
 
 ===== MULAI SALIN DARI SINI =====
 
