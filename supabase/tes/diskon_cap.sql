@@ -10,6 +10,12 @@
 -- ============================================================================
 
 -- 1. `promo` DITOLAK selama mesinnya belum ada (TEMUAN PR-01).
+--    Nominalnya sengaja KECIL dan jujur (1.000 = 1,85% dari 54.000): jauh di dalam batas
+--    izin kasir (25.000 / 5%) DAN di dalam cap bawaan resto → yang menahan di sini
+--    benar-benar cabang `promo`, bukan aturan lain yang kebetulan menangkapnya.
+--    (Dulu nominalnya 54.000 = 100% subtotal; sejak cap bawaan diturunkan ke 50% di 0014,
+--    angka itu ditolak cap sehingga uji ini berhenti membuktikan apa pun — kesalahan yang
+--    ditemukan lewat bukti mutasi M1.)
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir, batas 25.000 / 5%
 set local role authenticated;
 select uji.sama(
@@ -18,7 +24,7 @@ select uji.sama(
 );
 select uji.harap_gagal(
   $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'promo', null, 54000, 54000, 'promo karangan kasir')$$,
+      values ('eeee0000-0000-0000-0000-000000000010', 'promo', 2, 1000, 1000, 'promo karangan kasir')$$,
   'diskon jenis promo DITOLAK (mesin promo belum ada — dulu lolos tanpa pemeriksaan)'
 );
 select uji.harap_gagal(

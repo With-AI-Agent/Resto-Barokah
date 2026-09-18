@@ -36,6 +36,10 @@ CI = AKAR / ".github" / "workflows" / "ci.yml"
 GERBANG_WAJIB = [
     ("suite uji SQL penuh", r"node\s+alat/uji-sql\.mjs\s*$"),
     ("bukti mutasi pagar migrasi 0012", r"python3\s+alat/uji-mutasi-0012\.py\s*$"),
+    ("bukti mutasi pagar migrasi 0014", r"python3\s+alat/uji-mutasi-0014\.py\s*$"),
+    ("uji-diri pemeriksa paket (F-11/F-12)", r"python3\s+alat/periksa-paket\.py\s+--uji-diri\s*$"),
+    ("uji-diri pemeriksa komponen & env", r"python3\s+aplikasi/alat/periksa-komponen-env\.py\s+--uji-diri\s*$"),
+    ("uji-diri pemeriksa angka bukti ROADMAP (F-14)", r"python3\s+alat/periksa-angka-bukti\.py\s+--uji-diri\s*$"),
     ("kerentanan dependency (npm audit, 0 toleransi)", r"npm audit --audit-level=low\s*$"),
     ("validator sistem", r"python3\s+_sistem/validate_system\.py\s*$"),
     ("pemeriksa pohon bersih", r"python3\s+alat/periksa-bersih\.py\s*$"),
@@ -129,6 +133,9 @@ def uji_diri() -> int:
 
         mutasi("suite SQL diberi `--daftar`", lambda t: t.replace("run: node alat/uji-sql.mjs", "run: node alat/uji-sql.mjs --daftar"))
         mutasi("langkah bukti mutasi dihapus", lambda t: re.sub(r"\n\s*- name: Bukti mutasi[\s\S]*?run: python3 alat/uji-mutasi-0012\.py", "", t, count=1))
+        # Gerbang 0014 (putaran13/audit 2026-09-18) dibuktikan sama kuat: kalau
+        # langkahnya dihapus dari CI, pemeriksa ini harus MENOLAK.
+        mutasi("langkah bukti mutasi 0014 dihapus", lambda t: re.sub(r"\n\s*- name: Bukti mutasi pagar migrasi 0014[\s\S]*?run: python3 alat/uji-mutasi-0014\.py", "", t, count=1))
         mutasi("npm audit diberi `|| true`", lambda t: t.replace("run: npm audit --audit-level=low", "run: npm audit --audit-level=low || true"))
         mutasi("ambang audit diturunkan", lambda t: t.replace("npm audit --audit-level=low", "npm audit --audit-level=critical"))
         mutasi("langkah pemeriksa pohon bersih dihapus", lambda t: t.replace("          python3 alat/periksa-bersih.py\n", "", 1))

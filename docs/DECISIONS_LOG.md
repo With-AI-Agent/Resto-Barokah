@@ -561,3 +561,51 @@ Format:
   perintahnya benar-benar dijalankan saat menyiapkan paket. Itu alasan aturan "jalankan, jangan baca saja" tetap berlaku.
 - **File terkait:** `alat/audit-independen.py`, `docs/uji/paket-audit/AUD-3-2026-09-18.md`,
   `docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran13.md`
+
+## 2026-09-18 — Putaran13: 27 temuan review+audit ditutup migrasi `0014` (keputusan terkunci)
+
+- **Area:** Area Berisiko Tinggi ART-1/ART-3 (uang, jejak, izin) + mekanisme audit
+- **Konteks:** Lee menjalankan 4 sesi (2 review PR + 2 audit AUD-3) atas commit `d1f11d7`.
+  Seluruh temuan **diverifikasi ulang lebih dulu dengan probe sendiri** sebelum dipercaya
+  (aturan yang sama seperti putaran11). 12 temuan review + 15 temuan audit dinyatakan **NYATA**.
+- **Keputusan baru yang terkunci:**
+  1. **`hitung_total()` ada** dan menjadi SATU-SATUNYA penulis angka uang pesanan
+     (subtotal Σ baris non-batal; pajak/service dari `pengaturan`; total = subtotal + pajak +
+     service − diskon, minimal 0). Pemicu item & diskon memanggilnya otomatis. Ini menutup
+     F-01 (alur uang buntu: pesanan lahir total 0 dan kasir dilarang membetulkan).
+  2. **Nomor pesanan SELALU dibuat sistem** (`nomor_pesanan_berikutnya(cabang, tanggal)`);
+     nomor kiriman perangkat diabaikan/ditimpa — bukan ditolak, supaya pesanan tidak batal
+     hanya karena perangkat salah menghitung (F-04).
+  3. **Cap bawaan diskon 50%** (dulu 100% = tanpa cap). Pemicu kumulatif tambahan
+     **tidak** dipasang karena penjaga 0013 sudah menahan total; yang salah memang bawaannya (F-03).
+  4. **`subtotal` baris pesanan selalu dihitung peladen** (`harga_saat_itu × qty`); angka dari
+     perangkat ditimpa, termasuk dari dapur (F-02, PR-01, PR-05).
+  5. **Dapur hanya boleh memindahkan status masak** — tidak boleh menyentuh qty/harga/varian/
+     catatan. Pembatalan baris setelah dapur mulai wajib berjejak (baris `pembatalan` sah).
+  6. **Pesanan `lunas`/`batal` tidak boleh diubah lagi**; salinan harga/nama beku pasca-dapur
+     hanya boleh diubah pemegang izin `ubah_harga`.
+  7. **PIN berjenjang**: bawahan tidak bisa mengganti PIN atasan (`peran_lebih_tinggi`);
+     setiap percobaan dicatat dengan `target_id`, dan korban boleh melihat catatan atas dirinya.
+  8. **Penjaga peran/klien WAJIB invoker-rights** — `security definer` membuat `current_user`
+     menjadi pemilik fungsi sehingga penjaganya BUTA (kesalahan yang terbukti nyata, dicatat di sini).
+- **Mekanisme audit diperkuat (temuan audit F-11/F-12/F-13/F-14/F-15):**
+  - `alat/periksa-paket.py` **baru**: paket audit wajib menunjuk **induk commit-nya sendiri**
+    dan setiap jalur di bagian 1 wajib benar-benar ada di commit itu; paket lama dikecualikan
+    secara eksplisit sampai dibuat ulang. Ada `--uji-diri` (SEMUA kasus harus bisa MERAH).
+  - `alat/periksa-angka-bukti.py` **baru**: angka "N uji/tabel" di klaim Bukti ROADMAP wajib
+    disertai perintah yang bisa diulang atau penanda jujur "angka saat itu".
+  - `periksa-komponen-env.py`: sel gabungan `GOOGLE_CLIENT_ID/SECRET` dipecah; pencocokan
+    lewat awal baris → menghapus `# GOOGLE_CLIENT_ID=` sekarang membuat pemeriksa GAGAL (F-15).
+  - `uji-mutasi-0012.py`/`uji-mutasi-0014.py`: `berkas_berlaku()` mencari **migrasi terbaru**
+    yang memuat pola, mendukung berkas eksplisit, dan **melaporkan mutasi yang dilewati**
+    (tidak pernah dicap hijau). Mutasi gabungan menembus penjaga berlapis (M3k/M5k/M8k).
+  - `supabase/tes/rls_semua_tabel.sql`: arah **timbal balik** — tabel tanpa `penyewa_id`
+    wajib terdaftar dengan jangkarnya, dan jangkar itu benar-benar muncul di policy-nya.
+- **Bukti:** `node alat/uji-sql.mjs` → **41 LULUS · 0 GAGAL** · `python3 alat/uji-mutasi-0012.py`
+  → **16/16 MERAH** · `python3 alat/uji-mutasi-0014.py` → **17/17 MERAH** ·
+  `bash aplikasi/alat/periksa-semua.sh` → **SEMUA PEMERIKSAAN LOLOS** · `python3 alat/periksa-paket.py --uji-diri`
+  dan `periksa-angka-bukti.py --uji-diri` LOLOS (terbukti bisa menolak).
+- **Catatan jujur:** nilai 50% adalah titik awal yang bisa diubah owner di pengaturan; yang
+  dikunci adalah *ada* cap bawaan yang punya arti, bukan angkanya.
+- **File terkait:** `supabase/migrations/0014_penutup_celah_putaran13.sql`, `supabase/tes/*`,
+  `alat/periksa-paket.py`, `alat/periksa-angka-bukti.py`, `alat/uji-mutasi-0014.py`.

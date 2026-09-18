@@ -53,17 +53,24 @@ select uji.sama(public.simpan_pin('516372', null, '90000000-0000-0000-0000-00000
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir
 set local role authenticated;
-select uji.harap_gagal(
+-- TEMUAN AUDIT A-17/F-06 (2026-09-18): dua asersi pertama dulu lulus karena pemeriksaan
+-- BENTUK ("PIN lama salah. PIN harus tepat 6 angka.") — sebab yang diakuinya memang
+-- "tanpa PIN lama", jadi sekarang sebabnya disebut apa adanya. Asersi ketiga memakai
+-- PIN 6 angka yang SALAH, sehingga yang menolak benar-benar pemeriksaan autentikasi.
+select uji.harap_gagal_sebab(
   $$select public.simpan_pin('917426', null)$$,
-  'ganti PIN sendiri tanpa PIN lama DITOLAK (argumen uuid dikosongkan)'
+  'tepat 6 angka',
+  'ganti PIN sendiri tanpa PIN lama DITOLAK karena bentuk PIN lama kosong'
 );
-select uji.harap_gagal(
+select uji.harap_gagal_sebab(
   $$select public.simpan_pin('917426', null, '90000000-0000-0000-0000-000000000004')$$,
-  'ganti PIN sendiri tanpa PIN lama DITOLAK (uuid diri sendiri disebutkan)'
+  'tepat 6 angka',
+  'ganti PIN sendiri tanpa PIN lama DITOLAK karena bentuk PIN lama kosong (uuid diri sendiri disebutkan)'
 );
-select uji.harap_gagal(
+select uji.harap_gagal_sebab(
   $$select public.simpan_pin('917426', '135791', '90000000-0000-0000-0000-000000000004')$$,
-  'ganti PIN dengan PIN lama SALAH tetap DITOLAK'
+  'PIN lama salah\. PIN salah',
+  'ganti PIN dengan PIN lama 6 angka yang SALAH ditolak oleh pemeriksaan AUTENTIKASI'
 );
 select uji.sama(public.simpan_pin('917426', '516372', '90000000-0000-0000-0000-000000000004'),
                 'PIN tersimpan.', 'ganti PIN sendiri BERHASIL bila PIN lama benar');

@@ -79,10 +79,33 @@ select uji.sama(
 );
 
 -- 4. Tidak boleh dobel (kunci idempoten sama) & tidak boleh melebihi total pesanan.
-select uji.harap_gagal(
+-- TEMUAN AUDIT A-17/F-06 (2026-09-18): asersi ini dulu memakai metode_id NULL sehingga
+-- DITOLAK karena "bukan tunai wajib menyebut nomor referensi" — lulus karena sebab yang
+-- salah, dan kunci uniknya bisa DIHAPUS tanpa satu pun uji merah. Sekarang metode diisi
+-- sungguhan dan SEBABNYA diperiksa; bukti mutasinya ada di alat/uji-mutasi-0014.py.
+-- Nilai pembayaran nol/negatif: yang menahan harus benar-benar CHECK kolomnya
+-- (temuan audit A-24/F-07: penjaga seperti ini bisa dihapus tanpa uji merah).
+select uji.harap_gagal_sebab(
   $$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
-      values ('eeee0000-0000-0000-0000-000000000010', null, 50000, 100000, 'bayar-1')$$,
-  'pembayaran dengan kunci idempoten sama ditolak (tidak boleh dobel)'
+      select 'eeee0000-0000-0000-0000-000000000010', mb.id, 0, 20000, 'bayar-nol'
+        from public.metode_bayar mb
+       where mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$,
+  'jumlah',
+  'pembayaran bernilai nol ditolak KARENA aturan nilai (CHECK kolom jumlah)'
+);
+-- Bayar kecil lebih dulu (10.000) supaya pemeriksaan "melebihi total" TIDAK menyala,
+-- lalu kirim ulang kunci yang sama: yang menahan harus benar-benar KUNCI uniknya.
+insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
+select 'eeee0000-0000-0000-0000-000000000010', mb.id, 1000, 2000, 'bayar-idem'
+  from public.metode_bayar mb
+ where mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai';
+select uji.harap_gagal_sebab(
+  $$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
+      select 'eeee0000-0000-0000-0000-000000000010', mb.id, 1000, 2000, 'bayar-idem'
+        from public.metode_bayar mb
+       where mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$,
+  'duplicate key|kunci_idempoten|sudah pernah',
+  'pembayaran dengan kunci idempoten sama ditolak KARENA KUNCI-nya (bukan karena sebab lain)'
 );
 reset role;
 select uji.klaim(null);
@@ -206,10 +229,45 @@ select uji.klaim(null);
 -- ditambah 40.000 menjadi 61.000 > subtotal 54.000 → harus ditolak.
 select uji.klaim('90000000-0000-0000-0000-000000000002');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 40000, 40000, 'diskon besar melebihi subtotal')$$,
-  'total diskon melebihi subtotal pesanan ditolak'
+-- TEMUAN AUDIT A-17/F-06: asersi lama (40.000) DITOLAK karena "Diskon ini melebihi batas
+-- izin Anda" (izinya 20%), bukan karena aturan subtotal — jadi penjaga "total diskon
+-- melebihi subtotal" sebenarnya tidak pernah teruji. Di bawah ini dua asersi terpisah:
+-- (a) yang benar-benar menguji batas IZIN, dan (b) yang benar-benar menguji aturan SUBTOTAL
+-- (tumpuk diskon dinyalakan + cap ditembus lewat BANYAK baris yang masing-masing sah).
+select uji.harap_gagal_sebab(
+  $$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 40000, 40000, 'diskon besar')$$,
+  'melebihi batas izin',
+  'diskon 40.000 ditolak KARENA batas izin pemakai (20% dari 54.000)'
 );
+reset role;
+select uji.klaim(null);
+-- (b) Resto mengizinkan tumpuk diskon & cap 100% (keadaan paling longgar yang sah),
+-- lalu owner (batas 100.000 / 20%) menambah diskon bertahap: yang menahan adalah
+-- aturan TOTAL DI ATAS SUBTOTAL, bukan izin per baris.
+select uji.klaim('90000000-0000-0000-0000-000000000002');
+set local role authenticated;
+update public.pengaturan set tumpuk_diskon = true, batas_maks_potongan_persen = 100
+ where penyewa_id = '11111111-1111-1111-1111-111111111111';
+do $$
+declare
+  i integer;
+  v_pesan text;
+begin
+  for i in 1..10 loop
+    begin
+      insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'manual', 10000, 10000, 'gelombang ' || i);
+    exception when others then
+      v_pesan := sqlerrm;
+      exit;
+    end;
+  end loop;
+  perform uji.harap(
+    v_pesan like 'Total diskon%melebihi subtotal%',
+    'yang menahan gelombang diskon adalah ATURAN SUBTOTAL, bukan izin per baris (pesan: '
+      || coalesce(v_pesan, '(tidak ada yang menahan — penjaga subtotal tumpul!)') || ')'
+  );
+end $$;
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
@@ -226,14 +284,43 @@ reset role;
 select uji.klaim(null);
 
 -- 7. PEMBATALAN: tanpa alasan → ditolak; tahap harus sesuai keadaan pesanan.
+-- TEMUAN AUDIT A-17/F-06 (2026-09-18): asersi ini dulu lulus karena "Persetujuan belum
+-- terbukti … PIN-nya sendiri" — sebab yang DIAKUI di komentarnya tidak pernah teruji,
+-- dan CHECK alasan bisa dihapus tanpa satu pun uji merah. Urutan sekarang dijaga:
+-- (a) TANPA bukti PIN → ditolak karena persetujuan (yang memang aturannya lebih dulu);
+-- (b) DENGAN bukti PIN sah → yang menahan benar-benar CHECK alasan.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
--- Alasan kosong diuji dengan TAHAP & PENYETUJU yang sudah benar, supaya
--- penolakannya benar-benar datang dari aturan "wajib beralasan" — bukan dari
--- aturan tahap. (Kekeliruan ini pernah lolos: uji yang lulus karena sebab lain.)
-select uji.harap_gagal(
+select uji.harap_gagal_sebab(
   $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', '   ')$$,
-  'pembatalan dengan alasan kosong ditolak walau tahap & penyetujunya sah'
+  'Persetujuan belum terbukti',
+  'pembatalan tanpa bukti PIN ditolak KARENA persetujuan belum terbukti (urutan aturan)'
+);
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner: memasukkan PIN untuk aksi ini
+set local role authenticated;
+select uji.sama(public.simpan_pin('738294', null), 'PIN tersimpan.', 'owner memasang PIN untuk uji alasan');
+select uji.sama(
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-alasan',
+                         'eeee0000-0000-0000-0000-000000000010')).berhasil,
+  true, 'kontrol: bukti PIN void tersedia untuk pesanan ini'
+);
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
+select uji.harap_gagal_sebab(
+  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', '   ')$$,
+  'alasan',
+  'pembatalan dengan alasan kosong ditolak KARENA aturan alasan (bukan karena sebab lain)'
+);
+-- Kontrol positif: alasan yang benar dengan bukti PIN yang sama → DITERIMA.
+insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, bahan_terbuang)
+values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002',
+        'void sesudah dapur dengan bukti PIN', true);
+select uji.sama(
+  (select count(*) from public.pembatalan b
+    where b.pesanan_id = 'eeee0000-0000-0000-0000-000000000010' and b.alasan = 'void sesudah dapur dengan bukti PIN'),
+  1::bigint, 'pembatalan sah dengan alasan benar DITERIMA (jalur sah tetap terbuka)'
 );
 -- Pasangan positifnya: kalimat yang sama dengan alasan benar → diterima.
 -- SEJAK AUDIT AUD-3 K-2 (A F-03): persetujuan harus TERBUKTI — penyetuju memasukkan
@@ -241,7 +328,13 @@ select uji.harap_gagal(
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner (penyetuju)
 set local role authenticated;
-select uji.sama(public.simpan_pin('738294', null), 'PIN tersimpan.', 'owner memasang PIN untuk hak menyetujui');
+-- PIN owner sudah dipasang di blok sebelumnya (uji alasan) — tidak dipasang ulang,
+-- supaya blok ini juga menguji hal yang sama tanpa bergantung urutan.
+select uji.sama(
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
+                         'eeee0000-0000-0000-0000-000000000010')).berhasil,
+  true, 'PIN owner masih berlaku untuk aksi void pesanan ini'
+);
 select uji.sama(
   (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
                          'eeee0000-0000-0000-0000-000000000010')).berhasil,

@@ -60,6 +60,10 @@ GRUP_SEMUA: list[tuple[str, str, str]] = [
     ("supabase/migrations", "migrasi database", "supabase/migrations/"),
     ("supabase/tes", "uji SQL", "supabase/tes/"),
     ("supabase/functions", "Edge Functions", "supabase/functions/"),
+    # F-13 audit 2026-09-18: berkas di akar `supabase/` (mis. README.md) dulu TIDAK
+    # punya grup — ia jatuh ke grup cadangan dan ikut terhitung sebagai `_sistem`
+    # (klaim 16 vs nyata 15). Grup ini menutupnya.
+    ("supabase (akar)", "berkas di akar supabase/ (README cara memasang migrasi)", "supabase/"),
     ("alat", "perkakas repo (uji SQL, pemeriksa, mekanisme audit)", "alat/"),
     ("_sistem", "mesin kerja agent (validator, template)", "_sistem/"),
     ("docs (fondasi)", "PRD, TECH_SPEC, ROADMAP, KEAMANAN, SPESIFIKASI_UI, dll", "docs/"),
@@ -71,6 +75,7 @@ GRUP_SEMUA: list[tuple[str, str, str]] = [
     ("_log-sesi", "log sesi kerja", "_log-sesi/"),
     ("berkas pengguna di akar", "PANDUAN_*, PROMPT_*, START_DI_SINI, PROFIL_PENGGUNA, AGENT_SYSTEM, STATUS, PROJECT_STATE, dll", "AKAR"),
     (".github/workflows", "alur CI", ".github/"),
+    ("belum berggrup", "BERKAS YANG TIDAK COCOK GRUP MANA PUN — paket TIDAK dibuat selama ada isinya", "TIDAK_ADA"),
 ]
 DIKECUALIKAN: list[tuple[str, str]] = [
     ("skills/", "kumpulan skill pihak ketiga (vendored) — bukan kode proyek; dipakai, tidak diubah"),
@@ -135,6 +140,8 @@ def kelompokkan_berkas() -> tuple[dict[str, list[str]], dict[str, int]]:
         # prefiks terpanjang menang: docs/uji harus masuk grupnya sendiri, bukan "docs/"
         grup_urut = sorted(GRUP_SEMUA, key=lambda x: -len(x[2]))
         for nama, _, prefiks in grup_urut:
+            if prefiks == "TIDAK_ADA":
+                continue
             if prefiks == "AKAR":
                 if "/" not in b:
                     grup[nama].append(b)
@@ -145,7 +152,11 @@ def kelompokkan_berkas() -> tuple[dict[str, list[str]], dict[str, int]]:
                 cocok = True
                 break
         if not cocok:
-            grup["aplikasi (konfigurasi)"].append(b) if b.startswith("aplikasi/") else grup["_sistem"].append(b)
+            # F-13: dulu berkas yang tidak cocok grup apa pun DIAM-DIAM dimasukkan ke
+            # `_sistem`/`aplikasi (konfigurasi)`, sehingga jumlah grup meleset tanpa suara.
+            # Sekarang ada grup jujur "belum berggrup" — dan `mode_paket` MENOLAK membuat
+            # paket selama grup itu tidak kosong.
+            grup["belum berggrup"].append(b)
     return grup, dikecualikan
 
 
@@ -193,17 +204,45 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
     # Nama lingkup dipakai di kepala paket & di perintah penamaan berkas laporan.
     lingkup = "menyeluruh" if menyeluruh else ("terarah" if not tugas_spec and not fase else "terarah")
 
-    berkas: list[str] = []
+    berkas: list[str] = []          # ADA di pohon sekarang → wajib diperiksa auditor
+    berkas_rencana: list[tuple[str, str]] = []   # (berkas, tugas) → BELUM ada, jangan dicari
     klaim: list[tuple[str, str]] = []
+    teks_roadmap = ROADMAP.read_text(encoding="utf-8")
+    tugas_selesai = set(re.findall(r"^- \[x\] (T\d+-\d+) —", teks_roadmap, re.M))
     for t in ids:
         isi = daftar_tugas[t]
         for f in re.findall(r"`([^`]+\.(?:sql|ts|tsx|py|mjs|yml|json|md))`", isi):
-            if f not in berkas and ("/" in f):
-                berkas.append(f)
+            if "/" not in f:
+                continue
+            # F-12 audit 2026-09-18: dulu SEMUA jalur dari SEMUA tugas masuk daftar
+            # "artefak yang harus diperiksa (minimal)" — termasuk berkas tugas `[ ]`
+            # yang belum dikerjakan. 267 dari 354 jalur (75%) tidak ada di commit yang
+            # diaudit, jadi auditor diarahkan mencari bukti yang tidak pernah ada.
+            # Sekarang: yang ada → bagian 1; yang belum ada → bagian "direncanakan".
+            if (AKAR / f).exists():
+                if f not in berkas:
+                    berkas.append(f)
+            elif t in tugas_selesai:
+                # tugas SUDAH [x] tetapi berkasnya tidak ada = cacat dokumen, tetap tampilkan
+                berkas_rencana.append((f, t + " (sudah [x] — berkasnya TIDAK ADA: laporkan!)"))
+            elif (f, t) not in berkas_rencana:
+                berkas_rencana.append((f, t))
         for m in re.finditer(r"\*\*Bukti[^*]*:\*\*(.+?)(?=\n  - \*\*|\Z)", isi, re.S):
             isi_klaim = " ".join(m.group(1).split())
             if len(isi_klaim) >= 40:
                 klaim.append((t, isi_klaim[:320]))
+
+    # Celah keterlacakan F-12: ada berkas uji & pemeriksa NYATA yang tidak disebut
+    # ROADMAP mana pun. Untuk audit menyeluruh, semuanya masuk daftar minimum.
+    if menyeluruh:
+        for f in sorted((AKAR / "supabase" / "tes").glob("*.sql")):
+            rel = str(f.relative_to(AKAR))
+            if rel not in berkas:
+                berkas.append(rel)
+        for f in sorted((AKAR / "alat").glob("*.py")):
+            rel = str(f.relative_to(AKAR))
+            if rel not in berkas:
+                berkas.append(rel)
 
     _, sha_all = jalankan(["git", "rev-parse", "HEAD"])
     sha = sha_all.strip()
@@ -225,6 +264,13 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
 
     lensa = LENSA_MINIMUM[tingkat]
     grup, dikecualikan = kelompokkan_berkas()
+    if grup["belum berggrup"]:
+        print("GAGAL: ada berkas yang tidak masuk grup mana pun — paket TIDAK dibuat.")
+        print("  Sebabnya: angka lingkup di paket akan salah (F-13 audit 2026-09-18).")
+        for b in grup["belum berggrup"][:20]:
+            print(f"    - {b}")
+        print("  Perbaikan: tambahkan grup untuk prefiks berkas itu di GRUP_SEMUA, lalu ulangi.")
+        return 1
     total_proyek = sum(len(v) for v in grup.values())
     blok_menyeluruh = ""
     if menyeluruh:
@@ -276,6 +322,22 @@ Aturan main (dikutip dari `docs/uji/kalibrasi/CARA-PAKAI.md`):
 Ambang lulus (dinilai pembangun setelah laporan masuk): semua cacat K-1/K-2 tertanam ditemukan + ≥70% total + 0 temuan palsu.
 """
     baris_berkas = "\n".join(f"| {i+1} | `{b}` |" for i, b in enumerate(berkas)) or "| 1 | (tidak ada berkas terbaca — periksa manual) |"
+    # F-12: jalur yang belum ada TIDAK BOLEH tampil sebagai "harus diperiksa".
+    baris_rencana = "\n".join(f"| `{b}` | {t} |" for b, t in berkas_rencana) or "| — | (semua berkas yang dirujuk tugas sudah ada) |"
+    blok_rencana = f"""
+> **Catatan mesin (F-12 audit 2026-09-18):** daftar di atas SUDAH disaring — hanya berkas
+> yang **benar-benar ada** di commit ini. Jalur yang baru *direncanakan* ada di bagian 1b.
+> Kalau kamu menemukan jalur di bagian 1 yang tidak ada, laporkan sebagai temuan mesin.
+
+## 1b. Direncanakan — berkas yang BELUM ADA (JANGAN diperiksa sebagai bukti)
+
+| Jalur yang dirujuk dokumen | Tugas |
+|---|---|
+{baris_rencana}
+
+Jangan menghabiskan anggaran mencari berkas di tabel ini; pakai daftarnya hanya untuk menilai
+apakah dokumen menjanjikan sesuatu yang belum ada.
+"""
     baris_klaim = "\n".join(f"| {i+1} | {t} | {k} |" for i, (t, k) in enumerate(klaim)) or "| 1 | — | (tidak ada klaim Bukti pada tugas terpilih) |"
     baris_lensa = "\n".join(f"- **{k} {LENSA[k][0]}** — {LENSA[k][1]}" for k in lensa)
     baris_skill = "\n".join(f"| `{p}` | {n} |" for p, n in SKILL_WAJIB)
@@ -357,6 +419,7 @@ Hanya berkas laporan yang di-commit. Bila push tidak bisa, tulis "belum ter-push
 |---|---|
 {baris_berkas}
 
+{blok_rencana}
 ## 2. Klaim pembangun yang harus kamu coba bantah
 
 | # | Tugas | Klaim "Bukti" |

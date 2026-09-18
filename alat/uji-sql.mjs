@@ -156,6 +156,28 @@ begin
   raise exception 'HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (%). Perintah: %', p_catatan, p_perintah;
 end $$;
 
+-- Harapan perintah DITOLAK DENGAN SEBAB TERTENTU (temuan audit A-17/F-06, 2026-09-18):
+-- Bentuk harap_gagal biasa menangkap SEMUA sebab, sehingga asersi bisa LULUS karena penjaga
+-- yang salah (mis. kunci idempoten --ditolak-- padahal yang menolak aturan lain). Bentuk ini menuntut pesan galat cocok pola; kalau sebabnya lain, asersi
+-- MERAH. Dipakai untuk asersi yang menjaga UANG dan JEJAK.
+create or replace function uji.harap_gagal_sebab(p_perintah text, p_pola text, p_catatan text default '')
+returns void language plpgsql as $$
+declare
+  v_pesan text;
+begin
+  begin
+    execute p_perintah;
+  exception when others then
+    v_pesan := sqlerrm;
+    if v_pesan !~* p_pola then
+      raise exception 'SEBAB PENOLAKAN BUKAN YANG DIHARAPKAN: dapat "%" (tidak cocok pola %). Perintah: %',
+        v_pesan, p_pola, p_perintah;
+    end if;
+    return;
+  end;
+  raise exception 'HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (%). Perintah: %', p_catatan, p_perintah;
+end $$;
+
 grant execute on all functions in schema uji to public;
 `
 

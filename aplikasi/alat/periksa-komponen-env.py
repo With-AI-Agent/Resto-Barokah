@@ -91,28 +91,51 @@ def uji_komponen() -> None:
             gagal.append(f"GAGAL: {kelas} tidak punya tinggi minimal {minimal} px di token tema")
 
 
+def _urai_token_env(token: str) -> list[str]:
+    """Pecah satu token nama variabel menjadi SEMUA nama yang diwakilinya.
+
+    Bentuk gabungan `GOOGLE_CLIENT_ID/SECRET` (cara TECH_SPEC §6 menghemat sel)
+    berarti DUA nama: `GOOGLE_CLIENT_ID` dan `GOOGLE_CLIENT_SECRET`.
+
+    Kenapa dipecah tuntas: temuan audit AUD-3 2026-09-18 F-15. Dulu token
+    gabungan diekstrak utuh lalu dicocokkan dengan pencarian sebagian
+    (`nama in isi`), sehingga `GOOGLE_CLIENT_ID` dianggap "ada" hanya karena
+    baris `# GOOGLE_CLIENT_SECRET=` memuat teks yang mirip. Akibatnya menghapus
+    baris `# GOOGLE_CLIENT_ID=` TIDAK membuat pemeriksa ini GAGAL — gerbangnya
+    hijau tanpa arti untuk satu nama.
+    """
+    if "/" not in token:
+        return [token]
+    kepala, *ekor = token.split("/")
+    nama = [kepala]
+    for bagian in ekor:
+        # `GOOGLE_CLIENT_ID` + `SECRET` -> `GOOGLE_CLIENT_SECRET` (ganti ekor terakhir)
+        akar = kepala.rsplit("_", 1)[0] if "_" in kepala else kepala
+        nama.append(f"{akar}_{bagian}")
+    return nama
+
+
 def nama_env_tech_spec() -> list[str]:
-    """Ambil nama variabel dari tabel bagian 6 TECH_SPEC."""
+    """Ambil SEMUA nama variabel dari tabel bagian 6 TECH_SPEC (bentuk gabungan dipecah)."""
     teks = TECH_SPEC.read_text(encoding="utf-8")
     awal = teks.find("## 6.")
     akhir = teks.find("## 7.", awal)
     bagian = teks[awal:akhir]
     nama: list[str] = []
-    for baris in bagian.splitlines():
-        if not baris.strip().startswith("|"):
-            continue
-        sel = [s.strip() for s in baris.strip().strip("|").split("|")]
-        for isi in sel:
-            for cocok in re.findall(r"`([A-Z][A-Z0-9_]{2,})`", isi):
-                if cocok not in nama:
-                    nama.append(cocok)
-    # satu sel bisa memuat dua nama: `GOOGLE_CLIENT_ID/SECRET` -> tambahkan versi lengkapnya
-    for nama_gabung, ekor in re.findall(r"`([A-Z][A-Z0-9_]+)/([A-Z]+)`", bagian):
-        akar = nama_gabung.rsplit("_", 1)[0]
-        lengkap = f"{akar}_{ekor}"
-        if lengkap not in nama:
-            nama.append(lengkap)
+    for cocok in re.findall(r"`([A-Z][A-Z0-9_/]{2,})`", bagian):
+        for satu in _urai_token_env(cocok):
+            if satu not in nama:
+                nama.append(satu)
     return sorted(set(nama))
+
+
+def _dideklarasikan(isi: str, nama: str) -> bool:
+    """True bila `nama` punya baris sendiri di berkas contoh (boleh dikomentari `#`).
+
+    Pencocokan lewat AWAL BARIS, bukan pencarian sebagian: `GOOGLE_CLIENT_ID`
+    tidak boleh dianggap ada hanya karena `GOOGLE_CLIENT_SECRET` ada (F-15).
+    """
+    return re.search(rf"^\s*#?\s*{re.escape(nama)}\s*=", isi, re.MULTILINE) is not None
 
 
 def uji_env() -> None:
@@ -125,7 +148,7 @@ def uji_env() -> None:
     nama_aktif = sorted({b.split("=", 1)[0].strip() for b in aktif})
 
     wajib = nama_env_tech_spec()
-    kurang = [n for n in wajib if n not in isi]
+    kurang = [n for n in wajib if not _dideklarasikan(isi, n)]
     if kurang:
         gagal.append(f"GAGAL: .env.example belum memuat variabel TECH_SPEC §6: {kurang}")
     else:
@@ -179,16 +202,84 @@ def uji_env() -> None:
         gagal.append("GAGAL: aplikasi/.env.example justru diabaikan Git")
 
 
-def main() -> int:
+def periksa(akar: Path) -> tuple[int, str]:
+    """Jalankan semua pemeriksaan terhadap `akar` (dipakai juga oleh uji-diri).
+
+    Sebelumnya semua fungsi membaca path modul level (AKAR_REPO) sehingga tidak
+    bisa diarahkan ke salinan sementara — uji-diri butuh itu.
+    """
+    global AKAR_REPO, APLIKASI, TECH_SPEC, ok, gagal
+    AKAR_REPO, APLIKASI, TECH_SPEC = akar, akar / "aplikasi", akar / "docs" / "TECH_SPEC.md"
+    ok, gagal = [], []
     uji_komponen()
     uji_env()
-    for baris in ok:
-        print(baris)
-    for baris in gagal:
-        print(baris)
+    keluaran = "\n".join(ok + gagal)
+    return (1 if gagal else 0), keluaran
+
+
+def uji_diri() -> int:
+    """Bukti pemeriksa ini bisa MENOLAK: setiap pemeriksaan dimutasi di salinan pohon.
+
+    Kenapa ada: temuan audit AUD-3 2026-09-18 F-15 — `GOOGLE_CLIENT_ID` bisa
+    dihapus dari `.env.example` tanpa membuat pemeriksa ini GAGAL. Mutasi di
+    bawah sekarang mengunci kasus itu supaya tidak kembali.
+    """
+    import sys
+
+    sys.path.insert(0, str(AKAR_REPO / "alat"))
+    from bantu_uji_diri import laporkan, salin_pohon
+
+    hasil = []
+    with salin_pohon() as tmp:
+        kode, keluar = periksa(tmp)
+        hasil.append(("salinan utuh", kode == 0, f"kode {kode}"))
+        if kode != 0:
+            print(keluar[:1200])
+
+    def mutasi(nama: str, berkas: str, ubah) -> None:
+        with salin_pohon() as tmp:
+            f = tmp / berkas
+            if not f.is_file():
+                hasil.append((nama, False, f"{berkas} tidak ada"))
+                return
+            isi = f.read_text(encoding="utf-8")
+            baru = ubah(isi)
+            if baru == isi:
+                hasil.append((nama, False, "mutasi TIDAK mengubah berkas (pola tidak ketemu)"))
+                return
+            f.write_text(baru, encoding="utf-8")
+            kode, _ = periksa(tmp)
+            hasil.append((nama, kode != 0, "ditolak" if kode != 0 else "DILOLOSKAN (tumpul)"))
+
+    # Setiap nama variabel §6 dihapus satu per satu — termasuk yang datang dari sel
+    # gabungan `GOOGLE_CLIENT_ID/SECRET` (kasus F-15).
+    for nama in ("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "SUPABASE_SERVICE_ROLE_KEY",
+                 "CLOUDFLARE_API_TOKEN", "DENYUT_URL"):
+        mutasi(f"mutasi: baris {nama} dihapus dari .env.example",
+               "aplikasi/.env.example",
+               lambda s, n=nama: "\n".join(b for b in s.splitlines() if not b.strip().lstrip("#").strip().startswith(n + "=")))
+
+    mutasi("mutasi: variabel rahasia diberi awalan VITE_ (ikut ke bundel)",
+           "aplikasi/.env.example",
+           lambda s: s.replace("# RESEND_API_KEY=", "VITE_RESEND_API_KEY=", 1))
+
+
+    with salin_pohon() as tmp:
+        (tmp / "aplikasi/src/komponen/Lencana.tsx").unlink()
+        kode, _ = periksa(tmp)
+        hasil.append(("mutasi: komponen Lencana dihapus", kode != 0, "ditolak" if kode != 0 else "DILOLOSKAN (tumpul)"))
+
+    return laporkan("periksa-komponen-env", hasil)
+
+
+def main() -> int:
+    if "--uji-diri" in __import__("sys").argv:
+        return uji_diri()
+    kode, keluaran = periksa(AKAR_REPO)
+    print(keluaran)
     print("-" * 60)
     print(f"komponen & rahasia: {len(ok)} OK · {len(gagal)} GAGAL")
-    return 1 if gagal else 0
+    return kode
 
 
 if __name__ == "__main__":

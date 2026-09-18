@@ -64,11 +64,17 @@ jobs:
       # tetapi namanya menjebak: peninjau putaran11 membacanya sebagai "hanya cetak daftar"
       # lalu melaporkan CI tidak menguji apa pun. Pakai bentuk penuh supaya tidak bisa
       # disalahbaca siapa pun.
-      - name: Uji SQL penuh — RLS, isolasi resto & fungsi identitas (28 berkas)
+      # Nama langkah SENGAJA tanpa angka berkas uji: angka di nama langkah selalu basi
+      # (temuan review putaran13 PR-07: "(28 berkas)" padahal nyata 31). Jumlah nyata
+      # selalu tercetak di keluaran langkah ini, jadi tidak perlu ditulis dua kali.
+      - name: Uji SQL penuh — RLS, isolasi resto & fungsi identitas
         run: node alat/uji-sql.mjs
 
       - name: Bukti mutasi pagar migrasi 0012 + 0013 (kontrol hijau + semua mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0012.py
+
+      - name: Bukti mutasi pagar migrasi 0014 — putaran13 & audit 2026-09-18 (17 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0014.py
 
       - name: Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras
         run: |
@@ -94,10 +100,12 @@ jobs:
           python3 alat/periksa-rahasia.py --uji-diri
           python3 alat/periksa-bersih.py
           python3 alat/periksa-gerbang-ci.py
+          python3 alat/periksa-paket.py --uji-diri
+          python3 alat/periksa-angka-bukti.py --uji-diri
           python3 alat/periksa-gerbang-ci.py --uji-diri
           python3 alat/periksa-bersih.py --uji-diri
           python3 aplikasi/alat/periksa-struktur.py
-          python3 aplikasi/alat/periksa-komponen-env.py
+          python3 aplikasi/alat/periksa-komponen-env.py --uji-diri
           python3 aplikasi/alat/periksa-uji.py
           python3 aplikasi/alat/uji-kontras.py
           python3 aplikasi/alat/uji-kontras.py --uji-diri

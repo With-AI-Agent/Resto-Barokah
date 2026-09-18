@@ -37,6 +37,7 @@ echo "== uji SQL (RLS & isolasi resto, tanpa server) =="
 (cd "$REPO" && node alat/uji-sql.mjs)
 echo "== bukti mutasi pagar migrasi 0012 (kontrol hijau + 12/12 WAJIB MERAH) =="
 (cd "$REPO" && python3 alat/uji-mutasi-0012.py | tail -2)
+(cd "$REPO" && python3 alat/uji-mutasi-0014.py | tail -2)
 
 echo "== pemeriksa Python =="
 

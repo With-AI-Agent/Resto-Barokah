@@ -19,6 +19,7 @@ import contextlib
 import io
 import pathlib
 import shutil
+import subprocess
 import tempfile
 
 AKAR = pathlib.Path(__file__).resolve().parent.parent
@@ -42,6 +43,15 @@ def salin_pohon():
     tujuan = pathlib.Path(tempfile.mkdtemp(prefix="uji-diri-"))
     try:
         shutil.copytree(AKAR, tujuan / "repo", ignore=_abaikan, symlinks=True)
+        # Salinan diberi repo Git KOSONG. Sebabnya: `.git` sengaja tidak ikut disalin,
+        # padahal ada pemeriksa yang membuktikan `.gitignore` benar-benar bekerja lewat
+        # `git check-ignore`. Tanpa langkah ini, salinan utuh selalu GAGAL 2 kali
+        # (`.env` "tidak diabaikan", `.env.example` "diabaikan") — GAGAL PALSU yang
+        # membuat uji-diri pemeriksa itu mustahil hijau (catatan lama: periksa-komponen-env).
+        # `git init` cukup untuk `git check-ignore`; riwayat commit tidak dibutuhkan.
+        with contextlib.suppress(Exception):
+            subprocess.run(["git", "init", "-q"], cwd=tujuan / "repo", check=False,
+                           capture_output=True, timeout=30)
         yield tujuan / "repo"
     finally:
         shutil.rmtree(tujuan, ignore_errors=True)

@@ -60,9 +60,13 @@ select uji.sama(
 );
 
 -- 5. Salinan beku tidak bisa ditulis ulang — walau oleh kasir maupun admin.
-select uji.harap_gagal(
+-- TEMUAN AUDIT A-17/F-06: asersi ini dulu lulus karena pemicu HARGA JUJUR menyala
+-- ("Harga menu ini Rp33.000 …"), bukan karena salinan beku dijaga. Sebabnya sekarang
+-- diperiksa supaya yang diuji memang penjaga salinan harga.
+select uji.harap_gagal_sebab(
   $$update public.pesanan_item set harga_saat_itu = 1000 where pesanan_id = 'eeee0000-0000-0000-0000-000000000001'$$,
-  'harga yang sudah tercatat tidak boleh diubah'
+  'perlu izin ubah harga',
+  'harga yang sudah tercatat tidak boleh diubah tanpa izin ubah harga'
 );
 select uji.harap_gagal(
   $$update public.pesanan_item set nama_saat_itu = 'Nama Karangan' where pesanan_id = 'eeee0000-0000-0000-0000-000000000001'$$,
@@ -86,12 +90,33 @@ select uji.sama(
   'pesanan tidak bisa dihapus (harus dibatalkan, bukan dihilangkan jejaknya)'
 );
 
--- 6. Nomor pesanan unik per cabang per tanggal, dan kunci idempoten mencegah ganda.
+-- 6. Nomor pesanan DIBUAT SISTEM (review putaran13 #2 PR-03) dan kunci idempoten
+--    mencegah pesanan ganda. Dulu klien boleh memilih nomornya sendiri — pesanan
+--    bisa "bernomor sama" di hari berbeda atau nomor dipakai untuk menandai struk
+--    palsu. Sekarang angka kiriman klien DIIABAIKAN; uniknya dijaga kunci
+--    (cabang_id, tanggal, nomor) di database.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.pesanan (penyewa_id, cabang_id, nomor, tanggal, kunci_idempoten) values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 1, current_date, 'keranjang-lain')$$,
-  'nomor pesanan tidak boleh ganda di cabang & tanggal yang sama'
+insert into public.pesanan (penyewa_id, cabang_id, nomor, tanggal, kunci_idempoten)
+values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 1, current_date, 'keranjang-lain');
+select uji.sama(
+  (select p.nomor from public.pesanan p where p.kunci_idempoten = 'keranjang-lain'),
+  (select max(x.nomor) from public.pesanan x
+    where x.cabang_id = 'a1a1a1a1-0000-0000-0000-000000000001' and x.tanggal = current_date),
+  'nomor pesanan dibuat sistem (angka kiriman klien = 1 diabaikan, tersimpan nomor urut peladen)'
+);
+select uji.sama(
+  (select p.nomor from public.pesanan p where p.kunci_idempoten = 'keranjang-lain') <> 1,
+  true,
+  'angka nomor yang DIMINTA klien (1) tidak dipakai — nomor diisi peladen'
+);
+select uji.sama(
+  (select count(*) from (
+     select p.nomor from public.pesanan p
+      where p.cabang_id = 'a1a1a1a1-0000-0000-0000-000000000001' and p.tanggal = current_date
+      group by p.nomor having count(*) > 1) ganda),
+  0::bigint,
+  'tidak ada nomor ganda di cabang & tanggal yang sama'
 );
 select uji.harap_gagal(
   $$insert into public.pesanan (penyewa_id, cabang_id, nomor, tanggal, kunci_idempoten) values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 2, current_date, 'keranjang-uji-1')$$,
@@ -107,8 +132,12 @@ select uji.harap_gagal(
   $$insert into public.pesanan (penyewa_id, cabang_id, kunci_idempoten) values ('22222222-2222-2222-2222-222222222222', 'a1a1a1a1-0000-0000-0000-000000000001', 'keranjang-resto-salah')$$,
   'penyewa_id yang tidak sesuai cabangnya ditolak'
 );
-select uji.harap_gagal(
+-- TEMUAN AUDIT A-17/F-06: asersi ini dulu lulus karena pemicu KONSISTENSI PENYEWA
+-- ("Cabang dan pesanan harus berada di resto yang sama"), bukan karena policy lingkup
+-- cabang. Keduanya penjaga sah, tetapi sebabnya harus disebut supaya tidak menyesatkan.
+select uji.harap_gagal_sebab(
   $$insert into public.pesanan (penyewa_id, cabang_id, kunci_idempoten) values ('11111111-1111-1111-1111-111111111111', 'b1b1b1b1-0000-0000-0000-000000000001', 'keranjang-cabang-lain')$$,
+  'resto yang sama|cabang',
   'kasir Pusat tidak boleh membuat pesanan di cabang lain'
 );
 select uji.harap_gagal(
@@ -172,6 +201,6 @@ select uji.klaim(null);
 
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner pusat
 set local role authenticated;
-select uji.sama((select count(*) from public.pesanan), 2::bigint, 'owner pusat melihat pesanan seluruh cabang restonya');
+select uji.sama((select count(*) from public.pesanan), 3::bigint, 'owner pusat melihat pesanan seluruh cabang restonya (3: 1 data uji + 2 buatan kasir)');
 reset role;
 select uji.klaim(null);
