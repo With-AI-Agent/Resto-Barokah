@@ -210,7 +210,9 @@ def main() -> int:
         print(f"  Berkas handoff : docs/ops/SIAP-LANJUT.md (cabang {cabang_sipl})")
         print(f"  Commit keadaan : {sha_sipl[:8]}" + (f" · {gap} commit di atasnya" if gap.isdigit() else ""))
         if sha_sipl != "(tidak terbaca)" and sha_sipl not in commit:
-            print("  [catatan] commit keadaan handoff BUKAN commit terakhir — pastikan handoff sudah disegarkan")
+            print("  [catatan] normal: commit keadaan handoff = INDUK commit terakhir (handoff ditulis sebelum "
+                  "commit penutup batch ini); ujung cabangmu sudah benar bila commit terakhirnya menyentuh "
+                  "docs/ops/SIAP-LANJUT.md")
     print()
     print("BERKAS FONDASI WAJIB DIBACA FASE INI")
     for rel in FONDASI_WAJIB + (FONDASI_CODING if "CODING" in status.upper() else []):
