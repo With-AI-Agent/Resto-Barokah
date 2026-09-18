@@ -8,9 +8,9 @@
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
 - **Cabang kerja terakhir:** `arena/01a0a8a2-resto-barokah`
-- **Commit keadaan kerja:** `909fe9d53054a70c347f2bf36750b29534ddab8d`
+- **Commit keadaan kerja:** `eea0afc97d91b2eff3a2b8ffc8280126ae4ad4e7`
 - **PR:** PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35330671147, commit 909fe9d5)
+- **CI terakhir:** success (run 35331445849, commit eea0afc9)
 - **Ditulis:** 2026-09-18 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)

@@ -34,7 +34,7 @@ Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task
 ===== SAMBUNGAN: ARAHAN LANJUT PROYEK (dibuat mesin 2026-09-18) =====
 
 Proyek: **Resto Barokah** — repo `With-AI-Agent/Resto-Barokah`, cabang kerja terakhir
-`arena/01a0a8a2-resto-barokah` @ `909fe9d53054a70c347f2bf36750b29534ddab8d` — ini commit KEADAAN (induk dari commit handoff), jadi saat kamu menyusul
+`arena/01a0a8a2-resto-barokah` @ `eea0afc97d91b2eff3a2b8ffc8280126ae4ad4e7` — ini commit KEADAAN (induk dari commit handoff), jadi saat kamu menyusul
 cabang, ujung cabang akan berisi satu commit yang lebih baru: commit yang memuat berkas handoff ini.
 Cara memastikan kamu di ujung yang benar: `git log --oneline -1` menampilkan commit yang menyentuh
 `docs/ops/SIAP-LANJUT.md`. PR #1 **terbuka** — **JANGAN MERGE**: merge hanya keputusan Lee.
