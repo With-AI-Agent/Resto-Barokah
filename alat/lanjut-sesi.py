@@ -153,20 +153,20 @@ def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
         return masalah
 
     # --- pemeriksaan kesegaran riwayat Git (butuh riwayat penuh) ---
-    kode, kotor = jalankan(["git", "status", "--porcelain"])
+    kode, kotor = jalankan(["git", "status", "--porcelain"], cwd=akar)
     if kode == 0 and kotor:
         masalah.append(f"ruang kerja KOTOR ({len(kotor.splitlines())} berkas belum di-commit) — "
                        "sesi baru akan kehilangan pekerjaan yang belum di-push")
-    _, dalam_dangkal = jalankan(["git", "rev-parse", "--is-shallow-repository"])
-    _, nama_cabang = jalankan(["git", "branch", "--show-current"])
+    _, nama_cabang = jalankan(["git", "branch", "--show-current"], cwd=akar)
     nama_cabang = nama_cabang.strip()
-    _, sha_head = jalankan(["git", "rev-parse", "HEAD"])
+    _, sha_head = jalankan(["git", "rev-parse", "HEAD"], cwd=akar)
     sha_head = sha_head.strip()
-    _, induk = jalankan(["git", "rev-parse", "HEAD^"]) if dalam_dangkal != "true" else (1, "")
-    induk = induk.strip()
+    # Induk commit dicoba APA ADANYA (klon dangkal bisa membuatnya tidak ada → baru dicatat).
+    kode_induk, induk = jalankan(["git", "rev-parse", "HEAD^"], cwd=akar)
+    induk = induk.strip() if kode_induk == 0 else ""
 
     if nama_cabang:
-        kode, sisi_luar = jalankan(["git", "rev-parse", f"origin/{nama_cabang}"])
+        kode, sisi_luar = jalankan(["git", "rev-parse", f"origin/{nama_cabang}"], cwd=akar)
         if kode == 0 and sisi_luar.strip() != sha_head:
             masalah.append(f"commit lokal ({sha_head[:8]}) belum ter-push ke origin/{nama_cabang} "
                            f"({sisi_luar.strip()[:8]}) — tanpa push, sesi berikutnya tidak bisa melanjutkan")
@@ -175,7 +175,7 @@ def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
         print("  [catatan] HEAD detached (salinan pemeriksaan) — uji push dilewati")
 
     if induk:
-        _, tukar = jalankan(["git", "diff-tree", "--no-commit-id", "--name-only", "-r", sha_head, induk])
+        _, tukar = jalankan(["git", "diff-tree", "--no-commit-id", "--name-only", "-r", sha_head, induk], cwd=akar)
         disentuh = set(tukar.split()) if tukar else set()
         for berkas in ("docs/ops/SIAP-LANJUT.md", "PROJECT_STATE.md", "STATUS.md"):
             if berkas not in disentuh:
@@ -330,6 +330,40 @@ CI hijau. Sisa pekerjaan terdekat dan pilihannya ada di bagian "Rencana berikutn
 
 
 # --------------------------------------------------------------------------- uji-diri
+def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool) -> pathlib.Path:
+    """Buat repo Git kecil berisi berkas handoff dengan SHA yang bisa benar/salah.
+
+    Dipakai uji-diri untuk MEMBUKTIKAN pemeriksaan kesegaran riwayat benar-benar bisa MERAH —
+    hal yang tidak bisa diuji di salinan pohon biasa (salinan tidak punya riwayat).
+    """
+    import shutil
+    import subprocess as sp
+
+    repo = tmp / "repo"
+    (repo / "docs" / "ops").mkdir(parents=True)
+    (repo / "docs" / "TERTANGGUH.md").write_text("| ID | Tanggal | Hal |\n|---|---|---|\n", encoding="utf-8")
+    (repo / "PROJECT_STATE.md").write_text("STATUS: UJI\nDETAIL: uji\n", encoding="utf-8")
+    (repo / "STATUS.md").write_text("- **Pekerjaan belum tersimpan:** Tidak ada\n", encoding="utf-8")
+    shutil.copy2(PROMPT_KANONIK, repo / "PROMPT_ENTRI_UNIVERSAL.md")
+    shutil.copy2(TEMPEL, repo / "docs" / "ops" / "SIAP-TEMPEL-SESI-BARU.md")
+    isi = baca(SIAP).replace(bidang(baca(SIAP), "Commit keadaan kerja") or "", "0" * 40)
+    (repo / "docs" / "ops" / "SIAP-LANJUT.md").write_text(isi, encoding="utf-8")
+    env = {"GIT_AUTHOR_NAME": "uji", "GIT_AUTHOR_EMAIL": "u@uji", "GIT_COMMITTER_NAME": "uji",
+           "GIT_COMMITTER_EMAIL": "u@uji", "PATH": "/usr/bin:/bin"}
+    for perintah in (["git", "init", "-q"], ["git", "add", "-A"], ["git", "commit", "-qm", "awal"]):
+        sp.run(perintah, cwd=repo, env=env, capture_output=True, check=False)
+    _, induk = jalankan(["git", "rev-parse", "HEAD"], cwd=repo)
+    sha = sha_ditulis if sha_ditulis is not None else induk.strip()
+    isi = isi.replace("0" * 40, sha)
+    (repo / "docs" / "ops" / "SIAP-LANJUT.md").write_text(isi, encoding="utf-8")
+    # Meniru aturan akhir batch yang sebenarnya: commit terakhir menyentuh ketiga berkas
+    # (handoff + PROJECT_STATE + STATUS). Kalau tidak, yang diuji bukan aturannya.
+    (repo / "PROJECT_STATE.md").write_text("STATUS: UJI\nDETAIL: uji\nUPDATE TERAKHIR: uji\n", encoding="utf-8")
+    (repo / "STATUS.md").write_text("- **Pekerjaan belum tersimpan:** Tidak ada\n- **Waktu pembaruan:** uji\n", encoding="utf-8")
+    for perintah in (["git", "add", "-A"], ["git", "commit", "-qm", "segar" if segar else "basi"]):
+        sp.run(perintah, cwd=repo, env=env, capture_output=True, check=False)
+    return repo
+
 def uji_diri() -> int:
     """Buktikan pemeriksa bisa MENOLAK: setiap bagian handoff dimutasi di salinan teks.
 
@@ -380,6 +414,19 @@ def uji_diri() -> int:
     masalah_p = periksa(sipl_teks=sipl, tempe_teks=tempe.replace(kanonik, "Lanjutkan saja."), penuh=False)
     hasil.append(("mutasi: Prompt Pembuka Universal tidak lagi apa adanya", bool(masalah_p),
                   masalah_p[0][:90] if masalah_p else "DILOLOSKAN (tumpul)"))
+
+    # --- bukti pemeriksaan kesegaran (butuh riwayat Git nyata) ---
+    import tempfile
+
+    with tempfile.TemporaryDirectory(prefix="lanjut-sesi-") as tmp:
+        repo_benar = _repo_uji(pathlib.Path(tmp) / "benar", None, True)
+        masalah_benar = periksa(akar=repo_benar, penuh=True)
+        hasil.append(("repo uji dengan handoff SEGAR diterima", not masalah_benar,
+                      "lolos" if not masalah_benar else masalah_benar[0][:90]))
+        repo_salah = _repo_uji(pathlib.Path(tmp) / "salah", "1" * 40, False)
+        masalah_salah = periksa(akar=repo_salah, penuh=True)
+        hasil.append(("repo uji dengan handoff BASI ditolak", bool(masalah_salah),
+                      masalah_salah[0][:90] if masalah_salah else "DILOLOSKAN (tumpul)"))
 
     print("UJI-DIRI lanjut-sesi")
     gagal = 0
