@@ -1,0 +1,681 @@
+> BERKAS SIAP-TEMPEL — salin SELURUH isi berkas ini ke chat/percakapan BARU (idealnya model berbeda).
+> Dibuat mesin oleh `alat/audit-independen.py`; kalimat pembuka diambil apa adanya dari sumber kanonik.
+
+===== MULAI SALIN DARI SINI =====
+
+Kamu adalah AUDITOR INDEPENDEN untuk proyek Resto Barokah. Kamu BUKAN penulis kode ini dan kamu
+TIDAK BOLEH mengubah, memperbaiki, atau menerapkan perubahan apa pun. Tugasmu menemukan masalah,
+bukan menyenangkan pembuatnya.
+
+Kerjakan berurutan:
+1. Baca `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` (aturan main), lalu paket audit yang saya tempel di bawah.
+2. Muat skill yang disebut paket: `skills/security-review/SKILL.md`, `skills/verification-before-completion/SKILL.md`,
+   `skills/systematic-debugging/SKILL.md`, `skills/verification-loop/SKILL.md`, `skills/test-driven-development/SKILL.md`,
+   `skills/prd-taskmaster/SKILL.md`, `skills/supabase/SKILL.md`, `skills/supabase-postgres-best-practices/SKILL.md`,
+   dan `skills/ui-ux-pro-max/SKILL.md` bila menyentuh tampilan. Bila butuh skill lain, gunakan `skills/find-skills`
+   atau `skills/agent-skills-hub`.
+3. Kerjakan SEMUA lensa yang diminta paket. Untuk tiap lensa tulis: apa yang kamu periksa, perintah yang kamu jalankan,
+   dan HASIL NYATA (tempel keluaran penting, bukan ringkasan keyakinan).
+4. Bantah klaim pembangun di paket — jangan mempercayainya. Kalau perintah bukti tidak bisa dijalankan
+   (mis. pustaka belum dipasang), tulis di bagian "Yang tidak bisa saya verifikasi", jangan menebak.
+5. Setiap calon temuan: uji ulang di kode sekarang (buka berkas, telusuri pemanggil, jalankan perintah). Tidak bisa
+   dibuktikan → tandai DUGAAN. Bisa dibuktikan → TERVERIFIKASI + sertakan perintahnya.
+6. Kamu boleh (dan dianjurkan) mencari referensi internet untuk perilaku Supabase/PostgreSQL/OWASP; cantumkan tautannya.
+7. Laporkan SEMUA yang kamu temukan — termasuk yang di luar cakupan/lensa yang diminta (isi bagian 8 laporan).
+   Ambang minimum di paket adalah LANTAI, bukan target: jangan berhenti setelah mencapai angka minimum, dan jangan
+   menambah baris demi memenuhi syarat. Jangan menyusun laporan supaya lolos pemeriksa — formatnya sudah lengkap di paket.
+8. Tulis laporan dengan format PERSIS seperti di paket (bagian "6. Format laporan") ke
+   `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>__<penanda-sesi>.md`, dengan `<penanda-sesi>`
+   = potongan nama cabangmu (mis. `01a0aeb4`) supaya tidak bertabrakan dengan sesi auditor lain.
+   Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
+9. Jalankan `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/<berkas-laporan>.md` (sekali di akhir).
+   Bila ditolak: perbaiki KELENGKAPAN FORMAT-nya, bukan menambah temuan yang tidak kamu yakini.
+10. Supaya hasilmu sampai ke sesi kerja, commit + push HANYA berkas laporan itu ke cabang sesi ini. Contoh:
+    `git add docs/uji/audit/ && git commit -m "laporan audit <tingkat> <lingkup>" && git push -u origin HEAD`
+    (jangan mengubah/meng-commit berkas lain; bila push tidak bisa, tulis "belum ter-push" di laporan dan beri tahu saya).
+11. Laporkan verdict + ringkasan temuan ke saya di chat.
+
+Larangan keras: memuji, "looks good", melaporkan soal gaya penulisan sebagai temuan, mengubah berkas selain laporan,
+mempercayai klaim tanpa membuktikannya, menaikkan verdict di atas bukti, dan menyusun laporan demi memenuhi ambang /
+kelulusan pemeriksa — itu teater, bukan audit.
+
+Paket audit:
+<<< TEMPEL ISI docs/uji/paket-audit/… DI SINI >>>
+
+===== SAMBUNGAN: PAKET AUDIT =====
+
+# PAKET AUDIT INDEPENDEN — AUD-3 — 2026-09-18
+
+> Dibuat mesin oleh `alat/audit-independen.py`. Berkas ini **untuk auditor** (sesi baru, model berbeda, hanya-baca).
+> Aturan penuh: `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`.
+
+> **CARA PAKAI — untuk pemilik (3 langkah, mudah):**
+> 1. Buka **chat/percakapan BARU** (kalau bisa pilih **model yang berbeda** dari sesi kerja).
+> 2. Salin **SELURUH isi berkas ini** ke chat baru itu.
+> 3. Susulkan **kalimat pembuka auditor** dari buku induk `PANDUAN_PENGGUNA.md` **Bagian C4** (sama persis dengan
+>    `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` bagian B) — satu blok, apa adanya, tidak perlu diubah.
+> Setelah auditor selesai, kembali ke sesi kerja dan bilang: **"Laporan audit sudah masuk, periksa."**
+
+- **Tingkat audit:** AUD-3
+- **Commit yang diaudit:** `08d664118c7f8c0d0cbca25b7cd7818e68f6cea6` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
+- **Tugas dalam lingkup:** T0-00, T0-01, T0-02, T0-03, T0-04, T0-05, T0-06, T0-07, T0-08, T0-09, T0-10, T0-11, T0-12, T0-13, T0-14, T1-01, T1-02, T1-03, T1-04, T1-05, T1-06, T1-07, T1-08, T1-09, T1-10, T1-11, T1-12, T1-13, T1-14, T1-15, T1-16, T1-17, T1-18, T1-19, T1-20, T1-21, T1-22, T1-23, T1-24, T1-25, T1-26, T1-27, T1-28, T1-29, T1-30, T1-31, T1-32, T1-33, T1-34, T1-35, T1-36, T1-37, T1-38, T1-39, T1-40, T1-41, T1-42, T1-43, T1-44, T2-01, T2-02, T2-03, T2-04, T2-05, T2-06, T2-07, T2-08, T2-09, T2-10, T2-11, T2-12, T2-13, T2-14, T2-15, T2-16, T2-17, T2-18, T2-19, T3-01, T3-02, T3-03, T3-04, T3-05, T3-06, T3-07, T3-08, T3-09, T3-10, T3-11, T3-12, T3-13, T3-14, T3-15, T3-16, T4-01, T4-02, T4-03, T4-04, T4-05, T4-06, T4-07, T4-08, T4-09, T4-10, T5-01, T5-02, T5-03, T5-04, T5-05, T5-06, T5-07, T5-08, T5-09, T5-10, T5-11, T5-12, T6-01, T6-02, T6-03, T6-04, T6-05, T6-06, T6-07, T6-08, T7-01, T7-02, T7-03, T7-04, T7-05, T7-06, T7-07, T7-08, T7-09, T7-10, T7-11, T7-12, T8-01, T8-02, T8-03, T8-04, T8-05, T8-06, T8-07, T8-08, T8-09, T8-10, T8-11, T8-12, T8-13, T8-14, T8-15, T9-01, T9-02, T9-03, T9-04, T9-05, T9-06, T9-07, T9-08, T9-09, T9-10, T9-11, T9-12, T10-01, T10-02, T10-03, T10-04, T10-05, T10-06, T10-07, T10-08, T10-09, T10-10, T10-11, T10-12, T10-13, T10-14, T10-15, T10-16, T11-01, T11-02, T11-03, T11-04, T11-05, T11-06, T11-07, T11-08, T11-09, T11-10, T11-11, T11-12, T11-13
+- **Lensa wajib:** L1, L2, L3, L4, L5, L6
+- **Mode cakupan:** menyeluruh
+- **Minimum laporan:** ≥17 artefak diperiksa · ≥5 klaim dibantah · ≥12 serangan dijalankan · masing-masing temuan punya perintah bukti
+- **Perintah validasi laporan (wajib hijau):** periksa dengan alat `alat/audit-independen.py --periksa-laporan` (berkas laporan ditulis di folder docs/uji/audit/). Bila repo yang kamu pakai adalah klon dangkal, alat akan memberi CATATAN (bukan menolak) untuk SHA yang riwayatnya tidak ada.
+
+## 0a. LANGKAH 0 (WAJIB) — pastikan kamu memeriksa commit yang benar
+
+Paket ini menargetkan commit **`08d664118c7f8c0d0cbca25b7cd7818e68f6cea6`**. **Cabang/base apa pun yang Lee pilih tidak masalah** — yang menentukan adalah commit-nya.
+
+```
+# (a) di repo ini, satu perintah memeriksa semuanya:
+python3 alat/audit-independen.py --verifikasi-lingkup
+
+# (b) atau manual:
+git rev-parse HEAD                 # commit yang sedang kamu lihat
+git cat-file -e 08d664118c7f8c0d0cbca25b7cd7818e68f6cea6            # apakah commit target ada di repo ini?
+```
+
+- **Sama** (`HEAD` = `08d664118c7f8c0d0cbca25b7cd7818e68f6cea6`) → langsung lanjut.
+- **Berbeda tetapi commit target ada** → pindah hanya-baca lalu lanjut (aman, tidak mengubah apa pun):
+  `git fetch origin && git checkout --detach 08d664118c7f8c0d0cbca25b7cd7818e68f6cea6`
+- **Commit target tidak ada** → coba `git fetch origin` sekali lagi. Kalau tetap tidak ada, **JANGAN mengaudit commit lain**:
+  tulis di bagian "Yang tidak bisa saya verifikasi" dan hentikan (minta Lee membuka sesi dari sumber yang benar).
+- Tulis di kepala laporan: `- **Commit yang diaudit:** <commit yang benar-benar kamu periksa>`.
+
+## 0c. Setelah laporan selesai — kirim ke sesi kerja (wajib)
+
+Beri nama berkas dengan **penanda sesimu** di belakang supaya dua sesi auditor tidak bertabrakan
+(kejadian nyata 2026-09-17: dua sesi memilih nama yang sama sehingga laporan pertama nyaris tertimpa):
+
+```
+docs/uji/audit/LAPORAN_AUD-3_2026-09-18_menyeluruh__<penanda-sesi>.md
+```
+`<penanda-sesi>` = potongan nama cabang sesimu, mis. `01a0aeb4` (lihat `git branch --show-current`).
+
+Laporan harus menjadi **berkas di Git**, bukan hanya teks di chat:
+
+```
+git add docs/uji/audit/ && git commit -m "laporan audit AUD-3 <lingkup>" && git push -u origin HEAD
+```
+
+Hanya berkas laporan yang di-commit. Bila push tidak bisa, tulis "belum ter-push" di laporan + beri tahu Lee di chat.
+
+## ATURAN INDEPENDENSI (tidak bisa ditawar)
+
+1. Kamu **hanya-baca**: SATU-SATUNYA berkas yang boleh kamu buat adalah laporan (§6 format laporan). Selain berkas itu,
+   jangan mengubah/memperbaiki apa pun (temuan ditulis, bukan dibetulkan).
+2. Tugasmu **membantah** klaim pembangun di bawah — bukan mempercayainya.
+3. Dilarang memuji, dilarang "looks good", dilarang melaporkan soal gaya penulisan sebagai temuan.
+4. Setiap calon temuan wajib kamu **uji ulang** di kode sekarang (buka berkas, telusuri pemanggil, jalankan perintah).
+   Tidak bisa dibuktikan → tandai **DUGAAN**, bukan TERVERIFIKASI.
+5. Istilah tingkat: **K-1** = uang salah/data bocor/tak bisa dipulihkan; **K-2** = janji PRD/ART/KEAMANAN dilanggar atau kontrol wajib hilang;
+   **K-3** = tidak konsisten / uji kurang / dokumen basi; **K-4** = kerapian, tidak menghambat.
+6. Verdict: `BERSIH` / `BERSIH-DENGAN-CATATAN` / `TIDAK-BERSIH`. **Ada K-1/K-2 TERVERIFIKASI → verdict wajib TIDAK-BERSIH.**
+
+
+## 0. LINGKUP MENYELURUH (wajib — audit ini memeriksa SEMUA berkas proyek)
+
+- **Jumlah berkas dalam lingkup:** 403
+- **Mode cakupan yang wajib kamu tulis di laporan:** `menyeluruh`
+
+**Grup berkas yang wajib kamu sentuh (minimal satu baris bukti per grup):**
+
+| Grup | Isi | Jumlah berkas | Contoh |
+|---|---|---|---|
+| aplikasi/src | kode aplikasi (layar, komponen, lib, uji) | 71 | `aplikasi/src/App.tsx`, `aplikasi/src/gaya/aset/font/LISENSI-ArsenalSC.txt` … |
+| aplikasi/alat | perkakas pemeriksa aplikasi | 8 | `aplikasi/alat/periksa-antarmuka.py`, `aplikasi/alat/periksa-kerapatan.py` … |
+| aplikasi (konfigurasi) | package.json, tsconfig, vite, index.html | 16 | `aplikasi/.env.example`, `aplikasi/.gitignore` … |
+| supabase/migrations | migrasi database | 14 | `supabase/migrations/.gitkeep`, `supabase/migrations/0001_penyewa_cabang.sql` … |
+| supabase/tes | uji SQL | 32 | `supabase/tes/.gitkeep`, `supabase/tes/cabang_sesi.sql` … |
+| supabase/functions | Edge Functions | 2 | `supabase/functions/.gitkeep`, `supabase/functions/verifikasi_pin/index.ts` |
+| alat | perkakas repo (uji SQL, pemeriksa, mekanisme audit) | 36 | `alat/audit-independen.py`, `alat/bantu_uji_diri.py` … |
+| _sistem | mesin kerja agent (validator, template) | 16 | `_sistem/02_TAWARAN_KAPABILITAS_PLUS_AUDIT.md`, `_sistem/03_AUDIT_VERCEL_SKILLS.md` … |
+| docs (fondasi) | PRD, TECH_SPEC, ROADMAP, KEAMANAN, SPESIFIKASI_UI, dll | 11 | `docs/AGENT_OPERATING_GUIDE.md`, `docs/DECISIONS_LOG.md` … |
+| docs/uji | protokol & laporan uji/audit | 52 | `docs/uji/AUDIT_RIWAYAT.md`, `docs/uji/BUKU_UJI_PEMILIK.md` … |
+| docs/teknis | catatan teknis & Buku Insiden | 6 | `docs/teknis/BUKU_INSIDEN.md`, `docs/teknis/DISKUSI_TAHAP4_ATURAN_KERJA.md` … |
+| docs/ops | panduan operasional | 2 | `docs/ops/DAFTAR_KUNCI_PEMILIK.template.md`, `docs/ops/SIAP_AKUN_PEMILIK.md` |
+| docs/desain | catatan desain | 59 | `docs/desain/PENILAIAN_REFERENSI.md`, `docs/desain/RENCANA_DESAIN_UI.md` … |
+| prototipe | prototipe desain (acuan visual) | 58 | `prototipe/01-laporan.html`, `prototipe/02-kasir.html` … |
+| _log-sesi | log sesi kerja | 3 | `_log-sesi/LOG_SESI_2026-09-15.md`, `_log-sesi/LOG_SESI_2026-09-16.md` … |
+| berkas pengguna di akar | PANDUAN_*, PROMPT_*, START_DI_SINI, PROFIL_PENGGUNA, AGENT_SYSTEM, STATUS, PROJECT_STATE, dll | 16 | `.gitignore`, `10_LOG_SESI.md` … |
+| .github/workflows | alur CI | 1 | `.github/workflows/ci.yml` |
+
+**Dikecualikan dari lingkup (dan wajib kamu setujui/tolak dengan alasan):**
+
+- `skills/` (1803 berkas) — kumpulan skill pihak ketiga (vendored) — bukan kode proyek; dipakai, tidak diubah
+- `_salinan-meta/` (2 berkas) — arsip provenance sistem
+- `_Notes.md` (1 berkas) — catatan pribadi pemilik (tidak ikut template)
+
+**Kewajiban khusus mode menyeluruh (divalidasi mesin):**
+1. Tulis di kepala laporan: `- **Mode cakupan:** menyeluruh`.
+2. Tulis ringkasan: `Cakupan menyeluruh: X dari 403 berkas` (X = berkas yang benar-benar kamu periksa; angka ini diperiksa mesin).
+3. Bagian 1 harus memuat **setiap grup** di atas minimal satu baris (dengan bukti perintah/baris).
+4. Tambahkan sub-bagian `### 1a. Berkas untuk pengguna` (minimal 3 baris): berkas pengguna di akar (PANDUAN_*, PROMPT_*, START_DI_SINI, PROFIL_PENGGUNA, AGENT_SYSTEM, STATUS, PROJECT_STATE), `docs/PANDUAN_PEMILIK.md`, `docs/uji/PROMPT_AUDIT_INDEPENDEN.md`,
+   `docs/teknis/BUKU_INSIDEN.md`, `docs/ops/*`, dan `PANDUAN_PENGGUNA.md` → **periksa dengan cara pengguna**: apakah langkahnya bisa diikuti orang non-teknis, apakah prompt bisa disalin apa adanya dan bekerja, apakah ada langkah yang menyebut berkas/perintah yang tidak ada, apakah isi buku induk lengkap (semua mekanisme & semua prompt ada).
+5. Auditor yang **tidak** memeriksa berkas untuk pengguna dianggap **belum menyeluruh** dan laporannya ditolak.
+
+## 0b. Kalibrasi cacat tanaman (wajib untuk AUD-3 — jangan dilewati)
+
+Folder bahan kalibrasi **berisi cacat yang disengaja** (defect injection). Tugasmu: temukan cacat itu.
+
+- `docs/uji/kalibrasi/bahan-2026-09-17/` (5 berkas)
+
+Aturan main (dikutip dari `docs/uji/kalibrasi/CARA-PAKAI.md`):
+1. Kamu **tidak** diberi tahu berapa jumlah cacatnya, di berkas mana, atau kelasnya. Periksa seperti kode/dokumen sungguhan.
+2. Cacat di folder `bahan-*/` **tidak dihitung** sebagai temuan proyek — tulis hasilnya terpisah di `## 5. Kalibrasi cacat tanaman`.
+3. Format bagian 5: `Ditemukan: X dari Y` (Y = jumlah cacat yang kamu yakini ada), daftar cacat temuanmu (berkas + kelas + bukti), dan jumlah **temuan palsu** (yang kamu klaim cacat padahal bukan).
+4. **Dilarang mencari kunci jawaban** (ada di luar repo). Menemukan/memakai kunci = kalibrasi batal dan wajib kamu laporkan.
+
+Ambang lulus (dinilai pembangun setelah laporan masuk): semua cacat K-1/K-2 tertanam ditemukan + ≥70% total + 0 temuan palsu.
+
+## 1. Artefak yang harus diperiksa (minimal)
+
+| # | Berkas |
+|---|---|
+| 1 | `docs/ops/SIAP_AKUN_PEMILIK.md` |
+| 2 | `aplikasi/package.json` |
+| 3 | `aplikasi/vite.config.ts` |
+| 4 | `aplikasi/tsconfig.json` |
+| 5 | `aplikasi/tsconfig.app.json` |
+| 6 | `aplikasi/tsconfig.node.json` |
+| 7 | `aplikasi/src/layar/contoh/LayarContoh.tsx` |
+| 8 | `aplikasi/alat/periksa-struktur.py` |
+| 9 | `aplikasi/.prettierrc.json` |
+| 10 | `aplikasi/vitest.config.ts` |
+| 11 | `aplikasi/src/lib/tema.ts` |
+| 12 | `aplikasi/src/hook/useTema.ts` |
+| 13 | `prototipe/uji-kontras.py` |
+| 14 | `src/lib/tema.ts` |
+| 15 | `aplikasi/src/komponen/*.tsx` |
+| 16 | `aplikasi/alat/uji-kontras.py` |
+| 17 | `aplikasi/alat/periksa-komponen-env.py` |
+| 18 | `python3 aplikasi/alat/uji-kontras.py` |
+| 19 | `aplikasi/src/lib/env.ts` |
+| 20 | `python3 aplikasi/alat/periksa-komponen-env.py` |
+| 21 | `aplikasi/README.md` |
+| 22 | `.github/workflows/ci.yml` |
+| 23 | `aplikasi/src/lib/supabase.ts` |
+| 24 | `aplikasi/src/lib/format.test.ts` |
+| 25 | `aplikasi/src/lib/tema.test.ts` |
+| 26 | `aplikasi/src/lib/env.test.ts` |
+| 27 | `aplikasi/src/hook/useJam.test.tsx` |
+| 28 | `aplikasi/src/hook/useTema.test.tsx` |
+| 29 | `aplikasi/src/komponen/komponen.test.tsx` |
+| 30 | `aplikasi/alat/periksa-uji.py` |
+| 31 | `alat/periksa-roadmap.py` |
+| 32 | `python3 alat/periksa-roadmap.py` |
+| 33 | `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` |
+| 34 | `alat/periksa-panduan.py` |
+| 35 | `docs/PANDUAN_PEMILIK.md` |
+| 36 | `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` |
+| 37 | `docs/ROADMAP.md` |
+| 38 | `python3 alat/periksa-panduan.py` |
+| 39 | `python3 _sistem/validate_system.py` |
+| 40 | `docs/uji/AUDIT_RIWAYAT.md` |
+| 41 | `docs/uji/paket-audit/AUD-3-<tanggal>.md` |
+| 42 | `docs/uji/audit/LAPORAN_AUD-3_<tanggal>_menyeluruh.md` |
+| 43 | `docs/TERTANGGUH.md` |
+| 44 | `docs/uji/PROTOKOL_REVIEW_PR_INDEPENDEN.md` |
+| 45 | `docs/uji/PROMPT_REVIEW_PR_INDEPENDEN.md` |
+| 46 | `alat/review-pr.py` |
+| 47 | `docs/uji/REVIEW_PR_RIWAYAT.md` |
+| 48 | `docs/teknis/REKAM_PESAN_PEMILIK.md` |
+| 49 | `supabase/migrations/0001_penyewa_cabang.sql` |
+| 50 | `supabase/tes/rls_penyewa.sql` |
+| 51 | `supabase/migrations/0002_pengguna_izin_pengaturan.sql` |
+| 52 | `supabase/tes/rls_pengguna.sql` |
+| 53 | `supabase/migrations/0003_helper_identitas.sql` |
+| 54 | `supabase/tes/helper.sql` |
+| 55 | `supabase/migrations/0004_pola_rls.sql` |
+| 56 | `supabase/tes/rls_semua_tabel.sql` |
+| 57 | `supabase/migrations/0005_izin_berjenjang.sql` |
+| 58 | `supabase/tes/izin.sql` |
+| 59 | `supabase/migrations/0006_pin.sql` |
+| 60 | `supabase/functions/verifikasi_pin/index.ts` |
+| 61 | `supabase/tes/pin.sql` |
+| 62 | `supabase/tes/percobaan_pin_perangkat.sql` |
+| 63 | `alat/periksa-fungsi-pin.py` |
+| 64 | `supabase/migrations/0007_katalog.sql` |
+| 65 | `supabase/tes/katalog.sql` |
+| 66 | `supabase/migrations/0008_meja.sql` |
+| 67 | `supabase/tes/meja.sql` |
+| 68 | `supabase/migrations/0009_pesanan.sql` |
+| 69 | `supabase/tes/pesanan.sql` |
+| 70 | `supabase/migrations/0010_pembayaran.sql` |
+| 71 | `supabase/tes/pembayaran.sql` |
+| 72 | `supabase/migrations/0018_kas_shift.sql` |
+| 73 | `supabase/migrations/0019_voucher.sql` |
+| 74 | `supabase/migrations/0020_catatan_audit.sql` |
+| 75 | `supabase/tes/audit.sql` |
+| 76 | `supabase/migrations/0021_antrean_kesalahan.sql` |
+| 77 | `supabase/migrations/0022_hitung_total.sql` |
+| 78 | `supabase/tes/uang.sql` |
+| 79 | `supabase/tes/gerbang_uang.sql` |
+| 80 | `supabase/migrations/0023_urutan_pembulatan.sql` |
+| 81 | `supabase/tes/urutan.sql` |
+| 82 | `supabase/migrations/0024_penomoran.sql` |
+| 83 | `supabase/tes/penomoran.sql` |
+| 84 | `supabase/migrations/0025_state_machine.sql` |
+| 85 | `supabase/tes/status.sql` |
+| 86 | `supabase/migrations/0026_cek_voucher.sql` |
+| 87 | `supabase/tes/cek_voucher.sql` |
+| 88 | `supabase/tes/diskon_voucher.sql` |
+| 89 | `supabase/migrations/0027_pakai_voucher.sql` |
+| 90 | `supabase/tes/pakai_voucher.sql` |
+| 91 | `supabase/seed.sql` |
+| 92 | `supabase/seed_uji.sql` |
+| 93 | `supabase/tes/sisir_rls.sql` |
+| 94 | `docs/KEAMANAN.md` |
+| 95 | `docs/DECISIONS_LOG.md` |
+| 96 | `supabase/migrations/0011_peran_tunggal.sql` |
+| 97 | `supabase/tes/peran_tunggal.sql` |
+| 98 | `supabase/tes/kredensial_pin.sql` |
+| 99 | `supabase/tes/pin_batas_pasang.sql` |
+| 100 | `node alat/uji-sql.mjs` |
+| 101 | `supabase/migrations/0012_perangkat.sql` |
+| 102 | `supabase/tes/perangkat.sql` |
+| 103 | `supabase/migrations/0013_sesi_perangkat.sql` |
+| 104 | `supabase/tes/sesi_perangkat.sql` |
+| 105 | `supabase/migrations/0014_percobaan_masuk.sql` |
+| 106 | `supabase/tes/percobaan_masuk.sql` |
+| 107 | `supabase/migrations/0015_audit.sql` |
+| 108 | `alat/periksa-audit.py` |
+| 109 | `supabase/migrations/0016_mode_dukungan.sql` |
+| 110 | `supabase/tes/mode_dukungan.sql` |
+| 111 | `supabase/tes/matriks_izin.sql` |
+| 112 | `supabase/tes/matriks_staf.sql` |
+| 113 | `alat/periksa-keamanan-sql.py` |
+| 114 | `alat/periksa-rahasia.py` |
+| 115 | `aplikasi/src/lib/layar.ts` |
+| 116 | `docs/SPESIFIKASI_UI.md` |
+| 117 | `docs/PETA_UI.md` |
+| 118 | `alat/peta-ui.py` |
+| 119 | `aplikasi/src/lib/aksi.ts` |
+| 120 | `aplikasi/src/komponen/TombolAksi.tsx` |
+| 121 | `aplikasi/src/komponen/TombolAksi.test.tsx` |
+| 122 | `aplikasi/src/uji/harness.tsx` |
+| 123 | `aplikasi/src/uji/harness.test.tsx` |
+| 124 | `docs/AGENT_OPERATING_GUIDE.md` |
+| 125 | `docs/uji/NASKAH_JALAN.md` |
+| 126 | `supabase/migrations/0016b_pemulihan_perangkat.sql` |
+| 127 | `supabase/tes/pemulihan.sql` |
+| 128 | `docs/ops/PEMULIHAN_PERANGKAT.md` |
+| 129 | `docs/uji/DAFTAR_PEKERJAAN_ULANG.md` |
+| 130 | `alat/sql/data-uji.sql` |
+| 131 | `tes/izin.sql` |
+| 132 | `docs/uji/paket-audit/AUD-2-<tanggal>.md` |
+| 133 | `docs/uji/audit/LAPORAN_AUD-2_<tanggal>_keamanan.md` |
+| 134 | `python3 alat/peta-ui.py` |
+| 135 | `aplikasi/src/bahasa/id.ts` |
+| 136 | `aplikasi/src/bahasa/index.ts` |
+| 137 | `aplikasi/alat/periksa-bahasa.py` |
+| 138 | `python3 aplikasi/alat/periksa-bahasa.py` |
+| 139 | `aplikasi/alat/periksa-arah.py` |
+| 140 | `aplikasi/src/kontrak/bantuan.ts` |
+| 141 | `aplikasi/src/komponen/LembarBantuan.tsx` |
+| 142 | `alat/periksa-bantuan.py` |
+| 143 | `docs/uji/BUKU_UJI_PEMILIK.md` |
+| 144 | `alat/periksa-buku-uji.py` |
+| 145 | `alat/tambah-uji.py` |
+| 146 | `alat/audit-independen.py` |
+| 147 | `aplikasi/src/lib/auth.ts` |
+| 148 | `aplikasi/src/hook/useSesi.ts` |
+| 149 | `aplikasi/src/layar/masuk/LayarMasukPegawai.tsx` |
+| 150 | `supabase/tes/masuk_pegawai.sql` |
+| 151 | `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx` |
+| 152 | `supabase/functions/undang_pegawai/index.ts` |
+| 153 | `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx` |
+| 154 | `aplikasi/src/lib/google.ts` |
+| 155 | `supabase/functions/pemulihan_pelanggan/index.ts` |
+| 156 | `aplikasi/src/layar/masuk/LupaAkses.tsx` |
+| 157 | `aplikasi/src/App.tsx` |
+| 158 | `aplikasi/src/komponen/Rangka.tsx` |
+| 159 | `aplikasi/src/komponen/Navigasi.tsx` |
+| 160 | `aplikasi/src/hook/useCabang.ts` |
+| 161 | `aplikasi/src/komponen/PemilihCabang.tsx` |
+| 162 | `aplikasi/src/layar/TidakPunyaAkses.tsx` |
+| 163 | `aplikasi/src/lib/pesan.ts` |
+| 164 | `aplikasi/src/hook/useKunciSesi.ts` |
+| 165 | `supabase/functions/pembatas_masuk/index.ts` |
+| 166 | `supabase/tes/pembatas.sql` |
+| 167 | `aplikasi/src/layar/masuk/*.test.ts` |
+| 168 | `supabase/tes/peran_masuk.sql` |
+| 169 | `aplikasi/src/layar/masuk/Totp.tsx` |
+| 170 | `supabase/functions/atur_ulang_mfa/index.ts` |
+| 171 | `alat/periksa-fungsi-mfa.py` |
+| 172 | `supabase/tes/mfa.sql` |
+| 173 | `aplikasi/src/layar/masuk/MasukStaf.tsx` |
+| 174 | `aplikasi/src/lib/sesi.ts` |
+| 175 | `aplikasi/src/layar/pengaturan/Perangkat.tsx` |
+| 176 | `supabase/functions/kode_perangkat/index.ts` |
+| 177 | `aplikasi/src/hook/useKunciOtomatis.ts` |
+| 178 | `aplikasi/src/komponen/KunciSekarang.tsx` |
+| 179 | `aplikasi/src/hook/useKunciOtomatis.test.tsx` |
+| 180 | `aplikasi/src/layar/pengaturan/DaftarPerangkat.tsx` |
+| 181 | `aplikasi/src/layar/masuk/MasukPengelola.tsx` |
+| 182 | `supabase/tes/masuk_perangkat.sql` |
+| 183 | `aplikasi/src/layar/masuk/masuk.test.tsx` |
+| 184 | `aplikasi/src/layar/kasir/LayarKasir.tsx` |
+| 185 | `aplikasi/src/layar/kasir/Katalog.tsx` |
+| 186 | `aplikasi/src/layar/kasir/Keranjang.tsx` |
+| 187 | `aplikasi/src/lib/uang.ts` |
+| 188 | `aplikasi/src/layar/kasir/PemilihMeja.tsx` |
+| 189 | `aplikasi/src/komponen/CatatanItem.tsx` |
+| 190 | `aplikasi/src/layar/kasir/DaftarTagihan.tsx` |
+| 191 | `supabase/migrations/0028_simpan_pesanan.sql` |
+| 192 | `supabase/tes/simpan_pesanan.sql` |
+| 193 | `aplikasi/src/layar/kasir/PindahMeja.tsx` |
+| 194 | `supabase/migrations/0029_pindah_meja.sql` |
+| 195 | `supabase/migrations/0030_menu_habis.sql` |
+| 196 | `aplikasi/src/layar/kasir/KirimDapur.tsx` |
+| 197 | `supabase/migrations/0031_kirim_dapur.sql` |
+| 198 | `aplikasi/src/layar/kasir/PeringatanMeja.tsx` |
+| 199 | `supabase/tes/konflik_meja.sql` |
+| 200 | `aplikasi/src/hook/usePintasan.ts` |
+| 201 | `aplikasi/src/layar/pelayan/LayarPelayan.tsx` |
+| 202 | `aplikasi/src/layar/kasir/DaftarPesanan.tsx` |
+| 203 | `aplikasi/src/layar/kasir/BatalPesanan.tsx` |
+| 204 | `supabase/migrations/0032_batal_pra_dapur.sql` |
+| 205 | `aplikasi/uji/e2e/kasir.spec.ts` |
+| 206 | `aplikasi/src/layar/kasir/*.tsx` |
+| 207 | `aplikasi/src/komponen/Keadaan*.tsx` |
+| 208 | `aplikasi/uji/beban/kasir.test.ts` |
+| 209 | `aplikasi/src/layar/dapur/LayarDapur.tsx` |
+| 210 | `aplikasi/src/layar/dapur/LayarBar.tsx` |
+| 211 | `supabase/migrations/0033_tujuan_item.sql` |
+| 212 | `aplikasi/src/layar/dapur/KartuPesanan.tsx` |
+| 213 | `supabase/migrations/0034_status_item.sql` |
+| 214 | `supabase/tes/status_item.sql` |
+| 215 | `aplikasi/src/layar/dapur/TombolHabis.tsx` |
+| 216 | `supabase/migrations/0035_menu_habis_sumber.sql` |
+| 217 | `aplikasi/src/layar/dapur/Stok.tsx` |
+| 218 | `supabase/migrations/0036_stok.sql` |
+| 219 | `aplikasi/src/layar/dapur/Opname.tsx` |
+| 220 | `supabase/migrations/0037_opname.sql` |
+| 221 | `aplikasi/uji/e2e/dapur.spec.ts` |
+| 222 | `supabase/tes/anti_dobel.sql` |
+| 223 | `aplikasi/src/layar/dapur/*.tsx` |
+| 224 | `aplikasi/src/layar/kasir/Bayar.tsx` |
+| 225 | `supabase/migrations/0038_bayar_pesanan.sql` |
+| 226 | `supabase/tes/bayar.sql` |
+| 227 | `aplikasi/src/komponen/Struk.tsx` |
+| 228 | `supabase/tes/pajak_service.sql` |
+| 229 | `supabase/migrations/0039_diskon.sql` |
+| 230 | `supabase/tes/diskon.sql` |
+| 231 | `aplikasi/src/layar/kasir/DiskonManual.tsx` |
+| 232 | `supabase/migrations/0040_diskon_izin.sql` |
+| 233 | `supabase/migrations/0041_void_pra.sql` |
+| 234 | `supabase/tes/void_pra.sql` |
+| 235 | `supabase/migrations/0042_void_pasca.sql` |
+| 236 | `aplikasi/src/layar/kasir/VoidPasca.tsx` |
+| 237 | `aplikasi/src/layar/kasir/DataPelanggan.tsx` |
+| 238 | `aplikasi/src/komponen/StrukDigital.tsx` |
+| 239 | `aplikasi/src/layar/kasir/DaftarTransaksi.tsx` |
+| 240 | `supabase/tes/pembayaran_sebagian.sql` |
+| 241 | `supabase/migrations/0043_laporan_pembatalan.sql` |
+| 242 | `aplikasi/src/layar/laporan/DaftarPembatalan.tsx` |
+| 243 | `aplikasi/src/lib/printer/expos.ts` |
+| 244 | `aplikasi/src/lib/printer/expos.test.ts` |
+| 245 | `aplikasi/src/lib/printer/bluetooth.ts` |
+| 246 | `aplikasi/src/layar/pengaturan/PasangPrinter.tsx` |
+| 247 | `aplikasi/src/lib/printer/usb.ts` |
+| 248 | `aplikasi/src/lib/printer/struk.ts` |
+| 249 | `aplikasi/src/lib/printer/tiket.ts` |
+| 250 | `aplikasi/src/lib/printer/antrean.ts` |
+| 251 | `aplikasi/src/komponen/StatusPrinter.tsx` |
+| 252 | `supabase/migrations/0044_printer.sql` |
+| 253 | `aplikasi/src/layar/pengaturan/PengaturanPrinter.tsx` |
+| 254 | `docs/uji/UJI_CETAK_KEDAI_OASIS.md` |
+| 255 | `supabase/migrations/0045_buka_shift.sql` |
+| 256 | `aplikasi/src/layar/kasir/BukaKas.tsx` |
+| 257 | `supabase/migrations/0046_tutup_shift.sql` |
+| 258 | `aplikasi/src/layar/kasir/TutupKas.tsx` |
+| 259 | `supabase/migrations/0047_kas_pergerakan.sql` |
+| 260 | `aplikasi/src/layar/kasir/KasKeluarMasuk.tsx` |
+| 261 | `supabase/migrations/0048_wajib_shift.sql` |
+| 262 | `supabase/tes/wajib_shift.sql` |
+| 263 | `aplikasi/src/komponen/PengingatShift.tsx` |
+| 264 | `supabase/migrations/0049_pengingat_shift.sql` |
+| 265 | `supabase/migrations/0050_koreksi_modal.sql` |
+| 266 | `supabase/migrations/0051_laporan_kas.sql` |
+| 267 | `aplikasi/src/layar/laporan/LaporanKas.tsx` |
+| 268 | `supabase/migrations/0052_laporan_penjualan.sql` |
+| 269 | `aplikasi/src/layar/laporan/LaporanPenjualan.tsx` |
+| 270 | `supabase/migrations/0053_laporan_menu.sql` |
+| 271 | `aplikasi/src/layar/laporan/LaporanMenu.tsx` |
+| 272 | `aplikasi/src/layar/laporan/FormatLaporan.tsx` |
+| 273 | `supabase/tes/tengah_malam.sql` |
+| 274 | `supabase/tes/golden_laporan.sql` |
+| 275 | `supabase/migrations/0054_katalog_publik.sql` |
+| 276 | `supabase/tes/katalog_publik.sql` |
+| 277 | `aplikasi/src/layar/pelanggan-publik/Katalog.tsx` |
+| 278 | `aplikasi/src/layar/pelanggan-publik/Menu.tsx` |
+| 279 | `aplikasi/src/layar/pengaturan/TautanKatalog.tsx` |
+| 280 | `aplikasi/src/layar/voucher/Kampanye.tsx` |
+| 281 | `aplikasi/src/layar/voucher/Daftar.tsx` |
+| 282 | `supabase/functions/verifikasi_pelanggan/index.ts` |
+| 283 | `aplikasi/src/lib/emailNormalisasi.ts` |
+| 284 | `supabase/tes/anti_email_palsu.sql` |
+| 285 | `supabase/migrations/0055_voucher_terbit.sql` |
+| 286 | `aplikasi/src/layar/voucher/KartuVoucher.tsx` |
+| 287 | `aplikasi/src/layar/kasir/Voucher.tsx` |
+| 288 | `aplikasi/src/layar/kasir/ScanVoucher.tsx` |
+| 289 | `aplikasi/src/layar/pengaturan/Kampanye.tsx` |
+| 290 | `supabase/migrations/0056_kampanye_aturan.sql` |
+| 291 | `supabase/migrations/0057_pengaman_voucher.sql` |
+| 292 | `supabase/tes/pengaman_voucher.sql` |
+| 293 | `supabase/migrations/0058_laporan_voucher.sql` |
+| 294 | `aplikasi/src/layar/laporan/LaporanVoucher.tsx` |
+| 295 | `supabase/tes/voucher_lengkap.sql` |
+| 296 | `aplikasi/uji/e2e/voucher.spec.ts` |
+| 297 | `supabase/migrations/0017_privasi_pelanggan.sql` |
+| 298 | `supabase/tes/privasi.sql` |
+| 299 | `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx` |
+| 300 | `aplikasi/src/layar/pengaturan/Identitas.tsx` |
+| 301 | `supabase/migrations/0059_unggah_gambar.sql` |
+| 302 | `prototipe/README.md` |
+| 303 | `aplikasi/src/layar/pengaturan/Tampilan.tsx` |
+| 304 | `aplikasi/src/layar/pengaturan/Operasional.tsx` |
+| 305 | `supabase/migrations/0060_pengaturan_operasional.sql` |
+| 306 | `aplikasi/src/layar/pengaturan/Meja.tsx` |
+| 307 | `aplikasi/src/layar/pengaturan/Menu.tsx` |
+| 308 | `supabase/migrations/0061_urut_menu.sql` |
+| 309 | `aplikasi/src/layar/pengaturan/MenuCabang.tsx` |
+| 310 | `aplikasi/src/layar/pengaturan/MetodeBayar.tsx` |
+| 311 | `aplikasi/src/layar/pengaturan/Izin.tsx` |
+| 312 | `supabase/migrations/0062_kelola_izin.sql` |
+| 313 | `aplikasi/src/layar/pengaturan/Cabang.tsx` |
+| 314 | `supabase/migrations/0063_kelola_cabang.sql` |
+| 315 | `aplikasi/src/layar/platform/Penyewa.tsx` |
+| 316 | `supabase/functions/daftar_penyewa/index.ts` |
+| 317 | `supabase/tes/daftar_penyewa.sql` |
+| 318 | `aplikasi/src/layar/pengaturan/Pratinjau.tsx` |
+| 319 | `supabase/tes/riwayat_tidak_berubah.sql` |
+| 320 | `docs/uji/UJI_TERIMA_PENGATURAN.md` |
+| 321 | `aplikasi/src/lib/antrean-offline.ts` |
+| 322 | `aplikasi/src/hook/useAntrean.ts` |
+| 323 | `supabase/migrations/0064_idempoten.sql` |
+| 324 | `supabase/tes/idempoten.sql` |
+| 325 | `aplikasi/src/komponen/StatusAntrean.tsx` |
+| 326 | `aplikasi/uji/e2e/luring.spec.ts` |
+| 327 | `supabase/tes/sisir_rls_akhir.sql` |
+| 328 | `aplikasi/src/layar/pengaturan/SesiAktif.tsx` |
+| 329 | `supabase/functions/akhiri_sesi/index.ts` |
+| 330 | `docs/uji/AUDIT_KEAMANAN.md` |
+| 331 | `supabase/migrations/0065_pg_cron.sql` |
+| 332 | `alat/denyut.py` |
+| 333 | `aplikasi/src/lib/pemulihan-sesi.ts` |
+| 334 | `aplikasi/uji/e2e/mati-mendadak.spec.ts` |
+| 335 | `docs/ops/PEMULIHAN_LISTRIK.md` |
+| 336 | `docs/teknis/PEMULIHAN.md` |
+| 337 | `.github/workflows/cadangan.yml` |
+| 338 | `supabase/migrations/0066_versi_pengaturan.sql` |
+| 339 | `supabase/tes/pengaturan_bersamaan.sql` |
+| 340 | `aplikasi/src/layar/pengaturan/CabutAkses.tsx` |
+| 341 | `supabase/tes/cabut_akses.sql` |
+| 342 | `supabase/functions/ringkasan_harian/index.ts` |
+| 343 | `supabase/migrations/0066_ringkasan_harian.sql` |
+| 344 | `aplikasi/src/layar/laporan/Peringatan.tsx` |
+| 345 | `supabase/tes/ringkasan.sql` |
+| 346 | `docs/teknis/BUKU_INSIDEN.md` |
+| 347 | `docs/teknis/TINJAUAN_KEAMANAN_F10.md` |
+| 348 | `aplikasi/uji/e2e/*.spec.ts` |
+| 349 | `docs/uji/UJI_TERIMA_G1.md` |
+| 350 | `docs/uji/UJI_PERANGKAT.md` |
+| 351 | `docs/uji/AUDIT_TAMPILAN.md` |
+| 352 | `alat/pantau_batas.py` |
+| 353 | `docs/uji/KINERJA_DAN_BATAS.md` |
+| 354 | `docs/ops/DEPLOY.md` |
+| 355 | `aplikasi/src/layar/pengaturan/StatusPemakaian.tsx` |
+| 356 | `supabase/functions/peringatan_batas/index.ts` |
+| 357 | `docs/ops/PANDUAN_PEGAWAI.md` |
+| 358 | `docs/ops/SERAH_TERIMA_G1.md` |
+| 359 | `.github/workflows/e2e.yml` |
+| 360 | `uji-e2e/*.spec.ts` |
+| 361 | `docs/uji/HASIL_UJI_TERIMA_KEAMANAN.md` |
+| 362 | `docs/uji/audit/LAPORAN_AUD-3_<tanggal>_pilot.md` |
+
+## 2. Klaim pembangun yang harus kamu coba bantah
+
+| # | Tugas | Klaim "Bukti" |
+|---|---|---|
+| 1 | T0-01 | `npm run dev` melayani halaman (HTTP 200), `main.tsx`, `tema.css`, dan berkas huruf (font/woff2); 7 folder layar + `supabase/{migrations,functions,tes}` ada; berkas huruf **19 berkas** `.woff2` di aplikasi (angka terhitung 2026-09-17; perintah yang bisa diulang: `find aplikasi/src/gaya/aset -name '*.woff2' | wc -l` (hu |
+| 2 | T0-02 | ESLint 9.39 (typescript-eslint 8.70) + Prettier 3.9 + TypeScript 5.7 ketat (`strict`, `noUnusedLocals`, `noUnusedParameters`); gerbang dibuktikan menyala lewat uji mutasi — berkas dengan `any` ditolak lint, berkas dengan salah tipe ditolak `tsc -b --noEmit`, berkas belum diformat ditolak `format:check`; sesudah dibersi |
+| 3 | T0-03 | `tema.css` identik byte-per-byte dengan `prototipe/css/tokens.css` (diperiksa otomatis), 19 berkas huruf tersalin dan semua rujukan `url()` di dalamnya ada di disk; 10 kode tema di `src/lib/tema.ts` sama persis dengan kode tema di token (diperiksa otomatis); warna `theme-color` peramban diambil dari token `--accent`, b |
+| 4 | T0-04 | `uji-kontras.py` versi aplikasi **166 lolos · 0 gagal** (130 pemeriksaan warna 10 tema + 36 aturan desain, termasuk tinggi sentuh ≥44 px); 10 komponen ada dan diperiksa `aplikasi/alat/periksa-komponen-env.py`; 17 uji komponen + 22 uji lain hijau; layar contoh `aplikasi/src/layar/contoh/LayarContoh.tsx` memperagakan sem |
+| 5 | T0-05 | `.env.example` memuat **semua 8 nama variabel** dari TECH_SPEC §6 (diperiksa otomatis dari dokumen, bukan dari daftar manual), hanya `VITE_SUPABASE_URL` & `VITE_SUPABASE_ANON_KEY` yang aktif (dua-duanya aman publik), variabel rahasia sengaja tidak berawalan `VITE_` dan hanya dikomentari; `git check-ignore` membuktikan  |
+| 6 | T0-06 | folder `aplikasi/` disalin ke tempat bersih (tanpa `node_modules`/`dist`), lalu `npm ci` → Prettier → ESLint → TypeScript → 39 uji → build: **semuanya hijau** mengikuti langkah di README; README memuat prasyarat, cara menjalankan, peta folder, daftar perintah, aturan rahasia, daftar pemeriksa, dan bagian “sebelum mengi |
+| 7 | T0-07 | CI menyala di setiap push & pull request; gerbangnya benar-benar bekerja — (a) run 35121292973 **MERAH di langkah ESLint** saat sengaja dipasang variabel tidak terpakai (kode ujinya lalu dihapus), (b) run 35120922393 merah karena folder layar kosong tidak ikut Git, (c) run 35121062046 merah karena satu berkas Markdown  |
+| 8 | T0-10 | **51 uji hijau dalam 7 berkas** (uang/tanggal/jam · tema & kerapatan · pembacaan pengaturan · jam berdenyut · pemilih tema dengan jsdom · 17 uji komponen · layar contoh); kerangka siap untuk kode uang/izin — jsdom + @testing-library/react terpasang supaya hook bisa diuji seperti pemakaian nyata; pemeriksa baru `aplikas |
+| 9 | T1-01 | migrasi `0001` diterapkan pada PostgreSQL asli lalu diuji `supabase/tes/rls_penyewa.sql` — pengunjung belum masuk melihat **0 baris** penyewa & cabang, kasir resto A hanya melihat **1 penyewa & 2 cabangnya**, kasir resto B **tidak melihat satu baris pun** milik resto A; perintah ubah cabang dari resto lain **tidak meng |
+| 10 | T1-02 | `supabase/tes/rls_pengguna.sql` — kasir hanya melihat **baris dirinya sendiri**, admin cabang Pusat melihat **3 pegawai** cabangnya (bukan yang hanya bertugas di Cabang Dua), owner pusat melihat **seluruh pegawai restonya** dan **0 pegawai resto lain**; izin hanya terlihat oleh yang berhak (kasir **2 baris miliknya**,  |
+| 11 | T1-03 | `supabase/migrations/0003_helper_identitas.sql` + `supabase/tes/helper.sql` — diuji untuk **7 akun** (pemilik platform, owner pusat, admin cabang, kasir, pelayan merangkap dua cabang, dapur, kasir resto lain): pemilik platform tidak punya penyewa/cabang, owner pusat punya penyewa tanpa cabang, pelayan mengembalikan **2 |
+| 12 | T1-04 | `supabase/migrations/0004_pola_rls.sql` + `supabase/tes/rls_semua_tabel.sql`. Uji ini **membaca katalog PostgreSQL**, tidak menyebut nama tabel satu per satu — jadi tabel baru di fase mana pun otomatis diperiksa (RLS aktif · punya policy · yang punya `penyewa_id` wajib menyebut `penyewa_saya()`), plus pemindaian pemboc |
+| 13 | T1-05 | `supabase/migrations/0005_izin_berjenjang.sql` + `supabase/tes/izin.sql`. Kamus resmi **10 kode izin** (`izin_kode`) dan **izin bawaan per peran** (`izin_peran`, 50 baris per resto, dipasang otomatis untuk resto baru lewat pemicu). Gerbang tunggal **`boleh(aksi)` / `boleh(aksi, nominal)` / `boleh(aksi, nominal, persen) |
+| 14 | T1-06 | `supabase/migrations/0006_pin.sql`, `supabase/functions/verifikasi_pin/index.ts`, `supabase/tes/pin.sql`, `alat/periksa-fungsi-pin.py`. PIN disimpan **hanya sebagai hash** (`crypt(pin, gen_salt('bf', 10))`) dan database **menolak sendiri** nilai yang bukan berbentuk hash lewat batas (CHECK) — dibuktikan uji: perintah m |
+| 15 | T1-07 | `supabase/migrations/0007_katalog.sql` + `supabase/tes/katalog.sql` + data uji katalog/stok. Tujuh tabel baru (`kategori_menu`, `menu_item`, `menu_varian`, `menu_tambahan`, `menu_cabang`, `stok_bahan`, `stok_pergerakan`) — seluruhnya RLS aktif + berpolicy (**16 tabel** diperiksa uji katalog). **Harga per cabang terbukt |
+| 16 | T1-08 | `supabase/migrations/0008_meja.sql` + `supabase/tes/meja.sql` + data uji meja di 3 cabang. Meja terpisah per cabang dan **nama meja unik per cabang** — dibuktikan langsung: nama “Meja 5” berhasil dipakai di **dua cabang berbeda**, sedangkan nama yang sama **ditolak** di cabang yang sama; uji mutasi “nama meja dijadikan |
+| 17 | T1-09 | `supabase/migrations/0009_pesanan.sql` + `supabase/tes/pesanan.sql`. Tabel `pesanan` + `pesanan_item` dengan **salinan beku** `nama_saat_itu` & `harga_saat_itu` (WAJIB/NOT NULL). **Inti ART-3 dibuktikan langsung:** harga Nasi Goreng dinaikkan 25.000 → 31.000 (dan harga cabang 27.000 → 33.000) **setelah** pesanan dibuat |
+| 18 | T1-10 | `supabase/migrations/0010_pembayaran.sql` + `supabase/tes/pembayaran.sql` + data uji pesanan berisi uang. Empat tabel baru: `pembayaran` (banyak baris per pesanan = pembayaran terbagi), `metode_bayar` (per resto, **4 metode bawaan dipasang otomatis** untuk resto baru), `diskon_transaksi`, `pembatalan` — total **23 tabe |
+| 19 | T1-23 | `supabase/migrations/0011_peran_tunggal.sql` (migrasi BARU; 0002/0005 dibekukan) · uji `supabase/tes/peran_tunggal.sql` (baru), `supabase/tes/kredensial_pin.sql` §5, `supabase/tes/pin_batas_pasang.sql` (baru), `supabase/tes/izin.sql` §8 diganti. **Peran tunggal:** kolom `pengguna_cabang.peran` dihapus (peran kedua must |
+
+## 3. Lensa wajib (jalankan semua, satu bagian per lensa)
+
+- **L1 Ancaman & Akses** — Bisakah orang tanpa hak masuk/naik peran? Sesi/perangkat yang dicabut masih bisa dipakai? Ada fungsi istimewa (security definer) yang bisa dipanggil siapa saja? Ada jalur membaca data penyewa lain?
+- **L2 Uang & Jejak** — Bisakah angka uang dibuat/ubah/hapus dari klien? Pembayaran dobel? Void tanpa jejak? Diskon lewat batas? Kas tanpa shift? Apakah jejak audit benar-benar tak bisa diubah dan bisa mendeteksi penghapusan?
+- **L3 Kesepakatan Dokumen** — Setiap janji PRD/TECH_SPEC punya kode DAN uji? Setiap klaim 'Bukti' di ROADMAP bisa direproduksi hari ini? Ada syarat tanpa uji (orphan requirement) atau uji tanpa syarat (orphan test)?
+- **L4 Mutu Uji** — Ada uji yang lulus karena sebab yang salah? Negatif-test yang bisa ditolak banyak sebab? Uji tanpa pemeriksaan? Gerbang yang belum pernah dibuktikan bisa MERAH? Ada pemeriksa yang tumpul (selalu hijau)?
+- **L5 Lapangan & UI** — Alur nyata di tablet kasir bisa selesai? Tujuh keadaan tertangani? Ada tombol tanpa fungsi atau aksi tanpa tombol? Pesan galat bahasa manusia + kode? Target sentuh & kontras? Printer/offline?
+- **L6 Privasi & Kepatuhan** — Data pelanggan seminimal mungkin? Persetujuan sebelum simpan? Anonimisasi tanpa menghapus catatan keuangan? Jalur kebocoran 3×24 jam siap? Rahasia tidak pernah masuk repo/log?
+
+## 4. Perintah bukti yang disarankan
+
+```
+node alat/uji-sql.mjs --daftar        # uji SQL (RLS, uang, PIN, katalog…) + daftar tabel & policy
+python3 _sistem/validate_system.py    # struktur & rujukan dokumen
+python3 alat/periksa-roadmap.py       # kelengkapan ROADMAP (7 atribut, entitas §4, RPC §5)
+python3 alat/periksa-fondasi-independen.py   # pemeriksa kedua (tulisan terpisah)
+python3 alat/periksa-fungsi-pin.py    # PIN tidak pernah disimpan/dilog
+cd aplikasi && npm test               # uji unit & komponen (vitest)
+cd aplikasi && npm run typecheck && npm run lint
+git log --oneline -20 && git status --short
+```
+
+**Kesiapan mesin saat paket ini dibuat (dicek otomatis):**
+
+- UJI SQL (PGlite) — `node alat/uji-sql.mjs`
+- uji unit/komponen — `cd aplikasi && npm test`
+- pemeriksa Python — selalu siap
+
+Bila ada yang bertanda ⚠️, **laporkan sebagai keterbatasan** (bagian 6 laporan) dan jangan menyimpulkan sesuatu
+yang tidak bisa kamu uji. Jangan memasang apa pun (kamu hanya-baca) — cukup laporkan.
+
+## 5. Skill yang wajib kamu muat lebih dulu
+
+| Berkas | Kegunaan |
+|---|---|
+| `skills/security-review/SKILL.md` | L1 · L6 — daftar periksa keamanan |
+| `skills/systematic-debugging/SKILL.md` | L4 — akar masalah, bukan gejala |
+| `skills/verification-before-completion/SKILL.md` | semua klaim wajib bukti segar |
+| `skills/verification-loop/SKILL.md` | urutan periksa: bangun → tipe → uji |
+| `skills/test-driven-development/SKILL.md` | L4 — mutu uji |
+| `skills/prd-taskmaster/SKILL.md` | L3 — jejak syarat → tugas → uji |
+| `skills/supabase/SKILL.md` | L1 · L2 — jebakan Supabase (RLS, Auth, paket gratis) |
+| `skills/supabase-postgres-best-practices/SKILL.md` | L1 · L2 — RLS, fungsi, indeks |
+| `skills/ui-ux-pro-max/SKILL.md` | L5 — layar, tombol, 7 keadaan |
+
+Kamu juga **wajib**: (a) memakai `skills/find-skills` atau `skills/agent-skills-hub` bila butuh skill lain;
+(b) mencari referensi internet bila menyimpulkan perilaku sistem luar (Supabase/PostgreSQL/OWASP) dan **mencantumkan tautannya**.
+
+## 6. Format laporan (salin apa adanya, isi bagiannya)
+
+```markdown
+# LAPORAN AUDIT INDEPENDEN — AUD-3 — 2026-09-18
+
+- **Auditor:** <nama sesi/model yang benar-benar dipakai>
+- **Tanggal:** 2026-09-18
+- **Tingkat audit:** AUD-3
+- **Commit yang diaudit:** `08d664118c7f8c0d0cbca25b7cd7818e68f6cea6` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
+- **Paket audit:** `docs/uji/paket-audit/AUD-3-2026-09-18.md`
+- **Mode cakupan:** menyeluruh
+- **Verdict:** BERSIH | BERSIH-DENGAN-CATATAN | TIDAK-BERSIH
+
+## 1. Cakupan
+Cakupan menyeluruh: X dari Y berkas (ganti angka sesuai kenyataan) — WAJIB untuk mode menyeluruh
+| # | Artefak | Diperiksa | Bukti (perintah/baris) |
+|---|---|---|---|
+
+## 2. Klaim pembangun yang saya coba falsifikasi
+| # | Klaim (lokasi) | Cara uji | Hasil |
+|---|---|---|---|
+
+## 3. Serangan yang dijalankan (kill attempts)
+| # | Skenario | Cara | Hasil |
+|---|---|---|---|
+
+## 4. Temuan
+### [F-01] <judul singkat>
+- **Tingkat:** K-2
+- **Artefak:** `berkas:baris`
+- **Klaim yang dilanggar:** …
+- **Bukti:** `perintah` → hasil nyata
+- **Skenario gagal:** langkah → dampak
+- **Dugaan penyebab:** …
+- **Cara membuktikan perbaikan:** `perintah yang harus hijau`
+- **Status verifikasi:** TERVERIFIKASI
+
+(atau tulis: (tidak ada temuan))
+
+## 5. Kalibrasi cacat tanaman
+(wajib untuk AUD-3 — lihat instruksi terpisah dari pembangun)
+
+## 6. Yang tidak bisa saya verifikasi
+- …
+
+## 7. Pernyataan tidak mengubah apa pun
+Saya hanya-baca. SATU-SATUNYA berkas yang saya buat adalah laporan ini; tidak ada berkas lain yang saya ubah.
+Bukti: perintah `git status --short` yang saya jalankan menampilkan hanya berkas laporan ini.
+
+## 8. Temuan di luar cakupan (WAJIB — boleh "tidak ada")
+| # | Temuan | Mengapa di luar cakupan | Bukti | Syarat dilanjutkan ke audit lain |
+|---|---|---|---|---|
+```
+
+**Aturan penulisan laporan (ditegakkan, bukan imbauan):**
+- **Ambang minimum adalah LANTAI, bukan target.** Jangan berhenti setelah mencapai angka minimum, dan jangan
+  menambah baris demi memenuhi syarat. Kalau kamu menemukan 30 hal, tulis 30.
+- **Semua temuan wajib dilaporkan — termasuk yang di luar cakupan/lingkup tugas.** Cakupan menentukan sedalam apa
+  sesuatu **wajib** diperiksa, bukan apa yang **boleh** kamu laporkan. Temuan yang tidak masuk lensa/cakupan tetap
+  masuk **bagian 8** dengan buktinya, supaya tidak hilang.
+- **Jangan menyusun laporan agar lolos pemeriksa.** Format sudah lengkap di paket ini; kamu tidak perlu membaca
+  kode alat pemeriksa (`alat/audit-independen.py`) untuk menyesuaikannya. Jalankan pemeriksa **sekali di akhir**;
+  bila ditolak, perbaiki **kelengkapan format**, bukan menambah temuan yang tidak kamu yakini.
+
+## 7. Kalibrasi cacat tanaman (khusus AUD-3)
+
+Bahan kalibrasi ada **di dalam repo ini** (folder yang disebut §0b di atas) dan berisi **cacat yang sengaja ditanam**;
+kunci jawabannya disimpan **di luar repo** dan tidak boleh kamu cari. Isi `## 5. Kalibrasi cacat tanaman` dengan daftar
+cacat yang kamu temukan (`berkas` + kelas + bukti), `Ditemukan: X dari Y`, dan jumlah temuan palsu.
+**Kalibrasi ini menentukan apakah verdict BERSIH-mu boleh dipercaya.** Cacat di folder bahan **tidak** dihitung sebagai temuan proyek.

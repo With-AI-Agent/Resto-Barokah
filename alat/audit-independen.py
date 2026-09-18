@@ -163,31 +163,40 @@ def pisah_rentang(spes: str) -> list[str]:
 
 # --------------------------------------------------------------- mode: paket
 def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bool = False) -> int:
-    semua = baca_tugas_roadmap()
-    if not semua:
+    # CATATAN PENTING (cacat nyata 2026-09-18): dulu baris pertama fungsi ini menimpa
+    # parameter `semua` dengan daftar tugas (`semua = baca_tugas_roadmap()`), sehingga
+    # (a) `--fase` selalu mengambil SELURUH tugas (cakupan melebar tanpa disadari) dan
+    # (b) mode selalu dicap "menyeluruh". Nama dipisah: `daftar_tugas` (isi ROADMAP)
+    # vs `menyeluruh` (pilihan cakupan dari pengguna).
+    daftar_tugas = baca_tugas_roadmap()
+    menyeluruh = bool(semua)
+    if not daftar_tugas:
         print("GAGAL: tidak bisa membaca tugas dari docs/ROADMAP.md")
         return 1
     if tugas_spec:
         ids = pisah_rentang(tugas_spec)
-    elif semua:
+    elif menyeluruh:
         # audit menyeluruh = SELURUH tugas (bukan sampel)
-        ids = sorted(semua.keys(), key=lambda x: (int(x[1:].split("-")[0]), int(x.split("-")[1])))
+        ids = sorted(daftar_tugas.keys(), key=lambda x: (int(x[1:].split("-")[0]), int(x.split("-")[1])))
     elif fase:
-        ids = sorted([t for t in semua if t.startswith(f"T{fase}-")])
+        ids = sorted([t for t in daftar_tugas if t.startswith(f"T{fase}-")],
+                     key=lambda x: (int(x[1:].split("-")[0]), int(x.split("-")[1])))
     else:
         # bawaan: 10 tugas terakhir yang sudah [x]
         teks = ROADMAP.read_text(encoding="utf-8")
         selesai = re.findall(r"^- \[x\] (T\d+-\d+) —", teks, re.M)
         ids = selesai[-10:]
-    ids = [t for t in ids if t in semua]
+    ids = [t for t in ids if t in daftar_tugas]
     if not ids:
         print(f"GAGAL: tidak ada tugas yang cocok ({tugas_spec or fase})")
         return 1
+    # Nama lingkup dipakai di kepala paket & di perintah penamaan berkas laporan.
+    lingkup = "menyeluruh" if menyeluruh else ("terarah" if not tugas_spec and not fase else "terarah")
 
     berkas: list[str] = []
     klaim: list[tuple[str, str]] = []
     for t in ids:
-        isi = semua[t]
+        isi = daftar_tugas[t]
         for f in re.findall(r"`([^`]+\.(?:sql|ts|tsx|py|mjs|yml|json|md))`", isi):
             if f not in berkas and ("/" in f):
                 berkas.append(f)
@@ -218,7 +227,7 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
     grup, dikecualikan = kelompokkan_berkas()
     total_proyek = sum(len(v) for v in grup.values())
     blok_menyeluruh = ""
-    if semua:
+    if menyeluruh:
         baris_grup = "\n".join(
             f"| {nama} | {ket} | {len(v)} | {', '.join('`'+x+'`' for x in v[:2])}{' …' if len(v) > 2 else ''} |"
             for nama, ket, _ in GRUP_SEMUA for v in [grup[nama]]
@@ -248,7 +257,7 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
    `docs/teknis/BUKU_INSIDEN.md`, `docs/ops/*`, dan `PANDUAN_PENGGUNA.md` → **periksa dengan cara pengguna**: apakah langkahnya bisa diikuti orang non-teknis, apakah prompt bisa disalin apa adanya dan bekerja, apakah ada langkah yang menyebut berkas/perintah yang tidak ada, apakah isi buku induk lengkap (semua mekanisme & semua prompt ada).
 5. Auditor yang **tidak** memeriksa berkas untuk pengguna dianggap **belum menyeluruh** dan laporannya ditolak.
 """
-    if semua:
+    if menyeluruh:
         bahan = sorted((AKAR / "docs" / "uji" / "kalibrasi").glob("bahan-*")) if (AKAR / "docs" / "uji" / "kalibrasi").is_dir() else []
         daftar_bahan = "\n".join(f"- `{b.relative_to(AKAR)}/` ({len(list(b.rglob('*')))} berkas)" for b in bahan) or "- (BELUM ADA bahan kalibrasi — laporkan ke pemilik: AUD-3 tanpa kalibrasi tidak sah)"
         blok_menyeluruh += f"""
@@ -287,8 +296,8 @@ Ambang lulus (dinilai pembangun setelah laporan masuk): semua cacat K-1/K-2 tert
 - **Commit yang diaudit:** `{sha}` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
 - **Tugas dalam lingkup:** {", ".join(ids)}
 - **Lensa wajib:** {", ".join(lensa)}
-- **Mode cakupan:** {"menyeluruh" if semua else "terarah"}
-- **Minimum laporan:** ≥{len(grup) if semua else 6} artefak diperiksa · ≥5 klaim dibantah · ≥{SERANGAN_MIN[tingkat]} serangan dijalankan · masing-masing temuan punya perintah bukti
+- **Mode cakupan:** {lingkup}
+- **Minimum laporan:** ≥{len(grup) if menyeluruh else 6} artefak diperiksa · ≥5 klaim dibantah · ≥{SERANGAN_MIN[tingkat]} serangan dijalankan · masing-masing temuan punya perintah bukti
 - **Perintah validasi laporan (wajib hijau):** periksa dengan alat `alat/audit-independen.py --periksa-laporan` (berkas laporan ditulis di folder docs/uji/audit/). Bila repo yang kamu pakai adalah klon dangkal, alat akan memberi CATATAN (bukan menolak) untuk SHA yang riwayatnya tidak ada.
 
 ## 0a. LANGKAH 0 (WAJIB) — pastikan kamu memeriksa commit yang benar
@@ -390,11 +399,11 @@ Kamu juga **wajib**: (a) memakai `skills/find-skills` atau `skills/agent-skills-
 - **Tingkat audit:** {tingkat}
 - **Commit yang diaudit:** `{sha}` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
 - **Paket audit:** `{keluar.relative_to(AKAR)}`
-- **Mode cakupan:** {"menyeluruh" if semua else "terarah"}
+- **Mode cakupan:** {lingkup}
 - **Verdict:** BERSIH | BERSIH-DENGAN-CATATAN | TIDAK-BERSIH
 
 ## 1. Cakupan
-{"Cakupan menyeluruh: X dari Y berkas (ganti angka sesuai kenyataan) — WAJIB untuk mode menyeluruh" if semua else ""}
+{"Cakupan menyeluruh: X dari Y berkas (ganti angka sesuai kenyataan) — WAJIB untuk mode menyeluruh" if menyeluruh else ""}
 | # | Artefak | Diperiksa | Bukti (perintah/baris) |
 |---|---|---|---|
 
@@ -1174,6 +1183,50 @@ def _uji_jalur_pulang_laporan() -> tuple[bool, str]:
                 f.unlink()
 
 
+def _uji_pembuat_paket() -> tuple[bool, str]:
+    """Buktikan PEMBUAT PAKET AUDIT benar-benar bisa jalan & cakupannya tidak melebar.
+
+    Kenapa ada (cacat nyata 2026-09-18): `--paket AUD-3 --semua` MATI dengan
+    `NameError: name 'lingkup' is not defined`, dan parameter cakupan `semua` ditimpa
+    daftar tugas sehingga `--fase` diam-diam mengambil SELURUH tugas. Dua-duanya kelas
+    cacat "alat yang tidak pernah dijalankan setelah disunting" — pemilik menyalin
+    paket audit, tetapi paketnya tidak pernah bisa dibuat. Uji ini menjalankan pembuat
+    paket di SALINAN pohon untuk dua mode (menyeluruh & per fase) dan memeriksa isinya.
+    """
+    import subprocess
+    import tempfile
+
+    def jalankan(akar_tmp, argumen):
+        r = subprocess.run([sys.executable, str(akar_tmp / "alat" / "audit-independen.py"), *argumen],
+                           capture_output=True, text=True, cwd=str(akar_tmp))
+        return r.returncode, r.stdout + r.stderr
+
+    with tempfile.TemporaryDirectory(prefix="paket-audit-uji-") as tmp:
+        tujuan = pathlib.Path(tmp) / "repo"
+        shutil.copytree(AKAR, tujuan, ignore=shutil.ignore_patterns(
+            ".git", "node_modules", "dist", "build", "coverage", "__pycache__", ".pytest_cache"))
+        kode, keluar = jalankan(tujuan, ["--paket", "AUD-3", "--semua"])
+        if kode != 0:
+            return False, f"paket menyeluruh GAGAL dibuat (kode {kode}): {keluar.strip().splitlines()[-1:]}"
+        paket = sorted((tujuan / "docs" / "uji" / "paket-audit").glob("AUD-3-*.md"))
+        isi = paket[-1].read_text(encoding="utf-8") if paket else ""
+        if "- **Mode cakupan:** menyeluruh" not in isi:
+            return False, "paket menyeluruh tidak mencantumkan mode cakupan `menyeluruh`"
+
+        kode2, keluar2 = jalankan(tujuan, ["--paket", "AUD-2", "--fase", "1"])
+        if kode2 != 0:
+            return False, f"paket per fase GAGAL dibuat (kode {kode2})"
+        paket2 = sorted((tujuan / "docs" / "uji" / "paket-audit").glob("AUD-2-*.md"))
+        isi2 = paket2[-1].read_text(encoding="utf-8") if paket2 else ""
+        m = re.search(r"- \*\*Tugas dalam lingkup:\*\* (.+)", isi2)
+        ids = [x.strip() for x in m.group(1).split(",")] if m else []
+        if not ids or any(not x.startswith("T1-") for x in ids):
+            return False, f"cakupan `--fase 1` melenceng (berisi tugas di luar fase 1): {ids[:6]}"
+        if "- **Mode cakupan:** terarah" not in isi2:
+            return False, "paket per fase tidak mencantumkan mode cakupan `terarah`"
+    return True, "paket menyeluruh & per fase bisa dibuat, cakupannya sesuai permintaan"
+
+
 def mode_uji_diri() -> int:
     harapan = {
         "laporan-bagus.md": 0,
@@ -1214,6 +1267,11 @@ def mode_uji_diri() -> int:
         if kode != kode_harap:
             rusak += 1
         print(f"  [{tanda}] penilai kalibrasi · {nama}: hasil={kode} harapan={kode_harap}")
+
+    ok_paket, pesan_paket = _uji_pembuat_paket()
+    print(f"  [{'OK' if ok_paket else 'X '}] pembuat paket audit (--paket/--fase): {pesan_paket}")
+    if not ok_paket:
+        rusak += 1
 
     ok_pulang, pesan_pulang = _uji_jalur_pulang_laporan()
     print(f"  [{'OK' if ok_pulang else 'X '}] jalur pulang laporan (--ambil-laporan): {pesan_pulang}")
