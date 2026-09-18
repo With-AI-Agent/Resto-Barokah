@@ -185,9 +185,21 @@ def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
 
     if nama_cabang:
         kode, sisi_luar = jalankan(["git", "rev-parse", f"origin/{nama_cabang}"], cwd=akar)
-        if kode == 0 and sisi_luar.strip() != sha_head:
-            masalah.append(f"commit lokal ({sha_head[:8]}) belum ter-push ke origin/{nama_cabang} "
-                           f"({sisi_luar.strip()[:8]}) — tanpa push, sesi berikutnya tidak bisa melanjutkan")
+        if kode != 0:
+            print(f"  [catatan] cabang lokal tidak punya origin/{nama_cabang} — uji push dilewati")
+        elif sisi_luar.strip() != sha_head:
+            # Kejadian nyata 2026-09-18: `git push origin HEAD` berhasil, tetapi ref remote-tracking
+            # lokal TIDAK ikut diperbarui di sandbox ini — pemeriksa hampir melaporkan GAGAL palsu.
+            # Karena itu: tanya remote langsung (ls-remote) sebelum menuduh pekerjaan belum ter-push.
+            kode_ls, ls = jalankan(["git", "ls-remote", "origin", f"refs/heads/{nama_cabang}"], cwd=akar)
+            tip_remote = ls.split()[0].strip() if (kode_ls == 0 and ls.split()) else ""
+            if tip_remote == sha_head:
+                print("  [catatan] ref remote-tracking lokal tertinggal, tetapi remote SUDAH memuat commit "
+                      f"terakhir (dipastikan ls-remote) — rapikan: git fetch origin {nama_cabang}:refs/remotes/origin/{nama_cabang}")
+            else:
+                masalah.append(f"commit lokal ({sha_head[:8]}) belum ter-push ke origin/{nama_cabang} "
+                               f"({tip_remote[:8] or sisi_luar.strip()[:8]}) — tanpa push, sesi berikutnya "
+                               "tidak bisa melanjutkan")
     else:
         # Detached (mis. pemeriksaan PR): kecocokan cabang tidak bisa diuji, beri catatan.
         print("  [catatan] HEAD detached (salinan pemeriksaan) — uji push dilewati")
@@ -350,7 +362,9 @@ CI hijau. Sisa pekerjaan terdekat dan pilihannya ada di bagian "Rencana berikutn
 
 
 # --------------------------------------------------------------------------- uji-diri
-def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool) -> pathlib.Path:
+def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool,
+              dengan_remote: bool = False, remote_memuat_head: bool = True,
+              tracking_tertinggal: bool = False) -> tuple[pathlib.Path, pathlib.Path | None]:
     """Buat repo Git kecil berisi berkas handoff dengan SHA yang bisa benar/salah.
 
     Dipakai uji-diri untuk MEMBUKTIKAN pemeriksaan kesegaran riwayat benar-benar bisa MERAH —
@@ -370,7 +384,14 @@ def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool) -> pathli
     (repo / "docs" / "ops" / "SIAP-LANJUT.md").write_text(isi, encoding="utf-8")
     env = {"GIT_AUTHOR_NAME": "uji", "GIT_AUTHOR_EMAIL": "u@uji", "GIT_COMMITTER_NAME": "uji",
            "GIT_COMMITTER_EMAIL": "u@uji", "PATH": "/usr/bin:/bin"}
-    for perintah in (["git", "init", "-q"], ["git", "add", "-A"], ["git", "commit", "-qm", "awal"]):
+    bare = None
+    if dengan_remote:
+        bare = tmp / "remote.git"
+        sp.run(["git", "init", "-q", "--bare", str(bare)], cwd=tmp, env=env, capture_output=True, check=False)
+    sp.run(["git", "init", "-q"], cwd=repo, env=env, capture_output=True, check=False)
+    if bare is not None:
+        sp.run(["git", "remote", "add", "origin", str(bare)], cwd=repo, env=env, capture_output=True, check=False)
+    for perintah in (["git", "add", "-A"], ["git", "commit", "-qm", "awal"]):
         sp.run(perintah, cwd=repo, env=env, capture_output=True, check=False)
     _, induk = jalankan(["git", "rev-parse", "HEAD"], cwd=repo)
     sha = sha_ditulis if sha_ditulis is not None else induk.strip()
@@ -382,7 +403,26 @@ def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool) -> pathli
     (repo / "STATUS.md").write_text("- **Pekerjaan belum tersimpan:** Tidak ada\n- **Waktu pembaruan:** uji\n", encoding="utf-8")
     for perintah in (["git", "add", "-A"], ["git", "commit", "-qm", "segar" if segar else "basi"]):
         sp.run(perintah, cwd=repo, env=env, capture_output=True, check=False)
-    return repo
+    if bare is not None:
+        sp.run(["git", "push", "-q", "-u", "origin", "HEAD"], cwd=repo, env=env, capture_output=True, check=False)
+        if not remote_memuat_head:
+            # Remote "mundur" satu commit: HEAD lokal ada, tapi remote belum memuatnya.
+            _, dua = jalankan(["git", "rev-parse", "HEAD^"], cwd=repo)
+            sp.run(["git", "update-ref", "refs/heads/master", dua.strip()], cwd=bare, env=env,
+                   capture_output=True, check=False)
+            sp.run(["git", "update-ref", "refs/heads/main", dua.strip()], cwd=bare, env=env,
+                   capture_output=True, check=False)
+            for cabang_uji in ("master", "main"):
+                sp.run(["git", "update-ref", f"refs/remotes/origin/{cabang_uji}", dua.strip()], cwd=repo,
+                       env=env, capture_output=True, check=False)
+        elif tracking_tertinggal:
+            # Remote sudah memuat HEAD, tetapi ref remote-tracking lokal dimundurkan:
+            # meniru kejadian nyata `git push origin HEAD` yang tidak memperbarui ref itu.
+            _, dua = jalankan(["git", "rev-parse", "HEAD^"], cwd=repo)
+            for cabang_uji in ("master", "main"):
+                sp.run(["git", "update-ref", f"refs/remotes/origin/{cabang_uji}", dua.strip()], cwd=repo,
+                       env=env, capture_output=True, check=False)
+    return repo, bare
 
 def uji_diri() -> int:
     """Buktikan pemeriksa bisa MENOLAK: setiap bagian handoff dimutasi di salinan teks.
@@ -449,14 +489,28 @@ def uji_diri() -> int:
     import tempfile
 
     with tempfile.TemporaryDirectory(prefix="lanjut-sesi-") as tmp:
-        repo_benar = _repo_uji(pathlib.Path(tmp) / "benar", None, True)
+        repo_benar, _ = _repo_uji(pathlib.Path(tmp) / "benar", None, True)
         masalah_benar = periksa(akar=repo_benar, penuh=True)
         hasil.append(("repo uji dengan handoff SEGAR diterima", not masalah_benar,
                       "lolos" if not masalah_benar else masalah_benar[0][:90]))
-        repo_salah = _repo_uji(pathlib.Path(tmp) / "salah", "1" * 40, False)
+        repo_salah, _ = _repo_uji(pathlib.Path(tmp) / "salah", "1" * 40, False)
         masalah_salah = periksa(akar=repo_salah, penuh=True)
         hasil.append(("repo uji dengan handoff BASI ditolak", bool(masalah_salah),
                       masalah_salah[0][:90] if masalah_salah else "DILOLOSKAN (tumpul)"))
+
+        # Kasus nyata: ref remote-tracking tertinggal walau remote sudah memuat HEAD.
+        repo_tt, _ = _repo_uji(pathlib.Path(tmp) / "tt", None, True, dengan_remote=True,
+                               tracking_tertinggal=True)
+        masalah_tt = periksa(akar=repo_tt, penuh=True)
+        hasil.append(("ref remote-tracking tertinggal tapi remote memuat HEAD → TIDAK ditolak",
+                      not masalah_tt, "lolos" if not masalah_tt else masalah_tt[0][:90]))
+
+        # Kasus nyata: pekerjaan lokal belum sampai ke remote → WAJIB ditolak.
+        repo_bp, _ = _repo_uji(pathlib.Path(tmp) / "bp", None, True, dengan_remote=True,
+                               remote_memuat_head=False)
+        masalah_bp = periksa(akar=repo_bp, penuh=True)
+        hasil.append(("commit lokal belum ter-push ditolak", bool(masalah_bp),
+                      masalah_bp[0][:90] if masalah_bp else "DILOLOSKAN (tumpul)"))
 
     print("UJI-DIRI lanjut-sesi")
     gagal = 0

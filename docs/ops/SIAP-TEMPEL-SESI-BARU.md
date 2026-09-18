@@ -34,7 +34,7 @@ Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task
 ===== SAMBUNGAN: ARAHAN LANJUT PROYEK (dibuat mesin 2026-09-18) =====
 
 Proyek: **Resto Barokah** — repo `With-AI-Agent/Resto-Barokah`, cabang kerja terakhir
-`arena/01a0a8a2-resto-barokah` @ `cacdff3586296837938a54d72143c5101a1f5a21`. PR #1 **terbuka** — **JANGAN MERGE**: merge hanya keputusan Lee.
+`arena/01a0a8a2-resto-barokah` @ `4d01766f6da0aa750b164768d82dd5c191b49ab7`. PR #1 **terbuka** — **JANGAN MERGE**: merge hanya keputusan Lee.
 
 Langkah pertama sesi ini (WAJIB, supaya tidak bekerja dari `main` yang tertinggal ≈123 commit):
 
