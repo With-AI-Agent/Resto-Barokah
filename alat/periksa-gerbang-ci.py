@@ -41,6 +41,7 @@ GERBANG_WAJIB = [
     ("uji-diri pemeriksa komponen & env", r"python3\s+aplikasi/alat/periksa-komponen-env\.py\s+--uji-diri\s*$"),
     ("uji-diri pemeriksa angka bukti ROADMAP (F-14)", r"python3\s+alat/periksa-angka-bukti\.py\s+--uji-diri\s*$"),
     ("pemeriksa handoff lanjut-sesi (isi + uji-diri)", r"python3\s+alat/lanjut-sesi\.py\s+--di-ci\s*$"),
+    ("uji-diri kartu sesi (pemetaan skill fase)", r"python3\s+alat/mulai-sesi\.py\s+--uji-diri\s*$"),
     ("kerentanan dependency (npm audit, 0 toleransi)", r"npm audit --audit-level=low\s*$"),
     ("validator sistem", r"python3\s+_sistem/validate_system\.py\s*$"),
     ("pemeriksa pohon bersih", r"python3\s+alat/periksa-bersih\.py\s*$"),

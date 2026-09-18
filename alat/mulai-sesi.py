@@ -113,14 +113,57 @@ def judul_skill(path: Path) -> str:
     return "(tanpa judul)"
 
 
-def skill_untuk(status: str) -> list[str]:
+def skill_untuk(status: str) -> tuple[list[str], str]:
+    """(daftar berkas SKILL.md wajib, dasar pemilihan).
+
+    Temuan sesi baru 2026-09-18 (dilaporkan Lee): `CODING_DIJEDA_SADAR` tidak cocok baris mana pun
+    di PHASE_SKILLS (yang ada hanya `CODING_AKTIF`), sehingga KARTU SESI hanya mencetak 1 skill
+    padahal proyek sedang fase coding (14 skill relevan tersedia). Sekarang: cocokkan persis →
+    cocokkan terkandung → JATUH KE FASE DENGAN AWALAN SAMA (CODING_*, FONDASI_*) dan SELALU
+    sebutkan dasarnya supaya kejadian ini tidak pernah lagi senyap.
+    """
+    s = status.upper()
+    if s in PHASE_SKILLS:
+        return PHASE_SKILLS[s] + SELALU, f"baris persis '{s}'"
     for kunci, daftar in PHASE_SKILLS.items():
-        if kunci in status.upper():
-            return daftar + SELALU
-    return SELALU
+        if kunci in s:
+            return daftar + SELALU, f"nama fase '{kunci}' terkandung di status"
+    for kunci, daftar in PHASE_SKILLS.items():
+        fase = kunci.split("_")[0]
+        if s.startswith(fase + "_"):
+            return daftar + SELALU, (f"awalan fase '{fase}_' (status '{status}' tidak ada barisnya di "
+                                     "tabel fase — pakai daftar fase terdekat, LAPORKAN bila terasa salah)")
+    return SELALU, f"TIDAK COCOK tabel fase — hanya skill 'selalu' yang dipakai (LAPORKAN ini ke Lee)"
+
+
+def uji_diri() -> int:
+    """Buktikan pemetaan skill TIDAK buta lagi (kasus nyata: CODING_DIJEDA_SADAR)."""
+    kasus = [
+        ("CODING_AKTIF", "security-review", "persis"),
+        ("CODING_DIJEDA_SADAR", "security-review", "awalan"),      # kasus yang MENIPU sesi baru
+        ("FONDASI_TAHAP_3", "supabase", "persis"),
+        ("FONDASI_TAHAP_3_TERKUNCI", "supabase", "terkandung"),
+        ("STATUS_TIDAK_DIKENAL", None, "TIDAK COCOK"),
+    ]
+    gagal = 0
+    print("UJI-DIRI mulai-sesi (pemetaan skill fase)")
+    for status, harus_ada, dasar_harus in kasus:
+        daftar, dasar = skill_untuk(status)
+        ok = (dasar_harus.lower() in dasar.lower()) and (harus_ada is None or harus_ada in daftar)
+        gagal += 0 if ok else 1
+        print(f"  {'OK ' if ok else 'X  '} {status} → {len(daftar)} skill · dasar: {dasar[:70]}")
+        if status == "CODING_DIJEDA_SADAR" and len(daftar) < 10:
+            print("      X daftar terlalu pendek — cacat lama (buta status jeda) kembali!")
+            gagal += 1
+    print(f"JUMLAH kasus: {len(kasus)} — semuanya harus sesuai harapan")
+    print("HASIL: " + ("LOLOS — kartu sesi mencetak skill yang benar untuk status jeda maupun aktif."
+                       if gagal == 0 else f"GAGAL — {gagal} kasus tidak sesuai harapan"))
+    return 0 if gagal == 0 else 1
 
 
 def main() -> int:
+    if "--uji-diri" in sys.argv:
+        return uji_diri()
     hari_ini = _dt.date.today().isoformat()
     ps = baca("PROJECT_STATE.md")
     st = baca("STATUS.md")
@@ -160,7 +203,7 @@ def main() -> int:
         keadaan_log = mk.group(1).strip() if mk else "(tidak terbaca)"
 
     skills = sorted(p for p in (ROOT / "skills").rglob("SKILL.md"))
-    daftar_skill = skill_untuk(status)
+    daftar_skill, dasar_skill = skill_untuk(status)
 
     print("=" * 78)
     print(f"KARTU SESI — Resto Barokah — {hari_ini}")
@@ -182,6 +225,7 @@ def main() -> int:
     print()
     print("SKILL WAJIB UNTUK FASE INI — BACA SUNGGUHAN SEBELUM BEKERJA")
     print(f"  Tersedia total: {len(skills)} berkas SKILL.md di skills/ (lokal, tanpa internet)")
+    print(f"  Dasar daftar   : {dasar_skill}")
     ada, kurang = 0, []
     for s in daftar_skill:
         p = ROOT / "skills" / s / "SKILL.md"

@@ -103,6 +103,7 @@ jobs:
           python3 alat/periksa-paket.py --uji-diri
           python3 alat/lanjut-sesi.py --di-ci
           python3 alat/lanjut-sesi.py --uji-diri
+          python3 alat/mulai-sesi.py --uji-diri
           python3 alat/periksa-angka-bukti.py --uji-diri
           python3 alat/periksa-gerbang-ci.py --uji-diri
           python3 alat/periksa-bersih.py --uji-diri

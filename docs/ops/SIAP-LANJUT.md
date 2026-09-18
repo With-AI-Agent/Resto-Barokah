@@ -8,9 +8,9 @@
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
 - **Cabang kerja terakhir:** `arena/01a0a8a2-resto-barokah`
-- **Commit keadaan kerja:** `cde3393fd8183e380e1a3af70d37ab3292a24552`
+- **Commit keadaan kerja:** `51feb34d1fe23bebeecf42b29b2f2e9ec4902c64`
 - **PR:** PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35350340465, commit cde3393f)
+- **CI terakhir:** success (run 35351513703, commit 51feb34d)
 - **Ditulis:** 2026-09-18 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -22,6 +22,12 @@
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-019, T-018, T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-18.md` → `cdd80b67` (12 commit di bawah HEAD saat ini) · review `PKT-2026-09-18-pr-01-putaran14.md` → `cdd80b67` (12 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+  jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
+  `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
+- **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
+  Sebelum pratinjau/uji aplikasi: `bash aplikasi/alat/pratinjau.sh` (±1–2 menit). Uji SQL & pemeriksa
+  Python tetap berjalan tanpa pemasangan itu.
 
 ## 2b. Kalau kamu sesi baru: cara menyusul pekerjaan ini
 
@@ -37,14 +43,25 @@ python3 alat/mulai-sesi.py      # cetak KARTU SESI, lalu LAPORKAN ke Lee
 Kalau checkout-mu tidak memuat `supabase/migrations/0014_penutup_celah_putaran13.sql`,
 kamu berada di basis yang salah — jangan bekerja dulu, susul cabang di atas.
 
+## 2c. Fakta cabang sesi baru: PR #1 TIDAK otomatis memuat pekerjaanmu
+
+Kamu bekerja di cabang sesi barumu sendiri (dibuat platform; hanya ke cabang itu kamu boleh push).
+PR #1 menunjuk cabang sesi SEBELUMNYA, jadi commit barumu tidak muncul di PR itu.
+Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan laporkan tautannya.
+JANGAN merge apa pun tanpa keputusan Lee.
+
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 Keadaan keputusan Lee (2026-09-18, sesi ditutup karena berat): arah berikutnya **belum dipilih**.
 Urutan yang disarankan agent, dan alasannya:
 
-1. **Putaran verifikasi (disarankan lebih dulu, kecil).** Paket `AUD-3-2026-09-18-SIAP-TEMPEL.md`
-   dan `PKT-2026-09-18-pr-01-putaran13-SIAP-TEMPEL.md` sudah disegarkan mesin ke commit keadaan ini.
-   Lee tinggal menyalin **satu berkas per chat baru** (dua chat). Setelah laporan masuk:
+1. **Putaran verifikasi (disarankan lebih dulu, kecil).** Commit yang ditunjuk paket peninjau
+   TIDAK diklaim tangan di sini — bacalah baris **"Paket peninjau terbaru"** di §2 (ditulis mesin
+   dari berkas paketnya sendiri). Sebelum dua peninjau mulai bekerja, segarkan paket ke commit
+   terkini: `python3 alat/audit-independen.py --paket AUD-3 --semua` dan
+   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN` (pakai NN berikutnya —
+   jangan menimpa nama lama, laporan peninjau pernah tertimpa karena ini). Lee tinggal menyalin
+   **satu berkas `-SIAP-TEMPEL` per chat baru** (dua chat). Setelah laporan masuk:
    bantah-balik setiap temuan dengan probe sendiri (aturan tetap), tutup yang nyata, catat yang palsu.
    Bukti dari laporan putaran sebelumnya: dua putaran berturut-turut menemukan cacat nyata, dan dua
    cacat terakhir justru tertangkap CI — jadi verifikasi ini bukan formalitas.
