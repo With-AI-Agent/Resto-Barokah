@@ -468,6 +468,7 @@ def uji_diri() -> int:
     if gagal:
         print(f"\nHASIL: GAGAL — {gagal} kasus uji-diri tidak sesuai harapan (pemeriksa mungkin tumpul)")
         return 1
+    print(f"JUMLAH kasus uji-diri: {len(hasil)} (mutasi teks + repo Git uji + peringatan CI) — semuanya harus sesuai harapan")
     print("\nHASIL: LOLOS — pemeriksa handoff terbukti bisa MENOLAK handoff cacat.")
     return 0
 

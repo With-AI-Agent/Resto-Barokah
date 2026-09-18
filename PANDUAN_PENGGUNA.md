@@ -260,6 +260,7 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
 - **Bukti yang Lee terima:** pernyataan "sesi aman dilanjutkan" + nama berkas yang disalin + commit terakhir + jumlah butir tertangguh.
 - **Lama:** beberapa menit (satu kali perpindahan sesi).
 - **Kalau macet:** bila `alat/lanjut-sesi.py` menolak, agent **tidak boleh** menyuruh Lee pindah sesi dulu — perbaiki dulu (biasanya: ada pekerjaan belum di-commit, atau handoff belum disegarkan), karena pindah dengan handoff basi = konteks hilang.
+  - Bila sesi sebelumnya berhenti dalam keadaan CI merah, berkas handoff menandainya dengan baris **PERHATIAN**; perbaiki CI lebih dulu sebelum pekerjaan baru.
 
 ## Bagian C — Semua prompt (dengan label siapa yang memakai)
 
