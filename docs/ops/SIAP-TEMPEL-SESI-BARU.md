@@ -15,6 +15,12 @@
 > 5. JANGAN MERGE PR ini — merge keputusan Lee dan mengakhiri sesi cabang ini.
 > 6. Bahasa: balaslah SELALU dalam bahasa Indonesia sederhana (aturan ini sudah tertanam di
 >    Prompt Pembuka di bawah, tetapi diulang di sini supaya tidak pernah terlewat).
+> 7. Mau melanjutkan sesi LAIN? Kamu yang menentukan, bukan mesin: minta agent menampilkan
+>    `python3 alat/lanjut-sesi.py --daftar-sesi` (atau tulis `Tampilkan daftar sesi yang bisa
+>    dilanjutkan.`), sebutkan pilihanmu, lalu agent menyiapkan ulang berkas ini dengan
+>    `python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang-pilihanmu>`.
+>    Ingat: sesi yang belum pernah di-push ke GitHub TIDAK muncul di daftar itu (pekerjaannya
+>    belum tersimpan), dan sesi lama biasanya punya alat/pemeriksa versi lebih tua.
 
 ===== MULAI SALIN DARI SINI =====
 
@@ -50,8 +56,9 @@ Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task
 ===== SAMBUNGAN: ARAHAN LANJUT PROYEK (dibuat mesin 2026-09-18) =====
 
 Proyek: **Resto Barokah** — repo `With-AI-Agent/Resto-Barokah`, cabang kerja terakhir
-`arena/01a0b4c3-resto-barokah` @ `0ddbe7297d50176f1a2e638e71ac7b28ceb9d57f` — ini commit KEADAAN (induk dari commit handoff), jadi saat kamu menyusul
-cabang, ujung cabang akan berisi satu commit yang lebih baru: commit yang memuat berkas handoff ini.
+SESI YANG DILANJUT (pilihan Lee): `arena/01a0a8a2-resto-barokah` — ditulis oleh sesi `arena/01a0b4c3-resto-barokah` @ `3799d9c6b1a010a89a287591efc89b98af56eb42`.
+`3799d9c6b1a010a89a287591efc89b98af56eb42` adalah commit KEADAAN (induk dari commit handoff), jadi saat kamu menyusul cabang, ujung
+cabang akan berisi satu commit yang lebih baru: commit yang memuat berkas handoff ini.
 Cara memastikan kamu di ujung yang benar: `git log --oneline -1` menampilkan commit yang menyentuh
 `docs/ops/SIAP-LANJUT.md`. PR #1 **terbuka** — **JANGAN MERGE**: merge hanya keputusan Lee.
 
@@ -59,13 +66,16 @@ Catatan cabang (penting): pekerjaanmu hidup di cabang sesi barumu sendiri, sedan
 cabang sesi lama — jadi pekerjaan baru TIDAK otomatis masuk PR #1. Bila Lee ingin meninjau lewat PR,
 buka PR baru dari cabangmu (base `main`) dan laporkan tautannya; jangan merge tanpa keputusan Lee.
 
-Langkah pertama sesi ini (WAJIB, supaya tidak bekerja dari `main` yang tertinggal 140 commit):
+Langkah pertama sesi ini (WAJIB, supaya tidak bekerja dari `main` yang tertinggal 141 commit):
 
 ```
-git fetch origin arena/01a0b4c3-resto-barokah:refs/remotes/origin/kerja-terakhir
+git fetch origin arena/01a0a8a2-resto-barokah:refs/remotes/origin/kerja-terakhir
 git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py
 ```
+
+Kalau `arena/01a0a8a2-resto-barokah` BUKAN sesi terakhir: alat & aturan di sana mungkin versi lebih tua — laporkan apa
+adanya ke Lee, jangan mengarang mekanisme baru, dan jangan menyentuh `main`.
 
 Lalu baca `docs/ops/SIAP-LANJUT.md` (penunjuk keadaan: cabang, commit, CI, butir tertangguh,
 rencana berikutnya) dan `PROJECT_STATE.md`. Laporkan KARTU SESI ke Lee SEBELUM bekerja.

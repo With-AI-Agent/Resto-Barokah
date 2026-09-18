@@ -67,6 +67,10 @@ TOPIK_WAJIB = {
     # Koreksi Lee 2026-09-18: agent sempat menjawab dengan bahasa yang salah. Aturan bahasa
     # sekarang WAJIB ada di prompt kanonik + buku induk, dan dijaga di sini.
     "aturan bahasa ke Lee": r"ATURAN BAHASA",
+    # Permintaan Lee 2026-09-18: Lee memilih sendiri sesi mana yang dilanjutkan.
+    "pindah sesi: pilih sesi sendiri": r"menentukan sesi mana yang dilanjutkan",
+    "pindah sesi: sesi belum di-push tak bisa dilanjut": r"belum pernah di-push",
+    "pindah sesi: satu sesi aktif": r"[Ss]atu sesi aktif",
 }
 BERKAS_PENGGUNA_WAJIB = [
     "docs/PANDUAN_PEMILIK.md",
