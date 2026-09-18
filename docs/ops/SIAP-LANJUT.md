@@ -7,10 +7,10 @@
 
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
-- **Cabang yang dilanjutkan:** `arena/01a0a8a2-resto-barokah`
-- **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
+- **Cabang yang dilanjutkan:** `arena/01a0b4c3-resto-barokah`
+- **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0b4c3-resto-barokah`
-- **Commit keadaan kerja:** `3799d9c6b1a010a89a287591efc89b98af56eb42`
+- **Commit keadaan kerja:** `ca05db1c19f306f59df8aebf1bd72bb5a37e2e2f`
 - **PR:** PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
 - **CI terakhir:** (run 35358538890, commit e55d09b0)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
@@ -25,7 +25,7 @@
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **9** — T-019, T-018, T-002, T-003, T-010, T-011, T-015, T-016, T-020
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-18.md` → `52e22fc3` (5 commit di bawah HEAD saat ini) · review `PKT-2026-09-18-pr-01-putaran15.md` → `52e22fc3` (5 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-18.md` → `52e22fc3` (7 commit di bawah HEAD saat ini) · review `PKT-2026-09-18-pr-01-putaran15.md` → `52e22fc3` (7 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -38,12 +38,12 @@ Sesi baru di platform ini mulai dari `main`, sedangkan pekerjaan ada di cabang s
 Jalankan (tanpa memindahkan cabang sesimu):
 
 ```
-git fetch origin arena/01a0a8a2-resto-barokah:refs/remotes/origin/kerja-terakhir
+git fetch origin arena/01a0b4c3-resto-barokah:refs/remotes/origin/kerja-terakhir
 git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py      # cetak KARTU SESI, lalu LAPORKAN ke Lee
 ```
 
-Cabang `arena/01a0a8a2-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Kalau bukan itu yang
+Cabang `arena/01a0b4c3-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Kalau bukan itu yang
 dimau, jalankan `python3 alat/lanjut-sesi.py --daftar-sesi`, lalu siapkan ulang dengan
 `python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang>`.
 

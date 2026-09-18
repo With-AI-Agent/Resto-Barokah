@@ -56,8 +56,8 @@ Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task
 ===== SAMBUNGAN: ARAHAN LANJUT PROYEK (dibuat mesin 2026-09-18) =====
 
 Proyek: **Resto Barokah** — repo `With-AI-Agent/Resto-Barokah`, cabang kerja terakhir
-SESI YANG DILANJUT (pilihan Lee): `arena/01a0a8a2-resto-barokah` — ditulis oleh sesi `arena/01a0b4c3-resto-barokah` @ `3799d9c6b1a010a89a287591efc89b98af56eb42`.
-`3799d9c6b1a010a89a287591efc89b98af56eb42` adalah commit KEADAAN (induk dari commit handoff), jadi saat kamu menyusul cabang, ujung
+SESI YANG DILANJUT (pilihan Lee): `arena/01a0b4c3-resto-barokah` — ditulis oleh sesi `arena/01a0b4c3-resto-barokah` @ `ca05db1c19f306f59df8aebf1bd72bb5a37e2e2f`.
+`ca05db1c19f306f59df8aebf1bd72bb5a37e2e2f` adalah commit KEADAAN (induk dari commit handoff), jadi saat kamu menyusul cabang, ujung
 cabang akan berisi satu commit yang lebih baru: commit yang memuat berkas handoff ini.
 Cara memastikan kamu di ujung yang benar: `git log --oneline -1` menampilkan commit yang menyentuh
 `docs/ops/SIAP-LANJUT.md`. PR #1 **terbuka** — **JANGAN MERGE**: merge hanya keputusan Lee.
@@ -66,15 +66,15 @@ Catatan cabang (penting): pekerjaanmu hidup di cabang sesi barumu sendiri, sedan
 cabang sesi lama — jadi pekerjaan baru TIDAK otomatis masuk PR #1. Bila Lee ingin meninjau lewat PR,
 buka PR baru dari cabangmu (base `main`) dan laporkan tautannya; jangan merge tanpa keputusan Lee.
 
-Langkah pertama sesi ini (WAJIB, supaya tidak bekerja dari `main` yang tertinggal 141 commit):
+Langkah pertama sesi ini (WAJIB, supaya tidak bekerja dari `main` yang tertinggal 143 commit):
 
 ```
-git fetch origin arena/01a0a8a2-resto-barokah:refs/remotes/origin/kerja-terakhir
+git fetch origin arena/01a0b4c3-resto-barokah:refs/remotes/origin/kerja-terakhir
 git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py
 ```
 
-Kalau `arena/01a0a8a2-resto-barokah` BUKAN sesi terakhir: alat & aturan di sana mungkin versi lebih tua — laporkan apa
+Kalau `arena/01a0b4c3-resto-barokah` BUKAN sesi terakhir: alat & aturan di sana mungkin versi lebih tua — laporkan apa
 adanya ke Lee, jangan mengarang mekanisme baru, dan jangan menyentuh `main`.
 
 Lalu baca `docs/ops/SIAP-LANJUT.md` (penunjuk keadaan: cabang, commit, CI, butir tertangguh,
