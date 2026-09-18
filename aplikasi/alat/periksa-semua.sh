@@ -43,13 +43,15 @@ echo "== pemeriksa Python =="
 
 (cd "$REPO" && python3 _sistem/validate_system.py)
 (cd "$REPO" && python3 alat/periksa-fungsi-pin.py)
-(cd "$REPO" && python3 alat/periksa-roadmap.py)
+(cd "$REPO" && python3 alat/periksa-roadmap.py
+python3 alat/periksa-roadmap.py --uji-diri)
 (cd "$REPO" && python3 alat/periksa-fondasi-independen.py
 python3 alat/audit-independen.py --uji-diri
 python3 alat/periksa-panduan.py
 python3 alat/periksa-panduan.py --uji-diri
 python3 alat/lanjut-sesi.py
 python3 alat/lanjut-sesi.py --uji-diri
+python3 alat/mulai-sesi.py --uji-diri
 python3 alat/periksa-rujukan.py
 python3 alat/periksa-rujukan.py --uji-diri
 python3 alat/periksa-temuan-audit.py

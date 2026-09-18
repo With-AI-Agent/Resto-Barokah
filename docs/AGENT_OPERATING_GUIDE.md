@@ -70,8 +70,12 @@ Aturan yang tidak boleh dilanggar saat memulihkan:
 
 ## 2. Pemasangan Skill Otomatis — wajib di awal SETIAP sesi
 
-Skill yang tersedia **sudah tersimpan lokal** di `skills/` (56 folder, 87 berkas SKILL.md, ±26 MB) — tidak perlu internet,
+Skill yang tersedia **sudah tersimpan lokal** di `skills/` (puluhan folder, ±26 MB) — tidak perlu internet,
 tidak perlu memasang ulang. Yang perlu dilakukan sesi baru: **memuatnya ke "diri" sendiri dengan cara membacanya**.
+
+> **Angka jumlah skill SENGAJA tidak ditulis di sini.** Dulu tertulis "56 folder, 87 berkas SKILL.md" dan angkanya
+> basi dalam hitungan hari (tambah satu skill → semua dokumen yang menyebut jumlahnya jadi salah). Yang mencetak
+> angka nyata adalah `python3 alat/mulai-sesi.py` (baris "Tersedia total: …") — itu sumbernya, bukan dokumen ini.
 
 **Protokol (urutan wajib):**
 
@@ -97,9 +101,18 @@ tidak perlu memasang ulang. Yang perlu dilakukan sesi baru: **memuatnya ke "diri
 | FONDASI_TAHAP_5 | `skills/product-discovery/roadmap-planning` · `skills/product-management/prioritization-advisor` · `skills/writing-plans` |
 | FONDASI_TAHAP_6 | `skills/verification-loop` · `skills/verification-before-completion` · `skills/systematic-debugging` |
 | CODING_AKTIF | `skills/vercel-react-best-practices` · `skills/building-components` · `skills/supabase-postgres-best-practices` · `skills/cloudflare` · `skills/tdd-workflow` · `skills/systematic-debugging` · `skills/agent-browser` · `skills/security-review` |
+| SIKLUS_BARU | `skills/product-discovery/roadmap-planning` · `skills/product-management/prioritization-advisor` · `skills/product-discovery/opportunity-solution-tree` · `skills/writing-plans` · `skills/verification-loop` |
 | Sesi desain | `skills/ui-ux-pro-max` · `skills/design-system` · `skills/ui-styling` · `skills/brand` · `skills/banner-design` |
 
 Semua fase juga membaca `skills/find-skills` (untuk mencari skill yang belum terpasang).
+
+**STATUS yang namanya lebih rinci dari tabel di atas tetap dapat daftar skill-nya.** Contoh nyata 2026-09-18:
+`CODING_DIJEDA_SADAR` (coding aktif, dijeda atas permintaan pemilik). Dulu alat mencocokkan nama persis, sehingga
+STATUS itu tidak cocok ke baris mana pun dan KARTU SESI hanya mencetak 1 skill — sesi coding bisa lewat tanpa
+daftar skill wajib. Sekarang yang menentukan adalah **keluarga fase** (`CODING*` → baris CODING_AKTIF, `SIKLUS*` →
+baris SIKLUS_BARU, `DESAIN` → baris sesi desain), dan kartu mencetak baris `[catatan]` bila nama STATUS menyimpang
+dari tabel AGENT_SYSTEM.md — supaya penyimpangan itu **terlihat**, bukan diam-diam mengurangi pekerjaan.
+Dijaga `python3 alat/mulai-sesi.py --uji-diri` (19 kasus; ikut CI lewat `alat/periksa-gerbang-ci.py`).
 
 ## 3. Coding Conventions
 

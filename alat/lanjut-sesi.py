@@ -46,8 +46,12 @@ PROMPT_KANONIK = AKAR / "PROMPT_ENTRI_UNIVERSAL.md"
 TERTANGGUH = AKAR / "docs" / "TERTANGGUH.md"
 PROJECT_STATE = AKAR / "PROJECT_STATE.md"
 
-# Cabang kerja yang memuat pekerjaan terakhir. Ditulis di berkas siap-tempel supaya sesi
-# baru tahu harus menyusul ke mana — bukan ditebak dari ingatan.
+# Cabang kerja yang memuat pekerjaan terakhir. Dipakai HANYA sebagai nilai cadangan:
+# (a) nama cabang untuk `--siapkan` saat HEAD detached, dan (b) pembanding di pemeriksa.
+# Catatan mati-listrik 2026-09-18 (sesi `01a0b4c3`): dulu pemeriksa mewajibkan handoff menunjuk
+# nama INI saja, padahal setiap sesi baru bekerja di CABANG SESINYA SENDIRI — sehingga
+# `--siapkan` yang benar (menulis cabang yang sedang dipakai) justru SELALU ditolak pemeriksa, dan sesi berikutnya
+# diarahkan ke cabang yang sudah berhenti. Sekarang cabang sesi sendiri ikut diterima.
 CABANG_KERJA = "arena/01a0a8a2-resto-barokah"
 
 
@@ -127,9 +131,15 @@ def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
             masalah.append(f"docs/ops/SIAP-LANJUT.md: bagian '{nama}' muncul {jumlah}x (harus 1) — "
                            "berkas handoff rusak/berulang, jalankan --siapkan lagi")
     cabang_ditulis = bidang(sipl, "Cabang kerja terakhir")
-    if cabang_ditulis and cabang_ditulis != CABANG_KERJA:
-        masalah.append(f"docs/ops/SIAP-LANJUT.md menunjuk cabang '{cabang_ditulis}', bukan '{CABANG_KERJA}' — "
-                       "sesi baru bisa menyusul ke cabang yang salah")
+    # Yang diterima: cabang yang tercatat sebagai kerja-terakhir ATAU cabang sesi tempat handoff
+    # ini ditulis (setiap sesi Arena bekerja di cabangnya sendiri — menolak itu = deadlock).
+    _, nama_cabang_lokal = jalankan(["git", "branch", "--show-current"], cwd=akar)
+    nama_cabang_lokal = nama_cabang_lokal.strip()
+    sah = {CABANG_KERJA} | ({nama_cabang_lokal} if nama_cabang_lokal else set())
+    if cabang_ditulis and cabang_ditulis not in sah:
+        masalah.append(f"docs/ops/SIAP-LANJUT.md menunjuk cabang '{cabang_ditulis}' yang BUKAN cabang "
+                       f"kerja-terakhir ('{CABANG_KERJA}') dan bukan cabang sesi ini "
+                       f"('{nama_cabang_lokal or 'HEAD detached'}') — sesi baru bisa menyusul ke cabang yang salah")
     if re.search(r"CABANG-KERJA-BELUM-DIISI|TODO", sipl):
         masalah.append("docs/ops/SIAP-LANJUT.md masih memuat penanda TODO — belum diisi sungguhan")
 
@@ -427,6 +437,13 @@ def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool,
     _, induk = jalankan(["git", "rev-parse", "HEAD"], cwd=repo)
     sha = sha_ditulis if sha_ditulis is not None else induk.strip()
     isi = isi.replace("0" * 40, sha)
+    # Repo uji punya cabangnya sendiri (master/main tergantung git init) — handoff harus menunjuk
+    # cabang ITU, bukan cabang sesi asli yang ikut tersalin dari repo. Tanpa penyesuaian ini,
+    # pemeriksaan "cabang handoff = cabang sesi ini" salah tuduh pada repo uji (bukan cacat pemeriksa).
+    _, cabang_uji = jalankan(["git", "branch", "--show-current"], cwd=repo)
+    if cabang_uji.strip():
+        isi = re.sub(r"^- \*\*Cabang kerja terakhir:\*\*\s*`[^`]+`",
+                     f"- **Cabang kerja terakhir:** `{cabang_uji.strip()}`", isi, count=1, flags=re.M)
     (repo / "docs" / "ops" / "SIAP-LANJUT.md").write_text(isi, encoding="utf-8")
     # Meniru aturan akhir batch yang sebenarnya: commit terakhir menyentuh ketiga berkas
     # (handoff + PROJECT_STATE + STATUS). Kalau tidak, yang diuji bukan aturannya.
@@ -496,8 +513,10 @@ def uji_diri() -> int:
 
     mutasi("mutasi: commit keadaan dihandoff dikosongkan", re.sub(r"^- \*\*Commit keadaan kerja:\*\*.*$",
                                                                   "- **Commit keadaan kerja:** (tidak ada)", sipl, count=1, flags=re.M))
-    mutasi("mutasi: cabang dihandoff diubah ke cabang lain",
-           sipl.replace(CABANG_KERJA, "arena/cabang-yang-salah", 1))
+    sipl_cabang_salah = re.sub(r"^- \*\*Cabang kerja terakhir:\*\*\s*`[^`]+`",
+                               "- **Cabang kerja terakhir:** `arena/cabang-yang-salah`",
+                               sipl, count=1, flags=re.M)
+    mutasi("mutasi: cabang dihandoff diubah ke cabang lain", sipl_cabang_salah)
     mutasi("mutasi: bagian CI dihapus", re.sub(r"^- \*\*CI terakhir:\*\*.*$", "", sipl, count=1, flags=re.M))
     mutasi("mutasi: bagian rencana berikutnya dihapus",
            re.sub(r"^## .*Rencana berikutnya.*$", "## Catatan lain", sipl, count=1, flags=re.M))

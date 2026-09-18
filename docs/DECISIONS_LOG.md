@@ -609,3 +609,39 @@ Format:
   dikunci adalah *ada* cap bawaan yang punya arti, bukan angkanya.
 - **File terkait:** `supabase/migrations/0014_penutup_celah_putaran13.sql`, `supabase/tes/*`,
   `alat/periksa-paket.py`, `alat/periksa-angka-bukti.py`, `alat/uji-mutasi-0014.py`.
+
+### [Alur kerja/2026-09-18] Nomor migrasi rencana dikoreksi + nomor final diambil saat mengerjakan
+- **Area:** Mekanisme kerja agent (bukan keputusan produk) — menyentuh `docs/ROADMAP.md` dan alat pemeriksa.
+- **Keputusan:**
+  - ROADMAP masih menulis Fase 1B memakai migrasi **0012–0016** (T1-24…T1-28), padahal **0012/0013/0014**
+    sudah terpakai berkas penutup celah review & audit yang menyusul di tengah jalan. Nomor rencana digeser:
+    **T1-24→0015 · T1-25→0016 · T1-26→0017 · T1-27→0018 · T1-28→0019 · T1-36→0020**, dan rantai rencana lama
+    ikut bergeser **T1-11→0021 · T1-12→0022 · T1-13→0023 · antrean→0024 · T8-15→0025**. Berkas yang sudah
+    dibuat (0001–0014) TIDAK disentuh sama sekali.
+  - Yang berubah **hanya angka pada judul tugas & baris File:** di ROADMAP (belum ada berkasnya), jadi tidak ada
+    satu pun migrasi yang ditulis ulang, tidak ada skema databasis yang berubah, dan `docs/TECH_SPEC.md`
+    (dokumen terkunci) tidak menyebut nomor berkas sama sekali.
+  - Aturan tetapnya sekarang tertulis di kepala Fase 1B: **nomor di ROADMAP = perkiraan; nomor final diambil
+    bebas pada saat mengerjakan** (`ls supabase/migrations/ | tail -1` + 1) lalu dicatat di baris **Bukti** tugas itu.
+  - Dijaga mesin: butir 8 `alat/periksa-roadmap.py` MENOLAK tugas terbuka yang menunjuk nomor terpakai, dengan
+    dua kontrol negatif (rujukan kerja ulang ke berkas yang benar-benar ada & angka di kalimat catatan).
+    `--uji-diri` 6 kasus ikut CI. Gerbang wajib `alat/periksa-gerbang-ci.py`: **18 → 20** (dua langkah baru:
+uji-diri `alat/mulai-sesi.py` dan uji-diri `alat/periksa-roadmap.py`) — angkanya diambil dari keluaran pemeriksa,
+bukan dari ingatan.
+- **Alasan:** kalau angka basi itu dibiarkan, sesi berikutnya menulis `supabase/migrations/0012_perangkat.sql`
+  di atas `0012_penutup_celah_review.sql` yang sudah ada — riwayat skema tertimpa dan uji regresi temuan audit
+  ikut hilang. Ini kelas cacat yang sama dengan "angka bukti basi" (temuan B F-13) yang sudah dua kali ditangkap
+  peninjau independen; bedanya kali ini caught before any file was written.
+- **File terkait:** `docs/ROADMAP.md` (kepala Fase 1B, T1-24…T1-28, T1-36, T1-11…T1-13, T8-15, catatan riwayat
+  di akhir berkas), `alat/periksa-roadmap.py`, `alat/periksa-gerbang-ci.py`, `.github/workflows/ci.yml`,
+  `aplikasi/alat/periksa-semua.sh`, `docs/AGENT_OPERATING_GUIDE.md` §2.
+- **Implikasi:**
+  - Entri `[Mekanisme/2026-09-17]` yang menyebut `supabase/migrations/0017_privasi_pelanggan.sql` **tidak
+    disunting** (riwayat tidak ditulis ulang) — berkas itu kini direncanakan sebagai `0025_privasi_pelanggan.sql`.
+  - Tugas yang menyentuh `catatan_audit` masih punya pertanyaan terbuka soal urutan pembuatan vs pengerasan
+    (T1-27 vs T1-13) → dicatat sebagai butir tunggu **T-020** di `docs/TERTANGGUH.md`; jangan dikerjakan
+    sebelum dijawab.
+  - `alat/mulai-sesi.py` ikut diperbaiki di hari yang sama (STATUS `CODING_DIJEDA_SADAR` dulu mencetak 1 skill
+    saja karena pemetaan nama-persis): skill wajib kini diambil dari **keluarga fase** dan kartu mencetak
+    `[catatan]` bila nama STATUS menyimpang. Direktori skill induk (`product-management`, `product-discovery`)
+    tidak lagi dilaporkan "TIDAK ADA". Ini mengubah **daftar bacaan wajib sesi**, jadi dicatat di sini.

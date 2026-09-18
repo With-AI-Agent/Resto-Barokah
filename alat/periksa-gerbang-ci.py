@@ -41,6 +41,9 @@ GERBANG_WAJIB = [
     ("uji-diri pemeriksa komponen & env", r"python3\s+aplikasi/alat/periksa-komponen-env\.py\s+--uji-diri\s*$"),
     ("uji-diri pemeriksa angka bukti ROADMAP (F-14)", r"python3\s+alat/periksa-angka-bukti\.py\s+--uji-diri\s*$"),
     ("pemeriksa handoff lanjut-sesi (isi + uji-diri)", r"python3\s+alat/lanjut-sesi\.py\s+--di-ci\s*$"),
+    ("uji-diri bootstrap sesi (peta STATUS → skill wajib)", r"python3\s+alat/mulai-sesi\.py\s+--uji-diri\s*$"),
+    ("uji-diri pemeriksa roadmap (butir 8: nomor migrasi tidak boleh bentrok)",
+     r"python3\s+alat/periksa-roadmap\.py\s+--uji-diri\s*$"),
     ("kerentanan dependency (npm audit, 0 toleransi)", r"npm audit --audit-level=low\s*$"),
     ("validator sistem", r"python3\s+_sistem/validate_system\.py\s*$"),
     ("pemeriksa pohon bersih", r"python3\s+alat/periksa-bersih\.py\s*$"),
@@ -142,6 +145,9 @@ def uji_diri() -> int:
         mutasi("langkah pemeriksa pohon bersih dihapus", lambda t: t.replace("          python3 alat/periksa-bersih.py\n", "", 1))
         mutasi("langkah pemeriksa antarmuka dihapus", lambda t: t.replace("          python3 aplikasi/alat/periksa-antarmuka.py\n", "", 1))
         mutasi("langkah uji-diri kontras dihapus", lambda t: t.replace("          python3 aplikasi/alat/uji-kontras.py --uji-diri\n", "", 1))
+        # Gerbang baru 2026-09-18: bootstrap sesi (peta STATUS → skill wajib) ikut dikunci,
+        # supaya "daftar skill wajib" tidak bisa diam-diam berhenti tercetak di KARTU SESI.
+        mutasi("langkah uji-diri bootstrap sesi dihapus", lambda t: t.replace("          python3 alat/mulai-sesi.py --uji-diri\n", "", 1))
         mutasi("langkah diberi continue-on-error", lambda t: t.replace("    runs-on: ubuntu-latest", "    runs-on: ubuntu-latest\n    continue-on-error: true", 1))
 
     print("\nUJI-DIRI PEMERIKSA GERBANG CI")

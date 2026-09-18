@@ -275,7 +275,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-11 — Migrasi kas & shift + printer
   - **Tujuan:** uang kas selalu bisa diaudit (modal, masuk, keluar, hasil hitung, selisih).
   - **Ref:** TECH_SPEC §4 & §9 ART-6; PRD M7
-  - **File:** `supabase/migrations/0018_kas_shift.sql`
+  - **File:** `supabase/migrations/0021_kas_shift.sql`
   - **DoD:** `shift_kas` (buka/tutup, modal, seharusnya, fisik, selisih, alasan) + `kas_pergerakan` + `printer` (per perangkat/cabang); uji lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); shift menggantung → mitigasi: aturan & pengingat (T7-05).
@@ -284,7 +284,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-12 — Migrasi pelanggan, kampanye voucher, voucher, percobaan voucher ⚠️
   - **Tujuan:** voucher tidak bisa dipakai dua kali dan data pelanggan sesedikit mungkin (privasi).
   - **Ref:** TECH_SPEC §4 (tabel: pelanggan, kampanye_voucher, voucher, voucher_percobaan) & §9 ART-5/ART-10; PRD M10
-  - **File:** `supabase/migrations/0019_voucher.sql`
+  - **File:** `supabase/migrations/0022_voucher.sql`
   - **Catatan penutup celah (review putaran11 PR-01, migrasi `0013`):** selama tabel voucher belum ada, diskon `jenis='voucher'` **DITOLAK gagal-aman** (dulu hanya diperiksa izin `pakai_voucher` sehingga kasir bisa mencatat diskon 100% subtotal tanpa voucher). Saat tugas ini mendarat: pasang kunci asing `voucher_id` dan buka kembali jalur itu **hanya** dengan pemeriksaan sungguhan.
   - **DoD:** tabel pelanggan (nama, email, opsi alamat, persetujuan), kampanye (nilai, minimum, batas potongan, masa berlaku, kuota, anggaran, cabang), voucher (kode acak, status), percobaan (log semua cek/scan); indeks unik mencegah dobel; uji lulus.
   - **Kompleksitas:** besar (4 jam)
@@ -294,7 +294,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-13 — Migrasi catatan_audit (hanya-tambah) ⚠️
   - **Tujuan:** jejak tindakan sensitif tidak bisa diubah atau dihapus siapa pun.
   - **Ref:** TECH_SPEC §4 & §9 ART-6; PRD M3
-  - **File:** `supabase/migrations/0020_catatan_audit.sql`, `supabase/tes/audit.sql`
+  - **File:** `supabase/migrations/0023_catatan_audit.sql`, `supabase/tes/audit.sql`
   - **DoD:** hanya bisa INSERT; UPDATE/DELETE ditolak untuk semua peran (termasuk owner & service role via policy/trigger); uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Audit (ART-6); hapus jejak untuk menutupi kecurangan → mitigasi: larangan di tingkat database, bukan aplikasi.
@@ -303,7 +303,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-14 — Migrasi antrean kirim & catatan kesalahan
   - **Tujuan:** pesanan saat internet putus tidak hilang dan masalah bisa diperiksa tanpa menebak.
   - **Ref:** TECH_SPEC §4 & §9 ART-8; PRD §9 (risiko)
-  - **File:** `supabase/migrations/0021_antrean_kesalahan.sql`
+  - **File:** `supabase/migrations/0024_antrean_kesalahan.sql`
   - **DoD:** tabel `antrean_kirim` (kunci idempoten unik) + `catatan_kesalahan` (tingkat, kode, konteks) ada; tidak menyimpan sandi/PIN; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Antrean Offline (ART-8); data sensitif tercatat → mitigasi: daftar kolom terbatas + tinjauan manual.
@@ -388,8 +388,19 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 > **Kenapa disisipkan:** pemilik (pesan ke-14) meminta keamanan dimatangkan sebelum lanjut. Pola RLS & cara masuk
 > dipakai oleh seluruh migrasi/layar berikutnya — kalau T1-11 dilanjutkan dulu, pembongkaran dilakukan dua kali.
-> **Nomor migrasi:** penyisipan ini memakai **0011–0016**; rencana lama (kas & shift dst.) digeser **+7** menjadi
-> 0018 dst. **Urutan penerapan = urutan tugas di ROADMAP**, bukan urutan nomor berkas rencana lama.
+> **Nomor migrasi:** penyisipan ini memakai **0011 & 0015–0020**; rencana lama (kas & shift dst.) memakai
+> **0021–0024**, dan privasi pelanggan (T8-15) **0025**. Angka-angka itu **perkiraan, bukan janji**: sebelum
+> 2026-09-18 fase ini tertulis memakai 0011–0016, tetapi 0012/0013/0014 terpakai berkas penutup celah
+> review/audit yang menyusul di tengah jalan — kalau dibiarkan, sesi berikutnya menimpa berkas yang sudah ada.
+> Karena itu: **ambil nomor bebas pertama saat mengerjakan** (`ls supabase/migrations/ | tail -1` + 1), lalu
+> tulis nomor sebenarnya di baris **Bukti** tugas itu. Penjaganya: `python3 alat/periksa-roadmap.py` (butir 8)
+> MENOLAK tugas terbuka yang menunjuk nomor sudah terpakai. **Urutan penerapan = urutan tugas di ROADMAP**,
+> bukan urutan nomor berkas rencana.
+> **Satu hal yang harus dijawab sebelum T1-27:** T1-27 mengeras tabel `catatan_audit` (hanya-bertambah + rantai hash),
+> padahal tabel itu sendiri baru dibuat oleh T1-13 — urutan tugas sekarang membuat "pengerasan" mendahului
+> "pembuatan", dan itu tidak boleh terjadi di databasis. Rencananya: **T1-27 yang membuat tabelnya langsung dalam
+> bentuk jadi**, T1-13 tinggal menambah yang kurang. Usulan ini menunggu jawaban Lee — tercatat sebagai
+> **T-020** di `docs/TERTANGGUH.md` (butir ini tidak menghambat T1-24…T1-26).
 > **Rujukan resmi:** `docs/KEAMANAN.md`; keputusan: `docs/DECISIONS_LOG.md` 2026-09-17.
 
 - [x] T1-23 — Migrasi 0011: peran tunggal + PIN unik & kuat ⚠️
@@ -402,47 +413,47 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Verifikasi:** uji SQL: sisipkan peran kedua untuk satu akun → ditolak · PIN kembar → ditolak · PIN `123456` → ditolak · akun merangkap dua cabang tetap boleh.
   - **Bukti 2026-09-17:** `supabase/migrations/0011_peran_tunggal.sql` (migrasi BARU; 0002/0005 dibekukan) · uji `supabase/tes/peran_tunggal.sql` (baru), `supabase/tes/kredensial_pin.sql` §5, `supabase/tes/pin_batas_pasang.sql` (baru), `supabase/tes/izin.sql` §8 diganti. **Peran tunggal:** kolom `pengguna_cabang.peran` dihapus (peran kedua mustahil disimpan) + penjaga keanggotaan (akun & cabang wajib satu resto; pemilik platform tidak didaftarkan ke cabang) + `izin_efektif()` membaca `pengguna.peran` dan tetap MENOLAK cabang yang bukan tempatnya bertugas. **PIN:** wajib tepat 6 angka; pola lemah ditolak (semua digit sama · deret · blok berulang · pasangan berurutan · bentuk tanggal) lewat fungsi `pin_lemah()`; **unik antar pegawai satu resto** (bukan lintas resto — supaya angka PIN resto lain tidak bocor). **Pembatas anti-oracle (baru, penting):** uji keunikan bisa dipakai menebak PIN kolega, jadi setiap percobaan pemasangan dicatat di tabel `percobaan_simpan_pin` (tidak bisa dibaca klien) dan dibatasi **20 kali / 15 menit**; penolakan kembar & batas dikembalikan sebagai PESAN (bukan error) — sebab `raise exception` membatalkan baris catatannya sendiri di savepoint, sehingga pembatasnya tidak akan pernah menyala (ditemukan saat uji, ditulis di komentar migrasi + DECISIONS_LOG). **Gerbang dibuktikan bisa MERAH lewat 6 uji mutasi:** peran per cabang dihidupkan lagi · keanggotaan cabang diabaikan · pola lemah dimatikan · keunikan dimatikan · pembatas anti-oracle dimatikan · format verifikasi kembali 4–6 angka — semuanya GAGAL, LOLOS setelah dipulihkan (mutasi ke-6 awalnya **lolos** → mengungkap celah uji, lalu uji jalur verifikasi ditambahkan). Hasil: `node alat/uji-sql.mjs` **21 berkas LULUS · 0 GAGAL**; matriks 10 izin × 5 peran tetap utuh.
 
-- [ ] T1-24 — Migrasi 0012: perangkat terdaftar + `perangkat_sah()` + RLS staf diperketat ⚠️
+- [ ] T1-24 — Migrasi 0015: perangkat terdaftar + `perangkat_sah()` + RLS staf diperketat ⚠️
   - **Tujuan:** bagian staf hanya bisa dibuka dari perangkat terdaftar; perangkat curian/hilang mati seketika; perangkat tidak bisa dipakai masuk sebagai peran lain.
   - **Ref:** TECH_SPEC §4.6 & §9 ART-11; PRD M12
-  - **File:** `supabase/migrations/0012_perangkat.sql`, `supabase/tes/perangkat.sql`
+  - **File:** `supabase/migrations/0015_perangkat.sql`, `supabase/tes/perangkat.sql`
   - **DoD:** tabel `perangkat`, `kode_pendaftaran_perangkat`, `persetujuan_perangkat` ada; kode sekali pakai 15 menit; rahasia 32 byte disimpan SHA-256; `peran_diizinkan` ditegakkan; fungsi `perangkat_sah()` `stable` + `search_path` dipaku; policy tabel staf memakai `(select public.perangkat_sah())`; RPC `buat_kode_perangkat`, `daftarkan_perangkat`, `setujui_perangkat_pegawai`, `cabut_perangkat`, `daftar_perangkat`; uji SQL lulus.
   - **Kompleksitas:** besar (6 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); policy salah membuat semua staf terkunci atau justru terbuka → mitigasi: uji dua arah (perangkat sah boleh · tidak sah ditolak) + uji pencabutan seketika; bukti perangkat lewat header **wajib diuji di Supabase nyata** dulu (T0-08), jaring `sesi_perangkat` tetap berlaku.
   - **Verifikasi:** uji SQL: perangkat tidak terdaftar → tabel staf tertutup · cabut perangkat → permintaan berikutnya gagal · "Tablet Kasir" dipakai masuk sebagai owner → ditolak · kode kadaluwarsa/dipakai dua kali → ditolak.
   - **Tambahan dari audit AUD-3 temuan F-11 (K-3):** `verifikasi_pin` wajib memakai identitas perangkat **terverifikasi** (`perangkat_id`), bukan nama kiriman klien, dan **menolak perangkat tak terdaftar**. Penutupnya: uji `supabase/tes/percobaan_pin_perangkat.sql` **diperketat** — bagian 1 tidak lagi melayani 5 percobaan melainkan **0** (perangkat asing ditolak) — lalu baris temuan F-11 di `docs/uji/AUDIT_RIWAYAT.md` §1b ditandai DITUTUP dengan bukti uji itu. Jangan menutup T1-24 tanpa memperketat ujinya.
 
-- [ ] T1-25 — Migrasi 0013: sesi perangkat, umur maksimum & pencabutan seketika ⚠️
+- [ ] T1-25 — Migrasi 0016: sesi perangkat, umur maksimum & pencabutan seketika ⚠️
   - **Tujuan:** sesi punya umur jelas, bisa dicabut seketika, dan perangkat yang ditinggal tidak menyimpan akses.
   - **Ref:** TECH_SPEC §4.6 & §9 ART-11; PRD M12
-  - **File:** `supabase/migrations/0013_sesi_perangkat.sql`, `supabase/tes/sesi_perangkat.sql`
+  - **File:** `supabase/migrations/0016_sesi_perangkat.sql`, `supabase/tes/sesi_perangkat.sql`
   - **DoD:** tabel `sesi_perangkat` (+ kunci unik `session_id`); RPC `ikat_sesi_perangkat`, `daftar_sesi`, `cabut_perangkat`, `keluar_semua_perangkat`; umur maksimum (staf 12 jam · admin/owner 30 hari · pemilik platform 8 jam) ditolak di database; sesi perangkat dicabut saat akun nonaktif; uji SQL lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); token terbit tetap sah sampai kedaluwarsa (batas Supabase) → mitigasi: pemeriksaan sesi di database tiap permintaan + token akses 15 menit.
   - **Verifikasi:** uji SQL: sesi lewat umur → ditolak · dicabut → ditolak pada permintaan berikutnya · sesi akun nonaktif → ditolak · `session_id` ganda → ditolak.
 
-- [ ] T1-26 — Migrasi 0014: percobaan masuk + kunci 5×/15 menit (akun) & 12×/15 menit (perangkat) ⚠️
+- [ ] T1-26 — Migrasi 0017: percobaan masuk + kunci 5×/15 menit (akun) & 12×/15 menit (perangkat) ⚠️
   - **Tujuan:** PIN tidak bisa ditebak walau dari perangkat terdaftar.
   - **Ref:** TECH_SPEC §4.6 & §9 ART-12; PRD M12
-  - **File:** `supabase/migrations/0014_percobaan_masuk.sql`, `supabase/tes/percobaan_masuk.sql`
+  - **File:** `supabase/migrations/0017_percobaan_masuk.sql`, `supabase/tes/percobaan_masuk.sql`
   - **DoD:** tabel `percobaan_masuk` mencatat semua percobaan (berhasil/gagal/diblokir); kunci dua lapis berlaku; percobaan yang ditolak karena terkunci tetap dihitung; percobaan gagal memicu pemberitahuan ke owner; uji SQL lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); kunci terlalu ketat membuat kasir tidak bisa kerja di jam sibuk → mitigasi: nilai dapat diatur owner + pesan jelas + penghitung mundur di layar.
   - **Verifikasi:** uji SQL: 6 kali salah → ditolak walau PIN benar · 12 kali salah dari satu perangkat (dibagi beberapa akun) → perangkat terkunci · pemulihan setelah 15 menit.
 
-- [ ] T1-27 — Migrasi 0015: `catatan_audit` hanya-tambah + rantai hash ⚠️
+- [ ] T1-27 — Migrasi 0018: `catatan_audit` hanya-tambah + rantai hash ⚠️ ❓ T-020
   - **Tujuan:** jejak audit tidak bisa diubah/dihapus, dan perubahan langsung di database pun bisa dideteksi.
   - **Ref:** TECH_SPEC §4.3 & §9 ART-13; PRD M12
-  - **File:** `supabase/migrations/0015_audit.sql`, `supabase/tes/audit.sql`, `alat/periksa-audit.py`
+  - **File:** `supabase/migrations/0018_audit.sql`, `supabase/tes/audit.sql`, `alat/periksa-audit.py`
   - **DoD:** tabel `catatan_audit` ada tanpa hak ubah/hapus; `hash_sebelumnya` & `hash_baris` dihitung pemicu (aman untuk penyisipan bersamaan); pemeriksa rantai menunjuk baris pertama yang putus; audit ditulis oleh perubahan izin, PIN, perangkat, mode dukungan; uji SQL lulus.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Jejak Audit (ART-13); rantai bercabang saat dua penulisan bersamaan → mitigasi: kunci baris terakhir saat pemicu berjalan + uji dua transaksi.
   - **Verifikasi:** uji SQL + pemeriksa: ubah satu baris → pemeriksa menunjuk baris itu; hapus satu baris → putus terdeteksi; audit tidak bisa diubah/dihapus oleh peran mana pun.
 
-- [ ] T1-28 — Migrasi 0016: mode dukungan pemilik platform (beralasan, berbatas waktu, tercatat) ⚠️
+- [ ] T1-28 — Migrasi 0019: mode dukungan pemilik platform (beralasan, berbatas waktu, tercatat) ⚠️
   - **Tujuan:** pemilik platform tetap bisa menolong tanpa pernah mengintip data penyewa diam-diam.
   - **Ref:** TECH_SPEC §9 ART-15; PRD §9 & M12
-  - **File:** `supabase/migrations/0016_mode_dukungan.sql`, `supabase/tes/mode_dukungan.sql`
+  - **File:** `supabase/migrations/0019_mode_dukungan.sql`, `supabase/tes/mode_dukungan.sql`
   - **DoD:** RPC `mode_dukungan` (alasan wajib, bawaan 60 menit, hanya-baca); policy membedakan pemilik platform biasa vs mode aktif; berakhir otomatis (pg_cron) & saat keluar; catatan audit + pemberitahuan ke owner penyewa; uji SQL lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Lintas Penyewa (ART-15); mode lupa ditutup → data terbuka lebih lama → mitigasi: kedaluwarsa otomatis + pemeriksa berkala.
@@ -469,7 +480,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-36 — Kunci induk: kode pemulihan darurat + pendaftaran perangkat darurat ⚠️
   - **Tujuan:** kehilangan perangkat owner/admin (bahkan seluruhnya) tidak menghentikan kedai, tanpa membuka pintu belakang yang lebih lemah daripada masuk biasa.
   - **Ref:** TECH_SPEC §9 ART-11 & §5.1; docs/KEAMANAN.md §4b; PRD M12
-  - **File:** `supabase/migrations/0016b_pemulihan_perangkat.sql`, `supabase/tes/pemulihan.sql`, `docs/ops/PEMULIHAN_PERANGKAT.md`
+  - **File:** `supabase/migrations/0020_pemulihan_perangkat.sql`, `supabase/tes/pemulihan.sql`, `docs/ops/PEMULIHAN_PERANGKAT.md`
   - **DoD:** RPC `buat_kode_pemulihan` (8 kata acak sekali pakai, hanya hash tersimpan, dibuat saat penyiapan), `pulihkan_perangkat` (wajib kode + kata sandi + TOTP → perangkat darurat dengan **masa tenggang 30 menit**), `batalkan_pemulihan`; **kode pemulihan hanya boleh dipakai `owner_pusat`**; kode dibuat sekali saat penyiapan dengan **penyimpanan amplop tersegel dua salinan** (rumah pemilik + arsip kantor di luar ruang kasir) + rotasi setelah dipakai/tahunan; pemberitahuan email + Peringatan dalam aplikasi; peringatan bila perangkat berkuasa tinggal 1; sakelar penghentian jalur pemulihan; langkah pemulihan pemilik platform ditulis di `docs/ops/`; uji SQL + uji mutasi lulus.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); kode pemulihan dicuri/difoto orang lain → mitigasi: hanya hash, sekali pakai, wajib kata sandi + TOTP, masa tenggang 30 menit + pemberitahuan + bisa dibatalkan + tercatat; dilarang menyimpan kode di ponsel/chat.
@@ -1451,10 +1462,10 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
-- [ ] T8-15 — Migrasi 0017: privasi pelanggan (persetujuan & anonimisasi) ⚠️ ❓ T-011
+- [ ] T8-15 — Migrasi 0025: privasi pelanggan (persetujuan & anonimisasi) ⚠️ ❓ T-011
   - **Tujuan:** data pelanggan hanya disimpan dengan persetujuan, dan bisa dianonimkan atas permintaan (UU PDP).
   - **Ref:** TECH_SPEC §9 ART-14; PRD M10 & M12; docs/KEAMANAN.md §11
-  - **File:** `supabase/migrations/0017_privasi_pelanggan.sql`, `supabase/tes/privasi.sql`, `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx`
+  - **File:** `supabase/migrations/0025_privasi_pelanggan.sql`, `supabase/tes/privasi.sql`, `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx`
   - **DoD:** kolom persetujuan + waktu + versi kebijakan; fungsi anonimisasi menghapus kontak tanpa menghapus catatan keuangan; halaman kebijakan berbahasa Indonesia; uji SQL lulus; draf kebijakan ditinjau pemilik sebelum data pelanggan pertama masuk.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Data Pelanggan (ART-14); data terlanjur tersimpan tanpa persetujuan → mitigasi: pendaftaran tanpa centang = ditolak database; anonimisasi menyisakan jejak audit.
@@ -1864,8 +1875,10 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 | 2026-09-17 (putaran 5b) | **+T1-39** (isi PETA_UI semua layar G1) + `docs/SPESIFIKASI_UI.md` **§9 perilaku & gerakan** → **187 tugas** | Jawaban jujur atas pertanyaan Lee: yang belum matang bukan mekanisme kelengkapan UI, melainkan **isinya** (daftar tombol/aksi per layar) dan **spesifikasi gerakan/perilaku** |
 
 > **Catatan 2026-09-17:** angka di atas **diukur ulang** dari berkas ini setelah penyisipan keamanan & kelengkapan UI (+T1-36 jalur pemulihan perangkat · +T1-37 pekerjaan ulang & T1-38 audit independen · +T11-13 audit adversarial)
-> (Fase 1B `T1-23…T1-30` · Fase 1C `T1-31…T1-35` · perluasan Fase 2/8/10/11). **Nomor migrasi rencana lama bergeser +7**
-> (kas & shift 0011 → **0018**, dst.) supaya 0011–0017 dipakai penyisipan; urutan penerapan mengikuti **urutan tugas**.
+> (Fase 1B `T1-23…T1-30` · Fase 1C `T1-31…T1-35` · perluasan Fase 2/8/10/11). **Nomor migrasi rencana lama bergeser lagi
+> pada 2026-09-18** — kas & shift 0018 → **0021**, dst., karena 0012–0014 terpakai berkas penutup celah review/audit;
+> penyisipan Fase 1B kini tertulis 0011 & 0015–0020. Nomor itu **perkiraan**: yang menentukan urutan adalah urutan
+> tugas, dan nomor final diambil saat mengerjakan (dijaga `alat/periksa-roadmap.py` butir 8) — lihat kepala Fase 1B.
 > Pelajaran T1-07/…/T1-10 diulang: jumlah tugas **tidak boleh** ditulis dari ingatan — ambil dari hasil pemeriksa.
 
 **Uji terima antar-fase (aturan gelombang):** fase N+1 tidak dimulai sebelum (a) semua tugas fase N `[x]`, (b) uji otomatisnya hijau, (c) `python3 alat/periksa-roadmap.py` lulus, (d) `DECISIONS_LOG.md` diperbarui untuk tugas bertanda ⚠️, (e) ringkasan 5 baris ditulis di LOG_SESI.
@@ -1898,3 +1911,4 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 | 2026-09-16 | **T0-04 ditandai `[x]`** setelah bukti visual pemilik diterima (pemilik membuka pratinjau & menyatakan “Lanjut”) | Aturan bukti visual di tugas itu sendiri; bukti otomatis sudah lengkap sebelumnya |
 | 2026-09-16 | **T0-10 selesai**: kerangka uji diperkuat (jsdom + @testing-library/react, 51 uji angka saat itu) + pemeriksa baru `aplikasi/alat/periksa-uji.py` yang menolak berkas logika tanpa uji | Tujuan T0-10 adalah TDD sejak awal; risiko “uji hanya formalitas” dijawab dengan gerbang otomatis, bukan janji |
 | 2026-09-16 | Aturan baru: **pemulihan setelah ruang kerja dinyalakan ulang** (`aplikasi/alat/pratinjau.sh` + `alat/pulihkan-git.sh`) masuk `AGENT_OPERATING_GUIDE.md` §0 dan prompt pembuka universal | Kejadian nyata: setelah restart, pustaka aplikasi hilang (pratinjau mati) dan salinan Git lokal mundur ke `main` — sesi berikutnya (model apa pun) harus tahu cara memulihkan tanpa menebak |
+| 2026-09-18 (putaran 15) | **Nomor migrasi rencana dikoreksi + diberi penjaga.** T1-24→0015 · T1-25→0016 · T1-26→0017 · T1-27→0018 · T1-28→0019 · T1-36→0020; rantai lama T1-11→0021 · T1-12→0022 · T1-13→0023 · antrean→0024 · T8-15→0025. Nomor di ROADMAP resmi berstatus **perkiraan** (ambil nomor bebas pertama saat mengerjakan, tulis di baris **Bukti**). Butir baru **T-020** ditandai `❓` di T1-27 | 0012/0013/0014 terpakai berkas penutup celah review/audit yang menyusul, sehingga judul tugas lama menunjuk nomor yang sudah ada; kalau dibiarkan, sesi berikutnya menimpa berkas migrasi. Dijaga `alat/periksa-roadmap.py` butir 8 (+`--uji-diri`, ikut CI) |
