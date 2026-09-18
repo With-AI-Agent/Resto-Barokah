@@ -77,6 +77,19 @@ def bidang(teks: str, nama: str) -> str | None:
 
 
 # --------------------------------------------------------------------------- periksa
+def catatan_ci(sipl_teks: str) -> str:
+    """Peringatan bila CI terakhir BUKAN success.
+
+    Sengaja PERINGATAN, bukan penolakan: commit yang memperbaiki CI merah pasti memuat berkas
+    handoff yang menyebut CI merah itu sendiri — kalau ini dijadikan penolakan, mekanismenya
+    justru macet dan tidak bisa keluar dari keadaan merah. Yang penting: sesi baru TAHU.
+    """
+    nilai = (bidang(sipl_teks, "CI terakhir") or "").strip()
+    if nilai.lower().startswith("success"):
+        return ""
+    return (f"CI terakhir BUKAN success ({nilai or 'tidak terbaca'}) — sesi baru WAJIB memperiksa "
+            "dan memperbaiki CI lebih dulu sebelum memulai pekerjaan baru.")
+
 def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
             tempe_teks: str | None = None, penuh: bool = True) -> list[str]:
     """Kembalikan daftar masalah. Kosong = siap lanjut.
@@ -151,6 +164,11 @@ def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
 
     if not penuh:
         return masalah
+
+    # --- keadaan CI harus terbaca jelas oleh sesi baru (jangan disembunyikan) ---
+    pesan_ci = catatan_ci(sipl)
+    if pesan_ci:
+        print(f"  [catatan] {pesan_ci}")
 
     # --- pemeriksaan kesegaran riwayat Git (butuh riwayat penuh) ---
     kode, kotor = jalankan(["git", "status", "--porcelain"], cwd=akar)
@@ -229,6 +247,8 @@ def siapkan() -> int:
     _, ci = jalankan(["gh", "run", "list", "--limit", "1", "--json", "conclusion,headSha,databaseId",
                       "--jq", '.[] | "\\(.conclusion) (run \\(.databaseId), commit \\(.headSha[0:8]))"'])
     ci = ci.strip() or "(status CI tidak terbaca dari sini — periksa di GitHub)"
+    pesan_ci = "" if ci.lower().startswith("success") else (
+        f"- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.\n")
     terbuka = butir_tertangguh()
     hari_ini = _dt.date.today().isoformat()
     sipl_lama = baca(SIAP)
@@ -247,7 +267,7 @@ def siapkan() -> int:
 - **Commit keadaan kerja:** `{sha}`
 - **PR:** {pr} — **JANGAN MERGE tanpa keputusan Lee**
 - **CI terakhir:** {ci}
-- **Ditulis:** {hari_ini} (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
+{pesan_ci}- **Ditulis:** {hari_ini} (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
 
@@ -386,6 +406,16 @@ def uji_diri() -> int:
         masalah_m = periksa(sipl_teks=baru, tempe_teks=tempe, penuh=False)
         hasil.append((nama, bool(masalah_m),
                       masalah_m[0][:90] if masalah_m else "DILOLOSKAN (tumpul)"))
+
+    # Peringatan CI: merah harus memicu peringatan, success tidak boleh berisik.
+    hasil.append(("peringatan muncul saat CI terakhir merah",
+                  bool(catatan_ci(re.sub(r"(?m)^- \*\*CI terakhir:\*\*.*$",
+                                         "- **CI terakhir:** failure (run 1, commit aaaaaaaa)", sipl))),
+                  "CI merah harus diberitahukan ke sesi baru"))
+    sipl_sukses = re.sub(r"(?m)^- \*\*CI terakhir:\*\*.*$",
+                         "- **CI terakhir:** success (run 1, commit aaaaaaaa)", sipl)
+    hasil.append(("tidak ada peringatan saat CI success", not catatan_ci(sipl_sukses),
+                  "CI hijau tidak boleh memunculkan peringatan palsu"))
 
     # Kasus kembar (kejadian nyata): bagian yang sama muncul dua kali → WAJIB ditolak.
     hasil.append(("mutasi: bagian 'Commit keadaan kerja' diduplikasi",
