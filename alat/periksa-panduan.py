@@ -58,6 +58,12 @@ TOPIK_WAJIB = {
     "label prompt": r"\[LEE → (AGENT|PENINJAU)\]",
     "penjelasan perintah": r"Fungsinya",
     "rekam pesan Lee": r"REKAM_PESAN_PEMILIK",
+    # Fakta pindah sesi (jawaban Lee 2026-09-18): tanpa bagian ini, Lee akan mengira
+    # harus mengatur base branch / wajib mengirim prompt penutup — padahal tidak.
+    "pindah sesi: base branch": r"base branch tidak perlu kamu sentuh",
+    "pindah sesi: penutup tak wajib": r"disarankan 1 kalimat, bukan wajib",
+    "pindah sesi: pakai berkas terbaru": r"Wajib pakai berkas terbaru",
+    "pindah sesi: jangan merge": r"Jangan merge PR #1",
 }
 BERKAS_PENGGUNA_WAJIB = [
     "docs/PANDUAN_PEMILIK.md",

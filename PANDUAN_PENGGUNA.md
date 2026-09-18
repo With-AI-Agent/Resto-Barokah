@@ -262,6 +262,11 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
 - **Kalau macet:** bila `alat/lanjut-sesi.py` menolak, agent **tidak boleh** menyuruh Lee pindah sesi dulu — perbaiki dulu (biasanya: ada pekerjaan belum di-commit, atau handoff belum disegarkan), karena pindah dengan handoff basi = konteks hilang.
   - Bila sesi sebelumnya berhenti dalam keadaan CI merah, berkas handoff menandainya dengan baris **PERHATIAN**; perbaiki CI lebih dulu sebelum pekerjaan baru.
 
+  - **Tidak perlu atur apa pun soal branch:** base branch tidak perlu kamu sentuh. Cabang kerja dibuat otomatis oleh platform dan tidak bisa diganti; istilah "base branch" hanya dipakai saat Pull Request dibuka — dan PR #1 sudah terbuka sejak lama. Yang kamu lakukan hanya menyalin berkas siap-tempel.
+  - **Prompt penutup di sesi lama: disarankan 1 kalimat, bukan wajib.** Kalau sesi lama masih bisa diajak bicara, tulis `Siapkan pindah ke sesi baru.` supaya agent merapikan pekerjaan yang belum tersimpan + menyegarkan handoff + memastikan pemeriksa LOLOS. Kalau sesi lama sudah mati/mogok, boleh langsung pindah: agent baru wajib memeriksa keadaan repo dulu. Satu-satunya yang bisa tertinggal bila langkah ini dilewati: pekerjaan yang saat itu belum di-commit/belum di-push.
+  - **Wajib pakai berkas terbaru** `docs/ops/SIAP-TEMPEL-SESI-BARU.md` (berkas ini berubah setiap batch; minta `Tampilkan berkas siap tempel.`). Salinan lama biasanya masih aman karena resep susul menarik pekerjaan terbaru dari GitHub, tetapi salinan terbaru selalu lebih benar.
+  - **Jangan merge PR #1.** Merge adalah keputusan Lee dan mengakhiri sesi cabang ini; tanyakan dulu ke agent bila ingin merge.
+
 ## Bagian C — Semua prompt (dengan label siapa yang memakai)
 
 **Aturan label:** **[LEE → AGENT]** = tempel di sesi kerja · **[LEE → PENINJAU]** = tempel di chat BARU (auditor/peninjau). Kalau prompt salah tempat, agent menolak dengan sopan dan meminta yang benar — itu fitur, bukan kerusakan.

@@ -1,6 +1,18 @@
 > BERKAS SIAP-TEMPEL — salin SELURUH isi berkas ini ke chat BARU (percakapan baru).
 > Dibuat mesin oleh `alat/lanjut-sesi.py`; Prompt Pembuka di bawah diambil apa adanya dari
 > sumber kanonik (`PROMPT_ENTRI_UNIVERSAL.md`), jadi tidak bisa menyimpang.
+>
+> CARA PAKAI (untuk Lee):
+> 1. Kamu TIDAK perlu mengatur apa pun soal branch — "base branch" hanya dipakai saat Pull
+>    Request dibuka (PR ini sudah terbuka), dan cabang kerja dibuat otomatis oleh platform.
+> 2. Ini hanya perlu dikirim di chat BARU. Prompt penutup di chat lama disarankan (1 kalimat:
+>    `Siapkan pindah ke sesi baru.`) tetapi TIDAK wajib; kalau chat lama sudah mati/mogok,
+>    langsung salin berkas ini saja — agent baru diperintah memeriksa keadaan repo lebih dulu.
+> 3. Yang bisa tertinggal bila langkah penutup dilewati: pekerjaan yang saat itu belum
+>    di-commit/belum di-push ke GitHub.
+> 4. Pakai salinan TERBARU berkas ini (berkas berubah setiap batch): minta
+>    `Tampilkan berkas siap tempel.`
+> 5. JANGAN MERGE PR ini — merge keputusan Lee dan mengakhiri sesi cabang ini.
 
 ===== MULAI SALIN DARI SINI =====
 
@@ -34,7 +46,7 @@ Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task
 ===== SAMBUNGAN: ARAHAN LANJUT PROYEK (dibuat mesin 2026-09-18) =====
 
 Proyek: **Resto Barokah** — repo `With-AI-Agent/Resto-Barokah`, cabang kerja terakhir
-`arena/01a0a8a2-resto-barokah` @ `eea0afc97d91b2eff3a2b8ffc8280126ae4ad4e7` — ini commit KEADAAN (induk dari commit handoff), jadi saat kamu menyusul
+`arena/01a0a8a2-resto-barokah` @ `b542871f4175b8d02ca7058e50479bd106d7af60` — ini commit KEADAAN (induk dari commit handoff), jadi saat kamu menyusul
 cabang, ujung cabang akan berisi satu commit yang lebih baru: commit yang memuat berkas handoff ini.
 Cara memastikan kamu di ujung yang benar: `git log --oneline -1` menampilkan commit yang menyentuh
 `docs/ops/SIAP-LANJUT.md`. PR #1 **terbuka** — **JANGAN MERGE**: merge hanya keputusan Lee.

@@ -145,6 +145,17 @@ def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
     if tempe and "refs/remotes/origin/kerja-terakhir" not in tempe:
         masalah.append("docs/ops/SIAP-TEMPEL-SESI-BARU.md tidak memuat perintah menyusul cabang kerja — "
                        "sesi baru bisa bekerja dari main yang tertinggal")
+    for nama_fakta, pola_fakta in (
+        ("tidak perlu atur base branch", r"(?i)base branch"),
+        # Jendela sengaja lebar: kalimatnya panjang ("Prompt penutup di chat lama disarankan
+        # (1 kalimat: ...) tetapi TIDAK wajib") — batas 60 karakter terlalu ketat dan
+        # sempat membuat penjaga ini BUTA terhadap berkas yang sebenarnya sudah benar.
+        ("prompt penutup tidak wajib", r"(?is)penutup.{0,300}?tidak wajib"),
+        ("pakai salinan terbaru", r"(?i)salinan TERBARU|terbaru berkas ini"),
+    ):
+        if tempe and not re.search(pola_fakta, tempe):
+            masalah.append(f"docs/ops/SIAP-TEMPEL-SESI-BARU.md tidak menjelaskan '{nama_fakta}' — "
+                           "Lee bisa mengira harus melakukan langkah yang sebenarnya tidak perlu")
     if tempe and kanonik and tempe.count(kanonik) != 1:
         masalah.append(f"docs/ops/SIAP-TEMPEL-SESI-BARU.md memuat blok Prompt Pembuka {tempe.count(kanonik)}x "
                        "(harus tepat 1) — berkas tempel rusak/berulang")
@@ -320,6 +331,18 @@ kamu berada di basis yang salah — jangan bekerja dulu, susul cabang di atas.
     tempe = f"""> BERKAS SIAP-TEMPEL — salin SELURUH isi berkas ini ke chat BARU (percakapan baru).
 > Dibuat mesin oleh `alat/lanjut-sesi.py`; Prompt Pembuka di bawah diambil apa adanya dari
 > sumber kanonik (`PROMPT_ENTRI_UNIVERSAL.md`), jadi tidak bisa menyimpang.
+>
+> CARA PAKAI (untuk Lee):
+> 1. Kamu TIDAK perlu mengatur apa pun soal branch — "base branch" hanya dipakai saat Pull
+>    Request dibuka (PR ini sudah terbuka), dan cabang kerja dibuat otomatis oleh platform.
+> 2. Ini hanya perlu dikirim di chat BARU. Prompt penutup di chat lama disarankan (1 kalimat:
+>    `Siapkan pindah ke sesi baru.`) tetapi TIDAK wajib; kalau chat lama sudah mati/mogok,
+>    langsung salin berkas ini saja — agent baru diperintah memeriksa keadaan repo lebih dulu.
+> 3. Yang bisa tertinggal bila langkah penutup dilewati: pekerjaan yang saat itu belum
+>    di-commit/belum di-push ke GitHub.
+> 4. Pakai salinan TERBARU berkas ini (berkas berubah setiap batch): minta
+>    `Tampilkan berkas siap tempel.`
+> 5. JANGAN MERGE PR ini — merge keputusan Lee dan mengakhiri sesi cabang ini.
 
 ===== MULAI SALIN DARI SINI =====
 
@@ -500,6 +523,12 @@ def uji_diri() -> int:
         masalah_salah = periksa(akar=repo_salah, penuh=True)
         hasil.append(("repo uji dengan handoff BASI ditolak", bool(masalah_salah),
                       masalah_salah[0][:90] if masalah_salah else "DILOLOSKAN (tumpul)"))
+
+        # Blok CARA PAKAI (jawaban atas pertanyaan Lee) tidak boleh hilang.
+        tempe_tanpa_cara = re.sub(r"(?s)CARA PAKAI \(untuk Lee\).*?JANGAN MERGE PR ini[^\n]*\n", "", tempe)
+        hasil.append(("mutasi: blok CARA PAKAI dihapus",
+                      bool(periksa(sipl_teks=sipl, tempe_teks=tempe_tanpa_cara, penuh=False)),
+                      "berkas tempel harus menjelaskan base branch/penutup/berkas terbaru"))
 
         # Kasus nyata: ref remote-tracking tertinggal walau remote sudah memuat HEAD.
         repo_tt, _ = _repo_uji(pathlib.Path(tmp) / "tt", None, True, dengan_remote=True,

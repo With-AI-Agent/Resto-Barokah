@@ -7,27 +7,46 @@
 ---
 
 
-## Pindah ke chat/sesi baru (3 langkah, tanpa kehilangan konteks)
+## Pindah ke chat/sesi baru — jawaban lengkap (pertanyaan yang paling sering)
 
-Chat yang sudah panjang memang jadi berat. Pindah ke chat baru **aman** — seluruh keadaan
-proyek tersimpan di repo, bukan di ingatan agent. Caranya:
+Chat yang panjang memang jadi berat. Pindah ke chat baru **aman**: seluruh keadaan proyek
+tersimpan di repo, bukan di ingatan agent. Ini jawaban jujurnya untuk tiga pertanyaan itu:
 
-1. Di chat lama, tulis: **`Siapkan pindah ke sesi baru.`**
-   Agent akan menyiapkan dua berkas dan memastikan semuanya sudah tersimpan di GitHub
-   (`python3 alat/lanjut-sesi.py` harus **LOLOS** sebelum agent boleh menyuruhmu pindah).
-2. Buka **chat baru**, salin **seluruh isi** berkas ini:
-   `docs/ops/SIAP-TEMPEL-SESI-BARU.md`
-3. Kirim. Selesai — agent baru akan orientasi sendiri (termasuk menyusul ke cabang kerja
-   terakhir, membaca `docs/ops/SIAP-LANJUT.md`, dan melaporkan KARTU SESI sebelum bekerja).
+**1) Apakah aku perlu atur "base branch"? — TIDAK.**
+Sama sekali tidak perlu. Cabang kerja dibuat otomatis oleh platform dan tidak bisa diganti;
+istilah "base branch" hanya dipakai saat sebuah Pull Request dibuka — dan PR #1 sudah terbuka
+sejak lama. Jadi kamu **tidak menyentuh apa pun soal branch**; cukup salin berkas siap-tempel.
 
-Kenapa ini tidak bisa "basi": berkas `docs/ops/SIAP-LANJUT.md` wajib diperbarui di **commit
-terakhir setiap batch**, dan pemeriksa mesin menolak bila: ada pekerjaan belum di-commit,
-belum di-push, handoff belum disegarkan, atau berkas siap tempel tidak lagi memuat Prompt
-Pembuka apa adanya. Jadi perpindahan sesi tidak bisa dilakukan di atas keadaan setengah jadi.
+**2) Apakah aku harus kirim prompt penutup di sesi lama dulu? — Disarankan, tapi TIDAK wajib.**
+- Sesi lama **masih bisa diajak bicara** → tulis satu kalimat: `Siapkan pindah ke sesi baru.`
+  Gunanya: agent merapikan pekerjaan yang belum tersimpan, menyegarkan berkas handoff,
+  menjalankan pemeriksa sampai **LOLOS**, lalu menampilkan berkas untuk kamu salin.
+- Sesi lama **sudah mati/mogok/berat** → boleh langsung pindah. Resep di berkas tempel akan
+  menyusul semua pekerjaan yang sudah dikirim ke GitHub, dan agent baru diperintah **memeriksa
+  keadaan repo lebih dulu** sebelum bekerja.
+- Satu-satunya yang bisa tertinggal kalau langkah ini dilewati: pekerjaan yang saat itu
+  **belum** di-commit/belum di-push ke GitHub. Itu sebabnya langkah penutup disarankan.
 
-**Kalau sesi lama berhenti karena galat:** buka chat baru, salin berkas yang sama, dan tambahkan
-satu kalimat: *"Sesi sebelumnya berhenti karena galat; periksa dulu keadaan repo (git status,
-`python3 alat/lanjut-sesi.py`) sebelum melanjutkan."*
+**3) Berkas apa yang aku salin, dan harus yang terbaru? — Ya, yang terbaru.**
+`docs/ops/SIAP-TEMPEL-SESI-BARU.md`. Berkas ini berubah setiap batch, jadi minta yang terbaru:
+tulis `Tampilkan berkas siap tempel.` Kalau kebetulan memakai salinan sedikit lama, biasanya
+masih aman (resep susul menarik pekerjaan terbaru dari GitHub), tapi salinan terbaru selalu
+lebih benar karena memuat aturan terbaru.
+
+**Langkah ringkas**
+1. (Disarankan) di chat lama: `Siapkan pindah ke sesi baru.` → agent menampilkan
+   `docs/ops/SIAP-TEMPEL-SESI-BARU.md`.
+2. Buka **chat baru**, salin **SELURUH isi** berkas itu, kirim. Selesai — agent baru akan
+   menyusul ke cabang kerja terakhir, membaca `docs/ops/SIAP-LANJUT.md`, dan melaporkan KARTU
+   SESI sebelum bekerja.
+3. Bila sesi lama mati karena galat, tambahkan satu kalimat di chat baru:
+   *"Sesi sebelumnya berhenti karena galat; periksa dulu keadaan repo (`git status`,
+   `python3 alat/lanjut-sesi.py`) sebelum melanjutkan."*
+4. **Jangan merge PR #1** — merge adalah keputusan Lee dan mengakhiri sesi cabang ini.
+
+Kenapa ini tidak bisa "basi": `docs/ops/SIAP-LANJUT.md` wajib diperbarui di **commit terakhir
+setiap batch**, dan pemeriksa mesin menolak bila ada pekerjaan belum di-commit, belum di-push,
+handoff belum disegarkan, atau berkas siap-tempel tidak lagi memuat Prompt Pembuka apa adanya.
 
 ## 1. Tiga perintah utama
 
