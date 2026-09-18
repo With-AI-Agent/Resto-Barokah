@@ -9,7 +9,6 @@
 
 - **Cabang kerja terakhir:** `arena/01a0a8a2-resto-barokah`
 - **Commit keadaan kerja:** `fc017f2c3850c79fdb7f715d0a178b715372f380`
-- **Commit keadaan kerja:** `ffffffffffffffffffffffffffffffffffffffff`
 - **PR:** PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
 - **CI terakhir:** failure (run 35328530232, commit fc017f2c)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
