@@ -30,7 +30,7 @@
  *   node alat/uji-sql.mjs supabase/tes/helper.sql   # satu berkas uji saja
  * ============================================================================
  */
-import { readdirSync, readFileSync, existsSync } from 'node:fs'
+import { readdirSync, readFileSync, existsSync, appendFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { PGlite } from '@electric-sql/pglite'
@@ -309,6 +309,29 @@ if (daftarUji.length > 0) {
 
 console.log('\n' + '-'.repeat(70))
 console.log(`uji: ${hasil.lulus} LULUS · ${hasil.gagal} GAGAL`)
+
+// Di CI, ringkasan ditulis ke halaman "Summary" job. Alasannya praktis: log mentah
+// GitHub tidak selalu bisa dibuka (di sandbox pengembangan, host blob-nya bahkan tidak
+// bisa dijangkau), sedangkan ringkasan job bisa dibaca lewat API. Temuan nyata
+// 2026-09-18: langkah ini MERAH di CI sementara tidak ada cara membaca sebabnya.
+if (process.env.GITHUB_STEP_SUMMARY) {
+  try {
+    appendFileSync(
+      process.env.GITHUB_STEP_SUMMARY,
+      [
+        '### Uji SQL lokal — ringkasan',
+        '',
+        `- **${hasil.lulus} LULUS · ${hasil.gagal} GAGAL**`,
+        ...(catatanGagal.length > 0
+          ? ['', '**Kegagalan:**', ...catatanGagal.map((c) => `- \`${c}\``)]
+          : ['', 'Semua berkas uji hijau.']),
+        '',
+      ].join('\n'),
+    )
+  } catch (e) {
+    console.log(`(ringkasan job tidak bisa ditulis: ${e.message})`)
+  }
+}
 if (catatanGagal.length > 0) {
   console.log('Rincian kegagalan:')
   for (const c of catatanGagal) console.log(`  - ${c}`)
