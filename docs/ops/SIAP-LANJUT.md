@@ -10,13 +10,14 @@
 - **Cabang yang dilanjutkan:** `arena/01a0a8a2-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0a8a2-resto-barokah`
-- **Commit keadaan kerja:** `3f93ee805c47f25699ea00c1c67b16c57c410865`
+- **Commit keadaan kerja:** `e55d09b0c8e7ec7b9dfa738e2ca2129e2f06fe2c`
 - **PR:** PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (run 35358247612, commit 3799d9c6)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (run 35358783704, commit 1e353fa1)
 - **Ditulis:** 2026-09-18 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
+- **Berkas yang Lee salin ke chat baru:** `PROMPT_SESI_BARU.md` (STATIS — mesin memeriksanya, bukan
+  menulisnya ulang tiap batch; Lee hanya mengisi baris pertama `SESI YANG AKU LANJUT`)
 
 ## 2. Keadaan proyek & butir tertangguh
 
@@ -25,7 +26,7 @@
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-019, T-018, T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-18.md` → `52e22fc3` (2 commit di bawah HEAD saat ini) · review `PKT-2026-09-18-pr-01-putaran15.md` → `52e22fc3` (2 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-18.md` → `52e22fc3` (3 commit di bawah HEAD saat ini) · review `PKT-2026-09-18-pr-01-putaran15.md` → `52e22fc3` (3 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -43,9 +44,11 @@ git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py      # cetak KARTU SESI, lalu LAPORKAN ke Lee
 ```
 
-Cabang `arena/01a0a8a2-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Kalau bukan itu yang
-dimau, jalankan `python3 alat/lanjut-sesi.py --daftar-sesi`, lalu siapkan ulang dengan
-`python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang>`.
+Cabang `arena/01a0a8a2-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
+LAIN: saat membuka chat baru, ia menulis pilihannya di baris pertama `PROMPT_SESI_BARU.md` — dan baris
+itu yang **MENANG** bila berbeda dengan handoff ini. Laporkan bedanya, lalu rapikan catatan handoff
+dengan `python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang>`. Sesi yang belum pernah di-push
+tidak bisa dilanjutkan; sesi yang sengaja ditinggalkan ada di `docs/ops/SESI_DITINGGALKAN.md`.
 
 Kalau checkout-mu tidak memuat `supabase/migrations/0014_penutup_celah_putaran13.sql`,
 kamu berada di basis yang salah — jangan bekerja dulu, susul cabang di atas.
@@ -58,6 +61,12 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**Putaran 15 baru saja selesai (2026-09-18):** permintaan Lee — berkas prompt pindah sesi dijadikan
+**STATIS** (`PROMPT_SESI_BARU.md`, satu baris `SESI YANG AKU LANJUT:` diisi Lee) dan sesi yang **sengaja
+ditinggalkan** dicatat di `docs/ops/SESI_DITINGGALKAN.md` (mesin menolak handoff ke arah sana).
+`docs/ops/SIAP-TEMPEL-SESI-BARU.md` dipensiunkan menjadi penunjuk. Jadi: **untuk pindah sesi, Lee cukup
+menyalin `PROMPT_SESI_BARU.md` — tidak perlu minta apa pun ke agent.**
 
 Keadaan keputusan Lee (2026-09-18, sesi ditutup karena berat): arah berikutnya **belum dipilih**.
 Urutan yang disarankan agent, dan alasannya:

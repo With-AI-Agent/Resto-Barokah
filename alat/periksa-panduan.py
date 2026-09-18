@@ -69,6 +69,11 @@ TOPIK_WAJIB = {
     "aturan bahasa ke Lee": r"ATURAN BAHASA",
     # Permintaan Lee 2026-09-18: Lee memilih sendiri sesi mana yang dilanjutkan.
     "pindah sesi: pilih sesi sendiri": r"menentukan sesi mana yang dilanjutkan",
+    # Permintaan Lee 2026-09-18 (lanjutan): prompt sesi baru harus STATIS (tidak disiapkan tiap batch),
+    # dengan satu baris di awal untuk Lee menuliskan sesi tujuannya; sesi yang sengaja ditinggalkan dicatat.
+    "pindah sesi: berkas prompt statis": r"Berkas prompt-nya STATIS",
+    "pindah sesi: baris pilihan Lee": r"SESI YANG AKU LANJUT",
+    "pindah sesi: sesi ditinggalkan dicatat": r"SESI_DITINGGALKAN\.md",
     "pindah sesi: sesi belum di-push tak bisa dilanjut": r"belum pernah di-push",
     "pindah sesi: satu sesi aktif": r"[Ss]atu sesi aktif",
 }

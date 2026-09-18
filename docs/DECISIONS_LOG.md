@@ -609,3 +609,36 @@ Format:
   dikunci adalah *ada* cap bawaan yang punya arti, bukan angkanya.
 - **File terkait:** `supabase/migrations/0014_penutup_celah_putaran13.sql`, `supabase/tes/*`,
   `alat/periksa-paket.py`, `alat/periksa-angka-bukti.py`, `alat/uji-mutasi-0014.py`.
+
+## 2026-09-18 — Pindah sesi: berkas prompt Lee jadi STATIS + sesi boleh ditinggalkan (permintaan Lee, pesan ke-41)
+
+**Keputusan (disetujui Lee dalam pesannya, agent dikritisi lebih dulu lalu menerapkan):**
+
+1. **Berkas prompt untuk membuka sesi baru = STATIS** (`PROMPT_SESI_BARU.md` di akar repo). Alasan Lee:
+   berkas yang harus disiapkan ulang setiap kali pindah sesi itu merepotkan; ia ingin satu berkas tetap
+   yang sama seperti Prompt Entri Universal. Konsekuensi teknis: berkas itu **tidak boleh** memuat keadaan
+   proyek (commit/CI/butir tertangguh) — keadaan dibaca agent dari isi repo setelah mendarat di cabang yang
+   benar (`docs/ops/SIAP-LANJUT.md`). Jadi tidak ada klaim yang bisa basi.
+2. **Baris pertama berkas statis itu milik Lee:** `SESI YANG AKU LANJUT: <cabang>`. Bila baris itu berbeda
+   dengan "Cabang yang dilanjutkan" di handoff mesin, **baris Lee yang menang** (laporkan bedanya, lalu
+   rapikan handoff dengan `--siapkan --lanjut-dari <cabang>`).
+3. **Mesin tidak menebak.** Bila baris itu kosong, agent baru wajib menampilkan daftar sesi dan menunggu
+   Lee memilih — bukan menyusul "sesi terakhir".
+4. **Sesi yang sengaja ditinggalkan dicatat** di `docs/ops/SESI_DITINGGALKAN.md`. `alat/lanjut-sesi.py`
+   menolak handoff/`--siapkan` yang menunjuk ke sana dan menandainya di `--daftar-sesi`. `--paksa` hanya
+   atas perintah Lee, dan jejaknya ditulis di handoff ("DIPAKSA atas perintah Lee").
+5. **`docs/ops/SIAP-TEMPEL-SESI-BARU.md` dipensiunkan** menjadi penunjuk (berkas statis itu yang dipakai).
+   Alasan: dua berkas yang bisa saling bertentangan = sumber cacat. Sesi yang lebih tua tetap punya berkas
+   lama itu apa adanya, dan itu tidak diubah.
+
+**Batas yang disadari (jujur):** berkas statis **tidak bisa** memverifikasi apa pun soal kesegaran; itu
+sepenuhnya tugas handoff mesin (§2 dan 2b di `docs/ops/SIAP-LANJUT.md`). Karena itu `--siapkan`/
+`periksa()` tetap menjalankan seluruh penjaga handoff seperti sebelumnya.
+
+**Bukti:** `python3 alat/lanjut-sesi.py --uji-diri` → **36 kasus LOLOS** (dua kasus merah pada percobaan
+pertama justru menemukan 2 celah penjaga: baris "berkas yang Lee salin" belum dijaga, dan kasus uji cabang
+hantu lolos karena alasan yang salah → keduanya ditutup); `python3 alat/periksa-panduan.py` LOLOS
+(+3 topik wajib); `python3 alat/lanjut-sesi.py` LOLOS.
+
+**File terkait:** `PROMPT_SESI_BARU.md`, `alat/lanjut-sesi.py`, `docs/ops/SESI_DITINGGALKAN.md`,
+`docs/ops/SIAP-TEMPEL-SESI-BARU.md` (pensiun), `PANDUAN_PENGGUNA.md` (AL-13), `docs/PANDUAN_PEMILIK.md` (2b/3).

@@ -28,26 +28,36 @@ sejak lama. Jadi kamu **tidak menyentuh apa pun soal branch**; cukup salin berka
   **belum** di-commit/belum di-push ke GitHub. Itu sebabnya langkah penutup disarankan.
 
 **2b) Kalau aku tidak mau melanjutkan sesi yang terakhir, tapi sesi LAIN? — Kamu yang menentukan.**
-Tulis di sesi yang sedang aktif: **`Tampilkan daftar sesi yang bisa dilanjutkan.`**
-Agent menampilkan daftar sesi (nama cabang, tanggal, jarak dari `main`, catatan sesi lama),
-lalu kamu sebutkan pilihanmu — mis. *"lanjutkan nomor 2"*. Agent menyiapkan ulang berkas
-siap-tempel supaya menunjuk sesi itu. Ini berguna kalau ada sesi yang memang **ingin kamu
-tinggalkan** (salah arah / sudah tidak dipakai): mesin tidak akan menebak sendiri.
+Caranya sekarang **cuma satu langkah**: tulis nama cabang sesi pilihanmu di **baris pertama**
+berkas `PROMPT_SESI_BARU.md` (barisnya berbunyi `SESI YANG AKU LANJUT:`). Selesai — salin berkas itu
+ke chat baru, dan agent baru wajib menyusul cabang yang kamu tulis di situ.
+Butuh melihat pilihannya dulu? Tulis di sesi yang sedang aktif:
+**`Tampilkan daftar sesi yang bisa dilanjutkan.`** Agent menampilkan daftar sesi (nama cabang,
+tanggal, jarak dari `main`, catatan sesi lama), lalu kamu sebutkan pilihanmu — mis. *"lanjutkan
+nomor 2"*. Ini berguna kalau ada sesi yang memang **ingin kamu tinggalkan** (salah arah / sudah
+tidak dipakai): mesin tidak akan menebak sendiri.
+**Sesi yang sengaja kamu tinggalkan** bisa dicatat permanen di `docs/ops/SESI_DITINGGALKAN.md`
+(satu baris: cabang + tanggal + alasan). Sesudah dicatat, mesin **menolak** handoff/`--siapkan` yang
+menunjuk ke sesi itu dan menandainya di daftar sesi — jadi tidak ada yang menyarankannya lagi
+tanpa perintahmu (`--paksa` tetap ada bila kamu berubah pikiran).
 Dua batasnya: sesi yang **belum pernah di-push** ke GitHub tidak bisa dilanjutkan (pekerjaannya
 belum tersimpan), dan sesi **lama** biasanya punya alat versi lebih tua — agent wajib melapor.
 Dan pakai **satu sesi aktif saja**: dua sesi bersamaan bisa mengerjakan hal yang sama dua kali.
 
-**3) Berkas apa yang aku salin, dan harus yang terbaru? — Ya, yang terbaru.**
-`docs/ops/SIAP-TEMPEL-SESI-BARU.md`. Berkas ini berubah setiap batch, jadi minta yang terbaru:
-tulis `Tampilkan berkas siap tempel.` Kalau kebetulan memakai salinan sedikit lama, biasanya
-masih aman (resep susul menarik pekerjaan terbaru dari GitHub), tapi salinan terbaru selalu
-lebih benar karena memuat aturan terbaru.
+**3) Berkas apa yang aku salin, dan apakah harus yang terbaru? — `PROMPT_SESI_BARU.md`, dan TIDAK perlu yang terbaru.**
+Berkas itu **STATIS**: isinya tidak berubah dari batch ke batch, jadi kamu cukup menyimpannya
+**sekali** lalu memakainya terus (ini permintaanmu 2026-09-18). Yang kamu lakukan hanya mengisi
+**baris pertama** (`SESI YANG AKU LANJUT: <cabang>`) dan menyalin seluruh isinya ke chat baru.
+Bila agent menyegarkan `PROMPT_SESI_BARU.md` (mis. blok Prompt Pembuka Universal berubah), salinan
+lamamu tetap aman — resep di dalamnya menarik pekerjaan terbaru dari GitHub; hanya kalimat
+aturannya yang mungkin sedikit tertinggal.
 
 **Langkah ringkas**
-1. (Disarankan) di chat lama: `Siapkan pindah ke sesi baru.` → agent menampilkan
-   `docs/ops/SIAP-TEMPEL-SESI-BARU.md`.
-2. Buka **chat baru**, salin **SELURUH isi** berkas itu, kirim. Selesai — agent baru akan
-   menyusul ke cabang kerja terakhir, membaca `docs/ops/SIAP-LANJUT.md`, dan melaporkan KARTU
+1. (Disarankan) di chat lama: `Siapkan pindah ke sesi baru.` → agent menyegarkan handoff
+   `docs/ops/SIAP-LANJUT.md` dan memastikan pemeriksa handoff LOLOS.
+2. Tulis nama cabang sesi pilihanmu di **baris pertama** `PROMPT_SESI_BARU.md`, lalu buka
+   **chat baru**, salin **SELURUH isi** berkas itu, kirim. Selesai — agent baru akan
+   menyusul ke cabang itu, membaca `docs/ops/SIAP-LANJUT.md`, dan melaporkan KARTU
    SESI sebelum bekerja.
 3. Bila sesi lama mati karena galat, tambahkan satu kalimat di chat baru:
    *"Sesi sebelumnya berhenti karena galat; periksa dulu keadaan repo (`git status`,
