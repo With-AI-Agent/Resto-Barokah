@@ -193,6 +193,25 @@ def main() -> int:
             print(f"  [!] skills/{s}/SKILL.md — TIDAK ADA (laporkan, jangan dilewati)")
     print(f"  → Jumlah: {ada} berkas siap dibaca" + (f", {len(kurang)} perlu dilaporkan" if kurang else ""))
     print()
+    # Handoff lanjut-sesi: baris ini membuat sesi baru tahu apakah punya penunjuk keadaan
+    # yang segar, atau justru sedang berada di basis yang tertinggal (temuan nyata: sesi baru
+    # selalu mulai dari `main`, sedangkan pekerjaan hidup di cabang sesi).
+    sipl = ROOT / "docs" / "ops" / "SIAP-LANJUT.md"
+    print("HANDOFF LANJUT-SESI (agar sesi baru tidak kehilangan konteks)")
+    if not sipl.is_file():
+        print("  [!] docs/ops/SIAP-LANJUT.md TIDAK ADA — jalankan `python3 alat/lanjut-sesi.py --siapkan`")
+    else:
+        teks_sipl = sipl.read_text(encoding="utf-8", errors="replace")
+        mc = re.search(r"Commit keadaan kerja:\*\*\s*`([0-9a-f]{40})`", teks_sipl)
+        mcb = re.search(r"Cabang kerja terakhir:\*\*\s*`([^`]+)`", teks_sipl)
+        sha_sipl = mc.group(1) if mc else "(tidak terbaca)"
+        cabang_sipl = mcb.group(1) if mcb else "(tidak terbaca)"
+        _, gap = sh2("git", "rev-list", "--count", f"{sha_sipl}..HEAD")
+        print(f"  Berkas handoff : docs/ops/SIAP-LANJUT.md (cabang {cabang_sipl})")
+        print(f"  Commit keadaan : {sha_sipl[:8]}" + (f" · {gap} commit di atasnya" if gap.isdigit() else ""))
+        if sha_sipl != "(tidak terbaca)" and sha_sipl not in commit:
+            print("  [catatan] commit keadaan handoff BUKAN commit terakhir — pastikan handoff sudah disegarkan")
+    print()
     print("BERKAS FONDASI WAJIB DIBACA FASE INI")
     for rel in FONDASI_WAJIB + (FONDASI_CODING if "CODING" in status.upper() else []):
         tanda = "ADA  " if (ROOT / rel).is_file() else "TIDAK"

@@ -1,8 +1,9 @@
-# Prompt Entri Universal — Sistem Building Aplikasi
+> BERKAS SIAP-TEMPEL — salin SELURUH isi berkas ini ke chat BARU (percakapan baru).
+> Dibuat mesin oleh `alat/lanjut-sesi.py`; Prompt Pembuka di bawah diambil apa adanya dari
+> sumber kanonik (`PROMPT_ENTRI_UNIVERSAL.md`), jadi tidak bisa menyimpang.
 
-> Salin **seluruh blok** di bawah ke chat pertama setiap sesi baru (sesi fondasi, coding, audit, atau lanjut). Agent akan otomatis terorientasi tanpa perlu kamu tempel manual file lain.
+===== MULAI SALIN DARI SINI =====
 
-```
 Cek dulu apakah ada file PROJECT_STATE.md di root repo ini.
 
 Kalau TIDAK ADA (repo kosong/baru): ini proyek baru. Baca AGENT_SYSTEM.md di repo ini secara penuh (di folder sistem-building-aplikasi/ bila sistem ini ada di repo meta, atau di root bila sudah jadi repo standalone), lalu mulai dari TAHAP 1 (Discovery) sesuai AGENT_SYSTEM.md.
@@ -29,6 +30,26 @@ Setelah kamu tahu posisi kita:
 MODE MARATON (aturan kerja yang disetujui pemilik): bekerjalah terus-menerus dalam batch — satu perintah "lanjut" dariku = kerjakan sebanyak mungkin tugas berikutnya yang TIDAK tertangguh, tanpa bertanya. Hal yang bisa ditunda JANGAN dijadikan pertanyaan: tunda, catat di docs/TERTANGGUH.md (isi: kenapa boleh ditunda, nilai sementara, tenggat fase, siapa yang menjawab), lalu lanjut bekerja. Kamu HANYA boleh berhenti untuk bertanya pada Stop Conditions: (1) keamanan/uang/data pelanggan belum jelas, (2) muncul biaya apa pun, (3) dokumen fondasi bertentangan, (4) mau mengubah keputusan yang sudah dikunci/di DECISIONS_LOG, (5) tindakan merusak/tak bisa dibatalkan (hapus data, force push, deploy publik), (6) butir tertangguh sudah lebih dari 12 atau tenggatnya lewat. Setiap akhir batch: commit + push + perbarui ROADMAP/PROJECT_STATE/STATUS/LOG_SESI + tawarkan jawaban untuk semua butir tertangguh (aku cukup bilang "setuju semua").
 
 Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task selesai, atau karena aku minta checkpoint): WAJIB perbarui PROJECT_STATE.md + STATUS.md + tutup LOG_SESI (CLOSED) + jalankan `python3 alat/lanjut-sesi.py --siapkan` (menyegarkan handoff `docs/ops/SIAP-LANJUT.md` dan berkas siap tempel `docs/ops/SIAP-TEMPEL-SESI-BARU.md`), COMMIT & PUSH semua pekerjaan (tanpa push, pekerjaan bisa hilang dan sesi berikutnya tidak bisa melanjutkan), lalu jalankan `python3 alat/lanjut-sesi.py` sampai LOLOS — barulah laporkan bahwa sesi aman ditutup, sebutkan commit terakhir, dan sebutkan berkas yang disalin Lee untuk lanjut di chat baru.
+
+===== SAMBUNGAN: ARAHAN LANJUT PROYEK (dibuat mesin 2026-09-18) =====
+
+Proyek: **Resto Barokah** — repo `With-AI-Agent/Resto-Barokah`, cabang kerja terakhir
+`arena/01a0a8a2-resto-barokah` @ `cdd80b6724845663103cde132273919a4636e2d4`. PR #1 **terbuka** — **JANGAN MERGE**: merge hanya keputusan Lee.
+
+Langkah pertama sesi ini (WAJIB, supaya tidak bekerja dari `main` yang tertinggal ≈123 commit):
+
+```
+git fetch origin arena/01a0a8a2-resto-barokah:refs/remotes/origin/kerja-terakhir
+git merge --ff-only origin/kerja-terakhir
+python3 alat/mulai-sesi.py
 ```
 
-> Catatan: blok di atas **identik** dengan §2 PANDUAN_PENGGUNA.md di folder yang sama. Kalau mengubah salah satu, ubah keduanya. Prompt ini portabel — memakai path relatif `sistem-building-aplikasi/` yang tetap benar bila folder diunduh jadi repo standalone (tinggal sesuaikan root).
+Lalu baca `docs/ops/SIAP-LANJUT.md` (penunjuk keadaan: cabang, commit, CI, butir tertangguh,
+rencana berikutnya) dan `PROJECT_STATE.md`. Laporkan KARTU SESI ke Lee SEBELUM bekerja.
+
+Ringkas keadaan terakhir: putaran13 (review PR #1 + audit AUD-3 2026-09-18) — 27 temuan
+diverifikasi nyata dan ditutup migrasi `0014`; suite SQL 41/41, mutasi 16/16 & 17/17 MERAH,
+CI hijau. Sisa pekerjaan terdekat dan pilihannya ada di bagian "Rencana berikutnya" pada
+`docs/ops/SIAP-LANJUT.md`.
+
+===== SELESAI SALIN =====

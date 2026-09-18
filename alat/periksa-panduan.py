@@ -37,7 +37,7 @@ BIDANG_ALUR = (
 )
 # Ambang = jumlah NYATA (temuan audit B-F-12: ambang 10 dengan isi 12 berarti dua alur
 # bisa terhapus tanpa ketahuan). Kalau alur bertambah, naikkan angka ini — jangan sebaliknya.
-MIN_ALUR = 12
+MIN_ALUR = 13
 KOLOM_PERINTAH = ("Kalimat Lee", "Fungsinya", "Kalau GAGAL artinya")
 LARANGAN_SAPAAN = ("Bapak", "Pak ")  # Lee minta dipanggil "Lee" (2026-09-17)
 

@@ -250,6 +250,17 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
 
 ---
 
+### AL-13 — Ganti ke sesi/chat baru tanpa kehilangan konteks
+
+- **Apa ini:** memindahkan pekerjaan dari chat yang sudah berat/panjang ke chat baru, dengan keadaan yang sudah tertulis rapi di repo (bukan di ingatan agent).
+- **Kapan dipakai:** chat terasa berat/lambat, ingin ganti model, atau sesi lama berhenti karena galat.
+- **Kalimat Lee:** `Siapkan pindah ke sesi baru.` — atau cukup `Tutup sesi ini dengan benar.`
+- **Langkah Lee:** (1) minta agent menyiapkan handoff → (2) buka chat baru → (3) salin seluruh isi `docs/ops/SIAP-TEMPEL-SESI-BARU.md` → (4) kirim. Tidak ada langkah lain.
+- **Yang agent lakukan:** menjalankan `python3 alat/lanjut-sesi.py --siapkan` (menulis handoff + berkas siap tempel) → memperbarui `PROJECT_STATE.md`, `STATUS.md`, `_log-sesi/` → commit & push → menjalankan `python3 alat/lanjut-sesi.py` sampai LOLOS (bukti handoff segar & ter-push).
+- **Bukti yang Lee terima:** pernyataan "sesi aman dilanjutkan" + nama berkas yang disalin + commit terakhir + jumlah butir tertangguh.
+- **Lama:** beberapa menit (satu kali perpindahan sesi).
+- **Kalau macet:** bila `alat/lanjut-sesi.py` menolak, agent **tidak boleh** menyuruh Lee pindah sesi dulu — perbaiki dulu (biasanya: ada pekerjaan belum di-commit, atau handoff belum disegarkan), karena pindah dengan handoff basi = konteks hilang.
+
 ## Bagian C — Semua prompt (dengan label siapa yang memakai)
 
 **Aturan label:** **[LEE → AGENT]** = tempel di sesi kerja · **[LEE → PENINJAU]** = tempel di chat BARU (auditor/peninjau). Kalau prompt salah tempat, agent menolak dengan sopan dan meminta yang benar — itu fitur, bukan kerusakan.
@@ -273,6 +284,7 @@ Setelah kamu tahu posisi kita:
 2. Baca SYSTEM_MANIFEST.md dan STATUS.md (identitas, tahap, pekerjaan belum tersimpan) + PROJECT_STATE.md (posisi sekarang).
 2b. Baca docs/teknis/REKAM_PESAN_PEMILIK.md — rekam SEMUA permintaan pemilik (Lee) beserta statusnya. Jangan menutup atau
     mengubah butir di sana tanpa jawaban Lee, dan jangan mengulang pekerjaan yang sudah berstatus selesai di berkas itu.
+2c. Bila ada `docs/ops/SIAP-LANJUT.md`, BACA lebih dulu: itu penunjuk keadaan yang dibuat mesin (cabang kerja terakhir, commit, keadaan CI, butir tertangguh, rencana berikutnya). Kalau checkout-mu TIDAK memuat pekerjaan terakhir (mis. kamu mulai dari `main` sedangkan pekerjaan ada di cabang sesi), JANGAN bekerja dulu — susul cabangnya lebih dulu (`git fetch origin <cabang>:refs/remotes/origin/kerja-terakhir && git merge --ff-only origin/kerja-terakhir`), lalu laporkan. 
 3. Verifikasi branch/working tree. Ingat fakta platform: branch arena/... dibuat otomatis dan tidak bisa diganti; base branch dipilih di awal sesi (rekomendasi: main); setiap sesi bisa memakai MODEL AI YANG BERBEDA; setelah PR di-merge atau di-close, akses sesi itu hilang. Laporkan branch aktif, jarak commit terhadap main, commit terakhir, dan working tree bersih/kotor. **Kalau pekerjaan sesi sebelumnya belum di-merge dan kamu perlu melihatnya, pilih base branch = cabang arena sesi itu (mis. arena/01a0a8a2-resto-barokah) saat membuat sesi baru — jangan merge PR hanya supaya bisa melihat pekerjaan.**
 3b. Kalau ruang kerja baru dinyalakan ulang: (a) pustaka aplikasi bisa hilang → `bash aplikasi/alat/pratinjau.sh` memasang & menyalakan pratinjau; (b) salinan Git lokal bisa mundur ke `main` → `bash alat/pulihkan-git.sh` untuk memeriksa dan `bash alat/pulihkan-git.sh --perbaiki` bila memang tertinggal (tanpa `--hard`/`--force`). JANGAN menulis ulang berkas dari ingatan — ambil dari GitHub.
 4. Cek dan laporkan semua PR (gh pr list --state all) — PR menggantung dari sesi lama bisa membuatmu bekerja dari dasar yang ketinggalan.
@@ -284,7 +296,7 @@ Setelah kamu tahu posisi kita:
 
 MODE MARATON (aturan kerja yang disetujui pemilik): bekerjalah terus-menerus dalam batch — satu perintah "lanjut" dariku = kerjakan sebanyak mungkin tugas berikutnya yang TIDAK tertangguh, tanpa bertanya. Hal yang bisa ditunda JANGAN dijadikan pertanyaan: tunda, catat di docs/TERTANGGUH.md (isi: kenapa boleh ditunda, nilai sementara, tenggat fase, siapa yang menjawab), lalu lanjut bekerja. Kamu HANYA boleh berhenti untuk bertanya pada Stop Conditions: (1) keamanan/uang/data pelanggan belum jelas, (2) muncul biaya apa pun, (3) dokumen fondasi bertentangan, (4) mau mengubah keputusan yang sudah dikunci/di DECISIONS_LOG, (5) tindakan merusak/tak bisa dibatalkan (hapus data, force push, deploy publik), (6) butir tertangguh sudah lebih dari 12 atau tenggatnya lewat. Setiap akhir batch: commit + push + perbarui ROADMAP/PROJECT_STATE/STATUS/LOG_SESI + tawarkan jawaban untuk semua butir tertangguh (aku cukup bilang "setuju semua").
 
-Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task selesai, atau karena aku minta checkpoint): WAJIB perbarui PROJECT_STATE.md + STATUS.md + tutup LOG_SESI (CLOSED), COMMIT & PUSH semua pekerjaan (tanpa push, pekerjaan bisa hilang dan sesi berikutnya tidak bisa melanjutkan), lalu laporkan bahwa sesi aman ditutup.
+Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task selesai, atau karena aku minta checkpoint): WAJIB perbarui PROJECT_STATE.md + STATUS.md + tutup LOG_SESI (CLOSED) + jalankan `python3 alat/lanjut-sesi.py --siapkan` (menyegarkan handoff `docs/ops/SIAP-LANJUT.md` dan berkas siap tempel `docs/ops/SIAP-TEMPEL-SESI-BARU.md`), COMMIT & PUSH semua pekerjaan (tanpa push, pekerjaan bisa hilang dan sesi berikutnya tidak bisa melanjutkan), lalu jalankan `python3 alat/lanjut-sesi.py` sampai LOLOS — barulah laporkan bahwa sesi aman ditutup, sebutkan commit terakhir, dan sebutkan berkas yang disalin Lee untuk lanjut di chat baru.
 ```
 
 ### C2. [LEE → AGENT] Prompt Penutup Sesi (aman)
@@ -329,6 +341,9 @@ Tutup sesi ini dengan benar:
 > **Catatan penting (jawaban atas pertanyaan Lee):** kalimat-kalimat di atas **cukup**. Agent tahu langkah teknisnya.
 > Lee **tidak perlu** menyuruh agent menyiapkan paket, menulis prompt, atau mengatur branch — itu tugas agent. Bagian ini dulu berisi
 > separuh perintah teknis yang seharusnya dikerjakan agent; sejak 2026-09-17 perintah itu **dipindahkan ke tugas agent** (Bagian B, AL-5).
+
+> **Kalau chat sudah berat / mau lanjut di chat baru:** `Siapkan pindah ke sesi baru.`
+> Agent menyiapkan `docs/ops/SIAP-TEMPEL-SESI-BARU.md`; Lee menyalin seluruh isinya ke chat baru. Mekanismenya dijaga mesin (`python3 alat/lanjut-sesi.py`), jadi handoff tidak bisa basi diam-diam. Rinciannya: **AL-13**.
 
 ### C4. [LEE → PENINJAU] Prompt Auditor Independen (audit menyeluruh / terarah)
 
@@ -464,6 +479,7 @@ Lee **tidak perlu** membaca *Files changed*. Alurnya:
 | C9 | **Data pelanggan & UU PDP** (persetujuan, minimalisasi, anonimisasi, pemberitahuan kebocoran) | sebelum data pelanggan dikumpulkan (Fase 8) | Agent (teknis) · Lee (kebijakan) | minta dijelaskan; meninjau draf | `docs/KEAMANAN.md` §11 + uji (T8-15) |
 | C10 | **Biaya nol** (batas layanan gratis, kapan naik kelas) | sepanjang proyek | Agent (jaga) · Lee (keputusan bila berbiaya) | tidak perlu — agent wajib lapor bila muncul biaya | catatan batas di `docs/TECH_SPEC.md` §10 |
 | C11 | **Laporan harian & notifikasi** (omzet, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat) | setelah fitur jadi (Fase 10) | Mesin + agent | menerima email + melihat layar Peringatan | berkas rencana `supabase/functions/ringkasan_harian/index.ts` (rencana, Fase 10) + email harian |
+| C13 | **Lanjut sesi tanpa kehilangan konteks** (handoff dijaga mesin: cabang, commit, CI, butir tertangguh, rencana) | setiap kali pindah chat / menutup sesi | Mesin (`alat/lanjut-sesi.py`) + agent | **AL-13** — cukup bilang `Siapkan pindah ke sesi baru.` | `docs/ops/SIAP-LANJUT.md` · `docs/ops/SIAP-TEMPEL-SESI-BARU.md` · hasil `python3 alat/lanjut-sesi.py` (LOLOS) |
 | C12 | **Buku Uji Pemilik** — apa yang harus Lee lakukan & coba, ditulis bertahap | sepanjang proyek | Lee (mengisi) · Agent (menambah baris + menjaga mesin) | satu lembar kerja: langkah, harapan, kotak hasil, catatan | `docs/uji/BUKU_UJI_PEMILIK.md` · `alat/periksa-buku-uji.py` |
 
 ### D2. Cara kerja audit & review (yang paling perlu Lee pahami)
@@ -507,6 +523,8 @@ Lee **tidak perlu** membaca *Files changed*. Alurnya:
 | `python3 alat/review-pr.py --ambil-laporan` | `Laporan review sudah masuk, periksa.` | **Menarik laporan peninjau PR** dari cabang sesinya | daftar laporan + cabang asalnya | sama: minta peninjau push, atau tempel di chat |
 | `python3 alat/audit-independen.py --kalibrasi-nilai <laporan> --kunci <kunci>` | (dijalankan agent) | Menghitung **skor ketajaman peninjau** vs kunci jawaban | `X dari Y` + temuan palsu + status TERKALIBRASI | banyak cacat terlewat → verdict BERSIH tidak dipakai; audit ulang |
 | `python3 alat/review-pr.py --siapkan --dasar origin/main --nama pr-01` | `Siapkan review PR.` | Menulis **paket review PR** + berkas **SIAP-TEMPEL** (kalimat pembuka + paket) | nama dua berkas di `docs/uji/review-pr/` + jalur risiko | tidak ada perubahan antara dasar & kepala → agent memeriksa apakah PR sudah berisi pekerjaan |
+| `python3 alat/lanjut-sesi.py --siapkan` | `Siapkan pindah ke sesi baru.` | Menulis **handoff** untuk sesi baru (`docs/ops/SIAP-LANJUT.md`) + **berkas siap tempel** (`docs/ops/SIAP-TEMPEL-SESI-BARU.md`, memuat Prompt Pembuka apa adanya) | dua nama berkas + ringkasan (commit, CI, butir tertangguh) | gagal = bukan repositori Git / berkas tidak bisa ditulis |
+| `python3 alat/lanjut-sesi.py` | (dijalankan agent) | Memeriksa handoff: ter-push, disegarkan di commit terakhir, berkas tempel memuat prompt kanonik & larangan merge | LOLOS / daftar masalah | GAGAL → jangan pindah sesi dulu; segarkan handoff (`--siapkan`) lalu commit & push |
 | `python3 alat/review-pr.py --kesiapan` | (dijalankan agent) | Menjawab: **"apakah commit sekarang sudah punya paket review?"** | SIAP/BELUM + nama paketnya | BELUM → agent wajib menyiapkan paket sebelum meminta merge ke Lee |
 | `python3 alat/review-pr.py --periksa-laporan <berkas>` | `Laporan review sudah masuk, periksa.` | Memvalidasi laporan peninjau PR | LOLOS/GAGAL + kekurangan | laporan ditolak → peninjau melengkapi |
 | `python3 alat/review-pr.py --kartu-keputusan <berkas>` | (dijalankan agent) | Mencetak **Kartu Keputusan** 7 baris untuk Lee | commit · risiko · verdict · K-1/K-2/K-3 · cakupan · kalibrasi · rekomendasi | rekomendasi **JANGAN MERGE DULU** → agent memperbaiki dulu |
@@ -620,6 +638,7 @@ Lee **tidak perlu** membaca *Files changed*. Alurnya:
 | Pekerjaan lama yang harus diulang | `docs/uji/DAFTAR_PEKERJAAN_ULANG.md` |
 | Rencana & keputusan desain (10 tema, gerakan, perilaku) | `docs/desain/RENCANA_DESAIN_UI.md`, `docs/SPESIFIKASI_UI.md`, `prototipe/` |
 | Aturan kerja agent | `docs/AGENT_OPERATING_GUIDE.md`, `AGENT_SYSTEM.md` |
+| **Lanjut di sesi/chat baru (handoff + berkas siap tempel)** | `docs/ops/SIAP-LANJUT.md`, `docs/ops/SIAP-TEMPEL-SESI-BARU.md` |
 | Menyiapkan akun cloud (Supabase/Cloudflare) | `docs/ops/SIAP_AKUN_PEMILIK.md` |
 
 ### H2. Memakai sistem ini sebagai template (untuk aplikasi berikutnya)

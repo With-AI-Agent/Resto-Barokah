@@ -6,6 +6,29 @@
 
 ---
 
+
+## Pindah ke chat/sesi baru (3 langkah, tanpa kehilangan konteks)
+
+Chat yang sudah panjang memang jadi berat. Pindah ke chat baru **aman** — seluruh keadaan
+proyek tersimpan di repo, bukan di ingatan agent. Caranya:
+
+1. Di chat lama, tulis: **`Siapkan pindah ke sesi baru.`**
+   Agent akan menyiapkan dua berkas dan memastikan semuanya sudah tersimpan di GitHub
+   (`python3 alat/lanjut-sesi.py` harus **LOLOS** sebelum agent boleh menyuruhmu pindah).
+2. Buka **chat baru**, salin **seluruh isi** berkas ini:
+   `docs/ops/SIAP-TEMPEL-SESI-BARU.md`
+3. Kirim. Selesai — agent baru akan orientasi sendiri (termasuk menyusul ke cabang kerja
+   terakhir, membaca `docs/ops/SIAP-LANJUT.md`, dan melaporkan KARTU SESI sebelum bekerja).
+
+Kenapa ini tidak bisa "basi": berkas `docs/ops/SIAP-LANJUT.md` wajib diperbarui di **commit
+terakhir setiap batch**, dan pemeriksa mesin menolak bila: ada pekerjaan belum di-commit,
+belum di-push, handoff belum disegarkan, atau berkas siap tempel tidak lagi memuat Prompt
+Pembuka apa adanya. Jadi perpindahan sesi tidak bisa dilakukan di atas keadaan setengah jadi.
+
+**Kalau sesi lama berhenti karena galat:** buka chat baru, salin berkas yang sama, dan tambahkan
+satu kalimat: *"Sesi sebelumnya berhenti karena galat; periksa dulu keadaan repo (git status,
+`python3 alat/lanjut-sesi.py`) sebelum melanjutkan."*
+
 ## 1. Tiga perintah utama
 
 | Lee bilang | Yang terjadi | Bukti yang Lee terima |

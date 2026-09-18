@@ -48,6 +48,8 @@ echo "== pemeriksa Python =="
 python3 alat/audit-independen.py --uji-diri
 python3 alat/periksa-panduan.py
 python3 alat/periksa-panduan.py --uji-diri
+python3 alat/lanjut-sesi.py
+python3 alat/lanjut-sesi.py --uji-diri
 python3 alat/periksa-rujukan.py
 python3 alat/periksa-rujukan.py --uji-diri
 python3 alat/periksa-temuan-audit.py
