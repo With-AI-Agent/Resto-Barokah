@@ -12,7 +12,7 @@ git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py
 ```
 
-- Kalau baris `SESI YANG AKU LANJUT` KOSONG: JANGAN menebak. Tampilkan daftar sesi yang bisa dilanjutkan (cara tanpa alat ada di bagian LANJUT SESI di bawah), laporkan ke Lee, lalu tunggu Lee memilih.
+- Kalau baris `SESI YANG AKU LANJUT` KOSONG atau masih berisi titik-titik (`..........`, artinya belum diisi): JANGAN menebak. Tampilkan daftar sesi yang bisa dilanjutkan (cara tanpa alat ada di bagian LANJUT SESI di bawah), laporkan ke Lee, lalu tunggu Lee memilih.
 - Kalau baris itu TERISI tetapi cabangnya TIDAK ADA di GitHub (`git ls-remote origin refs/heads/<CABANG-YANG-DIPILIH>` kosong): JANGAN menebak juga — laporkan dan tampilkan daftar sesi.
 - Kalau repo ini belum punya `PROJECT_STATE.md` (proyek baru): abaikan baris di atas dan ikuti saja Prompt Pembuka Universal di bawah.
 

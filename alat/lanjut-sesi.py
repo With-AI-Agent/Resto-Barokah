@@ -84,7 +84,7 @@ git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py
 ```
 
-- Kalau baris `SESI YANG AKU LANJUT` KOSONG: JANGAN menebak. Tampilkan daftar sesi yang bisa dilanjutkan (cara tanpa alat ada di bagian LANJUT SESI di bawah), laporkan ke Lee, lalu tunggu Lee memilih.
+- Kalau baris `SESI YANG AKU LANJUT` KOSONG atau masih berisi titik-titik (`..........`, artinya belum diisi): JANGAN menebak. Tampilkan daftar sesi yang bisa dilanjutkan (cara tanpa alat ada di bagian LANJUT SESI di bawah), laporkan ke Lee, lalu tunggu Lee memilih.
 - Kalau baris itu TERISI tetapi cabangnya TIDAK ADA di GitHub (`git ls-remote origin refs/heads/<CABANG-YANG-DIPILIH>` kosong): JANGAN menebak juga — laporkan dan tampilkan daftar sesi.
 - Kalau repo ini belum punya `PROJECT_STATE.md` (proyek baru): abaikan baris di atas dan ikuti saja Prompt Pembuka Universal di bawah.
 
@@ -351,6 +351,8 @@ def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
              "Lee harus bisa melihat sesi yang tersedia, juga saat baris pilihannya kosong"),
             ("cara tanpa alat (for-each-ref)", r"refs/heads/arena/\*",
              "di basis main `alat/` belum ada — tanpa cara ini sesi baru buntu sebelum bisa memilih"),
+            ("petunjuk baris belum diisi (titik-titik)", r"masih berisi titik-titik",
+             "kalau Lee belum mengisi barisnya, agent harus tahu bahwa itu berarti belum diisi"),
             ("larangan menebak saat baris kosong",
              r"(?is)KOSONG.{0,200}?JANGAN menebak|JANGAN menebak.{0,200}?daftar sesi",
              "pilihan sesi adalah hak Lee; mesin tidak boleh menebak"),
@@ -847,6 +849,8 @@ def uji_diri() -> int:
                   re.sub(rf"(?m)^{re.escape(BARIS_PILIHAN)}.*\n", "", prompt, count=1))
     mutasi_prompt("mutasi: penanda 'BERKAS INI STATIS' dihapus",
                   prompt.replace("BERKAS INI STATIS", "Berkas ini"))
+    mutasi_prompt("mutasi: petunjuk 'masih berisi titik-titik' dihapus",
+                  prompt.replace("masih berisi titik-titik", "belum diisi"))
     mutasi_prompt("mutasi: larangan menebak saat baris kosong dihapus",
                   re.sub(r"(?i)JANGAN menebak", "silahkan pilih sendiri", prompt))
     mutasi_prompt("mutasi: cara tanpa alat (for-each-ref) dihapus",

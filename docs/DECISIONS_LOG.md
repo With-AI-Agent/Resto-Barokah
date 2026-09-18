@@ -635,7 +635,7 @@ Format:
 sepenuhnya tugas handoff mesin (§2 dan 2b di `docs/ops/SIAP-LANJUT.md`). Karena itu `--siapkan`/
 `periksa()` tetap menjalankan seluruh penjaga handoff seperti sebelumnya.
 
-**Bukti:** `python3 alat/lanjut-sesi.py --uji-diri` → **36 kasus LOLOS** (dua kasus merah pada percobaan
+**Bukti:** `python3 alat/lanjut-sesi.py --uji-diri` → **37 kasus LOLOS** (dua kasus merah pada percobaan
 pertama justru menemukan 2 celah penjaga: baris "berkas yang Lee salin" belum dijaga, dan kasus uji cabang
 hantu lolos karena alasan yang salah → keduanya ditutup); `python3 alat/periksa-panduan.py` LOLOS
 (+3 topik wajib); `python3 alat/lanjut-sesi.py` LOLOS.
