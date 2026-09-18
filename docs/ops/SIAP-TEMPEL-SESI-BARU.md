@@ -50,7 +50,7 @@ Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task
 ===== SAMBUNGAN: ARAHAN LANJUT PROYEK (dibuat mesin 2026-09-18) =====
 
 Proyek: **Resto Barokah** — repo `With-AI-Agent/Resto-Barokah`, cabang kerja terakhir
-`arena/01a0a8a2-resto-barokah` @ `51feb34d1fe23bebeecf42b29b2f2e9ec4902c64` — ini commit KEADAAN (induk dari commit handoff), jadi saat kamu menyusul
+`arena/01a0a8a2-resto-barokah` @ `52e22fc3b06e75e2e2eaf5740d707671d2115a77` — ini commit KEADAAN (induk dari commit handoff), jadi saat kamu menyusul
 cabang, ujung cabang akan berisi satu commit yang lebih baru: commit yang memuat berkas handoff ini.
 Cara memastikan kamu di ujung yang benar: `git log --oneline -1` menampilkan commit yang menyentuh
 `docs/ops/SIAP-LANJUT.md`. PR #1 **terbuka** — **JANGAN MERGE**: merge hanya keputusan Lee.
@@ -59,7 +59,7 @@ Catatan cabang (penting): pekerjaanmu hidup di cabang sesi barumu sendiri, sedan
 cabang sesi lama — jadi pekerjaan baru TIDAK otomatis masuk PR #1. Bila Lee ingin meninjau lewat PR,
 buka PR baru dari cabangmu (base `main`) dan laporkan tautannya; jangan merge tanpa keputusan Lee.
 
-Langkah pertama sesi ini (WAJIB, supaya tidak bekerja dari `main` yang tertinggal 135 commit):
+Langkah pertama sesi ini (WAJIB, supaya tidak bekerja dari `main` yang tertinggal 136 commit):
 
 ```
 git fetch origin arena/01a0a8a2-resto-barokah:refs/remotes/origin/kerja-terakhir
