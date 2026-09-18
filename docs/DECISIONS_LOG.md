@@ -539,3 +539,25 @@ Format:
 - **File terkait:** `prototipe/css/tokens.css` (**sumber desain**) → salinan apa adanya `aplikasi/src/gaya/token/tema.css` · `aplikasi/src/komponen/PemilihRingkas.tsx` (+uji) ·
   `aplikasi/src/layar/contoh/LayarContoh.tsx` · `aplikasi/src/gaya/kerapatan-css.test.ts` · `prototipe/js/ui.js` · `skills/desain-antarmuka/SKILL.md` ·
   `aplikasi/alat/periksa-antarmuka.py` · `alat/mulai-sesi.py` · `.github/workflows/ci.yml` · `aplikasi/alat/periksa-semua.sh` · `alat/periksa-gerbang-ci.py`
+
+### [ALAT/2026-09-18] Pembuat paket audit mati total + cakupan `--fase` melebar (ditemukan saat menyiapkan paket audit tip)
+
+- **Area:** mekanisme audit independen (`alat/audit-independen.py`) — jalur yang dipakai Lee untuk mengirim sesi auditor
+- **Temuan (saat menjalankan jalurnya, bukan membaca kode):**
+  1. `python3 alat/audit-independen.py --paket AUD-3 --semua` **MATI** dengan
+     `NameError: name 'lingkup' is not defined` — teks prompt penamaan laporan memakai `{lingkup}` yang tidak pernah
+     didefinisikan. Artinya paket audit tidak bisa dibuat sama sekali (Lee cukup menyalin berkas SIAP-TEMPEL;
+     kalau berkas itu tidak bisa dibuat, seluruh jalur audit berhenti tanpa suara).
+  2. Parameter cakupan `semua` ditimpa daftar tugas di baris pertama `mode_paket` (`semua = baca_tugas_roadmap()`),
+     sehingga `--fase 1` **diam-diam mengambil seluruh 192 tugas** (cakupan melebar) dan setiap paket dicap "menyeluruh".
+- **Keputusan:** nama dipisah (`daftar_tugas` = isi ROADMAP, `menyeluruh` = pilihan cakupan), `lingkup` didefinisikan
+  (`menyeluruh`/`terarah`), cakupan `--fase` diurutkan & disaring benar. **Penjaga baru `_uji_pembuat_paket()`** masuk
+  `--uji-diri`: pembuat paket dijalankan di SALINAN pohon untuk dua mode, dan isi paketnya diperiksa
+  (`AUD-3 --semua` → mode `menyeluruh`; `AUD-2 --fase 1` → semua tugas berawalan `T1-` + mode `terarah`).
+  Ini menutup kelas cacat "alat yang tidak pernah dijalankan lagi setelah disunting".
+- **Bukti:** `python3 alat/audit-independen.py --uji-diri` LOLOS (termasuk kasus baru) · paket `AUD-3-2026-09-18` &
+  `PKT-2026-09-18-pr-01-putaran13` benar-benar terbit untuk tip terkini · `bash aplikasi/alat/periksa-semua.sh` → SEMUA PEMERIKSAAN LOLOS.
+- **Catatan jujur:** cacat ini **tidak** ditemukan oleh pemeriksa mana pun (semua hijau) — hanya ketemu karena
+  perintahnya benar-benar dijalankan saat menyiapkan paket. Itu alasan aturan "jalankan, jangan baca saja" tetap berlaku.
+- **File terkait:** `alat/audit-independen.py`, `docs/uji/paket-audit/AUD-3-2026-09-18.md`,
+  `docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran13.md`
