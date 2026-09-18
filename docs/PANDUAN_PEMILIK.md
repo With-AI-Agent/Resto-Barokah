@@ -27,6 +27,16 @@ sejak lama. Jadi kamu **tidak menyentuh apa pun soal branch**; cukup salin berka
 - Satu-satunya yang bisa tertinggal kalau langkah ini dilewati: pekerjaan yang saat itu
   **belum** di-commit/belum di-push ke GitHub. Itu sebabnya langkah penutup disarankan.
 
+**2b) Kalau aku tidak mau melanjutkan sesi yang terakhir, tapi sesi LAIN? — Kamu yang menentukan.**
+Tulis di sesi yang sedang aktif: **`Tampilkan daftar sesi yang bisa dilanjutkan.`**
+Agent menampilkan daftar sesi (nama cabang, tanggal, jarak dari `main`, catatan sesi lama),
+lalu kamu sebutkan pilihanmu — mis. *"lanjutkan nomor 2"*. Agent menyiapkan ulang berkas
+siap-tempel supaya menunjuk sesi itu. Ini berguna kalau ada sesi yang memang **ingin kamu
+tinggalkan** (salah arah / sudah tidak dipakai): mesin tidak akan menebak sendiri.
+Dua batasnya: sesi yang **belum pernah di-push** ke GitHub tidak bisa dilanjutkan (pekerjaannya
+belum tersimpan), dan sesi **lama** biasanya punya alat versi lebih tua — agent wajib melapor.
+Dan pakai **satu sesi aktif saja**: dua sesi bersamaan bisa mengerjakan hal yang sama dua kali.
+
 **3) Berkas apa yang aku salin, dan harus yang terbaru? — Ya, yang terbaru.**
 `docs/ops/SIAP-TEMPEL-SESI-BARU.md`. Berkas ini berubah setiap batch, jadi minta yang terbaru:
 tulis `Tampilkan berkas siap tempel.` Kalau kebetulan memakai salinan sedikit lama, biasanya
