@@ -8,7 +8,7 @@
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
 - **Cabang kerja terakhir:** `arena/01a0b4c3-resto-barokah`
-- **Commit keadaan kerja:** `bfe613ec4426adf758f1071735fe757697fd842c`
+- **Commit keadaan kerja:** `0ddbe7297d50176f1a2e638e71ac7b28ceb9d57f`
 - **PR:** PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
 - **CI terakhir:** success (run 35356698471, commit e7cf053b)
 - **Ditulis:** 2026-09-18 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
@@ -22,7 +22,7 @@
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **9** — T-019, T-018, T-002, T-003, T-010, T-011, T-015, T-016, T-020
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-18.md` → `52e22fc3` (3 commit di bawah HEAD saat ini) · review `PKT-2026-09-18-pr-01-putaran15.md` → `52e22fc3` (3 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-18.md` → `52e22fc3` (4 commit di bawah HEAD saat ini) · review `PKT-2026-09-18-pr-01-putaran15.md` → `52e22fc3` (4 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
