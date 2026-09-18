@@ -19,6 +19,58 @@ Keluaran:    daftar periksa + ringkasan; kode keluar 1 bila ada yang GAGAL.
 """
 import re, sys, os
 
+# ================================ UJI-DIRI =================================
+# Pemeriksa yang tidak bisa MERAH dianggap belum terpasang (PROTOKOL_AUDIT_INDEPENDEN §8).
+# Uji-diri dijalankan SEBELUM badan pemeriksa: ia menyalin repo, merusak satu hal di
+# salinan, lalu menjalankan SALINAN pemeriksa ini (lewat subprocess) dan memastikan
+# salinan yang rusak DITOLAK.
+AKAR_REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+if '--uji-diri' in sys.argv:
+    import subprocess
+    sys.path.insert(0, os.path.join(AKAR_REPO, 'alat'))
+    from bantu_uji_diri import laporkan, salin_pohon
+
+    def _jalankan(akar):
+        r = subprocess.run([sys.executable, os.path.join(akar, 'aplikasi', 'alat', 'uji-kontras.py')],
+                           capture_output=True, text=True)
+        return r.returncode, r.stdout + r.stderr
+
+    hasil = []
+    with salin_pohon() as tmp:
+        kode, keluar = _jalankan(tmp)
+        hasil.append(('salinan utuh', kode == 0, f'kode {kode}'))
+        if kode:
+            print(keluar[-1500:])
+
+    def mutasi(nama, ubah):
+        with salin_pohon() as tmp2:
+            f = tmp2 / 'aplikasi/src/gaya/token/tema.css'
+            isi = f.read_text(encoding='utf-8')
+            baru = ubah(isi)
+            if baru == isi:
+                hasil.append((nama, False, 'mutasi tidak mengubah berkas (pola tidak ketemu)'))
+                return
+            f.write_text(baru, encoding='utf-8')
+            kode_m, _ = _jalankan(tmp2)
+            hasil.append((nama, kode_m != 0, 'ditolak' if kode_m != 0 else 'DILOLOSKAN (tumpul)'))
+
+    # 1. Token yang ada di baris ber-komentar (kelas cacat nyata 2026-09-17: komentar
+    #    di belakang nilai membuat token berikutnya tidak terbaca).
+    mutasi('mutasi: token huruf --t-1 dihapus', lambda s: s.replace('--t-1:11px; ', '', 1))
+    # 2. Tinggi kendali di bawah lantai sentuh 44 px, ditulis LEWAT TOKEN
+    #    (membuktikan var() benar-benar diurai, bukan dilewati).
+    mutasi('mutasi: tinggi kendali 40 px (di bawah lantai 44 px)',
+           lambda s: s.replace('--tinggi-kendali:48px;', '--tinggi-kendali:40px;', 1))
+    # 3. Token warna tema hilang.
+    mutasi('mutasi: token --cincin dihapus dari token global',
+           lambda s: s.replace('--cincin:', '--cincin-hilang:', 1))
+    # 4. Cincin fokus dilepas (keterjangkauan papan tik).
+    mutasi('mutasi: cincin fokus (:focus-visible) dilepas',
+           lambda s: s.replace(':focus-visible', ':focus'))
+
+    sys.exit(laporkan('uji-kontras', hasil))
+
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # folder aplikasi/
 CSS_PATH = os.path.join(BASE, 'src', 'gaya', 'token', 'tema.css')
@@ -26,6 +78,18 @@ KOMPONEN_PATH = os.path.join(BASE, 'src', 'gaya', 'komponen.css')
 css = open(CSS_PATH, encoding='utf-8').read()
 css_komponen = open(KOMPONEN_PATH, encoding='utf-8').read() if os.path.exists(KOMPONEN_PATH) else ''
 css_gabung = css + chr(10) + css_komponen
+
+
+def tanpa_komentar(teks):
+    """Buang komentar CSS TANPA menghapus struktur baris.
+
+    Kenapa perlu: pembaca deklarasi di bawah memecah isi blok per `;`. Kalau ada
+    komentar di belakang sebuah nilai (mis. `--baris-isi:1.55;   /* tinggi baris */`),
+    teks komentar itu menempel ke deklarasi BERIKUTNYA sehingga token itu tidak
+    terbaca — cacat ini nyata (2026-09-17: `--t-1` dilaporkan "hilang" padahal ada,
+    hanya karena ada komentar setelah nilai sebelumnya).
+    """
+    return re.sub(r'/\*.*?\*/', lambda m: '\n' * m.group(0).count('\n'), teks, flags=re.S)
 
 # ============================ PEMBACA BERKAS CSS ===========================
 
@@ -73,6 +137,9 @@ def deklarasi(isi, token=True):
         buf += ch
     return hasil
 
+
+css = tanpa_komentar(css)
+css_gabung = tanpa_komentar(css_gabung)
 
 # blok tema: hanya yang selektornya berdiri sendiri di awal baris
 blok = {}
@@ -224,10 +291,29 @@ def ada_aturan(teks):
 
 SENTUH = [('.btn', 'min-height'), ('.input', 'min-height'), ('.tab', 'min-height'),
           ('.pay', 'min-height'), ('.btn-ikon', 'width'), ('.tombol-tambah', 'width'), ('.nav-bawah a', 'min-height')]
+
+
+def selesai_var(nilai):
+    """Selesaikan `var(--token)` berantai sampai jadi nilai mentah (mis. `48px`).
+
+    Sejak 2026-09-17 tinggi kendali memakai token (`min-height:var(--tinggi-kendali)`),
+    jadi pemeriksa tidak boleh lagi hanya membaca angka mentah — kalau tidak, aturan
+    token yang benar dianggap GAGAL. Token diresolve berantai (mis. `--pad-v-blok`
+    menunjuk `--s-5`) dan maksimal 8 langkah supaya tidak berputar.
+    """
+    for _ in range(8):
+        m = re.fullmatch(r'var\(\s*(--[a-z0-9-]+)\s*\)', (nilai or '').strip())
+        if not m:
+            break
+        nilai = (global_root.get(m.group(1)) or '').strip()
+    return nilai
+
+
 for sel, prop in SENTUH:
     v = min_height(sel, prop)
-    n = int(v.replace('px', '')) if v and v.endswith('px') else 0
-    periksa(n >= 44, f'Sentuh {sel} >= 44 px', f'{prop}: {v}')
+    nyata = selesai_var(v)
+    n = int(nyata.replace('px', '')) if nyata and nyata.endswith('px') else 0
+    periksa(n >= 44, f'Sentuh {sel} >= 44 px', f'{prop}: {v} -> {nyata}')
 
 # tombol ramping: tampak kecil, tapi daerah sentuh diperluas lewat lapisan tak terlihat
 periksa(ada_aturan(r'\.btn-sm\{[^}]*min-height:40px') and ada_aturan(r'\.btn-sm::after\{[^}]*inset:-6px'),

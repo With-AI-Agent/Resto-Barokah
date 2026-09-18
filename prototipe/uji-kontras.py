@@ -20,6 +20,18 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 CSS_PATH = os.path.join(BASE, 'css', 'tokens.css')
 css = open(CSS_PATH, encoding='utf-8').read()
 
+
+def tanpa_komentar(teks):
+    """Buang komentar CSS TANPA menghapus struktur baris.
+
+    Kenapa perlu: pembaca deklarasi di bawah memecah isi blok per `;`. Kalau ada
+    komentar di belakang sebuah nilai (mis. `--baris-isi:1.55;   /* tinggi baris */`),
+    teks komentar itu menempel ke deklarasi BERIKUTNYA sehingga token itu tidak
+    terbaca — cacat ini nyata (2026-09-17: `--t-1` dilaporkan "hilang" padahal ada,
+    hanya karena ada komentar setelah nilai sebelumnya).
+    """
+    return re.sub(r'/\*.*?\*/', lambda m: '\n' * m.group(0).count('\n'), teks, flags=re.S)
+
 # ============================ PEMBACA BERKAS CSS ===========================
 
 
@@ -66,6 +78,8 @@ def deklarasi(isi, token=True):
         buf += ch
     return hasil
 
+
+css = tanpa_komentar(css)
 
 # blok tema: hanya yang selektornya berdiri sendiri di awal baris
 blok = {}
@@ -217,10 +231,21 @@ def ada_aturan(teks):
 
 SENTUH = [('.btn', 'min-height'), ('.input', 'min-height'), ('.tab', 'min-height'),
           ('.pay', 'min-height'), ('.btn-ikon', 'width'), ('.tombol-tambah', 'width'), ('.nav-bawah a', 'min-height')]
+def selesai_var(nilai):
+    """Selesaikan `var(--token)` berantai sampai jadi nilai mentah (mis. `48px`)."""
+    for _ in range(8):
+        m = re.fullmatch(r'var\(\s*(--[a-z0-9-]+)\s*\)', (nilai or '').strip())
+        if not m:
+            break
+        nilai = (global_root.get(m.group(1)) or '').strip()
+    return nilai
+
+
 for sel, prop in SENTUH:
     v = min_height(sel, prop)
-    n = int(v.replace('px', '')) if v and v.endswith('px') else 0
-    periksa(n >= 44, f'Sentuh {sel} >= 44 px', f'{prop}: {v}')
+    nyata = selesai_var(v)
+    n = int(nyata.replace('px', '')) if nyata and nyata.endswith('px') else 0
+    periksa(n >= 44, f'Sentuh {sel} >= 44 px', f'{prop}: {v} -> {nyata}')
 
 # tombol ramping: tampak kecil, tapi daerah sentuh diperluas lewat lapisan tak terlihat
 periksa(ada_aturan(r'\.btn-sm\{[^}]*min-height:40px') and ada_aturan(r'\.btn-sm::after\{[^}]*inset:-6px'),

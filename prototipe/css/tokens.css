@@ -241,6 +241,25 @@
 /* ======================== NILAI GLOBAL (bukan warna) ====================== */
 :root{
   --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-7:32px; --s-8:40px; --s-9:56px; --s-10:72px;
+  /* ------------------------------------------------------------------------
+     TOKEN KERAPATAN — dipisah sumbu (pelajaran desain 2026-09-17)
+     ------------------------------------------------------------------------
+     Kerapatan di sistem desain besar (Material 3 "density scale", Cloudscape
+     "content density") menurunkan TINGGI komponen, BUKAN menyempitkan tepi
+     kiri-kanannya. Sebelumnya di sini justru terbalik: mode Padat hanya
+     menyempitkan kiri-kanan sementara tinggi blok tetap — pemilik melaporkannya
+     ("blok-nya hanya berkurang panjangnya, lebar atas-bawahnya tidak").
+     Mulai sekarang token dipisah per sumbu: "-v-" = atas-bawah (boleh mengecil
+     di mode Padat), "-h-" = kiri-kanan (DIKUNCI, tidak boleh mengecil supaya
+     tulisan tidak terjepit). Rinciannya: skills/desain-antarmuka/SKILL.md
+     ------------------------------------------------------------------------ */
+  --tinggi-kendali:48px;        /* tinggi tombol/isian/tab (sasaran sentuh) */
+  --tinggi-baris-tema:56px;     /* tinggi satu baris daftar pilihan tema */
+  --pad-v-blok:var(--s-5);      /* tepi dalam ATAS-BAWAH blok (kartu, panel) */
+  --pad-h-blok:var(--s-5);      /* tepi dalam KIRI-KANAN blok */
+  --pad-h-kendali:var(--s-5);   /* tepi dalam KIRI-KANAN kendali (tombol/isian/tab) */
+  --pad-h-sel:var(--s-3);       /* tepi dalam KIRI-KANAN sel tabel & baris daftar */
+  --baris-isi:1.55;             /* tinggi baris teks isi */
   --t-1:11px; --t-2:12px; --t-3:13px; --t-4:15px; --t-5:16px; --t-6:18px; --t-7:22px; --t-8:28px; --t-9:clamp(30px,3.4vw,42px); --t-10:clamp(40px,6vw,72px);
   --dur-1:140ms; --dur-2:220ms; --dur-3:340ms;
   --ease:cubic-bezier(.22,.61,.36,1); --ease-masuk:cubic-bezier(.34,1.4,.64,1);
@@ -255,7 +274,7 @@ html{-webkit-text-size-adjust:100%}
 html,body{margin:0;padding:0}
 body{
   background-color:var(--bg); background-image:var(--pola); background-attachment:fixed; color:var(--text);
-  font-family:var(--font-body); font-size:var(--t-5); line-height:1.55;
+  font-family:var(--font-body); font-size:var(--t-5); line-height:var(--baris-isi);
   -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
 }
 [data-theme="vintage"] body,[data-theme="vintage"]{font-size:17px}
@@ -298,7 +317,8 @@ small,.small{font-size:var(--t-3)}
 .pemisah{height:1px;background:var(--border);border:0;margin:var(--s-5) 0}
 
 /* ====================== PERMUKAAN: KARTU & KACA ========================== */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh-2);padding:var(--s-5)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh-2);
+  padding:var(--pad-v-blok) var(--pad-h-blok)}
 .card.tight{padding:var(--s-4)}
 .card.lega{padding:var(--s-6)}
 .card-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);margin-bottom:var(--s-4)}
@@ -316,7 +336,7 @@ small,.small{font-size:var(--t-3)}
 /* ============================== TOMBOL ================================== */
 .btn{
   appearance:none;font:inherit;font-family:var(--font-body);font-weight:700;font-size:var(--t-4);
-  min-height:44px;padding:0 var(--s-5);border-radius:var(--radius-pil);border:1px solid var(--border);
+  min-height:var(--tinggi-kendali);padding:0 var(--pad-h-kendali);border-radius:var(--radius-pil);border:1px solid var(--border);
   position:relative;
   background:var(--surface);color:var(--text);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:var(--s-2);
   transition:transform var(--dur-1) var(--ease),box-shadow var(--dur-2) var(--ease),background var(--dur-2) var(--ease),
@@ -335,7 +355,7 @@ small,.small{font-size:var(--t-3)}
 .btn-primary:active{transform:translateY(0) scale(.985)}
 .btn-lg{min-height:56px;font-size:var(--t-5);width:100%;padding:0 var(--s-6)}
 /* tombol kecil: tampak ramping (40 px) tapi daerah sentuhnya tetap > 44 px */
-.btn-sm{min-height:40px;padding:0 var(--s-3);font-size:var(--t-3);font-weight:600}
+.btn-sm{min-height:40px;padding:0 var(--pad-h-sel);font-size:var(--t-3);font-weight:600}
 .btn-sm::after{content:"";position:absolute;inset:-6px;border-radius:inherit}
 .btn-ikon{width:44px;min-width:44px;padding:0;border-radius:var(--radius-pil)}
 .btn-polos{background:transparent;border-color:transparent;color:var(--text-muted)}
@@ -350,7 +370,7 @@ small,.small{font-size:var(--t-3)}
 .segmen button[aria-pressed="true"]{background:var(--surface);color:var(--text);box-shadow:var(--sh-1)}
 
 /* ============================== ISIAN =================================== */
-.input{width:100%;min-height:44px;padding:0 var(--s-4);border:1px solid var(--border);border-radius:var(--radius-pil);
+.input{width:100%;min-height:var(--tinggi-kendali);padding:0 var(--pad-h-kendali);border:1px solid var(--border);border-radius:var(--radius-pil);
   background:var(--surface);color:var(--text);font:inherit;font-family:var(--font-body);font-size:var(--t-4);
   transition:box-shadow var(--dur-2) var(--ease),border-color var(--dur-2) var(--ease)}
 .input::placeholder{color:var(--text-muted)}
@@ -381,7 +401,7 @@ small,.small{font-size:var(--t-3)}
 .tabs{display:flex;gap:var(--s-2);overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
 .tab{appearance:none;font:inherit;font-family:var(--font-body);font-weight:700;font-size:var(--t-4);white-space:nowrap;
-  min-height:44px;padding:0 var(--s-4);border-radius:var(--radius-pil);border:1px solid var(--border);background:var(--surface);
+  min-height:var(--tinggi-kendali);padding:0 var(--pad-h-kendali);border-radius:var(--radius-pil);border:1px solid var(--border);background:var(--surface);
   color:var(--text-muted);cursor:pointer;display:inline-flex;align-items:center;gap:8px;
   transition:all var(--dur-2) var(--ease)}
 .tab:hover{color:var(--text);border-color:var(--border-kuat);transform:translateY(-1px)}
@@ -391,7 +411,7 @@ small,.small{font-size:var(--t-3)}
 
 /* ============================== TABEL ================================== */
 .table{width:100%;border-collapse:separate;border-spacing:0;font-size:var(--t-4)}
-.table th,.table td{text-align:left;padding:var(--s-3) var(--s-3);border-bottom:1px solid var(--border)}
+.table th,.table td{text-align:left;padding:var(--s-3) var(--pad-h-sel);border-bottom:1px solid var(--border)}
 .table th{position:sticky;top:0;background:var(--surface);z-index:1;font-family:var(--font-display);font-size:var(--t-1);
   font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
 .table tbody tr{transition:background var(--dur-1) var(--ease)}
@@ -476,49 +496,65 @@ small,.small{font-size:var(--t-3)}
 [data-density="padat"]{
   --s-1:3px; --s-2:6px; --s-3:9px; --s-4:12px; --s-5:15px;
   --s-6:18px; --s-7:24px; --s-8:30px; --s-9:42px; --s-10:54px;
+  /* ======================================================================
+     MODE PADAT — VERSI BENAR (laporan pemilik 2026-09-17, ketiga kalinya)
+     ----------------------------------------------------------------------
+     Keluhan pemilik: "blok-bloknya hanya berkurang panjangnya, tapi lebar
+     (atas-bawah) nya ga ikut mengecil" — dan memang itu cacat nyata: aturan
+     lama menyempitkan tepi KIRI-KANAN saja (`padding:0 var(--s-3)`) sementara
+     TINGGI-nya (min-height) tidak pernah turun, jadi proporsi blok jadi aneh.
+
+     Riset sistem desain besar membenarkan keluhan itu:
+       · Material 3 (density scale): tiap langkah menurunkan TINGGI komponen
+         4 px; "it does not affect the horizontal spacing within the component".
+       · Cloudscape: mode padat mengecilkan padding VERTIKAL di dalam komponen
+         + jarak antar komponen; komponen popover (daftar pilihan) hanya
+         sedikit dipadatkan karena ruangnya sempit.
+       · Keduanya: ukuran HURUF tidak ikut berubah, dan tinggi sasaran sentuh
+         tetap dijaga (lantai proyek ini: 44 px, dijaga alat/uji-kontras.py).
+       · Material bahkan menyarankan menambah jarak MENDATAR saat tinggi
+         dikurangi — kebalikan dari yang dulu dilakukan di sini.
+
+     Maka di bawah ini: token "-v-" (atas-bawah) turun, tinggi kendali turun
+     48→44 px, tinggi baris daftar tema turun 56→48 px, tinggi baris teks rapat
+     sedikit. Token "-h-" (kiri-kanan) DIKUNCI sama dengan mode Nyaman.
+     Rincian & sumber: skills/desain-antarmuka/SKILL.md
+     ====================================================================== */
+  --tinggi-kendali:44px;        /* 48 → 44 px (4 px, langkah Material; = lantai sentuh) */
+  --tinggi-baris-tema:48px;     /* 56 → 48 px */
+  --pad-v-blok:12px;            /* 20 → 12 px: blok jadi lebih PENDEK atas-bawah */
+  --baris-isi:1.42;             /* 1,55 → 1,42: teks lebih rapat ke bawah */
+  --pad-h-blok:20px;            /* = --s-5 dasar → SENGAJA tidak mengecil */
+  --pad-h-kendali:20px;         /* = --s-5 dasar → SENGAJA tidak mengecil */
+  --pad-h-sel:12px;             /* = --s-3 dasar → SENGAJA tidak mengecil */
 }
-/* Laporan pemilik 2026-09-17 (kedua): "Padat" hanya merapatkan JARAK sehingga terasa
-   kurang rapi — ukuran BLOK-nya (tinggi baris, tepi dalam, lebar tombol) belum ikut
-   menyesuaikan. Di bawah ini blok ikut dirapatkan: tepi dalam, tinggi baris, dan
-   lebar tombol. DUA hal sengaja TIDAK disentuh: (1) ukuran huruf, (2) daerah sentuh
-   minimal 44 px untuk apa pun yang bisa ditekan — dijaga uji kontras. */
-[data-density="padat"] .card{padding:var(--s-4)}
+
+/* --- jarak ANTAR blok: bagian ini memang boleh rapat di kedua arah -------- */
 [data-density="padat"] .card-head{margin-bottom:var(--s-3)}
 [data-density="padat"] .kisi-2{gap:var(--s-3)}
-[data-density="padat"] .table th,[data-density="padat"] .table td{padding:var(--s-2) var(--s-3)}
-[data-density="padat"] .pemisah{margin:var(--s-4) 0}
 [data-density="padat"] .baris-tombol{gap:var(--s-2)}
+[data-density="padat"] .pemisah{margin:var(--s-4) 0}
 [data-density="padat"] .baris-rapat{padding:var(--s-2) 0}
-
-/* blok: tepi dalam & tinggi baris mengecil, tinggi minimal sentuh TETAP */
-[data-density="padat"] .lapis-panel{padding:var(--s-4)}
 [data-density="padat"] .lapis-isi{gap:var(--s-2)}
-[data-density="padat"] .keadaan{padding:var(--s-5) var(--s-3);gap:var(--s-2)}
+[data-density="padat"] .keadaan{padding:var(--s-5) var(--pad-h-sel);gap:var(--s-2)}
 [data-density="padat"] .kolom-isian{gap:var(--s-1)}
 [data-density="padat"] .kepala-halaman{padding-bottom:var(--s-4)}
 [data-density="padat"] .kpi,[data-density="padat"] .kpi-3{gap:var(--s-3)}
-[data-density="padat"] .btn{padding:0 var(--s-3)}
-[data-density="padat"] .btn-sm{padding:0 var(--s-2)}
-[data-density="padat"] .input{padding:0 var(--s-3)}
 [data-density="padat"] .segmen{padding:2px;gap:2px}
-[data-density="padat"] .segmen button{padding:0 var(--s-3)}
-[data-density="padat"] .tab{padding:8px var(--s-3)}
-[data-density="padat"] .lencana{padding:2px 6px;border-radius:5px}
-[data-density="padat"] .kolom{padding:var(--s-2)}
-[data-density="padat"] .tiket{padding:var(--s-2);margin-bottom:var(--s-2)}
-[data-density="padat"] .baris-pesanan{padding:var(--s-2) 0}
+
+/* --- ISI blok: atas-bawah rapat, kiri-kanan tetap lapang ------------------ */
+[data-density="padat"] .table th,[data-density="padat"] .table td{padding:var(--s-2) var(--pad-h-sel)}
+[data-density="padat"] .lapis-panel{padding:var(--pad-v-blok) var(--pad-h-blok)}
+[data-density="padat"] .kolom{padding:var(--s-2) var(--pad-h-sel)}
+[data-density="padat"] .tiket{padding:var(--pad-v-blok) var(--pad-h-sel);margin-bottom:var(--s-2)}
 [data-density="padat"] .sum-baris{padding:2px 0}
-[data-density="padat"] .qty button{height:34px}
-[data-density="padat"] .picker-panel button{padding:var(--s-2);min-height:48px}
-[data-density="padat"] .menu-kartu .isi{padding:var(--s-3)}
-[data-density="padat"] .menu-kartu .nm{margin-bottom:2px}
-/* efek khusus halaman prototipe (katalog): kisi lebih rapat, keterangan disembunyikan */
+[data-density="padat"] .qty button{height:38px}
+[data-density="padat"] .lencana{padding:2px 8px}
+
+/* --- efek khusus halaman prototipe (katalog): kisi lebih rapat ------------ */
 [data-density="padat"] .kisi-menu{grid-template-columns:repeat(4,1fr);gap:var(--s-3)}
 [data-density="padat"] .menu-kartu .foto{aspect-ratio:16/9}
 [data-density="padat"] .menu-kartu .ket{display:none}
-[data-density="padat"] .menu-kartu .isi{padding:var(--s-3)}
-[data-density="padat"] .menu-kartu .nm{font-size:var(--t-3)}
-[data-density="padat"] .menu-kartu .pr{font-size:var(--t-4)}
 
 /* ============================== KERANJANG ============================== */
 .keranjang{position:sticky;top:var(--s-5);display:flex;flex-direction:column;gap:var(--s-4)}
@@ -686,28 +722,62 @@ small,.small{font-size:var(--t-3)}
   border-bottom:1px solid var(--border);font-size:var(--t-3);color:var(--text-muted);padding:8px clamp(var(--s-4),3vw,var(--s-7));
   display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap;position:relative;z-index:40}
 .demo-bar strong{color:var(--text);letter-spacing:.06em}
+/* Panel pilihan tema — DUA bagian, dan pemisahan itu disengaja:
+     · `.picker-panel`  = wadah: latar, bordir, sudut, bayangan (TIDAK menggeser);
+     · `.picker-daftar` = isi yang bisa digeser + jejak pudar di ujungnya.
+   Riset 2026 (shadcn `scroll-fade`, argos-ci, twilson.net/scroll-mask) memberi
+   dua aturan yang dipakai di sini:
+     1) maska pudar HARUS dipasang pada elemen yang menggeser, bukan pada wadah
+        — kalau dipasang di wadah, bordir dan sudut panelnya sendiri yang luntur;
+     2) pudarnya memakai `mask-image` (bukan lapisan warna), sehingga ikut tema
+        apa pun tanpa perlu tahu warna latarnya.
+   Tombolnya sekarang <button> + panel (bukan lagi <details>/<summary>), karena
+   <details> bawaan peramban TIDAK menutup saat Esc ditekan — laporan pemilik
+   2026-09-17: "harus klik tombolnya lagi untuk menutup". Penutupan lengkap
+   (Esc, klik di luar, fokus pindah keluar, pilih lalu tutup) ada di
+   aplikasi/src/komponen/PemilihRingkas.tsx; aturannya dari WAI-ARIA APG
+   (disclosure: Esc menutup DAN mengembalikan fokus ke tombolnya).            */
 .picker{position:relative;display:inline-block}
-.picker > summary{list-style:none;cursor:pointer;user-select:none}
-.picker > summary::-webkit-details-marker{display:none}
-.picker[open] > summary{box-shadow:0 0 0 3px var(--cincin)}
-/* Laporan pemilik 2026-09-17: daftar tema terpotong karena panelnya menggantung DI BAWAH
-   tombol (absolute) lalu melewati tepi layar. Sekarang panel dipaku ke sudut layar
-   (position:fixed) — selalu utuh, tidak peduli letak tombolnya — dan tingginya dibatasi
-   tinggi layar dengan daftar yang bisa digeser di dalam. */
 .picker-panel{position:fixed;right:var(--s-5);bottom:var(--s-5);top:auto;left:auto;z-index:70;margin:0;
-  width:min(560px,calc(100vw - 2 * var(--s-5)));padding:var(--s-3);
-  display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2);align-content:start;
-  max-height:min(72vh,560px);overflow:auto;overscroll-behavior:contain;
+  width:min(560px,calc(100vw - 2 * var(--s-5)));padding:var(--s-2);
+  display:flex;flex-direction:column;gap:var(--s-2);
+  max-height:min(72vh,560px);overflow:hidden;overscroll-behavior:contain;
   background:var(--kaca);backdrop-filter:blur(var(--blur-kuat)) saturate(160%);-webkit-backdrop-filter:blur(var(--blur-kuat)) saturate(160%);
   border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--sh-4)}
-.picker-panel button{appearance:none;cursor:pointer;text-align:left;font:inherit;font-family:var(--font-body);display:flex;gap:10px;
-  align-items:flex-start;padding:var(--s-3);min-height:54px;border:1px solid var(--border);border-radius:var(--radius-sm);
+.picker-daftar{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2);align-content:start;
+  overflow:auto;overscroll-behavior:contain;padding:var(--s-2);
+  /* Jejak pudar di ujung daftar: isi meluntur ke tepi, bukan terpotong mentah.
+     Ukurannya SEBAGIAN dari tinggi wadah (bukan angka tetap), ditambah bantalan
+     agar cincin fokusbaris teratas/terbawah tidak ikut luntur. */
+  --pudar:16px;--pudar-atas:0px;--pudar-bawah:0px;
+  mask-image:linear-gradient(to bottom,transparent 0,#000 var(--pudar-atas),#000 calc(100% - var(--pudar-bawah)),transparent 100%);
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 var(--pudar-atas),#000 calc(100% - var(--pudar-bawah)),transparent 100%)}
+/* Peramban tanpa animasi-terkait-gulir: hanya ujung BAWAH yang dipudarkan
+   (ujung atas tidak, karena kita tidak tahu posisi gulir tanpa bantuan itu). */
+@supports not (animation-timeline: scroll(self block)){
+  .picker-daftar{--pudar-bawah:var(--pudar)}
+}
+/* Peramban yang mendukungnya: pudarnya HANYA muncul di sisi yang benar-benar
+   masih punya isi (ujung atas luntur setelah digeser, ujung bawah luntur
+   kembali saat sudah di dasar) — jadi pudarnya tidak pernah "berbohong". */
+@supports (animation-timeline: scroll(self block)){
+  .picker-daftar{animation:pudar-gulir both linear;animation-timeline:scroll(self block)}
+}
+@keyframes pudar-gulir{
+  0%{--pudar-atas:0px;--pudar-bawah:var(--pudar)}
+  35%{--pudar-atas:var(--pudar);--pudar-bawah:var(--pudar)}
+  65%{--pudar-atas:var(--pudar);--pudar-bawah:var(--pudar)}
+  100%{--pudar-atas:var(--pudar);--pudar-bawah:0px}
+}
+.picker > button[aria-expanded="true"]{box-shadow:0 0 0 3px var(--cincin)}
+.picker-panel button{appearance:none;cursor:pointer;text-align:left;font:inherit;font-family:var(--font-body);display:flex;gap:var(--s-2);
+  align-items:flex-start;padding:var(--s-2) var(--pad-h-sel);min-height:var(--tinggi-baris-tema);border:1px solid var(--border);border-radius:var(--radius-sm);
   background:var(--surface);color:var(--text);transition:all var(--dur-2) var(--ease)}
 .picker-panel button:hover{transform:translateY(-2px);box-shadow:var(--sh-2);border-color:var(--border-kuat)}
 .picker-panel button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent),var(--sh-1)}
 .picker-panel button strong{display:block;font-size:var(--t-4)}
 .picker-panel button small{color:var(--text-muted);font-size:var(--t-2);line-height:1.35;display:block}
-.picker-all{grid-column:1/-1;text-align:center;font-size:var(--t-3);padding:var(--s-2);text-decoration:none;font-weight:700}
+.picker-all{flex:none;text-align:center;font-size:var(--t-3);padding:var(--s-2);text-decoration:none;font-weight:700}
 .swatch{width:16px;height:16px;border-radius:5px;border:1px solid rgba(0,0,0,.25);flex:none;margin-top:2px;background:var(--accent)}
 .sw-3{display:flex;gap:2px;flex:none;margin-top:2px}
 .sw-3 i{width:9px;height:16px;border-radius:3px;border:1px solid rgba(0,0,0,.18)}
@@ -748,7 +818,8 @@ small,.small{font-size:var(--t-3)}
   .galeri{grid-template-columns:1fr}
 }
 @media (max-width:560px){
-  .picker-panel{grid-template-columns:1fr;left:var(--s-4);right:var(--s-4);bottom:var(--s-4);width:auto;max-height:min(66vh,520px)}
+  .picker-panel{left:var(--s-4);right:var(--s-4);bottom:var(--s-4);width:auto;max-height:min(66vh,520px)}
+  .picker-daftar{grid-template-columns:1fr}
   .kpi,.kpi-3{grid-template-columns:1fr}
   .kisi-menu{grid-template-columns:repeat(2,1fr);gap:var(--s-3)}
   .bilah-melayang{bottom:var(--s-10);left:var(--s-4);right:var(--s-4);transform:none;max-width:none}

@@ -43,6 +43,10 @@ GERBANG_WAJIB = [
     ("pemeriksa buku uji", r"python3\s+alat/periksa-buku-uji\.py\s*$"),
     ("pemeriksa rujukan dokumen", r"python3\s+alat/periksa-rujukan\.py\s*$"),
     ("pemeriksa gerbang CI", r"python3\s+alat/periksa-gerbang-ci\.py\s*$"),
+    ("pemeriksa antarmuka (penutupan panel & tepi gulir)", r"python3\s+aplikasi/alat/periksa-antarmuka\.py\s*$"),
+    ("uji-diri pemeriksa antarmuka", r"python3\s+aplikasi/alat/periksa-antarmuka\.py\s+--uji-diri\s*$"),
+    ("pemeriksa kontras & aturan desain", r"python3\s+aplikasi/alat/uji-kontras\.py\s*$"),
+    ("uji-diri pemeriksa kontras", r"python3\s+aplikasi/alat/uji-kontras\.py\s+--uji-diri\s*$"),
 ]
 
 # Pola pelemahan senyap yang dilarang
@@ -128,6 +132,8 @@ def uji_diri() -> int:
         mutasi("npm audit diberi `|| true`", lambda t: t.replace("run: npm audit --audit-level=low", "run: npm audit --audit-level=low || true"))
         mutasi("ambang audit diturunkan", lambda t: t.replace("npm audit --audit-level=low", "npm audit --audit-level=critical"))
         mutasi("langkah pemeriksa pohon bersih dihapus", lambda t: t.replace("          python3 alat/periksa-bersih.py\n", "", 1))
+        mutasi("langkah pemeriksa antarmuka dihapus", lambda t: t.replace("          python3 aplikasi/alat/periksa-antarmuka.py\n", "", 1))
+        mutasi("langkah uji-diri kontras dihapus", lambda t: t.replace("          python3 aplikasi/alat/uji-kontras.py --uji-diri\n", "", 1))
         mutasi("langkah diberi continue-on-error", lambda t: t.replace("    runs-on: ubuntu-latest", "    runs-on: ubuntu-latest\n    continue-on-error: true", 1))
 
     print("\nUJI-DIRI PEMERIKSA GERBANG CI")

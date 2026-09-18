@@ -62,9 +62,12 @@ python3 alat/periksa-bersih.py
 python3 alat/periksa-bersih.py --uji-diri
 python3 aplikasi/alat/periksa-kerapatan.py
 python3 aplikasi/alat/periksa-kerapatan.py --uji-diri
+python3 aplikasi/alat/periksa-antarmuka.py
+python3 aplikasi/alat/periksa-antarmuka.py --uji-diri
 python3 aplikasi/alat/periksa-struktur.py)
 (cd "$REPO" && python3 aplikasi/alat/periksa-komponen-env.py)
 (cd "$REPO" && python3 aplikasi/alat/periksa-uji.py)
 (cd "$REPO" && python3 aplikasi/alat/uji-kontras.py)
+(cd "$REPO" && python3 aplikasi/alat/uji-kontras.py --uji-diri)
 echo
 echo "SEMUA PEMERIKSAAN LOLOS."

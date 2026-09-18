@@ -73,7 +73,10 @@ PHASE_SKILLS = {
                      "tdd-workflow", "test-driven-development", "systematic-debugging",
                      "verification-before-completion", "agent-browser", "security-review",
                      "ai-agent-skills/skills/best-practices"],
-    "DESAIN": ["ui-ux-pro-max", "design", "design-system", "ui-styling", "frontend-designer",
+    # `desain-antarmuka` = ilmu yang DIPELAJARI DARI INTERNET lalu disimpan sebagai kemampuan
+    # (permintaan pemilik 2026-09-17: "jangan hanya disimpan, tapi juga harus digunakan").
+    # Wajib dibaca SEBELUM mengubah tampilan; dijaga `aplikasi/alat/periksa-antarmuka.py`.
+    "DESAIN": ["desain-antarmuka", "ui-ux-pro-max", "design", "design-system", "ui-styling", "frontend-designer",
                "brand", "banner-design", "web-design-guidelines", "slides"],
 }
 SELALU = ["find-skills"]  # untuk mencari skill yang belum terpasang (usulkan dulu, jangan pasang sendiri)

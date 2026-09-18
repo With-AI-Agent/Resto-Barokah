@@ -31,10 +31,13 @@ describe('LayarContoh', () => {
     expect(html).toContain('keadaan-gagal')
   })
 
-  it('menyediakan tombol untuk seluruh tema', () => {
-    for (const butir of TEMA) {
-      expect(html).toContain(`<strong>${butir.nama}</strong>`)
-    }
+  it('tombol pemilih menyebut jumlah seluruh tema', () => {
+    // Sejak panel pemilih dibuat tertutup-dulu (2026-09-17), daftar tema TIDAK ada di
+    // markup sebelum dibuka — jadi di sini hanya yang bisa dibuktikan tanpa interaksi:
+    // tombolnya menyebut jumlah tema yang tersedia. Isi daftarnya (semua tema bisa
+    // dipilih) dikunci uji interaksi `kerapatan.test.tsx` yang membuka panelnya dulu.
+    expect(html).toContain(`Ganti tema (${TEMA.length})`)
+    expect(TEMA.length).toBe(10)
   })
 
   it('menyediakan pilihan kerapatan', () => {

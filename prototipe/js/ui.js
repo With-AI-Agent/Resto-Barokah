@@ -51,7 +51,13 @@
   }
 
   function buatPemilih() {
+    // Tiap pemilih dapat id SENDIRI (bukan id tetap): kalau ada dua tombol pemilih di satu
+    // halaman, id kembar membuat `aria-controls`/`aria-labelledby` menunjuk elemen yang salah.
+    var urutan = 0;
     document.querySelectorAll('[data-pemilih-tema]').forEach(function (wadah) {
+      urutan += 1;
+      var idTombol = 'tombol-tema-' + urutan;
+      var idPanel = 'panel-tema-' + urutan;
       var tombol = TEMA.map(function (t) {
         var w = warna(t[0]);
         return '<button type="button" data-set-tema="' + t[0] + '">' +
@@ -59,10 +65,59 @@
           '<span><strong>' + t[1] + '</strong><small>' + t[2] + '</small></span></button>';
       }).join('');
       wadah.innerHTML =
-        '<details class="picker"><summary class="btn btn-sm" aria-label="Pilih tema">' +
-        '<i class="swatch" data-swatch-tema aria-hidden="true"></i> Tema: <span data-nama-tema>Terang Bersih</span></summary>' +
-        '<div class="picker-panel" role="group" aria-label="Pilih tema">' + tombol +
-        '<a class="picker-all" href="04-tema.html">Lihat 10 tema berdampingan &amp; rapi &rarr;</a></div></details>';
+        '<div class="picker"><button type="button" class="btn btn-sm" id="' + idTombol + '" aria-label="Pilih tema"' +
+        ' aria-expanded="false" aria-controls="' + idPanel + '">' +
+        '<i class="swatch" data-swatch-tema aria-hidden="true"></i> Tema: <span data-nama-tema>Terang Bersih</span></button>' +
+        '<div class="picker-panel" id="' + idPanel + '" role="region" aria-labelledby="' + idTombol + '" hidden>' +
+        '<p class="picker-all">Pilih tema — geser daftar bila belum terlihat semua.</p>' +
+        '<div class="picker-daftar">' + tombol + '</div>' +
+        '<a class="picker-all" href="04-tema.html">Lihat 10 tema berdampingan &amp; rapi &rarr;</a></div></div>';
+    });
+  }
+
+  // ------------------------------ PEMILIH (buka/tutup) ---------------------
+  // Cara menutup mengikuti kebiasaan aplikasi lain: klik tombolnya, Esc, klik di
+  // luar, atau pindah fokus keluar panel. Sumber: WAI-ARIA APG (disclosure) dan
+  // panduan menu aksesibel 2022-2026 -> skills/desain-antarmuka/SKILL.md
+  function bukaPemilih(p) {
+    var b = p.querySelector('button[aria-expanded]');
+    var panel = p.querySelector('.picker-panel');
+    if (!b || !panel) return;
+    p.setAttribute('data-terbuka', 'true');
+    b.setAttribute('aria-expanded', 'true');
+    panel.hidden = false;
+  }
+
+  function tutupPemilih(p, kembalikanFokus) {
+    var b = p.querySelector('button[aria-expanded]');
+    var panel = p.querySelector('.picker-panel');
+    if (!b || !panel) return;
+    p.setAttribute('data-terbuka', 'false');
+    b.setAttribute('aria-expanded', 'false');
+    panel.hidden = true;
+    if (kembalikanFokus) b.focus();
+  }
+
+  function pasangPemilih() {
+    document.querySelectorAll('.picker').forEach(function (p) {
+      var b = p.querySelector('button[aria-expanded]');
+      if (!b || p.getAttribute('data-pasang') === 'sudah') return;
+      p.setAttribute('data-pasang', 'sudah');
+      b.addEventListener('click', function () {
+        if (p.getAttribute('data-terbuka') === 'true') tutupPemilih(p, false);
+        else bukaPemilih(p);
+      });
+      // Memilih satu pilihan -> panel menutup, fokus pulang ke tombol.
+      p.addEventListener('click', function (e) {
+        if (p.getAttribute('data-terbuka') === 'true' && e.target.closest('.picker-daftar button')) {
+          tutupPemilih(p, true);
+        }
+      });
+      // Fokus pindah keluar panel -> menutup (tanpa merebut fokus).
+      p.addEventListener('focusout', function (e) {
+        if (p.getAttribute('data-terbuka') !== 'true') return;
+        if (!p.contains(e.relatedTarget)) tutupPemilih(p, false);
+      });
     });
   }
 
@@ -171,7 +226,8 @@
 
     if ((t = e.target.closest('[data-set-tema]'))) {
       pasangTema(t.getAttribute('data-set-tema'));
-      var p = t.closest('details'); if (p) p.open = false;
+      // Sisa aturan <details> lama dibuang: panelnya kini buka/tutup sendiri, dan
+      // penutupan "pilih lalu tutup" ditangani penangan klik di dalam pasangPemilih().
       if (t.hasAttribute('data-ke-atas')) window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -247,11 +303,20 @@
       t.setAttribute('aria-pressed', 'true');
       return;
     }
-    document.querySelectorAll('details.picker[open]').forEach(function (d) { if (!d.contains(e.target)) d.open = false; });
+    document.querySelectorAll('.picker[data-terbuka="true"]').forEach(function (p) {
+      if (!p.contains(e.target)) tutupPemilih(p, false);
+    });
   });
 
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') document.querySelectorAll('.lapis.terbuka').forEach(tutupLapis);
+    // Esc juga menutup panel pilihan & mengembalikan fokus ke tombolnya
+    // (WAI-ARIA APG pola disclosure — dulu <details> bawaan tidak melakukan ini).
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.picker[data-terbuka="true"]').forEach(function (p) {
+        tutupPemilih(p, true);
+      });
+    }
   });
 
   // selisih kas pada modal "Tutup Kas"
@@ -286,6 +351,7 @@
   // ------------------------------ SAAT DIBUKA ------------------------------
   document.addEventListener('DOMContentLoaded', function () {
     buatPemilih();
+    pasangPemilih();
     pasangTema(baca(KEY_TEMA) || document.documentElement.getAttribute('data-theme') || 'terang');
     pasangKerapatan(baca(KEY_RAPAT) || document.documentElement.getAttribute('data-density') || 'padat');
     gambarKeranjang();

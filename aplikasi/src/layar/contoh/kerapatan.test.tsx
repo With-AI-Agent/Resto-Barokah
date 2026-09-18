@@ -26,8 +26,17 @@ describe('kontrol tema & kerapatan di layar contoh', () => {
 
   afterEach(cleanup)
 
+  /** Buka panel tema lalu klik satu tema (panel sekarang hanya berisi daftar saat terbuka). */
+  function pilihTema(nama: string) {
+    const tombol = screen.getByRole('button', { name: /Pilih tema/ })
+    if (tombol.getAttribute('aria-expanded') !== 'true') fireEvent.click(tombol)
+    fireEvent.click(screen.getByText(nama))
+  }
+
   it('menyediakan tombol untuk SEMUA tema (10, bukan sebagian)', () => {
     render(<LayarContoh />)
+    // daftar baru muncul setelah panel dibuka (dulu selalu ter-render)
+    fireEvent.click(screen.getByRole('button', { name: /Pilih tema/ }))
     for (const butir of TEMA) {
       // nama tema bisa muncul lebih dari sekali di halaman (mis. judul kartu),
       // jadi yang dipastikan adalah: tombolnya ADA dan bisa dipilih.
@@ -41,11 +50,22 @@ describe('kontrol tema & kerapatan di layar contoh', () => {
 
   it('mengganti tema benar-benar mengubah elemen akar & tersimpan', () => {
     render(<LayarContoh />)
-    fireEvent.click(screen.getByText('Etnik Nusantara'))
+    pilihTema('Etnik Nusantara')
     expect(document.documentElement.dataset.theme).toBe('etnik')
     expect(localStorage.getItem('sajian.tema')).toBe('etnik')
     // status di kepala halaman ikut berubah (bukti yang bisa dilihat pemilik)
     expect(document.body.textContent).toContain('tema aktif Etnik Nusantara')
+  })
+
+  it('panel tema TERTUTUP dulu, dan bisa dibuka lewat tombolnya', () => {
+    render(<LayarContoh />)
+    const tombol = screen.getByRole('button', { name: /Pilih tema/ })
+    expect(tombol.getAttribute('aria-expanded')).toBe('false')
+    expect(screen.queryByRole('region', { name: /Pilih tema/ })).toBeNull()
+
+    fireEvent.click(tombol)
+    expect(screen.getByRole('region', { name: /Pilih tema/ })).toBeTruthy()
+    expect(tombol.getAttribute('aria-expanded')).toBe('true')
   })
 
   it('tombol Padat benar-benar mengubah kerapatan di elemen akar & tersimpan', () => {

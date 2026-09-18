@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Kartu } from '../../komponen/Kartu'
+import { PemilihRingkas } from '../../komponen/PemilihRingkas'
 import { KolomIsian } from '../../komponen/KolomIsian'
 import { Lapis } from '../../komponen/Lapis'
 import { Lencana } from '../../komponen/Lencana'
@@ -85,30 +86,32 @@ export default function LayarContoh() {
       )}
 
       <div className="row wrap-row">
-        <details className="picker">
-          <summary className="btn btn-sm">Ganti tema ({TEMA.length})</summary>
-          <div className="picker-panel">
-            <p className="picker-all">
+        <PemilihRingkas
+          label={`Pilih tema (${TEMA.length} pilihan)`}
+          anakTombol={`Ganti tema (${TEMA.length})`}
+          judulPanel={
+            <>
               Pilih tema — ada {TEMA.length}. Bila belum terlihat semua, geser daftar di dalam kotak
               ini.
-            </p>
-            {TEMA.map((butir) => (
-              <button
-                key={butir.kode}
-                type="button"
-                aria-pressed={butir.kode === tema}
-                onClick={() => gantiTema(butir.kode as KodeTema)}
-                className="tombol-tema"
-              >
-                <span className="tanda" aria-hidden="true" />
-                <span>
-                  <strong>{butir.nama}</strong>
-                  <small>{butir.keterangan}</small>
-                </span>
-              </button>
-            ))}
-          </div>
-        </details>
+            </>
+          }
+        >
+          {TEMA.map((butir) => (
+            <button
+              key={butir.kode}
+              type="button"
+              aria-pressed={butir.kode === tema}
+              onClick={() => gantiTema(butir.kode as KodeTema)}
+              className="tombol-tema"
+            >
+              <span className="tanda" aria-hidden="true" />
+              <span>
+                <strong>{butir.nama}</strong>
+                <small>{butir.keterangan}</small>
+              </span>
+            </button>
+          ))}
+        </PemilihRingkas>
 
         <div className="segmen" role="group" aria-label="Kerapatan tampilan">
           {KERAPATAN.map((butir) => (

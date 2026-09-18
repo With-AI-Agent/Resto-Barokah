@@ -42,7 +42,11 @@ BERKAS_PENGIKAT = (
     "ACCEPTANCE_TESTS.md",
 )
 
-POLA_JALUR = re.compile(r"(?:alat|docs|supabase|aplikasi|_sistem|_log-sesi|prototipe|\.github)/[\w./-]+\.(?:md|py|sh|mjs|ts|tsx|sql|json|yml|html)")
+# URUTAN EKSTENSI PENTING: yang lebih panjang lebih dulu (`tsx` sebelum `ts`, `json` sebelum
+# `js`). Cacat nyata 2026-09-17: `ts` lebih dulu -> rujukan `…/PemilihRingkas.tsx` terbaca
+# sebagai `…/PemilihRingkas.ts` (berkas yang tidak ada) sehingga dokumen yang benar dianggap
+# punya rujukan mati. Dijaga mutasi "berkas .tsx yang dirujuk dihapus" di uji-diri.
+POLA_JALUR = re.compile(r"(?:alat|docs|supabase|aplikasi|_sistem|_log-sesi|prototipe|\.github)/[\w./-]+\.(?:tsx|markdown|mjs|json|ya?ml|sql|html|md|py|sh|ts)")
 POLA_HARAPAN = re.compile(r"\(rencana|belum ada|belum dibuat|akan dibuat|menyusul|dijadwalkan|T\d+-\d+", re.I)
 
 
@@ -115,6 +119,18 @@ def uji_diri() -> int:
             kode3, _ = jalankan_pemeriksa(periksa, tmp3)
             hasil.append(("mutasi: rujukan mati DITANDAI rencana", kode3 == 0,
                           "diterima" if kode3 == 0 else "ditolak (penanda rencana tidak bekerja)"))
+        # Mutasi: berkas `.tsx` yang DIRUJUK di dokumen pengikat dihapus → harus GAGAL.
+        # Mutasi ini menjaga jebakan ekstensi di POLA_JALUR (dulu `.tsx` terbaca `.ts`
+        # sehingga mutasi seperti ini DILOLOSKAN).
+        with salin_pohon() as tmp4:
+            berkas = tmp4 / "docs/uji/REVIEW_PR_RIWAYAT.md"
+            isi = berkas.read_text(encoding="utf-8")
+            berkas.write_text(isi + "\n9. Bukti: `aplikasi/src/komponen/PemilihRingkas.tsx` (uji antarmuka).\n", encoding="utf-8")
+            (tmp4 / "aplikasi/src/komponen/PemilihRingkas.tsx").unlink()
+            kode4, _ = jalankan_pemeriksa(periksa, tmp4)
+            hasil.append(("mutasi: berkas .tsx yang dirujuk DIHAPUS", kode4 != 0,
+                          "ditolak" if kode4 != 0 else "DILOLOSKAN (rujukan .tsx tak terbaca)"))
+
     return laporkan("periksa-rujukan", hasil)
 
 

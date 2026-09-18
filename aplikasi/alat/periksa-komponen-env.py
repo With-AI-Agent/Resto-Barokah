@@ -67,11 +67,26 @@ def uji_komponen() -> None:
             return ""
         return css[pos + len(kelas) + 1 : css.find("}", pos)]
 
+    akar_css = blok(":root")
+
+    def token(nama: str) -> str:
+        """Nilai token dari blok `:root` (mis. `--tinggi-kendali` -> `48px`)."""
+        m = re.search(re.escape(nama) + r"\s*:\s*([^;]+)", akar_css)
+        return (m.group(1) if m else "").strip()
+
     for kelas, minimal in ((".btn", 44), (".input", 44), (".tab", 44)):
         isi = blok(kelas)
-        cocok = re.search(r"min-height:\s*(\d+)px", isi) or re.search(r"height:\s*(\d+)px", isi)
-        if cocok and int(cocok.group(1)) >= minimal:
-            ok.append(f"OK: {kelas} tinggi minimal {cocok.group(1)} px (>= {minimal})")
+        cocok = re.search(r"min-height:\s*([^;]+)", isi) or re.search(r"(?<!-)height:\s*([^;]+)", isi)
+        nilai = (cocok.group(1) if cocok else "").strip()
+        # Sejak 2026-09-17 tinggi kendali boleh ditulis lewat token
+        # (`min-height:var(--tinggi-kendali)`) supaya kerapatan punya SATU sumber angka.
+        # Pemeriksa karenanya menyelesaikan var() dulu, bukan menuntut angka mentah.
+        m = re.fullmatch(r"var\(\s*(--[a-z0-9-]+)\s*\)", nilai)
+        if m:
+            nilai = token(m.group(1))
+        angka = re.match(r"(\d+)px", nilai)
+        if angka and int(angka.group(1)) >= minimal:
+            ok.append(f"OK: {kelas} tinggi minimal {angka.group(1)} px (>= {minimal})")
         else:
             gagal.append(f"GAGAL: {kelas} tidak punya tinggi minimal {minimal} px di token tema")
 

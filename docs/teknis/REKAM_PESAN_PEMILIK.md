@@ -226,6 +226,28 @@ alat audit/review · buku induk · daftar tunggu · rujukan · lingkungan CI. **
   dengan mata). Agent **tidak akan mengarang baris** supaya buku terlihat penuh.
 - Keduanya masuk ROADMAP: **T1-42** (bantuan) · **T1-43** (Buku Uji Pemilik + pemeriksa + gema chat).
 
+## §14. Putaran 12 (2026-09-17) — tiga keluhan pratinjau (Padat · panel tema · ujung gulir) + tanya sesi
+
+**Kata Lee:** *"blok blok nya hanya berkurang panjang nya aja, tapi lebar (atas-bawah) nya ga ikut mengecil"* ·
+*"Kamu kan punya skill-skill. Kamu harus maksimalkan skill skill itu. Atau klo kamu ga menemukan itu di skill-skill kamu, kamu harus pelajari ilmu desain dan visual dari internet **dan simpan hasil yang kamu pelajari itu untuk menjadi kemampuan. Dan ingat, jangan hanya disimpan, tapi juga harus digunakan sebagai kemampuan**"* ·
+*"(panel Ganti tema) harus bisa ditutup dengan Esc / klik di luar… coba pelajari bagaimana umumnya aplikasi-aplikasi lain"* ·
+*"ujung nya itu kayak nabrak gitu… semacam blur/feather"* · *"menurut kamu apa yang terbaik buat sesi ini? ditutup aja dan buka sesi baru? atau gimana?"*
+
+**Catatan jujur lebih dulu:** tiga gambar yang Lee kirim **tidak sampai ke ruang kerja saya** (folder unggahan tidak ada di sandbox — sama seperti gambar
+pertama pada putaran sebelumnya). Karena itu pemahaman saya saya tulis ulang dengan kata-kata sendiri di bawah, dan saya minta Lee mengoreksi kalau ada yang meleset.
+
+| # | Keluhan | Akar masalah (bukan selera) | Perbaikan | Bukti |
+|---|---|---|---|---|
+| 1 | Mode **Padat** hanya memendekkan kiri-kanan | Benar: yang dulu dipadatkan hanya `padding` mendatar; **tinggi blok tidak pernah turun**, jadi proporsinya aneh. Riset sistem desain besar: kerapatan = **tinggi −4 px per langkah**, jarak kiri-kanan **tidak** dikurangi, huruf **tidak** dikecilkan, sasaran sentuh dijaga | Token dipisah **per sumbu**: `--tinggi-kendali` 48→44 px · `--tinggi-baris-tema` 56→48 px · `--pad-v-blok` 20→12 px · `--baris-isi` 1,55→1,42; `--pad-h-*` **dikunci sama** dengan mode Nyaman | uji kaskade nyata `aplikasi/src/gaya/kerapatan-css.test.ts` (11 uji) + `periksa-kerapatan.py` |
+| 2 | *"maksimalkan skill… kalau tidak ada, pelajari dari internet dan **simpan sebagai kemampuan**"* | Ilmu itu belum ada di `skills/` — jadi dipelajari, lalu **disimpan** dan **dipakai** | Berkas kemampuan baru `skills/desain-antarmuka/SKILL.md` (3 pelajaran: kerapatan, penutupan panel, tepi gulir) — **wajib dibaca** di fase DESAIN (`alat/mulai-sesi.py`) dan dijaga pemeriksa | `python3 aplikasi/alat/periksa-antarmuka.py` (10 uji-diri) |
+| 3 | Panel "Ganti tema" hanya bisa ditutup dengan mengklik tombolnya lagi | Panel memakai `<details>/<summary>` bawaan peramban — memang **tidak** menutup saat Esc. Kebiasaan aplikasi lain (WAI-ARIA APG): **Esc menutup + fokus pulang**, klik di luar menutup, fokus keluar menutup, `aria-expanded`/`aria-controls` | Komponen baru `aplikasi/src/komponen/PemilihRingkas.tsx` + aturan sama di sumber desain `prototipe/js/ui.js`; sisa aturan `<details>` lama dibuang | 8 uji komponen + `periksa-antarmuka.py` |
+| 4 | Ujung daftar gulir "nabrak" tepi | Benar, dan ada namanya: *scroll fade*. Maska pudar dipasang di elemen yang **menggeser** (bukan wadah ber-bordir, kalau salah justru bordirnya yang luntur) dan pudarnya **mengikuti posisi gulir**, dengan cadangan untuk peramban lama | `.picker-panel` (wadah) dipisah dari `.picker-daftar` (penggeser + `mask-image` + `@keyframes pudar-gulir` + `animation-timeline: scroll(self block)`) | uji "daftar tema punya JEJAK PUDAR" + `periksa-antarmuka.py` |
+| 5 | *"apa yang terbaik buat sesi ini?"* | Dijawab di chat (bukan di berkas): isi sesi ini **ditutup di batas bersih dulu** (commit + CI hijau + paket review), lalu buka sesi baru yang mulai dari review + Fase 1B | — | jawaban di chat + `LOG_SESI_2026-09-17.md` |
+
+**Pelajaran yang saya simpan (dan akan saya pakai lagi, bukan hanya dicatat):** kalau Lee bilang sesuatu "kelihatan kurang pas", tersangka pertamanya
+bukan selera — **sembilan dari sepuluh** kali itu pola yang sudah punya nama & aturan di dunia desain. Cara cepat menemukannya: cari istilahnya
+("*density scale*", "*disclosure pattern*", "*scroll fade*"), baca 2–3 sumber, ambil angka konkretnya, lalu **kunci dengan pemeriksa** supaya tidak luntur.
+
 ## §13. Putaran 11b (2026-09-17) — "Apakah laporannya sudah dipush?" → 3 laporan lengkap masuk
 
 **Kata Lee:** *"Aku katakan ke setiap hakim begini: 'Apakah laporan hasil review nya sudah dipush? Jika blm, lakukan push'."* — lalu ia menempelkan jawaban ketiga sesi.

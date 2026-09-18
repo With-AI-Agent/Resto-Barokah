@@ -504,3 +504,38 @@ Format:
   6. **Uji kaskade baru** `aplikasi/src/gaya/kerapatan-css.test.ts` (6 uji, Vitest `css: true`): memasang berkas gaya NYATA lalu **mengukur angka** — padding kartu 20 px → 12 px, sel tabel mengecil, baris contoh mengecil, **huruf tetap sama**, warna tidak berubah; dan **kesepuluh tema terbukti berbeda** (bukan 10 label untuk 5 tampilan). Jumlah uji aplikasi: 51 → **63**.
 - **Lembar kunci pemilik:** formulir `docs/ops/DAFTAR_KUNCI_PEMILIK.template.md` (ikut Git, selalu kosong) + berkas kerja terisi bernama DAFTAR_KUNCI_PEMILIK.local.md (dibuat atas permintaan Lee) — berkas kerja itu **tidak pernah masuk Git** (pola `*.local.md`), berisi 7 baris akun/alamat + 6 baris kunci rahasia + 6 baris persiapan Lee. Penjaga `alat/periksa-rahasia.py` (3 uji mutasi: kunci palsu · .gitignore longgar · formulir hilang) menahan: kunci bertekanan tinggi di berkas terlacak, dan berkas rahasia yang ikut ter-commit. Nilai rahasia **tidak lewat chat**; rotasi seluruh kunci sebelum rilis (rencana Lee). **Cacat CI 2026-09-17 (ditemukan langkah CI, bukan oleh mata):** enam dokumen sempat menulis rujukan ber-backtick ke berkas kerja yang tidak ikut Git → di salinan bersih (clone/CI) rujukan itu menggantung. Perbaikan: rujukan diarahkan ke formulir, berkas kerja ditulis tanpa backtick, dan penjaga baru `alat/periksa-bersih.py` menguji dokumen di pohon bersih (hanya berkas terlacak) supaya cacat kelas ini tertangkap di komputer sendiri, bukan baru di CI.
 - **File terkait:** `prototipe/css/tokens.css` (**sumber desain** — perbaikan nyata ada di sini) → salinan apa adanya ke `aplikasi/src/gaya/token/tema.css`, `aplikasi/src/gaya/komponen.css`, `aplikasi/src/layar/contoh/LayarContoh.tsx`, `aplikasi/src/layar/contoh/kerapatan.test.tsx`, `aplikasi/alat/periksa-kerapatan.py`, `alat/periksa-rahasia.py`, `alat/periksa-bersih.py`, `docs/uji/BUKU_UJI_PEMILIK.md`, `docs/ops/DAFTAR_KUNCI_PEMILIK.template.md`, `.gitignore`, `.github/workflows/ci.yml`
+
+### [UI/2026-09-17] Kerapatan dua-sumbu · cara menutup panel (disclosure) · jejak pudar tepi gulir · kemampuan desain disimpan
+
+- **Area:** tampilan (kerapatan, panel pemilih, daftar yang bisa digeser) · mekanisme (kemampuan tersimpan + penjaga baru)
+- **Laporan Lee (pesan ke-32):** *"blok blok nya hanya berkurang panjang nya aja, tapi lebar (atas-bawah) nya ga ikut mengecil"* ·
+  *"Kamu kan punya skill-skill. Kamu harus maksimalkan skill skill itu. Atau klo kamu ga menemukan itu di skill-skill kamu, kamu harus pelajari ilmu desain dan visual dari internet
+  dan simpan hasil yang kamu pelajari itu untuk menjadi kemampuan. Dan ingat, jangan hanya disimpan, tapi juga harus digunakan sebagai kemampuan"* ·
+  *"(panel) harus bisa ditutup dengan Esc / klik di luar… coba pelajari bagaimana umumnya aplikasi-aplikasi lain"* ·
+  *"ujung nya itu kayak nabrak gitu… semacam blur/feather"*.
+- **Keputusan 1 — kerapatan mengubah TINGGI, bukan lebar, dan huruf tidak dikecilkan.** Sumber: Material 3 *Density* (**tiap langkah −4 dp tinggi; jarak mendatar
+  di dalam komponen tidak berubah; huruf tidak ikut mengecil; sasaran sentuh tetap dijaga; jarak tata letak justru boleh ditambah**) + Cloudscape *content density*
+  (padat = padding vertikal + jarak; popover/daftar pilihan hanya dipadatkan sebagian). Token dipisah **per sumbu**: `--tinggi-kendali` 48→44 ·
+  `--tinggi-baris-tema` 56→48 · `--pad-v-blok` 20→12 · `--baris-isi` 1,55→1,42; `--pad-h-blok`/`--pad-h-kendali`/`--pad-h-sel` **dikunci sama dengan mode Nyaman**.
+  Lantai sentuh **44 px** tetap (WCAG 2.5.5 AAA & Apple HIG 44 pt). Salah kaprah lama (dipadatkan hanya kiri-kanan) resmi ditinggalkan.
+- **Keputusan 2 — menutup panel mengikuti pola *disclosure* WAI-ARIA APG, bukan `<details>` bawaan.** Ditemukan sebabnya: `<details>` memang **tidak** menutup saat Esc.
+  Yang benar: **Esc menutup DAN mengembalikan fokus** ke tombol · klik di luar menutup (fokus tidak dirampas) · fokus keluar menutup · memilih satu pilihan menutup ·
+  `aria-expanded`/`aria-controls`/`aria-labelledby`. Komponen dipakai bersama: `aplikasi/src/komponen/PemilihRingkas.tsx`, dan aturan sama ditulis di sumber desain `prototipe/js/ui.js`
+  (id panel/tombol kini **unik per pemilih**, bukan id tetap — dua pemilih di satu halaman dulu saling menunjuk elemen yang salah).
+- **Keputusan 3 — tepi area gulir memakai JEJAK PUDAR, bukan potongan mentah.** Sumber: utilitas *scroll fade* 2026 (shadcn/ui; `scroll-mask` twilson.net yang dipakai argos-ci;
+  artikel codefronts/panelui). Tiga aturan yang dipakai: maska dengan `mask-image` (ikut tema apa pun tanpa tahu warna latar) · maska dipasang di **elemen yang menggeser**
+  (`.picker-daftar`), bukan wadah ber-bordir (`.picker-panel`) — kalau salah, bordir & sudut panel yang luntur · pudarnya **mengikuti posisi gulir** lewat
+  `animation-timeline: scroll(self block)`, dengan cadangan statis untuk peramban lama (hanya ujung bawah, supaya tidak "berbohong"). Bantalan `padding` dijaga supaya cincin fokus tidak terpotong maska.
+- **Keputusan 4 — ilmu yang dipelajari DISIMPAN sebagai kemampuan dan WAJIB TERPAKAI.** `skills/desain-antarmuka/SKILL.md` (bersumber + daftar periksa) ditambahkan,
+  dicantumkan di fase **DESAIN** pada `alat/mulai-sesi.py` (jadi dibaca sesi berikutnya), dan dirujuk dari kode. Penjaga baru `aplikasi/alat/periksa-antarmuka.py`
+  menolak keadaan "tersimpan tapi tidak terpakai" — termasuk kalau `skills/desain-antarmuka/SKILL.md` dihapus atau tidak lagi dirujuk kode. Ini menjawab pesan Lee
+  *"jangan hanya disimpan, tapi juga harus digunakan sebagai kemampuan"* dengan bukti mesin, bukan janji.
+- **Bukti:** `npx vitest run src/gaya/kerapatan-css.test.ts src/layar/contoh/kerapatan.test.tsx src/komponen/PemilihRingkas.test.tsx` → **25 uji LOLOS** ·
+  `python3 aplikasi/alat/periksa-antarmuka.py` LOLOS + `--uji-diri` **10/10** (9 mutasi: Esc dihapus · maska di wadah · klik-luar dihapus · salinan CSS menyimpang ·
+  id pemilih kembar · kemampuan dihapus · kemampuan tidak dipakai · cadangan peramban dibuang · semua penunjuk kemampuan dihapus) ·
+  `alat/periksa-gerbang-ci.py` gerbang wajib 9 → **11** (+mutasi "langkah antarmuka dihapus" → ditolak).
+- **Catatan jujur:** uji kaskade sempat MERAH dua kali — (a) helper `var()` hanya menyelesaikan satu lapis sementara token baru berantai, (b) `line-height: var(--baris-isi)`
+  terbaca `NaN`. Keduanya diperbaiki di **uji** (resolusi berantai), bukan dengan melonggarkan pemeriksa.
+- **File terkait:** `prototipe/css/tokens.css` (**sumber desain**) → salinan apa adanya `aplikasi/src/gaya/token/tema.css` · `aplikasi/src/komponen/PemilihRingkas.tsx` (+uji) ·
+  `aplikasi/src/layar/contoh/LayarContoh.tsx` · `aplikasi/src/gaya/kerapatan-css.test.ts` · `prototipe/js/ui.js` · `skills/desain-antarmuka/SKILL.md` ·
+  `aplikasi/alat/periksa-antarmuka.py` · `alat/mulai-sesi.py` · `.github/workflows/ci.yml` · `aplikasi/alat/periksa-semua.sh` · `alat/periksa-gerbang-ci.py`

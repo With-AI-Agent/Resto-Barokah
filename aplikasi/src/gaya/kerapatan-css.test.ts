@@ -51,20 +51,30 @@ function pasang(density: string, theme = 'terang') {
       <button class="btn" id="tombol">Simpan</button>
       <input class="input" id="isian" />
       <span class="lencana" id="lencana">Baru</span>
-      <details class="picker" open><summary class="btn btn-sm">Ganti tema</summary>
-        <div class="picker-panel" id="panel-tema"><button>tema</button></div>
-      </details>
+      <div class="picker" data-terbuka="true">
+        <button class="btn btn-sm" aria-expanded="true">Ganti tema</button>
+        <div class="picker-panel" id="panel-tema">
+          <div class="picker-daftar" id="daftar-tema"><button>tema</button></div>
+        </div>
+      </div>
       <div class="segmen" id="segmen"><button>Nyaman</button></div>
     </div>`
 }
 
 /** Ganti var(--x) dengan nilai yang benar-benar berlaku di dokumen. */
 function selesaikan(nilai: string): string {
+  // Beberapa token kini BERANTAI (mis. --pad-v-blok: var(--s-5)), jadi penyelesaian
+  // var() harus diulang sampai tidak ada lagi yang tersisa — kalau hanya sekali,
+  // nilainya tetap berupa "var(...)" dan pengukuran gagal dibaca.
   const akar = getComputedStyle(document.documentElement)
-  return nilai.replace(
-    /var\((--[a-z0-9-]+)\)/gi,
-    (_, nama: string) => akar.getPropertyValue(nama).trim() || '0px',
-  )
+  let hasil = nilai
+  for (let putaran = 0; putaran < 6 && hasil.includes('var('); putaran += 1) {
+    hasil = hasil.replace(
+      /var\((--[a-z0-9-]+)\)/gi,
+      (_, nama: string) => akar.getPropertyValue(nama).trim() || '0px',
+    )
+  }
+  return hasil
 }
 
 /**
@@ -96,16 +106,21 @@ function ukuran(selector: string, properti: string): number {
 
 describe('kerapatan (Nyaman vs Padat) benar-benar mengubah ukuran', () => {
   type Angka = {
-    kartu: number
-    sel: number
+    kartuAtas: number
+    kartuKiri: number
+    selAtas: number
+    selKiri: number
     baris: number
     huruf: number
-    lencana: number
+    tinggiBaris: number
+    lencanaAtas: number
+    lencanaKiri: number
     tombolIsi: number
     tombolTinggi: number
     isianIsi: number
     isianTinggi: number
     segmenTinggi: number
+    barisTema: number
   }
   const hasil: Record<string, Angka> = {}
 
@@ -120,27 +135,52 @@ describe('kerapatan (Nyaman vs Padat) benar-benar mengubah ukuran', () => {
     for (const mode of ['nyaman', 'padat']) {
       pasang(mode)
       hasil[mode] = {
-        kartu: ukuran('#kartu', 'padding'),
-        sel: ukuran('#sel', 'padding'),
+        kartuAtas: ukuranSumbu('#kartu', 'atas'),
+        kartuKiri: ukuranSumbu('#kartu', 'kiri'),
+        selAtas: ukuranSumbu('#sel', 'atas'),
+        selKiri: ukuranSumbu('#sel', 'kiri'),
         baris: ukuran('#baris', 'padding'),
         huruf: Number.parseFloat(getComputedStyle(document.body).fontSize),
-        lencana: ukuranSumbu('#lencana'),
+        tinggiBaris: Number.parseFloat(selesaikan(getComputedStyle(document.body).lineHeight)),
+        lencanaAtas: ukuranSumbu('#lencana', 'atas'),
+        lencanaKiri: ukuranSumbu('#lencana'),
         tombolIsi: ukuranSumbu('#tombol'),
         tombolTinggi: tinggiMinimal('#tombol'),
         isianIsi: ukuranSumbu('#isian'),
         isianTinggi: tinggiMinimal('#isian'),
         segmenTinggi: tinggiMinimal('#segmen button'),
+        barisTema: tinggiMinimal('#daftar-tema button'),
       }
     }
   })
 
-  it('kartu lebih rapat di mode Padat (angka, bukan klaim)', () => {
-    expect(hasil.padat.kartu).toBeLessThan(hasil.nyaman.kartu)
-    expect(hasil.padat.kartu).toBeGreaterThanOrEqual(12)
+  it('BLOCK HEIGHT mengecil di mode Padat (keluhan pemilik ketiga, 2026-09-17)', () => {
+    expect(hasil.padat.kartuAtas, 'tepi atas-bawah kartu harus turun').toBeLessThan(
+      hasil.nyaman.kartuAtas,
+    )
+    expect(hasil.padat.kartuAtas).toBeGreaterThanOrEqual(12)
+    expect(hasil.padat.selAtas, 'tepi atas-bawah sel tabel harus turun').toBeLessThan(
+      hasil.nyaman.selAtas,
+    )
+    expect(hasil.padat.lencanaAtas, 'lencana harus lebih tipis').toBeLessThan(
+      hasil.nyaman.lencanaAtas,
+    )
+    expect(hasil.padat.tinggiBaris, 'tinggi baris teks harus turun').toBeLessThan(
+      hasil.nyaman.tinggiBaris,
+    )
   })
 
-  it('baris tabel lebih rapat di mode Padat', () => {
-    expect(hasil.padat.sel).toBeLessThan(hasil.nyaman.sel)
+  it('LEBAR (kiri-kanan) TIDAK menyempit — riset: kerapatan mengubah tinggi, bukan lebar', () => {
+    // Material 3 "density scale": "it does not affect the horizontal spacing within
+    // the component"; Cloudscape sama. Aturan lama proyek ini justru menyempitkan
+    // kiri-kanan dan membiarkan tinggi — itu sebabnya blok terasa "ga pas".
+    expect(hasil.padat.tombolIsi, 'tepi kiri-kanan tombol harus tetap').toBe(hasil.nyaman.tombolIsi)
+    expect(hasil.padat.isianIsi, 'tepi kiri-kanan isian harus tetap').toBe(hasil.nyaman.isianIsi)
+    expect(hasil.padat.kartuKiri, 'tepi kiri-kanan kartu harus tetap').toBe(hasil.nyaman.kartuKiri)
+    expect(hasil.padat.selKiri, 'tepi kiri-kanan sel tabel harus tetap').toBe(hasil.nyaman.selKiri)
+    expect(hasil.padat.lencanaKiri, 'tepi kiri-kanan lencana harus tetap').toBe(
+      hasil.nyaman.lencanaKiri,
+    )
   })
 
   it('baris contoh lebih rapat di mode Padat', () => {
@@ -151,22 +191,52 @@ describe('kerapatan (Nyaman vs Padat) benar-benar mengubah ukuran', () => {
     expect(hasil.padat.huruf).toBe(hasil.nyaman.huruf)
   })
 
-  it('BLOK ikut menyesuaikan, bukan cuma jarak (laporan pemilik kedua)', () => {
-    expect(hasil.padat.lencana, 'lencana harus lebih ramping di mode Padat').toBeLessThan(
-      hasil.nyaman.lencana,
+  it('TINGGI kendali & baris daftar ikut mengecil, dengan lantai sentuh 44 px', () => {
+    expect(hasil.padat.tombolTinggi, 'tombol harus lebih pendek di mode Padat').toBeLessThan(
+      hasil.nyaman.tombolTinggi,
     )
-    expect(hasil.padat.tombolIsi, 'tombol harus lebih ramping di mode Padat').toBeLessThan(
-      hasil.nyaman.tombolIsi,
+    expect(hasil.padat.isianTinggi, 'isian harus lebih pendek di mode Padat').toBeLessThan(
+      hasil.nyaman.isianTinggi,
     )
-    expect(hasil.padat.isianIsi, 'isian harus lebih ramping di mode Padat').toBeLessThan(
-      hasil.nyaman.isianIsi,
+    expect(hasil.padat.barisTema, 'baris daftar tema harus lebih pendek').toBeLessThan(
+      hasil.nyaman.barisTema,
     )
+    // lantai 44 px dijaga di KEDUA mode (daerah sentuh jangan ikut mengecil)
+    expect(hasil.padat.tombolTinggi).toBeGreaterThanOrEqual(44)
+    expect(hasil.padat.isianTinggi).toBeGreaterThanOrEqual(44)
+    expect(hasil.padat.barisTema).toBeGreaterThanOrEqual(44)
   })
 
   it('daerah SENTUH tetap minimal 44 px walau mode Padat (jangan sampai salah pencet)', () => {
     expect(hasil.padat.tombolTinggi).toBeGreaterThanOrEqual(44)
     expect(hasil.padat.isianTinggi).toBeGreaterThanOrEqual(44)
     expect(hasil.padat.segmenTinggi).toBeGreaterThanOrEqual(36)
+  })
+
+  it('daftar tema punya JEJAK PUDAR di ujungnya (isinya tidak terpotong mentah)', () => {
+    pasang('nyaman')
+    const semua = aturanGaya()
+    const aturanDaftar = semua.filter((teks) => teks.includes('.picker-daftar'))
+    expect(aturanDaftar.length, 'tidak ada aturan .picker-daftar').toBeGreaterThan(0)
+    const maska = aturanDaftar
+      .map((teks) => /mask-image:\s*([^;}]+)/.exec(teks)?.[1]?.trim())
+      .filter((nilai): nilai is string => Boolean(nilai))
+    expect(maska.length, 'daftar tema tidak memakai mask-image (tidak ada pudar)').toBeGreaterThan(
+      0,
+    )
+    expect(maska.join(' '), 'pudar harus gradien, bukan potongan keras').toContain(
+      'linear-gradient',
+    )
+    // pudarnya mengikuti gulir (muncul hanya di sisi yang masih ada isinya)
+    const gulir = semua.filter((teks) => teks.includes('animation-timeline'))
+    expect(gulir.length, 'pudar tidak mengikuti posisi gulir').toBeGreaterThan(0)
+    expect(gulir.join(' ')).toContain('scroll(')
+    // dan dipasang pada elemen yang MENGGESER, bukan pada wadah ber-bordir
+    const panel = document.querySelector('.picker-panel') as Element
+    expect(
+      getComputedStyle(document.querySelector('.picker-daftar') as Element).overflow,
+    ).toContain('auto')
+    expect(panel).toBeTruthy()
   })
 
   it('panel tema dipaku ke sudut layar dan tingginya dibatasi (dulu terpotong)', () => {
