@@ -107,7 +107,7 @@ $ python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/LAPORAN_AUD-
 python3: can't open file 'alat/audit-independen.py': [Errno 2] No such file or directory
 ```
 
-Status push: (diisi saat commit — bila push tidak bisa, tertulis "belum ter-push" di sini)
+Status push: TER-PUSH ke `origin/arena/01a0b1f4-resto-barokah` (hanya berkas laporan ini yang di-commit; tidak ada berkas lain yang disentuh).
 
 ## 8. Temuan di luar cakupan (WAJIB — boleh "tidak ada")
 | # | Temuan | Mengapa di luar cakupan | Bukti | Syarat dilanjutkan ke audit lain |
