@@ -163,36 +163,42 @@ def skill_terpilih(rel: str) -> tuple[list[Path], str]:
     return [], "TIDAK ADA di repo — LAPORKAN, jangan dilewati diam-diam"
 
 
-def fase_untuk(status: str) -> tuple[str, list[str], list[str]]:
-    """(kunci fase, daftar skill wajib, catatan) untuk STATUS PROJECT_STATE.
+def fase_untuk(status: str) -> tuple[str, list[str], list[str], str]:
+    """(kunci fase, daftar skill wajib, catatan, dasar pemilihan) untuk STATUS PROJECT_STATE.
 
-    Catatan TIDAK pernah kosong diam-diam: kalau nama STATUS menyimpang dari tabel
-    AGENT_SYSTEM.md, itu dilaporkan di kartu supaya sesi baru bisa memeriksa sendiri.
+    Catatan TIDAK pernah kosong diam-diam, dan **dasarnya selalu ditulis**: kalau nama STATUS
+    menyimpang dari tabel AGENT_SYSTEM.md, kartu menyebut dari mana daftar itu diambil
+    (persis / terkandung / keluarga fase / tidak cocok) supaya kejadian "kartu cuma mencetak
+    1 skill saat proyek sedang coding" tidak pernah bisa senyap lagi.
     """
     catatan: list[str] = []
     s = (status or "").strip().upper()
     if not s or "TIDAK TERBACA" in s:
         return "", list(SELALU), ["STATUS tidak terbaca dari `PROJECT_STATE.md` — "
-                                  "daftar skill TIDAK bisa dipastikan, periksa berkas itu dulu"]
+                                  "daftar skill TIDAK bisa dipastikan, periksa berkas itu dulu"], "(tidak terbaca)"
+    pendek = (status.strip()[:60] + "…") if len(status.strip()) > 60 else status.strip()
     kunci = next((k for k in PHASE_SKILLS if k in s), None)
+    dasar = f"baris persis '{kunci}'" if kunci == s else (f"nama fase '{kunci}' terkandung di status" if kunci else "")
     if kunci is None:
-        pendek = (status.strip()[:60] + "…") if len(status.strip()) > 60 else status.strip()
         for k, penanda in KELUARGA_FASE:
             if any(p in s for p in penanda):
                 kunci = k
+                dasar = (f"keluarga fase '{k}' (status `{pendek}` tidak ada barisnya di tabel fase — "
+                         f"LAPORKAN bila terasa salah)")
                 catatan.append(f"STATUS `{pendek}` bukan salah satu nilai kanonik AGENT_SYSTEM.md — "
                                f"skill diambil dari keluarga fase **{k}** (bukan dikosongkan)")
                 break
     if kunci is None:
-        pendek = (status.strip()[:60] + "…") if len(status.strip()) > 60 else status.strip()
         return "", list(SELALU), [f"STATUS `{pendek}` tidak cocok ke fase mana pun di "
                                   f"`PHASE_SKILLS` — hanya skill wajib-selalu yang tercetak; "
-                                  f"LAPORKAN ini dan pilih skill manual untuk pekerjaanmu"]
-    return kunci, list(PHASE_SKILLS[kunci]) + list(SELALU), catatan
+                                  f"LAPORKAN ini dan pilih skill manual untuk pekerjaanmu"], "TIDAK COCOK tabel fase"
+    return kunci, list(PHASE_SKILLS[kunci]) + list(SELALU), catatan, dasar
 
 
-def skill_untuk(status: str) -> list[str]:
-    return fase_untuk(status)[1]
+def skill_untuk(status: str) -> tuple[list[str], str]:
+    """Kompatibel dengan pemanggil lama: (daftar skill, dasar pemilihan)."""
+    k, daftar, _c, dasar = fase_untuk(status)
+    return daftar, dasar
 
 
 def kartu(akar: Path | None = None) -> int:
@@ -239,7 +245,7 @@ def kartu(akar: Path | None = None) -> int:
         keadaan_log = mk.group(1).strip() if mk else "(tidak terbaca)"
 
     skills = sorted(p for p in (ROOT / "skills").rglob("SKILL.md"))
-    kunci_fase, daftar_skill, catatan_fase = fase_untuk(status)
+    kunci_fase, daftar_skill, catatan_fase, dasar_fase = fase_untuk(status)
 
     print("=" * 78)
     print(f"KARTU SESI — Resto Barokah — {hari_ini}")
@@ -264,6 +270,7 @@ def kartu(akar: Path | None = None) -> int:
           + (f" · {len(daftar_skill)} skill" if daftar_skill else ""))
     for c in catatan_fase:
         print(f"  [catatan] {c}")
+    print(f"  Dasar daftar   : {dasar_fase}")
     print(f"  Tersedia total: {len(skills)} berkas SKILL.md di skills/ (lokal, tanpa internet)")
     ada, kurang, berkas_siap = 0, [], 0
     for s in daftar_skill:
@@ -371,22 +378,34 @@ def uji_diri() -> int:
         hasil.append((nama, sesuai, ringkas))
 
     # --- kasus dasar (modul asli harus berperilaku benar) ---
-    k, d, c = asli.fase_untuk("CODING_DIJEDA_SADAR (audit selesai; jangan lanjut)")
+    k, d, c, dasar = asli.fase_untuk("CODING_DIJEDA_SADAR (audit selesai; jangan lanjut)")
     cek("status jeda → keluarga fase CODING_AKTIF + skill coding lengkap",
         k == "CODING_AKTIF" and all(s in d for s in ("supabase-postgres-best-practices", "security-review",
                                                       "tdd-workflow", "find-skills")) and bool(c),
         f"fase={k} · {len(d)} skill · {len(c)} catatan")
-    k2, d2, c2 = asli.fase_untuk("FONDASI_TAHAP_2_PRD")
+    k2, d2, c2, dasar2 = asli.fase_untuk("FONDASI_TAHAP_2_PRD")
     cek("tahap PRD → skill product-management, tanpa catatan",
         k2 == "FONDASI_TAHAP_2" and "product-management/prd-development" in d2 and not c2,
         f"fase={k2} · {len(d2)} skill · {len(c2)} catatan")
-    k3, d3, c3 = asli.fase_untuk("(tidak terbaca)")
+    k3, d3, c3, _dasar3 = asli.fase_untuk("(tidak terbaca)")
     cek("STATUS tak terbaca → hanya skill wajib-selalu + catatan keras",
         k3 == "" and d3 == asli.SELALU and bool(c3), f"{len(d3)} skill + catatan")
     for s in asli.STATUS_KANONIK:
-        k, d, _ = asli.fase_untuk(s)
+        k, d, _c, _dt = asli.fase_untuk(s)
         cek(f"STATUS kanonik `{s}` tidak kehilangan daftar skill",
             bool(k) and len(d) > len(asli.SELALU), f"fase={k or '(kosong)'} · {len(d)} skill")
+    # Kasus warisan dari perbaikan paralel (sesi 01a0a8a2, hari yang sama): nama fase boleh
+    # bercabang, dan setiap pemilihan harus menyebut DASARNYA.
+    for status_uji, harus_ada, dasar_harus in (
+            ("CODING_AKTIF", "security-review", "persis"),
+            ("FONDASI_TAHAP_3", "supabase", "persis"),
+            ("FONDASI_TAHAP_3_TERKUNCI", "supabase", "terkandung"),
+            ("STATUS_TIDAK_DIKENAL", None, "TIDAK COCOK")):
+        _k, _d, _c, _dasar = asli.fase_untuk(status_uji)
+        cek(f"warisan: {status_uji} → {len(_d)} skill, dasar '{dasar_harus}'",
+            (harus_ada is None or harus_ada in _d) and dasar_harus.lower() in _dasar.lower(),
+            f"dasar: {_dasar[:58]}")
+
     # semua skill yang dijanjikan daftar wajib benar-benar ada di `skills/`
     # (diecek terhadap repo ASLI — modul yang dimuat dari folder sementara punya ROOT sendiri)
     REPO = Path(__file__).resolve().parents[1]

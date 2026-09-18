@@ -41,7 +41,9 @@ GERBANG_WAJIB = [
     ("uji-diri pemeriksa komponen & env", r"python3\s+aplikasi/alat/periksa-komponen-env\.py\s+--uji-diri\s*$"),
     ("uji-diri pemeriksa angka bukti ROADMAP (F-14)", r"python3\s+alat/periksa-angka-bukti\.py\s+--uji-diri\s*$"),
     ("pemeriksa handoff lanjut-sesi (isi + uji-diri)", r"python3\s+alat/lanjut-sesi\.py\s+--di-ci\s*$"),
-    ("uji-diri bootstrap sesi (peta STATUS → skill wajib)", r"python3\s+alat/mulai-sesi\.py\s+--uji-diri\s*$"),
+    # Satu langkah CI, dua label lama digabung (konflik lebur 2026-09-18: dua sesi menulis
+    # gerbang yang sama dengan nama berbeda — pola yang sama tidak boleh dihitung dua kali).
+    ("uji-diri kartu sesi (peta STATUS → skill wajib)", r"python3\s+alat/mulai-sesi\.py\s+--uji-diri\s*$"),
     ("uji-diri pemeriksa roadmap (butir 8: nomor migrasi tidak boleh bentrok)",
      r"python3\s+alat/periksa-roadmap\.py\s+--uji-diri\s*$"),
     ("kerentanan dependency (npm audit, 0 toleransi)", r"npm audit --audit-level=low\s*$"),

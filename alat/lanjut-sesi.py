@@ -119,6 +119,9 @@ def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
         "ci": r"^- \*\*CI terakhir:\*\*",
         "ditulis": r"^- \*\*Ditulis:\*\*",
         "rencana": r"^## .*Rencana berikutnya",
+        "paket peninjau": r"^- \*\*Paket peninjau terbaru:\*\*",
+        "ruang kerja baru": r"^- \*\*Ruang kerja baru:\*\*",
+        "cabang sesi baru vs PR": r"^## 2c\. Fakta cabang sesi baru",
     }
     for nama, pola in wajib.items():
         jumlah = len(re.findall(pola, sipl, re.M))
@@ -169,6 +172,10 @@ def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
     if tempe and "ATURAN BAHASA" not in tempe:
         masalah.append("docs/ops/SIAP-TEMPEL-SESI-BARU.md tidak memuat ATURAN BAHASA — "
                        "sesi baru bisa menjawab Lee dengan bahasa yang salah")
+    # Toleran terhadap pembungkusan baris teks (frasa ini sengaja dipecah agar rapi dibaca).
+    if tempe and not re.search(r"PR #1 menunjuk\s+cabang sesi lama", tempe):
+        masalah.append("docs/ops/SIAP-TEMPEL-SESI-BARU.md tidak menjelaskan bahwa PR #1 menunjuk cabang "
+                       "sesi lama — sesi baru bisa mengira pekerjaannya otomatis masuk PR #1")
     if tempe and kanonik and tempe.count(kanonik) != 1:
         masalah.append(f"docs/ops/SIAP-TEMPEL-SESI-BARU.md memuat blok Prompt Pembuka {tempe.count(kanonik)}x "
                        "(harus tepat 1) — berkas tempel rusak/berulang")
@@ -268,6 +275,45 @@ def _bagian_rencana(sipl_lama: str) -> str:
     return badan
 
 
+def _kunci_angka(nama: str) -> list:
+    """Kunci urut alami: putaran9 < putaran10 (bukan urut huruf yang menyesatkan)."""
+    return [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", nama)]
+
+
+def sasaran_paket(akar: pathlib.Path) -> str:
+    """Baris fakta: paket peninjau terbaru menunjuk commit mana (temuan sesi baru 2026-09-18).
+
+    Kejadian nyata: bagian rencana di handoff MENGAKUI paket "sudah disegarkan ke commit keadaan",
+    padahal paket menunjuk commit 12 langkah di belakang. Sekarang handoff menulis fakta yang
+    dibaca mesin dari berkas paketnya sendiri, jadi klaim basi tidak mungkin ditulis lagi.
+    """
+    hasil = []
+    for label, pola, kunci in (("audit", "docs/uji/paket-audit/AUD-*.md", r"Commit yang diaudit"),
+                               ("review", "docs/uji/review-pr/PKT-*.md", r"Commit yang direview")):
+        berkas = [b for b in akar.glob(pola) if "SIAP-TEMPEL" not in b.name]
+        if not berkas:
+            hasil.append(f"{label} (belum ada paket)")
+            continue
+        berkas.sort(key=lambda b: _kunci_angka(b.name))
+        baru = berkas[-1]
+        m = re.search(rf"{kunci}:\*\*\s*`([0-9a-f]{{7,40}})`", baca(baru))
+        if not m:
+            hasil.append(f"{label} `{baru.name}` (commit tidak terbaca)")
+            continue
+        sha = m.group(1)
+        kode, jarak = jalankan(["git", "rev-list", "--count", f"{sha}..HEAD"], cwd=akar)
+        jarak_teks = f"{jarak.strip()} commit di bawah HEAD saat ini" if kode == 0 else "jarak tidak terbaca"
+        hasil.append(f"{label} `{baru.name}` → `{sha[:8]}` ({jarak_teks})")
+    return " · ".join(hasil)
+
+
+def jarak_ke_main(akar: pathlib.Path) -> str:
+    for ref in ("origin/main", "main"):
+        kode, n = jalankan(["git", "rev-list", "--count", f"{ref}..HEAD"], cwd=akar)
+        if kode == 0 and n.strip().isdigit():
+            return f"{n.strip()} commit"
+    return "ratusan commit"
+
 def siapkan() -> int:
     kode, sha = jalankan(["git", "rev-parse", "HEAD"])
     if kode != 0:
@@ -287,6 +333,8 @@ def siapkan() -> int:
         f"- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.\n")
     terbuka = butir_tertangguh()
     hari_ini = _dt.date.today().isoformat()
+    paket_teks = sasaran_paket(AKAR)
+    jarak_main = jarak_ke_main(AKAR)
     sipl_lama = baca(SIAP)
     rencana = _bagian_rencana(sipl_lama)
 
@@ -314,6 +362,12 @@ def siapkan() -> int:
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **{len(terbuka)}** — {", ".join(terbuka) if terbuka else "(tidak ada)"}
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
+- **Paket peninjau terbaru:** {paket_teks} — segarkan paket SEBELUM meminta peninjau bekerja bila
+  jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
+  `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
+- **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
+  Sebelum pratinjau/uji aplikasi: `bash aplikasi/alat/pratinjau.sh` (±1–2 menit). Uji SQL & pemeriksa
+  Python tetap berjalan tanpa pemasangan itu.
 
 ## 2b. Kalau kamu sesi baru: cara menyusul pekerjaan ini
 
@@ -328,6 +382,13 @@ python3 alat/mulai-sesi.py      # cetak KARTU SESI, lalu LAPORKAN ke Lee
 
 Kalau checkout-mu tidak memuat `supabase/migrations/0014_penutup_celah_putaran13.sql`,
 kamu berada di basis yang salah — jangan bekerja dulu, susul cabang di atas.
+
+## 2c. Fakta cabang sesi baru: PR #1 TIDAK otomatis memuat pekerjaanmu
+
+Kamu bekerja di cabang sesi barumu sendiri (dibuat platform; hanya ke cabang itu kamu boleh push).
+PR #1 menunjuk cabang sesi SEBELUMNYA, jadi commit barumu tidak muncul di PR itu.
+Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan laporkan tautannya.
+JANGAN merge apa pun tanpa keputusan Lee.
 
 {rencana}
 """
@@ -371,7 +432,11 @@ cabang, ujung cabang akan berisi satu commit yang lebih baru: commit yang memuat
 Cara memastikan kamu di ujung yang benar: `git log --oneline -1` menampilkan commit yang menyentuh
 `docs/ops/SIAP-LANJUT.md`. PR #1 **terbuka** — **JANGAN MERGE**: merge hanya keputusan Lee.
 
-Langkah pertama sesi ini (WAJIB, supaya tidak bekerja dari `main` yang tertinggal ≈123 commit):
+Catatan cabang (penting): pekerjaanmu hidup di cabang sesi barumu sendiri, sedangkan PR #1 menunjuk
+cabang sesi lama — jadi pekerjaan baru TIDAK otomatis masuk PR #1. Bila Lee ingin meninjau lewat PR,
+buka PR baru dari cabangmu (base `main`) dan laporkan tautannya; jangan merge tanpa keputusan Lee.
+
+Langkah pertama sesi ini (WAJIB, supaya tidak bekerja dari `main` yang tertinggal {jarak_main}):
 
 ```
 git fetch origin {nama_cabang}:refs/remotes/origin/kerja-terakhir
@@ -553,6 +618,22 @@ def uji_diri() -> int:
         hasil.append(("mutasi: blok CARA PAKAI dihapus",
                       bool(periksa(sipl_teks=sipl, tempe_teks=tempe_tanpa_cara, penuh=False)),
                       "berkas tempel harus menjelaskan base branch/penutup/berkas terbaru"))
+
+        # Bagian baru (temuan sesi baru 2026-09-18) tidak boleh hilang tanpa ditolak.
+        for nama_uji, pola_hapus, tempe_mana in (
+            ("mutasi: bagian 'cabang sesi baru vs PR' dihapus", r"(?s)## 2c\. Fakta cabang sesi baru.*?\n\n", False),
+            ("mutasi: baris 'Paket peninjau terbaru' dihapus", r"(?m)^- \*\*Paket peninjau terbaru:\*\*.*\n", False),
+            ("mutasi: catatan cabang di berkas tempel dihapus",
+             r"(?s)Catatan cabang \(penting\).*?keputusan Lee\.\n", True),
+        ):
+            if tempe_mana:
+                hasil.append((nama_uji,
+                              bool(periksa(sipl_teks=sipl, tempe_teks=re.sub(pola_hapus, "", tempe), penuh=False)),
+                              "berkas tempel harus menjelaskan cabang baru vs PR #1"))
+            else:
+                hasil.append((nama_uji,
+                              bool(periksa(sipl_teks=re.sub(pola_hapus, "", sipl), tempe_teks=tempe, penuh=False)),
+                              "handoff harus memuat bagian itu"))
 
         # Kasus nyata: ref remote-tracking tertinggal walau remote sudah memuat HEAD.
         repo_tt, _ = _repo_uji(pathlib.Path(tmp) / "tt", None, True, dengan_remote=True,
