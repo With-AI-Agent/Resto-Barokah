@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `cf22f195cc3d454ae77963e7a452e9a6acbec75f`
+- **Commit keadaan kerja:** `d2ba20a0ea4a0a593385a05fffbafaf541cdcb80`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (run 35475270218, commit cf22f195)
+- **CI terakhir:** (run 35476348808, commit d2ba20a0)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (47 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (47 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (49 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (49 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -65,6 +65,37 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
+**PUTARAN 18k (2026-09-20) — BAGIAN 6 SELESAI: TIGA CACAT UANG DITUTUP (commit `d2ba20a`).**
+
+Tiga cacat uang yang dibuktikan probe di 18j **sudah diperbaiki** di `supabase/migrations/0015_penutup_celah_putaran16.sql`
+**bagian 6** (berkas `0001`–`0014` tetap beku). Aturan uang kini hidup di satu tempat (`hitung_total`):
+
+1. **F-01a** — pajak PB1 & service dihitung dari subtotal **setelah** diskon (aturan terkunci `docs/TECH_SPEC.md` §329-331).
+   Contoh: 100.000 didiskon 20.000 → PB1 8.000 · service 4.000 · total **92.000** (dulu 95.000). Regresi uji: 27.000 − 1.350
+   → dasar 25.650 · PB1 2.565 · service 1.283 · total **29.498**.
+2. **F-01b** — `pengaturan.pembulatan` dibaca lagi dan diterapkan di langkah **TERAKHIR**, arah **KE BAWAH** (langkah 500:
+   31.050 → 31.000). Arah pembulatan TIDAK PERNAH dikunci dokumen (diperiksa ulang PRD §88/§229, TECH_SPEC §331, ROADMAP
+   T1-15/T1-16) → arah ini **diputuskan sekarang** dan dikunci uji; bisa dibalik satu baris bila Lee minta lain.
+3. **F-02** — pesanan `lunas`/`batal` tidak bisa dihitung ulang dari perangkat; jalur pemicu peladen tetap sah dibedakan
+   lewat `pg_trigger_depth() = 0` (penanda `set_config` DITOLAK: bisa dipalsukan klien = mengulang celah K-1). Baris pesanan
+   dikunci `for update` (mengurangi risiko temuan dugaan F-12).
+
+**Bukti mesin yang wajib tetap hijau:** `node alat/uji-sql.mjs` → **47 berkas LULUS · 0 GAGAL** · `python3 alat/uji-mutasi-0015.py`
+→ **17 kasus** (4 mutasi baru: pajak dari pra-diskon · pembulatan diabaikan · penjaga lunas dilepas · pembulatan dibalik ke atas —
+semuanya terbukti MERAH) · probe lama `docs/uji/audit/probe-2026-09-20/aud-3-f01-f02-uang.sql` kini **GAGAL = cacat hilang** ·
+`python3 alat/periksa-bersih.py` LOLOS · `python3 _sistem/validate_system.py` PASS · `bash aplikasi/alat/periksa-semua.sh` hijau.
+Keputusan uang dikunci di `docs/DECISIONS_LOG.md` (entri 2026-09-20). Seluruh **18 temuan audit F** kini punya baris + pemilik di
+`docs/uji/AUDIT_RIWAYAT.md` **§1c** (dijaga `alat/periksa-temuan-audit.py`; F-17 → T1-44 · F-07 → T1-13 · F-09 → T8-01).
+
+**Langkah berikutnya (urut) — maraton T1-45 lanjut:**
+1. **Bantah-balik + tutup sisa 15 temuan audit F** (mulai dari yang K-2 dan bisa dibuktikan probe: F-03 metode bayar nonaktif ·
+   F-05 pembatalan tidak idempoten · F-06 metadata lifecycle bisa ditulis klien · F-07 `catatan_audit`); yang berstatus **DUGAAN**
+   (F-10/F-11/F-12/F-13) wajib diuji dulu dengan probe sebelum disebut nyata.
+2. **Lanjut temuan lama**: K-3 (PR-05…PR-09, PR-13, PR-14) lalu K-4 (5 butir; PR-11 & D F-04 milik `T1-44`).
+3. Setiap perbaikan = bagian baru `0015` + uji regresi + mutasi (`mutasi(..., uji=)`) + entri `DECISIONS_LOG.md` bila menyentuh
+   uang/keamanan; commit per batch + push ke `arena/01a0b7d1-resto-barokah`; **jangan merge PR mana pun** tanpa Lee.
+4. Fase 1B (`0016`+) baru dimulai **setelah** T1-45 tuntas (aturan: tidak ada kode fitur baru sebelum audit & rework selesai).
+
 **PUTARAN 18j (2026-09-20) — HASIL AUDIT INDEPENDEN MASUK: 3 CACAT UANG TERBUKTI NYATA.**
 
 Lee menjalankan 3 sesi auditor sekaligus (2026-09-19 malam). Yang sudah mendarat: **satu laporan AUD-3 menyeluruh**
@@ -82,7 +113,7 @@ kalibrasi **5/5**, verdict **TIDAK-BERSIH**, 18 temuan; plus satu **review fonda
 3. **RPC `hitung_total` bisa menulis ulang angka pesanan yang sudah LUNAS** — kasir memanggilnya dan total 31.050
    berubah jadi 33.750 hanya karena tarif pajak di pengaturan berubah. Melanggar ART-4/Aturan Bisnis 11.
 
-**Langkah berikutnya (urut) — perbaiki di `0015 bagian 6` + uji + mutasi:**
+**Langkah berikutnya (urut) — perbaiki di `0015 bagian 6` + uji + mutasi — SUDAH DIKERJAKAN, lihat PUTARAN 18k di atas:**
 1. `hitung_total`: basis pajak/service = subtotal SETELAH diskon; baca `pengaturan.pembulatan`; tolak penulisan ulang
    pesanan `lunas`/`batal` dari panggilan klien (koreksi sah hanya lewat pembatalan resmi); kunci baris pesanan
    (`for update`) supaya dua kasir bersamaan tidak saling menimpa angka.
