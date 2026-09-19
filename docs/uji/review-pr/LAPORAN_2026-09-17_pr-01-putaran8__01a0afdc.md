@@ -188,7 +188,7 @@ Lensa yang diwajibkan paket (Jalur Merah): **L1 (ancaman & akses) + L2 (uang & j
 
 Ditemukan: 4 dari 4 · temuan palsu: 0 · daftar cacat yang saya temukan:
 
-Bahan: docs/uji/kalibrasi/pr-bahan-2026-09-17.diff. `git apply` di salinan `/tmp/pr-kalibrasi` gagal (`error: corrupt patch at line 39`) — tidak mencari kunci jawaban; hunk dibaca dari bahan itu sendiri lalu diterapkan.
+Bahan: `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff`. `git apply` di salinan `/tmp/pr-kalibrasi` gagal (`error: corrupt patch at line 39`) — tidak mencari kunci jawaban; hunk dibaca dari bahan itu sendiri lalu diterapkan.
 
 1. **`0003_helper_identitas.sql` — `cabang_saya()` membuang `p.aktif`.** Akun nonaktif tetap dapat cabang jika JWT membawa `cabang_id`. `helper.sql` tetap LULUS setelah hunk ini (tes nonaktif memakai `cabang_ids_saya()`, bukan `cabang_saya()`+JWT) — gerbang uji **tidak** menangkap cacat ini.
 2. **`0004_pola_rls.sql` — `pengaturan_pilih` jadi `penyewa_id is not null`.** Isolasi resto runtuh. Uji: `rls_semua_tabel.sql` GAGAL `Tabel public.pengaturan membocorkan 1 baris milik resto lain`.

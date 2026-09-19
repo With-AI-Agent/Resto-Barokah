@@ -17,8 +17,12 @@ Empat aturan:
      penanda bahwa bahan/kunci review PR hidup di luar repo.
   C. **Alat penyiap tidak menulis ke repo** — `alat/review-pr.py` wajib memakai `KAL_DIR_LUAR`
      dan tidak boleh menulis bahan ke folder repo.
-  D. **Paket tidak menunjuk bahan yang sudah pensiun** — paket review yang lahir sesudah bahan
-     dikeluarkan (2026-09-19) tidak boleh menyuruh peninjau membuka jalur bahan di dalam repo.
+  D. **Pensiun berkas berjejak, paket baru menyematkan** — (D1) `docs/uji/BERKAS_PENSIUN.md`
+     wajib ada, memuat jalur yang sengaja dikeluarkan (mis. kunci kalibrasi, izin Lee 2026-09-19),
+     jujur menyebut nasib isinya di riwayat Git, dan tiap jalur di sana **tidak boleh** muncul lagi
+     di repo; (D2) paket review yang lahir SESUDAH tanggal pensiun wajib **menyematkan** isi bahan,
+     bukan menunjuk jalur berkas di dalam repo. Paket tanggal pensiun itu sendiri (barang bukti)
+     tidak disunting — rujukan lamanya dilindungi daftar pensiun.
 
 Mode `--uji-diri`: salin pohon, langgar tiap aturan satu per satu, pastikan MENOLAK.
 """
@@ -36,7 +40,8 @@ CARA_PAKAI = "docs/uji/kalibrasi/CARA-PAKAI.md"
 ALAT_SIAP = "alat/review-pr.py"
 PROTOKOL = "docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md"
 FOLDER_PAKET = "docs/uji/review-pr"
-TANGGAL_PENSIUN = "2026-09-19"  # hari bahan lama dikeluarkan dari repo (audit D F-05)
+TANGGAL_PENSIUN = "2026-09-19"  # hari bahan lama dikeluarkan (audit D F-05); paket SESUDAH tanggal ini wajib menyematkan bahan
+REGISTRI_PENSIUN = "docs/uji/BERKAS_PENSIUN.md"
 PENANDA_PENSIUN = "dikeluarkan dari repo"
 DIABAIKAN = {".git", "node_modules", "dist", "build", "coverage", "__pycache__", ".vite"}
 
@@ -62,6 +67,28 @@ def berkas_bocor(akar: pathlib.Path) -> list[str]:
         elif folder_kal in p.parents and any(fnmatch.fnmatch(p.name, pola) for pola in POLA_KUNCI):
             hasil.append(str(p.relative_to(akar)))
     return sorted(hasil)
+
+
+def paket_pasca_pensiun(akar: pathlib.Path) -> list[pathlib.Path]:
+    """Paket review yang lahir SESUDAH bahan dikeluarkan (aturan D2 berlaku untuk ini).
+
+    Paket tanggal pensiun itu sendiri (mis. putaran16) = barang bukti yang tidak boleh disunting:
+    rujukan lamanya ke bahan yang pensiun dilindungi `docs/uji/BERKAS_PENSIUN.md`, bukan diedit.
+    
+
+    Dipakai BAIK oleh aturan D maupun oleh mutasi uji-diri — supaya kasus uji tidak pernah
+    menguji paket yang berbeda dari yang diperiksa aturan (pelajaran 2026-09-19: mutasi pertama
+    tidak sengaja menyentuh paket lama `PKT-2026-09-17-…` dan hasilnya "tumpul" palsu).
+    """
+    folder = akar / "docs" / "uji" / "review-pr"
+    if not folder.is_dir():
+        return []
+    hasil = []
+    for paket in sorted(folder.glob("PKT-*.md")):
+        tanggal = re.search(r"PKT-(\d{4}-\d{2}-\d{2})", paket.name)
+        if tanggal and tanggal.group(1) > TANGGAL_PENSIUN:
+            hasil.append(paket)
+    return hasil
 
 
 def periksa(akar: pathlib.Path) -> int:
@@ -95,18 +122,45 @@ def periksa(akar: pathlib.Path) -> int:
         if re.search(r"FOLDER_KAL\s*/\s*f?[\"']pr-bahan", teks_alat):
             errs.append(f"{ALAT_SIAP} masih menulis bahan ke folder repo (pola FOLDER_KAL / \"pr-bahan…\")")
 
-    # D. paket tidak menunjuk bahan yang sudah pensiun
-    folder = akar / FOLDER_PAKET
-    if folder.is_dir():
-        for paket in sorted(folder.glob("PKT-*.md")):
-            tanggal = re.search(r"PKT-(\d{4}-\d{2}-\d{2})", paket.name)
-            if not tanggal or tanggal.group(1) < TANGGAL_PENSIUN:
+    # D1. daftar pensiun hidup & jujur
+    daftar = akar / REGISTRI_PENSIUN
+    if not daftar.is_file():
+        errs.append(f"{REGISTRI_PENSIUN} tidak ada — berkas yang dikeluarkan dari repo kehilangan jejak "
+                    "(siapa memutuskan, kapan, kenapa)")
+    else:
+        isi_daftar = daftar.read_text(encoding="utf-8")
+        baris_daftar = [b for b in isi_daftar.splitlines()
+                        if b.strip().startswith("|") and "---" not in b and "Berkas" not in b]
+        jalur_pensiun: list[str] = []
+        for baris in baris_daftar:
+            kolom = [k.strip() for k in baris.strip().strip("|").split("|")]
+            if not kolom:
                 continue
-            isi = paket.read_text(encoding="utf-8")
-            if "docs/uji/kalibrasi/pr-bahan-" in isi and PENANDA_PENSIUN not in isi:
-                errs.append(f"{paket.relative_to(akar)} menunjuk bahan yang sudah dikeluarkan dari repo — "
-                            f"tambahkan catatan '{PENANDA_PENSIUN}' atau perbarui jalurnya")
-            catatan.append(f"paket diperiksa: {paket.name}")
+            m = re.search(r"`([^`]+)`", kolom[1] if len(kolom) > 1 else "")
+            if m:
+                jalur_pensiun.append(m.group(1))
+        if not jalur_pensiun:
+            errs.append(f"{REGISTRI_PENSIUN} tidak memuat satu pun jalur pensiun — daftar kosong tidak menjaga apa pun")
+        for jalur in jalur_pensiun:
+            if (akar / jalur).exists():
+                errs.append(f"berkas pensiun muncul LAGI di repo: {jalur} — dikembalikan tanpa keputusan Lee")
+        for penanda in ("riwayat Git", "Lee"):
+            if penanda not in isi_daftar:
+                errs.append(f"{REGISTRI_PENSIUN} tidak menyebut '{penanda}' — bekas pensiun wajib jujur "
+                            "(nasib isi di riwayat + siapa yang memutuskan)")
+        catatan.append(f"berkas pensiun terdaftar: {len(jalur_pensiun)}")
+
+    # D2. paket BARU wajib menyematkan isi bahan, bukan menunjuk jalur di repo
+    for paket in paket_pasca_pensiun(akar):
+        isi = paket.read_text(encoding="utf-8")
+        if "pr-bahan-" in isi and "disematkan" not in isi:
+            errs.append(f"{paket.relative_to(akar)} menyebut bahan kalibrasi tanpa bukti disematkan — "
+                        "paket baru wajib MENYEMATKAN isi bahan (bahan tidak lagi hidup di repo)")
+        jalur_repo = re.search(r"docs/uji/kalibrasi/pr-bahan-\d{4}-\d{2}-\d{2}\.diff", isi)
+        if jalur_repo:
+            errs.append(f"{paket.relative_to(akar)} menunjuk jalur bahan DI DALAM repo "
+                        f"({jalur_repo.group(0)}) — paket baru wajib menyematkan isinya")
+        catatan.append(f"paket diperiksa: {paket.name}")
 
     # E. aturan rotasi tertulis di protokol (bahan lama terbaca di riwayat Git → jangan dipakai lagi)
     prot = akar / PROTOKOL
@@ -125,7 +179,7 @@ def periksa(akar: pathlib.Path) -> int:
         print(f"\nHASIL: GAGAL — {len(errs)} temuan (kunci jawaban kalibrasi berisiko terbaca peninjau).")
         return 1
     print(f"\nHASIL: LOLOS — {len(bocor)} berkas bocor · aturan tertulis · alat penyiap menulis di luar repo · "
-          "paket tidak menunjuk bahan pensiun · aturan rotasi ada.")
+          "daftar pensiun berjejak & tanpa kebangkitan · paket baru menyematkan bahan · aturan rotasi ada.")
     return 0
 
 
@@ -173,19 +227,44 @@ def uji_diri() -> int:
             hasil.append(("mutasi: alat penyiap menulis bahan ke folder repo lagi", kode4 != 0,
                           "ditolak" if kode4 != 0 else "DILOLOSKAN (tumpul)"))
 
-        # Mutasi 6: paket menunjuk bahan pensiun TANPA catatan → harus GAGAL
+        # Mutasi 6: daftar pensiun dihapus → harus GAGAL
         with salin_pohon() as tmp6:
-            paket = sorted((tmp6 / FOLDER_PAKET).glob("PKT-2026-09-19-*.md"))
-            paket = [q for q in paket if "SIAP-TEMPEL" not in q.name][:1]
-            if not paket:
-                hasil.append(("mutasi: paket menunjuk bahan pensiun", False, "paket 2026-09-19 tidak ada"))
+            (tmp6 / REGISTRI_PENSIUN).unlink()
+            kode6, _ = jalankan_pemeriksa(periksa, tmp6)
+            hasil.append(("mutasi: daftar pensiun dihapus", kode6 != 0,
+                          "ditolak" if kode6 != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 7: berkas yang dipensiunkan dihidupkan lagi → harus GAGAL
+        with salin_pohon() as tmp7:
+            daftar = tmp7 / REGISTRI_PENSIUN
+            isi = daftar.read_text(encoding="utf-8")
+            m = re.search(r"\| 1 \| `([^`]+)`", isi)
+            if not m:
+                hasil.append(("mutasi: berkas pensiun dihidupkan lagi", False, "baris daftar tidak terbaca"))
             else:
-                f = paket[0]
-                f.write_text(f.read_text(encoding="utf-8").replace(PENANDA_PENSIUN, "catatan apa saja"),
-                             encoding="utf-8")
-                kode6, _ = jalankan_pemeriksa(periksa, tmp6)
-                hasil.append(("mutasi: catatan pensiun dihapus dari paket", kode6 != 0,
-                              "ditolak" if kode6 != 0 else "DILOLOSKAN (tumpul)"))
+                target = tmp7 / m.group(1)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("isi lama dikembalikan\n", encoding="utf-8")
+                kode7, _ = jalankan_pemeriksa(periksa, tmp7)
+                hasil.append(("mutasi: berkas yang dipensiunkan muncul lagi di repo", kode7 != 0,
+                              "ditolak" if kode7 != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 8: paket BARU menunjuk jalur bahan di dalam repo → harus GAGAL
+        with salin_pohon() as tmp8:
+            (tmp8 / FOLDER_PAKET / "PKT-2099-01-01-uji.md").write_text(
+                "# paket uji\n- Bahan kalibrasi: `docs/uji/kalibrasi/pr-bahan-2099-01-01.diff`\n",
+                encoding="utf-8")
+            kode8, _ = jalankan_pemeriksa(periksa, tmp8)
+            hasil.append(("mutasi: paket baru menunjuk jalur bahan di repo", kode8 != 0,
+                          "ditolak" if kode8 != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 9: paket BARU menyebut bahan tanpa menyematkannya → harus GAGAL
+        with salin_pohon() as tmp9:
+            (tmp9 / FOLDER_PAKET / "PKT-2099-01-02-uji.md").write_text(
+                "# paket uji\n- Bahan kalibrasi pr-bahan-2099-01-02.diff disiapkan.\n", encoding="utf-8")
+            kode9, _ = jalankan_pemeriksa(periksa, tmp9)
+            hasil.append(("mutasi: paket baru tanpa kata 'disematkan'", kode9 != 0,
+                          "ditolak" if kode9 != 0 else "DILOLOSKAN (tumpul)"))
 
         # Mutasi 5: aturan rotasi dihapus dari protokol → harus GAGAL
         with salin_pohon() as tmp5:

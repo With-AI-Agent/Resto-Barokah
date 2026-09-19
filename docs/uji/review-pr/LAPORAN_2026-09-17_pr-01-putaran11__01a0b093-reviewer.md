@@ -26,7 +26,7 @@ L2 (uang & jejak), dan L4 (mutu uji) sesuai wajib Jalur Merah.
 | 6 | `alat/uji-sql.mjs`, `alat/uji-database.sh`, `alat/uji-mutasi-0012.py` | Merah | Ya | dijalankan (lihat §3) |
 | 7 | `docs/uji/BUKU_UJI_PEMILIK.md` (U-01..U-07) | Kuning | Ya | grep `U-0[2-4]` |
 | 8 | `PANDUAN_PENGGUNA.md` (Bagian E) | Kuning | Ya | grep `## Bagian E` |
-| 9 | docs/uji/kalibrasi/pr-bahan-2026-09-17.diff | Kuning | Ya (terpisah, §5) | `git apply` ke salinan + jalankan tes |
+| 9 | `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` | Kuning | Ya (terpisah, §5) | `git apply` ke salinan + jalankan tes |
 | 10 | 186 berkas Hijau (dokumen non-fondasi, aset desain, catatan sesi, `skills/**`) | Hijau | Tidak (hanya lewat gerbang) | gerbang §3 hijau; tidak dibaca per-berkas |
 
 **Yang tidak diperiksa per-berkas:** 186 berkas Hijau (mayoritas dokumen naratif & aset desain) —
@@ -92,7 +92,7 @@ hanya dilindungi oleh gerbang otomatis (`_sistem/validate_system.py`, `periksa-p
 
 ## 5. Kalibrasi cacat tanaman
 
-Bahan: docs/uji/kalibrasi/pr-bahan-2026-09-17.diff (4 hunk). Saya salin repo ke `/tmp/pr-kal` (`git archive` + `git apply docs/uji/kalibrasi/pr-bahan-2026-09-17.diff`), lalu jalankan `node alat/uji-sql.mjs`.
+Bahan: `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` (4 hunk). Saya salin repo ke `/tmp/pr-kal` (`git archive` + `git apply docs/uji/kalibrasi/pr-bahan-2026-09-17.diff`), lalu jalankan `node alat/uji-sql.mjs`.
 
 **Ditemukan: 4 dari 4 · temuan palsu: 0**
 

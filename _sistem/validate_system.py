@@ -305,6 +305,25 @@ POLA_BUKAN_PATH_TAMBAHAN = ("YYYY",)
 # dokumen tetap sehingga dokumen baru di docs/ bisa lolos; sekarang SELURUH docs/**/*.md ikut dipindai.
 BERKAS_RENCANA = ("docs/uji/LAPORAN_REVIEW_INDEPENDEN.md", "alat/periksa-fondasi-independen.py")
 
+# Berkas yang SENGAJA dikeluarkan dari repo (mis. kunci jawaban kalibrasi, izin Lee 2026-09-19).
+# Rujukan lama ke berkas seperti itu di riwayat/paket/laporan = provenance, bukan janji berkas ada.
+# Daftarnya satu tempat: docs/uji/BERKAS_PENSIUN.md (dijaga alat/periksa-kunci-kalibrasi.py).
+BERKAS_PENSIUN_REGISTRI = "docs/uji/BERKAS_PENSIUN.md"
+
+
+def _path_pensiun() -> set[str]:
+    """Jalur ber-backtick yang terdaftar di daftar pensiun."""
+    out: set[str] = set()
+    p = SYS_DIR / BERKAS_PENSIUN_REGISTRI
+    if not p.is_file():
+        return out
+    for baris in p.read_text(encoding="utf-8").splitlines():
+        if not baris.strip().startswith("|"):
+            continue
+        for tok in re.findall(r"`([^`\s]+)`", baris):
+            out.add(tok)
+    return out
+
 
 def _dokumen_scan():
     """Dokumen tetap + SELURUH Markdown di docs/ (urut, tanpa duplikat)."""
@@ -327,7 +346,7 @@ def _path_rencana_dari_roadmap():
 
 def check_no_dangling_internal_refs(errs):
     """Rujukan ber-backtick berprefix internal wajib ADA di dalam folder (scan AT-08, versi gerbang)."""
-    rencana = _path_rencana_dari_roadmap() | set(BERKAS_RENCANA)
+    rencana = _path_rencana_dari_roadmap() | set(BERKAS_RENCANA) | _path_pensiun()
     for rel in _dokumen_scan():
         # Bahan kalibrasi cacat tanaman (docs/uji/kalibrasi/bahan-*/) SENGAJA berisi rujukan
         # menggantung & cacat lain: itu materi uji ketajaman auditor, bukan dokumen aktif.

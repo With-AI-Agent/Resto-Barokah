@@ -60,7 +60,7 @@ Cakupan menyeluruh: 436 dari 436 berkas — setiap grup di bawah mendapat minima
 | 9 | 0010 PENJAGA 1: "angka uang hanya dari peladen" | baca `picu_pesanan_jaga_uang` + `peran_peladen()` (bukan security definer, cek `current_user` pemilik tabel / keanggotaan service_role) | Penjaga nyata dan tidak bisa dipalsukan klien — klaim bertahan. Implementasinya mendarat lewat 0014 `hitung_total` padahal T1-15 masih `[ ]` → F-06 |
 | 10 | Paket §1b: "sudah [x] — berkasnya TIDAK ADA: laporkan!" untuk `alat/periksa-roadmap.py`, `alat/periksa-panduan.py`, `_sistem/validate_system.py`, `alat/uji-mutasi-0012.py`, `node alat/uji-sql.mjs`, `aplikasi/src/lib/tema.ts` | `[ -e ]` untuk tiap jalur | **SEMUA ADA** di commit audit → klaim paket SALAH; kalau dipatuhi, auditor akan membuat temuan palsu. Akar: `alat/audit-independen.py:219` menyerap string perintah backtick dari blok tugas sebagai "jalur berkas" → F-03 |
 | 11 | PROJECT_STATE/STATUS: "CI HIJAU" sebagai keadaan terkini | `gh api …/commits/93a50ba…/check-runs` | 2 check-run, keduanya `cancelled` — commit audit TIDAK pernah lolos CI → F-04 (temuan B F-17 yang terbuka, berulang) |
-| 12 | PROTOKOL §7: "kunci jawaban kalibrasi ada di luar repo, dilarang dicari" | penelusuran folder kalibrasi (tanpa mencari kunci) | **DIBANTAH**: docs/uji/kalibrasi/pr-bahan-2026-09-17.diff DI DALAM repo memuat diff migrasi-nyata→versi-cacat (= kunci) → F-05 |
+| 12 | PROTOKOL §7: "kunci jawaban kalibrasi ada di luar repo, dilarang dicari" | penelusuran folder kalibrasi (tanpa mencari kunci) | **DIBANTAH**: `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` DI DALAM repo memuat diff migrasi-nyata→versi-cacat (= kunci) → F-05 |
 
 ## 3. Serangan yang dijalankan (kill attempts)
 
@@ -129,7 +129,7 @@ Cakupan menyeluruh: 436 dari 436 berkas — setiap grup di bawah mendapat minima
 
 ### [F-05] Kunci jawaban kalibrasi cacat tanaman tertanam DI DALAM repo
 - **Tingkat:** K-2
-- **Artefak:** docs/uji/kalibrasi/pr-bahan-2026-09-17.diff (ikut ter-commit)
+- **Artefak:** `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` (ikut ter-commit)
 - **Klaim yang dilanggar:** `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §7 & paket §0b: "kunci jawabannya disimpan di luar repo dan tidak boleh kamu cari".
 - **Bukti:** `cat docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` → diff dari migrasi NYATA ke versi CACAT, mis. `0004_pola_rls.sql`: `- using (penyewa_id = public.penyewa_saya());` `+ using (penyewa_id is not null);` — persis cacat bahan-02; juga injeksi `0003` (buang `p.aktif`), `0005` (buang `revoke … boleh(text,uuid)`), `0012` (`raise exception` promo → `null`).
 - **Skenario gagal:** auditor (atau mesin apa pun yang bisa baca repo) membuka diff → tahu semua lokasi & kelas cacat → skor "Ditemukan: X dari Y" bisa dipalsukan sempurna; ambang kalibrasi ("verdict BERSIH-mu boleh dipercaya") kehilangan makna.

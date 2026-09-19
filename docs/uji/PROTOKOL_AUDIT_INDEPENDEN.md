@@ -226,7 +226,8 @@ Ada **dua jalur kalibrasi** — keduanya wajib, karena keduanya mengukur hal ber
 3. **Kenapa bahan ini tidak boleh di dalam repo:** diff-nya dibuat dari migrasi **NYATA**, jadi siapa pun yang bisa
    membaca repo — termasuk peninjau yang sedang dikalibrasi — langsung tahu baris mana yang ditanami cacat; skor
    `Ditemukan: X dari Y` bisa dipalsukan. Dijaga `alat/periksa-kunci-kalibrasi.py` (aturan A–E, plus `--uji-diri`).
-4. **Rotasi bahan:** bahan kalibrasi yang pernah bocor — termasuk yang masih terbaca di riwayat Git —
+4. **Berkas yang dikeluarkan dari repo berjejak:** jalurnya dicatat di daftar pensiun `docs/uji/BERKAS_PENSIUN.md` (dijaga `alat/periksa-kunci-kalibrasi.py` aturan D1) — rujukan lama di riwayat/paket/laporan tetap sah sebagai provenance.
+5. **Rotasi bahan:** bahan kalibrasi yang pernah bocor — termasuk yang masih terbaca di riwayat Git —
    **tidak dipakai lagi** untuk menilai ketajaman; gantinya bahan baru bertanggal (sama seperti jalur auditor).
 
 **Ambang & pencatatan (berlaku untuk kedua jalur):**

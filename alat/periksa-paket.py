@@ -134,13 +134,48 @@ def sha_diklaim(isi: str) -> str | None:
 
 
 def induk_dari_commit_terakhir(ref: str, jalur: str) -> tuple[str | None, str | None]:
-    """(commit terakhir yang mengubah jalur ≤ ref, induknya)."""
-    kode, commit = jalankan(["git", "log", "-1", "--format=%H", ref, "--", jalur])
+    """(commit yang MENAMBAH paket ≤ ref, induknya) — dipakai uji-diri & pesan lama."""
+    return _induk_commit(ref, jalur, tambah_saja=True)
+
+
+def _induk_commit(ref: str, jalur: str, tambah_saja: bool) -> tuple[str | None, str | None]:
+    perintah = ["git", "log"]
+    if tambah_saja:
+        perintah += ["--diff-filter=A"]
+    perintah += ["-1", "--format=%H", ref, "--", jalur]
+    kode, commit = jalankan(perintah)
     if kode != 0 or not commit.strip():
         return None, None
     commit = commit.strip().splitlines()[0]
     _, induk = jalankan(["git", "log", "-1", "--format=%P", commit])
     return commit, (induk.strip().split()[0] if induk.strip() else None)
+
+
+def paket_ditulis_sah(ref: str, jalur: str, sha: str) -> bool | None:
+    """Apakah paket ini pernah DITULIS tepat sesudah commit `sha` (isinya pun menargetkan `sha`)?
+
+    Kenapa cara ini (pelajaran 2026-09-19): berkas paket sah ditulis lebih dari sekali dalam
+    riwayatnya — paket dibuat, lalu disegarkan untuk commit berikutnya, lalu kadang disunting
+    SESUDAHNYA untuk hal lain (mis. catatan provenance saat bahan kalibrasi dikeluarkan dari repo).
+    Aturan lama ("commit yang TERAKHIR mengubah paket harus berinduk target") jadi rapuh: satu
+    suntingan sah membuat 22 paket lama dituduh melanggar F-11 (palsu, tertangkap sapuan lokal &
+    CI). Aturan "hanya commit penambah" menolak 13 paket lama. Yang benar: **ada** commit dalam
+    riwayat yang menulis paket ini tepat sesudah commit target, dan isi paket saat itu menargetkan
+    commit yang sama dengan isi sekarang — jadi target tidak bisa dipalsukan belakangan.
+
+    Mengembalikan None bila riwayat tidak bisa dibaca (mis. klon dangkal) — pemanggil melewatkan.
+    """
+    kode, kel = jalankan(["git", "log", "--format=%H %P", ref, "--", jalur])
+    if kode != 0:
+        return None
+    for baris in kel.splitlines():
+        bagian = baris.split()
+        if len(bagian) < 2 or bagian[1] != sha:
+            continue
+        isi = isi_pada(bagian[0], jalur)
+        if isi and sha_diklaim(isi) == sha:
+            return True
+    return False
 
 
 def jalur_bagian_1(isi: str) -> list[str]:
@@ -175,11 +210,14 @@ def periksa_paket(ref: str, jalur: str, isi: str | None = None,
     if not sha:
         masalah.append(f"{jalur}: tidak menulis '**Commit yang diaudit/direview:** <sha 40 digit>'")
     else:
-        commit, induk = induk_dari_commit_terakhir(ref, jalur)
-        if induk and sha != induk:
+        _, induk_terakhir = _induk_commit(ref, jalur, tambah_saja=False)
+        sah = paket_ditulis_sah(ref, jalur, sha)
+        if sah is False:
             masalah.append(
-                f"{jalur}: F-11 — paket menargetkan commit {sha[:8]}, padahal commit yang memuatnya "
-                f"berinduk {induk[:8]}. Auditor akan memeriksa pohon yang berbeda dari yang dimaksud."
+                f"{jalur}: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah "
+                f"commit target {sha[:8]} (penulis terakhir berinduk "
+                f"{induk_terakhir[:8] if induk_terakhir else '?'}). Auditor akan memeriksa pohon yang "
+                "berbeda dari yang dimaksud."
             )
         kode, _ = jalankan(["git", "cat-file", "-e", f"{sha}^{{commit}}"])
         if kode != 0:

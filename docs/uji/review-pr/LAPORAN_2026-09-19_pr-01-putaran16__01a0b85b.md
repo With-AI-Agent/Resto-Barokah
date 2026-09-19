@@ -478,7 +478,7 @@ select uji.sama((select meja_id from public.pesanan where id='…c001'), null::u
 
 ## 5. Kalibrasi cacat tanaman
 
-Bahan: docs/uji/kalibrasi/pr-bahan-2026-09-17.diff + `docs/uji/kalibrasi/bahan-2026-09-17/`
+Bahan: `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` + `docs/uji/kalibrasi/bahan-2026-09-17/`
 (dari tree yang direview). Diff diterapkan dengan `git apply --check` BERSIH lalu `git apply` di
 worktree terpisah `/tmp/rb-kal` (HEAD 93a50ba, node_modules dipinjam via symlink) — repo kerja
 tidak tersentuh. Ditemukan: 4 dari 4 hunk pr-bahan (seluruhnya) + 11 kandidat di bahan-2026-09-17

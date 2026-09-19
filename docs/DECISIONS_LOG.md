@@ -679,7 +679,7 @@ penunjuk + buku memuat 13 alur · `python3 alat/lanjut-sesi.py` LOLOS · CI hija
 
 ## [Keamanan uji/2026-09-19] Bahan & kunci kalibrasi hidup DI LUAR repo (temuan audit D F-05)
 
-**Konteks:** audit AUD-3 putaran verifikasi menemukan docs/uji/kalibrasi/pr-bahan-2026-09-17.diff ikut ter-commit.
+**Konteks:** audit AUD-3 putaran verifikasi menemukan `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` ikut ter-commit.
 Berkas itu adalah diff dari migrasi **nyata** ke versi cacat — jadi siapa pun yang bisa membaca repo (termasuk peninjau
 yang sedang dikalibrasi) tahu persis baris mana yang ditanami cacat. Skor "Ditemukan: X dari Y" bisa dipalsukan dan
 ambang lulus kalibrasi ("verdict BERSIH boleh dipercaya") kehilangan makna. Ini melanggar janji PROTOKOL §7
@@ -693,14 +693,16 @@ ambang lulus kalibrasi ("verdict BERSIH boleh dipercaya") kehilangan makna. Ini 
    **menolak** membuat paket bila bahan/kunci masih ada di dalam repo.
 3. **Rotasi bahan:** bahan yang pernah bocor — termasuk yang masih terbaca di riwayat Git — **tidak dipakai lagi**
    untuk menilai ketajaman; gantinya bahan baru bertanggal (sama seperti jalur auditor).
-4. **Dijaga mesin:** `alat/periksa-kunci-kalibrasi.py` (aturan A–E) masuk CI (gerbang 22 → **24**); `--uji-diri`
-   membuktikan 6 mutasi ditolak dan salinan utuh diterima.
+4. **Berkas yang keluar dari repo berjejak di DAFTAR PENSIUN** `docs/uji/BERKAS_PENSIUN.md` — jalur, tanggal, pemutus (Lee), alasan, dan nasib isinya. Validator memperlakukan jalur terdaftar sebagai "sengaja tidak ada", sehingga **riwayat, paket, dan laporan peninjau tidak perlu disunting** (barang bukti tetap utuh).
+5. **Dijaga mesin:** `alat/periksa-kunci-kalibrasi.py` (aturan A–D) masuk CI (gerbang 22 → **24**); `--uji-diri` membuktikan 9 mutasi ditolak dan salinan utuh diterima (termasuk "daftar pensiun dihapus", "berkas pensiun muncul lagi", "paket baru menunjuk jalur bahan di repo").
 
 **Batas jujur:** mengeluarkan berkas dari commit **tidak menghapus** isinya dari riwayat Git (`git log --all` masih
 memperlihatkannya). Karena itu keputusan ini **bukan** "rahasia kembali aman", melainkan: (a) tidak ada lagi salinan
 di keadaan sekarang yang bisa ditemukan tanpa sengaja, (b) bahan lama dinyatakan pensiun, (c) rotasi wajib untuk
 putaran berikutnya. Bila kelak ingin membersihkan riwayat, itu tindakan destruktif (tulis ulang riwayat + force push)
 — **wajib keputusan Lee, tidak dilakukan sekarang**.
+
+**Cacat mekanisme yang ikut ketahuan (dan ditutup):** `alat/periksa-paket.py` aturan F-11 memakai "commit TERAKHIR yang mengubah paket" — satu suntingan sah (mis. catatan provenance) membuat 22 paket lama dituduh melanggar; sekarang paket sah bila **ada** commit dalam riwayat yang menulisnya tepat sesudah commit target dan targetnya tidak berubah. Uji-diri penjaga kunci juga sempat tumpul karena menguji paket lama sementara aturannya berlaku untuk paket baru.
 
 **Bukti:** percobaan nyata di klon: `--kalibrasi-pr-siapkan` MENOLAK saat bahan masih di repo; setelah dikeluarkan →
 bahan ditulis ke `/tmp`, paket memuat blok `diff`; `python3 alat/periksa-kunci-kalibrasi.py` LOLOS · `--uji-diri`

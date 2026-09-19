@@ -31,5 +31,7 @@ bahan ditulis di `/tmp/kalibrasi-pr/` dan hanya **isinya** yang disematkan ke pa
 `alat/periksa-kunci-kalibrasi.py`. Karena bahan lama masih terbaca di riwayat Git, bahan itu **tidak dipakai
 lagi** untuk menilai ketajaman — selalu pakai bahan baru bertanggal.
 
+**Berkas yang keluar dari repo:** jalurnya dicatat di `docs/uji/BERKAS_PENSIUN.md` (siapa memutuskan, kapan, kenapa) — rujukan lama tetap terbaca sebagai provenance, dan penjaga menolak bila berkas itu muncul lagi.
+
 **Riwayat bahan:** `bahan-2026-09-17/` (bahan pertama, dibuat setelah pemilik meminta audit menyeluruh lebih dulu).
 Bahan lama **jangan dihapus** — riwayat bahan = bukti bahwa kalibrasi tidak dipakai ulang dari jawaban yang bocor.

@@ -10,10 +10,10 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `6ba6f4ff2b17d86ac20c71aafdcf445564a3f757`
+- **Commit keadaan kerja:** `2f5da03e03ee718f127ab973a141a1875d63bf9c`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (run 35429828636, commit 6ba6f4ff)
+- **CI terakhir:** failure (run 35429835324, commit 2f5da03e)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **7** — T-018, T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (8 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (8 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (9 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (9 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -86,7 +86,10 @@ Semua bocoran kunci kalibrasi (D F-05) sudah ditutup oleh commit `1a0b351`.
    + `DECISIONS_LOG.md` bila menyentuh cara membuktikan persetujuan/keamanan uang.
 3. **Satu hal masih menunggu Lee:** auditor diminta memperbaiki **format** laporannya (label grup cakupan sama
    seperti paket + satu laporan per cabang) lalu mengirim ulang agar auditnya sah formal. Izin Lee untuk
-   mengeluarkan kunci kalibrasi **sudah diberikan & dikerjakan** (`1a0b351`).
+   mengeluarkan kunci kalibrasi **sudah diberikan & dikerjakan**; jalur pensiunnya berjejak di
+   `docs/uji/BERKAS_PENSIUN.md` (paket & laporan peninjau tidak disunting — barang bukti).
+   Selama batch ini dua **cacat mekanisme** ikut ketahuan & ditutup: aturan F-11 `alat/periksa-paket.py` rapuh
+   (satu suntingan sah menuduh 22 paket lama melanggar) dan uji-diri penjaga kunci sempat menguji paket yang salah.
 4. Selagi menunggu: butir tertangguh terbuka **7** (batas 12) — tawarkan jawaban agent untuk masing-masing.
 
 **Jangan merge PR #2** (temuan K-1/K-2 masih terbuka di commit yang direview). PR #1 tetap tidak disentuh.
