@@ -1,5 +1,12 @@
 # PROMPT_AUDIT_INDEPENDEN.md — Cara Memulai Sesi Auditor Independen
 
+> ## ⚠️ BERHENTI — JANGAN SALIN BERKAS INI KE CHAT AUDITOR
+> Berkas ini **cetakan (template)**, bukan paket. Kalau disalin apa adanya, kalimat pembuka masih memuat baris
+> kosong `<<< TEMPEL ISI … >>>` dan auditor akan berhenti di langkah pertama ("protokol tidak ada") — itu
+> **kejadian nyata 2026-09-19**.
+> **Yang disalin adalah berkas `<paket>-SIAP-TEMPEL.md` di `docs/uji/paket-audit/`** — sudah memuat kalimat
+> pembuka **+ seluruh paketnya**. Minta agent: *"Siapkan audit independen"* lalu salin berkas yang ia sebutkan.
+
 > Dipakai bersama `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`. Paket khusus untuk satu lingkup audit ditulis mesin ke
 > docs/uji/paket-audit/ — **paket itulah yang disalin**, bukan berkas ini.
 > Sejak 2026-09-17 mesin juga menulis berkas **`<paket>-SIAP-TEMPEL.md`** yang sudah memuat kalimat pembuka (bagian B) **+** paketnya:
@@ -32,6 +39,12 @@ TIDAK BOLEH mengubah, memperbaiki, atau menerapkan perubahan apa pun. Tugasmu me
 bukan menyenangkan pembuatnya.
 
 Kerjakan berurutan:
+0. AMBIL BAHAN DULU (wajib kalau checkout-mu belum memuat berkas proyek — sesi baru sering hanya memuat kerangka
+   `main`; tandanya `cat docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` menjawab "No such file or directory"). Paket yang
+   saya tempel menyebut **commit yang diaudit** dan **cabangnya**; ikuti bagian "0a. LANGKAH 0" di paket —
+   biasanya cukup: `git fetch origin <cabang> && git checkout --detach <cabang>`. Kalau jaringan/akses tidak
+   memungkinkan, JANGAN mengarang dan JANGAN mengaudit commit lain: kerjakan dari isi paket yang ditempel, lalu
+   tulis semuanya di bagian "Yang tidak bisa saya verifikasi".
 1. Baca `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` (aturan main), lalu paket audit yang saya tempel di bawah.
 2. Muat skill yang disebut paket: `skills/security-review/SKILL.md`, `skills/verification-before-completion/SKILL.md`,
    `skills/systematic-debugging/SKILL.md`, `skills/verification-loop/SKILL.md`, `skills/test-driven-development/SKILL.md`,

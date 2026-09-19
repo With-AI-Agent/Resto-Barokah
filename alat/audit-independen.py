@@ -246,9 +246,17 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
 
     _, sha_all = jalankan(["git", "rev-parse", "HEAD"])
     sha = sha_all.strip()
+    _, cabang_all = jalankan(["git", "branch", "--show-current"])
+    cabang = cabang_all.strip() or "tanpa-cabang"
     tanggal = dt.date.today().isoformat()
     DIR_PAKET.mkdir(parents=True, exist_ok=True)
+    # CACAT NYATA (2026-09-19): dulu nama berkas selalu `{tingkat}-{tanggal}.md`, sehingga
+    # paket kedua pada hari yang sama MENIMPA paket pertama tanpa suara — padahal paket
+    # lama sudah di-commit dan/atau sedang dipakai sesi auditor (dilarang disunting, F-11).
+    # Sekarang: kalau nama itu sudah ada, pakai akhiran SHA commit yang diaudit.
     keluar = DIR_PAKET / f"{tingkat}-{tanggal}.md"
+    if keluar.exists():
+        keluar = DIR_PAKET / f"{tingkat}-{tanggal}-{sha[:7]}.md"
 
     # pre-flight: mesin mana yang benar-benar bisa jalan sekarang (bukti harus bisa direproduksi auditor)
     siap: list[str] = []
@@ -362,9 +370,23 @@ apakah dokumen menjanjikan sesuatu yang belum ada.
 - **Minimum laporan:** ≥{len(grup) if menyeluruh else 6} artefak diperiksa · ≥5 klaim dibantah · ≥{SERANGAN_MIN[tingkat]} serangan dijalankan · masing-masing temuan punya perintah bukti
 - **Perintah validasi laporan (wajib hijau):** periksa dengan alat `alat/audit-independen.py --periksa-laporan` (berkas laporan ditulis di folder docs/uji/audit/). Bila repo yang kamu pakai adalah klon dangkal, alat akan memberi CATATAN (bukan menolak) untuk SHA yang riwayatnya tidak ada.
 
-## 0a. LANGKAH 0 (WAJIB) — pastikan kamu memeriksa commit yang benar
+## 0a. LANGKAH 0 (WAJIB) — ambil bahannya dulu, lalu pastikan kamu memeriksa commit yang benar
 
-Paket ini menargetkan commit **`{sha}`**. **Cabang/base apa pun yang Lee pilih tidak masalah** — yang menentukan adalah commit-nya.
+Paket ini menargetkan commit **`{sha}`** pada cabang **`{cabang}`**. **Cabang/base apa pun yang Lee pilih tidak masalah** —
+yang menentukan adalah commit-nya.
+
+> **Kalau checkout-mu belum memuat berkas proyek** (mis. `cat docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` menjawab
+> `No such file or directory`, atau `git ls-files docs` hanya berisi `docs/README.md`): kamu ada di sesi BARU yang
+> bercabang dari `main` — sedangkan proyek ini hidup di cabang sesi. Ambil bahannya dengan:
+>
+> ```
+> git fetch origin {cabang}
+> git checkout --detach {sha}
+> ```
+> lalu ULANGI langkah 1 (protokol, skill, paket). Kalau `git fetch` tidak bisa (tanpa jaringan/akses), kerjakan
+> sebisanya dari ISI PAKET YANG DITEMPEL, dan tulis semuanya di bagian "Yang tidak bisa saya verifikasi" —
+> jangan mengarang, jangan mengaudit commit lain.
+
 
 ```
 # (a) di repo ini, satu perintah memeriksa semuanya:
@@ -533,11 +555,21 @@ cacat yang kamu temukan (`berkas` + kelas + bukti), `Ditemukan: X dari Y`, dan j
         kanonik = sumber_prompt.read_text(encoding="utf-8").split("## B.")[-1]
         m = re.search(r"```\n(.*?)\n```", kanonik, re.DOTALL)
         if m:
+            # CACAT NYATA (2026-09-19): dulu kalimat pembuka disalin APA ADANYA, termasuk baris
+            # `<<< TEMPEL ISI docs/uji/paket-audit/… DI SINI >>>`. Akibatnya berkas siap-tempel
+            # tampak belum diisi — dan pemilik yang tersandung baris itu terpaksa menebak. Sekarang
+            # placeholder itu DIGANTI penunjuk ke bagian sambungan, dan ditaruh petunjuk mesin
+            # (commit + cabang + cara mengambil bahan) supaya auditor baru tidak berhenti di langkah 1.
+            pembuka = re.sub(
+                r"<<< TEMPEL ISI[^\n]*>>>",
+                "— paket lengkapnya ada di bagian `SAMBUNGAN: PAKET AUDIT` di bawah; satu berkas ini sudah utuh —",
+                m.group(1).strip(),
+            )
             siap = (
                 "> BERKAS SIAP-TEMPEL — salin SELURUH isi berkas ini ke chat/percakapan BARU (idealnya model berbeda).\n"
                 "> Dibuat mesin oleh `alat/audit-independen.py`; kalimat pembuka diambil apa adanya dari sumber kanonik.\n\n"
                 "===== MULAI SALIN DARI SINI =====\n\n"
-                + m.group(1).strip()
+                + pembuka
                 + "\n\n===== SAMBUNGAN: PAKET AUDIT =====\n\n"
                 + isi_paket
             )

@@ -390,6 +390,12 @@ TIDAK BOLEH mengubah, memperbaiki, atau menerapkan perubahan apa pun. Tugasmu me
 bukan menyenangkan pembuatnya.
 
 Kerjakan berurutan:
+0. AMBIL BAHAN DULU (wajib kalau checkout-mu belum memuat berkas proyek — sesi baru sering hanya memuat kerangka
+   `main`; tandanya `cat docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` menjawab "No such file or directory"). Paket yang
+   saya tempel menyebut **commit yang diaudit** dan **cabangnya**; ikuti bagian "0a. LANGKAH 0" di paket —
+   biasanya cukup: `git fetch origin <cabang> && git checkout --detach <cabang>`. Kalau jaringan/akses tidak
+   memungkinkan, JANGAN mengarang dan JANGAN mengaudit commit lain: kerjakan dari isi paket yang ditempel, lalu
+   tulis semuanya di bagian "Yang tidak bisa saya verifikasi".
 1. Baca `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` (aturan main), lalu paket audit yang saya tempel di bawah.
 2. Muat skill yang disebut paket: `skills/security-review/SKILL.md`, `skills/verification-before-completion/SKILL.md`,
    `skills/systematic-debugging/SKILL.md`, `skills/verification-loop/SKILL.md`, `skills/test-driven-development/SKILL.md`,

@@ -25,6 +25,7 @@ Dua aturan yang diperiksa di sini:
 Dipakai CI (lihat .github/workflows/ci.yml) dan bisa dijalankan manual:
   python3 alat/periksa-paket.py
   python3 alat/periksa-paket.py --uji-diri     # bukti pemeriksa ini bisa MENOLAK
+                                              # (termasuk aturan berkas SIAP-TEMPEL: cacat nyata 2026-09-19)
 """
 from __future__ import annotations
 
@@ -40,6 +41,16 @@ FOLDER_REVIEW = AKAR / "docs" / "uji" / "review-pr"
 # Paket yang dibuat SEBELUM perbaikan F-12 (2026-09-18). Aturan 2 dilewati untuk
 # berkas ini (isinya memang memuat jalur masa depan) — tetapi ATURAN 1 tetap berlaku.
 # Paket yang dibuat setelah tanggal itu tidak punya pengecualian apa pun.
+# Paket audit yang dibuat SEBELUM perbaikan berkas siap-tempel (2026-09-19). Berkas ini
+# sudah di-commit dan TIDAK boleh disunting (aturan F-11), jadi aturan baru tidak berlaku surut
+# untuk mereka; yang diperiksa adalah paket-paket sesudahnya.
+LEGACY_SIAP_TEMPEL_SEBELUM = {
+    "AUD-2-2026-09-17-SIAP-TEMPEL.md",
+    "AUD-3-2026-09-17-SIAP-TEMPEL.md",
+    "AUD-3-2026-09-18-SIAP-TEMPEL.md",
+    "AUD-3-2026-09-19-SIAP-TEMPEL.md",
+}
+
 LEGACY_TANPA_ATURAN_ARTEFAK = {
     "AUD-2-2026-09-17.md",
     "AUD-2-2026-09-17-SIAP-TEMPEL.md",
@@ -224,6 +235,29 @@ def periksa_paket(ref: str, jalur: str, isi: str | None = None,
             masalah.append(f"{jalur}: commit {sha[:8]} yang ditulis paket TIDAK ADA di repo ini")
 
     nama = pathlib.Path(jalur).name
+    # ATURAN BARU (2026-09-19, cacat nyata): berkas `<paket>-SIAP-TEMPEL.md` adalah SATU-SATUNYA
+    # yang disalin Lee ke chat auditor. Dua cacat nyata pernah terjadi: (a) kalimat pembukanya
+    # masih memuat baris kosong `<<< TEMPEL ISI … >>>` sehingga auditor berhenti di langkah 1;
+    # (b) tidak ada petunjuk cara MENGAMBIL BAHAN, padahal sesi auditor baru bercabang dari `main`
+    # yang hanya memuat kerangka — auditor lalu melaporkan "audit TERBLOKIR" (kejadian nyata
+    # 2026-09-19, sesi `arena/01a0b9f2`). Karena itu berkas siap-tempel diperiksa mesin.
+    if (nama.endswith("-SIAP-TEMPEL.md") and "/paket-audit/" in jalur
+            and nama not in LEGACY_SIAP_TEMPEL_SEBELUM):
+        if "<<<" in isi:
+            masalah.append(
+                f"{jalur}: masih memuat penanda kosong `<<< … >>>` — berkas siap-tempel harus utuh; "
+                "auditor akan berhenti karena menyangka paketnya belum diisi"
+            )
+        if "SAMBUNGAN: PAKET AUDIT" not in isi:
+            masalah.append(f"{jalur}: tidak memuat bagian 'SAMBUNGAN: PAKET AUDIT' (paketnya tidak ikut tersalin)")
+        if "git fetch origin" not in isi or "git checkout --detach" not in isi:
+            masalah.append(
+                f"{jalur}: tidak memuat cara MENGAMBIL BAHAN (`git fetch origin …` + `git checkout --detach …`); "
+                "sesi auditor baru bercabang dari `main` dan tanpa perintah ini ia tidak bisa melihat kode proyek"
+            )
+        if "protokol" in isi and "PROTOKOL_AUDIT_INDEPENDEN.md" not in isi:
+            masalah.append(f"{jalur}: menyebut protokol tanpa menunjuk berkasnya")
+
     if nama in LEGACY_TANPA_ATURAN_ARTEFAK and not abaikan_pengecualian:
         catatan.append(f"{jalur}: aturan artefak dilewati (paket lama sebelum perbaikan F-12)")
         return masalah, catatan
@@ -320,6 +354,27 @@ def uji_diri() -> int:
                 masalah_hantu = [x for x in masalah_hantu if "F-12" in x] or masalah_hantu
                 hasil.append(("mutasi: jalur hantu ditambahkan ke bagian 1", bool(masalah_hantu),
                               masalah_hantu[0][:90] if masalah_hantu else "DILOLOSKAN (tumpul)"))
+
+    # Aturan 4 (siap-tempel): buktikan bisa MENOLAK placeholder & petunjuk-ambil-bahan yang hilang.
+    siap_tempel = [j for j in sekarang
+                   if j.endswith("-SIAP-TEMPEL.md") and "/paket-audit/" in j
+                   and pathlib.Path(j).name not in LEGACY_SIAP_TEMPEL_SEBELUM]
+    if siap_tempel:
+        jalur_st = siap_tempel[-1]
+        isi_st = isi_pada("HEAD", jalur_st) or ""
+        if "<<<" not in isi_st and "git fetch origin" in isi_st:
+            m_ph = isi_st.replace("— paket lengkapnya ada di bagian", "<<< TEMPEL ISI docs/uji/paket-audit/… DI SINI >>>\n— paket lengkapnya ada di bagian", 1)
+            masalah_ph, _ = periksa_paket("HEAD", jalur_st, isi=m_ph, abaikan_pengecualian=True)
+            masalah_ph = [x for x in masalah_ph if "penanda kosong" in x] or masalah_ph
+            hasil.append(("mutasi: penanda kosong <<< dimasukkan lagi ke berkas siap-tempel", bool(masalah_ph),
+                          masalah_ph[0][:90] if masalah_ph else "DILOLOSKAN (tumpul)"))
+            m_fetch = isi_st.replace("git fetch origin", "git ambil origin", 1)
+            masalah_fetch, _ = periksa_paket("HEAD", jalur_st, isi=m_fetch, abaikan_pengecualian=True)
+            masalah_fetch = [x for x in masalah_fetch if "MENGAMBIL BAHAN" in x] or masalah_fetch
+            hasil.append(("mutasi: petunjuk mengambil bahan dihapus dari berkas siap-tempel", bool(masalah_fetch),
+                          masalah_fetch[0][:90] if masalah_fetch else "DILOLOSKAN (tumpul)"))
+        else:
+            print("LEWAT: berkas siap-tempel belum memuat penanda/ambil-bahan (cek urutan kerja)")
 
     masalah_pohon: list[str] = []
     for jalur in sekarang:
