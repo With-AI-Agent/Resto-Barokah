@@ -35,7 +35,14 @@ Penjaga tambahan: `python3 alat/periksa-fungsi-pin.py` memastikan Edge Function
 PIN tidak pernah mencatat PIN ke log, tidak memakai kunci penuh (`service_role`),
 dan hanya menerima POST. Pemeriksa itu ikut berjalan di CI.
 
-Proyek Supabase nyata **sudah ada** (Lee, 2026-09-19) dan sambungannya dibuktikan setiap kiriman kode lewat gerbang CI
-`npm run cek:supabase` (kunci publik saja, tanpa membaca data). Yang **belum**: seluruh skema di folder ini disebar ke proyek
-itu — menunggu keputusan Lee (butir `T-020`). Setelah disebar, uji yang sama dijalankan ulang di sana (bcrypt asli pgcrypto)
-untuk memastikan perilakunya sama dengan PostgreSQL nyata lokal.
+Proyek Supabase nyata **sudah ada dan SUDAH BERISI SKEMA** (Lee, 2026-09-19): 14 migrasi `0001`–`0014` disebar lewat alur
+disengaja `.github/workflows/sebar-skema.yml` (run `35435248540` hijau: `link` → `db push --dry-run` → `db push` →
+`migration list`). Setiap kiriman kode membuktikannya lagi lewat gerbang CI `npm run cek:supabase` — yang kini juga
+**membaca satu baris tabel katalog** dengan kunci publik; kalau tabelnya hilang, CI merah.
+
+**Aturan yang lahir dari itu — berkas migrasi `0001`–`0014` DIBEKUKAN:** mengubahnya tidak mengubah database nyata,
+tetapi membuat uji lokal berbeda dari kenyataan. Semua perubahan skema berikutnya (termasuk perbaikan temuan audit)
+**WAJIB** lewat berkas BARU bernomor `0015` ke atas, dijaga `alat/periksa-migrasi-beku.py`.
+
+Sisa yang masih ditunggu: menjalankan berkas uji di `supabase/tes/` pada proyek nyata (bcrypt asli pgcrypto) supaya
+perilakunya dipastikan sama dengan PostgreSQL lokal — bukan lagi soal tabel ada atau tidak.

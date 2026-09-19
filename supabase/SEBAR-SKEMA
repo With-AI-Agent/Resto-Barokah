@@ -1,6 +1,0 @@
-SEBAR-SKEMA — permintaan resmi (2026-09-19): sebar 14 berkas migrasi di supabase/migrations/ ke
-proyek Supabase nyata milik Lee (ref bdvjirmbuqelmduztryj). Dibuat agent setelah Lee menyelesaikan
-Langkah A (2 rahasia Supabase dipasang di kotak rahasia GitHub) dan meminta kelanjutannya.
-
-Alur menjalankan berurutan: pratinjau (--dry-run) DULU, baru penyebaran, ditutup daftar migrasi
-terpasang sebagai bukti. Berkas ini dihapus lagi setelah alur hijau dan bukti dicatat.

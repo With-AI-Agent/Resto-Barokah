@@ -9,20 +9,16 @@ Aku tidak boleh — dan tidak mau — melihat kunci rahasiamu. GitHub punya **ko
 untuk itu: kunci yang kamu simpan di sana bisa **dipakai** mesin (untuk menyebar tabel database dan
 menaikkan halaman ke internet) **tanpa pernah terlihat** oleh siapa pun, termasuk aku.
 
-Sampai kotak itu terisi, dua pekerjaan terakhir Fase 0 tidak bisa dijalankan mesin (karena itu
-statusnya masih "menunggu", bukan "selesai").
+## Kabar terbaru (2026-09-19) — Langkah A SUDAH SELESAI
 
-## Sudah beres — bagian ini tidak perlu kamu apa-apakan
+- **Langkah A (2 rahasia Supabase) sudah selesai dan sudah terbukti bekerja**: 14 berkas tabel
+  sudah disebar ke proyek Supabase-mu (alur otomatis hijau), dan pemeriksaan otomatis kami berhasil
+  **membaca tabel katalog** dari proyek nyata dengan kunci publik. Jadi kamu **tidak perlu** mengerjakan
+  Langkah A lagi.
+- Yang tersisa: **Langkah B saja** (1 rahasia Cloudflare) — itu pun hanya kalau kamu mau halaman kosong
+  ini bisa dibuka orang lain di internet.
 
-- Akun **Supabase + Resend + Cloudflare** sudah dibuat → tugas `T0-00` & catatan tunggu `T-018` ditutup.
-- **Sambungan aplikasi ke proyek Supabase-mu sudah terbukti** (uji otomatis hijau di GitHub — lihat tab
-  **Actions**, langkah "Cek sambungan Supabase").
-- **Jalur sebar tabel** dan **jalur naikkan halaman** sudah siap dan diawasi penjaga otomatis;
-  keduanya hanya butuh kunci di bawah.
-
----
-
-## Langkah A — 2 rahasia Supabase (untuk menyebar 14 berkas tabel)
+## Langkah A — 2 rahasia Supabase ✅ SUDAH SELESAI (tidak perlu diulang)
 
 1. Buka **https://supabase.com/dashboard/account/tokens** → tekan **Generate new token** →
    nama: `github-resto-barokah` → **Generate token** → tekan **Copy** (token mulai dengan `sbp_`).
@@ -40,15 +36,26 @@ statusnya masih "menunggu", bukan "selesai").
 
 ## Langkah B — 1 rahasia Cloudflare (untuk menaikkan halaman ke internet)
 
-1. Buka **https://dash.cloudflare.com/profile/api-tokens** → **Create Token** →
-   pilih templat **Edit Cloudflare Workers** → **Continue to summary** → **Create Token** → **Copy**.
-2. GitHub → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**:
+1. Buka **https://dash.cloudflare.com/profile/api-tokens**.
+2. Tekan tombol **Create Token** (biru, di halaman daftar token) — **jangan** menekan
+   **Create Custom Token**; jalan itu lebih rumit dan mudah salah.
+3. Di bagian **Token templates**, cari baris bernama **Edit Cloudflare Workers** → tekan
+   **Use template**.
+4. Di halaman ringkasan, **biarkan apa adanya** (Account Resources: *Include → All accounts*) →
+   tekan **Continue to summary** → **Create Token** → tekan **Copy**.
+
+   *Kalau kamu sudah terlanjur membuka **Create Custom Token*** dan ingin melanjutkan di situ:
+   pada baris **Permissions** pilih **Account** → **Workers Scripts** → **Edit**
+   (tekan **+ Add more** kalau barisnya belum ada), biarkan **Client IP Address Filtering** dan
+   **TTL** kosong, lalu **Continue to summary** → **Create Token** → **Copy**.
+
+5. GitHub → repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**:
    - **Name:** `CLOUDFLARE_API_TOKEN`
    - **Secret:** tempel token tadi
    - tekan **Add secret**.
 
-> Belum ingin halaman tampil di internet? **Tidak apa-apa** — cukup Langkah A yang dikerjakan.
-> Halaman publik menunggu sampai kamu memang mau.
+> Belum ingin halaman tampil di internet? **Tidak apa-apa** — Langkah A sudah selesai dan tabel sudah
+> disebar. Halaman publik menunggu sampai kamu memang mau; cukup bilang **"Boleh naik"** kalau sudah siap.
 
 ## Langkah C — bilang ke aku
 
@@ -58,14 +65,10 @@ Tulis **satu kalimat** di chat:
 
 Setelah itu aku yang menjalankan sisanya, dan kamu akan menerima laporan:
 
-1. **Sebar tabel** — mesin menjalankan **pratinjau lebih dulu** (apa yang akan berubah), baru menyebar;
-   lalu aku laporkan bukti "tabel sudah ada" (`select 1` yang selama ini belum bisa dijalankan).
-2. **Naikkan halaman** (kalau Langkah B dikerjakan) — aku laporkan **alamat publiknya** + hasil
-   pemeriksaan HTTPS.
-
-> **Kalau mesin bilang gagal menyambung:** pada paket gratis, proyek Supabase **dijeda** bila lama tidak
-> dibuka. Bukan salah kode. Kamu cukup membuka dashboard Supabase → pilih **Restore/Resume**, lalu bilang
-> *"Sudah kunyalakan lagi."* — aku jalankan ulang sisanya.
+1. ~~Sebar tabel~~ — **SUDAH SELESAI 2026-09-19**: 14 berkas tabel sudah ada di proyek Supabase-mu,
+   dan pemeriksaan otomatis sudah membuktikannya (membaca tabel katalog dengan kunci publik).
+2. **Naikkan halaman** (setelah kamu bilang *"Boleh naik"*) — aku laporkan **alamat publiknya** +
+   hasil pemeriksaan HTTPS.
 
 ## Aturan penting (demi keamanan uang & data)
 

@@ -789,3 +789,29 @@ proyek nyata" atau "halaman sudah publik" belum boleh ditulis di dokumen mana pu
 **File terkait:** `.github/workflows/sebar-skema.yml`, `.github/workflows/sebar-halaman.yml`, `supabase/config.toml`,
 `alat/periksa-gerbang-ci.py`, `docs/ops/LANGKAH_PEMILIK_SEKARANG.md`, `docs/uji/BUKU_UJI_PEMILIK.md` (P-04/P-05),
 `docs/TERTANGGUH.md` (T-020/T-021).
+
+---
+
+## [Infrastruktur/2026-09-19] Skema pertama hidup di proyek pemilik → migrasi 0001–0014 DIBEKUKAN
+
+**Konteks:** setelah pemilik memasang dua rahasia Supabase di kotak rahasia GitHub (Langkah A), alur disengaja
+`.github/workflows/sebar-skema.yml` dijalankan lewat berkas penanda supabase/SEBAR-SKEMA: run `35435248540` hijau
+berurutan — `supabase link` → `db push --dry-run` (pratinjau) → `db push` (penyebaran) → `migration list` (bukti).
+Jadi 14 berkas migrasi `0001`–`0014` kini **benar-benar ada** di database milik pemilik (proyek
+`bdvjirmbuqelmduztryj`). Bukti susulan yang bisa diperiksa siapa pun: gerbang CI ke-50 membaca satu baris tabel
+katalog dengan kunci publik (`GET /rest/v1/menu_item?select=id&limit=1` → HTTP 200) pada run `35435414653`.
+
+**Keputusan: berkas migrasi `0001`–`0014` DIBEKUKAN.**
+1. **Kenapa:** database nyata hanya berubah karena PENYEBARAN berkas migrasi. Mengubah berkas lama tidak mengubah
+   database nyata, tetapi mengubah hasil uji lokal — persis kelas cacat "bukti tidak mewakili kenyataan".
+2. **Aturan:** setiap perubahan skema — termasuk seluruh perbaikan temuan audit (K-1…K-4) — WAJIB ditulis sebagai
+   berkas migrasi **baru** bernomor `0015` ke atas. Berkas lama tidak boleh disunting lagi.
+3. **Dijaga mesin, bukan ingatan:** penjaga baru `alat/periksa-migrasi-beku.py` memuat sidik SHA-256 ke-14 berkas itu
+   dan ikut berjalan di CI. Berkas lama berubah sedikit saja, ada berkas baru bernomor ≤ `0014`, atau nomor migrasi
+   kembar → CI **MERAH**; penjaganya punya `--uji-diri` (mutasi wajib ditolak) yang juga berjalan di CI.
+4. **Konsekuensi untuk audit:** perbaikan RLS/kebijakan/fungsi berbentuk "migrasi penutup" di `supabase/migrations/`,
+   bukan suntingan berkas lama — dan itu memang cara kerja Supabase di proyek nyata.
+
+**Batas jujur:** yang terbukti adalah (a) alur penyebaran hijau sampai `migration list`, dan (b) tabel katalog bisa
+dibaca dengan kunci publik dari CI. Uji **penuh** berkas uji di `supabase/tes/` terhadap proyek nyata (bcrypt asli
+pgcrypto) belum dijalankan dan tidak diklaim di sini.

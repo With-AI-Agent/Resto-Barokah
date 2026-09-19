@@ -10,10 +10,10 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `2e264ce0fa91d7873243dae0d8fc29a90caa6d3e`
+- **Commit keadaan kerja:** `fd70de2af93ab24eb5be611b5739ed2ada3aeed8`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35433400456, commit 6ba8c60c)
+- **CI terakhir:** success (run 35435417117, commit fd70de2a)
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -25,9 +25,9 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
 - Posisi proyek: lihat `PROJECT_STATE.md` (STATUS + PUTARAN terakhir) dan `STATUS.md`.
 - Bukti terakhir yang hijau: `node alat/uji-sql.mjs` · `python3 alat/uji-mutasi-0012.py` ·
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
-- Butir tertangguh terbuka: **8** — T-020, T-021, T-002, T-003, T-010, T-011, T-015, T-016
+- Butir tertangguh terbuka: **7** — T-021, T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (23 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (23 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (27 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (27 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -62,6 +62,28 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18c (2026-09-19) — SKEMA HIDUP DI PROYEK NYATA: `T0-08` DITUTUP, `T-020` SELESAI.**
+
+Lee menyelesaikan **Langkah A** (2 rahasia Supabase di kotak rahasia GitHub); agent memicu berkas penanda
+supabase/SEBAR-SKEMA → run `35435248540` **hijau berurutan** (`link` → `db push --dry-run` → `db push` →
+`migration list`), jadi 14 migrasi kini ADA di proyek `bdvjirmbuqelmduztryj`. Bukti baca data (setara `select 1`):
+gerbang CI ke-50 membaca tabel katalog dengan kunci publik → **HTTP 200** (run `35435414653`).
+
+**Aturan baru yang mengikat (dikunci di `DECISIONS_LOG.md`):** berkas migrasi `0001`–`0014` **DIBEKUKAN** — semua
+perubahan skema, termasuk seluruh perbaikan temuan audit K-1…K-4, WAJIB ditulis sebagai berkas BARU `0015`+ dan
+dijaga `alat/periksa-migrasi-beku.py` (ikut berjalan di CI, punya `--uji-diri`, plus mutasi "penjaga dihapus"
+di `alat/periksa-gerbang-ci.py --uji-diri`).
+
+**Langkah berikutnya (urut):**
+1. **T1-45 sisa 23 temuan** — mulai **K-1**, tetapi kini dalam bentuk **`supabase/migrations/0015_penutup_celah_putaran16.sql`**
+   (berkas lama tidak boleh disunting), lengkap dengan uji regresi + semua mutasi wajib MERAH.
+2. **`T-021` (halaman publik)** — menunggu DUA hal dari Lee: rahasia `CLOUDFLARE_API_TOKEN` (panduan
+   `docs/ops/LANGKAH_PEMILIK_SEKARANG.md`, pakai templat **Edit Cloudflare Workers**, bukan *Create Custom Token*)
+   dan izin **"Boleh naik"** karena deploy publik = tindakan tak bisa dibatalkan.
+3. **Uji ulang berkas uji `supabase/tes/` di proyek nyata** (bcrypt asli pgcrypto) — bukti bahwa perilaku di proyek
+   Lee sama dengan PostgreSQL lokal; dicatat di `supabase/README.md`, belum dijadwalkan sebagai tugas.
+ (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 **PUTARAN 18b (2026-09-19) — FASE 0 DIBERESKAN (akun pemilik aktif). RENCANA BERIKUTNYA: K-1.**
 

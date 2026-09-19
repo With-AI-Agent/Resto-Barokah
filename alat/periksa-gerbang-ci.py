@@ -86,6 +86,8 @@ GERBANG_WAJIB = [
     ("uji-diri kartu sesi (pemetaan skill fase)", r"python3 alat/mulai-sesi.py --uji-diri"),
     ("pemeriksa angka bukti & jumlah tugas (F-14 + jumlah tugas keadaan-sekarang)", r"python3 alat/periksa-angka-bukti.py"),
     ("uji-diri pemeriksa angka bukti ROADMAP (F-14)", r"python3 alat/periksa-angka-bukti.py --uji-diri"),
+    ("pemeriksa migrasi beku (repo vs database nyata)", r"python3 alat/periksa-migrasi-beku.py"),
+    ("uji-diri pemeriksa migrasi beku", r"python3 alat/periksa-migrasi-beku.py --uji-diri"),
     ("uji-diri pemeriksa pohon bersih", r"python3 alat/periksa-bersih.py --uji-diri"),
     ("pemeriksa struktur aplikasi", r"python3 aplikasi/alat/periksa-struktur.py"),
     ("uji-diri pemeriksa komponen & env", r"python3 aplikasi/alat/periksa-komponen-env.py --uji-diri"),
@@ -392,6 +394,10 @@ def uji_diri() -> int:
                lambda t: t.replace("          python3 alat/periksa-paket.py\n", "", 1))
         mutasi("pemeriksa angka bukti & jumlah tugas dihapus",
                lambda t: t.replace("          python3 alat/periksa-angka-bukti.py\n", "", 1))
+        # Sejak 2026-09-19 skema hidup di proyek nyata: berkas migrasi lama dibekukan, dan penjaganya
+        # WAJIB tidak bisa dihapus dari CI (kalau dihapus, repo bisa menyimpang dari database nyata).
+        mutasi("pemeriksa migrasi beku dihapus dari CI",
+               lambda t: t.replace("          python3 alat/periksa-migrasi-beku.py\n", "", 1))
         mutasi("riwayat penuh (fetch-depth 0) diturunkan ke 1",
                lambda t: t.replace("          fetch-depth: 0", "          fetch-depth: 1", 1))
 
