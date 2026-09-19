@@ -31,6 +31,7 @@ sejauh tercatat, dan **keputusan yang lahir dari permintaan itu**, supaya tidak 
 | 11 | 2026-09-17 **[verbatim]** (lihat §2 di bawah) | Tanam **mekanisme audit/pemeriksaan/review independen** yang teliti & terukur; jelaskan caranya di panduan pengguna; **nilai dulu idenya** | ✅ ditanam (AUD-0…AUD-3) + dinilai bagus dengan 3 koreksi | `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`, `alat/audit-independen.py` |
 | 12 | 2026-09-17 **[verbatim]** *"sekarang aku mau audit dulu"* + *"bener-bener menyeluruh… termasuk file2 yang disiapkan untuk pengguna"* + *"satu file untuk pengguna yang betul-betul isinya lengkap… semacam manual book"* + gerbang **`tahan_semua`** | Audit dulu sebelum kerja ulang; lingkup menyeluruh termasuk berkas pengguna; satu buku induk lengkap; K-1 & K-2 menahan fase | ✅ mekanisme diperluas + buku induk dibuat (**diperbaiki lagi** di putaran 5, lihat §4) | `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §2b, `PANDUAN_PENGGUNA.md` |
 | 13 | 2026-09-17 (putaran 5) | Lihat **§4** — 7 permintaan baru | ✅ semuanya dikerjakan (P1–P7) | bukti di §3 di bawah |
+| 16 | 2026-09-19 (putaran 18c) | Lihat **§16** — permintaan **mode bimbingan** (respon cepat saat dipandu) + laporan bahwa rahasia Cloudflare sudah dipasang | ✅ dipakai | `PANDUAN_PENGGUNA.md` alur **AL-14**; `docs/AGENT_OPERATING_GUIDE.md` §14; `PROFIL_PENGGUNA.md` |
 | 15 | 2026-09-19 (putaran 18) | Lihat **§15** — akun Supabase/Resend/Cloudflare dibuat + nilai non-rahasia diisi di repo; izin menghapus bahan kalibrasi lama | ✅ dipakai | `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md` (commit `bd68685`); butir `T-018` ditutup |
 | 14 | 2026-09-17 (putaran 7) | Lihat **§9** — "pastikan semua permintaanku sudah dikerjakan" + bantuan tiap laman + Buku Uji Pemilik bertahap (juga ditampilkan di chat) | 🟡 **diverifikasi**: 6 cacat ketertelusuran ditemukan & diperbaiki; 6 temuan audit masih terbuka (bertugas) · 2 permintaan baru dijadwalkan (`T1-42`, `T1-43`) | `docs/teknis/REKAM_PESAN_PEMILIK.md` §9 · `docs/uji/AUDIT_RIWAYAT.md` §1b |
 
@@ -381,3 +382,34 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
 
 **Dua hal yang masih menunggu Lee (ditulis di `docs/TERTANGGUH.md`):** `T-020` (menyebar skema ke proyek Supabase nyata) dan
 `T-021` (menaikkan halaman kosong ke Cloudflare).
+
+---
+
+## §16. Putaran 18c (2026-09-19) — mode bimbingan + rahasia Cloudflare sudah dipasang
+
+**Kutipan verbatim (jangan diubah):**
+
+1. *"Secret udh dipasang. Sekarang aku harus apa?"* — Lee menyelesaikan **Langkah B** (rahasia `CLOUDFLARE_API_TOKEN`
+   di kotak rahasia GitHub) dan menanyakan langkah berikutnya. Artinya: butir `T-021` tinggal menunggu **izin publik**
+   dari Lee; agent **tidak** menjalankan deploy publik tanpa itu (Stop Condition §12).
+2. *"klo lagi pembimbingan usahakan respon nya mode respon cepat ya, kecuali klo memang perlu ada hal-hal yang dibaca
+   dan diperiksa atau diedit dulu supaya betul maka silahkan lakukan itu. Tapi menurut kamu sendiri gimana sebaiknya?
+   Apakah permintaan aku ini tepat atau ngga? Tolong kritisi…"* — Lee meminta **mode bimbingan**, sekaligus meminta agent
+   mengkritisi bila permintaannya kurang baik.
+3. *"aku mau itu ditanam dalam sistem ini, sehingga ketika aku perlu bimbingan aku tinggal bilang 'Tolong bimbing' atau
+   'Mode bimbingan' atau 'Beri arahan step by step' …"* — Lee meminta mekanismenya **ditanam**, bukan sekadar dijanjikan.
+
+**Keputusan agent & kritik yang disampaikan (dijawab apa adanya):**
+
+- Permintaan Lee **tepat** untuk bagian bimbingan: balasan panjang saat Lee sedang memegang layar memang memperlambat
+  tanpa menambah mutu. Karena itu ditanam sebagai **alur AL-14** (`PANDUAN_PENGGUNA.md`) + **§14**
+  (`docs/AGENT_OPERATING_GUIDE.md`) + catatan di `PROFIL_PENGGUNA.md`, dengan pemicu: `Tolong bimbing.` ·
+  `Mode bimbingan.` · `Beri arahan step by step.` · `Aku bingung, pandu aku.`, dan penutup
+  `Sudah beres, lanjut normal.`.
+- **Batasnya disampaikan lebih dulu (ini bagian kritiknya):** mode bimbingan **hanya memendekkan cara bicara**, bukan
+  memotong mutu. Bagian yang menyentuh **Stop Conditions §12** (biaya, keamanan/uang/data, keputusan terkunci,
+  tindakan tak bisa dibatalkan seperti **deploy publik**) dan klaim **"selesai"** tetap butuh bukti diperiksa dulu —
+  agent keluar dari mode singkat selama bagian itu saja. Alasan: aturan Lee sendiri — *"kalau maraton menimbulkan
+  buruknya kualitas, jangan lanjut"*.
+- **Yang tidak berubah:** catatan teknis, pemeriksa, dan handoff tetap dikerjakan penuh (di belakang), supaya sesi ini
+  tetap bisa dilanjutkan walau balasan ke Lee jadi pendek.

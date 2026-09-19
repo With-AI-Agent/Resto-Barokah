@@ -313,6 +313,33 @@ yang aman) tanpa pertanyaan; pemilik hanya perlu mengetik "lanjut" lagi untuk ba
 
 ---
 
+## 14. Mode Bimbingan (dipandu langkah demi langkah) — permintaan Lee 2026-09-19
+
+**Atas permintaan Lee:** ia sering harus memegang layar (Supabase, Cloudflare, GitHub, HP) dan panjangnya balasan agent
+membuatnya tersesat. Karena itu ada **mode bicara** khusus: `Tolong bimbing.` · `Mode bimbingan.` ·
+`Beri arahan step by step.` · `Aku bingung, pandu aku.` — semuanya masuk alur **AL-14** di `PANDUAN_PENGGUNA.md`.
+
+**Aturan mode bimbingan:**
+
+1. **Satu tindakan sekali.** Setiap balasan = langkah bernomor, masing-masing satu klik/ketikan, dan **diakhiri satu
+   langkah berikutnya yang jelas** ("sekarang: buka … lalu klik …").
+2. **Tanpa istilah.** Kalau sebuah istilah memang ada di layar Lee (mis. *Continue to summary*), sebut **persis** seperti
+   di layar; istilah teknis lain dijelaskan maksimal dalam 5 kata atau diganti kata sehari-hari.
+3. **Tidak menumpahkan pekerjaan dalam.** Pemeriksaan, catatan, dan pemeriksa tetap jalan di belakang; hasilnya **tidak**
+   dibacakan saat mode bimbingan — cukup "sudah selesai, ini hasilnya singkat".
+4. **Kalau langkahnya gagal:** tanya **apa yang Lee lihat di layar** (atau minta tangkapan layar), lalu perbaiki arahannya;
+   jangan menyalahkan Lee dan jangan menyuruh menebak.
+5. **Batas mutu TIDAK berkurang.** Mode bimbingan hanya memendekkan cara bicara. Bagian yang menyentuh **§12 (Stop
+   Conditions)** — biaya, keamanan/uang/data, keputusan yang sudah dikunci, tindakan tak bisa dibatalkan (mis. deploy
+   publik) — atau klaim **"selesai"** tetap butuh bukti diperiksa lebih dulu; di bagian itu agent **keluar dari mode
+   singkat selama bagian itu saja** dan menjelaskannya singkat.
+6. **Penutupnya jelas:** `Sudah beres, lanjut normal.` (atau tugas bimbingannya rampung). Agent menandai awal & akhir mode
+   ini di `_log-sesi/` supaya sesi berikutnya tahu dan bisa memakai gaya yang sama bila Lee memintanya lagi.
+7. **Dokumen yang menang:** kalau panduan langkah di `docs/ops/` (mis. `LANGKAH_PEMILIK_SEKARANG.md`) berbeda dari layar
+   Lee, **layar Lee yang benar** — perbaiki dokumennya, jangan paksa Lee mengikuti panduan lama.
+
+---
+
 ## Log Keputusan (riwayat dokumen ini)
 
 | Tanggal | Perubahan | Alasan |
@@ -330,3 +357,4 @@ yang aman) tanpa pertanyaan; pemilik hanya perlu mengetik "lanjut" lagi untuk ba
 | 2026-09-17 | §5 butir **4f buku pedoman induk wajib ikut diperbarui** + §7 DoD menambahkan bukti `alat/periksa-panduan.py` | Permintaan pemilik 2026-09-17: buku pedoman pengguna harus jadi induk yang lengkap & tidak boleh basi (mekanisme yang tidak bisa dipakai pemilik = mekanisme yang tidak ada) |
 | 2026-09-17 | §5 butir 4e **Audit independen AUD-0…AUD-3** + §7 DoD menyebut AUD-2 + §12 dua Stop Condition (temuan K-1/K-2 terbuka · permintaan audit pemilik) | Permintaan pemilik 2026-09-17: mekanisme audit/pemeriksaan/review independen yang teliti & terukur, memakai skill + riset, dan bisa ia picu sendiri (`docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`) |
 | 2026-09-17 | §13 aturan 10: **galat alat sesaat bukan alasan berhenti** (perbaiki → ulangi → lanjut; kalau terpaksa berhenti, tulis sebab + langkah berikutnya) | Permintaan Lee 2026-09-17 (pesan ke-29): *"Kenapa kamu berhenti? Lanjutkan"* — penyebabnya galat alat sesaat (salah `cwd`), bukan masalah proyek |
+| 2026-09-19 | §14 **Mode Bimbingan** (alur **AL-14**) + kalimat pemicu & penutupnya di `PANDUAN_PENGGUNA.md` | Permintaan Lee 2026-09-19: sedang memegang layar Cloudflare, balasan agent yang panjang membuatnya tersesat — "klo lagi pembimbingan usahakan respon nya mode respon cepat"; dijawab agent: cepat untuk **bimbingan**, tetap teliti untuk **bukti** |

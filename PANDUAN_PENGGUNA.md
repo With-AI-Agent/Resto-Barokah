@@ -38,6 +38,7 @@ purpose: BUKU PEDOMAN INDUK (manual book) untuk Lee — satu tempat untuk SEMUA 
 | Melihat/menjawab hal yang ditunda | **AL-10** | kerja harian |
 | Menguji sendiri di aplikasi | **AL-11** | uji terima |
 | Mengubah aturan/gaya/panggilan nama | **AL-12** | pengaturan |
+| **Minta dibimbing langkah demi langkah** (mode bimbingan) | **AL-14** | kerja harian |
 
 > **Sebelum mulai sesi baru:** permintaan Lee sepanjang proyek tersimpan di `docs/teknis/REKAM_PESAN_PEMILIK.md`.
 > Agent wajib membacanya di awal sesi (ada di Prompt Pembuka Bagian C1) supaya tidak ada permintaan yang terlewat.
@@ -272,6 +273,18 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
   - **Ada sesi yang sengaja kamu tinggalkan?** Catat di `docs/ops/SESI_DITINGGALKAN.md` (satu baris: cabang + tanggal + alasan). Mesin akan **menolak** handoff/`--siapkan` yang menunjuk ke sesi itu, dan `--daftar-sesi` menandainya — jadi tidak ada yang menyarankan sesi itu lagi tanpa perintahmu (`--paksa` tetap tersedia bila kamu berubah pikiran, dan jejaknya tercatat).
   - **Satu sesi aktif pada satu waktu.** Bila kamu memakai dua sesi bersamaan, keduanya bisa memperbaiki hal yang sama dan menghasilkan dua cabang yang berbeda isinya (pernah terjadi 2026-09-18: dua sesi sama-sama menutup tiga cacat mekanisme). Pilih satu untuk melanjutkan; sesi lain cukup ditinggalkan (tidak perlu dihapus).
 
+### AL-14 — Mode bimbingan (dipandu langkah demi langkah)
+
+- **Apa ini:** cara bicara sementara yang membuat agent memandu Lee **satu tindakan sekali** — pendek, tanpa istilah, dan setiap balasan berakhir dengan "klik apa / ketik apa sekarang".
+- **Kapan dipakai:** saat Lee sedang memegang layar (Supabase, Cloudflare, GitHub, HP) dan butuh arahan; atau saat Lee bilang bingung/ketinggalan. **Kalimat Lee:** `Tolong bimbing.` · `Mode bimbingan.` · `Beri arahan step by step.` · `Aku bingung, pandu aku.` — kalimatnya tidak harus persis: agent mencocokkan **maksudnya**. **Penutupnya:** `Sudah beres, lanjut normal.` · `Mode normal lagi.` (atau begitu tugas bimbingannya selesai).
+- **Langkah Lee:** ikuti satu langkah yang disebut; kalau layarnya tidak cocok dengan yang disebut agent, **bilang apa yang terlihat** (atau kirim tangkapan layar) — jangan menebak.
+- **Yang agent lakukan:** (1) menandai di `_log-sesi/` bahwa mode bimbingan aktif + kapan mulai/diakhiri; (2) menjawab **pendek**: satu tindakan sekali, angka urut, tanpa istilah teknis, selalu diakhiri **satu langkah berikutnya yang jelas**; (3) menyebut nama tombol/menu **persis** seperti di layar Lee; (4) tetap bekerja di belakang (memeriksa, mencatat) tetapi **tidak** menumpahkan hasil pemeriksaan ke balasan bimbingan; (5) bila ada dua jalan (mis. templat vs *Create Custom Token*), sebut yang **lebih mudah lebih dulu**, lalu jalan cadangan satu baris.
+- **Bukti yang Lee terima:** akhir balasan selalu berbunyi "sekarang: …" (satu tindakan), plus laporan singkat setelah langkahnya berhasil.
+- **Lama:** sampai tugas bimbingan selesai (biasanya menit).
+- **Kalau macet:** bila langkah bimbingan menyentuh **§12 Stop Conditions** (biaya, keamanan/uang/data, keputusan terkunci, tindakan tak bisa dibatalkan seperti deploy publik) atau menyentuh **bukti "selesai"**, agent **keluar dari mode singkat** selama bagian itu saja: menjelaskan singkat kenapa harus berhenti, lalu meminta keputusan Lee — **mode bimbingan tidak mengurangi keselamatan, hanya memendekkan cara bicara**. Bila layar Lee berbeda dari panduan, agent memperbaiki panduannya (dokumen ini) agar sesi berikutnya tidak salah lagi.
+
+---
+
 ## Bagian C — Semua prompt (dengan label siapa yang memakai)
 
 **Aturan label:** **[LEE → AGENT]** = tempel di sesi kerja · **[LEE → PENINJAU]** = tempel di chat BARU (auditor/peninjau). Kalau prompt salah tempat, agent menolak dengan sopan dan meminta yang benar — itu fitur, bukan kerusakan.
@@ -348,6 +361,8 @@ Tutup sesi ini dengan benar:
 | Pindah ke sesi LAIN (bukan sesi terakhir) | `Tampilkan daftar sesi yang bisa dilanjutkan.` (= **AL-13**) |
 | Merasa ada yang tidak beres | `Aku merasa ada yang tidak beres pada <hal>. Jangan membela pekerjaan sebelumnya — buktikan ulang dari nol.` |
 | Berhenti karena mutu | `Berhenti dulu, aku mau batch bersih.` |
+| Sedang pegang layar, minta dipandu | `Tolong bimbing.` / `Mode bimbingan.` / `Beri arahan step by step.` (= **AL-14**) |
+| Selesai dibimbing, kembali normal | `Sudah beres, lanjut normal.` (= menutup **AL-14**) |
 | Lihat hal tertunda | `Tunjukkan daftar hal yang ditunda beserta usulan jawabannya.` |
 | Setuju semua usulan | `Setuju semua.` |
 | Selain satu hal | `Selain <hal>, setuju semua.` |
