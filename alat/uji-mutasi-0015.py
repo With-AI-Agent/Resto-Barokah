@@ -20,6 +20,8 @@ Menguji migrasi `supabase/migrations/0015_penutup_celah_putaran16.sql`:
                  (uji: `supabase/tes/metode_bayar_nonaktif.sql`,
                        `supabase/tes/pembatalan_sekali.sql`,
                        `supabase/tes/lifecycle_pesanan.sql`)
+  * bagian 9 — F-04 audit AUD-3 2026-09-19 (K-2): status item bisa dilompati/dimundurkan dan
+                 pembatalan pra-dapur tanpa jejak (uji: `supabase/tes/status_item_transisi.sql`)
 Gerbang yang tidak bisa MERAH dianggap belum terpasang — itu pelajaran mahal proyek ini.
 
 Cara kerjanya: salin repo ke folder sementara, RUSAK satu penjaga (atau kembalikan versi lama
@@ -53,7 +55,9 @@ UJI_UANG = "supabase/tes/urutan_uang.sql"                               # bagian
 UJI_F03 = "supabase/tes/metode_bayar_nonaktif.sql"                      # bagian 8a (F-03)
 UJI_F05 = "supabase/tes/pembatalan_sekali.sql"                          # bagian 8b (F-05)
 UJI_F06 = "supabase/tes/lifecycle_pesanan.sql"                          # bagian 8c (F-06)
-SEMUA_UJI = (UJI, UJI_PR02, UJI_F01, UJI_PR03, UJI_PR04, UJI_UANG, UJI_F03, UJI_F05, UJI_F06)
+UJI_F04 = "supabase/tes/status_item_transisi.sql"                       # bagian 9 (F-04)
+SEMUA_UJI = (UJI, UJI_PR02, UJI_F01, UJI_PR03, UJI_PR04, UJI_UANG, UJI_F03, UJI_F05, UJI_F06,
+             UJI_F04)
 
 
 def segarkan_salinan() -> None:
@@ -122,7 +126,7 @@ def main() -> int:
     if not hijau:
         print("KONTROL GAGAL: salinan utuh pun tidak hijau — perbaiki dulu berkas ujinya.\n" + keluar)
         return 1
-    print("  OK  kontrol: salinan utuh → SEMUA uji bagian 1–8 hijau")
+    print("  OK  kontrol: salinan utuh → SEMUA uji bagian 1–9 hijau")
 
     hasil: list[tuple[str, bool, str]] = []
 
@@ -174,10 +178,13 @@ def main() -> int:
 
     # 4) Pengecualian diam-diam untuk kasir → wajib MERAH (serangan diuji dari kursi kasir).
     def kecualikan_kasir(t: str) -> str:
+        # Catatan (2026-09-20): definisi `picu_item_jaga` kini muncul DUA kali di berkas ini
+        # (bagian 1 dan versi lengkapnya di bagian 9, yang menang saat migrasi dijalankan).
+        # Mutasi harus menyentuh SEMUA kemunculan — kalau hanya yang pertama, versi bagian 9
+        # menimpanya kembali dan mutasi jadi tumpul (kejadian nyata saat bagian 9 ditambahkan).
         return t.replace(
             "  if tg_op = 'UPDATE'\n     and (new.status = 'batal' or new.qty < old.qty) then",
             "  if tg_op = 'UPDATE'\n     and (new.status = 'batal' or new.qty < old.qty)\n     and v_peran <> 'kasir' then",
-            1,
         )
 
     hasil.append(mutasi("pagar diberi pengecualian diam-diam untuk peran kasir", kecualikan_kasir))
@@ -202,9 +209,11 @@ def main() -> int:
         m = re.search(r"create or replace function public\.picu_item_jaga\(\).*?\n\$\$;\n", lama14, re.S)
         if not m:
             raise AssertionError("fungsi picu_item_jaga versi 0014 tidak ditemukan")
-        m15 = re.search(r"create or replace function public\.picu_item_jaga\(\).*?\n\$\$;\n", t, re.S)
-        if not m15:
+        # Ambil kemunculan TERAKHIR: definisi yang benar-benar berlaku saat migrasi dijalankan.
+        semua15 = list(re.finditer(r"create or replace function public\.picu_item_jaga\(\).*?\n\$\$;\n", t, re.S))
+        if not semua15:
             raise AssertionError("fungsi picu_item_jaga versi 0015 tidak ditemukan")
+        m15 = semua15[-1]
         return t[: m15.start()] + m.group(0) + t[m15.end():]
 
     hasil.append(mutasi("fungsi penjaga dikembalikan ke versi 0014 (yang bocor)", pakai_versi_0014))
@@ -412,12 +421,36 @@ def main() -> int:
     hasil.append(mutasi("stempel lifecycle pesanan boleh dikarang perangkat (cacat AUD-3 F-06)",
                         stempel_boleh_dikarang, uji=UJI_F06))
 
+    # ---------------------------------------------------------- bagian 9 (AUD-3 F-04)
+    # 21) Aturan transisi status item dilepas (cacat asli F-04) → MERAH.
+    def status_item_bebas(t: str) -> str:
+        return t.replace(
+            """  if tg_op = 'INSERT' then
+    if new.status is distinct from 'baru' then
+      raise exception 'Item baru selalu mulai dari status baru (diminta %). Pembatalan punya jalurnya sendiri: baris pembatalan beralasan.', new.status;
+    end if;
+  elsif new.status is distinct from old.status then
+    if new.status = 'batal' then
+      raise exception 'Pembatalan item WAJIB lewat baris pembatalan resmi (alasan + persetujuan PIN bila dapur sudah mulai) — bukan dengan mengubah status baris item.';
+    end if;
+    if not (old.status = 'baru' and new.status = 'dimasak')
+       and not (old.status = 'dimasak' and new.status = 'siap') then
+      raise exception 'Status item hanya maju satu langkah: baru → dimasak → siap (dari % ke %).', old.status, new.status;
+    end if;
+  end if;""",
+            "  -- (mutasi) aturan transisi status item DIHAPUS",
+            1,
+        )
+
+    hasil.append(mutasi("status item boleh dilompati / dimundurkan / jadi batal bebas (cacat AUD-3 F-04)",
+                        status_item_bebas, uji=UJI_F04))
+
     # Kontrol penutup: setelah semua mutasi dipulihkan, SEMUA uji wajib hijau lagi.
     hijau_akhir, keluar_akhir = semua_hijau()
     hasil.append(("kontrol penutup: salinan dipulihkan → semua uji hijau", hijau_akhir,
                   "HIJAU" if hijau_akhir else "MERAH\n" + keluar_akhir))
 
-    print("\nUJI MUTASI — penutup celah putaran16 (0015: K-1, K-2a…K-2d, F-01/F-02, F-03/F-05/F-06)")
+    print("\nUJI MUTASI — penutup celah putaran16 (0015: K-1, K-2a…K-2d, F-01/F-02, F-03/F-05/F-06, F-04)")
     merah = 0
     for nama, lulus, catatan in hasil:
         if not lulus:

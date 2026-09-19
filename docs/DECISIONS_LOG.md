@@ -1024,3 +1024,39 @@ dan `supabase/tes/lifecycle_pesanan.sql`; uji lama `supabase/tes/pembayaran.sql`
 ulang atas pesanan yang sudah batal memang harus ditolak) · `alat/uji-mutasi-0015.py` kini **20 kasus**,
 tiga di antaranya membalik masing-masing penjaga dan **terbukti MERAH** · probe audit ketiga kini
 **GAGAL** = cacat terbukti hilang · suite `node alat/uji-sql.mjs` **50 LULUS · 0 GAGAL**.
+
+---
+
+## [Uang/2026-09-20] Status item hanya maju satu langkah, dan pembatalan selalu punya jalur resmi (berjejak)
+
+**Konteks (temuan K-2 audit AUD-3 2026-09-19 F-04, dibuktikan nyata lewat probe sendiri
+`docs/uji/audit/probe-2026-09-20/aud-3-f04-status-item.sql`):** perangkat bisa (a) memasukkan
+item yang **lahir `siap`** — melewati seluruh pemeriksaan "dapur sudah mulai?"; (b) melompat
+`baru → siap`; (c) memundurkan status yang sudah maju; dan (d) **membatalkan item hanya dengan
+mengubah kolom status** — tanpa alasan, tanpa baris `pembatalan`, tanpa nilai kerugian. Yang
+terakhir itu mematikan seluruh rantai bukti pembatalan (Aturan Bisnis 7) dan membuat laporan
+kerugian tidak bisa dipercaya.
+
+**Keputusan:**
+1. **Status item hanya maju satu langkah: `baru → dimasak → siap`** (aturan terkunci TECH_SPEC
+   ART-4). Item baru WAJIB lahir `baru`; lompatan, mundur, dan "menghidupkan kembali" item yang
+   sudah batal ditolak.
+2. **`batal` bukan transisi biasa.** Satu-satunya jalur yang sah adalah **baris `pembatalan`
+   resmi** (beralasan; wajib persetujuan PIN atasannya bila dapur sudah mulai). Pemicu baris itu
+   yang menandai item `batal` dan mencatat nilai kerugian dari salinan harga.
+3. **Jalur peladen tetap bebas** (peran pemilik tabel / `service_role`): pemicu pembatalan dan
+   fungsi peladen tidak ikut tertahan; begitu pula penyiapan data & perbaikan keadaan.
+
+**Alasan:** jalur pembatalan yang "lewat jalur belakang" membuat dua sumber kebenaran untuk
+kejadian yang sama — satu dengan jejak, satu tanpa. Aturan transisi ini juga yang membuat arti
+status item sama bagi dapur, kasir, dan laporan.
+
+**Bukti:** uji regresi baru `supabase/tes/status_item_transisi.sql`; dua uji lama **diselaraskan**
+ke jalur resmi — `supabase/tes/pesanan.sql` (kasir kini membatalkan lewat baris `pembatalan` dan
+membuktikan pembatalan langsung DITOLAK) dan `supabase/tes/uang_peladen.sql` (item uji dibatalkan
+lewat baris resmi) · `alat/uji-mutasi-0015.py` kini **21 kasus**; mutasi "aturan transisi dilepas"
+**terbukti MERAH** · probe F-04 kini **GAGAL** = cacat terbukti hilang · suite
+`node alat/uji-sql.mjs` **51 LULUS · 0 GAGAL**. **Catatan mekanisme:** karena definisi berlaku
+`picu_item_jaga` kini hidup di bagian 9 (berkas beku `0009`–`0014` tidak disentuh), dua mutasi lama
+yang menyunting definisi PERTAMA diperbaiki agar menyentuh definisi TERAKHIR — kalau tidak,
+mutasinya tumpul (versi bagian 9 menimpa kembali).

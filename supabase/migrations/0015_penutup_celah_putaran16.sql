@@ -890,3 +890,120 @@ comment on function public.picu_pesanan_jejak_jujur() is
 grant execute on function public.picu_pembayaran_jujur() to authenticated, service_role;
 grant execute on function public.picu_pembatalan_sah() to authenticated, service_role;
 grant execute on function public.picu_pesanan_jejak_jujur() to authenticated, service_role;
+
+
+-- ============================================================================
+-- BAGIAN 9 — K-2 audit AUD-3 2026-09-19 F-04: state machine status item
+--           (dibuktikan nyata lewat probe
+--            docs/uji/audit/probe-2026-09-20/aud-3-f04-status-item.sql)
+-- ============================================================================
+-- Aturan terkunci TECH_SPEC ART-4: baru → dimasak → siap; pembatalan wajib beralasan &
+-- tercatat (PRD Aturan Bisnis 7 & 11). Sebelum ini perangkat bisa: (a) memasukkan item
+-- yang LAHIR `siap` (melewati semua pemeriksaan "dapur sudah mulai?"), (b) melompat
+-- `baru → siap`, (c) menurunkan status yang sudah maju, (d) membatalkan item hanya dengan
+-- mengubah status — tanpa alasan, tanpa baris `pembatalan`, tanpa nilai kerugian.
+--
+-- Definisi `picu_item_jaga` yang berlaku ada di berkas ini bagian 1; berkas `0009`–`0014`
+-- BEKU, jadi versi lengkapnya hidup di sini. Pemicu `item_jaga` sendiri tidak berubah.
+-- ============================================================================
+create or replace function public.picu_item_jaga()
+returns trigger
+language plpgsql
+set search_path = public, pg_temp
+as $$
+declare
+  v_pesanan record;
+  v_peran   text;
+begin
+  -- 1) Subtotal SELALU dihitung ulang peladen dari salinan harga × jumlah.
+  new.subtotal := new.harga_saat_itu * new.qty;
+
+  if auth.uid() is null or public.peran_peladen() then
+    return new;   -- penyiapan / fungsi peladen
+  end if;
+
+  select p.id, p.dikirim_ke_dapur_pada, p.status
+    into v_pesanan
+    from public.pesanan p
+   where p.id = coalesce(new.pesanan_id, old.pesanan_id);
+
+  v_peran := public.peran_saya();
+
+  -- 2) Dapur hanya boleh memajukan STATUS MASAK. Dapur tidak menjual: mengubah
+  --    jumlah/harga/komposisi pesanan bukan kewenangannya (temuan review-2 PR-05).
+  if tg_op = 'UPDATE' and v_peran = 'dapur' then
+    if new.qty is distinct from old.qty
+       or new.harga_saat_itu is distinct from old.harga_saat_itu
+       or new.nama_saat_itu is distinct from old.nama_saat_itu
+       or new.varian is distinct from old.varian
+       or new.tambahan is distinct from old.tambahan
+       or new.catatan is distinct from old.catatan
+       or new.pesanan_id is distinct from old.pesanan_id then
+      raise exception 'Dapur hanya boleh memajukan status masak — isi pesanan (jumlah, harga, catatan) tidak boleh diubah dapur.';
+    end if;
+  end if;
+
+  -- 2b) Pesanan yang sudah lunas/batal TIDAK boleh diubah lagi.
+  if coalesce(v_pesanan.status, '') in ('lunas', 'batal') then
+    raise exception 'Pesanan yang sudah % tidak boleh diubah lagi.', v_pesanan.status;
+  end if;
+
+  -- 2c) Salinan harga & nama BEKU setelah dapur mulai: mengubahnya butuh izin `ubah_harga`.
+  if tg_op = 'UPDATE'
+     and (new.harga_saat_itu is distinct from old.harga_saat_itu
+          or new.nama_saat_itu is distinct from old.nama_saat_itu)
+     and (v_pesanan.dikirim_ke_dapur_pada is not null
+          or coalesce(v_pesanan.status, '') in ('dimasak', 'siap'))
+     and not public.boleh('ubah_harga') then
+    raise exception 'Harga/nama yang sudah tercatat beku setelah dapur mulai — mengubahnya perlu izin ubah harga.';
+  end if;
+
+  -- 3) Pembatalan item / pengecilan jumlah SESUDAH DAPUR — dari perangkat SELALU ditolak.
+  --    TEMUAN K-1 (review PR-01, 2026-09-19): dulu di sini ada pemeriksaan
+  --    `current_setting('resto.pembatalan_pesanan')`. Pengaturan transaksi bisa ditulis
+  --    SIAPA PUN lewat `set_config` — jadi kasir bisa mengarang "izin pembatalan" sendiri.
+  --    Sekarang tidak ada lagi nilai yang bisa dipalsukan: bukti sah satu-satunya adalah
+  --    baris `public.pembatalan` yang lahir lewat jalur resmi (0013: tahap + PIN atasan +
+  --    kupon sekali pakai), dan baris item diubah oleh pemicu resmi itu sendiri
+  --    (SECURITY DEFINER → berjalan sebagai pemilik tabel, tidak lewat cabang ini).
+  if tg_op = 'UPDATE'
+     and (new.status = 'batal' or new.qty < old.qty) then
+    if v_pesanan.dikirim_ke_dapur_pada is not null
+       or coalesce(v_pesanan.status, '') in ('dimasak', 'siap', 'lunas') then
+      raise exception 'Pembatalan item setelah dapur mulai wajib lewat baris pembatalan resmi (alasan + persetujuan PIN atasan). Penanda transaksi tidak lagi diakui.';
+    end if;
+  end if;
+
+  -- 4) STATE MACHINE STATUS ITEM (temuan AUD-3 F-04, K-2).
+  --    Aturan terkunci (TECH_SPEC ART-4): status item hanya MAJU satu langkah
+  --    baru → dimasak → siap. Sebelum perbaikan ini perangkat bisa melompat (baru → siap),
+  --    menurunkan status yang sudah maju, atau MEMBATALKAN item cukup dengan mengubah
+  --    statusnya — tanpa alasan, tanpa baris `pembatalan`, tanpa nilai kerugian. Item yang
+  --    lahir `siap` juga melewati seluruh pemeriksaan "sudah mulai dimasak?".
+  --    Penanda `batal` BUKAN transisi biasa: satu-satunya jalur sah adalah baris
+  --    `pembatalan` resmi (ditulis di sini adalah pelanggaran aturan bisnis 7).
+  if tg_op = 'INSERT' then
+    if new.status is distinct from 'baru' then
+      raise exception 'Item baru selalu mulai dari status baru (diminta %). Pembatalan punya jalurnya sendiri: baris pembatalan beralasan.', new.status;
+    end if;
+  elsif new.status is distinct from old.status then
+    if new.status = 'batal' then
+      raise exception 'Pembatalan item WAJIB lewat baris pembatalan resmi (alasan + persetujuan PIN bila dapur sudah mulai) — bukan dengan mengubah status baris item.';
+    end if;
+    if not (old.status = 'baru' and new.status = 'dimasak')
+       and not (old.status = 'dimasak' and new.status = 'siap') then
+      raise exception 'Status item hanya maju satu langkah: baru → dimasak → siap (dari % ke %).', old.status, new.status;
+    end if;
+  end if;
+
+  return new;
+end
+$$;
+
+comment on function public.picu_item_jaga() is
+  'Menjaga baris pesanan_item: subtotal dihitung peladen, status item hanya maju satu langkah (baru → dimasak → siap) dan TIDAK boleh lahir/lompat/ mundur, pembatalan item hanya lewat baris pembatalan resmi, dapur hanya memajukan status masak, isi yang sudah dibekukan tidak diubah sembarangan (temuan K-1 & AUD-3 F-04).';
+
+-- ---------------------------------------------------------------------------
+-- 9b. Hak akses fungsi yang diperbarui (tetap sama seperti sebelumnya)
+-- ---------------------------------------------------------------------------
+grant execute on function public.picu_item_jaga() to authenticated, service_role;

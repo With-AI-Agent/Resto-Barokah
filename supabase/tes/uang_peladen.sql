@@ -60,8 +60,12 @@ select uji.sama(
 );
 
 -- 5. Batalkan satu item → tagihan ikut turun (baris batal tidak ditagih).
-update public.pesanan_item set status = 'batal'
- where pesanan_id = '00000000-0000-0000-0000-00000000f001';
+--    SEJAK AUD-3 F-04 (2026-09-20) pembatalan tidak lagi boleh ditulis dengan mengubah
+--    status item; jalurnya adalah baris `pembatalan` resmi (beralasan & berjejak).
+insert into public.pembatalan (pesanan_id, pesanan_item_id, tahap, alasan)
+select '00000000-0000-0000-0000-00000000f001', pi.id, 'sebelum_dapur', 'pelanggan membatalkan satu item'
+  from public.pesanan_item pi
+ where pi.pesanan_id = '00000000-0000-0000-0000-00000000f001';
 select uji.sama(
   (select p.total from public.pesanan p where p.id = '00000000-0000-0000-0000-00000000f001'),
   0, 'item batal → total kembali 0 (bukan tagihan hantu)'

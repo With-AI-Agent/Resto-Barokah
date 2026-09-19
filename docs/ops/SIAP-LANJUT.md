@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `e8487a89995d51e9cb439691e05d933f4f8ef908`
+- **Commit keadaan kerja:** `7aab6737df04215d41eb395d8af5eb952e17cab9`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 35476760387, commit e8487a89)
+- **CI terakhir:** failure (run 35476961541, commit 7aab6737)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (52 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (52 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (53 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (53 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -64,6 +64,31 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18m (2026-09-20) — BAGIAN 9 SELESAI: F-04 DITUTUP (status item & pembatalan berjejak).**
+
+Pola yang sama: probe dulu, baru perbaikan. Probe `docs/uji/audit/probe-2026-09-20/aud-3-f04-status-item.sql`
+dulu **LULUS** (cacat ada: item bisa lahir `siap`, status bisa melompat/mundur, item bisa dibatalkan
+hanya dengan mengubah statusnya), sesudah perbaikan **GAGAL**. Perbaikannya di
+`supabase/migrations/0015_penutup_celah_putaran16.sql` **bagian 9** (versi berlaku `picu_item_jaga`):
+item baru selalu `baru`; status hanya maju satu langkah `baru → dimasak → siap` (TECH_SPEC ART-4);
+`batal` **hanya** lewat baris `pembatalan` resmi (beralasan, ber-PIN bila sesudah dapur).
+
+**Bukti mesin:** suite SQL **51 berkas LULUS · 0 GAGAL** · `python3 alat/uji-mutasi-0015.py` **21 kasus**
+(semua wajib MERAH terbukti) · daftar temuan `docs/uji/AUDIT_RIWAYAT.md` §1c = **24 DITUTUP / 25 TERBUKA** ·
+`python3 _sistem/validate_system.py` PASS · `python3 alat/periksa-bersih.py` LOLOS · keputusan di
+`docs/DECISIONS_LOG.md`. **Pelajaran mekanisme:** karena `picu_item_jaga` kini punya definisi berlaku di
+bagian 9, mutasi WAJIB menyentuh definisi TERAKHIR (dua mutasi lama sudah disesuaikan).
+
+**Langkah berikutnya (urut) — maraton T1-45 lanjut:**
+1. **Sisa 11 temuan audit F**, mulai yang bisa diprobe cepat: **F-07** (`catatan_audit` belum ada →
+   pemilik `T1-13`, dicatat bukan disembunyikan) · **F-08** (`T1-24`…`T1-26`, Fase 1B) · **F-09** (`T8-01`) ·
+   lalu yang **DUGAAN** (F-10 izin admin cabang · F-11 helper PIN · F-12 serialisasi uang · F-13 nomor
+   pesanan): dugaan WAJIB diuji dulu dengan probe, tidak boleh langsung disebut nyata. Terakhir K-3
+   (F-14 `ujiSambungan`, F-15 fokus modal, F-16 handoff basi, F-18 oracle PIN sisa).
+2. **Lanjut temuan lama**: K-3 (PR-05…PR-09, PR-13, PR-14) lalu K-4 (5 butir; PR-11 & D F-04 milik `T1-44`).
+3. Aturan tetap: bagian baru `0015` + uji regresi + mutasi + `DECISIONS_LOG.md` bila menyentuh
+   uang/keamanan; commit & push per batch; **jangan merge PR mana pun** tanpa Lee.
 
 **PUTARAN 18l (2026-09-20) — BAGIAN 8 SELESAI: TIGA CACAT K-2 AUDIT F DITUTUP (commit `e8487a8`).**
 

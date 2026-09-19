@@ -147,8 +147,8 @@ select uji.harap_gagal(
 reset role;
 select uji.klaim(null);
 
--- 8. Dapur boleh memajukan status item (baru → dimasak → siap), kasir boleh
---    membatalkan SATU item tanpa menghapus barisnya.
+-- 8. Dapur boleh memajukan status item (baru → dimasak → siap); kasir membatalkan SATU item
+--    LEWAT BARIS PEMBATALAN resmi (sejak AUD-3 F-04 status item tidak bisa diubah jadi `batal`).
 select uji.klaim('90000000-0000-0000-0000-000000000006');   -- dapur di Cabang Dua
 set local role authenticated;
 update public.pesanan_item set status = 'dimasak' where pesanan_id = 'eeee0000-0000-0000-0000-000000000001';
@@ -162,11 +162,27 @@ select uji.sama(
 
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-update public.pesanan_item set status = 'batal' where pesanan_id = 'eeee0000-0000-0000-0000-000000000001';
+-- SEJAK AUD-3 F-04 (2026-09-20): status item TIDAK boleh diubah langsung menjadi `batal`.
+-- Pembatalan item lahir dari baris `pembatalan` resmi (beralasan, berjejak) — kasir tetap
+-- boleh membatalkan, tetapi lewat jalur yang bisa diaudit.
+select uji.harap_gagal_sebab(
+  $$update public.pesanan_item set status = 'batal' where pesanan_id = 'eeee0000-0000-0000-0000-000000000001'$$,
+  'baris pembatalan resmi',
+  'kasir tidak bisa membatalkan item hanya dengan mengubah status barisnya'
+);
+insert into public.pembatalan (pesanan_id, pesanan_item_id, tahap, alasan)
+select 'eeee0000-0000-0000-0000-000000000001', pi.id, 'sebelum_dapur', 'pelanggan membatalkan satu item'
+  from public.pesanan_item pi
+ where pi.pesanan_id = 'eeee0000-0000-0000-0000-000000000001';
 select uji.sama(
   (select pi.status from public.pesanan_item pi where pi.pesanan_id = 'eeee0000-0000-0000-0000-000000000001'),
   'batal',
-  'kasir cabangnya boleh membatalkan item (baris tetap ada)'
+  'kasir cabangnya boleh membatalkan item lewat baris pembatalan resmi (baris item tetap ada)'
+);
+select uji.sama(
+  (select count(*) from public.pembatalan pb where pb.pesanan_id = 'eeee0000-0000-0000-0000-000000000001'),
+  1::bigint,
+  'jejak pembatalan tercatat SATU baris (bukan pembatalan tanpa jejak)'
 );
 select uji.harap_gagal(
   $$update public.pesanan set status = 'entah' where id = 'eeee0000-0000-0000-0000-000000000001'$$,
