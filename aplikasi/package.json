@@ -10,15 +10,17 @@
     "dev": "vite",
     "build": "tsc -b --noEmit && vite build",
     "preview": "vite preview --host",
-    "deploy": "npm run build && wrangler deploy",
+    "deploy": "npm run build && npx --yes wrangler@4 deploy",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "cek:supabase": "node alat/cek-supabase.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

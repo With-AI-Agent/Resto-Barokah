@@ -49,6 +49,7 @@ GERBANG_WAJIB = [
     ("uji unit (Vitest)", r"npm test"),
     ("bangun aplikasi", r"npm run build"),
     ("kerentanan dependency (npm audit, 0 toleransi)", r"npm audit --audit-level=low"),
+    ("uji sambung Supabase dengan kunci publik (T0-08)", r"npm run cek:supabase"),
     ("pasang alat uji SQL", r"npm ci --prefix alat"),
     ("suite uji SQL penuh", r"node alat/uji-sql.mjs"),
     ("bukti mutasi pagar migrasi 0012", r"python3 alat/uji-mutasi-0012.py"),

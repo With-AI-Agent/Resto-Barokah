@@ -710,3 +710,38 @@ bahan ditulis ke `/tmp`, paket memuat blok `diff`; `python3 alat/periksa-kunci-k
 
 **File terkait:** `alat/review-pr.py`, `alat/periksa-kunci-kalibrasi.py`, `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §7,
 `docs/uji/kalibrasi/CARA-PAKAI.md`, `.github/workflows/ci.yml`, `docs/uji/AUDIT_RIWAYAT.md` (D F-05).
+
+---
+
+## [Infrastruktur/2026-09-19] Akun pemilik aktif: nilai PUBLIK boleh hidup di repo/CI, nilai RAHASIA tidak (T0-00 ditutup)
+
+**Konteks:** Lee membuat akun **Supabase + Resend + Cloudflare** (2026-09-19) dan menyerahkan nilai non-rahasia lewat repo
+(`docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`, commit `bd68685`): URL proyek, kunci **publishable/anon**, id proyek, region
+**Singapura**, id akun Cloudflare. Kunci `service_role` tidak pernah masuk repo maupun obrolan (aturan `docs/TECH_SPEC.md` §6).
+
+**Keputusan:**
+1. **Dua kelas nilai dipisah tegas.** Nilai publik (URL proyek + kunci `publishable`/anon) boleh hidup di repo dan boleh
+   tampil di berkas CI — keamanan data dijaga RLS, bukan oleh kerahasiaan nilai itu. Nilai rahasia (`service_role`, Resend,
+   Cloudflare, kata sandi database) tetap hanya di berkas lokal yang diabaikan Git (`*.local.md`) atau di panel rahasia
+   Cloudflare/Supabase — **tidak pernah** masuk repo, obrolan, atau berkas CI.
+2. **Uji sambung T0-08 dijalankan di CI, bukan di mesin agent.** Lingkungan agent tidak punya jalan keluar jaringan ke
+   `*.supabase.co` (terbukti: `curl` HTTP 000 / TLS ditolak, domain umum lain pun sama), sedangkan runner GitHub punya.
+   Gerbang CI ke-50: `npm run cek:supabase` memakai kunci publik saja (kesehatan Auth + akar PostgREST) — tanpa membaca
+   satu baris data.
+3. **DoD `select 1` pada T0-08 belum dapat dibuktikan hari ini** karena skema (14 migrasi) **belum disebar** ke proyek
+   Supabase nyata; penyebaran butuh keputusan + kredensial pemilik → butir tunggu `T-020`. Tugas `T0-08` karena itu
+   **tetap terbuka** dan ditandai `❓ T-020` — bukan ditutup dengan klaim yang tidak bisa dibuktikan.
+4. **Deploy publik T0-09 butuh keputusan Lee** (tindakan publik/tak bisa dibatalkan) → butir tunggu `T-021`; persiapan
+   (`aplikasi/wrangler.toml` + `npm run deploy`) sudah selesai.
+
+**Batas jujur:** uji sambung membuktikan ALAMAT + KUNCI + JARINGAN (server menerima kunci publik). Ia **tidak** membuktikan
+tabel sudah ada, RLS benar, atau aplikasi bisa membaca data nyata — itu tetap sisa pekerjaan (sebar skema + uji di layanan
+nyata), bukan klaim selesai.
+
+**Bukti:** gerbang CI ke-50 ada di `.github/workflows/ci.yml` dan diawasi dua arah oleh `python3 alat/periksa-gerbang-ci.py`
+(termasuk `--uji-diri`); `node aplikasi/alat/cek-supabase.mjs --uji-diri` 5/5 LOLOS; `pytest`-gaya uji aplikasi
+`npx vitest run` menambahkan 10 kasus untuk `aplikasi/src/lib/supabase.ts`.
+
+**File terkait:** `aplikasi/src/lib/supabase.ts`, `aplikasi/alat/cek-supabase.mjs`, `aplikasi/wrangler.toml`,
+`.github/workflows/ci.yml`, `alat/periksa-gerbang-ci.py`, `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`,
+`docs/TERTANGGUH.md` (T-018 selesai; T-020/T-021 terbuka).

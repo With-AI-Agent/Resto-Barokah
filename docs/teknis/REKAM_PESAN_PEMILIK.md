@@ -31,6 +31,7 @@ sejauh tercatat, dan **keputusan yang lahir dari permintaan itu**, supaya tidak 
 | 11 | 2026-09-17 **[verbatim]** (lihat §2 di bawah) | Tanam **mekanisme audit/pemeriksaan/review independen** yang teliti & terukur; jelaskan caranya di panduan pengguna; **nilai dulu idenya** | ✅ ditanam (AUD-0…AUD-3) + dinilai bagus dengan 3 koreksi | `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`, `alat/audit-independen.py` |
 | 12 | 2026-09-17 **[verbatim]** *"sekarang aku mau audit dulu"* + *"bener-bener menyeluruh… termasuk file2 yang disiapkan untuk pengguna"* + *"satu file untuk pengguna yang betul-betul isinya lengkap… semacam manual book"* + gerbang **`tahan_semua`** | Audit dulu sebelum kerja ulang; lingkup menyeluruh termasuk berkas pengguna; satu buku induk lengkap; K-1 & K-2 menahan fase | ✅ mekanisme diperluas + buku induk dibuat (**diperbaiki lagi** di putaran 5, lihat §4) | `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §2b, `PANDUAN_PENGGUNA.md` |
 | 13 | 2026-09-17 (putaran 5) | Lihat **§4** — 7 permintaan baru | ✅ semuanya dikerjakan (P1–P7) | bukti di §3 di bawah |
+| 15 | 2026-09-19 (putaran 18) | Lihat **§15** — akun Supabase/Resend/Cloudflare dibuat + nilai non-rahasia diisi di repo; izin menghapus bahan kalibrasi lama | ✅ dipakai | `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md` (commit `bd68685`); butir `T-018` ditutup |
 | 14 | 2026-09-17 (putaran 7) | Lihat **§9** — "pastikan semua permintaanku sudah dikerjakan" + bantuan tiap laman + Buku Uji Pemilik bertahap (juga ditampilkan di chat) | 🟡 **diverifikasi**: 6 cacat ketertelusuran ditemukan & diperbaiki; 6 temuan audit masih terbuka (bertugas) · 2 permintaan baru dijadwalkan (`T1-42`, `T1-43`) | `docs/teknis/REKAM_PESAN_PEMILIK.md` §9 · `docs/uji/AUDIT_RIWAYAT.md` §1b |
 
 **Bukti P1–P7 (putaran 5):** P1 berkas ini · P2 `alat/audit-independen.py --verifikasi-lingkup` + PROTOKOL §5b + LANGKAH 0 di paket · P3 `PANDUAN_PENGGUNA.md` v2 (12 alur, prompt berlabel, perintah berpenjelasan) + `alat/periksa-panduan.py` diperluas · P4 panggilan Lee (+ PROFIL_PENGGUNA) · P5 `docs/uji/PROTOKOL_REVIEW_PR_INDEPENDEN.md` + `alat/review-pr.py` + `docs/uji/PROMPT_REVIEW_PR_INDEPENDEN.md` + `docs/uji/REVIEW_PR_RIWAYAT.md` · P6 dijelaskan di buku Bagian C4/C5 (dua cara memakai; SIAP-TEMPEL = termudah) · P7 dijawab jujur di §6 bawah + `docs/SPESIFIKASI_UI.md` §9 & tugas ROADMAP baru.
@@ -358,3 +359,25 @@ kalimat itu hanya memanggil pemeriksa yang sudah ada. Supaya kalimat itu benar-b
 | 7 | *"Kamu ngomong apa? Kamu lupa klo bicara sama aku harus pake bahasa apa?"* | **KOREKSI DITERIMA + DIKUNCI** — agent wajib menjawab Lee dalam **bahasa Indonesia sederhana**; aturan sekarang jadi baris pertama blok Prompt Pembuka (`PROMPT_ENTRI_UNIVERSAL.md` + `PANDUAN_PENGGUNA.md`), dijaga topik wajib `alat/periksa-panduan.py` dan penjaga berkas siap-tempel `alat/lanjut-sesi.py` |
 | 6 | *"jadi setiap kali aku mau pindah sesi baru buat lanjutin aku tinggal pake prompt itu di sesi baru tanpa harus atur base branch dan tanpa perlu kirim prompt penutup ke sesi lama dulu ya?"* | **DIJAWAB + MASUK BUKU** — base branch tidak perlu disentuh (dibuat otomatis; hanya dipakai saat PR dibuka); prompt penutup disarankan 1 kalimat tetapi TIDAK wajib (kalau sesi lama mati, boleh langsung pindah); wajib memakai salinan terbaru berkas siap-tempel. Ditulis di `PANDUAN_PENGGUNA.md` AL-13 dan `docs/PANDUAN_PEMILIK.md`, dijaga 4 topik wajib di `alat/periksa-panduan.py` |
 | 5 | (Permintaan tetap yang masih berlaku) *"aku ga mau ada cacat sama sekali"* + *"jangan merge dulu"* | **BERLAKU** — PR #1 tetap terbuka; merge hanya keputusan Lee |
+
+
+---
+
+## §15. Putaran 18 (2026-09-19) — akun dibuat, izin menghapus bahan kalibrasi, lanjut maraton
+
+**Kutipan verbatim (jangan diubah):**
+
+1. *"Aku udh buat supabase, resend, dan cloudflare. Aku juga udh input DAFTAR_KUNCI_PEMILIK_NONSECRET di repo. Klo perlu lanjut silahkan"*
+   — artinya: tugas `T0-00` (hanya pemilik yang bisa) **selesai**; agent boleh melanjutkan Fase 0 tanpa menunggu.
+   Bukti: commit `bd68685` (berkas `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md` — URL proyek, kunci publik, id proyek,
+   region Singapura, id akun Cloudflare). Kunci rahasia **tidak** ikut; itu memang aturan yang disepakati.
+2. *"Boleh, keluarkan sekarang"* (jawaban atas pertanyaan izin) — izin menghapus bahan kalibrasi lama dari repo
+   (`docs/uji/kalibrasi/pr-bahan-2026-09-17.diff`): tindakan tak bisa dibatalkan, karena itu agent berhenti dan bertanya
+   lebih dulu. Ditutup sebagai temuan **D F-05** dengan penjaga `alat/periksa-kunci-kalibrasi.py`.
+
+**Yang dikerjakan agent setelah izin itu (ringkas):** F-05 ditutup · PR-10 ditutup (penjaga gerbang CI dua arah, 49 perintah) ·
+hari yang sama: `T0-00` + butir tunggu `T-018` ditutup · klien Supabase aman + alat uji sambung (`npm run cek:supabase`,
+diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` siap (menunggu keputusan deploy publik).
+
+**Dua hal yang masih menunggu Lee (ditulis di `docs/TERTANGGUH.md`):** `T-020` (menyebar skema ke proyek Supabase nyata) dan
+`T-021` (menaikkan halaman kosong ke Cloudflare).

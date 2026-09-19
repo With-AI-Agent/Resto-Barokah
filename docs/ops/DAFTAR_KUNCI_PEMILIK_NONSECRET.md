@@ -1,9 +1,12 @@
 # FORMULIR DAFTAR KUNCI & AKUN PEMILIK — salinan contoh (AMAN, ikut Git)
 
-> **Ini berkas CONTOH/formulir — bukan tempat mengisi.** Ikut Git, jadi isinya harus tetap kosong.
+> **Berkas ini TERISI — tetapi hanya bagian NON-RAHASIA** (alamat layanan, kunci publik `anon`/publishable,
+> nama akun). Sengaja ikut Git supaya sesi kerja mana pun tahu alamat & kunci publik mana yang dipakai.
+> Nilai **RAHASIA** (service_role, Resend, Cloudflare token, dst.) **TIDAK PERNAH** ditulis di sini — tempatnya
+> berkas kerja `DAFTAR_KUNCI_PEMILIK.local.md` yang diabaikan Git (`*.local.md`), bukan chat.
 >
 > **Cara pakai:**
-> 1. Salin berkas ini menjadi berkas kerja bernama `DAFTAR_KUNCI_PEMILIK.local.md` di folder `docs/ops/`.
+> 1. Salin berkas formulir `DAFTAR_KUNCI_PEMILIK.template.md` menjadi berkas kerja bernama `DAFTAR_KUNCI_PEMILIK.local.md` di folder `docs/ops/`.
 > 2. Isi kolom **"Nilai (isi di sini)"** di **berkas kerja itu** — bukan di chat, bukan di berkas contoh ini.
 > 3. Berkas kerja berpola `*.local.md` **diabaikan Git** (lihat `.gitignore`) dan dijaga `alat/periksa-rahasia.py`,
 >    jadi nilainya tidak akan ikut ter-commit. Berkas contoh ini sebaliknya **tidak boleh** diisi.

@@ -42,14 +42,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - **Gerbang masuk (wajib, atas permintaan pemilik 2026-09-16):** review independen oleh sesi baru (prompt siap pakai di `docs/uji/PROMPT_REVIEW_INDEPENDEN.md`; sesi review dibuat dengan base branch `arena/01a0a8a2-resto-barokah`, tanpa merge PR apa pun, dan dilarang merge/menutup PR) sudah selesai, **temuannya sudah ditangani sesi pembangun**, dan putusan akhirnya bukan `BELUM SIAP`. Selama gerbang ini belum lewat, tugas Fase 0 belum boleh dicentang.
 
-- [ ] T0-00 — Pemilik membuat akun Supabase & Cloudflare (dipandu, gratis) — **hanya pemilik yang bisa** ❓ T-018
+- [x] T0-00 — Pemilik membuat akun Supabase & Cloudflare (dipandu, gratis) — **hanya pemilik yang bisa**
   - **Tujuan:** dua akun gratis siap dipakai agent. Ini satu-satunya tugas Fase 0 yang **harus** dikerjakan pemilik: agent tidak punya email dan tidak bisa menerima kode verifikasi.
   - **Ref:** TECH_SPEC §1 (stack & layanan), §6 (rahasia tidak boleh ikut ke aplikasi); `docs/ops/SIAP_AKUN_PEMILIK.md`
   - **File:** `docs/ops/SIAP_AKUN_PEMILIK.md` (panduan langkah bernomor bahasa awam, ditulis sebelum tugas ini dimulai)
   - **DoD:** akun Supabase + proyek gratis (wilayah Singapura) dan akun Cloudflare aktif; **URL proyek + kunci `anon`** diserahkan ke agent; kunci `service_role` **tidak pernah ditempel ke chat** (langsung ditaruh di berkas rahasia lokal / secrets Cloudflare); catatan "akun sudah ada" ditulis di README aplikasi.
   - **Kompleksitas:** kecil (30 menit dipandu)
   - **Risiko & mitigasi:** kunci rahasia bocor lewat chat atau repo → mitigasi: panduan hanya mengizinkan nilai `anon` ditempel, `.env*` diabaikan Git (T0-05), kunci `service_role` disimpan di secrets Cloudflare.
-  - **Verifikasi:** pemilik bisa membuka dashboard kedua layanan; agent menyimpan nilai dari pemilik di berkas rahasia lokal (tidak di-commit) dan `git check-ignore` membuktikan berkas itu diabaikan.
+  - **Verifikasi:** pemilik bisa membuka dashboard kedua layanan; agent menyimpan nilai dari pemilik di berkas rahasia lokal (tidak di-commit) dan `git check-ignore` membuktikan berkas itu diabaikan. · **Bukti 2026-09-19:** pemilik (Lee) membuat akun **Supabase + Resend + Cloudflare**; nilai non-rahasia (URL proyek, kunci publik, id proyek, region **Singapore**, id akun Cloudflare) diserahkan lewat berkas `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md` (commit `bd68685`); kunci `service_role` tidak pernah masuk repo maupun obrolan; butir tunggu `T-018` ditutup.
 
 - [x] T0-01 — Repo aplikasi React + TypeScript + Vite + struktur folder
   - **Tujuan:** aplikasi bisa dijalankan lokal sejak commit pertama dan strukturnya sama dengan rancangan.
@@ -114,7 +114,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** CI lambat/berbiaya → mitigasi: hanya GitHub Actions gratis untuk repo publik, tanpa langkah berbayar.
   - **Verifikasi:** status CI hijau pada push pertama; sengaja membuat lint gagal di uji coba → CI merah. · **Bukti 2026-09-16:** CI menyala di setiap push & pull request; gerbangnya benar-benar bekerja — (a) run 35121292973 **MERAH di langkah ESLint** saat sengaja dipasang variabel tidak terpakai (kode ujinya lalu dihapus), (b) run 35120922393 merah karena folder layar kosong tidak ikut Git, (c) run 35121062046 merah karena satu berkas Markdown belum dirapikan, dan (d) run **35121525551 hijau penuh** (npm ci → Prettier → ESLint → TypeScript → Vitest → build → 5 pemeriksa Python). Artinya: dua cacat nyata tertangkap CI, bukan cuma “hijau karena kebetulan”. Semua ini memakai jatah gratis GitHub Actions (repo privat 2.000 menit/bulan).
 
-- [ ] T0-08 — Proyek Supabase dibuat + klien aman tersambung
+- [ ] T0-08 — Proyek Supabase dibuat + klien aman tersambung ❓ T-020
   - **Tujuan:** aplikasi bisa membaca data dari Supabase dengan kunci publik saja.
   - **Ref:** TECH_SPEC §1 & §6; AGENT_OPERATING_GUIDE §3
   - **File:** `aplikasi/src/lib/supabase.ts`, `supabase/config.toml`, `aplikasi/.env.local` (tidak di-commit)
@@ -123,8 +123,9 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** proyek gratis "tidur" setelah 7 hari → mitigasi: dijadwalkan denyut harian (T10-08).
   - **Catatan jeda:** kalau pembangunan berhenti lebih dari 7 hari (libur/menunggu jawaban), proyek gratis bisa "tertidur" → buka panel Supabase, tekan **Restore/Unpause** sebelum melanjutkan; penyebab paling umum "koneksi gagal" di sesi berikutnya.
   - **Verifikasi:** buka aplikasi di dev → tampilkan hasil `select 1` di console/​halaman uji.
+  - **Progres 2026-09-19:** klien aman + alat uji sambung selesai — `aplikasi/src/lib/supabase.ts` (hanya dua nilai publik, tidak meledak bila pengaturan kosong) + `aplikasi/src/lib/supabase.test.ts` (10 kasus) + `aplikasi/alat/cek-supabase.mjs` (+`--uji-diri` 5 kasus). **Gerbang CI ke-50** menjalankan `npm run cek:supabase` di runner GitHub karena lingkungan agent tidak punya jalan keluar jaringan ke `*.supabase.co` (terbukti: HTTP 000/TLS ditolak). **Sisa DoD:** uji baca data (`select 1`) belum bisa — tabel belum ada di proyek nyata sebab **skema belum disebar** → butir tunggu `T-020`.
 
-- [ ] T0-09 — Deploy halaman kosong ke Cloudflare Workers + Static Assets  <!-- T-008 sudah ditutup 2026-09-16: pakai alamat gratis *.workers.dev -->
+- [ ] T0-09 — Deploy halaman kosong ke Cloudflare Workers + Static Assets ❓ T-021  <!-- T-008 sudah ditutup 2026-09-16: pakai alamat gratis *.workers.dev -->
   - **Tujuan:** membuktikan jalur deploy bekerja sejak awal (bukan mendadak di akhir).
   - **Ref:** TECH_SPEC §1 (halaman aplikasi) & §7 (integrasi)
   - **File:** `aplikasi/wrangler.toml`, `aplikasi/package.json` (script deploy)
@@ -132,6 +133,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (2 jam)
   - **Risiko & mitigasi:** kuota gratis (100.000 permintaan/hari) → mitigasi: berkas statis tanpa batas; tidak memakai fungsi boros.
   - **Verifikasi:** buka URL publik di luar jaringan lokal; `curl -I` mengembalikan 200.
+  - **Progres 2026-09-19:** persiapan selesai — `aplikasi/wrangler.toml` (Workers + Static Assets, alamat gratis `*.workers.dev`, halaman satu-api `single-page-application`) dan satu perintah rilis `npm run deploy` (bangun lalu unggah). Yang **belum**: menjalankannya, karena deploy publik = tindakan tak bisa dibatalkan → butir tunggu `T-021` (keputusan Lee).
 
 - [x] T0-10 — Vitest + uji contoh + skrip pemeriksa roadmap
   - **Tujuan:** kerangka uji siap sebelum kode uang/keamanan ditulis (TDD sejak awal).
@@ -610,7 +612,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **DoD:** setiap temuan punya uji regresi yang bisa MERAH (mutasi) dan tercatat DITUTUP dengan bukti hidup; tanpa menyisakan satu pun temuan terbuka tanpa pemilik.
   - **Kompleksitas:** besar (6 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: keamanan uang & jejak; menyentuh pemicu pembatalan/diskon/PIN → setiap perubahan diuji ulang suite penuh + mutasi; perubahan yang mengubah aturan (mis. cara membuktikan persetujuan) dicatat sebagai keputusan, bukan tambalan.
-  - **Progres 2026-09-19 (sebagian):** **PR-10 DITUTUP** (penjaga gerbang CI gagal-terbuka → kini **dua arah**: 49 perintah CI seluruhnya diawasi, `if:` dilarang, terbukti menolak di salinan `/tmp/gc2`) · **D F-05 DITUTUP** — kunci kalibrasi dikeluarkan dari repo, bahan review PR hidup di luar repo & disematkan ke paket, dijaga `alat/periksa-kunci-kalibrasi.py` (6 mutasi uji-diri) + aturan rotasi di `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §7 · jalur pensiun terdaftar di `docs/uji/BERKAS_PENSIUN.md` (paket & laporan peninjau tidak disunting) · penjaga paket F-11 diperbaiki (dulu satu suntingan sah menuduh 22 paket lama); gerbang CI 22 → **24**. Sisa 24 temuan menunggu migrasi `0015+` & perbaikan alat.
+  - **Progres 2026-09-19 (sebagian):** **PR-10 DITUTUP** (penjaga gerbang CI gagal-terbuka → kini **dua arah**: 49 perintah CI seluruhnya diawasi — **50** setelah gerbang uji sambung Supabase T0-08 ditambahkan, `if:` dilarang, terbukti menolak di salinan `/tmp/gc2`) · **D F-05 DITUTUP** — kunci kalibrasi dikeluarkan dari repo, bahan review PR hidup di luar repo & disematkan ke paket, dijaga `alat/periksa-kunci-kalibrasi.py` (6 mutasi uji-diri) + aturan rotasi di `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §7 · jalur pensiun terdaftar di `docs/uji/BERKAS_PENSIUN.md` (paket & laporan peninjau tidak disunting) · penjaga paket F-11 diperbaiki (dulu satu suntingan sah menuduh 22 paket lama); gerbang CI 22 → **24**. Sisa 24 temuan menunggu migrasi `0015+` & perbaikan alat.
   - **Verifikasi:** `node alat/uji-sql.mjs` hijau dengan uji baru per temuan · `python3 alat/uji-mutasi-0015.py` semua MERAH · `bash aplikasi/alat/periksa-semua.sh` hijau.
 
 ## Fase 2 — Masuk & kerangka aplikasi

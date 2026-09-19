@@ -35,6 +35,7 @@ Penjaga tambahan: `python3 alat/periksa-fungsi-pin.py` memastikan Edge Function
 PIN tidak pernah mencatat PIN ke log, tidak memakai kunci penuh (`service_role`),
 dan hanya menerima POST. Pemeriksa itu ikut berjalan di CI.
 
-Setelah akun Supabase jadi (T0-00), uji yang sama dijalankan ulang di proyek
-nyata (di sana bcrypt asli dari pgcrypto yang dipakai) untuk memastikan
-perilakunya sama.
+Proyek Supabase nyata **sudah ada** (Lee, 2026-09-19) dan sambungannya dibuktikan setiap kiriman kode lewat gerbang CI
+`npm run cek:supabase` (kunci publik saja, tanpa membaca data). Yang **belum**: seluruh skema di folder ini disebar ke proyek
+itu — menunggu keputusan Lee (butir `T-020`). Setelah disebar, uji yang sama dijalankan ulang di sana (bcrypt asli pgcrypto)
+untuk memastikan perilakunya sama dengan PostgreSQL nyata lokal.

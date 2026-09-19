@@ -63,6 +63,19 @@ jobs:
       - name: Kerentanan dependency (npm audit — 0 toleransi)
         working-directory: aplikasi
         run: npm audit --audit-level=low
+      # T0-08: membuktikan aplikasi tersambung ke proyek Supabase memakai KUNCI PUBLIK saja.
+      # Kenapa di CI: lingkungan agent tidak punya jalan keluar jaringan ke `*.supabase.co`,
+      # sedangkan runner GitHub punya — jadi bukti ini bisa diperiksa ulang siapa pun.
+      # Dua nilai di bawah MEMANG untuk publik (kunci `publishable`/anon; data dijaga RLS) dan
+      # tercatat di `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`. Kunci rahasia TIDAK PERNAH di sini.
+      # Kalau langkah ini merah dengan "tidak menjawab": biasanya proyek Supabase paket gratis
+      # sedang DIJEDA karena lama tidak dipakai — buka dashboard pemilik lalu pilih Restore/Resume.
+      - name: Cek sambungan Supabase (kunci publik saja — tugas T0-08)
+        working-directory: aplikasi
+        env:
+          VITE_SUPABASE_URL: https://bdvjirmbuqelmduztryj.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_b1TMUnIFZAJjmA59X8_WFA_z7SyMXwM
+        run: npm run cek:supabase
 
       - name: Pasang alat uji SQL
         run: npm ci --prefix alat

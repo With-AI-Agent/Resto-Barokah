@@ -32,17 +32,18 @@ komponen, dan keadaan halaman sudah hidup. Layar sungguhan dibuat mulai Fase 2.
 
 ## Daftar perintah
 
-| Perintah               | Gunanya                                                                      |
-| ---------------------- | ---------------------------------------------------------------------------- |
-| `npm run dev`          | menjalankan untuk pengembangan (berubah langsung tanpa muat ulang)           |
-| `npm run build`        | memeriksa tipe lalu membangun berkas siap pasang ke `dist/`                  |
-| `npm run preview`      | mencoba hasil `build` di komputer sendiri                                    |
-| `npm run lint`         | pemeriksa aturan kode (ESLint)                                               |
-| `npm run format`       | merapikan tulisan kode otomatis (Prettier)                                   |
-| `npm run format:check` | memeriksa kerapian tanpa mengubah berkas                                     |
-| `npm run typecheck`    | memeriksa tipe TypeScript (`tsc -b --noEmit`)                                |
-| `npm test`             | menjalankan uji unit (Vitest)                                                |
-| `npm run deploy`       | memasang ke Cloudflare (butuh `CLOUDFLARE_API_TOKEN`; menunggu Fase 0 T0-09) |
+| Perintah               | Gunanya                                                                                   |
+| ---------------------- | ----------------------------------------------------------------------------------------- |
+| `npm run dev`          | menjalankan untuk pengembangan (berubah langsung tanpa muat ulang)                        |
+| `npm run build`        | memeriksa tipe lalu membangun berkas siap pasang ke `dist/`                               |
+| `npm run preview`      | mencoba hasil `build` di komputer sendiri                                                 |
+| `npm run lint`         | pemeriksa aturan kode (ESLint)                                                            |
+| `npm run format`       | merapikan tulisan kode otomatis (Prettier)                                                |
+| `npm run format:check` | memeriksa kerapian tanpa mengubah berkas                                                  |
+| `npm run typecheck`    | memeriksa tipe TypeScript (`tsc -b --noEmit`)                                             |
+| `npm test`             | menjalankan uji unit (Vitest)                                                             |
+| `npm run cek:supabase` | menguji sambungan ke proyek Supabase memakai kunci **publik** saja (tanpa kunci rahasia)  |
+| `npm run deploy`       | memasang ke Cloudflare Workers (butuh login Cloudflare; menunggu persetujuan Lee — T0-09) |
 
 ## Peta folder
 
@@ -68,6 +69,29 @@ komponen, dan keadaan halaman sudah hidup. Layar sungguhan dibuat mulai Fase 2.
    Nilai rahasia juga tidak boleh dikirim lewat obrolan atau masuk Git.
 
 Berkas `.env` diabaikan Git; `.env.example` (contoh kosong) ikut Git.
+
+### Menguji sambungan ke Supabase (T0-08)
+
+```bash
+npm run cek:supabase     # memakai nilai publik di aplikasi/.env
+```
+
+Alat ini memeriksa alamat proyek + kunci publik, lalu menanyakan dua jalur resmi Supabase yang **tidak membuka data**:
+kesehatan layanan Auth (`/auth/v1/health`) dan akar layanan data (`/rest/v1/`). Kalau yang tertulis justru kunci rahasia
+(`service_role`), alat **menolak** sebelum menyentuh jaringan. Jalur yang sama dijalankan otomatis di CI, jadi buktinya bisa
+diperiksa siapa pun di tab Actions.
+
+### Menyebarkan ke Cloudflare (T0-09, menunggu persetujuan Lee)
+
+Pengaturan ada di `wrangler.toml` (nama proyek `resto-barokah`, aset statis dari `dist/`, alamat gratis `*.workers.dev`).
+
+```bash
+npx --yes wrangler@4 login    # sekali saja, membuka peramban (akun Cloudflare pemilik)
+npm run deploy                # bangun lalu unggah; alamat publik muncul di layar
+```
+
+Token Cloudflare (bila dipakai) **tidak** disimpan di berkas ini: tempatnya rahasia lingkungan/GitHub, atau panel rahasia
+Cloudflare. Halaman yang naik sekarang masih kerangka Fase 0 — tujuannya membuktikan jalan rilis bekerja sejak awal.
 
 ## Pemeriksa otomatis
 
