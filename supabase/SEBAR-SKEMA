@@ -1,7 +1,0 @@
-UJI JALUR 2026-09-19: berkas penanda ini dibuat agent untuk membuktikan alur "Sebar Skema ke
-Supabase" benar-benar MENYALA di cabang ini (sebelum pemilik memasang rahasia). Dugaan hasil:
-alur berjalan lalu berhenti di langkah "Periksa kunci rahasia tersedia" dengan pesan
-"RAHASIA HILANG: SUPABASE_ACCESS_TOKEN belum dipasang". Tidak ada yang berubah di proyek nyata.
-
-Berkas ini DIHAPUS lagi setelah uji; berkas penanda sungguhan dibuat belakangan (setelah pemilik
-bilang "Rahasia sudah dipasang") dan juga dihapus setelah alur hijau.
