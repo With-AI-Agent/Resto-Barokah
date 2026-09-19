@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `9563044914193f483049d7cc3a36de3fa4c4825d`
+- **Commit keadaan kerja:** `e8487a89995d51e9cb439691e05d933f4f8ef908`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (run 35476373804, commit 95630449)
+- **CI terakhir:** failure (run 35476760387, commit e8487a89)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (50 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (50 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (52 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (52 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -64,6 +64,38 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18l (2026-09-20) — BAGIAN 8 SELESAI: TIGA CACAT K-2 AUDIT F DITUTUP (commit `e8487a8`).**
+
+Sama polanya seperti 18k: dibuktikan dulu dengan probe sendiri, baru diperbaiki.
+Probe `docs/uji/audit/probe-2026-09-20/aud-3-f03-f05-f06-uang.sql` dulu **LULUS** (berarti cacat ada);
+sesudah perbaikan **GAGAL** (berarti cacat hilang). Perbaikannya di
+`supabase/migrations/0015_penutup_celah_putaran16.sql` **bagian 8** — semuanya pemeriksaan TAMBAHAN
+pada pemicu yang sudah ada (definisi lama di berkas beku `0012`/`0013`/`0014`):
+
+1. **F-03** — metode bayar yang dinonaktifkan pemilik tidak bisa lagi mencatat uang
+   (`supabase/tes/metode_bayar_nonaktif.sql`).
+2. **F-05** — satu target pembatalan = satu jejak; kiriman ulang (klik ganda kasir / antrean
+   perangkat offline) DITOLAK sehingga laporan kerugian tidak bisa tergandakan
+   (`supabase/tes/pembatalan_sekali.sql`; uji lama `supabase/tes/pembayaran.sql` diselaraskan
+   memakai pesanan kedua karena pembatalan ulang target yang sudah batal memang harus ditolak).
+3. **F-06** — stempel lifecycle (`dibayar_pada`, `dibatalkan_pada`, `alasan_batal`) tidak bisa
+   dikarang perangkat lewat UPDATE biasa, termasuk menghapusnya; jalur peladen tetap bebas dan
+   kasir tetap boleh mengirim pesanan ke dapur (`supabase/tes/lifecycle_pesanan.sql`).
+
+**Bukti mesin:** suite SQL **50 berkas LULUS · 0 GAGAL** · `python3 alat/uji-mutasi-0015.py` **20 kasus**
+(3 mutasi baru wajib MERAH, terbukti) · `bash aplikasi/alat/periksa-semua.sh` hijau ·
+`python3 alat/periksa-bersih.py` LOLOS · `python3 _sistem/validate_system.py` PASS · daftar temuan
+`docs/uji/AUDIT_RIWAYAT.md` **§1c = 23 DITUTUP / 26 TERBUKA** · keputusan di `docs/DECISIONS_LOG.md`.
+
+**Langkah berikutnya (urut) — maraton T1-45 lanjut:**
+1. **Bantah-balik + tutup sisa 12 temuan audit F**, mulai dari yang bisa diprobe cepat:
+   F-04 (state machine item bisa dilewati) · F-07 (`catatan_audit` belum ada → `T1-13`) ·
+   lalu yang berstatus **DUGAAN** (F-10 izin admin cabang, F-11 helper PIN, F-12 serialisasi uang,
+   F-13 nomor pesanan) — dugaan WAJIB diuji dulu, tidak boleh langsung disebut nyata.
+2. **Lanjut temuan lama**: K-3 (PR-05…PR-09, PR-13, PR-14) lalu K-4 (5 butir; PR-11 & D F-04 milik `T1-44`).
+3. Aturan tetap tiap perbaikan: bagian baru `0015` + uji regresi + mutasi (`mutasi(..., uji=)`) +
+   entri `DECISIONS_LOG.md` bila menyentuh uang/keamanan; commit & push per batch; **jangan merge PR mana pun**.
 
 **PUTARAN 18k (2026-09-20) — BAGIAN 6 SELESAI: TIGA CACAT UANG DITUTUP (commit `d2ba20a`).**
 
