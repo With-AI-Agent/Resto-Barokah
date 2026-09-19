@@ -105,7 +105,12 @@ export async function ujiSambung({ alamat, kunci, fetchUji = fetch, cetak = cons
   cetak(`Menguji ${alamat} dengan kunci publik …\n`)
   const health = await panggil(alamat, kunci, '/auth/v1/health', fetchUji)
   const rest = await panggil(alamat, kunci, '/rest/v1/', fetchUji)
-  const katalog = await panggil(alamat, kunci, `/rest/v1/${TABEL_KATALOG}?select=id&limit=1`, fetchUji)
+  const katalog = await panggil(
+    alamat,
+    kunci,
+    `/rest/v1/${TABEL_KATALOG}?select=id&limit=1`,
+    fetchUji,
+  )
 
   const healthOk = health.status === 200
   const katalogOk = katalog.status === 200 || katalog.status === 206
@@ -138,9 +143,7 @@ export async function ujiSambung({ alamat, kunci, fetchUji = fetch, cetak = cons
   if (!katalogOk) {
     cetak('\nHASIL: GAGAL — alamat+kunci benar, tetapi tabel katalog tidak bisa dibaca:')
     if (katalog.status === 404) {
-      cetak(
-        '  → tabelnya BELUM ADA di proyek ini: 14 berkas migrasi belum disebar (butir T-020).',
-      )
+      cetak('  → tabelnya BELUM ADA di proyek ini: 14 berkas migrasi belum disebar (butir T-020).')
     } else if (katalog.status === 401 || katalog.status === 403) {
       cetak(
         '  → kunci publik tidak boleh membaca katalog: periksa hak tingkat tabel & RLS di migrasi 0007.',
