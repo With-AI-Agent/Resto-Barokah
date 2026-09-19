@@ -10,10 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `57cd3456a365530f204ab2b7eec02e51a9daacf5`
+- **Commit keadaan kerja:** `705ed0fa20d1e4d0d3d357ddc1978e844e6f4c56`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35438287251, commit 57cd3456)
+- **CI terakhir:** (run 35440433621, commit 705ed0fa)
+- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -25,9 +26,9 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
 - Posisi proyek: lihat `PROJECT_STATE.md` (STATUS + PUTARAN terakhir) dan `STATUS.md`.
 - Bukti terakhir yang hijau: `node alat/uji-sql.mjs` · `python3 alat/uji-mutasi-0012.py` ·
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
-- Butir tertangguh terbuka: **7** — T-021, T-002, T-003, T-010, T-011, T-015, T-016
+- Butir tertangguh terbuka: **6** — T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (29 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (29 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (33 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (33 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -62,6 +63,27 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya
+
+**PUTARAN 18e (2026-09-19) — FASE 0 TUNTAS: HALAMAN PUBLIK NAIK; MARATON T1-45 DIMULAI.**
+
+Lee menulis **"Boleh naik"** (izin publik — Stop Condition, jadi wajib menunggu). Agent memicu penanda
+`aplikasi/SEBAR-HALAMAN`: run `35440300274` hijau (unggahan pertama), lalu `35440432817` hijau (unggahan ulang +
+**pencatatan alamat otomatis**). Alamat publik: **https://resto-barokah.fatrizmubarok.workers.dev** — **HTTP 200**.
+Bukti dibaca dari **anotasi** (`ALAMAT-PUBLIK`) karena log job GitHub tidak bisa dibaca dari lingkungan agent;
+alat baru `aplikasi/alat/catat-alamat.mjs` (+`--uji-diri` 6 kasus) menjadi **gerbang CI ke-51** dan membuat
+"hijau" berarti halaman benar-benar menjawab. Alamat & cara mundur dicatat di `docs/ops/ALAMAT_PUBLIK.md`;
+`T0-09` DITUTUP, `T-021` SELESAI (terbuka kini **6**).
+
+**Penjaga batas mode bimbingan diperkuat (permintaan Lee):** `alat/periksa-panduan.py` kini memeriksa blok
+AL-14 **dan** §14 `AGENT_OPERATING_GUIDE.md`; mutasi yang menghapus batas (2 kasus baru) WAJIB ditolak.
+
+**Langkah berikutnya (urut) — MARATON:**
+1. **T1-45 K-1** (paling berbahaya): penanda `resto.pembatalan_*` bisa dipalsukan kasir → void sesudah dapur tanpa
+   PIN & tanpa jejak. Ditulis sebagai migrasi BARU `supabase/migrations/0015_penutup_celah_putaran16.sql`
+   (+ uji regresi di `supabase/tes/`, + `alat/uji-mutasi-0015.py` semua mutasi WAJIB MERAH).
+2. Lanjut K-2 (diskon pada lunas/batal · void satu item · kebocoran nomor lintas resto · oracle PIN) → K-3/K-4.
+3. Setelah T1-45: Fase 1B (T1-24/25/26) memakai nomor migrasi `0015`+ sesuai catatan; lalu T1-37 (B.4–B.9).
+ (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 **PUTARAN 18d (2026-09-19) — PEMERIKSAAN PRA-MARATON (permintaan Lee) SELESAI.**
 

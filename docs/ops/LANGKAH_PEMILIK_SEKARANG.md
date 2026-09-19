@@ -11,12 +11,11 @@ menaikkan halaman ke internet) **tanpa pernah terlihat** oleh siapa pun, termasu
 
 ## Kabar terbaru (2026-09-19) — Langkah A SUDAH SELESAI
 
-- **Langkah A (2 rahasia Supabase) sudah selesai dan sudah terbukti bekerja**: 14 berkas tabel
-  sudah disebar ke proyek Supabase-mu (alur otomatis hijau), dan pemeriksaan otomatis kami berhasil
-  **membaca tabel katalog** dari proyek nyata dengan kunci publik. Jadi kamu **tidak perlu** mengerjakan
-  Langkah A lagi.
-- Yang tersisa: **Langkah B saja** (1 rahasia Cloudflare) — itu pun hanya kalau kamu mau halaman kosong
-  ini bisa dibuka orang lain di internet.
+- **Langkah A (2 rahasia Supabase) SUDAH SELESAI & terbukti**: 14 berkas tabel sudah disebar ke proyek
+  Supabase-mu; pemeriksaan otomatis berhasil **membaca tabel katalog** dari proyek nyata. Tidak perlu diulang.
+- **Langkah B (1 rahasia Cloudflare) SUDAH SELESAI & terbukti**: setelah kamu menulis "Boleh naik", halaman
+  sudah naik ke internet di **<https://resto-barokah.fatrizmubarok.workers.dev>** dan pemeriksaan otomatis menjawab **HTTP 200**.
+- **Fase 0 tuntas.** Tidak ada lagi langkah yang menunggu kamu di daftar ini.
 
 ## Langkah A — 2 rahasia Supabase ✅ SUDAH SELESAI (tidak perlu diulang)
 
@@ -34,7 +33,7 @@ menaikkan halaman ke internet) **tanpa pernah terlihat** oleh siapa pun, termasu
    - **Secret:** kata sandi tadi
    - tekan **Add secret**.
 
-## Langkah B — 1 rahasia Cloudflare (untuk menaikkan halaman ke internet)
+## Langkah B — 1 rahasia Cloudflare (untuk menaikkan halaman ke internet) ✅ SUDAH SELESAI 2026-09-19
 
 1. Buka **https://dash.cloudflare.com/profile/api-tokens**.
 2. Tekan tombol **Create Token** (biru, di halaman daftar token) — **jangan** menekan
@@ -67,8 +66,8 @@ Setelah itu aku yang menjalankan sisanya, dan kamu akan menerima laporan:
 
 1. ~~Sebar tabel~~ — **SUDAH SELESAI 2026-09-19**: 14 berkas tabel sudah ada di proyek Supabase-mu,
    dan pemeriksaan otomatis sudah membuktikannya (membaca tabel katalog dengan kunci publik).
-2. **Naikkan halaman** (setelah kamu bilang *"Boleh naik"*) — aku laporkan **alamat publiknya** +
-   hasil pemeriksaan HTTPS.
+2. ~~Naikkan halaman~~ — **SUDAH SELESAI 2026-09-19**: alamat publiknya <https://resto-barokah.fatrizmubarok.workers.dev> (HTTP 200),
+   catatan lengkap di `docs/ops/ALAMAT_PUBLIK.md` (termasuk cara memperbarui & cara mematikannya).
 
 ## Aturan penting (demi keamanan uang & data)
 

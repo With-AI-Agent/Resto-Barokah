@@ -815,3 +815,31 @@ katalog dengan kunci publik (`GET /rest/v1/menu_item?select=id&limit=1` → HTTP
 **Batas jujur:** yang terbukti adalah (a) alur penyebaran hijau sampai `migration list`, dan (b) tabel katalog bisa
 dibaca dengan kunci publik dari CI. Uji **penuh** berkas uji di `supabase/tes/` terhadap proyek nyata (bcrypt asli
 pgcrypto) belum dijalankan dan tidak diklaim di sini.
+
+---
+
+## [Infrastruktur/2026-09-19] Halaman pertama naik ke internet (publik) — atas izin pemilik & FF, tanpa data pelanggan
+
+**Konteks:** tugas Fase 0 `T0-09` meminta bukti jalur rilis bekerja sejak awal. Deploy publik adalah tindakan yang
+**tidak bisa ditarik diam-diam** (Stop Condition §12), jadi agent berhenti dan menunggu lebih dulu; pemilik (Lee)
+menulis **"Boleh naik"** di chat pada 2026-09-19. Setelah itu agent memicu berkas penanda `aplikasi/SEBAR-HALAMAN`
+(izin tertulis ada di dalam berkas penanda itu sebagai catatan) dan alur `.github/workflows/sebar-halaman.yml`
+berjalan dua kali: run `35440300274` (unggahan pertama) dan `35440432817` (unggahan ulang + pencatatan alamat) —
+keduanya **hijau**.
+
+**Keputusan & alasan:**
+1. **Naik sekarang, bukan nanti.** Halaman masih kerangka: tidak ada data pelanggan, tidak ada menu asli, tidak ada
+   kunci rahasia di dalamnya. Membuktikan jalur rilis sedini mungkin mencegah kejutan besar di akhir proyek
+   (persis tujuan `T0-09`).
+2. **Alamat publik dicatat MESIN, bukan ingatan.** Log job GitHub Actions **tidak bisa dibaca** dari lingkungan
+   agent, jadi alat baru `aplikasi/alat/catat-alamat.mjs` menanyakan subdomain ke Cloudflare API, menyusun alamat,
+   lalu **membukanya** — hasilnya dipancarkan sebagai **anotasi** (`ALAMAT-PUBLIK url=… http=…`) yang bisa dibaca
+   siapa pun lewat API GitHub pada commit itu. Kalau halaman tidak menjawab 200, alat itu **gagal** (alur merah).
+   Alamat resminya: **<https://resto-barokah.fatrizmubarok.workers.dev>** (`docs/ops/ALAMAT_PUBLIK.md`).
+3. **Tetap lewat penanda.** Alur hanya menyala lewat berkas `aplikasi/SEBAR-HALAMAN`; berkas itu dihapus setelah
+   hijau, dan kiriman penghapusan **hijau tanpa kerja** (sudah diuji). Tidak ada unggahan tak sengaja.
+4. **Cara mundur dicatat:** pekerja `resto-barokah` bisa dihapus dari dasbor Cloudflare; tidak ada biaya (paket
+   gratis, berkas statis). Alamat gratis `*.workers.dev` dipakai sejak `T-008` (2026-09-16).
+
+**Batas jujur:** yang terbukti adalah **halaman kerangka menjawab 200 di alamat publik**. Belum ada satu pun fitur
+kedai di sana, dan belum ada domain sendiri (masih memakai alamat gratis `*.workers.dev`, sesuai keputusan T-008).
