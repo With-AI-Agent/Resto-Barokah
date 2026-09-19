@@ -15,6 +15,10 @@ name: Sebar Skema ke Supabase (disengaja, milik pemilik)
 #     2) SUPABASE_DB_PASSWORD   — kata sandi database proyek
 # Nomor proyek (bukan rahasia) sudah diisi di bawah dari `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`.
 #
+# KALAU GAGAL "connection refused / timeout": pada paket gratis, proyek Supabase DIJEDA bila lama
+# tidak dibuka — buka dashboard pemilik lalu pilih Restore/Resume, kemudian jalankan alur ini lagi
+# (pasang berkas penanda sekali lagi). Bukan masalah kode.
+#
 # KENAPA SATU BLOK `run:` (bukan beberapa langkah): semua perintah berjalan berurutan dengan
 # `set -euo pipefail`, jadi (1) pratinjau `--dry-run` TIDAK MUNGKIN terlewat sebelum penyebaran,
 # dan (2) pemeriksaan penanda dapat menghentikan seluruh alur — pada alur berlangkah banyak,

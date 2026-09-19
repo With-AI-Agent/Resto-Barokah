@@ -63,6 +63,10 @@ Setelah itu aku yang menjalankan sisanya, dan kamu akan menerima laporan:
 2. **Naikkan halaman** (kalau Langkah B dikerjakan) — aku laporkan **alamat publiknya** + hasil
    pemeriksaan HTTPS.
 
+> **Kalau mesin bilang gagal menyambung:** pada paket gratis, proyek Supabase **dijeda** bila lama tidak
+> dibuka. Bukan salah kode. Kamu cukup membuka dashboard Supabase → pilih **Restore/Resume**, lalu bilang
+> *"Sudah kunyalakan lagi."* — aku jalankan ulang sisanya.
+
 ## Aturan penting (demi keamanan uang & data)
 
 - **Jangan pernah** menempel token/kata sandi di chat, di dokumen, atau di commit. Kotak rahasia GitHub
