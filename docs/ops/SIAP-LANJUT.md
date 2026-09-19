@@ -10,11 +10,10 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `638820dabc0b31c691927a6334d0f3b82c6a0a29`
+- **Commit keadaan kerja:** `389fca989391123d4c3bbae7a23bf3f58d45a92c`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (run 35432336917, commit 638820da)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (run 35433400456, commit 6ba8c60c)
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +27,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-020, T-021, T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (13 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (13 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (22 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (22 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -75,6 +74,8 @@ masuk repo/obrolan). Selesai hari ini: klien Supabase aman `aplikasi/src/lib/sup
 **Dua hal menunggu Lee — jangan dikerjakan tanpa jawaban:** `T-020` menyebar 14 migrasi ke proyek Supabase nyata (butuh
 kredensial pemilik; sesudahnya DoD `select 1` T0-08 bisa dituntaskan) · `T-021` deploy publik halaman kosong ke Cloudflare
 (tindakan publik & tak bisa dibatalkan).
+
+**Bukti jalur (2026-09-19, sudah dijalankan):** penanda terpasang → kedua alur **menyala lalu berhenti aman** di gerbang rahasia tanpa menyentuh proyek (run `35433200326` skema, `35433200375` halaman; semua langkah penyebaran `skipped`) · penanda dihapus → kedua alur **hijau tanpa kerja** (run `35433237658`, `35433237656`) — jadi tidak ada penyebaran tak sengaja di kiriman berikutnya. Penjaga gerbang kini memeriksa **urutan** perintah (pratinjau wajib benar-benar mendahului penyebaran) dan menolak 9 mutasi alur.
 
 **Jalurnya sudah disiapkan mesin (2026-09-19):** Lee tinggal menempel **3 rahasia** ke kotak rahasia GitHub
 (`SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `CLOUDFLARE_API_TOKEN`) — panduan langkah bernomor tanpa perintah:
