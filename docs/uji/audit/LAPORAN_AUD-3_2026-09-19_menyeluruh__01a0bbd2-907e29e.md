@@ -8,7 +8,7 @@
 - **Mode cakupan:** menyeluruh
 - **Alasan commit berbeda:** saat pengumpulan bukti HEAD berada pada base cabang sesi; sesudahnya hanya commit laporan yang ditambahkan. Cabang sesi tidak ditinggalkan. Kode audit dibaca dari objek Git SHA target dengan `git show`/arsip memori, bukan kode HEAD.
 - **Verdict:** TIDAK-BERSIH
-- **Status pengiriman:** **belum ter-push** — remote sudah mempunyai versi berbeda pada jalur laporan yang sama; tidak ditimpa/force-push.
+- **Status pengiriman:** penyerahan ulang dengan nama unik `LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md`; hasil pengiriman dicatat di §7. Laporan remote bernama lama dipertahankan.
 - **Batas hasil:** pemeriksaan statik, pemeriksa Python melalui adapter hanya-baca, dan eksekusi fungsi JavaScript dengan lingkungan tiruan. **Tidak ada hasil uji PostgreSQL, Vitest, peramban, printer, atau produksi yang diklaim lulus.**
 
 **Ringkasan keputusan:** **21 temuan proyek**: **15 TERVERIFIKASI** dalam batas bukti masing-masing (1 K-1, 6 K-2, 8 K-3) serta **6 DUGAAN** (2 K-1, 4 K-2). Kalibrasi terpisah. F-01 membuktikan kontradiksi rumus uang; F-02 membuktikan putusnya kontrak Edge → kupon persetujuan. F-08–F-12 menyangkut panduan dengan janji/instruksi operasional keliru. K-1/K-2 terverifikasi mewajibkan verdict **TIDAK-BERSIH**, sekalipun pemeriksa struktural mengeluarkan `LOLOS`.
@@ -207,13 +207,13 @@ Sumber probe §6b tinggal di laporan; Node memakai modul bawaan/type stripping. 
 ```bash
 cd /home/user/Resto-Barokah
 C=4830b5a4f876744ecb37e2f4495c6df234376752
-R=docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2.md
+R=docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md
 baca() { git show "$C:$1" | nl -ba | sed -n "${2:-1,999999}p"; }
 audit() {
   PYTHONDONTWRITEBYTECODE=1 python3 -B - "$@" <<'AUDIT_LAUNCH_PY'
 from pathlib import Path
 import subprocess, sys
-report=Path('docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2.md').read_text()
+report=Path('docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md').read_text()
 kind=sys.argv[1]; args=sys.argv[2:]
 key={'ro':'RO','node':'NODE','py':'PY','scope':'SCOPE'}[kind]
 lang='javascript' if kind=='node' else 'python'
@@ -537,7 +537,7 @@ del raw
 DIRS = {'.'}
 for n in DATA:
     DIRS.update(str(p) for p in pathlib.PurePosixPath(n).parents)
-REPORT = 'docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2.md'
+REPORT = 'docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md'
 SNAPSHOT_FILES = set(DATA)
 DATA[REPORT] = (ROOT / REPORT).read_bytes()
 # Only the reference packet is supplied from its publication object.
@@ -1088,7 +1088,7 @@ Angka otomatis adalah hitungan baris tabel: 33 “serangan” memasukkan tabel c
 Status sesudah staging: `git status --short --untracked-files=all` → `A  docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2.md`; `git diff --cached --name-only` hanya jalur itu, `git diff --cached --check` kosong.
 <!-- VALIDATOR_RESULT_END -->
 
-**Hasil penyerahan: belum ter-push.** Hanya laporan di-stage dan di-commit. Percobaan push berikut benar-benar dijalankan dan ditolak:
+**Riwayat penyerahan awal: belum ter-push pada percobaan pertama.** Hanya laporan di-stage dan di-commit. Percobaan berikut benar-benar dijalankan dan ditolak:
 
 ```text
 git push origin arena/01a0bbd2-resto-barokah
@@ -1098,9 +1098,23 @@ error: failed to push some refs
 
 Pemeriksaan baca-saja sesudah penolakan: `git fetch origin arena/01a0bbd2-resto-barokah`; `git rev-list --left-right --count HEAD...FETCH_HEAD` → `1  1`. Common base `253d1297a3b81433d7f5809afd257d8a1b40958f`. Remote `3976b528e2b4b04a6e27702d12f60f4878a0e7d9` juga menambahkan **jalur laporan yang sama**, tetapi blob-nya `f6963997d24406e2d8e8b74628edad14969adb35`, berbeda dari blob lokal saat percobaan `1a836a4d1404384d8fc9c4f5a5e074f8a6f059e3`. Ukuran laporan remote 44.169 byte. Yang dibaca hanya nama, ukuran, hash dan metadata commit; **isi laporan remote tidak dibuka**.
 
-Saya tidak melakukan force push, merge/rebase atau memilih menimpa versi remote tanpa keputusan pemilik. Status ini ditambahkan ke laporan dan commit lokal diperbarui; hash commit lokal akhir disampaikan di chat. Laporan dapat diambil dari berkas yang ditampilkan dalam sesi ini. Penarik laporan di sesi pembangun mungkin menemukan versi remote yang berbeda — **jangan menganggap itu otomatis laporan ini**. Perlu keputusan tentang penyerahan tanpa menimpa versi lain.
+Pada penyerahan awal saya tidak melakukan force push, merge/rebase atau menimpa versi remote. Commit lokal saat itu adalah `907e29ee558bc8a184a5926e14c870c52c74fcaa`. Setelah pengguna meminta agar hasil tersedia di GitHub untuk sesi lain, penyerahan dilanjutkan dengan **nama file unik**, bukan mengganti isi laporan remote. Versi remote pada nama lama tetap laporan berbeda — jangan disamakan dengan laporan ini.
 
 Catatan hasil validasi: cetakan LOLOS di atas terjadi sebelum penambahan metadata kegagalan pengiriman ini. Temuan, tingkat, cakupan dan bukti audit tidak berubah; tidak menjalankan validator lagi untuk metadata penyerahan.
+
+### Penyerahan lanjutan — 2026-09-20 WIB
+
+Pengguna meminta laporan tersedia di GitHub agar agent sesi lain dapat membacanya. Laporan sesi ini diberi nama unik:
+
+`docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md`
+
+Akhiran `907e29e` menunjuk commit lokal sebelum penamaan ulang; bukan SHA kode yang diaudit. Target audit tetap `4830b5a4f876744ecb37e2f4495c6df234376752`. Temuan, tingkat, cakupan dan hasil kalibrasi tidak berubah. Tiga rujukan aktif ke file sendiri dalam peluncur/adapter diselaraskan; nama pada keluaran validasi/status **historis** sengaja tidak ditulis ulang.
+
+Strategi penyerahan: gabungkan riwayat Git pada cabang sesi yang sama, pertahankan file laporan remote lama byte-per-byte, dan tambahkan laporan bernama unik ini. Perubahan terhadap remote awal harus hanya penambahan file ini; tidak ada kode aplikasi, migrasi, konfigurasi atau dependensi yang diubah. Tidak memakai force push atau cabang lain.
+
+<!-- DELIVERY_RESULT_BEGIN -->
+Pengiriman nama unik belum dikonfirmasi; hasil aktual akan dicatat setelah push dan pemeriksaan remote.
+<!-- DELIVERY_RESULT_END -->
 
 ## 8. Temuan di luar cakupan
 
