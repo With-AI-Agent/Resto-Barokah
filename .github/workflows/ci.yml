@@ -68,6 +68,9 @@ jobs:
       # sedangkan runner GitHub punya — jadi bukti ini bisa diperiksa ulang siapa pun.
       # Dua nilai di bawah MEMANG untuk publik (kunci `publishable`/anon; data dijaga RLS) dan
       # tercatat di `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`. Kunci rahasia TIDAK PERNAH di sini.
+      # Sejak 2026-09-19 langkah ini juga membaca SATU kolom dari maksimal SATU baris tabel katalog
+      # (`menu_item` — memang publik di MVP): kalau migrasi belum disebar, jawabannya 404 dan langkah
+      # ini MERAH. Jadi "hijau" berarti alamat + kunci + tabel nyata, bukan sekadar jaringan hidup.
       # Kalau langkah ini merah dengan "tidak menjawab": biasanya proyek Supabase paket gratis
       # sedang DIJEDA karena lama tidak dipakai — buka dashboard pemilik lalu pilih Restore/Resume.
       - name: Cek sambungan Supabase (kunci publik saja — tugas T0-08)

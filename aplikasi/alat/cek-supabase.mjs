@@ -10,6 +10,10 @@
  *   1. VITE_SUPABASE_URL  — alamat proyek (boleh publik)
  *   2. VITE_SUPABASE_ANON_KEY — kunci publik `anon`/publishable (boleh publik; RLS yang menjaga data)
  *   3. Server menjawab dan MENERIMA kunci itu (kalau kunci salah → HTTP 401)
+ *   4. TABEL KATALOG terbaca lewat kunci publik (bukti migrasi sudah disebar ke proyek nyata).
+ *      Yang dibaca hanya SATU kolom dari maksimal SATU baris katalog yang memang publik di MVP ini
+ *      (pelanggan harus bisa melihat menu). Contoh setara `select 1`: bila tabel belum ada, Supabase
+ *      menjawab 404 dan alat ini GAGAL dengan pesan \"migrasi belum disebar\" — bukan lolos diam-diam.
  *
  * Sumber nilai (urut): argumen `--url`/`--kunci` → variabel lingkungan → berkas `aplikasi/.env`.
  * CI memakai variabel lingkungan (GitHub Actions), pengembang lokal memakai `aplikasi/.env`.
@@ -42,6 +46,9 @@ export const POLA_ALAMAT = /^https:\/\/[a-z0-9-]+\.supabase\.co$/i
 
 /** Ciri kunci rahasia yang TIDAK boleh ada di berkas .env aplikasi. */
 export const POLA_RAHASIA = /service_role|sb_secret_/i
+
+/** Tabel katalog yang MEMANG publik di MVP (pelanggan melihat menu) — dipakai sebagai bukti skema. */
+export const TABEL_KATALOG = 'menu_item'
 
 export function bacaEnv(akar = AKAR) {
   const nilai = {}
@@ -98,40 +105,62 @@ export async function ujiSambung({ alamat, kunci, fetchUji = fetch, cetak = cons
   cetak(`Menguji ${alamat} dengan kunci publik …\n`)
   const health = await panggil(alamat, kunci, '/auth/v1/health', fetchUji)
   const rest = await panggil(alamat, kunci, '/rest/v1/', fetchUji)
+  const katalog = await panggil(alamat, kunci, `/rest/v1/${TABEL_KATALOG}?select=id&limit=1`, fetchUji)
 
+  const healthOk = health.status === 200
+  const katalogOk = katalog.status === 200 || katalog.status === 206
   const baris = [
-    ['Kesehatan layanan Auth (bukti kunci diterima)', health.status === 200],
+    ['Kesehatan layanan Auth (bukti kunci diterima)', healthOk],
     [
       'Layanan data (PostgREST) menjawab',
       rest.status === 200 || rest.status === 401 || rest.status === 404,
     ],
+    [`Tabel katalog (${TABEL_KATALOG}) terbaca — bukti migrasi sudah disebar`, katalogOk],
   ]
   for (const [nama, ok] of baris) cetak(`  ${ok ? 'OK ' : 'X  '} ${nama}`)
   cetak(
     `\n  rincian: /auth/v1/health → HTTP ${health.status} (${health.ms} ms) ${health.status === 200 ? '' : health.teks}`,
   )
   cetak(`           /rest/v1/       → HTTP ${rest.status} (${rest.ms} ms)`)
+  cetak(
+    `           /rest/v1/${TABEL_KATALOG} → HTTP ${katalog.status} (${katalog.ms} ms) ${katalogOk ? '' : katalog.teks}`,
+  )
 
-  if (health.status !== 200) {
+  if (!healthOk) {
     cetak(
       '\nHASIL: GAGAL — server tidak menerima alamat+kunci ini. Periksa URL & kunci publik di aplikasi/.env.',
     )
     cetak(
       '(Kalau kunci salah, Supabase menjawab 401. Kalau alamat salah, biasanya status 0 / DNS gagal.)',
     )
-    return { ok: false, health, rest }
+    return { ok: false, health, rest, katalog }
+  }
+  if (!katalogOk) {
+    cetak('\nHASIL: GAGAL — alamat+kunci benar, tetapi tabel katalog tidak bisa dibaca:')
+    if (katalog.status === 404) {
+      cetak(
+        '  → tabelnya BELUM ADA di proyek ini: 14 berkas migrasi belum disebar (butir T-020).',
+      )
+    } else if (katalog.status === 401 || katalog.status === 403) {
+      cetak(
+        '  → kunci publik tidak boleh membaca katalog: periksa hak tingkat tabel & RLS di migrasi 0007.',
+      )
+    } else {
+      cetak('  → penyebab belum dikenali; lihat rincian status di atas.')
+    }
+    return { ok: false, health, rest, katalog }
   }
   cetak(
-    '\nHASIL: LULUS — sambungan Supabase bekerja dengan kunci publik saja (tanpa kunci rahasia).',
+    '\nHASIL: LULUS — sambungan Supabase bekerja dengan kunci publik saja (tanpa kunci rahasia)',
   )
   cetak(
-    'Catatan: skema/tabel belum tentu ada di proyek ini — uji ini membuktikan ALAMAT + KUNCI + JARINGAN.',
+    `         dan tabel katalog terbaca (HTTP ${katalog.status}) — migrasi sudah disebar ke proyek nyata.`,
   )
-  return { ok: true, health, rest }
+  return { ok: true, health, rest, katalog }
 }
 
 /** Server tiruan Supabase untuk `--uji-diri` (menerima hanya kunci yang benar). */
-async function serverTiruan(kunciBenar) {
+async function serverTiruan(kunciBenar, { katalogAda = true } = {}) {
   const server = createServer((req, res) => {
     const kunci = req.headers.apikey ?? ''
     const jawab = (status, isi) => {
@@ -141,6 +170,15 @@ async function serverTiruan(kunciBenar) {
     if (kunci !== kunciBenar) return jawab(401, { message: 'Invalid API key' })
     if (req.url?.startsWith('/auth/v1/health'))
       return jawab(200, { name: 'gotrue', version: 'uji' })
+    if (req.url?.startsWith(`/rest/v1/${TABEL_KATALOG}`)) {
+      // Dua keadaan nyata: tabel sudah disebar (200 + daftar kosong karena RLS) atau belum ada (404).
+      if (!katalogAda)
+        return jawab(404, {
+          code: 'PGRST205',
+          message: `Could not find the table 'public.${TABEL_KATALOG}' in the schema cache`,
+        })
+      return jawab(200, [])
+    }
     if (req.url?.startsWith('/rest/v1/')) return jawab(200, { swagger: '2.0' })
     return jawab(404, { message: 'not found' })
   })
@@ -152,6 +190,7 @@ async function serverTiruan(kunciBenar) {
 async function ujiDiri() {
   const kunci = 'sb_publishable_uji'
   const tiruan = await serverTiruan(kunci)
+  const tiruanTanpaKatalog = await serverTiruan(kunci, { katalogAda: false })
   const diam = () => {}
   const kasus = []
   const jalankan = async (nama, opsi, harapOk) => {
@@ -178,8 +217,16 @@ async function ujiDiri() {
     )
     await jalankan('alamat asing ditolak', { alamat: 'https://contoh.example.com', kunci }, false)
     await jalankan('alamat kosong ditolak', { alamat: '', kunci }, false)
+    // Bukti terpenting sejak 2026-09-19: kalau tabel katalog BELUM ada di proyek (migrasi belum
+    // disebar), alat ini WAJIB gagal — bukan melaporkan LULUS hanya karena jaringan hidup.
+    await jalankan(
+      'tabel katalog belum disebar ditolak (bukan lolos diam-diam)',
+      { alamat: tiruanTanpaKatalog.alamat, kunci },
+      false,
+    )
   } finally {
     await tiruan.tutup()
+    await tiruanTanpaKatalog.tutup()
   }
   let merah = 0
   for (const [nama, lulus, catatan] of kasus) {
