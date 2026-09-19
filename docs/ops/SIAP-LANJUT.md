@@ -10,10 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `6e6e5b0bfe9803cbaf13a901ccd556419e77c9ef`
+- **Commit keadaan kerja:** `fedea15b782c90e5630b36abb841b600b78ec586`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35442174448, commit 6e6e5b0b)
+- **CI terakhir:** (run 35447425474, commit 1d686fe0)
+- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -27,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **6** — T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (37 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (37 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (41 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (41 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -62,6 +63,28 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18i (2026-09-19) — CELAH MEKANISME AUDIT DITUTUP (auditor terblokir).**
+
+Sesi auditor independen Lee (`arena/01a0b9f2`) **berhenti di langkah 1** — bukan karena proyeknya cacat, tetapi karena:
+(a) Lee menyalin **berkas cetakan** `docs/uji/PROMPT_AUDIT_INDEPENDEN.md`, yang kalimat pembukanya (di sumber kanonik) masih memuat
+baris kosong `<<< TEMPEL ISI docs/uji/paket-audit/… DI SINI >>>` — jadi auditor melihat paket belum diisi; dan (b) sesi auditor baru
+bercabang dari `main` sehingga `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` tidak ada di checkout-nya, sementara paket tidak memberi cara
+mengambil bahan. Auditor berhenti dengan jujur, tidak menulis apa pun (benar secara aturan).
+
+**Perbaikan (semua ber-mesin):**
+1. `alat/audit-independen.py` — kalimat pembuka di berkas siap-tempel kini **dibersihkan dari penanda kosong** dan diberi **langkah 0
+   AMBIL BAHAN**; paket menyebut **commit + cabang** target dan perintah `git fetch origin <cabang> && git checkout --detach <sha>`.
+2. `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` + `PANDUAN_PENGGUNA.md` (blok C4) — langkah 0 ditambahkan (dijaga cek identik); berkas cetakan
+   diberi **peringatan tebal** di kepalanya: "JANGAN SALIN BERKAS INI — salin `<paket>-SIAP-TEMPEL.md`".
+3. `alat/periksa-paket.py` — **aturan baru**: berkas siap-tempel paket audit wajib tanpa `<<<`, memuat bagian `SAMBUNGAN: PAKET AUDIT`,
+   dan memuat cara mengambil bahan di bagian pembukanya; + 2 mutasi uji-diri (kini 8 kasus, semuanya terbukti bisa MENOLAK).
+4. Nama berkas paket tidak lagi menimpa paket lain di hari yang sama (`<tingkat>-<tanggal>-<sha7>.md` bila sudah ada).
+5. `.obsidian/workspace.json` dikeluarkan dari Git (sudah di `.gitignore`) — kehadirannya membuat pembuat paket berhenti `F-13`.
+6. Riwayat jujur: baris audit **E — TERBLOKIR** di `docs/uji/AUDIT_RIWAYAT.md`.
+
+**Langkah berikutnya:** paket AUD-3 **baru** dibuat di commit terakhir (lihat nama di `docs/uji/paket-audit/`), lalu Lee menyalin
+**berkas `-SIAP-TEMPEL`** ke chat auditor baru. Sementara menunggu, maraton T1-45 lanjut ke **K-3**.
 
 **PUTARAN 18h (2026-09-19) — MARATON T1-45: SELURUH K-2 TUNTAS (4/4).**
 

@@ -250,10 +250,12 @@ def periksa_paket(ref: str, jalur: str, isi: str | None = None,
             )
         if "SAMBUNGAN: PAKET AUDIT" not in isi:
             masalah.append(f"{jalur}: tidak memuat bagian 'SAMBUNGAN: PAKET AUDIT' (paketnya tidak ikut tersalin)")
-        if "git fetch origin" not in isi or "git checkout --detach" not in isi:
+        pembuka_st = isi.split("SAMBUNGAN: PAKET AUDIT")[0]
+        if "git fetch origin" not in pembuka_st or "git checkout --detach" not in pembuka_st:
             masalah.append(
-                f"{jalur}: tidak memuat cara MENGAMBIL BAHAN (`git fetch origin …` + `git checkout --detach …`); "
-                "sesi auditor baru bercabang dari `main` dan tanpa perintah ini ia tidak bisa melihat kode proyek"
+                f"{jalur}: bagian PEMBUKA tidak memuat cara MENGAMBIL BAHAN (perintah git fetch origin + "
+                "git checkout --detach); sesi auditor baru bercabang dari main dan tanpa perintah itu "
+                "ia berhenti di langkah 1 (protokol tidak ada) — kejadian nyata 2026-09-19"
             )
         if "protokol" in isi and "PROTOKOL_AUDIT_INDEPENDEN.md" not in isi:
             masalah.append(f"{jalur}: menyebut protokol tanpa menunjuk berkasnya")
@@ -368,7 +370,7 @@ def uji_diri() -> int:
             masalah_ph = [x for x in masalah_ph if "penanda kosong" in x] or masalah_ph
             hasil.append(("mutasi: penanda kosong <<< dimasukkan lagi ke berkas siap-tempel", bool(masalah_ph),
                           masalah_ph[0][:90] if masalah_ph else "DILOLOSKAN (tumpul)"))
-            m_fetch = isi_st.replace("git fetch origin", "git ambil origin", 1)
+            m_fetch = isi_st.replace("git fetch origin", "git ambil origin")
             masalah_fetch, _ = periksa_paket("HEAD", jalur_st, isi=m_fetch, abaikan_pengecualian=True)
             masalah_fetch = [x for x in masalah_fetch if "MENGAMBIL BAHAN" in x] or masalah_fetch
             hasil.append(("mutasi: petunjuk mengambil bahan dihapus dari berkas siap-tempel", bool(masalah_fetch),
