@@ -10,6 +10,7 @@
 | A | 2026-09-17 | AUD-3 | menyeluruh (334/334 berkas) | sesi `arena/01a0aeb0` (Arena.ai Agent Mode, sesi terpisah) | `442913e` | 1 | 6 | 3 | 0 | 5/5 (100%), 0 temuan palsu | TIDAK-BERSIH | 10 temuan (F-01…F-10). Laporan **LOLOS KONTRAK**. |
 | B | 2026-09-17 | AUD-3 | menyeluruh (334/334 berkas) | sesi `arena/01a0aeb4` (Arena.ai Agent Mode, sesi terpisah) | `442913e` | 2 | 7 | 8 | 0 | 5/5 (100%), 0 temuan palsu | TIDAK-BERSIH | 17 temuan (F-01…F-17). Laporan **LOLOS KONTRAK**. |
 | C | 2026-09-17 | AUD-3 | 23 dari 334 berkas (7%) | sesi `arena/01a0aeb0` (versi tertimpa, diselamatkan dari commit `9e9dbb6`) | `253d129` (repo basi) | 0 | 3 | 4 | 0 | 0/0 (bahan kalibrasi tidak ada di sesinya) | TIDAK-BERSIH | **DITOLAK** — sesinya tidak menerima paket & commit target (repo yang terbuka masih template), jadi laporan ini **tidak sah untuk putusan**; tetap diarsipkan sebagai bukti (versi tertimpa). |
+| D | 2026-09-19 | AUD-3 | menyeluruh (436/436 berkas) | sesi `arena/01a0b85b` (Arena.ai Agent Mode, sesi terpisah) | `93a50ba` | 0 | 2 | 5 | 3 | 11/11 (100%), 0 temuan palsu | TIDAK-BERSIH | 10 temuan (F-01…F-10) + 4 luar cakupan. **DITOLAK MESIN** karena kelengkapan format (4 label grup cakupan diparafrase dari paket + cabang laporan memuat 2 laporan); isinya tetap dipakai setelah **10/10 temuan dibantah-balik = NYATA** oleh sesi kerja (probe sendiri). |
 | — | 2026-09-17 | — | (mekanisme dipasang; belum ada sesi auditor independen) | mesin + pembangun | `5ecd10b` | 0 | 0 | 0 | 0 | belum dijalankan | — | Paket AUD-2 (T1-01…T1-10) & paket **AUD-3 menyeluruh** (`docs/uji/paket-audit/AUD-3-2026-09-17.md`, seluruh berkas proyek) sudah disiapkan dan **menunggu sesi auditor**; mekanisme diperluas ke lingkup menyeluruh + penjaga buku induk (DECISIONS_LOG 2026-09-17 «Mekanisme audit diperluas…») |
 
 
@@ -60,6 +61,16 @@
 | B F-15 | K-3 | `docs/SPESIFIKASI_UI.md` menyebut pemeriksa `alat/peta-ui.py` di CI padahal berkas & langkah CI belum ada | **DITUTUP (klaim dikoreksi) 2026-09-17** | `docs/SPESIFIKASI_UI.md` §5 kini menandai alat itu sebagai rencana Fase 1C (`T1-33`); pembuatan alatnya sendiri tetap tugas `T1-33` |
 | B F-16 | K-4 | Tabel lingkup paket audit tidak menutup berkasnya sendiri (333/334) & satu grup angkanya meleset | **TERBUKA** | perketat mekanisme paket (hitungan mesin + berkas paket sendiri) → `T1-44` |
 | B F-17 | K-3 | Commit yang diaudit tidak pernah dilewatkan CI — tidak ada satu pun run untuknya | **TERBUKA** | wajibkan & periksa CI hijau sebelum paket audit dibuat → `T1-44` |
+| D F-01 | K-2 | Diskon masih bisa dicatat pada pesanan `lunas`/`batal` → total pesanan berubah SETELAH uang tercatat | **TERBUKA** | pemicu diskon wajib memeriksa status pesanan → `T1-45` |
+| D F-02 | K-3 | Edge Function `verifikasi_pin` tidak bisa meneruskan `p_pesanan_id` → kupon persetujuan mustahil dipakai lewat jalur Edge (jalur void buntu) | **TERBUKA** | Edge meneruskan `pesanan_id` + uji ujung-ke-ujung → `T1-45` |
+| D F-03 | K-3 | Generator paket audit menghasilkan baris "berkasnya TIDAK ADA: laporkan!" yang PALSU (perintah backtick dianggap jalur) → memancing temuan palsu | **TERBUKA** | saring perintah dari jalur + uji-diri kasus perintah → `T1-45` |
+| D F-04 | K-3 | Commit yang diaudit (`93a50ba`) tidak pernah lolos CI — kedua check-run `cancelled` | **TERBUKA** | paket hanya boleh menargetkan commit ber-CI hijau → `T1-44` |
+| D F-05 | K-2 | Kunci jawaban kalibrasi cacat tanaman tertanam DI DALAM repo (`docs/uji/kalibrasi/pr-bahan-2026-09-17.diff`) | **TERBUKA** | keluarkan kunci dari repo + aturan bahan segar → `T1-45` |
+| D F-06 | K-3 | `hitung_total` & penomoran sudah hidup di 0014 tetapi T1-15/T1-17 masih `[ ]` tanpa catatan silang → risiko rumus kedua | **TERBUKA** | catatan silang di ROADMAP + berkas yang dijanjikan → `T1-45` |
+| D F-07 | K-3 | Handoff `docs/ops/SIAP-LANJUT.md` basi & menunjuk cabang lain pada commit audit | **DITUTUP 2026-09-19** | penjaga baru `alat/lanjut-sesi.py` (menolak handoff yang cabangnya tidak memuat keadaan kerja) + handoff disegarkan — `docs/ops/SIAP-LANJUT.md` |
+| D F-08 | K-4 | `nomor_pesanan_berikutnya` = `max(nomor)+1` tanpa penguncian → dua kasir bisa bertabrakan | **TERBUKA** | advisory lock per (cabang, tanggal) + uji → `T1-45` |
+| D F-09 | K-4 | Uji negatif dominan bentuk lemah: 150 `uji.harap_gagal` vs 10 `uji.harap_gagal_sebab` | **TERBUKA** | pemeriksa menandai berkas uang + migrasi bertahap → `T1-45` |
+| D F-10 | K-4 | Pesan penolakan diskon menunjuk alur yang tidak ada ("Minta persetujuan atasan (PIN)" padahal kupon tidak menaikkan batas pemanggil) | **TERBUKA** | pesan diperbaiki / jalur disambungkan → `T1-45` |
 
 **Cara mengisi:** satu baris per audit. `Tingkat deteksi kalibrasi` = `X/Y` dari `--kalibrasi-nilai`.
 Kolom `Auditor` wajib menyebut model/keluarga model yang dipakai (atau "tidak bisa dipilih" bila platform hanya menyediakan satu).
@@ -121,6 +132,18 @@ Perintah: `python3 alat/audit-independen.py --uji-diri`
 - `laporan-palsu-bersih.md` → **DITOLAK** (verdict BERSIH padahal ada temuan K-1 TERVERIFIKASI)
 - `laporan-tanpa-kalibrasi.md` → **DITOLAK** (AUD-3 tanpa angka kalibrasi)
 - `kalibrasi-penuh.md` → **TERKALIBRASI** · `kalibrasi-sebagian.md` → **BELUM TERKALIBRASI** (67% < 70%)
+
+## 2026-09-19 — putaran verifikasi: 25 temuan NYATA dari 2 peninjau, 0 palsu
+
+| # | Peristiwa | Bukti |
+|---|---|---|
+| 1 | Lee menjalankan **2 sesi peninjau** (satu chat, cabang `arena/01a0b85b`): AUD-3 menyeluruh + review PR putaran16. Kedua laporan diambil mesin: `python3 alat/audit-independen.py --ambil-laporan` & `python3 alat/review-pr.py --ambil-laporan`. | `docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0b85b.md` · `docs/uji/review-pr/LAPORAN_2026-09-19_pr-01-putaran16__01a0b85b.md` |
+| 2 | **Laporan review LOLOS KONTRAK** (verdict TIDAK-BERSIH · K-1 1 · K-2 3 · K-3 7 · luar cakupan 6 · kalibrasi 4/4 hunk + 11 kandidat, 0 palsu). **Laporan audit DITOLAK MESIN** karena kelengkapan format (4 label grup cakupan diparafrase dari paket + cabang memuat 2 laporan) — isinya tetap dipakai setelah diverifikasi ulang manual, dan auditor diminta memperbaiki format pada sesi yang sama. | `python3 alat/review-pr.py --periksa-laporan …` → LOLOS · `python3 alat/audit-independen.py --periksa-laporan …` → DITOLAK (5 alasan) |
+| 3 | **Setiap temuan dibantah-balik dengan probe sendiri** (aturan tetap): 10 temuan audit + 15 temuan review = **25/25 NYATA, 0 palsu**. Probe ditulis ulang dari nol di `/tmp/probe-*.sql` (bukan menyalin probe laporan) dan dijalankan dengan `node alat/uji-sql.mjs <berkas>` di pohon kerja. | probe `docs/uji/audit/probe-2026-09-19/pr01-penanda-palsu.sql` … `docs/uji/audit/probe-2026-09-19/audit-f01-diskon-sesudah-lunas.sql` (12 berkas) — semuanya LULUS sesuai dugaan temuan |
+| 4 | Temuan terberat **K-1** (review PR-01): penanda transaksi `resto.pembatalan_*` bisa dipalsukan kasir (`set_config`) → item SESUDAH dapur dibatalkan **tanpa PIN & tanpa baris jejak**; kontrol (tanpa penanda) tetap DITOLAK. Dibuktikan di PostgreSQL asli dalam Node. | probe `docs/uji/audit/probe-2026-09-19/pr01-penanda-palsu.sql` → LULUS |
+| 5 | Temuan uang K-2 lain juga terbukti: diskon pada pesanan `lunas` mengubah total (`docs/uji/audit/probe-2026-09-19/audit-f01-diskon-sesudah-lunas.sql`) · void SATU item membatalkan SELURUH pesanan & pembayaran sisa ditolak (`docs/uji/audit/probe-2026-09-19/pr02-void-satu-item.sql`) · kasir resto B membaca hitungan pesanan resto A (`docs/uji/audit/probe-2026-09-19/pr03-bocor-nomor.sql`) · jawaban kembar `simpan_pin` memastikan PIN aktif kolega (`docs/uji/audit/probe-2026-09-19/pr04-oracle-pin.sql`). | keempat probe LULUS |
+| 6 | Cacat mekanisme yang tertangkap: **gerbang CI gagal-terbuka** (langkah keamanan boleh dihapus & `if: false` tak terlihat oleh `alat/periksa-gerbang-ci.py` — direproduksi sendiri di salinan `/tmp/gc`), **kunci kalibrasi di dalam repo**, **generator paket audit memancing temuan palsu** (paket 2026-09-19 memuat 10 baris "TIDAK ADA: laporkan!" palsu), **label gema `12/12` padahal nyata `16/16``, dan **1 klaim luar-cakupan tidak dapat direproduksi** (`--siapkan` exit 0 saat GAGAL → diuji ulang: exit **1**, berkas tidak ditulis). | `/tmp/gc` · `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` · `docs/uji/paket-audit/AUD-3-2026-09-19.md:260-293` · `aplikasi/alat/periksa-semua.sh:38` · uji ulang `--lanjut-dari arena/cabang-hantu` → EXIT=1 |
+| 7 | Seluruh temuan NYATA dimiliki satu tugas penutup **T1-45** (migrasi `0015` + penjaga alat); yang sudah tertutup lebih dulu (D F-07) dicatat DITUTUP dengan bukti hidup. | `docs/ROADMAP.md` (T1-45) · `docs/uji/REVIEW_PR_RIWAYAT.md` §1b |
 
 ## 2026-09-18 — AUD-3 putaran ini: 15 temuan NYATA, ditutup `0014`
 

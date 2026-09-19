@@ -28,6 +28,11 @@ RIWAYAT = "docs/uji/AUDIT_RIWAYAT.md"
 LAPORAN = {
     "A": "docs/uji/audit/LAPORAN_AUD-3_2026-09-17_menyeluruh.dari-01a0aeb0.md",
     "B": "docs/uji/audit/LAPORAN_AUD-3_2026-09-17_menyeluruh.md",
+    # Ronde putaran verifikasi 2026-09-19 (sesi peninjau `arena/01a0b85b`): laporan ini DITOLAK MESIN
+    # pada kontrak format (label grup cakupan diparafrase + cabang memuat 2 laporan), tetapi temuan
+    # isinya sudah dibantah-balik 10/10 NYATA oleh sesi kerja — karena itu temuan-temuannya tetap
+    # WAJIB punya baris penutup di §1b (temuan tidak boleh hilang hanya karena laporannya ditolak).
+    "D": "docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0b85b.md",
 }
 ROADMAP = "docs/ROADMAP.md"
 
@@ -139,7 +144,7 @@ def periksa(akar: pathlib.Path) -> int:
     for no, kolom in baris:
         laporan_temuan, tingkat, ringkas, status, bukti = kolom[0], kolom[1], kolom[2], kolom[3], " ".join(kolom[4:])
         # 2. rujukan laporan+nomor wajib benar
-        rujukan = re.findall(r"\b([AB])\s*(F-\d+)", laporan_temuan)
+        rujukan = re.findall(r"\b([A-D])\s*(F-\d+)", laporan_temuan)
         if not rujukan:
             errs.append(f"baris {no}: kolom 'Laporan' tidak menyebut satu pun temuan (mis. 'A F-01'): {laporan_temuan[:60]}")
         for nama, fid in rujukan:
@@ -177,6 +182,7 @@ def periksa(akar: pathlib.Path) -> int:
     total = sum(len(v) for v in temuan.values())
     jumlah_luar = periksa_luar_cakupan(akar, errs)
     print(f"PERIKSA TEMUAN AUDIT — laporan A: {len(temuan.get('A', set()))} temuan · laporan B: {len(temuan.get('B', set()))} temuan "
+          f"· laporan D (putaran verifikasi 2026-09-19, laporan ditolak mesin): {len(temuan.get('D', set()))} temuan "
           f"· daftar §1b: {len(baris)} baris ({tertutup} ditutup · {terbuka} terbuka)")
     if errs:
         print(f"\nHASIL: GAGAL — {len(errs)} temuan")
@@ -209,6 +215,21 @@ def uji_diri() -> int:
                 kode2, keluar2 = jalankan_pemeriksa(periksa, tmp2)
                 hasil.append(("mutasi: satu temuan dihapus dari daftar", kode2 != 0,
                               "ditolak" if kode2 != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 1b: baris temuan laporan D (putaran verifikasi) dihapus → harus GAGAL.
+        # Tanpa kasus ini, cakupan laporan D bisa hilang tanpa ada yang tahu.
+        with salin_pohon() as tmp1b:
+            berkas = tmp1b / RIWAYAT
+            isi = berkas.read_text(encoding="utf-8").splitlines()
+            idx = next((i for i, b in enumerate(isi) if re.match(r"\|\s*D\s*F-\d+", b)), None)
+            if idx is None:
+                hasil.append(("mutasi hapus baris D", False, "tidak menemukan baris D untuk dihapus"))
+            else:
+                del isi[idx]
+                berkas.write_text("\n".join(isi) + "\n", encoding="utf-8")
+                kode1b, _ = jalankan_pemeriksa(periksa, tmp1b)
+                hasil.append(("mutasi: satu temuan laporan D dihapus dari daftar", kode1b != 0,
+                              "ditolak" if kode1b != 0 else "DILOLOSKAN (tumpul)"))
 
         # Mutasi 2: bukti penutup diarahkan ke berkas yang tidak ada → harus GAGAL
         with salin_pohon() as tmp3:

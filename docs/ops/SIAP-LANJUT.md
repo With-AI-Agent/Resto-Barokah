@@ -8,12 +8,12 @@
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
-- **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
+- **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `d2f47c26e07184fbb4a99cee41aa3e378b186215`
+- **Commit keadaan kerja:** `bdf8a8637aa5829812c5d444ee78391730fb985d`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35426101868, commit d2f47c26)
+- **CI terakhir:** success (run 35426347530, commit bdf8a863)
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -27,7 +27,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **7** — T-018, T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (2 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (2 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (3 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (3 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -62,6 +62,29 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18 (2026-09-19) — LAPORAN PENINJAU SUDAH MASUK & DIPERIKSA; BERIKUTNYA: TUTUP TEMUAN `T1-45`.**
+
+Dua laporan diterima (satu sesi peninjau `arena/01a0b85b`): AUD-3 menyeluruh (10 temuan, **laporan DITOLAK MESIN**
+karena kelengkapan format — label grup cakupan diparafrase + cabang memuat 2 laporan) dan review PR putaran16
+(15 temuan, **LOLOS KONTRAK**, verdict TIDAK-BERSIH). Sesi kerja sudah **membantah-balik semuanya dengan probe
+sendiri: 25/25 NYATA, 0 palsu** (probe tersimpan di `docs/uji/audit/probe-2026-09-19/`; ringkasan per temuan di
+`docs/uji/REVIEW_PR_RIWAYAT.md` §1b dan `docs/uji/AUDIT_RIWAYAT.md` §"2026-09-19").
+
+**Langkah berikutnya yang wajib (urut):**
+1. **Tutup temuan lewat `T1-45`**: buat `supabase/migrations/0015_penutup_celah_putaran16.sql` — mulai dari K-1
+   (penanda `resto.pembatalan_*` jangan dipercaya; ganti dengan bukti baris `pembatalan` yang nyata) lalu K-2
+   (diskon pada pesanan lunas/batal · void satu item jangan menutup pesanan · kebocoran `nomor_pesanan_berikutnya`
+   · oracle PIN kembar · kunci kalibrasi keluar dari repo). Setelah itu K-3/K-4: gerbang CI gagal-terbuka,
+   label `12/12`, tabel hantu `percobaan_masuk`, grant `service_role`/`anon`, tautan meja, generator paket audit.
+2. Setiap perbaikan: uji regresi baru + `alat/uji-mutasi-0015.py` (semua mutasi WAJIB MERAH) + suite penuh hijau.
+3. Dua hal menunggu keputusan Lee (jangan dikerjakan sendiri): **(a)** keluarkan `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff`
+   dari repo (kunci kalibrasi) — ini menghapus berkas, tunggu izin; **(b)** auditor diminta memperbaiki format laporan
+   (label grup + satu laporan per cabang) lalu kirim ulang agar auditnya sah formal.
+4. Selagi menunggu: butir tertangguh terbuka **7** (batas 12) — tawarkan jawaban agent untuk masing-masing.
+
+**Jangan merge PR #2** (temuan K-1/K-2 masih terbuka di commit yang direview). PR #1 tetap tidak disentuh.
+
 
 **PUTARAN 17 SEDANG BERJALAN (2026-09-19) — putaran verifikasi, MENUNGGU LEE.** Paket peninjau
 **sudah terbit & ter-push** (target `93a50ba`): audit

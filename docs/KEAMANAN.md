@@ -96,7 +96,7 @@
 
 | Peran | Faktor | Catatan |
 |---|---|---|
-| **Kasir · Pelayan · Dapur** | **Perangkat terdaftar + PIN 6 digit** | Satset (2 detik). Tanpa perangkat terdaftar, PIN tidak menghasilkan sesi yang bisa dipakai. PIN = PIN persetujuan (satu rahasia). |
+| **Kasir · Pelayan · Dapur** | **Perangkat terdaftar + PIN 6 digit** | Satset (2 detik). Tanpa perangkat terdaftar, PIN tidak menghasilkan sesi yang bisa dipakai _(aturan ini **ditegakkan sejak Fase 1B** — penegakan perangkat terdaftar menyusul di `T1-24`; sampai itu mendarat, batas per-perangkat masih memakai nama perangkat kiriman klien, lihat `docs/uji/AUDIT_RIWAYAT.md` §1b B F-11)._ PIN = PIN persetujuan (satu rahasia). |
 | **Admin Cabang** | Kata sandi (≥12) + **TOTP wajib** + perangkat terdaftar | Boleh mengelola cabang; tidak boleh melihat cabang lain. |
 | **Owner Pusat** | Kata sandi + **TOTP wajib** + perangkat terdaftar | Perangkat pertama boleh didaftarkan sendiri (bootstrap) dengan kata sandi + TOTP. |
 | **Pemilik Platform** | Kata sandi + **TOTP wajib** (tanpa perangkat) | Sesi 8 jam; data penyewa hanya lewat mode dukungan. |

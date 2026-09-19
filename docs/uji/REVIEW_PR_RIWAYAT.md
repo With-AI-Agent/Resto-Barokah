@@ -24,7 +24,31 @@
 | 8 | 2026-09-18 | PR #1 (`arena/01a0a8a2-resto-barokah`) | `d1f11d7` | Merah | **2 sesi peninjau (Lee), SELESAI** — `arena/01a0b1f3-resto-barokah` | 2 | 1 | 8 | — | **2/4** dan **4/4** · 0 temuan palsu | **TIDAK-BERSIH ×2** | **JANGAN MERGE (Lee)** | Paket `PKT-2026-09-18-pr-01-putaran13-SIAP-TEMPEL.md`. Dua laporan tersimpan: `LAPORAN_2026-09-18_pr-01-putaran13__01a0b1f3.md` (5 temuan · K-1 2 · K-3 3 · kalibrasi 2/4 · 3 temuan luar cakupan) dan `…__01a0b1f3-2.md` (7 temuan · K-2 1 · K-3 5 · kalibrasi 4/4 · 0 luar cakupan); keduanya **LOLOS kontrak**. Kedua belas temuan review diverifikasi NYATA lewat probe sesi kerja (bersama 15 temuan audit) lalu ditutup migrasi `0014` + 10 uji SQL baru → suite **41 LULUS · 0 GAGAL**, mutasi 16/16 & 17/17 MERAH. **Baris ditambahkan 2026-09-19** — riwayat putaran13–15 sebelumnya bolong (sekarang dijaga `alat/periksa-paket.py` Aturan 3) |
 | 9 | 2026-09-18 | PR #1 (`arena/01a0a8a2-resto-barokah`) | `cdd80b6` | Merah | **tidak ada laporan peninjau** | — | — | — | — | belum dinilai | — | — | Paket `PKT-2026-09-18-pr-01-putaran14-SIAP-TEMPEL.md` — tidak ada berkas laporan di `docs/uji/review-pr/` untuk putaran ini; paket berikutnya (putaran15) menunjuk commit yang lebih baru (`52e22fc`). **Baris ditambahkan 2026-09-19** supaya riwayat tidak bolong |
 | 10 | 2026-09-18 | PR #1 (`arena/01a0a8a2-resto-barokah`) | `52e22fc` | Merah | **tidak ada laporan peninjau** | — | — | — | — | belum dinilai | — | — | Paket `PKT-2026-09-18-pr-01-putaran15-SIAP-TEMPEL.md` — paket terakhir untuk sesi `01a0a8a2`; **digantikan putaran16** (2026-09-19) karena cabang kerja sesi baru `arena/01a0b7d1-resto-barokah` bergerak. **Baris ditambahkan 2026-09-19** supaya riwayat tidak bolong |
-| 11 | 2026-09-19 | **PR #2** (`arena/01a0b7d1-resto-barokah`) | `93a50ba` | Merah | **menunggu sesi peninjau** | — | — | — | — | belum disiapkan | — | — | Paket `docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran16-SIAP-TEMPEL.md` (420 berkas · +60192/−145; memuat 2 cacat nyata yang ditutup sesi ini: angka jumlah tugas basi & dua penjaga yang dulu tak pernah dijalankan sungguhan). PR **#2** dibuka dari cabang sesi baru (base `main`) karena PR #1 menunjuk cabang sesi lama — **JANGAN MERGE** tanpa keputusan Lee. Lee: buka chat baru (idealnya model berbeda) → salin seluruh berkas SIAP-TEMPEL → setelah selesai bilang "Laporan review sudah masuk, periksa" |
+| 11 | 2026-09-19 | **PR #2** (`arena/01a0b7d1-resto-barokah`) | `93a50ba` | Merah | **1 sesi peninjau (Lee), SELESAI** | 1 | 3 | 7 | 4 | **4/4 hunk + 11 kandidat, 0 temuan palsu** | **TIDAK-BERSIH** | **JANGAN MERGE DULU** | Paket `PKT-2026-09-19-pr-01-putaran16-SIAP-TEMPEL.md`; laporan `LAPORAN_2026-09-19_pr-01-putaran16__01a0b85b.md` (15 temuan · 6 luar cakupan) **LOLOS KONTRAK**. **Semua 15 temuan diverifikasi NYATA lewat probe sesi kerja sendiri** (12 berkas probe; `node alat/uji-sql.mjs`) — termasuk **K-1**: penanda `resto.pembatalan_*` bisa dipalsukan kasir → void sesudah dapur tanpa PIN & tanpa jejak. Ditutup lewat tugas **T1-45**. |
+
+## 1b. Status penutupan temuan review putaran16 (2026-09-19)
+
+> Semua baris di bawah **dibantah-balik lebih dulu** dengan probe sendiri (aturan tetap): 15/15 NYATA, 0 palsu.
+> Pemilik penutup: **T1-45** (kecuali yang sudah tertutup lebih dulu). Dijaga daftar tunggal
+> `docs/uji/TEMUAN_LUAR_CAKUPAN_REVIEW.md` untuk temuan di luar cakupan diff.
+
+| # | Tingkat | Temuan (ringkas) | Status | Bukti / pemilik |
+|---|---|---|---|---|
+| PR-01 | **K-1** | Penanda transaksi `resto.pembatalan_*` bisa dipalsu kasir → void sesudah dapur tanpa PIN & tanpa jejak | **TERBUKA** | probe `docs/uji/audit/probe-2026-09-19/pr01-penanda-palsu.sql` (LULUS = celah ada) → `T1-45` |
+| PR-02 | K-2 | Void satu item ikut membatalkan seluruh pesanan; pembayaran sisa ditolak | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr02-void-satu-item.sql` → `T1-45` |
+| PR-03 | K-2 | `nomor_pesanan_berikutnya()` membocorkan hitungan pesanan ke resto lain | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr03-bocor-nomor.sql` → `T1-45` |
+| PR-04 | K-2 | Pesan "PIN sudah dipakai pegawai lain" memastikan PIN aktif kolega (oracle) | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr04-oracle-pin.sql` → `T1-45` |
+| PR-05 | K-3 | Pembatalan pra-dapur tanpa izin void & tanpa satu pun baris jejak | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr05-pra-dapur.sql` → `T1-45` |
+| PR-06 | K-3 | Penolakan hierarki PIN tidak meninggalkan jejak (log ikut rollback) | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr06-jejak-hierarki.sql` → `T1-45` |
+| PR-07 | K-3 | Kupon persetujuan tanpa ikatan pesanan → jalur Edge buntu (tulis bisa, pakai mustahil) | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr07-kupon-tanpa-pesanan.sql` → `T1-45` |
+| PR-08 | K-3 | Saldo awal stok tercatat tanpa baris buku besar (saldo tanpa asal-usul) | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr08-saldo-tanpa-buku.sql` → `T1-45` |
+| PR-09 | K-3 | PIN warisan 4 angka buntu: tak bisa diverifikasi, tak bisa naik kelas swadaya | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr09-pin-warisan.sql` → `T1-45` |
+| PR-10 | K-3 | Pemeriksa gerbang CI gagal-terbuka: langkah keamanan boleh dihapus; `if: false` tak terlihat | **TERBUKA** | uji sendiri di `/tmp/gc` (G1 & G2 tetap LOLOS) → `T1-45` |
+| PR-11 | K-3 | Commit yang direview tidak pernah hijau (CI `cancelled`) + pesan commit menuduh sebab yang salah | **TERBUKA** | `gh api …/check-runs` → `T1-44` |
+| PR-12 | K-4 | Label gerbang basi: `echo "12/12 WAJIB MERAH"` padahal ringkasan nyata 16/16 | **TERBUKA** | `aplikasi/alat/periksa-semua.sh:38` → `T1-45` |
+| PR-13 | K-4 | `docs/KEAMANAN.md` §6.4 menuntut pencatatan ke tabel hantu `percobaan_masuk` | **TERBUKA** | `grep` migrasi (tabel nyata: `percobaan_pin`, `percobaan_simpan_pin`) → `T1-45` |
+| PR-14 | K-4 | Hak 0014: `service_role` ditolak 3 fungsi; `peringkat_peran` bisa dipanggil anon | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr14-hak-fungsi.sql` → `T1-45` |
+| PR-15 | K-4 | Hapus meja memutus tautan pesanan lunas (riwayat kehilangan "meja mana") | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr15-meja-terputus.sql` → `T1-45` |
 
 ## 2. Riwayat kalibrasi review PR (RV-3)
 
