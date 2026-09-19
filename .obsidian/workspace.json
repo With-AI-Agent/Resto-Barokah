@@ -1,0 +1,220 @@
+{
+  "main": {
+    "id": "619bdb4ef9136433",
+    "type": "split",
+    "children": [
+      {
+        "id": "bd9d952eb9ed2181",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "3d771057c95b0a3a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "DAFTAR_KUNCI_PEMILIK_NONSECRET"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "5cd925041d146f58",
+    "type": "split",
+    "children": [
+      {
+        "id": "f5afe73159331eb9",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "87ad0748f2fd8a40",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "6bb9624c6cbae3fc",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "805c1ccab23c2fb8",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "4534a46924b5378b",
+    "type": "split",
+    "children": [
+      {
+        "id": "febfb25455b4358b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6b3209b4bbb0d57a",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "2103834d46d66c69",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "fbe40e924be44f06",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "2a3868b0b9350fe3",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "95a700c34c8b5d4d",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "3d771057c95b0a3a",
+  "lastOpenFiles": [
+    "docs/uji/review-pr/LAPORAN_2026-09-19_pr-01-putaran16__01a0b85b.md",
+    "docs/uji/audit/probe-2026-09-19/pr15-meja-terputus.sql",
+    "docs/uji/audit/probe-2026-09-19/pr14-hak-fungsi.sql",
+    "docs/uji/audit/probe-2026-09-19/pr09-pin-warisan.sql",
+    "docs/uji/audit/probe-2026-09-19/pr08-saldo-tanpa-buku.sql",
+    "docs/uji/audit/probe-2026-09-19/pr07-kupon-tanpa-pesanan.sql",
+    "docs/uji/audit/probe-2026-09-19/pr06-jejak-hierarki.sql",
+    "docs/uji/audit/probe-2026-09-19/pr05-pra-dapur.sql",
+    "docs/uji/audit/probe-2026-09-19/pr04-oracle-pin.sql",
+    "docs/uji/audit/probe-2026-09-19/pr03-bocor-nomor.sql",
+    "docs/ops/DAFTAR_KUNCI_PEMILIK.local.md",
+    "docs/uji/audit/probe-2026-09-19/pr02-void-satu-item.sql",
+    "docs/uji/audit/probe-2026-09-19/BACA-DULU.md",
+    "docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0b85b.md",
+    "docs/uji/audit/LAPORAN_AUD-3_2026-09-18_menyeluruh__01a0b1f4.dari-01a0b1f4-0783bf0d.md",
+    "docs/uji/BERKAS_PENSIUN.md",
+    "docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md",
+    "docs/ops/DAFTAR_KUNCI_PEMILIK.template.md",
+    "PROMPT_SESI_BARU.md",
+    "docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran16-SIAP-TEMPEL.md",
+    "docs/uji/paket-audit/AUD-3-2026-09-19-SIAP-TEMPEL.md",
+    "docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran16.md",
+    "docs/uji/paket-audit/AUD-3-2026-09-19.md",
+    "PANDUAN_PENGGUNA.md",
+    "docs/ops/SESI_DITINGGALKAN.md",
+    "PANDUAN_PEMAKAIAN.md"
+  ]
+}
