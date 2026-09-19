@@ -86,6 +86,26 @@ def berkas_berlaku(cari: str) -> pathlib.Path | None:
     return None
 
 
+def berkas_unsur(unsur, bawaan: pathlib.Path | None):
+    """Berkas yang dimutasi untuk satu unsur pasangan GABUNGAN.
+
+    Bentuk unsur:
+      * (cari, ganti)                 → berkas `bawaan` (pasangan satu berkas, mis. M3k)
+      * (nama_berkas, cari, ganti)    → berkas eksplisit
+      * ("*", cari, ganti)            → migrasi TERBARU yang memuat pola itu = DEFINISI YANG
+                                        BERLAKU. Dipakai untuk penjaga yang suka ditulis ulang
+                                        migrasi penutup berikutnya (mis. `picu_item_jaga` 0014 →
+                                        0015): menyebut nama berkas lama membuat mutasinya hijau
+                                        palsu segera setelah ada migrasi baru (kejadian nyata
+                                        2026-09-19, M5k).
+    """
+    if len(unsur) == 2:
+        return bawaan
+    if unsur[0] == "*":
+        return berkas_berlaku(unsur[1])
+    return KERJA / "supabase/migrations" / unsur[0]
+
+
 def jalankan(uji):
     r = subprocess.run(["node", "alat/uji-sql.mjs", uji], cwd=KERJA, capture_output=True, text=True)
     return r.returncode, (r.stdout + r.stderr)
@@ -184,11 +204,12 @@ for uji in berkas_uji:
 # jadi keduanya dimatikan sekaligus — kalau perilakunya tetap benar, berarti penjaga
 # ganda memang bekerja; kalau berubah, terbukti keduanya yang menahan).
 GABUNGAN = [
-    # M5k: subtotal dihitung di DUA tempat — pemicu item 0014 dan pemicu harga 0012.
-    # Mematikan satu saja tidak mengubah perilaku, jadi keduanya dimatikan sekaligus.
-    ("M5k subtotal dari klien dipercaya (pemicu 0014 DAN 0012 dimatikan)",
-     [("0014_penutup_celah_putaran13.sql",
-       "  new.subtotal := new.harga_saat_itu * new.qty;",
+    # M5k: subtotal dihitung di DUA tempat — pemicu item (0014, ditulis ulang 0015, dan seterusnya)
+    # dan pemicu harga 0012. Mematikan satu saja tidak mengubah perilaku, jadi keduanya
+    # dimatikan sekaligus. Pasangan pemicu item memakai "*" supaya SELALU mengenai definisi
+    # yang berlaku, bukan salinan lama yang sudah ditimpa migrasi penutup berikutnya.
+    ("M5k subtotal dari klien dipercaya (pemicu item DAN pemicu harga 0012 dimatikan)",
+     [("*", "  new.subtotal := new.harga_saat_itu * new.qty;",
        "  new.subtotal := coalesce(new.subtotal, new.harga_saat_itu * new.qty);"),
       ("0012_penutup_celah_review.sql",
        "    new.subtotal := new.harga_saat_itu * new.qty;",
@@ -261,10 +282,10 @@ jalankan_daftar("UJI MUTASI — penutup celah review putaran11 (0013)", MIG13, D
 for nama, pasangan, uji in GABUNGAN:
     # Kalau unsur pertama sudah menyebut BERKAS (3 unsur), tidak perlu mencari berkas;
     # kalau hanya (cari, ganti), berkasnya dicari dari migrasi terbaru yang memuatnya.
-    if len(pasangan[0]) == 3:
-        berkas = KERJA / "supabase/migrations" / pasangan[0][0]
-    else:
+    if len(pasangan[0]) == 2:
         berkas = berkas_berlaku(pasangan[0][0])
+    else:
+        berkas = berkas_unsur(pasangan[0], None)
     if berkas is None or not berkas.is_file():
         print(f"  LEWAT {nama}: pola tidak ada / tidak unik di migrasi mana pun")
         dilewati.append(nama)
@@ -274,11 +295,14 @@ for nama, pasangan, uji in GABUNGAN:
     ok = True
     disimpan: list = []
     for unsur in pasangan:
-        if len(unsur) == 3:
-            berkas_g = KERJA / "supabase/migrations" / unsur[0]
-            cari, ganti = unsur[1], unsur[2]
-        else:
+        if len(unsur) == 2:
             berkas_g, cari, ganti = berkas, unsur[0], unsur[1]
+        else:
+            berkas_g = berkas_unsur(unsur, None)
+            cari, ganti = unsur[1], unsur[2]
+        if berkas_g is None:
+            ok = False
+            break
         isi_g = berkas_g.read_text(encoding="utf-8")
         if isi_g.count(cari) != 1:
             ok = False
