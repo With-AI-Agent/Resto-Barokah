@@ -15,6 +15,11 @@ Menguji migrasi `supabase/migrations/0015_penutup_celah_putaran16.sql`:
   * bagian 6 — F-01/F-02 audit AUD-3 2026-09-19: pajak & service dihitung dari subtotal
                  SEBELUM diskon, pembulatan tidak dibaca, pesanan lunas bisa dihitung ulang
                  dari perangkat (uji: `supabase/tes/urutan_uang.sql`)
+  * bagian 8 — F-03/F-05/F-06 audit AUD-3 2026-09-19 (K-2): metode bayar nonaktif masih bisa
+                 dipakai, pembatalan tidak idempoten, stempel lifecycle dikarang perangkat
+                 (uji: `supabase/tes/metode_bayar_nonaktif.sql`,
+                       `supabase/tes/pembatalan_sekali.sql`,
+                       `supabase/tes/lifecycle_pesanan.sql`)
 Gerbang yang tidak bisa MERAH dianggap belum terpasang — itu pelajaran mahal proyek ini.
 
 Cara kerjanya: salin repo ke folder sementara, RUSAK satu penjaga (atau kembalikan versi lama
@@ -45,7 +50,10 @@ UJI_F01 = "supabase/tes/diskon_sesudah_lunas.sql"                       # bagian
 UJI_PR03 = "supabase/tes/nomor_pesanan_isolasi.sql"                     # bagian 4 (K-2c)
 UJI_PR04 = "supabase/tes/pin_bukan_oracle.sql"                          # bagian 5 (K-2d)
 UJI_UANG = "supabase/tes/urutan_uang.sql"                               # bagian 6 (F-01/F-02)
-SEMUA_UJI = (UJI, UJI_PR02, UJI_F01, UJI_PR03, UJI_PR04, UJI_UANG)
+UJI_F03 = "supabase/tes/metode_bayar_nonaktif.sql"                      # bagian 8a (F-03)
+UJI_F05 = "supabase/tes/pembatalan_sekali.sql"                          # bagian 8b (F-05)
+UJI_F06 = "supabase/tes/lifecycle_pesanan.sql"                          # bagian 8c (F-06)
+SEMUA_UJI = (UJI, UJI_PR02, UJI_F01, UJI_PR03, UJI_PR04, UJI_UANG, UJI_F03, UJI_F05, UJI_F06)
 
 
 def segarkan_salinan() -> None:
@@ -114,7 +122,7 @@ def main() -> int:
     if not hijau:
         print("KONTROL GAGAL: salinan utuh pun tidak hijau — perbaiki dulu berkas ujinya.\n" + keluar)
         return 1
-    print("  OK  kontrol: salinan utuh → SEMUA uji bagian 1–6 hijau")
+    print("  OK  kontrol: salinan utuh → SEMUA uji bagian 1–8 hijau")
 
     hasil: list[tuple[str, bool, str]] = []
 
@@ -356,12 +364,60 @@ def main() -> int:
     hasil.append(mutasi("arah pembulatan dibalik jadi KE ATAS (keputusan arah diuji)",
                         bulat_ke_atas, uji=UJI_UANG))
 
+    # ---------------------------------------------------------- bagian 8 (AUD-3 F-03/F-05/F-06)
+    # 18) Metode bayar nonaktif boleh dipakai lagi (cacat asli F-03) → MERAH.
+    def metode_nonaktif_diizinkan(t: str) -> str:
+        return t.replace(
+            """    if not v_metode.aktif then
+      raise exception 'Metode bayar itu sudah dinonaktifkan pemilik resto — pilih metode yang masih aktif.';
+    end if;""",
+            "    -- (mutasi) pemeriksaan aktif DIHAPUS",
+            1,
+        )
+
+    hasil.append(mutasi("metode bayar nonaktif boleh dipakai mencatat uang (cacat AUD-3 F-03)",
+                        metode_nonaktif_diizinkan, uji=UJI_F03))
+
+    # 19) Penjaga idempotensi pembatalan dilepas (cacat asli F-05) → MERAH.
+    def pembatalan_boleh_diulang(t: str) -> str:
+        return t.replace(
+            """  if new.pesanan_item_id is not null then
+    if (select pi.status from public.pesanan_item pi where pi.id = new.pesanan_item_id) = 'batal' then
+      raise exception 'Item ini sudah dibatalkan — kiriman ulang tidak dicatat lagi (satu aksi = satu jejak).';
+    end if;
+  elsif v_pesanan.status = 'batal' then
+    raise exception 'Pesanan ini sudah dibatalkan — kiriman ulang tidak dicatat lagi (satu aksi = satu jejak).';
+  end if;""",
+            "  -- (mutasi) penjaga idempotensi pembatalan DIHAPUS",
+            1,
+        )
+
+    hasil.append(mutasi("pembatalan bisa diulang untuk target yang sudah batal (cacat AUD-3 F-05)",
+                        pembatalan_boleh_diulang, uji=UJI_F05))
+
+    # 20) Penjaga stempel lifecycle dilepas (cacat asli F-06) → MERAH.
+    def stempel_boleh_dikarang(t: str) -> str:
+        return t.replace(
+            """    if new.dibayar_pada is distinct from old.dibayar_pada then
+      raise exception 'Stempel pembayaran (dibayar_pada) hanya diisi jalur peladen setelah pembayaran sah.';
+    end if;
+    if new.dibatalkan_pada is distinct from old.dibatalkan_pada
+       or new.alasan_batal is distinct from old.alasan_batal then
+      raise exception 'Stempel pembatalan hanya diisi jalur peladen setelah pembatalan resmi (baris pembatalan ber-PIN bila sesudah dapur).';
+    end if;""",
+            "    -- (mutasi) penjaga stempel lifecycle DIHAPUS",
+            1,
+        )
+
+    hasil.append(mutasi("stempel lifecycle pesanan boleh dikarang perangkat (cacat AUD-3 F-06)",
+                        stempel_boleh_dikarang, uji=UJI_F06))
+
     # Kontrol penutup: setelah semua mutasi dipulihkan, SEMUA uji wajib hijau lagi.
     hijau_akhir, keluar_akhir = semua_hijau()
     hasil.append(("kontrol penutup: salinan dipulihkan → semua uji hijau", hijau_akhir,
                   "HIJAU" if hijau_akhir else "MERAH\n" + keluar_akhir))
 
-    print("\nUJI MUTASI — penutup celah putaran16 (0015: K-1, K-2a…K-2d, dan F-01/F-02 audit)")
+    print("\nUJI MUTASI — penutup celah putaran16 (0015: K-1, K-2a…K-2d, F-01/F-02, F-03/F-05/F-06)")
     merah = 0
     for nama, lulus, catatan in hasil:
         if not lulus:

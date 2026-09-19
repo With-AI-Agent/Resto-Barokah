@@ -327,62 +327,121 @@ select uji.sama(
 -- PIN-nya sendiri untuk aksi void_sesudah_dapur (bukan sekadar namanya ditulis).
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner (penyetuju)
+reset role;
+-- Sejak AUD-3 F-05 (2026-09-20) satu target hanya boleh dibatalkan SEKALI, jadi blok ini
+-- memakai pesanan BARU (eeee…0012) — pesanan eeee…0010 sudah ditutup di atas.
+insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status,
+                            subtotal, pajak, service, total, kunci_idempoten)
+values ('eeee0000-0000-0000-0000-000000000012', '11111111-1111-1111-1111-111111111111',
+        'a1a1a1a1-0000-0000-0000-000000000001', 12, current_date, 'dinein', 'dikirim',
+        27000, 2700, 1350, 31050, 'keranjang-uji-uang-3');
+update public.pesanan set dikirim_ke_dapur_pada = now() - interval '5 minutes'
+ where id = 'eeee0000-0000-0000-0000-000000000012';
+insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, subtotal)
+values ('eeee0000-0000-0000-0000-000000000012', 'beef0000-0000-0000-0000-000000000001',
+        'Nasi Goreng', 27000, 1, 27000);
+select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner (penyetuju)
 set local role authenticated;
 -- PIN owner sudah dipasang di blok sebelumnya (uji alasan) — tidak dipasang ulang,
 -- supaya blok ini juga menguji hal yang sama tanpa bergantung urutan.
 select uji.sama(
   (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
-                         'eeee0000-0000-0000-0000-000000000010')).berhasil,
+                         'eeee0000-0000-0000-0000-000000000012')).berhasil,
   true, 'PIN owner masih berlaku untuk aksi void pesanan ini'
 );
 select uji.sama(
   (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
-                         'eeee0000-0000-0000-0000-000000000010')).berhasil,
+                         'eeee0000-0000-0000-0000-000000000012')).berhasil,
   true, 'PIN penyetuju diverifikasi untuk aksi & pesanan void_sesudah_dapur'
 );
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kembali sebagai kasir
 set local role authenticated;
 insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
-values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', 'alasan benar sebagai pembanding');
+values ('eeee0000-0000-0000-0000-000000000012', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', 'alasan benar sebagai pembanding');
 select uji.sama(
   (select count(*) from public.pembatalan where alasan = 'alasan benar sebagai pembanding'),
   1::bigint,
   'pembatalan dengan alasan benar diterima (pembanding)'
 );
+
+-- Dua penolakan tahap & satu penolakan izin memakai pesanan KETIGA (eeee…0013) yang masih
+-- hidup, supaya yang menolak benar-benar aturan yang dimaksud (bukan aturan idempotensi).
+reset role;
+select uji.klaim(null);
+insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status,
+                            subtotal, pajak, service, total, kunci_idempoten)
+values ('eeee0000-0000-0000-0000-000000000013', '11111111-1111-1111-1111-111111111111',
+        'a1a1a1a1-0000-0000-0000-000000000001', 13, current_date, 'dinein', 'dikirim',
+        27000, 2700, 1350, 31050, 'keranjang-uji-uang-4');
+update public.pesanan set dikirim_ke_dapur_pada = now() - interval '5 minutes'
+ where id = 'eeee0000-0000-0000-0000-000000000013';
+insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, subtotal)
+values ('eeee0000-0000-0000-0000-000000000013', 'beef0000-0000-0000-0000-000000000001',
+        'Nasi Goreng', 27000, 1, 27000);
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
 select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'sebelum_dapur', 'salah input')$$,
+  $$insert into public.pembatalan (pesanan_id, tahap, alasan) values ('eeee0000-0000-0000-0000-000000000013', 'sebelum_dapur', 'salah input')$$,
   'tahap sebelum_dapur ditolak bila pesanan sudah dikirim ke dapur'
 );
 select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', 'salah input')$$,
+  $$insert into public.pembatalan (pesanan_id, tahap, alasan) values ('eeee0000-0000-0000-0000-000000000013', 'sesudah_dapur', 'salah input')$$,
   'pembatalan setelah dapur mulai tanpa penyetuju ditolak'
 );
 select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000006', 'minta dapur menyetujui')$$,
+  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan) values ('eeee0000-0000-0000-0000-000000000013', 'sesudah_dapur', '90000000-0000-0000-0000-000000000006', 'minta dapur menyetujui')$$,
   'penyetuju tanpa izin void sesudah dapur ditolak'
 );
 
 -- Disetujui owner (punya izin) → diterima, dan nilai kerugian dihitung dari salinan harga.
--- Sejak penutup celah (0012) bukti persetujuan = KUPON SEKALI PAKAI, jadi owner menyetujui
--- ulang untuk pembatalan berikutnya pada pesanan yang sama.
+-- Sejak penutup celah (0012) bukti persetujuan = KUPON SEKALI PAKAI.
+-- SEJAK AUDIT AUD-3 F-05 (K-2, 2026-09-20): SATU target hanya boleh dibatalkan SEKALI —
+-- kiriman ulang baris pembatalan ditolak (klik ganda / antrean offline dulu menggandakan
+-- dampak & laporan kerugian). Karena pesanan eeee…0010 sudah dibatalkan di atas, uji ini
+-- memakai pesanan BARU untuk membuktikan nilai kerugian dari salinan subtotal.
+reset role;
+select uji.klaim(null);   -- kembali ke peran pemilik tabel supaya angka uji boleh diisi apa adanya
+insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status,
+                            subtotal, pajak, service, total, kunci_idempoten)
+values ('eeee0000-0000-0000-0000-000000000011', '11111111-1111-1111-1111-111111111111',
+        'a1a1a1a1-0000-0000-0000-000000000001', 11, current_date, 'dinein', 'dikirim',
+        54000, 5400, 2700, 62100, 'keranjang-uji-uang-2');
+update public.pesanan set dikirim_ke_dapur_pada = now() - interval '5 minutes'
+ where id = 'eeee0000-0000-0000-0000-000000000011';
+insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, subtotal)
+values ('eeee0000-0000-0000-0000-000000000011', 'beef0000-0000-0000-0000-000000000001',
+        'Nasi Goreng', 27000, 2, 54000);
+
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner (penyetuju)
 set local role authenticated;
 select uji.sama(
   (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
-                         'eeee0000-0000-0000-0000-000000000010')).berhasil,
-  true, 'kontrol: persetujuan baru untuk pembatalan berikutnya'
+                         'eeee0000-0000-0000-0000-000000000011')).berhasil,
+  true, 'kontrol: persetujuan bukti PIN untuk pesanan baru'
 );
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kembali sebagai kasir
 set local role authenticated;
 insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, bahan_terbuang)
-values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', 'pelanggan membatalkan, makanan sudah dimasak', true);
+values ('eeee0000-0000-0000-0000-000000000011', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', 'pelanggan membatalkan, makanan sudah dimasak', true);
 select uji.sama(
-  (select pb.nilai_kerugian from public.pembatalan pb where pb.pesanan_id = 'eeee0000-0000-0000-0000-000000000010' limit 1),
+  (select pb.nilai_kerugian from public.pembatalan pb where pb.pesanan_id = 'eeee0000-0000-0000-0000-000000000011' limit 1),
   54000,
   'nilai kerugian dihitung dari salinan subtotal pesanan (54.000)'
+);
+-- TEMUAN AUD-3 F-05: kiriman ULANG baris pembatalan yang sama WAJIB ditolak (idempoten).
+select uji.harap_gagal_sebab(
+  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, bahan_terbuang)
+      values ('eeee0000-0000-0000-0000-000000000011', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', 'pelanggan membatalkan, makanan sudah dimasak', true)$$,
+  'sudah dibatalkan',
+  'kiriman ulang pembatalan ditolak (satu aksi = satu jejak)'
+);
+select uji.sama(
+  (select count(*) from public.pembatalan pb where pb.pesanan_id = 'eeee0000-0000-0000-0000-000000000011'),
+  1::bigint,
+  'tetap SATU jejak pembatalan untuk satu aksi'
 );
 reset role;
 select uji.klaim(null);

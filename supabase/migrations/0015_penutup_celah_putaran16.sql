@@ -562,3 +562,331 @@ grant execute on function public.picu_item_jaga() to authenticated, service_role
 grant execute on function public.picu_pembatalan_jejak() to authenticated, service_role;
 grant execute on function public.picu_diskon_awal_pesanan() to authenticated, service_role;
 grant execute on function public.simpan_pin(text, text, uuid, text) to authenticated, service_role;
+
+
+-- ============================================================================
+-- BAGIAN 8 — K-2 audit AUD-3 2026-09-19 (laporan __01a0bbd2): tiga cacat yang
+--           DIBUKTIKAN NYATA lewat probe sendiri
+--           (docs/uji/audit/probe-2026-09-20/aud-3-f03-f05-f06-uang.sql)
+-- ============================================================================
+-- Ringkas: (F-03) metode bayar nonaktif masih bisa dipakai kasir; (F-05) baris `pembatalan`
+-- tidak idempoten — kiriman ulang menggandakan dampak & laporan kerugian; (F-06) stempel
+-- lifecycle pesanan (dibayar_pada / dibatalkan_pada / alasan_batal) bisa dikarang lewat
+-- UPDATE biasa dari perangkat.
+--
+-- Ketiganya diperbaiki dengan MENAMBAH pemeriksaan pada pemicu yang sudah ada (bukan pemicu
+-- baru di jalur uang): definisi terakhir masing-masing fungsi ada di 0012/0013/0014 yang
+-- BEKU, jadi versi barunya hidup di sini. Pemicunya sendiri tidak berubah.
+-- ============================================================================
+
+-- ---------------------------------------------------------------------------
+-- 8a. F-03: hanya metode bayar AKTIF yang boleh mencatat uang
+-- ---------------------------------------------------------------------------
+create or replace function public.picu_pembayaran_jujur()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_pesanan  record;
+  v_metode   record;
+  v_sebelum  integer;
+begin
+  -- KUNCI BARIS PESANAN (temuan review PR putaran8, PR-16, 2026-09-17): tanpa `for update`,
+  -- dua pembayaran bersamaan sama-sama membaca `total_dibayar()` yang belum memuat baris
+  -- pihak lain sehingga keduanya lolos batas lebih bayar. Dengan mengunci barisnya, pembayaran
+  -- kedua menunggu sampai yang pertama ter-commit dan melihat angka yang benar.
+  select p.id, p.status, p.total, p.penyewa_id
+    into v_pesanan
+    from public.pesanan p
+   where p.id = new.pesanan_id
+   for update;
+
+  if v_pesanan.id is null then
+    raise exception 'Pesanan tidak ditemukan.';
+  end if;
+  if v_pesanan.status = 'batal' then
+    raise exception 'Pesanan ini sudah dibatalkan — uang tidak boleh dicatat lagi.';
+  end if;
+
+  if new.metode_id is not null then
+    select m.nama, m.jenis, m.butuh_referensi, m.aktif
+      into v_metode
+      from public.metode_bayar m
+     where m.id = new.metode_id
+       and m.penyewa_id = v_pesanan.penyewa_id;
+    if v_metode.nama is null then
+      raise exception 'Metode bayar itu tidak ada di resto ini.';
+    end if;
+    -- TEMUAN AUD-3 F-03 (K-2): dulu "baris metodenya ada" disamakan dengan "metode boleh
+    -- dipakai", sehingga metode yang sudah DINONAKTIFKAN pemilik masih bisa dipakai kasir
+    -- (uang tercatat dengan metode yang sudah dimatikan). Sekarang status aktifnya diperiksa.
+    if not v_metode.aktif then
+      raise exception 'Metode bayar itu sudah dinonaktifkan pemilik resto — pilih metode yang masih aktif.';
+    end if;
+    new.metode_nama_saat_itu := v_metode.nama;
+    new.jenis_saat_itu := v_metode.jenis;
+  end if;
+
+  if new.jenis_saat_itu = 'tunai' then
+    if new.diterima is null then
+      raise exception 'Pembayaran tunai wajib menyebut uang yang diterima.';
+    end if;
+    if new.diterima < new.jumlah then
+      raise exception 'Uang diterima (%) lebih kecil dari jumlah bayar (%).', new.diterima, new.jumlah;
+    end if;
+    new.kembalian := new.diterima - new.jumlah;
+  else
+    if new.referensi is null or length(btrim(new.referensi)) = 0 then
+      raise exception 'Pembayaran bukan tunai wajib menyebut nomor referensi.';
+    end if;
+    new.diterima := null;
+    new.kembalian := null;
+  end if;
+
+  if new.kasir_id is null then
+    new.kasir_id := auth.uid();
+  end if;
+  -- Jejak pelaku TIDAK boleh dikarang klien (temuan audit AUD-3 K-2, 2026-09-17):
+  -- sebelumnya kasir bisa menuliskan nama owner sebagai kasir pembayaran, dan karena
+  -- barisnya append-only kesalahan atribusi itu permanen.
+  if auth.uid() is not null and new.kasir_id is distinct from auth.uid() then
+    raise exception 'Nama kasir diisi sistem — tidak boleh menyebut orang lain.';
+  end if;
+
+  -- Total pesanan WAJIB sudah dihitung sebelum uang boleh dicatat (temuan audit AUD-3 K-1,
+  -- 2026-09-17). Sebelumnya pemeriksaan dilewati saat total masih 0 — dan karena hitung_total
+  -- (T1-15) belum ada, semua pesanan bertotal 0 sehingga berapa pun uangnya diterima tanpa
+  -- penjaga, sementara baris uang tidak bisa diubah/dihapus (tidak ada jalan pemulihan).
+  -- Menolak di sini membuat uang tidak pernah tercatat di atas angka yang belum pasti.
+  if coalesce(v_pesanan.total, 0) <= 0 then
+    raise exception 'Total pesanan belum dihitung — pembayaran belum boleh dicatat.';
+  end if;
+
+  v_sebelum := public.total_dibayar(new.pesanan_id) + new.jumlah;
+  if v_sebelum > v_pesanan.total then
+    raise exception 'Total pembayaran (%) melebihi total pesanan (%).', v_sebelum, v_pesanan.total;
+  end if;
+
+  return new;
+end
+$$;
+
+comment on function public.picu_pembayaran_jujur() is
+  'Menjaga pembayaran: metode bayar wajib ADA & AKTIF di resto ini (temuan AUD-3 F-03), referensi sesuai jenis, kembalian dihitung peladen, pelaku = pemanggil, total pesanan wajib sudah dihitung, tidak melebihi total, dan baris pesanan DIKUNCI.';
+
+-- ---------------------------------------------------------------------------
+-- 8b. F-05: satu target pembatalan = satu jejak (idempoten terhadap kiriman ulang)
+-- ---------------------------------------------------------------------------
+create or replace function public.picu_pembatalan_sah()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  JENDELA_SETUJU_MENIT constant integer := 5;   -- bukti persetujuan PIN dianggap sah selama ini
+  v_pesanan record;
+  v_item    record;
+  v_nilai   integer;
+  v_tahap   text;
+  v_status  text;
+  v_kupon   bigint;   -- percobaan_pin.id = bigserial
+begin
+  select p.id, p.dikirim_ke_dapur_pada, p.subtotal, p.status
+    into v_pesanan
+    from public.pesanan p where p.id = new.pesanan_id;
+  if v_pesanan.id is null then
+    raise exception 'Pesanan tidak ditemukan.';
+  end if;
+
+  -- TEMUAN AUD-3 F-05 (K-2): dulu tabel `pembatalan` tidak punya kunci idempotensi, sehingga
+  -- kiriman ULANG baris yang sama (klik ganda kasir atau antrean perangkat offline) diterima
+  -- sebagai kejadian KEDUA — laporan kerugian menghitung satu aksi dua kali. Sekarang satu
+  -- target hanya boleh dibatalkan SEKALI: target yang sudah `batal` menolak baris baru.
+  if new.pesanan_item_id is not null then
+    if (select pi.status from public.pesanan_item pi where pi.id = new.pesanan_item_id) = 'batal' then
+      raise exception 'Item ini sudah dibatalkan — kiriman ulang tidak dicatat lagi (satu aksi = satu jejak).';
+    end if;
+  elsif v_pesanan.status = 'batal' then
+    raise exception 'Pesanan ini sudah dibatalkan — kiriman ulang tidak dicatat lagi (satu aksi = satu jejak).';
+  end if;
+
+  -- "Dapur sudah mulai" ditentukan dari DUA tanda: waktu kirim ke dapur DAN status
+  -- pesanan. Memakai satu tanda saja rapuh: kalau salah satu lupa diisi (mis. RPC
+  -- memajukan status tanpa mencatat waktunya), pembatalan bisa lolos tanpa PIN.
+  v_tahap := case
+               when v_pesanan.dikirim_ke_dapur_pada is not null then 'sesudah_dapur'
+               else 'sebelum_dapur'
+             end;
+  if v_tahap = 'sebelum_dapur' then
+    select p.status into v_status from public.pesanan p where p.id = new.pesanan_id;
+    if v_status in ('dimasak', 'siap', 'lunas') then
+      v_tahap := 'sesudah_dapur';
+    end if;
+  end if;
+  if new.tahap <> v_tahap then
+    raise exception 'Tahap pembatalan tidak sesuai keadaan pesanan (seharusnya %).', v_tahap;
+  end if;
+
+  -- Setelah dapur mulai: wajib disetujui pengguna berizin (PIN atasan).
+  if new.tahap = 'sesudah_dapur' then
+    if new.disetujui_oleh is null then
+      raise exception 'Pembatalan setelah dapur mulai wajib disetujui pengguna berizin (PIN).';
+    end if;
+    if not public.boleh_untuk(new.disetujui_oleh, 'void_sesudah_dapur') then
+      raise exception 'Penyetuju itu tidak berizin menyetujui pembatalan setelah dapur mulai.';
+    end if;
+    -- KUPON SEKALI PAKAI (temuan review PR putaran8, PR-04, 2026-09-17):
+    -- sebelumnya bukti persetujuan hanya berarti "ada catatan PIN yang cocok" — sehingga
+    -- SATU persetujuan PIN bisa dipakai membatalkan banyak pesanan selama 5 menit.
+    -- Sekarang bukti harus TERIKAT pesanan ini dan BELUM DIPAKAI; begitu dipakai, ditandai.
+    select pp.id into v_kupon
+      from public.percobaan_pin pp
+     where pp.pengguna_id = new.disetujui_oleh
+       and pp.berhasil
+       and pp.aksi = 'void_sesudah_dapur'
+       and pp.pesanan_id = new.pesanan_id
+       and pp.dipakai_pada is null
+       and pp.waktu > now() - make_interval(mins => JENDELA_SETUJU_MENIT)
+     order by pp.waktu
+     limit 1
+     for update;
+    if v_kupon is null then
+      raise exception 'Persetujuan belum terbukti untuk pesanan ini: penyetuju harus memasukkan PIN-nya sendiri untuk pesanan ini (maksimal % menit lalu).', JENDELA_SETUJU_MENIT;
+    end if;
+    update public.percobaan_pin set dipakai_pada = now() where id = v_kupon;
+  else
+    if not public.boleh('void_sebelum_dapur') then
+      raise exception 'Anda tidak berizin membatalkan pesanan sebelum dapur mulai.';
+    end if;
+  end if;
+
+  -- Nilai kerugian dari SALINAN HARGA (bukan harga menu sekarang).
+  if new.pesanan_item_id is not null then
+    select pi.pesanan_id, pi.subtotal into v_item
+      from public.pesanan_item pi where pi.id = new.pesanan_item_id;
+    if v_item.pesanan_id is null or v_item.pesanan_id <> new.pesanan_id then
+      raise exception 'Baris item itu bukan milik pesanan ini.';
+    end if;
+    v_nilai := coalesce(v_item.subtotal, 0);
+  else
+    v_nilai := coalesce(
+      nullif(v_pesanan.subtotal, 0),
+      (select coalesce(sum(pi.subtotal), 0)::integer from public.pesanan_item pi where pi.pesanan_id = new.pesanan_id)
+    );
+  end if;
+
+  -- TEMUAN review putaran11 PR-03 (K-3): dulu nilai non-nol kiriman klien diterima APA ADANYA,
+  -- sehingga kasir bisa menulis kerugian 1 rupiah untuk pesanan 54.000 (laporan kerugian
+  -- under-report) atau angka besar sesukanya — kolomnya append-only, jadi angka karangan itu
+  -- bertahan selamanya sebagai "jejak resmi". Sekarang nilai kerugian DIPAKSA sama dengan
+  -- hitungan peladen dari SALINAN HARGA; kiriman klien hanya boleh 0 (minta diisi peladen)
+  -- atau sama dengan hasil hitung. Selisih sedikit pun = penolakan.
+  if new.nilai_kerugian <> 0 and new.nilai_kerugian is distinct from coalesce(v_nilai, 0) then
+    raise exception 'Nilai kerugian dihitung peladen dari salinan harga (%); angka kiriman (%) tidak boleh dikarang.',
+      coalesce(v_nilai, 0), new.nilai_kerugian;
+  end if;
+  new.nilai_kerugian := coalesce(v_nilai, 0);
+
+  if new.pelaku_id is null then
+    new.pelaku_id := auth.uid();
+  end if;
+  -- Jejak pelaku tidak boleh dikarang klien (temuan audit AUD-3 K-2, 2026-09-17).
+  if auth.uid() is not null and new.pelaku_id is distinct from auth.uid() then
+    raise exception 'Pelaku pembatalan diisi sistem — tidak boleh menyebut orang lain.';
+  end if;
+  return new;
+end
+$$;
+
+comment on function public.picu_pembatalan_sah() is
+  'Menjaga pembatalan: alasan wajib, tahap (sebelum/sesudah dapur) menentukan izin, persetujuan PIN terikat pesanan & sekali pakai, nilai kerugian dihitung peladen dari salinan harga, dan SATU target hanya boleh dibatalkan sekali (kiriman ulang ditolak — temuan AUD-3 F-05).';
+
+-- ---------------------------------------------------------------------------
+-- 8c. F-06: stempel lifecycle pesanan hanya dari jalur peladen
+-- ---------------------------------------------------------------------------
+create or replace function public.picu_pesanan_jejak_jujur()
+returns trigger
+language plpgsql
+set search_path = public, pg_temp
+as $$
+declare
+  v_nomor_seharusnya integer;
+  v_pelayan_valid   boolean;
+begin
+  if auth.uid() is null or public.peran_peladen() then
+    return new;   -- penyiapan / fungsi peladen
+  end if;
+
+  if tg_op = 'INSERT' then
+    -- Pelaku: kasir_id diisi sistem, bukan dipilih perangkat.
+    if new.kasir_id is not null and new.kasir_id is distinct from auth.uid() then
+      raise exception 'Nama kasir diisi sistem — tidak boleh menyebut orang lain.';
+    end if;
+    new.kasir_id := auth.uid();
+
+    -- Waktu: pesanan baru selalu hari ini (dulu tanggal bisa dimundurkan 30 hari
+    -- untuk menyelipkan penjualan ke hari yang sudah ditutup — audit F-04).
+    if new.tanggal is not null and new.tanggal <> current_date then
+      raise exception 'Tanggal pesanan baru harus hari ini — tanggal mundur hanya boleh diisi peladen.';
+    end if;
+    new.tanggal := coalesce(new.tanggal, current_date);
+
+    -- Nomor: SELALU dibuat sistem (berurutan per cabang per hari). Angka yang
+    -- dikirim klien DIIABAIKAN — dulu klien bisa memilih nomornya sendiri sehingga
+    -- dua struk bisa "bernomor sama" di hari berbeda (temuan audit F-04).
+    new.nomor := public.nomor_pesanan_berikutnya(new.cabang_id, new.tanggal);
+  else
+    -- Pelaku & waktu tidak boleh dipindah setelah baris lahir.
+    if new.kasir_id is distinct from old.kasir_id then
+      raise exception 'Jejak kasir pesanan tidak boleh diubah.';
+    end if;
+    if new.tanggal is distinct from old.tanggal then
+      raise exception 'Tanggal pesanan tidak boleh diubah.';
+    end if;
+    if new.nomor is distinct from old.nomor then
+      raise exception 'Nomor pesanan tidak boleh diubah.';
+    end if;
+
+    -- TEMUAN AUD-3 F-06 (K-2): dulu penjaga "stempel kejadian hanya dari peladen" hanya
+    -- dipasang pada INSERT, sehingga kasir bisa MENGARANG jejak lewat UPDATE biasa:
+    -- `update pesanan set dibayar_pada = now(), alasan_batal = '…'` pada pesanan yang masih
+    -- draf — laporan lalu membaca "pernah dibayar/dibatalkan" untuk kejadian yang tidak ada.
+    -- Jalur peladen (pemicu pembayaran/pembatalan, RPC SECURITY DEFINER) tetap boleh: ia
+    -- berjalan sebagai pemilik tabel, bukan sebagai perangkat kasir.
+    if new.dibayar_pada is distinct from old.dibayar_pada then
+      raise exception 'Stempel pembayaran (dibayar_pada) hanya diisi jalur peladen setelah pembayaran sah.';
+    end if;
+    if new.dibatalkan_pada is distinct from old.dibatalkan_pada
+       or new.alasan_batal is distinct from old.alasan_batal then
+      raise exception 'Stempel pembatalan hanya diisi jalur peladen setelah pembatalan resmi (baris pembatalan ber-PIN bila sesudah dapur).';
+    end if;
+  end if;
+
+  -- Pelayan: hanya pegawai cabang itu yang boleh disebut.
+  if new.pelayan_id is not null then
+    select exists (
+      select 1 from public.pengguna_cabang pc
+       where pc.pengguna_id = new.pelayan_id
+         and pc.cabang_id = new.cabang_id
+    ) into v_pelayan_valid;
+    if not v_pelayan_valid then
+      raise exception 'Pelayan yang disebut harus pegawai di cabang pesanan itu.';
+    end if;
+  end if;
+
+  return new;
+end
+$$;
+
+comment on function public.picu_pesanan_jejak_jujur() is
+  'Menjaga jejak pesanan: kasir/tanggal/nomor diisi sistem, pelayan se-cabang, dan stempel lifecycle (dibayar_pada, dibatalkan_pada, alasan_batal) TIDAK bisa dikarang perangkat lewat UPDATE biasa (temuan AUD-3 F-06).';
+
+-- ---------------------------------------------------------------------------
+-- 8d. Hak akses fungsi yang diperbarui (tetap sama seperti sebelumnya)
+-- ---------------------------------------------------------------------------
+grant execute on function public.picu_pembayaran_jujur() to authenticated, service_role;
+grant execute on function public.picu_pembatalan_sah() to authenticated, service_role;
+grant execute on function public.picu_pesanan_jejak_jujur() to authenticated, service_role;

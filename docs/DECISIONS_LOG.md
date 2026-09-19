@@ -984,3 +984,43 @@ jalur pemicu peladen tetap hidup) · ekspektasi uji lama `supabase/tes/diskon_se
 **terbukti MERAH** ("pajak dari subtotal sebelum diskon", "pembulatan diabaikan", "penjaga lunas
 dilepas", "pembulatan dibalik ke atas") · probe audit lama kini **GAGAL** = cacat terbukti hilang ·
 suite `node alat/uji-sql.mjs` **46 LULUS · 0 GAGAL**.
+
+---
+
+## [Uang/2026-09-20] Tiga penjaga baru: metode bayar wajib aktif, pembatalan sekali per target, stempel lifecycle bukan milik perangkat
+
+**Konteks (temuan K-2 audit AUD-3 2026-09-19, sesi `arena/01a0bbd2`):** tiga temuan K-2 yang
+**dibuktikan nyata dengan probe sendiri** sebelum diperbaiki
+(`docs/uji/audit/probe-2026-09-20/aud-3-f03-f05-f06-uang.sql`; probe LULUS = cacat ada):
+(a) pembayaran lewat **metode bayar yang sudah dinonaktifkan pemilik** tetap diterima karena pemicu
+menyamakan "baris metode ada" dengan "metode boleh dipakai"; (b) baris `pembatalan` **tidak
+idempoten** — kiriman ulang (klik ganda kasir / antrean perangkat offline) masuk sebagai kejadian
+KEDUA sehingga laporan kerugian menghitung satu aksi dua kali; (c) **stempel lifecycle pesanan**
+(`dibayar_pada`, `dibatalkan_pada`, `alasan_batal`) bisa dikarang perangkat lewat UPDATE biasa —
+laporan membaca "pernah dibayar/dibatalkan" untuk kejadian yang tidak ada.
+
+**Keputusan:**
+1. **Metode bayar wajib AKTIF.** Pemicu pembayaran memeriksa `metode_bayar.aktif`; metode yang
+   dimatikan pemilik DITOLAK dengan pesan yang menyebut sebabnya ("sudah dinonaktifkan pemilik —
+   pilih metode yang masih aktif"). Pilihan metode adalah pengaturan pemilik, bukan kesempatan kasir.
+2. **Satu target pembatalan = satu jejak.** Target yang sudah `batal` (item atau pesanan) menolak
+   baris `pembatalan` baru — termasuk bila alasannya diganti. Aturan ini dipilih di atas
+   "kunci idempotensi pada kesamaan payload" supaya alasannya sederhana dan bisa diaudit: pembatalan
+   kedua atas target yang sudah batal memang tidak punya arti. Dua item BERBEDA tetap bisa
+   masing-masing dibatalkan sekali (dikunci uji sebagai kontrol positif).
+3. **Stempel lifecycle hanya dari jalur peladen.** UPDATE dari perangkat menolak perubahan
+   `dibayar_pada`, `dibatalkan_pada`, dan `alasan_batal` (termasuk MENGHAPUSNYA). Jalur peladen —
+   pemicu pembatalan/pembayaran dan RPC SECURITY DEFINER — tetap bebas; pengirimannya ke dapur
+   (`status` + `dikirim_ke_dapur_pada`) tetap boleh dari perangkat karena itu memang aksi kasir.
+
+**Alasan bentuk perbaikan:** ketiganya ditambahkan sebagai **pemeriksaan pada pemicu yang sudah ada**
+(versi barunya hidup di `0015` bagian 8 karena definisi lama ada di berkas beku `0012`/`0013`/`0014`),
+bukan pemicu baru di jalur uang — supaya tidak ada dua tempat yang berebut menolak hal yang sama dan
+pesan kesalahannya tetap satu.
+
+**Bukti:** uji regresi baru `supabase/tes/metode_bayar_nonaktif.sql`, `supabase/tes/pembatalan_sekali.sql`,
+dan `supabase/tes/lifecycle_pesanan.sql`; uji lama `supabase/tes/pembayaran.sql` **diselaraskan**
+(kasus kerugian memakai pesanan kedua, karena aturan "satu target = satu jejak" membuat pembatalan
+ulang atas pesanan yang sudah batal memang harus ditolak) · `alat/uji-mutasi-0015.py` kini **20 kasus**,
+tiga di antaranya membalik masing-masing penjaga dan **terbukti MERAH** · probe audit ketiga kini
+**GAGAL** = cacat terbukti hilang · suite `node alat/uji-sql.mjs` **50 LULUS · 0 GAGAL**.
