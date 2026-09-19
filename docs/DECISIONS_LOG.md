@@ -642,3 +642,35 @@ hantu lolos karena alasan yang salah → keduanya ditutup); `python3 alat/periks
 
 **File terkait:** `PROMPT_SESI_BARU.md`, `alat/lanjut-sesi.py`, `docs/ops/SESI_DITINGGALKAN.md`,
 `docs/ops/SIAP-TEMPEL-SESI-BARU.md` (pensiun), `PANDUAN_PENGGUNA.md` (AL-13), `docs/PANDUAN_PEMILIK.md` (2b/3).
+
+## 2026-09-18 — "Kalimat perintah sederhana Lee" wajib punya rantai petunjuk yang hidup (jawaban kepercayaan Lee)
+
+**Masalah yang diakui jujur.** Buku induk memuat 13 alur (AL-1…AL-13) + tabel kalimat sehari-hari (C3) + tabel
+perintah mesin (Bagian E). Tetapi **tidak ada mata rantai yang memaksa agent baru menemukannya**: Prompt Pembuka
+Universal tidak menunjuk `PANDUAN_PENGGUNA.md`, dan KARTU SESI (yang selalu dicetak) juga tidak. Artinya janji
+"cukup bilang `Siapkan review PR.`" hanya bergantung pada niat agent membaca dokumen tambahan — bukan pada mekanisme.
+
+**Keputusan:** janji itu dijadikan **mekanisme yang dijaga**:
+1. **Prompt Pembuka Universal item 2d** — kalimat perintah sederhana Lee wajib dicari di `PANDUAN_PENGGUNA.md`
+   (Bagian C3 / Bagian B alur AL-1…AL-13 / Bagian E), dicocokkan **maksudnya** (bukan huruf per huruf), disebut
+   nomor alurnya saat melapor, dan agent **dilarang mengarang mekanisme baru** di luar buku.
+2. **KARTU SESI mencetak blok `PETUNJUK_PERINTAH`** — pintu masuk setiap sesi, jadi tidak bergantung pada agent
+   membuka buku lebih dulu.
+3. **Sinonim & kalimat gabungan diakui** — `Tutup sesi ini dengan baik` = `dengan benar`; dan
+   `Siapkan pindah sesi dan tutup sesi ini dengan baik` = AL-3 + AL-13 (dua alur sekaligus).
+4. **Dijaga pemeriksa**: `alat/periksa-panduan.py` menolak bila (a) prompt kanonik tidak menunjuk buku / tidak
+   mengatur kalimat sederhana, (b) KARTU SESI berhenti mencetak penunjuk, (c) buku kehilangan sinonim/kalimat
+   gabungan. `--uji-diri` membuktikan penolakan itu nyata (2 mutasi baru).
+5. Berkas pensiun `docs/ops/SIAP-TEMPEL-SESI-BARU.md` **tidak lagi disebut** oleh prompt kanonik; yang disebut
+   `PROMPT_SESI_BARU.md` (statis).
+
+**Batas jujur:** mekanisme ini memastikan rantai petunjuk **ada dan hidup**; ia tidak bisa memaksa model yang
+tidak patuh. Karena itu setiap kartu sesi menutup dengan kewajiban melaporkan KARTU SESI lebih dulu, dan Lee
+selalu bisa memeriksa apakah agent menyebut nomor alurnya.
+
+**Bukti:** `python3 alat/periksa-panduan.py` LOLOS · `--uji-diri` 6 kasus (2 mutasi baru) MENOLAK · 
+`python3 alat/mulai-sesi.py --uji-diri` 7 kasus LOLOS · uji rantai dari klon buta `main` → kartu sesi memuat
+penunjuk + buku memuat 13 alur · `python3 alat/lanjut-sesi.py` LOLOS · CI hijau.
+
+**File terkait:** `PROMPT_ENTRI_UNIVERSAL.md`, `PANDUAN_PENGGUNA.md` (item 2d, AL-3, AL-13, C3), `alat/mulai-sesi.py`,
+`alat/periksa-panduan.py`, `PROMPT_SESI_BARU.md`.
