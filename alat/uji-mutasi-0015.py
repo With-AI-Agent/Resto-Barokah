@@ -8,6 +8,10 @@ Menguji migrasi `supabase/migrations/0015_penutup_celah_putaran16.sql`:
                  (uji: `supabase/tes/void_satu_item.sql`)
   * bagian 3 — K-2b: diskon bisa ditanam sesudah pesanan lunas/batal (audit F-01)
                  (uji: `supabase/tes/diskon_sesudah_lunas.sql`)
+  * bagian 4 — K-2c: hitungan nomor pesanan bocor antar resto (temuan PR-03)
+                 (uji: `supabase/tes/nomor_pesanan_isolasi.sql`)
+  * bagian 5 — K-2d: pesan PIN kembar memastikan PIN aktif kolega / oracle (temuan PR-04)
+                 (uji: `supabase/tes/pin_bukan_oracle.sql`)
 Gerbang yang tidak bisa MERAH dianggap belum terpasang — itu pelajaran mahal proyek ini.
 
 Cara kerjanya: salin repo ke folder sementara, RUSAK satu penjaga (atau kembalikan versi lama
@@ -35,7 +39,9 @@ MIG14 = "supabase/migrations/0014_penutup_celah_putaran13.sql"
 UJI = "supabase/tes/pembatalan_penanda_palsu.sql"                       # bagian 1 (K-1)
 UJI_PR02 = "supabase/tes/void_satu_item.sql"                            # bagian 2 (K-2a)
 UJI_F01 = "supabase/tes/diskon_sesudah_lunas.sql"                       # bagian 3 (K-2b)
-SEMUA_UJI = (UJI, UJI_PR02, UJI_F01)
+UJI_PR03 = "supabase/tes/nomor_pesanan_isolasi.sql"                     # bagian 4 (K-2c)
+UJI_PR04 = "supabase/tes/pin_bukan_oracle.sql"                          # bagian 5 (K-2d)
+SEMUA_UJI = (UJI, UJI_PR02, UJI_F01, UJI_PR03, UJI_PR04)
 
 
 def segarkan_salinan() -> None:
@@ -104,7 +110,7 @@ def main() -> int:
     if not hijau:
         print("KONTROL GAGAL: salinan utuh pun tidak hijau — perbaiki dulu berkas ujinya.\n" + keluar)
         return 1
-    print("  OK  kontrol: salinan utuh → SEMUA uji bagian 1–3 hijau")
+    print("  OK  kontrol: salinan utuh → SEMUA uji bagian 1–5 hijau")
 
     hasil: list[tuple[str, bool, str]] = []
 
@@ -263,12 +269,39 @@ def main() -> int:
     hasil.append(mutasi("nama pemicu diubah sehingga berjalan setelah pemicu nilai (urutan rusak)",
                         urutan_pemicu_dibalik, uji=UJI_F01))
 
+    # ------------------------------------------------------------------ K-2c (PR-03)
+    # 12) Pagar isolasi lintas resto di penghitung nomor pesanan dihapus → uji PR-03 wajib MERAH.
+    def hapus_pagar_nomor(t: str) -> str:
+        return t.replace(
+            """  if auth.uid() is not null and not public.cabang_pantau_saya(p_cabang_id) then
+    raise exception 'Cabang itu bukan cabang yang boleh Anda lihat — hitungan nomor pesanan tidak dibagikan antar resto.';
+  end if;
+""",
+            "",
+            1,
+        )
+
+    hasil.append(mutasi("pagar isolasi penghitung nomor pesanan dihapus (PR-03)",
+                        hapus_pagar_nomor, uji=UJI_PR03))
+
+    # ------------------------------------------------------------------ K-2d (PR-04)
+    # 13) Pesan lama yang menyebut "pegawai lain" dikembalikan → uji PR-04 wajib MERAH.
+    def kembalikan_pesan_bocor(t: str) -> str:
+        return t.replace(
+            "    return 'PIN itu tidak bisa dipakai — pilih angka lain.';",
+            "    return 'PIN itu sudah dipakai pegawai lain di resto ini — pilih angka lain.';",
+            1,
+        )
+
+    hasil.append(mutasi("pesan PIN kembar dikembalikan ke versi yang menyebut pegawai lain (PR-04)",
+                        kembalikan_pesan_bocor, uji=UJI_PR04))
+
     # Kontrol penutup: setelah semua mutasi dipulihkan, SEMUA uji wajib hijau lagi.
     hijau_akhir, keluar_akhir = semua_hijau()
     hasil.append(("kontrol penutup: salinan dipulihkan → semua uji hijau", hijau_akhir,
                   "HIJAU" if hijau_akhir else "MERAH\n" + keluar_akhir))
 
-    print("\nUJI MUTASI — penutup celah putaran16 (0015, temuan K-1 + K-2a + K-2b)")
+    print("\nUJI MUTASI — penutup celah putaran16 (0015, temuan K-1 + K-2a…K-2d)")
     merah = 0
     for nama, lulus, catatan in hasil:
         if not lulus:
@@ -277,7 +310,7 @@ def main() -> int:
     if merah:
         print(f"\nHASIL: GAGAL — {merah} mutasi tidak sesuai harapan (pagar mungkin tumpul).")
         return 1
-    print("\nHASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar K-1/K-2a/K-2b terbukti bekerja.")
+    print("\nHASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar K-1/K-2a…K-2d terbukti bekerja.")
     return 0
 
 

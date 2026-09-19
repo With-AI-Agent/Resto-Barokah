@@ -10,10 +10,10 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `8bb0c3b699e3ab292290b51f3ab55eeeb63f3c95`
+- **Commit keadaan kerja:** `6e6e5b0bfe9803cbaf13a901ccd556419e77c9ef`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35441490803, commit 8bb0c3b6)
+- **CI terakhir:** success (run 35442174448, commit 6e6e5b0b)
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -27,7 +27,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **6** — T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (36 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (36 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (37 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (37 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -62,6 +62,31 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18h (2026-09-19) — MARATON T1-45: SELURUH K-2 TUNTAS (4/4).**
+
+Bagian 4–5 `supabase/migrations/0015_penutup_celah_putaran16.sql`:
+
+* **PR-03 — hitungan nomor pesanan tidak bocor antar resto.** `nomor_pesanan_berikutnya()` (SECURITY DEFINER,
+  bisa dipanggil klien) kini memeriksa keterlihatan cabang (`cabang_pantau_saya`) sama seperti `hitung_total` dan
+  `total_dibayar`; kasir Resto B tidak lagi mendapat angka pesanan Resto A. Peladen (tanpa identitas) tetap bisa,
+  karena pemicu penomoran pesanan baru berjalan sebagai peladen — uji `supabase/tes/nomor_pesanan_isolasi.sql`.
+* **PR-04 — pesan PIN kembar dibuat netral.** Kalimat 'PIN itu sudah dipakai pegawai lain' MEMASTIKAN angka kiriman
+  adalah PIN aktif kolega (oracle). Sekarang jawabannya netral ('PIN itu tidak bisa dipakai — pilih angka lain'),
+  sementara alasan sebenarnya tetap tercatat di `percobaan_simpan_pin`. Catatan jujur: sifat berhasil-vs-ditolak tetap
+  bisa dibaca, jadi pengendali biaya menebak tetap **pembatas 20 percobaan/15 menit** (T1-23) — dicatat di
+  `docs/DECISIONS_LOG.md`, bukan diklaim hilang. Uji `supabase/tes/pin_bukan_oracle.sql` (dua uji lama yang memeriksa
+  pesan lama diselaraskan).
+
+**Bukti mesin:** suite SQL **46 berkas LULUS · 0 GAGAL**; `python3 alat/uji-mutasi-0015.py` **15 kasus — 13 mutasi wajib
+MERAH semuanya terbukti merah**, 2 kasus memang diharapkan hijau. Sisa temuan **16** (14 `T1-45`, 2 `T1-44`).
+
+**Langkah berikutnya (urut) — lanjut maraton ke K-3:**
+1. **K-3 (7):** PR-05 pra-dapur tanpa izin/jejak · PR-06 jejak hierarki ikut rollback · PR-07 kupon tanpa ikatan pesanan
+   (jalur Edge buntu) · PR-08 saldo awal stok tanpa baris buku · PR-09 PIN warisan 4 angka buntu · PR-13 `KEAMANAN.md`
+   menunjuk tabel hantu · PR-14 hak `service_role`/`peringkat_peran`.
+2. **K-4 (5):** PR-15 hapus meja memutus riwayat · temuan ringan lain · D F-04 & PR-11 (pemilik `T1-44`).
+3. Fase 1B: `T1-24`/`T1-25`/`T1-26` dengan nomor migrasi `0016`+.
 
 **PUTARAN 18g (2026-09-19) — MARATON T1-45: K-2a + K-2b DITUTUP.**
 

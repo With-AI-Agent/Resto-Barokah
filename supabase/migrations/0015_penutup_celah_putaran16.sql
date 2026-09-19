@@ -1,9 +1,11 @@
 -- ============================================================================
--- 0015 — PENUTUP CELAH PUTARAN16 (temuan independen 2026-09-19) — bagian 1…3
+-- 0015 — PENUTUP CELAH PUTARAN16 (temuan independen 2026-09-19) — bagian 1…5
 -- ============================================================================
 --   BAGIAN 1 — K-1 : penanda transaksi pembatalan tidak lagi diakui (lihat di bawah)
 --   BAGIAN 2 — K-2a: void SATU item TIDAK lagi ikut membatalkan seluruh pesanan
 --   BAGIAN 3 — K-2b: diskon tidak bisa lagi ditanam/diubah sesudah pesanan lunas/batal
+--   BAGIAN 4 — K-2c: hitungan nomor pesanan tidak bocor antar resto (PR-03)
+--   BAGIAN 5 — K-2d: pesan PIN kembar tidak lagi memastikan PIN aktif kolega (PR-04)
 -- ============================================================================
 -- Berkas migrasi BARU, sesuai aturan `docs/DECISIONS_LOG.md` 2026-09-19: berkas
 -- `0001`–`0014` sudah disebar ke proyek Supabase nyata dan DIBEKUKAN; setiap
@@ -254,8 +256,176 @@ create trigger diskon_awal_pesanan
   for each row execute function public.picu_diskon_awal_pesanan();
 
 -- ----------------------------------------------------------------------------
--- 4. Hak akses fungsi yang diperbarui (tetap sama seperti sebelumnya)
+-- 4. Hitungan nomor pesanan tidak bocor antar resto (temuan K-2 PR-03)
+-- ----------------------------------------------------------------------------
+-- TEMUAN (probe `pr03-bocor-nomor.sql`): `nomor_pesanan_berikutnya()` adalah SECURITY
+-- DEFINER dan bisa dipanggil klien mana pun. Kasir Resto B memanggilnya untuk cabang
+-- Resto A → ia membaca berapa pesanan yang sudah dibuat resto A hari itu (kebocoran
+-- lintas penyewa). Pola yang sudah dipakai `hitung_total`/`total_dibayar`: periksa
+-- `auth.uid()` + keterlihatan cabangnya. Tanpa identitas (penyiapan / service_role)
+-- pemeriksaan dilewati seperti biasa.
+create or replace function public.nomor_pesanan_berikutnya(p_cabang_id uuid, p_tanggal date)
+returns integer
+language plpgsql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_nomor integer;
+begin
+  if auth.uid() is not null and not public.cabang_pantau_saya(p_cabang_id) then
+    raise exception 'Cabang itu bukan cabang yang boleh Anda lihat — hitungan nomor pesanan tidak dibagikan antar resto.';
+  end if;
+
+  select coalesce(max(p.nomor), 0) + 1 into v_nomor
+    from public.pesanan p
+   where p.cabang_id = p_cabang_id and p.tanggal = p_tanggal;
+
+  return v_nomor;
+end
+$$;
+
+revoke all on function public.nomor_pesanan_berikutnya(uuid, date) from public;
+grant execute on function public.nomor_pesanan_berikutnya(uuid, date) to authenticated, service_role;
+
+comment on function public.nomor_pesanan_berikutnya(uuid, date) is
+  'Nomor pesanan berikutnya untuk satu cabang pada satu tanggal (max+1). Terisolasi lintas resto: pemanggil beridentitas hanya boleh menghitung cabang yang boleh ia pantau (temuan PR-03).';
+
+-- ----------------------------------------------------------------------------
+-- 5. Pesan PIN kembar tidak lagi memastikan PIN aktif kolega (temuan K-2 PR-04)
+-- ----------------------------------------------------------------------------
+-- TEMUAN (probe `pr04-oracle-pin.sql`): jawaban 'PIN itu sudah dipakai pegawai lain di
+-- resto ini' MEMBERI TAHU penebak bahwa angka kirimannya adalah PIN aktif kolega —
+-- cukup 20 percobaan/15 menit untuk memeriksa daftar tebakan kecil (tanggal lahir,
+-- nomor favorit), tanpa pernah menyentuh layar login.
+--
+-- KEPUTUSAN: pesannya dibuat NETRAL. Pemanggil hanya tahu angkanya tidak bisa dipakai;
+-- tidak ada lagi kalimat yang memastikan angka itu milik pegawai lain. Aturannya
+-- sendiri (PIN wajib unik antar pegawai satu resto) TIDAK berubah, dan setiap percobaan
+-- tetap tercatat di `percobaan_simpan_pin` dengan alasan 'PIN kembar' untuk ditelusuri
+-- pemilik. Catatan jujur: sifat ya/tidak pada akhirnya masih bisa dibaca dari
+-- berhasil-vs-ditolak, jadi pengendali biaya menebak tetap pembatas 20 percobaan per
+-- 15 menit (keputusan T1-23, 2026-09-17) — lihat DECISIONS_LOG.
+create or replace function public.simpan_pin(
+  p_pin_baru    text,
+  p_pin_lama    text default null,
+  p_pengguna_id uuid default null,
+  p_perangkat   text default 'tidak-diketahui'
+)
+returns text
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  BATAS_KEMBAR  constant integer := 20;   -- pemeriksaan keunikan per 15 menit per akun
+  JENDELA_MENIT constant integer := 15;
+  v_saya      uuid := auth.uid();
+  v_target    uuid := coalesce(p_pengguna_id, auth.uid());
+  v_perangkat text := coalesce(nullif(p_perangkat, ''), 'tidak-diketahui');
+  v_hash      text;
+  v_periksa   record;
+  v_alasan    text;
+  v_penyewa   uuid;
+  v_probe     integer;
+begin
+  if v_saya is null then
+    raise exception 'Anda harus masuk dulu untuk menyimpan PIN.';
+  end if;
+
+  v_alasan := public.pin_lemah(p_pin_baru);
+  if v_alasan is not null then
+    raise exception 'PIN ditolak: %.', v_alasan;
+  end if;
+
+  if v_target <> v_saya then
+    if not public.sepenyewa(v_target) then
+      raise exception 'Pegawai itu bukan bagian dari resto Anda.';
+    end if;
+    if not public.boleh('kelola_pegawai') then
+      raise exception 'Anda tidak berizin mengubah PIN pegawai lain.';
+    end if;
+
+    -- HIERARKI PERAN (temuan review putaran13 #2 PR-01, K-2): izin `kelola_pegawai`
+    -- dimaknai "boleh mengatur PIN siapa pun sedekai". Akibatnya admin cabang bisa
+    -- DIAM-DIAM MENGGANTI PIN OWNER (tanpa PIN lama, tanpa pemberitahuan), lalu
+    -- memakai PIN hasil rebutan itu untuk menerbitkan kupon persetujuan void atas
+    -- nama owner. Bukti sebelum perbaikan: admin simpan_pin(target=owner) -> 'PIN
+    -- tersimpan.'; verifikasi_pin(owner, '849273', void_sesudah_dapur) -> berhasil.
+    -- Aturan: PIN orang lain hanya boleh diubah oleh peran yang LEBIH TINGGI.
+    if not public.peran_lebih_tinggi(v_saya, v_target) then
+      insert into public.percobaan_simpan_pin (pengguna_id, target_id, perangkat, berhasil, alasan)
+      values (v_saya, v_target, v_perangkat, false, 'hierarki peran');
+      raise exception 'Peran Anda tidak lebih tinggi dari pegawai itu — PIN-nya hanya boleh diganti oleh atasan atau dirinya sendiri.';
+    end if;
+  end if;
+
+  -- Ganti PIN sendiri WAJIB memakai PIN lama (kecuali belum pernah punya PIN).
+  if v_target = v_saya then
+    select * into v_periksa
+      from public.verifikasi_pin(v_target, coalesce(p_pin_lama, ''), null, v_perangkat);
+    if exists (select 1 from public.kredensial_pin k where k.pengguna_id = v_target)
+       and not v_periksa.berhasil then
+      raise exception 'PIN lama salah. %', v_periksa.pesan;
+    end if;
+  end if;
+
+  -- ---- keunikan PIN antar pegawai satu resto (dengan pembatas anti-oracle) ----
+  select count(*) into v_probe
+    from public.percobaan_simpan_pin ps
+   where ps.pengguna_id = v_saya
+     and ps.waktu > now() - make_interval(mins => JENDELA_MENIT);
+
+  if v_probe >= BATAS_KEMBAR then
+    insert into public.percobaan_simpan_pin (pengguna_id, target_id, perangkat, berhasil, alasan)
+    values (v_saya, v_target, v_perangkat, false, 'melebihi batas');
+    -- Dikembalikan sebagai PESAN, bukan exception: exception akan membatalkan
+    -- baris catatan ini sendiri (savepoint blok penanganan error), sehingga
+    -- pembatasnya tidak akan pernah menyala. Lihat catatan "CARA MENOLAK" di bawah.
+    return format('Terlalu banyak percobaan memasang PIN (%s kali / %s menit). Tunggu sebentar.', BATAS_KEMBAR, JENDELA_MENIT);
+  end if;
+
+  select p.penyewa_id into v_penyewa from public.pengguna p where p.id = v_target;
+
+  if exists (
+    select 1
+      from public.kredensial_pin k
+      join public.pengguna p on p.id = k.pengguna_id
+     where p.id <> v_target
+       and p.penyewa_id = v_penyewa
+       and k.pin_hash is not null
+       and crypt(p_pin_baru, k.pin_hash) = k.pin_hash
+  ) then
+    insert into public.percobaan_simpan_pin (pengguna_id, target_id, perangkat, berhasil, alasan)
+    values (v_saya, v_target, v_perangkat, false, 'PIN kembar');
+    -- TEMUAN K-2 PR-04 (2026-09-19): pesan lama menyebut "pegawai lain", sehingga jawaban
+    -- ini MEMASTIKAN bahwa angka kiriman adalah PIN aktif kolega (oracle). Pesan sekarang
+    -- netral: pemanggil hanya tahu angka itu tidak bisa dipakai. Pembatas 20 percobaan
+    -- per 15 menit (`percobaan_simpan_pin`) tetap menjadi pengendali biaya menebak.
+    return 'PIN itu tidak bisa dipakai — pilih angka lain.';
+  end if;
+
+  insert into public.percobaan_simpan_pin (pengguna_id, target_id, perangkat, berhasil)
+  values (v_saya, v_target, v_perangkat, true);
+
+  v_hash := crypt(p_pin_baru, gen_salt('bf', 10));
+
+  insert into public.kredensial_pin (pengguna_id, pin_hash, diubah_pada)
+  values (v_target, v_hash, now())
+  on conflict (pengguna_id) do update
+     set pin_hash = excluded.pin_hash, diubah_pada = now();
+
+  update public.pengguna set pin_diubah_pada = now() where id = v_target;
+
+  return 'PIN tersimpan.';
+end
+$$;
+
+-- ----------------------------------------------------------------------------
+-- 6. Hak akses fungsi yang diperbarui (tetap sama seperti sebelumnya)
 -- ----------------------------------------------------------------------------
 grant execute on function public.picu_item_jaga() to authenticated, service_role;
 grant execute on function public.picu_pembatalan_jejak() to authenticated, service_role;
 grant execute on function public.picu_diskon_awal_pesanan() to authenticated, service_role;
+grant execute on function public.simpan_pin(text, text, uuid, text) to authenticated, service_role;

@@ -905,3 +905,35 @@ terbukti merah (termasuk "kembalikan perilaku 0014: selalu tutup pesanan", "paga
 "pemicu dilepas dari tabel", "urutan pemicu dibalik"), 1 kasus memang diharapkan hijau (penanda
 lama ditulis ulang tanpa pagar lama). Berkas `0001`–`0014` tetap beku; semua perubahan hidup di
 `0015` yang belum pernah disebar ke proyek nyata.
+
+---
+
+## [Keamanan/2026-09-19] Hitungan pesanan bukan informasi publik lintas resto; pesan PIN kembar dibuat netral
+
+**Konteks (temuan K-2 PR-03 & PR-04, putaran16):** dua kebocoran informasi kecil tetapi nyata.
+(1) `nomor_pesanan_berikutnya()` adalah SECURITY DEFINER dan bisa dipanggil klien mana pun: kasir
+Resto B memanggilnya untuk cabang Resto A dan membaca berapa pesanan yang sudah dibuat resto A
+hari itu. (2) Pesan penolakan `simpan_pin` berbunyi 'PIN itu sudah dipakai pegawai lain di resto
+ini' — kalimat itu MEMASTIKAN bahwa angka yang baru saja dikirim adalah PIN aktif seorang kolega.
+
+**Keputusan:**
+1. **Penghitung nomor tunduk pada isolasi lintas resto yang sama dengan angka uang**
+   (`hitung_total`, `total_dibayar`): pemanggil beridentitas hanya boleh menghitung cabang yang
+   boleh ia pantau (`cabang_pantau_saya`); di luar itu DITOLAK, bukan dijawab angka. Pemanggil
+   tanpa identitas (penyiapan / `service_role`) tetap boleh, karena pemicu penomoran pesanan baru
+   berjalan sebagai peladen.
+2. **Pesan PIN kembar dibuat netral** ('PIN itu tidak bisa dipakai — pilih angka lain.').
+   Aturan keunikan PIN antar pegawai satu resto (T1-23) TIDAK berubah; yang berubah hanya apa yang
+   diberitahukan ke penebak. Alasan sebenarnya tetap tercatat di `percobaan_simpan_pin`
+   (`alasan = 'PIN kembar'`) supaya pemilik bisa menelusuri percobaan menebak.
+3. **Batas jujur yang dicatat, bukan disembunyikan:** sifat berhasil-vs-ditolak pada akhirnya masih
+   bisa dibaca penyerang, jadi pengendali biaya menebak tetap **pembatas 20 percobaan / 15 menit
+   per akun** (keputusan T1-23, 2026-09-17) yang ujinya tetap hidup (`supabase/tes/pin_batas_pasang.sql`).
+   Menambah derau/heuristik baru untuk menutup sisa itu = mengubah kontrol keamanan tanpa
+   persetujuan pemilik → tidak dilakukan sekarang; dicatat sebagai batas.
+
+**Bukti:** `supabase/tes/nomor_pesanan_isolasi.sql` & `supabase/tes/pin_bukan_oracle.sql`; dua uji
+lama yang memeriksa pesan lama diselaraskan (`supabase/tes/kredensial_pin.sql`,
+`supabase/tes/pin_batas_pasang.sql`). `alat/uji-mutasi-0015.py` **15 kasus** — 13 mutasi wajib MERAH
+semuanya terbukti merah, termasuk "pagar isolasi penghitung nomor dihapus" dan "pesan PIN kembar
+dikembalikan ke versi lama". Berkas `0001`–`0014` tetap beku.

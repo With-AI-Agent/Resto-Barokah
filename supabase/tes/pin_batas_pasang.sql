@@ -30,7 +30,7 @@ declare
 begin
   for i in 1..19 loop
     if public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000006')
-       like 'PIN itu sudah dipakai pegawai lain%' then
+       like 'PIN itu tidak bisa dipakai%' then
       v_kembar := v_kembar + 1;
     else
       v_lain := v_lain + 1;

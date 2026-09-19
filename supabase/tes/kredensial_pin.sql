@@ -126,8 +126,8 @@ select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-00000
 
 -- 5c. PIN wajib unik antar pegawai satu resto.
 select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000006'),
-                'PIN itu sudah dipakai pegawai lain di resto ini — pilih angka lain.',
-                'PIN yang sudah dipakai pegawai lain di resto yang sama DITOLAK (via pesan, supaya tercatat)');
+                'PIN itu tidak bisa dipakai — pilih angka lain.',
+                'PIN yang sudah dipakai pegawai lain di resto yang sama DITOLAK (via pesan, supaya tercatat; pesannya netral sejak PR-04 2026-09-19)');
 select uji.sama(public.simpan_pin('692735', null, '90000000-0000-0000-0000-000000000006'),
                 'PIN tersimpan.', 'PIN lain yang belum dipakai tetap diterima');
 reset role;
