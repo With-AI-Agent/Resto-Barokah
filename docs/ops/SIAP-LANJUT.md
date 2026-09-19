@@ -10,10 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `1faa6eeb0712fac3110459f4f8a8fd4a4d421345`
+- **Commit keadaan kerja:** `638820dabc0b31c691927a6334d0f3b82c6a0a29`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35430415085, commit 1faa6eeb)
+- **CI terakhir:** (run 35432336917, commit 638820da)
+- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -25,9 +26,9 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
 - Posisi proyek: lihat `PROJECT_STATE.md` (STATUS + PUTARAN terakhir) dan `STATUS.md`.
 - Bukti terakhir yang hijau: `node alat/uji-sql.mjs` · `python3 alat/uji-mutasi-0012.py` ·
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
-- Butir tertangguh terbuka: **7** — T-018, T-002, T-003, T-010, T-011, T-015, T-016
+- Butir tertangguh terbuka: **8** — T-020, T-021, T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (10 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (10 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (13 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (13 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -62,6 +63,33 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18b (2026-09-19) — FASE 0 DIBERESKAN (akun pemilik aktif). RENCANA BERIKUTNYA: K-1.**
+
+Keadaan sekarang: `T0-00` + butir tunggu `T-018` **DITUTUP** — Lee membuat akun **Supabase + Resend + Cloudflare** dan
+mengisi nilai non-rahasia di `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md` (commit `bd68685`; kunci rahasia tidak pernah
+masuk repo/obrolan). Selesai hari ini: klien Supabase aman `aplikasi/src/lib/supabase.ts` (+10 uji) · alat uji sambung
+`aplikasi/alat/cek-supabase.mjs` (+`--uji-diri` 5 kasus) · **gerbang CI ke-50** `npm run cek:supabase` (bukti live: run
+`35432334878` hijau, langkah ke-11 = success) · jalur rilis `aplikasi/wrangler.toml` + `npm run deploy`.
+
+**Dua hal menunggu Lee — jangan dikerjakan tanpa jawaban:** `T-020` menyebar 14 migrasi ke proyek Supabase nyata (butuh
+kredensial pemilik; sesudahnya DoD `select 1` T0-08 bisa dituntaskan) · `T-021` deploy publik halaman kosong ke Cloudflare
+(tindakan publik & tak bisa dibatalkan).
+
+**Langkah berikutnya (urut):**
+1. **T1-45, sisa 23 temuan** — mulai **K-1** (penanda `resto.pembatalan_*` dipalsukan → void sesudah dapur tanpa PIN
+   & tanpa jejak), lalu **K-2** (diskon pada `lunas`/`batal` · void satu item jangan menutup pesanan · kebocoran
+   `nomor_pesanan_berikutnya` lintas resto · oracle PIN kembar), lalu K-3/K-4 (jejak berjenjang, kupon↔pesanan Edge
+   `p_pesanan_id`, buku besar stok, PIN warisan 4 angka, grant `service_role`/`anon`, tautan meja, tabel hantu
+   `percobaan_masuk`, label `12/12` basi, generator paket audit, pesan diskon F-10).
+   Target: `supabase/migrations/0015_penutup_celah_putaran16.sql` + `supabase/tes/` + `alat/uji-mutasi-0015.py`.
+2. Setiap perbaikan wajib: uji regresi baru + `alat/uji-mutasi-0015.py` (semua mutasi MERAH) + suite penuh hijau +
+   `DECISIONS_LOG.md` bila menyentuh cara membuktikan izin/uang.
+3. Butir tertangguh terbuka **8** (batas 12) → di akhir batch, tawarkan jawaban agent untuk semuanya.
+4. Kalau Lee menjawab `T-020`/`T-021`, kerjakan itu lebih dulu: Fase 0 tuntas adalah syarat sebelum pekerjaan Fase 1
+   berlanjut (dan penyebaran skema membuka uji RLS di layanan nyata — nilai besar untuk penutupan T1-45).
+
+**Jangan merge PR #2** selama K-1/K-2 masih terbuka. PR #1 tetap tidak disentuh.
 
 **PUTARAN 18 (2026-09-19) — 25 TEMUAN PENINJAU DIBANTAH-BALIK (25/25 NYATA); 2 SUDAH DITUTUP, SISA 23.**
 
