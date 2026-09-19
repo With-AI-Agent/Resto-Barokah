@@ -21,6 +21,13 @@ jobs:
     steps:
       - name: Ambil kode
         uses: actions/checkout@v5
+        with:
+          # Riwayat PENUH (bukan klon dangkal) wajib sejak 2026-09-19: pemeriksa
+          # `alat/periksa-paket.py` menyelidiki commit yang ditunjuk paket audit/review
+          # (`git cat-file -e <commit>:<jalur>`). Di klon dangkal commit itu tidak ada,
+          # sehingga paket yang SEBENARNYA sah akan ditolak — dan pemeriksa itu kini
+          # dijalankan sungguhan di CI, bukan hanya uji-dirinya.
+          fetch-depth: 0
 
       - name: Pasang Node
         uses: actions/setup-node@v5
@@ -100,10 +107,12 @@ jobs:
           python3 alat/periksa-rahasia.py --uji-diri
           python3 alat/periksa-bersih.py
           python3 alat/periksa-gerbang-ci.py
+          python3 alat/periksa-paket.py
           python3 alat/periksa-paket.py --uji-diri
           python3 alat/lanjut-sesi.py --di-ci
           python3 alat/lanjut-sesi.py --uji-diri
           python3 alat/mulai-sesi.py --uji-diri
+          python3 alat/periksa-angka-bukti.py
           python3 alat/periksa-angka-bukti.py --uji-diri
           python3 alat/periksa-gerbang-ci.py --uji-diri
           python3 alat/periksa-bersih.py --uji-diri

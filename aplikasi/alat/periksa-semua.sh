@@ -58,6 +58,10 @@ python3 alat/periksa-buku-uji.py
 python3 alat/periksa-buku-uji.py --uji-diri
 python3 alat/periksa-gerbang-ci.py
 python3 alat/periksa-gerbang-ci.py --uji-diri
+python3 alat/periksa-paket.py
+python3 alat/periksa-paket.py --uji-diri
+python3 alat/periksa-angka-bukti.py
+python3 alat/periksa-angka-bukti.py --uji-diri
 python3 alat/review-pr.py --uji-diri)
 (cd "$REPO" && python3 alat/periksa-rahasia.py
 python3 alat/periksa-rahasia.py --uji-diri

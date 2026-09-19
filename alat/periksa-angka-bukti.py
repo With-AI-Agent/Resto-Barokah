@@ -9,10 +9,20 @@ dan dua angka tabel ("16 tabel" · "23 tabel") padahal nyatanya 26 — tanpa sat
 pemeriksa yang bisa MERAH.
 
 Aturan yang ditegakkan (dan kenapa):
-* Angka yang ditulis di klaim Bukti hanya boleh muncul bersama **perintah yang bisa
-  diulang** (di dalam tanda kutip-balik) ATAU penanda jujur **"angka saat itu"**.
-  Angka tanpa keduanya adalah klaim yang tidak bisa dibuktikan hari ini — persis jenis
-  klaim yang dilarang protokol audit.
+* **Aturan 1 (F-14, 2026-09-18):** angka yang ditulis di klaim Bukti hanya boleh muncul
+  bersama **perintah yang bisa diulang** (di dalam tanda kutip-balik) ATAU penanda jujur
+  **"angka saat itu"**. Angka tanpa keduanya adalah klaim yang tidak bisa dibuktikan hari
+  ini — persis jenis klaim yang dilarang protokol audit.
+* **Aturan 2 (2026-09-19, temuan sesi verifikasi):** angka **jumlah tugas** yang diklaim
+  sebagai KEADAAN SEKARANG wajib sama dengan jumlah baris tugas nyata di `docs/ROADMAP.md`.
+  Kenapa: `STATUS.md` dan `PROJECT_STATE.md` sempat menulis **189 tugas** padahal ROADMAP
+  sudah **192** (T1-42/T1-43/T1-44 ditambahkan pada 2026-09-17 tanpa menyegarkan dua berkas
+  itu) — dan tidak ada satu pun pemeriksa yang bisa MERAH, sehingga angka basi itu ikut
+  dibaca sesi berikutnya sebagai fakta.
+  Ruang lingkupnya SENGAJA sempit: hanya baris **keadaan sekarang** (`**Jumlah tugas:**` di
+  ROADMAP · baris `- **Status:**` di `STATUS.md` · baris `DETAIL:` di `PROJECT_STATE.md`).
+  Baris riwayat (`PUTARAN …`, tabel perubahan roadmap) memang menyimpan angka **pada saat
+  itu** dan tidak boleh dianggap salah.
 
 Jalankan: python3 alat/periksa-angka-bukti.py [--uji-diri]
 """
@@ -34,6 +44,25 @@ POLA_ANGKA = re.compile(r"\b\d+\s+(uji|tabel)\b", re.IGNORECASE)
 POLA_KLAIM = re.compile(r"\*\*Bukti", re.IGNORECASE)
 PENANDA_JUJUR = "angka saat itu"
 
+# ---- Aturan 2: angka JUMLAH TUGAS keadaan-sekarang (lihat docstring) ----------
+POLA_JML_TUGAS = re.compile(r"\*\*(\d+)\s+tugas\*\*")
+POLA_KINI_TUGAS = re.compile(r"\(kini \*\*(\d+)\*\*")
+POLA_BARIS_TUGAS = re.compile(r"^- \[[ x]\] T\d+-\d+ —", re.M)
+# (berkas, pengenal baris keadaan-sekarang) — sengaja tidak menyentuh baris riwayat.
+ATURAN_JML_TUGAS = (
+    ("docs/ROADMAP.md", lambda b: b.startswith("**Jumlah tugas:**")),
+    ("STATUS.md", lambda b: b.startswith("- **Status:**")),
+    ("PROJECT_STATE.md", lambda b: b.startswith("DETAIL:")),
+)
+
+
+def jumlah_tugas_nyata(akar: pathlib.Path) -> int:
+    """Jumlah tugas yang BENAR-BENAR ada di ROADMAP (satu-satunya sumber kebenaran)."""
+    roadmap = akar / "docs" / "ROADMAP.md"
+    if not roadmap.is_file():
+        return -1
+    return len(POLA_BARIS_TUGAS.findall(roadmap.read_text(encoding="utf-8")))
+
 
 def periksa(akar: pathlib.Path) -> tuple[int, list[str]]:
     roadmap = akar / "docs" / "ROADMAP.md"
@@ -51,6 +80,23 @@ def periksa(akar: pathlib.Path) -> tuple[int, list[str]]:
                 f"yang bisa diulang dan tanpa penanda \"{PENANDA_JUJUR}\" — "
                 f"angka seperti ini akan basi tanpa ada yang bisa MERAH (F-14)"
             )
+
+    # Aturan 2: angka jumlah tugas keadaan-sekarang wajib sama dengan jumlah nyata.
+    nyata = jumlah_tugas_nyata(akar)
+    for nama_berkas, baris_keadaan in ATURAN_JML_TUGAS:
+        berkas_klaim = akar / nama_berkas
+        if not berkas_klaim.is_file():
+            continue
+        for i, baris in enumerate(berkas_klaim.read_text(encoding="utf-8").splitlines(), start=1):
+            if not baris_keadaan(baris):
+                continue
+            for angka in POLA_JML_TUGAS.findall(baris) + POLA_KINI_TUGAS.findall(baris):
+                if int(angka) != nyata:
+                    salah.append(
+                        f"{nama_berkas}:{i} menulis jumlah tugas {angka}, padahal jumlah nyata "
+                        f"di docs/ROADMAP.md adalah {nyata} — angka keadaan-sekarang wajib "
+                        f"disegarkan setiap tugas ditambah/dihapus (cacat 2026-09-19: tertinggal di 189)"
+                    )
     return (1 if salah else 0), salah
 
 
@@ -65,6 +111,12 @@ def uji_diri() -> int:
         salinan.mkdir()
         (salinan / "docs").mkdir()
         shutil.copy2(ROADMAP, salinan / "docs" / "ROADMAP.md")
+        # Berkas yang memuat klaim "jumlah tugas keadaan sekarang" ikut disalin supaya
+        # Aturan 2 bisa diuji sungguhan (bukan hanya di berkas asli).
+        for berkas_klaim in ("STATUS.md", "PROJECT_STATE.md"):
+            asal = AKAR / berkas_klaim
+            if asal.is_file():
+                shutil.copy2(asal, salinan / berkas_klaim)
         kode, _ = periksa(salinan)
         hasil.append(("salinan utuh", kode == 0, f"kode {kode}"))
 
@@ -96,6 +148,30 @@ def uji_diri() -> int:
         else:
             hasil.append(("mutasi: penanda jujur dihapus", True,
                           "tidak ada klaim yang memakai penanda saja (aturan tetap berlaku)"))
+
+        # Mutasi 3 & 4 (Aturan 2): angka jumlah tugas keadaan-sekarang dibiarkan basi
+        # sementara ROADMAP berubah → pemeriksa WAJIB menolak.
+        for nama_berkas, jadikan_basi in (
+            ("STATUS.md", lambda n: lambda t: t.replace(f"**{n} tugas**", "**199 tugas**", 1)),
+            ("PROJECT_STATE.md", lambda n: lambda t: t.replace(f"(kini **{n}**", "(kini **151**", 1)),
+        ):
+            berkas_uji = salinan / nama_berkas
+            if not berkas_uji.is_file():
+                hasil.append((f"mutasi: jumlah tugas basi di {nama_berkas}", False,
+                              "berkas tidak ada di salinan uji — tidak bisa diuji"))
+                continue
+            nyata = jumlah_tugas_nyata(salinan)
+            teks_berkas = berkas_uji.read_text(encoding="utf-8")
+            teks_basi = jadikan_basi(nyata)(teks_berkas)
+            if teks_basi == teks_berkas:
+                hasil.append((f"mutasi: jumlah tugas basi di {nama_berkas}", False,
+                              "klaim keadaan-sekarang tidak ditemukan — tidak bisa diuji"))
+                continue
+            berkas_uji.write_text(teks_basi, encoding="utf-8")
+            kode, _ = periksa(salinan)
+            hasil.append((f"mutasi: jumlah tugas basi di {nama_berkas}", kode != 0,
+                          "ditolak" if kode != 0 else "DILOLOSKAN (tumpul)"))
+            berkas_uji.write_text(teks_berkas, encoding="utf-8")
 
     print("UJI-DIRI periksa-angka-bukti")
     gagal = 0

@@ -37,9 +37,12 @@ GERBANG_WAJIB = [
     ("suite uji SQL penuh", r"node\s+alat/uji-sql\.mjs\s*$"),
     ("bukti mutasi pagar migrasi 0012", r"python3\s+alat/uji-mutasi-0012\.py\s*$"),
     ("bukti mutasi pagar migrasi 0014", r"python3\s+alat/uji-mutasi-0014\.py\s*$"),
+    ("pemeriksa paket audit/review (invarian commit F-11/F-12)", r"python3\s+alat/periksa-paket\.py\s*$"),
     ("uji-diri pemeriksa paket (F-11/F-12)", r"python3\s+alat/periksa-paket\.py\s+--uji-diri\s*$"),
     ("uji-diri pemeriksa komponen & env", r"python3\s+aplikasi/alat/periksa-komponen-env\.py\s+--uji-diri\s*$"),
     ("uji-diri pemeriksa angka bukti ROADMAP (F-14)", r"python3\s+alat/periksa-angka-bukti\.py\s+--uji-diri\s*$"),
+    ("pemeriksa angka bukti & jumlah tugas (F-14 + jumlah tugas keadaan-sekarang)", r"python3\s+alat/periksa-angka-bukti\.py\s*$"),
+    ("riwayat penuh untuk pemeriksa paket (fetch-depth 0)", r"fetch-depth:\s*0\s*$"),
     ("pemeriksa handoff lanjut-sesi (isi + uji-diri)", r"python3\s+alat/lanjut-sesi\.py\s+--di-ci\s*$"),
     ("uji-diri kartu sesi (pemetaan skill fase)", r"python3\s+alat/mulai-sesi\.py\s+--uji-diri\s*$"),
     ("kerentanan dependency (npm audit, 0 toleransi)", r"npm audit --audit-level=low\s*$"),
@@ -144,6 +147,14 @@ def uji_diri() -> int:
         mutasi("langkah pemeriksa antarmuka dihapus", lambda t: t.replace("          python3 aplikasi/alat/periksa-antarmuka.py\n", "", 1))
         mutasi("langkah uji-diri kontras dihapus", lambda t: t.replace("          python3 aplikasi/alat/uji-kontras.py --uji-diri\n", "", 1))
         mutasi("langkah diberi continue-on-error", lambda t: t.replace("    runs-on: ubuntu-latest", "    runs-on: ubuntu-latest\n    continue-on-error: true", 1))
+        # Sejak 2026-09-19, dua pemeriksa ini dijalankan SUNGGUHAN (dulu hanya uji-dirinya,
+        # sehingga aturan F-11/F-12/F-14 tidak pernah ditegakkan di CI). Buktikan gerbangnya.
+        mutasi("pemeriksa paket (invarian commit) dihapus",
+               lambda t: t.replace("          python3 alat/periksa-paket.py\n", "", 1))
+        mutasi("pemeriksa angka bukti & jumlah tugas dihapus",
+               lambda t: t.replace("          python3 alat/periksa-angka-bukti.py\n", "", 1))
+        mutasi("riwayat penuh (fetch-depth 0) diturunkan ke 1",
+               lambda t: t.replace("          fetch-depth: 0", "          fetch-depth: 1", 1))
 
     print("\nUJI-DIRI PEMERIKSA GERBANG CI")
     for nama, lulus in kasus:
