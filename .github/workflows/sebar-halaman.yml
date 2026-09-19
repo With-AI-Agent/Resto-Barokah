@@ -57,3 +57,4 @@ jobs:
           test -n "$CLOUDFLARE_API_TOKEN" || { echo "RAHASIA HILANG: CLOUDFLARE_API_TOKEN belum dipasang di GitHub (Settings → Secrets and variables → Actions)."; exit 1; }
           npm ci --prefix aplikasi
           npm run --prefix aplikasi deploy
+          node aplikasi/alat/catat-alamat.mjs

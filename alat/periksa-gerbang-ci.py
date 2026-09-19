@@ -88,6 +88,7 @@ GERBANG_WAJIB = [
     ("uji-diri pemeriksa angka bukti ROADMAP (F-14)", r"python3 alat/periksa-angka-bukti.py --uji-diri"),
     ("pemeriksa migrasi beku (repo vs database nyata)", r"python3 alat/periksa-migrasi-beku.py"),
     ("uji-diri pemeriksa migrasi beku", r"python3 alat/periksa-migrasi-beku.py --uji-diri"),
+    ("uji-diri alat catat alamat publik (bukti deploy T0-09)", r"node aplikasi/alat/catat-alamat\.mjs --uji-diri"),
     ("uji-diri pemeriksa pohon bersih", r"python3 alat/periksa-bersih.py --uji-diri"),
     ("pemeriksa struktur aplikasi", r"python3 aplikasi/alat/periksa-struktur.py"),
     ("uji-diri pemeriksa komponen & env", r"python3 aplikasi/alat/periksa-komponen-env.py --uji-diri"),
@@ -143,6 +144,7 @@ ALUR_LAIN: dict[str, dict[str, list[tuple[str, str]]]] = {
              r'test -n "\$CLOUDFLARE_API_TOKEN" \|\| \{ echo .*exit 1; \}'),
             ("pasang pustaka aplikasi", r"npm ci --prefix aplikasi"),
             ("bangun lalu unggah (satu perintah rilis)", r"npm run --prefix aplikasi deploy"),
+            ("catat alamat publik + periksa HTTP (bukti, lewat anotasi)", r"node aplikasi/alat/catat-alamat\.mjs"),
         ],
         "berkas": [
             ("hanya menyala lewat berkas penanda aplikasi/SEBAR-HALAMAN",
@@ -434,6 +436,8 @@ def uji_diri() -> int:
                           "          npx --yes supabase@2.117.0 --yes db push --password \"$SUPABASE_DB_PASSWORD\"\n"
                           "          npx --yes supabase@2.117.0 --yes db push --dry-run --password \"$SUPABASE_DB_PASSWORD\"\n",
                           1))
+        mutasi_berkas(".github/workflows/sebar-halaman.yml", "langkah catat alamat publik dihapus",
+                      lambda s: s.replace("          node aplikasi/alat/catat-alamat.mjs\n", "", 1))
         mutasi_berkas(".github/workflows/sebar-halaman.yml", "pemeriksaan berkas penanda sebar halaman dihapus",
                       lambda s: s.replace("          test -f aplikasi/SEBAR-HALAMAN", "          true aplikasi/SEBAR-HALAMAN", 1))
         mutasi_berkas(".github/workflows/sebar-halaman.yml", "perintah rilis diganti sekadar build",

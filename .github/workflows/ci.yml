@@ -134,6 +134,7 @@ jobs:
           python3 alat/periksa-angka-bukti.py --uji-diri
           python3 alat/periksa-migrasi-beku.py
           python3 alat/periksa-migrasi-beku.py --uji-diri
+          node aplikasi/alat/catat-alamat.mjs --uji-diri
           python3 alat/periksa-gerbang-ci.py --uji-diri
           python3 alat/periksa-bersih.py --uji-diri
           python3 aplikasi/alat/periksa-struktur.py

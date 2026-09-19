@@ -133,6 +133,9 @@ def main(akar: pathlib.Path | None = None) -> int:
         if not re.search(pola, teks):
             errs.append(f"topik wajib hilang: {nama} (pola {pola!r}) — tambahkan ke buku")
 
+    for pesan_batas in cek_batas_mode_bimbingan(akar, teks):
+        errs.append(pesan_batas)
+
     # --- v2: alur (Bagian B) ---
     judul_alur = re.findall(r"^### (AL-\d+) — (.+)$", teks, re.MULTILINE)
     if len(judul_alur) < MIN_ALUR:
@@ -308,6 +311,66 @@ def main(akar: pathlib.Path | None = None) -> int:
     return 0
 
 
+def blok_alur(teks: str, nomor: str) -> str:
+    """Ambil isi satu alur Bagian B (AL-nn) sampai alur berikutnya."""
+    awal = teks.find(f"### {nomor} —")
+    if awal < 0:
+        return ""
+    akhir = teks.find("\n### ", awal + 4)
+    return teks[awal : akhir if akhir > 0 else len(teks)]
+
+
+def cek_batas_mode_bimbingan(akar: pathlib.Path, teks: str) -> list[str]:
+    """Penjaga BATAS mode bimbingan (permintaan Lee 2026-09-19).
+
+    Kenapa ada: mode bimbingan membuat pemeriksaan rutin boleh ditunda demi balasan cepat. Kalau
+    batasnya hilang (siapa pun boleh menyunting buku/aturan agent), kebiasaan "cepat" bisa berubah
+    menjadi "melewati bukti" — kelas cacat yang paling mahal di proyek ini (F-11/F-12/F-14).
+    Jadi batasnya dijaga MESIN, bukan ingatan: blok AL-14 dan §14 aturan kerja agent wajib memuat
+    daftar "yang tidak boleh ditunda" beserta alasannya.
+    """
+    pesan: list[str] = []
+    al14 = blok_alur(teks, "AL-14")
+    if not al14:
+        return ["AL-14 (mode bimbingan) hilang dari Bagian B — tanpa itu mode cepat tidak punya batas"]
+
+    wajib_al14 = {
+        "pemeriksaan rutin boleh ditunda": r"pemeriksaan rutin.{0,70}boleh ditunda",
+        "daftar yang TIDAK boleh ditunda": r"(?i)tidak (?:boleh|bisa) ditunda",
+        "sebut klaim selesai sebagai pengecualian": r"selesai",
+        "sebut hal berbiaya/keamanan sebagai pengecualian": r"biaya",
+        "penunjuk ke aturan kerja agent": r"AGENT_OPERATING_GUIDE\.md",
+    }
+    for nama, pola in wajib_al14.items():
+        if not re.search(pola, al14):
+            pesan.append(
+                f"AL-14: batas mode bimbingan hilang — {nama} (pola {pola!r}). "
+                "Mode cepat hanya boleh MEMENDEKKAN cara bicara, bukan memotong bukti"
+            )
+
+    guide = akar / "docs" / "AGENT_OPERATING_GUIDE.md"
+    isi_guide = guide.read_text(encoding="utf-8") if guide.is_file() else ""
+    if "^## 14. Mode Bimbingan" not in isi_guide and not re.search(r"^## 14\. Mode Bimbingan", isi_guide, re.M):
+        pesan.append("docs/AGENT_OPERATING_GUIDE.md: bagian §14 (Mode Bimbingan) hilang")
+    else:
+        g14 = isi_guide[isi_guide.index("## 14. Mode Bimbingan") :]
+        akhir14 = g14.find("\n## ", 4)
+        g14 = g14[: akhir14 if akhir14 > 0 else len(g14)]
+        wajib_guide = {
+            "aturan 'pemeriksaan rutin boleh ditunda'": r"Pemeriksaan rutin boleh ditunda",
+            "penunjuk ke Stop Conditions §12": r"§12",
+            "pengecualian klaim selesai": r'"selesai"',
+            "tiga area yang tidak boleh ditunda": r"keamanan/uang/data",
+        }
+        for nama, pola in wajib_guide.items():
+            if not re.search(pola, g14):
+                pesan.append(
+                    f"AGENT_OPERATING_GUIDE §14: {nama} hilang (pola {pola!r}) — "
+                    "aturan mode bimbingan tidak boleh kehilangan batas mutunya"
+                )
+    return pesan
+
+
 def cek_angka_berkas_uji(akar: pathlib.Path) -> list[str]:
     """Angka "N berkas uji" di dokumen hidup wajib sama dengan jumlah berkas uji NYATA.
 
@@ -397,6 +460,35 @@ def uji_diri() -> int:
             kode3c, _ = jalankan_pemeriksa(main, tmp3c)
             hasil.append(("mutasi: kartu sesi berhenti mencetak penunjuk buku", kode3c != 0,
                           "ditolak" if kode3c != 0 else "DILOLOSKAN (kartu sesi tidak dijaga)"))
+
+        # Mutasi 3d: BATAS mode bimbingan dihapus dari AL-14 → harus GAGAL.
+        # (Permintaan Lee 2026-09-19: mode cepat tidak boleh kehilangan batas mutunya.)
+        with salin_pohon() as tmp3d:
+            f = tmp3d / "PANDUAN_PENGGUNA.md"
+            isi = f.read_text(encoding="utf-8")
+            m = re.search(r"  - \*\*Boleh melewati pemeriksaan rutin\?\*\*.*?\n(?=  - |\n)", isi, re.S)
+            if not m:
+                hasil.append(("mutasi: batas mode bimbingan dihapus dari AL-14", False,
+                              "AL-14 tidak memuat batas yang bisa dimutasi"))
+            else:
+                f.write_text(isi[: m.start()] + isi[m.end():], encoding="utf-8")
+                kode3d, _ = jalankan_pemeriksa(main, tmp3d)
+                hasil.append(("mutasi: batas mode bimbingan dihapus dari AL-14", kode3d != 0,
+                              "ditolak" if kode3d != 0 else "DILOLOSKAN (batas tidak dijaga)"))
+
+        # Mutasi 3e: aturan 7 di AGENT_OPERATING_GUIDE §14 dihapus → harus GAGAL.
+        with salin_pohon() as tmp3e:
+            f = tmp3e / "docs" / "AGENT_OPERATING_GUIDE.md"
+            isi = f.read_text(encoding="utf-8")
+            m = re.search(r"7\. \*\*Pemeriksaan rutin boleh ditunda.*?\n(?=8\. )", isi, re.S)
+            if not m:
+                hasil.append(("mutasi: aturan 'pemeriksaan rutin boleh ditunda' dihapus", False,
+                              "§14 tidak memuat aturan yang bisa dimutasi"))
+            else:
+                f.write_text(isi[: m.start()] + isi[m.end():], encoding="utf-8")
+                kode3e, _ = jalankan_pemeriksa(main, tmp3e)
+                hasil.append(("mutasi: aturan 'pemeriksaan rutin boleh ditunda' dihapus", kode3e != 0,
+                              "ditolak" if kode3e != 0 else "DILOLOSKAN (aturan tidak dijaga)"))
 
         # Mutasi 4: angka berkas uji dibuat basi → harus GAGAL (temuan review putaran11 PR-04)
         with salin_pohon() as tmp5:
