@@ -67,6 +67,42 @@ def jalankan(perintah: list[str]) -> tuple[int, str]:
     return hasil.returncode, (hasil.stdout + hasil.stderr).strip()
 
 
+# ---- Aturan 3 (ditambahkan 2026-09-19) ----------------------------------------
+# Setiap paket review PR yang terbit SEJAK tanggal di bawah ini WAJIB punya barisnya
+# di `docs/uji/REVIEW_PR_RIWAYAT.md`.
+#
+# Kenapa: paket putaran13, putaran14, dan putaran15 terbit tanpa satu pun baris di
+# riwayat itu (ditemukan 2026-09-19 saat menyiapkan putaran verifikasi). Akibatnya
+# riwayat tampak "berhenti di putaran11" padahal review sudah berjalan tiga putaran
+# lagi — pembaca/peninjau berikutnya bisa menyimpulkan paket itu tidak pernah ada,
+# dan itu bahan temuan palsu. Tidak ada pemeriksa yang bisa MERAH untuk kelas ini.
+RIWAYAT_REVIEW = AKAR / "docs" / "uji" / "REVIEW_PR_RIWAYAT.md"
+SEJAK_RIWAYAT_WAJIB = "2026-09-19"  # paket bertanggal >= ini wajib tercatat
+POLA_PAKET_REVIEW = re.compile(r"^PKT-(\d{4}-\d{2}-\d{2})-pr-01-putaran(\d+)(?:-SIAP-TEMPEL)?\.md$")
+
+
+def periksa_riwayat(daftar: list[str]) -> list[str]:
+    """Pastikan paket review baru tercatat di `docs/uji/REVIEW_PR_RIWAYAT.md`."""
+    pesan: list[str] = []
+    teks = RIWAYAT_REVIEW.read_text(encoding="utf-8") if RIWAYAT_REVIEW.is_file() else ""
+    sudah: set[str] = set()
+    for jalur in daftar:
+        cocok = POLA_PAKET_REVIEW.match(pathlib.Path(jalur).name)
+        if not cocok:
+            continue
+        tanggal, putaran = cocok.group(1), cocok.group(2)
+        if tanggal < SEJAK_RIWAYAT_WAJIB or putaran in sudah:
+            continue
+        sudah.add(putaran)
+        if f"putaran{putaran}" not in teks:
+            pesan.append(
+                f"paket review putaran{putaran} ({jalur}) tidak punya baris di "
+                f"docs/uji/REVIEW_PR_RIWAYAT.md — setiap paket review wajib tercatat "
+                f"(commit, jalur risiko, status laporan) supaya riwayat tidak bolong"
+            )
+    return pesan
+
+
 def paket_terlacak() -> tuple[list[str], list[str]]:
     """(berkas yang diperiksa, berkas yang dilewati beserta alasannya).
 
@@ -189,6 +225,7 @@ def periksa(ref: str = "HEAD", berkas: list[str] | None = None) -> int:
         m, c = periksa_paket(ref, jalur)
         masalah += m
         catatan += c
+    masalah += periksa_riwayat(daftar)
     for c in catatan:
         print(f"  [catatan] {c}")
     if dilewati:
@@ -198,9 +235,9 @@ def periksa(ref: str = "HEAD", berkas: list[str] | None = None) -> int:
     print("-" * 70)
     print(f"PERIKSA PAKET — {len(daftar)} paket terlacak (ref {ref})")
     if masalah:
-        print(f"HASIL: GAGAL — {len(masalah)} pelanggaran invarian paket (F-11/F-12)")
+        print(f"HASIL: GAGAL — {len(masalah)} pelanggaran invarian paket (F-11/F-12 + riwayat)")
         return 1
-    print("HASIL: LOLOS — setiap paket menunjuk induk commit-nya sendiri dan artefaknya nyata.")
+    print("HASIL: LOLOS — setiap paket menunjuk induk commit-nya sendiri, artefaknya nyata, dan paket review baru tercatat di riwayat.")
     return 0
 
 
@@ -252,6 +289,14 @@ def uji_diri() -> int:
         masalah_pohon += m
     hasil.append(("pohon sekarang diterima", not masalah_pohon,
                   "lolos" if not masalah_pohon else masalah_pohon[0][:90]))
+
+    # Aturan 3: paket review baru tanpa baris riwayat wajib DITOLAK; yang tercatat diterima.
+    masalah_riwayat = periksa_riwayat(["docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran99.md"])
+    hasil.append(("mutasi: paket review baru tanpa baris riwayat ditolak", bool(masalah_riwayat),
+                  masalah_riwayat[0][:90] if masalah_riwayat else "DILOLOSKAN (tumpul)"))
+    kontrol_riwayat = periksa_riwayat(["docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran16.md"])
+    hasil.append(("kontrol: paket review yang TERCATAT di riwayat diterima", not kontrol_riwayat,
+                  "diterima" if not kontrol_riwayat else kontrol_riwayat[0][:90]))
 
     print("UJI-DIRI periksa-paket")
     gagal = 0
