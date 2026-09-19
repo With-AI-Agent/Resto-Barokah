@@ -978,7 +978,7 @@ for p in ('aplikasi/package-lock.json','alat/package-lock.json'):
 
 ## 7. Pernyataan tidak mengubah apa pun
 
-Saya **tidak mengubah** kode, migrasi, pengujian, konfigurasi, panduan proyek, atau dependensi. **Laporan ini satu-satunya berkas** yang saya buat/ubah. Tidak menerapkan perbaikan, membuat probe terpisah, memasang dependensi, checkout/worktree, merge, deploy, atau memutasi DB produksi. Fetch/commit/push menyentuh metadata Git dan laporan yang diizinkan.
+Saya **tidak mengubah** kode, migrasi, pengujian, konfigurasi, panduan proyek, atau dependensi. **Laporan ini satu-satunya berkas yang saya tulis.** Selama pengumpulan bukti tidak menerapkan perbaikan, membuat probe terpisah, memasang dependensi, checkout/worktree, merge, deploy, atau memutasi DB produksi. Pada penyerahan lanjutan 2026-09-20, nama laporan ini diubah dan hanya **riwayat laporan** digabungkan; laporan remote lama diambil tanpa satu byte perubahan. Terhadap remote sebelum penyerahan, satu-satunya perubahan adalah penambahan laporan bernama unik ini. Tidak ada penggabungan kode aplikasi. Rincian dan bukti penyerahan ada di bawah.
 
 Bukti sebelum penyerahan, `git status --short --untracked-files=all`:
 
