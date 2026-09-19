@@ -47,9 +47,12 @@ select uji.sama(
   (select p.status from public.pesanan p where p.id = 'd2000000-0000-0000-0000-000000000001'),
   'lunas', 'kontrol: pesanan sekarang berstatus lunas (uang sudah tercatat)'
 );
+-- CATATAN (aturan uang diperbaiki 2026-09-20, temuan AUD-3 F-01): pajak & service kini
+-- dihitung dari subtotal SETELAH diskon → dasar = 27.000 − 1.350 = 25.650; PB1 10% = 2.565;
+-- service 5% = 1.283; total = 25.650 + 2.565 + 1.283 = 29.498 (bukan 29.700 cara lama).
 select uji.sama(
   (select p.total from public.pesanan p where p.id = 'd2000000-0000-0000-0000-000000000001'),
-  29700, 'kontrol: total sesudah lunas = 27.000 + 2.700 + 1.350 − 1.350'
+  29498, 'kontrol: total sesudah lunas = (27.000 − 1.350) + PB1 2.565 + service 1.283'
 );
 
 -- 2. SERANGAN F-01: kasir menyisipkan diskon sesudah lunas → WAJIB DITOLAK.
@@ -84,7 +87,7 @@ select uji.sama(
 );
 select uji.sama(
   (select p.total from public.pesanan p where p.id = 'd2000000-0000-0000-0000-000000000001'),
-  29700, 'F-01: total pesanan lunas TIDAK berubah (27.000 + pajak 10% + service 5% − 1.350)'
+  29498, 'F-01: total pesanan lunas TIDAK berubah (angka beku sesudah uang tercatat)'
 );
 
 -- 6. Pesanan yang sudah BATAL juga tidak boleh menerima diskon; sebabnya harus tentang status.

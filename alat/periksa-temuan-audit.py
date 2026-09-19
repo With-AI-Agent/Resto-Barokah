@@ -7,7 +7,7 @@ menyebut 27 temuan (A: 10, B: 17); daftar penutup harus memuat **setiap** temuan
 kalau tidak, temuan bisa hilang tanpa ada yang tahu.
 
 Yang diperiksa:
- 1. Setiap `[F-xx]` di kedua berkas laporan audit punya baris di tabel §1b (tidak ada yang hilang).
+ 1. Setiap `[F-xx]` di SETIAP berkas laporan audit punya baris di daftar penutup §1b/§1c (tidak ada yang hilang).
  2. Setiap baris menyebut laporan+nomor temuan yang benar-benar ada (tidak ada temuan karangan).
  3. Status wajib salah satu: `DITUTUP` atau `TERBUKA` (tidak boleh kosong/abu-abu).
  4. Baris `DITUTUP` wajib menunjuk **bukti yang benar-benar ada** di repo (rujukan ber-backtick).
@@ -33,6 +33,9 @@ LAPORAN = {
     # isinya sudah dibantah-balik 10/10 NYATA oleh sesi kerja — karena itu temuan-temuannya tetap
     # WAJIB punya baris penutup di §1b (temuan tidak boleh hilang hanya karena laporannya ditolak).
     "D": "docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0b85b.md",
+    # Ronde 2026-09-19/20 (sesi `arena/01a0bbd2`): LULOS KONTRAK, 18 temuan, tiga di antaranya
+    # (K-1 jalur uang) sudah dibantah-balik NYATA dan ditutup di migrasi `0015` bagian 6.
+    "F": "docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2.md",
 }
 ROADMAP = "docs/ROADMAP.md"
 
@@ -54,21 +57,19 @@ def baris_daftar(akar: pathlib.Path) -> list[tuple[int, list[str]]]:
     if not berkas.is_file():
         return []
     baris = berkas.read_text(encoding="utf-8").splitlines()
-    mulai = None
-    for i, b in enumerate(baris):
-        if b.startswith("### 1b"):
-            mulai = i
-            break
-    if mulai is None:
-        return []
+    # Sejak ronde kedua audit (2026-09-19/20) daftar penutup boleh punya beberapa sub-bagian
+    # (`### 1b`, `### 1c`, …) — satu per laporan audit. Semuanya dibaca; kalau hanya `1b`
+    # yang dibaca, temuan ronde baru bisa hilang tanpa ada yang tahu.
     hasil: list[tuple[int, list[str]]] = []
-    for i in range(mulai + 1, len(baris)):
-        b = baris[i]
-        if b.startswith("### ") or b.startswith("## ") and not b.startswith("###"):
-            break
-        if b.startswith("## "):
-            break
-        if not b.strip().startswith("|"):
+    di_bagian_daftar = False
+    for i, b in enumerate(baris):
+        if b.startswith("### 1"):
+            di_bagian_daftar = True
+            continue
+        if b.startswith("### ") or b.startswith("## "):
+            di_bagian_daftar = False
+            continue
+        if not di_bagian_daftar or not b.strip().startswith("|"):
             continue
         kolom = [k.strip() for k in b.strip().strip("|").split("|")]
         if len(kolom) < 5 or set(kolom[0]) <= set("-: "):
@@ -144,7 +145,7 @@ def periksa(akar: pathlib.Path) -> int:
     for no, kolom in baris:
         laporan_temuan, tingkat, ringkas, status, bukti = kolom[0], kolom[1], kolom[2], kolom[3], " ".join(kolom[4:])
         # 2. rujukan laporan+nomor wajib benar
-        rujukan = re.findall(r"\b([A-D])\s*(F-\d+)", laporan_temuan)
+        rujukan = re.findall(r"\b([A-F])\s*(F-\d+)", laporan_temuan)
         if not rujukan:
             errs.append(f"baris {no}: kolom 'Laporan' tidak menyebut satu pun temuan (mis. 'A F-01'): {laporan_temuan[:60]}")
         for nama, fid in rujukan:
@@ -181,9 +182,10 @@ def periksa(akar: pathlib.Path) -> int:
 
     total = sum(len(v) for v in temuan.values())
     jumlah_luar = periksa_luar_cakupan(akar, errs)
-    print(f"PERIKSA TEMUAN AUDIT — laporan A: {len(temuan.get('A', set()))} temuan · laporan B: {len(temuan.get('B', set()))} temuan "
-          f"· laporan D (putaran verifikasi 2026-09-19, laporan ditolak mesin): {len(temuan.get('D', set()))} temuan "
-          f"· daftar §1b: {len(baris)} baris ({tertutup} ditutup · {terbuka} terbuka)")
+    print(f"PERIKSA TEMUAN AUDIT — A: {len(temuan.get('A', set()))} · B: {len(temuan.get('B', set()))} "
+          f"· D: {len(temuan.get('D', set()))} (laporan ditolak mesin, isinya dipakai) "
+          f"· F: {len(temuan.get('F', set()))} (AUD-3 2026-09-19 sesi 01a0bbd2) temuan "
+          f"· daftar penutup: {len(baris)} baris ({tertutup} ditutup · {terbuka} terbuka)")
     if errs:
         print(f"\nHASIL: GAGAL — {len(errs)} temuan")
         for e in errs:
@@ -230,6 +232,20 @@ def uji_diri() -> int:
                 kode1b, _ = jalankan_pemeriksa(periksa, tmp1b)
                 hasil.append(("mutasi: satu temuan laporan D dihapus dari daftar", kode1b != 0,
                               "ditolak" if kode1b != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 1c: baris temuan laporan F (ronde 2026-09-19/20) dihapus → harus GAGAL.
+        with salin_pohon() as tmp1c:
+            berkas = tmp1c / RIWAYAT
+            isi = berkas.read_text(encoding="utf-8").splitlines()
+            idx = next((i for i, b in enumerate(isi) if re.match(r"\|\s*F\s*F-\d+", b)), None)
+            if idx is None:
+                hasil.append(("mutasi hapus baris F", False, "tidak menemukan baris F untuk dihapus"))
+            else:
+                del isi[idx]
+                berkas.write_text("\n".join(isi) + "\n", encoding="utf-8")
+                kode1c, _ = jalankan_pemeriksa(periksa, tmp1c)
+                hasil.append(("mutasi: satu temuan laporan F dihapus dari daftar", kode1c != 0,
+                              "ditolak" if kode1c != 0 else "DILOLOSKAN (tumpul)"))
 
         # Mutasi 2: bukti penutup diarahkan ke berkas yang tidak ada → harus GAGAL
         with salin_pohon() as tmp3:

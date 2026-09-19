@@ -33,6 +33,35 @@
    sudah diperiksa penuh dan dipakai untuk bertindak. Atas temuan Lee ini, penarik laporan
    sekarang menelusuri **seluruh riwayat** cabang, bukan hanya ujungnya (cacat mekanisme #12).
 
+### 1c. Status penutupan temuan AUD-3 2026-09-19 (sesi `arena/01a0bbd2`)
+
+> 18 temuan (F-01…F-18) + 2 di luar cakupan. Laporan **LOLOS KONTRAK**; kalibrasi **5/5**, 0 temuan palsu.
+> **Bantah-balik sesi kerja:** tiga temuan jalur uang (F-01a, F-01b, F-02) **dibuktikan NYATA lewat probe sendiri**
+> (`docs/uji/audit/probe-2026-09-20/aud-3-f01-f02-uang.sql`, dijalankan `node alat/uji-sql.mjs`) dan sudah **ditutup**
+> di migrasi `0015` bagian 6; sesudah perbaikan, probe yang sama **GAGAL** (bukti cacatnya hilang). Sisa temuan
+> menunggu bantah-balik + penutupan berurutan; pemilik penutup: `T1-45` (14 butir) dan `T1-44` (temuan alat/mekanisme).
+
+| Laporan | Tingkat | Temuan (ringkas) | Status | Bukti / pemilik |
+|---|---|---|---|---|
+| F F-01 | **K-1** | Pajak PB1 & service dihitung dari subtotal **sebelum** diskon + `pengaturan.pembulatan` tidak dibaca | **DITUTUP 2026-09-20** | bagian 6 `supabase/migrations/0015_penutup_celah_putaran16.sql`: dasar pajak/service = subtotal setelah diskon; pembulatan dibaca & diterapkan di langkah terakhir; uji `supabase/tes/urutan_uang.sql` + 4 mutasi wajib MERAH di `alat/uji-mutasi-0015.py`; probe lama `docs/uji/audit/probe-2026-09-20/aud-3-f01-f02-uang.sql` kini GAGAL (= cacat hilang) |
+| F F-02 | **K-1** | RPC `hitung_total` bisa menulis ulang angka pesanan yang sudah **lunas** | **DITUTUP 2026-09-20** | bagian 6 `supabase/migrations/0015_penutup_celah_putaran16.sql`: panggilan beridentitas pada pesanan `lunas`/`batal` ditolak (`pg_trigger_depth() = 0` menjaga jalur pemicu peladen tetap hidup); uji `supabase/tes/urutan_uang.sql` §5 + mutasi "penjaga lunas dilepas" wajib MERAH |
+| F F-03 | K-2 | Metode pembayaran nonaktif masih bisa dipakai (`aktif` tidak diperiksa pemicu) | **TERBUKA** | sisa batch `T1-45` (pemicu metode wajib di 0012/0014 harus memeriksa `aktif`) |
+| F F-04 | K-2 | State machine item bisa dilewati (item lahir `siap`; pembatalan pra-dapur tanpa jejak) | **TERBUKA** | sisa batch `T1-45` |
+| F F-05 | K-2 | Baris `pembatalan` tidak idempoten → klik ganda/antrean offline menggandakan dampak | **TERBUKA** | sisa batch `T1-45` |
+| F F-06 | K-2 | Metadata lifecycle (`dibayar_pada`, `dibatalkan_pada`, `alasan_batal`) bisa ditulis klien lewat UPDATE umum | **TERBUKA** | sisa batch `T1-45` |
+| F F-07 | K-2 | Tabel `catatan_audit` wajib belum ada (T1-13/T1-27 belum dikerjakan) | **TERBUKA** | `T1-13` — rantai audit dijadwalkan di Fase 1, bukan cacat yang disembunyikan |
+| F F-08 | K-2 | Perangkat terdaftar, pencabutan sesi, percobaan masuk, MFA belum ada | **TERBUKA** | `T1-24`/`T1-25`/`T1-26` (Fase 1B) — memang belum dijadwalkan selesai di Fase 1A |
+| F F-09 | K-2 | Kontrak privasi pelanggan belum punya jalur implementasi | **TERBUKA** | `T8-01` (Fase 8) — fitur pelanggan memang belum dibangun; jalur persetujuan/anonimisasi masuk DoD fase itu |
+| F F-10 | K-2 | Isolasi izin admin cabang bertentangan antara policy, kontrak, dan uji (**DUGAAN**) | **TERBUKA** | bantah-balik dulu (butuh keputusan model: izin per penyewa vs per cabang) → `T1-45` |
+| F F-11 | K-2 | Helper `peran_lebih_tinggi` menerima UUID bebas dari klien (**DUGAAN**) | **TERBUKA** | bantah-balik + kemungkinan cabut grant → `T1-45` |
+| F F-12 | K-1 | Perhitungan ulang uang tanpa serialisasi eksplisit (**DUGAAN**) | **TERBUKA** | sudah **dikurangi risikonya** di bagian 6 (`for update` pada baris pesanan); uji concurrency belum ada → `T1-45` |
+| F F-13 | K-2 | Nomor pesanan `max()+1` tanpa serialisasi eksplisit (**DUGAAN**) | **TERBUKA** | bantah-balik (uji dua transaksi) → `T1-45` |
+| F F-14 | K-3 | `ujiSambungan()` bisa melaporkan sukses walau jalur data gagal | **TERBUKA** | `T1-45` (perbaikan alat uji aplikasi) |
+| F F-15 | K-3 | Modal `Lapis` belum mengunci & memulihkan fokus keyboard | **TERBUKA** | `T1-45` (perbaikan komponen + uji keyboard) |
+| F F-16 | K-3 | `docs/ops/SIAP-LANJUT.md` menunjuk commit/paket lama + dua berkas yang tidak ada | **TERBUKA** | `T1-45` (handoff disegarkan tiap batch; dua berkas itu milik rencana uji terima) |
+| F F-17 | K-3 | Paket audit lama tidak mengikat commit mandat (436 vs 480 berkas) | **TERBUKA** | `T1-44` (perketat: paket baru sudah memuat SHA + cabang + angka nyata `480`) |
+| F F-18 | K-3 | Sisa oracle boolean pada pemasangan PIN (berhasil vs ditolak masih bisa dibaca) | **TERBUKA** | batas yang **sudah dicatat jujur** di `docs/DECISIONS_LOG.md`; penutupnya butuh keputusan pemilik → `T1-45` |
+
 ### 1b. Status penutupan temuan AUD-3 (diperbarui setiap batch perbaikan)
 
 > **Aturan (dijaga mesin oleh `alat/periksa-temuan-audit.py`):** laporan A punya 10 temuan, laporan B punya 17.

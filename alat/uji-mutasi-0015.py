@@ -12,6 +12,9 @@ Menguji migrasi `supabase/migrations/0015_penutup_celah_putaran16.sql`:
                  (uji: `supabase/tes/nomor_pesanan_isolasi.sql`)
   * bagian 5 — K-2d: pesan PIN kembar memastikan PIN aktif kolega / oracle (temuan PR-04)
                  (uji: `supabase/tes/pin_bukan_oracle.sql`)
+  * bagian 6 — F-01/F-02 audit AUD-3 2026-09-19: pajak & service dihitung dari subtotal
+                 SEBELUM diskon, pembulatan tidak dibaca, pesanan lunas bisa dihitung ulang
+                 dari perangkat (uji: `supabase/tes/urutan_uang.sql`)
 Gerbang yang tidak bisa MERAH dianggap belum terpasang — itu pelajaran mahal proyek ini.
 
 Cara kerjanya: salin repo ke folder sementara, RUSAK satu penjaga (atau kembalikan versi lama
@@ -41,7 +44,8 @@ UJI_PR02 = "supabase/tes/void_satu_item.sql"                            # bagian
 UJI_F01 = "supabase/tes/diskon_sesudah_lunas.sql"                       # bagian 3 (K-2b)
 UJI_PR03 = "supabase/tes/nomor_pesanan_isolasi.sql"                     # bagian 4 (K-2c)
 UJI_PR04 = "supabase/tes/pin_bukan_oracle.sql"                          # bagian 5 (K-2d)
-SEMUA_UJI = (UJI, UJI_PR02, UJI_F01, UJI_PR03, UJI_PR04)
+UJI_UANG = "supabase/tes/urutan_uang.sql"                               # bagian 6 (F-01/F-02)
+SEMUA_UJI = (UJI, UJI_PR02, UJI_F01, UJI_PR03, UJI_PR04, UJI_UANG)
 
 
 def segarkan_salinan() -> None:
@@ -110,7 +114,7 @@ def main() -> int:
     if not hijau:
         print("KONTROL GAGAL: salinan utuh pun tidak hijau — perbaiki dulu berkas ujinya.\n" + keluar)
         return 1
-    print("  OK  kontrol: salinan utuh → SEMUA uji bagian 1–5 hijau")
+    print("  OK  kontrol: salinan utuh → SEMUA uji bagian 1–6 hijau")
 
     hasil: list[tuple[str, bool, str]] = []
 
@@ -296,12 +300,68 @@ def main() -> int:
     hasil.append(mutasi("pesan PIN kembar dikembalikan ke versi yang menyebut pegawai lain (PR-04)",
                         kembalikan_pesan_bocor, uji=UJI_PR04))
 
+    # ---------------------------------------------------------- bagian 6 (AUD-3 F-01/F-02)
+    # 14) Dasar pajak/service dikembalikan ke subtotal SEBELUM diskon (cacat asli) → MERAH.
+    def pajak_dari_subtotal_kotor(t: str) -> str:
+        return t.replace(
+            """  v_dasar := greatest(v_subtotal - v_diskon, 0);
+
+  -- F-01a: PAJAK & SERVICE DARI SUBTOTAL SETELAH DISKON.
+  v_pajak   := coalesce(round(v_dasar * coalesce(v_persen_pajak, 0) / 100), 0);
+  v_service := coalesce(round(v_dasar * coalesce(v_persen_service, 0) / 100), 0);
+
+  v_total := greatest(v_dasar + v_pajak + v_service, 0);""",
+            """  v_dasar := greatest(v_subtotal, 0);
+
+  v_pajak   := coalesce(round(v_dasar * coalesce(v_persen_pajak, 0) / 100), 0);
+  v_service := coalesce(round(v_dasar * coalesce(v_persen_service, 0) / 100), 0);
+
+  v_total := greatest(v_subtotal - v_diskon + v_pajak + v_service, 0);""",
+            1,
+        )
+
+    hasil.append(mutasi("pajak & service dihitung dari subtotal SEBELUM diskon (cacat AUD-3 F-01a)",
+                        pajak_dari_subtotal_kotor, uji=UJI_UANG))
+
+    # 15) Pembulatan diabaikan lagi (cacat asli) → MERAH.
+    def abaikan_pembulatan(t: str) -> str:
+        return t.replace(
+            "  if v_langkah > 0 then\n    v_total := (v_total / v_langkah) * v_langkah;\n  end if;",
+            "  if false then\n    v_total := (v_total / v_langkah) * v_langkah;\n  end if;",
+            1,
+        )
+
+    hasil.append(mutasi("pengaturan pembulatan diabaikan mesin (cacat AUD-3 F-01b)",
+                        abaikan_pembulatan, uji=UJI_UANG))
+
+    # 16) Penjaga pesanan lunas dilepas (cacat asli F-02) → MERAH.
+    def lepas_penjaga_lunas(t: str) -> str:
+        return t.replace(
+            "  if auth.uid() is not null and pg_trigger_depth() = 0 and v_pesanan.status in ('lunas', 'batal') then",
+            "  if false then",
+            1,
+        )
+
+    hasil.append(mutasi("penjaga 'pesanan lunas tidak dihitung ulang' dilepas (cacat AUD-3 F-02)",
+                        lepas_penjaga_lunas, uji=UJI_UANG))
+
+    # 17) Pembulatan dibalik jadi KE ATAS → MERAH (mengunci arah yang diputuskan).
+    def bulat_ke_atas(t: str) -> str:
+        return t.replace(
+            "    v_total := (v_total / v_langkah) * v_langkah;",
+            "    v_total := ((v_total + v_langkah - 1) / v_langkah) * v_langkah;",
+            1,
+        )
+
+    hasil.append(mutasi("arah pembulatan dibalik jadi KE ATAS (keputusan arah diuji)",
+                        bulat_ke_atas, uji=UJI_UANG))
+
     # Kontrol penutup: setelah semua mutasi dipulihkan, SEMUA uji wajib hijau lagi.
     hijau_akhir, keluar_akhir = semua_hijau()
     hasil.append(("kontrol penutup: salinan dipulihkan → semua uji hijau", hijau_akhir,
                   "HIJAU" if hijau_akhir else "MERAH\n" + keluar_akhir))
 
-    print("\nUJI MUTASI — penutup celah putaran16 (0015, temuan K-1 + K-2a…K-2d)")
+    print("\nUJI MUTASI — penutup celah putaran16 (0015: K-1, K-2a…K-2d, dan F-01/F-02 audit)")
     merah = 0
     for nama, lulus, catatan in hasil:
         if not lulus:
@@ -310,7 +370,7 @@ def main() -> int:
     if merah:
         print(f"\nHASIL: GAGAL — {merah} mutasi tidak sesuai harapan (pagar mungkin tumpul).")
         return 1
-    print("\nHASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar K-1/K-2a…K-2d terbukti bekerja.")
+    print("\nHASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar K-1/K-2 dan aturan uang terbukti bekerja.")
     return 0
 
 

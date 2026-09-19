@@ -937,3 +937,50 @@ lama yang memeriksa pesan lama diselaraskan (`supabase/tes/kredensial_pin.sql`,
 `supabase/tes/pin_batas_pasang.sql`). `alat/uji-mutasi-0015.py` **15 kasus** — 13 mutasi wajib MERAH
 semuanya terbukti merah, termasuk "pagar isolasi penghitung nomor dihapus" dan "pesan PIN kembar
 dikembalikan ke versi lama". Berkas `0001`–`0014` tetap beku.
+
+---
+
+## [Uang/2026-09-20] Urutan hitungan uang dikunci: pajak & service dari subtotal SETELAH diskon, pembulatan ke bawah di langkah terakhir
+
+**Konteks (temuan K-1 audit AUD-3 2026-09-19, sesi `arena/01a0bbd2`):** laporan
+`docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2.md` menemukan tiga cacat jalur uang
+yang **dibuktikan nyata dengan probe sendiri** (`docs/uji/audit/probe-2026-09-20/aud-3-f01-f02-uang.sql`
+dijalankan lewat `node alat/uji-sql.mjs`): (a) `hitung_total` menghitung PB1 & service dari **subtotal
+sebelum** diskon, padahal `docs/TECH_SPEC.md` §329-331 mengunci urutannya setelah diskon; (b)
+`pengaturan.pembulatan` **tidak pernah dibaca** mesin sehingga angka tagihan bukan angka rupiah yang
+diminta pemilik; (c) RPC `hitung_total` bisa dipanggil perangkat dan **menulis ulang angka pesanan yang
+sudah lunas** (angka di struk berubah sesudah uang dicatat).
+
+**Keputusan:**
+1. **Basis pajak & service = subtotal SETELAH diskon** (aturan terkunci §329-331, kini benar-benar
+   dijalankan mesin). Contoh 100.000 dengan diskon 20.000 → dasar 80.000 → PB1 10% = 8.000 ·
+   service 5% = 4.000 · total **92.000** (cara lama: 10.000 / 5.000 / 95.000).
+2. **Pembulatan dibaca dari `pengaturan.pembulatan` dan diterapkan di langkah TERAKHIR**, dengan arah
+   **KE BAWAH** (`(total / langkah) * langkah`). Alasan: dokumen terkunci menyebut "pembulatan"
+   sebagai langkah terakhir tetapi **tidak pernah mengunci arahnya** (`PRD.md` §88/§229, `TECH_SPEC.md`
+   §331, `ROADMAP.md` T1-15/T1-16 diperiksa ulang 2026-09-20) — jadi arah adalah keputusan baru yang
+   **dikunci di sini**: membulatkan ke bawah berarti pelanggan tidak pernah dirugikan oleh pembulatan
+   (resto yang menanggung sisa). Arah bisa dibalik satu baris bila pemilik meminta lain, dan uji
+   `supabase/tes/urutan_uang.sql` + mutasi "arah pembulatan dibalik" akan menangkapnya.
+3. **Angka pesanan yang sudah `lunas`/`batal` tidak bisa dihitung ulang dari perangkat.** Panggilan
+   ber-`auth.uid()` pada status itu DITOLAK; **jalur pemicu peladen tetap sah** karena dibedakan
+   dengan `pg_trigger_depth() = 0`. Penanda transaksi via `set_config` DITOLAK sebagai mekanisme
+   karena bisa dipalsukan klien — itu persis celah K-1 yang baru ditutup (`resto.pembatalan_*`).
+4. **Baris pesanan dikunci `for update`** selama perhitungan sehingga dua perhitungan bersamaan
+   (temuan dugaan F-12) tidak saling menimpa angka; ini mengurangi risiko, bukan menutup tuntas —
+   uji concurrency penuh masih pemilik `T1-45`.
+
+**Alasan memilih menulis ulang `hitung_total` (bukan menambal di pemicu):** aturan uang harus hidup di
+**satu tempat**; menambal di pemicu berarti dua rumus berbeda hidup berdampingan dan mudah saling
+menyimpang. Berkas `0001`–`0014` tetap beku — seluruh perubahan hidup di
+`supabase/migrations/0015_penutup_celah_putaran16.sql` **bagian 6**, dan migrasi itu belum disebar ke
+proyek nyata saat keputusan ini dibuat.
+
+**Bukti:** uji regresi baru `supabase/tes/urutan_uang.sql` (6 bagian: tanpa diskon, dengan diskon,
+tiga langkah pembulatan, komponen tidak ikut dibulatkan, pesanan lunas tidak bisa dihitung ulang,
+jalur pemicu peladen tetap hidup) · ekspektasi uji lama `supabase/tes/diskon_sesudah_lunas.sql`
+**diselaraskan ke rumus benar** (29.700 → **29.498**, bukan mesin yang dilemahkan) ·
+`alat/uji-mutasi-0015.py` kini **17 kasus**, empat di antaranya mengunci keputusan ini dan
+**terbukti MERAH** ("pajak dari subtotal sebelum diskon", "pembulatan diabaikan", "penjaga lunas
+dilepas", "pembulatan dibalik ke atas") · probe audit lama kini **GAGAL** = cacat terbukti hilang ·
+suite `node alat/uji-sql.mjs` **46 LULUS · 0 GAGAL**.

@@ -423,7 +423,140 @@ end
 $$;
 
 -- ----------------------------------------------------------------------------
--- 6. Hak akses fungsi yang diperbarui (tetap sama seperti sebelumnya)
+-- 6. URUTAN HITUNGAN UANG (temuan AUD-3 2026-09-19 F-01 & F-02 — jalur uang)
+-- ----------------------------------------------------------------------------
+-- TEMUAN (terbukti lewat probe `docs/uji/audit/probe-2026-09-20/aud-3-f01-f02-uang.sql`):
+--   1. F-01a — PB1 & service dihitung dari subtotal SEBELUM diskon. Aturan terkunci
+--      `docs/TECH_SPEC.md` §329-330 berbunyi: subtotal → diskon → PB1 → service →
+--      pembulatan, dan "pajak & service dihitung dari subtotal SETELAH diskon".
+--      Kenyataan: belanja 100.000 dengan diskon 20.000 menghasilkan pajak 10.000 dan
+--      service 5.000 (seharusnya 8.000 & 4.000) → total 95.000 (seharusnya 92.000).
+--   2. F-01b — kolom `pengaturan.pembulatan` (none/100/500/1000) TIDAK PERNAH dibaca
+--      mesin, jadi pilihan pemilik (pembulatan ke 100/500/1000) tidak berlaku.
+--   3. F-02 — `hitung_total()` bisa dipanggil DARI PERANGKAT untuk pesanan yang sudah
+--      `lunas`/`batal`, sehingga angka struk yang sudah dibayar berubah belakangan
+--      (probe: total 31.050 → 33.750 hanya karena tarif PB1 di pengaturan naik).
+--
+-- KEPUTUSAN PERBAIKAN:
+--   1. Dasar pajak & service = subtotal SETELAH diskon (`v_dasar`). Diskon tetap
+--      dihitung dari subtotal (tidak berubah) dan tetap tidak boleh melebihi subtotal.
+--   2. Pembulatan dibaca dari pengaturan dan dilakukan di LANGKAH TERAKHIR, **ke bawah**
+--      (ke kelipatan 100/500/1000 terdekat di bawahnya) — dipilih supaya pelanggan tidak
+--      pernah dirugikan oleh pembulatan. Catatan jujur: arah pembulatan belum pernah
+--      dikunci dokumen mana pun; keputusan ini tercatat di `docs/DECISIONS_LOG.md` dan
+--      bisa dibalik dengan satu baris bila pemilik menghendaki arah lain (T1-16 memfinalkan).
+--   3. Pesanan `lunas`/`batal` TIDAK boleh dihitung ulang dari perangkat: panggilan
+--      beridentitas (auth.uid() terisi) ditolak. Jalur peladen (pemicu & fungsi
+--      service_role, auth.uid() kosong) tetap boleh karena justru peladen yang
+--      MENETAPKAN status lunas setelah uang diterima.
+--   4. Baris pesanan DIKUNCI (`for update`) selama perhitungan supaya dua perubahan
+--      bersamaan tidak saling menimpa angka (temuan F-12 yang masih berstatus DUGAAN —
+--      penguncian ini pencegahan, sama seperti jalur pembayaran di 0012).
+create or replace function public.hitung_total(p_pesanan_id uuid)
+returns bigint
+language plpgsql
+volatile
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_pesanan        record;
+  v_subtotal       bigint;
+  v_diskon         bigint;
+  v_dasar          bigint;
+  v_pajak          bigint;
+  v_service        bigint;
+  v_persen_pajak   numeric;
+  v_persen_service numeric;
+  v_pembulatan     text;
+  v_langkah        bigint;
+  v_total          bigint;
+begin
+  -- Kunci baris pesanan lebih dulu (anti saling-menimpa; lihat keputusan 4 di atas).
+  select p.id, p.penyewa_id, p.subtotal, p.pajak, p.service, p.total_diskon, p.total, p.status
+    into v_pesanan
+    from public.pesanan p
+   where p.id = p_pesanan_id
+     for update;
+
+  if v_pesanan.id is null then
+    raise exception 'Pesanan tidak ditemukan.';
+  end if;
+
+  -- Isolasi lintas resto: pemanggil yang MEMBAWA identitas hanya boleh menghitung
+  -- pesanan yang boleh ia lihat. (Di dalam SECURITY DEFINER, `peran_peladen()` SELALU
+  -- benar — current_user adalah pemilik fungsi — jadi patokannya `auth.uid()`.)
+  if auth.uid() is not null and not public.pesanan_sepenyewa(p_pesanan_id) then
+    raise exception 'Pesanan itu bukan milik resto Anda.';
+  end if;
+
+  -- F-02: uang yang sudah tercatat tidak dihitung ulang dari PANGKILAN LANGSUNG perangkat.
+  --
+  -- Penting — kenapa `pg_trigger_depth()`: perhitungan ulang yang SAH justru datang dari
+  -- pemicu peladen (mis. setelah baris pembatalan resmi menandai item `batal`, atau
+  -- setelah pembayaran tercatat). Pada saat itu `auth.uid()` masih terisi milik pekerja
+  -- yang bertindak. Menolak semua panggilan ber-identitas akan mematikan jalur sah itu —
+  -- dan menandai "sedang dari pemicu" lewat pengaturan transaksi akan mengulang kesalahan
+  -- K-1 (nilai yang bisa dipalsukan klien). `pg_trigger_depth()` TIDAK bisa dipalsukan:
+  -- nilainya hanya > 0 kalau memang ada pemicu yang sedang berjalan.
+  if auth.uid() is not null and pg_trigger_depth() = 0 and v_pesanan.status in ('lunas', 'batal') then
+    raise exception 'Pesanan yang sudah % tidak boleh dihitung ulang dari perangkat — angka uang yang sudah tercatat hanya bisa dikoreksi lewat pembatalan/void resmi (berikut persetujuan PIN atasan bila dapur sudah mulai).', v_pesanan.status;
+  end if;
+
+  -- Subtotal = jumlah baris yang TIDAK dibatalkan (baris `batal` tidak menagih).
+  select coalesce(sum(pi.subtotal), 0) into v_subtotal
+    from public.pesanan_item pi
+   where pi.pesanan_id = p_pesanan_id
+     and pi.status <> 'batal';
+
+  select p.pajak_pb1_persen, p.service_persen, p.pembulatan
+    into v_persen_pajak, v_persen_service, v_pembulatan
+    from public.pengaturan p
+   where p.penyewa_id = v_pesanan.penyewa_id;
+
+  -- Diskon dijumlahkan dari baris diskon; tidak boleh melebihi subtotal (dijaga juga
+  -- oleh pemicu diskon 0012) supaya tidak ada "pesanan berhutang".
+  select coalesce(sum(d.nilai), 0) into v_diskon
+    from public.diskon_transaksi d
+   where d.pesanan_id = p_pesanan_id;
+
+  v_dasar := greatest(v_subtotal - v_diskon, 0);
+
+  -- F-01a: PAJAK & SERVICE DARI SUBTOTAL SETELAH DISKON.
+  v_pajak   := coalesce(round(v_dasar * coalesce(v_persen_pajak, 0) / 100), 0);
+  v_service := coalesce(round(v_dasar * coalesce(v_persen_service, 0) / 100), 0);
+
+  v_total := greatest(v_dasar + v_pajak + v_service, 0);
+
+  -- F-01b: pembulatan mengikuti pengaturan resto, di langkah terakhir, ke BAWAH.
+  v_langkah := case
+                 when coalesce(v_pembulatan, 'none') = 'none' then 0
+                 else v_pembulatan::bigint
+               end;
+  if v_langkah > 0 then
+    v_total := (v_total / v_langkah) * v_langkah;
+  end if;
+
+  update public.pesanan p
+     set subtotal     = v_subtotal::integer,
+         pajak        = v_pajak::integer,
+         service      = v_service::integer,
+         total_diskon = least(v_diskon, v_subtotal)::integer,
+         total        = v_total::integer
+   where p.id = p_pesanan_id;
+
+  return v_total;
+end
+$$;
+
+comment on function public.hitung_total(uuid) is
+  'SATU-SATUNYA penulis angka uang pesanan. Subtotal = jumlah baris non-batal; pajak & service dihitung dari subtotal SETELAH diskon (TECH_SPEC §329-330); pembulatan di langkah terakhir mengikuti pengaturan resto (ke bawah); pesanan lunas/batal tidak boleh dihitung ulang dari perangkat (temuan AUD-3 F-01/F-02).';
+
+revoke all on function public.hitung_total(uuid) from public;
+grant execute on function public.hitung_total(uuid) to authenticated;
+
+-- ----------------------------------------------------------------------------
+-- 7. Hak akses fungsi yang diperbarui (tetap sama seperti sebelumnya)
 -- ----------------------------------------------------------------------------
 grant execute on function public.picu_item_jaga() to authenticated, service_role;
 grant execute on function public.picu_pembatalan_jejak() to authenticated, service_role;
