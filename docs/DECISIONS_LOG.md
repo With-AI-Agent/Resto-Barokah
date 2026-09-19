@@ -694,7 +694,7 @@ ambang lulus kalibrasi ("verdict BERSIH boleh dipercaya") kehilangan makna. Ini 
 3. **Rotasi bahan:** bahan yang pernah bocor — termasuk yang masih terbaca di riwayat Git — **tidak dipakai lagi**
    untuk menilai ketajaman; gantinya bahan baru bertanggal (sama seperti jalur auditor).
 4. **Berkas yang keluar dari repo berjejak di DAFTAR PENSIUN** `docs/uji/BERKAS_PENSIUN.md` — jalur, tanggal, pemutus (Lee), alasan, dan nasib isinya. Validator memperlakukan jalur terdaftar sebagai "sengaja tidak ada", sehingga **riwayat, paket, dan laporan peninjau tidak perlu disunting** (barang bukti tetap utuh).
-5. **Dijaga mesin:** `alat/periksa-kunci-kalibrasi.py` (aturan A–D) masuk CI (gerbang 22 → **24**); `--uji-diri` membuktikan 9 mutasi ditolak dan salinan utuh diterima (termasuk "daftar pensiun dihapus", "berkas pensiun muncul lagi", "paket baru menunjuk jalur bahan di repo").
+5. **Dijaga mesin:** `alat/periksa-kunci-kalibrasi.py` (aturan A–D) masuk CI (gerbang 22 → **24**; lalu **49** setelah PR-10 — setiap perintah CI diawasi, bukan hanya daftar penjaga terpilih); `--uji-diri` membuktikan 9 mutasi ditolak dan salinan utuh diterima (termasuk "daftar pensiun dihapus", "berkas pensiun muncul lagi", "paket baru menunjuk jalur bahan di repo").
 
 **Batas jujur:** mengeluarkan berkas dari commit **tidak menghapus** isinya dari riwayat Git (`git log --all` masih
 memperlihatkannya). Karena itu keputusan ini **bukan** "rahasia kembali aman", melainkan: (a) tidak ada lagi salinan

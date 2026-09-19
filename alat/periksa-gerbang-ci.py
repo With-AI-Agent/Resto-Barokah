@@ -29,43 +29,128 @@ import tempfile
 AKAR = pathlib.Path(__file__).resolve().parents[1]
 CI = AKAR / ".github" / "workflows" / "ci.yml"
 
-# Gerbang wajib: (nama untuk pesan, pola yang HARUS ada di berkas CI)
-# Catatan pola: setiap pola DIANKUR `$` (akhir baris) supaya cocok dengan langkah aslinya,
-# bukan dengan baris uji-diri (`… --uji-diri`) — pelajaran dari uji-diri pertama pemeriksa ini:
-# tanpa `$`, menghapus langkah asli tetap lolos karena baris `--uji-diri` ikut cocok.
+# Perintah CI yang DIKENAL dan WAJIB ada — SEMUA perintah di ci.yml, bukan hanya yang penting.
+#
+# Kenapa lengkap (temuan review PR-10 putaran verifikasi 2026-09-19, K-3): dulu daftar ini hanya
+# memuat 22 gerbang "penting", sehingga langkah yang tidak terdaftar bisa DIHAPUS tanpa pemeriksa
+# menyala (peninjau membuktikannya: menghapus `alat/periksa-rahasia.py` dari salinan ci.yml tetap
+# LOLOS) dan langkah yang dinonaktifkan dengan `if: false` tidak terlihat sama sekali. Dua arah kini
+# diperiksa:
+#   (a) tiap pola di bawah WAJIB cocok dengan satu perintah di ci.yml (tidak boleh hilang/diturunkan),
+#   (b) tiap perintah di ci.yml WAJIB cocok dengan satu pola di bawah (tidak ada perintah tak dikenal
+#       yang menyelinap — mis. `python3 alat/pemeriksa-palsu.py`).
+# Pola diANKUR `^...$` dan dicocokkan PER BARIS PERINTAH (bukan seluruh berkas), supaya baris
+# uji-diri tidak ikut memuaskan pola langkah aslinya (pelajaran uji-diri pertama pemeriksa ini).
 GERBANG_WAJIB = [
-    ("suite uji SQL penuh", r"node\s+alat/uji-sql\.mjs\s*$"),
-    ("bukti mutasi pagar migrasi 0012", r"python3\s+alat/uji-mutasi-0012\.py\s*$"),
-    ("bukti mutasi pagar migrasi 0014", r"python3\s+alat/uji-mutasi-0014\.py\s*$"),
-    ("pemeriksa paket audit/review (invarian commit F-11/F-12)", r"python3\s+alat/periksa-paket\.py\s*$"),
-    ("uji-diri pemeriksa paket (F-11/F-12)", r"python3\s+alat/periksa-paket\.py\s+--uji-diri\s*$"),
-    ("uji-diri pemeriksa komponen & env", r"python3\s+aplikasi/alat/periksa-komponen-env\.py\s+--uji-diri\s*$"),
-    ("uji-diri pemeriksa angka bukti ROADMAP (F-14)", r"python3\s+alat/periksa-angka-bukti\.py\s+--uji-diri\s*$"),
-    ("pemeriksa angka bukti & jumlah tugas (F-14 + jumlah tugas keadaan-sekarang)", r"python3\s+alat/periksa-angka-bukti\.py\s*$"),
+    ("pasang pustaka aplikasi (npm ci)", r"npm ci"),
+    ("kerapian kode (Prettier)", r"npm run format:check"),
+    ("aturan kode (ESLint)", r"npm run lint"),
+    ("tipe (TypeScript ketat)", r"npm run typecheck"),
+    ("uji unit (Vitest)", r"npm test"),
+    ("bangun aplikasi", r"npm run build"),
+    ("kerentanan dependency (npm audit, 0 toleransi)", r"npm audit --audit-level=low"),
+    ("pasang alat uji SQL", r"npm ci --prefix alat"),
+    ("suite uji SQL penuh", r"node alat/uji-sql.mjs"),
+    ("bukti mutasi pagar migrasi 0012", r"python3 alat/uji-mutasi-0012.py"),
+    ("bukti mutasi pagar migrasi 0014", r"python3 alat/uji-mutasi-0014.py"),
+    ("validator sistem", r"python3 _sistem/validate_system.py"),
+    ("pemeriksa fungsi PIN", r"python3 alat/periksa-fungsi-pin.py"),
+    ("pemeriksa roadmap", r"python3 alat/periksa-roadmap.py"),
+    ("pemeriksa fondasi independen", r"python3 alat/periksa-fondasi-independen.py"),
+    ("uji-diri pemeriksa audit independen", r"python3 alat/audit-independen.py --uji-diri"),
+    ("pemeriksa buku induk (panduan)", r"python3 alat/periksa-panduan.py"),
+    ("uji-diri pemeriksa buku induk", r"python3 alat/periksa-panduan.py --uji-diri"),
+    ("pemeriksa rujukan dokumen", r"python3 alat/periksa-rujukan.py"),
+    ("uji-diri pemeriksa rujukan", r"python3 alat/periksa-rujukan.py --uji-diri"),
+    ("pemeriksa temuan audit", r"python3 alat/periksa-temuan-audit.py"),
+    ("uji-diri pemeriksa temuan audit", r"python3 alat/periksa-temuan-audit.py --uji-diri"),
+    ("pemeriksa buku uji", r"python3 alat/periksa-buku-uji.py"),
+    ("uji-diri pemeriksa buku uji", r"python3 alat/periksa-buku-uji.py --uji-diri"),
+    ("uji-diri pemeriksa laporan review", r"python3 alat/review-pr.py --uji-diri"),
+    ("pemeriksa kerapatan tampilan", r"python3 aplikasi/alat/periksa-kerapatan.py"),
+    ("uji-diri pemeriksa kerapatan", r"python3 aplikasi/alat/periksa-kerapatan.py --uji-diri"),
+    ("pemeriksa antarmuka (panel & tepi gulir)", r"python3 aplikasi/alat/periksa-antarmuka.py"),
+    ("uji-diri pemeriksa antarmuka", r"python3 aplikasi/alat/periksa-antarmuka.py --uji-diri"),
+    ("pemeriksa rahasia & lembar kunci", r"python3 alat/periksa-rahasia.py"),
+    ("uji-diri pemeriksa rahasia", r"python3 alat/periksa-rahasia.py --uji-diri"),
+    ("pemeriksa pohon bersih", r"python3 alat/periksa-bersih.py"),
+    ("pemeriksa gerbang CI", r"python3 alat/periksa-gerbang-ci.py"),
+    ("uji-diri pemeriksa gerbang CI", r"python3 alat/periksa-gerbang-ci.py --uji-diri"),
+    ("pemeriksa kunci kalibrasi (bahan tidak boleh di repo)", r"python3 alat/periksa-kunci-kalibrasi.py"),
+    ("uji-diri pemeriksa kunci kalibrasi", r"python3 alat/periksa-kunci-kalibrasi.py --uji-diri"),
+    ("pemeriksa paket audit/review (invarian commit F-11/F-12)", r"python3 alat/periksa-paket.py"),
+    ("uji-diri pemeriksa paket (F-11/F-12)", r"python3 alat/periksa-paket.py --uji-diri"),
+    ("pemeriksa handoff lanjut-sesi (isi + uji-diri)", r"python3 alat/lanjut-sesi.py --di-ci"),
+    ("uji-diri handoff lanjut-sesi", r"python3 alat/lanjut-sesi.py --uji-diri"),
+    ("uji-diri kartu sesi (pemetaan skill fase)", r"python3 alat/mulai-sesi.py --uji-diri"),
+    ("pemeriksa angka bukti & jumlah tugas (F-14 + jumlah tugas keadaan-sekarang)", r"python3 alat/periksa-angka-bukti.py"),
+    ("uji-diri pemeriksa angka bukti ROADMAP (F-14)", r"python3 alat/periksa-angka-bukti.py --uji-diri"),
+    ("uji-diri pemeriksa pohon bersih", r"python3 alat/periksa-bersih.py --uji-diri"),
+    ("pemeriksa struktur aplikasi", r"python3 aplikasi/alat/periksa-struktur.py"),
+    ("uji-diri pemeriksa komponen & env", r"python3 aplikasi/alat/periksa-komponen-env.py --uji-diri"),
+    ("pemeriksa uji aplikasi", r"python3 aplikasi/alat/periksa-uji.py"),
+    ("pemeriksa kontras & aturan desain", r"python3 aplikasi/alat/uji-kontras.py"),
+    ("uji-diri pemeriksa kontras", r"python3 aplikasi/alat/uji-kontras.py --uji-diri"),
+]
+
+# Perintah yang boleh ada di CI tanpa masuk daftar di atas (mis. langkah perawatan runner).
+# Kosong dengan sengaja: setiap perintah baru WAJIB didaftarkan — itulah inti penjaganya.
+PERINTAH_TANPA_GERBANG: tuple[str, ...] = ()
+
+# Kunci NON-perintah yang wajib ada di ci.yml. Kenapa dipisah: pemeriksaan dua arah di atas hanya
+# menyisir isi `run:`, sedangkan sebagian gerbang berbentuk KUNCI langkah (mis. `fetch-depth: 0` yang
+# dibutuhkan pemeriksa paket agar riwayat commit lengkap). Tanpa daftar ini, menurunkan `fetch-depth`
+# ke 1 tidak terdeteksi (mutasi uji-diri yang sudah ada sejak 2026-09-19 menangkapnya kembali).
+WAJIB_DI_BERKAS = [
     ("riwayat penuh untuk pemeriksa paket (fetch-depth 0)", r"fetch-depth:\s*0\s*$"),
-    ("pemeriksa handoff lanjut-sesi (isi + uji-diri)", r"python3\s+alat/lanjut-sesi\.py\s+--di-ci\s*$"),
-    ("uji-diri kartu sesi (pemetaan skill fase)", r"python3\s+alat/mulai-sesi\.py\s+--uji-diri\s*$"),
-    ("kerentanan dependency (npm audit, 0 toleransi)", r"npm audit --audit-level=low\s*$"),
-    ("validator sistem", r"python3\s+_sistem/validate_system\.py\s*$"),
-    ("pemeriksa pohon bersih", r"python3\s+alat/periksa-bersih\.py\s*$"),
-    ("pemeriksa temuan audit", r"python3\s+alat/periksa-temuan-audit\.py\s*$"),
-    ("pemeriksa buku uji", r"python3\s+alat/periksa-buku-uji\.py\s*$"),
-    ("pemeriksa rujukan dokumen", r"python3\s+alat/periksa-rujukan\.py\s*$"),
-    ("pemeriksa gerbang CI", r"python3\s+alat/periksa-gerbang-ci\.py\s*$"),
-    ("pemeriksa kunci kalibrasi (bahan tidak boleh di repo)", r"python3\s+alat/periksa-kunci-kalibrasi\.py\s*$"),
-    ("uji-diri pemeriksa kunci kalibrasi", r"python3\s+alat/periksa-kunci-kalibrasi\.py\s+--uji-diri\s*$"),
-    ("pemeriksa antarmuka (penutupan panel & tepi gulir)", r"python3\s+aplikasi/alat/periksa-antarmuka\.py\s*$"),
-    ("uji-diri pemeriksa antarmuka", r"python3\s+aplikasi/alat/periksa-antarmuka\.py\s+--uji-diri\s*$"),
-    ("pemeriksa kontras & aturan desain", r"python3\s+aplikasi/alat/uji-kontras\.py\s*$"),
-    ("uji-diri pemeriksa kontras", r"python3\s+aplikasi/alat/uji-kontras\.py\s+--uji-diri\s*$"),
 ]
 
 # Pola pelemahan senyap yang dilarang
 PELEMAHAN = [
     (r"continue-on-error:\s*true", "langkah diberi `continue-on-error: true` (gagal tidak memerahkan CI)"),
     (r"^\s*run:\s*.*\|\|\s*true", "perintah diberi `|| true` (gagal ditelan)"),
+    (r"^\s*run:\s*.*\|\|\s*exit\s+0", "perintah diberi `|| exit 0` (gagal ditelan)"),
+    (r"^\s*(?:run:\s*)?\S.*\|\|\s*(?:true|exit\s+0|:)\s*$",
+     "perintah diberi penelan galat (`|| true` / `|| exit 0` / `|| :`) — gagal tidak akan memerahkan CI"),
     (r"^\s*run:\s*exit\s+0", "perintah diganti `exit 0`"),
+    (r"^\s*run:\s*set\s+\+e", "penanganan galat dimatikan (`set +e`)"),
+    (r"^\s*if:\s*", "langkah diberi syarat `if:` — gerbang bisa DILEWATI tanpa mengubah perintahnya "
+                      "(temuan PR-10: `if: false` tidak terlihat oleh pemeriksa lama)"),
 ]
+
+
+def perintah_ci(teks: str) -> list[str]:
+    """Semua perintah yang benar-benar dijalankan CI (isi `run:`, satu per baris).
+
+    Kenapa dipisah jadi daftar: pemeriksa lama hanya mencari pola di seluruh berkas, sehingga
+    (1) langkah yang dihapus tidak ketahuan bila polanya tidak terdaftar, dan (2) `if: false`
+    sama sekali tidak terlihat. Dengan daftar perintah nyata, kedua arah bisa diperiksa.
+    """
+    hasil: list[str] = []
+    baris = teks.splitlines()
+    i = 0
+    while i < len(baris):
+        m = re.match(r"^(\s*)run:\s*(.*)$", baris[i])
+        if not m:
+            i += 1
+            continue
+        indent, sisa = len(m.group(1)), m.group(2).strip()
+        if sisa and sisa != "|":
+            hasil.append(sisa)
+            i += 1
+            continue
+        i += 1
+        while i < len(baris):
+            b = baris[i]
+            if b.strip() == "":
+                i += 1
+                continue
+            if len(b) - len(b.lstrip()) > indent and not b.lstrip().startswith("#"):
+                hasil.append(b.strip())
+                i += 1
+                continue
+            break
+    return hasil
 
 
 def periksa(akar: pathlib.Path) -> tuple[int, list[str]]:
@@ -75,13 +160,33 @@ def periksa(akar: pathlib.Path) -> tuple[int, list[str]]:
         return 1, [f"berkas CI tidak ada: {ci}"]
     teks = ci.read_text(encoding="utf-8")
 
+    perintah = perintah_ci(teks)
+
+    for nama, pola in WAJIB_DI_BERKAS:
+        if not re.search(pola, teks, re.M):
+            pesan.append(f"kunci wajib CI tidak ditemukan/diturunkan: {nama}")
+
+    # (a) tiap gerbang wajib harus ada
     kurang: list[str] = []
     for nama, pola in GERBANG_WAJIB:
-        if not re.search(pola, teks, re.M):
+        if not any(re.search(rf"^{pola}$", p) for p in perintah):
             kurang.append(nama)
     if kurang:
         pesan.append(
-            "gerbang wajib tidak ditemukan di .github/workflows/ci.yml: " + ", ".join(kurang)
+            "gerbang wajib TIDAK ADA (atau diubah sehingga tidak dikenali) di .github/workflows/ci.yml: "
+            + ", ".join(kurang)
+        )
+
+    # (b) tidak boleh ada perintah tak dikenal
+    dikenal = [re.compile(rf"^{pola}$") for _, pola in GERBANG_WAJIB]
+    for p in perintah:
+        if any(r.search(p) for r in dikenal):
+            continue
+        if any(re.search(rf"^{pola}$", p) for pola in PERINTAH_TANPA_GERBANG):
+            continue
+        pesan.append(
+            f"perintah TIDAK DIKENAL di CI: `{p}` — setiap perintah wajib terdaftar di "
+            "`GERBANG_WAJIB` (alat/periksa-gerbang-ci.py) supaya tidak ada langkah yang tak diawasi"
         )
 
     for pola, alasan in PELEMAHAN:
@@ -148,6 +253,22 @@ def uji_diri() -> int:
         mutasi("langkah pemeriksa pohon bersih dihapus", lambda t: t.replace("          python3 alat/periksa-bersih.py\n", "", 1))
         mutasi("langkah pemeriksa antarmuka dihapus", lambda t: t.replace("          python3 aplikasi/alat/periksa-antarmuka.py\n", "", 1))
         mutasi("langkah uji-diri kontras dihapus", lambda t: t.replace("          python3 aplikasi/alat/uji-kontras.py --uji-diri\n", "", 1))
+
+        # PR-10 (review putaran verifikasi 2026-09-19, K-3): dua cara paling senyap melemahkan CI —
+        # menghapus langkah yang TIDAK terdaftar di daftar gerbang, dan mematikan langkah dengan
+        # syarat `if: false` (perintahnya tetap ada, jadi pemeriksa lama buta). Keduanya WAJIB ditolak.
+        mutasi("langkah pemeriksa rahasia dihapus (PR-10 bukti G1)",
+               lambda t: t.replace("          python3 alat/periksa-rahasia.py\n", "", 1))
+        mutasi("langkah uji SQL dimatikan dengan `if: false` (PR-10 bukti G2)",
+               lambda t: t.replace("      - name: Uji SQL penuh", "      - name: Uji SQL penuh\n        if: false", 1))
+        mutasi("perintah tak dikenal disisipkan ke daftar langkah",
+               lambda t: t.replace("          python3 _sistem/validate_system.py\n",
+                                   "          python3 _sistem/validate_system.py\n          python3 alat/pemeriksa-palsu.py\n", 1))
+        mutasi("gerbang ditutup `|| exit 0`",
+               lambda t: t.replace("          python3 alat/periksa-bersih.py\n",
+                                   "          python3 alat/periksa-bersih.py || exit 0\n", 1))
+        mutasi("ambang kerentanan dependency dinonaktifkan (`--audit-level=critical`)",
+               lambda t: t.replace("npm audit --audit-level=low", "npm audit --audit-level=critical", 1))
         mutasi("langkah diberi continue-on-error", lambda t: t.replace("    runs-on: ubuntu-latest", "    runs-on: ubuntu-latest\n    continue-on-error: true", 1))
         # Sejak 2026-09-19, dua pemeriksa ini dijalankan SUNGGUHAN (dulu hanya uji-dirinya,
         # sehingga aturan F-11/F-12/F-14 tidak pernah ditegakkan di CI). Buktikan gerbangnya.

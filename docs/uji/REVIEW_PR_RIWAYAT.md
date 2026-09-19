@@ -43,7 +43,7 @@
 | PR-07 | K-3 | Kupon persetujuan tanpa ikatan pesanan → jalur Edge buntu (tulis bisa, pakai mustahil) | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr07-kupon-tanpa-pesanan.sql` → `T1-45` |
 | PR-08 | K-3 | Saldo awal stok tercatat tanpa baris buku besar (saldo tanpa asal-usul) | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr08-saldo-tanpa-buku.sql` → `T1-45` |
 | PR-09 | K-3 | PIN warisan 4 angka buntu: tak bisa diverifikasi, tak bisa naik kelas swadaya | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr09-pin-warisan.sql` → `T1-45` |
-| PR-10 | K-3 | Pemeriksa gerbang CI gagal-terbuka: langkah keamanan boleh dihapus; `if: false` tak terlihat | **TERBUKA** | uji sendiri di `/tmp/gc` (G1 & G2 tetap LOLOS) → `T1-45` |
+| PR-10 | K-3 | Pemeriksa gerbang CI gagal-terbuka: langkah keamanan boleh dihapus; `if: false` tak terlihat | **DITUTUP 2026-09-19** | penjaga `alat/periksa-gerbang-ci.py` kini **dua arah** — tiap perintah CI wajib terdaftar DAN tiap gerbang wajib wajib ada; `if:` dilarang; penyisir berhenti di akhir baris; dibuktikan sendiri di salinan `/tmp/gc2` (G1 hapus langkah rahasia → DITOLAK; G2 `if: false` → DITOLAK) + uji-diri 18 kasus |
 | PR-11 | K-3 | Commit yang direview tidak pernah hijau (CI `cancelled`) + pesan commit menuduh sebab yang salah | **TERBUKA** | `gh api …/check-runs` → `T1-44` |
 | PR-12 | K-4 | Label gerbang basi: `echo "12/12 WAJIB MERAH"` padahal ringkasan nyata 16/16 | **TERBUKA** | `aplikasi/alat/periksa-semua.sh:38` → `T1-45` |
 | PR-13 | K-4 | `docs/KEAMANAN.md` §6.4 menuntut pencatatan ke tabel hantu `percobaan_masuk` | **TERBUKA** | `grep` migrasi (tabel nyata: `percobaan_pin`, `percobaan_simpan_pin`) → `T1-45` |
