@@ -10,11 +10,10 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `1bbc2508b36fb4149dc7470121a7060009a19517`
+- **Commit keadaan kerja:** `1a0b351d318eacb0e6b7e238adcfe19474c47dc5`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (run 35428582314, commit 1bbc2508)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (run 35428754297, commit 282bb25e)
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +27,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **7** — T-018, T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (4 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (4 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (6 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (6 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -64,24 +63,29 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**PUTARAN 18 (2026-09-19) — LAPORAN PENINJAU SUDAH MASUK & DIPERIKSA; BERIKUTNYA: TUTUP TEMUAN `T1-45`.**
+**PUTARAN 18 (2026-09-19) — 25 TEMUAN PENINJAU SUDAH DIBANTAH-BALIK (25/25 NYATA); PENUTUPAN DIMULAI: 1 SUDAH DITUTUP.**
 
 Dua laporan diterima (satu sesi peninjau `arena/01a0b85b`): AUD-3 menyeluruh (10 temuan, **laporan DITOLAK MESIN**
 karena kelengkapan format — label grup cakupan diparafrase + cabang memuat 2 laporan) dan review PR putaran16
-(15 temuan, **LOLOS KONTRAK**, verdict TIDAK-BERSIH). Sesi kerja sudah **membantah-balik semuanya dengan probe
-sendiri: 25/25 NYATA, 0 palsu** (probe tersimpan di `docs/uji/audit/probe-2026-09-19/`; ringkasan per temuan di
-`docs/uji/REVIEW_PR_RIWAYAT.md` §1b dan `docs/uji/AUDIT_RIWAYAT.md` §"2026-09-19").
+(15 temuan, **LOLOS KONTRAK**, verdict TIDAK-BERSIH). Semua temuan **dibantah-balik sendiri dengan probe dan
+semuanya NYATA (0 palsu)**; 13 probe disimpan permanen di `docs/uji/audit/probe-2026-09-19/` (+ tabel artinya).
+Semua bocoran kunci kalibrasi (D F-05) sudah ditutup oleh commit `1a0b351`.
 
 **Langkah berikutnya yang wajib (urut):**
-1. **Tutup temuan lewat `T1-45`**: buat `supabase/migrations/0015_penutup_celah_putaran16.sql` — mulai dari K-1
-   (penanda `resto.pembatalan_*` jangan dipercaya; ganti dengan bukti baris `pembatalan` yang nyata) lalu K-2
-   (diskon pada pesanan lunas/batal · void satu item jangan menutup pesanan · kebocoran `nomor_pesanan_berikutnya`
-   · oracle PIN kembar · kunci kalibrasi keluar dari repo). Setelah itu K-3/K-4: gerbang CI gagal-terbuka,
-   label `12/12`, tabel hantu `percobaan_masuk`, grant `service_role`/`anon`, tautan meja, generator paket audit.
-2. Setiap perbaikan: uji regresi baru + `alat/uji-mutasi-0015.py` (semua mutasi WAJIB MERAH) + suite penuh hijau.
-3. Dua hal menunggu keputusan Lee (jangan dikerjakan sendiri): **(a)** keluarkan docs/uji/kalibrasi/pr-bahan-2026-09-17.diff
-   dari repo (kunci kalibrasi) — ini menghapus berkas, tunggu izin; **(b)** auditor diminta memperbaiki format laporan
-   (label grup + satu laporan per cabang) lalu kirim ulang agar auditnya sah formal.
+1. **Lanjutkan `T1-45`** — temuan D F-05 **sudah DITUTUP**; sisa **24 temuan**. Urutan nilai:
+   **(a)** gerbang CI gagal-terbuka (PR-10 — pemeriksa hanya mengunci keberadaan langkah, buta pada
+   `if: false` & langkah yang dihapus; perbaiki penjaganya dulu karena dia melindungi yang lain);
+   **(b)** K-1 penanda `resto.pembatalan_*` jangan dipercaya (ganti bukti: baris `pembatalan` nyata);
+   **(c)** K-2: diskon pada pesanan `lunas`/`batal` · void satu item jangan menutup pesanan · kebocoran
+   `nomor_pesanan_berikutnya` · oracle PIN kembar; **(d)** K-3/K-4: jejak penolakan berjenjang, kupon ↔ pesanan
+   (Edge `p_pesanan_id`), buku besar stok, PIN warisan, grant `service_role`/`anon`, tautan meja, tabel hantu
+   `percobaan_masuk`, label `12/12` basi, generator paket audit (baris "TIDAK ADA" palsu).
+   Target berkas: `supabase/migrations/0015_penutup_celah_putaran16.sql` + `supabase/tes/` + `alat/*`.
+2. Setiap perbaikan: uji regresi baru + `alat/uji-mutasi-0015.py` (semua mutasi WAJIB MERAH) + suite penuh hijau
+   + `DECISIONS_LOG.md` bila menyentuh cara membuktikan persetujuan/keamanan uang.
+3. **Satu hal masih menunggu Lee:** auditor diminta memperbaiki **format** laporannya (label grup cakupan sama
+   seperti paket + satu laporan per cabang) lalu mengirim ulang agar auditnya sah formal. Izin Lee untuk
+   mengeluarkan kunci kalibrasi **sudah diberikan & dikerjakan** (`1a0b351`).
 4. Selagi menunggu: butir tertangguh terbuka **7** (batas 12) — tawarkan jawaban agent untuk masing-masing.
 
 **Jangan merge PR #2** (temuan K-1/K-2 masih terbuka di commit yang direview). PR #1 tetap tidak disentuh.
