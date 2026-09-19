@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="terang" data-density="nyaman">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Katalog Pelanggan — Contoh Tampilan</title>
+<link rel="stylesheet" href="css/tokens.css">
+</head>
+<body>
+
+<div class="demo-bar">
+  <span><strong>CONTOH TAMPILAN</strong> · halaman pelanggan Kedai Oasis (data &amp; foto contoh)</span>
+  <span class="center small"><a href="index.html">beranda</a> · <a href="01-laporan.html">laporan</a> · <a href="02-kasir.html">kasir</a> · <a href="04-tema.html">10 tema</a></span>
+</div>
+
+<div class="bilah-atas">
+  <div class="wrap between" style="min-height:64px">
+    <div>
+      <h1 style="font-size:var(--t-6)">Katalog Pelanggan</h1>
+      <p class="small muted">Dibuka dari QR meja, tautan, atau nama restonya di HP</p>
+    </div>
+    <span data-pemilih-tema></span>
+  </div>
+</div>
+
+<main class="wrap">
+  <!-- ======================= HP 1: BERANDA ======================= -->
+  <section class="bagian row wrap-row" style="gap:var(--s-8);align-items:flex-start;justify-content:center">
+
+    <div class="telepon naik">
+      <div class="layar"><div class="gulir">
+        <div class="status-bilah"><span>09.41</span><span>●●● ᯤ ▮</span></div>
+
+        <!-- merek -->
+        <div class="center" style="justify-content:center;gap:10px;padding:2px var(--s-4) 10px">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 3c3 4 6 5 6 9a6 6 0 11-12 0c0-4 3-5 6-9z"/></svg>
+          <div style="text-align:center">
+            <div class="display" style="font-size:19px;font-weight:700;line-height:1">Kedai Oasis</div>
+            <div class="label" style="font-size:9px;display:flex;align-items:center;gap:6px;justify-content:center">
+              <span style="width:14px;height:1px;background:var(--border)"></span>Cita rasa rumahan<span style="width:14px;height:1px;background:var(--border)"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- pencarian -->
+        <div class="row" style="padding:0 var(--s-4) var(--s-3)">
+          <div class="search grow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+            <input class="input cari-pil" type="search" placeholder="Cari nasi, kopi, es…" aria-label="Cari menu">
+          </div>
+          <button class="btn btn-ikon" type="button" aria-label="Saring" data-aksi="Penyaringan menyusul"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg></button>
+        </div>
+
+        <!-- hero -->
+        <div class="hero">
+          <img src="aset/hero-warung.jpg" alt="">
+          <span class="selubung"></span>
+          <div class="isi">
+            <span class="aksen" style="color:var(--accent)">Panas. Pedas. Pas.</span>
+            <h2>Makan enak,<br>tak perlu<br>nunggu lama.</h2>
+            <div class="bawah">
+              <button class="btn btn-primary" type="button">Pesan Sekarang
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+              </button>
+              <span class="chip chip-kaca">Buka · 09.00–21.00</span>
+            </div>
+            <div class="titik-baris" aria-hidden="true"><i class="aktif"></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+
+        <!-- kategori -->
+        <nav class="bar-kategori" aria-label="Kategori">
+          <a class="kat" href="#" aria-current="true"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 11h16a8 8 0 01-16 0z"/><path d="M8 11V7M12 11V6M16 11V7"/></svg></span>Makanan</a>
+          <a class="kat" href="#"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M5 8h11v6a5 5 0 01-10 0z"/><path d="M16 9h2a3 3 0 010 6h-2M4 21h14"/></svg></span>Minuman</a>
+          <a class="kat" href="#"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M6 3h12l-2 6H8z"/><path d="M8 9l1 12h6l1-12"/></svg></span>Camilan</a>
+          <a class="kat" href="#"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></svg></span>Paket</a>
+          <a class="kat" href="#"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M20 12l-8 8-9-9V4h7z"/><circle cx="8" cy="8" r="1.5"/></svg></span>Promo</a>
+        </nav>
+
+        <!-- menu favorit -->
+        <div class="between" style="padding:0 var(--s-4) var(--s-2)">
+          <h3 style="font-size:var(--t-6)">Menu Favorit</h3>
+          <a class="lompati small" href="#">Lihat semua <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        </div>
+
+        <div class="geser">
+          <article class="kartu-makan">
+            <div class="foto"><img src="aset/nasi-goreng.jpg" alt=""><span class="lencana">Terlaris</span></div>
+            <div class="isi">
+              <span class="nm">Nasi Goreng Spesial</span>
+              <span class="small muted">Telur, kerupuk, timun</span>
+              <span class="small muted">★ 4,8 (312)</span>
+              <div class="between"><span class="pr num">Rp 25.000</span><button class="tombol-tambah" type="button" data-tambah data-nama="Nasi Goreng Spesial" data-harga="25000" aria-label="Tambah Nasi Goreng Spesial">+</button></div>
+            </div>
+          </article>
+          <article class="kartu-makan">
+            <div class="foto"><img src="aset/sate.jpg" alt=""><span class="lencana">Chef's Pick</span></div>
+            <div class="isi">
+              <span class="nm">Sate Ayam Madura</span>
+              <span class="small muted">10 tusuk, bumbu kacang</span>
+              <span class="small muted">★ 4,9 (120)</span>
+              <div class="between"><span class="pr num">Rp 28.000</span><button class="tombol-tambah" type="button" data-tambah data-nama="Sate Ayam Madura" data-harga="28000" aria-label="Tambah Sate Ayam">+</button></div>
+            </div>
+          </article>
+          <article class="kartu-makan">
+            <div class="foto"><img src="aset/kopi-susu.jpg" alt=""><span class="lencana">Favorit</span></div>
+            <div class="isi">
+              <span class="nm">Kopi Susu Gula Aren</span>
+              <span class="small muted">Espresso &amp; susu segar</span>
+              <span class="small muted">★ 4,9 (410)</span>
+              <div class="between"><span class="pr num">Rp 18.000</span><button class="tombol-tambah" type="button" data-tambah data-nama="Kopi Susu Gula Aren" data-harga="18000" aria-label="Tambah Kopi Susu">+</button></div>
+            </div>
+          </article>
+        </div>
+
+        <!-- banner promo -->
+        <div class="banner-promo">
+          <div class="isi">
+            <span class="aksen" style="font-size:var(--t-4)">Promo akhir pekan</span>
+            <div class="angka">20% OFF</div>
+            <p class="small muted">Semua paket keluarga · Jum–Min</p>
+            <button class="btn btn-primary btn-sm mt-8" type="button">Ambil promo</button>
+          </div>
+          <div class="foto"><img src="aset/ayam-geprek.jpg" alt=""><span class="stempel">20%<br>OFF</span></div>
+        </div>
+
+        <!-- undangan voucher -->
+        <div class="card" style="margin:0 var(--s-4) var(--s-4)">
+          <div class="between">
+            <div>
+              <strong>Punya kode undangan?</strong>
+              <p class="small muted">Dari teman atau promo. Tunjukkan di kasir untuk potongan Rp 15.000.</p>
+            </div>
+          </div>
+          <button class="btn btn-primary mt-8" type="button" style="width:100%" data-aksi="Pendaftaran voucher dibuka — dikerjakan di tahap berikutnya">Daftar &amp; dapatkan voucher</button>
+        </div>
+
+        <div class="bilah-bawah">
+          <div class="between">
+            <div>
+              <div class="small muted"><span data-jml-item>0 item</span> · total</div>
+              <strong class="num" data-total>Rp 0</strong>
+            </div>
+            <button class="btn btn-primary" type="button" data-aksi="Keranjang pelanggan — dikerjakan di tahap berikutnya">Lihat Pesanan</button>
+          </div>
+          <nav class="nav-bawah" aria-label="Menu bawah">
+            <a href="#" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7v9H4z"/></svg>Beranda</a>
+            <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Menu</a>
+            <a href="#" class="naik"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8h12l-1.5 11h-9z"/><path d="M9 8a3 3 0 016 0"/></svg></span>Pesan</a>
+            <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12l-8 8-9-9V4h7z"/></svg>Voucher</a>
+            <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Pesanan</a>
+          </nav>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ======================= HP 2: DETAIL MENU ======================= -->
+    <div class="telepon naik">
+      <div class="layar"><div class="gulir">
+        <div style="position:relative">
+          <img src="aset/ayam-geprek.jpg" alt="" style="width:100%;height:250px;object-fit:cover;display:block">
+          <button class="btn btn-ikon" type="button" aria-label="Kembali" style="position:absolute;top:14px;left:14px;background:rgba(255,255,255,.92);border-color:transparent">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <span class="chip chip-kaca" style="position:absolute;top:14px;right:14px">★ 4,7</span>
+        </div>
+
+        <div class="card" style="margin:-26px var(--s-4) 0;position:relative;box-shadow:var(--sh-3)">
+          <div class="between" style="align-items:flex-start">
+            <div>
+              <h3 style="font-size:var(--t-7)">Ayam Geprek</h3>
+              <p class="small muted">Ayam goreng tepung digeprek sambal bawang, nasi hangat &amp; lalapan.</p>
+            </div>
+          </div>
+          <div class="between mt-8">
+            <strong class="num display" style="font-size:26px;color:var(--accent)">Rp 22.000</strong>
+            <span class="chip chip-success">Siap 10–15 menit</span>
+          </div>
+        </div>
+
+        <div style="padding:var(--s-5) var(--s-4) 0">
+          <span class="label">Level pedas</span>
+          <div class="tabs mt-8">
+            <button class="tab" type="button" aria-selected="true">1 · Sedikit</button>
+            <button class="tab" type="button" aria-selected="false">2 · Sedang</button>
+            <button class="tab" type="button" aria-selected="false">3 · Pedas</button>
+            <button class="tab" type="button" aria-selected="false">4 · Sangat</button>
+          </div>
+
+          <span class="label" style="display:block;margin-top:var(--s-5)">Pilihan porsi</span>
+          <div class="row mt-8">
+            <button class="btn grow" type="button" data-aksi="Porsi reguler dipilih">Reguler</button>
+            <button class="btn grow" type="button" data-aksi="Porsi jumbo +Rp 8.000 dipilih">Jumbo +8rb</button>
+          </div>
+
+          <span class="label" style="display:block;margin-top:var(--s-5)">Tambahan (opsional)</span>
+          <div class="stack-sm mt-8">
+            <label class="card tight between" style="cursor:pointer"><span class="center"><input type="checkbox" style="accent-color:var(--accent);width:20px;height:20px"> Nasi tambah</span><span class="num small">+ Rp 5.000</span></label>
+            <label class="card tight between" style="cursor:pointer"><span class="center"><input type="checkbox" style="accent-color:var(--accent);width:20px;height:20px"> Telur ceplok</span><span class="num small">+ Rp 6.000</span></label>
+            <label class="card tight between" style="cursor:pointer"><span class="center"><input type="checkbox" style="accent-color:var(--accent);width:20px;height:20px"> Keju</span><span class="num small">+ Rp 7.000</span></label>
+          </div>
+
+          <span class="label" style="display:block;margin-top:var(--s-5)">Catatan</span>
+          <div class="card tight mt-8"><span class="small muted">contoh: “sambal dipisah, tanpa timun”</span></div>
+        </div>
+
+        <div class="bilah-bawah">
+          <div class="between">
+            <span class="qty"><button type="button" data-langkah="turun" aria-label="Kurangi">−</button><span>1</span><button type="button" data-langkah="naik" aria-label="Tambah">+</button></span>
+            <button class="btn btn-primary grow" type="button" data-tambah data-nama="Ayam Geprek" data-harga="22000">Tambah ke Pesanan · Rp 22.000</button>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ======================= HP 3: VOUCHER ======================= -->
+    <div class="telepon naik">
+      <div class="layar"><div class="gulir">
+        <div class="status-bilah"><span>09.41</span><span>●●● ᯤ ▮</span></div>
+
+        <div style="padding:var(--s-4) var(--s-4) 0">
+          <span class="aksen">Undang temanmu</span>
+          <h2 style="font-size:28px">Voucher Rp 15.000</h2>
+          <p class="muted small mt-8">Daftar sebentar, dapat kode undangan, lalu tunjukkan di kasir saat bayar. Satu kode untuk satu kali pakai.</p>
+        </div>
+
+        <div class="card" style="margin:var(--s-4)">
+          <div class="label">Langkah</div>
+          <div class="stack-sm mt-8">
+            <div class="center" style="gap:var(--s-3)"><span class="nomer" style="width:26px;height:26px;border-radius:9px;background:var(--accent);color:var(--accent-contrast);display:grid;place-items:center;font-weight:800;font-size:12px">1</span><span class="small">Isi nama, dan email atau nomor HP (boleh salah satu)</span></div>
+            <div class="center" style="gap:var(--s-3)"><span class="nomer" style="width:26px;height:26px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:800;font-size:12px">2</span><span class="small">Verifikasi email (Google atau tautan email)</span></div>
+            <div class="center" style="gap:var(--s-3)"><span class="nomer" style="width:26px;height:26px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:800;font-size:12px">3</span><span class="small">Terima kode &amp; barcode — tunjukkan di kasir</span></div>
+          </div>
+          <button class="btn btn-primary mt-16" type="button" style="width:100%" data-aksi="Pendaftaran voucher dibuka — dikerjakan di tahap berikutnya">Daftar sekarang</button>
+          <button class="btn mt-8" type="button" style="width:100%" data-aksi="Masuk dengan Google"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 11v3.6h5c-.2 1.3-1.6 3.9-5 3.9a5.5 5.5 0 110-11c1.6 0 2.7.7 3.3 1.3l2.4-2.3A9 9 0 1012 21c5.2 0 8.6-3.6 8.6-8.7V11z"/></svg>Lanjut dengan Google</button>
+        </div>
+
+        <div class="card" style="margin:0 var(--s-4) var(--s-4);background:var(--accent-soft);border-color:transparent">
+          <div class="between">
+            <div>
+              <span class="label" style="color:var(--accent)">Contoh voucher</span>
+              <div class="display mono" style="font-size:22px;font-weight:700">UNDANG-7K2M</div>
+              <p class="small muted">Berlaku sampai 30 Sep 2026</p>
+            </div>
+            <svg width="70" height="70" viewBox="0 0 100 100" aria-label="Contoh barcode">
+              <g fill="var(--text)">
+                <rect x="4" y="6" width="10" height="88"/><rect x="18" y="6" width="4" height="88"/><rect x="26" y="6" width="8" height="88"/>
+                <rect x="38" y="6" width="3" height="88"/><rect x="45" y="6" width="12" height="88"/><rect x="61" y="6" width="5" height="88"/>
+                <rect x="70" y="6" width="9" height="88"/><rect x="83" y="6" width="4" height="88"/><rect x="90" y="6" width="7" height="88"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="card" style="margin:0 var(--s-4) var(--s-4)">
+          <span class="label">Aturan singkat</span>
+          <ul class="small muted" style="margin:var(--s-2) 0 0;padding-left:18px">
+            <li>Satu kode = satu kali pakai, tercatat siapa yang memakai &amp; kapan.</li>
+            <li>Kasir menekan <strong>Cek</strong> dulu (hanya membaca), baru <strong>Pakai</strong> saat pembayaran.</li>
+            <li>Pemilik bisa mengatur nilai, masa berlaku, dan jumlahnya di Pengaturan.</li>
+          </ul>
+        </div>
+
+        <div class="bilah-bawah">
+          <nav class="nav-bawah" aria-label="Menu bawah">
+            <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7v9H4z"/></svg>Beranda</a>
+            <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Menu</a>
+            <a href="#" class="naik"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8h12l-1.5 11h-9z"/><path d="M9 8a3 3 0 016 0"/></svg></span>Pesan</a>
+            <a href="#" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12l-8 8-9-9V4h7z"/></svg>Voucher</a>
+            <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Pesanan</a>
+          </nav>
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="bagian card lega naik">
+    <div class="card-head"><h2 style="font-size:var(--t-7)">Kenapa begini</h2><span class="chip chip-accent">mengikuti gambar kirimanmu</span></div>
+    <div class="row wrap-row" style="gap:var(--s-6)">
+      <ul class="small muted grow" style="margin:0;padding-left:20px;min-width:300px">
+        <li><strong>Urutan halaman</strong> mengikuti kebiasaan pelanggan Indonesia: kode resto → pencarian → banner promo → kategori ikon → menu favorit berfoto → keranjang.</li>
+        <li><strong>Judul besar + pengantar miring</strong> persis suasana “Grill &amp; Co.” yang kamu kirim, tapi isinya menu kedai kita.</li>
+        <li><strong>Label di atas gambar</strong> (Terlaris / Chef's Pick / Favorit) supaya pelanggan cepat memilih.</li>
+      </ul>
+      <ul class="small muted grow" style="margin:0;padding-left:20px;min-width:300px">
+        <li><strong>Bilah bawah dengan tombol tengah menonjol</strong> — aksi utama (“Pesan”) selalu di jangkauan jempol.</li>
+        <li><strong>Tombol tambah bulat besar</strong> (44 px) supaya tidak salah tekan di HP.</li>
+        <li><strong>Voucher tetap lewat kasir</strong> sesuai aturan anti-kecurangan di PRD. Pesan-sendiri dari HP = fase 2.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<script src="js/ui.js"></script>
+</body>
+</html>

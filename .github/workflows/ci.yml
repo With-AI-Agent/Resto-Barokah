@@ -1,0 +1,114 @@
+name: CI
+
+# Gerbang otomatis: setiap kiriman kode diperiksa. Repositori ini privat,
+# jadi pakai jatah gratis GitHub Actions (2.000 menit/bulan).
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  periksa:
+    name: Periksa (lint · tipe · uji · pemeriksa Python)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v5
+
+      - name: Pasang Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: aplikasi/package-lock.json
+
+      - name: Pasang pustaka (npm ci)
+        working-directory: aplikasi
+        run: npm ci
+
+      - name: Kerapian kode (Prettier)
+        working-directory: aplikasi
+        run: npm run format:check
+
+      - name: Aturan kode (ESLint)
+        working-directory: aplikasi
+        run: npm run lint
+
+      - name: Tipe (TypeScript ketat)
+        working-directory: aplikasi
+        run: npm run typecheck
+
+      - name: Uji unit (Vitest)
+        working-directory: aplikasi
+        run: npm test
+
+      - name: Bangun aplikasi
+        working-directory: aplikasi
+        run: npm run build
+
+      - name: Kerentanan dependency (npm audit — 0 toleransi)
+        working-directory: aplikasi
+        run: npm audit --audit-level=low
+
+      - name: Pasang alat uji SQL
+        run: npm ci --prefix alat
+
+      # Perintah penuh (tanpa `--daftar`). Opsi `--daftar` TETAP menjalankan seluruh uji,
+      # tetapi namanya menjebak: peninjau putaran11 membacanya sebagai "hanya cetak daftar"
+      # lalu melaporkan CI tidak menguji apa pun. Pakai bentuk penuh supaya tidak bisa
+      # disalahbaca siapa pun.
+      # Nama langkah SENGAJA tanpa angka berkas uji: angka di nama langkah selalu basi
+      # (temuan review putaran13 PR-07: "(28 berkas)" padahal nyata 31). Jumlah nyata
+      # selalu tercetak di keluaran langkah ini, jadi tidak perlu ditulis dua kali.
+      - name: Uji SQL penuh — RLS, isolasi resto & fungsi identitas
+        run: node alat/uji-sql.mjs
+
+      - name: Bukti mutasi pagar migrasi 0012 + 0013 (kontrol hijau + semua mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0012.py
+
+      - name: Bukti mutasi pagar migrasi 0014 — putaran13 & audit 2026-09-18 (17 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0014.py
+
+      - name: Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras
+        run: |
+          python3 _sistem/validate_system.py
+          python3 alat/periksa-fungsi-pin.py
+          python3 alat/periksa-roadmap.py
+          python3 alat/periksa-fondasi-independen.py
+          python3 alat/audit-independen.py --uji-diri
+          python3 alat/periksa-panduan.py
+          python3 alat/periksa-panduan.py --uji-diri
+          python3 alat/periksa-rujukan.py
+          python3 alat/periksa-rujukan.py --uji-diri
+          python3 alat/periksa-temuan-audit.py
+          python3 alat/periksa-temuan-audit.py --uji-diri
+          python3 alat/periksa-buku-uji.py
+          python3 alat/periksa-buku-uji.py --uji-diri
+          python3 alat/review-pr.py --uji-diri
+          python3 aplikasi/alat/periksa-kerapatan.py
+          python3 aplikasi/alat/periksa-kerapatan.py --uji-diri
+          python3 aplikasi/alat/periksa-antarmuka.py
+          python3 aplikasi/alat/periksa-antarmuka.py --uji-diri
+          python3 alat/periksa-rahasia.py
+          python3 alat/periksa-rahasia.py --uji-diri
+          python3 alat/periksa-bersih.py
+          python3 alat/periksa-gerbang-ci.py
+          python3 alat/periksa-paket.py --uji-diri
+          python3 alat/lanjut-sesi.py --di-ci
+          python3 alat/lanjut-sesi.py --uji-diri
+          python3 alat/mulai-sesi.py --uji-diri
+          python3 alat/periksa-angka-bukti.py --uji-diri
+          python3 alat/periksa-gerbang-ci.py --uji-diri
+          python3 alat/periksa-bersih.py --uji-diri
+          python3 aplikasi/alat/periksa-struktur.py
+          python3 aplikasi/alat/periksa-komponen-env.py --uji-diri
+          python3 aplikasi/alat/periksa-uji.py
+          python3 aplikasi/alat/uji-kontras.py
+          python3 aplikasi/alat/uji-kontras.py --uji-diri

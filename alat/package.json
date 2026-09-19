@@ -1,0 +1,13 @@
+{
+  "name": "resto-barokah-alat",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Alat bantu repositori (uji SQL lokal, pemeriksa). Bukan aplikasi.",
+  "scripts": {
+    "uji:sql": "node uji-sql.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.0"
+  }
+}
