@@ -136,6 +136,24 @@ def skill_untuk(status: str) -> tuple[list[str], str]:
     return SELALU, f"TIDAK COCOK tabel fase — hanya skill 'selalu' yang dipakai (LAPORKAN ini ke Lee)"
 
 
+# Penunjuk "perintah sederhana Lee → buku pedoman". WAJIB tercetak di KARTU SESI setiap sesi:
+# temuan jujur 2026-09-18 — semua perintah sederhana Lee (mis. "Siapkan review PR.", "Tutup sesi ini
+# dengan baik") dijelaskan di PANDUAN_PENGGUNA.md, tetapi kartu sesi tidak menunjuk ke sana, sehingga
+# agent yang tidak membuka buku bisa mengarang langkahnya sendiri.
+PETUNJUK_PERINTAH = """PERINTAH SEDERHANA LEE = KUNCI ALUR — CARI DI BUKU, JANGAN MENGARANG
+  Kalau Lee menulis kalimat pendek seperti:
+    "Siapkan audit menyeluruh."  ·  "Siapkan review PR."  ·  "Siapkan pindah ke sesi baru."
+    "Tutup sesi ini dengan baik/benar."  ·  "Siapkan pindah sesi dan tutup sesi ini dengan baik."
+    "Laporan audit sudah masuk, periksa."
+  -> buka buku pedoman induk PANDUAN_PENGGUNA.md dan cari kalimat itu di:
+       Bagian C3 : peta kalimat sehari-hari (situasi -> kalimat Lee)
+       Bagian B  : alur AL-1..AL-13 (langkah, berkas yang dibaca, bukti yang dilaporkan)
+       Bagian E  : semua perintah mesin (fungsi + cara pakai)
+  -> cocokkan MAKSUDNYA, bukan huruf per huruf (mis. "dengan baik" = "dengan benar").
+  -> ikuti langkah alurnya apa adanya, sebut nomor alurnya saat melapor (mis. "AL-13").
+  -> kalau kalimatnya tidak ada di buku: laporkan & bertanya — dilarang mengarang mekanisme baru."""
+
+
 def uji_diri() -> int:
     """Buktikan pemetaan skill TIDAK buta lagi (kasus nyata: CODING_DIJEDA_SADAR)."""
     kasus = [
@@ -155,7 +173,22 @@ def uji_diri() -> int:
         if status == "CODING_DIJEDA_SADAR" and len(daftar) < 10:
             print("      X daftar terlalu pendek — cacat lama (buta status jeda) kembali!")
             gagal += 1
-    print(f"JUMLAH kasus: {len(kasus)} — semuanya harus sesuai harapan")
+    # Penunjuk "perintah sederhana Lee -> buku" (temuan jujur 2026-09-18): blok harus ada,
+    # BENAR-BENAR dicetak (bukan hanya didefinisikan), dan alamat buku di dalamnya masih hidup.
+    sumber = Path(__file__).read_text(encoding="utf-8")
+    kasus_penunjuk = [
+        ("blok penunjuk perintah Lee ada & dicetak di kartu",
+         "PETUNJUK_PERINTAH" in sumber and "print(PETUNJUK_PERINTAH)" in sumber),
+        ("alamat buku di penunjuk masih hidup (Bagian B/C3/E)",
+         all(pt in (baca("PANDUAN_PENGGUNA.md")) for pt in
+             ("Bagian B — Semua alur", "Bagian C3", "Bagian E — Semua perintah mesin"))),
+    ]
+    for nama, ok in kasus_penunjuk:
+        gagal += 0 if ok else 1
+        print(f"  {'OK ' if ok else 'X  '} {nama}")
+    if not kasus_penunjuk[1][1]:
+        print("      X alamat buku berubah — penunjuk di kartu sesi jadi menyesatkan")
+    print(f"JUMLAH kasus: {len(kasus) + len(kasus_penunjuk)} — semuanya harus sesuai harapan")
     print("HASIL: " + ("LOLOS — kartu sesi mencetak skill yang benar untuk status jeda maupun aktif."
                        if gagal == 0 else f"GAGAL — {gagal} kasus tidak sesuai harapan"))
     return 0 if gagal == 0 else 1
@@ -287,6 +320,8 @@ def main() -> int:
     print("  - Rencana sesi ini      : <1-2 baris>")
     print("  - Yang dibutuhkan darimu: <kalau ada>")
     print("  ---------------------------------------------------------------")
+    print()
+    print(PETUNJUK_PERINTAH)
     print()
     print("LANGKAH SELANJUTNYA (urutan wajib): 1) baca skill di atas 2) baca fondasi yang ADA")
     print("3) laporkan KARTU SESI 4) tunggu konfirmasi tujuan 5) kerja 6) tutup dengan")

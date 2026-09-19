@@ -131,7 +131,7 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
 
 - **Apa ini:** memastikan semua pekerjaan tersimpan di GitHub dan sesi bisa ditutup tanpa kehilangan apa pun.
 - **Kapan dipakai:** sesi sudah panjang, atau Lee mau berhenti.
-- **Kalimat Lee:** `Tutup sesi ini dengan benar.`
+- **Kalimat Lee:** `Tutup sesi ini dengan benar.` — atau `Tutup sesi ini dengan baik.` (kalimatmu tidak harus persis sama: agent mencocokkan **maksudnya**).
 - **Langkah Lee:** tidak ada.
 - **Yang agent lakukan:** memperbarui `PROJECT_STATE.md` + `STATUS.md` + log sesi → commit + push semua → memastikan working tree bersih → melaporkan commit terakhir & langkah aman berikutnya.
 - **Bukti yang Lee terima:** pernyataan "sesi aman ditutup" + commit terakhir + status PR.
@@ -254,7 +254,7 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
 
 - **Apa ini:** memindahkan pekerjaan dari chat yang sudah berat/panjang ke chat baru, dengan keadaan yang sudah tertulis rapi di repo (bukan di ingatan agent).
 - **Kapan dipakai:** chat terasa berat/lambat, ingin ganti model, atau sesi lama berhenti karena galat.
-- **Kalimat Lee:** `Siapkan pindah ke sesi baru.` — atau cukup `Tutup sesi ini dengan benar.`
+- **Kalimat Lee:** `Siapkan pindah ke sesi baru.` · `Tutup sesi ini dengan benar.` / `Tutup sesi ini dengan baik.` · sekaligus dua-duanya: **`Siapkan pindah sesi dan tutup sesi ini dengan baik.`** — kalimatmu tidak harus persis sama: agent mencocokkan **maksudnya**, lalu mengikuti langkah alur ini + **AL-3** (tutup sesi).
 - **Langkah Lee:** (1) buka berkas **`PROMPT_SESI_BARU.md`** (berkas ini **STATIS** — disimpan sekali, dipakai terus) → (2) tulis nama cabang sesi yang mau dilanjutkan di **baris pertama** (`SESI YANG AKU LANJUT: arena/…`) → (3) buka chat baru → (4) salin **seluruh isi** berkas itu → (5) kirim. Tidak ada langkah lain.
 - **Yang agent lakukan:** menjalankan `python3 alat/lanjut-sesi.py --siapkan` (menyegarkan handoff `docs/ops/SIAP-LANJUT.md` + memastikan `PROMPT_SESI_BARU.md` utuh; berkas statis itu **tidak** ditulis ulang setiap batch) → memperbarui `PROJECT_STATE.md`, `STATUS.md`, `_log-sesi/` → commit & push → menjalankan `python3 alat/lanjut-sesi.py` sampai LOLOS (bukti handoff segar & ter-push).
 - **Bukti yang Lee terima:** pernyataan "sesi aman dilanjutkan" + nama berkas yang disalin + commit terakhir + jumlah butir tertangguh.
@@ -298,6 +298,7 @@ Setelah kamu tahu posisi kita:
 2b. Baca docs/teknis/REKAM_PESAN_PEMILIK.md — rekam SEMUA permintaan pemilik (Lee) beserta statusnya. Jangan menutup atau
     mengubah butir di sana tanpa jawaban Lee, dan jangan mengulang pekerjaan yang sudah berstatus selesai di berkas itu.
 2c. Bila ada `docs/ops/SIAP-LANJUT.md`, BACA lebih dulu: itu penunjuk keadaan yang dibuat mesin (cabang kerja terakhir, commit, keadaan CI, butir tertangguh, rencana berikutnya). Kalau checkout-mu TIDAK memuat pekerjaan terakhir (mis. kamu mulai dari `main` sedangkan pekerjaan ada di cabang sesi), JANGAN bekerja dulu — susul cabangnya lebih dulu (`git fetch origin <cabang>:refs/remotes/origin/kerja-terakhir && git merge --ff-only origin/kerja-terakhir`), lalu laporkan. 
+2d. Kalau Lee memakai KALIMAT PERINTAH SEDERHANA (contoh: `Siapkan audit menyeluruh.` · `Siapkan review PR.` · `Siapkan pindah ke sesi baru.` · `Tutup sesi ini dengan baik.`), JANGAN mengarang langkah sendiri: buka buku pedoman induk `PANDUAN_PENGGUNA.md` dan cari kalimat itu di **Bagian C3** (kalimat sehari-hari) atau **Bagian B** (alur AL-1…AL-13: langkah, berkas yang dibaca, bukti yang dilaporkan) dan **Bagian E** (perintah mesin). Cocokkan **MAKSUDNYA**, bukan huruf per huruf (mis. "dengan baik" = "dengan benar"; urutan kata boleh beda), ikuti langkah alurnya apa adanya, sebut nomor alurnya saat melapor (mis. "AL-13"), dan jangan menambah mekanisme baru di luar buku itu.
 3. Verifikasi branch/working tree. Ingat fakta platform: branch arena/... dibuat otomatis dan tidak bisa diganti; base branch dipilih di awal sesi (rekomendasi: main); setiap sesi bisa memakai MODEL AI YANG BERBEDA; setelah PR di-merge atau di-close, akses sesi itu hilang. Laporkan branch aktif, jarak commit terhadap main, commit terakhir, dan working tree bersih/kotor. **Kalau pekerjaan sesi sebelumnya belum di-merge dan kamu perlu melihatnya, pilih base branch = cabang arena sesi itu (mis. arena/01a0a8a2-resto-barokah) saat membuat sesi baru — jangan merge PR hanya supaya bisa melihat pekerjaan.**
 3b. Kalau ruang kerja baru dinyalakan ulang: (a) pustaka aplikasi bisa hilang → `bash aplikasi/alat/pratinjau.sh` memasang & menyalakan pratinjau; (b) salinan Git lokal bisa mundur ke `main` → `bash alat/pulihkan-git.sh` untuk memeriksa dan `bash alat/pulihkan-git.sh --perbaiki` bila memang tertinggal (tanpa `--hard`/`--force`). JANGAN menulis ulang berkas dari ingatan — ambil dari GitHub.
 4. Cek dan laporkan semua PR (gh pr list --state all) — PR menggantung dari sesi lama bisa membuatmu bekerja dari dasar yang ketinggalan.
@@ -309,7 +310,7 @@ Setelah kamu tahu posisi kita:
 
 MODE MARATON (aturan kerja yang disetujui pemilik): bekerjalah terus-menerus dalam batch — satu perintah "lanjut" dariku = kerjakan sebanyak mungkin tugas berikutnya yang TIDAK tertangguh, tanpa bertanya. Hal yang bisa ditunda JANGAN dijadikan pertanyaan: tunda, catat di docs/TERTANGGUH.md (isi: kenapa boleh ditunda, nilai sementara, tenggat fase, siapa yang menjawab), lalu lanjut bekerja. Kamu HANYA boleh berhenti untuk bertanya pada Stop Conditions: (1) keamanan/uang/data pelanggan belum jelas, (2) muncul biaya apa pun, (3) dokumen fondasi bertentangan, (4) mau mengubah keputusan yang sudah dikunci/di DECISIONS_LOG, (5) tindakan merusak/tak bisa dibatalkan (hapus data, force push, deploy publik), (6) butir tertangguh sudah lebih dari 12 atau tenggatnya lewat. Setiap akhir batch: commit + push + perbarui ROADMAP/PROJECT_STATE/STATUS/LOG_SESI + tawarkan jawaban untuk semua butir tertangguh (aku cukup bilang "setuju semua").
 
-Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task selesai, atau karena aku minta checkpoint): WAJIB perbarui PROJECT_STATE.md + STATUS.md + tutup LOG_SESI (CLOSED) + jalankan `python3 alat/lanjut-sesi.py --siapkan` (menyegarkan handoff `docs/ops/SIAP-LANJUT.md` dan berkas siap tempel `docs/ops/SIAP-TEMPEL-SESI-BARU.md`), COMMIT & PUSH semua pekerjaan (tanpa push, pekerjaan bisa hilang dan sesi berikutnya tidak bisa melanjutkan), lalu jalankan `python3 alat/lanjut-sesi.py` sampai LOLOS — barulah laporkan bahwa sesi aman ditutup, sebutkan commit terakhir, dan sebutkan berkas yang disalin Lee untuk lanjut di chat baru.
+Sebagai langkah TERAKHIR nanti sebelum sesi ini berakhir (baik karena tahap/task selesai, atau karena aku minta checkpoint): WAJIB perbarui PROJECT_STATE.md + STATUS.md + tutup LOG_SESI (CLOSED) + jalankan `python3 alat/lanjut-sesi.py --siapkan` (menyegarkan handoff `docs/ops/SIAP-LANJUT.md` dan memastikan berkas prompt statis `PROMPT_SESI_BARU.md` utuh — berkas itu TIDAK ditulis ulang tiap batch), COMMIT & PUSH semua pekerjaan (tanpa push, pekerjaan bisa hilang dan sesi berikutnya tidak bisa melanjutkan), lalu jalankan `python3 alat/lanjut-sesi.py` sampai LOLOS — barulah laporkan bahwa sesi aman ditutup, sebutkan commit terakhir, dan sebutkan berkas yang disalin Lee untuk lanjut di chat baru (`PROMPT_SESI_BARU.md`, baris pertamanya diisi Lee).
 ```
 
 ### C2. [LEE → AGENT] Prompt Penutup Sesi (aman)
@@ -342,6 +343,9 @@ Tutup sesi ini dengan benar:
 | Laporan sudah masuk | `Laporan audit sudah masuk, periksa.` / `Laporan review sudah masuk, periksa.` |
 | Minta review PR | `Siapkan review PR.` |
 | Pekerjaan lama diulang | `Audit dampaknya dulu, lalu ulangi pekerjaan lama yang jadi bertentangan.` |
+| Menutup sesi dengan aman | `Tutup sesi ini dengan benar.` — atau `Tutup sesi ini dengan baik.` (= **AL-3**) |
+| Tutup sesi **sekaligus** pindah ke sesi baru | `Siapkan pindah sesi dan tutup sesi ini dengan baik.` (= **AL-3 + AL-13**) |
+| Pindah ke sesi LAIN (bukan sesi terakhir) | `Tampilkan daftar sesi yang bisa dilanjutkan.` (= **AL-13**) |
 | Merasa ada yang tidak beres | `Aku merasa ada yang tidak beres pada <hal>. Jangan membela pekerjaan sebelumnya — buktikan ulang dari nol.` |
 | Berhenti karena mutu | `Berhenti dulu, aku mau batch bersih.` |
 | Lihat hal tertunda | `Tunjukkan daftar hal yang ditunda beserta usulan jawabannya.` |
@@ -351,7 +355,7 @@ Tutup sesi ini dengan benar:
 | Ubah gaya/panggilan | `Mulai sekarang panggil aku Lee.` |
 | Terlalu teknis | `Terlalu teknis, sederhanakan.` |
 
-> **Catatan penting (jawaban atas pertanyaan Lee):** kalimat-kalimat di atas **cukup**. Agent tahu langkah teknisnya.
+> **Catatan penting (jawaban atas pertanyaan Lee 2026-09-18):** kalimat-kalimat di atas **cukup** — asal agent baru **mau membaca peta ini**. Karena itu Prompt Pembuka Universal (item 2d) dan **KARTU SESI** sekarang sama-sama menunjuk ke sini: setiap perintah sederhana di tabel ini memetakan ke satu alur di **Bagian B** (AL-1…AL-13) yang memuat langkah, berkas yang dibaca, dan bukti yang dilaporkan. Agent mencocokkan **maksud** kalimatmu (bukan huruf per huruf), menyebut nomor alurnya saat melapor, dan **dilarang mengarang mekanisme baru**. Perintah yang **tidak ada** di tabel ini atau di Bagian E: agent wajib melapor, lalu bertanya.
 > Lee **tidak perlu** menyuruh agent menyiapkan paket, menulis prompt, atau mengatur branch — itu tugas agent. Bagian ini dulu berisi
 > separuh perintah teknis yang seharusnya dikerjakan agent; sejak 2026-09-17 perintah itu **dipindahkan ke tugas agent** (Bagian B, AL-5).
 

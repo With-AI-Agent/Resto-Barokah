@@ -74,6 +74,11 @@ TOPIK_WAJIB = {
     "pindah sesi: berkas prompt statis": r"Berkas prompt-nya STATIS",
     "pindah sesi: baris pilihan Lee": r"SESI YANG AKU LANJUT",
     "pindah sesi: sesi ditinggalkan dicatat": r"SESI_DITINGGALKAN\.md",
+    # Permintaan Lee 2026-09-18 (pertanyaan kepercayaan): pastikan kalimat perintah sederhana
+    # benar-benar terhubung ke alurnya, dan sinonimnya (baik/benar) dikenali.
+    "perintah: sinonim tutup sesi": r"Tutup sesi ini dengan baik",
+    "perintah: gabungan tutup + pindah": r"Siapkan pindah sesi dan tutup sesi ini dengan baik",
+    "perintah: peta kalimat ke alur": r"memetakan ke satu alur di \*\*Bagian B\*\*",
     "pindah sesi: sesi belum di-push tak bisa dilanjut": r"belum pernah di-push",
     "pindah sesi: satu sesi aktif": r"[Ss]atu sesi aktif",
 }
@@ -196,6 +201,28 @@ def main(akar: pathlib.Path | None = None) -> int:
             errs.append("blok Prompt Pembuka di buku induk TIDAK identik dengan PROMPT_ENTRI_UNIVERSAL.md — jangan menyalin manual, ambil dari sumbernya")
     else:
         errs.append("PROMPT_ENTRI_UNIVERSAL.md tidak ada")
+
+    # 4b. Prompt Pembuka WAJIB menunjuk buku pedoman + mengatur cara menanggapi perintah sederhana.
+    #     (Pertanyaan Lee 2026-09-18: "apakah agent manapun akan langsung tahu apa yang harus dilakukan?"
+    #      Jawaban jujurnya: hanya bila rantai petunjuknya ada — dan rantai itu kini dijaga di sini.)
+    if pe.is_file():
+        kanonik_blok = blok_pertama(pe.read_text(encoding="utf-8"))
+        if "PANDUAN_PENGGUNA.md" not in kanonik_blok:
+            errs.append("Prompt Pembuka Universal TIDAK menunjuk `PANDUAN_PENGGUNA.md` — agent baru tidak tahu "
+                        "tempat mencari arti kalimat perintah sederhana Lee")
+        if "KALIMAT PERINTAH SEDERHANA" not in kanonik_blok:
+            errs.append("Prompt Pembuka Universal TIDAK mengatur cara menanggapi kalimat perintah sederhana Lee "
+                        "(cari di buku, cocokkan maksud, sebut nomor alur)")
+        if "AL-13" not in kanonik_blok:
+            errs.append("Prompt Pembuka Universal tidak menyebut contoh nomor alur (AL-13) — agent bisa mengarang langkah")
+
+    # 4c. KARTU SESI (alat/mulai-sesi.py) WAJIB benar-benar mencetak penunjuk itu ke setiap sesi.
+    ms = akar / "alat" / "mulai-sesi.py"
+    if not ms.is_file():
+        errs.append("alat/mulai-sesi.py tidak ada — KARTU SESI (pintu masuk setiap sesi) hilang")
+    elif "print(PETUNJUK_PERINTAH)" not in ms.read_text(encoding="utf-8"):
+        errs.append("KARTU SESI (alat/mulai-sesi.py) tidak mencetak penunjuk 'perintah sederhana Lee → buku pedoman' "
+                    "— agent yang tidak membuka buku bisa mengarang langkah")
 
     # 5. blok prompt auditor harus identik
     pa = akar / "docs" / "uji" / "PROMPT_AUDIT_INDEPENDEN.md"
@@ -349,6 +376,27 @@ def uji_diri() -> int:
             kode4, _ = jalankan_pemeriksa(main, tmp4)
             hasil.append(("mutasi: buku memanggil \"Bapak\"", kode4 != 0,
                           "ditolak" if kode4 != 0 else "DILOLOSKAN (sapaan tidak dijaga)"))
+        # Mutasi 3b: penunjuk buku di Prompt Pembuka dihapus (di KEDUA sumber, supaya lolos cek identik)
+        # → harus GAGAL: tanpa ini agent baru tidak tahu tempat mencari arti perintah sederhana Lee.
+        with salin_pohon() as tmp3b:
+            for rel in ("PROMPT_ENTRI_UNIVERSAL.md", "PANDUAN_PENGGUNA.md"):
+                f = tmp3b / rel
+                isi = f.read_text(encoding="utf-8")
+                isi = isi.replace("buka buku pedoman induk `PANDUAN_PENGGUNA.md` dan cari kalimat itu", "cari kalimat itu")
+                f.write_text(isi, encoding="utf-8")
+            kode3b, _ = jalankan_pemeriksa(main, tmp3b)
+            hasil.append(("mutasi: penunjuk buku di Prompt Pembuka dihapus", kode3b != 0,
+                          "ditolak" if kode3b != 0 else "DILOLOSKAN (rantai petunjuk tidak dijaga)"))
+
+        # Mutasi 3c: KARTU SESI berhenti mencetak penunjuk → harus GAGAL.
+        with salin_pohon() as tmp3c:
+            f = tmp3c / "alat" / "mulai-sesi.py"
+            f.write_text(f.read_text(encoding="utf-8").replace("print(PETUNJUK_PERINTAH)", "pass  # penunjuk dimatikan"),
+                         encoding="utf-8")
+            kode3c, _ = jalankan_pemeriksa(main, tmp3c)
+            hasil.append(("mutasi: kartu sesi berhenti mencetak penunjuk buku", kode3c != 0,
+                          "ditolak" if kode3c != 0 else "DILOLOSKAN (kartu sesi tidak dijaga)"))
+
         # Mutasi 4: angka berkas uji dibuat basi → harus GAGAL (temuan review putaran11 PR-04)
         with salin_pohon() as tmp5:
             berkas = tmp5 / "PANDUAN_PENGGUNA.md"
