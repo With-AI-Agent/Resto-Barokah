@@ -207,6 +207,33 @@ def ada_di_remote(cabang: str, akar: pathlib.Path) -> bool:
     return kode == 0 and bool(keluaran.strip())
 
 
+def cabang_memuat(sha: str, cabang: str, akar: pathlib.Path) -> bool | None:
+    """Apakah cabang memuat commit `sha`? True/False — atau None kalau tidak bisa dipastikan.
+
+    Dipakai penjaga kesegaran pilihan sesi (lihat catatan di `periksa()`): handoff yang
+    menunjuk cabang LEBIH TUA daripada keadaan kerjanya membuat sesi baru kehilangan
+    pekerjaan terbaru tanpa ada yang menolak. Ref lokal yang belum ada diambil dulu
+    (best-effort, satu kali) supaya jawabannya biasanya tetap pasti.
+    """
+    kandidat = [f"refs/remotes/origin/{cabang}", cabang]
+    for ref in kandidat:
+        kode, _ = jalankan(["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"], cwd=akar)
+        if kode != 0:
+            continue
+        kode, _ = jalankan(["git", "merge-base", "--is-ancestor", sha, ref], cwd=akar)
+        if kode in (0, 1):
+            return kode == 0
+    jalankan(["git", "fetch", "--quiet", "origin",
+              f"+refs/heads/{cabang}:refs/remotes/origin/{cabang}"], cwd=akar)
+    kode, _ = jalankan(["git", "rev-parse", "--verify", "--quiet",
+                        f"refs/remotes/origin/{cabang}^{{commit}}"], cwd=akar)
+    if kode != 0:
+        return None
+    kode, _ = jalankan(["git", "merge-base", "--is-ancestor", sha,
+                        f"refs/remotes/origin/{cabang}"], cwd=akar)
+    return None if kode not in (0, 1) else kode == 0
+
+
 def daftar_cabang_sesi(akar: pathlib.Path) -> list[tuple[str, str, str, str, bool, bool]]:
     """Semua cabang sesi di GitHub: (cabang, tanggal, judul, sha, punya_alat, punya_prompt_statis).
 
@@ -442,6 +469,24 @@ def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
     if target and kode_remote == 0 and not ada_di_remote(target, akar):
         masalah.append(f"cabang tujuan '{target}' TIDAK ADA di GitHub — sesi baru akan gagal menyusul. "
                        "Pilih sesi lain: python3 alat/lanjut-sesi.py --daftar-sesi")
+
+    # --- cabang yang dilanjutkan WAJIB memuat keadaan kerja yang ditulis handoff ini ---
+    # Kejadian nyata 2026-09-19 (putaran 17): handoff menyegarkan membawa pilihan cabang dari
+    # handoff sebelumnya, dan cabang pilihan itu ternyata **2 commit di belakang** keadaan kerja
+    # sesi ini. Sesi baru yang menyusul cabang itu akan melewatkan paket peninjau + perbaikan
+    # terbaru — kehilangan pekerjaan yang SENYAP, persis kelas cacat F-11/F-12/F-14.
+    # Pilihan sesi tetap hak Lee: yang dilarang hanya "kehilangan tanpa penolakan". Karena itu
+    # jalan keluarnya dua: pilih cabang sesi ini (`--lanjut-dari`), atau `--paksa` bila sesi ini
+    # memang sengaja ditinggalkan.
+    sha_keadaan = (bidang(sipl, "Commit keadaan kerja") or "").strip()
+    if target and re.fullmatch(r"[0-9a-f]{40}", sha_keadaan) and not dipaksa:
+        memuat = cabang_memuat(sha_keadaan, target, akar)
+        if memuat is False:
+            masalah.append(
+                f"docs/ops/SIAP-LANJUT.md menunjuk cabang '{target}' yang TIDAK memuat keadaan kerja "
+                f"handoff ini ({sha_keadaan[:8]}) — sesi baru akan kehilangan pekerjaan terbaru "
+                f"(senyap). Perbaiki: `python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang sesi ini>`; "
+                f"kalau sesi ini memang sengaja ditinggalkan, ulangi dengan `--paksa`.")
 
     if induk:
         _, tukar = jalankan(["git", "diff-tree", "--no-commit-id", "--name-only", "-r", sha_head, induk], cwd=akar)
@@ -701,6 +746,7 @@ def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool,
               dengan_remote: bool = False, remote_memuat_head: bool = True,
               tracking_tertinggal: bool = False, cabang: str = "cabang-uji",
               target_palsu: bool = False, ditinggalkan: bool = False,
+              target_tertinggal: bool = False,
               lama_menyesatkan: bool = False) -> tuple[pathlib.Path, pathlib.Path | None]:
     """Buat repo Git kecil berisi berkas handoff dengan SHA yang bisa benar/salah.
 
@@ -728,7 +774,8 @@ def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool,
             f"| `{cabang}` | 2026-09-18 | sesi uji yang sengaja ditinggalkan |\n", encoding="utf-8")
     isi = baca(SIAP).replace(bidang(baca(SIAP), "Commit keadaan kerja") or "", "0" * 40)
     # Berkas handoff/tempel ditulis ulang supaya menunjuk cabang repo uji ini (bukan sesi asli).
-    target = "arena/cabang-hantu" if target_palsu else cabang
+    target = ("arena/cabang-hantu" if target_palsu else
+              "arena/cabang-lama" if target_tertinggal else cabang)
     isi = re.sub(r"(?m)^- \*\*Cabang yang dilanjutkan:\*\*.*$",
                  f"- **Cabang yang dilanjutkan:** `{target}`", isi)
     isi = re.sub(r"(?m)^- \*\*Ditulis oleh sesi:\*\*.*$", f"- **Ditulis oleh sesi:** `{cabang}`", isi)
@@ -751,6 +798,13 @@ def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool,
         sp.run(["git", "remote", "add", "origin", str(bare)], cwd=repo, env=env, capture_output=True, check=False)
     for perintah in (["git", "add", "-A"], ["git", "commit", "-qm", "awal"]):
         sp.run(perintah, cwd=repo, env=env, capture_output=True, check=False)
+    _, sha_lama = jalankan(["git", "rev-parse", "HEAD"], cwd=repo)
+    if target_tertinggal:
+        # Satu commit tambahan: ruang supaya "cabang lama" bisa berdiri DI BELAKANG commit
+        # keadaan handoff (kalau tidak, cabang lama pasti sudah memuatnya).
+        (repo / "berkas-lama.txt").write_text("lama\n", encoding="utf-8")
+        for perintah in (["git", "add", "-A"], ["git", "commit", "-qm", "awal-2"]):
+            sp.run(perintah, cwd=repo, env=env, capture_output=True, check=False)
     _, induk = jalankan(["git", "rev-parse", "HEAD"], cwd=repo)
     sha = sha_ditulis if sha_ditulis is not None else induk.strip()
     isi = isi.replace("0" * 40, sha)
@@ -764,6 +818,13 @@ def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool,
     if bare is not None:
         sp.run(["git", "push", "-q", "-u", "origin", f"HEAD:refs/heads/{cabang}"], cwd=repo, env=env,
                capture_output=True, check=False)
+        if target_tertinggal:
+            # "Cabang lama" yang ADA di GitHub tetapi tidak memuat keadaan kerja handoff ini.
+            sp.run(["git", "push", "-q", "origin",
+                    f"{sha_lama.strip()}:refs/heads/arena/cabang-lama"], cwd=repo, env=env,
+                   capture_output=True, check=False)
+            sp.run(["git", "update-ref", "refs/remotes/origin/arena/cabang-lama", sha_lama.strip()],
+                   cwd=repo, env=env, capture_output=True, check=False)
         if not remote_memuat_head:
             # Remote "mundur" satu commit: HEAD lokal ada, tapi remote belum memuatnya.
             _, dua = jalankan(["git", "rev-parse", "HEAD^"], cwd=repo)
@@ -955,6 +1016,20 @@ def uji_diri() -> int:
         bukti_belok = [m for m in masalah_belok if "TIDAK ADA di GitHub" in m]
         hasil.append(("cabang di handoff dibelokkan ke cabang hantu → ditolak dengan alasan cabang",
                       bool(bukti_belok), bukti_belok[0][:90] if bukti_belok else "DILOLOSKAN (tumpul)"))
+
+        # Cabang pilihan yang TERTINGGAL (kejadian nyata 2026-09-19): handoff menunjuk cabang
+        # yang tidak memuat keadaan kerjanya → sesi baru kehilangan pekerjaan terbaru. Wajib DITOLAK.
+        repo_tertinggal, _ = _repo_uji(tmp_p / "tertinggal", None, True, dengan_remote=True,
+                                       target_tertinggal=True)
+        masalah_tertinggal = periksa(akar=repo_tertinggal, penuh=True)
+        hasil.append(("cabang pilihan yang TERTINGGAL (tidak memuat keadaan kerja) ditolak",
+                      any("TIDAK memuat keadaan kerja" in m for m in masalah_tertinggal),
+                      masalah_tertinggal[0][:90] if masalah_tertinggal else "DILOLOSKAN (tumpul)"))
+        # Kontrol positif: repo yang sama, tetapi handoff menunjuk cabang sesi penulisnya sendiri.
+        repo_segar2, _ = _repo_uji(tmp_p / "tertinggal-kontrol", None, True, dengan_remote=True)
+        masalah_segar2 = periksa(akar=repo_segar2, penuh=True)
+        hasil.append(("kontrol: cabang pilihan yang memuat keadaan kerja diterima", not masalah_segar2,
+                      "lolos" if not masalah_segar2 else masalah_segar2[0][:90]))
 
         # Sesi yang SENGAJA DITINGGALKAN Lee: ditolak — kecuali Lee memaksa (`--paksa`).
         repo_ditinggal, _ = _repo_uji(tmp_p / "ditinggal", None, True, ditinggalkan=True)

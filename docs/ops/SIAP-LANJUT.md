@@ -7,13 +7,13 @@
 
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
-- **Cabang yang dilanjutkan:** `arena/01a0a8a2-resto-barokah`
-- **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
-- **Ditulis oleh sesi:** `arena/01a0a8a2-resto-barokah`
-- **Commit keadaan kerja:** `e8b7919f0f34cd82ceae602900673c41de306dcb`
-- **PR:** PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (run 35418874877, commit e8b7919f)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
+- **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
+- **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
+- **Commit keadaan kerja:** `d2f47c26e07184fbb4a99cee41aa3e378b186215`
+- **PR:** PR #2 (base main)
+PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
+- **CI terakhir:** success (run 35426101868, commit d2f47c26)
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -25,9 +25,9 @@
 - Posisi proyek: lihat `PROJECT_STATE.md` (STATUS + PUTARAN terakhir) dan `STATUS.md`.
 - Bukti terakhir yang hijau: `node alat/uji-sql.mjs` · `python3 alat/uji-mutasi-0012.py` ·
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
-- Butir tertangguh terbuka: **8** — T-019, T-018, T-002, T-003, T-010, T-011, T-015, T-016
+- Butir tertangguh terbuka: **7** — T-018, T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-18.md` → `52e22fc3` (6 commit di bawah HEAD saat ini) · review `PKT-2026-09-18-pr-01-putaran15.md` → `52e22fc3` (6 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (2 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (2 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -40,12 +40,12 @@ Sesi baru di platform ini mulai dari `main`, sedangkan pekerjaan ada di cabang s
 Jalankan (tanpa memindahkan cabang sesimu):
 
 ```
-git fetch origin arena/01a0a8a2-resto-barokah:refs/remotes/origin/kerja-terakhir
+git fetch origin arena/01a0b7d1-resto-barokah:refs/remotes/origin/kerja-terakhir
 git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py      # cetak KARTU SESI, lalu LAPORKAN ke Lee
 ```
 
-Cabang `arena/01a0a8a2-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
+Cabang `arena/01a0b7d1-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
 LAIN: saat membuka chat baru, ia menulis pilihannya di baris pertama `PROMPT_SESI_BARU.md` — dan baris
 itu yang **MENANG** bila berbeda dengan handoff ini. Laporkan bedanya, lalu rapikan catatan handoff
 dengan `python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang>`. Sesi yang belum pernah di-push
@@ -62,6 +62,24 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 17 SEDANG BERJALAN (2026-09-19) — putaran verifikasi, MENUNGGU LEE.** Paket peninjau
+**sudah terbit & ter-push** (target `93a50ba`): audit
+`docs/uji/paket-audit/AUD-3-2026-09-19-SIAP-TEMPEL.md` dan review PR
+`docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran16-SIAP-TEMPEL.md` (PR **#2**; jalur risiko Merah).
+Tugas Lee: **buka 2 chat baru** (idealnya model berbeda) dan **salin satu berkas `-SIAP-TEMPEL` ke
+tiap chat**; setelah selesai bilang **"Laporan audit/review sudah masuk, periksa."** Keadaan
+menunggu ini **normal dan tidak menghambat**: sambil menunggu, agent boleh menutup cacat lain yang
+ditemukan sendiri (aturan: cacat yang sudah diketahui ditutup dulu supaya peninjau tidak membuang
+anggaran). Saat laporan masuk: ambil (`--ambil-laporan`), **bantah-balik setiap temuan dengan probe
+sendiri**, tutup yang nyata, catat yang palsu.
+
+**Catatan pilihan cabang (penting untuk sesi baru):** handoff ini menunjuk
+`arena/01a0b7d1-resto-barokah` — dipilih **supaya pekerjaan terbaru tidak hilang**: cabang sesi
+sebelumnya (`arena/01a0a8a2-resto-barokah`) berhenti di `0af1cf9` dan **tidak memuat** paket peninjau
+2026-09-19 + perbaikan putaran ini. Mesin kini **menolak** handoff yang menunjuk cabang tanpa keadaan
+kerja terbaru (`alat/lanjut-sesi.py`, uji-diri 39 kasus) — jadi kalau Lee ingin melanjutkan dari
+cabang lain, itu tetap haknya, tapi harus lewat `--lanjut-dari` atau `--paksa` (tercatat).
 
 **Sesi ditutup (putaran 16, 2026-09-18)** atas perintah Lee: *"Siapkan pindah sesi dan tutup sesi ini dengan baik."*
 Sebelum menutup, pertanyaan kepercayaan Lee diperiksa jujur dan **4 celah nyata ditutup** (rantai "kalimat perintah
