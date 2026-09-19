@@ -35,7 +35,9 @@ echo "== aplikasi: kerentanan dependency =="
 (cd "$APLIKASI" && npm audit --audit-level=low)
 echo "== uji SQL (RLS & isolasi resto, tanpa server) =="
 (cd "$REPO" && node alat/uji-sql.mjs)
-echo "== bukti mutasi pagar migrasi 0012 (kontrol hijau + 12/12 WAJIB MERAH) =="
+# Label sengaja TIDAK memuat angka: pernah tertulis "12/12" padahal ringkasan nyatanya sudah 16/16
+# (temuan review PR-12, ditutup 2026-09-19). Angka benar datang dari ringkasan alat di bawah.
+echo "== bukti mutasi pagar migrasi 0012 & 0013 (kontrol hijau + semua mutasi WAJIB MERAH) =="
 (cd "$REPO" && python3 alat/uji-mutasi-0012.py | tail -2)
 (cd "$REPO" && python3 alat/uji-mutasi-0014.py | tail -2)
 

@@ -335,7 +335,8 @@ membuatnya tersesat. Karena itu ada **mode bicara** khusus: `Tolong bimbing.` ·
    singkat selama bagian itu saja** dan menjelaskannya singkat.
 6. **Penutupnya jelas:** `Sudah beres, lanjut normal.` (atau tugas bimbingannya rampung). Agent menandai awal & akhir mode
    ini di `_log-sesi/` supaya sesi berikutnya tahu dan bisa memakai gaya yang sama bila Lee memintanya lagi.
-7. **Dokumen yang menang:** kalau panduan langkah di `docs/ops/` (mis. `LANGKAH_PEMILIK_SEKARANG.md`) berbeda dari layar
+7. **Pemeriksaan rutin boleh ditunda — bukti tidak.** Supaya balasan bimbingan benar-benar cepat: pemeriksaan yang **tidak ada hubungannya** dengan hal yang sedang dibimbing dan **tidak ada yang berubah** sejak terakhir hijau boleh ditunda dulu (jalankan di akhir batch). Yang **tidak boleh** ditunda dengan alasan apa pun: (a) ada perubahan baru yang menyentuh uang/keamanan/data/bukti, (b) sesaat sebelum agent menulis **"selesai"**, (c) menyangkut Stop Conditions §12 (biaya · keamanan/uang/data pelanggan · keputusan terkunci · tindakan tak bisa dibatalkan seperti deploy publik). Alasannya: menunda pemeriksaan itu **menghutang**, bukan menghapus — dan utang yang tak pernah dibayar akan muncul sebagai cacat (kelas F-11/F-12).
+8. **Dokumen yang menang:** kalau panduan langkah di `docs/ops/` (mis. `LANGKAH_PEMILIK_SEKARANG.md`) berbeda dari layar
    Lee, **layar Lee yang benar** — perbaiki dokumennya, jangan paksa Lee mengikuti panduan lama.
 
 ---

@@ -4,6 +4,11 @@
 > sempet kita mulai, klo itu perlu diulang karena berkaitan dengan perubahan ini, maka harus diulang."*
 > Aturan: `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §2 (AUD-0).
 >
+> **Penomoran (diperbarui 2026-09-19):** nomor migrasi yang disebut di kolom tindakan di bawah **sudah terpakai**
+> oleh migrasi penutup audit (`0011`–`0014`) dan berkas `0001`–`0014` kini **DIBEKUKAN** (`docs/DECISIONS_LOG.md`).
+> Jadi setiap pekerjaan ulang yang masih berstatus **WAJIB** (B.4–B.9) dikerjakan lewat berkas migrasi **BARU bernomor
+> `0015` ke atas** — nomor pastinya tercatat di tugas pemiliknya (`T1-24`/`T1-26` di `docs/ROADMAP.md`).
+>
 > **Cara membaca:** baris yang bertanda **WAJIB** harus dikerjakan sebelum Fase 1B boleh dinyatakan selesai; yang
 > bertanda **LENGKAP** sudah dikerjakan hari ini. Migrasi lama (0001–0010) **tidak boleh disunting** — perubahannya
 > selalu lewat migrasi baru + `DECISIONS_LOG.md`.

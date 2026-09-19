@@ -10,10 +10,10 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `9cb93e05f7cdbdc6c4053520146dbb1426a4e1d6`
+- **Commit keadaan kerja:** `57cd3456a365530f204ab2b7eec02e51a9daacf5`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35435658440, commit 9cb93e05)
+- **CI terakhir:** success (run 35438287251, commit 57cd3456)
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -27,7 +27,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **7** — T-021, T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (28 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (28 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (29 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (29 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -61,7 +61,26 @@ PR #1 menunjuk cabang sesi SEBELUMNYA, jadi commit barumu tidak muncul di PR itu
 Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan laporkan tautannya.
 JANGAN merge apa pun tanpa keputusan Lee.
 
-## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+## 3. Rencana berikutnya
+
+**PUTARAN 18d (2026-09-19) — PEMERIKSAAN PRA-MARATON (permintaan Lee) SELESAI.**
+
+Diperiksa ulang semua yang bisa terlupakan: butir tunggu (**7 terbuka**), daftar temuan (audit §1b + review PR),
+rencana pekerjaan ulang (`docs/uji/DAFTAR_PEKERJAAN_ULANG.md`), dan angka-angka di dokumen. Hasil:
+
+1. **PR-12 DITUTUP** — label `12/12` basi di `aplikasi/alat/periksa-semua.sh` diganti label tanpa angka (angka benar
+   selalu datang dari ringkasan alat).
+2. **Angka sisa temuan dibetulkan: 23 → 21 terbuka** (19 milik `T1-45`; PR-11 & D F-04 milik `T1-44`). Sebelumnya
+   dokumen menulis 23 padahal F-05/F-07/PR-10 sudah ditutup lebih dulu — kelas cacat F-14.
+3. **Bentrok penomoran ditemukan & dibereskan:** `T1-24`/`T1-25`/`T1-26` masih merencanakan migrasi `0012`–`0014`
+   yang kini terpakai & **beku** → diberi catatan wajib memakai nomor baru `0015`–`0017`.
+4. **Tidak ada temuan tanpa pemilik** dan tidak ada pekerjaan setengah jalan yang tersembunyi.
+
+**Langkah berikutnya (urut):**
+1. **`T-021` halaman publik** — tinggal izin Lee (`Boleh naik`); rahasia Cloudflare sudah dipasang.
+2. **T1-45 sisa 21 temuan** (19 milik `T1-45`) — mulai K-1, ditulis sebagai migrasi BARU `0015_…` dst.
+3. **Fase 1B (T1-24/25/26)** — setelah temuan tuntas, memakai nomor migrasi `0015`+ sesuai catatan baru.
+ (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 **PUTARAN 18c (lanjutan) — MODE BIMBINGAN DITANAM + LANGKAH B LEE SELESAI.**
 
@@ -76,7 +95,7 @@ Penutup: `Sudah beres, lanjut normal.` Penjaga `alat/periksa-panduan.py`: **MIN_
 **Langkah berikutnya (urut):**
 1. **`T-021` (halaman publik)** — tinggal **izin publik** dari Lee (`Boleh naik`). Begitu dikatakan: buat penanda
    `aplikasi/SEBAR-HALAMAN` → alur mengunggah → catat alamat `*.workers.dev` + pemeriksaan HTTPS → hapus penanda.
-2. **T1-45 sisa 23 temuan** — K-1…K-4 dalam bentuk migrasi **BARU** `0015_penutup_celah_putaran16.sql`
+2. **T1-45 sisa 21 temuan** (19 milik `T1-45`; PR-11 & D F-04 milik `T1-44`) — K-1…K-4 dalam bentuk migrasi **BARU** `0015_penutup_celah_putaran16.sql`
    (berkas `0001`–`0014` beku; penjaga `alat/periksa-migrasi-beku.py`), tiap perbaikan + uji regresi + mutasi wajib MERAH.
  (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
@@ -93,7 +112,7 @@ dijaga `alat/periksa-migrasi-beku.py` (ikut berjalan di CI, punya `--uji-diri`, 
 di `alat/periksa-gerbang-ci.py --uji-diri`).
 
 **Langkah berikutnya (urut):**
-1. **T1-45 sisa 23 temuan** — mulai **K-1**, tetapi kini dalam bentuk **`supabase/migrations/0015_penutup_celah_putaran16.sql`**
+1. **T1-45 sisa 21 temuan** (PR-12 sudah ditutup 2026-09-19) — mulai **K-1**, tetapi kini dalam bentuk **`supabase/migrations/0015_penutup_celah_putaran16.sql`**
    (berkas lama tidak boleh disunting), lengkap dengan uji regresi + semua mutasi wajib MERAH.
 2. **`T-021` (halaman publik)** — menunggu DUA hal dari Lee: rahasia `CLOUDFLARE_API_TOKEN` (panduan
    `docs/ops/LANGKAH_PEMILIK_SEKARANG.md`, pakai templat **Edit Cloudflare Workers**, bukan *Create Custom Token*)
@@ -124,7 +143,7 @@ penanda; (2) catat bukti tabel ada; (3) bila Lee setuju, buat penanda aplikasi/S
 → catat alamat publik + hapus penanda. Kedua alur diawasi `alat/periksa-gerbang-ci.py` (dua arah, 8 + 5 perintah, **urutan diperiksa**).
 
 **Langkah berikutnya (urut):**
-1. **T1-45, sisa 23 temuan** — mulai **K-1** (penanda `resto.pembatalan_*` dipalsukan → void sesudah dapur tanpa PIN
+1. **T1-45, sisa 21 temuan** — mulai **K-1** (penanda `resto.pembatalan_*` dipalsukan → void sesudah dapur tanpa PIN
    & tanpa jejak), lalu **K-2** (diskon pada `lunas`/`batal` · void satu item jangan menutup pesanan · kebocoran
    `nomor_pesanan_berikutnya` lintas resto · oracle PIN kembar), lalu K-3/K-4 (jejak berjenjang, kupon↔pesanan Edge
    `p_pesanan_id`, buku besar stok, PIN warisan 4 angka, grant `service_role`/`anon`, tautan meja, tabel hantu
@@ -148,7 +167,7 @@ dari repo + daftar pensiun + bahan review PR hidup di luar repo) dan **PR-10** (
 kini dua arah — 49 perintah CI diawasi, `if:` dilarang — dibuktikan menolak di salinan `/tmp/gc2`).
 
 **Langkah berikutnya yang wajib (urut):**
-1. **Lanjutkan `T1-45`** — sisa **23 temuan**. Urutan nilai:
+1. **Lanjutkan `T1-45`** — sisa **21 temuan**. Urutan nilai:
    **(a) K-1** penanda `resto.pembatalan_*` jangan dipercaya (kasir bisa memasang penanda transaksi sendiri →
    void sesudah dapur tanpa PIN & tanpa jejak; bukti probe peninjau sudah direproduksi);
    **(b) K-2** diskon pada pesanan `lunas`/`batal` · void satu item jangan menutup seluruh pesanan · kebocoran
