@@ -10,11 +10,10 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `fedea15b782c90e5630b36abb841b600b78ec586`
+- **Commit keadaan kerja:** `ef2a809429752dd8d3ce507fde7e75105787d611`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (run 35447425474, commit 1d686fe0)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (run 35447616802, commit ef2a8094)
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +27,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **6** — T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (41 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (41 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (43 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (43 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -83,8 +82,9 @@ mengambil bahan. Auditor berhenti dengan jujur, tidak menulis apa pun (benar sec
 5. `.obsidian/workspace.json` dikeluarkan dari Git (sudah di `.gitignore`) — kehadirannya membuat pembuat paket berhenti `F-13`.
 6. Riwayat jujur: baris audit **E — TERBLOKIR** di `docs/uji/AUDIT_RIWAYAT.md`.
 
-**Langkah berikutnya:** paket AUD-3 **baru** dibuat di commit terakhir (lihat nama di `docs/uji/paket-audit/`), lalu Lee menyalin
-**berkas `-SIAP-TEMPEL`** ke chat auditor baru. Sementara menunggu, maraton T1-45 lanjut ke **K-3**.
+**Langkah berikutnya (aksi Lee):** salin berkas **`docs/uji/paket-audit/AUD-3-2026-09-19-4830b5a-SIAP-TEMPEL.md`**
+(seluruh isinya, dari baris pertama sampai terakhir) ke **chat auditor baru**, lalu kirim laporannya ke sesi ini. Sementara menunggu,
+maraton T1-45 lanjut ke **K-3**.
 
 **PUTARAN 18h (2026-09-19) — MARATON T1-45: SELURUH K-2 TUNTAS (4/4).**
 
