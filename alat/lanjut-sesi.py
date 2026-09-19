@@ -216,22 +216,45 @@ def cabang_memuat(sha: str, cabang: str, akar: pathlib.Path) -> bool | None:
     (best-effort, satu kali) supaya jawabannya biasanya tetap pasti.
     """
     kandidat = [f"refs/remotes/origin/{cabang}", cabang]
-    for ref in kandidat:
+
+    def memuat(ref: str) -> bool | None:
         kode, _ = jalankan(["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"], cwd=akar)
         if kode != 0:
-            continue
+            return None
         kode, _ = jalankan(["git", "merge-base", "--is-ancestor", sha, ref], cwd=akar)
-        if kode in (0, 1):
-            return kode == 0
+        return None if kode not in (0, 1) else kode == 0
+
+    def periksa_semua() -> tuple[bool, bool | None, bool | None]:
+        """(ada yang memuat, ada yang pasti TIDAK memuat, ada yang bisa diperiksa)."""
+        memuat_ada = False
+        tidak_ada = False
+        diperiksa = False
+        for ref in kandidat:
+            hasil = memuat(ref)
+            if hasil is None:
+                continue
+            diperiksa = True
+            if hasil:
+                memuat_ada = True
+            else:
+                tidak_ada = True
+        return memuat_ada, tidak_ada, diperiksa
+
+    # Kejadian nyata 2026-09-20: ref remote-tracking lokal TERTINGGAL (sandbox me-reset Git di
+    # tengah batch) sehingga pemeriksaan pertama menjawab "tidak memuat" padahal cabang lokal
+    # sendiri memuatnya. Karena itu: periksa SEMUA kandidat dulu, dan kalau ada yang menjawab
+    # tidak sementara tidak ada yang menjawab ya — tanya langsung ke remote sebelum menuduh.
+    memuat_ada, tidak_ada, _ = periksa_semua()
+    if memuat_ada:
+        return True
     jalankan(["git", "fetch", "--quiet", "origin",
               f"+refs/heads/{cabang}:refs/remotes/origin/{cabang}"], cwd=akar)
-    kode, _ = jalankan(["git", "rev-parse", "--verify", "--quiet",
-                        f"refs/remotes/origin/{cabang}^{{commit}}"], cwd=akar)
-    if kode != 0:
+    memuat_ada, tidak_ada2, diperiksa = periksa_semua()
+    if memuat_ada:
+        return True
+    if not diperiksa:
         return None
-    kode, _ = jalankan(["git", "merge-base", "--is-ancestor", sha,
-                        f"refs/remotes/origin/{cabang}"], cwd=akar)
-    return None if kode not in (0, 1) else kode == 0
+    return False if (tidak_ada or tidak_ada2) else None
 
 
 def daftar_cabang_sesi(akar: pathlib.Path) -> list[tuple[str, str, str, str, bool, bool]]:
@@ -746,7 +769,7 @@ def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool,
               dengan_remote: bool = False, remote_memuat_head: bool = True,
               tracking_tertinggal: bool = False, cabang: str = "cabang-uji",
               target_palsu: bool = False, ditinggalkan: bool = False,
-              target_tertinggal: bool = False,
+              target_tertinggal: bool = False, commit_ekstra: bool = False,
               lama_menyesatkan: bool = False) -> tuple[pathlib.Path, pathlib.Path | None]:
     """Buat repo Git kecil berisi berkas handoff dengan SHA yang bisa benar/salah.
 
@@ -799,9 +822,10 @@ def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool,
     for perintah in (["git", "add", "-A"], ["git", "commit", "-qm", "awal"]):
         sp.run(perintah, cwd=repo, env=env, capture_output=True, check=False)
     _, sha_lama = jalankan(["git", "rev-parse", "HEAD"], cwd=repo)
-    if target_tertinggal:
-        # Satu commit tambahan: ruang supaya "cabang lama" bisa berdiri DI BELAKANG commit
-        # keadaan handoff (kalau tidak, cabang lama pasti sudah memuatnya).
+    if target_tertinggal or commit_ekstra:
+        # Satu commit tambahan: ruang supaya "cabang lama" (atau ref remote-tracking yang
+        # tertinggal) bisa berdiri DI BELAKANG commit keadaan handoff (kalau tidak, ia pasti
+        # sudah memuatnya).
         (repo / "berkas-lama.txt").write_text("lama\n", encoding="utf-8")
         for perintah in (["git", "add", "-A"], ["git", "commit", "-qm", "awal-2"]):
             sp.run(perintah, cwd=repo, env=env, capture_output=True, check=False)
@@ -834,8 +858,9 @@ def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool,
                    env=env, capture_output=True, check=False)
         elif tracking_tertinggal:
             # Remote sudah memuat HEAD, tetapi ref remote-tracking lokal dimundurkan:
-            # meniru kejadian nyata `git push origin HEAD` yang tidak memperbarui ref itu.
-            _, dua = jalankan(["git", "rev-parse", "HEAD^"], cwd=repo)
+            # meniru kejadian nyata `git push origin HEAD` yang tidak memperbarui ref itu
+            # (atau sandbox yang me-reset Git sehingga ref itu berhenti di commit lama).
+            _, dua = jalankan(["git", "rev-parse", "HEAD~2" if commit_ekstra else "HEAD^"], cwd=repo)
             sp.run(["git", "update-ref", f"refs/remotes/origin/{cabang}", dua.strip()], cwd=repo,
                    env=env, capture_output=True, check=False)
     return repo, bare
@@ -988,6 +1013,15 @@ def uji_diri() -> int:
         masalah_tt = periksa(akar=repo_tt, penuh=True)
         hasil.append(("ref remote-tracking tertinggal tapi remote memuat HEAD → TIDAK ditolak",
                       not masalah_tt, "lolos" if not masalah_tt else masalah_tt[0][:90]))
+
+        # Kasus nyata 2026-09-20: ref remote-tracking tertinggal SAMPAI DI BELAKANG commit
+        # keadaan handoff, padahal remote sudah memuatnya (sandbox me-reset Git di tengah
+        # batch). Dulu ini menuduh handoff basi secara palsu → wajib TIDAK ditolak.
+        repo_ttd, _ = _repo_uji(tmp_p / "ttd", None, True, dengan_remote=True,
+                                tracking_tertinggal=True, commit_ekstra=True)
+        masalah_ttd = periksa(akar=repo_ttd, penuh=True)
+        hasil.append(("ref remote-tracking tertinggal DI BELAKANG commit keadaan handoff → TIDAK ditolak",
+                      not masalah_ttd, "lolos" if not masalah_ttd else masalah_ttd[0][:90]))
 
         # Kasus nyata: pekerjaan lokal belum sampai ke remote → WAJIB ditolak.
         repo_bp, _ = _repo_uji(tmp_p / "bp", None, True, dengan_remote=True, remote_memuat_head=False)
