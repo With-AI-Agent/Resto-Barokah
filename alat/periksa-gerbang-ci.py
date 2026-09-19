@@ -94,6 +94,55 @@ GERBANG_WAJIB = [
     ("uji-diri pemeriksa kontras", r"python3 aplikasi/alat/uji-kontras.py --uji-diri"),
 ]
 
+# ---------------------------------------------------------------------------
+# ALUR DI LUAR ci.yml (berkas alur "disengaja" milik pemilik: menyebar skema ke proyek nyata,
+# dan menaikkan halaman ke Cloudflare). Kenapa ikut diawasi: berkas alur apa pun bisa
+# dilemahkan senyap dengan cara yang sama (`continue-on-error`, `|| true`, langkah dihapus) —
+# dan justru alur inilah yang menyentuh aset NYATA milik pemilik.
+#
+# Aturan per berkas:
+#   "perintah" = daftar (nama, pola) yang WAJIB ada dan WAJIB dikenali (dua arah, seperti ci.yml);
+#   "berkas"   = baris penting yang bukan perintah, mis. penyaring berkas penanda. Kalau penyaring
+#                itu hilang, alur akan menyala di SETIAP kiriman kode — bahaya senyap yang nyata.
+ALUR_LAIN: dict[str, dict[str, list[tuple[str, str]]]] = {
+    "sebar-skema.yml": {
+        "perintah": [
+            ("cek rahasia SUPABASE_ACCESS_TOKEN tersedia",
+             r'test -n "\$SUPABASE_ACCESS_TOKEN" \|\| \{ echo .*exit 1; \}'),
+            ("cek rahasia SUPABASE_DB_PASSWORD tersedia",
+             r'test -n "\$SUPABASE_DB_PASSWORD" \|\| \{ echo .*exit 1; \}'),
+            ("tautkan ke proyek Supabase",
+             r'npx --yes supabase@2\.117\.0 --yes link --project-ref "\$SUPABASE_PROJECT_REF"'),
+            ("pratinjau rencana lebih dulu (dry-run)",
+             r"npx --yes supabase@2\.117\.0 --yes db push --dry-run"),
+            ("sebar migrasi",
+             r"npx --yes supabase@2\.117\.0 --yes db push"),
+            ("daftar migrasi terpasang (bukti)",
+             r"npx --yes supabase@2\.117\.0 --yes migration list"),
+        ],
+        "berkas": [
+            ("hanya menyala lewat berkas penanda supabase/SEBAR-SKEMA",
+             r"^\s*- 'supabase/SEBAR-SKEMA'\s*$"),
+        ],
+    },
+    "sebar-halaman.yml": {
+        "perintah": [
+            ("cek rahasia CLOUDFLARE_API_TOKEN tersedia",
+             r'test -n "\$CLOUDFLARE_API_TOKEN" \|\| \{ echo .*exit 1; \}'),
+            ("pasang pustaka aplikasi", r"npm ci"),
+            ("bangun lalu unggah (satu perintah rilis)", r"npm run deploy"),
+        ],
+        "berkas": [
+            ("hanya menyala lewat berkas penanda aplikasi/SEBAR-HALAMAN",
+             r"^\s*- 'aplikasi/SEBAR-HALAMAN'\s*$"),
+        ],
+    },
+}
+
+# Alur yang WAJIB ADA. Kalau seseorang menghapus berkasnya, penyebaran jadi tidak mungkin —
+# itu juga perubahan yang harus disengaja, bukan senyap.
+ALUR_WAJIB_ADA = tuple(ALUR_LAIN)
+
 # Perintah yang boleh ada di CI tanpa masuk daftar di atas (mis. langkah perawatan runner).
 # Kosong dengan sengaja: setiap perintah baru WAJIB didaftarkan — itulah inti penjaganya.
 PERINTAH_TANPA_GERBANG: tuple[str, ...] = ()
@@ -195,6 +244,46 @@ def periksa(akar: pathlib.Path) -> tuple[int, list[str]]:
             baris = teks[: cocok.start()].count("\n") + 1
             pesan.append(f"pelemahan gerbang di baris {baris}: {alasan}")
 
+    # ---- alur di luar ci.yml: perintah diawasi dua arah + dilarang dilemahkan senyap ----
+    for nama_alur in ALUR_WAJIB_ADA:
+        alur = akar / ".github" / "workflows" / nama_alur
+        if not alur.is_file():
+            pesan.append(f"alur wajib TIDAK ADA: .github/workflows/{nama_alur} (penyebaran jadi tidak mungkin)")
+            continue
+        aturan = ALUR_LAIN[nama_alur]
+        isi_alur = alur.read_text(encoding="utf-8")
+        perintah_alur = perintah_ci(isi_alur)
+
+        for nama, pola in aturan["berkas"]:
+            if not re.search(pola, isi_alur, re.M):
+                pesan.append(f".github/workflows/{nama_alur}: kunci wajib hilang/diubah — {nama}")
+
+        kurang_alur: list[str] = []
+        for nama, pola in aturan["perintah"]:
+            if not any(re.search(rf"^{pola}$", q) for q in perintah_alur):
+                kurang_alur.append(nama)
+        if kurang_alur:
+            pesan.append(
+                f".github/workflows/{nama_alur}: perintah wajib TIDAK ADA (atau diubah sehingga tidak "
+                "dikenali): " + ", ".join(kurang_alur)
+            )
+
+        pola_alur = [re.compile(rf"^{pola}$") for _, pola in aturan["perintah"]]
+        for q in perintah_alur:
+            if any(r.search(q) for r in pola_alur):
+                continue
+            pesan.append(
+                f"perintah TIDAK DIKENAL di .github/workflows/{nama_alur}: `{q}` — daftarkan di "
+                "`ALUR_LAIN` (alat/periksa-gerbang-ci.py) supaya tidak ada langkah yang tak diawasi"
+            )
+
+        for pola, alasan in PELEMAHAN:
+            for cocok in re.finditer(pola, isi_alur, re.M):
+                baris_alur = isi_alur[: cocok.start()].count("\n") + 1
+                pesan.append(
+                    f"pelemahan gerbang di .github/workflows/{nama_alur} baris {baris_alur}: {alasan}"
+                )
+
     for i, baris_ci in enumerate(teks.splitlines(), start=1):
         if baris_ci.lstrip().startswith("#"):
             continue  # komentar boleh menyebut --daftar (justru menjelaskan kenapa tidak dipakai)
@@ -224,7 +313,8 @@ def uji_diri() -> int:
     with tempfile.TemporaryDirectory(prefix="gerbang-ci-") as tmp:
         tmp_p = pathlib.Path(tmp)
         (tmp_p / ".github" / "workflows").mkdir(parents=True)
-        shutil.copy2(akar_asli / ".github" / "workflows" / "ci.yml", tmp_p / ".github" / "workflows" / "ci.yml")
+        for berkas_alur in sorted((akar_asli / ".github" / "workflows").glob("*.y*ml")):
+            shutil.copy2(berkas_alur, tmp_p / ".github" / "workflows" / berkas_alur.name)
         (tmp_p / "alat").mkdir(parents=True, exist_ok=True)
         shutil.copy2(akar_asli / "alat" / "periksa-gerbang-ci.py", tmp_p / "alat" / "periksa-gerbang-ci.py")
 
@@ -280,6 +370,32 @@ def uji_diri() -> int:
         mutasi("riwayat penuh (fetch-depth 0) diturunkan ke 1",
                lambda t: t.replace("          fetch-depth: 0", "          fetch-depth: 1", 1))
 
+        # Alur penyebaran milik pemilik (sejak 2026-09-19) juga WAJIB tidak bisa dilemahkan senyap.
+        def mutasi_berkas(relatif: str, nama: str, ubah) -> None:
+            berkas = tmp_p / relatif
+            asli = berkas.read_text(encoding="utf-8")
+            berkas.write_text(ubah(asli), encoding="utf-8")
+            kode_m, keluar_m = _jalankan(skrip_uji, tmp_p)
+            kasus.append((f"mutasi: {nama} → ditolak", kode_m != 0))
+            if kode_m == 0:
+                print(f"  ! {nama} DILOLOSKAN\n{keluar_m[:600]}")
+            berkas.write_text(asli, encoding="utf-8")
+
+        mutasi_berkas(".github/workflows/sebar-skema.yml", "alur sebar skema diberi continue-on-error",
+                      lambda s: s.replace("    runs-on: ubuntu-latest", "    runs-on: ubuntu-latest\n    continue-on-error: true", 1))
+        mutasi_berkas(".github/workflows/sebar-skema.yml", "pratinjau dry-run dihapus dari alur sebar skema",
+                      lambda s: s.replace("npx --yes supabase@2.117.0 --yes db push --dry-run\n", "", 1))
+        mutasi_berkas(".github/workflows/sebar-skema.yml", "perintah sebar migrasi ditelan (|| true)",
+                      lambda s: s.replace("      - name: Sebar migrasi\n        run: npx --yes supabase@2.117.0 --yes db push",
+                                          "      - name: Sebar migrasi\n        run: npx --yes supabase@2.117.0 --yes db push || true", 1))
+        mutasi_berkas(".github/workflows/sebar-skema.yml", "penyaring berkas penanda sebar skema dihapus",
+                      lambda s: s.replace("      - 'supabase/SEBAR-SKEMA'\n", "", 1))
+        mutasi_berkas(".github/workflows/sebar-halaman.yml", "alur sebar halaman diberi if: selalu",
+                      lambda s: s.replace("      - name: Bangun lalu unggah (satu perintah rilis)",
+                                          "      - name: Bangun lalu unggah (satu perintah rilis)\n        if: always()", 1))
+        mutasi_berkas(".github/workflows/sebar-halaman.yml", "perintah rilis diganti sekadar build",
+                      lambda s: s.replace("run: npm run deploy", "run: npm run build", 1))
+
     print("\nUJI-DIRI PEMERIKSA GERBANG CI")
     for nama, lulus in kasus:
         print(f"  {'OK ' if lulus else 'X  '} {nama}")
@@ -303,7 +419,13 @@ def main() -> int:
             print(f"  [X] {p}")
         print("\nHASIL: GAGAL — gerbang CI hilang/dilemahkan.")
         return 1
-    print(f"PERIKSA GERBANG CI — {jumlah_gerbang} gerbang wajib ada, tanpa pelemahan, dan suite SQL dijalankan penuh.")
+    print(
+        f"PERIKSA GERBANG CI — {jumlah_gerbang} gerbang wajib ada, tanpa pelemahan, dan suite SQL dijalankan penuh."
+    )
+    print(
+        "  · alur di luar ci.yml ikut diawasi: "
+        + ", ".join(f"{n} ({len(ALUR_LAIN[n]['perintah'])} perintah)" for n in ALUR_WAJIB_ADA)
+    )
     print("\nHASIL: LOLOS — gerbang CI utuh (bukti bisa MENOLAK: jalankan dengan --uji-diri).")
     return 0
 

@@ -7,7 +7,8 @@ Tujuan: menyiapkan **dua akun gratis** supaya agent bisa menyambungkan aplikasi.
 > **SELESAI 2026-09-19:** Lee sudah membuat akun **Supabase**, **Resend**, dan **Cloudflare**, lalu menyerahkan nilai
 > non-rahasia lewat `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`. Panduan di bawah tetap disimpan sebagai catatan cara.
 > Dua langkah lanjutan yang masih menunggu Lee: **menyebar skema ke proyek nyata** (`T-020`) dan **menaikkan halaman kosong**
-> ke Cloudflare (`T-021`).
+> ke Cloudflare (`T-021`). Keduanya sekarang punya panduan sendiri yang lebih singkat:
+> `docs/ops/LANGKAH_PEMILIK_SEKARANG.md` — isinya hanya menempel **3 rahasia** ke kotak rahasia GitHub (tanpa perintah).
 
 ---
 

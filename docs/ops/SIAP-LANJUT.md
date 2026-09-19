@@ -76,6 +76,13 @@ masuk repo/obrolan). Selesai hari ini: klien Supabase aman `aplikasi/src/lib/sup
 kredensial pemilik; sesudahnya DoD `select 1` T0-08 bisa dituntaskan) · `T-021` deploy publik halaman kosong ke Cloudflare
 (tindakan publik & tak bisa dibatalkan).
 
+**Jalurnya sudah disiapkan mesin (2026-09-19):** Lee tinggal menempel **3 rahasia** ke kotak rahasia GitHub
+(`SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `CLOUDFLARE_API_TOKEN`) — panduan langkah bernomor tanpa perintah:
+`docs/ops/LANGKAH_PEMILIK_SEKARANG.md` (baris `BUKU_UJI_PEMILIK` P-04/P-05). Setelah Lee bilang "Rahasia sudah dipasang",
+agent: (1) buat berkas penanda supabase/SEBAR-SKEMA → alur menjalankan **dry-run lebih dulu** lalu menyebar → hapus
+penanda; (2) catat bukti tabel ada; (3) bila Lee setuju, buat penanda aplikasi/SEBAR-HALAMAN → alur menaikkan halaman
+→ catat alamat publik + hapus penanda. Kedua alur diawasi `alat/periksa-gerbang-ci.py` (dua arah, 6 + 3 perintah).
+
 **Langkah berikutnya (urut):**
 1. **T1-45, sisa 23 temuan** — mulai **K-1** (penanda `resto.pembatalan_*` dipalsukan → void sesudah dapur tanpa PIN
    & tanpa jejak), lalu **K-2** (diskon pada `lunas`/`batal` · void satu item jangan menutup pesanan · kebocoran

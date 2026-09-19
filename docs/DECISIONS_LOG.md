@@ -745,3 +745,37 @@ nyata), bukan klaim selesai.
 **File terkait:** `aplikasi/src/lib/supabase.ts`, `aplikasi/alat/cek-supabase.mjs`, `aplikasi/wrangler.toml`,
 `.github/workflows/ci.yml`, `alat/periksa-gerbang-ci.py`, `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`,
 `docs/TERTANGGUH.md` (T-018 selesai; T-020/T-021 terbuka).
+
+---
+
+## [Infrastruktur/2026-09-19] Penyebaran ke aset pemilik lewat alur "disengaja" (berkas penanda) — rahasia hanya di kotak rahasia GitHub
+
+**Konteks:** Fase 0 tinggal dua langkah yang menyentuh aset nyata pemilik: menyebar 14 migrasi ke proyek Supabase
+(butir `T-020`) dan menaikkan halaman ke Cloudflare (butir `T-021`). Keduanya tidak boleh berjalan di setiap kiriman
+kode, dan kuncinya **tidak boleh** masuk repo/obrolan. Lingkungan agent juga tidak punya jalan keluar jaringan ke
+`*.supabase.co`, sedangkan runner GitHub punya.
+
+**Keputusan:**
+1. **Sengaja, bukan otomatis.** Dua alur terpisah di `.github/workflows/`: `sebar-skema.yml` dan `sebar-halaman.yml`.
+   Keduanya hanya menyala lewat **berkas penanda** (supabase/SEBAR-SKEMA dan aplikasi/SEBAR-HALAMAN) yang dibuat
+   sesaat lalu dihapus setelah hijau — jadi tidak ada penyebaran tak sengaja di kiriman berikutnya.
+2. **Pratinjau lebih dulu.** Alur sebar skema menjalankan `supabase db push --dry-run` **sebelum** penyebaran sungguhan;
+   kalau ada migrasi yang tidak cocok, tidak ada yang berubah di proyek nyata dan alurnya langsung merah.
+3. **Rahasia hanya di kotak rahasia GitHub.** `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `CLOUDFLARE_API_TOKEN`
+   dipasang **pemilik** di Settings → Secrets and variables → Actions. Nilainya tidak pernah masuk repo, commit, laporan,
+   atau obrolan; agent tidak pernah melihatnya. Nomor proyek/akun (bukan rahasia) boleh duduk di berkas.
+4. **Alur lain ikut diawasi penjaga.** `alat/periksa-gerbang-ci.py` diperluas: perintah di kedua alur diperiksa **dua arah**
+   seperti `ci.yml` (6 + 3 perintah), penyaring berkas penanda wajib ada, dan seluruh berkas alur dilarang memuat
+   pelemahan senyap (`continue-on-error`, `|| true`, `if:` pada langkah). `--uji-diri` menambah **6 mutasi**, semuanya
+   wajib ditolak (mis. dry-run dihapus, perintah rilis diganti sekadar `build`).
+5. **`supabase/config.toml` ditulis ringkas tanpa `env(...)`.** Versi hasil `supabase init` memuat
+   `openai_api_key = "env(OPENAI_API_KEY)"` yang membuat CLI menolak berjalan di CI bila variabelnya tidak ada;
+   bentuk ringkas sudah diuji dengan CLI **2.117.0** (`db push --dry-run` menerima berkasnya).
+
+**Batas jujur:** keputusan ini **belum** menyebar apa pun — kedua alur baru menyala setelah pemilik memasang rahasia
+dan agent membuat berkas penanda. Sampai itu terjadi, `T-020`/`T-021` tetap **terbuka**, dan klaim "skema sudah ada di
+proyek nyata" atau "halaman sudah publik" belum boleh ditulis di dokumen mana pun.
+
+**File terkait:** `.github/workflows/sebar-skema.yml`, `.github/workflows/sebar-halaman.yml`, `supabase/config.toml`,
+`alat/periksa-gerbang-ci.py`, `docs/ops/LANGKAH_PEMILIK_SEKARANG.md`, `docs/uji/BUKU_UJI_PEMILIK.md` (P-04/P-05),
+`docs/TERTANGGUH.md` (T-020/T-021).
