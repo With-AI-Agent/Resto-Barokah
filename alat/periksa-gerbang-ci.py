@@ -54,7 +54,7 @@ GERBANG_WAJIB = [
     ("suite uji SQL penuh", r"node alat/uji-sql.mjs"),
     ("bukti mutasi pagar migrasi 0012", r"python3 alat/uji-mutasi-0012.py"),
     ("bukti mutasi pagar migrasi 0014", r"python3 alat/uji-mutasi-0014.py"),
-    ("bukti mutasi pagar migrasi 0015 (K-1 putaran16)", r"python3 alat/uji-mutasi-0015.py"),
+    ("bukti mutasi pagar migrasi 0015 (K-1 + K-2 putaran16)", r"python3 alat/uji-mutasi-0015.py"),
     ("validator sistem", r"python3 _sistem/validate_system.py"),
     ("pemeriksa fungsi PIN", r"python3 alat/periksa-fungsi-pin.py"),
     ("pemeriksa roadmap", r"python3 alat/periksa-roadmap.py"),

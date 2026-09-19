@@ -870,3 +870,38 @@ status='batal'` — dan item sesudah dapur **berhasil** dibatalkan tanpa PIN ata
 **Batas jujur:** bagian 1 ini menutup **satu** temuan (K-1). Temuan K-2…K-4 belum; daftarnya tetap di
 `docs/uji/REVIEW_PR_RIWAYAT.md` §1 dan `docs/uji/AUDIT_RIWAYAT.md` §1b dengan pemilik `T1-45`/`T1-44`.
 Berkas migrasi `0015` akan bertambah bagian pada batch berikutnya — berkas `0001`–`0014` tetap beku.
+
+---
+
+## [Uang/2026-09-19] Tagihan yang sudah dibayar tidak boleh ditulis ulang — dan batal satu item bukan batal satu pesanan
+
+**Konteks (temuan audit D F-01 + review PR-02, putaran16):** dua keadaan nyata dari kursi kasir.
+(1) Pesanan sudah `lunas` (uang diterima & tercatat), lalu baris `diskon_transaksi` disisipkan —
+pemicu hitung-ulang mengubah `pesanan.total` SETELAH lunas, tanpa penjelasan resmi di jejak.
+(2) Membatalkan SATU item (`pembatalan` dengan `pesanan_item_id`) langsung menulis
+`pesanan.status = 'batal'`, padahal item lain masih hidup — akibatnya pembayaran sisa DITOLAK
+("pesanan sudah batal") dan pelanggan tidak bisa membayar item yang benar-benar ia terima.
+
+**Keputusan:**
+1. **Diskon hanya boleh berubah selama tagihan belum tercatat.** Baris diskon tidak bisa
+   ditambah/diubah/dihapus pada pesanan `lunas` atau `batal`, oleh siapa pun. Jalur sah untuk
+   memperbaiki uang sesudah tercatat adalah **pembatalan/void resmi** (baris `pembatalan`,
+   berikut PIN atasan bila dapur sudah mulai) — bukan menulis ulang tagihan lama.
+2. **Status `batal` pada pesanan berarti SELURUH pesanan batal.** Void satu item tidak menutup
+   pesanan; pesanan ditutup hanya bila tidak ada item hidup tersisa atau pembatalannya memang
+   tingkat pesanan. Pesanan yang ditutup menandai **seluruh** itemnya `batal`, supaya tidak ada
+   keadaan setengah jalan (pesanan batal tetapi item tampak masih terutang).
+3. **Angka uang tetap dihitung satu tempat** (`hitung_total`): item `batal` tidak ditagih, jadi
+   tagihan sisa otomatis benar dan bisa dibayar.
+4. **Urutan pemicu adalah bagian dari keputusan.** Pemicu pemeriksa STATUS pesanan bernama
+   `diskon_awal_pesanan` supaya berjalan sebelum pemicu nilai `diskon_batas` (PostgreSQL
+   menjalankan pemicu sebaris menurut abjad nama): penolakan harus berbunyi tentang status,
+   bukan tertutup pesan tentang nilai diskon. Urutan ini dikunci uji (mutasi "nama pemicu
+   diubah" wajib MERAH).
+
+**Bukti:** `supabase/tes/void_satu_item.sql` dan `supabase/tes/diskon_sesudah_lunas.sql` (bagian
+dari suite 44 berkas). `alat/uji-mutasi-0015.py` kini 11 kasus: 10 mutasi wajib MERAH semuanya
+terbukti merah (termasuk "kembalikan perilaku 0014: selalu tutup pesanan", "pagar diskon dihapus",
+"pemicu dilepas dari tabel", "urutan pemicu dibalik"), 1 kasus memang diharapkan hijau (penanda
+lama ditulis ulang tanpa pagar lama). Berkas `0001`–`0014` tetap beku; semua perubahan hidup di
+`0015` yang belum pernah disebar ke proyek nyata.

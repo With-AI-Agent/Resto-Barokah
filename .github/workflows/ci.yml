@@ -99,7 +99,7 @@ jobs:
       - name: Bukti mutasi pagar migrasi 0014 — putaran13 & audit 2026-09-18 (17 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0014.py
 
-      - name: Bukti mutasi pagar migrasi 0015 — putaran16 temuan K-1 (semua mutasi WAJIB MERAH)
+      - name: Bukti mutasi pagar migrasi 0015 — putaran16 K-1 + K-2a + K-2b (semua mutasi WAJIB MERAH)
         run: python3 alat/uji-mutasi-0015.py
 
       - name: Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras

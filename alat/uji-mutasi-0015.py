@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """uji-mutasi-0015.py — bukti bahwa pagar penutup celah putaran16 BENAR-BENAR bekerja.
 
-Menguji migrasi `supabase/migrations/0015_penutup_celah_putaran16.sql` (temuan K-1: penanda
-pembatalan `resto.pembatalan_pesanan` bisa dipalsukan kasir). Gerbang yang tidak bisa MERAH
-dianggap belum terpasang — itu pelajaran mahal proyek ini.
+Menguji migrasi `supabase/migrations/0015_penutup_celah_putaran16.sql`:
+  * bagian 1 — K-1: penanda pembatalan `resto.pembatalan_pesanan` bisa dipalsukan kasir
+                 (uji: `supabase/tes/pembatalan_penanda_palsu.sql`)
+  * bagian 2 — K-2a: void SATU item ikut membatalkan seluruh pesanan
+                 (uji: `supabase/tes/void_satu_item.sql`)
+  * bagian 3 — K-2b: diskon bisa ditanam sesudah pesanan lunas/batal (audit F-01)
+                 (uji: `supabase/tes/diskon_sesudah_lunas.sql`)
+Gerbang yang tidak bisa MERAH dianggap belum terpasang — itu pelajaran mahal proyek ini.
 
 Cara kerjanya: salin repo ke folder sementara, RUSAK satu penjaga (atau kembalikan versi lama
-dari migrasi 0014 yang bocor), lalu jalankan berkas uji regresinya
-(`supabase/tes/pembatalan_penanda_palsu.sql`). Kalau uji tetap hijau, pagar itu tumpul → alat ini GAGAL.
+dari migrasi 0014 yang bocor), lalu jalankan berkas uji regresinya. Kalau uji tetap hijau,
+pagar itu tumpul → alat ini GAGAL.
 
 Kontrol yang wajib lulus lebih dulu:
   (1) salinan TANPA mutasi → uji hijau;
@@ -27,7 +32,10 @@ AKAR = pathlib.Path(__file__).resolve().parent.parent
 KERJA = pathlib.Path("/tmp/mutasi-0015-rb")
 MIG = "supabase/migrations/0015_penutup_celah_putaran16.sql"
 MIG14 = "supabase/migrations/0014_penutup_celah_putaran13.sql"
-UJI = "supabase/tes/pembatalan_penanda_palsu.sql"
+UJI = "supabase/tes/pembatalan_penanda_palsu.sql"                       # bagian 1 (K-1)
+UJI_PR02 = "supabase/tes/void_satu_item.sql"                            # bagian 2 (K-2a)
+UJI_F01 = "supabase/tes/diskon_sesudah_lunas.sql"                       # bagian 3 (K-2b)
+SEMUA_UJI = (UJI, UJI_PR02, UJI_F01)
 
 
 def segarkan_salinan() -> None:
@@ -55,14 +63,23 @@ def segarkan_salinan() -> None:
         sys.exit(2)
 
 
-def jalankan_uji() -> tuple[int, str]:
+def jalankan_uji(uji: str = UJI) -> tuple[int, str]:
     hasil = subprocess.run(
-        ["node", "alat/uji-sql.mjs", UJI], cwd=KERJA, capture_output=True, text=True, timeout=600
+        ["node", "alat/uji-sql.mjs", uji], cwd=KERJA, capture_output=True, text=True, timeout=600
     )
     return hasil.returncode, hasil.stdout + hasil.stderr
 
 
-def mutasi(nama: str, ubah, harap_merah: bool = True) -> tuple[str, bool, str]:
+def semua_hijau() -> tuple[bool, str]:
+    """Kontrol: SEMUA berkas uji bagian 1–3 harus hijau lebih dulu."""
+    for uji in SEMUA_UJI:
+        kode, keluar = jalankan_uji(uji)
+        if kode != 0:
+            return False, keluar[-1200:]
+    return True, ""
+
+
+def mutasi(nama: str, ubah, harap_merah: bool = True, uji: str = UJI) -> tuple[str, bool, str]:
     berkas = KERJA / MIG
     asli = berkas.read_text(encoding="utf-8")
     try:
@@ -70,7 +87,7 @@ def mutasi(nama: str, ubah, harap_merah: bool = True) -> tuple[str, bool, str]:
         if baru == asli:
             return nama, False, "mutasi tidak mengubah apa pun (pola tidak ditemukan)"
         berkas.write_text(baru, encoding="utf-8")
-        kode, keluar = jalankan_uji()
+        kode, keluar = jalankan_uji(uji)
         lulus = (kode != 0) if harap_merah else (kode == 0)
         catatan = "MERAH (benar)" if kode != 0 else "HIJAU"
         if not lulus:
@@ -83,11 +100,11 @@ def mutasi(nama: str, ubah, harap_merah: bool = True) -> tuple[str, bool, str]:
 def main() -> int:
     segarkan_salinan()
 
-    kode, keluar = jalankan_uji()
-    if kode != 0:
-        print("KONTROL GAGAL: salinan utuh pun tidak hijau — perbaiki dulu berkas ujinya.\n" + keluar[-1500:])
+    hijau, keluar = semua_hijau()
+    if not hijau:
+        print("KONTROL GAGAL: salinan utuh pun tidak hijau — perbaiki dulu berkas ujinya.\n" + keluar)
         return 1
-    print("  OK  kontrol: salinan utuh → uji hijau")
+    print("  OK  kontrol: salinan utuh → SEMUA uji bagian 1–3 hijau")
 
     hasil: list[tuple[str, bool, str]] = []
 
@@ -174,11 +191,84 @@ def main() -> int:
 
     hasil.append(mutasi("fungsi penjaga dikembalikan ke versi 0014 (yang bocor)", pakai_versi_0014))
 
-    # Kontrol penutup: setelah semua mutasi dipulihkan, uji wajib hijau lagi.
-    kode_akhir, keluar_akhir = jalankan_uji()
-    hasil.append(("kontrol penutup: salinan dipulihkan → uji hijau", kode_akhir == 0, "HIJAU" if kode_akhir == 0 else "MERAH"))
+    # ------------------------------------------------------------------ K-2a (PR-02)
+    # 7) Pesanan selalu ditutup begitu ada baris pembatalan (perilaku 0014 yang bocor:
+    #    void SATU item ikut membatalkan seluruh pesanan) → uji PR-02 wajib MERAH.
+    def tutup_selalu(t: str) -> str:
+        return t.replace(
+            "  if new.pesanan_item_id is null or v_sisa_item = 0 then",
+            "  if true then",
+            1,
+        )
 
-    print("\nUJI MUTASI — penutup celah putaran16 (0015, temuan K-1)")
+    hasil.append(mutasi("pesanan selalu ditutup walau baru SATU item dibatalkan (versi 0014)",
+                        tutup_selalu, uji=UJI_PR02))
+
+    # 8) Pesanan yang ditutup tidak lagi menandai itemnya batal → keadaan setengah jalan
+    #    (pesanan batal tapi item tampak masih terutang) → uji PR-02 wajib MERAH.
+    def item_tidak_ditandai(t: str) -> str:
+        return t.replace(
+            """    update public.pesanan_item pi
+       set status = 'batal'
+     where pi.pesanan_id = new.pesanan_id
+       and pi.status <> 'batal';
+""",
+            "",
+            1,
+        )
+
+    hasil.append(mutasi("item pesanan yang ditutup tidak ikut ditandai batal", item_tidak_ditandai,
+                        uji=UJI_PR02))
+
+    # ------------------------------------------------------------------ K-2b (F-01)
+    # 9) Pagar diskon sesudah lunas/batal dihapus → uji F-01 wajib MERAH.
+    def hapus_pagar_diskon(t: str) -> str:
+        return t.replace(
+            """  if v_status in ('lunas', 'batal') then
+    raise exception 'Pesanan yang sudah % tidak boleh lagi ditambah/diubah/dihapus diskonnya — uang sudah tercatat. Jalur sah: pembatalan/void resmi (berikut persetujuan PIN atasan bila dapur sudah mulai).', v_status;
+  end if;
+""",
+            "",
+            1,
+        )
+
+    hasil.append(mutasi("pagar diskon sesudah lunas/batal dihapus (audit F-01)",
+                        hapus_pagar_diskon, uji=UJI_F01))
+
+    # 10) Pemicu diskon dilepas dari tabel (pagar ada tapi tidak terpasang) → wajib MERAH.
+    def lepas_pemicu_diskon(t: str) -> str:
+        return t.replace(
+            "drop trigger if exists diskon_awal_pesanan on public.diskon_transaksi;\n"
+            "create trigger diskon_awal_pesanan\n"
+            "  before insert or update or delete on public.diskon_transaksi\n"
+            "  for each row execute function public.picu_diskon_awal_pesanan();\n",
+            "drop trigger if exists diskon_awal_pesanan on public.diskon_transaksi;\n",
+            1,
+        )
+
+    hasil.append(mutasi("pemicu pagar diskon dilepas dari tabel", lepas_pemicu_diskon, uji=UJI_F01))
+
+    # 11) Nama pemicu dibuat berjalan SETELAH `diskon_batas` → penolakan pada pesanan batal
+    #     berbunyi tentang NILAI (subtotal 0), bukan STATUS. Uji F-01 §6 menuntut sebab yang
+    #     benar, jadi mutasi ini WAJIB MERAH — sekaligus mengunci janji urutan pada komentar.
+    def urutan_pemicu_dibalik(t: str) -> str:
+        return t.replace(
+            "drop trigger if exists diskon_awal_pesanan on public.diskon_transaksi;\n"
+            "create trigger diskon_awal_pesanan\n",
+            "drop trigger if exists diskon_awal_pesanan on public.diskon_transaksi;\n"
+            "create trigger zdiskon_awal_pesanan\n",
+            1,
+        )
+
+    hasil.append(mutasi("nama pemicu diubah sehingga berjalan setelah pemicu nilai (urutan rusak)",
+                        urutan_pemicu_dibalik, uji=UJI_F01))
+
+    # Kontrol penutup: setelah semua mutasi dipulihkan, SEMUA uji wajib hijau lagi.
+    hijau_akhir, keluar_akhir = semua_hijau()
+    hasil.append(("kontrol penutup: salinan dipulihkan → semua uji hijau", hijau_akhir,
+                  "HIJAU" if hijau_akhir else "MERAH\n" + keluar_akhir))
+
+    print("\nUJI MUTASI — penutup celah putaran16 (0015, temuan K-1 + K-2a + K-2b)")
     merah = 0
     for nama, lulus, catatan in hasil:
         if not lulus:
@@ -187,7 +277,7 @@ def main() -> int:
     if merah:
         print(f"\nHASIL: GAGAL — {merah} mutasi tidak sesuai harapan (pagar mungkin tumpul).")
         return 1
-    print("\nHASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar K-1 terbukti bekerja.")
+    print("\nHASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar K-1/K-2a/K-2b terbukti bekerja.")
     return 0
 
 

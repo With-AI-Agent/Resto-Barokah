@@ -10,10 +10,10 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `685410da460f07a96af6acec45faa05a7b427edd`
+- **Commit keadaan kerja:** `8bb0c3b699e3ab292290b51f3ab55eeeb63f3c95`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35440546563, commit 685410da)
+- **CI terakhir:** success (run 35441490803, commit 8bb0c3b6)
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -27,7 +27,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **6** — T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (34 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (34 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (36 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (36 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -61,7 +61,34 @@ PR #1 menunjuk cabang sesi SEBELUMNYA, jadi commit barumu tidak muncul di PR itu
 Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan laporkan tautannya.
 JANGAN merge apa pun tanpa keputusan Lee.
 
-## 3. Rencana berikutnya
+## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18g (2026-09-19) — MARATON T1-45: K-2a + K-2b DITUTUP.**
+
+Dua temuan K-2 tuntas, keduanya di **bagian 2–3** `supabase/migrations/0015_penutup_celah_putaran16.sql`:
+
+* **PR-02 — void satu item tidak lagi membatalkan seluruh pesanan.** Pemicu resmi
+  `picu_pembatalan_jejak` sekarang menutup pesanan (`status = 'batal'`) **hanya** bila tidak ada item hidup
+  tersisa atau pembatalannya memang tingkat pesanan; pesanan yang ditutup menandai **seluruh** itemnya batal
+  (tidak ada lagi keadaan setengah jalan). Akibatnya pembayaran sisa tidak lagi buntu — uji
+  `supabase/tes/void_satu_item.sql` (termasuk membayar item yang masih hidup, dan pesanan yang memang batal).
+* **Audit D F-01 — diskon tidak bisa lagi ditanam sesudah uang tercatat.** Pemicu baru `diskon_awal_pesanan`
+  menolak tambah/ubah/hapus baris diskon pada pesanan `lunas`/`batal`; jalur sahnya pembatalan/void resmi. Nama
+  pemicu sengaja berjalan **sebelum** pemicu nilai `diskon_batas` (abjad nama) supaya penolakan berbunyi tentang
+  status, dan urutan itu ikut dikunci mutasi — uji `supabase/tes/diskon_sesudah_lunas.sql`.
+
+**Bukti mesin:** suite SQL **44 berkas LULUS · 0 GAGAL** (`node alat/uji-sql.mjs`); `python3 alat/uji-mutasi-0015.py`
+**11 kasus — 10 mutasi wajib MERAH semuanya terbukti merah**, 1 kasus memang diharapkan hijau; keputusan dikunci di
+`docs/DECISIONS_LOG.md` `[Uang/2026-09-19]`. Sisa temuan **18** (16 `T1-45`, 2 `T1-44`).
+
+**Langkah berikutnya (urut) — lanjut maraton, sisa `T1-45`:**
+1. **K-2 (sisa 2):** kebocoran hitungan `nomor_pesanan_berikutnya` lintas resto (PR-03, sekaligus tabrakan nomor
+   antar-kasir) · oracle PIN kembar (PR-04).
+2. **K-3 (7):** PR-05 pra-dapur tanpa izin/jejak · PR-06 jejak hierarki ikut rollback · PR-07 kupon tanpa ikatan
+   pesanan (jalur Edge buntu) · PR-08 saldo awal stok tanpa baris buku · PR-09 PIN warisan 4 angka buntu ·
+   PR-13 `KEAMANAN.md` menunjuk tabel hantu · PR-14 hak `service_role`/`peringkat_peran`.
+3. **K-4 (5):** PR-15 hapus meja memutus riwayat · D F-04 & PR-11 + sisa temuan audit ringan (pemilik `T1-44`).
+4. Fase 1B: `T1-24`/`T1-25`/`T1-26` dengan nomor migrasi `0016`+.
 
 **PUTARAN 18f (2026-09-19) — MARATON T1-45: K-1 (PR-01) DITUTUP.**
 
