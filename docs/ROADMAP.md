@@ -651,7 +651,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); akun telantar → mitigasi: daftar pegawai nonaktif + tinjauan berkala di panduan owner.
   - **Verifikasi:** uji manual: tambah pegawai → bisa masuk → nonaktifkan → tidak bisa masuk lagi.
 
-- [ ] T2-04 — Masuk pelanggan: Google (utama) + email terverifikasi (kedua)
+- [ ] T2-04 — Masuk pelanggan: Google (utama) + email terverifikasi (kedua) ❓ T-022
   - **Tujuan:** pelanggan bisa mendaftar tanpa SMS dan tanpa biaya.
   - **Ref:** PRD M10 & M12; TECH_SPEC §7 (integrasi)
   - **File:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/lib/google.ts`
@@ -660,7 +660,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10); data berlebih → mitigasi: hanya nama, email, nomor HP opsional, persetujuan.
   - **Verifikasi:** uji manual masuk Google di perangkat Android + jalur email di desktop.
 
-- [ ] T2-05 — Pemulihan akses pelanggan (lupa PIN / ganti perangkat)
+- [ ] T2-05 — Pemulihan akses pelanggan (lupa PIN / ganti perangkat) ❓ T-022 ❓ T-023
   - **Tujuan:** pelanggan tidak terjebak kehilangan vouchernya.
   - **Ref:** PRD M10 (kasus tepi); TECH_SPEC §7
   - **File:** `supabase/functions/pemulihan_pelanggan/index.ts`, `aplikasi/src/layar/masuk/LupaAkses.tsx`
