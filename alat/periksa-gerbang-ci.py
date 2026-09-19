@@ -54,6 +54,7 @@ GERBANG_WAJIB = [
     ("suite uji SQL penuh", r"node alat/uji-sql.mjs"),
     ("bukti mutasi pagar migrasi 0012", r"python3 alat/uji-mutasi-0012.py"),
     ("bukti mutasi pagar migrasi 0014", r"python3 alat/uji-mutasi-0014.py"),
+    ("bukti mutasi pagar migrasi 0015 (K-1 putaran16)", r"python3 alat/uji-mutasi-0015.py"),
     ("validator sistem", r"python3 _sistem/validate_system.py"),
     ("pemeriksa fungsi PIN", r"python3 alat/periksa-fungsi-pin.py"),
     ("pemeriksa roadmap", r"python3 alat/periksa-roadmap.py"),
@@ -367,6 +368,8 @@ def uji_diri() -> int:
         mutasi("langkah bukti mutasi dihapus", lambda t: re.sub(r"\n\s*- name: Bukti mutasi[\s\S]*?run: python3 alat/uji-mutasi-0012\.py", "", t, count=1))
         # Gerbang 0014 (putaran13/audit 2026-09-18) dibuktikan sama kuat: kalau
         # langkahnya dihapus dari CI, pemeriksa ini harus MENOLAK.
+        mutasi("langkah bukti mutasi 0015 dihapus",
+               lambda t: re.sub(r"\n\s*- name: Bukti mutasi pagar migrasi 0015[\s\S]*?run: python3 alat/uji-mutasi-0015\.py", "", t, count=1))
         mutasi("langkah bukti mutasi 0014 dihapus", lambda t: re.sub(r"\n\s*- name: Bukti mutasi pagar migrasi 0014[\s\S]*?run: python3 alat/uji-mutasi-0014\.py", "", t, count=1))
         mutasi("npm audit diberi `|| true`", lambda t: t.replace("run: npm audit --audit-level=low", "run: npm audit --audit-level=low || true"))
         mutasi("ambang audit diturunkan", lambda t: t.replace("npm audit --audit-level=low", "npm audit --audit-level=critical"))

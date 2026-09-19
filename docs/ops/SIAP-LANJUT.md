@@ -10,11 +10,10 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `705ed0fa20d1e4d0d3d357ddc1978e844e6f4c56`
+- **Commit keadaan kerja:** `685410da460f07a96af6acec45faa05a7b427edd`
 - **PR:** PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (run 35440433621, commit 705ed0fa)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (run 35440546563, commit 685410da)
 - **Ditulis:** 2026-09-19 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +27,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **6** — T-002, T-003, T-010, T-011, T-015, T-016
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (33 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (33 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (34 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (34 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -63,6 +62,28 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya
+
+**PUTARAN 18f (2026-09-19) — MARATON T1-45: K-1 (PR-01) DITUTUP.**
+
+Temuan **paling berbahaya** tuntas. Sebelumnya kasir bisa memalsukan penanda transaksi
+(`set_config('resto.pembatalan_pesanan', …)`) lalu membatalkan item sesudah dapur **tanpa PIN atasan & tanpa satu pun
+baris jejak**. Perbaikan ada di **migrasi baru** `supabase/migrations/0015_penutup_celah_putaran16.sql` **bagian 1**:
+penanda transaksi tidak lagi diakui di mana pun; pembatalan item setelah dapur hanya sah lewat baris `pembatalan`
+resmi (0013: tahap + PIN + kupon sekali pakai), dan pemicu resmi berhenti menulis penanda itu.
+
+**Bukti:** uji regresi `supabase/tes/pembatalan_penanda_palsu.sql` (4 serangan dari kursi kasir, semuanya ditolak;
+keadaan data tidak berubah) + `alat/uji-mutasi-0015.py` — **6 mutasi**, termasuk "kembalikan versi lama yang bocor",
+"lepas pemicunya", "beri pengecualian diam-diam untuk peran kasir" → semuanya **MERAH** (terbukti), kontrol hijau.
+Masuk CI sebagai **gerbang ke-52** (uji + bukti mutasi). Suite SQL kini **42 berkas LULUS · 0 GAGAL**. Keputusan
+dikunci di `DECISIONS_LOG.md` `[Keamanan uang/2026-09-19]`.
+
+**Langkah berikutnya (urut) — lanjut maraton:**
+1. **K-2 (sisa 4)** — diskon pada pesanan `lunas`/`batal` (audit D F-01) · void satu item ikut membatalkan seluruh
+   pesanan (PR-02) · kebocoran hitungan `nomor_pesanan_berikutnya` lintas resto (PR-03) · oracle PIN kembar (PR-04).
+   Ditulis sebagai **bagian 2…5 dalam `0015_penutup_celah_putaran16.sql`** + uji regresi + mutasi baru di
+   `alat/uji-mutasi-0015.py`.
+2. K-3/K-4 (16 temuan tersisa), lalu Fase 1B (`T1-24`/`T1-25`/`T1-26` dengan nomor migrasi `0016`+).
+ (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 **PUTARAN 18e (2026-09-19) — FASE 0 TUNTAS: HALAMAN PUBLIK NAIK; MARATON T1-45 DIMULAI.**
 

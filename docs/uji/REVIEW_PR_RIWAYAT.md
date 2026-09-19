@@ -34,7 +34,7 @@
 
 | # | Tingkat | Temuan (ringkas) | Status | Bukti / pemilik |
 |---|---|---|---|---|
-| PR-01 | **K-1** | Penanda transaksi `resto.pembatalan_*` bisa dipalsu kasir → void sesudah dapur tanpa PIN & tanpa jejak | **TERBUKA** | probe `docs/uji/audit/probe-2026-09-19/pr01-penanda-palsu.sql` (LULUS = celah ada) → `T1-45` |
+| PR-01 | **K-1** | Penanda transaksi `resto.pembatalan_*` bisa dipalsu kasir → void sesudah dapur tanpa PIN & tanpa jejak | **DITUTUP 2026-09-19** | perbaikan di `supabase/migrations/0015_penutup_celah_putaran16.sql` (bagian 1): penanda transaksi **tidak lagi diakui** di mana pun — pembatalan item setelah dapur hanya sah lewat baris `pembatalan` resmi (0013: tahap + PIN + kupon sekali pakai), dan pemicu resmi berhenti menulis penanda itu. Uji regresi `supabase/tes/pembatalan_penanda_palsu.sql` (4 serangan, semuanya ditolak) + `alat/uji-mutasi-0015.py` (**6 mutasi**: 5 wajib MERAH, terbukti) → gerbang CI ke-52 |
 | PR-02 | K-2 | Void satu item ikut membatalkan seluruh pesanan; pembayaran sisa ditolak | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr02-void-satu-item.sql` → `T1-45` |
 | PR-03 | K-2 | `nomor_pesanan_berikutnya()` membocorkan hitungan pesanan ke resto lain | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr03-bocor-nomor.sql` → `T1-45` |
 | PR-04 | K-2 | Pesan "PIN sudah dipakai pegawai lain" memastikan PIN aktif kolega (oracle) | **TERBUKA** | `docs/uji/audit/probe-2026-09-19/pr04-oracle-pin.sql` → `T1-45` |

@@ -843,3 +843,30 @@ keduanya **hijau**.
 
 **Batas jujur:** yang terbukti adalah **halaman kerangka menjawab 200 di alamat publik**. Belum ada satu pun fitur
 kedai di sana, dan belum ada domain sendiri (masih memakai alamat gratis `*.workers.dev`, sesuai keputusan T-008).
+
+---
+
+## [Keamanan uang/2026-09-19] Bukti pembatalan harus DATA di tabel, bukan pengaturan transaksi yang bisa ditulis klien
+
+**Konteks (temuan K-1, review PR-01 putaran16):** penjaga item `picu_item_jaga()` menerima bukti "pembatalan ini
+resmi" dari `current_setting('resto.pembatalan_pesanan')`. Pengaturan transaksi bisa ditulis **siapa pun** dengan
+`set_config(...)`. Rekaman probe: kasir menjalankan tiga baris — pasang penanda, lalu `update pesanan_item set
+status='batal'` — dan item sesudah dapur **berhasil** dibatalkan tanpa PIN atasan dan tanpa satu pun baris
+`pembatalan`. Artinya: jejak pembatalan bisa dihilangkan, dan laporan kerugian bisa tidak pernah muncul.
+
+**Keputusan:**
+1. **Penanda transaksi berhenti dipercaya sama sekali.** Pemeriksaan `current_setting('resto.pembatalan_pesanan')`
+   dihapus dari penjaga item; pemicu resmi juga berhenti menulisnya. Tidak ada lagi nilai yang bisa dipalsukan.
+2. **Bukti pembatalan harus berbentuk baris tabel** (`public.pembatalan`) yang hanya bisa lahir lewat jalur resmi:
+   penjaga 0013 memaksa tahap cocok (sebelum/sesudah dapur), izin `void_sesudah_dapur`, dan **kupon PIN terikat
+   pesanan & sekali pakai**.
+3. **Pembatalan item / pengecilan jumlah setelah dapur dari perangkat selalu ditolak.** Jalur sahnya: perangkat
+   menulis baris `pembatalan` resmi, lalu pemicu resmi (SECURITY DEFINER, berjalan sebagai pemilik tabel) yang
+   mengubah baris item. Pekerjaan kasir tidak berkurang — hanya jalur pintasnya yang ditutup.
+4. **Dibuktikan bisa MERAH, bukan sekadar hijau.** `alat/uji-mutasi-0015.py` mengembalikan versi lama (percaya
+   penanda), melepas pemicunya, dan menyelipkan pengecualian diam-diam untuk peran `kasir` — **semuanya wajib
+   memerahkan uji**, dan memang merah. Gerbang CI: uji regresi + bukti mutasi (gerbang ke-52).
+
+**Batas jujur:** bagian 1 ini menutup **satu** temuan (K-1). Temuan K-2…K-4 belum; daftarnya tetap di
+`docs/uji/REVIEW_PR_RIWAYAT.md` §1 dan `docs/uji/AUDIT_RIWAYAT.md` §1b dengan pemilik `T1-45`/`T1-44`.
+Berkas migrasi `0015` akan bertambah bagian pada batch berikutnya — berkas `0001`–`0014` tetap beku.
