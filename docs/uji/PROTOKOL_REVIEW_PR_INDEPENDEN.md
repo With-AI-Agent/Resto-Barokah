@@ -112,7 +112,7 @@ Bagian wajib (urutan tetap):
 salah (`--daftar` tetap menjalankan seluruh uji). Akarnya: **nama opsi yang menjebak** + peninjau menyimpulkan tanpa menjalankan.
 Perbaikan yang dikerjakan: langkah CI memakai perintah penuh (`node alat/uji-sql.mjs`, nama langkah "Uji SQL penuh"),
 komentar `alat/uji-sql.mjs` menjelaskan bahwa `--daftar` tidak menggantikan uji, dan pemeriksa baru
-`alat/periksa-gerbang-ci.py` (9 gerbang wajib + larangan `|| true`/`continue-on-error`/ambang turun, uji-diri 6 mutasi).
+`alat/periksa-gerbang-ci.py` (daftar gerbang wajibnya dihitung alat itu sendiri — **jangan menulis angkanya di dokumen, angka gampang basi**; larangan `|| true`/`continue-on-error`/ambang turun; plus uji-diri mutasi).
 
 ## 6b. Jalur pulang laporan (dikunci 2026-09-17) + aturan anti-teater
 

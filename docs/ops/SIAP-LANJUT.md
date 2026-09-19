@@ -79,7 +79,7 @@ sendiri: 25/25 NYATA, 0 palsu** (probe tersimpan di `docs/uji/audit/probe-2026-0
    · oracle PIN kembar · kunci kalibrasi keluar dari repo). Setelah itu K-3/K-4: gerbang CI gagal-terbuka,
    label `12/12`, tabel hantu `percobaan_masuk`, grant `service_role`/`anon`, tautan meja, generator paket audit.
 2. Setiap perbaikan: uji regresi baru + `alat/uji-mutasi-0015.py` (semua mutasi WAJIB MERAH) + suite penuh hijau.
-3. Dua hal menunggu keputusan Lee (jangan dikerjakan sendiri): **(a)** keluarkan `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff`
+3. Dua hal menunggu keputusan Lee (jangan dikerjakan sendiri): **(a)** keluarkan docs/uji/kalibrasi/pr-bahan-2026-09-17.diff
    dari repo (kunci kalibrasi) — ini menghapus berkas, tunggu izin; **(b)** auditor diminta memperbaiki format laporan
    (label grup + satu laporan per cabang) lalu kirim ulang agar auditnya sah formal.
 4. Selagi menunggu: butir tertangguh terbuka **7** (batas 12) — tawarkan jawaban agent untuk masing-masing.

@@ -674,3 +674,37 @@ penunjuk + buku memuat 13 alur · `python3 alat/lanjut-sesi.py` LOLOS · CI hija
 
 **File terkait:** `PROMPT_ENTRI_UNIVERSAL.md`, `PANDUAN_PENGGUNA.md` (item 2d, AL-3, AL-13, C3), `alat/mulai-sesi.py`,
 `alat/periksa-panduan.py`, `PROMPT_SESI_BARU.md`.
+
+---
+
+## [Keamanan uji/2026-09-19] Bahan & kunci kalibrasi hidup DI LUAR repo (temuan audit D F-05)
+
+**Konteks:** audit AUD-3 putaran verifikasi menemukan docs/uji/kalibrasi/pr-bahan-2026-09-17.diff ikut ter-commit.
+Berkas itu adalah diff dari migrasi **nyata** ke versi cacat — jadi siapa pun yang bisa membaca repo (termasuk peninjau
+yang sedang dikalibrasi) tahu persis baris mana yang ditanami cacat. Skor "Ditemukan: X dari Y" bisa dipalsukan dan
+ambang lulus kalibrasi ("verdict BERSIH boleh dipercaya") kehilangan makna. Ini melanggar janji PROTOKOL §7
+("kunci jawaban disimpan di luar repo").
+
+**Keputusan (disetujui Lee 2026-09-19):**
+1. **Berkas bahan/kunci kalibrasi tidak boleh hidup di dalam repo.** Bahan review PR disiapkan di luar repo
+   (`KAL_DIR_LUAR`, bawaan `/tmp/kalibrasi-pr`, bisa diganti lewat env `KALIBRASI_PR_DIR`); kuncinya tetap
+   `/tmp/KUNCI-KALIBRASI-PR-<tanggal>.md`.
+2. **Yang masuk ke paket adalah ISI bahan, bukan jalurnya** — `--siapkan` menyematkan blok `diff` ke §5 paket dan
+   **menolak** membuat paket bila bahan/kunci masih ada di dalam repo.
+3. **Rotasi bahan:** bahan yang pernah bocor — termasuk yang masih terbaca di riwayat Git — **tidak dipakai lagi**
+   untuk menilai ketajaman; gantinya bahan baru bertanggal (sama seperti jalur auditor).
+4. **Dijaga mesin:** `alat/periksa-kunci-kalibrasi.py` (aturan A–E) masuk CI (gerbang 22 → **24**); `--uji-diri`
+   membuktikan 6 mutasi ditolak dan salinan utuh diterima.
+
+**Batas jujur:** mengeluarkan berkas dari commit **tidak menghapus** isinya dari riwayat Git (`git log --all` masih
+memperlihatkannya). Karena itu keputusan ini **bukan** "rahasia kembali aman", melainkan: (a) tidak ada lagi salinan
+di keadaan sekarang yang bisa ditemukan tanpa sengaja, (b) bahan lama dinyatakan pensiun, (c) rotasi wajib untuk
+putaran berikutnya. Bila kelak ingin membersihkan riwayat, itu tindakan destruktif (tulis ulang riwayat + force push)
+— **wajib keputusan Lee, tidak dilakukan sekarang**.
+
+**Bukti:** percobaan nyata di klon: `--kalibrasi-pr-siapkan` MENOLAK saat bahan masih di repo; setelah dikeluarkan →
+bahan ditulis ke `/tmp`, paket memuat blok `diff`; `python3 alat/periksa-kunci-kalibrasi.py` LOLOS · `--uji-diri`
+7 kasus (6 mutasi ditolak) LOLOS · `python3 alat/periksa-gerbang-ci.py` 24 gerbang LOLOS · CI hijau.
+
+**File terkait:** `alat/review-pr.py`, `alat/periksa-kunci-kalibrasi.py`, `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §7,
+`docs/uji/kalibrasi/CARA-PAKAI.md`, `.github/workflows/ci.yml`, `docs/uji/AUDIT_RIWAYAT.md` (D F-05).

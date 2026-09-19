@@ -34,7 +34,7 @@ Perintah: `git diff --name-status origin/main...d1f11d7 | awk '{print $1}' | sor
 | 13 | `aplikasi/src/**` (71 berkas) | Kuning | Ya — dipindai menyeluruh (32 berkas kode; layar lain masih `.gitkeep`) | tidak ada pemanggilan supabase/RPC di `aplikasi/src`; `npm run lint`/`typecheck`/`test` (76 uji)/`build` hijau |
 | 14 | `docs/KEAMANAN.md` | Merah | Ya — dibaca | jujur soal `hitung_total` (T1-15) belum ada; klaim §9.6–9.8 dicocokkan dengan 0013 |
 | 15 | `docs/uji/PROTOKOL_REVIEW_PR_INDEPENDEN.md`, `PROTOKOL_AUDIT_INDEPENDEN.md`, `PROMPT_AUDIT_INDEPENDEN.md` | Merah | Ya — dibaca penuh (aturan main) | — |
-| 16 | `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` | (kalibrasi) | Ya — diterapkan di salinan terpisah & diuji | lihat bagian 5 |
+| 16 | docs/uji/kalibrasi/pr-bahan-2026-09-17.diff | (kalibrasi) | Ya — diterapkan di salinan terpisah & diuji | lihat bagian 5 |
 | 17 | `docs/uji/REVIEW_PR_RIWAYAT.md`, `docs/uji/TEMUAN_LUAR_CAKUPAN_REVIEW.md`, `docs/uji/BUKU_UJI_PEMILIK.md` | Hijau | Ya — dibaca (konteks L-01…L-14) | — |
 | 18 | `skills/desain-antarmuka/SKILL.md` | Kuning | Ya — dibaca penuh | 3 pelajaran + §Sumber + §Daftar periksa (baris 121, 139) |
 | 19 | `docs/{ROADMAP,PRD,TECH_SPEC,DECISIONS_LOG,SPESIFIKASI_UI,PANDUAN_PEMILIK}.md` | Kuning | Ya — via pemeriksa mesin + baca ringkas | `periksa-roadmap.py` LOLOS; `periksa-panduan.py` LOLOS; `periksa-rujukan.py` LOLOS |
@@ -213,7 +213,7 @@ PIN per perangkat masih memakai nama perangkat kiriman klien (L-06, T1-24 belum 
 
 Ditemukan: 4 dari 4 · temuan palsu: 0
 
-Bahan `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` diterapkan pada salinan terpisah (`cp -r` ke `/tmp/kal-repo`,
+Bahan docs/uji/kalibrasi/pr-bahan-2026-09-17.diff diterapkan pada salinan terpisah (`cp -r` ke `/tmp/kal-repo`,
 `git apply` OK — repo kerja tidak disentuh). Empat hunk, empat cacat, semuanya saya temukan dengan membaca diff
 + menjalankan uji; dua di antaranya saya buktikan TIDAK berdampak pada keadaan akhir karena migrasi berikutnya
 menimpa objek yang sama (dicatat jujur, bukan disembunyikan):

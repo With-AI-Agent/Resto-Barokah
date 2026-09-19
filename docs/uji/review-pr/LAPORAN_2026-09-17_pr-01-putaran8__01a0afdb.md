@@ -47,7 +47,7 @@ dinyatakan terus terang di kolom "Diperiksa".
 | 18 | `alat/kalibrasi-cacat.json` | Kuning | **TIDAK dibuka** (sengaja) | hanya `ls -l` (3923 byte) + peran menurut kode (`KATALOG` di `review-pr.py:29`, `audit-independen.py:29`) — melihat isinya berisiko membocorkan kunci kalibrasi |
 | 19 | `supabase/tes/*.sql` (21 berkas) | Kuning | ya: `helper`, `izin`, `kredensial_pin`, `pin`, `pin_batas_pasang`, `percobaan_pin_perangkat`, `persetujuan_void`, `diskon_persen`, `pembayaran`, `gerbang_uang`, `penjaga_stok`, `status_pesanan`, `jejak_pelaku`, `rls_semua_tabel`, `rls_pengguna`, `rls_penyewa`, `isolasi_lintas_penyewa`, `peran_tunggal`, `katalog`, `meja`, `pesanan` dijalankan; `helper.sql` & `persetujuan_void.sql` & `diskon_persen.sql` & `rls_semua_tabel.sql` dibaca penuh | `node alat/uji-sql.mjs` → `uji: 21 LULUS · 0 GAGAL`; `grep -n "cabang_saya" supabase/tes/helper.sql` → tidak ada satu pun assertions `cabang_saya()` untuk akun nonaktif → PR-12 |
 | 20 | `alat/sql/data-uji.sql` | Kuning | ya, baca penuh | fixture 2 resto/3 cabang/7 akun; pesanan `eeee…0010` subtotal 54.000 total 62.100 — dipakai semua probe saya |
-| 21 | `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` | Kuning | ya, baca penuh (51 baris) + 4 cara pasang | `git apply` → exit 128 `corrupt patch at line 39`; `git apply --recount` → `patch does not apply`; `patch -p1 --fuzz=5` → exit 2 → PR-06 |
+| 21 | docs/uji/kalibrasi/pr-bahan-2026-09-17.diff | Kuning | ya, baca penuh (51 baris) + 4 cara pasang | `git apply` → exit 128 `corrupt patch at line 39`; `git apply --recount` → `patch does not apply`; `patch -p1 --fuzz=5` → exit 2 → PR-06 |
 | 22 | `docs/uji/BUKU_UJI_PEMILIK.md` | Kuning | ya, baca penuh (7 baris uji) + **dijalankan** | U-02 → `sh: 1: prettier: not found` rc=127; U-03 → `ERR_MODULE_NOT_FOUND @electric-sql/pglite` rc=1; U-04 menunjuk paket putaran7 → PR-07, PR-10 |
 | 23 | `docs/KEAMANAN.md` · `docs/TECH_SPEC.md` · `docs/PRD.md` · `docs/ROADMAP.md` · `docs/DECISIONS_LOG.md` | Merah/Kuning | ya, bagian yang menyatakan perilaku (prinsip §2 KEAMANAN, §4.1/§9 TECH_SPEC, Aturan Bisnis & M3 PRD, bukti tugas T0-01/T1-03/T1-06/T1-10/T1-15/T1-23) | `KEAMANAN.md:24` "Tidak ada angka uang dari perangkat … sudah berlaku sejak T1-10" vs probe P3; `TECH_SPEC.md:318` vs `0003:69`; `PRD.md:261`/`267`/`99`; `ROADMAP.md:61` (57 woff2) → PR-03, PR-05, PR-08, PR-15 |
 | 24 | `docs/uji/AUDIT_RIWAYAT.md` · `REVIEW_PR_RIWAYAT.md` · `PROTOKOL_*` · `PROMPT_*` · laporan audit · paket audit | Hijau/Kuning | ya, dibaca (riwayat temuan per baris, status DITUTUP/TERBUKA) | `AUDIT_RIWAYAT.md:58` B F-13 **DITUTUP** dengan angka 57 → PR-08; `REVIEW_PR_RIWAYAT.md` §2 kalibrasi review PR = "belum ada" → bagian 8 baris 2 |
@@ -324,7 +324,7 @@ proses, bukan kontrol teknis (diakui `PROTOKOL_AUDIT_INDEPENDEN`/§9.3 protokol 
 
 **Ditemukan: 4 dari 4 · temuan palsu: 0**
 
-- **Bahan:** `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` (51 baris, 4 berkas, 4 hunk).
+- **Bahan:** docs/uji/kalibrasi/pr-bahan-2026-09-17.diff (51 baris, 4 berkas, 4 hunk).
 - **Angka `Y` = 4 adalah hitungan saya sendiri** atas perubahan yang tertanam di bahan itu (satu per hunk). Saya **tidak**
   diberi tahu jumlah/kelas resminya dan **tidak mencari kunci jawaban**: `alat/kalibrasi-cacat.json` (katalog yang
   dipakai pembuat bahan) sengaja **tidak saya buka**, dan `/tmp/KUNCI-KALIBRASI-PR-*.md` tidak saya cari. Kalau kunci

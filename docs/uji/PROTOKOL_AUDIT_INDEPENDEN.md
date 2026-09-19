@@ -187,6 +187,7 @@ Ada **dua jalur kalibrasi** — keduanya wajib, karena keduanya mengukur hal ber
 |---|---|---|---|
 | **Mesin** | apakah pemeriksa otomatis menangkap cacat berbahaya | salinan `worktree` + katalog `alat/kalibrasi-cacat.json` | di luar repo (`/tmp/...-KUNCI.md`) |
 | **Auditor** | apakah auditor (manusia/AI) tajam | folder `docs/uji/kalibrasi/bahan-<tanggal>/` **ikut ter-commit** | di luar repo; **tidak pernah** ditulis di repo atau diberikan ke auditor |
+| **Review PR** | apakah peninjau tajam saat mengulas **perubahan nyata** | bahan `pr-bahan-<tanggal>.diff` — berkasnya **di luar repo**, isinya disematkan ke paket review | di luar repo (`/tmp/KUNCI-KALIBRASI-PR-<tanggal>.md`) |
 
 **Cara kerja jalur mesin (dijalankan pembangun, dinilai setelah audit):**
 
@@ -213,6 +214,20 @@ Ada **dua jalur kalibrasi** — keduanya wajib, karena keduanya mengukur hal ber
    → `Ditemukan: X dari Y` + temuan palsu; hasilnya masuk `docs/uji/AUDIT_RIWAYAT.md`.
 4. Bahan **berbeda setiap audit** (nama folder bertanggal). Bahan lama tidak dihapus — supaya tidak ada audit yang
    memakai bahan yang jawabannya sudah bocor di riwayat.
+
+**Cara kerja jalur review PR (bahan di luar repo sejak 2026-09-19 — audit D F-05):**
+
+1. Pembangun menjalankan `python3 alat/review-pr.py --kalibrasi-pr-siapkan` → bahan ditulis **di luar repo**
+   (`/tmp/kalibrasi-pr/pr-bahan-<tanggal>.diff`, bisa dipindah lewat env `KALIBRASI_PR_DIR`), kunci jawaban di
+   `/tmp/KUNCI-KALIBRASI-PR-<tanggal>.md`.
+2. `python3 alat/review-pr.py --siapkan` **menyematkan ISI bahan** ke paket review (§5) dan **menolak** membuat paket
+   bila bahan/ kunci masih ada di dalam repo. Peninjau tetap bisa menjalankan latihan: simpan blok diff ke
+   `/tmp/pr-bahan.diff`, salin repo ke `/tmp`, `git apply` di salinan itu.
+3. **Kenapa bahan ini tidak boleh di dalam repo:** diff-nya dibuat dari migrasi **NYATA**, jadi siapa pun yang bisa
+   membaca repo — termasuk peninjau yang sedang dikalibrasi — langsung tahu baris mana yang ditanami cacat; skor
+   `Ditemukan: X dari Y` bisa dipalsukan. Dijaga `alat/periksa-kunci-kalibrasi.py` (aturan A–E, plus `--uji-diri`).
+4. **Rotasi bahan:** bahan kalibrasi yang pernah bocor — termasuk yang masih terbaca di riwayat Git —
+   **tidak dipakai lagi** untuk menilai ketajaman; gantinya bahan baru bertanggal (sama seperti jalur auditor).
 
 **Ambang & pencatatan (berlaku untuk kedua jalur):**
 

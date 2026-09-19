@@ -95,7 +95,7 @@ Cakupan nyata diukur sendiri: `git diff origin/main...7e8c0b9 --stat` → **338 
 
 ### [PR-04] Bahan kalibrasi review PR korup (`git apply` gagal) dan pembuatnya (`--kalibrasi-pr-siapkan`) gagal karena katalog basi
 - **Tingkat:** K-2
-- **Artefak:** `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` (hunk 0005, baris 39) · `alat/kalibrasi-cacat.json` (P3) · `alat/review-pr.py` (`kalibrasi_pr_siapkan`)
+- **Artefak:** docs/uji/kalibrasi/pr-bahan-2026-09-17.diff (hunk 0005, baris 39) · `alat/kalibrasi-cacat.json` (P3) · `alat/review-pr.py` (`kalibrasi_pr_siapkan`)
 - **Klaim yang dilanggar:** RV-3 (§2 protokol: kalibrasi review PR sebelum pilot) — mekanisme yang diminta paket §5 "periksa bahan itu secara terpisah" harus bisa diterapkan.
 - **Bukti:**
   - Di salinan repo (tidak menyentuh repo asli): `git apply --check docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` → `error: corrupt patch at line 39`.
@@ -123,7 +123,7 @@ Cakupan nyata diukur sendiri: `git diff origin/main...7e8c0b9 --stat` → **338 
 
 Ditemukan: 4 dari 4 · temuan palsu: 0 · (catatan: bahan itu sendiri KORUP — lihat temuan [PR-04])
 
-Prosedur: bahan `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` diperiksa **terpisah** dari repo (salinan `/tmp/rb-*`). Karena `git apply` gagal ("corrupt patch at line 39"), keempat cacat diterapkan manual satu per satu ke salinan bersih dan diuji. Daftar cacat yang saya temukan:
+Prosedur: bahan docs/uji/kalibrasi/pr-bahan-2026-09-17.diff diperiksa **terpisah** dari repo (salinan `/tmp/rb-*`). Karena `git apply` gagal ("corrupt patch at line 39"), keempat cacat diterapkan manual satu per satu ke salinan bersih dan diuji. Daftar cacat yang saya temukan:
 
 | ID (katalog) | Tingkat | Kelas | Berkas | Saya menemukan? | Bukti tertangkap gerbang |
 |---|---|---|---|---|---|

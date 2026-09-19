@@ -610,6 +610,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **DoD:** setiap temuan punya uji regresi yang bisa MERAH (mutasi) dan tercatat DITUTUP dengan bukti hidup; tanpa menyisakan satu pun temuan terbuka tanpa pemilik.
   - **Kompleksitas:** besar (6 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: keamanan uang & jejak; menyentuh pemicu pembatalan/diskon/PIN → setiap perubahan diuji ulang suite penuh + mutasi; perubahan yang mengubah aturan (mis. cara membuktikan persetujuan) dicatat sebagai keputusan, bukan tambalan.
+  - **Progres 2026-09-19 (sebagian):** **D F-05 DITUTUP** — kunci kalibrasi dikeluarkan dari repo, bahan review PR hidup di luar repo & disematkan ke paket, dijaga `alat/periksa-kunci-kalibrasi.py` (6 mutasi uji-diri) + aturan rotasi di `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §7; gerbang CI 22 → **24**. Sisa 24 temuan menunggu migrasi `0015+` & perbaikan alat.
   - **Verifikasi:** `node alat/uji-sql.mjs` hijau dengan uji baru per temuan · `python3 alat/uji-mutasi-0015.py` semua MERAH · `bash aplikasi/alat/periksa-semua.sh` hijau.
 
 ## Fase 2 — Masuk & kerangka aplikasi

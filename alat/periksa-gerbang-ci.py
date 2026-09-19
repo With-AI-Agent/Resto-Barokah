@@ -52,6 +52,8 @@ GERBANG_WAJIB = [
     ("pemeriksa buku uji", r"python3\s+alat/periksa-buku-uji\.py\s*$"),
     ("pemeriksa rujukan dokumen", r"python3\s+alat/periksa-rujukan\.py\s*$"),
     ("pemeriksa gerbang CI", r"python3\s+alat/periksa-gerbang-ci\.py\s*$"),
+    ("pemeriksa kunci kalibrasi (bahan tidak boleh di repo)", r"python3\s+alat/periksa-kunci-kalibrasi\.py\s*$"),
+    ("uji-diri pemeriksa kunci kalibrasi", r"python3\s+alat/periksa-kunci-kalibrasi\.py\s+--uji-diri\s*$"),
     ("pemeriksa antarmuka (penutupan panel & tepi gulir)", r"python3\s+aplikasi/alat/periksa-antarmuka\.py\s*$"),
     ("uji-diri pemeriksa antarmuka", r"python3\s+aplikasi/alat/periksa-antarmuka\.py\s+--uji-diri\s*$"),
     ("pemeriksa kontras & aturan desain", r"python3\s+aplikasi/alat/uji-kontras\.py\s*$"),

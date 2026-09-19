@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import os
 import pathlib
 import random
 import re
@@ -30,6 +31,13 @@ AKAR = pathlib.Path(__file__).resolve().parent.parent
 KATALOG = AKAR / "alat" / "kalibrasi-cacat.json"
 FOLDER = AKAR / "docs" / "uji" / "review-pr"
 FOLDER_KAL = AKAR / "docs" / "uji" / "kalibrasi"
+# F-05 (audit 2026-09-19, K-2): bahan kalibrasi review PR TIDAK PERNAH ditulis di dalam repo.
+# Diff terhadap migrasi NYATA = kunci jawaban: siapa pun yang bisa membaca repo (termasuk peninjau
+# yang sedang dikalibrasi) tahu persis baris mana yang ditanami cacat, sehingga skor "Ditemukan X
+# dari Y" bisa dipalsukan. Bahan + kunci hidup di luar repo (`KAL_DIR_LUAR`); yang masuk ke paket
+# adalah ISI bahannya (disematkan), bukan jalurnya. Riwayat Git tetap menyimpan bahan lama — karena
+# itu PROTOKOL_AUDIT_INDEPENDEN §7 mewajibkan rotasi bahan yang pernah bocor.
+KAL_DIR_LUAR = pathlib.Path(os.environ.get("KALIBRASI_PR_DIR", "/tmp/kalibrasi-pr"))
 PROMPT_KANONIK = AKAR / "docs" / "uji" / "PROMPT_REVIEW_PR_INDEPENDEN.md"
 
 # ---------- jalur risiko (PROTOKOL §3) ----------
@@ -164,10 +172,24 @@ def prompt_kanonik() -> str:
 
 
 def bahan_kalibrasi_terbaru() -> pathlib.Path | None:
-    if not FOLDER_KAL.is_dir():
+    """Bahan kalibrasi TERBARU — selalu dari LUAR repo (F-05)."""
+    if not KAL_DIR_LUAR.is_dir():
         return None
-    kandidat = sorted(FOLDER_KAL.glob("pr-bahan-*.diff"))
+    kandidat = sorted(KAL_DIR_LUAR.glob("pr-bahan-*.diff"))
     return kandidat[-1] if kandidat else None
+
+
+def bahan_bocor_di_repo() -> list[pathlib.Path]:
+    """Berkas bahan/kunci yang (salah) berada di dalam repo — temuan audit D F-05.
+
+    Diperiksa di pohon kerja, bukan hanya `git ls-files`: berkas liar yang belum ter-commit
+    sama bocornya (dan tinggal satu `git add -A` untuk ikut terkirim).
+    """
+    if not FOLDER_KAL.is_dir():
+        return []
+    bocor = list(FOLDER_KAL.glob("pr-bahan-*.diff"))
+    bocor += [p for p in FOLDER_KAL.rglob("*") if p.is_file() and "KUNCI" in p.name]
+    return sorted(bocor)
 
 
 # ---------------------------------------------------------------- --siapkan
@@ -191,6 +213,13 @@ def siapkan(dasar: str, kepala: str, nama: str | None) -> int:
     tujuan = semua_commit
     tugas = tugas_roadmap_berubah(dasar, kepala)
     klaim = klaim_dari_commit(dasar, kepala)
+    bocor = bahan_bocor_di_repo()
+    if bocor:
+        print("GAGAL: bahan/kunci kalibrasi ada DI DALAM repo (kunci jawaban bocor — audit D F-05):")
+        for b in bocor:
+            print(f"  - {b.relative_to(AKAR)}")
+        print("  Keluarkan dari repo: git rm <berkas itu> — bahan baru disiapkan di luar repo (KAL_DIR_LUAR).")
+        return 1
     kal = bahan_kalibrasi_terbaru()
     # Penjaga integritas bahan kalibrasi (temuan review RV-2 putaran8 PR-04/PR-06): bahan yang
     # tidak bisa dipasang di commit yang direview = paket bohong — peninjau tidak akan pernah
@@ -237,11 +266,18 @@ def siapkan(dasar: str, kepala: str, nama: str | None) -> int:
 
     kalibrasi_md = "- (tidak disiapkan untuk paket ini)"
     if kal:
-        kalibrasi_md = (f"- Bahan kalibrasi: `{kal.relative_to(AKAR)}` — berkas **diff berisi cacat yang sengaja ditanam**.\n"
-                        "- Periksa bahan itu **terpisah** dari PR: salin repo ke folder sementara (`cp -r` ke /tmp lalu "
-                        "`git apply <berkas diff>` di salinan itu) — jangan mengubah repo ini.\n"
-                        "- Tulis hasilnya di bagian kalibrasi laporan (`Ditemukan: X dari Y` + jumlah temuan palsu). "
-                        "Kamu tidak diberi tahu jumlah/kelas cacatnya, dan **dilarang mencari kunci jawaban**.")
+        # F-05: yang disematkan adalah ISI bahan; berkas bahannya sendiri hidup di luar repo.
+        isi_bahan = kal.read_text(encoding="utf-8").rstrip("\n")
+        kalibrasi_md = (
+            "- Bahan kalibrasi: **disematkan di bawah** — berkas bahannya sendiri (pola `pr-bahan-*.diff`) "
+            "hidup DI LUAR repo sejak 2026-09-19 (audit D F-05: diff terhadap migrasi nyata = kunci jawaban "
+            "bila ikut masuk repo).\n"
+            "- Cara pakai: simpan blok `diff` di bawah sebagai `/tmp/pr-bahan.diff`, salin repo ke folder "
+            "sementara (`cp -r` ke /tmp), lalu `git apply /tmp/pr-bahan.diff` di salinan itu — jangan "
+            "mengubah repo ini.\n"
+            "- Tulis hasilnya di bagian kalibrasi laporan (`Ditemukan: X dari Y` + jumlah temuan palsu). "
+            "Kamu tidak diberi tahu jumlah/kelas cacatnya, dan **dilarang mencari kunci jawaban**.\n\n"
+            "```diff\n" + isi_bahan + "\n```")
 
     isi = f"""# PAKET REVIEW PR INDEPENDEN — {nama or sha[:8]} — {dt.date.today().isoformat()}
 
@@ -765,6 +801,13 @@ def kesiapan() -> int:
 def kalibrasi_pr_siapkan(jumlah: int | None) -> int:
     if not KATALOG.is_file():
         print(f"GAGAL: katalog cacat tidak ada: {KATALOG}"); return 1
+    bocor = bahan_bocor_di_repo()
+    if bocor:
+        print("GAGAL: bahan/kunci kalibrasi ada DI DALAM repo (kunci jawaban bocor — audit D F-05):")
+        for b in bocor:
+            print(f"  - {b.relative_to(AKAR)}")
+        print("  Keluarkan dari repo: git rm <berkas itu>. Bahan baru ditulis di luar repo.")
+        return 1
     cacat = json.loads(KATALOG.read_text(encoding="utf-8"))["cacat"]
     # Pilih campuran: utamakan K-1/K-2, TETAPI diacak dengan benih tanggal.
     # Alasan (temuan luar-cakupan review putaran8 #3): katalog cacat ikut ter-commit di repo yang
@@ -823,21 +866,24 @@ def kalibrasi_pr_siapkan(jumlah: int | None) -> int:
         print(f"  {cek[1].strip()}")
         jalankan(["git", "worktree", "remove", "--force", str(kerja)])
         return 1
-    FOLDER_KAL.mkdir(parents=True, exist_ok=True)
-    keluar = FOLDER_KAL / f"pr-bahan-{tanda}.diff"
+    # F-05: bahan ditulis DI LUAR repo. Dif terhadap migrasi nyata = kunci jawaban; menyimpannya
+    # di repo membuat peninjau bisa membaca letak semua cacat (dan riwayat Git menyimpannya
+    # selamanya). Isi bahan disematkan ke paket oleh `--siapkan`.
+    KAL_DIR_LUAR.mkdir(parents=True, exist_ok=True)
+    keluar = KAL_DIR_LUAR / f"pr-bahan-{tanda}.diff"
     keluar.write_text(diff, encoding="utf-8")
     kunci = pathlib.Path(f"/tmp/KUNCI-KALIBRASI-PR-{tanda}.md")
     kunci.write_text(
         "# KUNCI JAWABAN KALIBRASI REVIEW PR (JANGAN DIBACA PENINJAU)\n\n"
-        f"- Bahan: `{keluar.relative_to(AKAR)}` · Dibuat: {dt.datetime.now().isoformat(timespec='minutes')}\n"
+        f"- Bahan: `{keluar}` (LUAR repo) · Dibuat: {dt.datetime.now().isoformat(timespec='minutes')}\n"
         f"- Jumlah cacat: {len(cacat)}\n\n| ID | Tingkat | Kelas | Berkas | Ringkas |\n|---|---|---|---|---|\n"
         + "\n".join(baris_kunci) + "\n", encoding="utf-8")
     jalankan(["git", "worktree", "remove", "--force", str(kerja)])
     print("KALIBRASI REVIEW PR SIAP")
-    print(f"  bahan (ikut ter-commit) : {keluar.relative_to(AKAR)}")
-    print(f"  kunci jawaban (luar)    : {kunci}")
+    print(f"  bahan (LUAR repo)       : {keluar}")
+    print(f"  kunci jawaban (LUAR)    : {kunci}")
     print(f"  jumlah cacat            : {len(cacat)}")
-    print("  Langkah berikut: `git add` bahan itu, jalankan `--siapkan` ulang supaya paket memuatnya,")
+    print("  Langkah berikut: jalankan `--siapkan` ulang supaya paket MENYEMATKAN isi bahan itu")
     print("  lalu minta Lee membuka sesi peninjau. Setelah laporan masuk, nilai X dari Y vs kunci ini.")
     return 0
 

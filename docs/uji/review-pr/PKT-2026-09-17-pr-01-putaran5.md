@@ -81,7 +81,7 @@ Hanya berkas laporan yang di-commit. Bila push tidak bisa, tulis "belum ter-push
 - Tulis **rencana pemulihan** (bila perubahan ini salah, apa yang dilakukan agar aman) dan **sisa risiko** dalam bahasa sederhana.
 
 ## 5. Bahan kalibrasi cacat tanaman
-- Bahan kalibrasi: `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` — berkas **diff berisi cacat yang sengaja ditanam**.
+- Bahan kalibrasi: docs/uji/kalibrasi/pr-bahan-2026-09-17.diff — berkas **diff berisi cacat yang sengaja ditanam**.
 - Periksa bahan itu **terpisah** dari PR: salin repo ke folder sementara (`cp -r` ke /tmp lalu `git apply <berkas diff>` di salinan itu) — jangan mengubah repo ini.
 - Tulis hasilnya di bagian kalibrasi laporan (`Ditemukan: X dari Y` + jumlah temuan palsu). Kamu tidak diberi tahu jumlah/kelas cacatnya, dan **dilarang mencari kunci jawaban**.
 
