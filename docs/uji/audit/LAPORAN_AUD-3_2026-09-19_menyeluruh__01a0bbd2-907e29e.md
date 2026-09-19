@@ -8,7 +8,7 @@
 - **Mode cakupan:** menyeluruh
 - **Alasan commit berbeda:** saat pengumpulan bukti HEAD berada pada base cabang sesi; sesudahnya hanya commit laporan yang ditambahkan. Cabang sesi tidak ditinggalkan. Kode audit dibaca dari objek Git SHA target dengan `git show`/arsip memori, bukan kode HEAD.
 - **Verdict:** TIDAK-BERSIH
-- **Status pengiriman:** penyerahan ulang dengan nama unik `LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md`; hasil pengiriman dicatat di §7. Laporan remote bernama lama dipertahankan.
+- **Status pengiriman:** **sudah ter-push ke GitHub** dengan nama unik `LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md`. Pengiriman dibuktikan pada commit `ebb60a195ee21139f115d704156ab9b6b536f87b`; laporan bernama lama tetap utuh.
 - **Batas hasil:** pemeriksaan statik, pemeriksa Python melalui adapter hanya-baca, dan eksekusi fungsi JavaScript dengan lingkungan tiruan. **Tidak ada hasil uji PostgreSQL, Vitest, peramban, printer, atau produksi yang diklaim lulus.**
 
 **Ringkasan keputusan:** **21 temuan proyek**: **15 TERVERIFIKASI** dalam batas bukti masing-masing (1 K-1, 6 K-2, 8 K-3) serta **6 DUGAAN** (2 K-1, 4 K-2). Kalibrasi terpisah. F-01 membuktikan kontradiksi rumus uang; F-02 membuktikan putusnya kontrak Edge → kupon persetujuan. F-08–F-12 menyangkut panduan dengan janji/instruksi operasional keliru. K-1/K-2 terverifikasi mewajibkan verdict **TIDAK-BERSIH**, sekalipun pemeriksa struktural mengeluarkan `LOLOS`.
@@ -1113,7 +1113,24 @@ Akhiran `907e29e` menunjuk commit lokal sebelum penamaan ulang; bukan SHA kode y
 Strategi penyerahan: gabungkan riwayat Git pada cabang sesi yang sama, pertahankan file laporan remote lama byte-per-byte, dan tambahkan laporan bernama unik ini. Perubahan terhadap remote awal harus hanya penambahan file ini; tidak ada kode aplikasi, migrasi, konfigurasi atau dependensi yang diubah. Tidak memakai force push atau cabang lain.
 
 <!-- DELIVERY_RESULT_BEGIN -->
-Pengiriman nama unik belum dikonfirmasi; hasil aktual akan dicatat setelah push dan pemeriksaan remote.
+**Sudah ter-push pada 2026-09-20 WIB.** Perintah `git push origin arena/01a0bbd2-resto-barokah` berhasil tanpa force push:
+
+```text
+3976b52..ebb60a1  arena/01a0bbd2-resto-barokah -> arena/01a0bbd2-resto-barokah
+git ls-remote origin refs/heads/arena/01a0bbd2-resto-barokah
+ebb60a195ee21139f115d704156ab9b6b536f87b  refs/heads/arena/01a0bbd2-resto-barokah
+```
+
+GitHub Contents API pada commit tersebut juga mengembalikan file bernama unik ini. Laporan remote lama tetap mempunyai blob `f6963997d24406e2d8e8b74628edad14969adb35`, sama persis sebelum dan sesudah penggabungan. Diff dari remote awal `3976b528e2b4b04a6e27702d12f60f4878a0e7d9` hanya **penambahan laporan unik ini**; tidak ada file kode yang berubah. Working tree sesudah push bersih.
+
+**Untuk agent sesi lain:** baca [laporan sesi ini di GitHub](https://github.com/With-AI-Agent/Resto-Barokah/blob/arena/01a0bbd2-resto-barokah/docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md). Jika mengambil melalui Git, tidak perlu mengganti branch kerja:
+
+```bash
+git fetch origin arena/01a0bbd2-resto-barokah
+git show FETCH_HEAD:docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md
+```
+
+Baca berkas **berakhiran `-907e29e.md`** untuk laporan ini, bukan laporan bernama lama. Isi temuan/kalibrasi tetap identik dengan commit lokal sebelum penyerahan; SHA-256 bagian tersebut: `5712502030e1e953dc9b28bc0882bb4a316bfa38e9070134f4879468e06296a8`. Catatan keberhasilan ini ditambahkan setelah bukti push di atas; commit berikutnya hanya memperbarui metadata penyerahan dan tidak mengubah verdict/temuan. Tidak menjalankan ulang validator untuk pembaruan pengiriman/nama file.
 <!-- DELIVERY_RESULT_END -->
 
 ## 8. Temuan di luar cakupan
