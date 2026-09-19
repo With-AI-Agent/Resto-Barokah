@@ -107,18 +107,25 @@ GERBANG_WAJIB = [
 ALUR_LAIN: dict[str, dict[str, list[tuple[str, str]]]] = {
     "sebar-skema.yml": {
         "perintah": [
+            ("matikan galat senyap (`set -euo pipefail`)", r"set -euo pipefail"),
+            ("berhenti tanpa kerja bila berkas penanda sudah dihapus",
+             r"test -f supabase/SEBAR-SKEMA \|\| \{ echo .*exit 0; \}"),
             ("cek rahasia SUPABASE_ACCESS_TOKEN tersedia",
              r'test -n "\$SUPABASE_ACCESS_TOKEN" \|\| \{ echo .*exit 1; \}'),
             ("cek rahasia SUPABASE_DB_PASSWORD tersedia",
              r'test -n "\$SUPABASE_DB_PASSWORD" \|\| \{ echo .*exit 1; \}'),
             ("tautkan ke proyek Supabase",
-             r'npx --yes supabase@2\.117\.0 --yes link --project-ref "\$SUPABASE_PROJECT_REF"'),
+             r'npx --yes supabase@2\.117\.0 --yes link --project-ref "\$SUPABASE_PROJECT_REF"'
+             r' --password "\$SUPABASE_DB_PASSWORD"'),
             ("pratinjau rencana lebih dulu (dry-run)",
-             r"npx --yes supabase@2\.117\.0 --yes db push --dry-run"),
+             r"npx --yes supabase@2\.117\.0 --yes db push --dry-run"
+             r' --password "\$SUPABASE_DB_PASSWORD"'),
             ("sebar migrasi",
-             r"npx --yes supabase@2\.117\.0 --yes db push"),
+             r"npx --yes supabase@2\.117\.0 --yes db push"
+             r' --password "\$SUPABASE_DB_PASSWORD"'),
             ("daftar migrasi terpasang (bukti)",
-             r"npx --yes supabase@2\.117\.0 --yes migration list"),
+             r"npx --yes supabase@2\.117\.0 --yes migration list --linked"
+             r' --password "\$SUPABASE_DB_PASSWORD"'),
         ],
         "berkas": [
             ("hanya menyala lewat berkas penanda supabase/SEBAR-SKEMA",
@@ -127,10 +134,13 @@ ALUR_LAIN: dict[str, dict[str, list[tuple[str, str]]]] = {
     },
     "sebar-halaman.yml": {
         "perintah": [
+            ("matikan galat senyap (`set -euo pipefail`)", r"set -euo pipefail"),
+            ("berhenti tanpa kerja bila berkas penanda sudah dihapus",
+             r"test -f aplikasi/SEBAR-HALAMAN \|\| \{ echo .*exit 0; \}"),
             ("cek rahasia CLOUDFLARE_API_TOKEN tersedia",
              r'test -n "\$CLOUDFLARE_API_TOKEN" \|\| \{ echo .*exit 1; \}'),
-            ("pasang pustaka aplikasi", r"npm ci"),
-            ("bangun lalu unggah (satu perintah rilis)", r"npm run deploy"),
+            ("pasang pustaka aplikasi", r"npm ci --prefix aplikasi"),
+            ("bangun lalu unggah (satu perintah rilis)", r"npm run --prefix aplikasi deploy"),
         ],
         "berkas": [
             ("hanya menyala lewat berkas penanda aplikasi/SEBAR-HALAMAN",
@@ -268,6 +278,21 @@ def periksa(akar: pathlib.Path) -> tuple[int, list[str]]:
                 "dikenali): " + ", ".join(kurang_alur)
             )
 
+        # URUTAN juga penting, bukan hanya keberadaan: "pratinjau lebih dulu" dan "penanda
+        # diperiksa sebelum menyentuh proyek" adalah sifat keselamatan. Kalau urutannya ditukar
+        # (mis. sebar sebelum dry-run), pemeriksa lama tetap lolos — itu lubang yang ditutup di sini.
+        letak: list[int] = []
+        for _, pola in aturan["perintah"]:
+            letak.append(
+                next((i for i, q in enumerate(perintah_alur) if re.fullmatch(pola, q)), -1)
+            )
+        if all(i >= 0 for i in letak) and letak != sorted(letak):
+            pesan.append(
+                f".github/workflows/{nama_alur}: URUTAN perintah berubah — daftar di `ALUR_LAIN` "
+                f"menuntut urutan {list(range(len(letak)))}, tetapi berkas memberi {letak}. "
+                "Perintah berurutan yang benar adalah bagian dari keamanan alur ini."
+            )
+
         pola_alur = [re.compile(rf"^{pola}$") for _, pola in aturan["perintah"]]
         for q in perintah_alur:
             if any(r.search(q) for r in pola_alur):
@@ -384,17 +409,29 @@ def uji_diri() -> int:
         mutasi_berkas(".github/workflows/sebar-skema.yml", "alur sebar skema diberi continue-on-error",
                       lambda s: s.replace("    runs-on: ubuntu-latest", "    runs-on: ubuntu-latest\n    continue-on-error: true", 1))
         mutasi_berkas(".github/workflows/sebar-skema.yml", "pratinjau dry-run dihapus dari alur sebar skema",
-                      lambda s: s.replace("npx --yes supabase@2.117.0 --yes db push --dry-run\n", "", 1))
+                      lambda s: s.replace("npx --yes supabase@2.117.0 --yes db push --dry-run --password \"$SUPABASE_DB_PASSWORD\"\n", "", 1))
         mutasi_berkas(".github/workflows/sebar-skema.yml", "perintah sebar migrasi ditelan (|| true)",
-                      lambda s: s.replace("      - name: Sebar migrasi\n        run: npx --yes supabase@2.117.0 --yes db push",
-                                          "      - name: Sebar migrasi\n        run: npx --yes supabase@2.117.0 --yes db push || true", 1))
+                      lambda s: s.replace("--yes db push --password", "--yes db push --password || true", 1))
         mutasi_berkas(".github/workflows/sebar-skema.yml", "penyaring berkas penanda sebar skema dihapus",
                       lambda s: s.replace("      - 'supabase/SEBAR-SKEMA'\n", "", 1))
         mutasi_berkas(".github/workflows/sebar-halaman.yml", "alur sebar halaman diberi if: selalu",
-                      lambda s: s.replace("      - name: Bangun lalu unggah (satu perintah rilis)",
-                                          "      - name: Bangun lalu unggah (satu perintah rilis)\n        if: always()", 1))
+                      lambda s: s.replace("      - name: Periksa penanda & kunci, lalu pasang pustaka dan unggah\n",
+                                          "      - name: Periksa penanda & kunci, lalu pasang pustaka dan unggah\n        if: always()\n", 1))
+        # Dua lubang baru (2026-09-19): (a) pemeriksaan penanda dihapus → alur bisa menyentuh proyek
+        # walau penanda sudah dihapus; (b) urutan ditukar → penyebaran berjalan TANPA pratinjau.
+        mutasi_berkas(".github/workflows/sebar-skema.yml", "pemeriksaan berkas penanda sebar skema dihapus",
+                      lambda s: s.replace("          test -f supabase/SEBAR-SKEMA", "          true supabase/SEBAR-SKEMA", 1))
+        mutasi_berkas(".github/workflows/sebar-skema.yml", "pratinjau dipindah ke BELAKANG penyebaran (urutan ditukar)",
+                      lambda s: s.replace(
+                          "          npx --yes supabase@2.117.0 --yes db push --dry-run --password \"$SUPABASE_DB_PASSWORD\"\n"
+                          "          npx --yes supabase@2.117.0 --yes db push --password \"$SUPABASE_DB_PASSWORD\"\n",
+                          "          npx --yes supabase@2.117.0 --yes db push --password \"$SUPABASE_DB_PASSWORD\"\n"
+                          "          npx --yes supabase@2.117.0 --yes db push --dry-run --password \"$SUPABASE_DB_PASSWORD\"\n",
+                          1))
+        mutasi_berkas(".github/workflows/sebar-halaman.yml", "pemeriksaan berkas penanda sebar halaman dihapus",
+                      lambda s: s.replace("          test -f aplikasi/SEBAR-HALAMAN", "          true aplikasi/SEBAR-HALAMAN", 1))
         mutasi_berkas(".github/workflows/sebar-halaman.yml", "perintah rilis diganti sekadar build",
-                      lambda s: s.replace("run: npm run deploy", "run: npm run build", 1))
+                      lambda s: s.replace("npm run --prefix aplikasi deploy", "npm run --prefix aplikasi build", 1))
 
     print("\nUJI-DIRI PEMERIKSA GERBANG CI")
     for nama, lulus in kasus:

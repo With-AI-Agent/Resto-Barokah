@@ -765,12 +765,22 @@ kode, dan kuncinya **tidak boleh** masuk repo/obrolan. Lingkungan agent juga tid
    dipasang **pemilik** di Settings → Secrets and variables → Actions. Nilainya tidak pernah masuk repo, commit, laporan,
    atau obrolan; agent tidak pernah melihatnya. Nomor proyek/akun (bukan rahasia) boleh duduk di berkas.
 4. **Alur lain ikut diawasi penjaga.** `alat/periksa-gerbang-ci.py` diperluas: perintah di kedua alur diperiksa **dua arah**
-   seperti `ci.yml` (6 + 3 perintah), penyaring berkas penanda wajib ada, dan seluruh berkas alur dilarang memuat
-   pelemahan senyap (`continue-on-error`, `|| true`, `if:` pada langkah). `--uji-diri` menambah **6 mutasi**, semuanya
-   wajib ditolak (mis. dry-run dihapus, perintah rilis diganti sekadar `build`).
+   seperti `ci.yml` (8 + 5 perintah), penyaring berkas penanda wajib ada, **URUTAN perintah ikut diperiksa** (pratinjau
+   wajib benar-benar mendahului penyebaran — keberadaan saja tidak cukup), dan seluruh berkas alur dilarang memuat
+   pelemahan senyap (`continue-on-error`, `|| true`, `if:` pada langkah). `--uji-diri` menambah **9 mutasi alur**,
+   semuanya wajib ditolak (mis. dry-run dihapus, urutan ditukar, pemeriksaan penanda dihapus, perintah rilis diganti
+   sekadar `build`).
 5. **`supabase/config.toml` ditulis ringkas tanpa `env(...)`.** Versi hasil `supabase init` memuat
    `openai_api_key = "env(OPENAI_API_KEY)"` yang membuat CLI menolak berjalan di CI bila variabelnya tidak ada;
    bentuk ringkas sudah diuji dengan CLI **2.117.0** (`db push --dry-run` menerima berkasnya).
+6. **Satu blok `run:` berurutan + kata sandi dikirim lewat `--password`.** Semua perintah penyebaran duduk dalam satu
+   blok dengan `set -euo pipefail`: (a) pratinjau tidak mungkin terlewat, dan (b) pemeriksaan penanda bisa
+   menghentikan SELURUH alur — pada alur berlangkah banyak, `exit 0` hanya menghentikan satu langkah dan langkah
+   berikutnya tetap jalan. `link`/`db push`/`migration list` diberi `--password` supaya CLI tidak menunggu jawaban
+   (jebakan lama: `db push` di CI bisa "sukses" tanpa menyebar).
+7. **Menghapus berkas penanda juga aman.** Kiriman penghapusan tetap menyentuh jalur berkas penanda (itu cara GitHub
+   bekerja), tetapi alur langsung berhenti di pemeriksaan penanda dan **hijau tanpa menyentuh proyek** — dibuktikan
+   dengan uji sungguhan, bukan asumsi (lihat bukti di `docs/TERTANGGUH.md` butir `T-020`).
 
 **Batas jujur:** keputusan ini **belum** menyebar apa pun — kedua alur baru menyala setelah pemilik memasang rahasia
 dan agent membuat berkas penanda. Sampai itu terjadi, `T-020`/`T-021` tetap **terbuka**, dan klaim "skema sudah ada di
