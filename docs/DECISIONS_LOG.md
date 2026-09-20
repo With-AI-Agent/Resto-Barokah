@@ -1254,3 +1254,37 @@ effect React. Ketiganya lolos karena **tidak ada satu pun mekanisme yang membukt
 **Bukti:** salinan utuh hijau + 5 mutasi perilaku semuanya MERAH (handler `onChange` dilepas · nilai callback
 dirusak · `ok` sambungan kembali melihat Auth saja · `getItem` tanpa penjagaan · `setItem` tanpa penjagaan) ·
 `--uji-diri` 2/2 sesuai harapan · `--uji-diri` ikut CI.
+
+## [Keamanan/2026-09-20] Penutup celah PIN putaran18 (0016): kecocokan rahasia ≠ otorisasi, dan kontrak pesan `simpan_pin`
+
+**Konteks (empat temuan audit I ditutup satu migrasi, `supabase/migrations/0016_penutup_celah_pin_putaran18.sql`):**
+**I F-15** pemanggil nonaktif (`penyewa_saya()` NULL) dulu tetap dilayani pencocokan kredensial;
+**I F-16** `verifikasi_pin` (0012) menyimpan baris `berhasil=true` SEBELUM menolak izin aksi, dan konsumen kupon
+diskon hanya menyaring baris itu — "PIN benar tetapi tidak berizin" bisa menjadi stempel diskon;
+**I F-14** dua jalur `simpan_pin` memakai RAISE sesudah insert catatan percobaan → transaksi abort → catatan hilang
+→ pembatas tebakan tidak pernah menyala untuk jalur "PIN lama salah" & "hierarki peran";
+**I F-13** helper perbandingan peran bisa menjadi oracle lintas penyewa bila dipanggil pemegang `service_role`.
+
+**Keputusan:**
+
+1. **Kecocokan rahasia BUKAN otorisasi.** Setiap konsumen bukti PIN (void 0013, diskon 0016) WAJIB mengecek ulang
+   izin penyetuju saat kupon dikonsumsi (`boleh_untuk(disetujui_oleh, aksi)`). Baris `berhasil=true` di
+   `percobaan_pin` hanya berarti "rahasia cocok" — tidak pernah berarti "boleh".
+2. **Jawaban seragam untuk pemanggil tak dikenal.** `verifikasi_pin` menolak pemanggil nonaktif/lintas-resto dengan
+   `'PIN tidak dikenali.'` SEBELUM kredensial disentuh — tanpa membocorkan keberadaan/status akun.
+3. **Kontrak baru `simpan_pin`: PENOLAKAN = PESAN, bukan exception.** Semua jalur penolakan (PIN lemah · kembar ·
+   PIN lama salah · hierarki peran · melebihi batas) mengembalikan teks penolakan dan transaksi TETAP commit supaya
+   catatan percobaan bertahan. Konsekuensi yang diterima sadar: pemanggil harus membaca pesan (bukan mengandalkan
+   error); uji yang dulu memakai `uji.harap_gagal` dikonversi ke asersi pesan (`uji.sama(... like ...)`).
+4. **Pagar tenant di helper hierarki.** `peran_lebih_tinggi` menolak perbandingan lintas penyewa bahkan dari
+   `service_role`; lapisan pertama tetap pinning `auth.uid()` (F-11, 0015) dan ACL (execute hanya service_role).
+5. **Aturan harness ikut diperbarui:** yang berlaku adalah `create or replace` TERAKHIR — dua mutasi
+   `alat/uji-mutasi-0015.py` (pesan PIN kembar PR-04 · pemakuan identitas F-11) kini diarahkan ke 0016.
+   Blok uji yang butuh pesanan di luar fixture global WAJIB membuat pesannya sendiri (state antar-berkas
+   persisten dalam satu run) dan memilih nominal di dalam batas pemohon, supaya yang menolak pastilah pagar
+   yang diuji — pelajaran nyata: nominal 3.000 (5,56%) ditolak `diskon_batas` duluan sehingga mutasi F-16
+   sempat terlihat tumpul (false-green).
+
+**Bukti:** suite SQL **53 LULUS · 0 GAGAL** · `alat/uji-mutasi-0016.py` 6 mutasi wajib MERAH + kontrol hijau
+(`--uji-diri` LOLOS; terdaftar dua arah: ci.yml + `alat/periksa-gerbang-ci.py` + `aplikasi/alat/periksa-semua.sh`) ·
+`alat/uji-mutasi-0015.py` kembali LOLOS penuh setelah dua mutasinya diarahkan ke 0016.
