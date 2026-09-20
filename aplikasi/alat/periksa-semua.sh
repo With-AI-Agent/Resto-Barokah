@@ -29,6 +29,10 @@ echo "== aplikasi: tipe =="
 (cd "$APLIKASI" && npm run typecheck)
 echo "== aplikasi: uji unit =="
 (cd "$APLIKASI" && npm test)
+echo "== bukti mutasi kode aplikasi (uji wajib MERAH pada cacat nyata) ==
+"
+(cd "$REPO" && node aplikasi/alat/uji-mutasi-app.mjs | tail -2)
+(cd "$REPO" && node aplikasi/alat/uji-mutasi-app.mjs --uji-diri | tail -2)
 echo "== aplikasi: bangun =="
 (cd "$APLIKASI" && npm run build)
 echo "== aplikasi: kerentanan dependency =="

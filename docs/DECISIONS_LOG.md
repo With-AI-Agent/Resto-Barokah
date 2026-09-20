@@ -1214,3 +1214,30 @@ padahal sebagian tidak membuktikan apa yang dijanjikan namanya.
 (`aplikasi/src/komponen/komponen.test.tsx:145`) dan LOLOS sesudahnya · uji baru **merah** saat handler `onChange` dilepas
 maupun saat nilainya salah, **hijau** saat dipulihkan (18 uji) · `aplikasi/alat/periksa-uji.py --uji-diri` **5 kasus**
 semuanya sesuai harapan · `--uji-diri` ikut CI + `aplikasi/alat/periksa-semua.sh` dan terdaftar di gerbang wajib.
+
+## [Mekanisme/2026-09-20] Uji aplikasi dibuktikan bisa MERAH: harness mutasi kode aplikasi
+
+**Konteks (tiga temuan audit ditutup bersamaan, semuanya kelas yang sama — "alat bilang aman, padahal belum terbukti"):**
+**I F-19** uji bernama "memanggil onUbah saat diisi" tidak pernah mengisi input; **F F-14 / I F-05**
+`ujiSambungan()` melaporkan "berhasil" hanya dari kesehatan Auth walau jalur data menolak/gagal;
+**I F-06** kegagalan `localStorage` (izin ditolak / penyimpanan penuh) menembus helper tema dan memutus
+effect React. Ketiganya lolos karena **tidak ada satu pun mekanisme yang membuktikan uji aplikasi bisa MERAH**.
+
+**Keputusan:**
+
+1. **Harness baru `aplikasi/alat/uji-mutasi-app.mjs`** (setara `alat/uji-mutasi-*.py` untuk SQL): salinan
+   `aplikasi/` dibuat di folder sementara (`node_modules` disambung), salinan **utuh wajib hijau** dulu
+   (kontrol), lalu tiap mutasi perilaku WAJIB membuat uji MERAH. Tidak ada berkas repo yang disentuh.
+2. **Merah palsu tidak diterima.** Pelajaran nyata saat membuat harness ini: opsi `--reporter=basic` sudah
+   tidak ada di Vitest 5, dan akibatnya SEMUA mutasi terlihat "merah" padahal ujinya tidak pernah jalan
+   (vitest keluar bukan-nol saat gagal mulai). Harness sekarang hanya menerima merah yang keluarannya benar-benar
+   memuat kegagalan uji dan **bukan** galat startup (`merahSah`).
+3. **Gagal-tertutup:** pola mutasi yang tidak ketemu di kode = harness GAGAL (berarti mutasinya tidak diterapkan,
+   sehingga tidak membuktikan apa pun). `--uji-diri` membuktikan dua hal: pola salah ditolak, dan saat uji
+   dilemahkan (assert interaksi dibuang) mutasi yang sama memang terdeteksi lolos.
+4. **Wajib jalan di CI** (sesudah `npm test`) + `aplikasi/alat/periksa-semua.sh`, dan **terdaftar di gerbang wajib**
+   `alat/periksa-gerbang-ci.py` supaya tidak bisa dihapus dari CI secara senyap.
+
+**Bukti:** salinan utuh hijau + 5 mutasi perilaku semuanya MERAH (handler `onChange` dilepas · nilai callback
+dirusak · `ok` sambungan kembali melihat Auth saja · `getItem` tanpa penjagaan · `setItem` tanpa penjagaan) ·
+`--uji-diri` 2/2 sesuai harapan · `--uji-diri` ikut CI.

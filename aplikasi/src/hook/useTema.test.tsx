@@ -72,6 +72,38 @@ describe('useTema', () => {
     expect(document.documentElement.dataset.theme).toBe('etnik')
   })
 
+  it('tetap mengganti tema walau penyimpanan penuh/menolak (tidak memutus effect)', () => {
+    const asli = Object.getOwnPropertyDescriptor(globalThis, 'localStorage')!
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: () => {
+          throw new DOMException('ditolak', 'SecurityError')
+        },
+        setItem: () => {
+          throw new DOMException('penuh', 'QuotaExceededError')
+        },
+        removeItem: () => undefined,
+        clear: () => undefined,
+        key: () => null,
+        get length() {
+          return 0
+        },
+      },
+    })
+    try {
+      expect(() => render(<PemilihTema />)).not.toThrow()
+      act(() => {
+        screen.getByText('ke vintage').click()
+      })
+      // Tema tetap berganti di layar; yang gagal hanya "diingat kunjungan berikutnya".
+      expect(screen.getByTestId('tema').textContent).toBe('vintage')
+      expect(document.documentElement.dataset.theme).toBe('vintage')
+    } finally {
+      Object.defineProperty(globalThis, 'localStorage', asli)
+    }
+  })
+
   it('mengabaikan simpanan yang tidak dikenal (tidak membuat aplikasi rusak)', () => {
     localStorage.setItem('sajian.tema', 'tema-hantu')
     render(<PemilihTema />)

@@ -47,6 +47,8 @@ GERBANG_WAJIB = [
     ("aturan kode (ESLint)", r"npm run lint"),
     ("tipe (TypeScript ketat)", r"npm run typecheck"),
     ("uji unit (Vitest)", r"npm test"),
+    ("bukti mutasi kode aplikasi (uji wajib MERAH pada cacat nyata)", r"node aplikasi/alat/uji-mutasi-app\.mjs"),
+    ("uji-diri harness mutasi aplikasi", r"node aplikasi/alat/uji-mutasi-app\.mjs --uji-diri"),
     ("bangun aplikasi", r"npm run build"),
     ("kerentanan dependency (npm audit, 0 toleransi)", r"npm audit --audit-level=low"),
     ("uji sambung Supabase dengan kunci publik (T0-08)", r"npm run cek:supabase"),
@@ -387,6 +389,8 @@ def uji_diri() -> int:
         mutasi("langkah uji-diri kontras dihapus", lambda t: t.replace("          python3 aplikasi/alat/uji-kontras.py --uji-diri\n", "", 1))
         # I F-21 (putaran18x): versi Node yang diiklankan dulu lebih rendah dari kebutuhan pustaka
         # terkunci. Kalau pemeriksanya lenyap dari CI, iklan versi bisa berbohong lagi tanpa jejak.
+        mutasi("langkah bukti mutasi kode aplikasi dihapus (I F-19/F F-14/I F-06)",
+               lambda t: t.replace("        run: node aplikasi/alat/uji-mutasi-app.mjs\n", "", 1))
         mutasi("langkah uji-diri pemeriksa uji aplikasi dihapus (I F-19)",
                lambda t: t.replace("          python3 aplikasi/alat/periksa-uji.py --uji-diri\n", "", 1))
         mutasi("langkah pemeriksa versi Node dihapus (I F-21)",

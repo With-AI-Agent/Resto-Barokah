@@ -10,12 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `42ba52961aefda4efc90ee7669993eca1adc1671`
+- **Commit keadaan kerja:** `d65d82cc7dfb10c0d68d7c81cc52362344e5cedd`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (run 35486439498, commit 42ba5296)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (run 35486741730, commit d65d82cc)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -29,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (70 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (70 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (71 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (71 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -65,6 +64,34 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18z (2026-09-20) — TIGA TEMUAN SATU KELAS DITUTUP: "ALAT BILANG AMAN, PADAHAL BELUM TERBUKTI".**
+
+* **F F-14 & I F-05 (dua laporan, satu cacat) — sambungan Supabase.** `ujiSambungan()` dulu hanya melihat
+  kesehatan Auth: Auth 200 + jalur data 401/404/500 tetap dilaporkan "berhasil". Kini `ok = jalur.auth &&
+  jalur.data`, status tiap jalur dilaporkan di bidang `jalur`, dan pesan gagal menyebut jalur + HTTP-nya.
+  Ujinya dulu memberi **satu status untuk dua jalur** — kombinasi yang dicari auditor memang mustahil teruji.
+  Sekarang ada `jawabJalur({sehat, data})` + 7 kasus (401/403/500/404/503, jalur data tak terhubung, 206).
+  Mutasi `ok` dikembalikan melihat Auth saja → **7 uji MERAH**.
+* **I F-06 — kegagalan Storage di fondasi tema.** Penjagaan lama hanya mengelilingi PENGAMBILAN objek
+  `localStorage`; `getItem`/`setItem` sendiri bisa melempar (`SecurityError` izin ditolak, `QuotaExceededError`
+  penuh) sehingga effect React saat ganti tema bisa putus. Kini `bacaKunci()`/`tulisKunci()` menjaga
+  pemanggilannya, `simpanPilihan()` **jujur** mengembalikan `false`, dan tema tetap berganti di layar.
+  Mutasi penjagaan dicabut → **2 uji MERAH**.
+* **Pagar permanen baru `aplikasi/alat/uji-mutasi-app.mjs`** (kelas yang sama dengan `alat/uji-mutasi-0015.py`
+  untuk SQL): salinan `aplikasi/` di folder sementara → kontrol hijau → 5 mutasi perilaku WAJIB MERAH.
+  **Merah PALSU ditolak:** pelajaran nyata sesi ini, opsi `--reporter=basic` sudah tidak ada di Vitest 5 sehingga
+  semua mutasi sempat "merah" padahal ujinya tidak pernah jalan — harness kini hanya menerima merah yang benar-benar
+  memuat kegagalan uji (bidang `merahSah`). `--uji-diri` 2/2 (pola mutasi salah ditolak · uji yang dilemahkan
+  terdeteksi). Ikut CI + `periksa-semua.sh` + terdaftar gerbang wajib.
+
+**Angka:** uji aplikasi **87 → 100** (13 uji baru). **Temuan terlacak: 86 → 53 DITUTUP · 28 TERBUKA** (baris penutup: 80; I F-05 ·
+I F-06 · F F-14 ditutup di putaran ini).
+
+**Langkah berikutnya (urut):** probe **F F-12** (concurrency hitung ulang — belum bisa di PGlite, catat jujur) →
+I F-13/F-14/F-15/F-16 (probe PIN: tiga dugaan + satu terverifikasi) → I F-02 & H F-09 (kupon PIN lewat Edge + CORS)
+→ H F-07 (kolom non-uang pesanan setelah lunas) → I F-08 (buku darurat) → sisa K-3 (PR-05…09, PR-13, PR-14) →
+**hubungi Lee** untuk "Sebar skema".
 
 **PUTARAN 18y (2026-09-20) — NAMA UJI TIDAK BOLEH LEBIH KUAT DARIPADA YANG DIUJI (I F-19 tuntas).**
 

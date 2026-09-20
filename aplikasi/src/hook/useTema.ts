@@ -25,6 +25,9 @@ export function useTema(): PakaiTema {
     terapkanTema(tema)
     terapkanKerapatan(kerapatan)
     segarkanWarnaSistem()
+    // `simpanPilihan` tidak pernah meledak dan mengembalikan false kalau tidak bisa
+    // menyimpan (izin ditolak/penyimpanan penuh) — pilihan tetap berlaku di layar,
+    // hanya tidak diingat kunjungan berikutnya (temuan audit I F-06).
     simpanPilihan(tema, kerapatan)
   }, [tema, kerapatan])
 

@@ -32,6 +32,26 @@ function simpananPalsu(): void {
   })
 }
 
+/** Simpanan yang MENOLAK: `getItem`/`setItem` melempar (izin ditolak / penyimpanan penuh). */
+function simpananMenolak(opsi: { baca?: boolean; tulis?: boolean } = {}): void {
+  const melempar = (nama: string) => () => {
+    throw new DOMException(`ditolak: ${nama}`, 'SecurityError')
+  }
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true,
+    value: {
+      getItem: opsi.baca === false ? () => null : melempar('getItem'),
+      setItem: opsi.tulis === false ? () => undefined : melempar('setItem'),
+      removeItem: () => undefined,
+      clear: () => undefined,
+      key: () => null,
+      get length() {
+        return 0
+      },
+    },
+  })
+}
+
 beforeEach(() => {
   simpananPalsu()
 })
@@ -87,5 +107,32 @@ describe('menyimpan pilihan', () => {
     const pilihan = pasangTemaAwal(akar as unknown as HTMLElement)
     expect(pilihan).toEqual({ tema: 'tropis', kerapatan: 'padat' })
     expect(akar.dataset).toEqual({ theme: 'tropis', density: 'padat' })
+  })
+})
+
+describe('simpanan yang menolak (temuan audit I F-06)', () => {
+  it('bacaPilihanTersimpan tidak meledak saat getItem melempar — kembali ke bawaan', () => {
+    simpananMenolak()
+    expect(() => bacaPilihanTersimpan()).not.toThrow()
+    expect(bacaPilihanTersimpan()).toEqual({ tema: 'terang', kerapatan: 'nyaman' })
+  })
+
+  it('simpanPilihan tidak meledak saat setItem melempar — dan jujur bilang gagal', () => {
+    simpananMenolak()
+    expect(() => simpanPilihan('etnik', 'padat')).not.toThrow()
+    expect(simpanPilihan('etnik', 'padat')).toBe(false)
+  })
+
+  it('simpanPilihan melaporkan true saat benar-benar tersimpan', () => {
+    expect(simpanPilihan('etnik', 'padat')).toBe(true)
+    expect(bacaPilihanTersimpan()).toEqual({ tema: 'etnik', kerapatan: 'padat' })
+  })
+
+  it('pasangTemaAwal tetap memasang tema walau simpanan menolak dibaca', () => {
+    simpananMenolak({ tulis: false })
+    const akar = akarPalsu()
+    const pilihan = pasangTemaAwal(akar as unknown as HTMLElement)
+    expect(pilihan).toEqual({ tema: 'terang', kerapatan: 'nyaman' })
+    expect(akar.dataset).toEqual({ theme: 'terang', density: 'nyaman' })
   })
 })

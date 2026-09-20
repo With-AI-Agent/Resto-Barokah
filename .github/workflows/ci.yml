@@ -56,6 +56,14 @@ jobs:
         working-directory: aplikasi
         run: npm test
 
+      # Bukti uji unit benar-benar MENJAGA perilaku (I F-19, F F-14/I F-05, I F-06):
+      # setiap mutasi perilaku di salinan sementara WAJIB membuat uji MERAH.
+      - name: Bukti mutasi kode aplikasi (uji wajib MERAH pada cacat nyata)
+        run: node aplikasi/alat/uji-mutasi-app.mjs
+
+      - name: Uji-diri harness mutasi aplikasi (harness wajib bisa MENOLAK)
+        run: node aplikasi/alat/uji-mutasi-app.mjs --uji-diri
+
       - name: Bangun aplikasi
         working-directory: aplikasi
         run: npm run build

@@ -9,10 +9,14 @@
  *    mengembalikan `null`, dan layar yang membutuhkannya menampilkan
  *    `pesanEnvKurang()` lewat komponen KeadaanGagal. Ini yang membuat aplikasi
  *    tetap bisa dibuka sebelum T0-00 selesai (dan saat pengembangan lokal).
- *  - `ujiSambungan()` sengaja memakai dua jalur **tanpa data** (kesehatan Auth
- *    dan akar PostgREST). Jadi uji sambung bisa LULUS walaupun tabel aslinya
- *    belum ada — atau belum boleh dibaca kunci publik (RLS). Yang dibuktikan
- *    hanyalah: alamat benar, kunci publik diterima, jaringan sampai.
+ *  - `ujiSambungan()` memakai dua jalur **tanpa data** (kesehatan Auth dan akar
+ *    PostgREST). Jadi uji sambung bisa LULUS walaupun tabel aslinya belum ada —
+ *    atau belum boleh dibaca kunci publik (RLS). Yang dibuktikan: alamat benar,
+ *    kunci publik diterima, jaringan sampai, DAN layanan data siap.
+ *  - Jalur MANA PUN gagal → `ok = false`. Ini koreksi temuan audit F F-14 /
+ *    I F-05 (2026-09-19): dulu `ok` hanya melihat kesehatan Auth, sehingga Auth
+ *    sehat + PostgREST 401/404/500 tetap dilaporkan "berhasil" — pemanggil
+ *    diarahkan ke operasi data yang pasti gagal.
  */
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { alamatSupabase, envLengkap, kunciAnonSupabase, pesanEnvKurang } from './env'
@@ -54,6 +58,11 @@ export type HasilSambungan = {
   pesan: string
   /** Rincian teknis per percobaan (untuk layar diagnosa & catatan bukti). */
   rincian: string[]
+  /**
+   * Status tiap jalur: `auth` = layanan masuk (Auth), `data` = layanan data (PostgREST).
+   * `ok` selalu `auth && data` — tidak ada lagi laporan "berhasil" sepihak.
+   */
+  jalur: { auth: boolean; data: boolean }
 }
 
 async function panggil(
@@ -88,7 +97,7 @@ export async function ujiSambungan(
   opsi: { fetchUji?: typeof fetch } = {},
 ): Promise<HasilSambungan> {
   if (!envLengkap()) {
-    return { ok: false, pesan: pesanEnvKurang(), rincian: [] }
+    return { ok: false, pesan: pesanEnvKurang(), rincian: [], jalur: { auth: false, data: false } }
   }
   const alamat = alamatSupabase().trim().replace(/\/+$/, '')
   if (!alamatSupabaseSah(alamat)) {
@@ -96,6 +105,7 @@ export async function ujiSambungan(
       ok: false,
       pesan: `Alamat Supabase tidak berbentuk https://<proyek>.supabase.co — sekarang: ${alamat}`,
       rincian: [],
+      jalur: { auth: false, data: false },
     }
   }
   const ambil = opsi.fetchUji ?? fetch
@@ -103,12 +113,36 @@ export async function ujiSambungan(
   const sehat = await panggil(ambil, alamat, kunci, JALUR_SEHAT)
   const data = await panggil(ambil, alamat, kunci, JALUR_DATA)
   const rincian = [sehat.rincian, data.rincian]
+  const jalur = { auth: sehat.status === 200, data: data.status === 200 }
 
-  if (sehat.status === 200) {
+  if (jalur.auth && jalur.data) {
     return {
       ok: true,
-      pesan: 'Sambungan ke Supabase berhasil memakai kunci publik saja.',
+      pesan:
+        'Sambungan ke Supabase berhasil memakai kunci publik saja: layanan masuk dan layanan data dua-duanya menjawab.',
       rincian,
+      jalur,
+    }
+  }
+  // Auth sehat tetapi jalur data tidak: jangan pernah bilang "berhasil" (F F-14 / I F-05).
+  if (jalur.auth) {
+    if (data.status === 401 || data.status === 403) {
+      return {
+        ok: false,
+        pesan:
+          `Layanan masuk hidup, TETAPI layanan data menolak kunci publik ini (HTTP ${data.status}). ` +
+          'Sambungan belum bisa dipakai — periksa VITE_SUPABASE_ANON_KEY.',
+        rincian,
+        jalur,
+      }
+    }
+    return {
+      ok: false,
+      pesan:
+        `Layanan masuk hidup, TETAPI layanan data belum siap (HTTP ${data.status}). ` +
+        'Sambungan belum bisa dipakai untuk data — periksa alamat, sambungan internet, atau apakah proyeknya dijeda.',
+      rincian,
+      jalur,
     }
   }
   if (sehat.status === 401 || sehat.status === 403) {
@@ -116,6 +150,7 @@ export async function ujiSambungan(
       ok: false,
       pesan: 'Supabase menolak kunci publik ini. Periksa VITE_SUPABASE_ANON_KEY di berkas .env.',
       rincian,
+      jalur,
     }
   }
   return {
@@ -123,5 +158,6 @@ export async function ujiSambungan(
     pesan:
       'Supabase tidak menjawab. Periksa alamat VITE_SUPABASE_URL, sambungan internet, atau apakah proyeknya dijeda.',
     rincian,
+    jalur,
   }
 }

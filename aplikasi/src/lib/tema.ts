@@ -62,7 +62,10 @@ function akarDokumen(): HTMLElement | null {
   return document.documentElement
 }
 
-/** Simpanan lokal (boleh tidak ada: mode penyamaran/menolak izin). */
+/** Simpanan lokal (boleh tidak ada: mode penyamaran/menolak izin).
+ *  Penjagaan di sini hanya untuk PENGAMBILAN objeknya; pemanggilan
+ *  `getItem`/`setItem` dijaga terpisah di `bacaKunci`/`tulisKunci` karena
+ *  keduanya bisa melempar sendiri (I F-06). */
 function penyimpanan(): Storage | null {
   try {
     if (typeof localStorage === 'undefined') return null
@@ -89,21 +92,61 @@ export function terapkanKerapatan(
   return true
 }
 
+/**
+ * Baca satu kunci dari simpanan. **Tidak pernah meledak** (temuan audit I F-06):
+ * `localStorage.getItem` sendiri bisa MELEMPAR `SecurityError` saat peramban
+ * menolak penyimpanan — dan dulu `try/catch` hanya mengelilingi pengambilan
+ * objeknya, bukan pemanggilan metodenya. Kegagalan baca = kembali ke bawaan.
+ */
+function bacaKunci(simpan: Storage | null, kunci: string): string {
+  try {
+    return simpan?.getItem(kunci) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+/**
+ * Tulis satu kunci ke simpanan. **Tidak pernah meledak** (temuan audit I F-06):
+ * `setItem` melempar `QuotaExceededError` saat penyimpanan penuh. Dulu lemparan
+ * itu menembus effect React saat mengganti tema — bukan sekadar gagal menyimpan.
+ * Mengembalikan `true` hanya kalau nilainya benar-benar tersimpan.
+ */
+function tulisKunci(simpan: Storage | null, kunci: string, nilai: string): boolean {
+  if (!simpan) return false
+  try {
+    simpan.setItem(kunci, nilai)
+    return true
+  } catch {
+    return false
+  }
+}
+
 export function bacaPilihanTersimpan(): { tema: KodeTema; kerapatan: Kerapatan } {
   const simpan = penyimpanan()
-  const temaTersimpan = simpan?.getItem(KUNCI_TEMA) ?? ''
-  const kerapatanTersimpan = simpan?.getItem(KUNCI_KERAPATAN) ?? ''
+  const temaTersimpan = bacaKunci(simpan, KUNCI_TEMA)
+  const kerapatanTersimpan = bacaKunci(simpan, KUNCI_KERAPATAN)
   return {
     tema: adalahKodeTema(temaTersimpan) ? temaTersimpan : TEMA_BAWAAN,
     kerapatan: adalahKerapatan(kerapatanTersimpan) ? kerapatanTersimpan : KERAPATAN_BAWAAN,
   }
 }
 
-export function simpanPilihan(tema: KodeTema, kerapatan: Kerapatan): void {
+/**
+ * Simpan pilihan tema & kerapatan.
+ * Mengembalikan `false` kalau tidak bisa disimpan (tidak ada simpanan, izin ditolak,
+ * atau penyimpanan penuh) — pilihan tetap berlaku di layar, hanya tidak diingat
+ * kunjungan berikutnya. Pemanggil BOLEH mengabaikan nilai ini; yang penting ia tidak
+ * pernah meledak.
+ */
+export function simpanPilihan(tema: KodeTema, kerapatan: Kerapatan): boolean {
   const simpan = penyimpanan()
-  if (!simpan) return
-  simpan.setItem(KUNCI_TEMA, tema)
-  simpan.setItem(KUNCI_KERAPATAN, kerapatan)
+  if (!simpan) return false
+  // Dua kunci ditulis terpisah: kalau yang pertama berhasil dan yang kedua penuh,
+  // lebih jujur mengembalikan false daripada mengaku semuanya tersimpan.
+  const temaTersimpan = tulisKunci(simpan, KUNCI_TEMA, tema)
+  const kerapatanTersimpan = tulisKunci(simpan, KUNCI_KERAPATAN, kerapatan)
+  return temaTersimpan && kerapatanTersimpan
 }
 
 /**
