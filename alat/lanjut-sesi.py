@@ -33,6 +33,7 @@ Cara pakai:
     python3 alat/lanjut-sesi.py --di-ci         # di CI: isi saja (riwayat Git dangkal)
     python3 alat/lanjut-sesi.py --uji-diri      # buktikan pemeriksa bisa MENOLAK
     python3 alat/lanjut-sesi.py --daftar-sesi   # Lee memilih sesi mana yang dilanjutkan
+    python3 alat/lanjut-sesi.py --susul         # sesi BARU: satu perintah menyusul cabang handoff (ff-only, aman)
     python3 alat/lanjut-sesi.py --siapkan --lanjut-dari arena/<cabang>   # lanjut dari sesi pilihan Lee
 
 Aturan kesegaran (ditegakkan di komputer, bukan di CI): berkas handoff wajib diperbarui
@@ -76,13 +77,23 @@ KERANGKA_PROMPT_SESI_BARU = """SESI YANG AKU LANJUT: .......... (isi nama cabang
 > Bagian yang kamu isi HANYA baris pertama di atas. Sisa berkas ini jangan diubah.
 > Penjelasan untuk manusia: `PANDUAN_PENGGUNA.md` bagian AL-13 dan `docs/PANDUAN_PEMILIK.md` pertanyaan 2b.
 
-LANGKAH PERTAMA (WAJIB, sebelum menjalankan apa pun di bawah): kamu kemungkinan besar masih berdiri di basis `main` yang tertinggal ratusan commit. Susul dulu cabang yang tertulis di baris pertama:
+BASE BRANCH (dipilih saat sesi baru dibuat di Arena): SAMAKAN dengan baris pertama di atas — cabang sesi yang dilanjutkan, BUKAN `main` (pekerjaan belum di-merge ke sana). Kalau platform hanya bisa dari `main`, tidak apa-apa — cukup susul dulu seperti di bawah.
+
+LANGKAH PERTAMA (WAJIB, sebelum menjalankan apa pun di bawah): kamu kemungkinan besar masih berdiri di basis `main` yang tertinggal ratusan commit. Susul dulu cabang yang tertulis di baris pertama — cara tercepat:
+
+```
+python3 alat/lanjut-sesi.py --susul
+```
+
+Kalau mode `--susul` tidak ada (alat versi lama di basis main), pakai cara manual yang setara:
 
 ```
 git fetch origin <CABANG-YANG-DIPILIH>:refs/remotes/origin/kerja-terakhir
 git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py
 ```
+
+Selesai menyusul, WAJIB verifikasi: `python3 alat/lanjut-sesi.py` harus **LOLOS**.
 
 - Kalau baris `SESI YANG AKU LANJUT` KOSONG atau masih berisi titik-titik (`..........`, artinya belum diisi): JANGAN menebak. Tampilkan daftar sesi yang bisa dilanjutkan (cara tanpa alat ada di bagian LANJUT SESI di bawah), laporkan ke Lee, lalu tunggu Lee memilih.
 - Kalau baris itu TERISI tetapi cabangnya TIDAK ADA di GitHub (`git ls-remote origin refs/heads/<CABANG-YANG-DIPILIH>` kosong): JANGAN menebak juga — laporkan dan tampilkan daftar sesi.
@@ -301,6 +312,88 @@ def pilih_target(cabang_sekarang: str, sipl_lama: str) -> tuple[str, str]:
 
 
 # --------------------------------------------------------------------------- periksa
+def pilih_ci_dari_runs(runs: list[dict], sha: str) -> str:
+    """Pilih status CI yang RELEVAN: hanya run untuk commit `sha` (bukan run basi/cabang lain).
+
+    Aturan: (1) run yang belum selesai dilaporkan apa adanya; (2) bila semua run commit ini
+    selesai, satu pun BUKAN success dilaporkan (dengan id run-nya); (3) semua success →
+    success. Run `cancelled` = biasanya digantikan push lebih baru — hanya dilaporkan bila
+    tidak ada run lain untuk commit yang sama.
+    """
+    punyaku = [r for r in runs if str(r.get("headSha", "")).startswith(sha[:8])]
+    if not punyaku:
+        return f"(belum ada run CI untuk commit {sha[:8]} — periksa lagi setelah push)"
+    jalan = [r for r in punyaku if r.get("status") != "completed"]
+    if jalan:
+        r = jalan[0]
+        return f"{r.get('status')} (run {r.get('databaseId')}, commit {sha[:8]}) — tunggu sampai selesai"
+    bukan_success = [r for r in punyaku if r.get("conclusion") != "success"]
+    if bukan_success and len(bukan_success) == len(punyaku):
+        r = bukan_success[0]
+        return f"{r.get('conclusion')} (run {r.get('databaseId')}, commit {sha[:8]})"
+    if bukan_success:
+        r = bukan_success[0]
+        return (f"success ({len(punyaku) - len(bukan_success)} run) TAPI {r.get('conclusion')} "
+                f"(run {r.get('databaseId')}, commit {sha[:8]})")
+    return f"success ({len(punyaku)} run, commit {sha[:8]})"
+
+
+def rencana_susul(head_memuat_target: bool, bersih: bool, ff_mungkin: bool) -> str:
+    """Keputusan `--susul`: SUDAH | FF | KOTOR | MANUAL — tanpa pernah memaksa."""
+    if head_memuat_target:
+        return "SUDAH"
+    if not bersih:
+        return "KOTOR"
+    if ff_mungkin:
+        return "FF"
+    return "MANUAL"
+
+
+def susul() -> int:
+    """Satu perintah untuk sesi baru: menyusul cabang handoff TANPA risiko kehilangan kerja.
+
+    Hanya melakukan fast-forward (tidak bisa menimpa apa pun). Bila keadaan tidak aman untuk
+    ff (ada perubahan lokal / ada commit sendiri), cetak langkah manual — jangan memaksa.
+    """
+    target, alasan = pilih_target("", baca(SIAP) if SIAP.is_file() else "")
+    if not target or target.startswith("."):
+        print("GAGAL: cabang yang harus disusul tidak terbaca dari handoff.")
+        print("Lihat daftar: python3 alat/lanjut-sesi.py --daftar-sesi  (atau --susul --lanjut-dari <cabang>)")
+        return 1
+    print(f"Menyusul cabang: {target}  ({alasan})")
+    kode, _ = jalankan(["git", "fetch", "--quiet", "origin", target])
+    if kode != 0:
+        print(f"GAGAL: cabang '{target}' tidak bisa di-fetch dari GitHub — periksa namanya di --daftar-sesi.")
+        return 1
+    head_memuat = 0 == jalankan(["git", "merge-base", "--is-ancestor", "FETCH_HEAD", "HEAD"])[0]
+    # HANYA perubahan pada berkas TERLACAK yang menghalangi ff (berkas untracked seperti
+    # node_modules tidak terhapus oleh merge dan wajar ada di sesi baru).
+    _, porcelein = jalankan(["git", "status", "--porcelain", "--untracked-files=no"])
+    bersih = not porcelein.strip()
+    ff_mungkin = 0 == jalankan(["git", "merge-base", "--is-ancestor", "HEAD", "FETCH_HEAD"])[0]
+    rencana = rencana_susul(head_memuat, bersih, ff_mungkin)
+    if rencana == "SUDAH":
+        print("OK: checkout ini SUDAH memuat seluruh pekerjaan cabang itu. Tidak ada yang perlu disusul.")
+    elif rencana == "FF":
+        kode, keluaran = jalankan(["git", "merge", "--ff-only", "FETCH_HEAD"])
+        if kode != 0:
+            print("GAGAL: fast-forward ditolak git (jarang) — pakai langkah manual di PROMPT_SESI_BARU.md.")
+            print(keluaran[-400:])
+            return 1
+        _, sha = jalankan(["git", "rev-parse", "--short", "HEAD"])
+        print(f"OK: fast-forward selesai — HEAD sekarang {sha.strip()} (semua pekerjaan ikut, tidak ada yang ditimpa).")
+    elif rencana == "KOTOR":
+        print("BERHENTI: ada perubahan lokal yang belum di-commit. Amankan dulu (commit/stash), lalu ulangi.")
+        print("Alat ini sengaja TIDAK memaksa — pekerjaan lokal tidak boleh hilang.")
+        return 1
+    else:
+        print("BERHENTI: cabang ini punya commit sendiri yang tidak ada di cabang tujuan (tidak bisa ff).")
+        print("Jangan dipaksa. Laporkan ke Lee dan tampilkan: python3 alat/lanjut-sesi.py --daftar-sesi")
+        return 1
+    print("Langkah berikutnya: python3 alat/mulai-sesi.py  lalu  python3 alat/lanjut-sesi.py  (harus LOLOS).")
+    return 0
+
+
 def catatan_ci(sipl_teks: str) -> str:
     """Peringatan bila CI terakhir BUKAN success.
 
@@ -625,9 +718,17 @@ def siapkan() -> int:
                       "--json", "number,baseRefName,headRefName",
                       "--jq", '.[] | "PR #\\(.number) (base \\(.baseRefName))"'])
     pr = pr.strip() or "(tidak ada PR terbuka terbaca)"
-    _, ci = jalankan(["gh", "run", "list", "--limit", "1", "--json", "conclusion,headSha,databaseId",
-                      "--jq", '.[] | "\\(.conclusion) (run \\(.databaseId), commit \\(.headSha[0:8]))"'])
-    ci = ci.strip() or "(status CI tidak terbaca dari sini — periksa di GitHub)"
+    # CI dibaca PER-COMMIT keadaan kerja (bukan "run terbaru sembarang" — pernah menyesatkan:
+    # run commit lama yang 'cancelled' karena digantikan push terbaca sebagai CI merah).
+    import json as _json
+    ci = "(status CI tidak terbaca dari sini — periksa di GitHub)"
+    _kode_ci, _keluar_ci = jalankan(["gh", "run", "list", "--branch", target, "--limit", "15",
+                                     "--json", "conclusion,status,headSha,databaseId"])
+    if _kode_ci == 0:
+        try:
+            ci = pilih_ci_dari_runs(_json.loads(_keluar_ci), sha)
+        except Exception:
+            pass  # keluaran bukan JSON (mis. gh belum autentikasi) → pakai teks jujur di atas
     pesan_ci = "" if ci.lower().startswith("success") else (
         f"- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.\n")
     terbuka = butir_tertangguh()
@@ -699,6 +800,10 @@ Kamu bekerja di cabang sesi barumu sendiri (dibuat platform; hanya ke cabang itu
 PR #1 menunjuk cabang sesi SEBELUMNYA, jadi commit barumu tidak muncul di PR itu.
 Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan laporkan tautannya.
 JANGAN merge apa pun tanpa keputusan Lee.
+
+**Base branch bila Lee membuka sesi baru lagi di Arena:** pilih cabang yang disebut di §1
+(`{target}`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
+`main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 {rencana}
 """
@@ -897,6 +1002,30 @@ def uji_diri() -> int:
                       masalah_m[0][:90] if masalah_m else "DILOLOSKAN (tumpul)"))
 
     # Peringatan CI: merah harus memicu peringatan, success tidak boleh berisik.
+    # CI per-commit: run basi/cancelled/cabang lain TIDAK boleh terbaca sebagai CI merah.
+    runs_uji = [
+        {"headSha": "aaaa1111" + "0" * 32, "status": "completed", "conclusion": "cancelled", "databaseId": 1},
+        {"headSha": "bbbb2222" + "0" * 32, "status": "completed", "conclusion": "success", "databaseId": 2},
+        {"headSha": "bbbb2222" + "0" * 32, "status": "completed", "conclusion": "success", "databaseId": 3},
+        {"headSha": "cccc3333" + "0" * 32, "status": "in_progress", "conclusion": None, "databaseId": 4},
+    ]
+    hasil.append(("CI: semua run commit ini success → success (run cancelled commit lain diabaikan)",
+                  pilih_ci_dari_runs(runs_uji, "bbbb2222").startswith("success (2 run"),
+                  pilih_ci_dari_runs(runs_uji, "bbbb2222")))
+    hasil.append(("CI: commit tanpa run → jujur 'belum ada run', BUKAN merah",
+                  "belum ada run" in pilih_ci_dari_runs(runs_uji, "dddd4444"),
+                  pilih_ci_dari_runs(runs_uji, "dddd4444")))
+    hasil.append(("CI: run masih jalan → dilaporkan in_progress",
+                  "in_progress" in pilih_ci_dari_runs(runs_uji, "cccc3333"),
+                  pilih_ci_dari_runs(runs_uji, "cccc3333")))
+    # keputusan --susul: tidak pernah memaksa.
+    hasil.append(("susul: target sudah termuat → SUDAH", rencana_susul(True, True, True) == "SUDAH", ""))
+    hasil.append(("susul: bersih + bisa ff → FF", rencana_susul(False, True, True) == "FF", ""))
+    hasil.append(("susul: ada perubahan lokal → KOTOR (berhenti, jangan timpa)",
+                  rencana_susul(False, False, True) == "KOTOR", ""))
+    hasil.append(("susul: ada commit sendiri → MANUAL (berhenti, jangan paksa)",
+                  rencana_susul(False, True, False) == "MANUAL", ""))
+
     hasil.append(("peringatan muncul saat CI terakhir merah",
                   bool(catatan_ci(re.sub(r"(?m)^- \*\*CI terakhir:\*\*.*$",
                                          "- **CI terakhir:** failure (run 1, commit aaaaaaaa)", sipl))),
@@ -1114,6 +1243,8 @@ def main() -> int:
         return siapkan()
     if "--daftar-sesi" in sys.argv:
         return daftar_sesi()
+    if "--susul" in sys.argv:
+        return susul()
     if "--uji-diri" in sys.argv:
         return uji_diri()
     penuh = "--di-ci" not in sys.argv

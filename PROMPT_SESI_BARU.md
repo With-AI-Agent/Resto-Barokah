@@ -4,13 +4,23 @@ SESI YANG AKU LANJUT: .......... (isi nama cabang sesi di sini; contoh bentuknya
 > Bagian yang kamu isi HANYA baris pertama di atas. Sisa berkas ini jangan diubah.
 > Penjelasan untuk manusia: `PANDUAN_PENGGUNA.md` bagian AL-13 dan `docs/PANDUAN_PEMILIK.md` pertanyaan 2b.
 
-LANGKAH PERTAMA (WAJIB, sebelum menjalankan apa pun di bawah): kamu kemungkinan besar masih berdiri di basis `main` yang tertinggal ratusan commit. Susul dulu cabang yang tertulis di baris pertama:
+BASE BRANCH (dipilih saat sesi baru dibuat di Arena): SAMAKAN dengan baris pertama di atas — cabang sesi yang dilanjutkan, BUKAN `main` (pekerjaan belum di-merge ke sana). Kalau platform hanya bisa dari `main`, tidak apa-apa — cukup susul dulu seperti di bawah.
+
+LANGKAH PERTAMA (WAJIB, sebelum menjalankan apa pun di bawah): kamu kemungkinan besar masih berdiri di basis `main` yang tertinggal ratusan commit. Susul dulu cabang yang tertulis di baris pertama — cara tercepat:
+
+```
+python3 alat/lanjut-sesi.py --susul
+```
+
+Kalau mode `--susul` tidak ada (alat versi lama di basis main), pakai cara manual yang setara:
 
 ```
 git fetch origin <CABANG-YANG-DIPILIH>:refs/remotes/origin/kerja-terakhir
 git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py
 ```
+
+Selesai menyusul, WAJIB verifikasi: `python3 alat/lanjut-sesi.py` harus **LOLOS**.
 
 - Kalau baris `SESI YANG AKU LANJUT` KOSONG atau masih berisi titik-titik (`..........`, artinya belum diisi): JANGAN menebak. Tampilkan daftar sesi yang bisa dilanjutkan (cara tanpa alat ada di bagian LANJUT SESI di bawah), laporkan ke Lee, lalu tunggu Lee memilih.
 - Kalau baris itu TERISI tetapi cabangnya TIDAK ADA di GitHub (`git ls-remote origin refs/heads/<CABANG-YANG-DIPILIH>` kosong): JANGAN menebak juga — laporkan dan tampilkan daftar sesi.
