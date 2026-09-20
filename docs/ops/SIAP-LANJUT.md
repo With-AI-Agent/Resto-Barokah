@@ -12,8 +12,8 @@
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
 - **Commit keadaan kerja:** `84d312646a43945292c447b5c1bd704e0dda7744`
 - **PR:** PR #3 (base main)
-PR #2 (base main)
-PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
+  PR #2 (base main)
+  PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
 - **CI terakhir:** failure (run 35490453106, commit 84d31264)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
@@ -67,11 +67,12 @@ JANGAN merge apa pun tanpa keputusan Lee.
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 **CATATAN PENTING PUTARAN 18aa (2026-09-20) — CI TIDAK BISA MULAI: TAGIHAN AKUN GITHUB (BUTUH LEE).**
+**RALAT 18ab (2026-09-20, screenshot billing Lee):** penyebab PASTI = menit gratis organisasi **2.000/2.000 habis** (GitHub Free, tagihan $0 — BUKAN gagal bayar); reset otomatis ±1 Okt; mode hemat + opsi publik/transfer menunggu keputusan Lee (LANGKAH_PEMILIK bagian atas).
 
 Dua run untuk commit `84d3126` **tidak pernah dijalankan**. Anotasi GitHub apa adanya:
 
-> *"The job was not started because recent account payments have failed or your spending limit needs to be
-> increased. Please check the 'Billing & plans' section in your settings."*
+> _"The job was not started because recent account payments have failed or your spending limit needs to be
+> increased. Please check the 'Billing & plans' section in your settings."_
 
 Jadi **merahnya bukan cacat kode**. Buktinya: seluruh rantai langkah CI (termasuk tiga langkah baru putaran 18z)
 dijalankan ulang di **klon bersih** dari GitHub — semuanya LOLOS (npm ci/format/lint/typecheck/test/build/audit,
@@ -88,18 +89,18 @@ H F-07 (kolom non-uang pesanan) → sisa K-3 → setelah tagihan GitHub beres: p
 
 **PUTARAN 18z (2026-09-20) — TIGA TEMUAN SATU KELAS DITUTUP: "ALAT BILANG AMAN, PADAHAL BELUM TERBUKTI".**
 
-* **F F-14 & I F-05 (dua laporan, satu cacat) — sambungan Supabase.** `ujiSambungan()` dulu hanya melihat
+- **F F-14 & I F-05 (dua laporan, satu cacat) — sambungan Supabase.** `ujiSambungan()` dulu hanya melihat
   kesehatan Auth: Auth 200 + jalur data 401/404/500 tetap dilaporkan "berhasil". Kini `ok = jalur.auth &&
-  jalur.data`, status tiap jalur dilaporkan di bidang `jalur`, dan pesan gagal menyebut jalur + HTTP-nya.
+jalur.data`, status tiap jalur dilaporkan di bidang `jalur`, dan pesan gagal menyebut jalur + HTTP-nya.
   Ujinya dulu memberi **satu status untuk dua jalur** — kombinasi yang dicari auditor memang mustahil teruji.
   Sekarang ada `jawabJalur({sehat, data})` + 7 kasus (401/403/500/404/503, jalur data tak terhubung, 206).
   Mutasi `ok` dikembalikan melihat Auth saja → **7 uji MERAH**.
-* **I F-06 — kegagalan Storage di fondasi tema.** Penjagaan lama hanya mengelilingi PENGAMBILAN objek
+- **I F-06 — kegagalan Storage di fondasi tema.** Penjagaan lama hanya mengelilingi PENGAMBILAN objek
   `localStorage`; `getItem`/`setItem` sendiri bisa melempar (`SecurityError` izin ditolak, `QuotaExceededError`
   penuh) sehingga effect React saat ganti tema bisa putus. Kini `bacaKunci()`/`tulisKunci()` menjaga
   pemanggilannya, `simpanPilihan()` **jujur** mengembalikan `false`, dan tema tetap berganti di layar.
   Mutasi penjagaan dicabut → **2 uji MERAH**.
-* **Pagar permanen baru `aplikasi/alat/uji-mutasi-app.mjs`** (kelas yang sama dengan `alat/uji-mutasi-0015.py`
+- **Pagar permanen baru `aplikasi/alat/uji-mutasi-app.mjs`** (kelas yang sama dengan `alat/uji-mutasi-0015.py`
   untuk SQL): salinan `aplikasi/` di folder sementara → kontrol hijau → 5 mutasi perilaku WAJIB MERAH.
   **Merah PALSU ditolak:** pelajaran nyata sesi ini, opsi `--reporter=basic` sudah tidak ada di Vitest 5 sehingga
   semua mutasi sempat "merah" padahal ujinya tidak pernah jalan — harness kini hanya menerima merah yang benar-benar
@@ -120,17 +121,17 @@ Uji bernama `'memanggil onUbah saat diisi'` hanya merender HTML (SSR), memeriksa
 **memastikan callback TIDAK terpanggil**. Artinya handler `onChange` yang tidak tersambung ke apa pun pun
 akan hijau — "86 uji terbaca" sebagian tidak membuktikan apa yang namanya janjikan.
 
-* **Penjaga mesin (baru)** di `aplikasi/alat/periksa-uji.py` (aturan 3): uji yang namanya menjanjikan interaksi
+- **Penjaga mesin (baru)** di `aplikasi/alat/periksa-uji.py` (aturan 3): uji yang namanya menjanjikan interaksi
   ("saat diisi", "saat diklik", "memanggil on…") WAJIB memicu kejadian (`fireEvent`/`userEvent`/`dispatchEvent`/
   `.click(`/`.focus(`/`.type(`) — kalau tidak, GAGAL dengan **berkas:baris**. Sebelum ujinya diperbaiki, penjaga
   ini **langsung menunjuk cacat aslinya** (`aplikasi/src/komponen/komponen.test.tsx:145`).
-* **Ujinya diperbaiki**: berkas uji memakai `// @vitest-environment jsdom` + `@testing-library/react`; isian
+- **Ujinya diperbaiki**: berkas uji memakai `// @vitest-environment jsdom` + `@testing-library/react`; isian
   benar-benar diisi (`fireEvent.change` → nilai `Budi`) dan `onUbah` diperiksa **nilainya**, plus satu uji nilai
   terkendali. Uji markup lain di berkas itu tetap SSR.
-* **Bukti uji baru tidak tumpul (mutasi):** handler dilepas (`onChange` → kosong) → **1 uji GAGAL**; handler
+- **Bukti uji baru tidak tumpul (mutasi):** handler dilepas (`onChange` → kosong) → **1 uji GAGAL**; handler
   mengirim nilai salah (`+ 'X'`) → **1 uji GAGAL**; dipulihkan → **18 uji LULUS**. Berkas `KolomIsian.tsx`
   dikembalikan utuh (diff kosong).
-* `--uji-diri` **5 kasus** (uji berjanji tanpa tindakan ditolak · dua kontrol diterima · `vitest.config.ts`
+- `--uji-diri` **5 kasus** (uji berjanji tanpa tindakan ditolak · dua kontrol diterima · `vitest.config.ts`
   dihapus ditolak), ikut CI + `periksa-semua.sh`, terdaftar gerbang wajib + 1 mutasi baru.
 
 **Langkah berikutnya (urut):** **I F-05/I F-06** (klien sambungan & Storage tema) + **F F-14** (ujiSambungan bisa
@@ -145,15 +146,15 @@ menuruti README bisa memasang Node yang tidak didukung pustaka wajib — iklan y
 
 Yang dikerjakan:
 
-* batas minimum kini **dihitung mesin** dari `aplikasi/package-lock.json` → **`>=22.12.0`**; entri yang
+- batas minimum kini **dihitung mesin** dari `aplikasi/package-lock.json` → **`>=22.12.0`**; entri yang
   bertanda `optional` (mis. `@napi-rs/lzma-*` bawaan rollup) sengaja TIDAK dihitung, karena npm melewatinya;
-* `aplikasi/README.md` menulis `22.12+` dan ketiga alur GitHub memakai `node-version: '22.12.0'` — jadi
+- `aplikasi/README.md` menulis `22.12+` dan ketiga alur GitHub memakai `node-version: '22.12.0'` — jadi
   **CI menguji tepat versi minimum yang diiklankan**, bukan versi lain;
-* penjaga baru `aplikasi/alat/periksa-node.py` menolak: iklan lebih rendah / bentuk bukan `>=X` / README
+- penjaga baru `aplikasi/alat/periksa-node.py` menolak: iklan lebih rendah / bentuk bukan `>=X` / README
   berbeda / lock tanpa `engines` (gagal-tertutup) / alur ber-`node-version` di bawah batas (bentuk `'22'`
   diartikan 22.0.0, jadi tidak cukup). `--uji-diri` **9 kasus**: 1 salinan utuh diterima, 7 mutasi ditolak,
   1 kontrol (entri opsional menuntut Node 30) tetap diterima;
-* ikut `aplikasi/alat/periksa-semua.sh` dan CI; terdaftar sebagai gerbang wajib + 1 mutasi baru
+- ikut `aplikasi/alat/periksa-semua.sh` dan CI; terdaftar sebagai gerbang wajib + 1 mutasi baru
   ("langkah pemeriksa versi Node dihapus → ditolak").
 
 **Batas jujur:** yang dijamin adalah keselarasan iklan↔lock dan bahwa CI berjalan di versi minimum.
@@ -168,22 +169,22 @@ I F-13/F-14/F-15/F-16 (probe PIN) → sisa K-3 (PR-05…09, PR-13, PR-14) → **
 Sebelum ini berkas Edge hanya dijaga pemeriksa **teks** — tidak ada satu pun pengujian yang pernah
 **menjalankan** handler-nya, jadi cacat batas lolos tanpa jejak:
 
-* JSON `null` → `TypeError` (kasir melihat kegagalan platform, bukan 400 berbahasa Indonesia);
-* UUID "36 tanda minus" lolos regex longgar `^[0-9a-f-]{36}$` → diteruskan ke database;
-* jaringan putus pada `fetch` dan jawaban upstream yang bukan JSON → `Error`/`SyntaxError` tak tertangkap.
+- JSON `null` → `TypeError` (kasir melihat kegagalan platform, bukan 400 berbahasa Indonesia);
+- UUID "36 tanda minus" lolos regex longgar `^[0-9a-f-]{36}$` → diteruskan ke database;
+- jaringan putus pada `fetch` dan jawaban upstream yang bukan JSON → `Error`/`SyntaxError` tak tertangkap.
 
 Dua-duanya ditutup: **perbaikannya** (badan permintaan diperiksa · UUID diperiksa lengkap sebelum
 menyentuh database · satu bentuk jawaban gagal terkendali untuk semua gangguan teknis) dan
 **penjaganya** — `alat/uji-edge-pin.mjs`:
 
-* mengubah berkas ASLI `supabase/functions/verifikasi_pin/index.ts` TS → JS memakai `esbuild`
+- mengubah berkas ASLI `supabase/functions/verifikasi_pin/index.ts` TS → JS memakai `esbuild`
   (bukan menulis ulang tangan), lalu menjalankannya di `node:vm` **tanpa jaringan**
   (`Response`/`Request` milik Node, `Deno.serve`/`Deno.env`/`fetch` dikendalikan uji);
-* 11 kasus batas (E01–E11), termasuk "PIN tidak pernah muncul di jawaban mana pun";
-* **MERAH di 4 kasus sebelum perbaikan** (bukti uji ini tidak tumpul), hijau sesudahnya;
-* jalan di `aplikasi/alat/periksa-semua.sh` dan CI (langkah tersendiri setelah `npm ci --prefix alat`;
+- 11 kasus batas (E01–E11), termasuk "PIN tidak pernah muncul di jawaban mana pun";
+- **MERAH di 4 kasus sebelum perbaikan** (bukti uji ini tidak tumpul), hijau sesudahnya;
+- jalan di `aplikasi/alat/periksa-semua.sh` dan CI (langkah tersendiri setelah `npm ci --prefix alat`;
   `esbuild` kini devDependency `alat/package.json`).
-* Catatan kecil: fixture "PIN tidak lagi dibaca dari badan permintaan" di `alat/periksa-fungsi-pin.py`
+- Catatan kecil: fixture "PIN tidak lagi dibaca dari badan permintaan" di `alat/periksa-fungsi-pin.py`
   dibuat tahan penamaan variabel (refactor `isi` → `badan` bukan cacat).
 
 **Langkah berikutnya (urut):** **I F-21** (minimum Node vs lockfile) → **I F-19** (uji yang tidak mengisi input) →
@@ -198,22 +199,22 @@ tutup batch mekanisme → **hubungi Lee** untuk "Sebar skema".
 
 Dokumen yang menjanjikan lebih dari kenyataan, atau aturan yang saling bertabrakan, dibereskan sekaligus:
 
-* **H F-06** `docs/KEAMANAN.md`: `hitung_total()` tidak lagi disebut "belum mendarat" — versi awalnya sudah hidup di
+- **H F-06** `docs/KEAMANAN.md`: `hitung_total()` tidak lagi disebut "belum mendarat" — versi awalnya sudah hidup di
   `supabase/migrations/0014_penutup_celah_putaran13.sql`; yang belum: pembulatan (T1-16) & suite 12 uji uang.
-* **H F-08** bukti T0-03 memakai jalur lengkap `aplikasi/src/lib/tema.ts`.
-* **H F-10** klasifikasi penanda-palsu diberi justifikasi jujur: nyata di level DB, tetapi eksploitasi produksi
+- **H F-08** bukti T0-03 memakai jalur lengkap `aplikasi/src/lib/tema.ts`.
+- **H F-10** klasifikasi penanda-palsu diberi justifikasi jujur: nyata di level DB, tetapi eksploitasi produksi
   menuntut koneksi SQL langsung (PostgREST tak mengizinkan `pg_catalog`); pagar 0015 tetap.
-* **I F-09** `aplikasi/README.md` tidak lagi mencampur dua folder kerja (pemulihan: `bash alat/pratinjau.sh` dari dalam
+- **I F-09** `aplikasi/README.md` tidak lagi mencampur dua folder kerja (pemulihan: `bash alat/pratinjau.sh` dari dalam
   `aplikasi/`, dengan catatan bentuk akar; bagian pemeriksa ditandai "dari AKAR repo").
-* **I F-10** resep audit: auditor **wajib kembali ke cabang sesinya** (`git symbolic-ref --short HEAD`) dan push eksplisit
+- **I F-10** resep audit: auditor **wajib kembali ke cabang sesinya** (`git symbolic-ref --short HEAD`) dan push eksplisit
   `git push origin HEAD:refs/heads/<CABANG-SESIMU>` sebelum menyerahkan laporan (blok kanonik & buku induk tetap identik).
-* **I F-11** janji rahasia GitHub dikoreksi: terenkripsi ≠ tak terbaca (siapa pun yang boleh mengubah workflow bisa membacanya)
+- **I F-11** janji rahasia GitHub dikoreksi: terenkripsi ≠ tak terbaca (siapa pun yang boleh mengubah workflow bisa membacanya)
   → least privilege, TTL, jaga akses tulis repo.
-* **I F-12** **satu aturan pindah sesi**: melihat/melanjutkan pekerjaan TIDAK perlu merge (`fetch` + `merge --ff-only`),
+- **I F-12** **satu aturan pindah sesi**: melihat/melanjutkan pekerjaan TIDAK perlu merge (`fetch` + `merge --ff-only`),
   merge PR ke `main` tetap keputusan Lee. Pendampingnya: `docs/ops/SIAP_AKUN_PEMILIK.md` disegarkan dan prasyarat PGlite
   (`npm ci --prefix alat`) kini tertulis di handoff.
-* **D F-06** ROADMAP T1-15/T1-17 diberi catatan silang: fungsinya sudah hidup di 0014/0015 — **jangan tulis rumus kedua**.
-* Duplikat yang obatnya sudah mendarat ikut ditutup: **B F-09 · B F-17 · D F-03 · D F-04** (paket wajib menunjuk induk commit
+- **D F-06** ROADMAP T1-15/T1-17 diberi catatan silang: fungsinya sudah hidup di 0014/0015 — **jangan tulis rumus kedua**.
+- Duplikat yang obatnya sudah mendarat ikut ditutup: **B F-09 · B F-17 · D F-03 · D F-04** (paket wajib menunjuk induk commit
   sendiri · gerbang CI hijau · pemecah artefak).
 
 **Langkah berikutnya (urut):** **I F-07** (boundary Edge: JSON null & galat upstream) → **I F-21** (minimum Node vs lockfile) →
@@ -225,19 +226,19 @@ tutup batch mekanisme → **hubungi Lee** untuk "Sebar skema".
 Paket audit dulu menyuruh auditor mencari artefak yang sebenarnya NYATA, lengkap dengan label
 "sudah [x] — berkasnya TIDAK ADA: laporkan!":
 
-* `python3 alat/periksa-roadmap.py` → itu **perintah**, bukan berkas;
-* `aplikasi/src/komponen/*.tsx` → itu **pola** yang cocok 13 berkas nyata;
-* `src/lib/tema.ts` → itu **jalur relatif** folder `aplikasi/` (= `aplikasi/src/lib/tema.ts`).
+- `python3 alat/periksa-roadmap.py` → itu **perintah**, bukan berkas;
+- `aplikasi/src/komponen/*.tsx` → itu **pola** yang cocok 13 berkas nyata;
+- `src/lib/tema.ts` → itu **jalur relatif** folder `aplikasi/` (= `aplikasi/src/lib/tema.ts`).
 
 Dua mesin tertangkap cacat yang sama: pembuat paket `alat/audit-independen.py` DAN pemeriksa daftar
 temuan `alat/periksa-temuan-audit.py` (yang terakhir menolak bukti penutup berpola/jalur-relatif).
 
-* Pemecah artefak bersama **`alat/artefak.py`** → `pisah_artefak()`: **berkas · perintah · pola ·
+- Pemecah artefak bersama **`alat/artefak.py`** → `pisah_artefak()`: **berkas · perintah · pola ·
   hilang** (plus `pola-kosong` & `perintah-hilang`); jalur relatif folder kerja diselesaikan,
   rujukan baris (`…sql:120`) dibuang, dan pola dihitung berapa berkas nyata yang cocok.
-* Paket audit sekarang menaruh perintah di bagian tersendiri **"1a. Perintah bukti"** — auditor
+- Paket audit sekarang menaruh perintah di bagian tersendiri **"1a. Perintah bukti"** — auditor
   MALAH memakainya; baris "TIDAK ADA" dihitung sekali per jalur+tugas (dulu duplikat = baris terpisah).
-* Bukti: paket baru pada pohon sekarang → **0 baris** tuduhan palsu (dari 13) sementara artefak yang
+- Bukti: paket baru pada pohon sekarang → **0 baris** tuduhan palsu (dari 13) sementara artefak yang
   benar-benar hilang tetap dilaporkan; `--uji-diri` +10 contoh (persis contoh dari temuan ini) dan
   +2 kasus di `alat/periksa-temuan-audit.py` (pola/jalur relatif diterima · yang hilang tetap ditolak).
 
@@ -247,22 +248,22 @@ sudah bisa dibuat (`python3 alat/audit-independen.py --paket AUD-3 --semua`) kar
 
 **PUTARAN 18t (2026-09-20) — I F-03 & I F-04 TUNTAS: DUA "GERBANG PALSU" DITUTUP, SATU BUKTI PALSU HISTORIS KETEMU.**
 
-* **I F-03 — penjaga PIN tumpul** (`alat/periksa-fungsi-pin.py`): dulu hanya mencari `console.` / `pin_hash` / `setItem`,
+- **I F-03 — penjaga PIN tumpul** (`alat/periksa-fungsi-pin.py`): dulu hanya mencari `console.` / `pin_hash` / `setItem`,
   sehingga **balasan yang mengembalikan PIN** (`{ …, pin: pin }`) dan **log lewat tanda kurung siku** (`console['log'](pin)`)
   lolos 9/9 exit 0. Sekarang: setiap bentuk `console` ditolak (titik, bracket, alias, `globalThis.console`) + `Deno.stdout/stderr`;
   variabel PIN **dibatasi ke tiga jalur sah** (dibaca dari badan permintaan · diperiksa bentuknya · diteruskan ke RPC).
   Jalur "teruskan" melekat pada **rentang panggilan `fetch(... rpc/ ...)`**, bukan pada kata kunci — jadi `p_pin: pin` di balasan
   tetap ditolak. Tambah aturan "PIN dibaca dari badan permintaan". `--uji-diri` 9 kasus (1 sumber sah + 8 contoh cacat, tiap
   tolakan harus DATANG DARI aturan yang benar) dan ikut berjalan di `periksa-semua.sh`.
-* **I F-04 — penilai mutasi menerima crash sebagai bukti** (`alat/uji-mutasi-0015.py`): `lulus = (kode != 0)` diganti penilai
+- **I F-04 — penilai mutasi menerima crash sebagai bukti** (`alat/uji-mutasi-0015.py`): `lulus = (kode != 0)` diganti penilai
   bersama `alat/klasifikasi_mutasi.py` → HIJAU / **MERAH-PAGAR** (asersi `HARAPAN TIDAK TERPENUHI` / `SEBAB PENOLAKAN BUKAN YANG
-  DIHARAPKAN` di berkas `supabase/tes/`) / **RUSAK** (crash, sintaks, migrasi gagal terpasang, merah bukan asersi). Hanya
+DIHARAPKAN` di berkas `supabase/tes/`) / **RUSAK** (crash, sintaks, migrasi gagal terpasang, merah bukan asersi). Hanya
   MERAH-PAGAR yang dihitung bukti; RUSAK membuat harness GAGAL, bukan "MERAH (benar)".
-* **Hasil sampingan yang penting:** pengetatan itu **langsung menemukan bukti palsu historis** — mutasi "pagar dikembalikan ke
+- **Hasil sampingan yang penting:** pengetatan itu **langsung menemukan bukti palsu historis** — mutasi "pagar dikembalikan ke
   versi lama (K-1)" ternyata **gagal dikompilasi** (`"v_jejak" is not a known variable`, deklarasi hanya ditambahkan di kemunculan
   pertama fungsi) dan dulu dilaporkan "MERAH (benar)". Sudah diperbaiki (deklarasi di semua kemunculan) dan **benar-benar
   memerahkan uji K-1**. Seluruh **26 mutasi + kontrol penutup** kini LOLOS sebagai MERAH-PAGAR.
-* Bukti: `python3 alat/periksa-fungsi-pin.py` (11/11) · `--uji-diri` (9 kasus) · `python3 alat/uji-mutasi-0015.py` (LOLOS) ·
+- Bukti: `python3 alat/periksa-fungsi-pin.py` (11/11) · `--uji-diri` (9 kasus) · `python3 alat/uji-mutasi-0015.py` (LOLOS) ·
   `--uji-diri` (10 kasus) · `bash aplikasi/alat/periksa-semua.sh`.
 
 **Langkah berikutnya (urut):** **H F-05 / I F-20** (pembuat paket menyebut perintah/glob sebagai "berkas hilang") → sisa §1d/§1e
@@ -273,11 +274,11 @@ dan K-3/K-4 → tutup batch mekanisme → **hubungi Lee** untuk "Sebar skema" (`
 Bukti masalahnya nyata: paket AUD-3 2026-09-19 menargetkan `4830b5a` yang dua run CI-nya **cancelled**
 (ditimpa push berikutnya) — auditor memeriksa pohon yang tidak pernah lewat gerbang otomatis.
 
-* `alat/ci_target.py` (baru): `status_ci(sha)` bertanya ke GitHub Actions; mengembalikan `bisa/hijau/run/rincian`.
+- `alat/ci_target.py` (baru): `status_ci(sha)` bertanya ke GitHub Actions; mengembalikan `bisa/hijau/run/rincian`.
   **Tidak bisa diperiksa ≠ hijau** (ketidak-tahuan tidak dibaca sebagai bukti aman). SHA pendek diperluas otomatis.
-* Gerbang di pembuat paket: `alat/audit-independen.py --paket` & `alat/review-pr.py --siapkan` **MENOLAK** bila CI commit target belum hijau;
+- Gerbang di pembuat paket: `alat/audit-independen.py --paket` & `alat/review-pr.py --siapkan` **MENOLAK** bila CI commit target belum hijau;
   ada jalan pengecualian `--izinkan-ci-belum-hijau "<alasan>"` yang **tercetak di paket** (izin pemilik, bukan diam-diam).
-* Paket menulis `- **CI commit target:** success (run …)`; penjaga `alat/periksa-paket.py` aturan **F-02**:
+- Paket menulis `- **CI commit target:** success (run …)`; penjaga `alat/periksa-paket.py` aturan **F-02**:
   paket bertanggal ≥ 2026-09-20 wajib punya baris itu, klaim "success" **diperiksa ulang ke GitHub**, dan "belum hijau" tanpa izin pemilik ditolak
   (+2 kasus `--uji-diri`, termasuk mencari commit non-hijau sungguhan lalu membuktikan klaim palsu ditolak).
 
@@ -289,20 +290,21 @@ Bukti masalahnya nyata: paket AUD-3 2026-09-19 menargetkan `4830b5a` yang dua ru
 
 **PUTARAN 18r (2026-09-20) — H F-01 TUNTAS: KATALOG CACAT KALIBRASI KELUAR DARI REPO (izin Lee).**
 
-Izin Lee: *"Aku ikut yang terbaik menurut kamu. Klo sebaiknya dikeluarkan, silahkan keluarkan."*
+Izin Lee: _"Aku ikut yang terbaik menurut kamu. Klo sebaiknya dikeluarkan, silahkan keluarkan."_
 
-* `alat/kalibrasi-cacat.json` (pasangan cari/ganti = **kunci jawaban**) **dipindah ke luar repo** →
+- `alat/kalibrasi-cacat.json` (pasangan cari/ganti = **kunci jawaban**) **dipindah ke luar repo** →
   `KALIBRASI_DIR` (baku `/home/user/.kalibrasi/kalibrasi-cacat.json`); berjejak `docs/uji/BERKAS_PENSIUN.md` baris #2 + `docs/DECISIONS_LOG.md`.
-* Salinan kalibrasi jalur mesin: `git archive` + satu commit bersih, katalog **dikeluarkan**, `pastikan_salinan_bersih()` menolak
+- Salinan kalibrasi jalur mesin: `git archive` + satu commit bersih, katalog **dikeluarkan**, `pastikan_salinan_bersih()` menolak
   salinan yang membawa katalog/kunci/riwayat/perubahan belum-di-commit.
-* Alat **gagal-tertutup**: katalog hanya dibaca dari luar repo (jalur mesin & review PR).
-* Penjaga: `alat/periksa-kunci-kalibrasi.py` aturan **A2** (katalog tidak boleh ada di repo) + F + G → `--uji-diri` **13 kasus** semua menolak.
-* Bonus mekanisme: `alat/periksa-rujukan.py` & `alat/periksa-temuan-audit.py` kini **mengakui daftar pensiun** (riwayat jujur ≠ rujukan mati);
+- Alat **gagal-tertutup**: katalog hanya dibaca dari luar repo (jalur mesin & review PR).
+- Penjaga: `alat/periksa-kunci-kalibrasi.py` aturan **A2** (katalog tidak boleh ada di repo) + F + G → `--uji-diri` **13 kasus** semua menolak.
+- Bonus mekanisme: `alat/periksa-rujukan.py` & `alat/periksa-temuan-audit.py` kini **mengakui daftar pensiun** (riwayat jujur ≠ rujukan mati);
   `periksa-temuan-audit.py` mengambil token pertama rujukan sehingga sel bukti boleh memuat perintah.
-* Catatan lingkungan: `alat/node_modules` & `aplikasi/node_modules` **tidak ikut snapshot** sandbox → setelah ruang kerja pulih,
+- Catatan lingkungan: `alat/node_modules` & `aplikasi/node_modules` **tidak ikut snapshot** sandbox → setelah ruang kerja pulih,
   jalankan `npm ci --prefix alat` (dan `--prefix aplikasi`) dulu sebelum uji SQL/mutasi.
 
 **Langkah berikutnya (urut) — maraton lanjut tanpa menunggu Lee:**
+
 1. **H F-02** (K-3): paket audit/review wajib menunjuk commit yang CI-nya **sudah hijau** — bukti di paket + penjaga/`T1-44`.
 2. **I F-04 & I F-03** (K-3): classifier mutasi menganggap crash sebagai bukti pagar bekerja; pemeriksa PIN tumpul terhadap bracket.
 3. **H F-05 / I F-20** (K-3): pembuat paket menyebut perintah/glob sebagai "berkas hilang" (tabel §1b memuat baris palsu).
@@ -312,18 +314,20 @@ Izin Lee: *"Aku ikut yang terbaik menurut kamu. Klo sebaiknya dikeluarkan, silah
 **PUTARAN 18q (2026-09-20) — KUNCI KALIBRASI TIDAK BISA LAGI DICONTEK (audit H F-01); SATU KEPUTUSAN MENUNGGU LEE.**
 
 Bantah-balik temuan **H F-01** (K-2) membuktikan cacatnya **lebih parah dari dugaan laporan**:
+
 1. Salinan auditor jalur mesin dulu dibuat `git worktree add` → di dalam salinan itu `git diff`/`git show` **langsung memperlihatkan
    baris mana yang ditanami cacat** (cacat ditanam sebagai perubahan belum-di-commit).
 2. Berkas katalog `alat/kalibrasi-cacat.json` (pasangan cari/ganti = daftar jawaban) ikut tersalin ke salinan auditor.
 3. Jalur review PR menyematkan diff ke paket, dan peninjau bisa mencocokkannya dengan katalog yang ada di repo.
 
 **Sudah diperbaiki (kode + penjaga + dokumen):**
-* `alat/audit-independen.py` — salinan kalibrasi dibuat lewat `git archive` + `git init` + **satu commit bersih**; katalog dikeluarkan dari salinan;
+
+- `alat/audit-independen.py` — salinan kalibrasi dibuat lewat `git archive` + `git init` + **satu commit bersih**; katalog dikeluarkan dari salinan;
   fungsi baru `pastikan_salinan_bersih()` menolak salinan yang masih membawa katalog/berkas kunci atau perubahan belum di-commit.
-* `alat/review-pr.py` — katalog **hanya** dibaca dari luar repo (`KALIBRASI_DIR`, baku `/home/user/.kalibrasi`); bila katalog masih di dalam repo,
+- `alat/review-pr.py` — katalog **hanya** dibaca dari luar repo (`KALIBRASI_DIR`, baku `/home/user/.kalibrasi`); bila katalog masih di dalam repo,
   perintah **GAGAL-tertutup** dengan instruksi jelas (tidak membuat bahan yang bisa dicocokkan).
-* `alat/periksa-kunci-kalibrasi.py` — aturan **F** (salinan kalibrasi bersih) & **G** (katalog review PR dari luar repo) + **3 mutasi uji-diri baru** (12 kasus, semua menolak).
-* Dokumen: `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §7 · `docs/uji/kalibrasi/CARA-PAKAI.md` · `docs/uji/AUDIT_RIWAYAT.md` (status H F-01) ·
+- `alat/periksa-kunci-kalibrasi.py` — aturan **F** (salinan kalibrasi bersih) & **G** (katalog review PR dari luar repo) + **3 mutasi uji-diri baru** (12 kasus, semua menolak).
+- Dokumen: `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §7 · `docs/uji/kalibrasi/CARA-PAKAI.md` · `docs/uji/AUDIT_RIWAYAT.md` (status H F-01) ·
   `docs/uji/TEMUAN_LUAR_CAKUPAN_REVIEW.md` (L-03).
 
 **MENUNGGU KEPUTUSAN LEE (satu langkah, tidak bisa agent putuskan sendiri):** memindahkan berkas katalog cacat ke luar repo
@@ -340,9 +344,9 @@ menargetkan commit yang CI-nya belum hijau → penjaga paket wajib menolak) dan 
 Ambil laporan: `python3 alat/audit-independen.py --ambil-laporan` (idempoten) menemukan **5 berkas** — 2 laporan baru + 3 versi lama
 yang tertimpa (diselamatkan otomatis). Kontrak mesin:
 
-* **Laporan H** = `docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbcb.md` (sesi `arena/01a0bbcb`): 10 temuan, kalibrasi **12/12**,
+- **Laporan H** = `docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbcb.md` (sesi `arena/01a0bbcb`): 10 temuan, kalibrasi **12/12**,
   **DITOLAK MESIN** (4 alasan: label grup cakupan diparafrase) → **isinya tetap dipakai**, tiap temuan dapat baris di §1d.
-* **Laporan I** = `docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md` (ronde kedua sesi `01a0bbd2`): 21 temuan,
+- **Laporan I** = `docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md` (ronde kedua sesi `01a0bbd2`): 21 temuan,
   kalibrasi 5/5, cakupan 442/480, **LOLOS KONTRAK** → baris penutup di §1e.
 
 Keduanya mengaudit commit `4830b5a` (snapshot yang sama dengan laporan F). 31 temuan sudah **terdaftar** dan dilacak
@@ -350,11 +354,13 @@ Keduanya mengaudit commit `4830b5a` (snapshot yang sama dengan laporan F). 31 te
 tanpa menyunting baris cetak). Daftar penutup: **86 temuan terlacak · 29 ditutup · 52 terbuka**.
 
 **Sudah tertutup tanpa pekerjaan baru** (perbaikannya mendarat sesudah commit yang diaudit, jadi auditor tak bisa melihatnya):
-* **I F-01 (K-1)** dasar pajak/service sebelum diskon → ditutup bagian 6 `0015` + uji `supabase/tes/urutan_uang.sql`.
-* **I F-13 (K-1 dugaan)** oracle peran lintas penyewa = tumpang-tindih F-11 laporan F → ditutup bagian 10 `0015` + uji `supabase/tes/pin_helper_pribadi.sql`.
-* **I F-17 (K-1 dugaan)** hitung ulang pesanan lunas → **DITUTUP sebagian**; sisa jalurnya (pembayaran sudah ada lalu item diturunkan) masih `T1-45`.
+
+- **I F-01 (K-1)** dasar pajak/service sebelum diskon → ditutup bagian 6 `0015` + uji `supabase/tes/urutan_uang.sql`.
+- **I F-13 (K-1 dugaan)** oracle peran lintas penyewa = tumpang-tindih F-11 laporan F → ditutup bagian 10 `0015` + uji `supabase/tes/pin_helper_pribadi.sql`.
+- **I F-17 (K-1 dugaan)** hitung ulang pesanan lunas → **DITUTUP sebagian**; sisa jalurnya (pembayaran sudah ada lalu item diturunkan) masih `T1-45`.
 
 **Prioritas yang menyerang mekanisme kita sendiri** (jangan diabaikan — ini kelas cacat yang membuat audit kehilangan nilainya):
+
 1. **H F-01** kunci kalibrasi masih terbaca dari dalam repo (penutupan D F-05 belum tuntas) → `T1-44`.
 2. **H F-02 / I F-20 / I F-04 / I F-03** paket audit menargetkan commit ber-CI-belum-hijau, perintah/glob disebut "berkas hilang",
    classifier mutasi menerima crash sebagai "bukti pagar bekerja", dan pemeriksa PIN tumpul (bracket) → `T1-44`.
@@ -363,6 +369,7 @@ tanpa menyunting baris cetak). Daftar penutup: **86 temuan terlacak · 29 ditutu
    database tidak boleh diubah lagi, jadi jangan sebar `0015` di tengah maraton.
 
 **Langkah berikutnya (urut):**
+
 1. Bantah-balik temuan K-2/K-3 dulu (yang terverifikasi) lalu yang **DUGAAN** wajib diprobe sebelum disebut nyata — daftar lengkap ada di §1d/§1e.
 2. Kembali melanjutkan penutupan sisa laporan F (F-07 → `T1-13`, F-09 → `T8-01`) + 16 temuan lama K-3/K-4.
 3. Kalau sudah tidak ada temuan MEKANISME yang tersisa → batch T1-45 ditutup, minta Lee menekan "Sebar skema" (tindakan pemilik), lalu `0015` **dibekukan** dan pekerjaan berikutnya pindah ke `0016+`.
@@ -395,6 +402,7 @@ Pola yang dipakai: **bantah-balik dulu, baru memperbaiki** — tiga probe baru d
 §1c **26 DITUTUP / 23 TERBUKA** · `docs/DECISIONS_LOG.md` 3 entri baru · `docs/ROADMAP.md` progres bagian 10–11.
 
 **Langkah berikutnya (urut):**
+
 1. **Bantah-balik sisa temuan audit F** — yang masih **TERBUKA**: F-07 (`T1-13`, tabel `catatan_audit` memang belum
    dibangun), F-09 (`T8-01`, kontrak privasi pelanggan belum ada jalurnya), F-12 & F-13 (dipagari, butuh uji dua
    transaksi), sisanya ber-pemilik di §1c. Jangan buka temuan baru sebelum ini beredar habis; jangan menutup
@@ -422,6 +430,7 @@ walaupun pemeriksaan lokal hijau. Sebabnya **alat bukti mutasi**, bukan kode apl
 **51 berkas** · **CI `61e8d92` HIJAU** (push & PR). Catatan jujur ada di `STATUS.md` & `PROJECT_STATE.md`.
 
 **Langkah berikutnya (urut) — maraton T1-45 lanjut:**
+
 1. Bantah-balik sisa **11 temuan audit F**: mulai **F-07** (`catatan_audit` belum ada → pemilik `T1-13`),
    **F-08** (`T1-24`…`T1-26`, Fase 1B), **F-09** (`T8-01`) — ketiganya memang pekerjaan yang belum
    dijadwalkan selesai, bukan cacat tersembunyi; lalu yang **DUGAAN** (F-10 izin admin cabang · F-11 helper
@@ -446,6 +455,7 @@ item baru selalu `baru`; status hanya maju satu langkah `baru → dimasak → si
 bagian 9, mutasi WAJIB menyentuh definisi TERAKHIR (dua mutasi lama sudah disesuaikan).
 
 **Langkah berikutnya (urut) — maraton T1-45 lanjut:**
+
 1. **Sisa 11 temuan audit F**, mulai yang bisa diprobe cepat: **F-07** (`catatan_audit` belum ada →
    pemilik `T1-13`, dicatat bukan disembunyikan) · **F-08** (`T1-24`…`T1-26`, Fase 1B) · **F-09** (`T8-01`) ·
    lalu yang **DUGAAN** (F-10 izin admin cabang · F-11 helper PIN · F-12 serialisasi uang · F-13 nomor
@@ -479,6 +489,7 @@ pada pemicu yang sudah ada (definisi lama di berkas beku `0012`/`0013`/`0014`):
 `docs/uji/AUDIT_RIWAYAT.md` **§1c = 23 DITUTUP / 26 TERBUKA** · keputusan di `docs/DECISIONS_LOG.md`.
 
 **Langkah berikutnya (urut) — maraton T1-45 lanjut:**
+
 1. **Bantah-balik + tutup sisa 12 temuan audit F**, mulai dari yang bisa diprobe cepat:
    F-04 (state machine item bisa dilewati) · F-07 (`catatan_audit` belum ada → `T1-13`) ·
    lalu yang berstatus **DUGAAN** (F-10 izin admin cabang, F-11 helper PIN, F-12 serialisasi uang,
@@ -510,6 +521,7 @@ Keputusan uang dikunci di `docs/DECISIONS_LOG.md` (entri 2026-09-20). Seluruh **
 `docs/uji/AUDIT_RIWAYAT.md` **§1c** (dijaga `alat/periksa-temuan-audit.py`; F-17 → T1-44 · F-07 → T1-13 · F-09 → T8-01).
 
 **Langkah berikutnya (urut) — maraton T1-45 lanjut:**
+
 1. **Bantah-balik + tutup sisa 15 temuan audit F** (mulai dari yang K-2 dan bisa dibuktikan probe: F-03 metode bayar nonaktif ·
    F-05 pembatalan tidak idempoten · F-06 metadata lifecycle bisa ditulis klien · F-07 `catatan_audit`); yang berstatus **DUGAAN**
    (F-10/F-11/F-12/F-13) wajib diuji dulu dengan probe sebelum disebut nyata.
@@ -536,6 +548,7 @@ kalibrasi **5/5**, verdict **TIDAK-BERSIH**, 18 temuan; plus satu **review fonda
    berubah jadi 33.750 hanya karena tarif pajak di pengaturan berubah. Melanggar ART-4/Aturan Bisnis 11.
 
 **Langkah berikutnya (urut) — perbaiki di `0015 bagian 6` + uji + mutasi — SUDAH DIKERJAKAN, lihat PUTARAN 18k di atas:**
+
 1. `hitung_total`: basis pajak/service = subtotal SETELAH diskon; baca `pengaturan.pembulatan`; tolak penulisan ulang
    pesanan `lunas`/`batal` dari panggilan klien (koreksi sah hanya lewat pembatalan resmi); kunci baris pesanan
    (`for update`) supaya dua kasir bersamaan tidak saling menimpa angka.
@@ -551,6 +564,7 @@ bercabang dari `main` sehingga `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` tidak ada
 mengambil bahan. Auditor berhenti dengan jujur, tidak menulis apa pun (benar secara aturan).
 
 **Perbaikan (semua ber-mesin):**
+
 1. `alat/audit-independen.py` — kalimat pembuka di berkas siap-tempel kini **dibersihkan dari penanda kosong** dan diberi **langkah 0
    AMBIL BAHAN**; paket menyebut **commit + cabang** target dan perintah `git fetch origin <cabang> && git checkout --detach <sha>`.
 2. `docs/uji/PROMPT_AUDIT_INDEPENDEN.md` + `PANDUAN_PENGGUNA.md` (blok C4) — langkah 0 ditambahkan (dijaga cek identik); berkas cetakan
@@ -569,11 +583,11 @@ maraton T1-45 lanjut ke **K-3**.
 
 Bagian 4–5 `supabase/migrations/0015_penutup_celah_putaran16.sql`:
 
-* **PR-03 — hitungan nomor pesanan tidak bocor antar resto.** `nomor_pesanan_berikutnya()` (SECURITY DEFINER,
+- **PR-03 — hitungan nomor pesanan tidak bocor antar resto.** `nomor_pesanan_berikutnya()` (SECURITY DEFINER,
   bisa dipanggil klien) kini memeriksa keterlihatan cabang (`cabang_pantau_saya`) sama seperti `hitung_total` dan
   `total_dibayar`; kasir Resto B tidak lagi mendapat angka pesanan Resto A. Peladen (tanpa identitas) tetap bisa,
   karena pemicu penomoran pesanan baru berjalan sebagai peladen — uji `supabase/tes/nomor_pesanan_isolasi.sql`.
-* **PR-04 — pesan PIN kembar dibuat netral.** Kalimat 'PIN itu sudah dipakai pegawai lain' MEMASTIKAN angka kiriman
+- **PR-04 — pesan PIN kembar dibuat netral.** Kalimat 'PIN itu sudah dipakai pegawai lain' MEMASTIKAN angka kiriman
   adalah PIN aktif kolega (oracle). Sekarang jawabannya netral ('PIN itu tidak bisa dipakai — pilih angka lain'),
   sementara alasan sebenarnya tetap tercatat di `percobaan_simpan_pin`. Catatan jujur: sifat berhasil-vs-ditolak tetap
   bisa dibaca, jadi pengendali biaya menebak tetap **pembatas 20 percobaan/15 menit** (T1-23) — dicatat di
@@ -584,6 +598,7 @@ Bagian 4–5 `supabase/migrations/0015_penutup_celah_putaran16.sql`:
 MERAH semuanya terbukti merah**, 2 kasus memang diharapkan hijau. Sisa temuan **16** (14 `T1-45`, 2 `T1-44`).
 
 **Langkah berikutnya (urut) — lanjut maraton ke K-3:**
+
 1. **K-3 (7):** PR-05 pra-dapur tanpa izin/jejak · PR-06 jejak hierarki ikut rollback · PR-07 kupon tanpa ikatan pesanan
    (jalur Edge buntu) · PR-08 saldo awal stok tanpa baris buku · PR-09 PIN warisan 4 angka buntu · PR-13 `KEAMANAN.md`
    menunjuk tabel hantu · PR-14 hak `service_role`/`peringkat_peran`.
@@ -594,12 +609,12 @@ MERAH semuanya terbukti merah**, 2 kasus memang diharapkan hijau. Sisa temuan **
 
 Dua temuan K-2 tuntas, keduanya di **bagian 2–3** `supabase/migrations/0015_penutup_celah_putaran16.sql`:
 
-* **PR-02 — void satu item tidak lagi membatalkan seluruh pesanan.** Pemicu resmi
+- **PR-02 — void satu item tidak lagi membatalkan seluruh pesanan.** Pemicu resmi
   `picu_pembatalan_jejak` sekarang menutup pesanan (`status = 'batal'`) **hanya** bila tidak ada item hidup
   tersisa atau pembatalannya memang tingkat pesanan; pesanan yang ditutup menandai **seluruh** itemnya batal
   (tidak ada lagi keadaan setengah jalan). Akibatnya pembayaran sisa tidak lagi buntu — uji
   `supabase/tes/void_satu_item.sql` (termasuk membayar item yang masih hidup, dan pesanan yang memang batal).
-* **Audit D F-01 — diskon tidak bisa lagi ditanam sesudah uang tercatat.** Pemicu baru `diskon_awal_pesanan`
+- **Audit D F-01 — diskon tidak bisa lagi ditanam sesudah uang tercatat.** Pemicu baru `diskon_awal_pesanan`
   menolak tambah/ubah/hapus baris diskon pada pesanan `lunas`/`batal`; jalur sahnya pembatalan/void resmi. Nama
   pemicu sengaja berjalan **sebelum** pemicu nilai `diskon_batas` (abjad nama) supaya penolakan berbunyi tentang
   status, dan urutan itu ikut dikunci mutasi — uji `supabase/tes/diskon_sesudah_lunas.sql`.
@@ -609,6 +624,7 @@ Dua temuan K-2 tuntas, keduanya di **bagian 2–3** `supabase/migrations/0015_pe
 `docs/DECISIONS_LOG.md` `[Uang/2026-09-19]`. Sisa temuan **18** (16 `T1-45`, 2 `T1-44`).
 
 **Langkah berikutnya (urut) — lanjut maraton, sisa `T1-45`:**
+
 1. **K-2 (sisa 2):** kebocoran hitungan `nomor_pesanan_berikutnya` lintas resto (PR-03, sekaligus tabrakan nomor
    antar-kasir) · oracle PIN kembar (PR-04).
 2. **K-3 (7):** PR-05 pra-dapur tanpa izin/jejak · PR-06 jejak hierarki ikut rollback · PR-07 kupon tanpa ikatan
@@ -632,12 +648,13 @@ Masuk CI sebagai **gerbang ke-52** (uji + bukti mutasi). Suite SQL kini **42 ber
 dikunci di `DECISIONS_LOG.md` `[Keamanan uang/2026-09-19]`.
 
 **Langkah berikutnya (urut) — lanjut maraton:**
+
 1. **K-2 (sisa 4)** — diskon pada pesanan `lunas`/`batal` (audit D F-01) · void satu item ikut membatalkan seluruh
    pesanan (PR-02) · kebocoran hitungan `nomor_pesanan_berikutnya` lintas resto (PR-03) · oracle PIN kembar (PR-04).
    Ditulis sebagai **bagian 2…5 dalam `0015_penutup_celah_putaran16.sql`** + uji regresi + mutasi baru di
    `alat/uji-mutasi-0015.py`.
 2. K-3/K-4 (16 temuan tersisa), lalu Fase 1B (`T1-24`/`T1-25`/`T1-26` dengan nomor migrasi `0016`+).
- (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+   (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 **PUTARAN 18e (2026-09-19) — FASE 0 TUNTAS: HALAMAN PUBLIK NAIK; MARATON T1-45 DIMULAI.**
 
@@ -653,12 +670,13 @@ alat baru `aplikasi/alat/catat-alamat.mjs` (+`--uji-diri` 6 kasus) menjadi **ger
 AL-14 **dan** §14 `AGENT_OPERATING_GUIDE.md`; mutasi yang menghapus batas (2 kasus baru) WAJIB ditolak.
 
 **Langkah berikutnya (urut) — MARATON:**
+
 1. **T1-45 K-1** (paling berbahaya): penanda `resto.pembatalan_*` bisa dipalsukan kasir → void sesudah dapur tanpa
    PIN & tanpa jejak. Ditulis sebagai migrasi BARU `supabase/migrations/0015_penutup_celah_putaran16.sql`
    (+ uji regresi di `supabase/tes/`, + `alat/uji-mutasi-0015.py` semua mutasi WAJIB MERAH).
 2. Lanjut K-2 (diskon pada lunas/batal · void satu item · kebocoran nomor lintas resto · oracle PIN) → K-3/K-4.
 3. Setelah T1-45: Fase 1B (T1-24/25/26) memakai nomor migrasi `0015`+ sesuai catatan; lalu T1-37 (B.4–B.9).
- (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+   (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 **PUTARAN 18d (2026-09-19) — PEMERIKSAAN PRA-MARATON (permintaan Lee) SELESAI.**
 
@@ -674,10 +692,11 @@ rencana pekerjaan ulang (`docs/uji/DAFTAR_PEKERJAAN_ULANG.md`), dan angka-angka 
 4. **Tidak ada temuan tanpa pemilik** dan tidak ada pekerjaan setengah jalan yang tersembunyi.
 
 **Langkah berikutnya (urut):**
+
 1. **`T-021` halaman publik** — tinggal izin Lee (`Boleh naik`); rahasia Cloudflare sudah dipasang.
 2. **T1-45 sisa 21 temuan** (19 milik `T1-45`) — mulai K-1, ditulis sebagai migrasi BARU `0015_…` dst.
 3. **Fase 1B (T1-24/25/26)** — setelah temuan tuntas, memakai nomor migrasi `0015`+ sesuai catatan baru.
- (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+   (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 **PUTARAN 18c (lanjutan) — MODE BIMBINGAN DITANAM + LANGKAH B LEE SELESAI.**
 
@@ -690,11 +709,12 @@ Penutup: `Sudah beres, lanjut normal.` Penjaga `alat/periksa-panduan.py`: **MIN_
 (biaya, keamanan/uang/data, keputusan terkunci, deploy publik) dan klaim "selesai" tetap butuh bukti diperiksa dulu.
 
 **Langkah berikutnya (urut):**
+
 1. **`T-021` (halaman publik)** — tinggal **izin publik** dari Lee (`Boleh naik`). Begitu dikatakan: buat penanda
    `aplikasi/SEBAR-HALAMAN` → alur mengunggah → catat alamat `*.workers.dev` + pemeriksaan HTTPS → hapus penanda.
 2. **T1-45 sisa 21 temuan** (19 milik `T1-45`; PR-11 & D F-04 milik `T1-44`) — K-1…K-4 dalam bentuk migrasi **BARU** `0015_penutup_celah_putaran16.sql`
    (berkas `0001`–`0014` beku; penjaga `alat/periksa-migrasi-beku.py`), tiap perbaikan + uji regresi + mutasi wajib MERAH.
- (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+   (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 **PUTARAN 18c (2026-09-19) — SKEMA HIDUP DI PROYEK NYATA: `T0-08` DITUTUP, `T-020` SELESAI.**
 
@@ -709,14 +729,15 @@ dijaga `alat/periksa-migrasi-beku.py` (ikut berjalan di CI, punya `--uji-diri`, 
 di `alat/periksa-gerbang-ci.py --uji-diri`).
 
 **Langkah berikutnya (urut):**
+
 1. **T1-45 sisa 21 temuan** (PR-12 sudah ditutup 2026-09-19) — mulai **K-1**, tetapi kini dalam bentuk **`supabase/migrations/0015_penutup_celah_putaran16.sql`**
    (berkas lama tidak boleh disunting), lengkap dengan uji regresi + semua mutasi wajib MERAH.
 2. **`T-021` (halaman publik)** — menunggu DUA hal dari Lee: rahasia `CLOUDFLARE_API_TOKEN` (panduan
-   `docs/ops/LANGKAH_PEMILIK_SEKARANG.md`, pakai templat **Edit Cloudflare Workers**, bukan *Create Custom Token*)
+   `docs/ops/LANGKAH_PEMILIK_SEKARANG.md`, pakai templat **Edit Cloudflare Workers**, bukan _Create Custom Token_)
    dan izin **"Boleh naik"** karena deploy publik = tindakan tak bisa dibatalkan.
 3. **Uji ulang berkas uji `supabase/tes/` di proyek nyata** (bcrypt asli pgcrypto) — bukti bahwa perilaku di proyek
    Lee sama dengan PostgreSQL lokal; dicatat di `supabase/README.md`, belum dijadwalkan sebagai tugas.
- (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+   (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 **PUTARAN 18b (2026-09-19) — FASE 0 DIBERESKAN (akun pemilik aktif). RENCANA BERIKUTNYA: K-1.**
 
@@ -740,6 +761,7 @@ penanda; (2) catat bukti tabel ada; (3) bila Lee setuju, buat penanda aplikasi/S
 → catat alamat publik + hapus penanda. Kedua alur diawasi `alat/periksa-gerbang-ci.py` (dua arah, 8 + 5 perintah, **urutan diperiksa**).
 
 **Langkah berikutnya (urut):**
+
 1. **T1-45, sisa 21 temuan** — mulai **K-1** (penanda `resto.pembatalan_*` dipalsukan → void sesudah dapur tanpa PIN
    & tanpa jejak), lalu **K-2** (diskon pada `lunas`/`batal` · void satu item jangan menutup pesanan · kebocoran
    `nomor_pesanan_berikutnya` lintas resto · oracle PIN kembar), lalu K-3/K-4 (jejak berjenjang, kupon↔pesanan Edge
@@ -764,6 +786,7 @@ dari repo + daftar pensiun + bahan review PR hidup di luar repo) dan **PR-10** (
 kini dua arah — 49 perintah CI diawasi, `if:` dilarang — dibuktikan menolak di salinan `/tmp/gc2`).
 
 **Langkah berikutnya yang wajib (urut):**
+
 1. **Lanjutkan `T1-45`** — sisa **21 temuan**. Urutan nilai:
    **(a) K-1** penanda `resto.pembatalan_*` jangan dipercaya (kasir bisa memasang penanda transaksi sendiri →
    void sesudah dapur tanpa PIN & tanpa jejak; bukti probe peninjau sudah direproduksi);
@@ -774,13 +797,12 @@ kini dua arah — 49 perintah CI diawasi, `if:` dilarang — dibuktikan menolak 
    generator paket audit (baris "TIDAK ADA" palsu), pesan diskon F-10.
    Target berkas: `supabase/migrations/0015_penutup_celah_putaran16.sql` + `supabase/tes/` + `alat/*`.
 2. Setiap perbaikan: uji regresi baru + `alat/uji-mutasi-0015.py` (semua mutasi WAJIB MERAH) + suite penuh hijau
-   + `DECISIONS_LOG.md` bila menyentuh cara membuktikan persetujuan/keamanan uang.
+   - `DECISIONS_LOG.md` bila menyentuh cara membuktikan persetujuan/keamanan uang.
 3. **Satu hal masih menunggu Lee:** auditor diminta memperbaiki **format** laporannya (label grup cakupan sama
    seperti paket + satu laporan per cabang) lalu mengirim ulang agar auditnya sah formal.
 4. Selagi menunggu: butir tertangguh terbuka **7** (batas 12) — tawarkan jawaban agent untuk masing-masing.
 
 **Jangan merge PR #2** (temuan K-1/K-2 masih terbuka di commit yang direview). PR #1 tetap tidak disentuh.
-
 
 **PUTARAN 17 SEDANG BERJALAN (2026-09-19) — putaran verifikasi, MENUNGGU LEE.** Paket peninjau
 **sudah terbit & ter-push** (target `93a50ba`): audit
@@ -800,7 +822,7 @@ sebelumnya (`arena/01a0a8a2-resto-barokah`) berhenti di `0af1cf9` dan **tidak me
 kerja terbaru (`alat/lanjut-sesi.py`, uji-diri 39 kasus) — jadi kalau Lee ingin melanjutkan dari
 cabang lain, itu tetap haknya, tapi harus lewat `--lanjut-dari` atau `--paksa` (tercatat).
 
-**Sesi ditutup (putaran 16, 2026-09-18)** atas perintah Lee: *"Siapkan pindah sesi dan tutup sesi ini dengan baik."*
+**Sesi ditutup (putaran 16, 2026-09-18)** atas perintah Lee: _"Siapkan pindah sesi dan tutup sesi ini dengan baik."_
 Sebelum menutup, pertanyaan kepercayaan Lee diperiksa jujur dan **4 celah nyata ditutup** (rantai "kalimat perintah
 sederhana Lee → alur" sekarang dijaga mesin): Prompt Pembuka item **2d** menunjuk `PANDUAN_PENGGUNA.md`; **KARTU SESI**
 mencetak penunjuk buku; kalimat gabungan & sinonim ("dengan baik" = "dengan benar") masuk AL-3/AL-13 + tabel C3;

@@ -3,37 +3,31 @@
 > Ditulis 2026-09-19 untuk Lee. Bahasa awam, **tanpa perintah yang perlu kamu ketik**.
 > Kalau ragu di langkah mana pun: **berhenti dan tanya agent** — jangan menebak.
 
-## ⚠️ LANGKAH PALING PENTING SEKARANG (2026-09-20) — GitHub berhenti menjalankan pemeriksaan otomatis
+## ⚠️ Update 2026-09-20 (setelah melihat screenshot billing Lee) — penyebab KETEMU: menit gratis habis; **tidak perlu bayar apa pun**
 
-**Apa yang terjadi:** semua pemeriksaan otomatis (CI) di repo ini **tidak bisa mulai** sejak sekitar
-pukul 12:00 (WIB) hari ini. Pesan dari GitHub apa adanya:
+Screenshot halaman tagihan organisasi (With-AI-Agent) yang dikirim Lee menunjukkan kebenarannya:
 
-> *"The job was not started because recent account payments have failed or your spending limit needs to be increased.
-> Please check the 'Billing & plans' section in your settings."*
+1. Langganan = **GitHub Free ($0 per bulan)**; tagihan bulan ini **$0** → **tidak perlu kartu / pembayaran apa pun**.
+2. **Menit Actions: 2.000 / 2.000 terpakai** (bar merah penuh). Itulah kenapa GitHub menghentikan semua robot —
+   paket gratis memang menghentikan robot kalau jatahnya habis.
+3. Jatahnya **dipakai bersama seluruh organisasi**: bulan ini repo **Oasis-Pro** (±setengah) dan **Resto-Barokah**
+   (±setengah) berbagi 2.000 menit itu.
+4. **Reset otomatis dalam 11 hari** (±1 Oktober) — robot hidup lagi sendiri tanpa kita berbuat apa-apa.
 
-Artinya: **tagihan/pembayaran akun GitHub-mu bermasalah, atau batas belanja (spending limit) untuk
-GitHub Actions sudah tersentuh** — jadi runner tidak dijalankan sama sekali. Ini **BUKAN** cacat kode:
-semua pemeriksaan yang sama sudah kujalankan ulang di komputer (klon bersih) dan **semuanya LOLOS**.
+**Sementara menunggu:** maraton lanjut terus; semua pemeriksaan dijalankan di komputer lokal (sudah dibuktikan
+identik dengan CI). Supaya setelah reset jatahnya tidak habis lagi di tengah bulan, disiapkan **mode hemat**:
+robot tidak lagi jalan dua kali per kiriman (push + permintaan-tarik) melainkan sekali — menunggu persetujuan Lee.
 
-**Kenapa penting bagimu:** selama ini belum diperbaiki, (a) robot pemeriksa tidak jalan, sehingga
-pekerjaan baru tidak punya cap "hijau" dari GitHub; (b) alur **"Sebar skema"** (menyebar tabel ke database
-nyata) juga TIDAK akan jalan — jadi langkah pemilik yang sudah kusiapkan itu pun akan buntu.
+**Opsi gratis kalau tidak mau menunggu (keputusan Lee):** (1) **jadikan repo publik** → menit robot tak terbatas,
+tapi kode & dokumen terlihat siapa pun; (2) **transfer repo ke akun pribadi teman** (atau organisasi baru) →
+jatah 2.000 menit segar, tapi kunci rahasia (Supabase/Cloudflare) harus diisikan ulang di repo baru.
 
-**Yang kamu lakukan (urut):**
-1. Buka <https://github.com/settings/billing> (masuk sebagai **fatrizmubarok**, pemilik repo).
-2. Periksa bagian **Billing & plans** → kalau ada pembayaran gagal: perbaiki metode pembayarannya.
-3. Kalau tidak ada masalah pembayaran: periksa **budget / spending limit** untuk GitHub Actions —
-   naikkan sedikit (atau pastikan kuota gratis bulan ini belum habis).
-4. Setelah beres, bilang saja ke aku: **"GitHub sudah beres"** — aku langsung memicu pemeriksaan lagi dan
-   memastikan hijaunya.
-
-> Catatan jujur: repo ini privat, jadi menit GitHub Actions memakai kuota akunmu. Kalau kamu ingin **tanpa biaya**,
-> cukup pastikan kuota gratis bulanan tidak habis (Actions gratis ~2.000 menit/bulan untuk repo privat).
+(Langkah lama "perbaiki pembayaran" sudah **tidak diperlukan** — penyebabnya jatah menit, bukan pembayaran gagal.)
 
 ## Kenapa ini perlu
 
 Aku tidak boleh — dan tidak mau — melihat kunci rahasiamu. Kunci itu disimpan di **kotak rahasia GitHub**
-(*repository secrets*) dan hanya **dipakai** mesin saat menjalankan alur otomatis (menyebar tabel database,
+(_repository secrets_) dan hanya **dipakai** mesin saat menjalankan alur otomatis (menyebar tabel database,
 menaikkan halaman ke internet).
 
 **Jujur soal batasnya (koreksi 2026-09-20, audit I F-11):** "terenkripsi" BUKAN berarti "tidak mungkin
@@ -45,7 +39,7 @@ bentuk keluaran. Karena itu:
 - beri **hanya** repo ini (jangan pakai token pribadi yang dipakai di tempat lain);
 - pakai token dengan **izin sesempit mungkin** dan **masa berlaku** (TTL) yang wajar, bukan selamanya;
 - jangan menambah penulis/kontributor yang tidak kamu percaya ke repo ini — merekalah yang bisa mengubah alur;
-- kalau nanti ada fitur *environment protection* di GitHub (butuh review sebelum rahasia dipakai), itu
+- kalau nanti ada fitur _environment protection_ di GitHub (butuh review sebelum rahasia dipakai), itu
   menambah lapisan; tidak wajib sekarang.
 
 Yang **tidak** aku lakukan: mengambil, menyalin, atau menampilkan nilai rahasianya. Aku juga tidak pernah
@@ -78,7 +72,7 @@ memintamu menempelkan nilainya di chat.
    - **Secret:** tempel token tadi
    - tekan **Add secret**.
 3. Ambil **kata sandi database**: Supabase → **Project Settings** → **Database** → bagian
-   *Database password* (kalau lupa, tekan **Reset database password** lalu simpan yang baru).
+   _Database password_ (kalau lupa, tekan **Reset database password** lalu simpan yang baru).
 4. Di halaman GitHub yang sama (masih **Actions** secrets) → **New repository secret**:
    - **Name:** `SUPABASE_DB_PASSWORD`
    - **Secret:** kata sandi tadi
@@ -91,10 +85,10 @@ memintamu menempelkan nilainya di chat.
    **Create Custom Token**; jalan itu lebih rumit dan mudah salah.
 3. Di bagian **Token templates**, cari baris bernama **Edit Cloudflare Workers** → tekan
    **Use template**.
-4. Di halaman ringkasan, **biarkan apa adanya** (Account Resources: *Include → All accounts*) →
+4. Di halaman ringkasan, **biarkan apa adanya** (Account Resources: _Include → All accounts_) →
    tekan **Continue to summary** → **Create Token** → tekan **Copy**.
 
-   *Kalau kamu sudah terlanjur membuka **Create Custom Token*** dan ingin melanjutkan di situ:
+   _Kalau kamu sudah terlanjur membuka **Create Custom Token**_ dan ingin melanjutkan di situ:
    pada baris **Permissions** pilih **Account** → **Workers Scripts** → **Edit**
    (tekan **+ Add more** kalau barisnya belum ada), biarkan **Client IP Address Filtering** dan
    **TTL** kosong, lalu **Continue to summary** → **Create Token** → **Copy**.
@@ -126,5 +120,5 @@ Setelah itu aku yang menjalankan sisanya, dan kamu akan menerima laporan:
   adalah tempat yang benar.
 - Kalau **terlanjur** tertempel di chat atau terlihat orang lain: buka situsnya → **hapus token itu** →
   buat token baru → ganti di GitHub. (Alasannya: token yang sudah terlihat harus dianggap bocor.)
-- Kalau kamu merasa ragu, cukup bilang *"Tolong pandu aku langkah demi langkah"* — agent akan menemani
+- Kalau kamu merasa ragu, cukup bilang _"Tolong pandu aku langkah demi langkah"_ — agent akan menemani
   satu langkah sekali.
