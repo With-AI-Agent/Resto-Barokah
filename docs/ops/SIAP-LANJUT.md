@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `d6feb1c1ce26fe19681a1e1dcae70057a92f05eb`
-- **PR:** HTTP 401: Bad credentials (https://api.github.com/graphql)
-Try authenticating with:  gh auth login — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failed to get runs: HTTP 401: Bad credentials (https://api.github.com/repos/With-AI-Agent/Resto-Barokah/actions/runs?per_page=1&exclude_pull_requests=true)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **Commit keadaan kerja:** `6e3ca83a80d16f7a6f87257a1fbb72914dbda544`
+- **PR:** PR #3 (base main)
+PR #2 (base main)
+PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
+- **CI terakhir:** success (run 35543423729, commit 6e3ca83a)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ Try authenticating with:  gh auth login — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (7 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (100 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (9 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (102 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -64,6 +64,16 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**MARATON MALAM 2026-09-21 (tuntas; CI HIJAU `6e3ca83`) — baca ini lebih dulu.**
+
+- **Ditutup malam ini:** K F-03 + F-11 §1b (migrasi `0018_perangkat_terdaftar.sql`: PIN hanya dilayani dari perangkat TERDAFTAR — id + kunci bcrypt, jawaban seragam `'Perangkat tidak dikenali.'`, lapis 12×/15 menit keyed `perangkat_id`, perangkat karangan dilayani **0×**; `daftarkan_perangkat`/`cabut_perangkat` izin `kelola_pegawai`) · D F-09 (kembar J F-09) · D F-10 (migrasi `0019_pesan_diskon_jujur.sql`: pesan diskon menunjuk alur nyata). **Temuan terbuka: 12.**
+- **T1-24 JANGAN dicentang**: intinya sudah mendarat (0018), sisa DoD = kode pendaftaran sekali pakai + `persetujuan_perangkat` + gating staf via sesi perangkat → lanjut di T1-25/Fase 1C. Lihat catatan status di ROADMAP baris T1-24.
+- **Aturan yang TERBUKTI lagi malam ini (AL-15):** migrasi baru yang menulis ulang fungsi membuat harness mutasi migrasi LAMA tumpul-semu — mutasi wajib diarahkan ke `create or replace` TERAKHIR. Sudah terjadi di 0015/0016 (diperbaiki, `berkas_rel=MIG18`). **Kalau kamu menambah migrasi 0020+ yang menulis ulang fungsi PIN/pesanan, periksa semua `alat/uji-mutasi-*.py` dan arahkan mutasinya ke definisi berlaku.**
+- **Infra:** GitHub token sandbox bisa kedaluwarsa mid-sesi (push/gh 401) → minta Lee sambungkan ulang di Arena; `.git` lokal bisa di-reset ke `253d129` → pulihkan dengan `git fetch origin arena/01a0b7d1-resto-barokah` + `git reset --mixed <sha remote>` (berkas kerja tidak hilang); `node_modules` bisa terhapus → `npm ci --prefix alat` (+ root bila perlu). pglite HANYA di `alat/package.json`, jangan di root.
+- **Auditor ketiga AUD-3-2026-09-20** (target `cbba401`) masih belum kirim laporan — cek `python3 alat/audit-independen.py --ambil-laporan` berkala; jangan tunggu pasif.
+- **Rencana berikutnya (urut):** (1) panen laporan auditor ketiga bila masuk; (2) B F-16 (lingkup paket audit menutup berkasnya sendiri) & B F-14 (sapuan isolasi lintas resto) — keduanya lokal, tanpa keputusan Lee; (3) F F-18 (sisa oracle boolean pemasangan PIN) — hati-hati, butuh bukti mutasi; (4) F F-12/F F-13 tetap TERBLOKIR lingkungan (butuh 2 koneksi nyata); (5) I F-17 sisa = keputusan uang Lee (Stop Condition); (6) deploy 0017–0019 ke Supabase nyata butuh "Silahkan Sebar" baru dari Lee.
+- **Standing:** PR #2 JANGAN merge; PR #1 untouched; beku migrasi ≤ 0016; setiap balasan ke Lee WAJIB ditutup "Langkah Lee".
 
 **CATATAN PENTING PUTARAN 18aa (2026-09-20) — CI TIDAK BISA MULAI: TAGIHAN AKUN GITHUB (BUTUH LEE).**
 **RALAT 18ab (2026-09-20, screenshot billing Lee):** penyebab PASTI = menit gratis organisasi **2.000/2.000 habis** (GitHub Free, tagihan $0 — BUKAN gagal bayar); reset otomatis ±1 Okt; mode hemat + opsi publik/transfer menunggu keputusan Lee (LANGKAH_PEMILIK bagian atas).
