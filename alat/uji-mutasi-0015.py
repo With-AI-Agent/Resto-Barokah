@@ -65,6 +65,7 @@ KERJA = pathlib.Path("/tmp/mutasi-0015-rb")
 MIG = "supabase/migrations/0015_penutup_celah_putaran16.sql"
 MIG14 = "supabase/migrations/0014_penutup_celah_putaran13.sql"
 MIG16 = "supabase/migrations/0016_penutup_celah_pin_putaran18.sql"
+MIG18 = "supabase/migrations/0018_perangkat_terdaftar.sql"
 UJI = "supabase/tes/pembatalan_penanda_palsu.sql"                       # bagian 1 (K-1)
 UJI_PR02 = "supabase/tes/void_satu_item.sql"                            # bagian 2 (K-2a)
 UJI_F01 = "supabase/tes/diskon_sesudah_lunas.sql"                       # bagian 3 (K-2b)
@@ -365,6 +366,8 @@ def main() -> int:
     # 13) Pesan lama yang menyebut "pegawai lain" dikembalikan → uji PR-04 wajib MERAH.
     #     Catatan (2026-09-20): `simpan_pin` ditulis ulang di migrasi 0016 (F-14), dan yang
     #     berlaku adalah `create or replace` TERAKHIR — jadi mutasi diarahkan ke 0016.
+    #     Catatan (2026-09-21): `simpan_pin` ditulis ulang LAGI di 0018 (perangkat terdaftar) —
+    #     mutasi kini diarahkan ke 0018 (definisi berlaku).
     def kembalikan_pesan_bocor(t: str) -> str:
         return t.replace(
             "    return 'PIN itu tidak bisa dipakai — pilih angka lain.';",
@@ -373,7 +376,7 @@ def main() -> int:
         )
 
     hasil.append(mutasi("pesan PIN kembar dikembalikan ke versi yang menyebut pegawai lain (PR-04)",
-                        kembalikan_pesan_bocor, uji=UJI_PR04, berkas_rel=MIG16))
+                        kembalikan_pesan_bocor, uji=UJI_PR04, berkas_rel=MIG18))
 
     # ---------------------------------------------------------- bagian 6 (AUD-3 F-01/F-02)
     # 14) Dasar pajak/service dikembalikan ke subtotal SEBELUM diskon (cacat asli) → MERAH.

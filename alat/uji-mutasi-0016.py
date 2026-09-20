@@ -35,6 +35,7 @@ from klasifikasi_mutasi import HIJAU, MERAH_PAGAR, RUSAK, klasifikasi  # noqa: E
 AKAR = pathlib.Path(__file__).resolve().parent.parent
 KERJA = pathlib.Path("/tmp/mutasi-0016-rb")
 MIG = "supabase/migrations/0016_penutup_celah_pin_putaran18.sql"
+MIG18 = "supabase/migrations/0018_perangkat_terdaftar.sql"
 UJI_F15 = "supabase/tes/pin.sql"
 UJI_F16 = "supabase/tes/diskon_setuju.sql"
 UJI_F14 = "supabase/tes/kredensial_pin.sql"
@@ -90,8 +91,10 @@ def semua_hijau() -> tuple[bool, str]:
     return True, ""
 
 
-def mutasi(nama: str, ubah, uji: str) -> tuple[str, bool, str]:
-    berkas = KERJA / MIG
+def mutasi(nama: str, ubah, uji: str, berkas_rel: str | None = None) -> tuple[str, bool, str]:
+    # berkas_rel: mutasi boleh diarahkan ke migrasi lain (yang DEFINISINYA BERLAKU —
+    # `create or replace` terakhir menang; 0018 menulis ulang verifikasi/simpan/ganti PIN).
+    berkas = KERJA / (berkas_rel or MIG)
     asli = berkas.read_text(encoding="utf-8")
     try:
         baru = ubah(asli)
@@ -129,7 +132,7 @@ def main() -> int:
 """
         return t.replace(lama, "", 1)
     hasil.append(mutasi("pagar pemanggil nonaktif dihapus (I F-15 kembali terbuka)",
-                        hapus_pagar_f15, UJI_F15))
+                        hapus_pagar_f15, UJI_F15, berkas_rel=MIG18))
 
     # 2) F-16: cek ulang izin saat konsumsi kupon dihapus → stempel tak berizin lolos.
     def hapus_recheck_f16(t: str) -> str:
@@ -144,17 +147,17 @@ def main() -> int:
     # 3) F-14: jalur PIN-lama-salah dibuat menerima (seolah tersimpan) →
     #    pembatas tebakan tidak berarti; uji pesan wajib MERAH.
     def terima_pin_lama_salah(t: str) -> str:
-        lama = "      return format('PIN lama salah. %s', v_periksa.pesan);"
+        lama = "        return format('PIN lama salah. %s', v_periksa.pesan);"
         return t.replace(lama, "      return 'PIN tersimpan.';", 1)
     hasil.append(mutasi("PIN lama salah malah diterima (catatan percobaan percuma, I F-14)",
-                        terima_pin_lama_salah, UJI_F14))
+                        terima_pin_lama_salah, UJI_F14, berkas_rel=MIG18))
 
     # 4) F-14 hierarki: penolakan hierarki dibuat menerima → rebutan PIN hidup lagi.
     def terima_hierarki(t: str) -> str:
         lama = "      return 'Peran Anda tidak lebih tinggi dari pegawai itu — PIN-nya hanya boleh diganti oleh atasan atau dirinya sendiri.';"
         return t.replace(lama, "      return 'PIN tersimpan.';", 1)
     hasil.append(mutasi("penolakan hierarki peran dibuat menerima (rebutan PIN hidup lagi)",
-                        terima_hierarki, UJI_HIER))
+                        terima_hierarki, UJI_HIER, berkas_rel=MIG18))
 
     # 5) F-13: pagar tenant helper hierarki dihapus → oracle lintas penyewa.
     def hapus_pagar_f13(t: str) -> str:
@@ -182,8 +185,8 @@ def main() -> int:
     #    tanpa ikatan pesanan lahir lagi ("tulis bisa, pakai mustahil").
     def hapus_pagar_kupon_pesanan(t: str) -> str:
         lama = """  if p_aksi in ('void_sesudah_dapur', 'beri_diskon') and p_pesanan_id is null then
-    insert into public.percobaan_pin (pengguna_id, perangkat, berhasil, aksi, pemanggil_id, pesanan_id)
-    values (v_saya, v_perangkat, false, p_aksi, v_saya, null);
+    insert into public.percobaan_pin (pengguna_id, perangkat, berhasil, aksi, pemanggil_id, pesanan_id, perangkat_id)
+    values (v_saya, v_perangkat, false, p_aksi, v_saya, null, v_perangkat_id);
     return query select false, 0,
       format('Aksi %s wajib menyebut pesanan yang disetujui.', p_aksi);
     return;
@@ -191,13 +194,13 @@ def main() -> int:
 """
         return t.replace(lama, "", 1)
     hasil.append(mutasi("kupon tanpa pesanan dibiarkan lahir lagi (PR-07 kembali terbuka)",
-                        hapus_pagar_kupon_pesanan, UJI_PR07))
+                        hapus_pagar_kupon_pesanan, UJI_PR07, berkas_rel=MIG18))
 
     # 8) PR-09: cabang PIN warisan 4 angka dimatikan → naik kelas swadaya buntu lagi.
     def matikan_jalur_warisan(t: str) -> str:
         return t.replace("    if p_pin_lama ~ '^\\d{4}$' then", "    if false then", 1)
     hasil.append(mutasi("jalur naik kelas PIN warisan 4 angka dimatikan (PR-09 kembali terbuka)",
-                        matikan_jalur_warisan, UJI_PR09))
+                        matikan_jalur_warisan, UJI_PR09, berkas_rel=MIG18))
 
     # 9) PR-08: penjaga saldo awal dilepas → saldo bisa muncul dari ketiadaan lagi.
     def lepas_penjaga_saldo_awal(t: str) -> str:
