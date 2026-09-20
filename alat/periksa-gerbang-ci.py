@@ -55,6 +55,7 @@ GERBANG_WAJIB = [
     ("bukti mutasi pagar migrasi 0012", r"python3 alat/uji-mutasi-0012.py"),
     ("bukti mutasi pagar migrasi 0014", r"python3 alat/uji-mutasi-0014.py"),
     ("bukti mutasi pagar migrasi 0015 (K-1 + K-2 putaran16)", r"python3 alat/uji-mutasi-0015.py"),
+    ("uji batas Edge Function verifikasi_pin (berkas asli dijalankan tanpa jaringan)", r"node alat/uji-edge-pin\.mjs"),
     ("validator sistem", r"python3 _sistem/validate_system.py"),
     ("pemeriksa fungsi PIN", r"python3 alat/periksa-fungsi-pin.py"),
     ("pemeriksa roadmap", r"python3 alat/periksa-roadmap.py"),
@@ -371,6 +372,11 @@ def uji_diri() -> int:
         mutasi("langkah bukti mutasi 0015 dihapus",
                lambda t: re.sub(r"\n\s*- name: Bukti mutasi pagar migrasi 0015[\s\S]*?run: python3 alat/uji-mutasi-0015\.py", "", t, count=1))
         mutasi("langkah bukti mutasi 0014 dihapus", lambda t: re.sub(r"\n\s*- name: Bukti mutasi pagar migrasi 0014[\s\S]*?run: python3 alat/uji-mutasi-0014\.py", "", t, count=1))
+        # I F-07 (putaran18w): batas Edge Function kini diuji dengan MENJALANKAN berkas aslinya.
+        # Kalau langkah itu lenyap dari CI, handler Edge kembali hanya dijaga pemeriksa teks —
+        # wajib DITOLAK (kelas cacat yang sama dengan H F-02: langkah hilang senyap).
+        mutasi("langkah uji batas Edge Function verifikasi_pin dihapus",
+               lambda t: re.sub(r"\n\s*- name: Uji batas Edge Function[\s\S]*?run: node alat/uji-edge-pin\.mjs", "", t, count=1))
         mutasi("npm audit diberi `|| true`", lambda t: t.replace("run: npm audit --audit-level=low", "run: npm audit --audit-level=low || true"))
         mutasi("ambang audit diturunkan", lambda t: t.replace("npm audit --audit-level=low", "npm audit --audit-level=critical"))
         mutasi("langkah pemeriksa pohon bersih dihapus", lambda t: t.replace("          python3 alat/periksa-bersih.py\n", "", 1))
