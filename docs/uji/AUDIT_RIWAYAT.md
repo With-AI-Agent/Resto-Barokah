@@ -38,8 +38,12 @@
 > 18 temuan (F-01…F-18) + 2 di luar cakupan. Laporan **LOLOS KONTRAK**; kalibrasi **5/5**, 0 temuan palsu.
 > **Bantah-balik sesi kerja:** tiga temuan jalur uang (F-01a, F-01b, F-02) **dibuktikan NYATA lewat probe sendiri**
 > (`docs/uji/audit/probe-2026-09-20/aud-3-f01-f02-uang.sql`, dijalankan `node alat/uji-sql.mjs`) dan sudah **ditutup**
-> di migrasi `0015` bagian 6; sesudah perbaikan, probe yang sama **GAGAL** (bukti cacatnya hilang). Sisa temuan
-> menunggu bantah-balik + penutupan berurutan; pemilik penutup: `T1-45` (14 butir) dan `T1-44` (temuan alat/mekanisme).
+> di migrasi `0015` bagian 6; sesudah perbaikan, probe yang sama **GAGAL** (bukti cacatnya hilang).
+> **Bantah-balik lanjutan (2026-09-20):** F-03/F-05/F-06 (bagian 8) dan F-04 (bagian 9) juga nyata & ditutup; F-10 dan F-11
+> yang semula **DUGAAN** ternyata **NYATA** (probe `aud-3-f10-admin-cabang-izin.sql`, `aud-3-f11-helper-pin.sql`) dan ditutup
+> di bagian 11/10. Dua temuan sisa jalur **DUGAAN** (F-12 uang, F-13 nomor pesanan) risikonya sudah dikurangi di mesin
+> (kunci baris & kunci advisory), tetapi pembuktian akhirnya butuh uji concurrency dua transaksi yang lingkungan uji
+> proyek (PGlite) belum bisa menjalankan — karena itu keduanya tetap **TERBUKA** dengan catatan jujur, bukan dicap selesai.
 
 | Laporan | Tingkat | Temuan (ringkas) | Status | Bukti / pemilik |
 |---|---|---|---|---|
@@ -52,10 +56,10 @@
 | F F-07 | K-2 | Tabel `catatan_audit` wajib belum ada (T1-13/T1-27 belum dikerjakan) | **TERBUKA** | `T1-13` — rantai audit dijadwalkan di Fase 1, bukan cacat yang disembunyikan |
 | F F-08 | K-2 | Perangkat terdaftar, pencabutan sesi, percobaan masuk, MFA belum ada | **TERBUKA** | `T1-24`/`T1-25`/`T1-26` (Fase 1B) — memang belum dijadwalkan selesai di Fase 1A |
 | F F-09 | K-2 | Kontrak privasi pelanggan belum punya jalur implementasi | **TERBUKA** | `T8-01` (Fase 8) — fitur pelanggan memang belum dibangun; jalur persetujuan/anonimisasi masuk DoD fase itu |
-| F F-10 | K-2 | Isolasi izin admin cabang bertentangan antara policy, kontrak, dan uji (**DUGAAN**) | **TERBUKA** | bantah-balik dulu (butuh keputusan model: izin per penyewa vs per cabang) → `T1-45` |
-| F F-11 | K-2 | Helper `peran_lebih_tinggi` menerima UUID bebas dari klien (**DUGAAN**) | **TERBUKA** | bantah-balik + kemungkinan cabut grant → `T1-45` |
-| F F-12 | K-1 | Perhitungan ulang uang tanpa serialisasi eksplisit (**DUGAAN**) | **TERBUKA** | sudah **dikurangi risikonya** di bagian 6 (`for update` pada baris pesanan); uji concurrency belum ada → `T1-45` |
-| F F-13 | K-2 | Nomor pesanan `max()+1` tanpa serialisasi eksplisit (**DUGAAN**) | **TERBUKA** | bantah-balik (uji dua transaksi) → `T1-45` |
+| F F-10 | K-2 | Isolasi izin admin cabang bertentangan antara policy, kontrak, dan uji | **DITUTUP 2026-09-20** | dibuktikan nyata lewat probe sendiri `docs/uji/audit/probe-2026-09-20/aud-3-f10-admin-cabang-izin.sql` (admin Cabang Pusat membaca izin pegawai Cabang Dua); bagian 11 `supabase/migrations/0015_penutup_celah_putaran16.sql` menyelaraskan policy `izin_pilih` dengan kontrak (TECH_SPEC §294 · PRD:174) dan dengan policy `pengguna_pilih` — satu aturan, bukan dua tafsir; uji `supabase/tes/rls_pengguna.sql` §5 dikoreksi (dulu mengunci 8 baris = seluruh penyewa) + mutasi wajib-MERAH di `alat/uji-mutasi-0015.py`; probe kini GAGAL (= cacat hilang) |
+| F F-11 | K-2 | Helper `peran_lebih_tinggi` menerima UUID bebas dari klien | **DITUTUP 2026-09-20** | dibuktikan nyata lewat probe sendiri `docs/uji/audit/probe-2026-09-20/aud-3-f11-helper-pin.sql` (kasir bisa memanggilnya untuk memetakan hierarki siapa pun, termasuk lintas resto); bagian 10 `supabase/migrations/0015_penutup_celah_putaran16.sql` mencabut hak execute klien DAN memakukan `p_pemanggil` ke `auth.uid()`; uji `supabase/tes/pin_helper_pribadi.sql` (termasuk skenario "jalur baru tanpa pembungkus identitas") + 2 mutasi wajib-MERAH; probe kini GAGAL |
+| F F-12 | K-1 | Perhitungan ulang uang tanpa serialisasi eksplisit (**DUGAAN**) | **TERBUKA** | sudah **dikurangi risikonya** di bagian 6 (`for update` pada baris pesanan); uji concurrency belum ada → `T1-45`. Catatan 2026-09-20: sama seperti F-13, pembuktiannya butuh dua transaksi nyata — belum bisa dijalankan di lingkungan uji proyek |
+| F F-13 | K-2 | Nomor pesanan `max()+1` tanpa serialisasi eksplisit (**DUGAAN**) | **TERBUKA (dipagari)** | **mitigasi 2026-09-20** (bagian 10b `supabase/migrations/0015_penutup_celah_putaran16.sql`): pengambilan nomor kini di bawah `pg_advisory_xact_lock` per (cabang, tanggal) dan fungsinya VOLATILE lagi — dua pengiriman bersamaan tidak membaca `max()` yang sama. **Yang belum bisa dibuktikan mesin:** uji dua transaksi nyata (PGlite satu koneksi) → jangan dicap DITUTUP. Uji sifat: `supabase/tes/nomor_pesanan_kunci.sql` + 2 mutasi wajib-MERAH → `T1-45` (uji concurrency saat lingkungan uji mendukung) |
 | F F-14 | K-3 | `ujiSambungan()` bisa melaporkan sukses walau jalur data gagal | **TERBUKA** | `T1-45` (perbaikan alat uji aplikasi) |
 | F F-15 | K-3 | Modal `Lapis` belum mengunci & memulihkan fokus keyboard | **TERBUKA** | `T1-45` (perbaikan komponen + uji keyboard) |
 | F F-16 | K-3 | `docs/ops/SIAP-LANJUT.md` menunjuk commit/paket lama + dua berkas yang tidak ada | **TERBUKA** | `T1-45` (handoff disegarkan tiap batch; dua berkas itu milik rencana uji terima) |

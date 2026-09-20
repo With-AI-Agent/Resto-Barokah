@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `61e8d92fadd72f3f0b38afacfccdea2136face4b`
+- **Commit keadaan kerja:** `a5c0347853228a2552bfb8b1c64afb05517b898d`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35478032065, commit 61e8d92f)
+- **CI terakhir:** success (run 35478434361, commit a5c03478)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (55 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (55 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (56 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (56 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -63,6 +63,42 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18o (2026-09-20) — BANTUAN-BALIK 3 TEMUAN AUDIT F: F-10 & F-11 NYATA (DITUTUP), F-13 DIREDAM (TETAP TERBUKA).**
+
+Pola yang dipakai: **bantah-balik dulu, baru memperbaiki** — tiga probe baru di
+`docs/uji/audit/probe-2026-09-20/` meng-ASERSI keadaan yang salah; selama probe masih LULUS, cacatnya nyata.
+
+1. **F-10 (K-2) — NYATA, DITUTUP (bagian 11 `supabase/migrations/0015_penutup_celah_putaran16.sql`):**
+   `aud-3-f10-admin-cabang-izin.sql` LULUS = admin Cabang Pusat membaca izin pegawai Cabang Dua
+   (8 baris = seluruh penyewa). Kontrak (`docs/TECH_SPEC.md` §294 · `docs/PRD.md` · `docs/DISCOVERY.md` 53) berkata
+   admin cabang **hanya cabangnya** → policy `izin_pilih` diselaraskan ke kontrak **dan** ke pola policy
+   `pengguna_pilih` (satu aturan). Uji `supabase/tes/rls_pengguna.sql` §5 dikoreksi (dulu mengunci 8 baris).
+   Probe kini **GAGAL** = cacat hilang.
+2. **F-11 (K-2) — NYATA, DITUTUP (bagian 10):** `aud-3-f11-helper-pin.sql` LULUS = kasir memanggil
+   `peran_lebih_tinggi(<uuid siapa pun>, <uuid siapa pun>)` sebagai oracle hierarki (termasuk lintas resto).
+   Perbaikan dua lapis: **hak execute klien dicabut** + **`p_pemanggil` dipakukan ke `auth.uid()`**.
+   Uji `supabase/tes/pin_helper_pribadi.sql` (termasuk pembungkus SECURITY DEFINER = "jalur baru tanpa
+   pembungkus identitas") + kontrol owner tetap boleh mengganti PIN bawahan. Probe kini **GAGAL**.
+3. **F-13 (K-2, DUGAAN) — DIREDAM, BELUM DITUTUP (bagian 10b):** `nomor_pesanan_berikutnya()` mengambil nomor
+   di bawah `pg_advisory_xact_lock` per (cabang, tanggal) dan kembali **VOLATILE**. Pembuktian yang diminta
+   laporan adalah uji dua transaksi nyata; lingkungan uji proyek (PGlite, satu koneksi) belum bisa menjalankannya
+   → temuan **tetap TERBUKA** dengan catatan jujur (jangan dicap selesai). Yang dijaga mesin: sifat serialisasinya
+   (`supabase/tes/nomor_pesanan_kunci.sql` + 2 mutasi wajib-MERAH). Sama untuk **F-12** (uang) — sudah diredam
+   `for update` di bagian 6, uji concurrency menyusul.
+
+**Bukti mesin batch ini:** suite SQL `node alat/uji-sql.mjs` **53 LULUS · 0 GAGAL** · `python3 alat/uji-mutasi-0015.py`
+**25 mutasi wajib MERAH + kontrol hijau** (kini termasuk F-10, F-11, F-13) · daftar temuan `docs/uji/AUDIT_RIWAYAT.md`
+§1c **26 DITUTUP / 23 TERBUKA** · `docs/DECISIONS_LOG.md` 3 entri baru · `docs/ROADMAP.md` progres bagian 10–11.
+
+**Langkah berikutnya (urut):**
+1. **Bantah-balik sisa temuan audit F** — yang masih **TERBUKA**: F-07 (`T1-13`, tabel `catatan_audit` memang belum
+   dibangun), F-09 (`T8-01`, kontrak privasi pelanggan belum ada jalurnya), F-12 & F-13 (dipagari, butuh uji dua
+   transaksi), sisanya ber-pemilik di §1c. Jangan buka temuan baru sebelum ini beredar habis; jangan menutup
+   F-12/F-13 tanpa bukti concurrency nyata.
+2. Lanjut **K-3** (PR-05…PR-09, PR-13, PR-14) lalu **K-4** (PR-11 & D F-04 milik `T1-44`).
+3. Aturan tetap: bagian baru `0015` + uji regresi + mutasi (`ganti_terakhir` untuk definisi yang ditulis ulang) +
+   `DECISIONS_LOG.md` bila menyentuh uang/keamanan; commit & push per batch; **jangan merge PR mana pun** tanpa Lee.
 
 **PUTARAN 18n (2026-09-20) — CI MERAH DIPERBAIKI: alat bukti mutasi memilih definisi yang berlaku (kemunculan TERAKHIR).**
 

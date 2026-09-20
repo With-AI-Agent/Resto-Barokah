@@ -51,8 +51,19 @@ select uji.sama(
   'admin Pusat melihat 3 baris cabang Pusat (dirinya + kasir + pelayan)'
 );
 
--- 5. Izin: kasir hanya melihat izinnya sendiri; admin melihat izin pegawai lingkupnya.
-select uji.sama((select count(*) from public.izin), 8::bigint, 'admin cabang melihat seluruh izin pegawai restonya');
+-- 5. Izin: kasir hanya melihat izinnya sendiri; admin cabang HANYA pegawai di cabangnya.
+--    (Koreksi AUD-3 F-10: dulu di sini diharapkan 8 baris = seluruh penyewa, padahal kontrak
+--     — TECH_SPEC §294, PRD:174 — berkata admin cabang hanya cabangnya. Sekarang satu aturan,
+--     sama dengan policy `pengguna_pilih`.)
+select uji.sama(
+  (select count(*) from public.izin),
+  4::bigint,
+  'admin cabang melihat izin pegawai cabangnya saja (dirinya 2 + kasir cabangnya 2)'
+);
+select uji.harap(
+  not exists (select 1 from public.izin i where i.pengguna_id = '90000000-0000-0000-0000-000000000006'),
+  'admin Cabang Pusat TIDAK melihat izin pegawai Cabang Dua (temuan AUD-3 F-10)'
+);
 reset role;
 select uji.klaim(null);
 

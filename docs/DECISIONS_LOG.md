@@ -1060,3 +1060,77 @@ lewat baris resmi) · `alat/uji-mutasi-0015.py` kini **21 kasus**; mutasi "atura
 `picu_item_jaga` kini hidup di bagian 9 (berkas beku `0009`–`0014` tidak disentuh), dua mutasi lama
 yang menyunting definisi PERTAMA diperbaiki agar menyentuh definisi TERAKHIR — kalau tidak,
 mutasinya tumpul (versi bagian 9 menimpa kembali).
+
+
+## [Keamanan/2026-09-20] Satu aturan lingkup izin: admin cabang hanya cabangnya — di policy, bukan cuma di kertas
+
+**Konteks (temuan K-2 audit AUD-3 2026-09-19 F-10, dibuktikan NYATA lewat probe sendiri
+`docs/uji/audit/probe-2026-09-20/aud-3-f10-admin-cabang-izin.sql`):** tiga sumber tidak sepakat.
+Kontrak (`docs/TECH_SPEC.md` §294, `docs/PRD.md` tentang cabang, `docs/DISCOVERY.md` butir 53)
+berkata admin cabang hanya cabangnya; policy `izin_pilih` memakai `sepenyewa(pengguna_id)` =
+SELURUH penyewa; ujinya (`supabase/tes/rls_pengguna.sql`) malah mengunci perilaku bocor itu
+(8 baris). Akibat nyata di layar centang izin (M3): admin Cabang Pusat membaca izin pegawai
+Cabang Dua.
+
+**Keputusan:** aturan yang berlaku adalah **kontrak**, dan hanya ada SATU aturan:
+1. Pegawai melihat izinnya sendiri.
+2. Owner pusat melihat seluruh izin **restonya**.
+3. Admin cabang melihat izin pegawai **yang bertugas di cabang yang sedang ia pakai** —
+   sama seperti policy `pengguna_pilih`, supaya tidak lahir dua tafsir.
+4. Sampai bagian ini belum ada RPC penulis `public.izin`, jadi tidak ada jalur tulis yang perlu
+   diselaraskan; yang diperbaiki lingkup BACA.
+
+**Alasan:** aturan keamanan yang hanya hidup di dokumen = aturan yang tidak ditegakkan. Ketika
+policy, uji, dan kontrak berbeda, yang menang dalam praktik adalah policy — jadi policy-nya yang
+harus diselaraskan ke kontrak, bukan ujinya dibuat nyaman.
+
+**Bukti:** bagian 11 `supabase/migrations/0015_penutup_celah_putaran16.sql` · uji
+`supabase/tes/rls_pengguna.sql` §5 dikoreksi (4 baris + larangan melihat izin pegawai cabang lain)
+· mutasi "lingkup baca izin dikembalikan ke se-penyewa" **terbukti MERAH** di
+`alat/uji-mutasi-0015.py` · probe F-10 kini **GAGAL** = cacat terbukti hilang.
+
+## [Keamanan/2026-09-20] Helper hierarki PIN bukan alat klien: hak execute dicabut + identitas dipakukan
+
+**Konteks (temuan K-2 audit AUD-3 2026-09-19 F-11, dibuktikan NYATA lewat probe sendiri
+`docs/uji/audit/probe-2026-09-20/aud-3-f11-helper-pin.sql`):** `peran_lebih_tinggi(p_pemanggil,
+p_target)` adalah `SECURITY DEFINER`, diberi execute ke `authenticated`, dan menerima DUA UUID
+bebas tanpa membandingkan `p_pemanggil` dengan `auth.uid()`. Dari kursi kasir, satu `select`
+cukup untuk memetakan hierarki peran siapa pun — termasuk pegawai resto lain.
+
+**Keputusan (dua lapis, sesuai anjuran laporan):**
+1. **Tidak callable klien:** hak execute dicabut dari `public` & `authenticated`; pemakai
+   sebenarnya (`simpan_pin`, `SECURITY DEFINER`) tetap bisa memanggilnya.
+2. **Identitas dipakukan:** bila ada pemanggil ber-JWT, `p_pemanggil` WAJIB dirinya sendiri;
+   selain itu jawabannya `false` — menolak, bukan menjawab atas nama orang lain. Tanpa identitas
+   (penyiapan/`service_role`) pemeriksaan dilewati seperti jalur peladen lain di proyek ini.
+3. **Aturan umum:** pemeriksaan "atasan" harus bertumpu pada identitas yang sedang masuk, bukan
+   UUID kiriman perangkat.
+
+**Bukti:** bagian 10 `supabase/migrations/0015_penutup_celah_putaran16.sql` · uji
+`supabase/tes/pin_helper_pribadi.sql` — termasuk skenario "jalur baru tanpa pembungkus identitas"
+(pembungkus `SECURITY DEFINER` yang mewakili jalur itu **tidak** bisa mengaku atasan) dan kontrol
+bahwa owner tetap boleh mengganti PIN bawahan · 2 mutasi wajib-MERAH ("hak execute dikembalikan",
+"pemakuan identitas dilepas") · probe F-11 kini **GAGAL**.
+
+## [Uang/2026-09-20] Nomor pesanan diambil di bawah kunci — tetapi temuan F-12/F-13 BELUM dicap selesai
+
+**Konteks (temuan K-1/K-2 audit AUD-3 2026-09-19 F-12 & F-13, status **DUGAAN**):** hitungan uang
+dan nomor pesanan dikerjakan tanpa serialisasi eksplisit, sehingga dua pengiriman bersamaan
+berpotensi membaca angka yang sama.
+
+**Keputusan:**
+1. **F-13 dirampungkan di mesin:** `nomor_pesanan_berikutnya()` kini mengambil nomor di bawah
+   `pg_advisory_xact_lock` per (cabang, tanggal) dan ditandai **VOLATILE** (bukan STABLE) supaya
+   kunci memang boleh dipakai. Batas nyata yang sudah ada sebelumnya: kolom `nomor` UNIK per
+   (cabang, tanggal) — jadi nomor kembar tidak bisa tersimpan; yang dulu bisa terjadi hanyalah
+   INSERT kedua gagal karena bentrok.
+2. **F-12** sudah diredam di bagian 6 (`for update` pada baris pesanan sebelum pemeriksaan uang).
+3. **Keduanya TETAP TERBUKA (dipagari) dan TIDAK dicap DITUTUP.** Pembuktian yang diminta laporan
+   adalah uji dua transaksi nyata; lingkungan uji proyek (PGlite) berjalan di satu koneksi sehingga
+   uji itu belum bisa dijalankan. Yang dijaga mesin sekarang adalah **sifat serialisasinya**
+   (fungsi volatile + pemanggilan kunci benar-benar ada) lewat `supabase/tes/nomor_pesanan_kunci.sql`
+   dan 2 mutasi wajib-MERAH.
+
+**Alasan menahan klaim:** project ini sudah dua kali membayar mahal karena "hijau" yang ternyata
+tidak menguji apa-apa. Lebih jujur menulis "dipagari, uji concurrency menyusul" daripada menutup
+temuan dengan bukti yang tidak ada.

@@ -22,6 +22,12 @@ Menguji migrasi `supabase/migrations/0015_penutup_celah_putaran16.sql`:
                        `supabase/tes/lifecycle_pesanan.sql`)
   * bagian 9 — F-04 audit AUD-3 2026-09-19 (K-2): status item bisa dilompati/dimundurkan dan
                  pembatalan pra-dapur tanpa jejak (uji: `supabase/tes/status_item_transisi.sql`)
+  * bagian 10 — F-11 audit AUD-3 2026-09-19 (K-2): helper hierarki PIN bisa dipanggil klien
+                 sebagai oracle dua UUID bebas (uji: `supabase/tes/pin_helper_pribadi.sql`)
+  * bagian 10b — F-13 audit AUD-3 2026-09-19 (K-2, DUGAAN → mitigasi): nomor pesanan diambil
+                 tanpa serialisasi (uji: `supabase/tes/nomor_pesanan_kunci.sql`)
+  * bagian 11 — F-10 audit AUD-3 2026-09-19 (K-2): izin pegawai bocor lintas cabang ke admin
+                 cabang lain (uji: `supabase/tes/rls_pengguna.sql`)
 Gerbang yang tidak bisa MERAH dianggap belum terpasang — itu pelajaran mahal proyek ini.
 
 Cara kerjanya: salin repo ke folder sementara, RUSAK satu penjaga (atau kembalikan versi lama
@@ -56,8 +62,11 @@ UJI_F03 = "supabase/tes/metode_bayar_nonaktif.sql"                      # bagian
 UJI_F05 = "supabase/tes/pembatalan_sekali.sql"                          # bagian 8b (F-05)
 UJI_F06 = "supabase/tes/lifecycle_pesanan.sql"                          # bagian 8c (F-06)
 UJI_F04 = "supabase/tes/status_item_transisi.sql"                       # bagian 9 (F-04)
+UJI_F11 = "supabase/tes/pin_helper_pribadi.sql"                         # bagian 10 (F-11)
+UJI_F13 = "supabase/tes/nomor_pesanan_kunci.sql"                        # bagian 10b (F-13)
+UJI_F10 = "supabase/tes/rls_pengguna.sql"                               # bagian 11 (F-10)
 SEMUA_UJI = (UJI, UJI_PR02, UJI_F01, UJI_PR03, UJI_PR04, UJI_UANG, UJI_F03, UJI_F05, UJI_F06,
-             UJI_F04)
+             UJI_F04, UJI_F11, UJI_F13, UJI_F10)
 
 
 def segarkan_salinan() -> None:
@@ -101,6 +110,20 @@ def semua_hijau() -> tuple[bool, str]:
     return True, ""
 
 
+def ganti_terakhir(teks: str, lama: str, baru: str) -> str:
+    """Ganti kemunculan TERAKHIR sebuah pola.
+
+    Sejak 0015 menulis ulang fungsi yang sama di beberapa bagian (mis. `picu_item_jaga` di
+    bagian 1 dan 9, `nomor_pesanan_berikutnya` di bagian 4 dan 10b), definisi yang BENAR-BENAR
+    berlaku adalah `create or replace` TERAKHIR. Menyunting kemunculan pertama = mutasi tumpul
+    (pelajaran CI merah 2026-09-20).
+    """
+    pos = teks.rfind(lama)
+    if pos < 0:
+        raise AssertionError("pola tidak ditemukan untuk ganti_terakhir")
+    return teks[:pos] + baru + teks[pos + len(lama):]
+
+
 def mutasi(nama: str, ubah, harap_merah: bool = True, uji: str = UJI) -> tuple[str, bool, str]:
     berkas = KERJA / MIG
     asli = berkas.read_text(encoding="utf-8")
@@ -126,7 +149,7 @@ def main() -> int:
     if not hijau:
         print("KONTROL GAGAL: salinan utuh pun tidak hijau — perbaiki dulu berkas ujinya.\n" + keluar)
         return 1
-    print("  OK  kontrol: salinan utuh → SEMUA uji bagian 1–9 hijau")
+    print("  OK  kontrol: salinan utuh → SEMUA uji bagian 1–10 hijau")
 
     hasil: list[tuple[str, bool, str]] = []
 
@@ -293,13 +316,15 @@ def main() -> int:
     # ------------------------------------------------------------------ K-2c (PR-03)
     # 12) Pagar isolasi lintas resto di penghitung nomor pesanan dihapus → uji PR-03 wajib MERAH.
     def hapus_pagar_nomor(t: str) -> str:
-        return t.replace(
+        # Catatan (2026-09-20): `nomor_pesanan_berikutnya` kini ditulis ULANG di bagian 10b
+        # (kunci serialisasi F-13), jadi mutasi harus menyentuh kemunculan TERAKHIR.
+        return ganti_terakhir(
+            t,
             """  if auth.uid() is not null and not public.cabang_pantau_saya(p_cabang_id) then
     raise exception 'Cabang itu bukan cabang yang boleh Anda lihat — hitungan nomor pesanan tidak dibagikan antar resto.';
   end if;
 """,
             "",
-            1,
         )
 
     hasil.append(mutasi("pagar isolasi penghitung nomor pesanan dihapus (PR-03)",
@@ -445,12 +470,79 @@ def main() -> int:
     hasil.append(mutasi("status item boleh dilompati / dimundurkan / jadi batal bebas (cacat AUD-3 F-04)",
                         status_item_bebas, uji=UJI_F04))
 
+    # --------------------------------------------------------- bagian 10 (AUD-3 F-11)
+    # 22) Hak execute helper hierarki PIN dikembalikan ke klien (cacat asli F-11) → MERAH.
+    def buka_akses_helper(t: str) -> str:
+        return t.replace(
+            "revoke all on function public.peran_lebih_tinggi(uuid, uuid) from authenticated;",
+            "grant execute on function public.peran_lebih_tinggi(uuid, uuid) to authenticated;",
+            1,
+        )
+
+    hasil.append(mutasi("hak execute helper hierarki PIN dikembalikan ke klien (cacat AUD-3 F-11)",
+                        buka_akses_helper, uji=UJI_F11))
+
+    # 23) Pemakuan identitas dilepas (jawaban mengikuti UUID kiriman lagi) → MERAH.
+    def paku_identitas_hilang(t: str) -> str:
+        return ganti_terakhir(
+            t,
+            """  if auth.uid() is not null and p_pemanggil is distinct from auth.uid() then
+    return false;
+  end if;""",
+            "  -- (mutasi) pemakuan identitas pemanggil DIHAPUS",
+        )
+
+    hasil.append(mutasi("pemakuan identitas pemanggil pada helper hierarki PIN dilepas",
+                        paku_identitas_hilang, uji=UJI_F11))
+
+    # -------------------------------------------------------- bagian 10b (AUD-3 F-13)
+    # 24) Kunci serialisasi pengambilan nomor pesanan dilepas → MERAH.
+    def kunci_nomor_hilang(t: str) -> str:
+        return t.replace(
+            "  perform pg_advisory_xact_lock(hashtextextended(p_cabang_id::text || ':' || p_tanggal::text, 0));",
+            "  -- (mutasi) kunci serialisasi nomor pesanan DIHAPUS",
+            1,
+        )
+
+    hasil.append(mutasi("kunci serialisasi pengambilan nomor pesanan dilepas (audit AUD-3 F-13)",
+                        kunci_nomor_hilang, uji=UJI_F13))
+
+    # 25) Fungsi pengambil nomor dikembalikan ke STABLE (tidak boleh mengunci) → MERAH.
+    def nomor_kembali_stable(t: str) -> str:
+        return t.replace(
+            "language plpgsql\nvolatile    -- mengunci (advisory)",
+            "language plpgsql\nstable      -- (mutasi) kembali STABLE",
+            1,
+        )
+
+    hasil.append(mutasi("fungsi pengambil nomor dikembalikan ke STABLE (kunci jadi percuma)",
+                        nomor_kembali_stable, uji=UJI_F13))
+
+    # -------------------------------------------------------- bagian 11 (AUD-3 F-10)
+    # 26) Lingkup baca izin dikembalikan ke se-penyewa (cacat asli F-10) → MERAH.
+    def izin_kembali_sepenyewa(t: str) -> str:
+        return ganti_terakhir(
+            t,
+            """      and public.peran_saya() = 'admin_cabang'
+      and exists (
+        select 1
+          from public.pengguna_cabang pc
+         where pc.pengguna_id = public.izin.pengguna_id
+           and pc.cabang_id = public.cabang_saya()
+      )""",
+            """      and public.peran_saya() = 'admin_cabang'""",
+        )
+
+    hasil.append(mutasi("lingkup baca izin admin cabang dikembalikan ke se-penyewa (cacat AUD-3 F-10)",
+                        izin_kembali_sepenyewa, uji=UJI_F10))
+
     # Kontrol penutup: setelah semua mutasi dipulihkan, SEMUA uji wajib hijau lagi.
     hijau_akhir, keluar_akhir = semua_hijau()
     hasil.append(("kontrol penutup: salinan dipulihkan → semua uji hijau", hijau_akhir,
                   "HIJAU" if hijau_akhir else "MERAH\n" + keluar_akhir))
 
-    print("\nUJI MUTASI — penutup celah putaran16 (0015: K-1, K-2a…K-2d, F-01/F-02, F-03/F-05/F-06, F-04)")
+    print("\nUJI MUTASI — penutup celah putaran16 (0015: K-1, K-2a…K-2d, F-01/F-02, "
+          "F-03/F-05/F-06, F-04, F-10, F-11, F-13)")
     merah = 0
     for nama, lulus, catatan in hasil:
         if not lulus:

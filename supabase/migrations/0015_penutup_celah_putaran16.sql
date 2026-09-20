@@ -1007,3 +1007,140 @@ comment on function public.picu_item_jaga() is
 -- 9b. Hak akses fungsi yang diperbarui (tetap sama seperti sebelumnya)
 -- ---------------------------------------------------------------------------
 grant execute on function public.picu_item_jaga() to authenticated, service_role;
+
+
+-- ============================================================================
+-- BAGIAN 10 — K-2 audit AUD-3 2026-09-19 F-11: helper hierarki PIN bukan oracle publik
+--            (dibuktikan nyata lewat probe
+--             docs/uji/audit/probe-2026-09-20/aud-3-f11-helper-pin.sql)
+-- ============================================================================
+-- TEMUAN: `peran_lebih_tinggi(p_pemanggil, p_target)` adalah SECURITY DEFINER, diberi
+-- execute ke `authenticated`, dan menerima DUA UUID bebas tanpa membandingkan
+-- `p_pemanggil` dengan `auth.uid()`. Akibatnya perangkat kasir bisa memetakan hierarki
+-- peran siapa pun (termasuk lintas resto) lewat satu SELECT, dan setiap jalur baru yang
+-- memakai helper ini tanpa pembungkus identitas akan menerima jawaban ATAS NAMA ORANG LAIN.
+--
+-- DUA lapis perbaikan (sesuai anjuran laporan: "menolak/menetapkan pemanggil dari
+-- auth.uid() atau tidak callable klien"):
+--   1. **Tidak callable klien** — hak execute dicabut dari `public` & `authenticated`.
+--      Pemakai sebenarnya adalah `simpan_pin` (SECURITY DEFINER) yang berjalan sebagai
+--      pemilik tabel, jadi pencabutan ini tidak menutup jalur sahnya.
+--   2. **Identitas dipakukan** — bila ada pemanggil ber-JWT, `p_pemanggil` WAJIB dirinya
+--      sendiri; selain itu jawabannya `false` (menolak, bukan menjawab atas nama orang lain).
+-- ============================================================================
+create or replace function public.peran_lebih_tinggi(p_pemanggil uuid, p_target uuid)
+returns boolean
+language plpgsql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  -- Lapis 2: identitas pemanggil dipakukan. Tanpa identitas (penyiapan / service_role)
+  -- pemeriksaan dilewati seperti jalur peladen lain di proyek ini.
+  if auth.uid() is not null and p_pemanggil is distinct from auth.uid() then
+    return false;
+  end if;
+  return coalesce(
+    (select public.peringkat_peran(pp.peran) > public.peringkat_peran(pt.peran)
+       from public.pengguna pp
+       join public.pengguna pt on pt.id = p_target
+      where pp.id = p_pemanggil),
+    false);
+end
+$$;
+
+comment on function public.peran_lebih_tinggi(uuid, uuid) is
+  'Benar bila peran pemanggil lebih tinggi dari peran target (hierarki PIN). Dipakai simpan_pin supaya bawahan tidak bisa merebut PIN atasan. Sejak AUD-3 F-11: TIDAK callable klien dan identitas pemanggil dipakukan ke auth.uid() (dulu bisa dipakai sebagai oracle hierarki dari perangkat).';
+
+-- Lapis 1: cabut hak klien. `simpan_pin` tetap bisa memanggilnya karena berjalan sebagai
+-- pemilik tabel (SECURITY DEFINER).
+revoke all on function public.peran_lebih_tinggi(uuid, uuid) from public;
+revoke all on function public.peran_lebih_tinggi(uuid, uuid) from authenticated;
+grant execute on function public.peran_lebih_tinggi(uuid, uuid) to service_role;
+
+
+-- ---------------------------------------------------------------------------
+-- 10b. F-13 (tetap TERBUKA — mitigasi): nomor pesanan diambil dengan KUNCI serialisasi
+-- ---------------------------------------------------------------------------
+-- TEMUAN (DUGAAN): `max(nomor) + 1` tanpa serialisasi eksplisit. Batas nyata yang sudah ada:
+-- kolom `nomor` UNIK per (cabang, tanggal), jadi nomor kembar tidak mungkin tersimpan —
+-- yang bisa terjadi hanyalah INSERT kedua GAGAL karena bentrok, bukan data salah.
+--
+-- Mitigasi yang ditambahkan di sini: kunci advisory transaksi per (cabang, tanggal) supaya
+-- dua perangkat yang mengirim bersamaan tidak membaca `max()` yang sama. Kunci dilepas
+-- otomatis saat transaksi selesai. Fungsi ini menjadi VOLATILE karena mengunci.
+--
+-- Catatan jujur: uji concurrency yang diminta laporan (dua koneksi bersamaan) BELUM bisa
+-- dijalankan di lingkungan uji proyek (PGlite = satu koneksi), jadi temuan ini TIDAK dicap
+-- DITUTUP. Yang bisa dibuktikan mesin: sifat "serialisasi dipasang" (fungsi volatile +
+-- pemanggilan kunci) — kalau ada yang mengembalikannya ke STABLE tanpa kunci, uji merah.
+create or replace function public.nomor_pesanan_berikutnya(p_cabang_id uuid, p_tanggal date)
+returns integer
+language plpgsql
+volatile    -- mengunci (advisory) — bukan STABLE lagi; lihat catatan F-13 di atas
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_nomor integer;
+begin
+  if auth.uid() is not null and not public.cabang_pantau_saya(p_cabang_id) then
+    raise exception 'Cabang itu bukan cabang yang boleh Anda lihat — hitungan nomor pesanan tidak dibagikan antar resto.';
+  end if;
+
+  -- Serialisasi pengambilan nomor (F-13): kunci dilepas otomatis di akhir transaksi.
+  perform pg_advisory_xact_lock(hashtextextended(p_cabang_id::text || ':' || p_tanggal::text, 0));
+
+  select coalesce(max(p.nomor), 0) + 1 into v_nomor
+    from public.pesanan p
+   where p.cabang_id = p_cabang_id and p.tanggal = p_tanggal;
+
+  return v_nomor;
+end
+$$;
+
+comment on function public.nomor_pesanan_berikutnya(uuid, date) is
+  'Nomor pesanan berikutnya untuk satu cabang pada satu tanggal (max+1) DI BAWAH kunci advisory per (cabang, tanggal) supaya dua pengiriman bersamaan tidak membaca nomor yang sama (mitigasi AUD-3 F-13; uji concurrency nyata menyusul). Terisolasi lintas resto: pemanggil beridentitas hanya boleh menghitung cabang yang boleh ia pantau (temuan PR-03).';
+
+revoke all on function public.nomor_pesanan_berikutnya(uuid, date) from public;
+grant execute on function public.nomor_pesanan_berikutnya(uuid, date) to authenticated, service_role;
+
+
+-- ============================================================================
+-- BAGIAN 11 — K-2 audit AUD-3 2026-09-19 F-10: izin per-pegawai hanya se-cabang
+--            (dibuktikan nyata lewat probe
+--             docs/uji/audit/probe-2026-09-20/aud-3-f10-admin-cabang-izin.sql)
+-- ============================================================================
+-- TEMUAN: tiga sumber tidak sepakat. Kontrak (docs/TECH_SPEC.md §294, docs/PRD.md:174,
+-- docs/DISCOVERY.md:53) berkata "admin_cabang … HANYA cabangnya"; policy `izin_pilih`
+-- (0004) memakai `sepenyewa(pengguna_id)` = SELURUH penyewa; uji `rls_pengguna.sql` malah
+-- mengunci perilaku yang bocor itu (8 baris). Akibat nyata: layar centang izin (M3) milik
+-- admin Cabang Pusat menampilkan izin pegawai Cabang Dua.
+--
+-- Aturan yang ditetapkan (mengikuti kontrak, bukan uji lama): izin pegawai terlihat oleh
+-- pemiliknya, oleh owner pusat se-restonya, dan oleh admin cabang HANYA untuk pegawai yang
+-- bertugas di cabang yang sedang ia pakai — sama seperti policy `pengguna_pilih` supaya
+-- satu aturan dipakai di mana pun (satu sumber kebenaran, bukan dua tafsir).
+-- Catatan: sampai bagian ini belum ada RPC penulis `public.izin`, jadi tidak ada jalur tulis
+-- yang perlu diselaraskan — yang diperbaiki adalah lingkup BACA.
+drop policy if exists izin_pilih on public.izin;
+create policy izin_pilih on public.izin
+  for select to authenticated
+  using (
+    pengguna_id = auth.uid()
+    or (public.sepenyewa(pengguna_id) and public.peran_saya() = 'owner_pusat')
+    or (
+      public.sepenyewa(pengguna_id)
+      and public.peran_saya() = 'admin_cabang'
+      and exists (
+        select 1
+          from public.pengguna_cabang pc
+         where pc.pengguna_id = public.izin.pengguna_id
+           and pc.cabang_id = public.cabang_saya()
+      )
+    )
+  );
+
+comment on policy izin_pilih on public.izin is
+  'Izin pegawai: milik sendiri · owner pusat se-resto · admin cabang HANYA pegawai di cabang yang sedang ia pakai (temuan AUD-3 F-10; diselaraskan dengan pengguna_pilih).';
