@@ -38,6 +38,7 @@ sys.path.insert(0, str(AKAR / "alat"))
 
 CARA_PAKAI = "docs/uji/kalibrasi/CARA-PAKAI.md"
 ALAT_SIAP = "alat/review-pr.py"
+ALAT_AUDIT = "alat/audit-independen.py"
 PROTOKOL = "docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md"
 FOLDER_PAKET = "docs/uji/review-pr"
 TANGGAL_PENSIUN = "2026-09-19"  # hari bahan lama dikeluarkan (audit D F-05); paket SESUDAH tanggal ini wajib menyematkan bahan
@@ -170,6 +171,38 @@ def periksa(akar: pathlib.Path) -> int:
             errs.append(f"{PROTOKOL} tidak memuat aturan rotasi bahan ('tidak dipakai lagi') — "
                         "bahan yang pernah bocor bisa dinilai ulang seolah belum bocor")
 
+    # F. Salinan kalibrasi (jalur mesin) tidak boleh membawa RIWAYAT GIT maupun katalog.
+    #    Audit H F-01 (2026-09-20): dulu salinan dibuat `git worktree add` + katalog ikut tersalin,
+    #    sehingga auditor bisa melihat baris cacat lewat `git diff` atau mencocokkannya dengan
+    #    katalog — kalibrasi jadi bisa dipalsukan.
+    alat_audit = akar / ALAT_AUDIT
+    if not alat_audit.is_file():
+        errs.append(f"{ALAT_AUDIT} tidak ada — penyiap kalibrasi jalur mesin hilang")
+    else:
+        teks_audit = alat_audit.read_text(encoding="utf-8")
+        if "pastikan_salinan_bersih(" not in teks_audit:
+            errs.append(f"{ALAT_AUDIT} tidak memanggil `pastikan_salinan_bersih(` — tidak ada yang "
+                        "memeriksa salinan auditor bebas kunci (audit H F-01)")
+        if 'git archive HEAD' not in teks_audit:
+            errs.append(f"{ALAT_AUDIT} tidak membuat salinan lewat 'git archive HEAD' — kalau memakai "
+                        "worktree, riwayat Git ikut terbawa dan `git diff` memperlihatkan cacat tanam")
+        if re.search(r'"worktree",\s*"add"', teks_audit):
+            errs.append(f"{ALAT_AUDIT} kembali memakai perintah `git worktree add` untuk salinan kalibrasi")
+        if 'rglob("kalibrasi-cacat.json")' not in teks_audit:
+            errs.append(f"{ALAT_AUDIT} tidak mengeluarkan katalog cacat dari salinan auditor")
+
+    # G. Jalur review PR HANYA membaca katalog dari LUAR repo (audit H F-01).
+    if alat.is_file():
+        teks_g = alat.read_text(encoding="utf-8")
+        if 'KATALOG = KAL_DIR / "kalibrasi-cacat.json"' not in teks_g:
+            errs.append(f"{ALAT_SIAP} tidak menetapkan katalog dari LUAR repo "
+                        "(`KATALOG = KAL_DIR / \"kalibrasi-cacat.json\"`) — kunci jawaban bisa kembali dibaca peninjau")
+        if re.search(r'^KATALOG = AKAR / "alat" / "kalibrasi-cacat\.json"', teks_g, re.MULTILINE):
+            errs.append(f"{ALAT_SIAP} masih membaca katalog DARI DALAM repo")
+        if (akar / "alat" / "kalibrasi-cacat.json").is_file():
+            catatan.append("katalog cacat masih ada di dalam repo (temuan H F-01) — pemindahan ke luar "
+                           "repo menunggu keputusan Lee; jalur review PR sudah gagal-tertutup")
+
     print("PERIKSA KUNCI KALIBRASI — bahan & kunci tidak boleh hidup di dalam repo")
     for e in errs:
         print(f"  X {e}")
@@ -265,6 +298,35 @@ def uji_diri() -> int:
             kode9, _ = jalankan_pemeriksa(periksa, tmp9)
             hasil.append(("mutasi: paket baru tanpa kata 'disematkan'", kode9 != 0,
                           "ditolak" if kode9 != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 10: pemanggilan pemeriksa salinan bersih dihapus → harus GAGAL
+        with salin_pohon() as tmp10:
+            f = tmp10 / ALAT_AUDIT
+            f.write_text(f.read_text(encoding="utf-8").replace("pastikan_salinan_bersih(", "lewati_pemeriksaan("),
+                         encoding="utf-8")
+            kode10, _ = jalankan_pemeriksa(periksa, tmp10)
+            hasil.append(("mutasi: pemeriksa salinan kalibrasi bersih dihapus", kode10 != 0,
+                          "ditolak" if kode10 != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 11: salinan kalibrasi dibuat dengan worktree lagi (riwayat ikut) → harus GAGAL
+        with salin_pohon() as tmp11:
+            f = tmp11 / ALAT_AUDIT
+            f.write_text(f.read_text(encoding="utf-8").replace(
+                '["git", "init", "-q", str(salinan)]', '["git", "worktree", "add", str(salinan)]'),
+                encoding="utf-8")
+            kode11, _ = jalankan_pemeriksa(periksa, tmp11)
+            hasil.append(("mutasi: salinan kalibrasi kembali memakai worktree", kode11 != 0,
+                          "ditolak" if kode11 != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 12: katalog dibaca lagi dari dalam repo (jalur review PR) → harus GAGAL
+        with salin_pohon() as tmp12:
+            f = tmp12 / ALAT_SIAP
+            f.write_text(f.read_text(encoding="utf-8").replace(
+                'KATALOG = KAL_DIR / "kalibrasi-cacat.json"',
+                'KATALOG = AKAR / "alat" / "kalibrasi-cacat.json"'), encoding="utf-8")
+            kode12, _ = jalankan_pemeriksa(periksa, tmp12)
+            hasil.append(("mutasi: jalur review PR membaca katalog dari repo", kode12 != 0,
+                          "ditolak" if kode12 != 0 else "DILOLOSKAN (tumpul)"))
 
         # Mutasi 5: aturan rotasi dihapus dari protokol → harus GAGAL
         with salin_pohon() as tmp5:

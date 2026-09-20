@@ -8,9 +8,16 @@ untuk menguji auditor **tanpa memberitahu di mana cacatnya** (defect injection).
 
 | Jalur | Bahan | Kunci jawaban | Menjawab pertanyaan |
 |---|---|---|---|
-| **Mesin** | salinan repo dari `git worktree` + `alat/kalibrasi-cacat.json` | berkas di luar repo (dibuat `--kalibrasi-siapkan`) | *apakah pemeriksa otomatis kita menangkap cacat berbahaya?* |
+| **Mesin** | salinan repo dari `git archive` — **tanpa riwayat Git & tanpa katalog cacat** (sejak audit H F-01, 2026-09-20) | berkas di luar repo (dibuat `--kalibrasi-siapkan`) | *apakah pemeriksa otomatis kita menangkap cacat berbahaya?* |
 | **Auditor** | folder `bahan-<tanggal>/` **di dalam repo ini** (ikut ter-commit) | berkas di luar repo (dibuat agent saat penyiapan, **tidak pernah** ditulis di repo/chat auditor) | *apakah auditor manusia/AI-nya tajam?* |
 | **Review PR** | berkas `pr-bahan-<tanggal>.diff` **di luar repo** (`/tmp/kalibrasi-pr/`), isinya disematkan ke paket review | berkas di luar repo (`/tmp/KUNCI-KALIBRASI-PR-<tanggal>.md`) | *apakah peninjau tajam saat mengulas perubahan nyata?* |
+
+> **Sejak 2026-09-20 (temuan audit H F-01):** katalog cacat (`kalibrasi-cacat.json`) adalah **kunci jawaban**.
+> Jalur **review PR** karena itu **hanya** membacanya dari luar repo (`KALIBRASI_DIR`, baku `/home/user/.kalibrasi`)
+> dan **menolak jalan** bila katalog masih di dalam repo — lebih baik kalibrasi tidak jalan daripada skornya bisa
+> dipalsukan. Jalur **mesin** tidak lagi memakai `git worktree` (riwayatnya memperlihatkan cacat tanam lewat
+> `git diff`); salinannya dibuat ulang tanpa riwayat dan katalognya dikeluarkan. Penjaga: aturan F & G
+> `alat/periksa-kunci-kalibrasi.py`. **Menunggu keputusan Lee:** memindahkan berkas katalog ke luar repo.
 
 **Kenapa bahan auditor harus berada di dalam repo:** sesi auditor berjalan di **ruang kerja baru** — berkas di luar
 repo (mis. `/tmp`) tidak ikut berpindah, jadi kalibrasi lama **tidak bisa jalan lintas sesi** (ini cacat mekanisme

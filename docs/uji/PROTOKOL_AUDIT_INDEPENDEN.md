@@ -185,14 +185,15 @@ Ada **dua jalur kalibrasi** — keduanya wajib, karena keduanya mengukur hal ber
 
 | Jalur | Mengukur | Bahan | Kunci jawaban |
 |---|---|---|---|
-| **Mesin** | apakah pemeriksa otomatis menangkap cacat berbahaya | salinan `worktree` + katalog `alat/kalibrasi-cacat.json` | di luar repo (`/tmp/...-KUNCI.md`) |
+| **Mesin** | apakah pemeriksa otomatis menangkap cacat berbahaya | salinan `git archive` **tanpa riwayat Git & tanpa katalog** (sejak 2026-09-20) | di luar repo (`/tmp/...-KUNCI.md`) |
 | **Auditor** | apakah auditor (manusia/AI) tajam | folder `docs/uji/kalibrasi/bahan-<tanggal>/` **ikut ter-commit** | di luar repo; **tidak pernah** ditulis di repo atau diberikan ke auditor |
 | **Review PR** | apakah peninjau tajam saat mengulas **perubahan nyata** | bahan `pr-bahan-<tanggal>.diff` — berkasnya **di luar repo**, isinya disematkan ke paket review | di luar repo (`/tmp/KUNCI-KALIBRASI-PR-<tanggal>.md`) |
 
 **Cara kerja jalur mesin (dijalankan pembangun, dinilai setelah audit):**
 
 1. Pembangun menjalankan: `python3 alat/audit-independen.py --kalibrasi-siapkan`
-   → menyalin HEAD ke `worktree` bersih, **menanam 6 cacat** dari katalog `alat/kalibrasi-cacat.json`
+   → menyalin HEAD lewat `git archive` (salinan dibuat ulang jadi satu commit, **tanpa riwayat Git**
+   dan **tanpa berkas katalog cacat** — audit H F-01), **menanam 6 cacat** dari katalog cacat
    (campuran K-1…K-4; ada yang seharusnya ketangkap mesin, ada yang hanya ketangkap penalaran),
    → menulis **kunci jawaban di luar repo** (`/tmp/...-kunci.md`, tidak boleh dibaca auditor).
 2. Auditor memeriksa salinan itu **seperti kode sungguhan** (tanpa tahu kuncinya).
@@ -229,6 +230,23 @@ Ada **dua jalur kalibrasi** — keduanya wajib, karena keduanya mengukur hal ber
 4. **Berkas yang dikeluarkan dari repo berjejak:** jalurnya dicatat di daftar pensiun `docs/uji/BERKAS_PENSIUN.md` (dijaga `alat/periksa-kunci-kalibrasi.py` aturan D1) — rujukan lama di riwayat/paket/laporan tetap sah sebagai provenance.
 5. **Rotasi bahan:** bahan kalibrasi yang pernah bocor — termasuk yang masih terbaca di riwayat Git —
    **tidak dipakai lagi** untuk menilai ketajaman; gantinya bahan baru bertanggal (sama seperti jalur auditor).
+
+**Kunci jawaban tidak boleh terbaca dari repo (audit H F-01, 2026-09-20 — K-2):**
+
+Katalog cacat memuat pasangan `cari`/`ganti` = **kunci jawaban**. Selama ia hidup di dalam repo, peninjau/
+auditor yang membaca repo (memang pekerjaannya) bisa mencocokkan cacat yang ditanam lalu menulis skor kalibrasi
+yang sempurna tanpa mengulas sungguhan. Perbaikan yang sudah berlaku:
+
+1. **Jalur mesin:** salinan auditor dibuat ulang tanpa riwayat Git dan **katalog cacat dikeluarkan dari salinan**
+   (`pastikan_salinan_bersih()` menolak salinan yang masih membawa katalog/berkas kunci atau perubahan
+   belum di-commit). Sebelum ini, `git diff` di salinan **langsung memperlihatkan** baris yang ditanam.
+2. **Jalur review PR:** alat penyiap **hanya** membaca katalog dari **luar repo** (`KALIBRASI_DIR`, baku
+   `/home/user/.kalibrasi`). Bila katalog masih di dalam repo, perintahnya **GAGAL-tertutup** (menolak membuat
+   bahan) daripada menerbitkan bahan yang bisa dicocokkan.
+3. Dijaga mesin: `alat/periksa-kunci-kalibrasi.py` aturan F & G (+3 mutasi uji-diri).
+4. **Sisa yang menunggu keputusan Lee:** memindahkan berkas katalog itu sendiri ke luar repo (termasuk baris
+   daftar pensiun) — selama belum dipindah, jalur review PR tidak bisa dipakai dan itu **disengaja**: lebih baik
+   kalibrasi tidak jalan daripada skornya bisa dipalsukan.
 
 **Ambang & pencatatan (berlaku untuk kedua jalur):**
 

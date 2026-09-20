@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `5317f4732f01a877b65cde044add571abed90e9f`
+- **Commit keadaan kerja:** `459554e6e77eee7b365b3e7340852c5cdde6fd3c`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35479216962, commit 5317f473)
+- **CI terakhir:** success (run 35480449429, commit 459554e6)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (57 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (57 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (58 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (58 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -63,6 +63,32 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18q (2026-09-20) — KUNCI KALIBRASI TIDAK BISA LAGI DICONTEK (audit H F-01); SATU KEPUTUSAN MENUNGGU LEE.**
+
+Bantah-balik temuan **H F-01** (K-2) membuktikan cacatnya **lebih parah dari dugaan laporan**:
+1. Salinan auditor jalur mesin dulu dibuat `git worktree add` → di dalam salinan itu `git diff`/`git show` **langsung memperlihatkan
+   baris mana yang ditanami cacat** (cacat ditanam sebagai perubahan belum-di-commit).
+2. Berkas katalog `alat/kalibrasi-cacat.json` (pasangan cari/ganti = daftar jawaban) ikut tersalin ke salinan auditor.
+3. Jalur review PR menyematkan diff ke paket, dan peninjau bisa mencocokkannya dengan katalog yang ada di repo.
+
+**Sudah diperbaiki (kode + penjaga + dokumen):**
+* `alat/audit-independen.py` — salinan kalibrasi dibuat lewat `git archive` + `git init` + **satu commit bersih**; katalog dikeluarkan dari salinan;
+  fungsi baru `pastikan_salinan_bersih()` menolak salinan yang masih membawa katalog/berkas kunci atau perubahan belum di-commit.
+* `alat/review-pr.py` — katalog **hanya** dibaca dari luar repo (`KALIBRASI_DIR`, baku `/home/user/.kalibrasi`); bila katalog masih di dalam repo,
+  perintah **GAGAL-tertutup** dengan instruksi jelas (tidak membuat bahan yang bisa dicocokkan).
+* `alat/periksa-kunci-kalibrasi.py` — aturan **F** (salinan kalibrasi bersih) & **G** (katalog review PR dari luar repo) + **3 mutasi uji-diri baru** (12 kasus, semua menolak).
+* Dokumen: `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §7 · `docs/uji/kalibrasi/CARA-PAKAI.md` · `docs/uji/AUDIT_RIWAYAT.md` (status H F-01) ·
+  `docs/uji/TEMUAN_LUAR_CAKUPAN_REVIEW.md` (L-03).
+
+**MENUNGGU KEPUTUSAN LEE (satu langkah, tidak bisa agent putuskan sendiri):** memindahkan berkas katalog cacat ke luar repo
+(`alat/kalibrasi-cacat.json` → `/home/user/.kalibrasi/kalibrasi-cacat.json`) + barisnya di daftar pensiun `docs/uji/BERKAS_PENSIUN.md`
+(aturan daftar itu mewajibkan keputusan Lee). Selama belum dipindah: **jalur kalibrasi review PR tidak bisa dipakai** (sengaja),
+sementara jalur mesin sudah aman dan tetap jalan.
+
+**Langkah berikutnya:** (1) tunggu jawaban Lee soal pemindahan katalog; (2) lanjut temuan mekanisme lain — **H F-02** (paket audit
+menargetkan commit yang CI-nya belum hijau → penjaga paket wajib menolak) dan **I F-20/I F-04/I F-03** (alat audit sendiri);
+(3) bantah-balik sisa temuan laporan H & I (yang DUGAAN wajib diprobe dulu).
 
 **PUTARAN 18p (2026-09-20) — DUA LAPORAN AUDIT LANJUTAN MASUK: 31 TEMUAN BARU TERDAFTAR (2 sudah tertutup).**
 

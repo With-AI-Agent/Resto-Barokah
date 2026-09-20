@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import os
 import pathlib
 import re
 import shutil
@@ -26,7 +27,14 @@ import sys
 
 AKAR = pathlib.Path(__file__).resolve().parent.parent
 ROADMAP = AKAR / "docs" / "ROADMAP.md"
-KATALOG = AKAR / "alat" / "kalibrasi-cacat.json"
+# KATALOG CACAT TANAMAN (temuan audit H F-01, 2026-09-20): katalog memuat pasangan
+# cari/ganti = kunci jawaban. Selama ia ada DI DALAM repo, auditor yang membaca repo bisa
+# mencocokkan cacat yang ditanam dan skor kalibrasi bisa dipalsukan. Karena itu katalog
+# dibaca dari LUAR repo lebih dulu (`KALIBRASI_DIR`, baku `/home/user/.kalibrasi`).
+KAL_DIR = pathlib.Path(os.environ.get("KALIBRASI_DIR", str(pathlib.Path.home() / ".kalibrasi")))
+KATALOG_LUAR = KAL_DIR / "kalibrasi-cacat.json"
+KATALOG_REPO = AKAR / "alat" / "kalibrasi-cacat.json"
+KATALOG = KATALOG_LUAR if KATALOG_LUAR.is_file() else KATALOG_REPO
 DIR_PAKET = AKAR / "docs" / "uji" / "paket-audit"
 DIR_CONTOH = AKAR / "alat" / "contoh-laporan"
 
@@ -1096,6 +1104,37 @@ def mode_verifikasi_lingkup(berkas_paket: str | None) -> int:
     return 3
 
 
+def pastikan_salinan_bersih(salinan: pathlib.Path) -> list[str]:
+    """Pastikan salinan kalibrasi TIDAK membawa kunci jawaban (temuan audit H F-01).
+
+    Yang diperiksa: (1) tidak ada berkas katalog cacat di mana pun di salinan,
+    (2) tidak ada berkas bernama *KUNCI*, (3) repo salinan hanya punya SATU commit
+    (riwayat bersih — kalau lebih, ada riwayat asli yang ikut terbawa).
+    """
+    bocor: list[str] = []
+    for berkas in salinan.rglob("*"):
+        if not berkas.is_file():
+            continue
+        nama = berkas.name
+        # Hanya berkas KUNCI kalibrasi yang dihitung: katalog cacat & berkas `*KUNCI*.md`
+        # (pola yang sama dipakai `alat/periksa-kunci-kalibrasi.py`). Nama lain yang memuat
+        # kata "kunci" (mis. `pin_kunci_silang.sql`) adalah berkas proyek biasa.
+        pola_kunci = ("KUNCI-KALIBRASI" in nama) or ("KUNCI" in nama and "KALIBRASI" in nama)
+        if nama == "kalibrasi-cacat.json" or pola_kunci:
+            bocor.append(str(berkas.relative_to(salinan)))
+    rc, keluaran = jalankan(["git", "-C", str(salinan), "rev-list", "--count", "HEAD"])
+    if rc != 0:
+        bocor.append("salinan bukan repo Git yang siap dipakai")
+    elif keluaran.strip() != "1":
+        bocor.append(f"salinan membawa {keluaran.strip()} commit riwayat (seharusnya 1)")
+    # Perubahan yang BELUM di-commit = peta cacat tanam (bisa dibaca `git diff`).
+    rc, keluaran = jalankan(["git", "-C", str(salinan), "status", "--porcelain"])
+    if rc == 0 and keluaran.strip():
+        bocor.append(f"salinan punya {len(keluaran.strip().splitlines())} perubahan belum di-commit "
+                     "(`git diff` akan memperlihatkan cacat tanam)")
+    return bocor
+
+
 def mode_kalibrasi_siapkan(jumlah: int | None) -> int:
     if not KATALOG.is_file():
         print(f"GAGAL: katalog cacat tidak ada: {KATALOG}")
@@ -1107,9 +1146,35 @@ def mode_kalibrasi_siapkan(jumlah: int | None) -> int:
     salinan = pathlib.Path(f"/tmp/audit-kalibrasi-{tanda}")
     kunci = pathlib.Path(f"/tmp/audit-kalibrasi-{tanda}-KUNCI.md")
 
-    rc, keluaran = jalankan(["git", "worktree", "add", "--detach", str(salinan), "HEAD"])
+    # SALINAN TANPA RIWAYAT & TANPA KUNCI (temuan audit H F-01, 2026-09-20):
+    # dulu salinan dibuat dengan `git worktree add`, sehingga di dalam salinan itu
+    # `git diff` / `git show` LANGSUNG memperlihatkan baris mana yang ditanami cacat
+    # (perubahan ditanam sebagai perubahan belum-di-commit), dan `alat/kalibrasi-cacat.json`
+    # ikut tersalin sebagai daftar jawaban. Dua-duanya membuat kalibrasi bisa dipalsukan.
+    # Sekarang: salinan dibuat dengan `git archive` (tanpa .git), lalu diberi repo Git BARU
+    # berisi satu commit — alat berbasis-git tetap jalan, tetapi riwayat tidak membocorkan apa pun.
+    if salinan.exists():
+        shutil.rmtree(salinan)
+    salinan.mkdir(parents=True)
+    pipa = subprocess.run(
+        f"git archive HEAD | tar -x -C {salinan!s}", shell=True, cwd=AKAR,
+        capture_output=True, text=True, executable="/bin/bash",
+    )
+    if pipa.returncode != 0:
+        print(f"GAGAL menyiapkan salinan: {pipa.stdout}{pipa.stderr}")
+        return 1
+    rc, keluaran = jalankan(["git", "init", "-q", str(salinan)])
     if rc != 0:
-        print(f"GAGAL menyiapkan salinan: {keluaran}")
+        print(f"GAGAL menyiapkan repo salinan: {keluaran}")
+        return 1
+    jalankan(["git", "-C", str(salinan), "add", "-A"])
+    rc, keluaran = jalankan([
+        "git", "-C", str(salinan),
+        "-c", "user.name=kalibrasi", "-c", "user.email=kalibrasi@lokal",
+        "commit", "-q", "-m", "Salinan kalibrasi (riwayat dibersihkan; cacat tanam tidak berjejak di riwayat)",
+    ])
+    if rc != 0:
+        print(f"GAGAL menyegel salinan: {keluaran}")
         return 1
 
     # PENTING (temuan audit 2026-09-17): salinan worktree tidak membawa node_modules,
@@ -1140,8 +1205,22 @@ def mode_kalibrasi_siapkan(jumlah: int | None) -> int:
             f"| {c['id']} | {c['tingkat']} | {c['kelas']} | `{c['berkas']}` | {c['ringkas']} | {c.get('harapan_mesin', '-')} | {c.get('katakunci', [])} |"
         )
 
-    if gagal:
-        jalankan(["git", "worktree", "remove", "--force", str(salinan)])
+    # Katalog cacat (kunci jawaban) DIKELUARKAN dari salinan auditor — salinan harus berisi
+    # kode + dokumen proyek saja, bukan daftar cacat yang ditanam (audit H F-01).
+    for sisa in list(salinan.rglob("kalibrasi-cacat.json")):
+        sisa.unlink()
+    # PENTING: semua cacat tanam + penghapusan katalog harus MASUK ke satu-satunya commit
+    # salinan. Kalau tidak, `git diff` di salinan auditor memperlihatkan baris yang ditanam
+    # (persis kebocoran yang ditemukan audit H F-01).
+    jalankan(["git", "-C", str(salinan), "add", "-A"])
+    jalankan(["git", "-C", str(salinan), "-c", "user.name=kalibrasi", "-c", "user.email=kalibrasi@lokal",
+              "commit", "-q", "--amend", "--no-edit"])
+
+    bocor = pastikan_salinan_bersih(salinan)
+    if gagal or bocor:
+        shutil.rmtree(salinan, ignore_errors=True)
+        for b in bocor:
+            print(f"  - salinan masih membocorkan kunci: {b}")
         print("GAGAL menyiapkan kalibrasi:")
         for g in gagal:
             print(f"  - {g}")
@@ -1156,6 +1235,8 @@ def mode_kalibrasi_siapkan(jumlah: int | None) -> int:
     )
     print("KALIBRASI SIAP")
     print(f"  salinan auditor : {salinan}   (auditor memeriksa ini, bukan repo kerja)")
+    print("                    salinan TANPA riwayat Git bermakna & TANPA katalog cacat — "
+          "`git diff`/`git log` tidak membocorkan baris yang ditanam (audit H F-01)")
     print(f"  kunci jawaban   : {kunci}   (JANGAN dibaca auditor; dipakai setelah laporan masuk)")
     print(f"  jumlah cacat    : {len(cacat)}  ({', '.join(c['tingkat'] for c in cacat)})")
     if tautan:

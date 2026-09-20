@@ -28,7 +28,15 @@ import subprocess
 import sys
 
 AKAR = pathlib.Path(__file__).resolve().parent.parent
-KATALOG = AKAR / "alat" / "kalibrasi-cacat.json"
+# KATALOG CACAT (temuan audit H F-01, 2026-09-20): katalog memuat pasangan cari/ganti = KUNCI
+# JAWABAN kalibrasi. Selama ia ada DI DALAM repo, peninjau yang sedang dikalibrasi — yang memang
+# membaca repo — bisa mencocokkan diff yang disematkan ke paket dengan isi katalog, lalu menulis
+# "Ditemukan: X dari X" tanpa benar-benar mengulas. Jalur review PR karena itu HANYA membaca
+# katalog dari LUAR repo (`KALIBRASI_DIR`, baku `/home/user/.kalibrasi`); bila tidak ada, alat
+# MENOLAK berjalan (gagal-tertutup) daripada membuat bahan yang bisa dicocokkan.
+KAL_DIR = pathlib.Path(os.environ.get("KALIBRASI_DIR", str(pathlib.Path.home() / ".kalibrasi")))
+KATALOG = KAL_DIR / "kalibrasi-cacat.json"
+KATALOG_REPO = AKAR / "alat" / "kalibrasi-cacat.json"
 FOLDER = AKAR / "docs" / "uji" / "review-pr"
 FOLDER_KAL = AKAR / "docs" / "uji" / "kalibrasi"
 # F-05 (audit 2026-09-19, K-2): bahan kalibrasi review PR TIDAK PERNAH ditulis di dalam repo.
@@ -800,7 +808,14 @@ def kesiapan() -> int:
 # ---------------------------------------------------------------- --kalibrasi-pr-siapkan
 def kalibrasi_pr_siapkan(jumlah: int | None) -> int:
     if not KATALOG.is_file():
-        print(f"GAGAL: katalog cacat tidak ada: {KATALOG}"); return 1
+        print(f"GAGAL: katalog cacat TIDAK ADA di luar repo: {KATALOG}")
+        print("       Jalur review PR sengaja HANYA membaca katalog dari luar repo: katalog di")
+        print("       dalam repo = kunci jawaban yang bisa dibaca peninjau (temuan audit H F-01).")
+        if KATALOG_REPO.is_file():
+            print(f"       Katalog yang SEKARANG ada di dalam repo: {KATALOG_REPO.relative_to(AKAR)}")
+            print(f"       Pindahkan (butuh keputusan Lee): mv {KATALOG_REPO.relative_to(AKAR)} {KATALOG}")
+        print("       Setelah dipindah: python3 alat/review-pr.py --kalibrasi-pr-siapkan")
+        return 1
     bocor = bahan_bocor_di_repo()
     if bocor:
         print("GAGAL: bahan/kunci kalibrasi ada DI DALAM repo (kunci jawaban bocor — audit D F-05):")
@@ -810,10 +825,9 @@ def kalibrasi_pr_siapkan(jumlah: int | None) -> int:
         return 1
     cacat = json.loads(KATALOG.read_text(encoding="utf-8"))["cacat"]
     # Pilih campuran: utamakan K-1/K-2, TETAPI diacak dengan benih tanggal.
-    # Alasan (temuan luar-cakupan review putaran8 #3): katalog cacat ikut ter-commit di repo yang
-    # sama, jadi peninjau yang membacanya bisa menebak cacat yang ditanam bila pilihannya selalu
-    # sama. Dengan pengacakan, bahan tiap putaran berbeda dan menebak dari katalog tidak lagi
-    # menolong; katalog tetap satu-satunya tempat pasangan cari/ganti (kunci ada di luar repo).
+    # Alasan (temuan luar-cakupan review putaran8 #3 + audit H F-01 2026-09-20): pilihan cacat
+    # diacak dengan benih tanggal supaya tiap putaran berbeda, DAN katalognya kini dibaca dari
+    # luar repo — peninjau tidak bisa lagi mencocokkan diff paket dengan daftar jawaban.
     berat = [c for c in cacat if c["tingkat"] in ("K-1", "K-2")]
     ringan = [c for c in cacat if c["tingkat"] not in ("K-1", "K-2")]
     benih = int(dt.date.today().strftime("%Y%m%d"))
