@@ -307,7 +307,7 @@ Dimuat dari repo (berkas nyata, bukan ingatan):
 | UI/UX | `skills/ui-ux-pro-max/SKILL.md` | L5 |
 
 Auditor **wajib**: (a) memuat skill di atas yang relevan dengan lensanya; (b) memakai `skills/find-skills` atau
-`skills/agent-skills-hub` bila butuh skill tambahan; (c) **boleh & dianjurkan** mencari referensi internet
+`skills/agent-skills-hub/CATALOG.md` bila butuh skill tambahan; (c) **boleh & dianjurkan** mencari referensi internet
 (dokumentasi resmi Supabase/PostgreSQL/OWASP, riset cacat perangkat lunak) dan **wajib mencantumkan tautannya**
 di laporan untuk klaim yang bersandar pada perilaku sistem luar.
 

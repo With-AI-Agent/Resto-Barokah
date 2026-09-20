@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `20924de8ea56036cd0c64ee78dffa3fffdae7442`
+- **Commit keadaan kerja:** `477a6c9ade51e987336305c9306623456fada524`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35517607157, commit 20924de8)
+- **CI terakhir:** success (run 35520515689, commit 477a6c9a)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (92 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (92 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (3 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (96 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -190,9 +190,9 @@ menyentuh database · satu bentuk jawaban gagal terkendali untuk semua gangguan 
 **I F-05/I F-06** (klien sambungan & Storage tema) + F F-14 → I F-13/F-14/F-15/F-16 (probe PIN) → sisa K-3/K-4 →
 tutup batch mekanisme → **hubungi Lee** untuk "Sebar skema".
 
-**CATATAN CI (2026-09-20, dua kali):** **(1)** CI commit `a2d6b16` MERAH — satu rujukan mati di bukti penutup I F-09 (`alat/pratinjau.sh` padahal berkasnya `aplikasi/alat/pratinjau.sh`), ditangkap `python3 alat/periksa-rujukan.py` (kelas yang sama dengan H F-08: jalur bukti wajib bisa dibuka dari akar repo); diperbaiki di `4ddb905`. **(2)** CI commit `17cefb5` (batch I F-07) MERAH — langkah CI BARU `node alat/uji-edge-pin.mjs` ditolak `python3 alat/periksa-gerbang-ci.py` karena belum terdaftar di daftar gerbang wajib; memang begitu aturannya (dua arah: tiap perintah CI wajib dikenal DAN tiap gerbang wajib wajib ada). Ditutup dengan mendaftarkannya sebagai gerbang ke-55 + satu mutasi uji-diri baru ("langkah uji batas Edge dihapus → ditolak"). Seluruh rantai pemeriksa CI dijalankan ulang lokal sebelum push: hijau.
+**CATATAN CI (2026-09-20, dua kali):** **(1)** CI commit `a2d6b16` MERAH — satu rujukan mati di bukti penutup I F-09 (`aplikasi/alat/pratinjau.sh` padahal berkasnya `aplikasi/alat/pratinjau.sh`), ditangkap `python3 alat/periksa-rujukan.py` (kelas yang sama dengan H F-08: jalur bukti wajib bisa dibuka dari akar repo); diperbaiki di `4ddb905`. **(2)** CI commit `17cefb5` (batch I F-07) MERAH — langkah CI BARU `node alat/uji-edge-pin.mjs` ditolak `python3 alat/periksa-gerbang-ci.py` karena belum terdaftar di daftar gerbang wajib; memang begitu aturannya (dua arah: tiap perintah CI wajib dikenal DAN tiap gerbang wajib wajib ada). Ditutup dengan mendaftarkannya sebagai gerbang ke-55 + satu mutasi uji-diri baru ("langkah uji batas Edge dihapus → ditolak"). Seluruh rantai pemeriksa CI dijalankan ulang lokal sebelum push: hijau.
 
-**CATATAN CI (2026-09-20):** CI commit `a2d6b16` MERAH — sebabnya satu rujukan mati di bukti penutup I F-09 (`alat/pratinjau.sh`, seharusnya `aplikasi/alat/pratinjau.sh`), ditangkap `python3 alat/periksa-rujukan.py` (kelas yang sama dengan H F-08: jalur bukti wajib bisa dibuka dari akar repo). Sudah diperbaiki dan seluruh rantai pemeriksa CI dijalankan ulang lokal (hijau) sebelum push.
+**CATATAN CI (2026-09-20):** CI commit `a2d6b16` MERAH — sebabnya satu rujukan mati di bukti penutup I F-09 (`aplikasi/alat/pratinjau.sh`, seharusnya `aplikasi/alat/pratinjau.sh`), ditangkap `python3 alat/periksa-rujukan.py` (kelas yang sama dengan H F-08: jalur bukti wajib bisa dibuka dari akar repo). Sudah diperbaiki dan seluruh rantai pemeriksa CI dijalankan ulang lokal (hijau) sebelum push.
 
 **PUTARAN 18v (2026-09-20) — BATCH "DOKUMEN JUJUR": 8 TEMUAN + 4 DUPLIKAT DITUTUP (47 ditutup · 34 terbuka).**
 
@@ -291,7 +291,7 @@ Bukti masalahnya nyata: paket AUD-3 2026-09-19 menargetkan `4830b5a` yang dua ru
 
 Izin Lee: _"Aku ikut yang terbaik menurut kamu. Klo sebaiknya dikeluarkan, silahkan keluarkan."_
 
-- `alat/kalibrasi-cacat.json` (pasangan cari/ganti = **kunci jawaban**) **dipindah ke luar repo** →
+- `/home/user/.kalibrasi/kalibrasi-cacat.json` (dipensiunkan ke luar repo — H F-01) (pasangan cari/ganti = **kunci jawaban**) **dipindah ke luar repo** →
   `KALIBRASI_DIR` (baku `/home/user/.kalibrasi/kalibrasi-cacat.json`); berjejak `docs/uji/BERKAS_PENSIUN.md` baris #2 + `docs/DECISIONS_LOG.md`.
 - Salinan kalibrasi jalur mesin: `git archive` + satu commit bersih, katalog **dikeluarkan**, `pastikan_salinan_bersih()` menolak
   salinan yang membawa katalog/kunci/riwayat/perubahan belum-di-commit.
@@ -316,7 +316,7 @@ Bantah-balik temuan **H F-01** (K-2) membuktikan cacatnya **lebih parah dari dug
 
 1. Salinan auditor jalur mesin dulu dibuat `git worktree add` → di dalam salinan itu `git diff`/`git show` **langsung memperlihatkan
    baris mana yang ditanami cacat** (cacat ditanam sebagai perubahan belum-di-commit).
-2. Berkas katalog `alat/kalibrasi-cacat.json` (pasangan cari/ganti = daftar jawaban) ikut tersalin ke salinan auditor.
+2. Berkas katalog `/home/user/.kalibrasi/kalibrasi-cacat.json` (dipensiunkan ke luar repo — H F-01) (pasangan cari/ganti = daftar jawaban) ikut tersalin ke salinan auditor.
 3. Jalur review PR menyematkan diff ke paket, dan peninjau bisa mencocokkannya dengan katalog yang ada di repo.
 
 **Sudah diperbaiki (kode + penjaga + dokumen):**
@@ -330,7 +330,7 @@ Bantah-balik temuan **H F-01** (K-2) membuktikan cacatnya **lebih parah dari dug
   `docs/uji/TEMUAN_LUAR_CAKUPAN_REVIEW.md` (L-03).
 
 **MENUNGGU KEPUTUSAN LEE (satu langkah, tidak bisa agent putuskan sendiri):** memindahkan berkas katalog cacat ke luar repo
-(`alat/kalibrasi-cacat.json` → `/home/user/.kalibrasi/kalibrasi-cacat.json`) + barisnya di daftar pensiun `docs/uji/BERKAS_PENSIUN.md`
+(`/home/user/.kalibrasi/kalibrasi-cacat.json` (dipensiunkan ke luar repo — H F-01) → `/home/user/.kalibrasi/kalibrasi-cacat.json`) + barisnya di daftar pensiun `docs/uji/BERKAS_PENSIUN.md`
 (aturan daftar itu mewajibkan keputusan Lee). Selama belum dipindah: **jalur kalibrasi review PR tidak bisa dipakai** (sengaja),
 sementara jalur mesin sudah aman dan tetap jalan.
 

@@ -1,6 +1,7 @@
 name: Sebar Skema ke Supabase (disengaja, milik pemilik)
 
-# APA INI: menyebar 14 berkas migrasi di `supabase/migrations/` ke PROYEK SUPABASE NYATA
+# APA INI: menyebar SELURUH berkas migrasi di `supabase/migrations/` ke PROYEK SUPABASE NYATA
+# (angka SENGAJA tidak ditulis di komentar: angka di teks selalu basi — pola ci.yml, temuan audit J F-05)
 # milik pemilik (mengubah isi database). Karena itu alurnya SENGAJA terpisah dari `ci.yml`
 # dan sengaja TIDAK menyala di setiap kiriman kode.
 #

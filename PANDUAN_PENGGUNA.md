@@ -426,7 +426,7 @@ Kerjakan berurutan:
    `skills/systematic-debugging/SKILL.md`, `skills/verification-loop/SKILL.md`, `skills/test-driven-development/SKILL.md`,
    `skills/prd-taskmaster/SKILL.md`, `skills/supabase/SKILL.md`, `skills/supabase-postgres-best-practices/SKILL.md`,
    dan `skills/ui-ux-pro-max/SKILL.md` bila menyentuh tampilan. Bila butuh skill lain, gunakan `skills/find-skills`
-   atau `skills/agent-skills-hub`.
+   atau `skills/agent-skills-hub/CATALOG.md`.
 3. Kerjakan SEMUA lensa yang diminta paket. Untuk tiap lensa tulis: apa yang kamu periksa, perintah yang kamu jalankan,
    dan HASIL NYATA (tempel keluaran penting, bukan ringkasan keyakinan).
 4. Bantah klaim pembangun di paket — jangan mempercayainya. Kalau perintah bukti tidak bisa dijalankan
@@ -477,7 +477,7 @@ Kerjakan berurutan:
 2. Muat skill yang relevan dari daftar paket (mis. `skills/security-review/SKILL.md`,
    `skills/verification-before-completion/SKILL.md`, `skills/systematic-debugging/SKILL.md`,
    `skills/verification-loop/SKILL.md`, `skills/test-driven-development/SKILL.md`, `skills/supabase/SKILL.md`).
-   Bila butuh skill lain, pakai `skills/find-skills` atau katalog `skills/agent-skills-hub`.
+   Bila butuh skill lain, pakai `skills/find-skills` atau katalog `skills/agent-skills-hub/CATALOG.md`.
 3. Periksa diff yang dimaksud (paket menyebut commit & perintah untuk melihatnya). Untuk tiap berkas yang berubah,
    tentukan jalur risikonya (Merah/Kuning/Hijau) dan periksa sesuai kedalaman yang diwajibkan protokol.
 4. Bantah klaim pembangun satu per satu — JANGAN mempercayai deskripsi PR. Jalankan perintah buktinya sendiri dan

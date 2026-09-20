@@ -585,7 +585,7 @@ yang tidak bisa kamu uji. Jangan memasang apa pun (kamu hanya-baca) — cukup la
 |---|---|
 {baris_skill}
 
-Kamu juga **wajib**: (a) memakai `skills/find-skills` atau `skills/agent-skills-hub` bila butuh skill lain;
+Kamu juga **wajib**: (a) memakai `skills/find-skills` atau `skills/agent-skills-hub/CATALOG.md` bila butuh skill lain;
 (b) mencari referensi internet bila menyimpulkan perilaku sistem luar (Supabase/PostgreSQL/OWASP) dan **mencantumkan tautannya**.
 
 ## 6. Format laporan (salin apa adanya, isi bagiannya)
@@ -597,7 +597,7 @@ Kamu juga **wajib**: (a) memakai `skills/find-skills` atau `skills/agent-skills-
 - **Tanggal:** {tanggal}
 - **Tingkat audit:** {tingkat}
 - **Commit yang diaudit:** `{sha}` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
-- **Paket audit:** `{keluar.relative_to(AKAR)}`
+- **Paket audit:** `{keluar.relative_to(AKAR)}` (CATATAN: berkas paket ini di-commit SETELAH commit target — ia TIDAK ADA di pohon commit yang kamu audit; jangan mencarinya di sana. Sumber sahmu: berkas ini apa adanya / URL prompt pendek. Temuan audit J F-06)
 - **Mode cakupan:** {lingkup}
 - **Verdict:** BERSIH | BERSIH-DENGAN-CATATAN | TIDAK-BERSIH
 
@@ -841,8 +841,13 @@ def periksa_laporan(berkas: pathlib.Path, cek_git: bool = True, cek_sha: bool = 
                         gagal.append(f"mode menyeluruh: jumlah berkas di laporan ({y}) ≠ paket ({n_m.group(1)})")
                     grup_paket = re.findall(r"^\| ([^|]+?) \| [^|]+ \| (\d+) \|", isi_paket, re.M)
                     teks_cakupan = teks.split("## 1. Cakupan")[-1].split("## 2.")[0]
-                    for nama, _jml in grup_paket:
+                    for nama, jml in grup_paket:
                         nama = nama.strip()
+                        if jml == "0":
+                            # Grup 0 berkas (mis. sentinel "belum berggrup") tidak mungkin
+                            # dibuktikan auditor — tidak ada yang bisa diperiksa. Cacat nyata
+                            # 2026-09-20: dua laporan sah ditolak hanya karena baris ini.
+                            continue
                         if nama and nama not in teks_cakupan:
                             gagal.append(f"mode menyeluruh: grup '{nama}' tidak muncul di tabel cakupan")
                 else:

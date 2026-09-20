@@ -92,7 +92,7 @@ Pemeriksa ini **wajib dibuktikan bisa MERAH** untuk tiap sebab (uji mutasi) — 
 Sebuah tugas layar/fitur hanya boleh `[x]` bila **semua** benar:
 1. Kontrak layar ditulis & lengkap (§3).
 2. Semua aksinya ada di Registri Aksi, lengkap dengan izin/RPC/pesan/uji.
-3. Ketujuh keadaan ditangani (dan dapat dilihat di pratinjau).
+3. Ketujuh keadaan ditangani (dan dapat dilihat di pratinjau) — **target Fase 1C (`T1-31`…`T1-35`); baru 3 komponen keadaan yang ada (`KeadaanKosong/Memuat/Gagal`), sisanya belum dibuat (temuan audit J F-08)**.
 4. Uji komponen per peran lulus: aksi berizin memanggil RPC yang benar; aksi terlarang tidak ada; keadaan tampil.
 5. Pemeriksa `alat/peta-ui.py` lulus (**setelah alatnya dibuat di T1-33**).
 6. Izin ditegakkan **di database** (bukan hanya disembunyikan di layar) — dibuktikan uji SQL.

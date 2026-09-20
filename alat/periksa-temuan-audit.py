@@ -43,6 +43,12 @@ LAPORAN = {
     # cakupan diparafrase lagi), tetapi isinya tetap dipakai dan wajib dibantah-balik per temuan.
     "H": "docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbcb.md",
     "I": "docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md",
+    # Ronde 2026-09-20 (AL-15, dua sesi auditor paralel atas paket AUD-3-2026-09-20, target cbba401):
+    # J = sesi 01a0bf6e — LOLOS KONTRAK (9 temuan). K = sesi 01a0bf6d — DITOLAK MESIN (4 grup cakupan
+    # tidak ditabelkan) tetapi temuan isinya tetap WAJIB dibantah-balik per baris (preseden D & H).
+    # Kalibrasi ronde ini TIDAK BISA DINILAI: kunci di luar repo hilang saat reset sandbox (dicatat jujur).
+    "J": "docs/uji/audit/LAPORAN_AUD-3_2026-09-20_menyeluruh__01a0bf6e.md",
+    "K": "docs/uji/audit/LAPORAN_AUD-3_2026-09-20_menyeluruh__01a0bf6d.md",
 }
 ROADMAP = "docs/ROADMAP.md"
 
@@ -172,7 +178,7 @@ def periksa(akar: pathlib.Path) -> int:
     for no, kolom in baris:
         laporan_temuan, tingkat, ringkas, status, bukti = kolom[0], kolom[1], kolom[2], kolom[3], " ".join(kolom[4:])
         # 2. rujukan laporan+nomor wajib benar
-        rujukan = re.findall(r"\b([A-I])\s*(F-\d+)", laporan_temuan)
+        rujukan = re.findall(r"\b([A-Z])\s*(F-\d+)", laporan_temuan)
         if not rujukan:
             errs.append(f"baris {no}: kolom 'Laporan' tidak menyebut satu pun temuan (mis. 'A F-01'): {laporan_temuan[:60]}")
         for nama, fid in rujukan:
