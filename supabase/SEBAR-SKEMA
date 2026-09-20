@@ -1,0 +1,3 @@
+Penanda penyebaran skema — dipasang 2026-09-20 atas izin Lee ("Silahkan Sebar").
+Menyebarkan migrasi 0015 + 0016 ke proyek Supabase nyata lewat alur
+.github/workflows/sebar-skema.yml. Setelah run hijau, berkas ini DIHAPUS lagi.
