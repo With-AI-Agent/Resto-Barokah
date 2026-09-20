@@ -29,6 +29,7 @@ Dipakai CI (lihat .github/workflows/ci.yml) dan bisa dijalankan manual:
 """
 from __future__ import annotations
 
+import fnmatch
 import pathlib
 import re
 import subprocess
@@ -329,7 +330,18 @@ def periksa_paket(ref: str, jalur: str, isi: str | None = None,
         masalah.append(f"{jalur}: bagian 1 (artefak minimum) tidak memuat satu pun jalur berkas")
         return masalah, catatan
     hilang = []
+    daftar_pohon: list[str] | None = None  # dimuat malas hanya bila ada pola glob
     for j in sorted(set(jalur_1)):
+        if any(c in j for c in "*?["):
+            # Entri "pola" (audit I F-20): pola sah bila cocok >=1 berkas di commit target.
+            # Cacat nyata 2026-09-20: pola diperiksa sebagai nama harfiah sehingga paket
+            # sah ditolak ("berkas *.tsx TIDAK ADA") padahal polanya cocok 13 berkas.
+            if daftar_pohon is None:
+                _, keluar_ls = jalankan(["git", "ls-tree", "-r", "--name-only", sha])
+                daftar_pohon = keluar_ls.splitlines()
+            if not any(fnmatch.fnmatchcase(b, j) for b in daftar_pohon):
+                hilang.append(j)
+            continue
         kode, _ = jalankan(["git", "cat-file", "-e", f"{sha}:{j}"])
         if kode != 0:
             hilang.append(j)
@@ -411,6 +423,13 @@ def uji_diri() -> int:
                 masalah_hantu = [x for x in masalah_hantu if "F-12" in x] or masalah_hantu
                 hasil.append(("mutasi: jalur hantu ditambahkan ke bagian 1", bool(masalah_hantu),
                               masalah_hantu[0][:90] if masalah_hantu else "DILOLOSKAN (tumpul)"))
+                # Mutasi: pola glob hantu (tidak cocok berkas apa pun di commit) → tetap ditolak.
+                # Buktikan perluasan pola tidak membuat penjaga tumpul (2026-09-20).
+                hantu_glob = isi[: m.end()] + "\n\n| 998 | `supabase/tes/hantu-tak-ada*.sql` |\n" + isi[m.end():]
+                masalah_glob, _ = periksa_paket("HEAD", jalur, isi=hantu_glob, abaikan_pengecualian=True)
+                masalah_glob = [x for x in masalah_glob if "F-12" in x] or masalah_glob
+                hasil.append(("mutasi: pola glob hantu ditambahkan ke bagian 1", bool(masalah_glob),
+                              masalah_glob[0][:90] if masalah_glob else "DILOLOSKAN (tumpul)"))
 
     # Aturan 4 (siap-tempel): buktikan bisa MENOLAK placeholder & petunjuk-ambil-bahan yang hilang.
     siap_tempel = [j for j in sekarang

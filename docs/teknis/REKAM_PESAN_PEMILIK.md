@@ -413,3 +413,20 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
   buruknya kualitas, jangan lanjut"*.
 - **Yang tidak berubah:** catatan teknis, pemeriksa, dan handoff tetap dikerjakan penuh (di belakang), supaya sesi ini
   tetap bisa dilanjutkan walau balasan ke Lee jadi pendek.
+
+## §17. Putaran 19 (2026-09-20) — mekanisme satu kalimat (AL-15) + aturan penutup pesan
+
+1. *"Aku mau mekanisme review dan audit dan pemeriksaan itu … semua dibuat lebih mudah dikerjakan …
+   aku tinggal bilang kata-kata simple … agent kasih aku prompt yang singkat … setelah selesai,
+   agent sesi independen otomatis masukin hasilnya ke github … Tolong kritisi dan beri saran terbaik."*
+   — disetujui setelah agent menyampaikan kritik & rancangan: *"Baik, aku setuju."*
+   **Dikerjakan:** alur **AL-15** + `alat/siapkan-pemeriksaan.py` (commit `cbba401`); dipakai nyata
+   pertama kali hari itu juga: *"Siapkan pemeriksaan independen menyeluruh"* → paket
+   `AUD-3-2026-09-20` (commit `cfc6097`) + prompt pendek diserahkan ke Lee.
+
+2. *"Tolong setiap menjelaskan sesuatu dan setiap komunikasi sama aku, di akhirnya jelaskan apa
+   yang perlu aku lakukan. Misalnya jawab pertanyaan anu, atau lakukan anu, atau periksa anu,
+   dan sebagainya. Jadi aku ga ngerasa bingung."*
+   — **ATURAN TETAP: SETIAP balasan ke Lee WAJIB ditutup dengan bagian "Langkah Lee"** yang
+   menyebut tindakan konkretnya (atau tegas menyatakan "tidak ada — tunggu/lanjut"). Ini berlaku
+   untuk semua komunikasi, bukan hanya laporan batch.

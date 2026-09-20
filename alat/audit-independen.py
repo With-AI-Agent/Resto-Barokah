@@ -1507,8 +1507,12 @@ def _uji_pembuat_paket() -> tuple[bool, str]:
         kode, keluar = jalankan(tujuan, ["--paket", "AUD-3", "--semua", "--izinkan-ci-belum-hijau", izin])
         if kode != 0:
             return False, f"paket menyeluruh GAGAL dibuat walau ada izin (kode {kode}): {keluar.strip().splitlines()[-1:]}"
-        paket = sorted((tujuan / "docs" / "uji" / "paket-audit").glob("AUD-3-*.md"))
-        isi = paket[-1].read_text(encoding="utf-8") if paket else ""
+        # Cacat nyata 2026-09-20: glob "AUD-3-*.md" ikut menangkap berkas SIAP-TEMPEL lama
+        # (namanya sort paling belakang), sehingga yang diperiksa justru paket basi.
+        # Sekarang: SIAP-TEMPEL dikecualikan dan yang diambil = berkas PALING BARU (mtime).
+        paket = [p for p in (tujuan / "docs" / "uji" / "paket-audit").glob("AUD-3-*.md")
+                 if not p.name.endswith("-SIAP-TEMPEL.md")]
+        isi = max(paket, key=lambda p: p.stat().st_mtime).read_text(encoding="utf-8") if paket else ""
         if "- **Mode cakupan:** menyeluruh" not in isi:
             return False, "paket menyeluruh tidak mencantumkan mode cakupan `menyeluruh`"
         if "- **CI commit target:**" not in isi:
@@ -1519,8 +1523,9 @@ def _uji_pembuat_paket() -> tuple[bool, str]:
         kode2, keluar2 = jalankan(tujuan, ["--paket", "AUD-2", "--fase", "1", "--izinkan-ci-belum-hijau", izin])
         if kode2 != 0:
             return False, f"paket per fase GAGAL dibuat (kode {kode2})"
-        paket2 = sorted((tujuan / "docs" / "uji" / "paket-audit").glob("AUD-2-*.md"))
-        isi2 = paket2[-1].read_text(encoding="utf-8") if paket2 else ""
+        paket2 = [p for p in (tujuan / "docs" / "uji" / "paket-audit").glob("AUD-2-*.md")
+                  if not p.name.endswith("-SIAP-TEMPEL.md")]
+        isi2 = max(paket2, key=lambda p: p.stat().st_mtime).read_text(encoding="utf-8") if paket2 else ""
         m = re.search(r"- \*\*Tugas dalam lingkup:\*\* (.+)", isi2)
         ids = [x.strip() for x in m.group(1).split(",")] if m else []
         if not ids or any(not x.startswith("T1-") for x in ids):
