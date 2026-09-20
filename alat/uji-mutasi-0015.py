@@ -30,6 +30,15 @@ Menguji migrasi `supabase/migrations/0015_penutup_celah_putaran16.sql`:
                  cabang lain (uji: `supabase/tes/rls_pengguna.sql`)
 Gerbang yang tidak bisa MERAH dianggap belum terpasang — itu pelajaran mahal proyek ini.
 
+**Penting (temuan audit I F-04, 2026-09-20):** MERAH saja TIDAK cukup. Harness ini dulu memakai
+`lulus = (kode != 0)`, sehingga kegagalan lingkungan (`ERR_MODULE_NOT_FOUND`, `SyntaxError`,
+"migrasi tidak bisa diterapkan") ikut dihitung sebagai "pagar bekerja" — mutasi yang merusak salinan
+akan dilaporkan benar padahal tidak ada penjaga yang diuji. Sekarang penilaian memakai
+`alat/klasifikasi_mutasi.py`: hanya merah yang **berasal dari asersi di berkas `supabase/tes/`**
+(`HARAPAN TIDAK TERPENUHI` / `SEBAB PENOLAKAN BUKAN YANG DIHARAPKAN`) yang dihitung sebagai bukti.
+Salinan yang rusak dilaporkan `BUKAN BUKTI` dan membuat harness GAGAL. Klasifikasinya diuji sendiri
+oleh `python3 alat/uji-mutasi-0015.py --uji-diri`.
+
 Cara kerjanya: salin repo ke folder sementara, RUSAK satu penjaga (atau kembalikan versi lama
 dari migrasi 0014 yang bocor), lalu jalankan berkas uji regresinya. Kalau uji tetap hijau,
 pagar itu tumpul → alat ini GAGAL.
@@ -47,6 +56,9 @@ import re
 import shutil
 import subprocess
 import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from klasifikasi_mutasi import HIJAU, MERAH_PAGAR, RUSAK, klasifikasi  # noqa: E402
 
 AKAR = pathlib.Path(__file__).resolve().parent.parent
 KERJA = pathlib.Path("/tmp/mutasi-0015-rb")
@@ -133,10 +145,19 @@ def mutasi(nama: str, ubah, harap_merah: bool = True, uji: str = UJI) -> tuple[s
             return nama, False, "mutasi tidak mengubah apa pun (pola tidak ditemukan)"
         berkas.write_text(baru, encoding="utf-8")
         kode, keluar = jalankan_uji(uji)
-        lulus = (kode != 0) if harap_merah else (kode == 0)
-        catatan = "MERAH (benar)" if kode != 0 else "HIJAU"
+        jenis, sebab = klasifikasi(kode, keluar)
+        if harap_merah:
+            # HANYA merah-karena-asersi yang dihitung bukti pagar bekerja (audit I F-04).
+            lulus = jenis == MERAH_PAGAR
+            catatan = {
+                MERAH_PAGAR: f"MERAH (pagar bekerja) — {sebab}",
+                HIJAU: "HIJAU — pagar TUMPUL",
+            }.get(jenis, f"BUKAN BUKTI — {sebab}")
+        else:
+            lulus = jenis == HIJAU
+            catatan = "HIJAU" if jenis == HIJAU else (f"BUKAN HIJAU — {sebab}" if jenis != HIJAU else "HIJAU")
         if not lulus:
-            catatan += " — pagar TUMPUL\n" + keluar[-600:]
+            catatan += "\n" + "      " + "\n      ".join(keluar.strip().splitlines()[-6:])
         return nama, lulus, catatan
     finally:
         berkas.write_text(asli, encoding="utf-8")
@@ -178,8 +199,16 @@ def main() -> int:
     end if;
   end if;
 """
+        # Deklarasi `v_jejak` harus ditambahkan di SEMUA kemunculan fungsi (bagian 1 dan 9):
+        # definisi `picu_item_jaga` yang berlaku adalah yang TERAKHIR. Dulu hanya kemunculan
+        # PERTAMA yang disunting, sehingga mutasi ini sebenarnya **tidak pernah menguji pagar** —
+        # migrasinya gagal dikompilasi (`"v_jejak" is not a known variable`) dan harness lama
+        # (yang menghitung `kode != 0` sebagai bukti) melaporkannya "MERAH (benar)".
+        # Ketahuan begitu penilai mutasi diperketat (audit I F-04, 2026-09-20).
+        tanpa_deklarasi = "  v_peran   text;\nbegin"
+        assert t.count(tanpa_deklarasi) >= 1
         return t.replace(blok_penolakan(t), lama).replace(
-            "  v_peran   text;\nbegin", "  v_peran   text;\n  v_jejak   text;\nbegin", 1
+            tanpa_deklarasi, "  v_peran   text;\n  v_jejak   text;\nbegin"
         )
 
     hasil.append(mutasi("pagar dikembalikan ke versi lama yang mempercayai penanda (K-1)", kembalikan_bocor))
@@ -555,5 +584,79 @@ def main() -> int:
     return 0
 
 
+def uji_diri() -> int:
+    """Buktikan penilai mutasi bisa MENOLAK salinan rusak dan MENERIMA asersi pagar.
+
+    Cara uji ini sengaja meniru cara auditor membuktikannya (laporan I F-04): jalankan fungsi
+    `mutasi` yang ASLI, tetapi pengganti `jalankan_uji` disuapkan keluaran palsu — jadi yang dinilai
+    benar-benar jalur penilaian harness, bukan tiruan yang ditulis ulang di tes.
+    """
+    import tempfile
+
+    print("UJI DIRI — penilai mutasi (harus bisa MENOLAK salinan rusak & MENERIMA asersi pagar)")
+    kasus = [
+        ("lingkungan: pustaka uji tidak ditemukan", 1,
+         "node:internal/modules/cjs/loader\nError: Cannot find module '@electric-sql/pglite'\n"
+         "ERR_MODULE_NOT_FOUND\n", RUSAK),
+        ("sintaks JS rusak", 1,
+         "SyntaxError: unexpected token '}'\n", RUSAK),
+        ("migrasi tidak bisa diterapkan", 1,
+         "  GAGAL 0015_penutup_celah_putaran16.sql\n        syntax error at or near \"end\"\n\n"
+         "HASIL: GAGAL — migrasi tidak bisa diterapkan; uji dihentikan.\n", RUSAK),
+        ("berkas uji hilang", 1,
+         "  GAGAL supabase/tes/urutan_uang.sql (berkas tidak ada)\n\n" + "-" * 70 +
+         "\nuji: 0 LULUS · 1 GAGAL\nRincian kegagalan:\n  - supabase/tes/urutan_uang.sql: berkas tidak ada\n"
+         "HASIL: GAGAL\n", RUSAK),
+        ("merah dari berkas uji tetapi BUKAN asersi (fungsi hilang karena mutasi salah)", 1,
+         "  GAGAL supabase/tes/urutan_uang.sql\n        function public.hitung_total(uuid) does not exist\n\n"
+         + "-" * 70 + "\nuji: 4 LULUS · 1 GAGAL\nHASIL: GAGAL\n", RUSAK),
+        ("asersi pengaman benar-benar gagal (bukti pagar bekerja)", 1,
+         "  GAGAL supabase/tes/urutan_uang.sql\n        HARAPAN TIDAK TERPENUHI: total harus 86250 (dapat 90000)\n\n"
+         + "-" * 70 + "\nuji: 4 LULUS · 1 GAGAL\nHASIL: GAGAL\n", MERAH_PAGAR),
+        ("sebab penolakan bukan yang diharapkan", 1,
+         "  GAGAL supabase/tes/urutan_uang.sql\n        SEBAB PENOLAKAN BUKAN YANG DIHARAPKAN: dapat \"…\"\n\n"
+         + "-" * 70 + "\nuji: 4 LULUS · 1 GAGAL\nHASIL: GAGAL\n", MERAH_PAGAR),
+        ("kontrol hijau", 0,
+         "  LULUS supabase/tes/urutan_uang.sql\n\n" + "-" * 70 + "\nuji: 5 LULUS · 0 GAGAL\nHASIL: LOLOS\n", HIJAU),
+    ]
+    rusak_jumlah = 0
+    for nama, kode, keluaran, harap in kasus:
+        jenis, sebab = klasifikasi(kode, keluaran)
+        ok = jenis == harap
+        rusak_jumlah += 0 if ok else 1
+        print(f"  [{'OK' if ok else 'X '}] {nama}: jenis={jenis} harap={harap} ({sebab[:70]})")
+
+    # Jalur penilaian di dalam `mutasi()` — harness asli, runner disuapi keluaran palsu.
+    asli_jalankan, asli_kerja = globals()["jalankan_uji"], globals()["KERJA"]
+    try:
+        with tempfile.TemporaryDirectory(prefix="uji-diri-mutasi-") as tmp:
+            salinan = pathlib.Path(tmp)
+            (salinan / MIG).parent.mkdir(parents=True, exist_ok=True)
+            (salinan / MIG).write_text("-- salinan uji\n", encoding="utf-8")
+            globals()["KERJA"] = salinan
+            globals()["jalankan_uji"] = lambda uji=None: (1, "Error: Cannot find module 'x'\n")
+            _, lulus, catatan = mutasi("(uji) salinan rusak", lambda t: t + "\n-- mutasi\n")
+            ok = (not lulus) and "BUKAN BUKTI" in catatan
+            rusak_jumlah += 0 if ok else 1
+            print(f"  [{'OK' if ok else 'X '}] mutasi() menolak salinan rusak sebagai bukti: {catatan.strip()[:80]}")
+            globals()["jalankan_uji"] = lambda uji=None: (
+                1, "  GAGAL supabase/tes/x.sql\n        HARAPAN TIDAK TERPENUHI: pagar tidak bekerja\n"
+                   + "-" * 70 + "\nuji: 1 LULUS · 1 GAGAL\nHASIL: GAGAL\n")
+            _, lulus2, catatan2 = mutasi("(uji) asersi pagar", lambda t: t + "\n-- mutasi\n")
+            ok2 = lulus2 and "pagar bekerja" in catatan2
+            rusak_jumlah += 0 if ok2 else 1
+            print(f"  [{'OK' if ok2 else 'X '}] mutasi() menerima asersi pagar sebagai bukti: {catatan2.strip()[:80]}")
+    finally:
+        globals()["jalankan_uji"], globals()["KERJA"] = asli_jalankan, asli_kerja
+
+    if rusak_jumlah:
+        print(f"\nHASIL: GAGAL — {rusak_jumlah} kasus berperilaku salah (penilai mutasi belum bisa dipercaya)")
+        return 1
+    print("\nHASIL: LOLOS — penilai mutasi menolak salinan rusak, menerima asersi pagar, dan menghitung kontrol hijau.")
+    return 0
+
+
 if __name__ == "__main__":
+    if "--uji-diri" in sys.argv:
+        sys.exit(uji_diri())
     sys.exit(main())
