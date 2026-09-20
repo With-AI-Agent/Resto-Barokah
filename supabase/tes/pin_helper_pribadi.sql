@@ -24,11 +24,8 @@ select uji.sama(
 -- 2. Percobaan nyata dari kursi kasir → DITOLAK oleh hak akses, bukan dijawab.
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir Pusat
 set local role authenticated;
-select uji.harap_gagal(
-  $$select public.peran_lebih_tinggi('90000000-0000-0000-0000-000000000002',
-                                     '90000000-0000-0000-0000-000000000005')$$,
-  'F-11: kasir tidak bisa memanggil helper hierarki untuk membaca peta peran'
-);
+select uji.harap_gagal_sebab($$select public.peran_lebih_tinggi('90000000-0000-0000-0000-000000000002',
+                                     '90000000-0000-0000-0000-000000000005')$$, 'permission denied for function peran_lebih_tinggi', 'F-11: kasir tidak bisa memanggil helper hierarki untuk membaca peta peran');
 reset role;
 select uji.klaim(null);
 

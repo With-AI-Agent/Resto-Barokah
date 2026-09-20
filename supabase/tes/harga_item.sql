@@ -19,12 +19,9 @@ select uji.sama(
 );
 
 -- 1. Harga karangan (Rp1 untuk menu Rp27.000) → DITOLAK.
-select uji.harap_gagal(
-  $$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty)
+select uji.harap_gagal_sebab($$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty)
       values ('eeee0000-0000-0000-0000-000000000010', 'beef0000-0000-0000-0000-000000000001',
-              'Nasi Goreng', 1, 5)$$,
-  'harga Rp1 untuk menu Rp27.000 DITOLAK (izin ubah_harga tidak dimiliki kasir)'
-);
+              'Nasi Goreng', 1, 5)$$, 'Harga menu ini Rp27000 — mencatat harga lain \(Rp1\) perlu izin ubah harga', 'harga Rp1 untuk menu Rp27.000 DITOLAK (izin ubah_harga tidak dimiliki kasir)');
 
 -- 2. Harga jujur → DITERIMA, dan `subtotal` dihitung peladen walau klien mengirim angka ngawur.
 insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, subtotal, catatan)
@@ -36,24 +33,15 @@ select uji.sama(
 );
 
 -- 3. Harga negatif / nol / qty nol → DITOLAK.
-select uji.harap_gagal(
-  $$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty)
+select uji.harap_gagal_sebab($$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty)
       values ('eeee0000-0000-0000-0000-000000000010', 'beef0000-0000-0000-0000-000000000001',
-              'Nasi Goreng', 0, 1)$$,
-  'harga 0 ditolak'
-);
-select uji.harap_gagal(
-  $$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty)
+              'Nasi Goreng', 0, 1)$$, 'Harga saat itu wajib diisi dan harus lebih dari nol', 'harga 0 ditolak');
+select uji.harap_gagal_sebab($$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty)
       values ('eeee0000-0000-0000-0000-000000000010', 'beef0000-0000-0000-0000-000000000001',
-              'Nasi Goreng', 27000, 0)$$,
-  'qty 0 ditolak'
-);
-select uji.harap_gagal(
-  $$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty)
+              'Nasi Goreng', 27000, 0)$$, 'Jumlah item harus lebih dari nol', 'qty 0 ditolak');
+select uji.harap_gagal_sebab($$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty)
       values ('eeee0000-0000-0000-0000-000000000010', 'beef0000-0000-0000-0000-000000000002',
-              'Es Teh', 27000, 1)$$,
-  'harga yang bukan harga menu itu ditolak'
-);
+              'Es Teh', 27000, 1)$$, 'Harga menu ini Rp8000 — mencatat harga lain \(Rp27000\) perlu izin ubah harga', 'harga yang bukan harga menu itu ditolak');
 
 -- 4. Pemegang izin `ubah_harga` (admin cabang) BOLEH mencatat harga lain —
 --    jalur sah untuk promo manual, dan hanya untuk dia.
@@ -71,11 +59,8 @@ select uji.sama(
 );
 
 -- 5. Salinan beku tetap tidak bisa ditulis ulang (aturan lama tidak dilemahkan).
-select uji.harap_gagal(
-  $$update public.pesanan_item set harga_saat_itu = 1
-     where pesanan_id = 'eeee0000-0000-0000-0000-000000000010' and harga_saat_itu = 20000$$,
-  'harga yang sudah tercatat tetap tidak bisa diubah'
-);
+select uji.harap_gagal_sebab($$update public.pesanan_item set harga_saat_itu = 1
+     where pesanan_id = 'eeee0000-0000-0000-0000-000000000010' and harga_saat_itu = 20000$$, 'Nama & harga yang sudah tercatat tidak boleh diubah\. Batalkan item itu lalu tambahkan bari', 'harga yang sudah tercatat tetap tidak bisa diubah');
 
 reset role;
 select uji.klaim(null);

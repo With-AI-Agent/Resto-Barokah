@@ -11,20 +11,14 @@
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 
-select uji.harap_gagal(
-  $$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kasir_id, kunci_idempoten)
+select uji.harap_gagal_sebab($$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kasir_id, kunci_idempoten)
       select 'eeee0000-0000-0000-0000-000000000010', mb.id, 1000, 1000,
              '90000000-0000-0000-0000-000000000002', 'jejak-kasir-palsu'
         from public.metode_bayar mb
-       where mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$,
-  'kasir tidak bisa menuliskan nama ORANG LAIN sebagai kasir pembayaran'
-);
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan, pelaku_id)
+       where mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$, 'Nama kasir diisi sistem — tidak boleh menyebut orang lain', 'kasir tidak bisa menuliskan nama ORANG LAIN sebagai kasir pembayaran');
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan, pelaku_id)
       values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 2000, 2000, 'uji jejak',
-              '90000000-0000-0000-0000-000000000002')$$,
-  'kasir tidak bisa menuliskan nama ORANG LAIN sebagai pelaku diskon'
-);
+              '90000000-0000-0000-0000-000000000002')$$, 'Pelaku diskon diisi sistem — tidak boleh menyebut orang lain', 'kasir tidak bisa menuliskan nama ORANG LAIN sebagai pelaku diskon');
 
 -- Kontrol positif: pelaku terisi otomatis dengan pemanggil saat dibiarkan kosong.
 insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)

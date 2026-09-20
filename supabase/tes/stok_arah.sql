@@ -39,20 +39,11 @@ select uji.sama(
 );
 
 -- 4. Opname/koreksi dengan NOL ditolak (tidak mengubah apa pun = tidak perlu dicatat).
-select uji.harap_gagal(
-  $$select public.catat_stok('beef1000-0000-0000-0000-000000000001', 'opname', 0, 'nol')$$,
-  'opname tanpa perubahan ditolak'
-);
-select uji.harap_gagal(
-  $$select public.catat_stok('beef1000-0000-0000-0000-000000000001', 'keluar', 0, 'nol')$$,
-  'pergerakan tanpa perubahan ditolak'
-);
+select uji.harap_gagal_sebab($$select public.catat_stok('beef1000-0000-0000-0000-000000000001', 'opname', 0, 'nol')$$, 'Opname/koreksi dengan perubahan nol tidak perlu dicatat', 'opname tanpa perubahan ditolak');
+select uji.harap_gagal_sebab($$select public.catat_stok('beef1000-0000-0000-0000-000000000001', 'keluar', 0, 'nol')$$, 'Jumlah pergerakan stok tidak boleh nol', 'pergerakan tanpa perubahan ditolak');
 
 -- 5. Bahan yang tidak ada tetap ditolak dengan pesan jelas.
-select uji.harap_gagal(
-  $$select public.catat_stok('beef1000-0000-0000-0000-0000000000ff', 'masuk', 1, 'bahan hantu')$$,
-  'bahan yang tidak ada ditolak'
-);
+select uji.harap_gagal_sebab($$select public.catat_stok('beef1000-0000-0000-0000-0000000000ff', 'masuk', 1, 'bahan hantu')$$, 'Bahan tidak ditemukan', 'bahan yang tidak ada ditolak');
 
 -- 6. Setiap pergerakan tetap meninggalkan baris buku besar (tidak ada perubahan diam-diam).
 select uji.sama(

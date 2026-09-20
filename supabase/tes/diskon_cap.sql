@@ -22,16 +22,10 @@ select uji.sama(
   (select ie.batas_nominal from public.izin_efektif('beri_diskon', 'a1a1a1a1-0000-0000-0000-000000000001') ie),
   25000, 'kontrol: kasir memang berbatas 25.000'
 );
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'promo', 2, 1000, 1000, 'promo karangan kasir')$$,
-  'diskon jenis promo DITOLAK (mesin promo belum ada — dulu lolos tanpa pemeriksaan)'
-);
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'entah', null, 1000, 1000, 'jenis karangan')$$,
-  'jenis diskon di luar daftar ditolak'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'promo', 2, 1000, 1000, 'promo karangan kasir')$$, 'Diskon promo otomatis belum aktif \(menunggu T1-19/T1-20\)\. Pakai diskon manual dengan perse', 'diskon jenis promo DITOLAK (mesin promo belum ada — dulu lolos tanpa pemeriksaan)');
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'entah', null, 1000, 1000, 'jenis karangan')$$, 'Jenis diskon tidak dikenal: entah', 'jenis diskon di luar daftar ditolak');
 
 -- 2. Diskon DITOLAK saat subtotal pesanan masih 0 (TEMUAN laporan C / PR-01).
 --    Sekarang subtotal wajib sudah tercatat lebih dulu; kalau belum, tidak ada
@@ -44,11 +38,8 @@ select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 --    (Nilainya sengaja KECIL dan di dalam batas kasir, persen diisi jujur: yang menahan
 --     di sini murni penjaga "subtotal belum ada", bukan batas izin per baris.)
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('00000000-0000-0000-0000-00000000d001', 'manual', 1, 2000, 2000, 'diskon sebelum ada item')$$,
-  'diskon DITOLAK selama subtotal pesanan masih 0 (dulu ditanam lebih dulu)'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+      values ('00000000-0000-0000-0000-00000000d001', 'manual', 1, 2000, 2000, 'diskon sebelum ada item')$$, 'Subtotal pesanan belum tercatat — diskon belum boleh dicatat \(hitung pesanan dulu\)', 'diskon DITOLAK selama subtotal pesanan masih 0 (dulu ditanam lebih dulu)');
 reset role;
 
 -- 3. CAP TOTAL resto dibaca (TEMUAN PR-02): tumpuk diskon nyala + cap 10% / Rp5.000.
@@ -72,11 +63,8 @@ select uji.sama(
   2700, 'diskon pertama (2.700) diterima — masih di dalam cap'
 );
 -- Baris kedua: total jadi 5.400 > cap Rp5.000 → DITOLAK.
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'manual', 5, 2700, 2700, 'diskon kedua')$$,
-  'diskon kedua DITOLAK karena TOTAL potongan melampaui cap nominal resto (Rp5.000)'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'manual', 5, 2700, 2700, 'diskon kedua')$$, 'Total potongan \(', 'diskon kedua DITOLAK karena TOTAL potongan melampaui cap nominal resto (Rp5.000)');
 -- Cap persen juga berlaku walau nominalnya masih kecil.
 reset role;   -- perubahan pengaturan dilakukan owner/peladen, bukan kasir
 update public.pengaturan set batas_maks_potongan_nominal = null
@@ -90,18 +78,12 @@ select uji.sama(
     where d.pesanan_id = 'eeee0000-0000-0000-0000-000000000010'),
   2::bigint, 'diskon kedua diterima selagi total (5.400) masih di dalam cap persen 10%'
 );
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1, 1000, 1000, 'diskon ketiga')$$,
-  'diskon ketiga DITOLAK karena TOTAL potongan (6.400) melampaui cap persen resto (10%)'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1, 1000, 1000, 'diskon ketiga')$$, 'Total potongan \(', 'diskon ketiga DITOLAK karena TOTAL potongan (6.400) melampaui cap persen resto (10%)');
 
 -- 4. Batas izin PER BARIS masih berlaku (tidak dilemahkan oleh cap baru).
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 20000, 20000, 'di atas batas kasir')$$,
-  'diskon 20.000 oleh kasir (batas 25.000/5%) tetap ditolak karena persen 37%'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 20000, 20000, 'di atas batas kasir')$$, 'Diskon ini melebihi batas izin Anda\. Minta persetujuan atasan \(PIN\)', 'diskon 20.000 oleh kasir (batas 25.000/5%) tetap ditolak karena persen 37%');
 
 reset role;
 select uji.klaim(null);

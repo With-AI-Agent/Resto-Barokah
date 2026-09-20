@@ -17,11 +17,8 @@ set local role authenticated;
 select uji.sama(public.cabang_saya(), null::uuid, 'belum memilih cabang = tidak ada cabang aktif');
 
 -- 2. Klien TIDAK bisa menulis tabel sesi_cabang langsung (harus lewat RPC).
-select uji.harap_gagal(
-  $$insert into public.sesi_cabang (pengguna_id, cabang_id)
-      values ('90000000-0000-0000-0000-000000000005', 'a1a1a1a1-0000-0000-0000-000000000001')$$,
-  'klien tidak bisa menulis pilihan cabang langsung ke tabel'
-);
+select uji.harap_gagal_sebab($$insert into public.sesi_cabang (pengguna_id, cabang_id)
+      values ('90000000-0000-0000-0000-000000000005', 'a1a1a1a1-0000-0000-0000-000000000001')$$, 'permission denied for table sesi_cabang', 'klien tidak bisa menulis pilihan cabang langsung ke tabel');
 
 -- 3. Jalur sah: RPC memverifikasi keanggotaan.
 select uji.sama(
@@ -35,10 +32,7 @@ select uji.sama(
 );
 
 -- 4. Cabang yang bukan tempatnya (resto lain / cabang bukan anggota) DITOLAK.
-select uji.harap_gagal(
-  $$select public.pilih_cabang('b1b1b1b1-0000-0000-0000-000000000001')$$,
-  'memilih cabang resto lain ditolak'
-);
+select uji.harap_gagal_sebab($$select public.pilih_cabang('b1b1b1b1-0000-0000-0000-000000000001')$$, 'Anda tidak bertugas di cabang itu', 'memilih cabang resto lain ditolak');
 select uji.sama(
   public.cabang_saya(), 'a1a1a1a1-0000-0000-0000-000000000002'::uuid,
   'pilihan lama tidak berubah setelah percobaan curang'

@@ -45,14 +45,8 @@ select uji.sama(
 );
 
 -- 2. Pintu izin pegawai lain TERTUTUP untuk klien (hak execute dicabut dari authenticated).
-select uji.harap_gagal(
-  $$select * from public.izin_efektif_untuk('90000000-0000-0000-0000-000000000007', 'beri_diskon')$$,
-  'klien tidak lagi bisa memanggil izin_efektif_untuk (pintu izin pegawai lain)'
-);
-select uji.harap_gagal(
-  $$select public.boleh_untuk('90000000-0000-0000-0000-000000000007', 'beri_diskon')$$,
-  'klien tidak lagi bisa memanggil boleh_untuk'
-);
+select uji.harap_gagal_sebab($$select * from public.izin_efektif_untuk('90000000-0000-0000-0000-000000000007', 'beri_diskon')$$, 'permission denied for function izin_efektif_untuk', 'klien tidak lagi bisa memanggil izin_efektif_untuk (pintu izin pegawai lain)');
+select uji.harap_gagal_sebab($$select public.boleh_untuk('90000000-0000-0000-0000-000000000007', 'beri_diskon')$$, 'permission denied for function boleh_untuk', 'klien tidak lagi bisa memanggil boleh_untuk');
 -- kontrol positif: izin DIRI SENDIRI tetap bisa dibaca (jalur yang dipakai aplikasi)
 select uji.sama(
   (select ie.batas_nominal from public.izin_efektif('beri_diskon', 'a1a1a1a1-0000-0000-0000-000000000001') ie),

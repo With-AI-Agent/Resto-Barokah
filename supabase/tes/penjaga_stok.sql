@@ -16,17 +16,11 @@ select uji.sama(
   (select s.jumlah::int from public.stok_bahan s where s.id = 'beef1000-0000-0000-0000-000000000001'),
   20, 'kontrol: saldo awal Beras 20'
 );
-select uji.harap_gagal(
-  $$update public.stok_bahan set jumlah = 999 where id = 'beef1000-0000-0000-0000-000000000001'$$,
-  'ubah saldo stok langsung ditolak'
-);
+select uji.harap_gagal_sebab($$update public.stok_bahan set jumlah = 999 where id = 'beef1000-0000-0000-0000-000000000001'$$, 'Jumlah stok hanya boleh berubah lewat catatan pergerakan stok \(bukan ditulis langsung\)', 'ubah saldo stok langsung ditolak');
 
 -- 2. Memasang penanda sesi sendiri TIDAK boleh membuka penjaga.
 select set_config('app.stok_dari_buku_besar', '1', true);
-select uji.harap_gagal(
-  $$update public.stok_bahan set jumlah = 999 where id = 'beef1000-0000-0000-0000-000000000001'$$,
-  'penanda sesi buatan klien TIDAK membuka penjaga saldo stok'
-);
+select uji.harap_gagal_sebab($$update public.stok_bahan set jumlah = 999 where id = 'beef1000-0000-0000-0000-000000000001'$$, 'Jumlah stok hanya boleh berubah lewat catatan pergerakan stok \(bukan ditulis langsung\)', 'penanda sesi buatan klien TIDAK membuka penjaga saldo stok');
 select uji.sama(
   (select s.jumlah::int from public.stok_bahan s where s.id = 'beef1000-0000-0000-0000-000000000001'),
   20, 'saldo tidak berubah setelah percobaan curang'

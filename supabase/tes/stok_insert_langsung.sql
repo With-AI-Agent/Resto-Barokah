@@ -38,10 +38,7 @@ select uji.sama(
   (select s.jumlah::int from public.stok_bahan s where s.id = 'beef1000-0000-0000-0000-000000000001'),
   10, 'opname boleh mengurangi (10)'
 );
-select uji.harap_gagal(
-  $$insert into public.stok_pergerakan (stok_bahan_id, jenis, jumlah, alasan, pelaku_id)
-      values ('beef1000-0000-0000-0000-000000000001','koreksi', 0, 'koreksi nol', '90000000-0000-0000-0000-000000000006')$$,
-  'pergerakan koreksi bernilai nol ditolak (tidak ada perubahan yang dicatat)'
-);
+select uji.harap_gagal_sebab($$insert into public.stok_pergerakan (stok_bahan_id, jenis, jumlah, alasan, pelaku_id)
+      values ('beef1000-0000-0000-0000-000000000001','koreksi', 0, 'koreksi nol', '90000000-0000-0000-0000-000000000006')$$, 'Pergerakan stok koreksi tidak boleh nol', 'pergerakan koreksi bernilai nol ditolak (tidak ada perubahan yang dicatat)');
 reset role;
 select uji.klaim(null);

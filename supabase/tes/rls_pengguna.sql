@@ -74,10 +74,7 @@ select uji.harap(
   not exists (select 1 from public.izin where kode_izin = 'lihat_laporan'),
   'kasir tidak melihat izin owner pusat'
 );
-select uji.harap_gagal(
-  $$update public.izin set boleh = true where kode_izin = 'lihat_laporan'$$,
-  'kasir tidak boleh mengubah izin lewat tabel langsung (harus lewat RPC berizin)'
-);
+select uji.harap_gagal_sebab($$update public.izin set boleh = true where kode_izin = 'lihat_laporan'$$, 'permission denied for table izin', 'kasir tidak boleh mengubah izin lewat tabel langsung (harus lewat RPC berizin)');
 reset role;
 select uji.klaim(null);
 

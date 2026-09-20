@@ -8,18 +8,12 @@
 -- ============================================================================
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir (tanpa izin ubah_harga)
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, varian)
+select uji.harap_gagal_sebab($$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, varian)
       values ('eeee0000-0000-0000-0000-000000000010','beef0000-0000-0000-0000-000000000001',
-              'Nasi Goreng Jumbo', 27000, 1, '{"nama":"Jumbo"}')$$,
-  'kasir tidak bisa merekam varian yang harganya belum bisa dihitung (dulu tersimpan tanpa harga tambahan)'
-);
-select uji.harap_gagal(
-  $$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, tambahan)
+              'Nasi Goreng Jumbo', 27000, 1, '{"nama":"Jumbo"}')$$, 'Varian/tambahan belum bisa dihargai otomatis \(menyusul T1-12\)\. Catat sebagai catatan denga', 'kasir tidak bisa merekam varian yang harganya belum bisa dihitung (dulu tersimpan tanpa harga tambahan)');
+select uji.harap_gagal_sebab($$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, tambahan)
       values ('eeee0000-0000-0000-0000-000000000010','beef0000-0000-0000-0000-000000000001',
-              'Nasi Goreng + Kerupuk', 27000, 1, '["Kerupuk"]')$$,
-  'tambahan berbayar juga tidak bisa direkam tanpa harga'
-);
+              'Nasi Goreng + Kerupuk', 27000, 1, '["Kerupuk"]')$$, 'Varian/tambahan belum bisa dihargai otomatis \(menyusul T1-12\)\. Catat sebagai catatan denga', 'tambahan berbayar juga tidak bisa direkam tanpa harga');
 -- Item biasa tetap boleh.
 insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty)
 values ('eeee0000-0000-0000-0000-000000000010','beef0000-0000-0000-0000-000000000001','Nasi Goreng',27000,1);

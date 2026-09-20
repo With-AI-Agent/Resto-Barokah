@@ -16,16 +16,10 @@ select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir (punya void
 set local role authenticated;
 
 -- 1. Angka KARANGAN → DITOLAK (inti temuan PR-03).
-select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, alasan, nilai_kerugian)
-      values ('00000000-0000-0000-0000-00000000b001', 'sebelum_dapur', 'barang salah', 1)$$,
-  'nilai kerugian yang dikarang klien (1 rupiah) DITOLAK'
-);
-select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, alasan, nilai_kerugian)
-      values ('00000000-0000-0000-0000-00000000b001', 'sebelum_dapur', 'barang salah', 999999)$$,
-  'nilai kerugian yang dibesarkan klien (999.999) DITOLAK'
-);
+select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap, alasan, nilai_kerugian)
+      values ('00000000-0000-0000-0000-00000000b001', 'sebelum_dapur', 'barang salah', 1)$$, 'Nilai kerugian dihitung peladen dari salinan harga \(', 'nilai kerugian yang dikarang klien (1 rupiah) DITOLAK');
+select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap, alasan, nilai_kerugian)
+      values ('00000000-0000-0000-0000-00000000b001', 'sebelum_dapur', 'barang salah', 999999)$$, 'Nilai kerugian dihitung peladen dari salinan harga \(', 'nilai kerugian yang dibesarkan klien (999.999) DITOLAK');
 
 -- 2. Mengirim 0 = "tolong isi peladen" → DIISI dari salinan harga (54.000).
 insert into public.pembatalan (pesanan_id, tahap, alasan, nilai_kerugian)

@@ -13,11 +13,8 @@
 -- 1. PIN mentah DITOLAK database (bukan hanya oleh kode aplikasi).
 --    Rahasianya ada di tabel sendiri (`kredensial_pin`) sejak audit AUD-3 K-2 — tabel itu
 --    tidak diberi hak apa pun kepada klien, berbeda dari `pengguna` yang bisa dibaca klien.
-select uji.harap_gagal(
-  $$insert into public.kredensial_pin (pengguna_id, pin_hash)
-      values ('90000000-0000-0000-0000-000000000004', '123456')$$,
-  'PIN mentah tidak boleh disimpan di kolom pin_hash'
-);
+select uji.harap_gagal_sebab($$insert into public.kredensial_pin (pengguna_id, pin_hash)
+      values ('90000000-0000-0000-0000-000000000004', '123456')$$, 'violates check constraint "kredensial_pin_pin_hash_check"', 'PIN mentah tidak boleh disimpan di kolom pin_hash');
 select uji.sama(
   (select count(*) from information_schema.columns
     where table_schema = 'public' and table_name = 'kredensial_pin' and column_name = 'pin_hash'),
@@ -34,20 +31,17 @@ select uji.sama(
 -- 2. Hanya pemegang izin yang boleh menyimpan PIN pegawai lain.
 select uji.klaim(null);
 set local role anon;
-select uji.harap_gagal($$select public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294')$$, 'anon tidak boleh memakai gerbang PIN');
-select uji.harap_gagal($$select public.simpan_pin('1234')$$, 'anon tidak boleh menyimpan PIN');
+select uji.harap_gagal_sebab($$select public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294')$$, 'permission denied for function verifikasi_pin', 'anon tidak boleh memakai gerbang PIN');
+select uji.harap_gagal_sebab($$select public.simpan_pin('1234')$$, 'permission denied for function simpan_pin', 'anon tidak boleh menyimpan PIN');
 reset role;
 select uji.klaim(null);
 
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$select public.simpan_pin('560812', null, '90000000-0000-0000-0000-000000000005')$$,
-  'kasir tanpa izin kelola_pegawai tidak boleh menyimpan PIN pegawai lain'
-);
-select uji.harap_gagal($$select public.simpan_pin('12')$$, 'PIN terlalu pendek ditolak');
-select uji.harap_gagal($$select public.simpan_pin('abcdef')$$, 'PIN bukan angka ditolak');
-select uji.harap_gagal($$select public.simpan_pin('1234567')$$, 'PIN lebih dari 6 angka ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('560812', null, '90000000-0000-0000-0000-000000000005')$$, 'Anda tidak berizin mengubah PIN pegawai lain', 'kasir tanpa izin kelola_pegawai tidak boleh menyimpan PIN pegawai lain');
+select uji.harap_gagal_sebab($$select public.simpan_pin('12')$$, 'PIN ditolak: harus tepat 6 angka', 'PIN terlalu pendek ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('abcdef')$$, 'PIN ditolak: harus tepat 6 angka', 'PIN bukan angka ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('1234567')$$, 'PIN ditolak: harus tepat 6 angka', 'PIN lebih dari 6 angka ditolak');
 reset role;
 select uji.klaim(null);
 
@@ -144,10 +138,7 @@ select uji.klaim(null);
 -- 8. Owner tidak boleh menyimpan PIN pegawai resto lain.
 select uji.klaim('90000000-0000-0000-0000-000000000002');
 set local role authenticated;
-select uji.harap_gagal(
-  $$select public.simpan_pin('625084', null, '90000000-0000-0000-0000-000000000007')$$,
-  'owner resto A tidak boleh menyimpan PIN pegawai resto B'
-);
+select uji.harap_gagal_sebab($$select public.simpan_pin('625084', null, '90000000-0000-0000-0000-000000000007')$$, 'Pegawai itu bukan bagian dari resto Anda', 'owner resto A tidak boleh menyimpan PIN pegawai resto B');
 reset role;
 select uji.klaim(null);
 
@@ -159,10 +150,7 @@ select uji.sama(
   0::bigint,
   'kasir tidak melihat catatan percobaan pegawai lain'
 );
-select uji.harap_gagal(
-  $$insert into public.percobaan_pin (pengguna_id, perangkat, berhasil) values ('90000000-0000-0000-0000-000000000004', 'HP-PALSU', false)$$,
-  'pegawai tidak boleh menulis catatan percobaan langsung'
-);
+select uji.harap_gagal_sebab($$insert into public.percobaan_pin (pengguna_id, perangkat, berhasil) values ('90000000-0000-0000-0000-000000000004', 'HP-PALSU', false)$$, 'permission denied for table percobaan_pin', 'pegawai tidak boleh menulis catatan percobaan langsung');
 reset role;
 select uji.klaim(null);
 

@@ -24,22 +24,16 @@ select uji.sama(
 );
 
 -- 2. Uang TIDAK boleh masuk selama total belum dihitung.
-select uji.harap_gagal(
-  $$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
+select uji.harap_gagal_sebab($$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
       select p.id, mb.id, 1000000, 1000000, 'gerbang-uang-1'
         from public.pesanan p, public.metode_bayar mb
        where p.kunci_idempoten = 'gerbang-uang-total-nol'
-         and mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$,
-  'pembayaran pada pesanan yang totalnya belum dihitung DITOLAK'
-);
-select uji.harap_gagal(
-  $$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
+         and mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$, 'Total pesanan belum dihitung — pembayaran belum boleh dicatat', 'pembayaran pada pesanan yang totalnya belum dihitung DITOLAK');
+select uji.harap_gagal_sebab($$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
       select p.id, mb.id, 1000000, 1000000, 'gerbang-uang-2'
         from public.pesanan p, public.metode_bayar mb
        where p.kunci_idempoten = 'gerbang-uang-total-nol'
-         and mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$,
-  'percobaan kedua juga DITOLAK (bukan hanya percobaan pertama)'
-);
+         and mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$, 'Total pesanan belum dihitung — pembayaran belum boleh dicatat', 'percobaan kedua juga DITOLAK (bukan hanya percobaan pertama)');
 select uji.sama(
   (select count(*)
      from public.pembayaran pb
@@ -62,12 +56,9 @@ select uji.sama(
 );
 
 -- 4. Batas lebih bayar tetap berlaku pada pesanan bertotal terisi.
-select uji.harap_gagal(
-  $$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
+select uji.harap_gagal_sebab($$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
       select 'eeee0000-0000-0000-0000-000000000010', mb.id, 100000, 100000, 'gerbang-uang-4'
         from public.metode_bayar mb
-       where mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$,
-  'pembayaran yang membuat total melebihi total pesanan tetap DITOLAK'
-);
+       where mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$, 'Total pembayaran \(', 'pembayaran yang membuat total melebihi total pesanan tetap DITOLAK');
 reset role;
 select uji.klaim(null);

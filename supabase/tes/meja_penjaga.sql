@@ -8,14 +8,8 @@ select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir Pusat
 set local role authenticated;
 
 -- 1. Kasir hanya boleh mengubah STATUS.
-select uji.harap_gagal(
-  $$update public.meja set nama = 'MEJA DIRETUR' where id = 'aaa00000-0000-0000-0000-000000000001'$$,
-  'kasir tidak boleh mengganti NAMA meja (data induk cabang)'
-);
-select uji.harap_gagal(
-  $$update public.meja set aktif = false where id = 'aaa00000-0000-0000-0000-000000000001'$$,
-  'kasir tidak boleh menonaktifkan meja'
-);
+select uji.harap_gagal_sebab($$update public.meja set nama = 'MEJA DIRETUR' where id = 'aaa00000-0000-0000-0000-000000000001'$$, 'Peran kasir hanya boleh mengubah STATUS meja — nama/area/aktif adalah data induk cabang', 'kasir tidak boleh mengganti NAMA meja (data induk cabang)');
+select uji.harap_gagal_sebab($$update public.meja set aktif = false where id = 'aaa00000-0000-0000-0000-000000000001'$$, 'Peran kasir hanya boleh mengubah STATUS meja — nama/area/aktif adalah data induk cabang', 'kasir tidak boleh menonaktifkan meja');
 update public.meja set status = 'terisi' where id = 'aaa00000-0000-0000-0000-000000000001';
 reset role;
 select uji.sama(
@@ -43,10 +37,7 @@ select uji.sama(
 );
 select uji.klaim('90000000-0000-0000-0000-000000000003');
 set local role authenticated;
-select uji.harap_gagal(
-  $$delete from public.meja where id = 'aaa00000-0000-0000-0000-000000000001'$$,
-  'meja yang sedang dipakai pesanan aktif TIDAK boleh dihapus (dulu meja_id jadi NULL)'
-);
+select uji.harap_gagal_sebab($$delete from public.meja where id = 'aaa00000-0000-0000-0000-000000000001'$$, 'Meja ini punya 1 pesanan dalam riwayat \(termasuk yang sudah lunas/batal\) — tidak boleh dih', 'meja yang sedang dipakai pesanan aktif TIDAK boleh dihapus (dulu meja_id jadi NULL)');
 reset role;
 select uji.sama(
   (select count(*) from public.pesanan p where p.meja_id is null),

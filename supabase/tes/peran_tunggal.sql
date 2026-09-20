@@ -23,23 +23,14 @@ select uji.sama(
   1::bigint,
   'peran tunggal hidup di pengguna.peran'
 );
-select uji.harap_gagal(
-  $$insert into public.pengguna_cabang (pengguna_id, cabang_id, peran)
-      values ('90000000-0000-0000-0000-000000000004', 'a1a1a1a1-0000-0000-0000-000000000002', 'dapur')$$,
-  'percobaan menuliskan peran kedua per akun DITOLAK'
-);
+select uji.harap_gagal_sebab($$insert into public.pengguna_cabang (pengguna_id, cabang_id, peran)
+      values ('90000000-0000-0000-0000-000000000004', 'a1a1a1a1-0000-0000-0000-000000000002', 'dapur')$$, 'column "peran" of relation "pengguna_cabang" does not exist', 'percobaan menuliskan peran kedua per akun DITOLAK');
 
 -- 2. Penjaga keanggotaan: akun & cabang wajib satu resto; pemilik platform tidak bertugas di cabang.
-select uji.harap_gagal(
-  $$insert into public.pengguna_cabang (pengguna_id, cabang_id)
-      values ('90000000-0000-0000-0000-000000000004', 'b1b1b1b1-0000-0000-0000-000000000001')$$,
-  'pegawai tidak boleh didaftarkan ke cabang resto lain'
-);
-select uji.harap_gagal(
-  $$insert into public.pengguna_cabang (pengguna_id, cabang_id)
-      values ('90000000-0000-0000-0000-000000000001', 'a1a1a1a1-0000-0000-0000-000000000001')$$,
-  'pemilik platform tidak boleh didaftarkan ke cabang mana pun'
-);
+select uji.harap_gagal_sebab($$insert into public.pengguna_cabang (pengguna_id, cabang_id)
+      values ('90000000-0000-0000-0000-000000000004', 'b1b1b1b1-0000-0000-0000-000000000001')$$, 'Keanggotaan cabang ditolak: akun dan cabang harus satu resto', 'pegawai tidak boleh didaftarkan ke cabang resto lain');
+select uji.harap_gagal_sebab($$insert into public.pengguna_cabang (pengguna_id, cabang_id)
+      values ('90000000-0000-0000-0000-000000000001', 'a1a1a1a1-0000-0000-0000-000000000001')$$, 'Keanggotaan cabang ditolak: akun atau cabang tidak ada', 'pemilik platform tidak boleh didaftarkan ke cabang mana pun');
 insert into public.pengguna_cabang (pengguna_id, cabang_id)
 values ('90000000-0000-0000-0000-000000000004', 'a1a1a1a1-0000-0000-0000-000000000002');
 select uji.sama(

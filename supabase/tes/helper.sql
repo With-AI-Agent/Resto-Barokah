@@ -8,8 +8,8 @@
 -- 1. Sebelum masuk (anon): identitas kosong dan fungsi tidak boleh dijalankan.
 select uji.klaim(null);
 set local role anon;
-select uji.harap_gagal('select public.penyewa_saya()', 'anon tidak boleh memanggil fungsi identitas');
-select uji.harap_gagal('select public.cabang_ids_saya()', 'anon tidak boleh memanggil daftar cabang');
+select uji.harap_gagal_sebab('select public.penyewa_saya()', 'permission denied for function penyewa_saya', 'anon tidak boleh memanggil fungsi identitas');
+select uji.harap_gagal_sebab('select public.cabang_ids_saya()', 'permission denied for function cabang_ids_saya', 'anon tidak boleh memanggil daftar cabang');
 reset role;
 select uji.klaim(null);
 
@@ -89,10 +89,7 @@ select uji.sama(public.pilih_cabang('a1a1a1a1-0000-0000-0000-000000000002'), 'a1
 select uji.sama(public.cabang_saya(), 'a1a1a1a1-0000-0000-0000-000000000002'::uuid, 'cabang aktif = cabang yang dipilih');
 
 -- Cabang milik resto lain: pemanggil TIDAK bertugas di sana → DITOLAK.
-select uji.harap_gagal(
-  $$select public.pilih_cabang('b1b1b1b1-0000-0000-0000-000000000001')$$,
-  'memilih cabang milik resto lain ditolak (diverifikasi ke keanggotaan)'
-);
+select uji.harap_gagal_sebab($$select public.pilih_cabang('b1b1b1b1-0000-0000-0000-000000000001')$$, 'Anda tidak bertugas di cabang itu', 'memilih cabang milik resto lain ditolak (diverifikasi ke keanggotaan)');
 select uji.sama(public.cabang_saya(), 'a1a1a1a1-0000-0000-0000-000000000002'::uuid, 'cabang aktif tidak berubah setelah percobaan curang');
 
 -- 8. Pegawai tidak aktif tidak mendapat identitas apa pun.

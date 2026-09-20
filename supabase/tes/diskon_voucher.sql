@@ -11,25 +11,16 @@
 -- 1. Diskon MANUAL sebesar subtotal penuh DITOLAK (kontrol positif: batas izin bekerja).
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir, batas 25.000 / 5%
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 54000, 54000, 'diskon manual penuh')$$,
-  'kontrol: diskon manual 54.000 ditolak (batas kasir 25.000)'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 54000, 54000, 'diskon manual penuh')$$, 'Diskon ini melebihi batas izin Anda\. Minta persetujuan atasan \(PIN\)', 'kontrol: diskon manual 54.000 ditolak (batas kasir 25.000)');
 
 -- 2. JENIS YANG SAMA, diberi label 'voucher' → sekarang JUGA DITOLAK (temuan PR-01).
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'voucher', null, 54000, 54000, 'voucher karangan')$$,
-  'diskon "voucher" 100% subtotal TIDAK bisa dicatat kasir (mesin voucher belum ada)'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'voucher', null, 54000, 54000, 'voucher karangan')$$, 'Diskon voucher belum aktif \(mesin voucher menunggu T1-12/T1-19/T1-20\)\. Pakai diskon manual', 'diskon "voucher" 100% subtotal TIDAK bisa dicatat kasir (mesin voucher belum ada)');
 
 -- 3. Nilai KECIL pun tidak boleh — supaya jelas yang ditolak adalah JENISNYA, bukan besarnya.
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'voucher', null, 1000, 1000, 'voucher kecil')$$,
-  'diskon "voucher" sekecil apa pun tetap ditolak selama mesinnya belum ada'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'voucher', null, 1000, 1000, 'voucher kecil')$$, 'Diskon voucher belum aktif \(mesin voucher menunggu T1-12/T1-19/T1-20\)\. Pakai diskon manual', 'diskon "voucher" sekecil apa pun tetap ditolak selama mesinnya belum ada');
 
 -- 4. Bukti tidak ada sisa baris voucher yang tertinggal dari percobaan di atas.
 select uji.sama(

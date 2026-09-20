@@ -30,11 +30,8 @@ select uji.sama(
 );
 -- (Urutan penting: uji penolakan DIJALANKAN SEBELUM kontrol yang menerbitkan kupon sah,
 --  supaya perintahnya benar-benar ditolak karena tidak ada bukti — bukan karena sebab lain.)
-select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', 'void tanpa izin owner')$$,
-  'kupon void atas nama owner TIDAK terbit kalau owner sendiri yang tidak memasukkan PIN-nya'
-);
+select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', 'void tanpa izin owner')$$, 'Persetujuan belum terbukti untuk pesanan ini: penyetuju harus memasukkan PIN-nya sendiri u', 'kupon void atas nama owner TIDAK terbit kalau owner sendiri yang tidak memasukkan PIN-nya');
 select uji.sama(
   (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-admin', 'eeee0000-0000-0000-0000-000000000010')).berhasil,
   true, 'kontrol: PIN owner yang asli (738294) masih berlaku'

@@ -287,9 +287,20 @@ if (daftarUji.length > 0) {
       catatanGagal.push(`${label}: berkas tidak ada`)
       continue
     }
+    // Pagar J F-09 (2026-09-21): `uji.harap_gagal` polos menerima SEBAB penolakan apa pun —
+    // penjaga yang melemah (pesan berubah, digantikan penolakan lain) tetap "lulus" diam-diam.
+    // Semua asersi negatif wajib memakai `uji.harap_gagal_sebab` yang mematok sebabnya.
+    const isiUji = baca(nama)
+    if (/uji\.harap_gagal\(/.test(isiUji)) {
+      console.log(`  GAGAL ${label}`)
+      console.log('        masih memakai uji.harap_gagal polos — wajib uji.harap_gagal_sebab(perintah, pola-sebab) [J F-09]')
+      catatanGagal.push(`${label}: uji.harap_gagal polos (wajib harap_gagal_sebab — J F-09)`)
+      hasil.gagal++
+      continue
+    }
     await db.exec('begin')
     try {
-      await db.exec(baca(nama))
+      await db.exec(isiUji)
       console.log(`  LULUS ${label}`)
       hasil.lulus++
     } catch (e) {

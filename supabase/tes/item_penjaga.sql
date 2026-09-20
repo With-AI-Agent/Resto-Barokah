@@ -29,18 +29,12 @@ select uji.sama(
 -- 2. DAPUR: tidak boleh mengubah isi pesanan (qty).
 select uji.klaim('90000000-0000-0000-0000-000000000006');
 set local role authenticated;
-select uji.harap_gagal(
-  $$update public.pesanan_item set qty = 1 where id = '00000000-0000-0000-0000-00000000f102'$$,
-  'dapur TIDAK boleh mengecilkan jumlah pesanan (dapur tidak menjual)'
-);
+select uji.harap_gagal_sebab($$update public.pesanan_item set qty = 1 where id = '00000000-0000-0000-0000-00000000f102'$$, 'Dapur hanya boleh memajukan status masak — isi pesanan \(jumlah, harga, catatan\) tidak bole', 'dapur TIDAK boleh mengecilkan jumlah pesanan (dapur tidak menjual)');
 -- Dinaikkan pun tidak boleh: arah apa pun tetap mengubah ISI transaksi yang bukan
 -- kewenangan dapur. (Uji ini juga pembeda penting untuk bukti mutasi: mengecilkan qty
 -- ditahan DUA penjaga — aturan dapur dan aturan jejak pembatalan — sedangkan menaikkan
 -- qty hanya bisa ditahan oleh aturan dapur.)
-select uji.harap_gagal(
-  $$update public.pesanan_item set qty = 3 where id = '00000000-0000-0000-0000-00000000f102'$$,
-  'dapur TIDAK boleh menaikkan jumlah pesanan'
-);
+select uji.harap_gagal_sebab($$update public.pesanan_item set qty = 3 where id = '00000000-0000-0000-0000-00000000f102'$$, 'Dapur hanya boleh memajukan status masak — isi pesanan \(jumlah, harga, catatan\) tidak bole', 'dapur TIDAK boleh menaikkan jumlah pesanan');
 
 -- 3. DAPUR: pekerjaannya (memajukan status masak) tetap boleh.
 update public.pesanan_item set status = 'dimasak' where id = '00000000-0000-0000-0000-00000000f102';
@@ -54,14 +48,8 @@ select uji.klaim(null);
 -- 4. KASIR: membatalkan item setelah dapur mulai TANPA baris pembatalan → DITOLAK.
 select uji.klaim('90000000-0000-0000-0000-000000000005');   -- Dedi (pelayan) bertugas di Cabang Dua
 set local role authenticated;
-select uji.harap_gagal(
-  $$update public.pesanan_item set status = 'batal' where id = '00000000-0000-0000-0000-00000000f102'$$,
-  'item dibatalkan setelah dapur mulai WAJIB lewat baris pembatalan resmi (alasan + PIN)'
-);
-select uji.harap_gagal(
-  $$update public.pesanan_item set qty = 1 where id = '00000000-0000-0000-0000-00000000f102'$$,
-  'mengecilkan qty setelah dapur mulai juga wajib berjejak'
-);
+select uji.harap_gagal_sebab($$update public.pesanan_item set status = 'batal' where id = '00000000-0000-0000-0000-00000000f102'$$, 'Pembatalan item setelah dapur mulai wajib lewat baris pembatalan resmi \(alasan \+ persetuju', 'item dibatalkan setelah dapur mulai WAJIB lewat baris pembatalan resmi (alasan + PIN)');
+select uji.harap_gagal_sebab($$update public.pesanan_item set qty = 1 where id = '00000000-0000-0000-0000-00000000f102'$$, 'Pembatalan item setelah dapur mulai wajib lewat baris pembatalan resmi \(alasan \+ persetuju', 'mengecilkan qty setelah dapur mulai juga wajib berjejak');
 reset role;
 select uji.klaim(null);
 

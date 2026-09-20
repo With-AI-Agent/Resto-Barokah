@@ -28,19 +28,13 @@ select uji.sama(has_table_privilege('anon', 'public.kredensial_pin', 'select'), 
                 'peran anon TIDAK punya hak baca kredensial_pin');
 
 -- 2. Batas (CHECK) tetap menolak PIN mentah di tabel barunya.
-select uji.harap_gagal(
-  $$insert into public.kredensial_pin (pengguna_id, pin_hash)
-      values ('90000000-0000-0000-0000-000000000004', '2468')$$,
-  'PIN mentah tetap DITOLAK database walau sudah pindah tabel'
-);
+select uji.harap_gagal_sebab($$insert into public.kredensial_pin (pengguna_id, pin_hash)
+      values ('90000000-0000-0000-0000-000000000004', '2468')$$, 'violates check constraint "kredensial_pin_pin_hash_check"', 'PIN mentah tetap DITOLAK database walau sudah pindah tabel');
 
 -- 3. Klien tetap tidak bisa membaca rahasianya walau memaksa lewat SQL.
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir
 set local role authenticated;
-select uji.harap_gagal(
-  $$select pin_hash from public.kredensial_pin$$,
-  'kasir tidak bisa membaca kredensial_pin'
-);
+select uji.harap_gagal_sebab($$select pin_hash from public.kredensial_pin$$, 'permission denied for table kredensial_pin', 'kasir tidak bisa membaca kredensial_pin');
 reset role;
 select uji.klaim(null);
 
@@ -89,12 +83,9 @@ select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner
 set local role authenticated;
 
 -- 5a. Wajib 6 angka.
-select uji.harap_gagal($$select public.simpan_pin('2468', null, '90000000-0000-0000-0000-000000000003')$$,
-                       'PIN 4 angka DITOLAK (dulu diizinkan)');
-select uji.harap_gagal($$select public.simpan_pin('2468135', null, '90000000-0000-0000-0000-000000000003')$$,
-                       'PIN 7 angka ditolak');
-select uji.harap_gagal($$select public.simpan_pin('24681x', null, '90000000-0000-0000-0000-000000000003')$$,
-                       'PIN bukan angka ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('2468', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: harus tepat 6 angka', 'PIN 4 angka DITOLAK (dulu diizinkan)');
+select uji.harap_gagal_sebab($$select public.simpan_pin('2468135', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: harus tepat 6 angka', 'PIN 7 angka ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('24681x', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: harus tepat 6 angka', 'PIN bukan angka ditolak');
 -- Jalur VERIFIKASI juga menolak bentuk yang bukan 6 angka (dijawab sebagai pesan,
 -- bukan "PIN salah", supaya tidak ikut menghabiskan jatah tebak).
 select uji.sama(
@@ -107,20 +98,13 @@ select uji.sama(
   'bentuk PIN yang salah tidak dihitung sebagai percobaan menebak');
 
 -- 5b. Pola lemah ditolak: semua digit sama · urutan · blok berulang · tanggal.
-select uji.harap_gagal($$select public.simpan_pin('111111', null, '90000000-0000-0000-0000-000000000003')$$,
-                       'PIN semua digit sama ditolak');
-select uji.harap_gagal($$select public.simpan_pin('123456', null, '90000000-0000-0000-0000-000000000003')$$,
-                       'PIN berurutan naik ditolak');
-select uji.harap_gagal($$select public.simpan_pin('654321', null, '90000000-0000-0000-0000-000000000003')$$,
-                       'PIN berurutan turun ditolak');
-select uji.harap_gagal($$select public.simpan_pin('121212', null, '90000000-0000-0000-0000-000000000003')$$,
-                       'PIN blok berulang ditolak');
-select uji.harap_gagal($$select public.simpan_pin('010190', null, '90000000-0000-0000-0000-000000000003')$$,
-                       'PIN berbentuk tanggal (ddmmyy) ditolak');
-select uji.harap_gagal($$select public.simpan_pin('456789', null, '90000000-0000-0000-0000-000000000003')$$,
-                       'PIN deret panjang (456789) ditolak');
-select uji.harap_gagal($$select public.simpan_pin('112233', null, '90000000-0000-0000-0000-000000000003')$$,
-                       'PIN pasangan berurutan (112233) ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('111111', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: semua angkanya sama', 'PIN semua digit sama ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('123456', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: berisi deret angka berurutan', 'PIN berurutan naik ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('654321', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: berisi deret angka berurutan', 'PIN berurutan turun ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('121212', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: pola berulang', 'PIN blok berulang ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('010190', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: berbentuk tanggal', 'PIN berbentuk tanggal (ddmmyy) ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('456789', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: berisi deret angka berurutan', 'PIN deret panjang (456789) ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('112233', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: pasangan angka berurutan', 'PIN pasangan berurutan (112233) ditolak');
 select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000003'),
                 'PIN tersimpan.', 'PIN 6 angka yang kuat DITERIMA');
 

@@ -21,18 +21,12 @@ select uji.sama(
 );
 
 -- 1. Kolom persen diisi jujur → ditolak (sudah berlaku sebelumnya).
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'manual', 37, 20000, 20000, 'persen jujur')$$,
-  'diskon 37 persen DITOLAK bila kolom persen diisi jujur'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'manual', 37, 20000, 20000, 'persen jujur')$$, 'Diskon ini melebihi batas izin Anda\. Minta persetujuan atasan \(PIN\)', 'diskon 37 persen DITOLAK bila kolom persen diisi jujur');
 
 -- 2. Kolom persen DIKOSONGKAN → tetap ditolak (inilah cacat yang ditutup).
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 20000, 20000, 'persen kosong')$$,
-  'diskon 37 persen DITOLAK walau kolom persen dikosongkan (persen dihitung dari uang)'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+      values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 20000, 20000, 'persen kosong')$$, 'Diskon ini melebihi batas izin Anda\. Minta persetujuan atasan \(PIN\)', 'diskon 37 persen DITOLAK walau kolom persen dikosongkan (persen dihitung dari uang)');
 
 -- 3. Kolom persen dikosongkan TETAPI nilai diskonnya di bawah kedua batas → diterima.
 select uji.sama(

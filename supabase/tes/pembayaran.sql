@@ -40,27 +40,15 @@ select uji.sama(
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir Pusat
 set local role authenticated;
 select uji.sama((select count(*) from public.metode_bayar), 4::bigint, 'kasir melihat metode bayar restonya');
-select uji.harap_gagal(
-  $$insert into public.metode_bayar (penyewa_id, nama, jenis) values ('11111111-1111-1111-1111-111111111111', 'Metode Kasir', 'tunai')$$,
-  'kasir tidak boleh menambah metode bayar'
-);
+select uji.harap_gagal_sebab($$insert into public.metode_bayar (penyewa_id, nama, jenis) values ('11111111-1111-1111-1111-111111111111', 'Metode Kasir', 'tunai')$$, 'row-level security policy for table "metode_bayar"', 'kasir tidak boleh menambah metode bayar');
 
 -- 3. TUNai: uang diterima wajib, kembalian dihitung database.
-select uji.harap_gagal(
-  $$insert into public.pembayaran (pesanan_id, metode_id, metode_nama_saat_itu, jenis_saat_itu, jumlah, kunci_idempoten)
-      values ('eeee0000-0000-0000-0000-000000000010', null, 'Tunai', 'tunai', 50000, 'bayar-tanpa-diterima')$$,
-  'pembayaran tunai tanpa uang diterima ditolak'
-);
-select uji.harap_gagal(
-  $$insert into public.pembayaran (pesanan_id, metode_id, metode_nama_saat_itu, jenis_saat_itu, jumlah, diterima, kunci_idempoten)
-      values ('eeee0000-0000-0000-0000-000000000010', null, 'Tunai', 'tunai', 50000, 40000, 'bayar-kurang')$$,
-  'uang diterima lebih kecil dari jumlah bayar ditolak'
-);
-select uji.harap_gagal(
-  $$insert into public.pembayaran (pesanan_id, metode_id, metode_nama_saat_itu, jenis_saat_itu, jumlah, kunci_idempoten)
-      values ('eeee0000-0000-0000-0000-000000000010', null, 'QRIS', 'non_tunai', 10000, 'bayar-tanpa-referensi')$$,
-  'pembayaran bukan tunai tanpa referensi ditolak'
-);
+select uji.harap_gagal_sebab($$insert into public.pembayaran (pesanan_id, metode_id, metode_nama_saat_itu, jenis_saat_itu, jumlah, kunci_idempoten)
+      values ('eeee0000-0000-0000-0000-000000000010', null, 'Tunai', 'tunai', 50000, 'bayar-tanpa-diterima')$$, 'Pembayaran tunai wajib menyebut uang yang diterima', 'pembayaran tunai tanpa uang diterima ditolak');
+select uji.harap_gagal_sebab($$insert into public.pembayaran (pesanan_id, metode_id, metode_nama_saat_itu, jenis_saat_itu, jumlah, diterima, kunci_idempoten)
+      values ('eeee0000-0000-0000-0000-000000000010', null, 'Tunai', 'tunai', 50000, 40000, 'bayar-kurang')$$, 'Uang diterima \(', 'uang diterima lebih kecil dari jumlah bayar ditolak');
+select uji.harap_gagal_sebab($$insert into public.pembayaran (pesanan_id, metode_id, metode_nama_saat_itu, jenis_saat_itu, jumlah, kunci_idempoten)
+      values ('eeee0000-0000-0000-0000-000000000010', null, 'QRIS', 'non_tunai', 10000, 'bayar-tanpa-referensi')$$, 'Pembayaran bukan tunai wajib menyebut nomor referensi', 'pembayaran bukan tunai tanpa referensi ditolak');
 
 insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
 select 'eeee0000-0000-0000-0000-000000000010', mb.id, 50000, 100000, 'bayar-1'
@@ -114,31 +102,19 @@ select uji.klaim(null);
 -- akan menjadi 70.000, jadi HARUS ditolak.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
+select uji.harap_gagal_sebab($$insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
       select 'eeee0000-0000-0000-0000-000000000010', mb.id, 20000, 30000, 'bayar-3'
         from public.metode_bayar mb
-       where mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$,
-  'total pembayaran tidak boleh melebihi total pesanan'
-);
-select uji.harap_gagal(
-  $$update public.pembayaran set jumlah = 1 where kunci_idempoten = 'bayar-1'$$,
-  'baris pembayaran tidak bisa diubah'
-);
-select uji.harap_gagal(
-  $$delete from public.pembayaran where kunci_idempoten = 'bayar-1'$$,
-  'baris pembayaran tidak bisa dihapus'
-);
+       where mb.penyewa_id = '11111111-1111-1111-1111-111111111111' and mb.nama = 'Tunai'$$, 'Total pembayaran \(', 'total pembayaran tidak boleh melebihi total pesanan');
+select uji.harap_gagal_sebab($$update public.pembayaran set jumlah = 1 where kunci_idempoten = 'bayar-1'$$, 'permission denied for table pembayaran', 'baris pembayaran tidak bisa diubah');
+select uji.harap_gagal_sebab($$delete from public.pembayaran where kunci_idempoten = 'bayar-1'$$, 'permission denied for table pembayaran', 'baris pembayaran tidak bisa dihapus');
 reset role;
 select uji.klaim(null);
 
 -- 5. ANGKA UANG pesanan tidak bisa dikarang dari perangkat.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$update public.pesanan set total = 1 where id = 'eeee0000-0000-0000-0000-000000000010'$$,
-  'kasir tidak boleh mengubah total pesanan langsung'
-);
+select uji.harap_gagal_sebab($$update public.pesanan set total = 1 where id = 'eeee0000-0000-0000-0000-000000000010'$$, 'Angka uang pesanan hanya boleh diubah oleh fungsi perhitungan peladen \(hitung_total\)', 'kasir tidak boleh mengubah total pesanan langsung');
 reset role;
 select uji.klaim(null);
 select uji.sama(
@@ -163,24 +139,15 @@ select uji.sama(
 -- sebagai pemilik tabel, penjaga memang tidak berlaku — itu jalur peladen).
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.pesanan (penyewa_id, cabang_id, kunci_idempoten, total) values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 'pesanan-total-karangan', 5000)$$,
-  'pesanan baru dengan total karangan ditolak'
-);
+select uji.harap_gagal_sebab($$insert into public.pesanan (penyewa_id, cabang_id, kunci_idempoten, total) values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 'pesanan-total-karangan', 5000)$$, 'Angka uang pesanan hanya boleh diisi oleh fungsi perhitungan peladen \(hitung_total\), bukan', 'pesanan baru dengan total karangan ditolak');
 reset role;
 select uji.klaim(null);
 
 -- 6. DISKON: melebihi batas izin kasir (25.000 / 5%) → ditolak.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 30000, 30000, 'minta diskon besar')$$,
-  'diskon melebihi batas nominal kasir ditolak'
-);
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, persen, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 3000, 20, 3000, 'diskon persen besar')$$,
-  'diskon melebihi batas persen kasir ditolak'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 30000, 30000, 'minta diskon besar')$$, 'Diskon ini melebihi batas izin Anda\. Minta persetujuan atasan \(PIN\)', 'diskon melebihi batas nominal kasir ditolak');
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, persen, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 3000, 20, 3000, 'diskon persen besar')$$, 'Diskon ini melebihi batas izin Anda\. Minta persetujuan atasan \(PIN\)', 'diskon melebihi batas persen kasir ditolak');
 -- CATATAN: dulu di sini tertulis 20.000 — padahal 20.000 dari subtotal 54.000 = 37 %,
 -- jauh di atas batas kasir 5 %. Uji ini LULUS karena sebab yang salah (pemeriksaan persen
 -- dilewati saat kolom `persen` kosong — temuan audit AUD-3 K-2/B F-06). Sekarang nilainya
@@ -194,10 +161,7 @@ select uji.sama(
 );
 
 -- Diskon KEDUA: ditolak karena resto belum mengizinkan tumpuk diskon.
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1000, 1000, 'diskon kedua')$$,
-  'diskon kedua ditolak saat tumpuk diskon belum diizinkan'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1000, 1000, 'diskon kedua')$$, 'Resto ini hanya mengizinkan satu diskon per transaksi', 'diskon kedua ditolak saat tumpuk diskon belum diizinkan');
 reset role;
 select uji.klaim(null);
 
@@ -217,10 +181,7 @@ select uji.sama(
 );
 
 -- Diskon manual tanpa alasan ditolak; diskon melebihi subtotal ditolak.
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1000, 1000)$$,
-  'diskon manual tanpa alasan ditolak'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1000, 1000)$$, 'violates check constraint "diskon_transaksi_check"', 'diskon manual tanpa alasan ditolak');
 reset role;
 select uji.klaim(null);
 -- Diskon yang membuat TOTAL diskon melebihi subtotal: diuji sebagai OWNER
@@ -276,10 +237,7 @@ set local role authenticated;
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000006');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1000, 1000, 'coba-coba dapur')$$,
-  'dapur tidak boleh memberi diskon'
-);
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1000, 1000, 'coba-coba dapur')$$, 'Diskon ini melebihi batas izin Anda\. Minta persetujuan atasan \(PIN\)', 'dapur tidak boleh memberi diskon');
 reset role;
 select uji.klaim(null);
 
@@ -381,18 +339,9 @@ values ('eeee0000-0000-0000-0000-000000000013', 'beef0000-0000-0000-0000-0000000
         'Nasi Goreng', 27000, 1, 27000);
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, alasan) values ('eeee0000-0000-0000-0000-000000000013', 'sebelum_dapur', 'salah input')$$,
-  'tahap sebelum_dapur ditolak bila pesanan sudah dikirim ke dapur'
-);
-select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, alasan) values ('eeee0000-0000-0000-0000-000000000013', 'sesudah_dapur', 'salah input')$$,
-  'pembatalan setelah dapur mulai tanpa penyetuju ditolak'
-);
-select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan) values ('eeee0000-0000-0000-0000-000000000013', 'sesudah_dapur', '90000000-0000-0000-0000-000000000006', 'minta dapur menyetujui')$$,
-  'penyetuju tanpa izin void sesudah dapur ditolak'
-);
+select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap, alasan) values ('eeee0000-0000-0000-0000-000000000013', 'sebelum_dapur', 'salah input')$$, 'Tahap pembatalan tidak sesuai keadaan pesanan \(seharusnya sesudah_dapur\)', 'tahap sebelum_dapur ditolak bila pesanan sudah dikirim ke dapur');
+select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap, alasan) values ('eeee0000-0000-0000-0000-000000000013', 'sesudah_dapur', 'salah input')$$, 'Pembatalan setelah dapur mulai wajib disetujui pengguna berizin \(PIN\)', 'pembatalan setelah dapur mulai tanpa penyetuju ditolak');
+select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan) values ('eeee0000-0000-0000-0000-000000000013', 'sesudah_dapur', '90000000-0000-0000-0000-000000000006', 'minta dapur menyetujui')$$, 'Penyetuju itu tidak berizin menyetujui pembatalan setelah dapur mulai', 'penyetuju tanpa izin void sesudah dapur ditolak');
 
 -- Disetujui owner (punya izin) → diterima, dan nilai kerugian dihitung dari salinan harga.
 -- Sejak penutup celah (0012) bukti persetujuan = KUPON SEKALI PAKAI.

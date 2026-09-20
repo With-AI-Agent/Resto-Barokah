@@ -20,23 +20,17 @@ select uji.klaim(null);
 --    tetapi TANPA bukti persetujuan → harus DITOLAK.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
+select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
       values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur',
-              '90000000-0000-0000-0000-000000000002', 'void tanpa bukti persetujuan')$$,
-  'pembatalan sesudah dapur DITOLAK bila penyetuju belum memasukkan PIN-nya'
-);
+              '90000000-0000-0000-0000-000000000002', 'void tanpa bukti persetujuan')$$, 'Persetujuan belum terbukti untuk pesanan ini: penyetuju harus memasukkan PIN-nya sendiri u', 'pembatalan sesudah dapur DITOLAK bila penyetuju belum memasukkan PIN-nya');
 
 -- 2. PIN yang benar tetapi untuk AKSI LAIN juga bukan bukti.
 select uji.sama(
   (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', null, 'hp-atasan')).berhasil,
   true, 'kontrol: PIN penyetuju benar (tanpa menyebut aksi)');
-select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
+select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
       values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur',
-              '90000000-0000-0000-0000-000000000002', 'void dengan PIN tanpa aksi')$$,
-  'pembatalan DITOLAK bila PIN-nya tidak diminta untuk aksi void_sesudah_dapur'
-);
+              '90000000-0000-0000-0000-000000000002', 'void dengan PIN tanpa aksi')$$, 'Persetujuan belum terbukti untuk pesanan ini: penyetuju harus memasukkan PIN-nya sendiri u', 'pembatalan DITOLAK bila PIN-nya tidak diminta untuk aksi void_sesudah_dapur');
 
 -- 3. Bukti yang benar: penyetuju memasukkan PIN-nya untuk aksi ini → diterima.
 select uji.sama(
@@ -76,12 +70,9 @@ update public.percobaan_pin set waktu = now() - interval '1 hour'
 
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
+select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
       values ('00000000-0000-0000-0000-00000000c001', 'sesudah_dapur',
-              '90000000-0000-0000-0000-000000000002', 'void dengan bukti lama')$$,
-  'pembatalan DITOLAK bila bukti persetujuannya sudah kedaluwarsa'
-);
+              '90000000-0000-0000-0000-000000000002', 'void dengan bukti lama')$$, 'Persetujuan belum terbukti untuk pesanan ini: penyetuju harus memasukkan PIN-nya sendiri u', 'pembatalan DITOLAK bila bukti persetujuannya sudah kedaluwarsa');
 reset role;
 select uji.klaim(null);
 
@@ -125,12 +116,9 @@ select uji.sama(
   (select p.status from public.pesanan p where p.id = '00000000-0000-0000-0000-00000000c002'),
   'dikirim', 'kontrol: satu item dibatalkan, pesanan masih hidup (item kedua masih ada)'
 );
-select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
+select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
       values ('00000000-0000-0000-0000-00000000c001', 'sesudah_dapur',
-              '90000000-0000-0000-0000-000000000002', 'mencoba memakai ulang bukti pesanan lain')$$,
-  'satu persetujuan PIN tidak bisa dipakai untuk pesanan LAIN (kupon sekali pakai)'
-);
+              '90000000-0000-0000-0000-000000000002', 'mencoba memakai ulang bukti pesanan lain')$$, 'Persetujuan belum terbukti untuk pesanan ini: penyetuju harus memasukkan PIN-nya sendiri u', 'satu persetujuan PIN tidak bisa dipakai untuk pesanan LAIN (kupon sekali pakai)');
 -- Item KEDUA (masih hidup) + kupon yang SUDAH HABIS: yang menahan hanya aturan kupon.
 select uji.sama(
   (select count(*) from public.pembatalan pb

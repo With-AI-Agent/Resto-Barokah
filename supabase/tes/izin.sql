@@ -27,10 +27,7 @@ select uji.sama(
 -- 3. Sebelum masuk (anon): tidak boleh memanggil gerbang izin sama sekali.
 select uji.klaim(null);
 set local role anon;
-select uji.harap_gagal(
-  $$select public.boleh('beri_diskon')$$,
-  'anon tidak boleh memanggil boleh()'
-);
+select uji.harap_gagal_sebab($$select public.boleh('beri_diskon')$$, 'permission denied for function boleh', 'anon tidak boleh memanggil boleh()');
 select uji.sama((select count(*) from public.izin_peran), 0::bigint, 'anon tidak melihat satu baris izin peran');
 reset role;
 select uji.klaim(null);
@@ -210,10 +207,7 @@ update public.pengguna set aktif = true where id = '90000000-0000-0000-0000-0000
 -- 12. Hanya owner pusat yang boleh mengubah izin bawaan peran.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.izin_peran (penyewa_id, peran, kode_izin, boleh) values ('11111111-1111-1111-1111-111111111111', 'kasir', 'ubah_harga', true)$$,
-  'kasir tidak boleh menambah izin bawaan'
-);
+select uji.harap_gagal_sebab($$insert into public.izin_peran (penyewa_id, peran, kode_izin, boleh) values ('11111111-1111-1111-1111-111111111111', 'kasir', 'ubah_harga', true)$$, 'row-level security policy for table "izin_peran"', 'kasir tidak boleh menambah izin bawaan');
 update public.izin_peran set boleh = true
  where penyewa_id = '11111111-1111-1111-1111-111111111111' and peran = 'kasir' and kode_izin = 'ubah_harga';
 reset role;

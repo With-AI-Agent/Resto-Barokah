@@ -48,23 +48,14 @@ select uji.klaim(null);
 -- 5. Menulis cabang: hanya owner pusat, dan hanya di restonya sendiri.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.cabang (penyewa_id, nama) values ('11111111-1111-1111-1111-111111111111', 'Cabang Kasir')$$,
-  'kasir tidak boleh menambah cabang'
-);
-select uji.harap_gagal(
-  $$update public.penyewa set nama = 'Diubah Kasir' where id = '11111111-1111-1111-1111-111111111111'$$,
-  'kasir tidak boleh mengubah penyewa'
-);
+select uji.harap_gagal_sebab($$insert into public.cabang (penyewa_id, nama) values ('11111111-1111-1111-1111-111111111111', 'Cabang Kasir')$$, 'row-level security policy for table "cabang"', 'kasir tidak boleh menambah cabang');
+select uji.harap_gagal_sebab($$update public.penyewa set nama = 'Diubah Kasir' where id = '11111111-1111-1111-1111-111111111111'$$, 'permission denied for table penyewa', 'kasir tidak boleh mengubah penyewa');
 reset role;
 select uji.klaim(null);
 
 select uji.klaim('90000000-0000-0000-0000-000000000002');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.cabang (penyewa_id, nama) values ('22222222-2222-2222-2222-222222222222', 'Cabang Sisipan')$$,
-  'owner pusat tidak boleh menambah cabang ke resto lain'
-);
+select uji.harap_gagal_sebab($$insert into public.cabang (penyewa_id, nama) values ('22222222-2222-2222-2222-222222222222', 'Cabang Sisipan')$$, 'row-level security policy for table "cabang"', 'owner pusat tidak boleh menambah cabang ke resto lain');
 reset role;
 select uji.klaim(null);
 

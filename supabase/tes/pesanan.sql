@@ -34,10 +34,7 @@ select uji.klaim(null);
 -- 3. Salinan harga TIDAK boleh kosong (harga_saat_itu WAJIB).
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, qty) values ('eeee0000-0000-0000-0000-000000000001', 'beef0000-0000-0000-0000-000000000002', 'Es Teh', 1)$$,
-  'item tanpa harga saat itu ditolak database'
-);
+select uji.harap_gagal_sebab($$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, qty) values ('eeee0000-0000-0000-0000-000000000001', 'beef0000-0000-0000-0000-000000000002', 'Es Teh', 1)$$, 'Harga saat itu wajib diisi dan harus lebih dari nol', 'item tanpa harga saat itu ditolak database');
 
 -- 4. INTI ART-3: harga menu diubah setelah pesanan dibuat → pesanan lama TIDAK berubah.
 reset role;
@@ -68,20 +65,11 @@ select uji.harap_gagal_sebab(
   'perlu izin ubah harga',
   'harga yang sudah tercatat tidak boleh diubah tanpa izin ubah harga'
 );
-select uji.harap_gagal(
-  $$update public.pesanan_item set nama_saat_itu = 'Nama Karangan' where pesanan_id = 'eeee0000-0000-0000-0000-000000000001'$$,
-  'nama yang sudah tercatat tidak boleh diubah'
-);
+select uji.harap_gagal_sebab($$update public.pesanan_item set nama_saat_itu = 'Nama Karangan' where pesanan_id = 'eeee0000-0000-0000-0000-000000000001'$$, 'Nama & harga yang sudah tercatat tidak boleh diubah\. Batalkan item itu lalu tambahkan bari', 'nama yang sudah tercatat tidak boleh diubah');
 -- Menghapus memang TIDAK diizinkan sama sekali (bukan sekadar disaring):
 -- pesanan hanya boleh dibatalkan supaya jejaknya tetap ada.
-select uji.harap_gagal(
-  $$delete from public.pesanan_item where pesanan_id = 'eeee0000-0000-0000-0000-000000000001'$$,
-  'item pesanan tidak bisa dihapus'
-);
-select uji.harap_gagal(
-  $$delete from public.pesanan where id = 'eeee0000-0000-0000-0000-000000000001'$$,
-  'pesanan tidak bisa dihapus'
-);
+select uji.harap_gagal_sebab($$delete from public.pesanan_item where pesanan_id = 'eeee0000-0000-0000-0000-000000000001'$$, 'permission denied for table pesanan_item', 'item pesanan tidak bisa dihapus');
+select uji.harap_gagal_sebab($$delete from public.pesanan where id = 'eeee0000-0000-0000-0000-000000000001'$$, 'permission denied for table pesanan', 'pesanan tidak bisa dihapus');
 reset role;
 select uji.klaim(null);
 select uji.sama(
@@ -118,20 +106,11 @@ select uji.sama(
   0::bigint,
   'tidak ada nomor ganda di cabang & tanggal yang sama'
 );
-select uji.harap_gagal(
-  $$insert into public.pesanan (penyewa_id, cabang_id, nomor, tanggal, kunci_idempoten) values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 2, current_date, 'keranjang-uji-1')$$,
-  'kunci idempoten yang sama tidak bisa menyimpan pesanan dua kali'
-);
+select uji.harap_gagal_sebab($$insert into public.pesanan (penyewa_id, cabang_id, nomor, tanggal, kunci_idempoten) values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 2, current_date, 'keranjang-uji-1')$$, 'violates unique constraint "pesanan_cabang_id_kunci_idempoten_key"', 'kunci idempoten yang sama tidak bisa menyimpan pesanan dua kali');
 
 -- 7. Meja cabang lain tidak boleh dipakai; cabang resto lain juga tidak.
-select uji.harap_gagal(
-  $$insert into public.pesanan (penyewa_id, cabang_id, meja_id, kunci_idempoten) values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 'aaa00000-0000-0000-0000-000000000003', 'keranjang-salah-meja')$$,
-  'meja Cabang Dua tidak boleh dipakai pesanan cabang Pusat'
-);
-select uji.harap_gagal(
-  $$insert into public.pesanan (penyewa_id, cabang_id, kunci_idempoten) values ('22222222-2222-2222-2222-222222222222', 'a1a1a1a1-0000-0000-0000-000000000001', 'keranjang-resto-salah')$$,
-  'penyewa_id yang tidak sesuai cabangnya ditolak'
-);
+select uji.harap_gagal_sebab($$insert into public.pesanan (penyewa_id, cabang_id, meja_id, kunci_idempoten) values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 'aaa00000-0000-0000-0000-000000000003', 'keranjang-salah-meja')$$, 'Meja itu berada di cabang lain — pesanan tidak boleh memakainya', 'meja Cabang Dua tidak boleh dipakai pesanan cabang Pusat');
+select uji.harap_gagal_sebab($$insert into public.pesanan (penyewa_id, cabang_id, kunci_idempoten) values ('22222222-2222-2222-2222-222222222222', 'a1a1a1a1-0000-0000-0000-000000000001', 'keranjang-resto-salah')$$, 'Cabang dan pesanan harus berada di resto yang sama', 'penyewa_id yang tidak sesuai cabangnya ditolak');
 -- TEMUAN AUDIT A-17/F-06: asersi ini dulu lulus karena pemicu KONSISTENSI PENYEWA
 -- ("Cabang dan pesanan harus berada di resto yang sama"), bukan karena policy lingkup
 -- cabang. Keduanya penjaga sah, tetapi sebabnya harus disebut supaya tidak menyesatkan.
@@ -140,10 +119,7 @@ select uji.harap_gagal_sebab(
   'resto yang sama|cabang',
   'kasir Pusat tidak boleh membuat pesanan di cabang lain'
 );
-select uji.harap_gagal(
-  $$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty) values ('eeee0000-0000-0000-0000-000000000001', 'beef0000-0000-0000-0000-000000000004', 'Mie Ayam', 20000, 1)$$,
-  'menu resto lain tidak boleh masuk ke pesanan ini'
-);
+select uji.harap_gagal_sebab($$insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty) values ('eeee0000-0000-0000-0000-000000000001', 'beef0000-0000-0000-0000-000000000004', 'Mie Ayam', 20000, 1)$$, 'Menu tidak ditemukan atau tidak dijual di cabang ini', 'menu resto lain tidak boleh masuk ke pesanan ini');
 reset role;
 select uji.klaim(null);
 
@@ -184,10 +160,7 @@ select uji.sama(
   1::bigint,
   'jejak pembatalan tercatat SATU baris (bukan pembatalan tanpa jejak)'
 );
-select uji.harap_gagal(
-  $$update public.pesanan set status = 'entah' where id = 'eeee0000-0000-0000-0000-000000000001'$$,
-  'status pesanan di luar daftar resmi ditolak'
-);
+select uji.harap_gagal_sebab($$update public.pesanan set status = 'entah' where id = 'eeee0000-0000-0000-0000-000000000001'$$, 'Perpindahan status pesanan batal → entah tidak diizinkan dari perangkat — status itu hanya', 'status pesanan di luar daftar resmi ditolak');
 reset role;
 select uji.klaim(null);
 

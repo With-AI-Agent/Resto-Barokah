@@ -7,12 +7,9 @@
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir Pusat
 set local role authenticated;
 
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan, disetujui_oleh)
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan, disetujui_oleh)
       values ('eeee0000-0000-0000-0000-000000000010','manual',2000,2000,'stempel karangan',
-              '90000000-0000-0000-0000-000000000002')$$,
-  'stempel "disetujui owner" tanpa bukti PIN DITOLAK'
-);
+              '90000000-0000-0000-0000-000000000002')$$, 'Persetujuan diskon belum terbukti: penyetuju harus memasukkan PIN-nya sendiri untuk diskon', 'stempel "disetujui owner" tanpa bukti PIN DITOLAK');
 
 -- Diskon biasa (tanpa stempel) tetap boleh — batas izin kasir bekerja.
 insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan)
@@ -46,12 +43,9 @@ select uji.sama(
   2::bigint, 'diskon berstempel DITERIMA setelah bukti PIN ada (jalur sah terbuka)'
 );
 -- Kupon sekali pakai: stempel kedua tanpa PIN baru ditolak.
-select uji.harap_gagal(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan, disetujui_oleh)
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan, disetujui_oleh)
       values ('eeee0000-0000-0000-0000-000000000010','manual',1000,1000,'pakai ulang kupon',
-              '90000000-0000-0000-0000-000000000002')$$,
-  'satu persetujuan PIN tidak bisa dipakai dua kali'
-);
+              '90000000-0000-0000-0000-000000000002')$$, 'Persetujuan diskon belum terbukti: penyetuju harus memasukkan PIN-nya sendiri untuk diskon', 'satu persetujuan PIN tidak bisa dipakai dua kali');
 reset role;
 select uji.klaim(null);
 

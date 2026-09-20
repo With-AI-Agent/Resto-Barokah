@@ -55,14 +55,8 @@ select uji.sama(public.menu_habis('beef0000-0000-0000-0000-000000000002', 'a1a1a
 select uji.sama(public.menu_habis('beef0000-0000-0000-0000-000000000004', 'a1a1a1a1-0000-0000-0000-000000000001'), false, 'menu resto lain tidak dianggap habis');
 
 -- 5. Kasir tidak boleh mengubah katalog (bukan haknya).
-select uji.harap_gagal(
-  $$insert into public.menu_item (penyewa_id, kategori_id, nama, harga, jenis) values ('11111111-1111-1111-1111-111111111111', 'cafe0000-0000-0000-0000-000000000001', 'Menu Kasir', 10000, 'makanan')$$,
-  'kasir tidak boleh menambah menu'
-);
-select uji.harap_gagal(
-  $$insert into public.stok_bahan (penyewa_id, nama, satuan) values ('11111111-1111-1111-1111-111111111111', 'Bahan Kasir', 'kg')$$,
-  'kasir tidak boleh menambah bahan stok'
-);
+select uji.harap_gagal_sebab($$insert into public.menu_item (penyewa_id, kategori_id, nama, harga, jenis) values ('11111111-1111-1111-1111-111111111111', 'cafe0000-0000-0000-0000-000000000001', 'Menu Kasir', 10000, 'makanan')$$, 'row-level security policy for table "menu_item"', 'kasir tidak boleh menambah menu');
+select uji.harap_gagal_sebab($$insert into public.stok_bahan (penyewa_id, nama, satuan) values ('11111111-1111-1111-1111-111111111111', 'Bahan Kasir', 'kg')$$, 'row-level security policy for table "stok_bahan"', 'kasir tidak boleh menambah bahan stok');
 
 -- Untuk update, RLS MENYARING (bukan melempar error): buktinya = tidak ada baris
 -- yang berubah. Dibandingkan dengan membaca ulang sebagai pemilik tabel.
@@ -83,14 +77,8 @@ set local role authenticated;
 insert into public.menu_item (penyewa_id, kategori_id, nama, harga, jenis)
 values ('11111111-1111-1111-1111-111111111111', 'cafe0000-0000-0000-0000-000000000001', 'Sate Ayam', 22000, 'makanan');
 select uji.sama((select count(*) from public.menu_item), 4::bigint, 'admin cabang berhasil menambah menu');
-select uji.harap_gagal(
-  $$insert into public.menu_item (penyewa_id, kategori_id, nama, harga, jenis) values ('22222222-2222-2222-2222-222222222222', 'cafe0000-0000-0000-0000-000000000001', 'Sisipan', 5000, 'makanan')$$,
-  'menu tidak bisa disisipkan ke resto lain'
-);
-select uji.harap_gagal(
-  $$insert into public.menu_cabang (cabang_id, menu_item_id, harga) values ('b1b1b1b1-0000-0000-0000-000000000001', 'beef0000-0000-0000-0000-000000000001', 99000)$$,
-  'harga cabang tidak bisa dipasang di cabang resto lain'
-);
+select uji.harap_gagal_sebab($$insert into public.menu_item (penyewa_id, kategori_id, nama, harga, jenis) values ('22222222-2222-2222-2222-222222222222', 'cafe0000-0000-0000-0000-000000000001', 'Sisipan', 5000, 'makanan')$$, 'row-level security policy for table "menu_item"', 'menu tidak bisa disisipkan ke resto lain');
+select uji.harap_gagal_sebab($$insert into public.menu_cabang (cabang_id, menu_item_id, harga) values ('b1b1b1b1-0000-0000-0000-000000000001', 'beef0000-0000-0000-0000-000000000001', 99000)$$, 'Cabang dan menu harus berada di resto yang sama', 'harga cabang tidak bisa dipasang di cabang resto lain');
 reset role;
 select uji.klaim(null);
 
@@ -104,14 +92,8 @@ select uji.sama(
   true,
   'dapur ber-izin ubah_stok boleh menandai menu habis di cabangnya'
 );
-select uji.harap_gagal(
-  $$insert into public.menu_cabang (cabang_id, menu_item_id, harga) values ('a1a1a1a1-0000-0000-0000-000000000002', 'beef0000-0000-0000-0000-000000000002', 5000)$$,
-  'dapur TIDAK boleh menetapkan harga cabang saat menyisipkan baris baru'
-);
-select uji.harap_gagal(
-  $$update public.menu_cabang set harga = 1000 where cabang_id = 'a1a1a1a1-0000-0000-0000-000000000002' and menu_item_id = 'beef0000-0000-0000-0000-000000000003'$$,
-  'dapur TIDAK boleh mengubah harga cabang'
-);
+select uji.harap_gagal_sebab($$insert into public.menu_cabang (cabang_id, menu_item_id, harga) values ('a1a1a1a1-0000-0000-0000-000000000002', 'beef0000-0000-0000-0000-000000000002', 5000)$$, 'Menetapkan/mengubah harga hanya boleh oleh owner pusat atau admin cabang', 'dapur TIDAK boleh menetapkan harga cabang saat menyisipkan baris baru');
+select uji.harap_gagal_sebab($$update public.menu_cabang set harga = 1000 where cabang_id = 'a1a1a1a1-0000-0000-0000-000000000002' and menu_item_id = 'beef0000-0000-0000-0000-000000000003'$$, 'Menetapkan/mengubah harga hanya boleh oleh owner pusat atau admin cabang', 'dapur TIDAK boleh mengubah harga cabang');
 reset role;
 select uji.klaim(null);
 
@@ -171,14 +153,8 @@ select uji.sama(
   15::numeric,
   'opname mengurangi selisih 2 kg → saldo 15 kg'
 );
-select uji.harap_gagal(
-  $$select public.catat_stok('beef1000-0000-0000-0000-000000000001', 'koreksi', 1, null)$$,
-  'koreksi tanpa alasan ditolak'
-);
-select uji.harap_gagal(
-  $$update public.stok_bahan set jumlah = 999 where id = 'beef1000-0000-0000-0000-000000000001'$$,
-  'saldo stok TIDAK boleh ditulis langsung (harus lewat buku besar)'
-);
+select uji.harap_gagal_sebab($$select public.catat_stok('beef1000-0000-0000-0000-000000000001', 'koreksi', 1, null)$$, 'violates check constraint "stok_pergerakan_check"', 'koreksi tanpa alasan ditolak');
+select uji.harap_gagal_sebab($$update public.stok_bahan set jumlah = 999 where id = 'beef1000-0000-0000-0000-000000000001'$$, 'Jumlah stok hanya boleh berubah lewat catatan pergerakan stok \(bukan ditulis langsung\)', 'saldo stok TIDAK boleh ditulis langsung (harus lewat buku besar)');
 update public.stok_bahan set minimum = 4 where id = 'beef1000-0000-0000-0000-000000000001';
 select uji.sama(
   (select b.minimum from public.stok_bahan b where b.id = 'beef1000-0000-0000-0000-000000000001'),
@@ -193,14 +169,8 @@ select uji.klaim('90000000-0000-0000-0000-000000000006');
 set local role authenticated;
 -- Buku besar bersifat hanya-bertambah: hak ubah & hapus MEMANG tidak diberikan,
 -- jadi perintahnya ditolak langsung (bukan disaring diam-diam).
-select uji.harap_gagal(
-  $$update public.stok_pergerakan set jumlah = 999 where stok_bahan_id = 'beef1000-0000-0000-0000-000000000001'$$,
-  'buku besar stok tidak bisa diubah'
-);
-select uji.harap_gagal(
-  $$delete from public.stok_pergerakan where stok_bahan_id = 'beef1000-0000-0000-0000-000000000001'$$,
-  'buku besar stok tidak bisa dihapus'
-);
+select uji.harap_gagal_sebab($$update public.stok_pergerakan set jumlah = 999 where stok_bahan_id = 'beef1000-0000-0000-0000-000000000001'$$, 'permission denied for table stok_pergerakan', 'buku besar stok tidak bisa diubah');
+select uji.harap_gagal_sebab($$delete from public.stok_pergerakan where stok_bahan_id = 'beef1000-0000-0000-0000-000000000001'$$, 'permission denied for table stok_pergerakan', 'buku besar stok tidak bisa dihapus');
 reset role;
 select uji.klaim(null);
 select uji.sama(
@@ -216,14 +186,8 @@ select uji.harap(
 -- 10. Buku besar tidak bisa dicicil ke bahan resto lain (dan penyewa_id tidak bisa dipalsukan).
 select uji.klaim('90000000-0000-0000-0000-000000000006');
 set local role authenticated;
-select uji.harap_gagal(
-  $$insert into public.stok_pergerakan (penyewa_id, stok_bahan_id, jenis, jumlah) values ('11111111-1111-1111-1111-111111111111', 'beef1000-0000-0000-0000-000000000003', 'masuk', 5)$$,
-  'tidak boleh mencatat pergerakan untuk bahan resto lain'
-);
-select uji.harap_gagal(
-  $$insert into public.stok_pergerakan (penyewa_id, stok_bahan_id, jenis, jumlah) values ('22222222-2222-2222-2222-222222222222', 'beef1000-0000-0000-0000-000000000001', 'masuk', 5)$$,
-  'penyewa_id yang dipalsukan ditolak tegas'
-);
+select uji.harap_gagal_sebab($$insert into public.stok_pergerakan (penyewa_id, stok_bahan_id, jenis, jumlah) values ('11111111-1111-1111-1111-111111111111', 'beef1000-0000-0000-0000-000000000003', 'masuk', 5)$$, 'Bahan itu bukan milik resto Anda', 'tidak boleh mencatat pergerakan untuk bahan resto lain');
+select uji.harap_gagal_sebab($$insert into public.stok_pergerakan (penyewa_id, stok_bahan_id, jenis, jumlah) values ('22222222-2222-2222-2222-222222222222', 'beef1000-0000-0000-0000-000000000001', 'masuk', 5)$$, 'Penyewa pada catatan stok tidak sesuai dengan bahannya', 'penyewa_id yang dipalsukan ditolak tegas');
 -- Dan bila klien tidak mengirim penyewa_id sama sekali, diisi otomatis dari bahannya.
 insert into public.stok_pergerakan (stok_bahan_id, jenis, jumlah, alasan) values ('beef1000-0000-0000-0000-000000000002', 'masuk', 2, 'titipan supplier');
 reset role;
@@ -243,19 +207,13 @@ select uji.klaim(null);
 -- 11. Kasir (tanpa izin ubah_stok) tidak bisa mencatat pergerakan stok.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$select public.catat_stok('beef1000-0000-0000-0000-000000000001', 'masuk', 5, 'titipan')$$,
-  'kasir tanpa izin ubah_stok tidak boleh mencatat stok'
-);
+select uji.harap_gagal_sebab($$select public.catat_stok('beef1000-0000-0000-0000-000000000001', 'masuk', 5, 'titipan')$$, 'Anda tidak berizin mengubah stok', 'kasir tanpa izin ubah_stok tidak boleh mencatat stok');
 reset role;
 select uji.klaim(null);
 
 -- 12. Tambahan yang menempel ke menu wajib satu resto dengan menunya.
 select uji.klaim(null);
-select uji.harap_gagal(
-  $$insert into public.menu_tambahan (penyewa_id, menu_item_id, nama, harga) values ('11111111-1111-1111-1111-111111111111', 'beef0000-0000-0000-0000-000000000004', 'Sambal', 1000)$$,
-  'tambahan tidak boleh menempel ke menu resto lain'
-);
+select uji.harap_gagal_sebab($$insert into public.menu_tambahan (penyewa_id, menu_item_id, nama, harga) values ('11111111-1111-1111-1111-111111111111', 'beef0000-0000-0000-0000-000000000004', 'Sambal', 1000)$$, 'Tambahan dan menunya harus berada di resto yang sama', 'tambahan tidak boleh menempel ke menu resto lain');
 
 -- 13. Resto lain tidak melihat apa pun dari katalog Kedai Oasis.
 select uji.klaim('90000000-0000-0000-0000-000000000007');

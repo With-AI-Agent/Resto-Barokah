@@ -34,16 +34,10 @@ select uji.sama(
   'siap',
   'kasir boleh mengubah status meja menjadi siap'
 );
-select uji.harap_gagal(
-  $$update public.meja set status = 'entah' where id = 'aaa00000-0000-0000-0000-000000000001'$$,
-  'status meja di luar daftar resmi ditolak'
-);
+select uji.harap_gagal_sebab($$update public.meja set status = 'entah' where id = 'aaa00000-0000-0000-0000-000000000001'$$, 'violates check constraint "meja_status_check"', 'status meja di luar daftar resmi ditolak');
 
 -- 4. Tetapi kasir TIDAK boleh menambah atau menghapus meja.
-select uji.harap_gagal(
-  $$insert into public.meja (cabang_id, nama) values ('a1a1a1a1-0000-0000-0000-000000000001', 'Meja Kasir')$$,
-  'kasir tidak boleh menambah meja'
-);
+select uji.harap_gagal_sebab($$insert into public.meja (cabang_id, nama) values ('a1a1a1a1-0000-0000-0000-000000000001', 'Meja Kasir')$$, 'row-level security policy for table "meja"', 'kasir tidak boleh menambah meja');
 delete from public.meja where id = 'aaa00000-0000-0000-0000-000000000002';
 reset role;
 select uji.klaim(null);
@@ -59,14 +53,8 @@ select uji.klaim('90000000-0000-0000-0000-000000000003');
 set local role authenticated;
 insert into public.meja (cabang_id, nama, area) values ('a1a1a1a1-0000-0000-0000-000000000001', 'Meja 3', 'Belakang');
 select uji.sama((select count(*) from public.meja), 3::bigint, 'admin Pusat berhasil menambah meja');
-select uji.harap_gagal(
-  $$insert into public.meja (cabang_id, nama) values ('a1a1a1a1-0000-0000-0000-000000000001', 'Meja 3')$$,
-  'nama meja tidak boleh ganda di cabang yang sama'
-);
-select uji.harap_gagal(
-  $$insert into public.meja (cabang_id, nama) values ('a1a1a1a1-0000-0000-0000-000000000002', 'Meja Admin')$$,
-  'admin cabang tidak boleh menambah meja di cabang lain'
-);
+select uji.harap_gagal_sebab($$insert into public.meja (cabang_id, nama) values ('a1a1a1a1-0000-0000-0000-000000000001', 'Meja 3')$$, 'violates unique constraint "meja_cabang_id_nama_key"', 'nama meja tidak boleh ganda di cabang yang sama');
+select uji.harap_gagal_sebab($$insert into public.meja (cabang_id, nama) values ('a1a1a1a1-0000-0000-0000-000000000002', 'Meja Admin')$$, 'row-level security policy for table "meja"', 'admin cabang tidak boleh menambah meja di cabang lain');
 reset role;
 select uji.klaim(null);
 

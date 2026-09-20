@@ -39,10 +39,7 @@ select uji.sama(
 );
 
 -- 3. KASIR TETAP TIDAK BOLEH menulis angka uang langsung (penjaga 0010 hidup).
-select uji.harap_gagal(
-  $$update public.pesanan set total = 1 where id = '00000000-0000-0000-0000-00000000f001'$$,
-  'kasir masih dilarang mengarang angka uang pesanan'
-);
+select uji.harap_gagal_sebab($$update public.pesanan set total = 1 where id = '00000000-0000-0000-0000-00000000f001'$$, 'Angka uang pesanan hanya boleh diubah oleh fungsi perhitungan peladen \(hitung_total\)', 'kasir masih dilarang mengarang angka uang pesanan');
 
 -- 4. UANG BISA DICATAT (inti perbaikan): bayar tunai 62.100 dari pesanan itu.
 insert into public.pembayaran (pesanan_id, kasir_id, metode_id, jumlah, diterima, kunci_idempoten)
@@ -82,9 +79,6 @@ select uji.sama(
 );
 select uji.klaim('90000000-0000-0000-0000-000000000007');   -- kasir resto LAIN
 set local role authenticated;
-select uji.harap_gagal(
-  $$select public.hitung_total('00000000-0000-0000-0000-00000000f001')$$,
-  'kasir resto lain TIDAK boleh menghitung pesanan resto ini (isolasi lintas penyewa)'
-);
+select uji.harap_gagal_sebab($$select public.hitung_total('00000000-0000-0000-0000-00000000f001')$$, 'Pesanan itu bukan milik resto Anda', 'kasir resto lain TIDAK boleh menghitung pesanan resto ini (isolasi lintas penyewa)');
 reset role;
 select uji.klaim(null);

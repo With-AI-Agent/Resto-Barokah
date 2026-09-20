@@ -7,20 +7,14 @@ select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir Pusat
 set local role authenticated;
 
 -- 1. kasir_id diisi sistem.
-select uji.harap_gagal(
-  $$insert into public.pesanan (penyewa_id, cabang_id, tipe, kasir_id, kunci_idempoten)
+select uji.harap_gagal_sebab($$insert into public.pesanan (penyewa_id, cabang_id, tipe, kasir_id, kunci_idempoten)
       values ('11111111-1111-1111-1111-111111111111','a1a1a1a1-0000-0000-0000-000000000001','dinein',
-              '90000000-0000-0000-0000-000000000002','jejak-karang-kasir')$$,
-  'kasir tidak boleh menyebut orang lain sebagai kasir pesanan'
-);
+              '90000000-0000-0000-0000-000000000002','jejak-karang-kasir')$$, 'Nama kasir diisi sistem — tidak boleh menyebut orang lain', 'kasir tidak boleh menyebut orang lain sebagai kasir pesanan');
 
 -- 2. Tanggal tidak boleh mundur.
-select uji.harap_gagal(
-  $$insert into public.pesanan (penyewa_id, cabang_id, tipe, tanggal, kunci_idempoten)
+select uji.harap_gagal_sebab($$insert into public.pesanan (penyewa_id, cabang_id, tipe, tanggal, kunci_idempoten)
       values ('11111111-1111-1111-1111-111111111111','a1a1a1a1-0000-0000-0000-000000000001','dinein',
-              current_date - 30, 'jejak-tanggal-mundur')$$,
-  'tanggal pesanan baru tidak boleh mundur (dulu bisa masuk ke hari yang sudah ditutup)'
-);
+              current_date - 30, 'jejak-tanggal-mundur')$$, 'Tanggal pesanan baru harus hari ini — tanggal mundur hanya boleh diisi peladen', 'tanggal pesanan baru tidak boleh mundur (dulu bisa masuk ke hari yang sudah ditutup)');
 
 -- 3. Nomor dibuat sistem: angka kiriman klien diabaikan.
 insert into public.pesanan (id, penyewa_id, cabang_id, tipe, nomor, kunci_idempoten)
@@ -46,12 +40,9 @@ select uji.sama(
 );
 
 -- 4. Pelayan yang disebut harus pegawai cabang itu.
-select uji.harap_gagal(
-  $$insert into public.pesanan (penyewa_id, cabang_id, tipe, pelayan_id, kunci_idempoten)
+select uji.harap_gagal_sebab($$insert into public.pesanan (penyewa_id, cabang_id, tipe, pelayan_id, kunci_idempoten)
       values ('11111111-1111-1111-1111-111111111111','a1a1a1a1-0000-0000-0000-000000000001','dinein',
-              '90000000-0000-0000-0000-000000000002','jejak-pelayan-luar')$$,
-  'owner (bukan pegawai cabang itu) tidak boleh dicatat sebagai pelayan pesanan ini'
-);
+              '90000000-0000-0000-0000-000000000002','jejak-pelayan-luar')$$, 'Pelayan yang disebut harus pegawai di cabang pesanan itu', 'owner (bukan pegawai cabang itu) tidak boleh dicatat sebagai pelayan pesanan ini');
 select uji.sama(
   (select count(*) from public.pesanan p where p.kunci_idempoten = 'jejak-pelayan-luar'),
   0::bigint, 'pesanan berpelayan luar tidak tersimpan'
@@ -66,15 +57,9 @@ select uji.sama(
 );
 
 -- 5. Jejak tidak bisa dipindah setelah baris lahir.
-select uji.harap_gagal(
-  $$update public.pesanan set kasir_id = '90000000-0000-0000-0000-000000000002'
-      where id = '00000000-0000-0000-0000-00000000f003'$$,
-  'kasir pesanan tidak boleh dipindah setelah tercatat'
-);
-select uji.harap_gagal(
-  $$update public.pesanan set tanggal = current_date - 1
-      where id = '00000000-0000-0000-0000-00000000f003'$$,
-  'tanggal pesanan tidak boleh diubah setelah tercatat'
-);
+select uji.harap_gagal_sebab($$update public.pesanan set kasir_id = '90000000-0000-0000-0000-000000000002'
+      where id = '00000000-0000-0000-0000-00000000f003'$$, 'Jejak kasir pesanan tidak boleh diubah', 'kasir pesanan tidak boleh dipindah setelah tercatat');
+select uji.harap_gagal_sebab($$update public.pesanan set tanggal = current_date - 1
+      where id = '00000000-0000-0000-0000-00000000f003'$$, 'Tanggal pesanan tidak boleh diubah', 'tanggal pesanan tidak boleh diubah setelah tercatat');
 reset role;
 select uji.klaim(null);

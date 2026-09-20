@@ -94,9 +94,6 @@ select uji.sama(
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal(
-  $$select * from public.izin_efektif_untuk('90000000-0000-0000-0000-000000000003', 'beri_diskon')$$,
-  'klien tidak bisa memanggil pintu izin orang lain'
-);
+select uji.harap_gagal_sebab($$select * from public.izin_efektif_untuk('90000000-0000-0000-0000-000000000003', 'beri_diskon')$$, 'permission denied for function izin_efektif_untuk', 'klien tidak bisa memanggil pintu izin orang lain');
 reset role;
 select uji.klaim(null);

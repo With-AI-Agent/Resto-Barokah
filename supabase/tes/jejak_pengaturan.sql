@@ -18,12 +18,9 @@ select uji.sama(
 );
 
 -- 2. Menyebut ORANG LAIN sebagai pelaku → DITOLAK.
-select uji.harap_gagal(
-  $$update public.pengaturan set service_persen = 0,
+select uji.harap_gagal_sebab($$update public.pengaturan set service_persen = 0,
            diubah_oleh = '90000000-0000-0000-0000-000000000004'
-     where penyewa_id = '11111111-1111-1111-1111-111111111111'$$,
-  'menuliskan nama orang lain sebagai pelaku perubahan pengaturan DITOLAK'
-);
+     where penyewa_id = '11111111-1111-1111-1111-111111111111'$$, 'Kolom "diubah oleh" diisi sistem — tidak boleh menyebut orang lain', 'menuliskan nama orang lain sebagai pelaku perubahan pengaturan DITOLAK');
 
 -- 3. Waktu tidak bisa dimundurkan: kiriman klien 2020 ditimpa waktu sekarang.
 update public.pengaturan set pajak_pb1_persen = 10, diubah_pada = '2020-01-01+07'
@@ -48,11 +45,8 @@ select uji.sama(
 --    boleh mengubah nilai (mis. penyiapan awal) tanpa mengarang pelaku.
 reset role;
 select uji.klaim(null);
-select uji.harap_gagal(
-  $$update public.pengaturan set diubah_oleh = null
-     where penyewa_id = '11111111-1111-1111-1111-111111111111'$$,
-  'jalur peladen juga tidak boleh menghapus jejak pelaku'
-);
+select uji.harap_gagal_sebab($$update public.pengaturan set diubah_oleh = null
+     where penyewa_id = '11111111-1111-1111-1111-111111111111'$$, 'Jejak pelaku perubahan pengaturan tidak boleh dihapus', 'jalur peladen juga tidak boleh menghapus jejak pelaku');
 select uji.sama(
   (select g.diubah_oleh from public.pengaturan g where g.penyewa_id = '11111111-1111-1111-1111-111111111111'),
   '90000000-0000-0000-0000-000000000002'::uuid,
