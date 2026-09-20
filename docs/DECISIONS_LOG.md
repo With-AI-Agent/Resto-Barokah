@@ -1319,3 +1319,23 @@ lalu ditutup — lima di antaranya lewat `supabase/migrations/0016_penutup_celah
 + kontrol hijau · probe lama pr05/06/07/08/09/14 kini GAGAL (= cacat hilang); pr15 tetap hijau HANYA karena
 probe memakai jalur superuser yang memang melewati penjaga — dicatat jujur, cacat sisi klien ditutup dan
 dibuktikan uji regresi + mutasi.
+
+## [Mekanisme/2026-09-20] Migrasi 0015+0016 disebar ke proyek nyata dan dibekukan (sidik sampai 0016)
+
+**Konteks:** atas izin Lee ("Silahkan Sebar"), alur sengaja `sebar-skema.yml` dijalankan untuk pertama
+kalinya sejak pembekuan `0001`–`0014`: run `35516000988` hijau berurutan (cek penanda & rahasia →
+pratinjau `--dry-run` → `db push` → `migration list` sebagai bukti). Run pertama sebelumnya gagal di
+gerbang rahasia karena token Supabase kedaluwarsa; Lee mengganti dengan **token scoped** baru
+(proyek Resto-Barokah saja, 90 hari).
+
+**Keputusan:**
+
+1. `0015` dan `0016` masuk daftar beku `alat/periksa-migrasi-beku.py` (sidik SHA-256) dan
+   `NOMOR_TERTINGGI_BEKU` naik 14 → **16**; skema berikutnya WAJIB berkas `0017`+.
+2. Penanda `supabase/SEBAR-SKEMA` dihapus lagi sesudah hijau (alur yang menyala tanpa penanda
+   berhenti sendiri di pemeriksaan `test -f`).
+3. Penyebaran berikutnya tetap langkah pemilik BARU — persetujuan "Silahkan Sebar" tidak berlaku
+   berulang. Token scoped 90 hari dicatat: perbarui ± 19 Desember 2026 bila dipakai lagi.
+
+**Bukti:** run `35516000988` hijau (semua langkah success) · `python3 alat/periksa-migrasi-beku.py`
+LOLOS + `--uji-diri` LOLOS (kasus "berkas baru sah" disegarkan ke `0017`).

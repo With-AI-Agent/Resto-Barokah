@@ -64,10 +64,12 @@ memintamu menempelkan nilainya di chat.
   **0001–0014**; semua perbaikan sesudahnya (penutup celah putaran ke-16) masih **hanya ada di GitHub**,
   belum masuk database nyata. Hanya kamu yang bisa memicunya (rahasia ada di tanganmu).
 
-  **Kapan?** Tunggu aku bilang **"batch selesai, silakan sebar"** — jangan sekarang. Alasannya: berkas `0015`
-  masih terus ditambah selama maraton perbaikan temuan, dan berkas migrasi yang sudah masuk database tidak
-  boleh diubah lagi. Begitu batch selesai, aku akan bilang, lalu kamu jalankan alur sebar skema dari GitHub
-  (Actions → **Sebar skema** → Run workflow). Kalau ragu, tanya dulu — jangan menekan tombol ini sendiri.
+  **Status 2026-09-20: SELESAI.** Atas izin Lee ("Silahkan Sebar") penanda dipasang, alur hijau
+  (run `35516000988`: pratinjau → `db push` → `migration list`), penanda dihapus lagi, dan migrasi
+  `0015`+`0016` kini HIDUP di proyek nyata serta DIBEKUKAN sampai `0016` (penjaga
+  `alat/periksa-migrasi-beku.py` diperbarui; skema baru berikutnya wajib berkas `0017`+).
+  Penyebaran berikutnya = langkah pemilik BARU: tunggu agent bilang "batch selesai, silakan sebar",
+  lalu setujui dengan jelas. Kalau ragu, tanya dulu — jangan menekan tombol ini sendiri.
 
 ## Langkah A — 2 rahasia Supabase ✅ SUDAH SELESAI (tidak perlu diulang)
 

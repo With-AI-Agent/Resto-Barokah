@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """periksa-migrasi-beku.py — penjaga: migrasi yang SUDAH dijalankan di proyek nyata tidak boleh disunting.
 
-Latar (2026-09-19): 14 berkas migrasi `0001`–`0014` sudah **disebar ke proyek Supabase milik pemilik**
+Latar (2026-09-19, diperbarui 2026-09-20): 16 berkas migrasi `0001`–`0016` sudah **disebar ke proyek Supabase milik pemilik**
 (run `35435248540`: `link` → `db push --dry-run` → `db push` → `migration list`). Database nyata hanya
 berubah karena PENYEBARAN berkas migrasi; menyunting berkas lama tidak mengubah database nyata, tetapi
 mengubah hasil uji lokal — persis kelas cacat "bukti tidak mewakili kenyataan".
 
 Karena itu berkas lama **dibekukan** (sidik SHA-256 di `BEKU`) dan setiap perubahan skema WAJIB ditulis
-sebagai berkas BARU bernomor `0015` ke atas — termasuk seluruh perbaikan temuan audit.
+sebagai berkas BARU bernomor `0017` ke atas — termasuk seluruh perbaikan temuan audit.
 
 Yang diperiksa:
   1. setiap berkas beku ADA dan sidiknya SAMA (satu bit berubah = merah);
@@ -49,9 +49,11 @@ BEKU: dict[str, str] = {
     "0012_penutup_celah_review.sql": "693f2ca751a29f7f39a33b1b8b686a40523fe1473d1dd555513c6cbc8df284ff",
     "0013_penutup_celah_putaran11.sql": "1ed79b5a94191ac2fe516ba725014838276ec186372fa4c7788f71cd8f27d8cc",
     "0014_penutup_celah_putaran13.sql": "c043ac4b02407a981b1db13fec4cf2cc16fbc5012dfa0814f68f8c17cece1af7",
+    "0015_penutup_celah_putaran16.sql": "2cd29875b5ee671960e3662f3ab7cc9eb3088d781b83e973b719a67def2fd25b",
+    "0016_penutup_celah_pin_putaran18.sql": "c2b79fe33b34db7ad43720fd6227af4923dbc66384c1ca0403febc60ba434bb8",
 }
 
-NOMOR_TERTINGGI_BEKU = 14
+NOMOR_TERTINGGI_BEKU = 16
 
 
 def _sidik(berkas: pathlib.Path) -> str:
@@ -151,8 +153,8 @@ def uji_diri() -> int:
         def tambah_0005() -> None:
             _tulis(salinan, f"{DIR_MIGRASI}/0005_tambahan_belakangan.sql", "select 1;\n")
 
-        def tambah_0015() -> None:
-            _tulis(salinan, f"{DIR_MIGRASI}/0015_penutup_celah_putaran16.sql", "select 1;\n")
+        def tambah_0017() -> None:
+            _tulis(salinan, f"{DIR_MIGRASI}/0017_uji_diri.sql", "select 1;\n")
 
         def kembar_0016() -> None:
             _tulis(salinan, f"{DIR_MIGRASI}/0016_satu.sql", "select 1;\n")
@@ -162,7 +164,7 @@ def uji_diri() -> int:
         mutasi("berkas beku dihapus", hapus_0003)
         mutasi("berkas baru bernomor lama (0005)", tambah_0005)
         mutasi("nomor migrasi kembar (0016 ×2)", kembar_0016)
-        mutasi("berkas baru bernomor benar (0015)", tambah_0015, harap_ditolak=False)
+        mutasi("berkas baru bernomor benar (0017)", tambah_0017, harap_ditolak=False)
 
     merah = 0
     print("UJI-DIRI PERIKSA MIGRASI BEKU")
