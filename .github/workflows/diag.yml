@@ -2,7 +2,7 @@
 # langkah-20 ci.yml ketemu. Tidak dipindai alat/periksa-gerbang-ci.py
 # (gerbang hanya memindai ci.yml + sebar-skema.yml + sebar-halaman.yml).
 name: DIAG
-on: workflow_dispatch
+on: push
 permissions:
   contents: read
   issues: write
