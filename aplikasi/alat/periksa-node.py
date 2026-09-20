@@ -287,12 +287,15 @@ def uji_diri() -> int:
         kode, _, _ = periksa(tmp)
         hasil.append(("mutasi: semua entri lock kehilangan `engines.node` (harus gagal-tertutup)",
                       kode != 0, "ditolak" if kode != 0 else "DILOLOSKAN (tumpul)"))
+    # Pola mutasi TIDAK bergantung gaya kutip: prettier boleh menulis
+    # `node-version: "22.12.0"` atau `'22.12.0'` — uji-diri wajib tetap bekerja.
+    pola_versi = r"node-version:\s*['\"]22\.12\.0['\"]"
     mutasi("mutasi: alur CI memakai `node-version: '22'` (bisa 22.0.0)",
            ".github/workflows/ci.yml",
-           lambda s: s.replace("node-version: '22.12.0'", "node-version: '22'", 1))
+           lambda s: re.sub(pola_versi, "node-version: '22'", s, count=1))
     mutasi("mutasi: alur lain memakai `node-version: '20'`",
            ".github/workflows/sebar-skema.yml",
-           lambda s: s.replace("node-version: '22.12.0'", "node-version: '20'", 1))
+           lambda s: re.sub(pola_versi, "node-version: '20'", s, count=1))
 
     # Kontrol penting: entri OPSIONAL dengan syarat lebih ketat TIDAK boleh memerahkan pemeriksa.
     with salin_pohon() as tmp:
