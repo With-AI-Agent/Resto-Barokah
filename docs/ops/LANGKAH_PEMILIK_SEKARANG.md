@@ -15,7 +15,16 @@ menaikkan halaman ke internet) **tanpa pernah terlihat** oleh siapa pun, termasu
   Supabase-mu; pemeriksaan otomatis berhasil **membaca tabel katalog** dari proyek nyata. Tidak perlu diulang.
 - **Langkah B (1 rahasia Cloudflare) SUDAH SELESAI & terbukti**: setelah kamu menulis "Boleh naik", halaman
   sudah naik ke internet di **<https://resto-barokah.fatrizmubarok.workers.dev>** dan pemeriksaan otomatis menjawab **HTTP 200**.
-- **Fase 0 tuntas.** Tidak ada lagi langkah yang menunggu kamu di daftar ini.
+- **Fase 0 tuntas** (akun, kunci, halaman, sebar tabel pertama) — **tetapi sekarang ada SATU langkah baru yang menunggu kamu**
+  (dikoreksi 2026-09-20 setelah temuan audit H F-03, karena kalimat lama menjanjikan terlalu banyak):
+  **menyebar berkas tabel yang lebih baru ke database nyata**. Saat Langkah A selesai, yang tersebar baru
+  **0001–0014**; semua perbaikan sesudahnya (penutup celah putaran ke-16) masih **hanya ada di GitHub**,
+  belum masuk database nyata. Hanya kamu yang bisa memicunya (rahasia ada di tanganmu).
+
+  **Kapan?** Tunggu aku bilang **"batch selesai, silakan sebar"** — jangan sekarang. Alasannya: berkas `0015`
+  masih terus ditambah selama maraton perbaikan temuan, dan berkas migrasi yang sudah masuk database tidak
+  boleh diubah lagi. Begitu batch selesai, aku akan bilang, lalu kamu jalankan alur sebar skema dari GitHub
+  (Actions → **Sebar skema** → Run workflow). Kalau ragu, tanya dulu — jangan menekan tombol ini sendiri.
 
 ## Langkah A — 2 rahasia Supabase ✅ SUDAH SELESAI (tidak perlu diulang)
 

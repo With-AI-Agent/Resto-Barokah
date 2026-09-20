@@ -36,6 +36,12 @@ LAPORAN = {
     # Ronde 2026-09-19/20 (sesi `arena/01a0bbd2`): LULOS KONTRAK, 18 temuan, tiga di antaranya
     # (K-1 jalur uang) sudah dibantah-balik NYATA dan ditutup di migrasi `0015` bagian 6.
     "F": "docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2.md",
+    # Ronde 2026-09-19/20 lanjutan — dua laporan yang masuk belakangan (sesi auditor lain + ronde
+    # kedua sesi 01a0bbd2). Yang penting di sini bukan verdict mesinnya, melainkan bahwa SETIAP
+    # temuan punya baris penutup: laporan H DITOLAK MESIN karena kelengkapan format (label grup
+    # cakupan diparafrase lagi), tetapi isinya tetap dipakai dan wajib dibantah-balik per temuan.
+    "H": "docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbcb.md",
+    "I": "docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md",
 }
 ROADMAP = "docs/ROADMAP.md"
 
@@ -145,7 +151,7 @@ def periksa(akar: pathlib.Path) -> int:
     for no, kolom in baris:
         laporan_temuan, tingkat, ringkas, status, bukti = kolom[0], kolom[1], kolom[2], kolom[3], " ".join(kolom[4:])
         # 2. rujukan laporan+nomor wajib benar
-        rujukan = re.findall(r"\b([A-F])\s*(F-\d+)", laporan_temuan)
+        rujukan = re.findall(r"\b([A-I])\s*(F-\d+)", laporan_temuan)
         if not rujukan:
             errs.append(f"baris {no}: kolom 'Laporan' tidak menyebut satu pun temuan (mis. 'A F-01'): {laporan_temuan[:60]}")
         for nama, fid in rujukan:
@@ -182,9 +188,12 @@ def periksa(akar: pathlib.Path) -> int:
 
     total = sum(len(v) for v in temuan.values())
     jumlah_luar = periksa_luar_cakupan(akar, errs)
-    print(f"PERIKSA TEMUAN AUDIT — A: {len(temuan.get('A', set()))} · B: {len(temuan.get('B', set()))} "
-          f"· D: {len(temuan.get('D', set()))} (laporan ditolak mesin, isinya dipakai) "
-          f"· F: {len(temuan.get('F', set()))} (AUD-3 2026-09-19 sesi 01a0bbd2) temuan "
+    # Ringkasan dibuat DATA-DRIVEN: laporan baru tidak boleh perlu menyunting baris cetak ini
+    # (pelajaran dari ronde audit 2026-09-20 — ringkasan manual membuat temuan "tak terlihat").
+    rincian = " · ".join(
+        f"{nama}: {len(ids)}" + (" (ditolak mesin, isinya dipakai)" if nama == "D" else "")
+        for nama, ids in sorted(temuan.items()))
+    print(f"PERIKSA TEMUAN AUDIT — {rincian} temuan "
           f"· daftar penutup: {len(baris)} baris ({tertutup} ditutup · {terbuka} terbuka)")
     if errs:
         print(f"\nHASIL: GAGAL — {len(errs)} temuan")

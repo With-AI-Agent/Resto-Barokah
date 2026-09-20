@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `a5c0347853228a2552bfb8b1c64afb05517b898d`
+- **Commit keadaan kerja:** `5317f4732f01a877b65cde044add571abed90e9f`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35478434361, commit a5c03478)
+- **CI terakhir:** success (run 35479216962, commit 5317f473)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (56 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (56 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (57 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (57 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -63,6 +63,38 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18p (2026-09-20) — DUA LAPORAN AUDIT LANJUTAN MASUK: 31 TEMUAN BARU TERDAFTAR (2 sudah tertutup).**
+
+Ambil laporan: `python3 alat/audit-independen.py --ambil-laporan` (idempoten) menemukan **5 berkas** — 2 laporan baru + 3 versi lama
+yang tertimpa (diselamatkan otomatis). Kontrak mesin:
+
+* **Laporan H** = `docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbcb.md` (sesi `arena/01a0bbcb`): 10 temuan, kalibrasi **12/12**,
+  **DITOLAK MESIN** (4 alasan: label grup cakupan diparafrase) → **isinya tetap dipakai**, tiap temuan dapat baris di §1d.
+* **Laporan I** = `docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2-907e29e.md` (ronde kedua sesi `01a0bbd2`): 21 temuan,
+  kalibrasi 5/5, cakupan 442/480, **LOLOS KONTRAK** → baris penutup di §1e.
+
+Keduanya mengaudit commit `4830b5a` (snapshot yang sama dengan laporan F). 31 temuan sudah **terdaftar** dan dilacak
+`alat/periksa-temuan-audit.py` (kunci H & I; ringkasan alat dibuat **data-driven** supaya laporan berikutnya cukup ditambah di kamus,
+tanpa menyunting baris cetak). Daftar penutup: **86 temuan terlacak · 29 ditutup · 52 terbuka**.
+
+**Sudah tertutup tanpa pekerjaan baru** (perbaikannya mendarat sesudah commit yang diaudit, jadi auditor tak bisa melihatnya):
+* **I F-01 (K-1)** dasar pajak/service sebelum diskon → ditutup bagian 6 `0015` + uji `supabase/tes/urutan_uang.sql`.
+* **I F-13 (K-1 dugaan)** oracle peran lintas penyewa = tumpang-tindih F-11 laporan F → ditutup bagian 10 `0015` + uji `supabase/tes/pin_helper_pribadi.sql`.
+* **I F-17 (K-1 dugaan)** hitung ulang pesanan lunas → **DITUTUP sebagian**; sisa jalurnya (pembayaran sudah ada lalu item diturunkan) masih `T1-45`.
+
+**Prioritas yang menyerang mekanisme kita sendiri** (jangan diabaikan — ini kelas cacat yang membuat audit kehilangan nilainya):
+1. **H F-01** kunci kalibrasi masih terbaca dari dalam repo (penutupan D F-05 belum tuntas) → `T1-44`.
+2. **H F-02 / I F-20 / I F-04 / I F-03** paket audit menargetkan commit ber-CI-belum-hijau, perintah/glob disebut "berkas hilang",
+   classifier mutasi menerima crash sebagai "bukti pagar bekerja", dan pemeriksa PIN tumpul (bracket) → `T1-44`.
+3. **H F-03** (pemilik): database nyata baru memuat `0001`–`0014`; `0015` **belum tersebar**. Klaim "tidak ada langkah menunggu"
+   sudah dikoreksi di `docs/ops/LANGKAH_PEMILIK_SEKARANG.md`. **Penyebaran menunggu batch selesai** — berkas migrasi yang sudah masuk
+   database tidak boleh diubah lagi, jadi jangan sebar `0015` di tengah maraton.
+
+**Langkah berikutnya (urut):**
+1. Bantah-balik temuan K-2/K-3 dulu (yang terverifikasi) lalu yang **DUGAAN** wajib diprobe sebelum disebut nyata — daftar lengkap ada di §1d/§1e.
+2. Kembali melanjutkan penutupan sisa laporan F (F-07 → `T1-13`, F-09 → `T8-01`) + 16 temuan lama K-3/K-4.
+3. Kalau sudah tidak ada temuan MEKANISME yang tersisa → batch T1-45 ditutup, minta Lee menekan "Sebar skema" (tindakan pemilik), lalu `0015` **dibekukan** dan pekerjaan berikutnya pindah ke `0016+`.
 
 **PUTARAN 18o (2026-09-20) — BANTUAN-BALIK 3 TEMUAN AUDIT F: F-10 & F-11 NYATA (DITUTUP), F-13 DIREDAM (TETAP TERBUKA).**
 
