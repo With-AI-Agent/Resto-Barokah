@@ -10,6 +10,14 @@
 
 ## 1. Cara pakai buku ini
 
+> **STATUS KETERSEDIAAN (2026-09-20 — temuan audit I F-08/K F-01, jangan dihapus sampai fiturnya nyata):**
+> aplikasi masih **kerangka Fase 0/1** — jalur menu **Pengaturan → Perangkat & Sesi / Pegawai / Jejak Audit BELUM ADA**,
+> TOTP/MFA belum dipasang (`T1-25`), jejak audit `catatan_audit` belum ada (`T1-27`), antrean offline belum ada
+> (Fase 1C), dan cadangan otomatis mingguan belum dijadwalkan (`T10-10`). Bagian 2, 3, 4, 7, dan 10 di bawah
+> ditulis untuk keadaan FINAL. **Jalur sementara sampai fitur itu mendarat:** jangan cari menunya — minta **agen
+> sesi kerja** melakukan tindakan setara langsung di database (nonaktifkan akun pegawai, cabut/ganti PIN, tarik
+> catatan aktivitas), dan catat tindakannya di Log Insiden §12 + `docs/DECISIONS_LOG.md`.
+
 1. Cari nama masalahnya di daftar ini (atau tekan Ctrl+F dan ketik kata kuncinya).
 2. Ikuti langkah 1 → 2 → 3. Setiap langkah punya hasil yang harus terlihat.
 3. Kalau macet di langkah mana pun: **berhenti, jangan mengulang terus**, tulis di Log Insiden, lalu hubungi pemilik platform.
@@ -20,6 +28,8 @@
 ---
 
 ## 2. Perangkat hilang atau dicuri (tablet kasir, HP kasir, laptop owner)
+
+**Status 2026-09-20:** menu Perangkat & Sesi belum ada — jalur sementara lewat agen sesi kerja (lihat §1).
 
 **Tanda:** perangkat tidak ada di tempatnya · ada aktivitas kasir yang tidak dikenal · kasir mengaku bukan dia.
 
@@ -38,6 +48,8 @@
 
 ## 3. HP pegawai hilang (dan TOTP tidak bisa dibuka)
 
+**Status 2026-09-20:** TOTP/MFA belum dipasang (`T1-25`) — bagian ini berlaku setelah Fase 1B.
+
 **Siapa yang bisa menolong:** HP **admin cabang** hilang → **owner pusat**. HP **owner pusat** hilang → **pemilik platform**.
 
 **Langkah:**
@@ -52,6 +64,8 @@
 ---
 
 ## 4. Akun diduga dibobol (ada yang bisa masuk padahal bukan pegawainya)
+
+**Status 2026-09-20:** layar Jejak Audit belum ada (`T1-27`) — penarikan aktivitas lewat agen sesi kerja (lihat §1).
 
 **Tanda:** ada aktivitas aneh (void/diskon di luar kebiasaan) · percobaan masuk gagal beruntun di ringkasan harian · pegawai melapor "PIN saya minta orang lain".
 
@@ -106,6 +120,8 @@ Kerjakan **di hari terakhir**, jangan menunda:
 
 ## 7. Internet kedai mati (atau mati sebentar)
 
+**Status 2026-09-20:** antrean offline belum dibuat (Fase 1C) — catatan kertas dulu, input setelah sambungan pulih.
+
 **Yang terjadi di aplikasi:** pesanan/kasir tetap bisa dicatat, tetapi berkas dikirim setelah internet kembali; **kalau perangkat dalam keadaan terkunci, membuka lagi butuh internet**.
 
 **Langkah:**
@@ -143,6 +159,8 @@ Kerjakan **di hari terakhir**, jangan menunda:
 ---
 
 ## 10. Cadangan & pemulihan (latihan sebelum pilot)
+
+**Status 2026-09-20:** cadangan otomatis mingguan belum dijadwalkan (`T10-10`) — sampai itu ada, cadangan = ekspor manual via agen sesi kerja.
 
 1. Cadangan otomatis berjalan mingguan (dump terenkripsi); pemilik mengunduh salinannya **sebulan sekali** ke komputer/Drive miliknya.
 2. **Latihan pemulihan** (dilakukan agent bersama pemilik platform, minimal sekali sebelum pilot): pulihkan cadangan ke database bersih → bandingkan jumlah baris tabel inti → tulis hasilnya di `docs/teknis/PEMULIHAN.md` (berkas ini **belum dibuat**; dibuat saat latihan pemulihan dijalankan pada tugas `T11-10`).

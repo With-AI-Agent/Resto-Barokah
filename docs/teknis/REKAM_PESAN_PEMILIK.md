@@ -430,3 +430,11 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
    — **ATURAN TETAP: SETIAP balasan ke Lee WAJIB ditutup dengan bagian "Langkah Lee"** yang
    menyebut tindakan konkretnya (atau tegas menyatakan "tidak ada — tunggu/lanjut"). Ini berlaku
    untuk semua komunikasi, bukan hanya laporan batch.
+
+3. *"sekarang kan udh jadi public. Berarti harusnya sekarang semua itu lebih dijaga kerahasiaannya. Tapi gimana ya
+   dengan riwayatnya? Apakah orang lain bisa akses riwayatnya? Berikan yang terbaik ya"* — tentang email pribadinya
+   di repo publik (temuan K F-06). **Dijalankan:** email disamarkan di berkas; riwayat TIDAK ditulis-ulang (destruktif &
+   tidak menjamin — cache/fork); Lee diberi tahu jejak lama tetap bisa dibaca orang dan diimbau jaga 2FA.
+4. *"sesi auditor yang ketiga terasa lelet… kamu lanjut maraton aja… klo nanti ketiga udah selesai, baca hasilnya dan
+   perbaiki semua yang perlu"* — disetujui agent (tidak ada cacat rencana; auditor ketiga terkunci di commit `cbba401`
+   sehingga hasilnya tetap sah kapan pun selesai). Maraton lanjut.

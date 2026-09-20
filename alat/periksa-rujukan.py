@@ -46,7 +46,7 @@ BERKAS_PENGIKAT = (
 # `js`). Cacat nyata 2026-09-17: `ts` lebih dulu -> rujukan `…/PemilihRingkas.tsx` terbaca
 # sebagai `…/PemilihRingkas.ts` (berkas yang tidak ada) sehingga dokumen yang benar dianggap
 # punya rujukan mati. Dijaga mutasi "berkas .tsx yang dirujuk dihapus" di uji-diri.
-POLA_JALUR = re.compile(r"(?:alat|docs|supabase|aplikasi|_sistem|_log-sesi|prototipe|\.github)/[\w./-]+\.(?:tsx|markdown|mjs|json|ya?ml|sql|html|md|py|sh|ts)")
+POLA_JALUR = re.compile(r"(?:alat|docs|supabase|aplikasi|skills|_sistem|_log-sesi|prototipe|\.github)/[\w./-]+\.(?:tsx|markdown|mjs|json|ya?ml|sql|html|md|py|sh|ts)")
 POLA_HARAPAN = re.compile(r"\(rencana|belum ada|belum dibuat|akan dibuat|menyusul|dijadwalkan|T\d+-\d+", re.I)
 
 
@@ -92,20 +92,72 @@ def jalur_pensiun(akar: pathlib.Path) -> set[str]:
     return hasil
 
 
+# Perluasan J F-02 (audit 2026-09-20): SEMUA `.md` terlacak ikut diperiksa, bukan hanya 11
+# berkas pengikat — kelas "rujukan mati di dokumen status" (H F-08, I F-09, J F-01) tertutup.
+# Pengecualian = folder yang isinya memang menyebut jalur masa depan/laporan apa adanya.
+FOLDER_DIKECUALIKAN = (
+    "skills/",                # vendor pihak ketiga
+    "docs/uji/audit/",        # laporan auditor — menyebut bukti & jalur apa adanya
+    "docs/uji/review-pr/",    # laporan & paket review
+    "docs/uji/paket-audit/",  # paket mesin (memuat bagian "direncanakan" sengaja)
+    "docs/uji/kalibrasi/",    # bahan cacat tanaman
+    "_log-sesi/",             # log naratif harian
+    "_salinan-meta/",         # arsip provenance
+    "node_modules/",
+    "_sistem/templates/",     # template sistem pembangun (contoh jalur generik 001_users.sql)
+    "alat/contoh-laporan/",   # fixture uji-diri pemeriksa laporan (SENGAJA memuat rujukan mati)
+    "alat/contoh-laporan-review/",
+    "docs/uji/LAPORAN_",      # laporan historis (menyebut katalog/berkas apa adanya)
+    "docs/uji/CATATAN_",      # catatan sesi historis
+    "docs/uji/PROTOKOL_",     # protokol: memuat contoh pola berkas (00X_…, YYYY-…)
+    "ACCEPTANCE_TEST_LOG.md", # log uji-terima historis
+    "_sistem/",               # arsip sistem pembangun (audit vendor, template)
+    # Dokumen PERENCANAAN/SPESIFIKASI: isinya memang menunjuk berkas yang BELUM ada (itu
+    # fungsinya). ROADMAP dijaga `alat/periksa-roadmap.py`; TECH_SPEC/SPESIFIKASI_UI dijaga
+    # mesin paket (F-12: jalur rencana dipisah dari bukti). Menuntut penanda per rujukan di
+    # dokumen ini = ribuan penanda tanpa nilai.
+    "docs/ROADMAP.md",
+    "docs/TECH_SPEC.md",
+    "docs/SPESIFIKASI_UI.md",
+    "docs/teknis/USULAN_",
+    "docs/teknis/DISKUSI_",
+)
+
+# Jalur yang jelas-jelas TEMPLATE/contoh (bukan rujukan nyata) — tidak diperiksa.
+POLA_TEMPLATE = re.compile(r"00X_|001_users|YYYY|<[^>]+>|XXX")
+
+
+def daftar_md(akar: pathlib.Path) -> list[str]:
+    """Semua .md terlacak Git di luar folder dikecualikan (J F-02)."""
+    import subprocess
+    r = subprocess.run(["git", "ls-files", "*.md"], cwd=akar, capture_output=True, text=True)
+    if r.returncode == 0 and r.stdout.strip():
+        berkas = r.stdout.splitlines()
+    else:  # salinan tanpa .git (uji-diri) — susuri pohon langsung
+        berkas = [str(f.relative_to(akar)) for f in sorted(akar.rglob("*.md"))]
+    return [b for b in berkas if not b.startswith(FOLDER_DIKECUALIKAN)]
+
+
 def periksa(akar: pathlib.Path) -> int:
     errs: list[str] = []
     catatan: list[str] = []
     pensiun = jalur_pensiun(akar)
     total = 0
     for rel in BERKAS_PENGIKAT:
+        if not (akar / rel).is_file():
+            errs.append(f"berkas pengikat hilang: {rel}")
+    daftar = daftar_md(akar)
+    for rel in daftar:
         berkas = akar / rel
         if not berkas.is_file():
-            errs.append(f"berkas pengikat hilang: {rel}")
             continue
         teks = berkas.read_text(encoding="utf-8")
         for no, jalur, baris in rujukan_dalam(teks):
+            if POLA_TEMPLATE.search(jalur):
+                continue
             total += 1
-            if (akar / jalur).exists():
+            if (akar / jalur).exists() or (berkas.parent / jalur).exists():
+                # jalur relatif terhadap folder dokumen sendiri juga sah (I F-20)
                 continue
             if POLA_HARAPAN.search(baris):
                 catatan.append(f"{rel}:{no} rujukan ditandai rencana → {jalur}")
@@ -114,8 +166,8 @@ def periksa(akar: pathlib.Path) -> int:
                 catatan.append(f"{rel}:{no} rujukan ke berkas yang SENGAJA dipensiun → {jalur}")
                 continue
             errs.append(f"{rel}:{no} menunjuk berkas yang TIDAK ADA: {jalur}")
-    print(f"PERIKSA RUJUKAN — {len(BERKAS_PENGIKAT)} dokumen pengikat · {total} rujukan diperiksa "
-          f"· {len(pensiun)} berkas dipensiun diakui")
+    print(f"PERIKSA RUJUKAN — {len(daftar)} dokumen diperiksa (semua .md di luar folder riwayat/laporan) "
+          f"· {total} rujukan · {len(pensiun)} berkas dipensiun diakui")
     for c in catatan:
         print(f"  [catatan] {c}")
     if errs:

@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `477a6c9ade51e987336305c9306623456fada524`
+- **Commit keadaan kerja:** `6f2fa7b492e9a798841ef3411fb5aeb21af024b6`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35520515689, commit 477a6c9a)
+- **CI terakhir:** success (run 35522419441, commit 6f2fa7b4)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (3 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (96 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (4 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (97 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -203,7 +203,7 @@ Dokumen yang menjanjikan lebih dari kenyataan, atau aturan yang saling bertabrak
 - **H F-08** bukti T0-03 memakai jalur lengkap `aplikasi/src/lib/tema.ts`.
 - **H F-10** klasifikasi penanda-palsu diberi justifikasi jujur: nyata di level DB, tetapi eksploitasi produksi
   menuntut koneksi SQL langsung (PostgREST tak mengizinkan `pg_catalog`); pagar 0015 tetap.
-- **I F-09** `aplikasi/README.md` tidak lagi mencampur dua folder kerja (pemulihan: `bash alat/pratinjau.sh` dari dalam
+- **I F-09** `aplikasi/README.md` tidak lagi mencampur dua folder kerja (pemulihan: `bash aplikasi/alat/pratinjau.sh` dari dalam
   `aplikasi/`, dengan catatan bentuk akar; bagian pemeriksa ditandai "dari AKAR repo").
 - **I F-10** resep audit: auditor **wajib kembali ke cabang sesinya** (`git symbolic-ref --short HEAD`) dan push eksplisit
   `git push origin HEAD:refs/heads/<CABANG-SESIMU>` sebelum menyerahkan laporan (blok kanonik & buku induk tetap identik).

@@ -202,10 +202,10 @@ Sebuah task hanya boleh ditandai `[x]` bila **semua** tercentang:
 **Tambahan untuk tugas UI (DoD v2 — 2026-09-17; rincian `docs/SPESIFIKASI_UI.md` §6):**
 
 - [ ] Kontrak layar ditulis lengkap (tujuan · peran · jalan masuk · data · aksi · **7 keadaan** · bukti)
-- [ ] Semua aksi layar ada di **Registri Aksi** (`aplikasi/src/lib/aksi.ts`) dengan izin/RPC/pesan/uji
+- [ ] Semua aksi layar ada di **Registri Aksi** (`aplikasi/src/lib/aksi.ts` — (rencana Fase 1C)) dengan izin/RPC/pesan/uji
 - [ ] Tombol dirender lewat `TombolAksi` (tombol mentah dilarang di folder `layar/`)
 - [ ] Uji komponen per peran lulus (aksi berizin memanggil RPC benar; aksi terlarang tidak tampil)
-- [ ] Pemeriksa `python3 alat/peta-ui.py --periksa` lulus + `docs/PETA_UI.md` sudah diperbarui (hasil generate)
+- [ ] Pemeriksa `python3 alat/peta-ui.py --periksa` lulus + `docs/PETA_UI.md` sudah diperbarui (hasil generate; `alat/peta-ui.py` & `docs/PETA_UI.md` (rencana Fase 1C))
 - [ ] Naskah jalan bernomor `W-<fase>-<nomor>` ditulis & **dijalankan** di pratinjau; hasil dicatat di blok Bukti ROADMAP
 - [ ] Izin ditegakkan di database (dibuktikan uji SQL), bukan hanya disembunyikan di layar
 
