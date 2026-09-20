@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `cd5efd02a02f3ac2fce227416ee8b82067a3bcf1`
+- **Commit keadaan kerja:** `0ceb23eabb51e8bfe159e861c0f61e43e1810f35`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35494547225, commit cd5efd02)
+- **CI terakhir:** success (run 35494804787, commit 0ceb23ea)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (78 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (78 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (79 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (79 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -75,7 +75,7 @@ Dua run untuk commit `84d3126` **tidak pernah dijalankan**. Anotasi GitHub apa a
 
 Jadi **merahnya bukan cacat kode**. Buktinya: seluruh rantai langkah CI (termasuk tiga langkah baru putaran 18z)
 dijalankan ulang di **klon bersih** dari GitHub — semuanya LOLOS (npm ci/format/lint/typecheck/test/build/audit,
-uji SQL 53 LULUS, harness mutasi app 5/5 + uji-diri, 0012/0014/0015, Edge 11/11, dan seluruh pemeriksa Python).
+uji SQL 53 LULUS, harness mutasi app 5/5 + uji-diri, 0012/0014/0015, Edge 17/17, dan seluruh pemeriksa Python).
 
 **Dampak yang harus diketahui sesi berikutnya:** (1) tidak ada cap "CI hijau" dari GitHub sampai pulih → gerbang
 paket audit (`alat/ci_target.py`, aturan H F-02) akan MENOLAK membuat paket baru (itu perilaku benar, fail-closed);
@@ -179,7 +179,7 @@ menyentuh database · satu bentuk jawaban gagal terkendali untuk semua gangguan 
 - mengubah berkas ASLI `supabase/functions/verifikasi_pin/index.ts` TS → JS memakai `esbuild`
   (bukan menulis ulang tangan), lalu menjalankannya di `node:vm` **tanpa jaringan**
   (`Response`/`Request` milik Node, `Deno.serve`/`Deno.env`/`fetch` dikendalikan uji);
-- 11 kasus batas (E01–E11), termasuk "PIN tidak pernah muncul di jawaban mana pun";
+- 17 kasus batas (E01–E17), termasuk "PIN tidak pernah muncul di jawaban mana pun";
 - **MERAH di 4 kasus sebelum perbaikan** (bukti uji ini tidak tumpul), hijau sesudahnya;
 - jalan di `aplikasi/alat/periksa-semua.sh` dan CI (langkah tersendiri setelah `npm ci --prefix alat`;
   `esbuild` kini devDependency `alat/package.json`).
@@ -262,7 +262,7 @@ DIHARAPKAN` di berkas `supabase/tes/`) / **RUSAK** (crash, sintaks, migrasi gaga
   versi lama (K-1)" ternyata **gagal dikompilasi** (`"v_jejak" is not a known variable`, deklarasi hanya ditambahkan di kemunculan
   pertama fungsi) dan dulu dilaporkan "MERAH (benar)". Sudah diperbaiki (deklarasi di semua kemunculan) dan **benar-benar
   memerahkan uji K-1**. Seluruh **26 mutasi + kontrol penutup** kini LOLOS sebagai MERAH-PAGAR.
-- Bukti: `python3 alat/periksa-fungsi-pin.py` (11/11) · `--uji-diri` (9 kasus) · `python3 alat/uji-mutasi-0015.py` (LOLOS) ·
+- Bukti: `python3 alat/periksa-fungsi-pin.py` (14/14) · `--uji-diri` (11 kasus) · `python3 alat/uji-mutasi-0015.py` (LOLOS) ·
   `--uji-diri` (10 kasus) · `bash aplikasi/alat/periksa-semua.sh`.
 
 **Langkah berikutnya (urut):** **H F-05 / I F-20** (pembuat paket menyebut perintah/glob sebagai "berkas hilang") → sisa §1d/§1e

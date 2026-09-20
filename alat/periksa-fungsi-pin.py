@@ -30,7 +30,10 @@ Yang diperiksa pada `supabase/functions/verifikasi_pin/index.ts`:
   5. memakai Authorization pemanggil + kunci publik dari lingkungan;
   6. PIN dibaca dari badan permintaan;
   7. variabel PIN hanya dipakai di jalur sah (baca · periksa bentuk · teruskan ke RPC);
-  8. tidak menyentuh hash PIN maupun penyimpanan peramban.
+  8. tidak menyentuh hash PIN maupun penyimpanan peramban;
+  9. (I F-02/H F-04) badan RPC memuat `p_pesanan_id` dan aksi berkupon
+     (`void_sesudah_dapur`, `beri_diskon`) terdaftar sebagai wajib-pesanan di batas Edge;
+ 10. (H F-09) CORS tidak memakai wildcard `*` — asal dibatasi daftar sah.
 
 Jalankan:
   python3 alat/periksa-fungsi-pin.py            # memeriksa berkas Edge Function
@@ -134,6 +137,26 @@ def periksa_isi(isi: str) -> list[tuple[str, bool, str]]:
         "'POST'" in kode and "405" in kode,
         "metode selain POST dijawab 405",
     )
+    # I F-02 / H F-04: tanpa p_pesanan_id, kupon persetujuan lahir tak terikat pesanan
+    # dan jalur void/diskon buntu dari perangkat kasir.
+    periksa(
+        "meneruskan p_pesanan_id ke RPC (I F-02/H F-04: kupon wajib terikat pesanan)",
+        "p_pesanan_id" in kode,
+        "badan RPC memuat p_pesanan_id",
+    )
+    periksa(
+        "aksi berkupon mewajibkan pesanan di batas Edge (void_sesudah_dapur & beri_diskon)",
+        "void_sesudah_dapur" in kode and "beri_diskon" in kode,
+        "daftar AKSI_WAJIB_PESANAN ada di Edge",
+    )
+    # H F-09: wildcard CORS diganti daftar asal sah.
+    # Regex menangkap dua bentuk penugasan: properti objek (`'...': '*'`) maupun
+    # penugasan (`kepala['...'] = '*'`) — fixture uji-diri memakai bentuk kedua.
+    periksa(
+        "CORS tidak wildcard (H F-09: asal dibatasi daftar sah)",
+        re.search(r"Access-Control-Allow-Origin['\"]?\]?\s*[:=]\s*'\*'", isi) is None,
+        "tidak ada Access-Control-Allow-Origin: * dalam bentuk apa pun",
+    )
     # F-03a: `console['log']`, alias (`const c = console`), dan `globalThis.console` dulu lolos.
     console = re.search(r"\bconsole\b", kode) is not None
     deno_out = re.search(r"\bDeno\s*\.\s*(?:stdout|stderr)\b", kode) is not None
@@ -180,8 +203,8 @@ def periksa_isi(isi: str) -> list[tuple[str, bool, str]]:
 def _fixture_balasan_pin(isi: str) -> str:
     """Balasan yang MENGEMBALIKAN PIN (cacat asli yang dulu lolos 9/9)."""
     return isi.replace(
-        "  return balasan({\n    berhasil: hasil?.berhasil === true,",
-        "  return balasan({\n    pin: pin,\n    berhasil: hasil?.berhasil === true,",
+        "    {\n      berhasil: hasil?.berhasil === true,",
+        "    {\n      pin: pin,\n      berhasil: hasil?.berhasil === true,",
         1,
     )
 
@@ -197,6 +220,20 @@ def _fixture_pesan_pin(isi: str) -> str:
         "  if (!jawab.ok) {",
         "  if (!jawab.ok) {\n    // (fixture) PIN dimasukkan ke pesan galat\n"
         "    const bocor = `PIN ${pin} tidak bisa diperiksa`;",
+        1,
+    )
+
+
+def _fixture_tanpa_pesanan_id(isi: str) -> str:
+    """p_pesanan_id dilepas dari badan RPC (kupon kembali bisa lahir tak terikat)."""
+    return isi.replace("        p_pesanan_id: pesananId,\n", "", 1)
+
+
+def _fixture_cors_wildcard(isi: str) -> str:
+    """CORS dikembalikan ke wildcard (H F-09 mundur)."""
+    return isi.replace(
+        "  if (asal !== null && ASAL_DIIZINKAN.includes(asal)) kepala['Access-Control-Allow-Origin'] = asal",
+        "  kepala['Access-Control-Allow-Origin'] = '*'",
         1,
     )
 
@@ -256,6 +293,16 @@ def uji_diri() -> int:
             asli.replace("`${alamat}/rest/v1/rpc/${RPC}`", "`${alamat}/rest/v1/pin-langsung`"),
             "meneruskan ke RPC verifikasi_pin",
         ),
+        (
+            "p_pesanan_id dilepas dari badan RPC (I F-02/H F-04 mundur)",
+            _fixture_tanpa_pesanan_id(asli),
+            "meneruskan p_pesanan_id ke RPC",
+        ),
+        (
+            "CORS dikembalikan ke wildcard (H F-09 mundur)",
+            _fixture_cors_wildcard(asli),
+            "CORS tidak wildcard",
+        ),
     ]
 
     print("UJI DIRI — penjaga Edge Function PIN (harus bisa MENOLAK contoh cacat & MENERIMA yang sah)")
@@ -276,7 +323,7 @@ def uji_diri() -> int:
     if rusak:
         print(f"\nHASIL: GAGAL — {rusak} kasus berperilaku salah (penjaga PIN belum bisa dipercaya)")
         return 1
-    print("\nHASIL: LOLOS — sumber sah diterima, delapan contoh cacat ditolak DENGAN ALASAN yang benar.")
+    print(f"\nHASIL: LOLOS — sumber sah diterima, {len(kasus) - 1} contoh cacat ditolak DENGAN ALASAN yang benar.")
     return 0
 
 

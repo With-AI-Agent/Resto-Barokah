@@ -677,6 +677,19 @@ penunjuk + buku memuat 13 alur · `python3 alat/lanjut-sesi.py` LOLOS · CI hija
 
 ---
 
+## [Keamanan/2026-09-20] Daftar asal (origin) CORS untuk Edge Function verifikasi_pin
+
+**Keputusan:** CORS Edge Function `verifikasi_pin` TIDAK memakai wildcard. Daftar asal sah
+(ditanam di `supabase/functions/verifikasi_pin/index.ts` sebagai `ASAL_DIIZINKAN`):
+
+1. `https://resto-barokah.fatrizmubarok.workers.dev` (produksi),
+2. `http://localhost:5173` dan `http://127.0.0.1:5173` (pengembangan lokal).
+
+Asal di luar daftar tetap boleh memanggil tetapi TIDAK menerima header CORS, sehingga peramban
+menolak membaca jawabannya. Bila alamat produksi berubah (domain sendiri), perbarui daftar ini
+di berkas yang sama — penjaga `alat/periksa-fungsi-pin.py` menolak kembalinya wildcard.
+Diputus sebagai penutup temuan H F-09 (K-4, pengerasan).
+
 ## [Keamanan uji/2026-09-19] Bahan & kunci kalibrasi hidup DI LUAR repo (temuan audit D F-05)
 
 **Konteks:** audit AUD-3 putaran verifikasi menemukan `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` ikut ter-commit.

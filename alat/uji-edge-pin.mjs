@@ -43,30 +43,54 @@ try {
 }
 
 const sumber = readFileSync(BERKAS, 'utf8')
-const { code } = esbuild.transformSync(sumber, { loader: 'ts', format: 'cjs', target: 'es2022' })
+const { code } = esbuild.transformSync(sumber, {
+  loader: 'ts',
+  format: 'cjs',
+  target: 'es2022',
+})
 
 const PIN_UJI = '654321'
 const UUID_UJI = 'e2000000-0000-4000-8000-000000000003'
+const PESANAN_UJI = 'e9000000-0000-0000-0000-000000000001'
 const semuaJawaban = []
 
 /** Jalankan handler dengan `fetch` yang dikendalikan; kembalikan jawaban + catatan panggilan. */
-async function jalankan({ method = 'POST', isi, tanpaToken = false, fetchTiruan } = {}) {
+async function jalankan({ method = 'POST', isi, tanpaToken = false, fetchTiruan, origin } = {}) {
   const panggilan = []
   const penangan = []
   const Deno = {
     serve: (fn) => penangan.push(fn),
-    env: { get: (k) => ({ SUPABASE_URL: 'https://uji.invalid', SUPABASE_ANON_KEY: 'sb_publishable_uji' })[k] },
+    env: {
+      get: (k) =>
+        ({
+          SUPABASE_URL: 'https://uji.invalid',
+          SUPABASE_ANON_KEY: 'sb_publishable_uji',
+        })[k],
+    },
   }
   const fetchUji = async (url, opsi) => {
     panggilan.push({ url: String(url), opsi })
     if (fetchTiruan) return fetchTiruan(String(url), opsi)
     return new Response(JSON.stringify([{ berhasil: true, sisa_percobaan: 5, pesan: 'ok' }]), {
-      status: 200, headers: { 'Content-Type': 'application/json' },
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
     })
   }
   const konteks = vm.createContext({
-    Deno, fetch: fetchUji, Response, Request, Array, Object, JSON, String, Number, RegExp,
-    TypeError, URL, module: { exports: {} }, exports: {},
+    Deno,
+    fetch: fetchUji,
+    Response,
+    Request,
+    Array,
+    Object,
+    JSON,
+    String,
+    Number,
+    RegExp,
+    TypeError,
+    URL,
+    module: { exports: {} },
+    exports: {},
   })
 
   let melempar = null
@@ -78,6 +102,7 @@ async function jalankan({ method = 'POST', isi, tanpaToken = false, fetchTiruan 
 
   const opsi = { method, headers: {} }
   if (!tanpaToken) opsi.headers.Authorization = 'Bearer token-uji'
+  if (origin) opsi.headers.Origin = origin
   if (isi !== undefined) {
     opsi.headers['Content-Type'] = 'application/json'
     opsi.body = typeof isi === 'string' ? isi : JSON.stringify(isi)
@@ -109,21 +134,32 @@ function bacaJSON(badan) {
 // E01 — JSON `null` harus dijawab 400 terkendali (dulu: TypeError → 500 platform).
 {
   const r = await jalankan({ isi: 'null' })
-  catat('E01 body JSON null → 400 terkendali (bukan TypeError)',
+  catat(
+    'E01 body JSON null → 400 terkendali (bukan TypeError)',
     r.melempar === null && r.jawab?.status === 400,
-    `status=${r.jawab?.status} melempar=${r.melempar?.message ?? 'tidak'} body=${r.badan.slice(0, 70)}`)
+    `status=${r.jawab?.status} melempar=${r.melempar?.message ?? 'tidak'} body=${r.badan.slice(0, 70)}`,
+  )
 }
 // E02 — badan berisi array (bukan objek) → 400.
 {
   const r = await jalankan({ isi: '[]' })
-  catat('E02 body array → 400 terkendali',
-    r.melempar === null && r.jawab?.status === 400, `status=${r.jawab?.status} melempar=${r.melempar?.message ?? 'tidak'}`)
+  catat(
+    'E02 body array → 400 terkendali',
+    r.melempar === null && r.jawab?.status === 400,
+    `status=${r.jawab?.status} melempar=${r.melempar?.message ?? 'tidak'}`,
+  )
 }
 // E03 — tanpa token → 401 sebelum fetch.
 {
-  const r = await jalankan({ isi: { pengguna_id: UUID_UJI, pin: PIN_UJI }, tanpaToken: true })
-  catat('E03 tanpa Authorization → 401 tanpa memanggil upstream',
-    r.jawab?.status === 401 && r.panggilan.length === 0, `status=${r.jawab?.status} fetch=${r.panggilan.length}`)
+  const r = await jalankan({
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI },
+    tanpaToken: true,
+  })
+  catat(
+    'E03 tanpa Authorization → 401 tanpa memanggil upstream',
+    r.jawab?.status === 401 && r.panggilan.length === 0,
+    `status=${r.jawab?.status} fetch=${r.panggilan.length}`,
+  )
 }
 // E04 — metode GET → 405.
 {
@@ -132,35 +168,57 @@ function bacaJSON(badan) {
 }
 // E05 — UUID "36 tanda minus" harus DITOLAK sebelum fetch (dulu lolos karena regex longgar).
 {
-  const r = await jalankan({ isi: { pengguna_id: '-'.repeat(36), pin: PIN_UJI } })
-  catat('E05 UUID 36 tanda minus → 400 SEBELUM fetch',
-    r.jawab?.status === 400 && r.panggilan.length === 0, `status=${r.jawab?.status} fetch=${r.panggilan.length}`)
+  const r = await jalankan({
+    isi: { pengguna_id: '-'.repeat(36), pin: PIN_UJI },
+  })
+  catat(
+    'E05 UUID 36 tanda minus → 400 SEBELUM fetch',
+    r.jawab?.status === 400 && r.panggilan.length === 0,
+    `status=${r.jawab?.status} fetch=${r.panggilan.length}`,
+  )
 }
 // E06 — PIN bukan 6 angka → 400, dan nilainya tidak diulang di jawaban.
 {
-  const r = await jalankan({ isi: { pengguna_id: UUID_UJI, pin: 'PIN-RAHASIA' } })
-  catat('E06 PIN salah bentuk → 400 tanpa mengulang nilainya',
-    r.jawab?.status === 400 && !r.badan.includes('PIN-RAHASIA'), `status=${r.jawab?.status} bocor=${r.badan.includes('PIN-RAHASIA')}`)
+  const r = await jalankan({
+    isi: { pengguna_id: UUID_UJI, pin: 'PIN-RAHASIA' },
+  })
+  catat(
+    'E06 PIN salah bentuk → 400 tanpa mengulang nilainya',
+    r.jawab?.status === 400 && !r.badan.includes('PIN-RAHASIA'),
+    `status=${r.jawab?.status} bocor=${r.badan.includes('PIN-RAHASIA')}`,
+  )
 }
 // E07 — jaringan putus (fetch menolak) → jawaban gagal terkendali, TIDAK melempar.
 {
   const r = await jalankan({
     isi: { pengguna_id: UUID_UJI, pin: PIN_UJI },
-    fetchTiruan: () => { throw new TypeError('network error') },
+    fetchTiruan: () => {
+      throw new TypeError('network error')
+    },
   })
   const d = bacaJSON(r.badan)
-  catat('E07 fetch menolak (jaringan putus) → jawaban gagal terkendali',
-    r.melempar === null && d?.berhasil === false, `melempar=${r.melempar?.message ?? 'tidak'} body=${r.badan.slice(0, 80)}`)
+  catat(
+    'E07 fetch menolak (jaringan putus) → jawaban gagal terkendali',
+    r.melempar === null && d?.berhasil === false,
+    `melempar=${r.melempar?.message ?? 'tidak'} body=${r.badan.slice(0, 80)}`,
+  )
 }
 // E08 — upstream menjawab bukan JSON → jawaban gagal terkendali, TIDAK melempar.
 {
   const r = await jalankan({
     isi: { pengguna_id: UUID_UJI, pin: PIN_UJI },
-    fetchTiruan: () => new Response('<html>gateway error</html>', { status: 200, headers: { 'Content-Type': 'text/html' } }),
+    fetchTiruan: () =>
+      new Response('<html>gateway error</html>', {
+        status: 200,
+        headers: { 'Content-Type': 'text/html' },
+      }),
   })
   const d = bacaJSON(r.badan)
-  catat('E08 upstream bukan JSON → jawaban gagal terkendali',
-    r.melempar === null && d?.berhasil === false, `melempar=${r.melempar?.message ?? 'tidak'} body=${r.badan.slice(0, 80)}`)
+  catat(
+    'E08 upstream bukan JSON → jawaban gagal terkendali',
+    r.melempar === null && d?.berhasil === false,
+    `melempar=${r.melempar?.message ?? 'tidak'} body=${r.badan.slice(0, 80)}`,
+  )
 }
 // E09 — upstream 500 → jawaban gagal terkendali (jalur lama, dijaga agar tidak mundur).
 {
@@ -169,22 +227,119 @@ function bacaJSON(badan) {
     fetchTiruan: () => new Response('boom', { status: 500 }),
   })
   const d = bacaJSON(r.badan)
-  catat('E09 upstream 500 → jawaban gagal terkendali', r.melempar === null && d?.berhasil === false, `body=${r.badan.slice(0, 70)}`)
+  catat(
+    'E09 upstream 500 → jawaban gagal terkendali',
+    r.melempar === null && d?.berhasil === false,
+    `body=${r.badan.slice(0, 70)}`,
+  )
 }
 // E10 — jalur sukses: 4 kunci diteruskan ke RPC (termasuk p_pin), jawaban bersih dari PIN.
 {
-  const r = await jalankan({ isi: { pengguna_id: UUID_UJI, pin: PIN_UJI, aksi: 'void', perangkat: 'kasir-1' } })
-  const kirim = r.panggilan[0]?.opsi?.body ?? ''
-  const punyaKunci = ['p_pengguna_id', 'p_pin', 'p_aksi', 'p_perangkat'].every((k) => kirim.includes(k))
+  const r = await jalankan({
+    isi: {
+      pengguna_id: UUID_UJI,
+      pin: PIN_UJI,
+      aksi: 'void',
+      perangkat: 'kasir-1',
+    },
+  })
+  const kirim = JSON.parse(r.panggilan[0]?.opsi?.body ?? '{}')
+  const punyaKunci = ['p_pengguna_id', 'p_pin', 'p_aksi', 'p_perangkat'].every((k) => k in kirim)
   const d = bacaJSON(r.badan)
-  catat('E10 jalur sukses: 4 argumen ke RPC + PIN tidak ada di jawaban/URL',
-    d?.berhasil === true && punyaKunci, `berhasil=${d?.berhasil} kunci=${punyaKunci}`)
+  catat(
+    'E10 jalur sukses: 5 kunci ke RPC (p_pesanan_id ikut, null bila tak disebut) + PIN tidak bocor',
+    d?.berhasil === true && punyaKunci && kirim.p_pesanan_id === null,
+    `berhasil=${d?.berhasil} kunci=${punyaKunci} p_pesanan_id=${kirim.p_pesanan_id}`,
+  )
+}
+// E12 — I F-02: aksi berkupon tanpa pesanan_id → 400 SEBELUM fetch (jalur buntu dipotong di batas).
+{
+  const r = await jalankan({
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI, aksi: 'void_sesudah_dapur' },
+  })
+  catat(
+    'E12 aksi berkupon tanpa pesanan_id → 400 sebelum fetch (I F-02)',
+    r.jawab?.status === 400 && r.panggilan.length === 0,
+    `status=${r.jawab?.status} fetch=${r.panggilan.length}`,
+  )
+}
+// E13 — I F-02/H F-04: pesanan_id diteruskan ke RPC sebagai p_pesanan_id.
+{
+  const r = await jalankan({
+    isi: {
+      pengguna_id: UUID_UJI,
+      pin: PIN_UJI,
+      aksi: 'void_sesudah_dapur',
+      pesanan_id: PESANAN_UJI,
+    },
+  })
+  const kirim = JSON.parse(r.panggilan[0]?.opsi?.body ?? '{}')
+  catat(
+    'E13 pesanan_id diteruskan sebagai p_pesanan_id ke RPC (I F-02/H F-04)',
+    r.jawab?.status === 200 && kirim.p_pesanan_id === PESANAN_UJI,
+    `p_pesanan_id=${kirim.p_pesanan_id}`,
+  )
+}
+// E14 — pesanan_id bukan UUID lengkap → 400 sebelum fetch.
+{
+  const r = await jalankan({
+    isi: {
+      pengguna_id: UUID_UJI,
+      pin: PIN_UJI,
+      aksi: 'beri_diskon',
+      pesanan_id: '-'.repeat(36),
+    },
+  })
+  catat(
+    'E14 pesanan_id 36 tanda minus → 400 sebelum fetch',
+    r.jawab?.status === 400 && r.panggilan.length === 0,
+    `status=${r.jawab?.status}`,
+  )
+}
+// E15 — H F-09: asal sah mendapat header CORS yang memantulkan asalnya.
+{
+  const asal = 'https://resto-barokah.fatrizmubarok.workers.dev'
+  const r = await jalankan({
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI },
+    origin: asal,
+  })
+  catat(
+    'E15 asal sah → CORS memantulkan asal (H F-09)',
+    r.jawab?.headers.get('access-control-allow-origin') === asal,
+    `acao=${r.jawab?.headers.get('access-control-allow-origin')}`,
+  )
+}
+// E16 — H F-09: asal asing TIDAK mendapat header CORS (dan pasti bukan wildcard).
+{
+  const r = await jalankan({
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI },
+    origin: 'https://jahat.example',
+  })
+  const acao = r.jawab?.headers.get('access-control-allow-origin')
+  catat(
+    'E16 asal asing → tanpa header CORS, bukan wildcard (H F-09)',
+    acao == null,
+    `acao=${acao ?? 'tidak ada'}`,
+  )
+}
+// E17 — preflight OPTIONS dari asal sah → 200 dengan asal dipantulkan.
+{
+  const asal = 'http://localhost:5173'
+  const r = await jalankan({ method: 'OPTIONS', origin: asal })
+  catat(
+    'E17 preflight OPTIONS asal sah → 200 + asal dipantulkan',
+    r.jawab?.status === 200 && r.jawab?.headers.get('access-control-allow-origin') === asal,
+    `status=${r.jawab?.status}`,
+  )
 }
 // E11 — penjaga menyeluruh: TIDAK ADA jawaban mana pun yang memuat PIN.
 {
   const bocor = semuaJawaban.filter((b) => b.includes(PIN_UJI) || b.includes('PIN-RAHASIA'))
-  catat('E11 tak ada jawaban mana pun yang memuat PIN',
-    bocor.length === 0, bocor.length === 0 ? `${semuaJawaban.length} jawaban bersih` : `${bocor.length} jawaban bocor`)
+  catat(
+    'E11 tak ada jawaban mana pun yang memuat PIN',
+    bocor.length === 0,
+    bocor.length === 0 ? `${semuaJawaban.length} jawaban bersih` : `${bocor.length} jawaban bocor`,
+  )
 }
 
 const gagal = hasil.filter((h) => !h.lulus)
