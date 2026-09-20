@@ -89,6 +89,12 @@ def jalankan(perintah: list[str]) -> tuple[int, str]:
 # dan itu bahan temuan palsu. Tidak ada pemeriksa yang bisa MERAH untuk kelas ini.
 RIWAYAT_REVIEW = AKAR / "docs" / "uji" / "REVIEW_PR_RIWAYAT.md"
 SEJAK_RIWAYAT_WAJIB = "2026-09-19"  # paket bertanggal >= ini wajib tercatat
+# Aturan 5 (2026-09-20, audit H F-02): paket bertanggal >= ini WAJIB menuliskan status CI commit
+# targetnya. Kenapa: paket AUD-3 2026-09-19 menargetkan commit `4830b5a` yang dua run CI-nya
+# `cancelled`, padahal protokol sudah mewajibkan "commit ber-CI hijau" — janji tanpa penegak.
+SEJAK_CI_WAJIB = "2026-09-20"
+POLA_CI_PAKET = re.compile(r"^-\s*\*\*CI commit target:\*\*\s*(.+)$", re.MULTILINE)
+POLA_IZIN_CI = re.compile(r"^-\s*\*\*Izin pemilik untuk commit non-hijau:\*\*\s*(.+)$", re.MULTILINE)
 POLA_PAKET_REVIEW = re.compile(r"^PKT-(\d{4}-\d{2}-\d{2})-pr-01-putaran(\d+)(?:-SIAP-TEMPEL)?\.md$")
 
 
@@ -260,6 +266,55 @@ def periksa_paket(ref: str, jalur: str, isi: str | None = None,
         if "protokol" in isi and "PROTOKOL_AUDIT_INDEPENDEN.md" not in isi:
             masalah.append(f"{jalur}: menyebut protokol tanpa menunjuk berkasnya")
 
+    # ATURAN 5 — BUKTI CI PADA COMMIT TARGET (audit H F-02, 2026-09-20).
+    # Paket yang lahir sejak tanggal ini wajib menyatakan status CI commit targetnya; status
+    # "belum hijau" hanya boleh dipakai bila ada izin pemilik yang ditulis di paket (keputusan
+    # pemilik tetap boleh mengecualikan, tetapi tidak boleh diam-diam).
+    tanggal = re.search(r"(\d{4}-\d{2}-\d{2})", nama)
+    if tanggal and tanggal.group(1) >= SEJAK_CI_WAJIB:
+        m_ci = POLA_CI_PAKET.search(isi)
+        if not m_ci:
+            masalah.append(
+                f"{jalur}: F-02 — tidak menulis status CI commit target. Paket yang menargetkan commit "
+                "tanpa CI hijau membuat auditor memeriksa pohon yang tidak pernah lewat gerbang otomatis. "
+                "Tambahkan baris '- **CI commit target:** success (run <id>) …' (dibuat otomatis oleh "
+                "`alat/audit-independen.py --paket` / `alat/review-pr.py --siapkan`)."
+            )
+        else:
+            nilai = m_ci.group(1).strip()
+            if not re.search(r"\bsuccess\b", nilai, re.IGNORECASE) and "BELUM-HIJAU" not in nilai:
+                masalah.append(f"{jalur}: F-02 — status CI tidak dikenali: '{nilai[:60]}' (harus memuat 'success')")
+            if not re.search(r"\bsuccess\b", nilai, re.IGNORECASE) and not POLA_IZIN_CI.search(isi):
+                masalah.append(
+                    f"{jalur}: F-02 — paket menargetkan commit yang CI-nya BELUM hijau / tidak bisa diperiksa, "
+                    "tanpa izin pemilik. Tulis '- **Izin pemilik untuk commit non-hijau:** <kalimat izin>' "
+                    "atau pilih commit yang CI-nya sudah hijau."
+                )
+            elif not re.search(r"\bsuccess\b", nilai, re.IGNORECASE):
+                catatan.append(f"{jalur}: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)")
+            # Silang-periksa ke GitHub bila sha target ada & gh tersedia: klaim 'success' yang tidak
+            # cocok dengan kenyataan adalah kelas cacat yang sama dengan angka bukti basi.
+            # SHA yang diperiksa = SHA yang disebut DI BARIS CI (commit target menurut paket);
+            # kalau baris itu tidak menyebut SHA, pakai SHA target paket.
+            m_sha_baris = re.search(r"\b([0-9a-f]{40})\b", nilai)
+            sha_dicek = m_sha_baris.group(1) if m_sha_baris else sha
+            if sha_dicek and "success" in nilai.lower():
+                try:
+                    sys.path.insert(0, str(AKAR / "alat"))
+                    import ci_target  # noqa: PLC0415 — impor lokal supaya CI tanpa gh tetap jalan
+                    st = ci_target.status_ci(sha_dicek, AKAR)
+                    if st["bisa"] and not st["hijau"]:
+                        masalah.append(
+                            f"{jalur}: F-02 — paket mengklaim CI hijau, tetapi GitHub berkata sebaliknya "
+                            f"({st['rincian']}) untuk commit {sha_dicek[:8]}"
+                        )
+                    elif not st["bisa"]:
+                        catatan.append(f"{jalur}: status CI tidak bisa diverifikasi dari sini ({st['rincian']})")
+                    else:
+                        catatan.append(f"{jalur}: CI commit target terverifikasi ke GitHub ({st['rincian']})")
+                except Exception as e:  # noqa: BLE001 — pemeriksaan tambahan tidak boleh mematikan penjaga
+                    catatan.append(f"{jalur}: silang-periksa CI dilewati ({type(e).__name__})")
+
     if nama in LEGACY_TANPA_ATURAN_ARTEFAK and not abaikan_pengecualian:
         catatan.append(f"{jalur}: aturan artefak dilewati (paket lama sebelum perbaikan F-12)")
         return masalah, catatan
@@ -384,6 +439,46 @@ def uji_diri() -> int:
         masalah_pohon += m
     hasil.append(("pohon sekarang diterima", not masalah_pohon,
                   "lolos" if not masalah_pohon else masalah_pohon[0][:90]))
+
+    # Aturan 5 (F-02): paket bertanggal >= SEJAK_CI_WAJIB wajib menulis status CI commit target.
+    isi_uji = isi_pada("HEAD", sekarang[0]) if sekarang else None
+    if isi_uji:
+        jalur_uji = "docs/uji/paket-audit/AUD-3-2099-01-01-uji-ci.md"
+        # (a) tanpa baris CI sama sekali → harus DITOLAK
+        tanpa_ci = re.sub(r"^-\s*\*\*CI commit target:\*\*.*$\n?", "", isi_uji, flags=re.MULTILINE)
+        m_semua, _ = periksa_paket("HEAD", jalur_uji, isi=tanpa_ci, abaikan_pengecualian=True)
+        # STRICT: harus ditolak DENGAN ALASAN F-02. Kalau pemeriksa menolak karena sebab lain
+        # (mis. F-11 soal riwayat commit), itu bukan bukti aturan F-02 bekerja — pelajaran dari
+        # temuan I F-04 (classifier yang menerima kegagalan apa pun sebagai "pagar bekerja").
+        m_ci = [x for x in m_semua if "F-02" in x]
+        hasil.append(("mutasi: paket baru tanpa bukti CI commit target (alasan harus F-02)", bool(m_ci),
+                      m_ci[0][:90] if m_ci else f"TIDAK DITOLAK DENGAN ALASAN F-02 (alasan lain: {m_semua[0][:60] if m_semua else '-'})"))
+        # (b) klaim 'success' padahal commit target CI-nya TIDAK hijau → harus DITOLAK.
+        #     SHA-nya dicari dinamis: ambil beberapa commit terakhir cabang ini, pilih yang
+        #     status CI-nya benar-benar bukan success (mis. run yang ditimpa push berikutnya).
+        sys.path.insert(0, str(AKAR / "alat"))
+        try:
+            import ci_target  # noqa: PLC0415
+            kode_gh, keluaran_gh = jalankan(["git", "log", "--format=%H", "-n", "12"])
+            sha_tidak_hijau = None
+            for sha_kandidat in [s for s in keluaran_gh.split() if len(s) == 40]:
+                st = ci_target.status_ci(sha_kandidat, AKAR)
+                if st.get("bisa") and not st.get("hijau"):
+                    sha_tidak_hijau = sha_kandidat
+                    break
+        except Exception:  # noqa: BLE001
+            sha_tidak_hijau = None
+        if sha_tidak_hijau:
+            klaim_palsu = (tanpa_ci
+                           + f"\n- **CI commit target:** success (run 999999) — diperiksa mesin terhadap commit `{sha_tidak_hijau}`\n")
+            m_palsu_semua, _ = periksa_paket("HEAD", jalur_uji, isi=klaim_palsu, abaikan_pengecualian=True)
+            m_palsu = [x for x in m_palsu_semua if "F-02" in x and "sebaliknya" in x]
+            hasil.append((f"mutasi: paket mengklaim CI hijau padahal tidak ({sha_tidak_hijau[:7]})",
+                          bool(m_palsu),
+                          m_palsu[0][:90] if m_palsu else "TIDAK DITOLAK DENGAN ALASAN F-02 (tumpul)"))
+        else:
+            print("LEWAT: tidak ada commit non-hijau yang bisa dipakai / gh tidak tersedia — "
+                  "silang-periksa CI dilewati di uji-diri")
 
     # Aturan 3: paket review baru tanpa baris riwayat wajib DITOLAK; yang tercatat diterima.
     masalah_riwayat = periksa_riwayat(["docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran99.md"])

@@ -201,7 +201,8 @@ def bahan_bocor_di_repo() -> list[pathlib.Path]:
 
 
 # ---------------------------------------------------------------- --siapkan
-def siapkan(dasar: str, kepala: str, nama: str | None) -> int:
+def siapkan(dasar: str, kepala: str, nama: str | None,
+            izin_ci: str | None = None) -> int:
     sha = sha_ringkas(kepala)
     if not sha:
         print(f"GAGAL: tidak bisa membaca commit '{kepala}'"); return 1
@@ -272,6 +273,24 @@ def siapkan(dasar: str, kepala: str, nama: str | None) -> int:
 - Tulis **rencana pemulihan** (bila perubahan ini salah, apa yang dilakukan agar aman) dan **sisa risiko** dalam bahasa sederhana.
 """
 
+    # BUKTI CI PADA COMMIT TARGET (temuan audit H F-02, 2026-09-20): paket hanya boleh menargetkan
+    # commit yang CI-nya SUDAH hijau. Bila belum/tidak bisa diperiksa, alat MENOLAK membuat paket
+    # kecuali pemilik memberi izin eksplisit (`--izinkan-ci-belum-hijau "<alasan>"`), dan izin itu
+    # ditulis di dalam paket supaya tidak jadi kebiasaan diam-diam.
+    sys.path.insert(0, str(AKAR / "alat"))
+    import ci_target  # noqa: PLC0415
+    st_ci = ci_target.status_ci(sha, AKAR)
+    if not st_ci["hijau"]:
+        if not izin_ci:
+            print(f"GAGAL: commit target {sha[:8]} BELUM punya CI hijau ({st_ci['rincian']}).")
+            print("       Paket audit/review wajib menunjuk commit yang sudah lolos gerbang otomatis —")
+            print("       kalau tidak, auditor memeriksa pohon yang tidak pernah diverifikasi mesin.")
+            print("       Pilihan: (a) tunggu CI hijau pada commit itu, (b) pilih commit terakhir yang CI-nya hijau,")
+            print('                 (c) jalankan ulang dengan --izinkan-ci-belum-hijau "<alasan izin pemilik>".')
+            return 1
+        print(f"  PERINGATAN: commit target {sha[:8]} BELUM hijau ({st_ci['rincian']}) — dilanjutkan dengan izin pemilik.")
+    baris_ci = ci_target.baris_paket(sha, AKAR, izin_pemilik=izin_ci)
+
     kalibrasi_md = "- (tidak disiapkan untuk paket ini)"
     if kal:
         # F-05: yang disematkan adalah ISI bahan; berkas bahannya sendiri hidup di luar repo.
@@ -300,6 +319,7 @@ def siapkan(dasar: str, kepala: str, nama: str | None) -> int:
 - **PR / cabang:** `{nama or '(tanpa nama)'}`
 - **Dasar (base):** `{dasar}` → **Kepala (head):** `{kepala}`
 - **Commit yang direview:** `{sha}`
+{baris_ci}
 - **Perubahan:** {len(ubah)} berkas · +{tambah} / −{kurang} baris
 - **Jalur risiko (mesin):** **{jalur_dominan}** — kedalaman review yang diwajibkan: **{lensa}**
 - **Tugas ROADMAP yang berubah:** {tugas_md}
@@ -948,6 +968,8 @@ def main() -> int:
     p.add_argument("--kartu-keputusan", help="cetak kartu keputusan untuk Lee dari laporan peninjau")
     p.add_argument("--kesiapan", action="store_true", help="cek apakah commit sekarang sudah punya paket review")
     p.add_argument("--ambil-laporan", action="store_true", help="tarik laporan review dari cabang sesi peninjau (arena/*)")
+    p.add_argument("--izinkan-ci-belum-hijau", metavar="ALASAN", default=None,
+                   help="buat paket walau CI commit target belum hijau (butuh izin pemilik; alasannya ditulis di paket)")
     p.add_argument("--kalibrasi-pr-siapkan", action="store_true", help="buat bahan kalibrasi review (diff dengan cacat sengaja)")
     p.add_argument("--jumlah", type=int, default=None, help="jumlah cacat kalibrasi (default 4)")
     p.add_argument("--uji-diri", action="store_true", help="uji pemeriksa laporan dengan contoh baik & buruk")
@@ -1005,7 +1027,7 @@ def main() -> int:
                     return 1
             else:
                 print(f"CATATAN: tidak bisa membaca PR {a.pr} via gh — memakai dasar/kepala dari argumen")
-        return siapkan(dasar, kepala, nama)
+        return siapkan(dasar, kepala, nama, izin_ci=a.izinkan_ci_belum_hijau)
     p.print_help()
     return 1
 

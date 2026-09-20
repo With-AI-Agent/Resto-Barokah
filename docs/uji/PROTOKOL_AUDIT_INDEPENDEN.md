@@ -231,6 +231,21 @@ Ada **dua jalur kalibrasi** — keduanya wajib, karena keduanya mengukur hal ber
 5. **Rotasi bahan:** bahan kalibrasi yang pernah bocor — termasuk yang masih terbaca di riwayat Git —
    **tidak dipakai lagi** untuk menilai ketajaman; gantinya bahan baru bertanggal (sama seperti jalur auditor).
 
+**Paket hanya menargetkan commit ber-CI hijau (audit H F-02, K-3, 2026-09-20):**
+
+Protokol ini sudah lama mewajibkan "commit ber-CI hijau", tetapi **tidak ada yang menegakkannya**: paket AUD-3
+2026-09-19 menargetkan commit `4830b5a` yang dua run CI-nya `cancelled` (ditimpa push berikutnya). Akibatnya
+auditor memeriksa pohon yang **tidak pernah** melewati gerbang otomatis, sementara paketnya tampak terverifikasi.
+
+1. **Pembuat paket menolak jalan** bila CI commit target belum hijau — baik `alat/audit-independen.py --paket`
+   maupun `alat/review-pr.py --siapkan` membaca status itu lewat `alat/ci_target.py` (bertanya ke GitHub Actions).
+2. **Status itu ditulis di dalam paket** sebagai baris `- **CI commit target:** success (run …) …` — jadi pembaca
+   paket (pemilik/auditor) melihat dasarnya, bukan mengira-ngira.
+3. **Pengecualian hanya dengan izin pemilik:** `--izinkan-ci-belum-hijau "<alasan>"`; izin itu **ditulis di paket**
+   sebagai baris `- **Izin pemilik untuk commit non-hijau:** …`. Tanpa baris itu, `alat/periksa-paket.py` **menolak**.
+4. **Klaim yang tidak cocok dengan kenyataan ditolak:** penjaga memeriksa ulang ke GitHub — paket yang menulis
+   "success (run …)" padahal commitnya tidak hijau **ditolak** (dijaga `--uji-diri`).
+
 **Kunci jawaban tidak boleh terbaca dari repo (audit H F-01, 2026-09-20 — K-2):**
 
 Katalog cacat memuat pasangan `cari`/`ganti` = **kunci jawaban**. Selama ia hidup di dalam repo, peninjau/

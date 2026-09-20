@@ -185,7 +185,8 @@ def pisah_rentang(spes: str) -> list[str]:
 
 
 # --------------------------------------------------------------- mode: paket
-def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bool = False) -> int:
+def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bool = False,
+               izin_ci: str | None = None) -> int:
     # CATATAN PENTING (cacat nyata 2026-09-18): dulu baris pertama fungsi ini menimpa
     # parameter `semua` dengan daftar tugas (`semua = baca_tugas_roadmap()`), sehingga
     # (a) `--fase` selalu mengambil SELURUH tugas (cakupan melebar tanpa disadari) dan
@@ -269,6 +270,23 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
     keluar = DIR_PAKET / f"{tingkat}-{tanggal}.md"
     if keluar.exists():
         keluar = DIR_PAKET / f"{tingkat}-{tanggal}-{sha[:7]}.md"
+
+    # BUKTI CI PADA COMMIT TARGET (temuan audit H F-02, 2026-09-20): paket hanya boleh menargetkan
+    # commit yang CI-nya SUDAH hijau. Bila belum/tidak bisa diperiksa → MENOLAK, kecuali pemilik
+    # memberi izin eksplisit yang ditulis di dalam paket (supaya pengecualian tidak jadi diam-diam).
+    sys.path.insert(0, str(AKAR / "alat"))
+    import ci_target  # noqa: PLC0415 — impor lokal; berkas ini dipakai juga sebagai CLI
+    st_ci = ci_target.status_ci(sha, AKAR)
+    if not st_ci["hijau"] and not izin_ci:
+        print(f"GAGAL: commit target {sha[:8]} BELUM punya CI hijau ({st_ci['rincian']}).")
+        print("       Auditor wajib memeriksa commit yang sudah lolos gerbang otomatis; kalau tidak,")
+        print("       cacat yang hanya muncul di pohon itu tidak pernah tertangkap mesin.")
+        print("       Pilihan: (a) tunggu CI hijau pada commit ini, (b) pakai commit terakhir yang hijau,")
+        print('                 (c) --izinkan-ci-belum-hijau "<alasan izin pemilik>".')
+        return 1
+    if not st_ci["hijau"]:
+        print(f"  PERINGATAN: commit target {sha[:8]} BELUM hijau ({st_ci['rincian']}) — dilanjutkan dengan izin pemilik.")
+    baris_ci = ci_target.baris_paket(sha, AKAR, izin_pemilik=izin_ci)
 
     # pre-flight: mesin mana yang benar-benar bisa jalan sekarang (bukti harus bisa direproduksi auditor)
     siap: list[str] = []
@@ -376,6 +394,7 @@ apakah dokumen menjanjikan sesuatu yang belum ada.
 
 - **Tingkat audit:** {tingkat}
 - **Commit yang diaudit:** `{sha}` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
+{baris_ci}
 - **Tugas dalam lingkup:** {", ".join(ids)}
 - **Lensa wajib:** {", ".join(lensa)}
 - **Mode cakupan:** {lingkup}
@@ -1390,15 +1409,31 @@ def _uji_pembuat_paket() -> tuple[bool, str]:
         tujuan = pathlib.Path(tmp) / "repo"
         shutil.copytree(AKAR, tujuan, ignore=shutil.ignore_patterns(
             ".git", "node_modules", "dist", "build", "coverage", "__pycache__", ".pytest_cache"))
-        kode, keluar = jalankan(tujuan, ["--paket", "AUD-3", "--semua"])
+        # Salinan uji ini SENGAJA tanpa `.git` (supaya tidak mengotori repo asli). Sejak gerbang
+        # "paket wajib commit ber-CI hijau" (H F-02) ada, pembuat paket WAJIB menolak di sini —
+        # jika tidak menolak, gerbangnya tidak bekerja. Dua-duanya diuji:
+        #   (1) tanpa izin  → HARUS menolak, dan alasannya harus menyebut CI (bukan sebab lain);
+        #   (2) dengan izin pemilik → boleh jalan, dan izin itu HARUS tercetak di paket.
+        izin = 'salinan uji lokal tanpa riwayat git — CI tidak bisa diperiksa'
+        kode0, keluar0 = jalankan(tujuan, ["--paket", "AUD-3", "--semua"])
+        if kode0 == 0:
+            return False, "gerbang CI tumpul: paket TETAP dibuat walau CI commit target tidak bisa diperiksa"
+        if "CI" not in keluar0 or "izin" not in keluar0:
+            return False, f"gerbang CI menolak tetapi alasannya tidak menyebut CI/izin: {keluar0.strip().splitlines()[-1:]}"
+
+        kode, keluar = jalankan(tujuan, ["--paket", "AUD-3", "--semua", "--izinkan-ci-belum-hijau", izin])
         if kode != 0:
-            return False, f"paket menyeluruh GAGAL dibuat (kode {kode}): {keluar.strip().splitlines()[-1:]}"
+            return False, f"paket menyeluruh GAGAL dibuat walau ada izin (kode {kode}): {keluar.strip().splitlines()[-1:]}"
         paket = sorted((tujuan / "docs" / "uji" / "paket-audit").glob("AUD-3-*.md"))
         isi = paket[-1].read_text(encoding="utf-8") if paket else ""
         if "- **Mode cakupan:** menyeluruh" not in isi:
             return False, "paket menyeluruh tidak mencantumkan mode cakupan `menyeluruh`"
+        if "- **CI commit target:**" not in isi:
+            return False, "paket menyeluruh tidak mencantumkan status CI commit target"
+        if f"- **Izin pemilik untuk commit non-hijau:** {izin}" not in isi:
+            return False, "izin pemilik tidak tercetak di paket (pengecualian jadi diam-diam)"
 
-        kode2, keluar2 = jalankan(tujuan, ["--paket", "AUD-2", "--fase", "1"])
+        kode2, keluar2 = jalankan(tujuan, ["--paket", "AUD-2", "--fase", "1", "--izinkan-ci-belum-hijau", izin])
         if kode2 != 0:
             return False, f"paket per fase GAGAL dibuat (kode {kode2})"
         paket2 = sorted((tujuan / "docs" / "uji" / "paket-audit").glob("AUD-2-*.md"))
@@ -1486,6 +1521,8 @@ def main() -> int:
     p.add_argument("--kunci", help="berkas kunci jawaban")
     p.add_argument("--uji-diri", action="store_true", help="uji pemeriksa laporan")
     p.add_argument("--ambil-laporan", action="store_true", help="ambil laporan audit dari cabang sesi auditor (arena/*)")
+    p.add_argument("--izinkan-ci-belum-hijau", metavar="ALASAN", default=None,
+                   help="buat paket walau CI commit target belum hijau (butuh izin pemilik; alasannya ditulis di paket)")
     p.add_argument("--verifikasi-lingkup", nargs="?", const="", metavar="PAKET",
                    help="pastikan repo ini memuat commit yang diminta paket audit (bebas base branch)")
     a = p.parse_args()
@@ -1497,7 +1534,8 @@ def main() -> int:
     if a.uji_diri:
         return mode_uji_diri()
     if a.paket:
-        return mode_paket(a.paket, a.tugas, a.fase, semua=a.semua)
+        return mode_paket(a.paket, a.tugas, a.fase, semua=a.semua,
+                          izin_ci=a.izinkan_ci_belum_hijau)
     if a.periksa:
         return mode_periksa_laporan(a.periksa, cek_git=not a.tanpa_cek_git)
     if a.kalibrasi_siapkan:

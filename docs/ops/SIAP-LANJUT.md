@@ -10,11 +10,12 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `efcf12f885329f64aaf783326c1e72ee1cf8d1e6`
+- **Commit keadaan kerja:** `57d771730bfcea92aca3f4cd740db556f220a217`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35481043354, commit efcf12f8)
+- **CI terakhir:** (run 35481766232, commit 57d77173)
+- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (61 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (61 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (62 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (62 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -63,6 +64,25 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18s (2026-09-20) — H F-02 TUNTAS: PAKET WAJIB MENUNJUK COMMIT BER-CI HIJAU.**
+
+Bukti masalahnya nyata: paket AUD-3 2026-09-19 menargetkan `4830b5a` yang dua run CI-nya **cancelled**
+(ditimpa push berikutnya) — auditor memeriksa pohon yang tidak pernah lewat gerbang otomatis.
+
+* `alat/ci_target.py` (baru): `status_ci(sha)` bertanya ke GitHub Actions; mengembalikan `bisa/hijau/run/rincian`.
+  **Tidak bisa diperiksa ≠ hijau** (ketidak-tahuan tidak dibaca sebagai bukti aman). SHA pendek diperluas otomatis.
+* Gerbang di pembuat paket: `alat/audit-independen.py --paket` & `alat/review-pr.py --siapkan` **MENOLAK** bila CI commit target belum hijau;
+  ada jalan pengecualian `--izinkan-ci-belum-hijau "<alasan>"` yang **tercetak di paket** (izin pemilik, bukan diam-diam).
+* Paket menulis `- **CI commit target:** success (run …)`; penjaga `alat/periksa-paket.py` aturan **F-02**:
+  paket bertanggal ≥ 2026-09-20 wajib punya baris itu, klaim "success" **diperiksa ulang ke GitHub**, dan "belum hijau" tanpa izin pemilik ditolak
+  (+2 kasus `--uji-diri`, termasuk mencari commit non-hijau sungguhan lalu membuktikan klaim palsu ditolak).
+
+**Cara pakai saat mau menerbitkan paket berikutnya:** pilih commit yang CI-nya SUDAH hijau (atau tunggu), lalu
+`python3 alat/audit-independen.py --paket AUD-3 --semua`. Kalau commit sekarang belum hijau, alat akan bilang.
+
+**Langkah berikutnya (urut):** **I F-04** (classifier mutasi menerima crash sebagai "pagar bekerja") → **I F-03** (pemeriksa PIN tumpul/bracket)
+→ **H F-05 / I F-20** (pembuat paket menyebut perintah/glob sebagai berkas hilang) → sisa §1d/§1e + K-3/K-4 → tutup batch lalu **hubungi Lee** untuk sebar skema.
 
 **PUTARAN 18r (2026-09-20) — H F-01 TUNTAS: KATALOG CACAT KALIBRASI KELUAR DARI REPO (izin Lee).**
 
