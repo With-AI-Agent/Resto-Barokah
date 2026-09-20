@@ -23,6 +23,7 @@ import re
 import sys
 
 from bantu_uji_diri import AKAR, jalankan_pemeriksa, laporkan, salin_pohon
+from artefak import adakah_artefak
 
 RIWAYAT = "docs/uji/AUDIT_RIWAYAT.md"
 LAPORAN = {
@@ -102,7 +103,12 @@ def jalur_ada(akar: pathlib.Path, rujukan: list[str]) -> list[str]:
             kolom = [k.strip() for k in b.strip("|").split("|")]
             if len(kolom) >= 2 and not set(kolom[0]) <= set("-: "):
                 pensiun |= {m.group(1).strip() for m in re.finditer(r"`([^`]+)`", kolom[1])}
-    return [r for r in rujukan if not (akar / r).exists() and r not in pensiun]
+    # Sejak audit I F-20/H F-05 (2026-09-20): "ada" bukan hanya `(akar / r).exists()`.
+    # Bukti boleh berbentuk PERINTAH (`python3 alat/periksa-roadmap.py`), POLA
+    # (`aplikasi/src/komponen/*.tsx`), atau jalur relatif folder kerja (`src/lib/tema.ts`).
+    # Menuduh bentuk-bentuk itu sebagai "berkas mati" = menuduh bukti yang hidup.
+    return [r for r in rujukan
+            if not (akar / r).exists() and not adakah_artefak(r, akar) and r not in pensiun]
 
 
 LUAR_CAKUPAN = "docs/uji/TEMUAN_LUAR_CAKUPAN_REVIEW.md"
@@ -332,6 +338,36 @@ def uji_diri() -> int:
             kode6, _ = jalankan_pemeriksa(periksa, tmp6)
             hasil.append(("mutasi: baris DITUNDA tanpa sarana penutup", kode6 != 0,
                           "ditolak" if kode6 != 0 else "DILOLOSKAN (penundaan tanpa sarana)"))
+
+        # Mutasi 6 (audit I F-20/H F-05): bukti penutup berbentuk POLA dan JALUR RELATIF folder
+        # kerja harus DITERIMA — ketiganya nyata. Dulu pemeriksa ini menuduhnya "berkas mati".
+        with salin_pohon() as tmp7:
+            berkas = tmp7 / RIWAYAT
+            baris = berkas.read_text(encoding="utf-8").splitlines()
+            idx = next((i for i, b in enumerate(baris) if "DITUTUP" in b and "`supabase/tes/" in b), None)
+            if idx is None:
+                hasil.append(("mutasi bukti pola/relatif", False, "tidak menemukan baris DITUTUP untuk dimutasi"))
+            else:
+                baris[idx] = re.sub(r"`supabase/tes/[^`]+`",
+                                    "`aplikasi/src/komponen/*.tsx` dan `src/lib/tema.ts`", baris[idx], count=1)
+                berkas.write_text("\n".join(baris) + "\n", encoding="utf-8")
+                kode7, keluar7 = jalankan_pemeriksa(periksa, tmp7)
+                hasil.append(("mutasi: bukti berbentuk pola & jalur relatif TIDAK dituduh hilang", kode7 == 0,
+                              "diterima" if kode7 == 0 else f"DITOLAK PALSU: {keluar7.strip().splitlines()[-1][:90]}"))
+
+        # Mutasi 7: bukti yang MEMANG hilang tetap ditolak (ketajaman tidak dikorbankan).
+        with salin_pohon() as tmp8:
+            berkas = tmp8 / RIWAYAT
+            baris = berkas.read_text(encoding="utf-8").splitlines()
+            idx = next((i for i, b in enumerate(baris) if "DITUTUP" in b and "`supabase/tes/" in b), None)
+            if idx is None:
+                hasil.append(("mutasi bukti benar-benar hilang", False, "tidak menemukan baris DITUTUP untuk dimutasi"))
+            else:
+                baris[idx] = re.sub(r"`supabase/tes/[^`]+`", "`supabase/tes/benar-benar-tidak-ada.sql`", baris[idx], count=1)
+                berkas.write_text("\n".join(baris) + "\n", encoding="utf-8")
+                kode8, _ = jalankan_pemeriksa(periksa, tmp8)
+                hasil.append(("mutasi: bukti penutup benar-benar hilang tetap DITOLAK", kode8 != 0,
+                              "ditolak" if kode8 != 0 else "DILOLOSKAN (tumpul)"))
 
     return laporkan("periksa-temuan-audit", hasil)
 

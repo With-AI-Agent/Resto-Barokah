@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `a785f54f322622f01ccc65b91edd59b567187835`
+- **Commit keadaan kerja:** `1da202b9516fb5783710e58c808f66eec4de4134`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35482218219, commit a785f54f)
+- **CI terakhir:** success (run 35483024496, commit 1da202b9)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (63 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (63 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (64 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (64 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -63,6 +63,31 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18u (2026-09-20) — H F-05 & I F-20 TUNTAS: PEMBUAT PAKET BERHENTI MENUDUH PERINTAH/POLA SEBAGAI "BERKAS HILANG".**
+
+Paket audit dulu menyuruh auditor mencari artefak yang sebenarnya NYATA, lengkap dengan label
+"sudah [x] — berkasnya TIDAK ADA: laporkan!":
+
+* `python3 alat/periksa-roadmap.py` → itu **perintah**, bukan berkas;
+* `aplikasi/src/komponen/*.tsx` → itu **pola** yang cocok 13 berkas nyata;
+* `src/lib/tema.ts` → itu **jalur relatif** folder `aplikasi/` (= `aplikasi/src/lib/tema.ts`).
+
+Dua mesin tertangkap cacat yang sama: pembuat paket `alat/audit-independen.py` DAN pemeriksa daftar
+temuan `alat/periksa-temuan-audit.py` (yang terakhir menolak bukti penutup berpola/jalur-relatif).
+
+* Pemecah artefak bersama **`alat/artefak.py`** → `pisah_artefak()`: **berkas · perintah · pola ·
+  hilang** (plus `pola-kosong` & `perintah-hilang`); jalur relatif folder kerja diselesaikan,
+  rujukan baris (`…sql:120`) dibuang, dan pola dihitung berapa berkas nyata yang cocok.
+* Paket audit sekarang menaruh perintah di bagian tersendiri **"1a. Perintah bukti"** — auditor
+  MALAH memakainya; baris "TIDAK ADA" dihitung sekali per jalur+tugas (dulu duplikat = baris terpisah).
+* Bukti: paket baru pada pohon sekarang → **0 baris** tuduhan palsu (dari 13) sementara artefak yang
+  benar-benar hilang tetap dilaporkan; `--uji-diri` +10 contoh (persis contoh dari temuan ini) dan
+  +2 kasus di `alat/periksa-temuan-audit.py` (pola/jalur relatif diterima · yang hilang tetap ditolak).
+
+**Langkah berikutnya (urut):** sisa §1d/§1e (K-3/K-4) → **K-3** (PR-05…09, PR-13, PR-14) → **K-4** → tutup batch mekanisme →
+**hubungi Lee** untuk "Sebar skema" (`0015` ke DB nyata) → `0015` dibekukan. Ingin mempercepat: paket audit berikutnya
+sudah bisa dibuat (`python3 alat/audit-independen.py --paket AUD-3 --semua`) karena CI commit ini hijau.
 
 **PUTARAN 18t (2026-09-20) — I F-03 & I F-04 TUNTAS: DUA "GERBANG PALSU" DITUTUP, SATU BUKTI PALSU HISTORIS KETEMU.**
 

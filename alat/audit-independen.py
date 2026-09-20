@@ -119,6 +119,12 @@ def jalankan(perintah: list[str], cwd: pathlib.Path | None = None) -> tuple[int,
     return p.returncode, (p.stdout + p.stderr).strip()
 
 
+# Artefak: berkas · perintah · pola (audit I F-20 & H F-05). Pemecahnya SATU tempat di
+# `alat/artefak.py` supaya mesin mana pun memakai definisi "hilang" yang sama.
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from artefak import AKAR_RELATIF, pisah_artefak  # noqa: E402,F401
+
+
 def baca_tugas_roadmap() -> dict[str, str]:
     """id tugas -> seluruh isi blok tugas (untuk mengambil File: & Bukti:)."""
     teks = ROADMAP.read_text(encoding="utf-8")
@@ -218,7 +224,9 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
     lingkup = "menyeluruh" if menyeluruh else ("terarah" if not tugas_spec and not fase else "terarah")
 
     berkas: list[str] = []          # ADA di pohon sekarang → wajib diperiksa auditor
+    perintah_uji: list[str] = []    # PERINTAH nyata yang disebut tugas (audit I F-20)
     berkas_rencana: list[tuple[str, str]] = []   # (berkas, tugas) → BELUM ada, jangan dicari
+    dilaporkan_hilang: set[tuple[str, str]] = set()   # dedupe: satu jalur dihitung sekali
     klaim: list[tuple[str, str]] = []
     teks_roadmap = ROADMAP.read_text(encoding="utf-8")
     tugas_selesai = set(re.findall(r"^- \[x\] (T\d+-\d+) —", teks_roadmap, re.M))
@@ -232,14 +240,33 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
             # yang belum dikerjakan. 267 dari 354 jalur (75%) tidak ada di commit yang
             # diaudit, jadi auditor diarahkan mencari bukti yang tidak pernah ada.
             # Sekarang: yang ada → bagian 1; yang belum ada → bagian "direncanakan".
-            if (AKAR / f).exists():
+            # F-20 audit 2026-09-19: token dari dokumen bukan selalu BERKAS — bisa perintah
+            # (`python3 alat/periksa-roadmap.py`), pola (`aplikasi/src/komponen/*.tsx`), atau
+            # jalur relatif folder kerja (`src/lib/tema.ts` = `aplikasi/src/lib/tema.ts`).
+            # Menuduh semuanya "berkasnya TIDAK ADA" = mengirim auditor mencari bukti yang nyata.
+            jenis, keterangan = pisah_artefak(f)
+            if jenis == "berkas":
+                if keterangan not in berkas:
+                    berkas.append(keterangan)
+            elif jenis == "perintah":
+                if keterangan not in perintah_uji:
+                    perintah_uji.append(keterangan)
+            elif jenis == "pola":
                 if f not in berkas:
                     berkas.append(f)
-            elif t in tugas_selesai:
-                # tugas SUDAH [x] tetapi berkasnya tidak ada = cacat dokumen, tetap tampilkan
-                berkas_rencana.append((f, t + " (sudah [x] — berkasnya TIDAK ADA: laporkan!)"))
-            elif (f, t) not in berkas_rencana:
-                berkas_rencana.append((f, t))
+            else:
+                # benar-benar hilang · pola tanpa hasil · perintah menunjuk berkas hilang
+                sebab = {"hilang": "berkasnya TIDAK ADA: laporkan!",
+                         "pola-kosong": "polanya tidak cocok dengan berkas mana pun: laporkan!",
+                         "perintah-hilang": "perintahnya menunjuk berkas yang TIDAK ADA: laporkan!"}[jenis]
+                if t in tugas_selesai:
+                    # tugas SUDAH [x] tetapi artefaknya tidak ada = cacat dokumen, tetap tampilkan
+                    # (dihitung SEKALI per jalur+tugas; dulu duplikat dihitung sebagai baris terpisah)
+                    if (f, t) not in dilaporkan_hilang:
+                        dilaporkan_hilang.add((f, t))
+                        berkas_rencana.append((f, t + f" (sudah [x] — {sebab})"))
+                elif (f, t) not in berkas_rencana:
+                    berkas_rencana.append((f, t))
         for m in re.finditer(r"\*\*Bukti[^*]*:\*\*(.+?)(?=\n  - \*\*|\Z)", isi, re.S):
             isi_klaim = " ".join(m.group(1).split())
             if len(isi_klaim) >= 40:
@@ -360,6 +387,18 @@ Aturan main (dikutip dari `docs/uji/kalibrasi/CARA-PAKAI.md`):
 Ambang lulus (dinilai pembangun setelah laporan masuk): semua cacat K-1/K-2 tertanam ditemukan + ≥70% total + 0 temuan palsu.
 """
     baris_berkas = "\n".join(f"| {i+1} | `{b}` |" for i, b in enumerate(berkas)) or "| 1 | (tidak ada berkas terbaca — periksa manual) |"
+    # Daftar perintah dipisah dari BERKAS (audit I F-20): perintah bukan berkas hilang — ia bukti
+    # yang harus DIPAKAI auditor untuk memeriksa sendiri.
+    blok_perintah = ""
+    if perintah_uji:
+        baris_perintah = "\n".join(f"| {i+1} | `{c}` |" for i, c in enumerate(perintah_uji))
+        blok_perintah = f"""
+## 1a. Perintah bukti yang disebut tugas (JALANKAN bila perlu — ini BUKAN berkas hilang)
+
+| # | Perintah (dari dokumen tugas) |
+|---|---|
+{baris_perintah}
+"""
     # F-12: jalur yang belum ada TIDAK BOLEH tampil sebagai "harus diperiksa".
     baris_rencana = "\n".join(f"| `{b}` | {t} |" for b, t in berkas_rencana) or "| — | (semua berkas yang dirujuk tugas sudah ada) |"
     blok_rencana = f"""
@@ -472,6 +511,7 @@ Hanya berkas laporan yang di-commit. Bila push tidak bisa, tulis "belum ter-push
 |---|---|
 {baris_berkas}
 
+{blok_perintah}
 {blok_rencana}
 ## 2. Klaim pembangun yang harus kamu coba bantah
 
@@ -1447,6 +1487,38 @@ def _uji_pembuat_paket() -> tuple[bool, str]:
     return True, "paket menyeluruh & per fase bisa dibuat, cakupannya sesuai permintaan"
 
 
+def _uji_pemisah_artefak() -> tuple[bool, str]:
+    """Buktikan pemecah artefak TIDAK menuduh perintah/pola/jalur-relatif sebagai berkas hilang.
+
+    Cacat nyata (audit I F-20, 2026-09-19): paket AUD-3 menyuruh auditor mencari 12 (setelah
+    deduplikasi: 13 jalur berbeda) "berkasnya TIDAK ADA" yang sebenarnya NYATA — `python3
+    alat/periksa-roadmap.py` adalah perintah, `aplikasi/src/komponen/*.tsx` adalah pola yang cocok
+    13 berkas, dan `src/lib/tema.ts` adalah jalur relatif folder `aplikasi/`. Uji ini memakai
+    contoh-contoh itu, DAN memastikan yang memang hilang tetap dilaporkan (pemecah tidak boleh
+    berubah jadi penutup mata).
+    """
+    kasus = [
+        ("python3 alat/periksa-roadmap.py", "perintah"),
+        ("node alat/uji-sql.mjs", "perintah"),
+        ("alat/uji-sql.mjs --daftar", "perintah"),
+        ("aplikasi/src/komponen/*.tsx", "pola"),
+        ("supabase/migrations/*.sql", "pola"),
+        ("src/lib/tema.ts", "berkas"),
+        ("supabase/migrations/0015_penutup_celah_putaran16.sql:120", "berkas"),
+        # yang MEMANG hilang wajib tetap terdeteksi (ketajaman tidak dikorbankan)
+        ("alat/berkas-yang-tidak-ada.py", "hilang"),
+        ("python3 alat/periksa-roadmaap.py", "perintah-hilang"),
+        ("aplikasi/src/**/*.zzz", "pola-kosong"),
+    ]
+    salah: list[str] = []
+    for token, harap in kasus:
+        jenis, keterangan = pisah_artefak(token)
+        if jenis != harap:
+            salah.append(f"{token}: jenis={jenis} harap={harap}")
+    if salah:
+        return False, "; ".join(salah[:3])
+    return True, f"{len(kasus)} contoh (perintah, pola, jalur relatif, dan yang benar-benar hilang) dipisah dengan benar"
+
 def mode_uji_diri() -> int:
     harapan = {
         "laporan-bagus.md": 0,
@@ -1487,6 +1559,11 @@ def mode_uji_diri() -> int:
         if kode != kode_harap:
             rusak += 1
         print(f"  [{tanda}] penilai kalibrasi · {nama}: hasil={kode} harapan={kode_harap}")
+
+    ok_artefak, pesan_artefak = _uji_pemisah_artefak()
+    print(f"  [{'OK' if ok_artefak else 'X '}] pemecah artefak (berkas · perintah · pola): {pesan_artefak}")
+    if not ok_artefak:
+        rusak += 1
 
     ok_paket, pesan_paket = _uji_pembuat_paket()
     print(f"  [{'OK' if ok_paket else 'X '}] pembuat paket audit (--paket/--fase): {pesan_paket}")
