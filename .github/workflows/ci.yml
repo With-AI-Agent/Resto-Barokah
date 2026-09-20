@@ -1,7 +1,7 @@
 name: CI
 
-# Gerbang otomatis: setiap kiriman kode diperiksa. Repositori ini privat,
-# jadi pakai jatah gratis GitHub Actions (2.000 menit/bulan).
+# Gerbang otomatis: setiap kiriman kode diperiksa. Repositori ini PUBLIK sejak
+# 2026-09-20 (keputusan Lee) — menit GitHub Actions tak terbatas untuk repo publik.
 on:
   push:
   pull_request:
@@ -32,7 +32,7 @@ jobs:
       - name: Pasang Node
         uses: actions/setup-node@v5
         with:
-          node-version: '22.12.0'
+          node-version: "22.12.0"
           cache: npm
           cache-dependency-path: aplikasi/package-lock.json
 

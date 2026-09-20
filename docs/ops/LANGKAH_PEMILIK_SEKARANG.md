@@ -3,6 +3,13 @@
 > Ditulis 2026-09-19 untuk Lee. Bahasa awam, **tanpa perintah yang perlu kamu ketik**.
 > Kalau ragu di langkah mana pun: **berhenti dan tanya agent** — jangan menebak.
 
+## ✅ SELESAI (2026-09-20) — repo sudah PUBLIK atas keputusan Lee; robot hidup lagi
+
+Lee menjadikan repo ini **publik** pada 2026-09-20 (chat: "Aku udh jadiin publik"). Repo publik =
+menit GitHub Actions **tak terbatas**, jadi pemeriksaan otomatis jalan lagi hari itu juga tanpa
+menunggu reset 1 Oktober dan tanpa bayar apa pun. Butir T-024 di TERTANGGUH ditutup.
+Nomor run hijaunya tercatat di STATUS.md. Bagian di bawah ini disimpan sebagai riwayat penyelidikan.
+
 ## ⚠️ Update 2026-09-20 (setelah melihat screenshot billing Lee) — penyebab KETEMU: menit gratis habis; **tidak perlu bayar apa pun**
 
 Screenshot halaman tagihan organisasi (With-AI-Agent) yang dikirim Lee menunjukkan kebenarannya:
