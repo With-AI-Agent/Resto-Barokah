@@ -3,6 +3,33 @@
 > Ditulis 2026-09-19 untuk Lee. Bahasa awam, **tanpa perintah yang perlu kamu ketik**.
 > Kalau ragu di langkah mana pun: **berhenti dan tanya agent** — jangan menebak.
 
+## ⚠️ LANGKAH PALING PENTING SEKARANG (2026-09-20) — GitHub berhenti menjalankan pemeriksaan otomatis
+
+**Apa yang terjadi:** semua pemeriksaan otomatis (CI) di repo ini **tidak bisa mulai** sejak sekitar
+pukul 12:00 (WIB) hari ini. Pesan dari GitHub apa adanya:
+
+> *"The job was not started because recent account payments have failed or your spending limit needs to be increased.
+> Please check the 'Billing & plans' section in your settings."*
+
+Artinya: **tagihan/pembayaran akun GitHub-mu bermasalah, atau batas belanja (spending limit) untuk
+GitHub Actions sudah tersentuh** — jadi runner tidak dijalankan sama sekali. Ini **BUKAN** cacat kode:
+semua pemeriksaan yang sama sudah kujalankan ulang di komputer (klon bersih) dan **semuanya LOLOS**.
+
+**Kenapa penting bagimu:** selama ini belum diperbaiki, (a) robot pemeriksa tidak jalan, sehingga
+pekerjaan baru tidak punya cap "hijau" dari GitHub; (b) alur **"Sebar skema"** (menyebar tabel ke database
+nyata) juga TIDAK akan jalan — jadi langkah pemilik yang sudah kusiapkan itu pun akan buntu.
+
+**Yang kamu lakukan (urut):**
+1. Buka <https://github.com/settings/billing> (masuk sebagai **fatrizmubarok**, pemilik repo).
+2. Periksa bagian **Billing & plans** → kalau ada pembayaran gagal: perbaiki metode pembayarannya.
+3. Kalau tidak ada masalah pembayaran: periksa **budget / spending limit** untuk GitHub Actions —
+   naikkan sedikit (atau pastikan kuota gratis bulan ini belum habis).
+4. Setelah beres, bilang saja ke aku: **"GitHub sudah beres"** — aku langsung memicu pemeriksaan lagi dan
+   memastikan hijaunya.
+
+> Catatan jujur: repo ini privat, jadi menit GitHub Actions memakai kuota akunmu. Kalau kamu ingin **tanpa biaya**,
+> cukup pastikan kuota gratis bulanan tidak habis (Actions gratis ~2.000 menit/bulan untuk repo privat).
+
 ## Kenapa ini perlu
 
 Aku tidak boleh — dan tidak mau — melihat kunci rahasiamu. Kunci itu disimpan di **kotak rahasia GitHub**

@@ -10,11 +10,12 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `d65d82cc7dfb10c0d68d7c81cc52362344e5cedd`
+- **Commit keadaan kerja:** `84d312646a43945292c447b5c1bd704e0dda7744`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35486741730, commit d65d82cc)
+- **CI terakhir:** failure (run 35490453106, commit 84d31264)
+- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (71 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (71 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (72 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (72 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -64,6 +65,26 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**CATATAN PENTING PUTARAN 18aa (2026-09-20) — CI TIDAK BISA MULAI: TAGIHAN AKUN GITHUB (BUTUH LEE).**
+
+Dua run untuk commit `84d3126` **tidak pernah dijalankan**. Anotasi GitHub apa adanya:
+
+> *"The job was not started because recent account payments have failed or your spending limit needs to be
+> increased. Please check the 'Billing & plans' section in your settings."*
+
+Jadi **merahnya bukan cacat kode**. Buktinya: seluruh rantai langkah CI (termasuk tiga langkah baru putaran 18z)
+dijalankan ulang di **klon bersih** dari GitHub — semuanya LOLOS (npm ci/format/lint/typecheck/test/build/audit,
+uji SQL 53 LULUS, harness mutasi app 5/5 + uji-diri, 0012/0014/0015, Edge 11/11, dan seluruh pemeriksa Python).
+
+**Dampak yang harus diketahui sesi berikutnya:** (1) tidak ada cap "CI hijau" dari GitHub sampai pulih → gerbang
+paket audit (`alat/ci_target.py`, aturan H F-02) akan MENOLAK membuat paket baru (itu perilaku benar, fail-closed);
+(2) alur **"Sebar skema"** juga tidak akan jalan. Langkah Lee ada di `docs/ops/LANGKAH_PEMILIK_SEKARANG.md`
+(bagian paling atas) + butir `T-024` di `docs/TERTANGGUH.md`.
+
+**Langkah berikutnya (urut):** lanjut maraton **tanpa** menunggu CI (verifikasi lokal = rantai yang sama) →
+probe **F F-12** (concurrency) → I F-13/F-14/F-15/F-16 (probe PIN) → I F-02 & H F-09 (kupon PIN + CORS) →
+H F-07 (kolom non-uang pesanan) → sisa K-3 → setelah tagihan GitHub beres: paket audit/review baru + "Sebar skema".
 
 **PUTARAN 18z (2026-09-20) — TIGA TEMUAN SATU KELAS DITUTUP: "ALAT BILANG AMAN, PADAHAL BELUM TERBUKTI".**
 
