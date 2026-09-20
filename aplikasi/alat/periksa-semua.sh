@@ -81,7 +81,9 @@ python3 aplikasi/alat/periksa-kerapatan.py
 python3 aplikasi/alat/periksa-kerapatan.py --uji-diri
 python3 aplikasi/alat/periksa-antarmuka.py
 python3 aplikasi/alat/periksa-antarmuka.py --uji-diri
-python3 aplikasi/alat/periksa-struktur.py)
+python3 aplikasi/alat/periksa-struktur.py
+python3 aplikasi/alat/periksa-node.py
+python3 aplikasi/alat/periksa-node.py --uji-diri)
 (cd "$REPO" && python3 aplikasi/alat/periksa-komponen-env.py)
 (cd "$REPO" && python3 aplikasi/alat/periksa-uji.py)
 (cd "$REPO" && python3 aplikasi/alat/uji-kontras.py)

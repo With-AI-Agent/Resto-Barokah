@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `17cefb5576a4cedbc77c6158e18538e63195d10c`
+- **Commit keadaan kerja:** `58c53d33c6436f1d4b81add3fbd179f7fca5eb99`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 35485406443, commit 17cefb55)
+- **CI terakhir:** (run 35486071963, commit 58c53d33)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (68 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (68 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (69 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (69 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -65,6 +65,32 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18x (2026-09-20) — VERSI NODE YANG DIKLANKAN DITURUNKAN DARI PUSTAKA TERKUNCI (I F-21 tuntas).**
+
+Aplikasi mengiklankan `engines.node: ">=20"` (README: "Node.js 22, minimal 20"), padahal pustaka yang
+terkunci menuntut lebih: `@supabase/supabase-js` **>=22.0.0** dan `vitest` **^22.12.0**. Pemakai yang
+menuruti README bisa memasang Node yang tidak didukung pustaka wajib — iklan yang salah arah.
+
+Yang dikerjakan:
+
+* batas minimum kini **dihitung mesin** dari `aplikasi/package-lock.json` → **`>=22.12.0`**; entri yang
+  bertanda `optional` (mis. `@napi-rs/lzma-*` bawaan rollup) sengaja TIDAK dihitung, karena npm melewatinya;
+* `aplikasi/README.md` menulis `22.12+` dan ketiga alur GitHub memakai `node-version: '22.12.0'` — jadi
+  **CI menguji tepat versi minimum yang diiklankan**, bukan versi lain;
+* penjaga baru `aplikasi/alat/periksa-node.py` menolak: iklan lebih rendah / bentuk bukan `>=X` / README
+  berbeda / lock tanpa `engines` (gagal-tertutup) / alur ber-`node-version` di bawah batas (bentuk `'22'`
+  diartikan 22.0.0, jadi tidak cukup). `--uji-diri` **9 kasus**: 1 salinan utuh diterima, 7 mutasi ditolak,
+  1 kontrol (entri opsional menuntut Node 30) tetap diterima;
+* ikut `aplikasi/alat/periksa-semua.sh` dan CI; terdaftar sebagai gerbang wajib + 1 mutasi baru
+  ("langkah pemeriksa versi Node dihapus → ditolak").
+
+**Batas jujur:** yang dijamin adalah keselarasan iklan↔lock dan bahwa CI berjalan di versi minimum.
+Ruang kerja sesi ini ber-Node 22.22.3, jadi "npm ci berhasil di 22.12.0" dibuktikan oleh CI.
+
+**Langkah berikutnya (urut):** **I F-19** (uji bernama "memanggil onUbah saat diisi" tidak pernah mengisi input) →
+**I F-05/I F-06** (klien sambungan & Storage tema) + **F F-14** (ujiSambungan bisa hijau palsu) → probe **F F-12** →
+I F-13/F-14/F-15/F-16 (probe PIN) → sisa K-3 (PR-05…09, PR-13, PR-14) → **hubungi Lee** untuk "Sebar skema".
 
 **PUTARAN 18w (2026-09-20) — BATAS EDGE FUNCTION DIUJI SUNGGUHAN (I F-07 tuntas).**
 

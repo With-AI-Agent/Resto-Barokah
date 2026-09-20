@@ -1162,3 +1162,30 @@ keluarkan"*):**
 `python3 alat/audit-independen.py --kalibrasi-siapkan` berjalan dengan salinan bersih (katalog tidak ada, satu commit,
 `git diff` kosong); `python3 alat/review-pr.py --kalibrasi-pr-siapkan` berjalan (bahan + kunci di luar repo);
 `python3 alat/periksa-rujukan.py` kini mengakui daftar pensiun sehingga riwayat yang jujur tidak dianggap rujukan mati.
+
+## [Infrastruktur/2026-09-20] Versi Node yang diiklankan DITURUNKAN dari pustaka terkunci — bukan ditulis tangan
+
+**Konteks (temuan audit I F-21, K-3, 2026-09-19):** `aplikasi/package.json` mengiklankan `engines.node: ">=20"` dan
+`aplikasi/README.md` menulis "Node.js 22 (minimal 20)", padahal pustaka yang terkunci menuntut lebih:
+`@supabase/supabase-js` **>=22.0.0** dan `vitest` **^22.12.0 || ^24.0.0 || >=26.0.0**. Orang yang mengikuti README bisa
+memasang versi yang tidak didukung pustaka wajib aplikasi — iklan yang salah arah, walau hanya kelas K-3.
+Dugaan penyebab di laporan (lock diperbarui tanpa menyelaraskan prasyarat) terbukti: angka di dokumen ditulis tangan.
+
+**Keputusan:**
+
+1. **Batas minimum yang diiklankan = `>=22.12.0`** (batas bawah tertinggi dari seluruh entri lock yang **bukan opsional**).
+   Angka ini **diturunkan mesin** oleh `aplikasi/alat/periksa-node.py`, bukan ditulis tangan lagi.
+2. **Entri opsional tidak menaikkan syarat minimum** (mis. `@napi-rs/lzma-linux-x64-gnu` bawaan rollup meminta ^22.20).
+   Alasannya: npm melewati dependensi opsional yang tidak cocok dengan versi Node, jadi versi itu tidak boleh
+   memaksa pengguna menaikkan Node. Aturan ini dikunci kontrol `--uji-diri` (entri opsional menuntut Node 30 → tetap LOLOS).
+3. **Iklan dan mesin harus sama**: `aplikasi/README.md` wajib menyebut batas yang sama (`22.12+`). Beda ke arah mana pun
+   ditolak pemeriksa.
+4. **CI menjalankan versi yang diiklankan**: ketiga alur GitHub memakai `node-version: '22.12.0'`. Jadi janji "minimum
+   22.12" diuji sungguhan oleh CI, dan bentuk satu angka (`'22'`) ditolak penjaga karena berarti 22.0.0.
+5. **Bentuk `engines` wajib `>=X`** (persis). Bentuk lain (`^22.12.0`, `22.x`) ditolak supaya pemeriksa tidak menebak.
+6. **Gagal-tertutup**: kalau `engines.node` hilang dari lock (tidak ada bukti apa pun), pemeriksa MENOLAK — jangan
+   mengaku selaras tanpa bukti.
+
+**Bukti:** `aplikasi/alat/periksa-node.py` LOLOS (kebutuhan 22.12.0 dari 187 entri non-opsional; iklan, README, 3 alur, dan
+Node lingkungan 22.22.3 semuanya memenuhi) · `--uji-diri` 9 kasus (1 salinan utuh diterima · 7 mutasi ditolak · 1 kontrol) ·
+`alat/periksa-gerbang-ci.py` menolak bila langkah pemeriksa ini dihapus dari CI.

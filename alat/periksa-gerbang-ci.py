@@ -93,6 +93,8 @@ GERBANG_WAJIB = [
     ("uji-diri alat catat alamat publik (bukti deploy T0-09)", r"node aplikasi/alat/catat-alamat\.mjs --uji-diri"),
     ("uji-diri pemeriksa pohon bersih", r"python3 alat/periksa-bersih.py --uji-diri"),
     ("pemeriksa struktur aplikasi", r"python3 aplikasi/alat/periksa-struktur.py"),
+    ("pemeriksa versi Node yang diiklankan vs pustaka terkunci (I F-21)", r"python3 aplikasi/alat/periksa-node\.py"),
+    ("uji-diri pemeriksa versi Node (I F-21)", r"python3 aplikasi/alat/periksa-node\.py --uji-diri"),
     ("uji-diri pemeriksa komponen & env", r"python3 aplikasi/alat/periksa-komponen-env.py --uji-diri"),
     ("pemeriksa uji aplikasi", r"python3 aplikasi/alat/periksa-uji.py"),
     ("pemeriksa kontras & aturan desain", r"python3 aplikasi/alat/uji-kontras.py"),
@@ -382,6 +384,10 @@ def uji_diri() -> int:
         mutasi("langkah pemeriksa pohon bersih dihapus", lambda t: t.replace("          python3 alat/periksa-bersih.py\n", "", 1))
         mutasi("langkah pemeriksa antarmuka dihapus", lambda t: t.replace("          python3 aplikasi/alat/periksa-antarmuka.py\n", "", 1))
         mutasi("langkah uji-diri kontras dihapus", lambda t: t.replace("          python3 aplikasi/alat/uji-kontras.py --uji-diri\n", "", 1))
+        # I F-21 (putaran18x): versi Node yang diiklankan dulu lebih rendah dari kebutuhan pustaka
+        # terkunci. Kalau pemeriksanya lenyap dari CI, iklan versi bisa berbohong lagi tanpa jejak.
+        mutasi("langkah pemeriksa versi Node dihapus (I F-21)",
+               lambda t: t.replace("          python3 aplikasi/alat/periksa-node.py\n", "", 1))
 
         # PR-10 (review putaran verifikasi 2026-09-19, K-3): dua cara paling senyap melemahkan CI —
         # menghapus langkah yang TIDAK terdaftar di daftar gerbang, dan mematikan langkah dengan

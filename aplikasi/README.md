@@ -9,11 +9,11 @@ Berkas ini ditujukan untuk orang yang menjalankan/mengembangkan aplikasi
 
 ## Prasyarat
 
-| Alat    | Versi yang dipakai & diuji | Catatan                        |
-| ------- | -------------------------- | ------------------------------ |
-| Node.js | 22 (minimal 20)            | `node -v`                      |
-| npm     | 10                         | ikut Node                      |
-| Python  | 3.10+                      | hanya untuk pemeriksa otomatis |
+| Alat    | Versi yang dipakai & diuji | Catatan                                                 |
+| ------- | -------------------------- | ------------------------------------------------------- |
+| Node.js | 22.12+ (LTS 22)            | `node -v` — versi lebih rendah ditolak pustaka terkunci |
+| npm     | 10                         | ikut Node                                               |
+| Python  | 3.10+                      | hanya untuk pemeriksa otomatis                          |
 
 ## Menjalankan di komputer sendiri
 

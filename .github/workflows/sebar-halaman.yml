@@ -46,7 +46,7 @@ jobs:
       - name: Pasang Node
         uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: '22.12.0'
           cache: npm
           cache-dependency-path: aplikasi/package-lock.json
 
