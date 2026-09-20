@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `6e5f6baeecffd01a2a5cded4c292aca4d4682589`
+- **Commit keadaan kerja:** `5b860da84785344b0345eeee616f964c0fe7c345`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35497414521, commit 643d17a3)
+- **CI terakhir:** merah di 5b860da (angka panduan basi — sudah diperbaiki di commit ini; hijau terakhir: run 35511985697, commit 1603d1da)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -24,12 +24,12 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
 ## 2. Keadaan proyek & butir tertangguh
 
 - Posisi proyek: lihat `PROJECT_STATE.md` (STATUS + PUTARAN terakhir) dan `STATUS.md`.
-- Bukti terakhir yang hijau: `node alat/uji-sql.mjs` (53 LULUS · 0 GAGAL) · `python3 alat/uji-mutasi-0012.py` ·
+- Bukti terakhir yang hijau: `node alat/uji-sql.mjs` (58 LULUS · 0 GAGAL) · `python3 alat/uji-mutasi-0012.py` ·
   `python3 alat/uji-mutasi-0014.py` · `python3 alat/uji-mutasi-0015.py` · `python3 alat/uji-mutasi-0016.py` ·
   `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (82 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (82 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (84 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (84 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -76,7 +76,7 @@ Dua run untuk commit `84d3126` **tidak pernah dijalankan**. Anotasi GitHub apa a
 
 Jadi **merahnya bukan cacat kode**. Buktinya: seluruh rantai langkah CI (termasuk tiga langkah baru putaran 18z)
 dijalankan ulang di **klon bersih** dari GitHub — semuanya LOLOS (npm ci/format/lint/typecheck/test/build/audit,
-uji SQL 53 LULUS, harness mutasi app 5/5 + uji-diri, 0012/0014/0015, Edge 17/17, dan seluruh pemeriksa Python).
+uji SQL 58 LULUS, harness mutasi app 5/5 + uji-diri, 0012/0014/0015/0016 (11 mutasi), Edge 17/17, dan seluruh pemeriksa Python).
 
 **Dampak yang harus diketahui sesi berikutnya:** (1) tidak ada cap "CI hijau" dari GitHub sampai pulih → gerbang
 paket audit (`alat/ci_target.py`, aturan H F-02) akan MENOLAK membuat paket baru (itu perilaku benar, fail-closed);
