@@ -73,10 +73,10 @@ select uji.klaim(null);
 -- 4. Hierarki tetap ditegakkan: admin cabang tidak boleh mengganti PIN owner.
 select uji.klaim('90000000-0000-0000-0000-000000000003');    -- admin cabang
 set local role authenticated;
-select uji.harap_gagal_sebab(
-  $$select public.simpan_pin('318549', null, '90000000-0000-0000-0000-000000000002', 'hp-admin')$$,
-  'tidak lebih tinggi',
-  'kontrol: aturan hierarki PIN tetap bekerja setelah helper dikunci'
+select uji.sama(
+  public.simpan_pin('318549', null, '90000000-0000-0000-0000-000000000002', 'hp-admin')
+    like 'Peran Anda tidak lebih tinggi%', true,
+  'kontrol: aturan hierarki PIN tetap bekerja setelah helper dikunci (kontrak pesan sejak F-14)'
 );
 reset role;
 select uji.klaim(null);

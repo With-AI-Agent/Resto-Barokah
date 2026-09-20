@@ -61,3 +61,21 @@ select uji.sama(
 );
 reset role;
 select uji.klaim(null);
+
+-- ----------------------------------------------------------------------------
+-- F-13 (2026-09-20): peran_lebih_tinggi bukan lagi oracle lintas penyewa
+-- ----------------------------------------------------------------------------
+-- Hak execute authenticated sudah dicabut sejak F-11 (diuji pin_helper_pribadi);
+-- di sini Lapis 3 (pagar tenant) diuji lewat service_role dengan identitas klaim.
+select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner resto A
+set local role service_role;
+select uji.sama(
+  public.peran_lebih_tinggi('90000000-0000-0000-0000-000000000002',
+                            '90000000-0000-0000-0000-000000000007'),
+  false, 'F-13: owner A membandingkan diri dengan pegawai resto B → false (pagar tenant)');
+select uji.sama(
+  public.peran_lebih_tinggi('90000000-0000-0000-0000-000000000002',
+                            '90000000-0000-0000-0000-000000000004'),
+  true, 'F-13 kontrol: hierarki dalam penyewa sendiri tetap berfungsi (owner > kasir)');
+reset role;
+select uji.klaim(null);

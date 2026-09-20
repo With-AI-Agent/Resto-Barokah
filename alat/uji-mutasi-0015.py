@@ -64,6 +64,7 @@ AKAR = pathlib.Path(__file__).resolve().parent.parent
 KERJA = pathlib.Path("/tmp/mutasi-0015-rb")
 MIG = "supabase/migrations/0015_penutup_celah_putaran16.sql"
 MIG14 = "supabase/migrations/0014_penutup_celah_putaran13.sql"
+MIG16 = "supabase/migrations/0016_penutup_celah_pin_putaran18.sql"
 UJI = "supabase/tes/pembatalan_penanda_palsu.sql"                       # bagian 1 (K-1)
 UJI_PR02 = "supabase/tes/void_satu_item.sql"                            # bagian 2 (K-2a)
 UJI_F01 = "supabase/tes/diskon_sesudah_lunas.sql"                       # bagian 3 (K-2b)
@@ -136,8 +137,9 @@ def ganti_terakhir(teks: str, lama: str, baru: str) -> str:
     return teks[:pos] + baru + teks[pos + len(lama):]
 
 
-def mutasi(nama: str, ubah, harap_merah: bool = True, uji: str = UJI) -> tuple[str, bool, str]:
-    berkas = KERJA / MIG
+def mutasi(nama: str, ubah, harap_merah: bool = True, uji: str = UJI,
+           berkas_rel: str = MIG) -> tuple[str, bool, str]:
+    berkas = KERJA / berkas_rel
     asli = berkas.read_text(encoding="utf-8")
     try:
         baru = ubah(asli)
@@ -361,6 +363,8 @@ def main() -> int:
 
     # ------------------------------------------------------------------ K-2d (PR-04)
     # 13) Pesan lama yang menyebut "pegawai lain" dikembalikan → uji PR-04 wajib MERAH.
+    #     Catatan (2026-09-20): `simpan_pin` ditulis ulang di migrasi 0016 (F-14), dan yang
+    #     berlaku adalah `create or replace` TERAKHIR — jadi mutasi diarahkan ke 0016.
     def kembalikan_pesan_bocor(t: str) -> str:
         return t.replace(
             "    return 'PIN itu tidak bisa dipakai — pilih angka lain.';",
@@ -369,7 +373,7 @@ def main() -> int:
         )
 
     hasil.append(mutasi("pesan PIN kembar dikembalikan ke versi yang menyebut pegawai lain (PR-04)",
-                        kembalikan_pesan_bocor, uji=UJI_PR04))
+                        kembalikan_pesan_bocor, uji=UJI_PR04, berkas_rel=MIG16))
 
     # ---------------------------------------------------------- bagian 6 (AUD-3 F-01/F-02)
     # 14) Dasar pajak/service dikembalikan ke subtotal SEBELUM diskon (cacat asli) → MERAH.
@@ -512,6 +516,8 @@ def main() -> int:
                         buka_akses_helper, uji=UJI_F11))
 
     # 23) Pemakuan identitas dilepas (jawaban mengikuti UUID kiriman lagi) → MERAH.
+    #     Catatan (2026-09-20): `peran_lebih_tinggi` ditulis ulang di migrasi 0016 (F-11/F-13),
+    #     sehingga definisi yang berlaku ada di sana — mutasi diarahkan ke 0016.
     def paku_identitas_hilang(t: str) -> str:
         return ganti_terakhir(
             t,
@@ -522,7 +528,7 @@ def main() -> int:
         )
 
     hasil.append(mutasi("pemakuan identitas pemanggil pada helper hierarki PIN dilepas",
-                        paku_identitas_hilang, uji=UJI_F11))
+                        paku_identitas_hilang, uji=UJI_F11, berkas_rel=MIG16))
 
     # -------------------------------------------------------- bagian 10b (AUD-3 F-13)
     # 24) Kunci serialisasi pengambilan nomor pesanan dilepas → MERAH.

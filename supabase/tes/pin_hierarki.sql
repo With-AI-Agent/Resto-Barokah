@@ -17,9 +17,10 @@ select uji.klaim(null);
 -- 1. ADMIN tidak boleh mengganti PIN OWNER (peran lebih rendah).
 select uji.klaim('90000000-0000-0000-0000-000000000003');
 set local role authenticated;
-select uji.harap_gagal(
-  $$select public.simpan_pin('849273', null, '90000000-0000-0000-0000-000000000002', 'hp-admin')$$,
-  'admin cabang TIDAK boleh mengganti PIN owner (dulu berhasil tanpa PIN lama)'
+select uji.sama(
+  public.simpan_pin('849273', null, '90000000-0000-0000-0000-000000000002', 'hp-admin')
+    like 'Peran Anda tidak lebih tinggi%', true,
+  'admin cabang TIDAK boleh mengganti PIN owner (pesan penolakan; sejak F-14 catatan bertahan)'
 );
 
 -- 2. PIN owner tetap yang lama: PIN "hasil rebutan" tidak berlaku.

@@ -57,20 +57,20 @@ set local role authenticated;
 -- BENTUK ("PIN lama salah. PIN harus tepat 6 angka.") — sebab yang diakuinya memang
 -- "tanpa PIN lama", jadi sekarang sebabnya disebut apa adanya. Asersi ketiga memakai
 -- PIN 6 angka yang SALAH, sehingga yang menolak benar-benar pemeriksaan autentikasi.
-select uji.harap_gagal_sebab(
-  $$select public.simpan_pin('917426', null)$$,
-  'tepat 6 angka',
+-- Sejak F-14 (2026-09-20) penolakan jalur PIN-lama dikembalikan sebagai PESAN
+-- (bukan exception) supaya catatan percobaan bertahan dan pembatas menyala.
+select uji.sama(
+  public.simpan_pin('917426', null) like 'PIN lama salah%tepat 6 angka%', true,
   'ganti PIN sendiri tanpa PIN lama DITOLAK karena bentuk PIN lama kosong'
 );
-select uji.harap_gagal_sebab(
-  $$select public.simpan_pin('917426', null, '90000000-0000-0000-0000-000000000004')$$,
-  'tepat 6 angka',
+select uji.sama(
+  public.simpan_pin('917426', null, '90000000-0000-0000-0000-000000000004') like 'PIN lama salah%tepat 6 angka%', true,
   'ganti PIN sendiri tanpa PIN lama DITOLAK karena bentuk PIN lama kosong (uuid diri sendiri disebutkan)'
 );
-select uji.harap_gagal_sebab(
-  $$select public.simpan_pin('917426', '135791', '90000000-0000-0000-0000-000000000004')$$,
-  'PIN lama salah\. PIN salah',
-  'ganti PIN dengan PIN lama 6 angka yang SALAH ditolak oleh pemeriksaan AUTENTIKASI'
+select uji.sama(
+  public.simpan_pin('917426', '135791', '90000000-0000-0000-0000-000000000004')
+    like 'PIN lama salah%PIN salah%', true,
+  'ganti PIN dengan PIN lama 6 angka yang SALAH ditolak oleh pemeriksaan AUTENTIKASI (pesan, F-14)'
 );
 select uji.sama(public.simpan_pin('917426', '516372', '90000000-0000-0000-0000-000000000004'),
                 'PIN tersimpan.', 'ganti PIN sendiri BERHASIL bila PIN lama benar');
@@ -148,5 +148,29 @@ select uji.klaim('90000000-0000-0000-0000-000000000003');   -- admin, PIN 334455
 set local role authenticated;
 select uji.sama(public.simpan_pin('274918', '274918'),
                 'PIN tersimpan.', 'memasang ulang PIN sendiri dengan angka yang sama tidak dianggap kembar');
+reset role;
+select uji.klaim(null);
+
+-- ----------------------------------------------------------------------------
+-- F-14 (2026-09-20): tebakan PIN lama lewat simpan_pin WAJIB terhitung
+-- ----------------------------------------------------------------------------
+-- Dulu raise 'PIN lama salah' menggulung balik catatan percobaan → pembatas
+-- 5-gagal tidak pernah menyala untuk jalur ini. Kini kegagalan dikembalikan
+-- sebagai pesan, catatan bertahan, dan penguncian tercapai.
+select uji.klaim('90000000-0000-0000-0000-000000000005');   -- pelayan (pasang PIN dulu)
+set local role authenticated;
+select uji.sama(public.simpan_pin('618273'), 'PIN tersimpan.', 'F-14 prasyarat: pelayan punya PIN');
+select public.simpan_pin('981237', '246810');
+select public.simpan_pin('981237', '135791');
+select public.simpan_pin('981237', '975311');
+select public.simpan_pin('981237', '864209');
+select public.simpan_pin('981237', '753951');
+select uji.sama(
+  (select count(*) from public.percobaan_pin pp
+    where pp.pemanggil_id = '90000000-0000-0000-0000-000000000005' and not pp.berhasil) >= 5,
+  true, 'F-14: lima tebakan PIN lama tercatat (tidak tergulung balik)');
+select uji.sama(
+  public.simpan_pin('981237', '642861') like '%terkunci%',
+  true, 'F-14: tebakan keenam menjawab terkunci — pembatas menyala');
 reset role;
 select uji.klaim(null);

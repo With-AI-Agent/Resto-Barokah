@@ -128,7 +128,8 @@ select uji.klaim(null);
 -- 7. Pegawai mengganti PIN-nya sendiri: PIN lama salah → ditolak; PIN lama benar → boleh.
 select uji.klaim('90000000-0000-0000-0000-000000000006');
 set local role authenticated;
-select uji.harap_gagal($$select public.ganti_pin('135791', '445577')$$, 'ganti PIN dengan PIN lama salah ditolak');
+select uji.sama(public.ganti_pin('135791', '445577') like 'PIN lama salah%', true,
+  'ganti PIN dengan PIN lama salah ditolak (pesan — sejak F-14 catatan percobaan bertahan)');
 select uji.sama(public.ganti_pin('692735', '445577'), 'PIN tersimpan.', 'ganti PIN dengan PIN lama benar berhasil');
 reset role;
 select uji.klaim(null);
@@ -276,4 +277,31 @@ select uji.sama(
   'HP lain + akun yang belum mencapai batas tetap bisa memakai PIN'
 );
 reset role;
+select uji.klaim(null);
+
+-- ----------------------------------------------------------------------------
+-- F-15 (2026-09-20): pemanggil NONAKTIF ditolak sebelum pemeriksaan kredensial
+-- ----------------------------------------------------------------------------
+-- Akun dinonaktifkan pemilik (JWT dianggap masih sah — dunia nyata begitu).
+-- Prasyarat: owner punya PIN yang diketahui, supaya tanpa pagar F-15 pemanggil
+-- nonaktif benar-benar mendapat berhasil=true (mutasi terbukti MERAH).
+select uji.klaim('90000000-0000-0000-0000-000000000002');
+set local role authenticated;
+select public.simpan_pin('738294');
+reset role;
+update public.pengguna set aktif = false
+ where id = '90000000-0000-0000-0000-000000000005';   -- pelayan
+
+select uji.klaim('90000000-0000-0000-0000-000000000005');
+set local role authenticated;
+select uji.sama(
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', null, 'hp-mati')).berhasil,
+  false, 'F-15: pemanggil nonaktif tidak bisa verifikasi PIN siapa pun');
+select uji.sama(
+  (select count(*) from public.percobaan_pin pp
+    where pp.pemanggil_id = '90000000-0000-0000-0000-000000000005'),
+  0::bigint, 'F-15: penolakan terjadi sebelum pencatatan/cek kredensial (tanpa probing)');
+reset role;
+update public.pengguna set aktif = true
+ where id = '90000000-0000-0000-0000-000000000005';
 select uji.klaim(null);

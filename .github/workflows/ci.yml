@@ -110,6 +110,9 @@ jobs:
       - name: Bukti mutasi pagar migrasi 0015 — putaran16 K-1 + K-2 (semua mutasi WAJIB MERAH)
         run: python3 alat/uji-mutasi-0015.py
 
+      - name: Bukti mutasi pagar migrasi 0016 — penutup celah PIN putaran18 F-13…F-16 (semua mutasi WAJIB MERAH)
+        run: python3 alat/uji-mutasi-0016.py
+
       # Kenapa ada (temuan audit I F-07): sebelum ini, berkas Edge hanya dijaga pemeriksa TEKS —
       # tidak ada yang pernah MENJALANKAN handler-nya. Uji ini mengubah berkas ASLI TS → JS dengan
       # esbuild (dipasang bersama `npm ci --prefix alat`) lalu menjalankannya di VM tanpa jaringan,
