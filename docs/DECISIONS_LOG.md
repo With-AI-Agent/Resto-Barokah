@@ -1134,3 +1134,31 @@ berpotensi membaca angka yang sama.
 **Alasan menahan klaim:** project ini sudah dua kali membayar mahal karena "hijau" yang ternyata
 tidak menguji apa-apa. Lebih jujur menulis "dipagari, uji concurrency menyusul" daripada menutup
 temuan dengan bukti yang tidak ada.
+
+
+## [Keamanan/2026-09-20] Katalog cacat kalibrasi dikeluarkan dari repo — penilai ketajaman auditor tidak boleh bisa mencontek
+
+**Konteks (temuan audit H F-01, K-2, 2026-09-20):** `alat/kalibrasi-cacat.json` memuat pasangan `cari`/`ganti`
+dari setiap cacat yang ditanam untuk menguji ketajaman auditor/peninjau. Selama berkas itu hidup di dalam repo,
+siapa pun yang bisa membaca repo — dan auditor memang pekerjaannya membaca repo — bisa mencocokkan cacat yang
+ditanam, lalu menulis skor `Ditemukan: X dari Y` yang sempurna tanpa mengulas apa pun. Bantah-balik sesi kerja
+menemukan cacatnya **lebih parah dari dugaan laporan**: salinan kalibrasi jalur mesin dulu dibuat dengan
+`git worktree add`, sehingga `git diff`/`git show` **di dalam salinan auditor** langsung memperlihatkan baris mana
+yang ditanami cacat (cacat ditanam sebagai perubahan belum-di-commit).
+
+**Keputusan (izin Lee 2026-09-20 — *"Aku ikut yang terbaik menurut kamu. Klo sebaiknya dikeluarkan, silahkan
+keluarkan"*):**
+
+1. **Katalog cacat DIPINDAH ke luar repo** — hidup di `KALIBRASI_DIR` (baku `/home/user/.kalibrasi/kalibrasi-cacat.json`),
+   berjejak di `docs/uji/BERKAS_PENSIUN.md` baris #2 (siapa memutuskan, kapan, kenapa, nasib isi).
+2. **Jalur mesin:** salinan auditor dibuat lewat `git archive` + satu commit bersih (**tanpa riwayat Git bermakna**)
+   dan katalog **dikeluarkan** dari salinan; `pastikan_salinan_bersih()` menolak salinan yang masih membawa katalog,
+   berkas kunci kalibrasi, lebih dari satu commit, atau perubahan belum-di-commit.
+3. **Gagal-tertutup:** alat membaca katalog **hanya** dari luar repo; bila tidak ada, ia menolak berjalan (lebih baik
+   kalibrasi tidak jalan daripada skornya bisa dipalsukan).
+4. **Aturan berlaku umum:** berkas yang memuat jawaban latihan/uji apa pun tidak boleh hidup di repo yang sedang diuji.
+
+**Bukti:** `alat/periksa-kunci-kalibrasi.py` aturan **A2/F/G** + `--uji-diri` **13 kasus** semuanya menolak;
+`python3 alat/audit-independen.py --kalibrasi-siapkan` berjalan dengan salinan bersih (katalog tidak ada, satu commit,
+`git diff` kosong); `python3 alat/review-pr.py --kalibrasi-pr-siapkan` berjalan (bahan + kunci di luar repo);
+`python3 alat/periksa-rujukan.py` kini mengakui daftar pensiun sehingga riwayat yang jujur tidak dianggap rujukan mati.

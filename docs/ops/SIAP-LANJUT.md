@@ -10,12 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `f5a350c689af5b72a04b0ac4fc42653737b7215b`
+- **Commit keadaan kerja:** `efcf12f885329f64aaf783326c1e72ee1cf8d1e6`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (run 35481036129, commit f5a350c6)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (run 35481043354, commit efcf12f8)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -29,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (60 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (60 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (61 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (61 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -64,6 +63,28 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18r (2026-09-20) — H F-01 TUNTAS: KATALOG CACAT KALIBRASI KELUAR DARI REPO (izin Lee).**
+
+Izin Lee: *"Aku ikut yang terbaik menurut kamu. Klo sebaiknya dikeluarkan, silahkan keluarkan."*
+
+* `alat/kalibrasi-cacat.json` (pasangan cari/ganti = **kunci jawaban**) **dipindah ke luar repo** →
+  `KALIBRASI_DIR` (baku `/home/user/.kalibrasi/kalibrasi-cacat.json`); berjejak `docs/uji/BERKAS_PENSIUN.md` baris #2 + `docs/DECISIONS_LOG.md`.
+* Salinan kalibrasi jalur mesin: `git archive` + satu commit bersih, katalog **dikeluarkan**, `pastikan_salinan_bersih()` menolak
+  salinan yang membawa katalog/kunci/riwayat/perubahan belum-di-commit.
+* Alat **gagal-tertutup**: katalog hanya dibaca dari luar repo (jalur mesin & review PR).
+* Penjaga: `alat/periksa-kunci-kalibrasi.py` aturan **A2** (katalog tidak boleh ada di repo) + F + G → `--uji-diri` **13 kasus** semua menolak.
+* Bonus mekanisme: `alat/periksa-rujukan.py` & `alat/periksa-temuan-audit.py` kini **mengakui daftar pensiun** (riwayat jujur ≠ rujukan mati);
+  `periksa-temuan-audit.py` mengambil token pertama rujukan sehingga sel bukti boleh memuat perintah.
+* Catatan lingkungan: `alat/node_modules` & `aplikasi/node_modules` **tidak ikut snapshot** sandbox → setelah ruang kerja pulih,
+  jalankan `npm ci --prefix alat` (dan `--prefix aplikasi`) dulu sebelum uji SQL/mutasi.
+
+**Langkah berikutnya (urut) — maraton lanjut tanpa menunggu Lee:**
+1. **H F-02** (K-3): paket audit/review wajib menunjuk commit yang CI-nya **sudah hijau** — bukti di paket + penjaga/`T1-44`.
+2. **I F-04 & I F-03** (K-3): classifier mutasi menganggap crash sebagai bukti pagar bekerja; pemeriksa PIN tumpul terhadap bracket.
+3. **H F-05 / I F-20** (K-3): pembuat paket menyebut perintah/glob sebagai "berkas hilang" (tabel §1b memuat baris palsu).
+4. Sisanya dari §1d/§1e + temuan lama K-3/K-4; yang **DUGAAN** wajib diprobe dulu.
+5. Setelah temuan MEKANISME habis → tutup batch, **hubungi Lee** untuk menekan "Sebar skema" (menyebar `0015` ke database nyata), lalu `0015` dibekukan.
 
 **PUTARAN 18q (2026-09-20) — KUNCI KALIBRASI TIDAK BISA LAGI DICONTEK (audit H F-01); SATU KEPUTUSAN MENUNGGU LEE.**
 

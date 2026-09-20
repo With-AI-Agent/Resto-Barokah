@@ -244,9 +244,11 @@ yang sempurna tanpa mengulas sungguhan. Perbaikan yang sudah berlaku:
    `/home/user/.kalibrasi`). Bila katalog masih di dalam repo, perintahnya **GAGAL-tertutup** (menolak membuat
    bahan) daripada menerbitkan bahan yang bisa dicocokkan.
 3. Dijaga mesin: `alat/periksa-kunci-kalibrasi.py` aturan F & G (+3 mutasi uji-diri).
-4. **Sisa yang menunggu keputusan Lee:** memindahkan berkas katalog itu sendiri ke luar repo (termasuk baris
-   daftar pensiun) — selama belum dipindah, jalur review PR tidak bisa dipakai dan itu **disengaja**: lebih baik
-   kalibrasi tidak jalan daripada skornya bisa dipalsukan.
+4. **Katalog cacat sudah DIPINDAH ke luar repo** (keputusan Lee 2026-09-20, atas temuan H F-01): berkasnya hidup di
+   `KALIBRASI_DIR` (baku `/home/user/.kalibrasi/kalibrasi-cacat.json`) dan jalurnya berjejak di
+   `docs/uji/BERKAS_PENSIUN.md` baris #2. Salinan lama masih ada di riwayat Git, jadi katalog versi lama **tidak
+   dipakai lagi** untuk menilai ketajaman. Alat membaca katalog dari luar repo dan **menolak jalan** bila tidak ada
+   (gagal-tertutup); `alat/periksa-kunci-kalibrasi.py` aturan **A2** menolak bila katalog muncul lagi di dalam repo.
 
 **Ambang & pencatatan (berlaku untuk kedua jalur):**
 

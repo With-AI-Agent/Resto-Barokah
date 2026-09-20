@@ -17,7 +17,10 @@ untuk menguji auditor **tanpa memberitahu di mana cacatnya** (defect injection).
 > dan **menolak jalan** bila katalog masih di dalam repo — lebih baik kalibrasi tidak jalan daripada skornya bisa
 > dipalsukan. Jalur **mesin** tidak lagi memakai `git worktree` (riwayatnya memperlihatkan cacat tanam lewat
 > `git diff`); salinannya dibuat ulang tanpa riwayat dan katalognya dikeluarkan. Penjaga: aturan F & G
-> `alat/periksa-kunci-kalibrasi.py`. **Menunggu keputusan Lee:** memindahkan berkas katalog ke luar repo.
+> `alat/periksa-kunci-kalibrasi.py`. **Sejak 2026-09-20 katalog cacat sudah DIPINDAH ke luar repo** (keputusan Lee atas temuan audit H F-01): berkasnya
+kini hidup di `KALIBRASI_DIR` (baku `/home/user/.kalibrasi/kalibrasi-cacat.json`) dan terdaftar di
+`docs/uji/BERKAS_PENSIUN.md` baris #2. Alat **menolak jalan** bila katalog tidak ada (gagal-tertutup), dan
+`alat/periksa-kunci-kalibrasi.py` aturan A2 menolak bila katalog muncul lagi di dalam repo.
 
 **Kenapa bahan auditor harus berada di dalam repo:** sesi auditor berjalan di **ruang kerja baru** — berkas di luar
 repo (mis. `/tmp`) tidak ikut berpindah, jadi kalibrasi lama **tidak bisa jalan lintas sesi** (ini cacat mekanisme

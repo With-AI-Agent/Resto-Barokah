@@ -64,9 +64,38 @@ def rujukan_dalam(teks: str) -> list[tuple[int, str, str]]:
     return hasil
 
 
+REGISTRI_PENSIUN = "docs/uji/BERKAS_PENSIUN.md"
+
+
+def jalur_pensiun(akar: pathlib.Path) -> set[str]:
+    """Jalur ber-backtick yang terdaftar di daftar pensiun (`docs/uji/BERKAS_PENSIUN.md`).
+
+    Kenapa perlu (2026-09-20, audit H F-01): berkas yang SENGAJA dikeluarkan dari repo (mis.
+    katalog cacat kalibrasi = kunci jawaban) masih wajar disebut di riwayat/laporan sebagai
+    provenance. Tanpa aturan ini, rujukan jujur itu terbaca "rujukan mati" dan riwayat yang benar
+    justru dianggap cacat. Daftar pensiun wajib memuat siapa memutuskan, kapan, dan kenapa
+    (dijaga `alat/periksa-kunci-kalibrasi.py` aturan D1).
+    """
+    berkas = akar / REGISTRI_PENSIUN
+    if not berkas.is_file():
+        return set()
+    hasil: set[str] = set()
+    for baris in berkas.read_text(encoding="utf-8").splitlines():
+        b = baris.strip()
+        if not b.startswith("|"):
+            continue
+        kolom = [k.strip() for k in b.strip("|").split("|")]
+        if len(kolom) < 2 or set(kolom[0]) <= set("-: "):
+            continue
+        for m in re.finditer(r"`([^`]+)`", kolom[1]):
+            hasil.add(m.group(1).strip())
+    return hasil
+
+
 def periksa(akar: pathlib.Path) -> int:
     errs: list[str] = []
     catatan: list[str] = []
+    pensiun = jalur_pensiun(akar)
     total = 0
     for rel in BERKAS_PENGIKAT:
         berkas = akar / rel
@@ -81,8 +110,12 @@ def periksa(akar: pathlib.Path) -> int:
             if POLA_HARAPAN.search(baris):
                 catatan.append(f"{rel}:{no} rujukan ditandai rencana → {jalur}")
                 continue
+            if jalur in pensiun:
+                catatan.append(f"{rel}:{no} rujukan ke berkas yang SENGAJA dipensiun → {jalur}")
+                continue
             errs.append(f"{rel}:{no} menunjuk berkas yang TIDAK ADA: {jalur}")
-    print(f"PERIKSA RUJUKAN — {len(BERKAS_PENGIKAT)} dokumen pengikat · {total} rujukan diperiksa")
+    print(f"PERIKSA RUJUKAN — {len(BERKAS_PENGIKAT)} dokumen pengikat · {total} rujukan diperiksa "
+          f"· {len(pensiun)} berkas dipensiun diakui")
     for c in catatan:
         print(f"  [catatan] {c}")
     if errs:
@@ -110,6 +143,23 @@ def uji_diri() -> int:
             kode2, keluar2 = jalankan_pemeriksa(periksa, tmp2)
             hasil.append(("mutasi: rujukan mati disisipkan di Buku Insiden", kode2 != 0,
                           "ditolak" if kode2 != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi: rujukan ke berkas yang SENGAJA dipensiun (daftar pensiun) → harus LULUS.
+        # Kalau aturan ini hilang, riwayat yang jujur (menyebut berkas pensiun) jadi "cacat".
+        with salin_pohon() as tmpp:
+            daftar = tmpp / REGISTRI_PENSIUN
+            isi_daftar = daftar.read_text(encoding="utf-8")
+            baris_baru = "| 99 | `tools/berkas-pensiun-uji.txt` | 2026-09-20 | uji-diri | mencoba aturan pensiun | di luar repo |\n"
+            daftar.write_text(isi_daftar.replace("\n**Aturan pemakaian daftar ini:**",
+                                                 "\n" + baris_baru + "\n**Aturan pemakaian daftar ini:**"),
+                              encoding="utf-8")
+            berkas = tmpp / "docs/teknis/BUKU_INSIDEN.md"
+            berkas.write_text(berkas.read_text(encoding="utf-8")
+                              + "\n7. Berkas lama: `tools/berkas-pensiun-uji.txt` (dipensiun).\n",
+                              encoding="utf-8")
+            kode_p, _ = jalankan_pemeriksa(periksa, tmpp)
+            hasil.append(("mutasi: rujukan ke berkas yang dipensiun DITERIMA", kode_p == 0,
+                          "diterima" if kode_p == 0 else "ditolak (aturan pensiun tidak bekerja)"))
 
         # Mutasi: rujukan mati diberi penanda rencana → harus LULUS (aturan penanda bekerja)
         with salin_pohon() as tmp3:

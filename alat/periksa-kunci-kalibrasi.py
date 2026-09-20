@@ -29,6 +29,7 @@ Mode `--uji-diri`: salin pohon, langgar tiap aturan satu per satu, pastikan MENO
 from __future__ import annotations
 
 import fnmatch
+import os
 import pathlib
 import re
 import sys
@@ -101,6 +102,19 @@ def periksa(akar: pathlib.Path) -> int:
     for b in bocor:
         errs.append(f"berkas bahan/kunci kalibrasi ada DI DALAM repo: {b} — pindahkan ke luar repo "
                     "(bahan: KAL_DIR_LUAR di alat/review-pr.py; kunci: /tmp)")
+
+    # A2. KATALOG cacat (pasangan cari/ganti = kunci jawaban) tidak boleh ada di repo.
+    #     Kenapa: temuan audit H F-01 (K-2, 2026-09-20) — selama katalog ada di repo, auditor yang
+    #     membaca repo bisa mencocokkan cacat yang ditanam lalu menulis skor kalibrasi sempurna
+    #     tanpa mengulas. Keputusan Lee 2026-09-20: katalog DIPINDAH ke luar repo.
+    katalog_di_repo = akar / "alat" / "kalibrasi-cacat.json"
+    if katalog_di_repo.is_file():
+        errs.append("katalog cacat ada DI DALAM repo (alat/kalibrasi-cacat.json) — kunci jawaban "
+                    "kalibrasi bisa dicocokkan auditor; pindahkan ke luar repo (KALIBRASI_DIR)")
+    katalog_luar = pathlib.Path(os.environ.get("KALIBRASI_DIR", str(pathlib.Path.home() / ".kalibrasi"))) / "kalibrasi-cacat.json"
+    if not katalog_luar.is_file():
+        catatan.append(f"katalog cacat tidak ada di luar repo ({katalog_luar}) — jalur kalibrasi tidak bisa dijalankan "
+                       "di ruang kerja ini (di klon baru memang wajar)")
 
     # B. cara pakai menyatakan aturan
     cara = akar / CARA_PAKAI
@@ -199,9 +213,6 @@ def periksa(akar: pathlib.Path) -> int:
                         "(`KATALOG = KAL_DIR / \"kalibrasi-cacat.json\"`) — kunci jawaban bisa kembali dibaca peninjau")
         if re.search(r'^KATALOG = AKAR / "alat" / "kalibrasi-cacat\.json"', teks_g, re.MULTILINE):
             errs.append(f"{ALAT_SIAP} masih membaca katalog DARI DALAM repo")
-        if (akar / "alat" / "kalibrasi-cacat.json").is_file():
-            catatan.append("katalog cacat masih ada di dalam repo (temuan H F-01) — pemindahan ke luar "
-                           "repo menunggu keputusan Lee; jalur review PR sudah gagal-tertutup")
 
     print("PERIKSA KUNCI KALIBRASI — bahan & kunci tidak boleh hidup di dalam repo")
     for e in errs:
@@ -327,6 +338,13 @@ def uji_diri() -> int:
             kode12, _ = jalankan_pemeriksa(periksa, tmp12)
             hasil.append(("mutasi: jalur review PR membaca katalog dari repo", kode12 != 0,
                           "ditolak" if kode12 != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 13: katalog cacat dikembalikan ke dalam repo → harus GAGAL
+        with salin_pohon() as tmp13:
+            (tmp13 / "alat" / "kalibrasi-cacat.json").write_text('{"cacat": []}\n', encoding="utf-8")
+            kode13, _ = jalankan_pemeriksa(periksa, tmp13)
+            hasil.append(("mutasi: katalog cacat dikembalikan ke dalam repo", kode13 != 0,
+                          "ditolak" if kode13 != 0 else "DILOLOSKAN (tumpul)"))
 
         # Mutasi 5: aturan rotasi dihapus dari protokol → harus GAGAL
         with salin_pohon() as tmp5:

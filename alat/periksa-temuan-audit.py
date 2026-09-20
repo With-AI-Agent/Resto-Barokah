@@ -87,7 +87,22 @@ def baris_daftar(akar: pathlib.Path) -> list[tuple[int, list[str]]]:
 
 
 def jalur_ada(akar: pathlib.Path, rujukan: list[str]) -> list[str]:
-    return [r for r in rujukan if not (akar / r).exists()]
+    """Rujukan yang TIDAK ada di repo — kecuali yang terdaftar di daftar pensiun.
+
+    Berkas yang sengaja dikeluarkan (mis. katalog cacat kalibrasi = kunci jawaban, audit H F-01
+    2026-09-20) tetap boleh disebut sebagai provenance; daftar pensiun yang menjaganya.
+    """
+    pensiun: set[str] = set()
+    daftar = akar / "docs/uji/BERKAS_PENSIUN.md"
+    if daftar.is_file():
+        for baris in daftar.read_text(encoding="utf-8").splitlines():
+            b = baris.strip()
+            if not b.startswith("|"):
+                continue
+            kolom = [k.strip() for k in b.strip("|").split("|")]
+            if len(kolom) >= 2 and not set(kolom[0]) <= set("-: "):
+                pensiun |= {m.group(1).strip() for m in re.finditer(r"`([^`]+)`", kolom[1])}
+    return [r for r in rujukan if not (akar / r).exists() and r not in pensiun]
 
 
 LUAR_CAKUPAN = "docs/uji/TEMUAN_LUAR_CAKUPAN_REVIEW.md"
@@ -121,10 +136,10 @@ def periksa_luar_cakupan(akar: pathlib.Path, errs: list[str]) -> int:
         rujukan = re.findall(r"`([^`\n]+)`", " ".join(kolom))
         if not rujukan:
             errs.append(f"{LUAR_CAKUPAN}:{i}: tanpa bukti ber-backtick (perintah/berkas) — temuan luar cakupan wajib berjejak")
-        for r in rujukan:
-            if "/" in r and not r.startswith(("http", "python", "node", "git", "bash")):
-                if not (akar / r).exists():
-                    errs.append(f"{LUAR_CAKUPAN}:{i}: bukti menunjuk berkas yang TIDAK ADA: {r}")
+        kandidat = [r for r in rujukan
+                    if "/" in r and not r.startswith(("http", "python", "node", "git", "bash"))]
+        for r in jalur_ada(akar, kandidat):
+            errs.append(f"{LUAR_CAKUPAN}:{i}: bukti menunjuk berkas yang TIDAK ADA: {r}")
         if "DITUNDA" in status and not re.search(r"T\d+-\d+|TERTANGGUH|butir tunggu", " ".join(kolom)):
             errs.append(f"{LUAR_CAKUPAN}:{i}: baris DITUNDA wajib menyebut sarana penutupnya (tugas T\d+-\d+ atau butir tunggu)")
     if baris == 0:
@@ -165,8 +180,13 @@ def periksa(akar: pathlib.Path) -> int:
         # 4/5. bukti atau pemilik penyelesaian
         if "DITUTUP" in status:
             tertutup += 1
-            rujukan_berkas = [r for r in re.findall(r"`([^`\n]+)`", bukti)
-                              if "/" in r and not r.startswith(("http", "python", "node", "git "))]
+            # Ambil HANYA token pertama tiap rujukan: sel "bukti" sering memuat perintah
+            # (`alat/periksa-x.py --uji-diri`) — yang diperiksa keberadaan berkasnya, bukan flag-nya.
+            rujukan_berkas = []
+            for r in re.findall(r"`([^`\n]+)`", bukti):
+                kandidat = r.split()[0] if r.split() else r
+                if "/" in kandidat and not kandidat.startswith(("http", "python", "node", "git", "bash")):
+                    rujukan_berkas.append(kandidat)
             if not rujukan_berkas:
                 errs.append(f"baris {no} ({laporan_temuan}): DITUTUP tanpa rujukan bukti ber-backtick")
             hilang = jalur_ada(akar, rujukan_berkas)

@@ -32,9 +32,13 @@ ROADMAP = AKAR / "docs" / "ROADMAP.md"
 # mencocokkan cacat yang ditanam dan skor kalibrasi bisa dipalsukan. Karena itu katalog
 # dibaca dari LUAR repo lebih dulu (`KALIBRASI_DIR`, baku `/home/user/.kalibrasi`).
 KAL_DIR = pathlib.Path(os.environ.get("KALIBRASI_DIR", str(pathlib.Path.home() / ".kalibrasi")))
-KATALOG_LUAR = KAL_DIR / "kalibrasi-cacat.json"
+KATALOG = KAL_DIR / "kalibrasi-cacat.json"
+# Sejak 2026-09-20 (keputusan Lee atas temuan audit H F-01) katalog cacat DIKELUARKAN dari repo:
+# berkas itu memuat pasangan cari/ganti = kunci jawaban kalibrasi. Kalau ia hidup di dalam repo,
+# siapa pun yang bisa membaca repo (termasuk auditor/peninjau yang sedang dikalibrasi) bisa
+# mencocokkan cacat yang ditanam dan skor "Ditemukan X dari Y" jadi palsu. Katalog sekarang hidup
+# di luar repo (`KALIBRASI_DIR`, baku `/home/user/.kalibrasi`) — lihat docs/uji/BERKAS_PENSIUN.md.
 KATALOG_REPO = AKAR / "alat" / "kalibrasi-cacat.json"
-KATALOG = KATALOG_LUAR if KATALOG_LUAR.is_file() else KATALOG_REPO
 DIR_PAKET = AKAR / "docs" / "uji" / "paket-audit"
 DIR_CONTOH = AKAR / "alat" / "contoh-laporan"
 
@@ -1137,7 +1141,12 @@ def pastikan_salinan_bersih(salinan: pathlib.Path) -> list[str]:
 
 def mode_kalibrasi_siapkan(jumlah: int | None) -> int:
     if not KATALOG.is_file():
-        print(f"GAGAL: katalog cacat tidak ada: {KATALOG}")
+        print(f"GAGAL: katalog cacat TIDAK ADA di luar repo: {KATALOG}")
+        print("       Katalog cacat = kunci jawaban kalibrasi; ia memang TIDAK disimpan di dalam repo")
+        print("       (temuan audit H F-01, keputusan Lee 2026-09-20). Salinan aslinya dipindahkan ke")
+        print(f"       luar repo; kalau berkasnya hilang, ambil dari riwayat Git: git log --all -- alat/kalibrasi-cacat.json")
+        if KATALOG_REPO.is_file():
+            print(f"       PERINGATAN: ada salinan katalog DI DALAM repo ({KATALOG_REPO.relative_to(AKAR)}) — kembalikan ke luar repo.")
         return 1
     cacat = json.loads(KATALOG.read_text(encoding="utf-8"))["cacat"]
     if jumlah:
