@@ -67,14 +67,26 @@ def commit_memuat(rel: str, ref: str = "HEAD") -> bool:
 
 
 def head_sudah_didorong() -> tuple[bool, str]:
-    """True bila HEAD sudah termuat di cabang remote yang sama (URL publik bisa dibuka)."""
+    """True bila HEAD sudah ada di cabang remote yang sama (URL publik bisa dibuka).
+
+    Bertanya LANGSUNG ke remote (`ls-remote`) — rujukan remote-tracking lokal bisa basi
+    (kejadian nyata 2026-09-20: push sukses tetapi `origin/...` lokal tidak ter-update,
+    sehingga prompt pendek ditolak padahal URL-nya hidup)."""
     _, cabang = git("branch", "--show-current")
     if not cabang:
         return False, "HEAD tidak berada di cabang mana pun"
-    kode, _ = git("merge-base", "--is-ancestor", "HEAD", f"origin/{cabang}")
+    _, sha_head = git("rev-parse", "HEAD")
+    kode, keluar = git("ls-remote", "origin", f"refs/heads/{cabang}")
     if kode != 0:
-        return False, f"HEAD belum di-push ke origin/{cabang}"
-    return True, cabang
+        return False, f"tidak bisa bertanya ke remote: {keluar[:120]}"
+    sha_remote = keluar.split()[0] if keluar.split() else ""
+    if sha_remote == sha_head.strip():
+        return True, cabang
+    # remote di belakang HEAD? terima juga bila HEAD sudah termuat di remote-tracking
+    kode2, _ = git("merge-base", "--is-ancestor", "HEAD", f"origin/{cabang}")
+    if kode2 == 0:
+        return True, cabang
+    return False, f"HEAD belum di-push ke origin/{cabang}"
 
 
 def commit_target_paket(isi: str) -> str | None:
