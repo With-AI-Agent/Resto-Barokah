@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `58c53d33c6436f1d4b81add3fbd179f7fca5eb99`
+- **Commit keadaan kerja:** `42ba52961aefda4efc90ee7669993eca1adc1671`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (run 35486071963, commit 58c53d33)
+- **CI terakhir:** (run 35486439498, commit 42ba5296)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (69 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (69 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (70 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (70 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -65,6 +65,29 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18y (2026-09-20) — NAMA UJI TIDAK BOLEH LEBIH KUAT DARIPADA YANG DIUJI (I F-19 tuntas).**
+
+Uji bernama `'memanggil onUbah saat diisi'` hanya merender HTML (SSR), memeriksa `type="text"`, lalu
+**memastikan callback TIDAK terpanggil**. Artinya handler `onChange` yang tidak tersambung ke apa pun pun
+akan hijau — "86 uji terbaca" sebagian tidak membuktikan apa yang namanya janjikan.
+
+* **Penjaga mesin (baru)** di `aplikasi/alat/periksa-uji.py` (aturan 3): uji yang namanya menjanjikan interaksi
+  ("saat diisi", "saat diklik", "memanggil on…") WAJIB memicu kejadian (`fireEvent`/`userEvent`/`dispatchEvent`/
+  `.click(`/`.focus(`/`.type(`) — kalau tidak, GAGAL dengan **berkas:baris**. Sebelum ujinya diperbaiki, penjaga
+  ini **langsung menunjuk cacat aslinya** (`aplikasi/src/komponen/komponen.test.tsx:145`).
+* **Ujinya diperbaiki**: berkas uji memakai `// @vitest-environment jsdom` + `@testing-library/react`; isian
+  benar-benar diisi (`fireEvent.change` → nilai `Budi`) dan `onUbah` diperiksa **nilainya**, plus satu uji nilai
+  terkendali. Uji markup lain di berkas itu tetap SSR.
+* **Bukti uji baru tidak tumpul (mutasi):** handler dilepas (`onChange` → kosong) → **1 uji GAGAL**; handler
+  mengirim nilai salah (`+ 'X'`) → **1 uji GAGAL**; dipulihkan → **18 uji LULUS**. Berkas `KolomIsian.tsx`
+  dikembalikan utuh (diff kosong).
+* `--uji-diri` **5 kasus** (uji berjanji tanpa tindakan ditolak · dua kontrol diterima · `vitest.config.ts`
+  dihapus ditolak), ikut CI + `periksa-semua.sh`, terdaftar gerbang wajib + 1 mutasi baru.
+
+**Langkah berikutnya (urut):** **I F-05/I F-06** (klien sambungan & Storage tema) + **F F-14** (ujiSambungan bisa
+hijau palsu) → probe **F F-12** → I F-13/F-14/F-15/F-16 (probe PIN) → I F-02/H F-09 (CORS & kupon PIN) →
+sisa K-3 (PR-05…09, PR-13, PR-14) → **hubungi Lee** untuk "Sebar skema".
 
 **PUTARAN 18x (2026-09-20) — VERSI NODE YANG DIKLANKAN DITURUNKAN DARI PUSTAKA TERKUNCI (I F-21 tuntas).**
 

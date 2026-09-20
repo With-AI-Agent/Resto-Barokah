@@ -1,5 +1,10 @@
+// @vitest-environment jsdom
+// Lingkungan jsdom dipakai HANYA oleh uji yang benar-benar berinteraksi (audit I F-19:
+// uji bernama "memanggil onUbah saat diisi" dulu cuma merender HTML, jadi handler yang
+// tidak tersambung pun tetap hijau). Uji lain di berkas ini tetap memakai SSR.
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Kartu } from './Kartu'
 import { KolomIsian } from './KolomIsian'
 import { Lapis } from './Lapis'
@@ -10,6 +15,9 @@ import { Tombol } from './Tombol'
 import { KeadaanGagal } from './KeadaanGagal'
 import { KeadaanKosong } from './KeadaanKosong'
 import { KeadaanMemuat } from './KeadaanMemuat'
+
+// Tanpa `globals`, pembersihan otomatis Testing Library tidak terdaftar — jadi dipanggil sendiri.
+afterEach(cleanup)
 
 describe('Tombol', () => {
   it('memakai kelas rancangan sesuai ragam', () => {
@@ -143,9 +151,21 @@ describe('KolomIsian', () => {
   })
 
   it('memanggil onUbah saat diisi', () => {
+    // Uji ini dulu hanya merender HTML lalu memastikan callback TIDAK terpanggil —
+    // artinya handler `onChange` yang tidak tersambung pun akan lolos. Sekarang isian
+    // benar-benar diisi dan nilainya diperiksa (bukti: audit I F-19).
     const onUbah = vi.fn()
-    const html = renderToStaticMarkup(<KolomIsian label="X" nilai="" onUbah={onUbah} />)
-    expect(html).toContain('type="text"')
+    render(<KolomIsian label="Nama tamu" nilai="" onUbah={onUbah} />)
+    const isian = screen.getByLabelText('Nama tamu')
+    fireEvent.change(isian, { target: { value: 'Budi' } })
+    expect(onUbah).toHaveBeenCalledTimes(1)
+    expect(onUbah).toHaveBeenCalledWith('Budi')
+  })
+
+  it('menampilkan nilai terkendali dari pemanggil (tanpa mengubahnya sendiri)', () => {
+    const onUbah = vi.fn()
+    render(<KolomIsian label="Meja" nilai="12" onUbah={onUbah} />)
+    expect((screen.getByLabelText('Meja') as HTMLInputElement).value).toBe('12')
     expect(onUbah).not.toHaveBeenCalled()
   })
 })

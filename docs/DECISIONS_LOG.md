@@ -1189,3 +1189,28 @@ Dugaan penyebab di laporan (lock diperbarui tanpa menyelaraskan prasyarat) terbu
 **Bukti:** `aplikasi/alat/periksa-node.py` LOLOS (kebutuhan 22.12.0 dari 187 entri non-opsional; iklan, README, 3 alur, dan
 Node lingkungan 22.22.3 semuanya memenuhi) · `--uji-diri` 9 kasus (1 salinan utuh diterima · 7 mutasi ditolak · 1 kontrol) ·
 `alat/periksa-gerbang-ci.py` menolak bila langkah pemeriksa ini dihapus dari CI.
+
+## [Mekanisme/2026-09-20] Nama uji tidak boleh lebih kuat daripada yang diuji
+
+**Konteks (temuan audit I F-19, K-3, 2026-09-19):** uji bernama `'memanggil onUbah saat diisi'` hanya merender HTML
+(SSR), memeriksa `type="text"`, lalu justru memastikan callback **TIDAK** terpanggil. Rangkaian uji tetap hijau walau
+`onChange` tidak tersambung ke apa pun. Ini kelas cacat yang berbahaya justru karena tampak aman: "86 uji terbaca"
+padahal sebagian tidak membuktikan apa yang dijanjikan namanya.
+
+**Keputusan:**
+
+1. **Uji yang namanya menjanjikan interaksi wajib memicu kejadian.** Kata janji yang diawasi:
+   "saat diisi/diklik/ditekan/diubah/diketik/dipilih/dikirim/di-submit/digulir/disentuh", "memanggil on…", "memicu on…".
+   Bukti tindakan yang diterima: `fireEvent`, `userEvent`, `dispatchEvent`, atau `.click(`/`.focus(`/`.blur(`/`.type(`/`.keyboard(`.
+2. **Ditegakkan mesin, bukan disiplin:** `aplikasi/alat/periksa-uji.py` aturan 3 memeriksa tiap `it(`/`test(` per berkas uji
+   di `src/` dan `e2e/`, menyebut **berkas:baris** saat menolak. Badan uji yang tidak terbaca (bentuk berkas di luar
+   dugaan) juga dianggap GAGAL — pemeriksa tidak boleh buta diam-diam.
+3. **Bukan uji interaksi? Ganti namanya.** Kalau sebuah uji memang hanya memeriksa markup, namanya tidak boleh memakai
+   kata janji di atas. Ini menjaga nama uji sebagai kontrak.
+4. **Uji interaksi memakai DOM nyata:** berkas uji yang butuh interaksi memakai `// @vitest-environment jsdom` (per berkas)
+   + `@testing-library/react`; uji markup lain di berkas yang sama tetap boleh SSR.
+
+**Bukti:** penjaga menunjuk cacat aslinya sebelum diperbaiki
+(`aplikasi/src/komponen/komponen.test.tsx:145`) dan LOLOS sesudahnya · uji baru **merah** saat handler `onChange` dilepas
+maupun saat nilainya salah, **hijau** saat dipulihkan (18 uji) · `aplikasi/alat/periksa-uji.py --uji-diri` **5 kasus**
+semuanya sesuai harapan · `--uji-diri` ikut CI + `aplikasi/alat/periksa-semua.sh` dan terdaftar di gerbang wajib.

@@ -97,6 +97,7 @@ GERBANG_WAJIB = [
     ("uji-diri pemeriksa versi Node (I F-21)", r"python3 aplikasi/alat/periksa-node\.py --uji-diri"),
     ("uji-diri pemeriksa komponen & env", r"python3 aplikasi/alat/periksa-komponen-env.py --uji-diri"),
     ("pemeriksa uji aplikasi", r"python3 aplikasi/alat/periksa-uji.py"),
+    ("uji-diri pemeriksa uji aplikasi (I F-19: nama kuat, badan lemah)", r"python3 aplikasi/alat/periksa-uji\.py --uji-diri"),
     ("pemeriksa kontras & aturan desain", r"python3 aplikasi/alat/uji-kontras.py"),
     ("uji-diri pemeriksa kontras", r"python3 aplikasi/alat/uji-kontras.py --uji-diri"),
 ]
@@ -386,6 +387,8 @@ def uji_diri() -> int:
         mutasi("langkah uji-diri kontras dihapus", lambda t: t.replace("          python3 aplikasi/alat/uji-kontras.py --uji-diri\n", "", 1))
         # I F-21 (putaran18x): versi Node yang diiklankan dulu lebih rendah dari kebutuhan pustaka
         # terkunci. Kalau pemeriksanya lenyap dari CI, iklan versi bisa berbohong lagi tanpa jejak.
+        mutasi("langkah uji-diri pemeriksa uji aplikasi dihapus (I F-19)",
+               lambda t: t.replace("          python3 aplikasi/alat/periksa-uji.py --uji-diri\n", "", 1))
         mutasi("langkah pemeriksa versi Node dihapus (I F-21)",
                lambda t: t.replace("          python3 aplikasi/alat/periksa-node.py\n", "", 1))
 

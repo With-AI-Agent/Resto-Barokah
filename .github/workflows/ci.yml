@@ -153,5 +153,6 @@ jobs:
           python3 aplikasi/alat/periksa-node.py --uji-diri
           python3 aplikasi/alat/periksa-komponen-env.py --uji-diri
           python3 aplikasi/alat/periksa-uji.py
+          python3 aplikasi/alat/periksa-uji.py --uji-diri
           python3 aplikasi/alat/uji-kontras.py
           python3 aplikasi/alat/uji-kontras.py --uji-diri
