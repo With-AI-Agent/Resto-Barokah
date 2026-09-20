@@ -92,6 +92,45 @@ describe('Lapis', () => {
     expect(html).toContain('aria-label="Konfirmasi bayar"')
     expect(html).toContain('lapis-kaki')
   })
+
+  // F F-15 (2026-09-20): fokus keyboard dikunci di dalam lapis dan dipulihkan saat
+  // ditutup. Uji ini BENAR-BENAR memindahkan fokus lewat kejadian keyboard (jsdom),
+  // bukan sekadar merender — kelas cacat I F-19.
+  it('memindahkan fokus ke dalam lapis saat terbuka', () => {
+    const luar = document.createElement('button')
+    luar.textContent = 'pemicu'
+    document.body.appendChild(luar)
+    luar.focus()
+    const { rerender } = render(
+      <Lapis buka judul="Kunci fokus" onTutup={() => undefined} kaki={<Tombol>Ya</Tombol>}>
+        <p>Isi</p>
+      </Lapis>,
+    )
+    // Fokus masuk: elemen interaktif pertama di dalam lapis = tombol Tutup.
+    expect(document.activeElement?.textContent).toBe('Tutup')
+
+    // Tab dari elemen TERAKHIR berputar ke elemen pertama (dikunci di dalam).
+    const tombol = screen.getAllByRole('button')
+    const terakhir = tombol[tombol.length - 1]
+    terakhir.focus()
+    fireEvent.keyDown(terakhir, { key: 'Tab' })
+    expect(document.activeElement?.textContent).toBe('Tutup')
+
+    // Shift-Tab dari elemen PERTAMA berputar ke elemen terakhir.
+    const pertama = screen.getByRole('button', { name: 'Tutup' })
+    pertama.focus()
+    fireEvent.keyDown(pertama, { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(terakhir)
+
+    // Ditutup: fokus pulang ke pemegang semula.
+    rerender(
+      <Lapis buka={false} judul="Kunci fokus" onTutup={() => undefined}>
+        <p>Isi</p>
+      </Lapis>,
+    )
+    expect(document.activeElement).toBe(luar)
+    luar.remove()
+  })
 })
 
 describe('Toast', () => {
