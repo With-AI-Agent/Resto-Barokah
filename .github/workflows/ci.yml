@@ -102,6 +102,14 @@ jobs:
       - name: Bukti mutasi pagar migrasi 0015 — putaran16 K-1 + K-2 (semua mutasi WAJIB MERAH)
         run: python3 alat/uji-mutasi-0015.py
 
+      # Kenapa ada (temuan audit I F-07): sebelum ini, berkas Edge hanya dijaga pemeriksa TEKS —
+      # tidak ada yang pernah MENJALANKAN handler-nya. Uji ini mengubah berkas ASLI TS → JS dengan
+      # esbuild (dipasang bersama `npm ci --prefix alat`) lalu menjalankannya di VM tanpa jaringan,
+      # menuntut batasnya benar: JSON null/array → 400, UUID tidak sah → 400 SEBELUM menyentuh
+      # database, jaringan putus & jawaban bukan JSON → jawaban gagal terkendali (bukan exception).
+      - name: Uji batas Edge Function verifikasi_pin (berkas asli dijalankan tanpa jaringan)
+        run: node alat/uji-edge-pin.mjs
+
       - name: Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras
         run: |
           python3 _sistem/validate_system.py

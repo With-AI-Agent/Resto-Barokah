@@ -17,9 +17,14 @@
 //   4. Menjawab dengan pesan yang sama seperti database — tidak menambah detail
 //      yang bisa membantu menebak.
 //
-// Penjaga otomatis: `alat/periksa-fungsi-pin.py` menolak kiriman kode bila
-// berkas ini kembali memuat console.*, kata service_role, atau tidak lagi
-// memakai POST/Authorization. Pemeriksa itu ikut berjalan di CI.
+// Penjaga otomatis:
+//   * `alat/periksa-fungsi-pin.py` menolak kiriman kode bila berkas ini kembali memuat console
+//     dalam bentuk apa pun, kata service_role, PIN di luar tiga jalur sah, atau tidak lagi
+//     memakai POST/Authorization.
+//   * `node alat/uji-edge-pin.mjs` MENJALANKAN handler ini (berkas asli, tanpa jaringan) dan
+//     menuntut batasnya benar: JSON null/array → 400, UUID tidak sah → 400 sebelum menyentuh
+//     database, jaringan putus & jawaban bukan JSON → jawaban gagal terkendali (bukan exception).
+// Keduanya ikut berjalan di CI.
 // ============================================================================
 
 const RPC = 'verifikasi_pin'
@@ -48,46 +53,74 @@ Deno.serve(async (req: Request) => {
   if (!alamat || !kunciPublik) return balasan({ pesan: 'Peladen belum siap.' }, 500)
   if (!token) return balasan({ pesan: 'Anda harus masuk dulu untuk memakai PIN.' }, 401)
 
-  let isi: Record<string, unknown>
+  let isi: unknown
   try {
     isi = await req.json()
   } catch {
     return balasan({ pesan: 'Permintaan tidak terbaca.' }, 400)
   }
 
-  const penggunaId = typeof isi['pengguna_id'] === 'string' ? isi['pengguna_id'] : ''
-  const pin = typeof isi['pin'] === 'string' ? isi['pin'] : ''
-  const aksi = typeof isi['aksi'] === 'string' ? isi['aksi'] : null
-  const perangkat = typeof isi['perangkat'] === 'string' ? isi['perangkat'] : 'tidak-diketahui'
+  // BATAS (temuan audit I F-07, 2026-09-19): JSON yang SAH belum tentu berbentuk objek — `null`,
+  // array, atau angka semuanya sah. Dulu baris berikutnya langsung membaca properti sehingga
+  // meledak dengan TypeError; kasir melihat kegagalan platform, bukan pesan seperti jalur lain.
+  if (isi === null || typeof isi !== 'object' || Array.isArray(isi)) {
+    return balasan({ pesan: 'Permintaan tidak terbaca.' }, 400)
+  }
+  const badan = isi as Record<string, unknown>
+
+  const penggunaId = typeof badan['pengguna_id'] === 'string' ? badan['pengguna_id'] : ''
+  const pin = typeof badan['pin'] === 'string' ? badan['pin'] : ''
+  const aksi = typeof badan['aksi'] === 'string' ? badan['aksi'] : null
+  const perangkat = typeof badan['perangkat'] === 'string' ? badan['perangkat'] : 'tidak-diketahui'
 
   // Sejak T1-23 (migrasi 0011) PIN wajib TEPAT 6 angka — dijaga di sini sebagai
   // saringan awal, dan tetap ditegakkan database (simpan_pin/verifikasi_pin).
-  if (!/^[0-9a-f-]{36}$/i.test(penggunaId) || !/^\d{6}$/.test(pin)) {
+  // F-07: bentuk UUID diperiksa LENGKAP (dulu `^[0-9a-f-]{36}$` meloloskan 36 tanda minus,
+  // sehingga permintaan siapa pun bisa diteruskan ke database).
+  const POLA_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!POLA_UUID.test(penggunaId) || !/^\d{6}$/.test(pin)) {
     return balasan({ pesan: 'PIN harus tepat 6 angka.' }, 400)
   }
 
-  const jawab = await fetch(`${alamat}/rest/v1/rpc/${RPC}`, {
-    method: 'POST',
-    headers: {
-      apikey: kunciPublik,
-      Authorization: token,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      p_pengguna_id: penggunaId,
-      p_pin: pin,
-      p_aksi: aksi,
-      p_perangkat: perangkat,
-    }),
-  })
+  // F-07: satu bentuk jawaban gagal untuk SEMUA masalah teknis (jaringan putus, peladen jawab
+  // bukan JSON, upstream 500). Sebab teknis tidak dibocorkan ke peramban; pesannya tetap bahasa
+  // Indonesia, dan kasir tidak pernah menerima kegagalan tak terkendali.
+  const gagalDiperiksa = { berhasil: false, sisa_percobaan: 0, pesan: 'PIN tidak bisa diperiksa sekarang. Coba lagi.' }
 
-  if (!jawab.ok) {
-    // Sebab teknis tidak dibocorkan ke peramban; pesannya tetap bahasa Indonesia.
-    return balasan({ berhasil: false, sisa_percobaan: 0, pesan: 'PIN tidak bisa diperiksa sekarang. Coba lagi.' }, 200)
+  let jawab: Response
+  try {
+    jawab = await fetch(`${alamat}/rest/v1/rpc/${RPC}`, {
+      method: 'POST',
+      headers: {
+        apikey: kunciPublik,
+        Authorization: token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        p_pengguna_id: penggunaId,
+        p_pin: pin,
+        p_aksi: aksi,
+        p_perangkat: perangkat,
+      }),
+    })
+  } catch {
+    return balasan(gagalDiperiksa, 200)
   }
 
-  const baris = await jawab.json()
-  const hasil = Array.isArray(baris) ? baris[0] : baris
+  if (!jawab.ok) {
+    return balasan(gagalDiperiksa, 200)
+  }
+
+  let baris: unknown
+  try {
+    baris = await jawab.json()
+  } catch {
+    return balasan(gagalDiperiksa, 200)
+  }
+  const hasil = (Array.isArray(baris) ? baris[0] : baris) as
+    | { berhasil?: unknown; sisa_percobaan?: unknown; pesan?: unknown }
+    | null
+    | undefined
   return balasan({
     berhasil: hasil?.berhasil === true,
     sisa_percobaan: Number(hasil?.sisa_percobaan ?? 0),

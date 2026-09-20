@@ -10,12 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `a2d6b16bc7591c458c7bca5f01ec6e26c5a1b18b`
+- **Commit keadaan kerja:** `4ddb905bc990b23b3cf0217a6769eb1e6c63b773`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 35484274963, commit a2d6b16b)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (run 35484593908, commit 4ddb905b)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -29,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (66 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (66 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (67 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (67 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -65,6 +64,33 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18w (2026-09-20) — BATAS EDGE FUNCTION DIUJI SUNGGUHAN (I F-07 tuntas).**
+
+Sebelum ini berkas Edge hanya dijaga pemeriksa **teks** — tidak ada satu pun pengujian yang pernah
+**menjalankan** handler-nya, jadi cacat batas lolos tanpa jejak:
+
+* JSON `null` → `TypeError` (kasir melihat kegagalan platform, bukan 400 berbahasa Indonesia);
+* UUID "36 tanda minus" lolos regex longgar `^[0-9a-f-]{36}$` → diteruskan ke database;
+* jaringan putus pada `fetch` dan jawaban upstream yang bukan JSON → `Error`/`SyntaxError` tak tertangkap.
+
+Dua-duanya ditutup: **perbaikannya** (badan permintaan diperiksa · UUID diperiksa lengkap sebelum
+menyentuh database · satu bentuk jawaban gagal terkendali untuk semua gangguan teknis) dan
+**penjaganya** — `alat/uji-edge-pin.mjs`:
+
+* mengubah berkas ASLI `supabase/functions/verifikasi_pin/index.ts` TS → JS memakai `esbuild`
+  (bukan menulis ulang tangan), lalu menjalankannya di `node:vm` **tanpa jaringan**
+  (`Response`/`Request` milik Node, `Deno.serve`/`Deno.env`/`fetch` dikendalikan uji);
+* 11 kasus batas (E01–E11), termasuk "PIN tidak pernah muncul di jawaban mana pun";
+* **MERAH di 4 kasus sebelum perbaikan** (bukti uji ini tidak tumpul), hijau sesudahnya;
+* jalan di `aplikasi/alat/periksa-semua.sh` dan CI (langkah tersendiri setelah `npm ci --prefix alat`;
+  `esbuild` kini devDependency `alat/package.json`).
+* Catatan kecil: fixture "PIN tidak lagi dibaca dari badan permintaan" di `alat/periksa-fungsi-pin.py`
+  dibuat tahan penamaan variabel (refactor `isi` → `badan` bukan cacat).
+
+**Langkah berikutnya (urut):** **I F-21** (minimum Node vs lockfile) → **I F-19** (uji yang tidak mengisi input) →
+**I F-05/I F-06** (klien sambungan & Storage tema) + F F-14 → I F-13/F-14/F-15/F-16 (probe PIN) → sisa K-3/K-4 →
+tutup batch mekanisme → **hubungi Lee** untuk "Sebar skema".
 
 **CATATAN CI (2026-09-20):** CI commit `a2d6b16` MERAH — sebabnya satu rujukan mati di bukti penutup I F-09 (`alat/pratinjau.sh`, seharusnya `aplikasi/alat/pratinjau.sh`), ditangkap `python3 alat/periksa-rujukan.py` (kelas yang sama dengan H F-08: jalur bukti wajib bisa dibuka dari akar repo). Sudah diperbaiki dan seluruh rantai pemeriksa CI dijalankan ulang lokal (hijau) sebelum push.
 

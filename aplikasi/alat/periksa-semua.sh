@@ -40,6 +40,11 @@ echo "== uji SQL (RLS & isolasi resto, tanpa server) =="
 echo "== bukti mutasi pagar migrasi 0012 & 0013 (kontrol hijau + semua mutasi WAJIB MERAH) =="
 (cd "$REPO" && python3 alat/uji-mutasi-0012.py | tail -2)
 (cd "$REPO" && python3 alat/uji-mutasi-0014.py | tail -2)
+(cd "$REPO" && python3 alat/uji-mutasi-0015.py | tail -2)
+
+echo "== batas Edge Function verifikasi_pin (berkas asli dijalankan tanpa jaringan) =="
+# Butuh esbuild dari `npm ci --prefix alat` (dipasang di awal skrip ini).
+(cd "$REPO" && node alat/uji-edge-pin.mjs)
 
 echo "== pemeriksa Python =="
 

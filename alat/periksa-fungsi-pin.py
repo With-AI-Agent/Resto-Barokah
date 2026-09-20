@@ -186,6 +186,11 @@ def _fixture_balasan_pin(isi: str) -> str:
     )
 
 
+def _fixture_tanpa_baca_pin(isi: str) -> str:
+    """PIN tidak lagi diambil dari kunci `pin` di badan permintaan (mis. diganti kunci lain)."""
+    return isi.replace("['pin']", "['kode_rahasia']")
+
+
 def _fixture_pesan_pin(isi: str) -> str:
     """Pesan galat yang memuat PIN (bocor lewat UI/log pemanggil)."""
     return isi.replace(
@@ -240,7 +245,10 @@ def uji_diri() -> int:
         ),
         (
             "PIN tidak lagi dibaca dari badan permintaan",
-            asli.replace("isi['pin']", "isi['kode_rahasia']"),
+            # Fixture harus tahan penamaan variabel: berkas Edge sah-sah saja mengganti nama
+            # pembungkus badan permintaan (`isi` → `badan`) — itu refactor, bukan cacat. Yang
+            # diuji adalah aturannya: PIN wajib dibaca dari kunci `pin` di badan permintaan.
+            _fixture_tanpa_baca_pin(asli),
             "PIN dibaca dari badan permintaan",
         ),
         (
