@@ -310,6 +310,13 @@ for nama, pasangan, uji in GABUNGAN:
     isi = asli
     ok = True
     disimpan: list = []
+    # Bugfix 2026-09-21 (terbuka oleh J F-09): dulu tiap unsur membaca ulang berkas dan
+    # menyimpan hasil bacanya sebagai "asli". Bila DUA unsur menyunting berkas yang SAMA
+    # (mis. M3k — tiga penjaga dalam satu migrasi), unsur kedua menyimpan isi yang SUDAH
+    # termutasi sehingga pemulihan menuliskan kembali mutasi pertama — salinan tinggal
+    # kotor dan baru ketahuan setelah asersi negatif dipatok sebabnya (J F-09).
+    # Sekarang isi ASLI tiap berkas direkam SEKALI sebelum sentuhan pertama.
+    dibaca: dict = {}
     for unsur in pasangan:
         if len(unsur) == 2:
             berkas_g, cari, ganti = berkas, unsur[0], unsur[1]
@@ -319,12 +326,14 @@ for nama, pasangan, uji in GABUNGAN:
         if berkas_g is None:
             ok = False
             break
+        if berkas_g not in dibaca:
+            dibaca[berkas_g] = berkas_g.read_text(encoding="utf-8")
+            disimpan.append((berkas_g, dibaca[berkas_g]))
         isi_g = berkas_g.read_text(encoding="utf-8")
         baru_g, jumlah_g = ganti_terakhir(isi_g, cari, ganti)
         if jumlah_g == 0:
             ok = False
             break
-        disimpan.append((berkas_g, isi_g))
         berkas_g.write_text(baru_g, encoding="utf-8")
     if not ok:
         print(f"  LEWAT {nama}: ada pola yang tidak ditemukan di berkas berlaku")

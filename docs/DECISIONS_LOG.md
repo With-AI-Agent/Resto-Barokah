@@ -1364,3 +1364,27 @@ setelah agent menyampaikan kritik & rancangan.
 6. Penjaga: `alat/siapkan-pemeriksaan.py --uji-diri` (13 kasus) terdaftar di CI + gerbang wajib
    + mutasi "langkah dihapus → ditolak" di `periksa-gerbang-ci.py` + `periksa-semua.sh`;
    buku induk dapat alur **AL-15** (`periksa-panduan.py` MIN_ALUR 14→15).
+
+## [Uang/2026-09-21] Pesanan yang sudah lunas/batal beku TOTAL bagi perangkat (bukan cuma nilai uang)
+
+**Konteks (temuan H F-07 audit AUD-3 2026-09-20, sesi `arena/01a0bf6e`):** pembekuan
+"pesanan tertutup" sebelumnya hanya dijaga pada nilai uang (0013/0014/0015), item &
+baris diskon (0015 D F-01), dan stempel lifecycle (0015 F-06). Probe
+`docs/uji/audit/probe-2026-09-21/h-f07-kolom-non-uang.sql` membuktikan kasir masih bisa
+menulis `catatan`/`tipe`/`shift_id` pesanan yang sudah `lunas`/`batal` — laporan membaca
+jejak yang tidak pernah terjadi.
+
+**Keputusan:** migrasi `supabase/migrations/0017_pesanan_tertutup_beku.sql` — pemicu
+BEFORE UPDATE `picu_pesanan_tertutup_beku` menolak SETIAP perubahan baris pesanan
+`lunas`/`batal` yang datang dari jalur perangkat (`new is distinct from old`). Jalur
+peladen (pemicu pembayaran/pembatalan, RPC SECURITY DEFINER) tetap bebas lewat pola
+bypass teruji `auth.uid() is null or public.peran_peladen()` (sama dengan
+`picu_pesanan_jejak_jujur` 0015). Koreksi resmi = kejadian baru berjejak, bukan tulis
+ulang baris — konsisten dengan [Uang/2026-09-20] (tolak hitung-ulang perangkat pada
+pesanan tertutup).
+
+**Bukti:** probe kini GAGAL (cacat hilang) · uji `supabase/tes/pesanan_tertutup_beku.sql`
+(kontrol draf boleh diubah; lunas & batal ditolak dengan sebab terpaku; jalur peladen
+tetap sah; uang tetap konsisten) · suite SQL **59 LULUS · 0 GAGAL** ·
+`alat/uji-mutasi-0017.py` 3 mutasi WAJIB MERAH terbukti (penjaga dihapus · batal tak ikut
+beku · beku menyempit ke kolom status) + gerbang CI baru di `periksa-gerbang-ci.py`.
