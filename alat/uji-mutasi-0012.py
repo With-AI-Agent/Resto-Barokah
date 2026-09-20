@@ -66,7 +66,7 @@ def migrasi_terbaru_dulu() -> list[pathlib.Path]:
 
 
 def berkas_berlaku(cari: str) -> pathlib.Path | None:
-    """Migrasi TERBARU yang memuat pola itu PERSIS SATU KALI = definisi yang berlaku.
+    """Migrasi TERBARU yang memuat pola itu = berkas tempat definisi yang berlaku hidup.
 
     Kenapa harus "terbaru dulu": migrasi berikutnya boleh menulis ulang isi suatu
     pemicu fungsi (`create or replace`). Kalau pola dimutasi di berkas LAMA, definisi
@@ -74,16 +74,29 @@ def berkas_berlaku(cari: str) -> pathlib.Path | None:
     setelah 0014 menulis ulang `picu_item_jaga`/`picu_stok_arah_jujur` (M1/M5/M8
     sempat terbaca "pagar tumpul" padahal penjaganya masih ada di 0014).
 
-    Pola yang muncul >1 kali di migrasi terbaru yang memuatnya = ambigu → None
-    (mutasi DILEWATI dan dilaporkan, tidak pernah dicap hijau).
+    Pola boleh muncul LEBIH DARI SEKALI di berkas itu: berkas penutup menulis ulang fungsi
+    yang sama di bagian berbeda (mis. `picu_item_jaga` di bagian 1 dan bagian 9 migrasi
+    0015), dan yang BERLAKU adalah kemunculan TERAKHIR. Karena itu mutasinya memakai
+    `ganti_terakhir()` — mengganti semua kemunculan bisa mengubah bagian yang sudah tidak
+    berlaku dan membuat bukti mutasinya kabur (kejadian nyata 2026-09-20).
     """
     for berkas in migrasi_terbaru_dulu():
-        jumlah = berkas.read_text(encoding="utf-8").count(cari)
-        if jumlah == 1:
+        if cari in berkas.read_text(encoding="utf-8"):
             return berkas
-        if jumlah > 1:
-            return None
     return None
+
+
+def ganti_terakhir(isi: str, cari: str, ganti: str) -> tuple[str, int]:
+    """Ganti kemunculan TERAKHIR `cari`; kembalikan (isi baru, jumlah kemunculan).
+
+    Definisi yang berlaku = `create or replace` TERAKHIR di berkas itu. Mengganti
+    kemunculan pertama membuat mutasinya tumpul (definisi terakhir menimpa kembali).
+    """
+    jumlah = isi.count(cari)
+    if jumlah == 0:
+        return isi, 0
+    awal = isi.rindex(cari)
+    return isi[:awal] + ganti + isi[awal + len(cari):], jumlah
 
 
 def berkas_unsur(unsur, bawaan: pathlib.Path | None):
@@ -253,11 +266,14 @@ def jalankan_daftar(judul: str, mig: pathlib.Path, daftar: list) -> None:
             dilewati.append(nama)
             continue
         asli = berkas.read_text(encoding="utf-8")
-        if asli.count(cari) != 1:
-            print(f"  LEWAT {nama}: pola tidak unik di {berkas.name} ({asli.count(cari)})")
+        baru_isi, jumlah = ganti_terakhir(asli, cari, ganti)
+        if jumlah == 0:
+            print(f"  LEWAT {nama}: pola tidak ada di {berkas.name}")
             hasil.append(False)
             continue
-        berkas.write_text(asli.replace(cari, ganti), encoding="utf-8")
+        if jumlah > 1:
+            print(f"  (catatan) pola muncul {jumlah}× di {berkas.name} — yang dimutasi kemunculan TERAKHIR (definisi yang berlaku)")
+        berkas.write_text(baru_isi, encoding="utf-8")
         kode, keluar = jalankan(uji)
         berkas.write_text(asli, encoding="utf-8")
         sakti = "ERR_MODULE_NOT_FOUND" in keluar or "SyntaxError" in keluar
@@ -304,13 +320,14 @@ for nama, pasangan, uji in GABUNGAN:
             ok = False
             break
         isi_g = berkas_g.read_text(encoding="utf-8")
-        if isi_g.count(cari) != 1:
+        baru_g, jumlah_g = ganti_terakhir(isi_g, cari, ganti)
+        if jumlah_g == 0:
             ok = False
             break
         disimpan.append((berkas_g, isi_g))
-        berkas_g.write_text(isi_g.replace(cari, ganti), encoding="utf-8")
+        berkas_g.write_text(baru_g, encoding="utf-8")
     if not ok:
-        print(f"  LEWAT {nama}: ada pola yang tidak unik")
+        print(f"  LEWAT {nama}: ada pola yang tidak ditemukan di berkas berlaku")
         for f, isi_g in disimpan:
             f.write_text(isi_g, encoding="utf-8")
         hasil.append(False)

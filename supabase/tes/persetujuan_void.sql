@@ -87,6 +87,11 @@ select uji.klaim(null);
 
 -- 5. KUPON SEKALI PAKAI (temuan review putaran8 PR-04): persetujuan PIN untuk SATU pesanan
 --    tidak boleh dipakai membatalkan pesanan lain.
+-- Pesanan ini punya DUA item hidup supaya pemeriksaan berikutnya benar-benar menguji
+-- kupon sekali pakai: pembatalan item pertama TIDAK menutup pesanannya (sejak AUD-3 F-04
+-- & F-05 status item hanya lewat baris pembatalan resmi, dan satu target hanya sekali),
+-- jadi percobaan memakai ulang kupon yang sudah habis tidak bisa tertahan oleh aturan
+-- idempotensi — hanya bisa tertahan oleh aturan kupon itu sendiri.
 insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status,
                             subtotal, pajak, service, total, kunci_idempoten)
 values ('00000000-0000-0000-0000-00000000c002', '11111111-1111-1111-1111-111111111111',
@@ -94,6 +99,11 @@ values ('00000000-0000-0000-0000-00000000c002', '11111111-1111-1111-1111-1111111
         10000, 0, 0, 10000, 'void-replay');
 update public.pesanan set dikirim_ke_dapur_pada = now() - interval '5 minutes'
  where id = '00000000-0000-0000-0000-00000000c002';
+insert into public.pesanan_item (id, pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, subtotal)
+values ('00000000-0000-0000-0000-00000000c201', '00000000-0000-0000-0000-00000000c002',
+        'beef0000-0000-0000-0000-000000000001', 'Nasi Goreng', 5000, 1, 5000),
+       ('00000000-0000-0000-0000-00000000c202', '00000000-0000-0000-0000-00000000c002',
+        'beef0000-0000-0000-0000-000000000002', 'Es Teh', 5000, 1, 5000);
 
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner menyetujui yang KEDUA
@@ -107,21 +117,33 @@ select uji.sama(
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir
 set local role authenticated;
-insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
-values ('00000000-0000-0000-0000-00000000c002', 'sesudah_dapur',
-        '90000000-0000-0000-0000-000000000002', 'pembatalan pertama (pesanan yang disetujui)');
+insert into public.pembatalan (pesanan_id, pesanan_item_id, tahap, disetujui_oleh, alasan)
+values ('00000000-0000-0000-0000-00000000c002', '00000000-0000-0000-0000-00000000c201',
+        'sesudah_dapur', '90000000-0000-0000-0000-000000000002',
+        'pembatalan pertama (item yang disetujui)');
+select uji.sama(
+  (select p.status from public.pesanan p where p.id = '00000000-0000-0000-0000-00000000c002'),
+  'dikirim', 'kontrol: satu item dibatalkan, pesanan masih hidup (item kedua masih ada)'
+);
 select uji.harap_gagal(
   $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
       values ('00000000-0000-0000-0000-00000000c001', 'sesudah_dapur',
               '90000000-0000-0000-0000-000000000002', 'mencoba memakai ulang bukti pesanan lain')$$,
   'satu persetujuan PIN tidak bisa dipakai untuk pesanan LAIN (kupon sekali pakai)'
 );
-select uji.harap_gagal(
-  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, pesanan_item_id)
-      values ('00000000-0000-0000-0000-00000000c002', 'sesudah_dapur',
-              '90000000-0000-0000-0000-000000000002', 'memakai ulang bukti yang sudah habis',
-              null)$$,
-  'bukti yang sudah dipakai tidak bisa dipakai lagi untuk pesanan yang sama'
+-- Item KEDUA (masih hidup) + kupon yang SUDAH HABIS: yang menahan hanya aturan kupon.
+select uji.sama(
+  (select count(*) from public.pembatalan pb
+    where pb.pesanan_item_id = '00000000-0000-0000-0000-00000000c202'),
+  0::bigint, 'kontrol: item kedua belum dibatalkan'
+);
+select uji.harap_gagal_sebab(
+  $$insert into public.pembatalan (pesanan_id, pesanan_item_id, tahap, disetujui_oleh, alasan)
+      values ('00000000-0000-0000-0000-00000000c002', '00000000-0000-0000-0000-00000000c202',
+              'sesudah_dapur', '90000000-0000-0000-0000-000000000002',
+              'memakai ulang bukti yang sudah habis')$$,
+  'Persetujuan belum terbukti',
+  'bukti yang sudah dipakai tidak bisa dipakai lagi untuk pesanan yang sama (kupon sekali pakai)'
 );
 reset role;
 select uji.klaim(null);

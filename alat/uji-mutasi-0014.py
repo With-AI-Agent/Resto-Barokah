@@ -60,7 +60,7 @@ def migrasi_terbaru_dulu() -> list[pathlib.Path]:
 
 
 def berkas_berlaku(cari: str) -> pathlib.Path | None:
-    """Migrasi TERBARU yang memuat pola itu PERSIS SATU KALI = definisi yang berlaku.
+    """Migrasi TERBARU yang memuat pola itu = berkas tempat definisi yang berlaku hidup.
 
     Kenapa harus "terbaru dulu": migrasi berikutnya boleh menulis ulang isi suatu
     pemicu fungsi (`create or replace`). Kalau pola dimutasi di berkas LAMA, definisi
@@ -68,16 +68,27 @@ def berkas_berlaku(cari: str) -> pathlib.Path | None:
     setelah 0014 menulis ulang `picu_item_jaga`/`picu_stok_arah_jujur` (M1/M5/M8
     sempat terbaca "pagar tumpul" padahal penjaganya masih ada di 0014).
 
-    Pola yang muncul >1 kali di migrasi terbaru yang memuatnya = ambigu → None
-    (mutasi DILEWATI dan dilaporkan, tidak pernah dicap hijau).
+    Pola boleh muncul LEBIH DARI SEKALI di berkas itu (berkas penutup menulis ulang fungsi
+    yang sama, mis. `picu_item_jaga` di bagian 1 dan bagian 9 migrasi 0015) dan yang
+    BERLAKU adalah kemunculan TERAKHIR → mutasinya memakai `ganti_terakhir()`.
     """
     for berkas in migrasi_terbaru_dulu():
-        jumlah = berkas.read_text(encoding="utf-8").count(cari)
-        if jumlah == 1:
+        if cari in berkas.read_text(encoding="utf-8"):
             return berkas
-        if jumlah > 1:
-            return None
     return None
+
+
+def ganti_terakhir(isi: str, cari: str, ganti: str) -> tuple[str, int]:
+    """Ganti kemunculan TERAKHIR `cari`; kembalikan (isi baru, jumlah kemunculan).
+
+    Definisi yang berlaku = `create or replace` TERAKHIR di berkas itu. Mengganti
+    kemunculan pertama membuat mutasinya tumpul (definisi terakhir menimpa kembali).
+    """
+    jumlah = isi.count(cari)
+    if jumlah == 0:
+        return isi, 0
+    awal = isi.rindex(cari)
+    return isi[:awal] + ganti + isi[awal + len(cari):], jumlah
 
 
 def jalankan(uji):
@@ -131,9 +142,13 @@ DAFTAR = [
      "    if v_pesanan > 0 then",
      "    if false then",
      "supabase/tes/meja_penjaga.sql"),
+    # Pola lama ("  if v_kupon is null then") dipakai DUA penjaga berbeda (kupon diskon di 0014
+    # dan kupon void di 0012/0013/0015) → sejak 0015 menulis ulang penjaga void, polanya
+    # ambigu dan mutasinya bisa menyasar penjaga yang salah. Sekarang polanya khas penjaga
+    # kupon DISKON (pesannya menyebut diskon).
     ("M14-12 stempel 'disetujui' pada diskon boleh dikarang lagi",
-     "  if v_kupon is null then",
-     "  if false then",
+     "  if v_kupon is null then\n    raise exception 'Persetujuan diskon belum terbukti",
+     "  if false then\n    raise exception 'Persetujuan diskon belum terbukti",
      "supabase/tes/diskon_setuju.sql"),
     ("M14-13 cap bawaan diskon kembali 100% (bukan batas)",
      "  alter column batas_maks_potongan_persen set default 50;",
@@ -194,7 +209,14 @@ for nama, cari, ganti, uji in DAFTAR:
         hasil.append(False)
         continue
     asli = berkas.read_text(encoding="utf-8")
-    berkas.write_text(asli.replace(cari, ganti), encoding="utf-8")
+    baru_isi, jumlah = ganti_terakhir(asli, cari, ganti)
+    if jumlah == 0:
+        print(f"  LEWAT {nama}: pola tidak ada di {berkas.name}")
+        hasil.append(False)
+        continue
+    if jumlah > 1:
+        print(f"  (catatan) pola muncul {jumlah}× di {berkas.name} — yang dimutasi kemunculan TERAKHIR")
+    berkas.write_text(baru_isi, encoding="utf-8")
     kode, keluar = jalankan(uji)
     berkas.write_text(asli, encoding="utf-8")
     sakti = "ERR_MODULE_NOT_FOUND" in keluar or "SyntaxError" in keluar or "tidak bisa diterapkan" in keluar
@@ -219,10 +241,10 @@ for nama, pasangan, uji in GABUNGAN:
     isi = asli
     ok = True
     for cari, ganti in pasangan:
-        if isi.count(cari) != 1:
+        isi, jumlah = ganti_terakhir(isi, cari, ganti)
+        if jumlah == 0:
             ok = False
             break
-        isi = isi.replace(cari, ganti)
     if not ok:
         print(f"  LEWAT {nama}: pola tidak unik")
         hasil.append(False)
