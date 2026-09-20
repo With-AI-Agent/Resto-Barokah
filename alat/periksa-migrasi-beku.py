@@ -153,8 +153,10 @@ def uji_diri() -> int:
         def tambah_0005() -> None:
             _tulis(salinan, f"{DIR_MIGRASI}/0005_tambahan_belakangan.sql", "select 1;\n")
 
-        def tambah_0017() -> None:
-            _tulis(salinan, f"{DIR_MIGRASI}/0017_uji_diri.sql", "select 1;\n")
+        def tambah_berikutnya() -> None:
+            # dinamis: nomor = tertinggi yang ada + 1 (tidak usang saat migrasi baru lahir)
+            nomor = max(int(b.name[:4]) for b in (salinan / DIR_MIGRASI).glob("0*.sql")) + 1
+            _tulis(salinan, f"{DIR_MIGRASI}/{nomor:04d}_uji_diri.sql", "select 1;\n")
 
         def kembar_0016() -> None:
             _tulis(salinan, f"{DIR_MIGRASI}/0016_satu.sql", "select 1;\n")
@@ -164,7 +166,7 @@ def uji_diri() -> int:
         mutasi("berkas beku dihapus", hapus_0003)
         mutasi("berkas baru bernomor lama (0005)", tambah_0005)
         mutasi("nomor migrasi kembar (0016 ×2)", kembar_0016)
-        mutasi("berkas baru bernomor benar (0017)", tambah_0017, harap_ditolak=False)
+        mutasi("berkas baru bernomor benar (tertinggi+1)", tambah_berikutnya, harap_ditolak=False)
 
     merah = 0
     print("UJI-DIRI PERIKSA MIGRASI BEKU")

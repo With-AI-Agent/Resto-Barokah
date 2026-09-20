@@ -10,7 +10,7 @@
 -- Owner memasang PIN-nya sendiri lebih dulu.
 select uji.klaim('90000000-0000-0000-0000-000000000002');
 set local role authenticated;
-select uji.sama(public.simpan_pin('738294', null), 'PIN tersimpan.', 'owner memasang PIN sendiri');
+select uji.sama(public.simpan_pin('738294', null, null, 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789'), 'PIN tersimpan.', 'owner memasang PIN sendiri');
 reset role;
 select uji.klaim(null);
 
@@ -18,14 +18,14 @@ select uji.klaim(null);
 select uji.klaim('90000000-0000-0000-0000-000000000003');
 set local role authenticated;
 select uji.sama(
-  public.simpan_pin('849273', null, '90000000-0000-0000-0000-000000000002', 'hp-admin')
+  public.simpan_pin('849273', null, '90000000-0000-0000-0000-000000000002', 'de000000-0000-0000-0000-000000000002', 'kunci-uji-hp-admin-0123456789')
     like 'Peran Anda tidak lebih tinggi%', true,
   'admin cabang TIDAK boleh mengganti PIN owner (pesan penolakan; sejak F-14 catatan bertahan)'
 );
 
 -- 2. PIN owner tetap yang lama: PIN "hasil rebutan" tidak berlaku.
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '849273', 'void_sesudah_dapur', 'hp-admin', 'eeee0000-0000-0000-0000-000000000010')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '849273', 'void_sesudah_dapur', 'de000000-0000-0000-0000-000000000002', 'kunci-uji-hp-admin-0123456789', 'eeee0000-0000-0000-0000-000000000010')).berhasil,
   false, 'PIN yang dipasang paksa (849273) TIDAK berlaku untuk owner'
 );
 -- (Urutan penting: uji penolakan DIJALANKAN SEBELUM kontrol yang menerbitkan kupon sah,
@@ -33,13 +33,13 @@ select uji.sama(
 select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
       values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', 'void tanpa izin owner')$$, 'Persetujuan belum terbukti untuk pesanan ini: penyetuju harus memasukkan PIN-nya sendiri u', 'kupon void atas nama owner TIDAK terbit kalau owner sendiri yang tidak memasukkan PIN-nya');
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-admin', 'eeee0000-0000-0000-0000-000000000010')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'de000000-0000-0000-0000-000000000002', 'kunci-uji-hp-admin-0123456789', 'eeee0000-0000-0000-0000-000000000010')).berhasil,
   true, 'kontrol: PIN owner yang asli (738294) masih berlaku'
 );
 
 -- 3. Atasan BOLEH mengganti PIN bawahannya (jalur sah tidak ditutup).
 select uji.sama(
-  public.simpan_pin('193847', null, '90000000-0000-0000-0000-000000000004', 'hp-admin'),
+  public.simpan_pin('193847', null, '90000000-0000-0000-0000-000000000004', 'de000000-0000-0000-0000-000000000002', 'kunci-uji-hp-admin-0123456789'),
   'PIN tersimpan.', 'admin BOLEH mengganti PIN kasir di cabangnya (peran lebih tinggi)'
 );
 reset role;

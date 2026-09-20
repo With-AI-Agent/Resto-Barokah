@@ -20,6 +20,10 @@
 //   6. (I F-02 / H F-04) `pesanan_id` diperiksa bentuknya lalu diteruskan sebagai
 //      `p_pesanan_id`; aksi berkupon (void_sesudah_dapur, beri_diskon) MENOLAK permintaan
 //      tanpa pesanan_id, supaya kupon tidak pernah lahir tanpa ikatan pesanan.
+//   7. (T1-24, migrasi 0018) identitas perangkat = `perangkat_id` (UUID terdaftar) +
+//      `perangkat_kunci` — BUKAN nama kiriman klien. Bentuknya disaring di sini;
+//      yang menentukan sah/tidaknya tetap database (perangkat_sah), dengan jawaban
+//      seragam 'Perangkat tidak dikenali.'
 //
 // Penjaga otomatis:
 //   * `alat/periksa-fungsi-pin.py` menolak kiriman kode bila berkas ini kembali memuat console
@@ -90,7 +94,8 @@ Deno.serve(async (req: Request) => {
   const penggunaId = typeof badan['pengguna_id'] === 'string' ? badan['pengguna_id'] : ''
   const pin = typeof badan['pin'] === 'string' ? badan['pin'] : ''
   const aksi = typeof badan['aksi'] === 'string' ? badan['aksi'] : null
-  const perangkat = typeof badan['perangkat'] === 'string' ? badan['perangkat'] : 'tidak-diketahui'
+  const perangkatId = typeof badan['perangkat_id'] === 'string' ? badan['perangkat_id'] : ''
+  const perangkatKunci = typeof badan['perangkat_kunci'] === 'string' ? badan['perangkat_kunci'] : ''
 
   // Sejak T1-23 (migrasi 0011) PIN wajib TEPAT 6 angka — dijaga di sini sebagai
   // saringan awal, dan tetap ditegakkan database (simpan_pin/verifikasi_pin).
@@ -99,6 +104,12 @@ Deno.serve(async (req: Request) => {
   const POLA_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   if (!POLA_UUID.test(penggunaId) || !/^\d{6}$/.test(pin)) {
     return balasan({ pesan: 'PIN harus tepat 6 angka.' }, 400, kepala)
+  }
+
+  // T1-24 (2026-09-21): perangkat wajib TERDAFTAR — id berbentuk UUID penuh dan kunci
+  // minimal 16 karakter (dibangkitkan aplikasi). Sah/tidaknya diputuskan database.
+  if (!POLA_UUID.test(perangkatId) || perangkatKunci.length < 16) {
+    return balasan({ pesan: 'Perangkat tidak dikenali.' }, 400, kepala)
   }
 
   // I F-02 / H F-04 (2026-09-20): kupon persetujuan (void sesudah dapur & beri diskon)
@@ -136,7 +147,8 @@ Deno.serve(async (req: Request) => {
         p_pengguna_id: penggunaId,
         p_pin: pin,
         p_aksi: aksi,
-        p_perangkat: perangkat,
+        p_perangkat_id: perangkatId,
+        p_perangkat_kunci: perangkatKunci,
         p_pesanan_id: pesananId,
       }),
     })

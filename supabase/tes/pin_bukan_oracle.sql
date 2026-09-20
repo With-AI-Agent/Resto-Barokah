@@ -20,7 +20,7 @@
 -- 1. KONTROL: owner memasang PIN-nya (angka kuat, bukan pola lemah).
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- Bu Oasis, owner
 set local role authenticated;
-select uji.sama(public.simpan_pin('482619', null),
+select uji.sama(public.simpan_pin('482619', null, null, 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789'),
                 'PIN tersimpan.', 'kontrol: PIN owner tersimpan');
 
 -- 2. TEMUAN: pegawai lain menebak angka yang sama → ditolak dengan pesan NETRAL.
@@ -29,7 +29,7 @@ set local role authenticated;
 -- Dipanggil SEKALI saja (setiap panggilan tercatat di `percobaan_simpan_pin`).
 do $$
 declare
-  v_pesan text := public.simpan_pin('482619', null);
+  v_pesan text := public.simpan_pin('482619', null, null, 'de000000-0000-0000-0000-000000000004', 'kunci-uji-hp-pelayan-0123456789');
 begin
   perform uji.sama(v_pesan, 'PIN itu tidak bisa dipakai — pilih angka lain.',
                    'PR-04: angka yang sudah dipakai kolega ditolak TANPA menyebut pegawai lain');
@@ -38,7 +38,7 @@ begin
 end $$;
 
 -- 3. KONTROL: angka yang belum dipakai tetap tersimpan (aturan unik tidak dilonggarkan).
-select uji.sama(public.simpan_pin('957031', null),
+select uji.sama(public.simpan_pin('957031', null, null, 'de000000-0000-0000-0000-000000000004', 'kunci-uji-hp-pelayan-0123456789'),
                 'PIN tersimpan.', 'kontrol: angka yang belum dipakai tetap diterima');
 reset role;
 select uji.klaim(null);

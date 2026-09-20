@@ -19,7 +19,7 @@
 -- 0. Pemasangan PIN pertama (jatah ke-1, berhasil).
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner
 set local role authenticated;
-select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000003'),
+select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000003', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789'),
                 'PIN tersimpan.', 'pemasangan PIN pertama (jatah ke-1)');
 
 -- 1. Jatah ke-2 sampai ke-20: semuanya "PIN kembar" → ditolak & tercatat.
@@ -29,7 +29,7 @@ declare
   v_lain   integer := 0;
 begin
   for i in 1..19 loop
-    if public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000006')
+    if public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000006', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789')
        like 'PIN itu tidak bisa dipakai%' then
       v_kembar := v_kembar + 1;
     else
@@ -41,7 +41,7 @@ begin
 end $$;
 
 -- 2. Jatah ke-21: DITOLAK pembatas (bukan lagi karena kembar).
-select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000006'),
+select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000006', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789'),
                 'Terlalu banyak percobaan memasang PIN (20 kali / 15 menit). Tunggu sebentar.',
                 'percobaan ke-21 dihentikan pembatas anti-oracle');
 reset role;

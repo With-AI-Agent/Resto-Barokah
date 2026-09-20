@@ -29,10 +29,9 @@ set local role authenticated;
 -- benar-benar pemicu BUKTI PERSETUJUAN, bukan aturan "satu diskon per transaksi".
 update public.pengaturan set tumpuk_diskon = true
  where penyewa_id = '11111111-1111-1111-1111-111111111111';
-select public.simpan_pin('738294', null);
+select public.simpan_pin('738294', null, null, 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789');
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'beri_diskon', 'hp-owner',
-                         'eeee0000-0000-0000-0000-000000000010')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'beri_diskon', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789', 'eeee0000-0000-0000-0000-000000000010')).berhasil,
   true, 'owner memasukkan PIN-nya untuk aksi beri_diskon di pesanan ini'
 );
 insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan, disetujui_oleh)
@@ -67,10 +66,9 @@ values ('eeee0000-0000-0000-0000-000000000014', 'beef0000-0000-0000-0000-0000000
         'Nasi Goreng', 27000, 2, 54000);
 select uji.klaim('90000000-0000-0000-0000-000000000005');   -- pelayan, bukan penyetuju diskon
 set local role authenticated;
-select public.simpan_pin('618273');
+select public.simpan_pin('618273', null, null, 'de000000-0000-0000-0000-000000000004', 'kunci-uji-hp-pelayan-0123456789');
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000005', '618273', 'beri_diskon', 'hp-pelayan',
-                         'eeee0000-0000-0000-0000-000000000014')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000005', '618273', 'beri_diskon', 'de000000-0000-0000-0000-000000000004', 'kunci-uji-hp-pelayan-0123456789', 'eeee0000-0000-0000-0000-000000000014')).berhasil,
   false, 'F-16 prasyarat: PIN pelayan ditolak untuk aksi beri_diskon');
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir mencoba memakai baris itu

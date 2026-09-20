@@ -12,7 +12,7 @@
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir, batas 25.000 / 5%
 set local role authenticated;
 select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 54000, 54000, 'diskon manual penuh')$$, 'Diskon ini melebihi batas izin Anda\. Minta persetujuan atasan \(PIN\)', 'kontrol: diskon manual 54.000 ditolak (batas kasir 25.000)');
+      values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 54000, 54000, 'diskon manual penuh')$$, 'Diskon ini melebihi batas izin Anda — minta atasan \(pemilik/admin\) yang memproses', 'kontrol: diskon manual 54.000 ditolak (batas kasir 25.000)');
 
 -- 2. JENIS YANG SAMA, diberi label 'voucher' → sekarang JUGA DITOLAK (temuan PR-01).
 select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)

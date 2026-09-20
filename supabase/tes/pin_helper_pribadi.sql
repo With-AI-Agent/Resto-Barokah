@@ -33,12 +33,12 @@ select uji.klaim(null);
 --    dalam `simpan_pin` yang berjalan sebagai pemilik tabel).
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select public.simpan_pin('482913', null);                    -- kasir memasang PIN sendiri
+select public.simpan_pin('482913', null, null, 'de000000-0000-0000-0000-000000000003', 'kunci-uji-hp-kasir-0123456789');                    -- kasir memasang PIN sendiri
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000002');    -- owner
 set local role authenticated;
 select uji.sama(
-  public.simpan_pin('705164', null, '90000000-0000-0000-0000-000000000004', 'hp-owner'),
+  public.simpan_pin('705164', null, '90000000-0000-0000-0000-000000000004', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789'),
   'PIN tersimpan.',
   'kontrol: jalur sah tetap terbuka — owner boleh mengganti PIN kasir (helper tetap bisa dipakai internal)'
 );
@@ -71,7 +71,7 @@ select uji.klaim(null);
 select uji.klaim('90000000-0000-0000-0000-000000000003');    -- admin cabang
 set local role authenticated;
 select uji.sama(
-  public.simpan_pin('318549', null, '90000000-0000-0000-0000-000000000002', 'hp-admin')
+  public.simpan_pin('318549', null, '90000000-0000-0000-0000-000000000002', 'de000000-0000-0000-0000-000000000002', 'kunci-uji-hp-admin-0123456789')
     like 'Peran Anda tidak lebih tinggi%', true,
   'kontrol: aturan hierarki PIN tetap bekerja setelah helper dikunci (kontrak pesan sejak F-14)'
 );

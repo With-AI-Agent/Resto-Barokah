@@ -83,7 +83,7 @@ select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, 
 
 -- 4. Batas izin PER BARIS masih berlaku (tidak dilemahkan oleh cap baru).
 select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 20000, 20000, 'di atas batas kasir')$$, 'Diskon ini melebihi batas izin Anda\. Minta persetujuan atasan \(PIN\)', 'diskon 20.000 oleh kasir (batas 25.000/5%) tetap ditolak karena persen 37%');
+      values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 20000, 20000, 'di atas batas kasir')$$, 'Diskon ini melebihi batas izin Anda — minta atasan \(pemilik/admin\) yang memproses', 'diskon 20.000 oleh kasir (batas 25.000/5%) tetap ditolak karena persen 37%');
 
 reset role;
 select uji.klaim(null);

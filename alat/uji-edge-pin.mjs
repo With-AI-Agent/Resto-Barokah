@@ -50,6 +50,9 @@ const { code } = esbuild.transformSync(sumber, {
 })
 
 const PIN_UJI = '654321'
+// T1-24: perangkat TERDAFTAR (id + kunci) wajib ikut dalam setiap permintaan sah.
+const PERANGKAT_UJI = 'de000000-0000-0000-0000-000000000003'
+const KUNCI_UJI = 'kunci-uji-hp-kasir-0123456789'
 const UUID_UJI = 'e2000000-0000-4000-8000-000000000003'
 const PESANAN_UJI = 'e9000000-0000-0000-0000-000000000001'
 const semuaJawaban = []
@@ -152,7 +155,7 @@ function bacaJSON(badan) {
 // E03 — tanpa token → 401 sebelum fetch.
 {
   const r = await jalankan({
-    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI },
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI, perangkat_id: PERANGKAT_UJI, perangkat_kunci: KUNCI_UJI },
     tanpaToken: true,
   })
   catat(
@@ -191,7 +194,7 @@ function bacaJSON(badan) {
 // E07 — jaringan putus (fetch menolak) → jawaban gagal terkendali, TIDAK melempar.
 {
   const r = await jalankan({
-    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI },
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI, perangkat_id: PERANGKAT_UJI, perangkat_kunci: KUNCI_UJI },
     fetchTiruan: () => {
       throw new TypeError('network error')
     },
@@ -206,7 +209,7 @@ function bacaJSON(badan) {
 // E08 — upstream menjawab bukan JSON → jawaban gagal terkendali, TIDAK melempar.
 {
   const r = await jalankan({
-    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI },
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI, perangkat_id: PERANGKAT_UJI, perangkat_kunci: KUNCI_UJI },
     fetchTiruan: () =>
       new Response('<html>gateway error</html>', {
         status: 200,
@@ -223,7 +226,7 @@ function bacaJSON(badan) {
 // E09 — upstream 500 → jawaban gagal terkendali (jalur lama, dijaga agar tidak mundur).
 {
   const r = await jalankan({
-    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI },
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI, perangkat_id: PERANGKAT_UJI, perangkat_kunci: KUNCI_UJI },
     fetchTiruan: () => new Response('boom', { status: 500 }),
   })
   const d = bacaJSON(r.badan)
@@ -239,23 +242,47 @@ function bacaJSON(badan) {
     isi: {
       pengguna_id: UUID_UJI,
       pin: PIN_UJI,
+      perangkat_id: PERANGKAT_UJI,
+      perangkat_kunci: KUNCI_UJI,
       aksi: 'void',
-      perangkat: 'kasir-1',
     },
   })
   const kirim = JSON.parse(r.panggilan[0]?.opsi?.body ?? '{}')
-  const punyaKunci = ['p_pengguna_id', 'p_pin', 'p_aksi', 'p_perangkat'].every((k) => k in kirim)
+  const punyaKunci = ['p_pengguna_id', 'p_pin', 'p_aksi', 'p_perangkat_id', 'p_perangkat_kunci'].every((k) => k in kirim)
   const d = bacaJSON(r.badan)
   catat(
-    'E10 jalur sukses: 5 kunci ke RPC (p_pesanan_id ikut, null bila tak disebut) + PIN tidak bocor',
+    'E10 jalur sukses: 6 kunci ke RPC (p_perangkat_id/kunci + p_pesanan_id ikut) + PIN tidak bocor',
     d?.berhasil === true && punyaKunci && kirim.p_pesanan_id === null,
     `berhasil=${d?.berhasil} kunci=${punyaKunci} p_pesanan_id=${kirim.p_pesanan_id}`,
+  )
+}
+// E14 — T1-24: tanpa perangkat_id → 400 'Perangkat tidak dikenali.' SEBELUM fetch.
+{
+  const r = await jalankan({
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI },
+  })
+  const d = bacaJSON(r.badan)
+  catat(
+    'E14 tanpa perangkat terdaftar → 400 sebelum fetch (T1-24)',
+    r.jawab?.status === 400 && d?.pesan === 'Perangkat tidak dikenali.' && r.panggilan.length === 0,
+    `status=${r.jawab?.status} pesan=${d?.pesan} fetch=${r.panggilan.length}`,
+  )
+}
+// E15 — T1-24: kunci perangkat pendek (< 16) → 400 sebelum fetch.
+{
+  const r = await jalankan({
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI, perangkat_id: PERANGKAT_UJI, perangkat_kunci: 'pendek' },
+  })
+  catat(
+    'E15 kunci perangkat pendek → 400 sebelum fetch (T1-24)',
+    r.jawab?.status === 400 && r.panggilan.length === 0,
+    `status=${r.jawab?.status} fetch=${r.panggilan.length}`,
   )
 }
 // E12 — I F-02: aksi berkupon tanpa pesanan_id → 400 SEBELUM fetch (jalur buntu dipotong di batas).
 {
   const r = await jalankan({
-    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI, aksi: 'void_sesudah_dapur' },
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI, aksi: 'void_sesudah_dapur', perangkat_id: PERANGKAT_UJI, perangkat_kunci: KUNCI_UJI },
   })
   catat(
     'E12 aksi berkupon tanpa pesanan_id → 400 sebelum fetch (I F-02)',
@@ -269,6 +296,8 @@ function bacaJSON(badan) {
     isi: {
       pengguna_id: UUID_UJI,
       pin: PIN_UJI,
+      perangkat_id: PERANGKAT_UJI,
+      perangkat_kunci: KUNCI_UJI,
       aksi: 'void_sesudah_dapur',
       pesanan_id: PESANAN_UJI,
     },
@@ -286,6 +315,8 @@ function bacaJSON(badan) {
     isi: {
       pengguna_id: UUID_UJI,
       pin: PIN_UJI,
+      perangkat_id: PERANGKAT_UJI,
+      perangkat_kunci: KUNCI_UJI,
       aksi: 'beri_diskon',
       pesanan_id: '-'.repeat(36),
     },
@@ -300,7 +331,7 @@ function bacaJSON(badan) {
 {
   const asal = 'https://resto-barokah.fatrizmubarok.workers.dev'
   const r = await jalankan({
-    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI },
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI, perangkat_id: PERANGKAT_UJI, perangkat_kunci: KUNCI_UJI },
     origin: asal,
   })
   catat(
@@ -312,7 +343,7 @@ function bacaJSON(badan) {
 // E16 — H F-09: asal asing TIDAK mendapat header CORS (dan pasti bukan wildcard).
 {
   const r = await jalankan({
-    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI },
+    isi: { pengguna_id: UUID_UJI, pin: PIN_UJI, perangkat_id: PERANGKAT_UJI, perangkat_kunci: KUNCI_UJI },
     origin: 'https://jahat.example',
   })
   const acao = r.jawab?.headers.get('access-control-allow-origin')

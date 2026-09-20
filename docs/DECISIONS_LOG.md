@@ -1388,3 +1388,53 @@ pesanan tertutup).
 tetap sah; uang tetap konsisten) · suite SQL **59 LULUS · 0 GAGAL** ·
 `alat/uji-mutasi-0017.py` 3 mutasi WAJIB MERAH terbukti (penjaga dihapus · batal tak ikut
 beku · beku menyempit ke kolom status) + gerbang CI baru di `periksa-gerbang-ci.py`.
+
+## [Keamanan/2026-09-21] Perangkat terdaftar: identitas perangkat terverifikasi untuk PIN (T1-24 inti, K F-03, F-11 §1b)
+
+**Konteks:** lapis kedua pembatas PIN (12×/15 menit, melintasi akun) di-key pada NAMA
+perangkat kiriman klien — penyerang yang memutar nama mendapat jatah baru (temuan
+K F-03 / F-11 laporan 2026-09-17; lapis pertama 5×/akun tetap bekerja). ROADMAP T1-24
+mengamanatkan identitas perangkat terverifikasi + `perangkat_sah()` + penolakan
+perangkat tak terdaftar, dengan uji `percobaan_pin_perangkat.sql` yang DIPERKETAT.
+
+**Keputusan:** migrasi `supabase/migrations/0018_perangkat_terdaftar.sql`:
+* tabel `perangkat` (RLS baca hanya `kelola_pegawai`) + `kredensial_perangkat`
+  (hash bcrypt, TANPA grant klien — pola `kredensial_pin` 0006/K-3);
+* `daftarkan_perangkat`/`cabut_perangkat` = RPC izin `kelola_pegawai`, cabang wajib
+  dalam `cabang_ids_saya()`; kunci minimal 16 karakter (dibangkitkan aplikasi);
+* `perangkat_sah(id, kunci)` = pemeriksa internal, execute klien DICABUT (pola F-11);
+* `verifikasi_pin`/`simpan_pin`/`ganti_pin` memakai `(perangkat_id, perangkat_kunci)`;
+  perangkat tak terdaftar/nonaktif/kunci salah → jawaban SERAGAM
+  `'Perangkat tidak dikenali.'` (anti-oracle, konsisten 'PIN tidak dikenali.');
+* nama yang dicatat di `percobaan_pin` dari tabel (bukan kiriman klien); lapis 12×
+  di-key pada `perangkat_id`; tanda tangan lama (p_perangkat text) DI-DROP.
+* Edge Function `verifikasi_pin` menyaring bentuk `perangkat_id`/`perangkat_kunci`
+  di batas; keputusan sah/tidak tetap di database.
+* Sisa DoD T1-24 (kode pendaftaran sekali pakai, `persetujuan_perangkat`, gating
+  bagian staf via sesi perangkat) lanjut di T1-25/Fase 1C — kotak T1-24 belum dicentang.
+
+**Bukti:** uji `supabase/tes/percobaan_pin_perangkat.sql` diperketat (perangkat
+karangan dilayani 0×; kunci salah & perangkat dicabut dijawab seragam; lapis 12×
+hidup di perangkat_id; PR-13 dipertahankan) + `supabase/tes/perangkat_registrasi.sql`
+(izin, hash bukan teks, RLS, anti-oracle); suite SQL **60 LULUS · 0 GAGAL**;
+`alat/uji-mutasi-0018.py` 3 mutasi wajib MERAH terbukti + gerbang CI baru;
+`node alat/uji-edge-pin.mjs` 19/19 (kasus E14/E15 baru); `periksa-fungsi-pin` 14/14.
+
+## [Pesan/2026-09-21] Pesan diskon menunjuk alur yang NYATA — menutup D F-10
+
+**Konteks:** penolakan diskon berbunyi "Minta persetujuan atasan (PIN)." padahal alur
+persetujuan-diskon-berbasis-PIN belum ada (kupon tidak menaikkan batas pemanggil;
+`approve_diskon` baru rencana T1-30/T1-40). Kasir disuruh menunggu sesuatu yang tidak
+pernah datang (temuan D F-10, laporan D 2026-09-18).
+
+**Keputusan:** migrasi `supabase/migrations/0019_pesan_diskon_jujur.sql` mengganti
+kalimat menjadi "Diskon ini melebihi batas izin Anda — minta atasan (pemilik/admin)
+yang memproses." — jalan yang benar-benar ada hari ini adalah izin `beri_diskon`
+berbasis peran. Logika pemicu TIDAK berubah; badan disalin utuh dari definisi berlaku
+(0013) supaya tidak membawa pulang perilaku lama 0010/0012. Bila `approve_diskon`
+(PIN sungguhan) mendarat di T1-30/T1-40, pesan ini diperbarui lagi ke alur itu.
+
+**Bukti:** pin pesan di `diskon_cap.sql`/`diskon_persen.sql`/`diskon_voucher.sql`/
+`pembayaran.sql` ikut disegarkan — sebelum penyegaran keempatnya MERAH
+(SEBAB BUKAN YANG DIHARAPKAN), membuktikan pin pesan hidup; sesudahnya suite penuh
+**60 LULUS · 0 GAGAL**.

@@ -56,10 +56,9 @@ select uji.klaim(null);
 -- 5. Dengan baris pembatalan yang SAH (kupon PIN), pembatalan item boleh.
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner (berizin void) memasang PIN
 set local role authenticated;
-select public.simpan_pin('738294', null);
+select public.simpan_pin('738294', null, null, 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789');
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294',
-                         'void_sesudah_dapur', 'hp-atasan', '00000000-0000-0000-0000-00000000f002')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'de000000-0000-0000-0000-000000000006', 'kunci-uji-hp-atasan-0123456789', '00000000-0000-0000-0000-00000000f002')).berhasil,
   true, 'kontrol: PIN owner diverifikasi untuk aksi void pesanan ini'
 );
 insert into public.pembatalan (pesanan_id, pesanan_item_id, tahap, disetujui_oleh, alasan, bahan_terbuang)

@@ -42,7 +42,7 @@ select uji.klaim(null);
 --    (Owner memasang PIN awal dulu supaya sasaran sudah punya PIN.)
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner
 set local role authenticated;
-select uji.sama(public.simpan_pin('516372', null, '90000000-0000-0000-0000-000000000004'),
+select uji.sama(public.simpan_pin('516372', null, '90000000-0000-0000-0000-000000000004', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789'),
                 'PIN tersimpan.', 'owner memasang PIN awal kasir');
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir
@@ -54,21 +54,21 @@ set local role authenticated;
 -- Sejak F-14 (2026-09-20) penolakan jalur PIN-lama dikembalikan sebagai PESAN
 -- (bukan exception) supaya catatan percobaan bertahan dan pembatas menyala.
 select uji.sama(
-  public.simpan_pin('917426', null) like 'PIN lama salah%tepat 6 angka%', true,
+  public.simpan_pin('917426', null, null, 'de000000-0000-0000-0000-000000000003', 'kunci-uji-hp-kasir-0123456789') like 'PIN lama salah%tepat 6 angka%', true,
   'ganti PIN sendiri tanpa PIN lama DITOLAK karena bentuk PIN lama kosong'
 );
 select uji.sama(
-  public.simpan_pin('917426', null, '90000000-0000-0000-0000-000000000004') like 'PIN lama salah%tepat 6 angka%', true,
+  public.simpan_pin('917426', null, '90000000-0000-0000-0000-000000000004', 'de000000-0000-0000-0000-000000000003', 'kunci-uji-hp-kasir-0123456789') like 'PIN lama salah%tepat 6 angka%', true,
   'ganti PIN sendiri tanpa PIN lama DITOLAK karena bentuk PIN lama kosong (uuid diri sendiri disebutkan)'
 );
 select uji.sama(
-  public.simpan_pin('917426', '135791', '90000000-0000-0000-0000-000000000004')
+  public.simpan_pin('917426', '135791', '90000000-0000-0000-0000-000000000004', 'de000000-0000-0000-0000-000000000003', 'kunci-uji-hp-kasir-0123456789')
     like 'PIN lama salah%PIN salah%', true,
   'ganti PIN dengan PIN lama 6 angka yang SALAH ditolak oleh pemeriksaan AUTENTIKASI (pesan, F-14)'
 );
-select uji.sama(public.simpan_pin('917426', '516372', '90000000-0000-0000-0000-000000000004'),
+select uji.sama(public.simpan_pin('917426', '516372', '90000000-0000-0000-0000-000000000004', 'de000000-0000-0000-0000-000000000003', 'kunci-uji-hp-kasir-0123456789'),
                 'PIN tersimpan.', 'ganti PIN sendiri BERHASIL bila PIN lama benar');
-select uji.sama((public.verifikasi_pin('90000000-0000-0000-0000-000000000004', '917426', null, 'hp-uji')).berhasil,
+select uji.sama((public.verifikasi_pin('90000000-0000-0000-0000-000000000004', '917426', null, 'de000000-0000-0000-0000-000000000003', 'kunci-uji-hp-kasir-0123456789')).berhasil,
                 true, 'PIN baru benar-benar terpasang');
 reset role;
 select uji.klaim(null);
@@ -83,13 +83,13 @@ select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner
 set local role authenticated;
 
 -- 5a. Wajib 6 angka.
-select uji.harap_gagal_sebab($$select public.simpan_pin('2468', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: harus tepat 6 angka', 'PIN 4 angka DITOLAK (dulu diizinkan)');
-select uji.harap_gagal_sebab($$select public.simpan_pin('2468135', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: harus tepat 6 angka', 'PIN 7 angka ditolak');
-select uji.harap_gagal_sebab($$select public.simpan_pin('24681x', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: harus tepat 6 angka', 'PIN bukan angka ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('2468', null, '90000000-0000-0000-0000-000000000003', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789')$$, 'PIN ditolak: harus tepat 6 angka', 'PIN 4 angka DITOLAK (dulu diizinkan)');
+select uji.harap_gagal_sebab($$select public.simpan_pin('2468135', null, '90000000-0000-0000-0000-000000000003', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789')$$, 'PIN ditolak: harus tepat 6 angka', 'PIN 7 angka ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('24681x', null, '90000000-0000-0000-0000-000000000003', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789')$$, 'PIN ditolak: harus tepat 6 angka', 'PIN bukan angka ditolak');
 -- Jalur VERIFIKASI juga menolak bentuk yang bukan 6 angka (dijawab sebagai pesan,
 -- bukan "PIN salah", supaya tidak ikut menghabiskan jatah tebak).
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '1234', null, 'hp-uji')).pesan,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000003', '1234', null, 'de000000-0000-0000-0000-000000000003', 'kunci-uji-hp-kasir-0123456789')).pesan,
   'PIN harus tepat 6 angka.',
   'verifikasi menolak PIN yang bukan 6 angka dengan pesan yang jelas');
 select uji.sama(
@@ -98,21 +98,21 @@ select uji.sama(
   'bentuk PIN yang salah tidak dihitung sebagai percobaan menebak');
 
 -- 5b. Pola lemah ditolak: semua digit sama · urutan · blok berulang · tanggal.
-select uji.harap_gagal_sebab($$select public.simpan_pin('111111', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: semua angkanya sama', 'PIN semua digit sama ditolak');
-select uji.harap_gagal_sebab($$select public.simpan_pin('123456', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: berisi deret angka berurutan', 'PIN berurutan naik ditolak');
-select uji.harap_gagal_sebab($$select public.simpan_pin('654321', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: berisi deret angka berurutan', 'PIN berurutan turun ditolak');
-select uji.harap_gagal_sebab($$select public.simpan_pin('121212', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: pola berulang', 'PIN blok berulang ditolak');
-select uji.harap_gagal_sebab($$select public.simpan_pin('010190', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: berbentuk tanggal', 'PIN berbentuk tanggal (ddmmyy) ditolak');
-select uji.harap_gagal_sebab($$select public.simpan_pin('456789', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: berisi deret angka berurutan', 'PIN deret panjang (456789) ditolak');
-select uji.harap_gagal_sebab($$select public.simpan_pin('112233', null, '90000000-0000-0000-0000-000000000003')$$, 'PIN ditolak: pasangan angka berurutan', 'PIN pasangan berurutan (112233) ditolak');
-select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000003'),
+select uji.harap_gagal_sebab($$select public.simpan_pin('111111', null, '90000000-0000-0000-0000-000000000003', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789')$$, 'PIN ditolak: semua angkanya sama', 'PIN semua digit sama ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('123456', null, '90000000-0000-0000-0000-000000000003', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789')$$, 'PIN ditolak: berisi deret angka berurutan', 'PIN berurutan naik ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('654321', null, '90000000-0000-0000-0000-000000000003', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789')$$, 'PIN ditolak: berisi deret angka berurutan', 'PIN berurutan turun ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('121212', null, '90000000-0000-0000-0000-000000000003', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789')$$, 'PIN ditolak: pola berulang', 'PIN blok berulang ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('010190', null, '90000000-0000-0000-0000-000000000003', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789')$$, 'PIN ditolak: berbentuk tanggal', 'PIN berbentuk tanggal (ddmmyy) ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('456789', null, '90000000-0000-0000-0000-000000000003', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789')$$, 'PIN ditolak: berisi deret angka berurutan', 'PIN deret panjang (456789) ditolak');
+select uji.harap_gagal_sebab($$select public.simpan_pin('112233', null, '90000000-0000-0000-0000-000000000003', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789')$$, 'PIN ditolak: pasangan angka berurutan', 'PIN pasangan berurutan (112233) ditolak');
+select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000003', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789'),
                 'PIN tersimpan.', 'PIN 6 angka yang kuat DITERIMA');
 
 -- 5c. PIN wajib unik antar pegawai satu resto.
-select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000006'),
+select uji.sama(public.simpan_pin('274918', null, '90000000-0000-0000-0000-000000000006', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789'),
                 'PIN itu tidak bisa dipakai — pilih angka lain.',
                 'PIN yang sudah dipakai pegawai lain di resto yang sama DITOLAK (via pesan, supaya tercatat; pesannya netral sejak PR-04 2026-09-19)');
-select uji.sama(public.simpan_pin('692735', null, '90000000-0000-0000-0000-000000000006'),
+select uji.sama(public.simpan_pin('692735', null, '90000000-0000-0000-0000-000000000006', 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789'),
                 'PIN tersimpan.', 'PIN lain yang belum dipakai tetap diterima');
 reset role;
 select uji.klaim(null);
@@ -122,7 +122,7 @@ select uji.klaim(null);
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000007');   -- kasir resto LAIN (memasang PIN-nya sendiri)
 set local role authenticated;
-select uji.sama(public.simpan_pin('274918'),
+select uji.sama(public.simpan_pin('274918', null, null, 'de000000-0000-0000-0000-000000000008', 'kunci-uji-hp-b1-0123456789'),
                 'PIN tersimpan.', 'pegawai resto LAIN boleh memakai angka PIN yang sama');
 reset role;
 select uji.klaim(null);
@@ -130,7 +130,7 @@ select uji.klaim(null);
 -- 5e. Ganti PIN sendiri ke angka yang sama tetap boleh (keunikan mengecualikan diri sendiri).
 select uji.klaim('90000000-0000-0000-0000-000000000003');   -- admin, PIN 334455
 set local role authenticated;
-select uji.sama(public.simpan_pin('274918', '274918'),
+select uji.sama(public.simpan_pin('274918', '274918', null, 'de000000-0000-0000-0000-000000000002', 'kunci-uji-hp-admin-0123456789'),
                 'PIN tersimpan.', 'memasang ulang PIN sendiri dengan angka yang sama tidak dianggap kembar');
 reset role;
 select uji.klaim(null);
@@ -143,18 +143,18 @@ select uji.klaim(null);
 -- sebagai pesan, catatan bertahan, dan penguncian tercapai.
 select uji.klaim('90000000-0000-0000-0000-000000000005');   -- pelayan (pasang PIN dulu)
 set local role authenticated;
-select uji.sama(public.simpan_pin('618273'), 'PIN tersimpan.', 'F-14 prasyarat: pelayan punya PIN');
-select public.simpan_pin('981237', '246810');
-select public.simpan_pin('981237', '135791');
-select public.simpan_pin('981237', '975311');
-select public.simpan_pin('981237', '864209');
-select public.simpan_pin('981237', '753951');
+select uji.sama(public.simpan_pin('618273', null, null, 'de000000-0000-0000-0000-000000000004', 'kunci-uji-hp-pelayan-0123456789'), 'PIN tersimpan.', 'F-14 prasyarat: pelayan punya PIN');
+select public.simpan_pin('981237', '246810', null, 'de000000-0000-0000-0000-000000000004', 'kunci-uji-hp-pelayan-0123456789');
+select public.simpan_pin('981237', '135791', null, 'de000000-0000-0000-0000-000000000004', 'kunci-uji-hp-pelayan-0123456789');
+select public.simpan_pin('981237', '975311', null, 'de000000-0000-0000-0000-000000000004', 'kunci-uji-hp-pelayan-0123456789');
+select public.simpan_pin('981237', '864209', null, 'de000000-0000-0000-0000-000000000004', 'kunci-uji-hp-pelayan-0123456789');
+select public.simpan_pin('981237', '753951', null, 'de000000-0000-0000-0000-000000000004', 'kunci-uji-hp-pelayan-0123456789');
 select uji.sama(
   (select count(*) from public.percobaan_pin pp
     where pp.pemanggil_id = '90000000-0000-0000-0000-000000000005' and not pp.berhasil) >= 5,
   true, 'F-14: lima tebakan PIN lama tercatat (tidak tergulung balik)');
 select uji.sama(
-  public.simpan_pin('981237', '642861') like '%terkunci%',
+  public.simpan_pin('981237', '642861', null, 'de000000-0000-0000-0000-000000000004', 'kunci-uji-hp-pelayan-0123456789') like '%terkunci%',
   true, 'F-14: tebakan keenam menjawab terkunci — pembatas menyala');
 reset role;
 select uji.klaim(null);

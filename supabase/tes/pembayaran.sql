@@ -146,8 +146,8 @@ select uji.klaim(null);
 -- 6. DISKON: melebihi batas izin kasir (25.000 / 5%) → ditolak.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 30000, 30000, 'minta diskon besar')$$, 'Diskon ini melebihi batas izin Anda\. Minta persetujuan atasan \(PIN\)', 'diskon melebihi batas nominal kasir ditolak');
-select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, persen, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 3000, 20, 3000, 'diskon persen besar')$$, 'Diskon ini melebihi batas izin Anda\. Minta persetujuan atasan \(PIN\)', 'diskon melebihi batas persen kasir ditolak');
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 30000, 30000, 'minta diskon besar')$$, 'Diskon ini melebihi batas izin Anda — minta atasan \(pemilik/admin\) yang memproses', 'diskon melebihi batas nominal kasir ditolak');
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, persen, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 3000, 20, 3000, 'diskon persen besar')$$, 'Diskon ini melebihi batas izin Anda — minta atasan \(pemilik/admin\) yang memproses', 'diskon melebihi batas persen kasir ditolak');
 -- CATATAN: dulu di sini tertulis 20.000 — padahal 20.000 dari subtotal 54.000 = 37 %,
 -- jauh di atas batas kasir 5 %. Uji ini LULUS karena sebab yang salah (pemeriksaan persen
 -- dilewati saat kolom `persen` kosong — temuan audit AUD-3 K-2/B F-06). Sekarang nilainya
@@ -237,7 +237,7 @@ set local role authenticated;
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000006');
 set local role authenticated;
-select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1000, 1000, 'coba-coba dapur')$$, 'Diskon ini melebihi batas izin Anda\. Minta persetujuan atasan \(PIN\)', 'dapur tidak boleh memberi diskon');
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1000, 1000, 'coba-coba dapur')$$, 'Diskon ini melebihi batas izin Anda — minta atasan \(pemilik/admin\) yang memproses', 'dapur tidak boleh memberi diskon');
 reset role;
 select uji.klaim(null);
 
@@ -257,10 +257,9 @@ select uji.harap_gagal_sebab(
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner: memasukkan PIN untuk aksi ini
 set local role authenticated;
-select uji.sama(public.simpan_pin('738294', null), 'PIN tersimpan.', 'owner memasang PIN untuk uji alasan');
+select uji.sama(public.simpan_pin('738294', null, null, 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789'), 'PIN tersimpan.', 'owner memasang PIN untuk uji alasan');
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-alasan',
-                         'eeee0000-0000-0000-0000-000000000010')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'de000000-0000-0000-0000-000000000003', 'kunci-uji-hp-kasir-0123456789', 'eeee0000-0000-0000-0000-000000000010')).berhasil,
   true, 'kontrol: bukti PIN void tersedia untuk pesanan ini'
 );
 reset role;
@@ -303,13 +302,11 @@ set local role authenticated;
 -- PIN owner sudah dipasang di blok sebelumnya (uji alasan) — tidak dipasang ulang,
 -- supaya blok ini juga menguji hal yang sama tanpa bergantung urutan.
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
-                         'eeee0000-0000-0000-0000-000000000012')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'de000000-0000-0000-0000-000000000006', 'kunci-uji-hp-atasan-0123456789', 'eeee0000-0000-0000-0000-000000000012')).berhasil,
   true, 'PIN owner masih berlaku untuk aksi void pesanan ini'
 );
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
-                         'eeee0000-0000-0000-0000-000000000012')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'de000000-0000-0000-0000-000000000006', 'kunci-uji-hp-atasan-0123456789', 'eeee0000-0000-0000-0000-000000000012')).berhasil,
   true, 'PIN penyetuju diverifikasi untuk aksi & pesanan void_sesudah_dapur'
 );
 reset role;
@@ -366,8 +363,7 @@ reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner (penyetuju)
 set local role authenticated;
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
-                         'eeee0000-0000-0000-0000-000000000011')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'de000000-0000-0000-0000-000000000006', 'kunci-uji-hp-atasan-0123456789', 'eeee0000-0000-0000-0000-000000000011')).berhasil,
   true, 'kontrol: persetujuan bukti PIN untuk pesanan baru'
 );
 reset role;

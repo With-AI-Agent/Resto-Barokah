@@ -12,7 +12,7 @@
 -- Persiapan: owner memasang PIN-nya sendiri (PIN pertama boleh tanpa PIN lama).
 select uji.klaim('90000000-0000-0000-0000-000000000002');
 set local role authenticated;
-select uji.sama(public.simpan_pin('738294', null), 'PIN tersimpan.', 'owner memasang PIN-nya sendiri');
+select uji.sama(public.simpan_pin('738294', null, null, 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789'), 'PIN tersimpan.', 'owner memasang PIN-nya sendiri');
 reset role;
 select uji.klaim(null);
 
@@ -26,7 +26,7 @@ select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap,
 
 -- 2. PIN yang benar tetapi untuk AKSI LAIN juga bukan bukti.
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', null, 'hp-atasan')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', null, 'de000000-0000-0000-0000-000000000006', 'kunci-uji-hp-atasan-0123456789')).berhasil,
   true, 'kontrol: PIN penyetuju benar (tanpa menyebut aksi)');
 select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
       values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur',
@@ -34,8 +34,7 @@ select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap,
 
 -- 3. Bukti yang benar: penyetuju memasukkan PIN-nya untuk aksi ini → diterima.
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
-                         'eeee0000-0000-0000-0000-000000000010')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'de000000-0000-0000-0000-000000000006', 'kunci-uji-hp-atasan-0123456789', 'eeee0000-0000-0000-0000-000000000010')).berhasil,
   true, 'PIN penyetuju diverifikasi UNTUK aksi & PESANAN void_sesudah_dapur');
 insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, bahan_terbuang)
 values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur',
@@ -60,8 +59,7 @@ update public.pesanan set dikirim_ke_dapur_pada = now() - interval '5 minutes'
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
-                         '00000000-0000-0000-0000-00000000c001')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'de000000-0000-0000-0000-000000000006', 'kunci-uji-hp-atasan-0123456789', '00000000-0000-0000-0000-00000000c001')).berhasil,
   true, 'kontrol: bukti kedua dibuat untuk pesanan kedua');
 reset role;
 -- Pemilik tabel memundurkan waktu bukti (meniru persetujuan 1 jam lalu).
@@ -100,8 +98,7 @@ reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner menyetujui yang KEDUA
 set local role authenticated;
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'hp-atasan',
-                         '00000000-0000-0000-0000-00000000c002')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'de000000-0000-0000-0000-000000000006', 'kunci-uji-hp-atasan-0123456789', '00000000-0000-0000-0000-00000000c002')).berhasil,
   true, 'kontrol: persetujuan untuk pesanan kedua dibuat'
 );
 

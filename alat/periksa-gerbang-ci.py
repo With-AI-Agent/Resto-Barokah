@@ -61,6 +61,8 @@ GERBANG_WAJIB = [
      r"python3 alat/uji-mutasi-0016.py"),
     ("bukti mutasi pagar migrasi 0017 (pesanan tertutup beku H F-07)",
      r"python3 alat/uji-mutasi-0017.py"),
+    ("bukti mutasi pagar migrasi 0018 (perangkat terdaftar T1-24)",
+     r"python3 alat/uji-mutasi-0018.py"),
     ("uji batas Edge Function verifikasi_pin (berkas asli dijalankan tanpa jaringan)", r"node alat/uji-edge-pin\.mjs"),
     ("validator sistem", r"python3 _sistem/validate_system.py"),
     ("pemeriksa fungsi PIN", r"python3 alat/periksa-fungsi-pin.py"),
@@ -386,6 +388,8 @@ def uji_diri() -> int:
                lambda t: re.sub(r"\n\s*- name: Bukti mutasi pagar migrasi 0016[\s\S]*?run: python3 alat/uji-mutasi-0016\.py", "", t, count=1))
         mutasi("langkah bukti mutasi 0017 dihapus",
                lambda t: re.sub(r"\n\s*- name: Bukti mutasi pagar migrasi 0017[\s\S]*?run: python3 alat/uji-mutasi-0017\.py", "", t, count=1))
+        mutasi("langkah bukti mutasi 0018 dihapus",
+               lambda t: re.sub(r"\n\s*- name: Bukti mutasi pagar migrasi 0018[\s\S]*?run: python3 alat/uji-mutasi-0018\.py", "", t, count=1))
         # I F-07 (putaran18w): batas Edge Function kini diuji dengan MENJALANKAN berkas aslinya.
         # Kalau langkah itu lenyap dari CI, handler Edge kembali hanya dijaga pemeriksa teks —
         # wajib DITOLAK (kelas cacat yang sama dengan H F-02: langkah hilang senyap).

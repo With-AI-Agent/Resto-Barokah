@@ -101,6 +101,7 @@ begin
         ('izin',                 'auth.uid'),
         ('izin_kode',            '-'),
         ('kredensial_pin',       '-'),
+        ('kredensial_perangkat', '-'),
         ('meja',                 'cabang_pantau_saya'),
         ('menu_cabang',          'cabang_pantau_saya'),
         ('menu_varian',          'menu_sepenyewa'),
