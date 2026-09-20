@@ -65,6 +65,7 @@ GERBANG_WAJIB = [
     ("pemeriksa roadmap", r"python3 alat/periksa-roadmap.py"),
     ("pemeriksa fondasi independen", r"python3 alat/periksa-fondasi-independen.py"),
     ("uji-diri pemeriksa audit independen", r"python3 alat/audit-independen.py --uji-diri"),
+    ("uji-diri penyiap pemeriksaan (frasa → paket + prompt pendek)", r"python3 alat/siapkan-pemeriksaan.py --uji-diri"),
     ("pemeriksa buku induk (panduan)", r"python3 alat/periksa-panduan.py"),
     ("uji-diri pemeriksa buku induk", r"python3 alat/periksa-panduan.py --uji-diri"),
     ("pemeriksa rujukan dokumen", r"python3 alat/periksa-rujukan.py"),
@@ -428,6 +429,10 @@ def uji_diri() -> int:
                lambda t: t.replace("          python3 alat/periksa-migrasi-beku.py\n", "", 1))
         mutasi("riwayat penuh (fetch-depth 0) diturunkan ke 1",
                lambda t: t.replace("          fetch-depth: 0", "          fetch-depth: 1", 1))
+        # Sejak 2026-09-20 (AL-15): pemicu satu kalimat → paket + prompt pendek. Uji-dirinya
+        # menjaga peta frasa & kependekan prompt — tidak boleh bisa dihapus diam-diam dari CI.
+        mutasi("uji-diri penyiap pemeriksaan dihapus dari CI",
+               lambda t: t.replace("          python3 alat/siapkan-pemeriksaan.py --uji-diri\n", "", 1))
 
         # Alur penyebaran milik pemilik (sejak 2026-09-19) juga WAJIB tidak bisa dilemahkan senyap.
         def mutasi_berkas(relatif: str, nama: str, ubah) -> None:

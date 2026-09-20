@@ -1339,3 +1339,28 @@ gerbang rahasia karena token Supabase kedaluwarsa; Lee mengganti dengan **token 
 
 **Bukti:** run `35516000988` hijau (semua langkah success) · `python3 alat/periksa-migrasi-beku.py`
 LOLOS + `--uji-diri` LOLOS (kasus "berkas baru sah" disegarkan ke `0017`).
+
+---
+
+## [Mekanisme/2026-09-20] Pemicu satu kalimat untuk pemeriksaan/audit/review (AL-15) — prompt pendek
+
+**Keputusan Lee:** "Aku mau mekanisme review dan audit dan pemeriksaan itu semua dibuat lebih
+mudah dikerjakan… aku tinggal bilang kata-kata simple… agent kasih prompt yang singkat… setelah
+selesai, agent sesi independen otomatis masukin hasilnya ke GitHub" — disetujui ("Baik, aku setuju")
+setelah agent menyampaikan kritik & rancangan.
+
+**Aturan yang dikunci:**
+1. Pemicu sederhana → mesin: `python3 alat/siapkan-pemeriksaan.py --frasa "<kalimat Lee>"`
+   (menyeluruh · bidang keamanan · review PR · fondasi). Frasa tak dikenal DITOLAK, bukan ditebak.
+2. Yang Lee tempel ke sesi baru hanyalah PROMPT PENDEK (≤10 baris) berisi SATU URL berkas
+   SIAP-TEMPEL + identitas paket + commit target. Prompt panjang TIDAK dihapus — ia tetap berkas
+   paket di repo, terjaga `periksa-paket.py` (gerbang CI-hijau H F-02 tetap berlaku saat membuat).
+3. `--prompt-pendek` MENOLAK mencetak bila berkas paket belum masuk commit HEAD atau HEAD belum
+   di-push (URL harus bisa dibuka dari luar).
+4. Jalur balik laporan tetap seperti semula: laporan = berkas Git di cabang sesi independen,
+   ditarik `--ambil-laporan` (idempoten); jalur tempel manual tetap sah sebagai cadangan.
+5. Audit bidang (`--bidang keamanan`) = audit menyeluruh yang dipersempit prefiks berkas;
+   temuan di LUAR lingkup tetap wajib dilaporkan (lingkup = kedalaman wajib, bukan izin melapor).
+6. Penjaga: `alat/siapkan-pemeriksaan.py --uji-diri` (13 kasus) terdaftar di CI + gerbang wajib
+   + mutasi "langkah dihapus → ditolak" di `periksa-gerbang-ci.py` + `periksa-semua.sh`;
+   buku induk dapat alur **AL-15** (`periksa-panduan.py` MIN_ALUR 14→15).

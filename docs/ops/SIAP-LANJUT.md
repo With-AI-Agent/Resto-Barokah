@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `5b860da84785344b0345eeee616f964c0fe7c345`
+- **Commit keadaan kerja:** `20924de8ea56036cd0c64ee78dffa3fffdae7442`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35513610344 & 35513607550, commit 3658c1ba) — catatan jujur: 5b860da sempat merah karena angka panduan basi, diperbaiki di 3658c1ba
+- **CI terakhir:** success (run 35517607157, commit 20924de8)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -24,12 +24,11 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
 ## 2. Keadaan proyek & butir tertangguh
 
 - Posisi proyek: lihat `PROJECT_STATE.md` (STATUS + PUTARAN terakhir) dan `STATUS.md`.
-- Bukti terakhir yang hijau: `node alat/uji-sql.mjs` (58 LULUS · 0 GAGAL) · `python3 alat/uji-mutasi-0012.py` ·
-  `python3 alat/uji-mutasi-0014.py` · `python3 alat/uji-mutasi-0015.py` · `python3 alat/uji-mutasi-0016.py` ·
-  `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
+- Bukti terakhir yang hijau: `node alat/uji-sql.mjs` · `python3 alat/uji-mutasi-0012.py` ·
+  `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (84 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (84 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (92 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (92 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.

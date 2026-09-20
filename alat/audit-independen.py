@@ -112,6 +112,26 @@ LENSA = {
 LENSA_MINIMUM = {"AUD-2": ["L1", "L3", "L4"], "AUD-3": ["L1", "L2", "L3", "L4", "L5", "L6"]}
 SERANGAN_MIN = {"AUD-2": 5, "AUD-3": 12}
 
+# LINGKUP BIDANG (permintaan Lee 2026-09-20: "pemeriksaan menyeluruh di bidang keamanan").
+# Audit bidang = pipeline menyeluruh yang DIPERSEMPIT: hanya berkas di bawah prefiks ini yang
+# wajib diperiksa sedalam-dalamnya. Temuan di luar lingkup TETAP wajib dilaporkan (bagian 8
+# paket) — lingkup menentukan kedalaman wajib, bukan izin melapor.
+BIDANG_PREFIKS: dict[str, list[str]] = {
+    "keamanan": [
+        "supabase/",                      # migrasi/RLS, Edge Function, tes SQL
+        ".github/workflows/",             # gerbang CI + alur sebar (rahasia)
+        "docs/KEAMANAN.md",
+        "alat/periksa-rahasia.py",
+        "alat/periksa-kunci-kalibrasi.py",
+        "alat/uji-edge-pin.mjs",
+        "aplikasi/src/lib/",              # klien Supabase & penyimpanan lokal
+    ],
+}
+
+
+def cocok_bidang(jalur: str, bidang: str) -> bool:
+    return any(jalur == p.rstrip("/") or jalur.startswith(p) for p in BIDANG_PREFIKS[bidang])
+
 
 # ----------------------------------------------------------------- utilitas
 def jalankan(perintah: list[str], cwd: pathlib.Path | None = None) -> tuple[int, str]:
@@ -192,7 +212,7 @@ def pisah_rentang(spes: str) -> list[str]:
 
 # --------------------------------------------------------------- mode: paket
 def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bool = False,
-               izin_ci: str | None = None) -> int:
+               izin_ci: str | None = None, bidang: str | None = None) -> int:
     # CATATAN PENTING (cacat nyata 2026-09-18): dulu baris pertama fungsi ini menimpa
     # parameter `semua` dengan daftar tugas (`semua = baca_tugas_roadmap()`), sehingga
     # (a) `--fase` selalu mengambil SELURUH tugas (cakupan melebar tanpa disadari) dan
@@ -222,6 +242,9 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
         return 1
     # Nama lingkup dipakai di kepala paket & di perintah penamaan berkas laporan.
     lingkup = "menyeluruh" if menyeluruh else ("terarah" if not tugas_spec and not fase else "terarah")
+    if bidang:
+        # audit bidang = cakupan tersendiri di kepala paket & nama berkas laporan
+        lingkup = f"bidang-{bidang}"
 
     berkas: list[str] = []          # ADA di pohon sekarang → wajib diperiksa auditor
     perintah_uji: list[str] = []    # PERINTAH nyata yang disebut tugas (audit I F-20)
@@ -284,6 +307,10 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
             if rel not in berkas:
                 berkas.append(rel)
 
+    # LINGKUP BIDANG: persempit daftar berkas wajib ke prefiks bidang (temuan luar tetap boleh)
+    if bidang:
+        berkas = [b for b in berkas if cocok_bidang(b, bidang)]
+
     _, sha_all = jalankan(["git", "rev-parse", "HEAD"])
     sha = sha_all.strip()
     _, cabang_all = jalankan(["git", "branch", "--show-current"])
@@ -336,20 +363,36 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
             print(f"    - {b}")
         print("  Perbaikan: tambahkan grup untuk prefiks berkas itu di GRUP_SEMUA, lalu ulangi.")
         return 1
+    grup_saji = grup
     total_proyek = sum(len(v) for v in grup.values())
+    if bidang:
+        grup_saji = {n: [b for b in v if cocok_bidang(b, bidang)] for n, v in grup.items()}
+        total_proyek = sum(len(v) for v in grup_saji.values())
+    min_artefak = len([v for v in grup_saji.values() if v]) if menyeluruh else 6
     blok_menyeluruh = ""
     if menyeluruh:
         baris_grup = "\n".join(
             f"| {nama} | {ket} | {len(v)} | {', '.join('`'+x+'`' for x in v[:2])}{' …' if len(v) > 2 else ''} |"
-            for nama, ket, _ in GRUP_SEMUA for v in [grup[nama]]
+            for nama, ket, _ in GRUP_SEMUA for v in [grup_saji[nama]] if not bidang or v
         )
         baris_kecuali = "\n".join(f"- `{nama}` ({n} berkas) — {alasan}" for nama, alasan in DIKECUALIKAN for n in [dikecualikan[nama]])
+        if bidang:
+            judul_lingkup = f"## 0. LINGKUP BIDANG: {bidang.upper()} (audit menyeluruh yang DIPERSEMPIT ke berkas bidang ini)"
+            baris_prefiks = "\n".join(f"- `{x}`" for x in BIDANG_PREFIKS[bidang])
+            catatan_bidang = (
+                f"\n**Prefiks berkas bidang {bidang} (definisi mesin):**\n{baris_prefiks}\n\n"
+                "Lingkup menentukan berkas yang **wajib** diperiksa sedalam-dalamnya. Temuan di LUAR lingkup\n"
+                "**tetap wajib dilaporkan** (bagian 8) — lingkup bukan izin untuk diam.\n"
+            )
+        else:
+            judul_lingkup = "## 0. LINGKUP MENYELURUH (wajib — audit ini memeriksa SEMUA berkas proyek)"
+            catatan_bidang = ""
         blok_menyeluruh = f"""
-## 0. LINGKUP MENYELURUH (wajib — audit ini memeriksa SEMUA berkas proyek)
+{judul_lingkup}
 
 - **Jumlah berkas dalam lingkup:** {total_proyek}
-- **Mode cakupan yang wajib kamu tulis di laporan:** `menyeluruh`
-
+- **Mode cakupan yang wajib kamu tulis di laporan:** `{lingkup}`
+{catatan_bidang}
 **Grup berkas yang wajib kamu sentuh (minimal satu baris bukti per grup):**
 
 | Grup | Isi | Jumlah berkas | Contoh |
@@ -362,7 +405,7 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
 
 **Kewajiban khusus mode menyeluruh (divalidasi mesin):**
 1. Tulis di kepala laporan: `- **Mode cakupan:** menyeluruh`.
-2. Tulis ringkasan: `Cakupan menyeluruh: X dari {total_proyek} berkas` (X = berkas yang benar-benar kamu periksa; angka ini diperiksa mesin).
+2. Tulis ringkasan: `Cakupan {lingkup}: X dari {total_proyek} berkas` (X = berkas yang benar-benar kamu periksa{' — angka ini diperiksa mesin' if lingkup == 'menyeluruh' else ''}).
 3. Bagian 1 harus memuat **setiap grup** di atas minimal satu baris (dengan bukti perintah/baris).
 4. Tambahkan sub-bagian `### 1a. Berkas untuk pengguna` (minimal 3 baris): berkas pengguna di akar (PANDUAN_*, PROMPT_*, START_DI_SINI, PROFIL_PENGGUNA, AGENT_SYSTEM, STATUS, PROJECT_STATE), `docs/PANDUAN_PEMILIK.md`, `docs/uji/PROMPT_AUDIT_INDEPENDEN.md`,
    `docs/teknis/BUKU_INSIDEN.md`, `docs/ops/*`, dan `PANDUAN_PENGGUNA.md` → **periksa dengan cara pengguna**: apakah langkahnya bisa diikuti orang non-teknis, apakah prompt bisa disalin apa adanya dan bekerja, apakah ada langkah yang menyebut berkas/perintah yang tidak ada, apakah isi buku induk lengkap (semua mekanisme & semua prompt ada).
@@ -437,7 +480,7 @@ apakah dokumen menjanjikan sesuatu yang belum ada.
 - **Tugas dalam lingkup:** {", ".join(ids)}
 - **Lensa wajib:** {", ".join(lensa)}
 - **Mode cakupan:** {lingkup}
-- **Minimum laporan:** ≥{len(grup) if menyeluruh else 6} artefak diperiksa · ≥5 klaim dibantah · ≥{SERANGAN_MIN[tingkat]} serangan dijalankan · masing-masing temuan punya perintah bukti
+- **Minimum laporan:** ≥{min_artefak} artefak diperiksa · ≥5 klaim dibantah · ≥{SERANGAN_MIN[tingkat]} serangan dijalankan · masing-masing temuan punya perintah bukti
 - **Perintah validasi laporan (wajib hijau):** periksa dengan alat `alat/audit-independen.py --periksa-laporan` (berkas laporan ditulis di folder docs/uji/audit/). Bila repo yang kamu pakai adalah klon dangkal, alat akan memberi CATATAN (bukan menolak) untuk SHA yang riwayatnya tidak ada.
 
 ## 0a. LANGKAH 0 (WAJIB) — ambil bahannya dulu, lalu pastikan kamu memeriksa commit yang benar
@@ -1590,6 +1633,8 @@ def main() -> int:
     p.add_argument("--tugas", help="rentang tugas, mis. T1-01..T1-10")
     p.add_argument("--fase", help="seluruh tugas satu fase, mis. 1")
     p.add_argument("--semua", action="store_true", help="mode menyeluruh: seluruh berkas proyek masuk lingkup (AUD-3)")
+    p.add_argument("--bidang", choices=sorted(BIDANG_PREFIKS),
+                   help="persempit audit menyeluruh ke satu bidang (mis. keamanan); temuan luar lingkup tetap wajib dilaporkan")
     p.add_argument("--periksa-laporan", dest="periksa", help="validasi laporan auditor")
     p.add_argument("--tanpa-cek-git", action="store_true", help="lewati pemeriksaan repo bersih")
     p.add_argument("--kalibrasi-siapkan", action="store_true", help="tanam cacat pada salinan HEAD")
@@ -1611,8 +1656,11 @@ def main() -> int:
     if a.uji_diri:
         return mode_uji_diri()
     if a.paket:
+        if a.bidang and not a.semua:
+            print('GAGAL: --bidang butuh --semua (audit bidang = menyeluruh yang dipersempit).')
+            return 1
         return mode_paket(a.paket, a.tugas, a.fase, semua=a.semua,
-                          izin_ci=a.izinkan_ci_belum_hijau)
+                          izin_ci=a.izinkan_ci_belum_hijau, bidang=a.bidang)
     if a.periksa:
         return mode_periksa_laporan(a.periksa, cek_git=not a.tanpa_cek_git)
     if a.kalibrasi_siapkan:

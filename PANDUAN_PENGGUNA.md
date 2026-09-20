@@ -39,6 +39,7 @@ purpose: BUKU PEDOMAN INDUK (manual book) untuk Lee — satu tempat untuk SEMUA 
 | Menguji sendiri di aplikasi | **AL-11** | uji terima |
 | Mengubah aturan/gaya/panggilan nama | **AL-12** | pengaturan |
 | **Minta dibimbing langkah demi langkah** (mode bimbingan) | **AL-14** | kerja harian |
+| **Minta disiapkan pemeriksaan/audit/review** (prompt pendek) | **AL-15** | verifikasi |
 
 > **Sebelum mulai sesi baru:** permintaan Lee sepanjang proyek tersimpan di `docs/teknis/REKAM_PESAN_PEMILIK.md`.
 > Agent wajib membacanya di awal sesi (ada di Prompt Pembuka Bagian C1) supaya tidak ada permintaan yang terlewat.
@@ -284,6 +285,26 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
 - **Lama:** sampai tugas bimbingan selesai (biasanya menit).
 - **Kalau macet:** bila langkah bimbingan menyentuh **§12 Stop Conditions** (biaya, keamanan/uang/data, keputusan terkunci, tindakan tak bisa dibatalkan seperti deploy publik) atau menyentuh **bukti "selesai"**, agent **keluar dari mode singkat** selama bagian itu saja: menjelaskan singkat kenapa harus berhenti, lalu meminta keputusan Lee — **mode bimbingan tidak mengurangi keselamatan, hanya memendekkan cara bicara**. Bila layar Lee berbeda dari panduan, agent memperbaiki panduannya (dokumen ini) agar sesi berikutnya tidak salah lagi.
 
+### AL-15 — Menyiapkan pemeriksaan/audit/review dengan SATU kalimat (prompt pendek)
+
+- **Apa ini:** cara cepat minta sesi independen (auditor/peninjau) disiapkan. Lee bilang satu kalimat sederhana; agent menyiapkan paket lengkapnya dengan mesin, lalu memberi Lee **prompt PENDEK** (±6 baris) untuk ditempel ke chat baru. Semua detail (kategori, kriteria, lingkup, commit target, aturan main) tetap hidup di berkas paket yang terjaga pemeriksa otomatis — yang pendek hanya yang Lee tempel.
+- **Kapan dipakai:** setiap kali Lee mau pemeriksaan/audit/review independen tanpa mengingat nama alat atau bendera perintah; juga untuk menarik laporan yang sudah selesai.
+- **Kalimat Lee → yang terjadi:**
+
+| Kalimat Lee (maksudnya dicocokkan, bukan huruf per huruf) | Yang disiapkan agent |
+|---|---|
+| Pemeriksaan menyeluruh — "Siapkan pemeriksaan independen menyeluruh." / "Siapkan audit menyeluruh." | paket audit AUD-3 seluruh proyek → `python3 alat/siapkan-pemeriksaan.py --frasa "<kalimat Lee>"` |
+| Audit satu bidang — "Siapkan pemeriksaan menyeluruh di bidang keamanan." (bidang lain menyusul) | paket audit AUD-3 lingkup bidang (`--bidang keamanan`); temuan di luar lingkup tetap wajib dilaporkan auditor |
+| Review PR — "Siapkan review PR." | paket review PR berikutnya → alat yang sama |
+| Fondasi — "Jalankan pemeriksaan fondasi." | **tidak perlu sesi baru** — `alat/periksa-fondasi-independen.py` jalan langsung di sesi ini |
+| Laporan masuk — "Laporan audit sudah masuk, periksa." / "Laporan review sudah masuk, periksa." | agent menarik laporan dari cabang sesi independen (`--ambil-laporan` alat terkait), memvalidasi kontraknya, lalu memanen temuan (bantah-balik dulu sebelum menutup apa pun) |
+
+- **Langkah Lee:** tempel prompt pendek itu ke chat/percakapan BARU (idealnya model berbeda). Setelah sesi independen selesai dan laporannya ter-push, kembali ke sesi kerja dan bilang `Laporan audit sudah masuk, periksa.`
+- **Yang agent lakukan:** (1) jalankan `python3 alat/siapkan-pemeriksaan.py --frasa "<kalimat Lee>"` — alat menolak frasa yang tidak dikenal dan menolak membuat paket bila CI commit target belum hijau (gerbang H F-02 tetap berlaku); (2) commit + push berkas paket yang lahir (URL prompt pendek harus bisa dibuka dari luar); (3) jalankan `python3 alat/siapkan-pemeriksaan.py --prompt-pendek` dan tempel cetakannya ke Lee apa adanya; (4) saat Lee bilang laporan masuk: tarik dengan `--ambil-laporan`, validasi kontrak, panen temuan (bantah-balik dulu sebelum menutup apa pun).
+- **Bukti yang Lee terima:** prompt pendek di chat (ada URL paket + commit yang dikunci), lalu setelah panen: ringkasan temuan + baris riwayat yang diperbarui.
+- **Lama:** menyiapkan paket 1–3 menit; sesi independennya terserah Lee (bisa berjalan paralel).
+- **Kalau macet:** alat menolak karena CI commit target belum hijau → tunggu CI hijau (jangan pakai `--izinkan-ci-belum-hijau` tanpa izin Lee); URL tidak bisa dibuka → paket belum di-push, agent wajib push dulu; sesi independen tidak bisa push (tanpa akses GitHub) → jalur lama tetap sah: salin isi laporan ke chat, agent menyimpannya sebagai berkas. **Jaminan mutu yang TIDAK dikorbankan:** prompt panjang tidak dihapus — ia pindah ke berkas paket yang ditunjuk SATU URL (anti salah-tempel, pelajaran insiden 2026-09-19); laporan tetap wajib jadi berkas Git; `--ambil-laporan` idempoten; temuan tetap dibantah-balik sebelum ditutup.
+
 ---
 
 ## Bagian C — Semua prompt (dengan label siapa yang memakai)
@@ -352,10 +373,12 @@ Tutup sesi ini dengan benar:
 | Situasi | Kalimat Lee |
 |---|---|
 | Minta dijelaskan | `Jelaskan dengan bahasa sederhana: apa yang baru berubah, dan apa risikonya buat aku.` |
-| Minta audit menyeluruh | `Siapkan audit menyeluruh.` |
+| Minta audit menyeluruh | `Siapkan audit menyeluruh.` / `Siapkan pemeriksaan independen menyeluruh.` (= **AL-15**) |
+| Minta audit bidang tertentu | `Siapkan pemeriksaan menyeluruh di bidang keamanan.` (= **AL-15**, `--bidang keamanan`) |
 | Minta audit terarah | `Siapkan audit independen untuk <lingkup: keamanan akun / Fase 1 / seluruh sistem>.` |
-| Laporan sudah masuk | `Laporan audit sudah masuk, periksa.` / `Laporan review sudah masuk, periksa.` |
-| Minta review PR | `Siapkan review PR.` |
+| Laporan sudah masuk | `Laporan audit sudah masuk, periksa.` / `Laporan review sudah masuk, periksa.` (= **AL-15**) |
+| Minta review PR | `Siapkan review PR.` (= **AL-15**) |
+| Pemeriksaan fondasi | `Jalankan pemeriksaan fondasi.` (= **AL-15**, jalan langsung tanpa sesi baru) |
 | Pekerjaan lama diulang | `Audit dampaknya dulu, lalu ulangi pekerjaan lama yang jadi bertentangan.` |
 | Menutup sesi dengan aman | `Tutup sesi ini dengan benar.` — atau `Tutup sesi ini dengan baik.` (= **AL-3**) |
 | Tutup sesi **sekaligus** pindah ke sesi baru | `Siapkan pindah sesi dan tutup sesi ini dengan baik.` (= **AL-3 + AL-13**) |

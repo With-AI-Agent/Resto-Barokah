@@ -37,7 +37,7 @@ BIDANG_ALUR = (
 )
 # Ambang = jumlah NYATA (temuan audit B-F-12: ambang 10 dengan isi 12 berarti dua alur
 # bisa terhapus tanpa ketahuan). Kalau alur bertambah, naikkan angka ini — jangan sebaliknya.
-MIN_ALUR = 14
+MIN_ALUR = 15
 KOLOM_PERINTAH = ("Kalimat Lee", "Fungsinya", "Kalau GAGAL artinya")
 LARANGAN_SAPAAN = ("Bapak", "Pak ")  # Lee minta dipanggil "Lee" (2026-09-17)
 
@@ -59,6 +59,7 @@ TOPIK_WAJIB = {
     "penjelasan perintah": r"Fungsinya",
     "rekam pesan Lee": r"REKAM_PESAN_PEMILIK",
     "mode bimbingan": r"AL-14|mode bimbingan",
+    "siapkan pemeriksaan (prompt pendek)": r"AL-15|siapkan-pemeriksaan",
     # Fakta pindah sesi (jawaban Lee 2026-09-18): tanpa bagian ini, Lee akan mengira
     # harus mengatur base branch / wajib mengirim prompt penutup — padahal tidak.
     "pindah sesi: base branch": r"base branch tidak perlu kamu sentuh",
