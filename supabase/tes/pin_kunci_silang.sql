@@ -17,15 +17,19 @@ select uji.sama(public.simpan_pin('738294', null), 'PIN tersimpan.', 'owner mema
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir (penyerang)
 set local role authenticated;
+-- Sejak PR-07 (0016) aksi berkupon wajib menyebut pesanan — penyerang nyata pun
+-- melewati jalur itu, jadi tebakannya diberi pesanan agar sampai ke pencocokan PIN.
 select uji.sama((select r.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002',
-                                                              '111111', 'void_sesudah_dapur', 'hp-penyerang-' || i) r),
+                                                              '111111', 'void_sesudah_dapur', 'hp-penyerang-' || i,
+                                                              'eeee0000-0000-0000-0000-000000000010') r),
                 false, 'tebakan ke-' || i || ' salah')
   from generate_series(1, 5) as i;
 
 -- 2. Penyerang sendiri sekarang terkunci (batas berlaku untuk PENCOBA).
 select uji.harap(
   (select r.pesan from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '111111',
-                                             'void_sesudah_dapur', 'hp-penyerang-6') r) like '%terkunci%',
+                                             'void_sesudah_dapur', 'hp-penyerang-6',
+                                             'eeee0000-0000-0000-0000-000000000010') r) like '%terkunci%',
   'penyerang yang sudah 5 kali salah terkunci dari akun itu'
 );
 
@@ -35,7 +39,8 @@ select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner (korban)
 set local role authenticated;
 select uji.sama(
   (select r.berhasil from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294',
-                                                'void_sesudah_dapur', 'hp-owner') r),
+                                                'void_sesudah_dapur', 'hp-owner',
+                                                'eeee0000-0000-0000-0000-000000000010') r),
   true, 'PIN owner yang BENAR tetap diterima walau pegawai lain mencoba menguncinya'
 );
 
@@ -55,7 +60,8 @@ select uji.klaim('90000000-0000-0000-0000-000000000005');   -- pelayan (pencoba 
 set local role authenticated;
 select uji.sama(
   (select r.sisa_percobaan from public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '999999',
-                                                      'void_sesudah_dapur', 'hp-pelayan') r),
+                                                      'void_sesudah_dapur', 'hp-pelayan',
+                                                      'eeee0000-0000-0000-0000-000000000010') r),
   4, 'pencoba ketiga punya jatahnya sendiri (4 sisa setelah satu kali salah)'
 );
 

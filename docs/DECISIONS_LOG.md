@@ -1288,3 +1288,34 @@ diskon hanya menyaring baris itu — "PIN benar tetapi tidak berizin" bisa menja
 **Bukti:** suite SQL **53 LULUS · 0 GAGAL** · `alat/uji-mutasi-0016.py` 6 mutasi wajib MERAH + kontrol hijau
 (`--uji-diri` LOLOS; terdaftar dua arah: ci.yml + `alat/periksa-gerbang-ci.py` + `aplikasi/alat/periksa-semua.sh`) ·
 `alat/uji-mutasi-0015.py` kembali LOLOS penuh setelah dua mutasinya diarahkan ke 0016.
+
+## [Uang/2026-09-20] Sisa review putaran16 ditutup: kupon wajib pesanan, saldo awal wajib buku besar, riwayat meja dilindungi
+
+**Konteks:** delapan temuan review putaran16 (PR-05…PR-09, PR-13…PR-15) diverifikasi ulang dengan probe sendiri
+lalu ditutup — lima di antaranya lewat `supabase/migrations/0016_penutup_celah_pin_putaran18.sql`.
+
+**Keputusan:**
+
+1. **Kupon persetujuan wajib terikat pesanan di LAPIS DATABASE (PR-07).** `verifikasi_pin` menolak aksi
+   `void_sesudah_dapur`/`beri_diskon` tanpa `p_pesanan_id` (pesan + percobaan tercatat, ikut pembatas).
+   Edge Function sudah menolak di batas (I F-02) — ini lapis keduanya, supaya jalur RPC langsung tidak
+   bisa melahirkan kupon buntu ("tulis bisa, pakai mustahil").
+2. **Saldo awal stok wajib lewat buku besar (PR-08).** INSERT `stok_bahan` dengan `jumlah` bukan-nol DITOLAK;
+   bahan lahir dengan saldo 0 dan saldo awal dicatat sebagai baris `stok_pergerakan` yang otomatis menjumlah
+   ke saldo. Buku besar tetap satu-satunya asal-usul angka stok (penjaga UPDATE 0007 tidak berubah).
+3. **PIN warisan 4 angka: naik kelas swadaya, bukan buntu (PR-09).** PIN 4 angka diterima HANYA sebagai
+   `p_pin_lama` di `simpan_pin` (dicocokkan langsung ke hash, pembatas 5×/15 menit + catatan `percobaan_pin`
+   tetap jalan); verifikasi masuk tetap menuntut 6 angka — aturan 6 angka tidak dilonggarkan.
+4. **Hak fungsi dikoreksi DUA arah (PR-14).** `service_role` dipulihkan pada `hitung_total` (jalur peladen
+   tidak boleh ikut mati oleh `revoke ... from public`), sementara `peringkat_peran` DICABUT dari anon —
+   peta hierarki peran bukan konsumsi publik. Prinsip: revoke massal wajib diikuti audit siapa lagi yang
+   kehilangan hak sah.
+5. **Riwayat meja dilindungi (PR-15).** Meja yang punya riwayat pesanan (termasuk lunas/batal) tidak bisa
+   dihapus — `on delete set null` tidak lagi bisa mencabut "meja mana" dari laporan; jalur yang benar adalah
+   nonaktifkan (`aktif = false`). Jalur peladen (`peran_peladen()`) tetap dikecualikan seperti desain 0014.
+
+**Bukti:** 5 berkas uji baru (`kupon_wajib_pesanan`, `pin_warisan`, `saldo_awal_stok`, `hak_fungsi`,
+`meja_riwayat`) · suite SQL **58 LULUS · 0 GAGAL** · `alat/uji-mutasi-0016.py` **11 mutasi wajib MERAH**
++ kontrol hijau · probe lama pr05/06/07/08/09/14 kini GAGAL (= cacat hilang); pr15 tetap hijau HANYA karena
+probe memakai jalur superuser yang memang melewati penjaga — dicatat jujur, cacat sisi klien ditutup dan
+dibuktikan uji regresi + mutasi.

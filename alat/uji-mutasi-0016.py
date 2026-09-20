@@ -41,7 +41,13 @@ UJI_F14 = "supabase/tes/kredensial_pin.sql"
 UJI_HIER = "supabase/tes/pin_hierarki.sql"
 UJI_F13 = "supabase/tes/isolasi_lintas_penyewa.sql"
 UJI_F11 = "supabase/tes/pin_helper_pribadi.sql"
-SEMUA_UJI = (UJI_F15, UJI_F16, UJI_F14, UJI_HIER, UJI_F13, UJI_F11)
+UJI_PR07 = "supabase/tes/kupon_wajib_pesanan.sql"
+UJI_PR09 = "supabase/tes/pin_warisan.sql"
+UJI_PR08 = "supabase/tes/saldo_awal_stok.sql"
+UJI_PR14 = "supabase/tes/hak_fungsi.sql"
+UJI_PR15 = "supabase/tes/meja_riwayat.sql"
+SEMUA_UJI = (UJI_F15, UJI_F16, UJI_F14, UJI_HIER, UJI_F13, UJI_F11,
+             UJI_PR07, UJI_PR09, UJI_PR08, UJI_PR14, UJI_PR15)
 
 hasil: list[tuple[str, bool, str]] = []
 
@@ -172,6 +178,61 @@ def main() -> int:
                         lepas_pinning_f11, UJI_F11))
 
     hijau_akhir, keluar_akhir = semua_hijau()
+    # 7) PR-07: pagar "aksi berkupon wajib menyebut pesanan" dihapus → kupon
+    #    tanpa ikatan pesanan lahir lagi ("tulis bisa, pakai mustahil").
+    def hapus_pagar_kupon_pesanan(t: str) -> str:
+        lama = """  if p_aksi in ('void_sesudah_dapur', 'beri_diskon') and p_pesanan_id is null then
+    insert into public.percobaan_pin (pengguna_id, perangkat, berhasil, aksi, pemanggil_id, pesanan_id)
+    values (v_saya, v_perangkat, false, p_aksi, v_saya, null);
+    return query select false, 0,
+      format('Aksi %s wajib menyebut pesanan yang disetujui.', p_aksi);
+    return;
+  end if;
+"""
+        return t.replace(lama, "", 1)
+    hasil.append(mutasi("kupon tanpa pesanan dibiarkan lahir lagi (PR-07 kembali terbuka)",
+                        hapus_pagar_kupon_pesanan, UJI_PR07))
+
+    # 8) PR-09: cabang PIN warisan 4 angka dimatikan → naik kelas swadaya buntu lagi.
+    def matikan_jalur_warisan(t: str) -> str:
+        return t.replace("    if p_pin_lama ~ '^\\d{4}$' then", "    if false then", 1)
+    hasil.append(mutasi("jalur naik kelas PIN warisan 4 angka dimatikan (PR-09 kembali terbuka)",
+                        matikan_jalur_warisan, UJI_PR09))
+
+    # 9) PR-08: penjaga saldo awal dilepas → saldo bisa muncul dari ketiadaan lagi.
+    def lepas_penjaga_saldo_awal(t: str) -> str:
+        lama = """  if coalesce(new.jumlah, 0) <> 0 then
+    raise exception 'Saldo awal tidak boleh ditulis langsung — buat bahan dengan saldo 0 lalu catat saldonya lewat pergerakan stok (jenis opname/masuk) supaya buku besarnya lengkap.';
+  end if;
+"""
+        return t.replace(lama, "", 1)
+    hasil.append(mutasi("saldo awal stok tanpa buku besar dibiarkan lagi (PR-08 kembali terbuka)",
+                        lepas_penjaga_saldo_awal, UJI_PR08))
+
+    # 10) PR-14: koreksi hak fungsi dibatalkan → service_role mati lagi & anon
+    #     bisa membaca peta hierarki lagi.
+    def batalkan_koreksi_hak(t: str) -> str:
+        lama = """grant execute on function public.hitung_total(uuid) to service_role;
+
+revoke all on function public.peringkat_peran(text) from public;
+grant execute on function public.peringkat_peran(text) to authenticated, service_role;
+"""
+        return t.replace(lama, "", 1)
+    hasil.append(mutasi("koreksi hak fungsi dibatalkan (PR-14 kembali terbuka)",
+                        batalkan_koreksi_hak, UJI_PR14))
+
+    # 11) PR-15: penjaga riwayat meja dikembalikan ke versi 0014 (hanya pesanan
+    #     aktif yang dilindungi) → meja ber-riwayat lunas bisa dihapus lagi.
+    def kembalikan_penjaga_meja_0014(t: str) -> str:
+        lama = """    select count(*) into v_pesanan
+      from public.pesanan p
+     where p.meja_id = old.id;"""
+        return t.replace(lama, """    select count(*) into v_pesanan
+      from public.pesanan p
+     where p.meja_id = old.id and p.status not in ('lunas', 'batal');""", 1)
+    hasil.append(mutasi("penjaga riwayat meja dikembalikan ke versi 0014 (PR-15 kembali terbuka)",
+                        kembalikan_penjaga_meja_0014, UJI_PR15))
+
     hasil.append(("kontrol penutup: salinan dipulihkan → semua uji hijau", hijau_akhir,
                   "HIJAU" if hijau_akhir else "MERAH\n" + keluar_akhir))
 

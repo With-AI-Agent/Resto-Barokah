@@ -110,9 +110,9 @@
 1. **6 digit**, **unik antar pegawai dalam satu resto**, dilarang pola lemah (111111, 123456, tanggal lahir, dsb.).
 2. Disimpan hanya sebagai **hash bcrypt** (pgcrypto) dengan batas kolom yang menolak nilai bukan-hash (berlaku sejak T1-06).
 3. **Tidak ada fungsi yang mengembalikan hash**, dan PIN tidak pernah masuk log (dijaga pemeriksa statis `alat/periksa-fungsi-pin.py`).
-4. **Batas percobaan dua lapis:** 5×/15 menit per akun · 12×/15 menit per perangkat; percobaan yang ditolak karena terkunci tetap dihitung; semua percobaan masuk `percobaan_masuk`.
-5. **PIN benar belum cukup untuk aksi:** persetujuan tetap diperiksa lewat `boleh_untuk()` — PIN dapur tidak bisa menyetujui void hanya karena PIN-nya benar (aturan T1-06).
-6. Ganti PIN sendiri wajib PIN lama; mengganti PIN pegawai lain wajib `kelola_pegawai` + tercatat + (sejak Fase 1B) pemberitahuan.
+4. **Batas percobaan dua lapis:** 5×/15 menit per akun · 12×/15 menit per perangkat; percobaan yang ditolak karena terkunci tetap dihitung; semua percobaan tercatat di tabel yang NYATA hari ini — `percobaan_pin` (verifikasi) dan `percobaan_simpan_pin` (pemasangan PIN). Penyatuan ke tabel `percobaan_masuk` adalah RENCANA Fase 1B (ROADMAP T1-26), bukan keadaan sekarang. _(Dikoreksi 2026-09-20, temuan review PR-13: dulu ayat ini menuntut pencatatan ke tabel yang belum ada.)_
+5. **PIN benar belum cukup untuk aksi:** persetujuan tetap diperiksa lewat `boleh_untuk()` — PIN dapur tidak bisa menyetujui void hanya karena PIN-nya benar (aturan T1-06); sejak 0016 konsumen kupon (void & diskon) mengecek ULANG izin penyetuju saat kupon dipakai, dan aksi berkupon wajib menyebut pesanan.
+6. Ganti PIN sendiri wajib PIN lama; mengganti PIN pegawai lain wajib `kelola_pegawai` + tercatat + (sejak Fase 1B) pemberitahuan. PIN warisan 4 angka (data lama) tidak bisa dipakai masuk, tetapi diterima sebagai PIN lama untuk naik kelas ke 6 angka (sejak 0016, temuan review PR-09).
 
 ## 7. Sesi
 

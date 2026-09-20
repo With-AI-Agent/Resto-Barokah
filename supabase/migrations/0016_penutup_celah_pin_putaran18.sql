@@ -67,6 +67,20 @@ begin
     return;
   end if;
 
+  -- PR-07 (2026-09-20): aksi berkupon WAJIB menyebut pesanan yang disetujui.
+  -- Tanpa ini lahir baris `berhasil=true` tanpa ikatan pesanan yang tidak akan
+  -- pernah cocok dengan saringan kupon konsumen (void 0013 / diskon 0016) —
+  -- "tulis bisa, pakai mustahil". Edge Function sudah menolak di batas (I F-02);
+  -- ini lapis keduanya di database. Percobaan tetap dicatat (berhasil=false)
+  -- supaya pemanggil yang berulang kali melanggar ikut terkena pembatas.
+  if p_aksi in ('void_sesudah_dapur', 'beri_diskon') and p_pesanan_id is null then
+    insert into public.percobaan_pin (pengguna_id, perangkat, berhasil, aksi, pemanggil_id, pesanan_id)
+    values (v_saya, v_perangkat, false, p_aksi, v_saya, null);
+    return query select false, 0,
+      format('Aksi %s wajib menyebut pesanan yang disetujui.', p_aksi);
+    return;
+  end if;
+
   select p.penyewa_id, p.aktif, k.pin_hash
     into v_penyewa_target, v_aktif_target, v_hash
     from public.pengguna p
@@ -242,11 +256,37 @@ begin
   -- catatan percobaan PIN-lama-salah di verifikasi_pin TIDAK tergulung balik —
   -- tanpa ini tebakan PIN lama lewat simpan_pin tidak pernah terhitung.
   if v_target = v_saya then
-    select * into v_periksa
-      from public.verifikasi_pin(v_target, coalesce(p_pin_lama, ''), null, v_perangkat);
-    if exists (select 1 from public.kredensial_pin k where k.pengguna_id = v_target)
-       and not v_periksa.berhasil then
-      return format('PIN lama salah. %s', v_periksa.pesan);
+    if p_pin_lama ~ '^\d{4}$' then
+      -- PR-09 (2026-09-20): PIN warisan 4 angka (dipasang sebelum aturan 6 angka)
+      -- dulu BUNTU: verifikasi_pin menuntut 6 angka sehingga PIN lama 4 angka
+      -- selalu "salah", dan pemiliknya tak bisa naik kelas swadaya. Sekarang
+      -- PIN 4 angka diterima HANYA sebagai PIN lama untuk naik ke 6 angka —
+      -- dicocokkan langsung ke hash, dengan pembatas tebakan & catatan yang sama.
+      select count(*) into v_probe
+        from public.percobaan_pin pp
+       where pp.pengguna_id = v_target
+         and pp.pemanggil_id = v_saya
+         and not pp.berhasil
+         and pp.waktu > now() - make_interval(mins => JENDELA_MENIT);
+      if v_probe >= 5 then
+        insert into public.percobaan_pin (pengguna_id, perangkat, berhasil, pemanggil_id)
+        values (v_target, v_perangkat, false, v_saya);
+        return format('PIN lama salah. Coba lagi setelah %s menit (terlalu banyak percobaan).', JENDELA_MENIT);
+      end if;
+      select k.pin_hash into v_hash from public.kredensial_pin k where k.pengguna_id = v_target;
+      if v_hash is not null and crypt(p_pin_lama, v_hash) <> v_hash then
+        insert into public.percobaan_pin (pengguna_id, perangkat, berhasil, pemanggil_id)
+        values (v_target, v_perangkat, false, v_saya);
+        return 'PIN lama salah. PIN warisan 4 angka hanya bisa dipakai untuk naik ke PIN 6 angka.';
+      end if;
+      -- cocok (atau memang belum pernah punya PIN): lanjut menyimpan PIN baru.
+    else
+      select * into v_periksa
+        from public.verifikasi_pin(v_target, coalesce(p_pin_lama, ''), null, v_perangkat);
+      if exists (select 1 from public.kredensial_pin k where k.pengguna_id = v_target)
+         and not v_periksa.berhasil then
+        return format('PIN lama salah. %s', v_periksa.pesan);
+      end if;
     end if;
   end if;
 
@@ -334,3 +374,96 @@ $$;
 
 comment on function public.peran_lebih_tinggi(uuid, uuid) is
   'Benar bila peran pemanggil lebih tinggi dari peran target (hierarki PIN). Dipakai simpan_pin supaya bawahan tidak bisa merebut PIN atasan. Sejak 0016: hanya bermakna di dalam penyewa pemanggil sendiri (F-13).';
+
+-- ----------------------------------------------------------------------------
+-- BAGIAN 5 — PR-08 (review putaran16): saldo awal stok wajib lewat buku besar
+-- ----------------------------------------------------------------------------
+-- BUKTI CACAT: `insert into stok_bahan (... jumlah 500)` menciptakan saldo dari
+-- ketiadaan — nol baris di `stok_pergerakan` (buku besar yang jadi satu-satunya
+-- asal-usul angka stok). Penjaga lama hanya menolak UPDATE jumlah di luar buku
+-- besar (0007 pemicu 3); INSERT lolos. Kini INSERT dengan jumlah bukan-nol
+-- DITOLAK: bahan dibuat dengan saldo 0, lalu saldo awal dicatat sebagai baris
+-- buku besar (jenis 'opname'/'masuk') yang otomatis menjumlah ke saldo (0007
+-- pemicu 2) — jejak asal-usul, pelaku, dan waktunya ada. Uji: supabase/tes/saldo_awal_stok.sql.
+create or replace function public.picu_stok_saldo_awal()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if coalesce(new.jumlah, 0) <> 0 then
+    raise exception 'Saldo awal tidak boleh ditulis langsung — buat bahan dengan saldo 0 lalu catat saldonya lewat pergerakan stok (jenis opname/masuk) supaya buku besarnya lengkap.';
+  end if;
+  return new;
+end
+$$;
+
+drop trigger if exists stok_bahan_saldo_awal on public.stok_bahan;
+create trigger stok_bahan_saldo_awal
+  before insert on public.stok_bahan
+  for each row execute function public.picu_stok_saldo_awal();
+
+-- ----------------------------------------------------------------------------
+-- BAGIAN 6 — PR-14 (review putaran16): hak fungsi dikoreksi dua arah
+-- ----------------------------------------------------------------------------
+-- BUKTI CACAT: (a) `revoke all ... from public` di 0014 ikut mencabut hak
+-- `service_role` (peran peladen) pada `hitung_total` — jalur resmi peladen ikut
+-- mati, padahal `nomor_pesanan_berikutnya` & `peran_lebih_tinggi` sudah
+-- dipulihkan di 0015; (b) `peringkat_peran` lahir tanpa revoke sehingga ANON
+-- bisa memanggilnya — peta hierarki peran resto tidak perlu dibaca publik.
+-- Uji: supabase/tes/hak_fungsi.sql.
+grant execute on function public.hitung_total(uuid) to service_role;
+
+revoke all on function public.peringkat_peran(text) from public;
+grant execute on function public.peringkat_peran(text) to authenticated, service_role;
+
+-- ----------------------------------------------------------------------------
+-- BAGIAN 7 — PR-15 (review putaran16): hapus meja tidak memutus riwayat pesanan
+-- ----------------------------------------------------------------------------
+-- BUKTI CACAT: `pesanan.meja_id` memakai `on delete set null`, dan penjaga 0014
+-- hanya menolak hapus bila masih ada pesanan AKTIF — meja dengan riwayat pesanan
+-- lunas/batal bisa dihapus sehingga laporan kehilangan "meja mana". Sejak 0016:
+-- meja yang punya riwayat pesanan TIDAK bisa dihapus sama sekali; jalurnya adalah
+-- nonaktifkan (aktif = false). Definisi 0014 disalin utuh selain cabang DELETE
+-- (0014 beku; yang berlaku = create or replace terakhir).
+-- Uji: supabase/tes/meja_riwayat.sql + probe lama pr15-meja-terputus.sql (kini GAGAL).
+create or replace function public.picu_meja_jaga()
+returns trigger
+language plpgsql
+set search_path = public, pg_temp
+as $$
+declare
+  v_peran     text;
+  v_pesanan   integer;
+begin
+  if auth.uid() is null or public.peran_peladen() then
+    return coalesce(new, old);
+  end if;
+
+  if tg_op = 'DELETE' then
+    -- PR-15 (2026-09-20): SEMUA riwayat dihitung, bukan hanya pesanan aktif —
+    -- pesanan lunas/batal justru bukti yang tidak boleh kehilangan mejanya.
+    select count(*) into v_pesanan
+      from public.pesanan p
+     where p.meja_id = old.id;
+    if v_pesanan > 0 then
+      raise exception 'Meja ini punya % pesanan dalam riwayat (termasuk yang sudah lunas/batal) — tidak boleh dihapus supaya riwayat "meja mana" tidak putus; nonaktifkan saja (aktif = false).', v_pesanan;
+    end if;
+    return old;
+  end if;
+
+  -- UPDATE: kasir & pelayan boleh menyentuh STATUS saja (policy `meja_ubah_status`
+  -- memberi UPDATE seluruh baris — nama & aktif ikut berubah. Audit F-08, K-3).
+  v_peran := public.peran_saya();
+  if v_peran not in ('owner_pusat', 'admin_cabang') then
+    if new.nama is distinct from old.nama
+       or new.area is distinct from old.area
+       or new.aktif is distinct from old.aktif
+       or new.cabang_id is distinct from old.cabang_id then
+      raise exception 'Peran % hanya boleh mengubah STATUS meja — nama/area/aktif adalah data induk cabang.', v_peran;
+    end if;
+  end if;
+  return new;
+end
+$$;
