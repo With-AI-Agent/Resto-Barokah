@@ -25,8 +25,11 @@ npm run dev        # aplikasi jalan; alamat muncul di layar
 
 Buka alamat yang muncul (biasanya `http://localhost:5173`). Kalau muncul pesan
 `vite: not found` (pustaka hilang setelah ruang kerja dinyalakan ulang), jalankan
-`bash aplikasi/alat/pratinjau.sh` — perintah itu memasang pustaka kalau perlu lalu
-menyalakan pratinjau. Halaman yang tampil
+`bash alat/pratinjau.sh` — perintah itu memasang pustaka kalau perlu lalu menyalakan
+pratinjau. (Perhatikan: karena kamu sudah ada **di dalam** folder `aplikasi`, jalurnya
+`alat/pratinjau.sh`. Kalau kamu menjalankannya dari akar repo, tulis
+`bash aplikasi/alat/pratinjau.sh`. Skripnya mencari foldernya sendiri, jadi dua-duanya benar
+selama jalurnya ditulis lengkap seperti itu.) Halaman yang tampil
 sekarang adalah **layar contoh Fase 0** — dipakai untuk membuktikan tema,
 komponen, dan keadaan halaman sudah hidup. Layar sungguhan dibuat mulai Fase 2.
 
@@ -94,6 +97,9 @@ Token Cloudflare (bila dipakai) **tidak** disimpan di berkas ini: tempatnya raha
 Cloudflare. Halaman yang naik sekarang masih kerangka Fase 0 — tujuannya membuktikan jalan rilis bekerja sejak awal.
 
 ## Pemeriksa otomatis
+
+> **Dijalankan dari AKAR repo** (folder induk `aplikasi/`) — bukan dari dalam `aplikasi/`.
+> Kalau kamu masih di dalam `aplikasi/`, kembali dulu: `cd ..`
 
 ```bash
 python3 aplikasi/alat/periksa-struktur.py   # struktur folder, token, larangan warna mentah

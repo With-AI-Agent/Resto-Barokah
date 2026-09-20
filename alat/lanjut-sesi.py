@@ -670,7 +670,8 @@ def siapkan() -> int:
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
   Sebelum pratinjau/uji aplikasi: `bash aplikasi/alat/pratinjau.sh` (±1–2 menit). Uji SQL & pemeriksa
-  Python tetap berjalan tanpa pemasangan itu.
+  Uji SQL (`node alat/uji-sql.mjs`) BUTUH `npm ci --prefix alat` lebih dulu (runner mengimpor PGlite);
+  tanpa itu jalankan `npm ci --prefix alat`. Pemeriksa Python berjalan tanpa pemasangan apa pun.
 
 ## 2b. Kalau kamu sesi baru: cara menyusul pekerjaan ini
 

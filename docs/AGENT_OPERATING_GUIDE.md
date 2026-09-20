@@ -28,16 +28,25 @@ memperbarui ketiga penanda · jangan menumpuk pekerjaan lama tanpa push · sesi 
 
 ### Gerbang pindah sesi (WAJIB dicek sebelum membuka sesi baru)
 
-Pekerjaan satu sesi hanya terlihat oleh sesi berikutnya **kalau sudah di-merge ke branch dasarnya** (biasanya `main`).
-Branch sesi (`arena/...`) tidak bisa dipakai ulang oleh sesi baru — sesi baru selalu membuat branch baru
-dari branch dasar yang dipilih di awal sesi.
+> **Dikoreksi 2026-09-20 (temuan audit I F-12).** Versi lama bagian ini mewajibkan **merge PR ke `main`**
+> sebelum sesi baru; `PROMPT_SESI_BARU.md` di sisi lain melarang merge hanya untuk melihat pekerjaan.
+> Dua-duanya dokumen aktif, jadi agent terjepit. Aturan tunggal yang berlaku sekarang:
 
-- Sebelum sesi lama ditinggalkan: **buka PR** dari `arena/...` → `main`, minta pemilik merge.
-- Sesi baru **harus** dimulai dari `main` yang **sudah memuat** pekerjaan terakhir. Kalau belum di-merge,
-  agent baru tidak melihat dokumen/kode apa pun dari sesi sebelumnya (hanya melihat `main` yang lama).
-- Setelah PR di-merge/di-close: branch itu **selesai** — jangan mencoba push lagi; buka sesi baru.
-- **Status per 2026-09-16:** seluruh pekerjaan masih berada di branch `arena/01a0a8a2-resto-barokah` dan
-  **BELUM masuk `main`**. Sebelum membuka sesi baru, PR-nya harus di-merge lebih dulu.
+**Melihat & melanjutkan pekerjaan TIDAK perlu merge.** Cukup susul cabang sesinya (tanpa mengubah `main`):
+
+```
+git fetch origin <CABANG-SESI>:refs/remotes/origin/kerja-terakhir
+git merge --ff-only origin/kerja-terakhir
+```
+
+- Sesi baru tetap boleh dibuka dari basis `main`; langkah di atas menyusulkan pekerjaan terakhir ke
+  ruang kerja sesi baru itu. Branch sesi lama tidak dipakai ulang — tapi **isinya** tetap bisa dibaca
+  siapa pun lewat GitHub selama branch itu ada.
+- **Merge PR ke `main` adalah keputusan pemilik (Lee)** — bukan syarat untuk bekerja atau meninjau.
+  PR #1 misalnya sengaja dibiarkan **tidak di-merge**.
+- Setelah PR di-merge/di-close: branch sesi itu **selesai** — jangan push lagi ke sana.
+- Kalau `docs/ops/SIAP-LANJUT.md` menyebut cabang yang berbeda dari baris `SESI YANG AKU LANJUT` di
+  `PROMPT_SESI_BARU.md`: **baris pilihan Lee yang menang**; laporkan bedanya lalu rapikan handoff.
 
 ### Kalau ruang kerja dinyalakan ulang (pulih cepat — pelajaran 2026-09-16)
 

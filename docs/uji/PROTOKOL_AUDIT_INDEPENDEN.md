@@ -111,7 +111,7 @@ Pertanyaan Lee: *"kamu ga jelasin aku harus buat sesi baru dengan base branch ap
 1. Mesin menulis **commit target** di setiap paket audit (`- **Commit yang diaudit:** <sha>`), dan paket memuat **LANGKAH 0 (wajib)** beserta perintah verifikasinya.
 2. Auditor menjalankan `python3 alat/audit-independen.py --verifikasi-lingkup` (atau perintah manual `git rev-parse HEAD` + `git cat-file -e <sha>`).
    - **Cocok** → lanjut mengaudit.
-   - **Beda commit tetapi target ada** → `git fetch origin && git checkout --detach <sha>` (hanya-baca) lalu lanjut.
+   - **Beda commit tetapi target ada** → `git fetch origin` lalu **baca objeknya tanpa meninggalkan cabangmu**, atau (kalau kamu memang perlu pohon berkasnya) `git checkout --detach <sha>` **hanya untuk membaca** dan **kembali ke cabang sesimu sebelum menyerahkan laporan**: `git symbolic-ref --short HEAD` harus menunjuk cabangmu (contoh: `arena/01a0bbd2-resto-barokah`) — bukan HEAD yang terlepas.
    - **Target tidak ada** → `git fetch origin` sekali lagi; kalau tetap tidak ada, auditor **berhenti dan melaporkan** — bukan mengaudit commit lain. Alasan: mengaudit commit yang salah lebih berbahaya daripada tidak mengaudit, karena menghasilkan rasa aman yang palsu.
 3. Laporan tetap mencatat branch/commit apa yang **benar-benar** diperiksa; mesin memvalidasi commit itu ada di repo.
 
@@ -127,8 +127,16 @@ berkas di sana. Tanpa jalur pulang, laporan bisa hilang di chat, dan Lee harus m
    (satu-satunya berkas yang boleh ia buat). `<penanda-sesi>` = potongan nama cabang sesi auditor, supaya dua sesi
    auditor tidak memakai nama berkas yang sama (kejadian 2026-09-17 — laporan pertama hampir tertimpa). Bila tetap
    bertabrakan, penarik laporan menyimpannya terpisah sebagai `<nama>.dari-<cabang>.md`; tidak ada laporan yang ditimpa.
-2. Auditor **commit + push HANYA berkas itu** ke **cabang sesinya sendiri** (`arena/...` yang diberikan platform):
-   `git add docs/uji/audit/ && git commit -m "laporan audit ..." && git push -u origin HEAD`
+2. Auditor **commit + push HANYA berkas itu** ke **cabang sesinya sendiri** (`arena/...` yang diberikan platform).
+   Kalau kamu sempat `checkout --detach` untuk membaca, **kembali ke cabang sesimu lebih dulu** — kalau tidak, `HEAD`
+   menunjuk commit, bukan cabang, dan laporannya bisa nyasar/tertolak:
+
+   ```
+   git checkout <CABANG-SESIMU>          # contoh: arena/01a0bbd2-resto-barokah
+   git symbolic-ref --short HEAD          # WAJIB mencetak nama cabang itu
+   git add docs/uji/audit/ && git commit -m "laporan audit <tingkat> <lingkup>"
+   git push origin HEAD:refs/heads/<CABANG-SESIMU>
+   ```
 3. Sesi kerja (pembangun) menjalankan `python3 alat/audit-independen.py --ambil-laporan`, yang:
    mencari **semua cabang `arena/*`** di GitHub, menemukan berkas `docs/uji/audit/LAPORAN_*.md` yang belum ada di sesi ini,
    mengambilnya, dan menaruhnya di `docs/uji/audit/`.

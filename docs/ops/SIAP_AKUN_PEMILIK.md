@@ -6,8 +6,9 @@ Tujuan: menyiapkan **dua akun gratis** supaya agent bisa menyambungkan aplikasi.
 
 > **SELESAI 2026-09-19:** Lee sudah membuat akun **Supabase**, **Resend**, dan **Cloudflare**, lalu menyerahkan nilai
 > non-rahasia lewat `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`. Panduan di bawah tetap disimpan sebagai catatan cara.
-> Dua langkah lanjutan yang masih menunggu Lee: **menyebar skema ke proyek nyata** (`T-020`) dan **menaikkan halaman kosong**
-> ke Cloudflare (`T-021`). Keduanya sekarang punya panduan sendiri yang lebih singkat:
+> Kabar berikutnya (2026-09-20): **menaikkan halaman ke Cloudflare (`T-021`) SUDAH SELESAI** (dijalankan setelah Lee bilang
+> "Boleh naik"). Sisa SATU langkah pemilik: **menyebar skema terbaru ke proyek nyata** — dan itu **ditunda sampai batch perbaikan
+> selesai** (Lee akan diminta menekan tombolnya saat itu). Panduan singkatnya:
 > `docs/ops/LANGKAH_PEMILIK_SEKARANG.md` — isinya hanya menempel **3 rahasia** ke kotak rahasia GitHub (tanpa perintah).
 
 ---
@@ -45,7 +46,10 @@ Jadi **tidak ada yang tertunda karena kamu**. Kerjakan panduan di bawah **kapan 
 
 Katakan ke agent: **"akun Supabase & Cloudflare sudah siap"**, lalu berikan **Project URL** dan **anon key** saja. Agent mencatatnya di berkas rahasia lokal (tidak masuk Git), menyambungkan aplikasi ke Supabase, lalu memasang aplikasi supaya bisa dibuka publik.
 
-**Posisi sekarang (2026-09-16):** persiapan aplikasi (T0-01 sampai T0-07, termasuk T0-10) **sudah selesai** — repo, aturan kode, tema, komponen, berkas rahasia, README, dan CI hijau. Sisa Fase 0 hanya **T0-08** (menyambung Supabase) dan **T0-09** (memasang aplikasi ke alamat publik), dan keduanya **baru bisa dikerjakan setelah dua akun di atas jadi**. Jadi panduan ini adalah langkah berikutnya yang ditunggu.
+**Posisi sekarang (2026-09-20):** panduan di halaman ini **sudah selesai dijalankan** — akun Supabase/Resend/Cloudflare jadi,
+T0-08 & T0-09 tuntas, halaman sudah naik ke internet, dan 14 berkas tabel pertama sudah tersebar ke database nyata.
+Yang tersisa dari pemilik: **menyebar skema terbaru** setelah batch perbaikan selesai (lihat
+`docs/ops/LANGKAH_PEMILIK_SEKARANG.md`). Halaman ini disimpan sebagai catatan cara, bukan daftar tugas aktif.
 
 ## Kalau macet
 

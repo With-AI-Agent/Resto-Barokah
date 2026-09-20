@@ -5,9 +5,24 @@
 
 ## Kenapa ini perlu
 
-Aku tidak boleh — dan tidak mau — melihat kunci rahasiamu. GitHub punya **kotak rahasia terenkripsi**
-untuk itu: kunci yang kamu simpan di sana bisa **dipakai** mesin (untuk menyebar tabel database dan
-menaikkan halaman ke internet) **tanpa pernah terlihat** oleh siapa pun, termasuk aku.
+Aku tidak boleh — dan tidak mau — melihat kunci rahasiamu. Kunci itu disimpan di **kotak rahasia GitHub**
+(*repository secrets*) dan hanya **dipakai** mesin saat menjalankan alur otomatis (menyebar tabel database,
+menaikkan halaman ke internet).
+
+**Jujur soal batasnya (koreksi 2026-09-20, audit I F-11):** "terenkripsi" BUKAN berarti "tidak mungkin
+terbaca". GitHub menyimpan secrets agar tidak tampil di layar dan menyamarkan nilainya di log, tetapi
+**siapa pun yang boleh mengubah alur kerja (workflow) di repo ini secara teknis bisa membuat alur yang
+membaca secrets itu** (mis. mengirimnya ke tempat lain), dan penyamaran log tidak dijamin untuk semua
+bentuk keluaran. Karena itu:
+
+- beri **hanya** repo ini (jangan pakai token pribadi yang dipakai di tempat lain);
+- pakai token dengan **izin sesempit mungkin** dan **masa berlaku** (TTL) yang wajar, bukan selamanya;
+- jangan menambah penulis/kontributor yang tidak kamu percaya ke repo ini — merekalah yang bisa mengubah alur;
+- kalau nanti ada fitur *environment protection* di GitHub (butuh review sebelum rahasia dipakai), itu
+  menambah lapisan; tidak wajib sekarang.
+
+Yang **tidak** aku lakukan: mengambil, menyalin, atau menampilkan nilai rahasianya. Aku juga tidak pernah
+memintamu menempelkan nilainya di chat.
 
 ## Kabar terbaru (2026-09-19) — Langkah A SUDAH SELESAI
 

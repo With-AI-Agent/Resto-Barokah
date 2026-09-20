@@ -393,7 +393,9 @@ Kerjakan berurutan:
 0. AMBIL BAHAN DULU (wajib kalau checkout-mu belum memuat berkas proyek — sesi baru sering hanya memuat kerangka
    `main`; tandanya `cat docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` menjawab "No such file or directory"). Paket yang
    saya tempel menyebut **commit yang diaudit** dan **cabangnya**; ikuti bagian "0a. LANGKAH 0" di paket —
-   biasanya cukup: `git fetch origin <cabang> && git checkout --detach <cabang>`. Kalau jaringan/akses tidak
+   biasanya cukup: `git fetch origin <cabang>` lalu baca objeknya (kalau perlu pohon berkasnya:
+   `git checkout --detach <sha>` **hanya untuk membaca**, dan **kembali ke cabang sesimu sebelum menyerahkan laporan** —
+   lihat PROTOKOL §5c butir 2). Kalau jaringan/akses tidak
    memungkinkan, JANGAN mengarang dan JANGAN mengaudit commit lain: kerjakan dari isi paket yang ditempel, lalu
    tulis semuanya di bagian "Yang tidak bisa saya verifikasi".
 1. Baca `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` (aturan main), lalu paket audit yang saya tempel di bawah.
@@ -418,8 +420,14 @@ Kerjakan berurutan:
    Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
 9. Jalankan `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/<berkas-laporan>.md` (sekali di akhir).
    Bila ditolak: perbaiki KELENGKAPAN FORMAT-nya, bukan menambah temuan yang tidak kamu yakini.
-10. Supaya hasilmu sampai ke sesi kerja, commit + push HANYA berkas laporan itu ke cabang sesi ini. Contoh:
-    `git add docs/uji/audit/ && git commit -m "laporan audit <tingkat> <lingkup>" && git push -u origin HEAD`
+10. Supaya hasilmu sampai ke sesi kerja, commit + push HANYA berkas laporan itu ke cabang sesi ini. **Pastikan kamu berdiri
+    di cabang sesimu, bukan HEAD yang terlepas** (`git symbolic-ref --short HEAD` harus mencetak `arena/...`). Contoh:
+    ```
+    git checkout <CABANG-SESIMU>                     # kembali dari checkout --detach
+    git symbolic-ref --short HEAD                     # wajib mencetak nama cabang itu
+    git add docs/uji/audit/ && git commit -m "laporan audit <tingkat> <lingkup>"
+    git push origin HEAD:refs/heads/<CABANG-SESIMU>
+    ```
     (jangan mengubah/meng-commit berkas lain; bila push tidak bisa, tulis "belum ter-push" di laporan dan beri tahu saya).
 11. Laporkan verdict + ringkasan temuan ke saya di chat.
 

@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `1da202b9516fb5783710e58c808f66eec4de4134`
+- **Commit keadaan kerja:** `70e2ef8ddf656709262567d3f9dcb120b6ffe631`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 35483024496, commit 1da202b9)
+- **CI terakhir:** success (run 35483628092, commit 70e2ef8d)
 - **Ditulis:** 2026-09-20 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,12 +28,13 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (64 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (64 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-19.md` → `93a50bac` (65 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (65 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
   Sebelum pratinjau/uji aplikasi: `bash aplikasi/alat/pratinjau.sh` (±1–2 menit). Uji SQL & pemeriksa
-  Python tetap berjalan tanpa pemasangan itu.
+  Uji SQL (`node alat/uji-sql.mjs`) BUTUH `npm ci --prefix alat` lebih dulu (runner mengimpor PGlite);
+  tanpa itu jalankan `npm ci --prefix alat`. Pemeriksa Python berjalan tanpa pemasangan apa pun.
 
 ## 2b. Kalau kamu sesi baru: cara menyusul pekerjaan ini
 
@@ -63,6 +64,32 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 18v (2026-09-20) — BATCH "DOKUMEN JUJUR": 8 TEMUAN + 4 DUPLIKAT DITUTUP (47 ditutup · 34 terbuka).**
+
+Dokumen yang menjanjikan lebih dari kenyataan, atau aturan yang saling bertabrakan, dibereskan sekaligus:
+
+* **H F-06** `docs/KEAMANAN.md`: `hitung_total()` tidak lagi disebut "belum mendarat" — versi awalnya sudah hidup di
+  `supabase/migrations/0014_penutup_celah_putaran13.sql`; yang belum: pembulatan (T1-16) & suite 12 uji uang.
+* **H F-08** bukti T0-03 memakai jalur lengkap `aplikasi/src/lib/tema.ts`.
+* **H F-10** klasifikasi penanda-palsu diberi justifikasi jujur: nyata di level DB, tetapi eksploitasi produksi
+  menuntut koneksi SQL langsung (PostgREST tak mengizinkan `pg_catalog`); pagar 0015 tetap.
+* **I F-09** `aplikasi/README.md` tidak lagi mencampur dua folder kerja (pemulihan: `bash alat/pratinjau.sh` dari dalam
+  `aplikasi/`, dengan catatan bentuk akar; bagian pemeriksa ditandai "dari AKAR repo").
+* **I F-10** resep audit: auditor **wajib kembali ke cabang sesinya** (`git symbolic-ref --short HEAD`) dan push eksplisit
+  `git push origin HEAD:refs/heads/<CABANG-SESIMU>` sebelum menyerahkan laporan (blok kanonik & buku induk tetap identik).
+* **I F-11** janji rahasia GitHub dikoreksi: terenkripsi ≠ tak terbaca (siapa pun yang boleh mengubah workflow bisa membacanya)
+  → least privilege, TTL, jaga akses tulis repo.
+* **I F-12** **satu aturan pindah sesi**: melihat/melanjutkan pekerjaan TIDAK perlu merge (`fetch` + `merge --ff-only`),
+  merge PR ke `main` tetap keputusan Lee. Pendampingnya: `docs/ops/SIAP_AKUN_PEMILIK.md` disegarkan dan prasyarat PGlite
+  (`npm ci --prefix alat`) kini tertulis di handoff.
+* **D F-06** ROADMAP T1-15/T1-17 diberi catatan silang: fungsinya sudah hidup di 0014/0015 — **jangan tulis rumus kedua**.
+* Duplikat yang obatnya sudah mendarat ikut ditutup: **B F-09 · B F-17 · D F-03 · D F-04** (paket wajib menunjuk induk commit
+  sendiri · gerbang CI hijau · pemecah artefak).
+
+**Langkah berikutnya (urut):** **I F-07** (boundary Edge: JSON null & galat upstream) → **I F-21** (minimum Node vs lockfile) →
+**I F-19** (uji yang tidak mengisi input) → **I F-05/I F-06** (klien sambungan & Storage tema) + F F-14 → sisa K-3/K-4 →
+tutup batch mekanisme → **hubungi Lee** untuk "Sebar skema".
 
 **PUTARAN 18u (2026-09-20) — H F-05 & I F-20 TUNTAS: PEMBUAT PAKET BERHENTI MENUDUH PERINTAH/POLA SEBAGAI "BERKAS HILANG".**
 
