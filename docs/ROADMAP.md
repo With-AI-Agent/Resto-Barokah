@@ -478,6 +478,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1) & Fungsi Istimewa (ART-11); pemeriksa terlalu longgar = hijau palsu → mitigasi: uji mutasi wajib (matikan satu aturan → pemeriksa GAGAL).
   - **Verifikasi:** jalankan pemeriksa dengan sengaja menyisipkan cacat → GAGAL; setelah dipulihkan → LOLOS; dijalankan di CI.
+  - **Progres Batch-5 (2026-09-21, BELUM centang):** `alat/periksa-keamanan-sql.py` + `supabase/tes/keamanan_fungsi.sql` membaca katalog efektif sesudah SEMUA migrasi (53 SECURITY DEFINER di public; tidak tertipu definisi tertimpa/komentar). Baseline menolak 20 pemicu ber-EXECUTE PUBLIC; `supabase/migrations/0023_acl_fungsi_pemicu.sql` mencabutnya tanpa ubah body/RLS/izin bisnis. SQL 65/65; 9 mutasi (path, ACL default/ulang, komentar, trigger RPC, RLS/policy hilang), kontrol pulih + salinan rusak; ikut CI dan periksa-semua.
+  - **Sisa WAJIB, pemilik agent T1-30:** analisis statis/AST pemanggilan helper policy dan aturan `(select …)` belum dibuat; inventaris awal menemukan minimal 38 dari 55 policy dengan panggilan identitas langsung. Jangan menutupi dengan pengecualian atau mengaku semua DoD terpenuhi. Kerjakan sesudah audit 0022/0023; ubah policy hanya lewat migrasi baru + uji matriks/RLS dan kalibrasi (termasuk campuran helper terbungkus/tidak, komentar palsu, subquery berkorelasi). Bukti/rencana: `docs/uji/BUKTI_T130_KEAMANAN_SQL.md`.
 
 - [ ] T1-36 — Kunci induk: kode pemulihan darurat + pendaftaran perangkat darurat ⚠️
   - **Tujuan:** kehilangan perangkat owner/admin (bahkan seluruhnya) tidak menghentikan kedai, tanpa membuka pintu belakang yang lebih lemah daripada masuk biasa.

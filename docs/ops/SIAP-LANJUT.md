@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0c2c1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0c2c1-resto-barokah`
-- **Commit keadaan kerja:** `2d181a2e635b3074f46bb6ecb947002160e4b692`
+- **Commit keadaan kerja:** `c5dbc9833ed0533980033c818e959770f3673191`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 35573418436, commit 2d181a2e) — tunggu sampai selesai
+- **CI terakhir:** in_progress (run 35573632489, commit c5dbc983) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-21 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **0** — (tidak ada)
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (57 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (150 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (58 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (151 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,7 +70,7 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**UTAMAKAN BATCH-5, sesi arena/01a0c2c1 (2026-09-21):** CI prasyarat `35571459040`/`73bd831` SUCCESS sebelum implementasi. 0022 + bukti SQL/mutasi/concurrency lokal hijau (`docs/uji/BUKTI_T025_BEKU_SETELAH_BAYAR.md`); belum AUD-2/verifikasi Supabase/deploy, gerbang agent T1-45 tetap terbuka. PIN pelanggan + sapuan penundaan selesai; lanjut T1-30-sisa, mulai inventaris ACL/policy. Lee sedang exam; jangan ganggu untuk keputusan yang bisa ditunda. Tidak ada izin deploy/merge. Log aktif `_log-sesi/LOG_SESI_2026-09-21_2.md`. Catatan lama di bawah = sejarah, bukan rencana terbaru.
+**UTAMAKAN BATCH-5, sesi arena/01a0c2c1 (2026-09-21):** prasyarat CI `35571459040`/`73bd831` SUCCESS sebelum perubahan. 0022 T-025(a), PIN pelanggan, dan sapuan penundaan mendarat; T1-30 parsial 0023 + pemeriksa ACL/path/RLS (SQL 65/65, 9+9 mutasi, concurrency 5+2). **Urutan sekarang:** regresi penuh → CI hosted akhir → paket AUD-2 independen 0022/0023 → sesudah laporan sah & ditindaklanjuti, lanjut AST/initplan policy T1-30. Rencana/pemilik rinci: `docs/uji/BUKTI_T025_BEKU_SETELAH_BAYAR.md` + `docs/uji/BUKTI_T130_KEAMANAN_SQL.md`. T1-45/T1-30 belum dicentang; belum verifikasi/sebar Supabase. Lee sedang exam; jangan ganggu untuk keputusan yang bisa ditunda. Tidak ada izin deploy/merge. Log `_log-sesi/LOG_SESI_2026-09-21_2.md`; catatan lama di bawah = sejarah.
 
 **MARATON GELOMBANG 2 DILUNCURKAN 2026-09-21 (sesi integrator arena/01a0c1d1):** T-01/T-02/T-03 DIBERIKAN di `docs/ops/PAPAN_TUGAS.md`; prompt 3 pekerja dikirim DI CHAT (blok siap tempel, REKAM butir 7); base branch sesi pekerja = `arena/01a0c1d1-resto-barokah`. Panen saat Lee bilang `Panen hasil maraton.` (verifikasi sendiri + merge berurutan + baterai tiap merge, AL-16). Sambil menunggu pekerja: lanjut §3 lama di bawah (B F-16/B F-14 lokal dulu).
 

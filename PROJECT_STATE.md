@@ -1,7 +1,7 @@
 # Project State
 
 
-> **POSISI TERBARU Batch-5 (2026-09-21):** CI prasyarat `35571459040`/`73bd831` SUCCESS sebelum implementasi. Penegak T-025(a) 0022 diuji lokal: SQL 64/64, 9 mutasi, 5 kontrol balapan dua arah + 2 mutasi. **Belum AUD-2/deploy**; T1-45 tetap terbuka. PIN pelanggan + sapuan penundaan selesai; berikutnya T1-30-sisa (inventaris ACL/policy). Bukti dan gerbang: `docs/uji/BUKTI_T025_BEKU_SETELAH_BAYAR.md`; log aktif `_log-sesi/LOG_SESI_2026-09-21_2.md`. Bagian bertanggal lebih lama di bawah adalah riwayat.
+> **POSISI TERBARU Batch-5 (2026-09-21):** CI prasyarat `35571459040`/`73bd831` SUCCESS sebelum implementasi. T-025(a) 0022 + PIN pelanggan + sapuan penundaan mendarat; T1-30 parsial (0023 ACL + pemeriksa efektif). SQL **65/65**, 9 mutasi 0022 + 9 mutasi T1-30, concurrency 5 kontrol + 2 mutasi. **Belum AUD-2/deploy**; T1-45/T1-30 tetap terbuka. Berikutnya seluruh regresi + CI hosted akhir → paket audit independen → sesudah laporan baru lanjut AST/initplan policy T1-30. Bukti: `docs/uji/BUKTI_T025_BEKU_SETELAH_BAYAR.md` dan `docs/uji/BUKTI_T130_KEAMANAN_SQL.md`; log `_log-sesi/LOG_SESI_2026-09-21_2.md`. Bagian lebih lama di bawah adalah riwayat.
 
 > File ini dibaca OTOMATIS oleh agent di awal setiap sesi. JANGAN dihapus.
 > Diperbarui oleh agent sebagai langkah TERAKHIR setiap kali sesi/tahap

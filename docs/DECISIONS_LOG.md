@@ -1527,3 +1527,12 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 **Sinkronisasi T-025(a):** janji lama PRD M6 "sesudah bayar dicatat sebagai pembatalan berizin" diganti sesuai keputusan Lee: pembayaran pertama (termasuk sebagian) melarang ubah/void. TECH_SPEC contoh alur ikut selaras; refund fase 2 tidak diimplementasikan.
 
 **Sapuan:** nol penanda tunggu aktif basi; 0 butir terbuka / 25 keputusan selesai, diverifikasi dua arah oleh periksa-roadmap + periksa-fondasi-independen. Lambang dalam legenda/riwayat tidak dihapus karena bukan tugas yang harus dilewati. Persetujuan penundaan bukan penyelesaian implementasi: gerbang printer/perangkat/pelatihan/privasi/kiosk/email/HIBP tetap pada tugas terkait; AUD-2/deploy T-025 pada T1-45.
+
+
+## [Pelaksanaan/2026-09-21] T1-30 sebagian: periksa hak fungsi efektif, bukan teks yang tertimpa
+
+**Dasar:** tugas T1-30 sudah mewajibkan search_path terkunci dan pencabutan EXECUTE PUBLIC; permintaan Lee "T1-30-sisa bila sempat". Tidak mengubah peran/izin bisnis. Inventaris: 53 fungsi SECURITY DEFINER public, semuanya path terkunci; 20 pemicu mewarisi EXECUTE PUBLIC. Trigger tidak dapat dipanggil sebagai RPC biasa: ini higiene hak istimewa, bukan klaim eksploit yang belum dibuktikan.
+
+**Pelaksanaan:** migrasi baru 0023 mencabut PUBLIC/anon/authenticated pada daftar eksplisit 20 pemicu, mempertahankan service_role. Trigger yang terpasang tetap bekerja (65/65 SQL hijau). `alat/periksa-keamanan-sql.py` membaca katalog efektif hasil seluruh migrasi + sapuan RLS yang sudah ada; tidak tertipu definisi tertimpa atau komentar palsu. Sembilan mutasi wajib gagal dengan asersi, kontrol utuh/pulih hijau, setup rusak bukan bukti; masuk CI.
+
+**Batas jujur:** bukan parser statis umum; aturan initplan `(select …)` pada helper policy belum selesai (inventaris awal minimal 38 policy belum memakai pembungkus identitas). T1-30 tetap `[ ]`, tanpa pengecualian diam-diam atau ubah DoD. Tindak lanjut berurutan dan pemilik tercatat di `docs/uji/BUKTI_T130_KEAMANAN_SQL.md` + ROADMAP; AUD-2 0022/0023 dan izin deploy tetap wajib.

@@ -75,6 +75,8 @@ GERBANG_WAJIB = [
      r"python3 alat/uji-konkuren.py"),
     ("uji concurrency bayar versus edit/void 0022 (T-025a)",
      r"python3 alat/uji-konkuren-0022.py"),
+    ("keamanan SQL efektif (T1-30)", r"python3 alat/periksa-keamanan-sql.py"),
+    ("uji-diri keamanan SQL efektif (T1-30)", r"python3 alat/periksa-keamanan-sql.py --uji-diri"),
     ("papan tugas maraton valid (AL-16)",
      r"python3 alat/periksa-maraton.py"),
     ("uji batas Edge Function verifikasi_pin (berkas asli dijalankan tanpa jaringan)", r"node alat/uji-edge-pin\.mjs"),
