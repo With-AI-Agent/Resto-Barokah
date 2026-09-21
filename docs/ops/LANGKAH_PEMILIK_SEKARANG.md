@@ -1,7 +1,19 @@
-# LANGKAH PEMILIK SEKARANG — 3 rahasia di GitHub (±5 menit)
+# LANGKAH PEMILIK SEKARANG — audit Batch-5 setelah waktu belajar selesai
 
 > Ditulis 2026-09-19 untuk Lee. Bahasa awam, **tanpa perintah yang perlu kamu ketik**.
 > Kalau ragu di langkah mana pun: **berhenti dan tanya agent** — jangan menebak.
+
+## Prioritas 2026-09-21 — audit dulu, jangan sebar dulu
+
+**Tidak ada tindakan mendesak saat Lee belajar.** CI kode Batch-5 sudah hijau
+(run 35574069120, commit `09bcb89`), tetapi audit independen belum dijalankan.
+Sesudah senggang, ikuti **P-06** di `docs/uji/BUKU_UJI_PEMILIK.md`: buka sesi baru
+(base branch `arena/01a0c2c1-resto-barokah`), lalu tempel
+`docs/uji/paket-audit/AUD-2-2026-09-21-SIAP-TEMPEL.md`.
+
+**Jangan merge atau menyebar migrasi dulu.** Agent menunggu laporan yang sah,
+menindaklanjuti temuan, baru mengajukan izin penyebaran secara terpisah.
+Langkah akun/rahasia lama di bawah adalah riwayat; jangan mengisinya ulang.
 
 ## ✅ SELESAI (2026-09-20) — repo sudah PUBLIK atas keputusan Lee; robot hidup lagi
 

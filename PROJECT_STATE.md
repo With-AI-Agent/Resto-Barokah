@@ -1,7 +1,7 @@
 # Project State
 
 
-> **POSISI TERBARU Batch-5 (2026-09-21):** CI prasyarat `35571459040`/`73bd831` SUCCESS sebelum implementasi. T-025(a) 0022 + PIN pelanggan + sapuan penundaan mendarat; T1-30 parsial (0023 ACL + pemeriksa efektif). SQL **65/65**, 9 mutasi 0022 + 9 mutasi T1-30, concurrency 5 kontrol + 2 mutasi. **Belum AUD-2/deploy**; T1-45/T1-30 tetap terbuka. Berikutnya seluruh regresi + CI hosted akhir → paket audit independen → sesudah laporan baru lanjut AST/initplan policy T1-30. Bukti: `docs/uji/BUKTI_T025_BEKU_SETELAH_BAYAR.md` dan `docs/uji/BUKTI_T130_KEAMANAN_SQL.md`; log `_log-sesi/LOG_SESI_2026-09-21_2.md`. Bagian lebih lama di bawah adalah riwayat.
+> **POSISI TERBARU Batch-5 (2026-09-21): MENUNGGU AUDIT INDEPENDEN, bukan menunggu keputusan uang.** CI prasyarat `35571459040`/`73bd831` SUCCESS sebelum perubahan; CI kode akhir `35574069120`/`09bcb89` **SUCCESS** (8m39s). Seluruh `periksa-semua.sh` lokal LOLOS: **65/65 SQL, 101 uji aplikasi**, mutasi lama+baru dan concurrency. 0022 T-025(a), dokumen PIN pelanggan, sapuan penundaan, dan T1-30 parsial 0023/ACL sudah mendarat. **AUD-2 belum dijalankan**: paket `docs/uji/paket-audit/AUD-2-2026-09-21-SIAP-TEMPEL.md`, target `09bcb89`; Lee menjalankan P-06 setelah exam. Lingkup audit dibekukan sampai laporan sah masuk; agent lalu `audit-independen.py --ambil-laporan`, validasi dan bantah-balik. Sesudahnya sisa AST/initplan policy T1-30 (`docs/uji/BUKTI_T130_KEAMANAN_SQL.md`). T1-45/T1-30 belum dicentang; tidak ada izin deploy/merge. Log `_log-sesi/LOG_SESI_2026-09-21_2.md`; bagian lebih lama di bawah adalah riwayat.
 
 > File ini dibaca OTOMATIS oleh agent di awal setiap sesi. JANGAN dihapus.
 > Diperbarui oleh agent sebagai langkah TERAKHIR setiap kali sesi/tahap
