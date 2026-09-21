@@ -192,6 +192,12 @@ $$;
 """
 
 
+def server_baru(nama: str):
+    """Server sementara yang SELALU segar (direktori lama dibuang dulu)."""
+    d = pathlib.Path("/tmp") / nama
+    shutil.rmtree(d, ignore_errors=True)
+    return pgserver.get_server(str(d))
+
 def uji_f13(uri: str) -> tuple[bool, str]:
     """Dua pemanggil bersamaan di cabang+tanggal sama → nomor berbeda & berurutan."""
     with psycopg.connect(uri, autocommit=True) as s:
@@ -258,13 +264,133 @@ def uji_f13(uri: str) -> tuple[bool, str]:
     return True, (f"nomor berbeda & berurutan (v1={hasil['v1']} v2={hasil['v2']}); "
                   f"T2 tertahan {hasil['tunggu']:.2f} dtk lalu lanjut — serialisasi terbukti")
 
+# --- F F-12: dua pencatat diskon bersamaan tidak boleh menjebol cap ----------
+PESANAN_F12 = "eeee0000-0000-0000-0000-000000000010"  # seed: subtotal 54.000
+OWNER_UJI = "90000000-0000-0000-0000-000000000002"    # Bu Oasis, owner_pusat
+NOMINAL_F12 = 30000  # 30rb + 30rb = 60rb > 54rb: T2 wajib ditolak cap
+
+SETUP_F12 = """
+-- Kondisi uji F F-12 (database uji SAJA): tumpuk dinyalakan + cap-resto 50→100
+-- + izin owner dilonggarkan, supaya penentu keputusan = cap-JUMLAH-vs-subtotal
+-- (pemeriksaan cap-jumlah berjalan SEBELUM cap-resto di fungsinya) — satu-sebab.
+update public.pengaturan set tumpuk_diskon = true, batas_maks_potongan_persen = 100
+ where penyewa_id = '11111111-1111-1111-1111-111111111111';
+update public.izin set batas_nominal = 999999999, batas_persen = 100
+ where pengguna_id = '90000000-0000-0000-0000-000000000002' and kode_izin = 'beri_diskon';
+"""
+
+MUTASI_F12_TANPA_KUNCI = """
+-- Kalibrasi F F-12: pemicu BEFORE pertama TANPA `for update` (satu-satunya
+-- beda dari 0021). Kunci AFTER di hitung_total (§6) tetap utuh.
+create or replace function public.picu_diskon_awal_pesanan()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_pesanan_id uuid;
+  v_status     text;
+begin
+  if tg_op = 'DELETE' then
+    v_pesanan_id := old.pesanan_id;
+  else
+    v_pesanan_id := new.pesanan_id;
+  end if;
+
+  select p.status into v_status
+    from public.pesanan p where p.id = v_pesanan_id;
+
+  if v_status in ('lunas', 'batal') then
+    raise exception 'Pesanan yang sudah % tidak boleh lagi ditambah/diubah/dihapus diskonnya.', v_status;
+  end if;
+
+  return case when tg_op = 'DELETE' then old else new end;
+end
+$$;
+"""
+
+
+def uji_f12(uri: str) -> tuple[bool, str]:
+    """Dua insert 30rb bersamaan di subtotal 54rb: T1 masuk, T2 ditolak cap."""
+    with psycopg.connect(uri, autocommit=True) as s:
+        s.execute(SETUP_F12)
+    hasil: dict = {}
+    t1_dapat = threading.Event()
+    galat: list[str] = []
+
+    def klaim_owner(c) -> None:
+        c.execute("select uji.klaim(%s)", (OWNER_UJI,))
+        c.execute("set local role authenticated")
+
+    def t1() -> None:
+        try:
+            c = psycopg.connect(uri)
+            klaim_owner(c)
+            c.execute("insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan)"
+                      " values (%s, 'manual', %s, %s, 'uji-konkuren T1')",
+                      (PESANAN_F12, NOMINAL_F12, NOMINAL_F12))
+            t1_dapat.set()
+            time.sleep(TAHAN_DETIK)  # TAHAN kunci baris pesanan sampai COMMIT
+            c.commit()
+            c.close()
+        except Exception as e:  # noqa: BLE001 — dicatat, bukan ditelan
+            galat.append(f"T1: {e!r}")
+            t1_dapat.set()
+
+    def t2() -> None:
+        try:
+            t1_dapat.wait(15)
+            time.sleep(0.3)  # pastikan T1 sudah masuk TAHAN
+            c = psycopg.connect(uri)
+            c.execute("set statement_timeout = '10s'")  # jaring anti-gantung
+            klaim_owner(c)
+            mulai = time.monotonic()
+            try:
+                c.execute("insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan)"
+                          " values (%s, 'manual', %s, %s, 'uji-konkuren T2')",
+                          (PESANAN_F12, NOMINAL_F12, NOMINAL_F12))
+            except Exception as e:  # noqa: BLE001 — penolakan = hasil yang diharap
+                hasil["t2_galat"] = str(e)
+            hasil["tunggu"] = time.monotonic() - mulai
+            try:
+                c.commit()
+            except Exception:  # noqa: BLE001 — transaksi gagal → batalkan
+                c.rollback()
+            c.close()
+        except Exception as e:  # noqa: BLE001
+            galat.append(f"T2-luar: {e!r}")
+
+    a = threading.Thread(target=t1)
+    b = threading.Thread(target=t2)
+    a.start()
+    b.start()
+    a.join(20)
+    b.join(20)
+    if a.is_alive() or b.is_alive():
+        return False, "utas menggantung (>20 dtk) — kemungkinan deadlock tak terduga"
+    if galat:
+        return False, "galat koneksi: " + " / ".join(galat)
+    with psycopg.connect(uri, autocommit=True) as s:
+        jml = s.execute("select count(*), coalesce(sum(nilai), 0) from public.diskon_transaksi "
+                        "where pesanan_id = %s", (PESANAN_F12,)).fetchone()
+    hasil["baris"] = jml
+    if hasil.get("tunggu", 0) < BLOKIR_MIN:
+        return False, (f"T2 tidak tertahan (tunggu {hasil.get('tunggu', 0):.2f} dtk < {BLOKIR_MIN} dtk)")
+    if "melebihi subtotal" not in hasil.get("t2_galat", ""):
+        return False, (f"T2 tidak ditolak cap (galat: {hasil.get('t2_galat', '(diterima!)')[:100]}); "
+                       f"baris={jml} — CAP JEBOL")
+    if jml != (1, NOMINAL_F12):
+        return False, f"baris tersimpan {jml} (harap (1, {NOMINAL_F12}))"
+    return True, (f"T1 masuk 30rb, T2 ditolak cap sesudah tertahan {hasil['tunggu']:.2f} dtk; "
+                  f"1 baris tersimpan — serialisasi cap terbukti")
 
 def main() -> int:
     pasang_tiruan_pgcrypto()
     gagal = 0
 
     print("== F F-13 · skema utuh (harap LULUS) ==")
-    srv = pgserver.get_server("/tmp/konkuren-f13-utuh")
+    srv = server_baru("konkuren-f13-utuh")
     try:
         muat_skema(srv.get_uri())
         lulus, catat = uji_f13(srv.get_uri())
@@ -274,7 +400,7 @@ def main() -> int:
         srv.cleanup()
 
     print("== F F-13 · kunci dilepas (harap GAGAL = bug tereproduksi) ==")
-    srv = pgserver.get_server("/tmp/konkuren-f13-mutasi")
+    srv = server_baru("konkuren-f13-mutasi")
     try:
         muat_skema(srv.get_uri(), MUTASI_F13_TANPA_KUNCI)
         lulus, catat = uji_f13(srv.get_uri())
@@ -284,10 +410,32 @@ def main() -> int:
     finally:
         srv.cleanup()
 
+
+    print("== F F-12 · skema utuh (harap LULUS) ==")
+    srv = server_baru("konkuren-f12-utuh")
+    try:
+        muat_skema(srv.get_uri())
+        lulus, catat = uji_f12(srv.get_uri())
+        print(f"  [{'OK' if lulus else 'X '}] {catat}")
+        gagal += 0 if lulus else 1
+    finally:
+        srv.cleanup()
+
+    print("== F F-12 · kunci dilepas (harap GAGAL = bug tereproduksi) ==")
+    srv = server_baru("konkuren-f12-mutasi")
+    try:
+        muat_skema(srv.get_uri(), MUTASI_F12_TANPA_KUNCI)
+        lulus, catat = uji_f12(srv.get_uri())
+        kalibrasi = not lulus
+        print(f"  [{'OK' if kalibrasi else 'X '}] kalibrasi: uji {'GAGAL (peka) — ' + catat if kalibrasi else 'LULUS (TUMPUL!) — ' + catat}")
+        gagal += 0 if kalibrasi else 1
+    finally:
+        srv.cleanup()
+
     if gagal:
         print(f"\nHASIL: GAGAL — {gagal} bagian tidak sesuai harapan.")
         return 1
-    print("\nHASIL: LOLOS — F F-13 terbukti terserialisasi di 2 koneksi nyata; ujinya terbukti peka.")
+    print("\nHASIL: LOLOS — F F-13 + F F-12 terbukti terserialisasi di 2 koneksi nyata; tiap uji terbukti peka.")
     return 0
 
 
