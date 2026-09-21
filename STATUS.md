@@ -1,7 +1,7 @@
 # Status — Aplikasi Resto Barokah
 
 
-> **POSISI TERBARU Batch-5 (2026-09-21):** CI prasyarat `35571459040`/`73bd831` SUCCESS sebelum implementasi. Penegak T-025(a) 0022 diuji lokal: SQL 64/64, 9 mutasi, 5 kontrol balapan dua arah + 2 mutasi. **Belum AUD-2/deploy**; T1-45 tetap terbuka. Berikutnya PIN pelanggan → sapuan penundaan → T1-30-sisa. Bukti dan gerbang: `docs/uji/BUKTI_T025_BEKU_SETELAH_BAYAR.md`; log aktif `_log-sesi/LOG_SESI_2026-09-21_2.md`. Bagian bertanggal lebih lama di bawah adalah riwayat.
+> **POSISI TERBARU Batch-5 (2026-09-21):** CI prasyarat `35571459040`/`73bd831` SUCCESS sebelum implementasi. Penegak T-025(a) 0022 diuji lokal: SQL 64/64, 9 mutasi, 5 kontrol balapan dua arah + 2 mutasi. **Belum AUD-2/deploy**; T1-45 tetap terbuka. PIN pelanggan + sapuan penundaan selesai; berikutnya T1-30-sisa (inventaris ACL/policy). Bukti dan gerbang: `docs/uji/BUKTI_T025_BEKU_SETELAH_BAYAR.md`; log aktif `_log-sesi/LOG_SESI_2026-09-21_2.md`. Bagian bertanggal lebih lama di bawah adalah riwayat.
 
 > Ini state proyek aplikasi (field deterministik). Histori status Sistem Building Aplikasi v0.2.0 ada di `_salinan-meta/STATUS_SISTEM_v0.2.0_HISTORI.md` — provenance, bukan penunjuk posisi kerja.
 

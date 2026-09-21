@@ -1518,3 +1518,12 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 **Pelaksanaan:** rincian item/diskon/void terkunci setelah pembayaran pertama, termasuk sebagian; kunci parent lama+tujuan disamakan dengan pembayaran; tidak ada bypass definer/null-auth. Header menolak perubahan isi/nominal, penghapusan, dan pembatalan. Progres masak murni tidak merevaluasi tarif pajak; izin/status lama tetap berlaku. Pembayaran terbagi tetap sah, refund tidak dibuat. Empat fixture lama dipisahkan supaya izin, cap, PIN, atribusi, dan void sebelum bayar tetap terbukti.
 
 **Bukti:** `docs/uji/BUKTI_T025_BEKU_SETELAH_BAYAR.md`; SQL 64/64, 9 mutasi asersi nyata + kalibrasi rusak, 5 skenario dua koneksi + 2 mutasi pelanggaran tersimpan. Kalibrasi F F-12 membuang kedua kunci BEFORE pada DB mutasi saja. **Batas:** belum AUD-2 independen, belum verifikasi/deploy Supabase asli. I F-17 / T1-45 tetap terbuka untuk gerbang itu.
+
+
+## [Pelaksanaan/2026-09-21] T-023: PIN pelanggan dihapus dari kontrak; sapuan penundaan
+
+**Dasar:** Lee setuju-semua, T-023. PRD M10/§7 langkah 17 tidak lagi meminta PIN pelanggan atau menjanjikan pemulihannya; TECH_SPEC §4.4/§5 menegaskan tanpa kolom/RPC PIN pelanggan. **PIN pegawai/persetujuan (termasuk pakai voucher) tetap utuh.** Google utama + email terverifikasi kedua tetap; kanal email belum diputuskan (gerbang T-022/T2-04). Tidak mengarang persetujuan biaya/domain.
+
+**Sinkronisasi T-025(a):** janji lama PRD M6 "sesudah bayar dicatat sebagai pembatalan berizin" diganti sesuai keputusan Lee: pembayaran pertama (termasuk sebagian) melarang ubah/void. TECH_SPEC contoh alur ikut selaras; refund fase 2 tidak diimplementasikan.
+
+**Sapuan:** nol penanda tunggu aktif basi; 0 butir terbuka / 25 keputusan selesai, diverifikasi dua arah oleh periksa-roadmap + periksa-fondasi-independen. Lambang dalam legenda/riwayat tidak dihapus karena bukan tugas yang harus dilewati. Persetujuan penundaan bukan penyelesaian implementasi: gerbang printer/perangkat/pelatihan/privasi/kiosk/email/HIBP tetap pada tugas terkait; AUD-2/deploy T-025 pada T1-45.

@@ -130,10 +130,10 @@ harus terbukti) + **kasus tepi** (hal-hal yang biasanya bikin aplikasi gagal di 
   - Diskon: **bawaan satu diskon per transaksi**; pengaturan bisa mengizinkan tumpuk dengan **batas maksimal total**.
   - Struk cetak memuat: nama resto, alamat, tanggal/jam, nomor transaksi, daftar item, subtotal, pajak, service, diskon, total, metode bayar, nama kasir, ucapan terima kasih (header/footer bisa diatur).
   - Nomor HP pelanggan **opsional** (ditawarkan bila pelanggan mau poin/voucher).
-  - **Aturan pembatalan bertingkat** (dikunci pemilik):
+  - **Aturan pembatalan bertingkat SEBELUM pembayaran pertama** (dikunci pemilik):
     - Dapur **belum** mulai → kasir boleh membatalkan, **wajib pilih alasan** (pelanggan batal / salah input), tercatat di laporan.
     - Dapur **sudah** menandai sedang dimasak → **wajib PIN atasan/owner** + alasan wajib → dicatat sebagai **bahan terbuang/kerugian** dengan nilai rupiahnya dan muncul di laporan harian.
-    - Sudah dibayar & pelanggan minta uang kembali (refund resmi) → **fase 2**; di MVP dicatat sebagai pembatalan dengan izin atasan.
+    - **Sesudah pembayaran pertama, termasuk sebagian: isi/nominal, diskon, dan void dikunci** (T-025(a), keputusan Lee 2026-09-21). PIN atasan tidak melewati larangan ini. Refund resmi tetap fase 2, bukan pembatalan terselubung di MVP.
 - **Kasus tepi:** pembayaran sebagian (split bill = fase 2; di MVP dicatat sebagai dua transaksi terpisah) · printer mati (struk bisa dicetak ulang, transaksi tidak boleh hilang) · pembulatan (aturan di pengaturan) · tagihan terbuka ditinggal pelanggan (ditandai & tetap muncul di daftar).
 
 ### M7. Kas & shift (buka/tutup kasir)
@@ -161,13 +161,14 @@ harus terbukti) + **kasus tepi** (hal-hal yang biasanya bikin aplikasi gagal di 
 - **Kriteria selesai (katalog):** halaman publik per resto (nama, logo, warna, banner) · daftar menu berkategori + foto + harga · jam buka & lokasi/kontak · menu habis **otomatis tidak tampil/tertutup** · tampil rapi di HP.
 - **Cerita (voucher):** Sebagai **Calon Pelanggan**, saya ingin menerima undangan, mendaftar, lalu mendapat barcode diskon, supaya saya punya alasan datang ke kedai.
 - **Kriteria selesai (voucher):**
-  - **Alur:** tautan kampanye → halaman pendaftaran → isi nama, alamat (opsional), nomor HP/email, PIN → verifikasi (**utamanya "Daftar dengan Google"**; jalur kedua email terverifikasi) → **barcode/kode voucher** muncul → pergi ke kedai → kasir **Cek** lalu **Pakai**.
+  - **Alur:** tautan kampanye → halaman pendaftaran → isi nama, alamat (opsional), nomor HP/email → verifikasi (**utamanya "Daftar dengan Google"**; jalur kedua email terverifikasi) → **barcode/kode voucher** muncul → pergi ke kedai → kasir **Cek** lalu **Pakai**.
+  - **Tanpa PIN pelanggan** (T-023, keputusan Lee 2026-09-21). Identitas pelanggan memakai Google Sign-In (utama) atau email terverifikasi (kedua); penghapusan ini **tidak** menghapus PIN pegawai/persetujuan saat kasir memakai voucher. Kanal email tetap gerbang T-022/T2-04 sebelum jalur email dibuka.
   - **Aturan voucher diatur admin:** persen/nominal, minimum belanja, **batas maksimal potongan**, masa berlaku, kuota per kampanye, **anggaran kampanye**, per cabang/berlaku di mana.
   - **Cek Voucher (baca saja)** tidak mengubah status; **Pakai Voucher** sekali pakai + **wajib PIN** kasir/atasan dan tercatat.
   - Kasir bisa **scan lewat kamera** atau **mengetik kode manual**.
   - Balasan jelas ke kasir: berhasil (dengan rincian potongan) / gagal (dengan sebab: sudah dipakai, kedaluwarsa, minimum belanja belum terpenuhi, tidak berlaku di cabang ini).
 - **Pengaman anti-kecurangan (10):** satu voucher per identitas per kampanye · batas voucher per outlet per hari · wajib belanja minimum + batas maksimal potongan + anggaran kampanye · sekali pakai · kode acak tidak berurutan · log semua percobaan cek/scan · batas percobaan per perangkat · tolak email sekali-pakai · normalisasi alamat Gmail (titik & tanda +) · laporan anomali klaim (fase 2).
-- **Kasus tepi:** pelanggan lupa PIN (pemulihan lewat email) · voucher sudah kedaluwarsa (pesan jelas ke kasir, bukan error) · pelanggan tidak punya email & tidak mau Google (bisa didaftarkan kasir atas izin pelanggan — dicatat siapa yang mendaftarkan) · internet di kedai mati saat memakai voucher (dicatat manual lalu dimasukkan setelah online — **tidak menggandakan** pemakaian).
+- **Kasus tepi:** voucher sudah kedaluwarsa (pesan jelas ke kasir, bukan error) · pelanggan tidak punya email & tidak mau Google (bisa didaftarkan kasir atas izin pelanggan — dicatat siapa yang mendaftarkan) · internet di kedai mati saat memakai voucher (dicatat manual lalu dimasukkan setelah online — **tidak menggandakan** pemakaian).
 
 ### M11. Multi-cabang (dasar)
 - **Cerita:** Sebagai **Owner**, saya ingin menyiapkan cabang kedua kapan saja tanpa mengubah sistem, supaya pertumbuhan tidak terhambat.
@@ -244,7 +245,7 @@ Mode offline · integrasi pembayaran otomatis (QRIS dinamis/e-wallet) · integra
 
 **C. Voucher undang-teman**
 16. Owner/admin membagikan tautan kampanye (WhatsApp/status/media sosial).
-17. Calon pelanggan membuka tautan → melihat katalog → mengisi data → verifikasi (Google/email) → membuat PIN.
+17. Calon pelanggan membuka tautan → melihat katalog → mengisi data → verifikasi (Google/email) → menerima voucher; **tanpa PIN pelanggan**.
 18. Muncul barcode/kode + imbauan datang ke kedai dengan potongan yang dijanjikan.
 19. Pelanggan datang → kasir **Cek Voucher** (opsional, tidak menghanguskan) → **Pakai Voucher** (PIN + tercatat) → potongan masuk ke tagihan.
 20. Pemakaian voucher tercatat; kuota & anggaran kampanye berkurang.
@@ -263,7 +264,7 @@ Mode offline · integrasi pembayaran otomatis (QRIS dinamis/e-wallet) · integra
 4. **Kas per shift**: buka dengan modal awal; tutup dengan hitung fisik; **selisih wajib beralasan**.
 5. **Menu habis** mengunci menu di kasir **dan** katalog pelanggan; pembukaan kembali dilakukan manual (kasir/dapur).
 6. **Voucher**: sekali pakai · kode acak · minimum belanja · batas maksimal potongan · kuota & anggaran kampanye · satu voucher per identitas per kampanye · **Cek** tidak menghanguskan, **Pakai** butuh PIN.
-7. **Pembatalan (void) bertingkat**: sebelum dapur mulai = kasir boleh (wajib alasan, tercatat); setelah dapur mulai = **PIN atasan** + alasan + dicatat sebagai **kerugian/bahan terbuang** bernilai rupiah di laporan. Refund resmi = fase 2.
+7. **Pembatalan (void) bertingkat, hanya sebelum pembayaran pertama** (termasuk pembayaran sebagian; sesudahnya terkunci sesuai T-025(a)): sebelum dapur mulai = kasir boleh (wajib alasan, tercatat); setelah dapur mulai = **PIN atasan** + alasan + dicatat sebagai **kerugian/bahan terbuang** bernilai rupiah di laporan. Refund resmi = fase 2.
 8. **Semua tindakan sensitif tercatat** (jejak audit): void, diskon manual, ubah harga, buka laci tanpa transaksi, pakai voucher, perubahan pengaturan penting.
 9. **Isolasi data**: antar-penyewa dan antar-cabang; Admin Cabang hanya cabangnya; Owner hanya restonya; Pemilik Platform melihat daftar penyewa (bukan isi transaksi mereka, kecuali diizinkan/diperlukan untuk dukungan).
 10. **Harga & laporan historis tidak berubah** bila harga/pengaturan diubah kemudian — transaksi lama tetap seperti saat terjadi.
@@ -318,3 +319,5 @@ Mode offline · integrasi pembayaran otomatis (QRIS dinamis/e-wallet) · integra
 | 2026-09-16 | Dokumen dibuat (DRAF) dari Tahap 1 Discovery yang disetujui + pemilahan MoSCoW (2 giliran PRD: batas MVP, peran 6, voucher & katalog masuk MVP, alur campur, pajak configurable, hak akses berjenjang + approval, void bertingkat, diskon configurable, metrik sukses) | Agent |
 | 2026-09-16 | **Dokumen DISETUJUI & dikunci oleh pemilik** ("Mari lanjut") → lanjut ke sesi Desain & UI lalu Tahap 3 Tech Spec | Pemilik + Agent |
 | 2026-09-17 | **M12 diperdalam** atas permintaan pemilik (pesan ke-14): satu akun satu peran · perangkat terdaftar (kode pendaftaran + persetujuan pemilik) · masuk staf = perangkat + PIN 6 digit · TOTP wajib untuk Pemilik Platform/Owner/Admin Cabang + jalan pemulihan · kunci otomatis & batas umur sesi · pencabutan seketika · ringkasan peringatan harian · audit berantai · privasi UU PDP · mode dukungan · **Aturan Bisnis 14–18 baru** · risiko #9–#11 baru | Pemilik (permintaan) + Agent (rancangan & riset; rincian di `docs/KEAMANAN.md`) |
+
+| 2026-09-21 | **T-023 dilaksanakan:** hapus pembuatan/pemulihan PIN pelanggan di M10 dan alur 17; Google/email tetap, PIN pegawai/persetujuan tidak berubah. **T-025(a) diselaraskan:** M6 dan aturan 7 melarang ubah/void sesudah pembayaran pertama; hapus janji void terselubung sesudah bayar | Lee (setuju-semua); penegak 0022, bukti di `docs/uji/BUKTI_T025_BEKU_SETELAH_BAYAR.md` |

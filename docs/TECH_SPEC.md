@@ -92,7 +92,7 @@ peladen yang memutuskan dan mencatat.
 3. Fungsi SQL memeriksa izin, mengunci harga saat itu (`harga_saat_itu`), **menghitung total/pajak/service/diskon**, menyimpan, dan mengembalikan nomor pesanan.
 4. Realtime mendorong pesanan ke **layar dapur**; bila printer aktif, perangkat kasir mengirim ESC/POS.
 5. Tekan **Bayar**: `bayar_pesanan(...)` mencatat metode, uang diterima, kembalian, menandai pesanan lunas — semuanya di peladen.
-6. Batal/void mengikuti **state machine** + PIN atasan (bila sudah masuk dapur) → tercatat sebagai bahan terbuang bernilai rupiah.
+6. **Sebelum pembayaran pertama**, batal/void mengikuti **state machine** + PIN atasan (bila sudah masuk dapur) → tercatat sebagai bahan terbuang bernilai rupiah. **Setelah pembayaran pertama (termasuk sebagian), isi/nominal, diskon, dan void terkunci**; PIN atasan tidak menjadi pengecualian (T-025(a), penegak 0022; pesan BY-201).
 7. Tutup kas: `tutup_shift(...)` membandingkan uang seharusnya vs hitung fisik → selisih wajib beralasan.
 
 ---
@@ -181,6 +181,8 @@ peladen yang memutuskan dan mencatat.
 
 ### 4.4 Pelanggan & voucher
 
+**T-023 (Lee, 2026-09-21): tanpa PIN pelanggan.** Identitas melalui Supabase Auth: Google Sign-In utama, email terverifikasi kedua. Tabel pelanggan tidak menyimpan PIN/hash PIN; kredensial PIN pegawai di §4.5 bukan milik pelanggan. Kanal email tetap mengikuti gerbang T-022/T2-04.
+
 | Tabel | Kolom inti | Catatan |
 |---|---|---|
 | `pelanggan` | `id` (= id Auth), `penyewa_id`, `nama`, `email`, `telepon`, `alamat`, `cara_masuk` (google/email), `terverifikasi_pada`, `didaftarkan_oleh` (bila didaftarkan kasir) | Nomor HP opsional (Aturan Bisnis 3) |
@@ -238,6 +240,8 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 | M10 voucher | `rpc/cek_voucher` (**hanya membaca**) · `rpc/pakai_voucher` (PIN + sekali pakai) · `rpc/daftar_voucher` | kode, pelanggan | potongan / sebab gagal |
 | M11 multi-cabang | `rpc/tambah_cabang` · `rpc/set_akses_cabang` | cabang, pengguna | hasil |
 | M12 keamanan | `rpc/keluar_semua_perangkat` · `rpc/ganti_pin` | pengguna | hasil |
+
+**Batas PIN pelanggan (T-023):** tidak ada RPC membuat, mengganti, memeriksa, atau memulihkan PIN pelanggan. Panggilan PIN dalam §5/§5.1 adalah untuk **pegawai/persetujuan**, termasuk kasir/atasan pada `pakai_voucher`; identitas pelanggan tetap Google/email melalui Auth.
 
 ### 5.1 RPC keamanan akun, perangkat & sesi (ditambahkan 2026-09-17 — rincian di `docs/KEAMANAN.md`)
 
@@ -463,3 +467,5 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 | 2026-09-17 | **Jawaban lanjutan pemilik**: kode pendaftaran perangkat diterbitkan **owner pusat & admin cabang (cabangnya)** · peran berkuasa **tetap wajib perangkat terdaftar** dengan **tangga pemulihan** saat perangkat hilang (kode pemulihan sekali pakai + masa tenggang 30 menit + jalur pemilik platform) · kunci otomatis mengikuti **jam aktif per cabang yang diatur owner** · region data **Singapore** · pemberitahuan lewat **email + dalam aplikasi** · **setiap penyimpangan teknis wajib ditanyakan dulu, dijelaskan bahasa sederhana, dan dicatat** | Kekhawatiran pemilik: *"kalau perangkat admin hilang atau dicuri, gimana solusinya? Itu harus dipikirkan"*; pemilik juga meminta agent tidak menyimpang diam-diam |
 | 2026-09-17 | **Jalur pemulihan perangkat hilang DISETUJUI pemilik** ("setuju seperti rancangan"): tangga 4 tingkat · kode pemulihan hanya owner pusat · kode disimpan dalam **amplop tersegel dua salinan** (rumah pemilik + arsip kantor di luar ruang kasir) + rotasi · perangkat cadangan wajib | Menjawab kekhawatiran pemilik soal perangkat admin/owner hilang atau dicuri; penyimpanan kode diserahkan pemilik ke agent ("aku minta saran kamu") |
 | 2026-09-17 | **Kelengkapan UI dijadikan gerbang otomatis**: Registri Aksi (satu sumber kebenaran tombol) + Peta Layar + kontrak layar + pemeriksa `alat/peta-ui.py` + uji komponen per layar + naskah jalan pemilik + DoD v2 | Pengalaman pemilik pada proyek sebelumnya: banyak tombol kurang dan fungsi "katanya ada" tapi tidak bisa dipakai, walaupun dokumen fondasi detail — penyebabnya tidak ada daftar tombol, tidak ada uji pemanggilan, dan "selesai" berarti "kode ditulis" |
+
+| 2026-09-21 | **T-023:** §4.4 dan §5 menegaskan tanpa PIN pelanggan, bukan menghapus PIN pegawai/persetujuan. **T-025(a):** contoh alur §2 membatasi void sebelum pembayaran pertama | Pelaksanaan keputusan Lee setuju-semua; tidak menambah RPC/kolom atau mengubah ART baru |
