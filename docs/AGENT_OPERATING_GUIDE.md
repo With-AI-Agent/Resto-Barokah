@@ -22,9 +22,16 @@ Proyek ini dikerjakan lewat sesi agent di **lmarena**. Kenyataan platform yang t
 4. **Chat lama tidak bisa dibaca sesi baru.** Karena itu ada tiga penanda yang saling menutupi:
    `PROJECT_STATE.md` (posisi), `STATUS.md` (field pasti), `_log-sesi/LOG_SESI_*.md` (kronologi mendekati kata asli).
 5. **PR tanpa auto-merge** — pemilik selalu punya gerbang terakhir.
+6. **Agent bisa memanggil beberapa alat sekaligus (paralel), tetapi tulisan ke berkas yang SAMA
+   bisa saling menimpa tanpa peringatan (last-write-wins).** Kejadian nyata 2026-09-21: 3 edit
+   paralel ke papan tugas → hanya 1 yang selamat, semuanya lapor sukses → papan salah status.
+   → **Satu berkas = edit BERURUTAN (satu per satu), tidak pernah paralel.** Beda berkas boleh
+   paralel. Sesudah mengedit berkas penting (papan/handoff), WAJIB baca-ulang (grep) — jangan
+   percaya laporan sukses saja.
 
 **Konsekuensi operasional (tidak bisa ditawar):** commit + push setiap langkah selesai · tutup sesi dengan
-memperbarui ketiga penanda · jangan menumpuk pekerjaan lama tanpa push · sesi baru mulai dengan membaca fondasi.
+memperbarui ketiga penanda · jangan menumpuk pekerjaan lama tanpa push · sesi baru mulai dengan membaca fondasi ·
+edit satu berkas selalu berurutan + verifikasi baca-ulang.
 
 ### Gerbang pindah sesi (WAJIB dicek sebelum membuka sesi baru)
 
@@ -131,6 +138,8 @@ Semua fase juga membaca `skills/find-skills` (untuk mencari skill yang belum ter
   sesi tidak bisa push lagi → laporkan, jangan memaksa.
 - **Satu langkah kerja = satu commit**, pesan Bahasa Indonesia **rinci** (apa + kenapa + berkas penting) karena
   deskripsi panjang tidak selalu bisa disimpan platform.
+- Sesudah `git commit`, WAJIB cek induknya benar (`git log --oneline -2`) SEBELUM push — reset
+  sandbox yang senyap pernah membuat commit mendarat di atas basis yang salah (2026-09-21).
 - **Push setiap langkah selesai.** Jangan menumpuk. Kalau sesi mati sebelum push, pekerjaan hilang permanen.
 - Commit wajib bersih: tanpa berkas rahasia (`.env*`), tanpa berkas besar tak perlu, tanpa hasil percobaan.
 - Sebelum minta merge: pastikan `ROADMAP.md` `[x]` sinkron, `DECISIONS_LOG.md` terisi bila menyentuh area berisiko,
@@ -368,3 +377,4 @@ membuatnya tersesat. Karena itu ada **mode bicara** khusus: `Tolong bimbing.` ·
 | 2026-09-17 | §5 butir 4e **Audit independen AUD-0…AUD-3** + §7 DoD menyebut AUD-2 + §12 dua Stop Condition (temuan K-1/K-2 terbuka · permintaan audit pemilik) | Permintaan pemilik 2026-09-17: mekanisme audit/pemeriksaan/review independen yang teliti & terukur, memakai skill + riset, dan bisa ia picu sendiri (`docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`) |
 | 2026-09-17 | §13 aturan 10: **galat alat sesaat bukan alasan berhenti** (perbaiki → ulangi → lanjut; kalau terpaksa berhenti, tulis sebab + langkah berikutnya) | Permintaan Lee 2026-09-17 (pesan ke-29): *"Kenapa kamu berhenti? Lanjutkan"* — penyebabnya galat alat sesaat (salah `cwd`), bukan masalah proyek |
 | 2026-09-19 | §14 **Mode Bimbingan** (alur **AL-14**) + kalimat pemicu & penutupnya di `PANDUAN_PENGGUNA.md` | Permintaan Lee 2026-09-19: sedang memegang layar Cloudflare, balasan agent yang panjang membuatnya tersesat — "klo lagi pembimbingan usahakan respon nya mode respon cepat"; dijawab agent: cepat untuk **bimbingan**, tetap teliti untuk **bukti** |
+| 2026-09-21 | §0 fakta 6: **edit paralel ke berkas yang sama saling menimpa** (satu berkas = berurutan + baca-ulang) · §4: **cek induk commit sebelum push** | Insiden nyata panen maraton gelombang 2: race edit papan (T-01/T-03 salah status) + reset sandbox membuat commit mendarat di basis salah |

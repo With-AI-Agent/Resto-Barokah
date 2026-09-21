@@ -23,3 +23,13 @@ tertulis di baris pertama dan di papan.
 Jangan memanen/merge ke cabang resmi — itu tugas integrator. Jangan mengubah papan tugas.
 Kalau lingkupmu ternyata tumpang tindih dengan kenyataan (berkas yang harus disentuh di luar
 lingkup), BERHENTI dan tulis di laporan — integrator yang memutuskan saat panen.
+
+6. TRIPWIRE CABANG-BERSAMA (kejadian nyata 2026-09-21: 3 pekerja dibuka dalam 1 sesi
+   sehingga berbagi 1 cabang): di AWAL kerja, catat `git rev-parse --abbrev-ref HEAD` dan
+   cocokkan dengan cabang di baris pertamamu. Kalau beda, BERHENTI dan tanyakan Lee.
+   Sebelum push: `git pull` dulu (selesaikan merge bila ada — berkas tiap pekerja berbeda,
+   tidak akan konflik). JANGAN PERNAH `git push --force` / `reset --hard`; bila push
+   ditolak, pull lalu push lagi. Kalau suite penuh merah padahal uji lingkupmu hijau,
+   laporkan apa adanya (mungkin berkas pekerja lain) — bukan salahmu.
+7. Cocokkan PAPAN vs PERINTAH: kalau status tugasmu di papan (mis. DIBATALKAN) berbeda
+   dari perintah Lee (mis. "kerjakan"), BERHENTI dan tanyakan Lee dulu — jangan menebak.

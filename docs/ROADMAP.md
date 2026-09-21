@@ -1488,10 +1488,10 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
-- [ ] T8-15 — Migrasi 0017: privasi pelanggan (persetujuan & anonimisasi) ⚠️ ❓ T-011
+- [ ] T8-15 — Privasi pelanggan (persetujuan & anonimisasi) ⚠️ ❓ T-011
   - **Tujuan:** data pelanggan hanya disimpan dengan persetujuan, dan bisa dianonimkan atas permintaan (UU PDP).
   - **Ref:** TECH_SPEC §9 ART-14; PRD M10 & M12; docs/KEAMANAN.md §11
-  - **File:** `supabase/migrations/0017_privasi_pelanggan.sql`, `supabase/tes/privasi.sql`, `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx`
+  - **File:** migrasi `privasi_pelanggan` (nomor final saat Fase 8 — 0017 sudah terpakai), `supabase/tes/privasi.sql`, `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx`
   - **DoD:** kolom persetujuan + waktu + versi kebijakan; fungsi anonimisasi menghapus kontak tanpa menghapus catatan keuangan; halaman kebijakan berbahasa Indonesia; uji SQL lulus; draf kebijakan ditinjau pemilik sebelum data pelanggan pertama masuk.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Data Pelanggan (ART-14); data terlanjur tersimpan tanpa persetujuan → mitigasi: pendaftaran tanpa centang = ditolak database; anonimisasi menyisakan jejak audit.
@@ -1937,3 +1937,4 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 | 2026-09-16 | Aturan baru: **pemulihan setelah ruang kerja dinyalakan ulang** (`aplikasi/alat/pratinjau.sh` + `alat/pulihkan-git.sh`) masuk `AGENT_OPERATING_GUIDE.md` §0 dan prompt pembuka universal | Kejadian nyata: setelah restart, pustaka aplikasi hilang (pratinjau mati) dan salinan Git lokal mundur ke `main` — sesi berikutnya (model apa pun) harus tahu cara memulihkan tanpa menebak |
 | 2026-09-19 (putaran verifikasi) | **Tiga cacat nyata ditutup + dua paket peninjau disegarkan**: (1) angka jumlah tugas basi **189 → 192** di `STATUS.md`/`PROJECT_STATE.md` + **Aturan 2** di `alat/periksa-angka-bukti.py` (uji-diri 3 → 5 kasus); (2) `alat/periksa-paket.py` (F-11/F-12) & `alat/periksa-angka-bukti.py` (F-14) kini **dijalankan sungguhan** di CI & `periksa-semua.sh` (dulu hanya uji-dirinya) + checkout `fetch-depth: 0` + gerbang CI **19 → 22**; (3) riwayat review yang bolong (putaran13–15) diisi + **Aturan 3** penjaga riwayat. Paket: audit `AUD-3-2026-09-19` (192 tugas · 117 berkas) & review `PKT-2026-09-19-pr-01-putaran16` (PR #2 · `93a50ba`) | Permintaan Lee: **putaran verifikasi** — dua putaran berturut-turut menemukan cacat nyata, jadi paket peninjau wajib menyegar; cacat yang ditemukan sendiri ditutup lebih dulu supaya peninjau tidak membuang waktu pada cacat yang sudah diketahui |
 | 2026-09-19 (laporan peninjau masuk) | **+T1-45** — penutup 25 temuan NYATA dari 2 peninjau independen (AUD-3 `01a0b85b`: 10 temuan; review PR putaran16 `01a0b85b`: 15 temuan) → **193 tugas**; laporan audit **DITOLAK MESIN** karena format label grup (isi tetap dipakai setelah dibantah-balik) | Dua laporan masuk lewat `--ambil-laporan`; setiap temuan diuji ulang dengan probe sendiri (25/25 NYATA, 0 palsu) — K-1: penanda transaksi `resto.pembatalan_*` bisa dipalsukan kasir untuk membatalkan item sesudah dapur tanpa PIN |
+| 2026-09-21 | T8-15: judul 'Migrasi 0017' dikoreksi (0017 sudah terpakai migrasi lain; nomor final ditentukan saat Fase 8) | Temuan pekerja T-03 saat panen gelombang 2 (LAPORAN-T-03) |

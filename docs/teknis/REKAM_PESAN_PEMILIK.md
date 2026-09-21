@@ -466,3 +466,13 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
    `PANDUAN_PENGGUNA.md` kini mewajibkan integrator mengirim TEKS LENGKAP tiap prompt pekerja
    langsung di chat (blok siap salin-tempel, baris pertama terisi); menunjuk berkas saja dinyatakan
    melanggar alur. Header `PROMPT_PEKERJA_MARATON.md` dipertegas sama.
+
+## §18. Putaran 20 (2026-09-21) — panen parsial maraton gelombang 2 + tiga insiden ditanam obatnya
+
+1. *"Lanjut semua … nilai 3 sesi 1 cabang … pastikan semua baik … penyebab pasti + tanamkan mekanisme"*
+   — **Dijalankan (2026-09-21):** panen parsial gelombang 2: T-03 DITERIMA (draf privasi `61e739b` +
+   poles 1 baris AT-08) · T-02 DITERIMA (DoD benar → 0018 jadi indeks parsial + uji DoD a–e dilengkapi
+   integrator dari bukti pekerja) · T-01 jalan (pesan pelindung ditempel via Lee). Tiga insiden ditanam
+   obatnya: (i) 3 chat dalam 1 sesi → berbagi cabang (AL-16: 1 pekerja = 1 sesi baru; templat butir 6–7;
+   pemeriksa aturan 5); (ii) race edit paralel se-berkas (GUIDE §0 fakta 6); (iii) reset sandbox →
+   cek induk pra-push (GUIDE §4).

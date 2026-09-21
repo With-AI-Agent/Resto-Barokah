@@ -10,6 +10,9 @@ Menolak papan yang bisa membuat kerja paralel jadi cacat:
      yang ada (pekerja tidak boleh berebut/menabrak nomor);
   4. lingkup tidak boleh menyentuh migrasi BEKU (nomor ≤ NOMOR_TERTINGGI_BEKU) atau berkas
      pemeriksa/pagar — itu wilayah tunggal integrator.
+  5. cabang arena/… NYATA yang dipakai 2+ tugas wajib ditandai 'cabang-bersama' di catatan
+     panen tiap tugas itu (pelajaran insiden 2026-09-21) — berbagi cabang tanpa penanda
+     insiden = GAGAL. Placeholder pekerja-N dikecualikan.
 
 Dipakai: integrator saat menyiapkan gelombang & saat panen; CI (gerbang); `--uji-diri`
 membuktikan pemeriksa ini bisa MENOLAK papan cacat dan MENERIMA papan sehat.
@@ -59,6 +62,8 @@ def periksa_papan(teks: str, akar: pathlib.Path) -> list[str]:
     tertinggi = migrasi_tertinggi(akar)
     nomor_pakai: dict[str, str] = {}
     lingkup_aktif: list[tuple[str, str]] = []
+    cabang_pakai: dict[str, list[str]] = {}
+    catatan_tugas: dict[str, str] = {}
     for sel in baca_baris_tugas(teks):
         tugas, lingkup, nomor, pekerja, status, dod, catatan = (sel + [""] * 7)[:7]
         nama_status = status.split("(")[0].strip().upper()
@@ -67,6 +72,11 @@ def periksa_papan(teks: str, akar: pathlib.Path) -> list[str]:
             continue
         if status.upper().startswith(("DITOLAK", "DIBATALKAN")) and "(" not in status:
             salah.append(f"{tugas}: {nama_status} wajib menyebut alasan dalam kurung")
+        # aturan 5: kumpulkan pemakaian cabang nyata (semua status — berbagi cabang
+        # harus selalu terlihat, termasuk sesudah DITERIMA)
+        for cabang in set(re.findall(r"arena/[\w][\w.\-]*", pekerja)):
+            cabang_pakai.setdefault(cabang, []).append(tugas)
+        catatan_tugas[tugas] = catatan
         if nama_status not in STATUS_AKTIF:
             continue
         if not lingkup or lingkup in ("—", "-"):
@@ -104,6 +114,12 @@ def periksa_papan(teks: str, akar: pathlib.Path) -> list[str]:
                 if a and b and (a.startswith(b) or b.startswith(a)):
                     salah.append(f"{tugas}: lingkup '{bagian}' bersinggungan dengan {t2} ('{l2}')")
             lingkup_aktif.append((tugas, bagian))
+    for cabang, daftar in cabang_pakai.items():
+        if len(daftar) >= 2:
+            for tugas in daftar:
+                if "cabang-bersama" not in catatan_tugas.get(tugas, ""):
+                    salah.append(f"{tugas}: cabang {cabang} dipakai bersama tanpa penanda "
+                                   "'cabang-bersama' di catatan panen")
     return salah
 
 
@@ -153,6 +169,14 @@ def uji_diri() -> int:
          sehat.replace("`arena/bbb-pekerja-2`", "seseorang"), True),
         ("mutasi: lingkup menyentuh wilayah pagar → ditolak",
          sehat.replace("`docs/**`", "`alat/uji-sql.mjs`"), True),
+        ("mutasi: cabang nyata dipakai bersama tanpa penanda → ditolak",
+         sehat.replace("`arena/bbb-pekerja-2`", "`arena/aaa-pekerja-1`"), True),
+        ("cabang nyata dipakai bersama + penanda insiden → diterima",
+         sehat.replace("`arena/bbb-pekerja-2`", "`arena/aaa-pekerja-1`")
+              .replace("| DIBERIKAN | uji hijau + laporan | — |",
+                       "| DIBERIKAN | uji hijau + laporan | cabang-bersama aaa |")
+              .replace("| SELESAI | laporan + bukti | — |",
+                       "| SELESAI | laporan + bukti | cabang-bersama aaa |"), False),
     ]
     gagal = 0
     print("UJI-DIRI PERIKSA MARATON — semua kasus harus sesuai harapan")
