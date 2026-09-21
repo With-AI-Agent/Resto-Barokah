@@ -1473,3 +1473,11 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 **Keputusan:** (1) pembuat paket baca pohon commit target (`git ls-tree`), bukan indeks meja kerja; (2) tiap paket menandai sumber angka + berkasnya sendiri di luar hitungan; (3) Aturan 6 `alat/periksa-paket.py` menegakkan jumlah-grup = total = pohon + tak-tertutup [] + penanda — tetapi SENGAJA tidak membandingkan angka per grup satu-satu supaya definisi grup boleh bertambah tanpa memalsukan paket lama; (4) paket lama (< 2026-09-21) dikecualikan via gerbang tanggal (tak boleh disunting, F-11).
 
 **Bukti:** `python3 alat/audit-independen.py --uji-diri` (kebal meja kotor) + `python3 alat/periksa-paket.py --uji-diri` (7 kasus Aturan 6) LOLOS; hitung ulang target `4fccc9d5` → 334/15/[].
+
+## [Mekanisme-audit/2026-09-21] Sapuan isolasi resto: SETIAP-policy + registri beralasan + rantai transitif wajib
+
+**Konteks:** temuan B F-14 (sapuan isolasi lintas resto hanya tabel ber-`penyewa_id` + pencocokan teks policy; `T1-22`).
+
+**Keputusan:** (1) blok-3 `rls_semua_tabel.sql` memeriksa SETIAP policy (bukan cukup-satu) — satu policy PERMISSIVE longgar menggugurkan semua yang ketat karena digabung OR; (2) registri blok-4 tiap baris membawa `alasan` + jenis kebijakan — pemisahan `TOLAK-SEMUA` vs `GLOBAL-TERBUKA` (policy `using(true)` di tabel acuan global tanpa data penyewa, yaitu `izin_kode`, dinyatakan AMAN secara eksplisit, bukan lolos diam-diam); (3) blok-6 transitif MEMAKSA rantai jangkar tercatat per fungsi (`pesanan_sepenyewa`→{`penyewa_saya`,`cabang_pantau_saya`} dst.) dan GAGAL bila tercatat-tak-sebut — menutup kekurangan "transitif data-hanya" yang dituduh temuan; (4) keempat pagar dibuktikan peka lewat `alat/uji-mutasi-0009.py` (4 mutasi WAJIB MERAH + kontrol hijau + penutup hijau, langkah CI + pola gerbang).
+
+**Bukti:** suite SQL 62/62 LOLOS; 4 mutasi merah dengan alasan blok yang tepat (cabang-dibuang → blok 6 · policy longgar → blok 3 · tanpa RLS → blok 1 · tanpa policy → blok 2).

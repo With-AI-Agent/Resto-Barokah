@@ -388,6 +388,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1); tabel baru mengulang kesalahan yang sama → mitigasi: uji ini otomatis di CI, bukan disiplin manual.
   - **Verifikasi:** CI hijau + sengaja menambah tabel tanpa policy → CI merah.
+  - **Progres 2026-09-21 (maraton solo, B F-14 DITUTUP):** sapuan `supabase/tes/rls_semua_tabel.sql` diperkuat sesuai amanat temuan: blok-3 SETIAP-policy (3 cabang: jangkar / RESTRICTIVE murni-jangkar / tolak-semua-sebagai-penolakan); registri blok-4 membawa `alasan` + jenis (jangkar global `izin_kode` tanpa penyewa terbukti AMAN); blok-6 transitif MEMAKSA rantai tercatat (`pesanan_sepenyewa`→`penyewa_saya`+`cabang_pantau_saya` dst., GAGAL bila tercatat-tak-sebut). Verifikasi T1-22 bagian mutasi TERPENUHI oleh `alat/uji-mutasi-0009.py` (langkah CI + pola gerbang): 4 mutasi WAJIB MERAH terbukti (buang saringan cabang → blok 6 · policy longgar → blok 3 · tabel tanpa RLS → blok 1 · tabel tanpa policy → blok 2 = bukti harfiah "menambah tabel tanpa policy → merah"); suite SQL **62 LULUS · 0 GAGAL**; kontrol + penutup hijau. Kotak tetap `[ ]`: sisa putusan kecil — butir DoD "laporan jumlah tabel & policy tercetak" (mekanisme `--daftar` ada tetapi flag itu SENGAJA dilarang di CI sejak putaran11: cukup on-demand, atau cetak ringkas selalu?) + nama berkas rencana `sisir_rls.sql` vs berkas nyata `rls_semua_tabel.sql`.
 
 ---
 

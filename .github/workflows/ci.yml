@@ -119,6 +119,9 @@ jobs:
       - name: Bukti mutasi pagar migrasi 0018 — perangkat terdaftar T1-24 (semua mutasi WAJIB MERAH)
         run: python3 alat/uji-mutasi-0018.py
 
+      - name: Bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22, 4 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0009.py
+
       - name: Papan tugas maraton valid (AL-16 — lingkup eksklusif, nomor aman, status sah)
         run: python3 alat/periksa-maraton.py
 

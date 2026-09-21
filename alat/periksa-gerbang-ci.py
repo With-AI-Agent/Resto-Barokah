@@ -63,6 +63,8 @@ GERBANG_WAJIB = [
      r"python3 alat/uji-mutasi-0017.py"),
     ("bukti mutasi pagar migrasi 0018 (perangkat terdaftar T1-24)",
      r"python3 alat/uji-mutasi-0018.py"),
+    ("bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22)",
+     r"python3 alat/uji-mutasi-0009.py"),
     ("papan tugas maraton valid (AL-16)",
      r"python3 alat/periksa-maraton.py"),
     ("uji batas Edge Function verifikasi_pin (berkas asli dijalankan tanpa jaringan)", r"node alat/uji-edge-pin\.mjs"),
