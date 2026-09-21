@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0c1d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0c1d1-resto-barokah`
-- **Commit keadaan kerja:** `a49dbec88010d3ceeed51a594986a24c39bb2e80`
+- **Commit keadaan kerja:** `c482c4f7c8bc48b833b2e295a04b26675258d02e`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 35562440549, commit a49dbec8) — tunggu sampai selesai
+- **CI terakhir:** in_progress (run 35562814120, commit c482c4f7) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-21 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (41 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (134 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (42 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (135 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -877,4 +877,4 @@ Kalau Lee hanya menulis "lanjut" tanpa memilih: kerjakan **(1) penyiapan putaran
 tuntas (paket + arahan siap tempel), lalu tanyakan **satu** pertanyaan singkat: "verifikasi (jalankan
 2 chat) atau langsung T1-24?" — jangan menebak di antara dua jalur besar yang tidak bisa dibatalkan.
 
-**MARATON SOLO BATCH-1 (2026-09-21, sesi integrator arena/01a0c1d1):** CI merah `35556507443` terbukti flake platform 401-JWT (run `35557408349` + `35557877929` HIJAU) → lanjut §3. **B F-16 DITUTUP** (lingkup paket dari pohon target + Aturan 6; `T1-44` tetap `[ ]` menunggu paket nyata). **B F-14 DITUTUP** (sapuan isolasi: SETIAP-policy + registri beralasan + rantai transitif wajib; harness 4 mutasi; `T1-22` tetap `[ ]` sisa putusan kecil). **F F-18 DITUTUP (opsi A, keputusan Lee)** — terima-sebagai-risiko, tanpa ubah kode. **BATCH-1 TUNTAS PENUH** (B F-16 + B F-14 + F F-18). Sisa kecil batch depan: putusan T1-22 ("laporan tercetak" + nama berkas). **MARATON SOLO BATCH-2 (2026-09-21):** reset sandbox ke-2 dipulihkan (HEAD `deb4ae3`, bersih). **T1-22 DITUTUP ([x])** (putusan "tercetak" + nama dikoreksi). **B F-11 DITUTUP** (duplikat K F-03; bukti sama, verifikasi ulang hijau). **Sisa Batch-2 (urut):** D F-08 → parsial F F-07/F F-08 → F F-12 (probe) → lapor singkat → tunggu `lanjut` Lee.
+**MARATON SOLO BATCH-1 (2026-09-21, sesi integrator arena/01a0c1d1):** CI merah `35556507443` terbukti flake platform 401-JWT (run `35557408349` + `35557877929` HIJAU) → lanjut §3. **B F-16 DITUTUP** (lingkup paket dari pohon target + Aturan 6; `T1-44` tetap `[ ]` menunggu paket nyata). **B F-14 DITUTUP** (sapuan isolasi: SETIAP-policy + registri beralasan + rantai transitif wajib; harness 4 mutasi; `T1-22` tetap `[ ]` sisa putusan kecil). **F F-18 DITUTUP (opsi A, keputusan Lee)** — terima-sebagai-risiko, tanpa ubah kode. **BATCH-1 TUNTAS PENUH** (B F-16 + B F-14 + F F-18). Sisa kecil batch depan: putusan T1-22 ("laporan tercetak" + nama berkas). **MARATON SOLO BATCH-2 (2026-09-21):** reset sandbox ke-2 dipulihkan (HEAD `deb4ae3`, bersih). **T1-22 DITUTUP ([x])** (putusan "tercetak" + nama dikoreksi). **B F-11 DITUTUP** (duplikat K F-03; bukti sama, verifikasi ulang hijau). **D F-08 DITUTUP** (duplikat F F-13; risiko lanjut TERBUKA di sana). **Sisa Batch-2 (urut):** parsial F F-07/F F-08 → F F-12 (probe) → lapor singkat → tunggu `lanjut` Lee.
