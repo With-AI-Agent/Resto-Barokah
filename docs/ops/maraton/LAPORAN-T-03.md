@@ -5,7 +5,10 @@
 - **Cabang sesi (dilaporkan untuk papan):** `arena/01a0c1d7-resto-barokah`
   (dibuka dari `main` commit `253d129`, lalu dikejar fast-forward ke ujung cabang
   integrator `origin/kerja-terakhir` = `c25d2dc` — `git merge --ff-only` sukses,
-  `ANCESTOR-OK` diverifikasi sebelum merge)
+  `ANCESTOR-OK` diverifikasi sebelum merge). Riwayat cabang: basis `c25d2dc`, di atasnya
+  dua cabang kembar — `d4c0e2d` (kerja T-02, ter-push sesi pekerja-2 ke remote) dan
+  `61e739b` (kerja T-03, commitku) — disatukan merge `b7fa385` (keduanya jadi induk
+  merge; rincian di §3), lalu commit laporan pembaruan ini di atasnya.
 - **Tanggal:** 2026-09-21
 - **Status: SELESAI** — artifact + laporan di-push ke cabang sesi ini
 
@@ -65,6 +68,15 @@
 Catatan: perintah #3–#7, #9 dijalankan **setelah** `docs/PRIVASI_PELANGGAN.md` ada di
 working tree, sehingga hasil itu mencakup artifact-nya.
 
+### Bukti tambahan — kejadian cabang bersama (lihat §3 butir 1)
+
+| # | Perintah | Hasil |
+|---|---|---|
+| 10 | `git push origin HEAD:refs/heads/arena/01a0c1d7-resto-barokah` (push pertama) | **ditolak** (non-fast-forward) — remote cabang itu sudah memuat commit `d4c0e2d` milik **sesi pekerja-2** (berkas T-02), karena sesi pekerja-2 memakai nama cabang yang SAMA dengan sesiku |
+| 11 | `git merge FETCH_HEAD` (merge commit `d4c0e2d` ke cabangku, **bukan** force-push — kerja pekerja-2 harus tetap hidup) | merge bersih, tanpa konflik (empat berkas berbeda) |
+| 12 | `git push origin HEAD:refs/heads/arena/01a0c1d7-resto-barokah` (ulang) | sukses — `d4c0e2d..b7fa385` |
+| 13 | `node alat/uji-sql.mjs` (ulang, setelah merge) | **uji: 60 LULUS · 1 GAGAL** — GAGAL-nya = `supabase/tes/perangkat_registrasi_tepi.sql`, yaitu **reproduksi sengaja GAGAL** milik pekerja-2 yang membuktikan hambatan DoD(d) T-02 (laporan mereka: status **MACET**). Bukan akibat kerja T-03 (T-03 tidak menyentuh SQL). |
+
 ### Daftar sumber per bagian (bukti DoD T-03)
 
 | Bagian `docs/PRIVASI_PELANGGAN.md` | Sumber di repo |
@@ -80,6 +92,18 @@ working tree, sehingga hasil itu mencakup artifact-nya.
 
 ## 3. Keterbatasan jujur
 
+- **Cabang sesi ini ternyata dipakai BERSAMA oleh sesi pekerja-2** (laporan mereka,
+  `docs/ops/maraton/LAPORAN-T-02.md` baris "Cabang sesi", menulis `arena/01a0c1d7-resto-barokah`
+  — nama yang sama dengan sesiku; kemungkinan bentukan nama cabang platform berbenturan).
+  Commit mereka `d4c0e2d` ("T-02: laporkan hambatan daftar ulang perangkat…", status MACET)
+  terlanjur ter-push ke cabang ini sebelum push pertamaku. Aku **merge** commit itu (tanpa
+  konflik) supaya kerja mereka tidak hilang — **bukan** force-push. Konsekuensinya:
+  1. Cabang ini kini memuat kerja **dua** pekerja (T-02 MACET + T-03 selesai); integrator
+     perlu memilahnya saat panen (laporan masing-masing ada di `docs/ops/maraton/`).
+  2. `node alat/uji-sql.mjs` di ujung cabang ini = **60 LULUS · 1 GAGAL** — GAGAL-nya sengaja
+     (reproduksi hambatan T-02 di atas migrasi beku 0018, menunggu keputusan integrator).
+     Cabang ini **tidak boleh dipanen sebagai hijau** sebelum hambatan T-02 ditangani; kerja
+     T-03 di dalamnya sendiri tidak menyentuh satu pun berkas SQL.
 - **Uji yang tidak dijalankan (di luar lingkup):** baterai mutasi
   (`alat/uji-mutasi-*.py`), uji Edge PIN (`node alat/uji-edge-pin.mjs`), dan uji aplikasi
   (vitest) tidak dijalankan — perubahanku hanya **satu berkas markdown baru**, tidak
@@ -105,8 +129,9 @@ working tree, sehingga hasil itu mencakup artifact-nya.
 
 | Berkas | Aksi | Catatan |
 |---|---|---|
-| `docs/PRIVASI_PELANGGAN.md` | **baru** | artifact DRAF kontrak privasi (lingkup eksklusif T-03) |
-| `docs/ops/maraton/LAPORAN-T-03.md` | **baru** | laporan ini |
+| `docs/PRIVASI_PELANGGAN.md` | **baru (dibuat pekerja T-03)** | artifact DRAF kontrak privasi (lingkup eksklusif T-03) |
+| `docs/ops/maraton/LAPORAN-T-03.md` | **baru (dibuat pekerja T-03)** | laporan ini |
+| `docs/ops/maraton/LAPORAN-T-02.md` + `supabase/tes/perangkat_registrasi_tepi.sql` | masuk via **merge commit `d4c0e2d`** | **BUKAN kerja T-03** — milik sesi pekerja-2 yang berbagi nama cabang; tidak kusunting |
 
 Tidak disentuh: papan tugas, handoff (`SIAP-LANJUT.md`/`PROJECT_STATE.md`/`STATUS.md`),
 `alat/…` (pemeriksa/pagar), `.github/…`, migrasi beku (≤0019) maupun migrasi apa pun,
