@@ -140,6 +140,8 @@ def main(akar: pathlib.Path | None = None) -> int:
     for pesan_batas in cek_batas_mode_bimbingan(akar, teks):
         errs.append(pesan_batas)
 
+    errs.extend(cek_penyerahan_prompt(teks))
+
     # --- v2: alur (Bagian B) ---
     judul_alur = re.findall(r"^### (AL-\d+) — (.+)$", teks, re.MULTILINE)
     if len(judul_alur) < MIN_ALUR:
@@ -324,6 +326,22 @@ def blok_alur(teks: str, nomor: str) -> str:
     return teks[awal : akhir if akhir > 0 else len(teks)]
 
 
+PAGAR_SERAH = (
+    "langsung DI CHAT dalam blok siap-tempel",
+    "tautan saja tidak cukup",
+    "--periksa-serah",
+    "URL versi tetap (SHA penuh)",
+    "commit + push ke cabang sesi sendiri",
+    "draf respons",
+)
+
+
+def cek_penyerahan_prompt(teks: str) -> list[str]:
+    alur = blok_alur(teks, "AL-15")
+    return [f"AL-15: pagar penyerahan prompt hilang: {token}"
+            for token in PAGAR_SERAH if token not in alur]
+
+
 def cek_batas_mode_bimbingan(akar: pathlib.Path, teks: str) -> list[str]:
     """Penjaga BATAS mode bimbingan (permintaan Lee 2026-09-19).
 
@@ -493,6 +511,17 @@ def uji_diri() -> int:
                 kode3e, _ = jalankan_pemeriksa(main, tmp3e)
                 hasil.append(("mutasi: aturan 'pemeriksaan rutin boleh ditunda' dihapus", kode3e != 0,
                               "ditolak" if kode3e != 0 else "DILOLOSKAN (aturan tidak dijaga)"))
+
+        # Janji di profil/riwayat tidak boleh menutupi hilangnya gerbang AL-15.
+        for token in PAGAR_SERAH:
+            with salin_pohon() as tmp_serah:
+                f = tmp_serah / "PANDUAN_PENGGUNA.md"
+                isi = f.read_text(encoding="utf-8")
+                alur = blok_alur(isi, "AL-15")
+                f.write_text(isi.replace(alur, alur.replace(token, "(dihapus untuk uji)"), 1), encoding="utf-8")
+                kode, keluar = jalankan_pemeriksa(main, tmp_serah)
+                hasil.append((f"mutasi: pagar serah {token} dihapus", kode != 0 and "AL-15: pagar" in keluar,
+                              "ditolak oleh pagar AL-15" if kode != 0 else "DILOLOSKAN"))
 
         # Mutasi 4: angka berkas uji dibuat basi → harus GAGAL (temuan review putaran11 PR-04)
         with salin_pohon() as tmp5:

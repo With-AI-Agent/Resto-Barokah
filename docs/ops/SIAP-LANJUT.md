@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0c2c1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0c2c1-resto-barokah`
-- **Commit keadaan kerja:** `09bcb89fc139b3be32ab874e7a004f0a3b0480ee`
+- **Commit keadaan kerja:** `742518cc09b2cb8ae2ee5e8568344e297e8ca0c9`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit 09bcb89f)
+- **CI terakhir:** success (1 run, commit 742518cc)
 - **Ditulis:** 2026-09-21 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,9 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **0** — (tidak ada)
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-2-2026-09-21.md` → `09bcb89fc139b3be32ab874e7a004f0a3b0480ee` (CI SUCCESS 35574069120), baru disiapkan bersama checkpoint ini; **BELUM ADA laporan**. Gunakan SIAP-TEMPEL AUD-2 di §3, bukan paket AUD-3/review PR lama. Review PR putaran16 tetap arsip, belum izin merge.
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (60 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (153 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+  jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
+  `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
   Sebelum pratinjau/uji aplikasi: `bash aplikasi/alat/pratinjau.sh` (±1–2 menit). Uji SQL & pemeriksa
   Uji SQL (`node alat/uji-sql.mjs`) BUTUH `npm ci --prefix alat` lebih dulu (runner mengimpor PGlite);
@@ -66,6 +68,8 @@ JANGAN merge apa pun tanpa keputusan Lee.
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**SUSULAN TERBARU (2026-09-21):** Lee sudah menjalankan paket AUD-2 di **tiga sesi pemeriksa**. Jangan meminta mengulang P-06 atau mengirim paket pengganti. Target/paket tetap `09bcb89` / `AUD-2-2026-09-21-SIAP-TEMPEL.md`. Atas izin Lee, mekanisme penyerahan berikutnya diperkuat (AL-15 + generator + `--periksa-serah`, uji 33/33 dan penjaga buku 15/15): prompt pendek wajib langsung di chat, bukan tautan saja. Metadata/URL dikunci; kewajiban laporan commit+push tetap. Setelah Lee bilang laporan masuk, tarik ketiganya, validasi independensi/kontrak, bantah-balik; jangan merge/deploy atau menganggap perubahan mekanisme susulan ikut diaudit pada target lama.
 
 **UTAMAKAN HASIL BATCH-5 (2026-09-21):** prasyarat CI `35571459040`/`73bd831` hijau sebelum implementasi. Kode akhir `09bcb89` **CI SUCCESS run 35574069120**; periksa-semua lokal LOLOS (65 SQL, 101 uji aplikasi, semua mutasi/concurrency). 0022, PIN pelanggan, sapuan penundaan, T1-30 parsial 0023/ACL mendarat. **BATAS SAAT INI: AUD-2 independen belum dijalankan.** Paket `docs/uji/paket-audit/AUD-2-2026-09-21-SIAP-TEMPEL.md` menargetkan `09bcb89`; jangan menyunting lingkup audit sampai laporan sah masuk. Lee membuka sesi auditor setelah exam (P-06); agent berikutnya ambil laporan (`python3 alat/audit-independen.py --ambil-laporan`), validasi kontrak/independensi lalu bantah-balik, perbaiki temuan sebelum mencentang T1-45. Setelah itu lanjut AST/initplan policy T1-30 sesuai `docs/uji/BUKTI_T130_KEAMANAN_SQL.md`; jangan membuat pengecualian agar CI hijau. Verifikasi/sebar Supabase tetap butuh izin Lee TERPISAH; tidak ada izin merge. Log `_log-sesi/LOG_SESI_2026-09-21_2.md`. Keputusan tertangguh: 0 terbuka / 25 selesai, tetapi implementasi & gerbang tersebut TIDAK selesai. Catatan lama di bawah = sejarah.
 

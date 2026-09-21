@@ -487,3 +487,12 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
 
 - **[ringkas]** CI wajib hijau dulu → 0022 penegak T-025(a) + uji → hapus PIN pelanggan di PRD/TECH_SPEC → sapu penanda tertangguh basi → T1-30-sisa bila sempat. Kualitas, bukan kecepatan; jangan ganggu untuk hal yang aman ditunda. Jika batas keamanan/uang/biaya membutuhkan Lee, berhenti di batas aman.
 - **Status:** berjalan di `arena/01a0c2c1-resto-barokah`; pemulihan CI dulu. Rekam kerja & tindak lanjut: `_log-sesi/LOG_SESI_2026-09-21_2.md`, `docs/ROADMAP.md`, `docs/ops/SIAP-LANJUT.md`. Tidak ada izin deploy atau merge PR baru.
+
+
+## §21. Prompt pendek wajib di chat, bukan hanya tautan (2026-09-21)
+
+- **[verbatim]** “Aku cukup copy paste prompt yang hanya beberapa baris tapi agent baru otomatis baca prompt yang panjang … termasuk bahwa dia harus kirim hasilnya ke github.”
+- **[verbatim]** “aku udh jalanin prompt yang kamu arahin link nya itu di 3 sesi pemeriksa. Jadi ga perlu siapin prompt pendek nya.”
+- **[verbatim]** “Mode kerja lagi seperti biasa. Ya, betul begitu. Sambil menunggu hasil pemeriksaan, tanamkan itu ya”.
+- **Pelaksanaan:** perkuat AL-15 + profil + gerbang respons di GUIDE; generator memberi URL immutable, cabang sumber, target, wajib baca semua, gagal-tertutup, larangan ubah kode/merge/main, kewajiban commit/push laporan dan bukti status. Pemeriksa `--periksa-serah` menolak draf yang hanya menampilkan tautan; uji-diri ikut CI yang sudah ada.
+- **Batas:** tidak mengklaim mesin bisa membaca chat aktual atau menjamin jaringan/push; agent tetap mengirim blok hasil pemeriksaan. Tidak membuat/mengubah paket AUD-2 aktif, tidak mengganggu tiga sesi pemeriksa, dan tidak mengubah target `09bcb89`.

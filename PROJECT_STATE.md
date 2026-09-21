@@ -1,5 +1,7 @@
 # Project State
 
+> **Susulan 2026-09-21 — penyerahan prompt:** Lee sudah membuka **3 sesi pemeriksa** memakai paket AUD-2 target `09bcb89`; jangan kirim/ganti paket lagi. Sambil menunggu, atas izin Lee AL-15 diperkuat: prompt pendek wajib DI CHAT, pemeriksa draf `--periksa-serah`, URL immutable + cabang/target + laporan commit/push sendiri. Uji generator 33/33 dan penjaga buku 15/15 hijau lokal; tidak mengubah aplikasi/migrasi/paket aktif. Berikutnya ambil dan validasi laporan setelah Lee memberi kabar.
+
 
 > **POSISI TERBARU Batch-5 (2026-09-21): MENUNGGU AUDIT INDEPENDEN, bukan menunggu keputusan uang.** CI prasyarat `35571459040`/`73bd831` SUCCESS sebelum perubahan; CI kode akhir `35574069120`/`09bcb89` **SUCCESS** (8m39s). Seluruh `periksa-semua.sh` lokal LOLOS: **65/65 SQL, 101 uji aplikasi**, mutasi lama+baru dan concurrency. 0022 T-025(a), dokumen PIN pelanggan, sapuan penundaan, dan T1-30 parsial 0023/ACL sudah mendarat. **AUD-2 belum dijalankan**: paket `docs/uji/paket-audit/AUD-2-2026-09-21-SIAP-TEMPEL.md`, target `09bcb89`; Lee menjalankan P-06 setelah exam. Lingkup audit dibekukan sampai laporan sah masuk; agent lalu `audit-independen.py --ambil-laporan`, validasi dan bantah-balik. Sesudahnya sisa AST/initplan policy T1-30 (`docs/uji/BUKTI_T130_KEAMANAN_SQL.md`). T1-45/T1-30 belum dicentang; tidak ada izin deploy/merge. Log `_log-sesi/LOG_SESI_2026-09-21_2.md`; bagian lebih lama di bawah adalah riwayat.
 

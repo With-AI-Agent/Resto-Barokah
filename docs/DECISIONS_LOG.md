@@ -1536,3 +1536,14 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 **Pelaksanaan:** migrasi baru 0023 mencabut PUBLIC/anon/authenticated pada daftar eksplisit 20 pemicu, mempertahankan service_role. Trigger yang terpasang tetap bekerja (65/65 SQL hijau). `alat/periksa-keamanan-sql.py` membaca katalog efektif hasil seluruh migrasi + sapuan RLS yang sudah ada; tidak tertipu definisi tertimpa atau komentar palsu. Sembilan mutasi wajib gagal dengan asersi, kontrol utuh/pulih hijau, setup rusak bukan bukti; masuk CI.
 
 **Batas jujur:** bukan parser statis umum; aturan initplan `(select …)` pada helper policy belum selesai (inventaris awal minimal 38 policy belum memakai pembungkus identitas). T1-30 tetap `[ ]`, tanpa pengecualian diam-diam atau ubah DoD. Tindak lanjut berurutan dan pemilik tercatat di `docs/uji/BUKTI_T130_KEAMANAN_SQL.md` + ROADMAP; AUD-2 0022/0023 dan izin deploy tetap wajib.
+
+
+## [Mekanisme/2026-09-21] Penyerahan paket independen wajib prompt pendek di chat
+
+**Dasar:** penegasan dan persetujuan Lee sesudah contoh prompt pendek; Lee sudah menjalankan paket AUD-2 di tiga sesi, sehingga tidak meminta prompt/paket pengganti sekarang. Mode respons cepat selesai; pengerjaan normal hanya untuk penanaman mekanisme ini.
+
+**Pelaksanaan:** AL-15 berlaku untuk setiap penyerahan paket independen, termasuk inisiatif agent. Generator menghasilkan URL SHA tetap, cabang sumber, commit sasaran, perintah membaca seluruh paket, berhenti bila akses/sasaran gagal, larangan ubah kode/merge/main, dan kewajiban commit/push laporan pada cabang sendiri + bukti hasil. Metadata dibaca dari versi committed, bukan draf lokal yang tidak sama dengan URL.
+
+**Pagar baru:** `--periksa-serah` memeriksa draf respons: tautan saja, janji tanpa prompt, blok yang kehilangan kewajiban push, atau commit/cabang salah ditolak. Agent wajib mengirim blok yang sama di chat; alat tidak mengklaim mampu memantau percakapan aktual. Pemeriksa buku menjaga enam bagian kontrak AL-15 dengan mutasi. Kedua uji-diri sudah terdaftar di CI, tidak ada gerbang yang dilemahkan.
+
+**Batas lingkup:** paket aktif tidak disunting, target `09bcb89` tidak digeser, aplikasi/migrasi tidak disentuh. Hasil tiga sesi ditarik setelah Lee mengabarkan laporan tersedia. Tidak ada izin merge/deploy.

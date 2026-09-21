@@ -98,25 +98,42 @@ def commit_target_paket(isi: str) -> str | None:
 
 # ------------------------------------------------------------------ prompt pendek
 def bangun_prompt_pendek(rel_paket: str, sha_paket: str, sha_target: str | None,
-                         isi_paket: str = "") -> str:
-    """Buat PROMPT PENDEK (yang ditempel Lee ke sesi baru). Isinya hanya penunjuk:
-    satu URL + identitas paket + kewajiban laporan. SEMUA detail tetap di berkas paket."""
+                         isi_paket: str = "", cabang_sumber: str = "") -> str:
+    """Penunjuk pendek ke paket UTUH, bukan ringkasan pengganti konteks/aturan.
+
+    Sumber paket dan sasaran audit berbeda: URL dikunci ke commit yang memuat
+    paket, sedangkan commit target dibaca dari isi paket yang sudah diterbitkan.
+    """
+    if not re.fullmatch(r"[0-9a-f]{40}", sha_paket):
+        raise ValueError("commit URL paket harus SHA penuh, bukan cabang bergerak")
+    if not sha_target or not re.fullmatch(r"[0-9a-f]{7,40}", sha_target):
+        raise ValueError("commit target tidak terbaca — jangan mengarang sasaran")
+    if not re.fullmatch(r"[A-Za-z0-9_./-]+", cabang_sumber):
+        raise ValueError("cabang sumber paket tidak terbaca")
     url = f"https://raw.githubusercontent.com/{REPO_PUBLIK}/{sha_paket}/{rel_paket}"
     apakah = "PENINJAU REVIEW PR INDEPENDEN" if "/review-pr/" in rel_paket else "AUDITOR INDEPENDEN"
-    target = sha_target or "(tertulis di dalam paket)"
-    nama_paket = pathlib.Path(rel_paket).name
     return (
-        f"Kamu {apakah} untuk proyek Resto Barokah (repo publik; kamu hanya-baca).\n"
-        f"1. Ambil paket lengkapmu — aturan main, lingkup, kriteria, dan commit target ada di dalamnya:\n"
-        f"   {url}\n"
-        f"2. Ikuti paket itu PERSIS dari langkah 0 sampai laporan selesai; jangan mengarang mekanisme lain.\n"
-        f"3. Identitas: paket `{nama_paket}` · commit yang diaudit `{target}`.\n"
-        f"4. Setelah selesai: tulis HANYA berkas laporan (nama & folder sesuai paket), commit, dan push\n"
-        f"   ke cabang sesimu sendiri. Bila tidak bisa push: tulis \"belum ter-push\" di laporan dan beri tahu Lee."
+        f"Kamu {apakah} Resto Barokah (repo publik). Baca SELURUH paket berikut, lalu langsung jalankan semua tahapnya:\n"
+        f"{url}\n"
+        f"Cabang sumber paket: {cabang_sumber}. Commit yang diperiksa: {sha_target}.\n"
+        f"Paket memuat konteks, lingkup, aturan, pengujian, dan format laporan; ikuti semuanya. Jika paket tidak terbaca atau sasaran tidak cocok, berhenti dan laporkan — jangan menebak.\n"
+        f"Jangan ubah kode proyek. Tulis HANYA laporan sesuai paket, commit dan push ke cabang SESIMU SENDIRI; jangan merge atau push ke cabang sumber/main.\n"
+        f"Terakhir, berikan lokasi laporan, commit, dan status push sebenarnya. Jika push gagal, laporkan belum ter-push; serah-terima belum selesai sebelum laporan tersedia di GitHub."
     )
 
 
-def mode_prompt_pendek(arg_berkas: str | None, lewat_cek_push: bool = False) -> int:
+def serah_memuat_prompt(teks: str, prompt: str) -> bool:
+    """Periksa DRAF respons, bukan mengklaim bisa melihat chat yang sudah terkirim.
+
+    URL saja / uraian 'prompt sudah siap' tidak cukup. Wajib satu blok siap salin
+    berisi cetakan persis, tidak diparafrase sampai instruksi penting hilang.
+    """
+    blok = re.findall(r"^```[^\n]*\n(.*?)^```[ \t]*$", teks, re.M | re.S)
+    return any(isi.strip() == prompt.strip() for isi in blok)
+
+
+def mode_prompt_pendek(arg_berkas: str | None, lewat_cek_push: bool = False,
+                       draf_serah: str | None = None) -> int:
     if arg_berkas:
         kandidat = [AKAR / arg_berkas]
     else:
@@ -142,8 +159,29 @@ def mode_prompt_pendek(arg_berkas: str | None, lewat_cek_push: bool = False) -> 
             print(f"GAGAL: {sebab} — push dulu supaya URL paket bisa dibuka dari luar.")
             return 1
     _, sha_head = git("rev-parse", "HEAD")
-    isi = p.read_text(encoding="utf-8")
-    prompt = bangun_prompt_pendek(rel, sha_head.strip(), commit_target_paket(isi), isi)
+    # Jangan membaca draf lokal yang belum masuk URL immutable di atas.
+    kode, isi = git("show", f"HEAD:{rel}")
+    if kode != 0:
+        print("GAGAL: paket tidak dapat dibaca dari commit HEAD.")
+        return 1
+    _, cabang = git("branch", "--show-current")
+    try:
+        prompt = bangun_prompt_pendek(rel, sha_head.strip(), commit_target_paket(isi), isi,
+                                     cabang_sumber=cabang.strip())
+    except ValueError as e:
+        print(f"GAGAL: {e}")
+        return 1
+    if draf_serah:
+        try:
+            teks = pathlib.Path(draf_serah).read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as e:
+            print(f"GAGAL: draf respons tidak dapat dibaca: {e}")
+            return 1
+        if not serah_memuat_prompt(teks, prompt):
+            print("GAGAL: draf wajib memuat prompt pendek utuh dalam blok siap salin; tautan saja tidak cukup.")
+            return 1
+        print("LOLOS: draf memuat prompt pendek siap-tempel. Agent tetap wajib mengirim blok itu DI CHAT.")
+        return 0
     print("PROMPT PENDEK — salin blok ini apa adanya ke chat/percakapan BARU:")
     print("===== MULAI SALIN DARI SINI =====")
     print(prompt)
@@ -179,7 +217,8 @@ def mode_siapkan(jenis: str, pr: int | None, izin_ci: str | None) -> int:
     print("\nLANGKAH BERIKUTNYA (sesi kerja, berurutan):")
     print("  1. commit + push berkas paket yang baru dibuat (URL prompt pendek butuh berkas itu di GitHub);")
     print("  2. jalankan: python3 alat/siapkan-pemeriksaan.py --prompt-pendek")
-    print("  3. tempel prompt pendek yang dicetak ke sesi baru (model berbeda bila bisa).")
+    print("  3. AGENT wajib menampilkan cetakannya dalam blok siap-tempel DI CHAT; tautan saja tidak cukup.")
+    print("  4. sebelum mengirim respons, periksa draf: --prompt-pendek <paket> --periksa-serah <draf-respons>.")
     return 0
 
 
@@ -207,13 +246,41 @@ def uji_diri() -> int:
     # 2) prompt pendek benar-benar PENDEK dan menunjuk URL + identitas
     contoh = bangun_prompt_pendek(
         "docs/uji/paket-audit/AUD-3-2026-09-20-abc1234-SIAP-TEMPEL.md",
-        "f" * 40, "a" * 40)
+        "f" * 40, "a" * 40, cabang_sumber="arena/sumber-uji")
     catat("prompt memuat URL paket", "raw.githubusercontent.com/With-AI-Agent/Resto-Barokah/" + "f" * 40 in contoh)
     catat("prompt memuat commit target", "a" * 40 in contoh)
+    catat("paket lengkap wajib dibaca", "Baca SELURUH paket" in contoh)
+    catat("sasaran gagal-tertutup", "berhenti dan laporkan" in contoh and "jangan menebak" in contoh)
+    catat("larangan merge dan push main", "jangan merge" in contoh and "main" in contoh)
+    catat("bukti serah-terima GitHub", "lokasi laporan, commit, dan status push" in contoh)
     catat("prompt ≤ 10 baris", len(contoh.splitlines()) <= 10, f"{len(contoh.splitlines())} baris")
-    review = bangun_prompt_pendek("docs/uji/review-pr/PKT-x-SIAP-TEMPEL.md", "f" * 40, None)
+    review = bangun_prompt_pendek("docs/uji/review-pr/PKT-x-SIAP-TEMPEL.md", "f" * 40, "a" * 40, cabang_sumber="arena/sumber-review")
     catat("paket review → peran peninjau", "PENINJAU REVIEW" in review)
     catat("paket audit → peran auditor", "AUDITOR INDEPENDEN" in contoh)
+
+    catat("cabang sumber eksplisit", "Cabang sumber paket: arena/sumber-uji" in contoh)
+    catat("review juga berkonteks dan wajib push", "arena/sumber-review" in review and "commit dan push" in review)
+    for nama, teks, harap in [
+        ("blok lengkap diterima", "Untuk Lee:\n```text\n" + contoh + "\n```\n", True),
+        ("tautan saja ditolak", contoh.splitlines()[1], False),
+        ("janji tanpa prompt ditolak", "Prompt pendek sudah siap di berkas.", False),
+        ("prompt tanpa blok ditolak", contoh, False),
+        ("kewajiban push dihapus ditolak", "```\n" + contoh.replace("commit dan push", "simpan") + "\n```", False),
+        ("commit sasaran diganti ditolak", "```\n" + contoh.replace("a" * 40, "b" * 40) + "\n```", False),
+        ("cabang sumber diganti ditolak", "```\n" + contoh.replace("arena/sumber-uji", "main") + "\n```", False),
+    ]:
+        catat(nama, serah_memuat_prompt(teks, contoh) == harap)
+    for nama, paket_sha, target_sha, sumber in [
+        ("URL bergerak ditolak", "main", "a" * 40, "arena/uji"),
+        ("target hilang ditolak", "f" * 40, None, "arena/uji"),
+        ("cabang hilang ditolak", "f" * 40, "a" * 40, ""),
+    ]:
+        try:
+            bangun_prompt_pendek("paket.md", paket_sha, target_sha, cabang_sumber=sumber)
+        except ValueError:
+            catat(nama, True)
+        else:
+            catat(nama, False)
 
     # 3) prompt-pendek MENOLAK berkas yang belum masuk commit HEAD
     palsu = AKAR / "docs" / "uji" / "paket-audit" / "AUD-3-UJI-DIRI-BELUM-COMMIT-SIAP-TEMPEL.md"
@@ -239,6 +306,32 @@ def uji_diri() -> int:
             kode = mode_prompt_pendek(str(nyata[-1].relative_to(AKAR)), lewat_cek_push=True)
         keluar = buf.getvalue()
         catat("berkas nyata di HEAD → prompt tercetak", kode == 0 and "MULAI SALIN" in keluar)
+        import tempfile
+        _, sha = git("rev-parse", "HEAD")
+        _, cabang = git("branch", "--show-current")
+        rel = str(nyata[-1].relative_to(AKAR))
+        _, isi_commit = git("show", f"HEAD:{rel}")
+        prompt = bangun_prompt_pendek(rel, sha.strip(), commit_target_paket(isi_commit),
+                                     cabang_sumber=cabang.strip())
+        with tempfile.TemporaryDirectory(prefix="serah-prompt-") as tmp:
+            draf = pathlib.Path(tmp) / "respons.md"
+            for nama, isi_draf, harap in [
+                ("jalur draf lengkap diterima", "```text\n" + prompt + "\n```\n", 0),
+                ("jalur draf tautan saja ditolak", prompt.splitlines()[1], 1),
+            ]:
+                draf.write_text(isi_draf, encoding="utf-8")
+                with contextlib.redirect_stdout(io.StringIO()):
+                    kode = mode_prompt_pendek(rel, lewat_cek_push=True, draf_serah=str(draf))
+                catat(nama, kode == harap)
+            with contextlib.redirect_stdout(io.StringIO()):
+                kode = mode_prompt_pendek(rel, lewat_cek_push=True, draf_serah=str(draf.with_name("hilang.md")))
+            catat("jalur draf hilang ditolak", kode == 1)
+        # Draf lokal tidak boleh mengganti metadata URL yang sudah dikunci.
+        from unittest.mock import patch
+        with patch.object(pathlib.Path, "read_text", side_effect=AssertionError("jangan baca paket lokal")):
+            with contextlib.redirect_stdout(io.StringIO()):
+                kode = mode_prompt_pendek(rel, lewat_cek_push=True)
+        catat("metadata diambil dari paket committed, bukan draf lokal", kode == 0)
     else:
         catat("berkas nyata di HEAD → prompt tercetak", False, "tidak ada SIAP-TEMPEL terlacak")
 
@@ -257,13 +350,17 @@ def main() -> int:
     ap.add_argument("--prompt-pendek", nargs="?", const="", default=None,
                     help="cetak prompt pendek untuk paket SIAP-TEMPEL (default: yang terbaru)")
     ap.add_argument("--izinkan-ci-belum-hijau", help="alasan izin pemilik (diteruskan ke pembuat paket)")
+    ap.add_argument("--periksa-serah", metavar="DRAF_RESPONS",
+                    help="periksa blok prompt dalam draf chat; wajib --prompt-pendek dengan jalur paket eksplisit")
     ap.add_argument("--uji-diri", action="store_true")
     a = ap.parse_args()
 
     if a.uji_diri:
         return uji_diri()
+    if a.periksa_serah and not a.prompt_pendek:
+        ap.error("--periksa-serah memerlukan --prompt-pendek <jalur-paket-eksplisit>")
     if a.prompt_pendek is not None:
-        return mode_prompt_pendek(a.prompt_pendek or None)
+        return mode_prompt_pendek(a.prompt_pendek or None, draf_serah=a.periksa_serah)
     jenis = a.jenis or (kenali_frasa(a.frasa) if a.frasa else None)
     if not jenis:
         print("GAGAL: jenis pemeriksaan tidak dikenali.")
