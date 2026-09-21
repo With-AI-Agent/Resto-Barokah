@@ -71,8 +71,11 @@ def periksa_papan(teks: str, akar: pathlib.Path) -> list[str]:
             continue
         if not lingkup or lingkup in ("—", "-"):
             salah.append(f"{tugas}: tugas aktif wajib punya lingkup berkas eksklusif")
-        if not pekerja or pekerja in ("—", "-") or "arena/" not in pekerja:
-            salah.append(f"{tugas}: tugas aktif wajib punya pekerja (cabang arena/…)")
+        # Pekerja = cabang arena/… ATAU placeholder "pekerja-N" (cabang platform baru diketahui
+        # saat sesi pekerja dibuka; pekerja wajib melaporkan nama cabangnya di laporan).
+        if not pekerja or pekerja in ("—", "-") or not (
+                "arena/" in pekerja or re.search(r"pekerja-\d+", pekerja)):
+            salah.append(f"{tugas}: tugas aktif wajib punya pekerja (cabang arena/… atau pekerja-N)")
         if not dod or dod in ("—", "-"):
             salah.append(f"{tugas}: tugas aktif wajib punya DoD & bukti")
         # nomor migrasi cadangan
@@ -144,6 +147,10 @@ def uji_diri() -> int:
          sehat.replace("DITOLAK (DoD tak terbukti)", "DITOLAK"), True),
         ("mutasi: lingkup menyentuh migrasi beku → ditolak",
          sehat.replace("`supabase/tes/foo/**`", "`supabase/migrations/0006_pin.sql`"), True),
+        ("papan dengan placeholder pekerja-N sah → diterima",
+         sehat.replace("`arena/bbb-pekerja-2`", "pekerja-2 (cabang dilaporkan saat lapor)"), False),
+        ("mutasi: pekerja tanpa identitas sah → ditolak",
+         sehat.replace("`arena/bbb-pekerja-2`", "seseorang"), True),
         ("mutasi: lingkup menyentuh wilayah pagar → ditolak",
          sehat.replace("`docs/**`", "`alat/uji-sql.mjs`"), True),
     ]

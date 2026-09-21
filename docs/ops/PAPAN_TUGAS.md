@@ -13,14 +13,18 @@
 
 | Tugas | Lingkup berkas eksklusif | No. migrasi cadangan | Pekerja (cabang) | Status | DoD & bukti wajib | Catatan panen |
 |---|---|---|---|---|---|---|
-| T-00 (contoh — hapus baris ini saat dipakai) | `docs/contoh/**` | — | `arena/xxxx-pekerja-1` | DIBATALKAN (baris contoh) | — | — |
+| T-01 | `supabase/migrations/0020_catatan_audit.sql`, `supabase/tes/catatan_audit.sql` | 0020 | pekerja-1 (cabang dilaporkan saat lapor) | DIBERIKAN | Tabel `catatan_audit` (temuan F F-07/T1-13): kolom minimal `id`, `penyewa_id` (FK), `pelaku_id` (FK pengguna, boleh null = sistem), `aksi` (text), `entitas` (text), `entitas_id` (uuid null), `nilai_lama`/`nilai_baru` (jsonb null), `waktu` (timestamptz default now); RLS: baca hanya `kelola_pegawai` se-penyewa, TANPA grant insert/update/delete ke klien (jalur peladen/definer saja); TANPA trigger dulu (pencatatan otomatis menyusul di panen berikutnya — JANGAN menyentuh fungsi lain). Uji `supabase/tes/catatan_audit.sql`: insert via klien ditolak (sebab dipatok `harap_gagal_sebab`), baca kasir tanpa izin = 0 baris, admin cabang melihat catatan penyewanya, lintas penyewa 0 baris, insert jalur pemilik berhasil & terbaca. Bukti: `node alat/uji-sql.mjs supabase/tes/catatan_audit.sql` LULUS + seluruh suite tetap hijau. | — |
+| T-02 | `supabase/tes/perangkat_registrasi_tepi.sql` | — | pekerja-2 (cabang dilaporkan saat lapor) | DIBERIKAN | Uji TEPI tambahan untuk perangkat terdaftar (melengkapi `perangkat_registrasi.sql`, TANPA migrasi baru, TANPA mengubah berkas lain): (a) nama perangkat kembar dalam satu penyewa ditolak (sebab dipatok), (b) nama sama di penyewa BERBEDA diperbolehkan, (c) cabang nonaktif ditolak saat mendaftar, (d) perangkat dicabut lalu didaftarkan ulang dengan nama sama → berhasil & perangkat baru sah dipakai, (e) kunci 16 karakter tepat di batas diterima, 15 ditolak. Semua penolakan dipatok dengan `uji.harap_gagal_sebab` (bukan `harap_gagal` polos — ada pagarnya). Bukti: `node alat/uji-sql.mjs supabase/tes/perangkat_registrasi_tepi.sql` LULUS + suite tetap hijau. | — |
+| T-03 | `docs/PRIVASI_PELANGGAN.md` | — | pekerja-3 (cabang dilaporkan saat lapor) | DIBERIKAN | DRAF kontrak privasi pelanggan (temuan F F-09, bahan T8-01) dalam bahasa Indonesia sederhana untuk Lee: data pelanggan apa yang dikumpulkan/diproses (dari `DISCOVERY.md`, `PRD.md`, skema `supabase/migrations/`), dasar & tujuan, masa simpan, hak pelanggan (akses/koreksi/penghapusan), anonimisasi/pseudonimisasi yang direncanakan, dan jalur implementasinya per fase — semua WAJIB bersumber dari berkas repo (sebutkan rujukannya per bagian), tanpa mengarang mekanisme; bagian yang belum diputuskan ditandai `TODO(keputusan Lee)` — jangan memutuskan sendiri. Status berkas: DRAF. Bukti: laporan berisi daftar sumber per bagian. | — |
 
 ## Kolam tugas (belum dibagi)
 
-- (kosong — integrator menaruh kandidat tugas di sini sebelum gelombang dimulai)
+- F F-18 (sisa oracle boolean pemasangan PIN) — sengaja DITAHAN integrator (pekerjaan keamanan halus, integrator sendiri).
+- B F-14 / B F-16 (pemeriksa) — wilayah `alat/` = terlarang bagi pekerja; integrator sendiri.
+- F F-12 / F F-13 — terblokir lingkungan (butuh 2 koneksi database nyata).
 
 ## Riwayat gelombang
 
 | Gelombang | Tanggal | Pekerja | Hasil |
 |---|---|---|---|
-| — | — | — | belum ada gelombang |
+| 1 | 2026-09-21 | pekerja-1 (T-01) · pekerja-2 (T-02) · pekerja-3 (T-03) | berjalan — menunggu laporan pekerja |
