@@ -1438,3 +1438,22 @@ berbasis peran. Logika pemicu TIDAK berubah; badan disalin utuh dari definisi be
 `pembayaran.sql` ikut disegarkan — sebelum penyegaran keempatnya MERAH
 (SEBAB BUKAN YANG DIHARAPKAN), membuktikan pin pesan hidup; sesudahnya suite penuh
 **60 LULUS · 0 GAGAL**.
+
+## [Keamanan/2026-09-21] Nama perangkat boleh dipakai ulang sesudah dicabut (panen T-02)
+
+**Konteks:** DoD T-02 (d) menuntut nama perangkat bisa dipakai ulang sesudah
+perangkat lama dicabut, tetapi migrasi 0018 memasang `UNIQUE(penyewa_id, nama)`
+sementara `cabut_perangkat` hanya mengubah `aktif=false`. Pekerja T-02 berhenti
+sesuai AL-16 dengan bukti reproduksi; keputusan di tangan integrator.
+
+**Keputusan:** DoD benar, constraint yang cacat. `UNIQUE(penyewa_id, nama)` di
+`supabase/migrations/0018_perangkat_terdaftar.sql` diganti indeks unik parsial
+`perangkat_nama_aktif_unik ... WHERE aktif` (in-place; 0018 belum deploy —
+preseden 0015). Nama perangkat bersifat posisional ("hp-kasir-1"); otentikasi
+tidak terpengaruh karena `perangkat_sah` memakai id+kunci+aktif dan catatan
+audit memakai id.
+
+**Bukti:** `supabase/tes/perangkat_registrasi_tepi.sql` (DoD a-e, dilengkapi
+integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
+`alat/uji-mutasi-0018.py` LOLOS; `node alat/uji-edge-pin.mjs` 19/19;
+`alat/periksa-fungsi-pin.py` 14/14.

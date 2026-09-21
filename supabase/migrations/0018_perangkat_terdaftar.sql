@@ -34,12 +34,18 @@ create table if not exists public.perangkat (
   nama             text not null,
   aktif            boolean not null default true,
   didaftarkan_oleh uuid references public.pengguna (id) on delete set null,
-  didaftarkan_pada timestamptz not null default now(),
-  unique (penyewa_id, nama)
+  didaftarkan_pada timestamptz not null default now()
 );
 
 comment on table public.perangkat is
   'Perangkat kasir/pegawai yang TERDAFTAR (T1-24). Identitasnya (id + kunci) dipakai verifikasi_pin; nama di sini — bukan kiriman klien — yang masuk catatan percobaan.';
+
+-- Nama BOLEH dipakai ulang sesudah perangkat lama dicabut (panen T-02, 2026-09-21):
+-- keunikan nama hanya dijaga di antara perangkat AKTIF se-resto. Otentikasi tidak
+-- terpengaruh: perangkat_sah memakai id+kunci+aktif, dan catatan audit memakai id.
+create unique index if not exists perangkat_nama_aktif_unik
+  on public.perangkat (penyewa_id, nama)
+  where (aktif);
 
 -- Hash kunci perangkat TIDAK menempel pada tabel perangkat (pola K-3 kredensial_pin).
 create table if not exists public.kredensial_perangkat (
