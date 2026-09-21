@@ -305,6 +305,10 @@ def main() -> int:
 
     # ------------------------------------------------------------------ K-2b (F-01)
     # 9) Pagar diskon sesudah lunas/batal dihapus → uji F-01 wajib MERAH.
+    #    Sasaran = salinan 0021 (DEFINISI HIDUP): `create or replace` di 0021
+    #    menutupi badan fungsi versi 0015, sehingga memutasi salinan 0015 tidak
+    #    bisa memerahkan apa pun (pelajaran 2026-09-21: mutasi wajib menyasar
+    #    definisi hidup, bukan teks asal yang sudah tertutup).
     def hapus_pagar_diskon(t: str) -> str:
         return t.replace(
             """  if v_status in ('lunas', 'batal') then
