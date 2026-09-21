@@ -1457,3 +1457,11 @@ audit memakai id.
 integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 `alat/uji-mutasi-0018.py` LOLOS; `node alat/uji-edge-pin.mjs` 19/19;
 `alat/periksa-fungsi-pin.py` 14/14.
+
+## [Keamanan/2026-09-21] Tabel catatan_audit mendarat tanpa trigger dulu (panen T-01)
+
+**Konteks:** temuan F F-07 (tabel audit wajib belum ada; pemilik T1-13). Maraton T-01 membangun tabel + RLS + uji; DoD papan T-01 eksplisit "TANPA trigger dulu" (lingkup eksklusif, tidak menyentuh fungsi lain).
+
+**Keputusan:** DITERIMA dengan cakupan jujur: tulis klien (`anon`/`authenticated`, termasuk admin) DITOLAK di level grant; tulis hanya jalur peladen/`service_role`; baca = penyewa sama + izin `kelola_pegawai`. Sisa DoD T1-13 (trigger tolak UPDATE/DELETE termasuk owner & service_role) TIDAK ikut mendarat — T1-13 tetap `[ ]`, F F-07 tetap TERBUKA dengan catatan progres.
+
+**Bukti:** `supabase/tes/catatan_audit.sql` LULUS; suite SQL **62 LULUS · 0 GAGAL**; `rls_semua_tabel.sql` otomatis mencakup tabel baru.

@@ -298,11 +298,12 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T1-13 — Migrasi catatan_audit (hanya-tambah) ⚠️
   - **Tujuan:** jejak tindakan sensitif tidak bisa diubah atau dihapus siapa pun.
   - **Ref:** TECH_SPEC §4 & §9 ART-6; PRD M3
-  - **File:** `supabase/migrations/0020_catatan_audit.sql`, `supabase/tes/audit.sql`
+  - **File:** `supabase/migrations/0020_catatan_audit.sql`, `supabase/tes/catatan_audit.sql`
   - **DoD:** hanya bisa INSERT; UPDATE/DELETE ditolak untuk semua peran (termasuk owner & service role via policy/trigger); uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Audit (ART-6); hapus jejak untuk menutupi kecurangan → mitigasi: larangan di tingkat database, bukan aplikasi.
   - **Verifikasi:** uji SQL: `UPDATE` dan `DELETE` gagal dengan pesan jelas.
+  - **Progres 2026-09-21 (maraton T-01, d205955):** tabel + indeks + RLS + penolakan tulis klien mendarat (uji: catatan_audit.sql — bukan audit.sql seperti rencana); DoD papan T-01 eksplisit TANPA trigger dulu. Sisa DoD T1-13: trigger tolak UPDATE/DELETE termasuk owner & service_role — kotak tetap `[ ]`.
 
 - [ ] T1-14 — Migrasi antrean kirim & catatan kesalahan
   - **Tujuan:** pesanan saat internet putus tidak hilang dan masalah bisa diperiksa tanpa menebak.
