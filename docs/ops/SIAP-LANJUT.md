@@ -9,12 +9,12 @@
 
 - **Cabang yang dilanjutkan:** `arena/01a0b7d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
-- **Ditulis oleh sesi:** `arena/01a0b7d1-resto-barokah`
-- **Commit keadaan kerja:** `b660369bd926dab92b5388de22167450ea8e4daf`
+- **Ditulis oleh sesi:** `arena/01a0c1d1-resto-barokah`
+- **Commit keadaan kerja:** `47ba1ec4b2ea450ce516c1cd15a86c20b7e83c5b`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (2 run, commit b660369b)
+- **CI terakhir:** success (2 run, commit 47ba1ec4)
 - **Ditulis:** 2026-09-21 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (24 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (117 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (25 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (118 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -68,6 +68,8 @@ JANGAN merge apa pun tanpa keputusan Lee.
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**MARATON GELOMBANG 2 DILUNCURKAN 2026-09-21 (sesi integrator arena/01a0c1d1):** T-01/T-02/T-03 DIBERIKAN di `docs/ops/PAPAN_TUGAS.md`; prompt 3 pekerja dikirim DI CHAT (blok siap tempel, REKAM butir 7); base branch sesi pekerja = `arena/01a0c1d1-resto-barokah`. Panen saat Lee bilang `Panen hasil maraton.` (verifikasi sendiri + merge berurutan + baterai tiap merge, AL-16). Sambil menunggu pekerja: lanjut §3 lama di bawah (B F-16/B F-14 lokal dulu).
 
 **PINDAH SESI 2026-09-21 (Lee):** sesi berikutnya = integrator maraton AL-16 dengan base `main` (susul dulu cabang ini!). Maraton gelombang 1 **belum diluncurkan** — 3 tugas siap pakai (T-01/T-02/T-03) ada di `docs/ops/PAPAN_TUGAS.md` (DIBATALKAN sebelum jalan; terbitkan ulang sebagai DIBERIKAN saat Lee bilang `Siapkan maraton kerja sama.`, lalu kirim prompt pekerja DI CHAT sesuai REKAM butir 7).
 
