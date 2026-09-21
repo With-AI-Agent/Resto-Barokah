@@ -980,7 +980,7 @@ git ls-remote origin refs/heads/arena/01a0c39d-resto-barokah
 
 Pada penyerahan pertama, tidak dilakukan force-push atau merge/rebase; penolakan dicatat dalam commit lokal `7ad811211d1ff1b4cf0f0a4ca4c1da8b84e07f06`. **Tindak lanjut atas permintaan pemilik agar hasil tersedia di GitHub:** riwayat remote `5529eae99fbd6f369b41ef599919418a3719adee` digabung pada cabang sesi yang sama. Konflik hanya pada berkas laporan ini; versi remote disimpan utuh di lampiran arsip. Tidak mengubah kode/migrasi/konfigurasi atau menulis ulang riwayat. Tidak meminta kata sandi/token/kode autentikasi pemilik.
 
-**Status pengiriman susulan:** rekonsiliasi laporan disiapkan; hasil push dan verifikasi pembacaan GitHub akan dicatat setelah perintah selesai. Validator audit tidak dijalankan ulang dalam tindak lanjut pengiriman ini.
+**Status pengiriman susulan: SUDAH TER-PUSH ke GitHub.** Push normal commit merge `b68490ed7cdbe52175e546c2df0bd0454418bb13` berhasil ke `arena/01a0c39d-resto-barokah` (tanpa force-push). `git ls-remote` mengonfirmasi SHA cabang sama; GitHub Contents API berhasil membaca laporan 137.685 byte pada commit tersebut dan blob `a3d4b70553da6cd215ceac355fa2b271a149cd7f` cocok dengan berkas lokal. [Laporan yang telah diverifikasi di GitHub](https://github.com/With-AI-Agent/Resto-Barokah/blob/b68490ed7cdbe52175e546c2df0bd0454418bb13/docs/uji/audit/LAPORAN_AUD-2_2026-09-21_terarah__01a0c39d.md). Catatan status ini ditambahkan sesudah bukti pengiriman tersebut; SHA penutup terbaru disampaikan di chat. Hanya berkas laporan berubah, dan versi remote asal tetap tersimpan utuh. Validator audit tidak dijalankan ulang dalam tindak lanjut pengiriman ini.
 
 ## 8. Temuan di luar cakupan (WAJIB)
 
