@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0c1d1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0c1d1-resto-barokah`
-- **Commit keadaan kerja:** `7513500093b7ca3df6ff126972b075cb42d353ca`
+- **Commit keadaan kerja:** `5b2fc39a010865d209e2412d3048d3baeef8a877`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit 75135000)
+- **CI terakhir:** success (1 run, commit 5b2fc39a)
 - **Ditulis:** 2026-09-21 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **8** — T-002, T-003, T-010, T-011, T-015, T-016, T-022, T-023
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (35 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (128 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (36 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (129 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -875,3 +875,5 @@ Urutan yang disarankan agent, dan alasannya:
 Kalau Lee hanya menulis "lanjut" tanpa memilih: kerjakan **(1) penyiapan putaran verifikasi** sampai
 tuntas (paket + arahan siap tempel), lalu tanyakan **satu** pertanyaan singkat: "verifikasi (jalankan
 2 chat) atau langsung T1-24?" — jangan menebak di antara dua jalur besar yang tidak bisa dibatalkan.
+
+**MARATON SOLO BATCH-1 (2026-09-21, sesi integrator arena/01a0c1d1):** CI merah `35556507443` terbukti flake platform 401-JWT (run `35557408349` + `35557877929` HIJAU) → lanjut §3. **B F-16 DITUTUP** (lingkup paket dari pohon target + Aturan 6; `T1-44` tetap `[ ]` menunggu paket nyata). **Sisa Batch-1 (urut):** B F-14 (`T1-22`, sapuan isolasi lintas resto) → F F-18 (oracle boolean PIN) → lapor singkat → tunggu `lanjut` Lee.

@@ -100,6 +100,8 @@ Keluaran: berkas paket di docs/uji/paket-audit/ berisi:
 6. **Format laporan** (salin dari §6) + aturan independensi (§3).
 7. **Perintah validasi** laporannya sendiri: `python3 alat/audit-independen.py --periksa-laporan <berkas>`.
 
+**Aturan lingkup dari pohon (B F-16, 2026-09-21):** tabel lingkup §0 dihitung dari **pohon commit target** (`git ls-tree -r --name-only`), bukan meja kerja pembuat paket — berkas yang belum di-commit tidak masuk hitungan; berkas paket (dan siap-tempelnya) yang lahir sesudah hitungan ditandai eksplisit TIDAK masuk hitungan. Penegak: Aturan 6 `alat/periksa-paket.py` — GAGAL bila jumlah per grup ≠ total, total ≠ pohon target, ada berkas tak-tertutup, atau penanda hilang.
+
 ---
 
 ## 5b. Independensi terhadap base branch (dikunci 2026-09-17)

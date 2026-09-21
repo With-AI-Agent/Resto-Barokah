@@ -158,16 +158,26 @@ def baca_tugas_roadmap() -> dict[str, str]:
     return hasil
 
 
-def berkas_terlacak() -> list[str]:
-    _, keluaran = jalankan(["git", "ls-files"])
+def berkas_dari_pohon(ref: str) -> list[str]:
+    """Daftar berkas pada pohon commit `ref` (B F-16: lingkup dari TARGET, bukan meja kerja).
+
+    Dulu memakai `git ls-files` (indeks meja kerja): berkas yang sudah di-stage tetapi
+    belum di-commit ikut terhitung, dan berkas yang baru dihapus dari indeks hilang dari
+    hitungan — padahal auditor memeriksa POHON commit target. Sekarang angka lingkup selalu
+    sama dengan pohon yang diaudit, sekotor apa pun meja kerja pembuat paket.
+    """
+    kode, keluaran = jalankan(["git", "ls-tree", "-r", "--name-only", ref])
+    if kode != 0:
+        raise SystemExit(
+            f"GAGAL: pohon commit {ref[:8]} tidak bisa dibaca (`git ls-tree` kode {kode}) — paket TIDAK dibuat.")
     return [b for b in keluaran.splitlines() if b.strip()]
 
 
-def kelompokkan_berkas() -> tuple[dict[str, list[str]], dict[str, int]]:
-    """Kelompokkan berkas terlacak ke grup proyek; kembalikan (grup->berkas, jumlah yang dikecualikan)."""
+def kelompokkan_berkas(ref: str) -> tuple[dict[str, list[str]], dict[str, int]]:
+    """Kelompokkan berkas pada pohon `ref` ke grup proyek; kembalikan (grup->berkas, jumlah yang dikecualikan)."""
     grup: dict[str, list[str]] = {nama: [] for nama, _, _ in GRUP_SEMUA}
     dikecualikan: dict[str, int] = {nama: 0 for nama, _ in DIKECUALIKAN}
-    for b in berkas_terlacak():
+    for b in berkas_dari_pohon(ref):
         if any(b == nama.rstrip("/") or b.startswith(nama) for nama, _ in DIKECUALIKAN):
             for nama, _ in DIKECUALIKAN:
                 if b == nama.rstrip("/") or b.startswith(nama):
@@ -355,7 +365,7 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
     siap.append("pemeriksa Python — selalu siap")
 
     lensa = LENSA_MINIMUM[tingkat]
-    grup, dikecualikan = kelompokkan_berkas()
+    grup, dikecualikan = kelompokkan_berkas(sha)
     if grup["belum berggrup"]:
         print("GAGAL: ada berkas yang tidak masuk grup mana pun — paket TIDAK dibuat.")
         print("  Sebabnya: angka lingkup di paket akan salah (F-13 audit 2026-09-18).")
@@ -392,6 +402,8 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
 
 - **Jumlah berkas dalam lingkup:** {total_proyek}
 - **Mode cakupan yang wajib kamu tulis di laporan:** `{lingkup}`
+- **Sumber angka:** pohon commit `{sha}` (`git ls-tree -r --name-only`), BUKAN meja kerja — berkas yang belum di-commit TIDAK masuk hitungan (B F-16).
+- **Berkas paket ini:** `{keluar.relative_to(AKAR)}` dibuat SETELAH angka di atas dihitung — ia TIDAK masuk hitungan; kalau dihitung pun ia masuk grup `docs/uji`.
 {catatan_bidang}
 **Grup berkas yang wajib kamu sentuh (minimal satu baris bukti per grup):**
 
@@ -681,7 +693,8 @@ cacat yang kamu temukan (`berkas` + kelas + bukti), `Ditemukan: X dari Y`, dan j
             )
             siap = (
                 "> BERKAS SIAP-TEMPEL — salin SELURUH isi berkas ini ke chat/percakapan BARU (idealnya model berbeda).\n"
-                "> Dibuat mesin oleh `alat/audit-independen.py`; kalimat pembuka diambil apa adanya dari sumber kanonik.\n\n"
+                "> Dibuat mesin oleh `alat/audit-independen.py`; kalimat pembuka diambil apa adanya dari sumber kanonik.\n"
+                "> Berkas siap-tempel ini juga dibuat setelah angka lingkup dihitung — ia tidak masuk hitungan paket ini (paket berikutnya menghitungnya sebagai `docs/uji`).\n\n"
                 "===== MULAI SALIN DARI SINI =====\n\n"
                 + pembuka
                 + "\n\n===== SAMBUNGAN: PAKET AUDIT =====\n\n"
@@ -1484,6 +1497,10 @@ def _uji_pembuat_paket() -> tuple[bool, str]:
     cacat "alat yang tidak pernah dijalankan setelah disunting" — pemilik menyalin
     paket audit, tetapi paketnya tidak pernah bisa dibuat. Uji ini menjalankan pembuat
     paket di SALINAN pohon untuk dua mode (menyeluruh & per fase) dan memeriksa isinya.
+    Sejak B F-16 (2026-09-21): salinan ini adalah repo git BETULAN (di-`init` + commit di
+    folder sementara) karena lingkup dihitung dari pohon commit target. Diuji juga: tabel
+    lingkup tidak kosong + penanda sumber & berkas paket ada; meja kerja kotor (staged &
+    tak-terlacak) TIDAK mengubah angka; sesudah di-commit, total bertambah tepat 1.
     """
     import subprocess
     import tempfile
@@ -1497,11 +1514,22 @@ def _uji_pembuat_paket() -> tuple[bool, str]:
         tujuan = pathlib.Path(tmp) / "repo"
         shutil.copytree(AKAR, tujuan, ignore=shutil.ignore_patterns(
             ".git", "node_modules", "dist", "build", "coverage", "__pycache__", ".pytest_cache"))
-        # Salinan uji ini SENGAJA tanpa `.git` (supaya tidak mengotori repo asli). Sejak gerbang
-        # "paket wajib commit ber-CI hijau" (H F-02) ada, pembuat paket WAJIB menolak di sini —
-        # jika tidak menolak, gerbangnya tidak bekerja. Dua-duanya diuji:
+        # Salinan uji ini adalah repo git BETULAN (B F-16): `git init` + commit di folder
+        # sementara — tidak mengotori repo asli. Sejak gerbang "paket wajib commit ber-CI
+        # hijau" (H F-02) ada, pembuat paket WAJIB menolak di sini (SHA sementara tidak punya
+        # run CI) — jika tidak menolak, gerbangnya tidak bekerja. Dua-duanya diuji:
         #   (1) tanpa izin  → HARUS menolak, dan alasannya harus menyebut CI (bukan sebab lain);
         #   (2) dengan izin pemilik → boleh jalan, dan izin itu HARUS tercetak di paket.
+        def git_tmp(*argumen):
+            r = subprocess.run(["git", *argumen], capture_output=True, text=True, cwd=str(tujuan))
+            return r.returncode, (r.stdout + r.stderr).strip()
+        if git_tmp("init", "-q", "-b", "uji")[0] != 0:
+            return False, "fixture uji: `git init` gagal di salinan sementara"
+        git_tmp("config", "user.email", "uji@lokal")
+        git_tmp("config", "user.name", "uji")
+        git_tmp("add", "-A")
+        if git_tmp("commit", "-q", "-m", "fixture uji pembuat paket")[0] != 0:
+            return False, "fixture uji: commit awal gagal di salinan sementara"
         izin = 'salinan uji lokal tanpa riwayat git — CI tidak bisa diperiksa'
         kode0, keluar0 = jalankan(tujuan, ["--paket", "AUD-3", "--semua"])
         if kode0 == 0:
@@ -1524,6 +1552,44 @@ def _uji_pembuat_paket() -> tuple[bool, str]:
             return False, "paket menyeluruh tidak mencantumkan status CI commit target"
         if f"- **Izin pemilik untuk commit non-hijau:** {izin}" not in isi:
             return False, "izin pemilik tidak tercetak di paket (pengecualian jadi diam-diam)"
+        # B F-16: lingkup dari POHON — tabel tidak boleh kosong (dulu fixture tanpa `.git`
+        # meloloskan tabel kosong), dan penanda sumber + berkas paket wajib ada.
+        m_total = re.search(r"- \*\*Jumlah berkas dalam lingkup:\*\* (\d+)", isi)
+        if not m_total or int(m_total.group(1)) == 0:
+            return False, "tabel lingkup kosong: angka tidak dihitung dari pohon commit target"
+        total_bersih = int(m_total.group(1))
+        if "- **Sumber angka:** pohon commit" not in isi:
+            return False, "paket tidak menulis sumber angka (pohon commit target)"
+        if "- **Berkas paket ini:**" not in isi:
+            return False, "paket tidak menandai berkasnya sendiri di luar hitungan"
+
+        # B F-16: meja kerja KOTOR tidak mengubah angka (dulu `git ls-files` menghitung berkas
+        # staged; sekarang sumbernya pohon HEAD) — tetapi lingkup MENGIKUTI pohon sesudah commit.
+        (tujuan / "alat" / "uji-kotor-sementara.py").write_text(
+            "# fixture kotor — di-stage tetapi TIDAK di-commit\n", encoding="utf-8")
+        (tujuan / "catatan-tak-terlacak.tmp").write_text("tak terlacak\n", encoding="utf-8")
+        git_tmp("add", "alat/uji-kotor-sementara.py")
+        kode_k, _ = jalankan(tujuan, ["--paket", "AUD-3", "--semua", "--izinkan-ci-belum-hijau", izin])
+        if kode_k != 0:
+            return False, f"paket di meja kerja kotor GAGAL dibuat (kode {kode_k})"
+        paket_k = [p for p in (tujuan / "docs" / "uji" / "paket-audit").glob("AUD-3-*.md")
+                   if not p.name.endswith("-SIAP-TEMPEL.md")]
+        isi_k = max(paket_k, key=lambda p: p.stat().st_mtime).read_text(encoding="utf-8") if paket_k else ""
+        m_k = re.search(r"- \*\*Jumlah berkas dalam lingkup:\*\* (\d+)", isi_k)
+        if not m_k or int(m_k.group(1)) != total_bersih:
+            return False, ("meja kerja kotor mengubah angka lingkup "
+                           f"({total_bersih} -> {m_k.group(1) if m_k else '?'}) — lingkup harus dari pohon")
+        git_tmp("commit", "-q", "-m", "fixture: berkas kotor di-commit")
+        kode_c, _ = jalankan(tujuan, ["--paket", "AUD-3", "--semua", "--izinkan-ci-belum-hijau", izin])
+        if kode_c != 0:
+            return False, "paket sesudah commit fixture GAGAL dibuat"
+        paket_c = [p for p in (tujuan / "docs" / "uji" / "paket-audit").glob("AUD-3-*.md")
+                   if not p.name.endswith("-SIAP-TEMPEL.md")]
+        isi_c = max(paket_c, key=lambda p: p.stat().st_mtime).read_text(encoding="utf-8") if paket_c else ""
+        m_c = re.search(r"- \*\*Jumlah berkas dalam lingkup:\*\* (\d+)", isi_c)
+        if not m_c or int(m_c.group(1)) != total_bersih + 1:
+            return False, ("lingkup tidak mengikuti pohon sesudah commit "
+                           f"({total_bersih} -> {m_c.group(1) if m_c else '?'}, harusnya +1)")
 
         kode2, keluar2 = jalankan(tujuan, ["--paket", "AUD-2", "--fase", "1", "--izinkan-ci-belum-hijau", izin])
         if kode2 != 0:
@@ -1537,7 +1603,8 @@ def _uji_pembuat_paket() -> tuple[bool, str]:
             return False, f"cakupan `--fase 1` melenceng (berisi tugas di luar fase 1): {ids[:6]}"
         if "- **Mode cakupan:** terarah" not in isi2:
             return False, "paket per fase tidak mencantumkan mode cakupan `terarah`"
-    return True, "paket menyeluruh & per fase bisa dibuat, cakupannya sesuai permintaan"
+    return True, ("paket menyeluruh & per fase bisa dibuat, cakupannya sesuai permintaan, "
+                  "lingkup dari pohon + kebal meja kerja kotor")
 
 
 def _uji_pemisah_artefak() -> tuple[bool, str]:

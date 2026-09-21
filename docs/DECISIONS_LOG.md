@@ -1465,3 +1465,11 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 **Keputusan:** DITERIMA dengan cakupan jujur: tulis klien (`anon`/`authenticated`, termasuk admin) DITOLAK di level grant; tulis hanya jalur peladen/`service_role`; baca = penyewa sama + izin `kelola_pegawai`. Sisa DoD T1-13 (trigger tolak UPDATE/DELETE termasuk owner & service_role) TIDAK ikut mendarat — T1-13 tetap `[ ]`, F F-07 tetap TERBUKA dengan catatan progres.
 
 **Bukti:** `supabase/tes/catatan_audit.sql` LULUS; suite SQL **62 LULUS · 0 GAGAL**; `rls_semua_tabel.sql` otomatis mencakup tabel baru.
+
+## [Mekanisme-audit/2026-09-21] Lingkup paket dari pohon target; validator tanpa banding per-grup
+
+**Konteks:** temuan B F-16 (tabel lingkup 333/334 + angka `_sistem` 16-vs-15; terakhir dari 3 temuan `T1-44`).
+
+**Keputusan:** (1) pembuat paket baca pohon commit target (`git ls-tree`), bukan indeks meja kerja; (2) tiap paket menandai sumber angka + berkasnya sendiri di luar hitungan; (3) Aturan 6 `alat/periksa-paket.py` menegakkan jumlah-grup = total = pohon + tak-tertutup [] + penanda — tetapi SENGAJA tidak membandingkan angka per grup satu-satu supaya definisi grup boleh bertambah tanpa memalsukan paket lama; (4) paket lama (< 2026-09-21) dikecualikan via gerbang tanggal (tak boleh disunting, F-11).
+
+**Bukti:** `python3 alat/audit-independen.py --uji-diri` (kebal meja kotor) + `python3 alat/periksa-paket.py --uji-diri` (7 kasus Aturan 6) LOLOS; hitung ulang target `4fccc9d5` → 334/15/[].

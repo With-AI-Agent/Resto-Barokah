@@ -98,6 +98,137 @@ POLA_CI_PAKET = re.compile(r"^-\s*\*\*CI commit target:\*\*\s*(.+)$", re.MULTILI
 POLA_IZIN_CI = re.compile(r"^-\s*\*\*Izin pemilik untuk commit non-hijau:\*\*\s*(.+)$", re.MULTILINE)
 POLA_PAKET_REVIEW = re.compile(r"^PKT-(\d{4}-\d{2}-\d{2})-pr-01-putaran(\d+)(?:-SIAP-TEMPEL)?\.md$")
 
+# Aturan 6 — LINGKUP DARI POHON (B F-16, 2026-09-21). Paket audit menyeluruh yang lahir
+# sejak tanggal ini wajib: (a) jumlah per grup SAMA dengan total tertulis (dulu grup `_sistem`
+# tertulis 16 padahal 15); (b) total tertulis SAMA dengan hitungan ulang dari pohon commit
+# target (dulu dihitung dari meja kerja — 333 dari 334, `supabase/README.md` lolos); (c) tidak
+# ada berkas pohon yang tak-tertutup grup/pengecualian; (d) penanda berkas paket sendiri ada;
+# (e) baris "belum berggrup" nol. Angka PER GRUP sengaja tidak dibandingkan satu-satu
+# (definisi grup boleh bertambah di masa depan — yang dijamin: total & cakupan).
+SEJAK_LINGKUP_POHON = "2026-09-21"
+POLA_TOTAL_LINGKUP = re.compile(r"^- \*\*Jumlah berkas dalam lingkup:\*\* (\d+)", re.MULTILINE)
+POLA_PENANDA_PAKET = re.compile(r"^- \*\*Berkas paket ini:\*\*", re.MULTILINE)
+POLA_BIDANG_LINGKUP = re.compile(r"^## 0\. LINGKUP BIDANG: (\w+)", re.MULTILINE)
+
+_PENGELOMPOK = None
+
+
+def _muat_pengelompok():
+    """Muat pengelompok dari `alat/audit-independen.py` (dipakai Aturan 6).
+
+    Validator memakai DEFINISI grup yang sama dengan pembuat paket (bukan salinan) —
+    kalau definisi berubah, validator ikut tanpa perlu disunting terpisah. Anti-lingkarnya:
+    jangkar pohon mentah di `periksa_lingkup_pohon` (grup + pengecualian harus pas
+    menghabiskan daftar `ls-tree`) + uji-diri membuktikan Aturan 6 bisa MENOLAK.
+    """
+    global _PENGELOMPOK
+    if _PENGELOMPOK is None:
+        import importlib.util
+        sys.path.insert(0, str(AKAR / "alat"))
+        lokasi = AKAR / "alat" / "audit-independen.py"
+        spes = importlib.util.spec_from_file_location("audit_independen_f16", lokasi)
+        modul = importlib.util.module_from_spec(spes)
+        spes.loader.exec_module(modul)
+        _PENGELOMPOK = (modul.kelompokkan_berkas, modul.cocok_bidang,
+                        modul.BIDANG_PREFIKS, modul.DIKECUALIKAN)
+    return _PENGELOMPOK
+
+
+def periksa_lingkup_pohon(jalur: str, isi: str, sha: str | None) -> tuple[list[str], list[str]]:
+    """Aturan 6 (B F-16): tabel lingkup §0 paket audit harus cocok dengan pohon commit target."""
+    masalah: list[str] = []
+    catatan: list[str] = []
+    m_total = POLA_TOTAL_LINGKUP.search(isi)
+    if not m_total:
+        return masalah, [f"{jalur}: tanpa tabel lingkup §0 — Aturan 6 dilewati (bukan paket menyeluruh)"]
+    if not sha:
+        return masalah, [f"{jalur}: tanpa SHA target — Aturan 6 dilewati"]
+    total_tertulis = int(m_total.group(1))
+    # (a) jumlah per grup == total tertulis (menangkap angka tulis-tangan kelas `_sistem` 16-vs-15).
+    awal = isi.find("**Grup berkas yang wajib kamu sentuh")
+    akhir = isi.find("**Dikecualikan dari lingkup")
+    grup_tertulis: dict[str, int] = {}
+    if awal != -1 and akhir != -1 and awal < akhir:
+        for baris in isi[awal:akhir].splitlines():
+            sel = [c.strip() for c in baris.strip().strip("|").split("|")]
+            if len(sel) < 3 or not sel[2].isdigit():
+                continue
+            grup_tertulis[sel[0]] = int(sel[2])
+    if not grup_tertulis:
+        masalah.append(f"{jalur}: F-16 — tabel grup §0 tidak terbaca (total tertulis {total_tertulis} tanpa rincian)")
+        return masalah, catatan
+    jumlah_grup = sum(grup_tertulis.values())
+    if jumlah_grup != total_tertulis:
+        masalah.append(
+            f"{jalur}: F-16 — jumlah per grup ({jumlah_grup}) TIDAK SAMA dengan total tertulis ({total_tertulis}). "
+            "Satu angka grup meleset (kelas `_sistem` 16-vs-15) atau ditulis tangan.")
+    # (e) baris "belum berggrup" harus nol.
+    if grup_tertulis.get("belum berggrup", 0) > 0:
+        masalah.append(
+            f"{jalur}: F-16 — {grup_tertulis['belum berggrup']} berkas 'belum berggrup': "
+            "paket menyembunyikan berkas tak-tertutup.")
+    # (d) penanda berkas paket sendiri.
+    if not POLA_PENANDA_PAKET.search(isi):
+        masalah.append(
+            f"{jalur}: F-16 — tanpa penanda '- **Berkas paket ini:** …': paket tidak menyatakan "
+            "berkasnya sendiri di luar hitungan.")
+    # (b)+(c) hitung ulang dari pohon commit target.
+    try:
+        kelompokkan, cocok_bidang, BIDANG_PREFIKS, DIKECUALIKAN = _muat_pengelompok()
+    except Exception as e:  # noqa: BLE001 — penjaga yang tidak bisa memeriksa harus GAGAL bersuara
+        masalah.append(f"{jalur}: F-16 — pengelompok tidak bisa dimuat ({type(e).__name__}: {e})")
+        return masalah, catatan
+    kode_cat, _ = jalankan(["git", "cat-file", "-e", f"{sha}^{{commit}}"])
+    if kode_cat != 0:
+        # SHA hilang sudah dilaporkan blok F-11 — Aturan 6 tidak menambah ribut.
+        catatan.append(f"{jalur}: commit target tidak ada di repo ini — Aturan 6(b/c) dilewati")
+        return masalah, catatan
+    try:
+        grup, _dikecualikan = kelompokkan(sha)
+    except SystemExit as e:
+        masalah.append(f"{jalur}: F-16 — pohon commit target {sha[:8]} tidak bisa dibaca ({e})")
+        return masalah, catatan
+    m_bidang = POLA_BIDANG_LINGKUP.search(isi)
+    bidang = None
+    if m_bidang:
+        bidang = m_bidang.group(1).lower()
+        if bidang not in BIDANG_PREFIKS:
+            catatan.append(f"{jalur}: bidang '{bidang}' tak dikenal — Aturan 6(b/c) dilewati")
+            return masalah, catatan
+        hitung = {n: [b for b in v if cocok_bidang(b, bidang)] for n, v in grup.items()}
+    else:
+        hitung = grup
+    total_pohon = sum(len(v) for v in hitung.values())
+    if total_pohon != total_tertulis:
+        masalah.append(
+            f"{jalur}: F-16 — total tertulis ({total_tertulis}) TIDAK SAMA dengan hitungan pohon "
+            f"commit {sha[:8]} ({total_pohon}). Lingkup diambil dari meja kerja, bukan pohon target.")
+    tak_tertutup = sorted(hitung.get("belum berggrup", []))
+    if tak_tertutup:
+        masalah.append(
+            f"{jalur}: F-16 — {len(tak_tertutup)} berkas pohon TIDAK TERTUTUP grup mana pun: "
+            f"{', '.join(tak_tertutup[:5])}{' …' if len(tak_tertutup) > 5 else ''}")
+        return masalah, catatan
+    # Jangkar independen: daftar mentah pohon harus habis dibagi grup + pengecualian
+    # (menangkap bug pengelompok yang MENGHILANGKAN berkas — validator & pembuat paket memakai
+    # fungsi yang sama, jadi tanpa jangkar ini keduanya bisa sepakat salah).
+    kode, keluar_ls = jalankan(["git", "ls-tree", "-r", "--name-only", sha])
+    if kode == 0:
+        mentah = [b for b in keluar_ls.splitlines() if b.strip()]
+        if bidang:
+            mentah = [b for b in mentah if cocok_bidang(b, bidang)]
+        tertutup = sum(len(v) for v in hitung.values()) + sum(
+            1 for b in mentah
+            if any(b == nama.rstrip("/") or b.startswith(nama) for nama, _ in DIKECUALIKAN))
+        if tertutup != len(mentah):
+            masalah.append(
+                f"{jalur}: F-16 — jangkar pohon gagal: {len(mentah)} berkas pohon, tetapi grup + "
+                f"pengecualian hanya menutup {tertutup}.")
+            return masalah, catatan
+    catatan.append(f"{jalur}: F-16 — lingkup §0 cocok dengan pohon {sha[:8]} "
+                   f"(total {total_tertulis}, tak-tertutup: [])")
+    return masalah, catatan
+
 
 def periksa_riwayat(daftar: list[str]) -> list[str]:
     """Pastikan paket review baru tercatat di `docs/uji/REVIEW_PR_RIWAYAT.md`."""
@@ -316,6 +447,13 @@ def periksa_paket(ref: str, jalur: str, isi: str | None = None,
                 except Exception as e:  # noqa: BLE001 — pemeriksaan tambahan tidak boleh mematikan penjaga
                     catatan.append(f"{jalur}: silang-periksa CI dilewati ({type(e).__name__})")
 
+    # ATURAN 6 — LINGKUP DARI POHON (B F-16, 2026-09-21). Hanya paket audit di bawah
+    # /paket-audit/ (paket review tidak punya tabel grup) yang lahir sejak tanggalnya.
+    if tanggal and tanggal.group(1) >= SEJAK_LINGKUP_POHON and "/paket-audit/" in jalur:
+        m6, c6 = periksa_lingkup_pohon(jalur, isi, sha)
+        masalah += m6
+        catatan += c6
+
     if nama in LEGACY_TANPA_ATURAN_ARTEFAK and not abaikan_pengecualian:
         catatan.append(f"{jalur}: aturan artefak dilewati (paket lama sebelum perbaikan F-12)")
         return masalah, catatan
@@ -498,6 +636,155 @@ def uji_diri() -> int:
         else:
             print("LEWAT: tidak ada commit non-hijau yang bisa dipakai / gh tidak tersedia — "
                   "silang-periksa CI dilewati di uji-diri")
+
+    # Aturan 6 (F-16): tabel lingkup §0 harus cocok dengan pohon commit target.
+    # Basis = paket nyata BERTABEL lingkup-penuh + jalur-tanggal palsu 2099 (pola uji F-02):
+    # nama palsu mengaktifkan gerbang tanggal tanpa menyentuh riwayat git.
+    try:
+        kelompokkan6, cocok6, BIDANG6, _ = _muat_pengelompok()
+    except Exception as e:  # noqa: BLE001 — impor gagal = Aturan 6 mati, harus bersuara
+        hasil.append(("Aturan 6: pengelompok termuat", False, f"{type(e).__name__}: {e}"))
+        kelompokkan6 = None
+    basis_6 = None
+    ada_tabel_6 = False
+    objek_tersedia_6 = False
+    if kelompokkan6 is not None:
+        for j in sekarang:
+            if j.endswith("-SIAP-TEMPEL.md") or "/paket-audit/" not in j:
+                continue
+            kandidat = isi_pada("HEAD", j) or ""
+            if "- **Jumlah berkas dalam lingkup:**" not in kandidat:
+                continue
+            ada_tabel_6 = True
+            if "## 0. LINGKUP BIDANG:" in kandidat:
+                continue  # varian bidang diuji terpisah dari basis penuh
+            sha_k = sha_diklaim(kandidat)
+            if not sha_k:
+                continue
+            try:
+                grup_k, _ = kelompokkan6(sha_k)
+            except (SystemExit, Exception):  # noqa: BLE001 — pohon target tak ada (klon dangkal?)
+                continue
+            objek_tersedia_6 = True
+            awal_k = kandidat.find("**Grup berkas yang wajib kamu sentuh")
+            akhir_k = kandidat.find("**Dikecualikan dari lingkup")
+            if awal_k == -1 or akhir_k == -1:
+                continue
+            # tabel lama harus punya baris untuk setiap grup berisi-berkas hari ini
+            tabel_k = kandidat[awal_k:akhir_k]
+            if any(len(v) > 0 and f"| {n} |" not in tabel_k for n, v in grup_k.items()):
+                continue
+            basis_6 = (kandidat, sha_k, grup_k, awal_k, akhir_k)
+            break
+    if basis_6 is None:
+        if kelompokkan6 is None:
+            pass  # impor gagal sudah dicatat sebagai hasil GAGAL di atas
+        elif not sekarang:
+            print("LEWAT: tidak ada paket — uji Aturan 6 dilewati")
+        elif not ada_tabel_6:
+            print("LEWAT: tidak ada paket bertabel §0 — uji Aturan 6 dilewati")
+        elif not objek_tersedia_6:
+            print("LEWAT: pohon target tak terbaca (klon dangkal?) — uji Aturan 6 dilewati")
+        else:
+            # Paket bertabel ADA dan pohonnya TERBACA, tetapi formatnya tak cocok: ujinya yang
+            # basi (bukan lingkungannya) — diam = menyembunyikan. Pernah kejadian nyata saat
+            # Aturan 6 ditulis (penanda akhir salah — untung tertangkap sebelum commit).
+            hasil.append(("Aturan 6: basis paket bertabel terbaca", False,
+                          "format tabel §0 tak cocok — sesuaikan uji Aturan 6"))
+    else:
+        isi_6, sha_6, grup6, awal6, akhir6 = basis_6
+        jalur_6 = "docs/uji/paket-audit/AUD-3-2099-01-01-uji-lingkup.md"
+        kepala6, tabel6, ekor6 = isi_6[:awal6], isi_6[awal6:akhir6], isi_6[akhir6:]
+        # m1: satu angka grup ditulis tangan (+1) → jumlah ≠ total → DITOLAK (alasan F-16).
+        tabel_m1, n1 = re.subn(r"(\| [^|\n]+ \| [^|\n]* \| )(\d+)( \|)",
+                               lambda m: f"{m.group(1)}{int(m.group(2)) + 1}{m.group(3)}",
+                               tabel6, count=1)
+        if n1 == 0:
+            print("LEWAT: baris grup tak terbaca — mutasi m1 dilewati")
+        else:
+            m_m1, _ = periksa_paket("HEAD", jalur_6, isi=kepala6 + tabel_m1 + ekor6,
+                                    abaikan_pengecualian=True)
+            m_m1 = [x for x in m_m1 if "F-16" in x and "jumlah per grup" in x]
+            hasil.append(("mutasi: satu angka grup ditulis tangan (alasan harus F-16/jumlah)", bool(m_m1),
+                          m_m1[0][:90] if m_m1 else "TIDAK DITOLAK DENGAN ALASAN F-16 (tumpul)"))
+        # kontrol+: bangun tabel VALID dari hitungan ulang pohon → TANPA alasan F-16.
+        # (Bukti Aturan 6 bisa lolos — tanpa ini, penolakan m1/m2/m4 bisa berarti "selalu menolak".)
+        tabel_valid = tabel6
+        for nama_g, berkas_g in grup6.items():
+            pola_baris = re.compile(r"(\| " + re.escape(nama_g) + r" \| [^|\n]* \| )(\d+)( \|)")
+            tabel_valid = pola_baris.sub(
+                lambda m: f"{m.group(1)}{len(berkas_g)}{m.group(3)}", tabel_valid, count=1)
+        total_pohon6 = sum(len(v) for v in grup6.values())
+        kepala_valid = re.sub(r"- \*\*Jumlah berkas dalam lingkup:\*\* \d+",
+                              f"- **Jumlah berkas dalam lingkup:** {total_pohon6}", kepala6, count=1)
+        if "- **Berkas paket ini:**" not in kepala_valid:
+            kepala_valid = kepala_valid.replace(
+                f"- **Jumlah berkas dalam lingkup:** {total_pohon6}",
+                f"- **Jumlah berkas dalam lingkup:** {total_pohon6}\n"
+                "- **Berkas paket ini:** `docs/uji/paket-audit/AUD-3-2099-01-01-uji-lingkup.md` "
+                "dibuat SETELAH angka di atas dihitung — ia TIDAK masuk hitungan.", 1)
+        isi_valid = kepala_valid + tabel_valid + ekor6
+        m_valid, _ = periksa_paket("HEAD", jalur_6, isi=isi_valid, abaikan_pengecualian=True)
+        m_f16_valid = [x for x in m_valid if "F-16" in x]
+        hasil.append(("kontrol: tabel lingkup valid dari pohon DITERIMA Aturan 6 (tanpa alasan F-16)",
+                      not m_f16_valid,
+                      "diterima" if not m_f16_valid else m_f16_valid[0][:90]))
+        # m2: total +7 & satu grup +7 (jumlah konsisten!) → hanya (b) yang boleh menolak.
+        kepala_m2 = re.sub(r"(\*\*Jumlah berkas dalam lingkup:\*\* )(\d+)",
+                            lambda m: f"{m.group(1)}{int(m.group(2)) + 7}", kepala_valid, count=1)
+        tabel_m2, _ = re.subn(r"(\| [^|\n]+ \| [^|\n]* \| )(\d+)( \|)",
+                              lambda m: f"{m.group(1)}{int(m.group(2)) + 7}{m.group(3)}",
+                              tabel_valid, count=1)
+        m_m2, _ = periksa_paket("HEAD", jalur_6, isi=kepala_m2 + tabel_m2 + ekor6,
+                                abaikan_pengecualian=True)
+        m_m2 = [x for x in m_m2 if "F-16" in x and "hitungan pohon" in x]
+        hasil.append(("mutasi: total konsisten-tapi-beda-pohon +7 (alasan harus F-16/pohon)", bool(m_m2),
+                      m_m2[0][:90] if m_m2 else "TIDAK DITOLAK DENGAN ALASAN F-16 (tumpul)"))
+        # m3b: penanda berkas paket dihapus dari tabel valid → DITOLAK (alasan penanda).
+        isi_m3b = re.sub(r"^- \*\*Berkas paket ini:\*\*.*$\n?", "", isi_valid, flags=re.MULTILINE)
+        m_m3b, _ = periksa_paket("HEAD", jalur_6, isi=isi_m3b, abaikan_pengecualian=True)
+        m_m3b = [x for x in m_m3b if "F-16" in x and "Berkas paket ini" in x]
+        hasil.append(("mutasi: penanda berkas paket dihapus (alasan harus F-16/penanda)", bool(m_m3b),
+                      m_m3b[0][:90] if m_m3b else "TIDAK DITOLAK DENGAN ALASAN F-16 (tumpul)"))
+        # m4: baris "belum berggrup" berisi 3 (total disesuaikan +3 supaya hanya (e) yang bicara).
+        if "| belum berggrup |" in tabel_valid:
+            tabel_m4 = re.sub(r"(\| belum berggrup \| [^|\n]* \| )(\d+)( \|)",
+                              lambda m: f"{m.group(1)}3{m.group(3)}", tabel_valid, count=1)
+        else:
+            tabel_m4 = tabel_valid + "| belum berggrup | disuntik uji | 3 |  |\n"
+        kepala_m4 = re.sub(r"(\*\*Jumlah berkas dalam lingkup:\*\* )(\d+)",
+                            lambda m: f"{m.group(1)}{int(m.group(2)) + 3}", kepala_valid, count=1)
+        m_m4, _ = periksa_paket("HEAD", jalur_6, isi=kepala_m4 + tabel_m4 + ekor6,
+                                abaikan_pengecualian=True)
+        m_m4 = [x for x in m_m4 if "F-16" in x and "belum berggrup" in x]
+        hasil.append(("mutasi: baris 'belum berggrup' berisi 3 (alasan harus F-16/grup)", bool(m_m4),
+                      m_m4[0][:90] if m_m4 else "TIDAK DITOLAK DENGAN ALASAN F-16 (tumpul)"))
+        # bidang: varian KEAMANAN dengan angka saring-bidang → DITERIMA (tanpa F-16).
+        if "keamanan" in BIDANG6:
+            grup_bid = {n: [b for b in v if cocok6(b, "keamanan")] for n, v in grup6.items()}
+            tabel_bid = tabel_valid
+            for nama_g, berkas_g in grup_bid.items():
+                pola_baris = re.compile(r"(\| " + re.escape(nama_g) + r" \| [^|\n]* \| )(\d+)( \|)")
+                tabel_bid = pola_baris.sub(
+                    lambda m: f"{m.group(1)}{len(berkas_g)}{m.group(3)}", tabel_bid, count=1)
+            total_bid = sum(len(v) for v in grup_bid.values())
+            kepala_bid = re.sub(r"- \*\*Jumlah berkas dalam lingkup:\*\* \d+",
+                                f"- **Jumlah berkas dalam lingkup:** {total_bid}", kepala_valid, count=1)
+            isi_bid = re.sub(r"^## 0\. LINGKUP MENYELURUH.*$",
+                             "## 0. LINGKUP BIDANG: KEAMANAN (uji)", kepala_bid + tabel_bid + ekor6,
+                             count=1, flags=re.MULTILINE)
+            m_bid, _ = periksa_paket("HEAD", jalur_6, isi=isi_bid, abaikan_pengecualian=True)
+            m_f16_bid = [x for x in m_bid if "F-16" in x]
+            hasil.append(("kontrol: varian bidang KEAMANAN valid DITERIMA Aturan 6", not m_f16_bid,
+                          "diterima" if not m_f16_bid else m_f16_bid[0][:90]))
+        # bidang tak dikenal → (b/c) dilewati TANPA alasan F-16 (menolak agresif = landmine bagi bidang baru).
+        isi_asing = re.sub(r"^## 0\. LINGKUP MENYELURUH.*$",
+                           "## 0. LINGKUP BIDANG: ZZZZTIDAKADA (uji)", isi_valid,
+                           count=1, flags=re.MULTILINE)
+        m_asing, _ = periksa_paket("HEAD", jalur_6, isi=isi_asing, abaikan_pengecualian=True)
+        m_f16_asing = [x for x in m_asing if "F-16" in x]
+        hasil.append(("kontrol: bidang tak dikenal tidak memicu F-16", not m_f16_asing,
+                      "dilewati" if not m_f16_asing else m_f16_asing[0][:90]))
 
     # Aturan 3: paket review baru tanpa baris riwayat wajib DITOLAK; yang tercatat diterima.
     masalah_riwayat = periksa_riwayat(["docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran99.md"])
