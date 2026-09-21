@@ -66,6 +66,7 @@ MIG = "supabase/migrations/0015_penutup_celah_putaran16.sql"
 MIG14 = "supabase/migrations/0014_penutup_celah_putaran13.sql"
 MIG16 = "supabase/migrations/0016_penutup_celah_pin_putaran18.sql"
 MIG18 = "supabase/migrations/0018_perangkat_terdaftar.sql"
+MIG21 = "supabase/migrations/0021_kunci_diskon.sql"
 UJI = "supabase/tes/pembatalan_penanda_palsu.sql"                       # bagian 1 (K-1)
 UJI_PR02 = "supabase/tes/void_satu_item.sql"                            # bagian 2 (K-2a)
 UJI_F01 = "supabase/tes/diskon_sesudah_lunas.sql"                       # bagian 3 (K-2b)
@@ -315,7 +316,7 @@ def main() -> int:
         )
 
     hasil.append(mutasi("pagar diskon sesudah lunas/batal dihapus (audit F-01)",
-                        hapus_pagar_diskon, uji=UJI_F01))
+                        hapus_pagar_diskon, uji=UJI_F01, berkas_rel=MIG21))
 
     # 10) Pemicu diskon dilepas dari tabel (pagar ada tapi tidak terpasang) → wajib MERAH.
     def lepas_pemicu_diskon(t: str) -> str:

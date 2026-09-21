@@ -122,6 +122,9 @@ jobs:
       - name: Bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22, 4 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0009.py
 
+      - name: Bukti mutasi kunci serialisasi uang 0021 (F F-12, 2 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0021.py
+
       - name: Papan tugas maraton valid (AL-16 — lingkup eksklusif, nomor aman, status sah)
         run: python3 alat/periksa-maraton.py
 
