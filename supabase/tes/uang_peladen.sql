@@ -56,17 +56,23 @@ select uji.sama(
   37900, 'kembalian dihitung peladen: 100.000 − 62.100 = 37.900'
 );
 
--- 5. Batalkan satu item → tagihan ikut turun (baris batal tidak ditagih).
---    SEJAK AUD-3 F-04 (2026-09-20) pembatalan tidak lagi boleh ditulis dengan mengubah
---    status item; jalurnya adalah baris `pembatalan` resmi (beralasan & berjejak).
-insert into public.pembatalan (pesanan_id, pesanan_item_id, tahap, alasan)
-select '00000000-0000-0000-0000-00000000f001', pi.id, 'sebelum_dapur', 'pelanggan membatalkan satu item'
-  from public.pesanan_item pi
- where pi.pesanan_id = '00000000-0000-0000-0000-00000000f001';
-select uji.sama(
-  (select p.total from public.pesanan p where p.id = '00000000-0000-0000-0000-00000000f001'),
-  0, 'item batal → total kembali 0 (bukan tagihan hantu)'
-);
+-- 5. T-025(a): void sesudah bayar kini DITOLAK; tagihan dan uang tetap selaras.
+select uji.harap_gagal_sebab(
+ $$insert into public.pembatalan(pesanan_id,tahap,alasan)
+ values ('00000000-0000-0000-0000-00000000f001','sebelum_dapur','sesudah bayar')$$,
+ 'BY-201', 'void sesudah bayar ditolak meskipun lewat jalur resmi');
+select uji.sama((select total from public.pesanan where id='00000000-0000-0000-0000-00000000f001'),
+ 62100, 'tagihan yang dibayar tidak turun menjadi nol');
+-- Kontrol perhitungan void SEBELUM bayar tetap diuji pada pesanan terpisah.
+insert into public.pesanan(id,penyewa_id,cabang_id,kunci_idempoten)
+values('00000000-0000-0000-0000-00000000f002','11111111-1111-1111-1111-111111111111',
+ 'a1a1a1a1-0000-0000-0000-000000000001','uang-peladen-void');
+insert into public.pesanan_item(pesanan_id,menu_item_id,nama_saat_itu,harga_saat_itu,qty)
+values('00000000-0000-0000-0000-00000000f002','beef0000-0000-0000-0000-000000000001','Nasi Goreng',27000,2);
+insert into public.pembatalan(pesanan_id,tahap,alasan)
+values('00000000-0000-0000-0000-00000000f002','sebelum_dapur','sebelum bayar');
+select uji.sama((select total from public.pesanan where id='00000000-0000-0000-0000-00000000f002'),
+ 0, 'void sebelum bayar menghitung ulang ke nol');
 
 reset role;
 select uji.klaim(null);

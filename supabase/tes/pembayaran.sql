@@ -143,25 +143,32 @@ select uji.harap_gagal_sebab($$insert into public.pesanan (penyewa_id, cabang_id
 reset role;
 select uji.klaim(null);
 
+-- T-025: diskon/void diuji pada pesanan BELUM dibayar, bukan mengubah uang lama.
+insert into public.pesanan(id,penyewa_id,cabang_id,nomor,status,kunci_idempoten,dikirim_ke_dapur_pada)
+values('eeee0000-0000-0000-0000-000000000023','11111111-1111-1111-1111-111111111111',
+ 'a1a1a1a1-0000-0000-0000-000000000001',23,'dikirim','kontrol-diskon-void',now());
+insert into public.pesanan_item(pesanan_id,menu_item_id,nama_saat_itu,harga_saat_itu,qty)
+values('eeee0000-0000-0000-0000-000000000023','beef0000-0000-0000-0000-000000000001','Nasi Goreng',27000,2);
+
 -- 6. DISKON: melebihi batas izin kasir (25.000 / 5%) → ditolak.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 30000, 30000, 'minta diskon besar')$$, 'Diskon ini melebihi batas izin Anda — minta atasan \(pemilik/admin\) yang memproses', 'diskon melebihi batas nominal kasir ditolak');
-select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, persen, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 3000, 20, 3000, 'diskon persen besar')$$, 'Diskon ini melebihi batas izin Anda — minta atasan \(pemilik/admin\) yang memproses', 'diskon melebihi batas persen kasir ditolak');
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000023', 'manual', 30000, 30000, 'minta diskon besar')$$, 'Diskon ini melebihi batas izin Anda — minta atasan \(pemilik/admin\) yang memproses', 'diskon melebihi batas nominal kasir ditolak');
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, persen, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000023', 'manual', 3000, 20, 3000, 'diskon persen besar')$$, 'Diskon ini melebihi batas izin Anda — minta atasan \(pemilik/admin\) yang memproses', 'diskon melebihi batas persen kasir ditolak');
 -- CATATAN: dulu di sini tertulis 20.000 — padahal 20.000 dari subtotal 54.000 = 37 %,
 -- jauh di atas batas kasir 5 %. Uji ini LULUS karena sebab yang salah (pemeriksaan persen
 -- dilewati saat kolom `persen` kosong — temuan audit AUD-3 K-2/B F-06). Sekarang nilainya
 -- 2.000 (3,7 %) supaya benar-benar "diskon dalam batas kasir".
 insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan)
-values ('eeee0000-0000-0000-0000-000000000010', 'manual', 2000, 2000, 'pelanggan langganan');
+values ('eeee0000-0000-0000-0000-000000000023', 'manual', 2000, 2000, 'pelanggan langganan');
 select uji.sama(
-  (select count(*) from public.diskon_transaksi where pesanan_id = 'eeee0000-0000-0000-0000-000000000010'),
+  (select count(*) from public.diskon_transaksi where pesanan_id = 'eeee0000-0000-0000-0000-000000000023'),
   1::bigint,
   'diskon dalam batas kasir berhasil dicatat'
 );
 
 -- Diskon KEDUA: ditolak karena resto belum mengizinkan tumpuk diskon.
-select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1000, 1000, 'diskon kedua')$$, 'Resto ini hanya mengizinkan satu diskon per transaksi', 'diskon kedua ditolak saat tumpuk diskon belum diizinkan');
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000023', 'manual', 1000, 1000, 'diskon kedua')$$, 'Resto ini hanya mengizinkan satu diskon per transaksi', 'diskon kedua ditolak saat tumpuk diskon belum diizinkan');
 reset role;
 select uji.klaim(null);
 
@@ -173,15 +180,15 @@ reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan)
-values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1000, 1000, 'tambahan kecil');
+values ('eeee0000-0000-0000-0000-000000000023', 'manual', 1000, 1000, 'tambahan kecil');
 select uji.sama(
-  (select count(*) from public.diskon_transaksi where pesanan_id = 'eeee0000-0000-0000-0000-000000000010'),
+  (select count(*) from public.diskon_transaksi where pesanan_id = 'eeee0000-0000-0000-0000-000000000023'),
   2::bigint,
   'diskon kedua boleh setelah owner mengizinkan tumpuk diskon'
 );
 
 -- Diskon manual tanpa alasan ditolak; diskon melebihi subtotal ditolak.
-select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1000, 1000)$$, 'violates check constraint "diskon_transaksi_check"', 'diskon manual tanpa alasan ditolak');
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai) values ('eeee0000-0000-0000-0000-000000000023', 'manual', 1000, 1000)$$, 'violates check constraint "diskon_transaksi_check"', 'diskon manual tanpa alasan ditolak');
 reset role;
 select uji.klaim(null);
 -- Diskon yang membuat TOTAL diskon melebihi subtotal: diuji sebagai OWNER
@@ -196,7 +203,7 @@ set local role authenticated;
 -- (a) yang benar-benar menguji batas IZIN, dan (b) yang benar-benar menguji aturan SUBTOTAL
 -- (tumpuk diskon dinyalakan + cap ditembus lewat BANYAK baris yang masing-masing sah).
 select uji.harap_gagal_sebab(
-  $$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 40000, 40000, 'diskon besar')$$,
+  $$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000023', 'manual', 40000, 40000, 'diskon besar')$$,
   'melebihi batas izin',
   'diskon 40.000 ditolak KARENA batas izin pemakai (20% dari 54.000)'
 );
@@ -217,7 +224,7 @@ begin
   for i in 1..10 loop
     begin
       insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan)
-      values ('eeee0000-0000-0000-0000-000000000010', 'manual', 10000, 10000, 'gelombang ' || i);
+      values ('eeee0000-0000-0000-0000-000000000023', 'manual', 10000, 10000, 'gelombang ' || i);
     exception when others then
       v_pesan := sqlerrm;
       exit;
@@ -233,11 +240,15 @@ reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 
--- Dapur tidak berizin memberi diskon (walau PIN-nya benar sekalipun).
+-- Dapur tidak berizin memberi diskon. Beri keanggotaan cabang uji agar
+-- satu-satunya sebab penolakan = IZIN, bukan pagar isolasi baru 0022.
 reset role;
+select uji.klaim(null);
+insert into public.pengguna_cabang(pengguna_id,cabang_id)
+values('90000000-0000-0000-0000-000000000006','a1a1a1a1-0000-0000-0000-000000000001');
 select uji.klaim('90000000-0000-0000-0000-000000000006');
 set local role authenticated;
-select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'manual', 1000, 1000, 'coba-coba dapur')$$, 'Diskon ini melebihi batas izin Anda — minta atasan \(pemilik/admin\) yang memproses', 'dapur tidak boleh memberi diskon');
+select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, jenis, nominal, nilai, alasan) values ('eeee0000-0000-0000-0000-000000000023', 'manual', 1000, 1000, 'coba-coba dapur')$$, 'Diskon ini melebihi batas izin Anda — minta atasan \(pemilik/admin\) yang memproses', 'dapur tidak boleh memberi diskon');
 reset role;
 select uji.klaim(null);
 
@@ -250,7 +261,7 @@ select uji.klaim(null);
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 select uji.harap_gagal_sebab(
-  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', '   ')$$,
+  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan) values ('eeee0000-0000-0000-0000-000000000023', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', '   ')$$,
   'Persetujuan belum terbukti',
   'pembatalan tanpa bukti PIN ditolak KARENA persetujuan belum terbukti (urutan aturan)'
 );
@@ -259,24 +270,24 @@ select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner: memasukkan
 set local role authenticated;
 select uji.sama(public.simpan_pin('738294', null, null, 'de000000-0000-0000-0000-000000000001', 'kunci-uji-hp-owner-0123456789'), 'PIN tersimpan.', 'owner memasang PIN untuk uji alasan');
 select uji.sama(
-  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'de000000-0000-0000-0000-000000000003', 'kunci-uji-hp-kasir-0123456789', 'eeee0000-0000-0000-0000-000000000010')).berhasil,
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '738294', 'void_sesudah_dapur', 'de000000-0000-0000-0000-000000000003', 'kunci-uji-hp-kasir-0123456789', 'eeee0000-0000-0000-0000-000000000023')).berhasil,
   true, 'kontrol: bukti PIN void tersedia untuk pesanan ini'
 );
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 select uji.harap_gagal_sebab(
-  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan) values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', '   ')$$,
+  $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan) values ('eeee0000-0000-0000-0000-000000000023', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', '   ')$$,
   'alasan',
   'pembatalan dengan alasan kosong ditolak KARENA aturan alasan (bukan karena sebab lain)'
 );
 -- Kontrol positif: alasan yang benar dengan bukti PIN yang sama → DITERIMA.
 insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, bahan_terbuang)
-values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002',
+values ('eeee0000-0000-0000-0000-000000000023', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002',
         'void sesudah dapur dengan bukti PIN', true);
 select uji.sama(
   (select count(*) from public.pembatalan b
-    where b.pesanan_id = 'eeee0000-0000-0000-0000-000000000010' and b.alasan = 'void sesudah dapur dengan bukti PIN'),
+    where b.pesanan_id = 'eeee0000-0000-0000-0000-000000000023' and b.alasan = 'void sesudah dapur dengan bukti PIN'),
   1::bigint, 'pembatalan sah dengan alasan benar DITERIMA (jalur sah tetap terbuka)'
 );
 -- Pasangan positifnya: kalimat yang sama dengan alasan benar → diterima.

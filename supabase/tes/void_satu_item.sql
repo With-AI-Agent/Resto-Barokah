@@ -76,14 +76,28 @@ select uji.harap_gagal_sebab(
   'pembayaran|bayar',
   'kontrol: baris pembayaran tidak bisa dihapus dari perangkat'
 );
-insert into public.pembatalan (pesanan_id, pesanan_item_id, tahap, alasan)
-values ('d1000000-0000-0000-0000-000000000001', 'd1000000-0000-0000-0000-0000000000a2',
-        'sebelum_dapur', 'sisa item dibatalkan juga');
+select uji.harap_gagal_sebab(
+ $$insert into public.pembatalan(pesanan_id,pesanan_item_id,tahap,alasan)
+ values('d1000000-0000-0000-0000-000000000001','d1000000-0000-0000-0000-0000000000a2','sebelum_dapur','sisa dibatalkan')$$,
+ 'BY-201', 'T-025: sisa item tidak boleh dibatalkan setelah pembayaran sebagian');
 reset role;
-select uji.sama(
-  (select p.status from public.pesanan p where p.id = 'd1000000-0000-0000-0000-000000000001'),
-  'batal', 'PR-02: pesanan ditutup bila tidak ada item hidup lagi'
-);
+select uji.sama((select status from public.pesanan where id='d1000000-0000-0000-0000-000000000001'),
+ 'draf', 'pesanan berbayar tidak berubah menjadi batal');
+-- Kontrol item terakhir tanpa pembayaran masih menutup pesanan.
+select uji.klaim(null);
+insert into public.pesanan(id,penyewa_id,cabang_id,nomor,kunci_idempoten)
+values('d1000000-0000-0000-0000-000000000003','11111111-1111-1111-1111-111111111111',
+ 'a1a1a1a1-0000-0000-0000-000000000001',943,'void-item-terakhir-tanpa-bayar');
+insert into public.pesanan_item(id,pesanan_id,menu_item_id,nama_saat_itu,harga_saat_itu,qty)
+values('d1000000-0000-0000-0000-0000000000c1','d1000000-0000-0000-0000-000000000003',
+ 'beef0000-0000-0000-0000-000000000001','Nasi Goreng',27000,1);
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
+insert into public.pembatalan(pesanan_id,pesanan_item_id,tahap,alasan)
+values('d1000000-0000-0000-0000-000000000003','d1000000-0000-0000-0000-0000000000c1','sebelum_dapur','item terakhir');
+reset role;
+select uji.sama((select status from public.pesanan where id='d1000000-0000-0000-0000-000000000003'),
+ 'batal', 'PR-02: item terakhir sebelum bayar tetap menutup pesanan');
 
 -- 5b. Pembatalan tingkat PESANAN (tanpa item) tetap langsung menutup pesanan.
 insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten)

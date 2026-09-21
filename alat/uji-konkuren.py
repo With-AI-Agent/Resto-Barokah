@@ -280,6 +280,9 @@ update public.izin set batas_nominal = 999999999, batas_persen = 100
 """
 
 MUTASI_F12_TANPA_KUNCI = """
+-- 0022 menambah kunci BEFORE yang sama. Kalibrasi membuang lapis redundan ini
+-- HANYA di DB mutasi agar hilangnya serialisasi cap betul-betul diuji.
+drop trigger aaa_diskon_beku_setelah_bayar on public.diskon_transaksi;
 -- Kalibrasi F F-12: pemicu BEFORE pertama TANPA `for update` (satu-satunya
 -- beda dari 0021). Kunci AFTER di hitung_total (§6) tetap utuh.
 create or replace function public.picu_diskon_awal_pesanan()

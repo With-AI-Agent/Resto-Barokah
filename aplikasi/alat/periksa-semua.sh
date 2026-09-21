@@ -52,7 +52,9 @@ echo "== bukti mutasi pagar migrasi 0012 & 0013 (kontrol hijau + semua mutasi WA
 (cd "$REPO" && python3 alat/uji-mutasi-0016.py | tail -2)
 (cd "$REPO" && python3 alat/uji-mutasi-0009.py | tail -2)
 (cd "$REPO" && python3 alat/uji-mutasi-0021.py | tail -2)
+(cd "$REPO" && python3 alat/uji-mutasi-0022.py | tail -2)
 (cd "$REPO" && python3 alat/uji-konkuren.py | tail -3)
+(cd "$REPO" && python3 alat/uji-konkuren-0022.py | tail -3)
 
 echo "== batas Edge Function verifikasi_pin (berkas asli dijalankan tanpa jaringan) =="
 # Butuh esbuild dari `npm ci --prefix alat` (dipasang di awal skrip ini).

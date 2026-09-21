@@ -1509,3 +1509,12 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 **File terkait:** `docs/TERTANGGUH.md`, `docs/KEAMANAN.md` §10, `docs/uji/AUDIT_RIWAYAT.md` (I F-17, A F-07).
 
 **Implikasi:** Batch-5 = penegak T-025(a) + goresan PIN-pelanggan (PRD M10, TECH_SPEC §4.4/§5) + sapu tanda ❓; T1-45 terbuka sampai penegak + uji mendarat.
+
+
+## [Pelaksanaan/2026-09-21] T-025(a): penegak 0022 dan bukti balapan transaksi
+
+**Dasar:** keputusan Lee setuju-semua T-025(a), bukan keputusan uang baru. CI prasyarat `35571459040` SUCCESS pada `73bd831` diperiksa sebelum perubahan.
+
+**Pelaksanaan:** rincian item/diskon/void terkunci setelah pembayaran pertama, termasuk sebagian; kunci parent lama+tujuan disamakan dengan pembayaran; tidak ada bypass definer/null-auth. Header menolak perubahan isi/nominal, penghapusan, dan pembatalan. Progres masak murni tidak merevaluasi tarif pajak; izin/status lama tetap berlaku. Pembayaran terbagi tetap sah, refund tidak dibuat. Empat fixture lama dipisahkan supaya izin, cap, PIN, atribusi, dan void sebelum bayar tetap terbukti.
+
+**Bukti:** `docs/uji/BUKTI_T025_BEKU_SETELAH_BAYAR.md`; SQL 64/64, 9 mutasi asersi nyata + kalibrasi rusak, 5 skenario dua koneksi + 2 mutasi pelanggaran tersimpan. Kalibrasi F F-12 membuang kedua kunci BEFORE pada DB mutasi saja. **Batas:** belum AUD-2 independen, belum verifikasi/deploy Supabase asli. I F-17 / T1-45 tetap terbuka untuk gerbang itu.

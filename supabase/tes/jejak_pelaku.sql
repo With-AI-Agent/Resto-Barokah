@@ -20,6 +20,15 @@ select uji.harap_gagal_sebab($$insert into public.diskon_transaksi (pesanan_id, 
       values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 2000, 2000, 'uji jejak',
               '90000000-0000-0000-0000-000000000002')$$, 'Pelaku diskon diisi sistem — tidak boleh menyebut orang lain', 'kasir tidak bisa menuliskan nama ORANG LAIN sebagai pelaku diskon');
 
+-- T-025: kontrol diskon harus terjadi SEBELUM pembayaran pertama.
+insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
+values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 2000, 2000, 'uji jejak pelaku');
+select uji.sama(
+  (select d.pelaku_id from public.diskon_transaksi d where d.alasan = 'uji jejak pelaku'),
+  '90000000-0000-0000-0000-000000000004'::uuid,
+  'pelaku diskon terisi otomatis dengan pemanggil'
+);
+
 -- Kontrol positif: pelaku terisi otomatis dengan pemanggil saat dibiarkan kosong.
 insert into public.pembayaran (pesanan_id, metode_id, jumlah, diterima, kunci_idempoten)
 select 'eeee0000-0000-0000-0000-000000000010', mb.id, 1000, 1000, 'jejak-kasir-benar'
@@ -29,13 +38,6 @@ select uji.sama(
   (select pb.kasir_id from public.pembayaran pb where pb.kunci_idempoten = 'jejak-kasir-benar'),
   '90000000-0000-0000-0000-000000000004'::uuid,
   'kasir pembayaran terisi otomatis dengan pemanggil'
-);
-insert into public.diskon_transaksi (pesanan_id, jenis, persen, nominal, nilai, alasan)
-values ('eeee0000-0000-0000-0000-000000000010', 'manual', null, 2000, 2000, 'uji jejak pelaku');
-select uji.sama(
-  (select d.pelaku_id from public.diskon_transaksi d where d.alasan = 'uji jejak pelaku'),
-  '90000000-0000-0000-0000-000000000004'::uuid,
-  'pelaku diskon terisi otomatis dengan pemanggil'
 );
 reset role;
 select uji.klaim(null);

@@ -125,10 +125,14 @@ jobs:
       - name: Bukti mutasi kunci serialisasi uang 0021 (F F-12, 2 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0021.py
 
+      - name: Bukti mutasi pembekuan setelah bayar 0022 (T-025a)
+        run: python3 alat/uji-mutasi-0022.py
+
       - name: Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka)
         run: |
           python3 -m pip install --quiet --break-system-packages pgserver "psycopg[binary]"
           python3 alat/uji-konkuren.py
+          python3 alat/uji-konkuren-0022.py
 
       - name: Papan tugas maraton valid (AL-16 — lingkup eksklusif, nomor aman, status sah)
         run: python3 alat/periksa-maraton.py
