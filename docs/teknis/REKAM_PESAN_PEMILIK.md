@@ -460,3 +460,9 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
    soal daftar menumpuk: kandidat terserap gugur otomatis, tanpa mengarang status ditinggalkan).
    Kritik yang disampaikan ke Lee dan diterima: 10 pekerja → maks 4/gelombang; "otomatis masuk GitHub"
    = cabang pekerja otomatis, cabang resmi TIDAK PERNAH otomatis; panen tidak menunggu semua.
+7. *"Aku mau ketika aku bilang siapkan maraton kerja sama, agent akan siapkan semuanya, dan prompt
+   untuk setiap sesi nya dikasih di chat nya, bukan hanya di file, supaya aku ga perlu cari file nya.
+   Ini harus ditanam juga dalam mekanisme ini."* — **Dijalankan (2026-09-21):** AL-16 di
+   `PANDUAN_PENGGUNA.md` kini mewajibkan integrator mengirim TEKS LENGKAP tiap prompt pekerja
+   langsung di chat (blok siap salin-tempel, baris pertama terisi); menunjuk berkas saja dinyatakan
+   melanggar alur. Header `PROMPT_PEKERJA_MARATON.md` dipertegas sama.

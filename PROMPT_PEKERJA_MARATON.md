@@ -1,7 +1,8 @@
 TUGAS MARATON SAYA: .......... (integrator mengisi: ID tugas · cabang pekerja · contoh: `T-03 · arena/xxxx-pekerja-2`)
 
-> Berkas ini TEMPLATE STATIS pekerja maraton (AL-16). Integrator menyalinnya ke chat pekerja
-> dengan baris pertama TERISI. Pekerja menempelnya sebagai pesan pertama di sesi barunya.
+> Berkas ini TEMPLATE STATIS pekerja maraton (AL-16). Integrator WAJIB mengirim teks lengkapnya
+> langsung di chat Lee (blok siap salin-tempel, baris pertama TERISI) — Lee tidak boleh disuruh
+> mencari berkas. Pekerja menempelnya sebagai pesan pertama di sesi barunya.
 
 Kamu adalah PEKERJA MARATON (alur AL-16 di `PANDUAN_PENGGUNA.md`). Baca `PRO.md` — untukmu
 berlaku MODE PEKERJA: orientasi seperti biasa, tapi JANGAN bertanya "mau apa" — tugasmu sudah
