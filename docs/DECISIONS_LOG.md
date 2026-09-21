@@ -1489,3 +1489,11 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 **Keputusan (Lee, laporan Batch-1 2026-09-21 — opsi A):** sisa diterima sebagai risiko, TANPA perubahan kode. Batas yang diterima: oracle hanya bisa dipakai orang-dalam (akun sah + PIN lama sendiri + perangkat terdaftar), ≤20 tebakan/15 menit per akun, hanya kandidat kuat 6-angka yang dijawab, jawaban tak menyebut milik siapa, dan SETIAP tebakan tercatat permanen beralasan di `percobaan_simpan_pin` (tak bisa dibaca klien). Opsi yang DITOLAK: B (simpan-async "diproses" — ubah UX + kerja Fase-2) dan C (cabut-keunikan-PIN — hilangkan deteksi PIN-berbagi + balik keputusan T1-23); biayanya melebihi nilai penutupan sisa K-3 selapis ini.
 
 **Bukti:** `supabase/tes/pin_bukan_oracle.sql` (pesan netral) + `supabase/tes/pin_batas_pasang.sql` (pembatas 20/15) tetap hidup dan hijau — pagar batasnya dijaga mesin; temuan DITUTUP di `docs/uji/AUDIT_RIWAYAT.md` §1c.
+
+## [Mekanisme/2026-09-21] T1-22: "laporan tercetak" = on-demand + vonis di CI; nama berkas rencana dikoreksi
+
+**Konteks:** penutupan T1-22 (Batch-2): butir DoD "laporan jumlah tabel & policy tercetak" (ditulis 2026-09-16) vs desain CI pasca-putaran11.
+
+**Keputusan:** (1) "tercetak" dipenuhi DUA jalur: laporan rinci on-demand via `node alat/uji-sql.mjs --daftar` + vonis sapuan tercetak di SETIAP run CI. Cetak-laporan-di-CI TIDAK dikembalikan — opsi itu ditolak karena (a) flag `--daftar` sengaja dilepas dari langkah CI sejak putaran11 (pernah disalahbaca list-only; pelajaran terkunci di `alat/periksa-gerbang-ci.py`), (b) langkah `--daftar` terpisah akan menjalankan suite 2× (flag itu bukan list-only) + mengembalikan kebingungan yang sama. (2) Nama berkas rencana `supabase/tes/sisir_rls.sql` dikoreksi ke berkas nyata `supabase/tes/rls_semua_tabel.sql` (sudah ada sejak T1-04; rename = churn tanpa nilai).
+
+**Bukti:** langkah suite CI + pola gerbang dua-arah; `alat/uji-mutasi-0009.py` kasus D2 (tambah tabel tanpa policy → merah); suite 62/62.
