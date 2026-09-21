@@ -438,3 +438,14 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
 4. *"sesi auditor yang ketiga terasa lelet… kamu lanjut maraton aja… klo nanti ketiga udah selesai, baca hasilnya dan
    perbaiki semua yang perlu"* — disetujui agent (tidak ada cacat rencana; auditor ketiga terkunci di commit `cbba401`
    sehingga hasilnya tetap sah kapan pun selesai). Maraton lanjut.
+5. *"kalo aku mau buka sesi baru … aku cukup hanya bilang kata-kata pendek seperti 'baca pro.md' … agent akan
+   otomatis terarahkan untuk baca semua yang harus dia baca … dan setelah itu agent akan langsung tanya apa yang mau
+   aku lakukan"* + *"setiap kali aku bilang siapkan pindah sesi, agent harus jelaskan itu (base branch) di bagian
+   langkah yang harus aku ambil"* + *"sesi yang sengaja ditinggalkan … klo aku blm pernah bilang begitu sebelumnya,
+   maka sesi itu sepertinya tetap perlu ditawarkan"* — **Dijalankan (2026-09-21):** `PRO.md` di root = pintu masuk
+   universal (orientasi → tanya Lee → jalankan); kalimat `baca pro.md` dan `mau lanjut sesi` terdaftar di C3 +
+   AL-13 `PANDUAN_PENGGUNA.md`; fakta lama "base branch tidak perlu kamu sentuh" DIGANTI fakta baru (base branch =
+   cabang sesi selama belum merge ke main; agent WAJIB menyebutnya di Langkah Lee — dijaga
+   `alat/periksa-panduan.py`); sesi yang tidak dipilih TIDAK otomatis ditinggalkan (label "tidak aktif");
+   status ditinggalkan hanya dari kata Lee; penghapusan cabang hanya atas permintaan eksplisit per cabang,
+   selalu dengan tawaran arsip tag lebih dulu. Kebijakan lengkap di header `docs/ops/SESI_DITINGGALKAN.md`.

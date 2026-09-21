@@ -257,14 +257,14 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
 - **Apa ini:** memindahkan pekerjaan dari chat yang sudah berat/panjang ke chat baru, dengan keadaan yang sudah tertulis rapi di repo (bukan di ingatan agent).
 - **Kapan dipakai:** chat terasa berat/lambat, ingin ganti model, atau sesi lama berhenti karena galat.
 - **Kalimat Lee:** `Siapkan pindah ke sesi baru.` · `Tutup sesi ini dengan benar.` / `Tutup sesi ini dengan baik.` · sekaligus dua-duanya: **`Siapkan pindah sesi dan tutup sesi ini dengan baik.`** — kalimatmu tidak harus persis sama: agent mencocokkan **maksudnya**, lalu mengikuti langkah alur ini + **AL-3** (tutup sesi).
-- **Langkah Lee:** (1) buka berkas **`PROMPT_SESI_BARU.md`** (berkas ini **STATIS** — disimpan sekali, dipakai terus) → (2) tulis nama cabang sesi yang mau dilanjutkan di **baris pertama** (`SESI YANG AKU LANJUT: arena/…`) → (3) buka chat baru → (4) salin **seluruh isi** berkas itu → (5) kirim. Tidak ada langkah lain.
+- **Langkah Lee:** (0) saat membuat sesi baru di Arena: **base branch = cabang yang agent tulis di laporan** (selama pekerjaan belum masuk `main` — agent WAJIB menyebutnya eksplisit di Langkah Lee). (1) Di chat baru, chat singkat **`baca pro.md`** (pintu masuk universal — agent orientasi sendiri lewat `PRO.md`), atau cara lama: buka berkas **`PROMPT_SESI_BARU.md`** (STATIS — disimpan sekali, dipakai terus) → tulis nama cabang sesi
 - **Yang agent lakukan:** menjalankan `python3 alat/lanjut-sesi.py --siapkan` (menyegarkan handoff `docs/ops/SIAP-LANJUT.md` + memastikan `PROMPT_SESI_BARU.md` utuh; berkas statis itu **tidak** ditulis ulang setiap batch) → memperbarui `PROJECT_STATE.md`, `STATUS.md`, `_log-sesi/` → commit & push → menjalankan `python3 alat/lanjut-sesi.py` sampai LOLOS (bukti handoff segar & ter-push).
 - **Bukti yang Lee terima:** pernyataan "sesi aman dilanjutkan" + nama berkas yang disalin + commit terakhir + jumlah butir tertangguh.
 - **Lama:** beberapa menit (satu kali perpindahan sesi).
 - **Kalau macet:** bila `alat/lanjut-sesi.py` menolak, agent **tidak boleh** menyuruh Lee pindah sesi dulu — perbaiki dulu (biasanya: ada pekerjaan belum di-commit, atau handoff belum disegarkan), karena pindah dengan handoff basi = konteks hilang.
   - Bila sesi sebelumnya berhenti dalam keadaan CI merah, berkas handoff menandainya dengan baris **PERHATIAN**; perbaiki CI lebih dulu sebelum pekerjaan baru.
 
-  - **Tidak perlu atur apa pun soal branch:** base branch tidak perlu kamu sentuh. Cabang kerja dibuat otomatis oleh platform dan tidak bisa diganti; istilah "base branch" hanya dipakai saat Pull Request dibuka — dan PR #1 sudah terbuka sejak lama. Yang kamu lakukan hanya menyalin berkas siap-tempel.
+  - **Base branch (fakta 2026-09-21, menggantikan catatan lama "tidak perlu kamu sentuh"):** selama pekerjaan belum di-merge ke `main`, saat membuat sesi baru di Arena pilih **base branch = cabang sesi yang mau dilanjutkan** (ditulis agent di Langkah Lee). Kalau terlanjur dari `main`, tidak apa-apa: agent menyusul dengan `python3 alat/lanjut-sesi.py --susul` (ff-only, aman). Setelah pekerjaan masuk `main`, base branch tidak perlu diatur lagi. Cabang kerja sesi tetap dibuat platform dan tidak bisa diganti.
   - **Prompt penutup di sesi lama: disarankan 1 kalimat, bukan wajib.** Kalau sesi lama masih bisa diajak bicara, tulis `Siapkan pindah ke sesi baru.` supaya agent merapikan pekerjaan yang belum tersimpan + menyegarkan handoff + memastikan pemeriksa LOLOS. Kalau sesi lama sudah mati/mogok, boleh langsung pindah: agent baru wajib memeriksa keadaan repo dulu. Satu-satunya yang bisa tertinggal bila langkah ini dilewati: pekerjaan yang saat itu belum di-commit/belum di-push.
   - **Wajib pakai berkas terbaru** `docs/ops/SIAP-TEMPEL-SESI-BARU.md` (berkas ini berubah setiap batch; minta `Tampilkan berkas siap tempel.`). Salinan lama biasanya masih aman karena resep susul menarik pekerjaan terbaru dari GitHub, tetapi salinan terbaru selalu lebih benar.
   - **Jangan merge PR #1.** Merge adalah keputusan Lee dan mengakhiri sesi cabang ini; tanyakan dulu ke agent bila ingin merge.
@@ -319,6 +319,8 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
 ```
 ATURAN BAHASA (wajib, jangan dilanggar): semua komunikasi dengan Lee memakai **bahasa Indonesia** yang sederhana dan mudah dipahami — laporan, ringkasan, pertanyaan, dan kartu sesi. Istilah teknis hanya bila perlu dan langsung dijelaskan singkat. Jangan menjawab dalam bahasa lain kecuali Lee memintanya.
 
+Bila ada `PRO.md` di root repo: BACA dan ikuti itu LEBIH DULU — berkas itu pintu masuk universal Lee (kalimatnya: "baca pro.md") dan memuat urutan orientasi wajib (susul sesi aktif, baca handoff/konteks, lalu tanya Lee mau apa).
+
 Cek dulu apakah ada file PROJECT_STATE.md di root repo ini.
 
 Kalau TIDAK ADA (repo kosong/baru): ini proyek baru. Baca AGENT_SYSTEM.md di repo ini secara penuh (di folder sistem-building-aplikasi/ bila sistem ini ada di repo meta, atau di root bila sudah jadi repo standalone), lalu mulai dari TAHAP 1 (Discovery) sesuai AGENT_SYSTEM.md.
@@ -372,6 +374,8 @@ Tutup sesi ini dengan benar:
 
 | Situasi | Kalimat Lee |
 |---|---|
+| Buka sesi baru untuk APA PUN (lanjut/update/pemeriksaan/tanya) | `baca pro.md` — agent wajib orientasi dulu lewat `PRO.md` (susul sesi aktif, baca handoff/konteks), lalu bertanya mau apa |
+| Melanjutkan sesi lama di sesi ini | `mau lanjut sesi` / `lanjutkan sesi yang kemarin` (= susul cabang aktif per `PRO.md` + kerjakan rencana §3 handoff) |
 | Minta dijelaskan | `Jelaskan dengan bahasa sederhana: apa yang baru berubah, dan apa risikonya buat aku.` |
 | Minta audit menyeluruh | `Siapkan audit menyeluruh.` / `Siapkan pemeriksaan independen menyeluruh.` (= **AL-15**) |
 | Minta audit bidang tertentu | `Siapkan pemeriksaan menyeluruh di bidang keamanan.` (= **AL-15**, `--bidang keamanan`) |

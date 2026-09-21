@@ -60,9 +60,11 @@ TOPIK_WAJIB = {
     "rekam pesan Lee": r"REKAM_PESAN_PEMILIK",
     "mode bimbingan": r"AL-14|mode bimbingan",
     "siapkan pemeriksaan (prompt pendek)": r"AL-15|siapkan-pemeriksaan",
-    # Fakta pindah sesi (jawaban Lee 2026-09-18): tanpa bagian ini, Lee akan mengira
-    # harus mengatur base branch / wajib mengirim prompt penutup — padahal tidak.
-    "pindah sesi: base branch": r"base branch tidak perlu kamu sentuh",
+    # Fakta pindah sesi DIPERBARUI 2026-09-21 (permintaan Lee): selama pekerjaan belum masuk
+    # main, base branch sesi baru = cabang sesi yang dilanjutkan, dan agent WAJIB menyebutnya
+    # di Langkah Lee. (Catatan lama 2026-09-18 "tidak perlu kamu sentuh" sudah tidak benar.)
+    "pindah sesi: base branch": r"base branch = cabang sesi yang mau dilanjutkan",
+    "pintu masuk universal PRO.md": r"baca pro\.md",
     "pindah sesi: penutup tak wajib": r"disarankan 1 kalimat, bukan wajib",
     "pindah sesi: pakai berkas terbaru": r"Wajib pakai berkas terbaru",
     "pindah sesi: jangan merge": r"Jangan merge PR #1",
@@ -85,6 +87,7 @@ TOPIK_WAJIB = {
     "pindah sesi: satu sesi aktif": r"[Ss]atu sesi aktif",
 }
 BERKAS_PENGGUNA_WAJIB = [
+    "PRO.md",
     "docs/PANDUAN_PEMILIK.md",
     "docs/uji/PROMPT_AUDIT_INDEPENDEN.md",
     "docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md",

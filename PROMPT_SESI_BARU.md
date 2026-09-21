@@ -30,6 +30,8 @@ Selesai menyusul, WAJIB verifikasi: `python3 alat/lanjut-sesi.py` harus **LOLOS*
 
 ATURAN BAHASA (wajib, jangan dilanggar): semua komunikasi dengan Lee memakai **bahasa Indonesia** yang sederhana dan mudah dipahami — laporan, ringkasan, pertanyaan, dan kartu sesi. Istilah teknis hanya bila perlu dan langsung dijelaskan singkat. Jangan menjawab dalam bahasa lain kecuali Lee memintanya.
 
+Bila ada `PRO.md` di root repo: BACA dan ikuti itu LEBIH DULU — berkas itu pintu masuk universal Lee (kalimatnya: "baca pro.md") dan memuat urutan orientasi wajib (susul sesi aktif, baca handoff/konteks, lalu tanya Lee mau apa).
+
 Cek dulu apakah ada file PROJECT_STATE.md di root repo ini.
 
 Kalau TIDAK ADA (repo kosong/baru): ini proyek baru. Baca AGENT_SYSTEM.md di repo ini secara penuh (di folder sistem-building-aplikasi/ bila sistem ini ada di repo meta, atau di root bila sudah jadi repo standalone), lalu mulai dari TAHAP 1 (Discovery) sesuai AGENT_SYSTEM.md.

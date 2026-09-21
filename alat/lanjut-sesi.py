@@ -858,6 +858,10 @@ def daftar_sesi() -> int:
             tanda.append("SEDANG DITUJU")
         if cabang in ditinggalkan:
             tanda.append(f"SENGAJA DITINGGALKAN ({ditinggalkan[cabang]})")
+        elif cabang != target and cabang != cabang_sekarang:
+            # Bukan ditinggalkan — hanya BUKAN sesi aktif. Tetap boleh ditawarkan (Lee bisa
+            # memilihnya), tapi jangan sampai terlihat seperti sesi yang sedang dituju.
+            tanda.append("tidak aktif (bukan sesi yang sedang dituju)")
         print(f"  {i}. {cabang}")
         print(f"       {tanggal} · {jarak} · alat lanjut-sesi: {'ada' if punya_alat else 'TIDAK ADA'}"
               f" · prompt sesi baru (statis): {'ada' if punya_prompt else 'TIDAK ADA'}"
