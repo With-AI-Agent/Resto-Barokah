@@ -974,7 +974,9 @@ git status --porcelain=v1
 git ls-remote origin refs/heads/arena/01a0c39d-resto-barokah
 ```
 
-Jika push gagal, status **belum ter-push** akan ditambahkan ke laporan dan diberitahukan, tanpa meminta kredensial dari pemilik.
+**Status pengiriman: belum ter-push.** Laporan pertama sudah di-commit lokal sebagai `b8290b3d125df3971dcaab974c96586c11f0976a` (satu file, 994 baris penambahan). Perintah push eksplisit di atas dicoba dan ditolak: `[rejected] ... (fetch first)` / non-fast-forward. Ini **bukan galat autentikasi**. `git ls-remote origin refs/heads/arena/01a0c39d-resto-barokah` kemudian menunjukkan remote berada pada `5529eae99fbd6f369b41ef599919418a3719adee`, berbeda dari HEAD lokal tersebut.
+
+Tidak melakukan force-push, merge/rebase, atau membawa perubahan remote itu ke pohon kerja audit; pekerjaan remote tidak ditimpa. Catatan penolakan ini disimpan dalam commit lokal lanjutan yang juga hanya menyentuh laporan. SHA commit penutup dan status bersih setelahnya disampaikan di chat. Pengiriman ke GitHub memerlukan rekonsiliasi pekerjaan remote terlebih dahulu; laporan tetap tersedia di workspace. Tidak meminta kata sandi/token/kode autentikasi pemilik.
 
 ## 8. Temuan di luar cakupan (WAJIB)
 
