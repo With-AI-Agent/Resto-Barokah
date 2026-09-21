@@ -113,3 +113,4 @@
 - **F F-13 DITUTUP (2026-09-21, Batch-4 mulai):** uji 2-koneksi nyata (`alat/uji-konkuren.py`, PG 16.2 pgserver): nomor berbeda-berurutan + blokir 1,70 dtk + kalibrasi tabrakan-tanpa-kunci → LOLOS. CI+gerbang 69. D F-08 ikut tertutup penuh. Sisa Batch-4: F F-12 → lapor.
 - **F F-12 DITUTUP (2026-09-21, Batch-4 TUNTAS):** T1 masuk 30rb, T2 tertahan 1,70 dtk lalu ditolak cap (60rb > 54rb), 1 baris; kalibrasi: tanpa kunci → 2 baris 60rb (111% jebol — skenario Batch-2 terbukti). Batch-4 TUNTAS (F F-13 + F F-12). Sisa: I F-17 (T-025, putusan Lee) → lapor.
 - **PUTUSAN LEE + TUTUP SESI (2026-09-21):** "setuju saran terbaik" → 9 butir Selesai (T-025=(a) LARANG, T-023=hapus PIN pelanggan) + KEAMANAN §10 segar (DECISIONS_LOG). Sesi baru: penegak-0022 → gores-PIN → sapu-❓ → T1-30-sisa.
+- **Handoff segar (2026-09-21):** trio handoff (SIAP-LANJUT + STATE + STATUS) disatukan di commit terakhir; CI masih jalan — sesi baru wajib cek CI dulu (lihat SIAP-LANJUT).
