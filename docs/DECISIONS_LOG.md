@@ -1497,3 +1497,15 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 **Keputusan:** (1) "tercetak" dipenuhi DUA jalur: laporan rinci on-demand via `node alat/uji-sql.mjs --daftar` + vonis sapuan tercetak di SETIAP run CI. Cetak-laporan-di-CI TIDAK dikembalikan — opsi itu ditolak karena (a) flag `--daftar` sengaja dilepas dari langkah CI sejak putaran11 (pernah disalahbaca list-only; pelajaran terkunci di `alat/periksa-gerbang-ci.py`), (b) langkah `--daftar` terpisah akan menjalankan suite 2× (flag itu bukan list-only) + mengembalikan kebingungan yang sama. (2) Nama berkas rencana `supabase/tes/sisir_rls.sql` dikoreksi ke berkas nyata `supabase/tes/rls_semua_tabel.sql` (sudah ada sejak T1-04; rename = churn tanpa nilai).
 
 **Bukti:** langkah suite CI + pola gerbang dua-arah; `alat/uji-mutasi-0009.py` kasus D2 (tambah tabel tanpa policy → merah); suite 62/62.
+
+## [Keputusan-Pemilik/2026-09-21] Setuju-semua + T-025(a) + KEAMANAN §10 segar
+
+**Konteks:** laporan Batch-3/4: 9 butir tertangguh + 1 baris status basi (KEAMANAN §10) menunggu putusan Lee.
+
+**Keputusan (Lee, chat 2026-09-21 — "setuju saran terbaik"):** (1) T-025 = (a) LARANG ubah/void sesudah bayar — penegak Batch-5 (migrasi 0022 + uji). (2) Setuju semua 9 usulan (T-002/003/010/011/015/016/022/023/025 — jawaban di `docs/TERTANGGUH.md` tabel Selesai). (3) KEAMANAN §10 disegarkan (status tabel catatan_audit → SUDAH ADA via 0020; sisa trigger+rantai) — tanpa perubahan aturan normatif.
+
+**Alasan:** (a) = gagal-aman (sejalan KEAMANAN §1.1 tolak-bawaan & §9.6); uang nyata belum mengalir (pilot jauh) sehingga aturan ketat tak mengganggu operasi; bisa dilonggarkan ke (b)/(c) kapan saja lewat putusan baru + migrasi.
+
+**File terkait:** `docs/TERTANGGUH.md`, `docs/KEAMANAN.md` §10, `docs/uji/AUDIT_RIWAYAT.md` (I F-17, A F-07).
+
+**Implikasi:** Batch-5 = penegak T-025(a) + goresan PIN-pelanggan (PRD M10, TECH_SPEC §4.4/§5) + sapu tanda ❓; T1-45 terbuka sampai penegak + uji mendarat.

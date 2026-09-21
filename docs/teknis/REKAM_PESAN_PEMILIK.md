@@ -476,3 +476,9 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
    obatnya: (i) 3 chat dalam 1 sesi → berbagi cabang (AL-16: 1 pekerja = 1 sesi baru; templat butir 6–7;
    pemeriksa aturan 5); (ii) race edit paralel se-berkas (GUIDE §0 fakta 6); (iii) reset sandbox →
    cek induk pra-push (GUIDE §4).
+
+## §19. Maraton solo Batch-1–4 + putusan setuju-semua (2026-09-21)
+
+1. *"Lanjut"* (×4) — **Dijalankan (2026-09-21):** Batch-1 (B F-16, B F-14, F F-18) · Batch-2 (T1-22, B F-11, D F-08, parsial F F-07/F F-08, F F-12-dipagari) · Batch-3 (F F-13-verifikasi, A F-07-peta, F F-09-tutup, I F-17+T-025) · Batch-4 (PG nyata via pgserver; F F-13 + F F-12 DITUTUP uji 2-koneksi).
+2. *"Ya, aku setuju saran terbaik dari kamu."* — **Dijalankan (2026-09-21):** 9 butir → Selesai (T-025=(a) LARANG; T-023=hapus PIN pelanggan; sisanya terima placeholder/usulan); KEAMANAN §10 disegarkan. Tindak lanjut Batch-5: penegak 0022 + goresan PIN + sapu ❓.
+3. *"Aku mau lanjut di sesi baru. Siapkan perpindahan sesi."* — **Dijalankan (2026-09-21):** putusan dicatat, handoff disegarkan (`--siapkan`), semua di-commit+push, `lanjut-sesi` LOLOS; blok prompt sesi baru dikirim di chat.

@@ -157,7 +157,7 @@
 
 ## 10. Jejak audit
 
-- `catatan_audit` **hanya-tambah** (tidak ada hak ubah/hapus untuk siapa pun, termasuk owner). **Status 2026-09-20: tabelnya BELUM ADA** — seluruh §10 adalah desain yang mendarat di Fase 1B (`T1-27`/`T1-30`); temuan audit J F-03 menutup klaim seolah sudah berlaku.
+- `catatan_audit` **hanya-tambah** (tidak ada hak ubah/hapus untuk siapa pun, termasuk owner). **Status 2026-09-21: tabelnya SUDAH ADA** (`0020`, tulis klien ditolak, baca butuh `kelola_pegawai`) — yang masih terbuka: trigger penulis (`T1-13`) + rantai hash + pemeriksa (`T1-27`/`T1-30`). (Disegarkan seizin pemilik 2026-09-21; status 2026-09-20: tabel BELUM ADA; J F-03.)
 - Sejak Fase 1B: **rantai hash** (`hash_sebelumnya`, `hash_baris`) dihitung pemicu; pemeriksa `alat/periksa-audit.py` (dibuat bersama rantai hashnya di `T1-27`, lalu dipasang di CI pada `T1-30`) menunjuk baris pertama yang putus bila ada perubahan/penghapusan langsung di database.
 - Yang dicatat minimal: void, diskon manual, perubahan harga, buka laci tanpa transaksi, pakai voucher, perubahan pengaturan, perubahan izin, perubahan pegawai/PIN, pendaftaran/pencabutan perangkat, persetujuan PIN, mode dukungan, percobaan masuk.
 
