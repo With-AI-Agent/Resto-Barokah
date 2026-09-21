@@ -5,10 +5,10 @@
 - **Cabang sesi (dilaporkan untuk papan):** `arena/01a0c1d7-resto-barokah`
   (dibuka dari `main` commit `253d129`, lalu dikejar fast-forward ke ujung cabang
   integrator `origin/kerja-terakhir` = `c25d2dc` — `git merge --ff-only` sukses,
-  `ANCESTOR-OK` diverifikasi sebelum merge). Riwayat cabang: basis `c25d2dc`, di atasnya
-  dua cabang kembar — `d4c0e2d` (kerja T-02, ter-push sesi pekerja-2 ke remote) dan
-  `61e739b` (kerja T-03, commitku) — disatukan merge `b7fa385` (keduanya jadi induk
-  merge; rincian di §3), lalu commit laporan pembaruan ini di atasnya.
+  `ANCESTOR-OK` diverifikasi sebelum merge). Cabang ini ternyata **dibagi tiga sesi pekerja
+  sekaligus** (T-01/T-02/T-03 memakai nama cabang yang sama): kerja T-02 `d4c0e2d` dan kerja
+  T-01 `d205955` terlanjur ter-push ke remote; kedua-duanya kugabung (`b7fa385` &
+  `4b9f3c6`) tanpa konflik; detail di §3.
 - **Tanggal:** 2026-09-21
 - **Status: SELESAI** — artifact + laporan di-push ke cabang sesi ini
 
@@ -75,7 +75,10 @@ working tree, sehingga hasil itu mencakup artifact-nya.
 | 10 | `git push origin HEAD:refs/heads/arena/01a0c1d7-resto-barokah` (push pertama) | **ditolak** (non-fast-forward) — remote cabang itu sudah memuat commit `d4c0e2d` milik **sesi pekerja-2** (berkas T-02), karena sesi pekerja-2 memakai nama cabang yang SAMA dengan sesiku |
 | 11 | `git merge FETCH_HEAD` (merge commit `d4c0e2d` ke cabangku, **bukan** force-push — kerja pekerja-2 harus tetap hidup) | merge bersih, tanpa konflik (empat berkas berbeda) |
 | 12 | `git push origin HEAD:refs/heads/arena/01a0c1d7-resto-barokah` (ulang) | sukses — `d4c0e2d..b7fa385` |
-| 13 | `node alat/uji-sql.mjs` (ulang, setelah merge) | **uji: 60 LULUS · 1 GAGAL** — GAGAL-nya = `supabase/tes/perangkat_registrasi_tepi.sql`, yaitu **reproduksi sengaja GAGAL** milik pekerja-2 yang membuktikan hambatan DoD(d) T-02 (laporan mereka: status **MACET**). Bukan akibat kerja T-03 (T-03 tidak menyentuh SQL). |
+| 13 | `node alat/uji-sql.mjs` (ulang, setelah merge T-02) | **uji: 60 LULUS · 1 GAGAL** — GAGAL-nya = `supabase/tes/perangkat_registrasi_tepi.sql`, yaitu **reproduksi sengaja GAGAL** milik pekerja-2 yang membuktikan hambatan DoD(d) T-02 (laporan mereka: status **MACET**). Bukan akibat kerja T-03 (T-03 tidak menyentuh SQL). |
+| 14 | `git merge FETCH_HEAD` (kerja T-01 `d205955`+`7129592` — migrasi 0020 `catatan_audit` + uji + laporan) → push | merge bersih tanpa konflik (berkas terpisah), push sukses |
+| 15 | `node alat/uji-sql.mjs` (ulang, setelah merge T-01 — keadaan ujung cabang saat ini) | **uji: 61 LULUS · 1 GAGAL** — uji baru T-01 (`supabase/tes/catatan_audit.sql`) LULUS; GAGAL tunggal tetap milik T-02 (intentional). |
+| 16 | **Koreksi bukti #3:** `python3 alat/periksa-rujukan.py` dijalankan ulang SETELAH `docs/PRIVASI_PELANGGAN.md` ter-commit (terlacak) | Run pertama (#3) ternyata belum memeriksa berkas baruku (waktu itu belum `git add` — pemeriksa membaca berkas terlacak, aturan J F-02: semua `.md` terlacak ikut diperiksa). Setelah terlacak, pemeriksa menangkap 1 rujukan mati di baris 228 (nama berkas rencana `supabase/migrations/0017_privasi_pelanggan.sql`) → diperbaiki dengan penanda `(rencana — belum ada)` → **HASIL: LOLOS** (rujukan itu kini tercatat sebagai `catatan: rujukan ditandai rencana`, perilaku yang memang didesain pemeriksa). |
 
 ### Daftar sumber per bagian (bukti DoD T-03)
 
@@ -92,18 +95,26 @@ working tree, sehingga hasil itu mencakup artifact-nya.
 
 ## 3. Keterbatasan jujur
 
-- **Cabang sesi ini ternyata dipakai BERSAMA oleh sesi pekerja-2** (laporan mereka,
+- **Cabang sesi ini ternyata dipakai BERSAMA oleh ketiga sesi pekerja** (laporan T-02,
   `docs/ops/maraton/LAPORAN-T-02.md` baris "Cabang sesi", menulis `arena/01a0c1d7-resto-barokah`
   — nama yang sama dengan sesiku; kemungkinan bentukan nama cabang platform berbenturan).
-  Commit mereka `d4c0e2d` ("T-02: laporkan hambatan daftar ulang perangkat…", status MACET)
-  terlanjur ter-push ke cabang ini sebelum push pertamaku. Aku **merge** commit itu (tanpa
-  konflik) supaya kerja mereka tidak hilang — **bukan** force-push. Konsekuensinya:
-  1. Cabang ini kini memuat kerja **dua** pekerja (T-02 MACET + T-03 selesai); integrator
-     perlu memilahnya saat panen (laporan masing-masing ada di `docs/ops/maraton/`).
-  2. `node alat/uji-sql.mjs` di ujung cabang ini = **60 LULUS · 1 GAGAL** — GAGAL-nya sengaja
-     (reproduksi hambatan T-02 di atas migrasi beku 0018, menunggu keputusan integrator).
-     Cabang ini **tidak boleh dipanen sebagai hijau** sebelum hambatan T-02 ditangani; kerja
-     T-03 di dalamnya sendiri tidak menyentuh satu pun berkas SQL.
+  Commit T-02 `d4c0e2d` ("T-02: laporkan hambatan daftar ulang perangkat…", status MACET)
+  dan commit T-01 `d205955` (migrasi cadangan 0020 `catatan_audit` + uji + laporan, status
+  selesai) terlanjur ter-push ke cabang ini sebelum push pertamaku. Aku **merge** commit
+  mereka (tanpa konflik) supaya kerja mereka tidak hilang — **bukan** force-push.
+  Konsekuensinya:
+  1. Cabang ini kini memuat kerja **tiga** pekerja (T-01 selesai · T-02 MACET · T-03
+     selesai); integrator perlu memilahnya saat panen (laporan masing-masing ada di
+     `docs/ops/maraton/`).
+  2. `node alat/uji-sql.mjs` di ujung cabang ini = **61 LULUS · 1 GAGAL** — GAGAL-nya
+     sengaja (reproduksi hambatan T-02 di atas migrasi beku 0018, menunggu keputusan
+     integrator). Cabang ini **tidak boleh dipanen sebagai hijau** sebelum hambatan T-02
+     ditangani; kerja T-03 di dalamnya sendiri tidak menyentuh satu pun berkas SQL.
+  3. Gerbang buku induk ikut merah **karena berkas T-01/T-02**, bukan kerja T-03:
+     `PANDUAN_PENGGUNA.md:66` masih menulis "60 berkas uji" padahal kini 62 (T-01 & T-02
+     masing-masing menambah satu berkas di `supabase/tes/`). `PANDUAN_PENGGUNA.md` dijaga
+     integrator dan **di luar lingkup T-03** — sesuai aturan AL-16 (berkas di luar lingkup →
+     integrator yang memutuskan saat panen), aku tidak menyuntingnya.
 - **Uji yang tidak dijalankan (di luar lingkup):** baterai mutasi
   (`alat/uji-mutasi-*.py`), uji Edge PIN (`node alat/uji-edge-pin.mjs`), dan uji aplikasi
   (vitest) tidak dijalankan — perubahanku hanya **satu berkas markdown baru**, tidak
@@ -131,7 +142,8 @@ working tree, sehingga hasil itu mencakup artifact-nya.
 |---|---|---|
 | `docs/PRIVASI_PELANGGAN.md` | **baru (dibuat pekerja T-03)** | artifact DRAF kontrak privasi (lingkup eksklusif T-03) |
 | `docs/ops/maraton/LAPORAN-T-03.md` | **baru (dibuat pekerja T-03)** | laporan ini |
-| `docs/ops/maraton/LAPORAN-T-02.md` + `supabase/tes/perangkat_registrasi_tepi.sql` | masuk via **merge commit `d4c0e2d`** | **BUKAN kerja T-03** — milik sesi pekerja-2 yang berbagi nama cabang; tidak kusunting |
+| `docs/ops/maraton/LAPORAN-T-02.md` + `supabase/tes/perangkat_registrasi_tepi.sql` | masuk via **merge commit `b7fa385`** (commit `d4c0e2d`) | **BUKAN kerja T-03** — milik sesi pekerja-2 yang berbagi nama cabang; tidak kusunting |
+| `docs/ops/maraton/LAPORAN-T-01.md` + `supabase/migrations/0020_catatan_audit.sql` + `supabase/tes/catatan_audit.sql` | masuk via **merge commit `4b9f3c6`** (commit `d205955`) | **BUKAN kerja T-03** — milik sesi pekerja-1 (nomor 0020 = cadangan integrator sesuai papan); tidak kusunting |
 
 Tidak disentuh: papan tugas, handoff (`SIAP-LANJUT.md`/`PROJECT_STATE.md`/`STATUS.md`),
 `alat/…` (pemeriksa/pagar), `.github/…`, migrasi beku (≤0019) maupun migrasi apa pun,

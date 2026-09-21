@@ -225,7 +225,7 @@ bukan draf lagi: `docs/teknis/BUKU_INSIDEN.md` §6 ("Data pelanggan bocor").
 
 **Catatan jujur soal nomor migrasi:** judul tugas `T8-15` di `docs/ROADMAP.md` menyebut
 "Migrasi 0017", dan `docs/DECISIONS_LOG.md` menyebut nama berkas rencana
-`supabase/migrations/0017_privasi_pelanggan.sql` — tetapi nomor 0017 sudah terpakai untuk
+`supabase/migrations/0017_privasi_pelanggan.sql` (rencana — belum ada) — tetapi nomor 0017 sudah terpakai untuk
 migrasi lain (kini migrasi tertinggi yang hidup = 0019, dan 0020 sudah dicadangkan integrator
 untuk `T-01` di `docs/ops/PAPAN_TUGAS.md`). Log keputusan sendiri menandai nama itu sebagai
 "rencana … nama final bisa berbeda". **Pekerja T-03 tidak memilih nomor migrasi** (aturan
