@@ -302,9 +302,9 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
 
 - **Langkah Lee:** tempel prompt pendek itu ke chat/percakapan BARU (idealnya model berbeda). Setelah sesi independen selesai dan laporannya ter-push, kembali ke sesi kerja dan bilang `Laporan audit sudah masuk, periksa.`
 - **Yang agent lakukan:** (1) siapkan paket sesuai jenis pemeriksaan, hanya pada commit ber-CI-hijau (gerbang H F-02); (2) commit + push paket; (3) cetak dengan `python3 alat/siapkan-pemeriksaan.py --prompt-pendek <jalur-paket>` (pilih jalur eksplisit, jangan menebak paket terbaru); (4) **WAJIB tampilkan prompt pendek langsung DI CHAT dalam blok siap-tempel; tautan saja tidak cukup.** Berlaku untuk setiap penyerahan audit/review/pemeriksaan independen, walau paket dibuat atas inisiatif agent, bukan hanya lewat kalimat AL-15; (5) **Periksa draf sebelum mengirim:** simpan draf respons di luar repo, lalu jalankan alat yang sama dengan `--prompt-pendek <jalur-paket> --periksa-serah <draf-respons>`; kirim blok yang lolos tanpa menggantinya dengan tautan; (6) saat laporan masuk: tarik dengan `--ambil-laporan`, validasi kontrak dan bantah-balik temuan.
-- **Isi prompt pendek wajib:** URL versi tetap (SHA penuh), cabang sumber paket, commit sasaran, perintah baca SELURUH paket dan langsung jalankan tahapnya, berhenti bila paket/sasaran tidak cocok (jangan menebak), larangan ubah kode/merge/push main, kewajiban laporan **commit + push ke cabang sesi sendiri** dan bukti lokasi/commit/status push. Prompt pendek adalah pintu masuk, bukan pengganti paket lengkap.
+- **Isi prompt pendek wajib:** **repo + cabang sumber + SHA paket + path** (SHA penuh, akses git/gh terautentikasi termasuk privat); commit sasaran terpisah; perintah baca SELURUH paket dan gagal-tertutup. URL versi tetap (SHA penuh) hanya tambahan, bukan akses utama. Tanpa meminta Lee lagi: **commit + push ke cabang sesi sendiri** melalui `alat/kirim-laporan.py`, lalu **verifikasi remote**. Cabang/working tree bisa bersama; wajib snapshot, draf UUID, commit/index terisolasi, retry fast-forward terbatas. Dilarang merge/rebase/reset/force/menimpa/push sumber/main. Bukti: repo, cabang tujuan, path laporan, commit SHA, remote_tip, SHA-256; chat/lokal saja bukan selesai. TERBLOKIR = simpan laporan dan status BELUM TERVERIFIKASI, bukan selesai. Kontrak teknis: `docs/uji/PENGIRIMAN_LAPORAN_AMAN.md`.
 - **Batas pengaman jujur:** mesin memeriksa **draf respons**, bukan chat yang benar-benar terkirim; agent tetap wajib mencocokkan jawaban akhir. CI menjaga aturan dan kepekaan alat, bukan menjamin agent tak pernah lupa. Bila Lee sudah menjalankan paket dan bilang tidak perlu prompt baru, jangan mengirim ulang/mengganti paket aktif—aturan ini berlaku untuk penyerahan berikutnya.
-- **Bukti yang Lee terima:** prompt pendek di chat (ada URL paket + commit yang dikunci), lalu setelah panen: ringkasan temuan + baris riwayat yang diperbarui.
+- **Bukti yang Lee terima:** prompt pendek di chat (locator privat lengkap + dua SHA terpisah), lalu setelah panen: ringkasan temuan + baris riwayat yang diperbarui.
 - **Lama:** menyiapkan paket 1–3 menit; sesi independennya terserah Lee (bisa berjalan paralel).
 - **Kalau macet:** alat menolak karena CI commit target belum hijau → tunggu CI hijau (jangan pakai `--izinkan-ci-belum-hijau` tanpa izin Lee); URL tidak bisa dibuka → paket belum di-push, agent wajib push dulu; sesi independen tidak bisa push (tanpa akses GitHub) → jalur lama tetap sah: salin isi laporan ke chat, agent menyimpannya sebagai berkas. **Jaminan mutu yang TIDAK dikorbankan:** prompt panjang tidak dihapus — ia pindah ke berkas paket yang ditunjuk SATU URL (anti salah-tempel, pelajaran insiden 2026-09-19); laporan tetap wajib jadi berkas Git; `--ambil-laporan` idempoten; temuan tetap dibantah-balik sebelum ditutup.
 
@@ -435,14 +435,10 @@ TIDAK BOLEH mengubah, memperbaiki, atau menerapkan perubahan apa pun. Tugasmu me
 bukan menyenangkan pembuatnya.
 
 Kerjakan berurutan:
-0. AMBIL BAHAN DULU (wajib kalau checkout-mu belum memuat berkas proyek — sesi baru sering hanya memuat kerangka
-   `main`; tandanya `cat docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` menjawab "No such file or directory"). Paket yang
-   saya tempel menyebut **commit yang diaudit** dan **cabangnya**; ikuti bagian "0a. LANGKAH 0" di paket —
-   biasanya cukup: `git fetch origin <cabang>` lalu baca objeknya (kalau perlu pohon berkasnya:
-   `git checkout --detach <sha>` **hanya untuk membaca**, dan **kembali ke cabang sesimu sebelum menyerahkan laporan** —
-   lihat PROTOKOL §5c butir 2). Kalau jaringan/akses tidak
-   memungkinkan, JANGAN mengarang dan JANGAN mengaudit commit lain: kerjakan dari isi paket yang ditempel, lalu
-   tulis semuanya di bagian "Yang tidak bisa saya verifikasi".
+0. Ambil paket UTUH melalui repo + cabang sumber + SHA paket + path dari prompt pendek,
+   memakai git/gh terautentikasi (privat juga); SHA target berbeda dari SHA paket.
+   Jika akses/sasaran gagal, berhenti dan laporkan; jangan menebak. Baca target via objek
+   Git/salinan sementara unik, TANPA checkout/detach pada working tree bersama.
 1. Baca `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` (aturan main), lalu paket audit yang saya tempel di bawah.
 2. Muat skill yang disebut paket: `skills/security-review/SKILL.md`, `skills/verification-before-completion/SKILL.md`,
    `skills/systematic-debugging/SKILL.md`, `skills/verification-loop/SKILL.md`, `skills/test-driven-development/SKILL.md`,
@@ -459,22 +455,20 @@ Kerjakan berurutan:
 7. Laporkan SEMUA yang kamu temukan — termasuk yang di luar cakupan/lensa yang diminta (isi bagian 8 laporan).
    Ambang minimum di paket adalah LANTAI, bukan target: jangan berhenti setelah mencapai angka minimum, dan jangan
    menambah baris demi memenuhi syarat. Jangan menyusun laporan supaya lolos pemeriksa — formatnya sudah lengkap di paket.
-8. Tulis laporan dengan format PERSIS seperti di paket (bagian "6. Format laporan") ke
-   `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>__<penanda-sesi>.md`, dengan `<penanda-sesi>`
-   = potongan nama cabangmu (mis. `01a0aeb4`) supaya tidak bertabrakan dengan sesi auditor lain.
-   Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
-9. Jalankan `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/<berkas-laporan>.md` (sekali di akhir).
-   Bila ditolak: perbaiki KELENGKAPAN FORMAT-nya, bukan menambah temuan yang tidak kamu yakini.
-10. Supaya hasilmu sampai ke sesi kerja, commit + push HANYA berkas laporan itu ke cabang sesi ini. **Pastikan kamu berdiri
-    di cabang sesimu, bukan HEAD yang terlepas** (`git symbolic-ref --short HEAD` harus mencetak `arena/...`). Contoh:
-    ```
-    git checkout <CABANG-SESIMU>                     # kembali dari checkout --detach
-    git symbolic-ref --short HEAD                     # wajib mencetak nama cabang itu
-    git add docs/uji/audit/ && git commit -m "laporan audit <tingkat> <lingkup>"
-    git push origin HEAD:refs/heads/<CABANG-SESIMU>
-    ```
-    (jangan mengubah/meng-commit berkas lain; bila push tidak bisa, tulis "belum ter-push" di laporan dan beri tahu saya).
-11. Laporkan verdict + ringkasan temuan ke saya di chat.
+8. Tulis laporan PERSIS format paket, memakai draf UUID yang dialokasikan pengirim
+   dari SHA paket. Nama cabang bukan penanda sesi unik. Kode proyek tidak boleh diubah;
+   draf/cadangan/salinan uji terisolasi diperbolehkan.
+9. Validasi laporan dengan `alat/audit-independen.py --periksa-laporan <path>` pada
+   salinan terisolasi bila checkout bersama kotor. Perbaiki kelengkapan, bukan mengarang temuan.
+10. Tanpa meminta Lee lagi, otomatis commit dan push lewat `alat/kirim-laporan.py`
+    --jenis audit --sumber <cabang-sumber> --laporan <path>; ikuti langkah bootstrap
+    dan keseluruhan `docs/uji/PENGIRIMAN_LAPORAN_AMAN.md` dari SHA paket.
+    Pengirim memakai snapshot/index terisolasi + retry fast-forward; jangan git add
+    folder, merge/rebase/reset/force/menimpa atau menyatukan verdict.
+11. Wajib verifikasi remote: repo, cabang tujuan, path, commit SHA, remote_tip, SHA-256
+    dan hasil cek sebenarnya. Chat/lokal saja bukan selesai. TERBLOKIR: simpan laporan,
+    nyatakan BELUM TERVERIFIKASI dan hambatan; jangan meminta token. Kirim verdict serta
+    ringkasan tanpa menyamakan keberhasilan transport dengan penerimaan temuan.
 
 Larangan keras: memuji, "looks good", melaporkan soal gaya penulisan sebagai temuan, mengubah berkas selain laporan,
 mempercayai klaim tanpa membuktikannya, menaikkan verdict di atas bukti, dan menyusun laporan demi memenuhi ambang /

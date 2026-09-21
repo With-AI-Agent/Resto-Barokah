@@ -1,3 +1,12 @@
+> **Template fondasi lama — bukan penyerahan baru.** Untuk pemeriksaan baru, gunakan
+> `alat/siapkan-pemeriksaan.py` dan paket UTUH dengan locator repo/cabang/SHA paket/path
+> (akses privat git/gh; SHA target terpisah). Tanpa meminta Lee lagi, laporan wajib
+> otomatis commit/push melalui `alat/kirim-laporan.py` dan verifikasi remote.
+> `docs/uji/PENGIRIMAN_LAPORAN_AMAN.md` menggantikan instruksi edit/commit bersama di
+> arsip ini: report-only, draf UUID, snapshot/index terisolasi, retry fast-forward,
+> jangan menimpa/merge/rebase/reset/force. Bukti repo/cabang/path/commit/hash atau
+> TERBLOKIR/BELUM TERVERIFIKASI. Jangan mengirim template arsip ini ke sesi baru.
+
 # Prompt Review Independen — Proyek "Resto Barokah" / aplikasi "Sajian"
 
 **Dibuat:** 2026-09-16 · **Revisi:** versi 3 (2026-09-16) — sesi reviewer **tidak perlu merge apa pun** dan **tidak perlu bergantung pada base branch**; kalau fondasi tidak terlihat di checkout-nya, ia mengambil sendiri dari cabang remote.

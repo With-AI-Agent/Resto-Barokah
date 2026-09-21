@@ -26,6 +26,7 @@ import random
 import re
 import subprocess
 import sys
+from kontrak_laporan import blok_pengiriman
 
 AKAR = pathlib.Path(__file__).resolve().parent.parent
 # KATALOG CACAT (temuan audit H F-01, 2026-09-20): katalog memuat pasangan cari/ganti = KUNCI
@@ -342,14 +343,7 @@ def siapkan(dasar: str, kepala: str, nama: str | None,
 
 ## 0b. Setelah laporan selesai — kirim ke sesi kerja (wajib)
 
-Beri nama berkas dengan **penanda sesimu** di belakang (mis. `__01a0aeb4`) supaya dua sesi peninjau tidak
-bertabrakan; penarik laporan menyimpan nama bentrok secara terpisah, tidak menimpa.
-
-```
-git add docs/uji/review-pr/ && git commit -m "laporan review PR <nama>" && git push -u origin HEAD
-```
-
-Hanya berkas laporan yang di-commit. Bila push tidak bisa, tulis "belum ter-push" + beri tahu Lee di chat.
+{blok_pengiriman("review-pr", jalankan(["git", "branch", "--show-current"])[1].strip())}
 
 ## 1. Ringkasan perubahan per tujuan (dari judul commit)
 {tujuan_md}

@@ -117,8 +117,14 @@ komentar `alat/uji-sql.mjs` menjelaskan bahwa `--daftar` tidak menggantikan uji,
 ## 6b. Jalur pulang laporan (dikunci 2026-09-17) + aturan anti-teater
 
 **Jalur pulang (sama seperti audit):** peninjau menulis **satu** berkas `docs/uji/review-pr/LAPORAN_*.md`, lalu
-**commit + push HANYA berkas itu** ke cabang sesinya (`arena/...`). Sesi kerja menariknya dengan
-`python3 alat/review-pr.py --ambil-laporan`. Kalau peninjau tidak bisa push: laporan ditempel di chat, agent membuatkan berkasnya.
+otomatis mengirimnya **tanpa meminta Lee lagi**, menggunakan `alat/kirim-laporan.py --jenis review-pr`
+(draf UUID, snapshot, commit/index terisolasi, retry fast-forward). Ikuti UTUH
+`docs/uji/PENGIRIMAN_LAPORAN_AMAN.md`: locator privat repo/cabang/SHA paket/path,
+SHA target terpisah, wajib verifikasi remote dan bukti repo/cabang/path/commit/hash.
+Chat/lokal saja bukan selesai. Cabang/working tree bisa bersama; jangan merge/rebase/
+reset/force/menimpa. TERBLOKIR = simpan laporan dan status BELUM TERVERIFIKASI.
+Sesi kerja menarik dengan `python3 alat/review-pr.py --ambil-laporan`, lalu memvalidasi
+kontrak dan membantah-balik temuan; bukan menggabungkan kode auditor.
 Alasan: laporan harus berupa **berkas di Git** (ada jejak, bisa diverifikasi, tidak hilang di chat).
 
 **Aturan anti-teater (dikunci Lee 2026-09-17):**

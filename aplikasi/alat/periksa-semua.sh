@@ -109,6 +109,7 @@ python3 aplikasi/alat/periksa-node.py --uji-diri)
 (cd "$REPO" && python3 aplikasi/alat/periksa-uji.py)
 (cd "$REPO" && python3 aplikasi/alat/periksa-uji.py --uji-diri)
 (cd "$REPO" && python3 alat/siapkan-pemeriksaan.py --uji-diri)
+(cd "$REPO" && python3 alat/uji-kirim-laporan.py)
 (cd "$REPO" && python3 aplikasi/alat/uji-kontras.py)
 (cd "$REPO" && python3 aplikasi/alat/uji-kontras.py --uji-diri)
 echo

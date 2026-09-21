@@ -24,6 +24,7 @@ import re
 import shutil
 import subprocess
 import sys
+from kontrak_laporan import blok_pengiriman
 
 AKAR = pathlib.Path(__file__).resolve().parent.parent
 ROADMAP = AKAR / "docs" / "ROADMAP.md"
@@ -500,52 +501,25 @@ apakah dokumen menjanjikan sesuatu yang belum ada.
 Paket ini menargetkan commit **`{sha}`** pada cabang **`{cabang}`**. **Cabang/base apa pun yang Lee pilih tidak masalah** —
 yang menentukan adalah commit-nya.
 
-> **Kalau checkout-mu belum memuat berkas proyek** (mis. `cat docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` menjawab
-> `No such file or directory`, atau `git ls-files docs` hanya berisi `docs/README.md`): kamu ada di sesi BARU yang
-> bercabang dari `main` — sedangkan proyek ini hidup di cabang sesi. Ambil bahannya dengan:
->
-> ```
-> git fetch origin {cabang}
-> git checkout --detach {sha}
-> ```
-> lalu ULANGI langkah 1 (protokol, skill, paket). Kalau `git fetch` tidak bisa (tanpa jaringan/akses), kerjakan
-> sebisanya dari ISI PAKET YANG DITEMPEL, dan tulis semuanya di bagian "Yang tidak bisa saya verifikasi" —
-> jangan mengarang, jangan mengaudit commit lain.
+Baca objek target tanpa pindah cabang. Bila perlu pohon berkas untuk pengujian,
+buat salinan sementara unik; JANGAN checkout/detach pada working tree bersama:
 
-
-```
-# (a) di repo ini, satu perintah memeriksa semuanya:
-python3 alat/audit-independen.py --verifikasi-lingkup
-
-# (b) atau manual:
-git rev-parse HEAD                 # commit yang sedang kamu lihat
-git cat-file -e {sha}            # apakah commit target ada di repo ini?
+```sh
+git fetch --no-write-fetch-head origin {sha}
+TARGET="$(mktemp -d)"
+git archive {sha} | tar -x -C "$TARGET"
 ```
 
-- **Sama** (`HEAD` = `{sha}`) → langsung lanjut.
-- **Berbeda tetapi commit target ada** → pindah hanya-baca lalu lanjut (aman, tidak mengubah apa pun):
-  `git fetch origin && git checkout --detach {sha}`
-- **Commit target tidak ada** → coba `git fetch origin` sekali lagi. Kalau tetap tidak ada, **JANGAN mengaudit commit lain**:
-  tulis di bagian "Yang tidak bisa saya verifikasi" dan hentikan (minta Lee membuka sesi dari sumber yang benar).
+Jalankan pemeriksaan target di salinan tersebut; catat SHA objek sumbernya, bukan
+HEAD checkout lain. Metadata Git/perintah yang membutuhkan riwayat harus memakai
+repositori terisolasi dari target (tanpa mengganti cabang sesi). Kalau akses gagal,
+berhenti dan laporkan — jangan mengaudit commit lain atau mengklaim lengkap.
+
 - Tulis di kepala laporan: `- **Commit yang diaudit:** <commit yang benar-benar kamu periksa>`.
 
 ## 0c. Setelah laporan selesai — kirim ke sesi kerja (wajib)
 
-Beri nama berkas dengan **penanda sesimu** di belakang supaya dua sesi auditor tidak bertabrakan
-(kejadian nyata 2026-09-17: dua sesi memilih nama yang sama sehingga laporan pertama nyaris tertimpa):
-
-```
-docs/uji/audit/LAPORAN_{tingkat}_{tanggal}_{lingkup}__<penanda-sesi>.md
-```
-`<penanda-sesi>` = potongan nama cabang sesimu, mis. `01a0aeb4` (lihat `git branch --show-current`).
-
-Laporan harus menjadi **berkas di Git**, bukan hanya teks di chat:
-
-```
-git add docs/uji/audit/ && git commit -m "laporan audit {tingkat} <lingkup>" && git push -u origin HEAD
-```
-
-Hanya berkas laporan yang di-commit. Bila push tidak bisa, tulis "belum ter-push" di laporan + beri tahu Lee di chat.
+{blok_pengiriman("audit", cabang)}
 
 ## ATURAN INDEPENDENSI (tidak bisa ditawar)
 
@@ -609,7 +583,7 @@ Kamu juga **wajib**: (a) memakai `skills/find-skills` atau `skills/agent-skills-
 - **Tanggal:** {tanggal}
 - **Tingkat audit:** {tingkat}
 - **Commit yang diaudit:** `{sha}` (commit tepat sebelum berkas paket ini dibuat; auditor boleh mencatat commit yang benar-benar ia periksa — tulis apa adanya, jangan dibulatkan ke commit lain)
-- **Paket audit:** `{keluar.relative_to(AKAR)}` (CATATAN: berkas paket ini di-commit SETELAH commit target — ia TIDAK ADA di pohon commit yang kamu audit; jangan mencarinya di sana. Sumber sahmu: berkas ini apa adanya / URL prompt pendek. Temuan audit J F-06)
+- **Paket audit:** `{keluar.relative_to(AKAR)}` (CATATAN: berkas paket ini di-commit SETELAH commit target — ia TIDAK ADA di pohon commit yang kamu audit; jangan mencarinya di sana. Sumber sahmu: repo + cabang sumber + SHA paket + path pada prompt pendek. Temuan audit J F-06)
 - **Mode cakupan:** {lingkup}
 - **Verdict:** BERSIH | BERSIH-DENGAN-CATATAN | TIDAK-BERSIH
 

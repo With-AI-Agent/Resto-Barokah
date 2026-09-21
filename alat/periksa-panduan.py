@@ -333,6 +333,12 @@ PAGAR_SERAH = (
     "URL versi tetap (SHA penuh)",
     "commit + push ke cabang sesi sendiri",
     "draf respons",
+    "repo + cabang sumber + SHA paket + path",
+    "Tanpa meminta Lee lagi",
+    "alat/kirim-laporan.py",
+    "verifikasi remote",
+    "BELUM TERVERIFIKASI",
+    "working tree bisa bersama",
 )
 
 

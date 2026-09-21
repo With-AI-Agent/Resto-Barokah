@@ -113,48 +113,28 @@ Pertanyaan Lee: *"kamu ga jelasin aku harus buat sesi baru dengan base branch ap
 1. Mesin menulis **commit target** di setiap paket audit (`- **Commit yang diaudit:** <sha>`), dan paket memuat **LANGKAH 0 (wajib)** beserta perintah verifikasinya.
 2. Auditor menjalankan `python3 alat/audit-independen.py --verifikasi-lingkup` (atau perintah manual `git rev-parse HEAD` + `git cat-file -e <sha>`).
    - **Cocok** → lanjut mengaudit.
-   - **Beda commit tetapi target ada** → `git fetch origin` lalu **baca objeknya tanpa meninggalkan cabangmu**, atau (kalau kamu memang perlu pohon berkasnya) `git checkout --detach <sha>` **hanya untuk membaca** dan **kembali ke cabang sesimu sebelum menyerahkan laporan**: `git symbolic-ref --short HEAD` harus menunjuk cabangmu (contoh: `arena/01a0bbd2-resto-barokah`) — bukan HEAD yang terlepas.
+   - **Beda commit tetapi target ada** → baca objek Git atau salinan sementara unik; jangan checkout/detach pada working tree bersama. Tetap pada cabang sesi sendiri untuk pengiriman.
    - **Target tidak ada** → `git fetch origin` sekali lagi; kalau tetap tidak ada, auditor **berhenti dan melaporkan** — bukan mengaudit commit lain. Alasan: mengaudit commit yang salah lebih berbahaya daripada tidak mengaudit, karena menghasilkan rasa aman yang palsu.
 3. Laporan tetap mencatat branch/commit apa yang **benar-benar** diperiksa; mesin memvalidasi commit itu ada di repo.
 
 **Konsekuensi untuk Lee:** Lee boleh memilih base branch **mana pun** yang paling mudah (cabang sesi ini, `main`, atau cabang lain) — paket akan mengarahkan peninjau ke commit yang tepat. Satu-satunya syarat: repo yang dipakai peninjau **memuat** commit itu (kalau sesi dibuka dari `main` sementara pekerjaan belum di-merge, `git fetch origin` + `checkout --detach` menyelesaikannya).
 
-## 5c. Bagaimana laporan kembali ke sesi kerja (dikunci 2026-09-17)
+## 5c. Pengiriman otomatis tanpa pengingat (diperkuat 2026-09-21)
 
-**Masalah yang ditutup (pertanyaan Lee):** auditor bekerja di **ruang kerja sendiri** — sesi kerja **tidak bisa melihat**
-berkas di sana. Tanpa jalur pulang, laporan bisa hilang di chat, dan Lee harus menyalin manual.
+Ikuti UTUH `docs/uji/PENGIRIMAN_LAPORAN_AMAN.md`. Tanpa meminta Lee lagi, setiap
+pemeriksa wajib membuat draf UUID, memvalidasi, otomatis commit/push dengan
+`alat/kirim-laporan.py --jenis audit`, lalu verifikasi remote. Bukti repo, cabang
+tujuan, path, commit SHA, remote_tip, SHA-256 wajib; chat/lokal saja bukan selesai.
+Dua sesi bisa berbagi cabang/working tree; nama cabang BUKAN ID unik. Commit dibuat
+terisolasi, hanya satu tambahan laporan; retry fast-forward tanpa merge/rebase/reset/
+force/menimpa. Jika terblokir simpan snapshot, status BELUM TERVERIFIKASI dan hambatan.
+Integrator adalah jalur pemulihan hambatan nyata, bukan antrean wajib normal.
 
-**Jalur resmi (dua arah, keduanya wajib ada di paket & prompt):**
-1. Auditor menulis **satu** berkas: `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>__<penanda-sesi>.md`
-   (satu-satunya berkas yang boleh ia buat). `<penanda-sesi>` = potongan nama cabang sesi auditor, supaya dua sesi
-   auditor tidak memakai nama berkas yang sama (kejadian 2026-09-17 — laporan pertama hampir tertimpa). Bila tetap
-   bertabrakan, penarik laporan menyimpannya terpisah sebagai `<nama>.dari-<cabang>.md`; tidak ada laporan yang ditimpa.
-2. Auditor **commit + push HANYA berkas itu** ke **cabang sesinya sendiri** (`arena/...` yang diberikan platform).
-   Kalau kamu sempat `checkout --detach` untuk membaca, **kembali ke cabang sesimu lebih dulu** — kalau tidak, `HEAD`
-   menunjuk commit, bukan cabang, dan laporannya bisa nyasar/tertolak:
-
-   ```
-   git checkout <CABANG-SESIMU>          # contoh: arena/01a0bbd2-resto-barokah
-   git symbolic-ref --short HEAD          # WAJIB mencetak nama cabang itu
-   git add docs/uji/audit/ && git commit -m "laporan audit <tingkat> <lingkup>"
-   git push origin HEAD:refs/heads/<CABANG-SESIMU>
-   ```
-3. Sesi kerja (pembangun) menjalankan `python3 alat/audit-independen.py --ambil-laporan`, yang:
-   mencari **semua cabang `arena/*`** di GitHub, menemukan berkas `docs/uji/audit/LAPORAN_*.md` yang belum ada di sesi ini,
-   mengambilnya, dan menaruhnya di `docs/uji/audit/`.
-3b. **Dua sesi bisa berbagi SATU cabang** (kejadian nyata 2026-09-17: dua sesi paralel push ke cabang yang sama dengan
-   nama berkas yang sama; versi pertama lalu hanya hidup di **riwayat commit**). Karena itu penarik laporan menelusuri
-   **seluruh riwayat** berkas laporan di tiap cabang — bukan hanya ujung cabang — dan versi yang tertimpa diselamatkan
-   sebagai `<nama>.dari-<penanda-cabang>-<commit8>.md`. **Tidak ada laporan yang hilang atau ditimpa.**
-4. Sesi kerja memvalidasi tiap laporan (`--periksa-laporan`), menilai kalibrasi (`--kalibrasi-nilai`), lalu menindaklanjuti.
-
-**Kalau auditor tidak bisa push** (mis. izin): auditor menulis di laporan "belum ter-push" dan menempelkan laporan di chat;
-Lee menyalinnya ke berkas di `docs/uji/audit/` (agent boleh membuatkannya kalau Lee menempel teks laporan di sesi kerja).
-
-**Kalau base branch sesi audit bukan cabang sesi kerja:** tidak masalah — laporan tetap diambil dari cabang auditor (§5b).
-
-**Kenapa begini:** laporan menjadi **berkas di Git** (bisa diverifikasi, ada jejaknya, tidak hilang), dan Lee tidak perlu
-menyalin apa pun kecuali bila push gagal.
+Penerima memakai `--ambil-laporan` yang menelusuri SEMUA riwayat cabang, bukan hanya
+tip; atau ambil path+SHA spesifik bila provenance sudah diketahui. Simpan versi
+berbeda terpisah, jangan merge kode auditor atau menyatukan verdict. Sesudah itu
+validasi kontrak dan bantah-balik tiap temuan. Transport/format bukan pengesahan audit.
+Paket beku 2026-09-21 tetap utuh; tidak meminta audit ulang dua laporan yang selesai.
 
 ## 6. Kontrak laporan (divalidasi mesin — tanpa ini audit tidak diakui)
 

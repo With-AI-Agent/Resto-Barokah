@@ -496,3 +496,9 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
 - **[verbatim]** “Mode kerja lagi seperti biasa. Ya, betul begitu. Sambil menunggu hasil pemeriksaan, tanamkan itu ya”.
 - **Pelaksanaan:** perkuat AL-15 + profil + gerbang respons di GUIDE; generator memberi URL immutable, cabang sumber, target, wajib baca semua, gagal-tertutup, larangan ubah kode/merge/main, kewajiban commit/push laporan dan bukti status. Pemeriksa `--periksa-serah` menolak draf yang hanya menampilkan tautan; uji-diri ikut CI yang sudah ada.
 - **Batas:** tidak mengklaim mesin bisa membaca chat aktual atau menjamin jaringan/push; agent tetap mengirim blok hasil pemeriksaan. Tidak membuat/mengubah paket AUD-2 aktif, tidak mengganggu tiga sesi pemeriksa, dan tidak mengubah target `09bcb89`.
+
+## §22. Pengiriman otomatis, akses privat, cabang bersama (2026-09-21)
+
+- **[ringkas]** Lee kembali mode kerja normal, meminta kritik lebih dalam, skill/riset internet dan penyelidikan insiden push, bukan menerima solusi integrator antrean begitu saja. Repo privat harus bisa diakses via repo/cabang/SHA paket/path; SHA target berbeda. Semua pemeriksa otomatis commit/push/verifikasi tanpa pengingat lagi; platform dapat memberi cabang yang sama. Prompt pendek wajib di chat untuk penyerahan mendatang, prompt panjang juga memuat kontrak.
+- **[ringkas]** Dua laporan sudah tersedia; sesi ketiga error diabaikan. Jangan meminta audit ulang. Ceklist sementara boleh disimpan lalu dihapus setelah ditangani.
+- **Pelaksanaan:** `alat/kirim-laporan.py`, kontrak terpusat untuk dua generator, AL-15 + mutasi, uji bare-remote/race di CI. Bukti dan keterbatasan: `docs/uji/PENGIRIMAN_LAPORAN_AMAN.md`. Dua laporan asal disimpan terpisah; temuan belum ditutup, daftar tindak lanjut lintas-sesi lengkap di `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md`. Tidak ada izin merge/deploy; paket beku utuh.

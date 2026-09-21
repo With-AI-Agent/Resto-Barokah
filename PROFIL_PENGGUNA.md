@@ -9,7 +9,7 @@
 - **Mode bimbingan (permintaan Lee 2026-09-19):** kalau Lee bilang **"Tolong bimbing" / "Mode bimbingan" / "Beri arahan step by step"**, agent masuk mode singkat: satu tindakan sekali, tanpa istilah, tiap balasan diakhiri satu langkah berikutnya. Ditutup dengan **"Sudah beres, lanjut normal."** — aturan lengkapnya di `docs/AGENT_OPERATING_GUIDE.md` §14 / alur **AL-14**.
 - **Tingkat detail penjelasan:** Sedang — setiap istilah teknis wajib diterjemahkan ke bahasa sehari-hari; kalau pemilik perlu melakukan sesuatu, tulis langkah-langkahnya satu per satu (step-by-step), bukan daftar istilah
 
-- **Penyerahan audit/review/pemeriksaan independen (ditegaskan 2026-09-21):** selalu tampilkan prompt pendek langsung di chat dalam blok siap-tempel; tautan/berkas saja tidak cukup. Prompt menunjuk paket lengkap versi tetap, cabang sumber, commit sasaran, dan kewajiban laporan di GitHub. Periksa draf sebelum mengirim (AL-15). Jangan kirim ulang bila Lee sudah menjalankannya dan tidak meminta penggantian.
+- **Penyerahan audit/review/pemeriksaan independen (ditegaskan 2026-09-21):** selalu tampilkan prompt pendek langsung di chat dalam blok siap-tempel; tautan/berkas saja tidak cukup. Prompt memakai repo + cabang sumber + SHA paket + path (privat via git/gh), SHA target terpisah. Tanpa pengingat lagi wajib otomatis commit/push/verifikasi laporan ke GitHub memakai pengirim terisolasi; cabang/working tree bisa bersama. Bukti repo/cabang/path/commit/hash atau TERBLOKIR, bukan klaim selesai lokal. Periksa draf sebelum mengirim (AL-15). Jangan kirim ulang bila Lee sudah menjalankannya dan tidak meminta penggantian.
 
 ## Latar Belakang
 - **Paham coding?** Tidak sama sekali — jawaban pemilik: "Aku masih nol soal ini"

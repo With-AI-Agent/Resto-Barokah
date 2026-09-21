@@ -1547,3 +1547,13 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 **Pagar baru:** `--periksa-serah` memeriksa draf respons: tautan saja, janji tanpa prompt, blok yang kehilangan kewajiban push, atau commit/cabang salah ditolak. Agent wajib mengirim blok yang sama di chat; alat tidak mengklaim mampu memantau percakapan aktual. Pemeriksa buku menjaga enam bagian kontrak AL-15 dengan mutasi. Kedua uji-diri sudah terdaftar di CI, tidak ada gerbang yang dilemahkan.
 
 **Batas lingkup:** paket aktif tidak disunting, target `09bcb89` tidak digeser, aplikasi/migrasi tidak disentuh. Hasil tiga sesi ditarik setelah Lee mengabarkan laporan tersedia. Tidak ada izin merge/deploy.
+
+## [Mekanisme/2026-09-21] Pengiriman append-only terisolasi dan akses privat
+
+**Mandat Lee:** riset/kritik insiden asli, otomatis kirim semua laporan tanpa pengingat, termasuk cabang/working tree bersama; dua laporan selesai, ketiga error diabaikan.
+
+**Putusan implementasi:** locator repo/cabang/SHA paket/path via git/gh, SHA target terpisah; URL opsional. Draf UUID + snapshot/hash, bare repo/index sementara, satu file tambahan/satu parent di atas tip remote, push normal + maksimal 5 upaya dan verifikasi byte/ref langsung. Kandidat belum terbit disusun lagi, bukan rebase/merge riwayat. Menolak overwrite/mode berbeda/remote mundur/sumber-main. HEAD/index checkout tidak digeser. Tidak ada asumsi cabang unik. Integrator hanya cadangan hambatan nyata; akses gagal = TERBLOKIR, bukan selesai.
+
+**Bukti/desain/sumber resmi:** `docs/uji/PENGIRIMAN_LAPORAN_AMAN.md`; TDD bentrok nama merah dahulu, uji race dengan remote Git asli + failure injection, kedua prompt dan AL-15 dijaga CI.
+
+**Batas:** prompt tidak menjamin kepatuhan agent/izin jaringan; transport bukan pengesahan temuan. Dua laporan asli tidak direkonsiliasi diam-diam; `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md` menahan T1-30/T1-45 sampai K-2 dibuktikan/diselesaikan. Runtime uang/paket beku tidak diubah, tidak merge/deploy.

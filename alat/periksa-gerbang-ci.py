@@ -86,6 +86,7 @@ GERBANG_WAJIB = [
     ("uji-diri penanda tertangguh roadmap", r"python3 alat/periksa-roadmap.py --uji-diri"),
     ("pemeriksa fondasi independen", r"python3 alat/periksa-fondasi-independen.py"),
     ("uji-diri pemeriksa audit independen", r"python3 alat/audit-independen.py --uji-diri"),
+    ("pengiriman laporan terisolasi + race", r"python3 alat/uji-kirim-laporan.py"),
     ("uji-diri penyiap pemeriksaan (frasa → paket + prompt pendek)", r"python3 alat/siapkan-pemeriksaan.py --uji-diri"),
     ("pemeriksa buku induk (panduan)", r"python3 alat/periksa-panduan.py"),
     ("uji-diri pemeriksa buku induk", r"python3 alat/periksa-panduan.py --uji-diri"),

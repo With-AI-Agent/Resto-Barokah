@@ -9,8 +9,8 @@ pemeriksaan harus mudah dipicu. Lee cukup bilang (contoh):
   · "jalankan pemeriksaan fondasi"                      → pemeriksa fondasi jalan LANGSUNG (tanpa sesi baru)
 
 Setelah paket jadi (dan di-commit + push), alat ini mencetak PROMPT PENDEK (±5 baris)
-yang cukup Lee tempel ke sesi baru: prompt pendek itu menunjuk SATU URL berkas
-SIAP-TEMPEL di GitHub (repo publik) — isi lengkapnya (kategori, kriteria, commit target,
+yang cukup Lee tempel ke sesi baru: locator repo + cabang sumber + SHA paket + path
+SIAP-TEMPEL melalui git/gh terautentikasi (publik maupun privat) — isi lengkapnya (kategori, kriteria, commit target,
 aturan main) tetap di berkas paket yang terjaga mesin (`alat/periksa-paket.py`).
 
 Laporan balik: sesi independen menulis laporan ke foldernya sendiri (sesuai paket) lalu
@@ -32,7 +32,7 @@ import sys
 import pathlib
 
 AKAR = pathlib.Path(__file__).resolve().parent.parent
-REPO_PUBLIK = "With-AI-Agent/Resto-Barokah"  # dari `git remote get-url origin`
+IDENTITAS_REPO = "With-AI-Agent/Resto-Barokah"  # dari `git remote get-url origin`
 FOLDER_PAKET = ("docs/uji/paket-audit/", "docs/uji/review-pr/")
 
 # ------------------------------------------------------------------ frasa → jenis
@@ -67,7 +67,7 @@ def commit_memuat(rel: str, ref: str = "HEAD") -> bool:
 
 
 def head_sudah_didorong() -> tuple[bool, str]:
-    """True bila HEAD sudah ada di cabang remote yang sama (URL publik bisa dibuka).
+    """True bila HEAD sudah ada di cabang remote yang sama (commit tersedia bagi akses repo yang sah).
 
     Bertanya LANGSUNG ke remote (`ls-remote`) — rujukan remote-tracking lokal bisa basi
     (kejadian nyata 2026-09-20: push sukses tetapi `origin/...` lokal tidak ter-update,
@@ -82,17 +82,17 @@ def head_sudah_didorong() -> tuple[bool, str]:
     sha_remote = keluar.split()[0] if keluar.split() else ""
     if sha_remote == sha_head.strip():
         return True, cabang
-    # remote di belakang HEAD? terima juga bila HEAD sudah termuat di remote-tracking
-    kode2, _ = git("merge-base", "--is-ancestor", "HEAD", f"origin/{cabang}")
+    # Ref cache bukan bukti remote terkini: hanya gunakan objek tip yang dijawab server.
+    kode2, _ = git("merge-base", "--is-ancestor", "HEAD", sha_remote)
     if kode2 == 0:
         return True, cabang
-    return False, f"HEAD belum di-push ke origin/{cabang}"
+    return False, f"HEAD belum terverifikasi tersedia pada origin/{cabang}"
 
 
 def commit_target_paket(isi: str) -> str | None:
     m = re.search(r"\*\*Commit yang diaudit:\*\*\s*`([0-9a-f]{7,40})`", isi)
     if not m:
-        m = re.search(r"\*\*Commit target:\*\*\s*`?([0-9a-f]{7,40})", isi)
+        m = re.search(r"\*\*Commit (?:target|yang direview):\*\*\s*`?([0-9a-f]{7,40})", isi)
     return m.group(1) if m else None
 
 
@@ -105,20 +105,21 @@ def bangun_prompt_pendek(rel_paket: str, sha_paket: str, sha_target: str | None,
     paket, sedangkan commit target dibaca dari isi paket yang sudah diterbitkan.
     """
     if not re.fullmatch(r"[0-9a-f]{40}", sha_paket):
-        raise ValueError("commit URL paket harus SHA penuh, bukan cabang bergerak")
-    if not sha_target or not re.fullmatch(r"[0-9a-f]{7,40}", sha_target):
+        raise ValueError("commit paket harus SHA penuh, bukan cabang bergerak")
+    if not sha_target or not re.fullmatch(r"[0-9a-f]{40}", sha_target):
         raise ValueError("commit target tidak terbaca — jangan mengarang sasaran")
     if not re.fullmatch(r"[A-Za-z0-9_./-]+", cabang_sumber):
         raise ValueError("cabang sumber paket tidak terbaca")
-    url = f"https://raw.githubusercontent.com/{REPO_PUBLIK}/{sha_paket}/{rel_paket}"
+    if not re.fullmatch(r"docs/uji/[A-Za-z0-9_./-]+\.md", rel_paket) or ".." in rel_paket.split("/"):
+        raise ValueError("path paket tidak sah")
     apakah = "PENINJAU REVIEW PR INDEPENDEN" if "/review-pr/" in rel_paket else "AUDITOR INDEPENDEN"
     return (
-        f"Kamu {apakah} Resto Barokah (repo publik). Baca SELURUH paket berikut, lalu langsung jalankan semua tahapnya:\n"
-        f"{url}\n"
-        f"Cabang sumber paket: {cabang_sumber}. Commit yang diperiksa: {sha_target}.\n"
-        f"Paket memuat konteks, lingkup, aturan, pengujian, dan format laporan; ikuti semuanya. Jika paket tidak terbaca atau sasaran tidak cocok, berhenti dan laporkan — jangan menebak.\n"
-        f"Jangan ubah kode proyek. Tulis HANYA laporan sesuai paket, commit dan push ke cabang SESIMU SENDIRI; jangan merge atau push ke cabang sumber/main.\n"
-        f"Terakhir, berikan lokasi laporan, commit, dan status push sebenarnya. Jika push gagal, laporkan belum ter-push; serah-terima belum selesai sebelum laporan tersedia di GitHub."
+        f"Kamu {apakah} Resto Barokah. Baca SELURUH paket dan langsung jalankan semua tahapnya.\n"
+        f"Repo: {IDENTITAS_REPO}. Cabang sumber paket: {cabang_sumber}.\n"
+        f"Commit PAKET: {sha_paket}. Path: {rel_paket}. Commit TARGET pemeriksaan (berbeda): {sha_target}.\n"
+        f"Gunakan git/gh terautentikasi (termasuk repo privat), mis. git show <SHA_PAKET>:<PATH>; jangan andalkan web/raw URL. Jika paket/sasaran tidak terbaca atau tidak cocok, berhenti dan laporkan; jangan menebak atau meminta token.\n"
+        f"Jangan ubah kode; tulis HANYA laporan. Tanpa meminta Lee lagi, commit dan push otomatis melalui alat/kirim-laporan.py dari SHA PAKET ke cabang SESIMU SENDIRI. Cabang/working tree bisa dipakai bersama: draf UUID + snapshot, commit terisolasi, retry fast-forward; jangan merge/rebase/reset/force-push/menimpa atau push cabang sumber/main.\n"
+        f"Wajib verifikasi remote; bukti akhir: repo, cabang tujuan, path laporan, commit SHA, remote_tip dan SHA-256. Chat/lokal saja bukan selesai. Jika TERBLOKIR, pertahankan laporan dan nyatakan BELUM TERVERIFIKASI, jangan klaim selesai."
     )
 
 
@@ -151,18 +152,25 @@ def mode_prompt_pendek(arg_berkas: str | None, lewat_cek_push: bool = False,
     rel = str(p.relative_to(AKAR))
     if not commit_memuat(rel):
         print(f"GAGAL: {rel} belum masuk commit HEAD — commit + push dulu, baru cetak prompt pendek.")
-        print("       (URL prompt pendek harus bisa dibuka sesi baru; berkas yang belum di-push tidak bisa.)")
+        print("       (locator paket harus menunjuk objek remote yang sudah diterbitkan; berkas yang belum di-push tidak bisa.)")
         return 1
     if not lewat_cek_push:
         ok, sebab = head_sudah_didorong()
         if not ok:
-            print(f"GAGAL: {sebab} — push dulu supaya URL paket bisa dibuka dari luar.")
+            print(f"GAGAL: {sebab} — push dulu supaya paket tersedia di remote bagi sesi berizin.")
             return 1
     _, sha_head = git("rev-parse", "HEAD")
     # Jangan membaca draf lokal yang belum masuk URL immutable di atas.
     kode, isi = git("show", f"HEAD:{rel}")
     if kode != 0:
         print("GAGAL: paket tidak dapat dibaca dari commit HEAD.")
+        return 1
+    pagar = ("alat/kirim-laporan.py", "Tanpa meminta Lee lagi", "verifikasi remote", "BELUM TERVERIFIKASI")
+    if not all(t in isi for t in pagar) or "git add docs/uji/" in isi:
+        print("GAGAL: paket lama/belum memiliki kontrak pengiriman aman. Jangan edit paket beku atau mengulang audit aktif; buat paket BARU hanya saat penyerahan baru diminta.")
+        return 1
+    if not all(commit_memuat(f"alat/{f}") for f in ("kirim-laporan.py", "kirim_laporan.py")):
+        print("GAGAL: SHA paket belum memuat alat pengirim; terbitkan alat bersama paket dulu.")
         return 1
     _, cabang = git("branch", "--show-current")
     try:
@@ -224,6 +232,7 @@ def mode_siapkan(jenis: str, pr: int | None, izin_ci: str | None) -> int:
 
 # ------------------------------------------------------------------ uji diri
 def uji_diri() -> int:
+    global AKAR
     hasil: list[tuple[str, bool, str]] = []
 
     def catat(nama: str, ok: bool, kenapa: str = "") -> None:
@@ -247,12 +256,15 @@ def uji_diri() -> int:
     contoh = bangun_prompt_pendek(
         "docs/uji/paket-audit/AUD-3-2026-09-20-abc1234-SIAP-TEMPEL.md",
         "f" * 40, "a" * 40, cabang_sumber="arena/sumber-uji")
-    catat("prompt memuat URL paket", "raw.githubusercontent.com/With-AI-Agent/Resto-Barokah/" + "f" * 40 in contoh)
+    catat("locator privat lengkap", "Repo: With-AI-Agent/Resto-Barokah" in contoh and "Commit PAKET: " + "f" * 40 in contoh and "Path: docs/uji/" in contoh)
     catat("prompt memuat commit target", "a" * 40 in contoh)
     catat("paket lengkap wajib dibaca", "Baca SELURUH paket" in contoh)
     catat("sasaran gagal-tertutup", "berhenti dan laporkan" in contoh and "jangan menebak" in contoh)
     catat("larangan merge dan push main", "jangan merge" in contoh and "main" in contoh)
-    catat("bukti serah-terima GitHub", "lokasi laporan, commit, dan status push" in contoh)
+    catat("bukti serah-terima GitHub", "bukti akhir: repo, cabang tujuan, path laporan, commit SHA" in contoh)
+    catat("pengiriman otomatis tanpa pengingat", "Tanpa meminta Lee lagi" in contoh and "kirim-laporan.py" in contoh)
+    catat("working tree bersama tidak diasumsikan unik", "working tree bisa dipakai bersama" in contoh)
+    catat("bukti remote dan hambatan jujur", "verifikasi remote" in contoh and "BELUM TERVERIFIKASI" in contoh)
     catat("prompt ≤ 10 baris", len(contoh.splitlines()) <= 10, f"{len(contoh.splitlines())} baris")
     review = bangun_prompt_pendek("docs/uji/review-pr/PKT-x-SIAP-TEMPEL.md", "f" * 40, "a" * 40, cabang_sumber="arena/sumber-review")
     catat("paket review → peran peninjau", "PENINJAU REVIEW" in review)
@@ -273,6 +285,7 @@ def uji_diri() -> int:
     for nama, paket_sha, target_sha, sumber in [
         ("URL bergerak ditolak", "main", "a" * 40, "arena/uji"),
         ("target hilang ditolak", "f" * 40, None, "arena/uji"),
+        ("target pendek ditolak", "f" * 40, "a" * 7, "arena/uji"),
         ("cabang hilang ditolak", "f" * 40, "a" * 40, ""),
     ]:
         try:
@@ -295,29 +308,37 @@ def uji_diri() -> int:
     finally:
         palsu.unlink(missing_ok=True)
 
-    # 4) jalur nyata: SIAP-TEMPEL yang BENAR-BENAR ada di HEAD → prompt tercetak
-    nyata = sorted((AKAR / "docs" / "uji" / "paket-audit").glob("*SIAP-TEMPEL.md"))
-    nyata = [p for p in nyata if commit_memuat(str(p.relative_to(AKAR)))]
-    if nyata:
-        import io
-        import contextlib
-        buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            kode = mode_prompt_pendek(str(nyata[-1].relative_to(AKAR)), lewat_cek_push=True)
-        keluar = buf.getvalue()
-        catat("berkas nyata di HEAD → prompt tercetak", kode == 0 and "MULAI SALIN" in keluar)
-        import tempfile
-        _, sha = git("rev-parse", "HEAD")
-        _, cabang = git("branch", "--show-current")
-        rel = str(nyata[-1].relative_to(AKAR))
-        _, isi_commit = git("show", f"HEAD:{rel}")
-        prompt = bangun_prompt_pendek(rel, sha.strip(), commit_target_paket(isi_commit),
-                                     cabang_sumber=cabang.strip())
-        with tempfile.TemporaryDirectory(prefix="serah-prompt-") as tmp:
-            draf = pathlib.Path(tmp) / "respons.md"
+    # 4) Real committed fixture, not the frozen active AUD-2 packet. The latter
+    # must NOT be silently republished with contradictory old delivery instructions.
+    import tempfile
+    from unittest.mock import patch
+    from kontrak_laporan import blok_pengiriman
+    lama = AKAR
+    with tempfile.TemporaryDirectory(prefix="serah-prompt-") as tmp:
+        try:
+            AKAR = pathlib.Path(tmp)
+            git("init", "--initial-branch", "arena/01a0c2c1-resto-barokah")
+            git("config", "user.name", "Uji")
+            git("config", "user.email", "uji@example.test")
+            rel = "docs/uji/paket-audit/UJI-SIAP-TEMPEL.md"
+            file = AKAR / rel
+            file.parent.mkdir(parents=True)
+            isi_commit = "- **Commit yang diaudit:** `" + "a"*40 + "`\n" + blok_pengiriman("audit", "arena/sumber-uji")
+            file.write_text(isi_commit)
+            (AKAR / "alat").mkdir()
+            for nama in ("kirim-laporan.py", "kirim_laporan.py"):
+                (AKAR / "alat" / nama).write_bytes((lama / "alat" / nama).read_bytes())
+            git("add", "."); git("commit", "-m", "fixture paket terbit")
+            with contextlib.redirect_stdout(io.StringIO()):
+                kode = mode_prompt_pendek(rel, lewat_cek_push=True)
+            catat("paket committed baru → prompt tercetak", kode == 0)
+            _, sha = git("rev-parse", "HEAD")
+            _, cabang = git("branch", "--show-current")
+            prompt = bangun_prompt_pendek(rel, sha.strip(), commit_target_paket(isi_commit), cabang_sumber=cabang.strip())
+            draf = AKAR / "respons.md"
             for nama, isi_draf, harap in [
                 ("jalur draf lengkap diterima", "```text\n" + prompt + "\n```\n", 0),
-                ("jalur draf tautan saja ditolak", prompt.splitlines()[1], 1),
+                ("jalur draf locator saja ditolak", prompt.splitlines()[1], 1),
             ]:
                 draf.write_text(isi_draf, encoding="utf-8")
                 with contextlib.redirect_stdout(io.StringIO()):
@@ -326,14 +347,17 @@ def uji_diri() -> int:
             with contextlib.redirect_stdout(io.StringIO()):
                 kode = mode_prompt_pendek(rel, lewat_cek_push=True, draf_serah=str(draf.with_name("hilang.md")))
             catat("jalur draf hilang ditolak", kode == 1)
-        # Draf lokal tidak boleh mengganti metadata URL yang sudah dikunci.
-        from unittest.mock import patch
-        with patch.object(pathlib.Path, "read_text", side_effect=AssertionError("jangan baca paket lokal")):
+            with patch.object(pathlib.Path, "read_text", side_effect=AssertionError("jangan baca paket lokal")):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    kode = mode_prompt_pendek(rel, lewat_cek_push=True)
+            catat("metadata diambil dari paket committed, bukan draf lokal", kode == 0)
+            file.write_text("- **Commit yang diaudit:** `" + "a"*40 + "`\ngit add docs/uji/audit/")
+            git("add", rel); git("commit", "-m", "fixture instruksi lama")
             with contextlib.redirect_stdout(io.StringIO()):
                 kode = mode_prompt_pendek(rel, lewat_cek_push=True)
-        catat("metadata diambil dari paket committed, bukan draf lokal", kode == 0)
-    else:
-        catat("berkas nyata di HEAD → prompt tercetak", False, "tidak ada SIAP-TEMPEL terlacak")
+            catat("paket lama tidak diterbitkan ulang diam-diam", kode == 1)
+        finally:
+            AKAR = lama
 
     gagal = [h for h in hasil if not h[1]]
     for nama, ok, kenapa in hasil:

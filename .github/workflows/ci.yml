@@ -159,6 +159,7 @@ jobs:
           python3 alat/periksa-fondasi-independen.py
           python3 alat/audit-independen.py --uji-diri
           python3 alat/siapkan-pemeriksaan.py --uji-diri
+          python3 alat/uji-kirim-laporan.py
           python3 alat/periksa-panduan.py
           python3 alat/periksa-panduan.py --uji-diri
           python3 alat/periksa-rujukan.py

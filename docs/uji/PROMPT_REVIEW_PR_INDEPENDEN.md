@@ -49,17 +49,18 @@ Kerjakan berurutan:
 8. Laporkan SEMUA yang kamu temukan — termasuk yang di luar diff PR ini (bagian 8 laporan). Ambang minimum di paket
    adalah LANTAI, bukan target: jangan berhenti di angka minimum dan jangan menambah baris demi syarat. Jangan menyusun
    laporan agar lolos pemeriksa; formatnya sudah lengkap di paket.
-9. Tulis laporan PERSIS dengan format di paket (bagian "Format laporan") ke
-   `docs/uji/review-pr/LAPORAN_<tanggal>_<nama-pr>__<penanda-sesimu>.md`. Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
-   **Sebelum menulis, periksa daftar berkas di folder itu** (`ls docs/uji/review-pr/`). Kalau penandamu sudah dipakai sesi lain,
-   **JANGAN menimpa** — tambahkan pembeda unik (mis. `__<penanda>-2` atau angka unik) supaya dua laporan tidak saling menghapus.
-   (Pelajaran nyata 2026-09-17: tiga sesi pada satu cabang memakai penanda yang sama; laporan 79 baris tertimpa laporan 390 baris.)
-10. Jalankan `python3 alat/review-pr.py --periksa-laporan docs/uji/review-pr/<berkas-laporan>.md` (sekali di akhir).
-    Bila ditolak: perbaiki KELENGKAPAN FORMAT-nya, bukan menambah temuan yang tidak kamu yakini.
-11. Supaya hasilmu sampai ke sesi kerja, commit + push HANYA berkas laporan itu ke cabang sesi ini. Contoh:
-    `git add docs/uji/review-pr/ && git commit -m "laporan review PR <nama>" && git push -u origin HEAD`
-    (jangan mengubah/meng-commit berkas lain; bila push tidak bisa, tulis "belum ter-push" dan beri tahu saya).
-12. Laporkan verdict + tingkat risiko + ringkasan temuan ke saya di chat.
+9. Tulis laporan PERSIS format paket ke draf UUID dari pengirim `alat/kirim-laporan.py`
+   --jenis review-pr --sumber <cabang-sumber> --siapkan. Nama cabang tidak unik antar-sesi.
+10. Validasi lewat `alat/review-pr.py --periksa-laporan <path>`; jangan mengarang temuan.
+11. Tanpa meminta Lee lagi, otomatis commit dan push melalui pengirim dari SHA paket
+    (bukan SHA target), --jenis review-pr --sumber <cabang-sumber> --laporan <path>.
+    Baca UTUH `docs/uji/PENGIRIMAN_LAPORAN_AMAN.md`: locator repo + cabang sumber +
+    SHA paket + path via git/gh terautentikasi untuk privat; gagal-tertutup bila tak terbaca.
+    Cabang/working tree bisa bersama; gunakan snapshot/index terisolasi + retry
+    fast-forward. Jangan checkout/merge/rebase/reset/force/menimpa atau git add folder.
+12. Wajib verifikasi remote, beri repo, cabang tujuan, path, commit SHA, remote_tip,
+    SHA-256 dan hasil cek. Chat/lokal saja bukan selesai. TERBLOKIR = simpan laporan,
+    status BELUM TERVERIFIKASI + hambatan/pemulihan; jangan meminta token.
 
 Larangan keras: memuji, "looks good", melaporkan soal gaya penulisan sebagai temuan, mengubah berkas selain laporan,
 mempercayai deskripsi PR tanpa membuktikan, menaikkan verdict di atas bukti, dan menyusun laporan demi memenuhi ambang /

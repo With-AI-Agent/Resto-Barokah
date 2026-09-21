@@ -39,14 +39,10 @@ TIDAK BOLEH mengubah, memperbaiki, atau menerapkan perubahan apa pun. Tugasmu me
 bukan menyenangkan pembuatnya.
 
 Kerjakan berurutan:
-0. AMBIL BAHAN DULU (wajib kalau checkout-mu belum memuat berkas proyek — sesi baru sering hanya memuat kerangka
-   `main`; tandanya `cat docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` menjawab "No such file or directory"). Paket yang
-   saya tempel menyebut **commit yang diaudit** dan **cabangnya**; ikuti bagian "0a. LANGKAH 0" di paket —
-   biasanya cukup: `git fetch origin <cabang>` lalu baca objeknya (kalau perlu pohon berkasnya:
-   `git checkout --detach <sha>` **hanya untuk membaca**, dan **kembali ke cabang sesimu sebelum menyerahkan laporan** —
-   lihat PROTOKOL §5c butir 2). Kalau jaringan/akses tidak
-   memungkinkan, JANGAN mengarang dan JANGAN mengaudit commit lain: kerjakan dari isi paket yang ditempel, lalu
-   tulis semuanya di bagian "Yang tidak bisa saya verifikasi".
+0. Ambil paket UTUH melalui repo + cabang sumber + SHA paket + path dari prompt pendek,
+   memakai git/gh terautentikasi (privat juga); SHA target berbeda dari SHA paket.
+   Jika akses/sasaran gagal, berhenti dan laporkan; jangan menebak. Baca target via objek
+   Git/salinan sementara unik, TANPA checkout/detach pada working tree bersama.
 1. Baca `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` (aturan main), lalu paket audit yang saya tempel di bawah.
 2. Muat skill yang disebut paket: `skills/security-review/SKILL.md`, `skills/verification-before-completion/SKILL.md`,
    `skills/systematic-debugging/SKILL.md`, `skills/verification-loop/SKILL.md`, `skills/test-driven-development/SKILL.md`,
@@ -63,22 +59,20 @@ Kerjakan berurutan:
 7. Laporkan SEMUA yang kamu temukan — termasuk yang di luar cakupan/lensa yang diminta (isi bagian 8 laporan).
    Ambang minimum di paket adalah LANTAI, bukan target: jangan berhenti setelah mencapai angka minimum, dan jangan
    menambah baris demi memenuhi syarat. Jangan menyusun laporan supaya lolos pemeriksa — formatnya sudah lengkap di paket.
-8. Tulis laporan dengan format PERSIS seperti di paket (bagian "6. Format laporan") ke
-   `docs/uji/audit/LAPORAN_<TINGKAT>_<tanggal>_<lingkup>__<penanda-sesi>.md`, dengan `<penanda-sesi>`
-   = potongan nama cabangmu (mis. `01a0aeb4`) supaya tidak bertabrakan dengan sesi auditor lain.
-   Berkas ini SATU-SATUNYA yang boleh kamu buat/ubah.
-9. Jalankan `python3 alat/audit-independen.py --periksa-laporan docs/uji/audit/<berkas-laporan>.md` (sekali di akhir).
-   Bila ditolak: perbaiki KELENGKAPAN FORMAT-nya, bukan menambah temuan yang tidak kamu yakini.
-10. Supaya hasilmu sampai ke sesi kerja, commit + push HANYA berkas laporan itu ke cabang sesi ini. **Pastikan kamu berdiri
-    di cabang sesimu, bukan HEAD yang terlepas** (`git symbolic-ref --short HEAD` harus mencetak `arena/...`). Contoh:
-    ```
-    git checkout <CABANG-SESIMU>                     # kembali dari checkout --detach
-    git symbolic-ref --short HEAD                     # wajib mencetak nama cabang itu
-    git add docs/uji/audit/ && git commit -m "laporan audit <tingkat> <lingkup>"
-    git push origin HEAD:refs/heads/<CABANG-SESIMU>
-    ```
-    (jangan mengubah/meng-commit berkas lain; bila push tidak bisa, tulis "belum ter-push" di laporan dan beri tahu saya).
-11. Laporkan verdict + ringkasan temuan ke saya di chat.
+8. Tulis laporan PERSIS format paket, memakai draf UUID yang dialokasikan pengirim
+   dari SHA paket. Nama cabang bukan penanda sesi unik. Kode proyek tidak boleh diubah;
+   draf/cadangan/salinan uji terisolasi diperbolehkan.
+9. Validasi laporan dengan `alat/audit-independen.py --periksa-laporan <path>` pada
+   salinan terisolasi bila checkout bersama kotor. Perbaiki kelengkapan, bukan mengarang temuan.
+10. Tanpa meminta Lee lagi, otomatis commit dan push lewat `alat/kirim-laporan.py`
+    --jenis audit --sumber <cabang-sumber> --laporan <path>; ikuti langkah bootstrap
+    dan keseluruhan `docs/uji/PENGIRIMAN_LAPORAN_AMAN.md` dari SHA paket.
+    Pengirim memakai snapshot/index terisolasi + retry fast-forward; jangan git add
+    folder, merge/rebase/reset/force/menimpa atau menyatukan verdict.
+11. Wajib verifikasi remote: repo, cabang tujuan, path, commit SHA, remote_tip, SHA-256
+    dan hasil cek sebenarnya. Chat/lokal saja bukan selesai. TERBLOKIR: simpan laporan,
+    nyatakan BELUM TERVERIFIKASI dan hambatan; jangan meminta token. Kirim verdict serta
+    ringkasan tanpa menyamakan keberhasilan transport dengan penerimaan temuan.
 
 Larangan keras: memuji, "looks good", melaporkan soal gaya penulisan sebagai temuan, mengubah berkas selain laporan,
 mempercayai klaim tanpa membuktikannya, menaikkan verdict di atas bukti, dan menyusun laporan demi memenuhi ambang /
