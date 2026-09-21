@@ -122,7 +122,7 @@ def bangun_prompt_pendek(rel_paket: str, sha_paket: str, sha_target: str | None,
         f"Kamu {apakah} Resto Barokah. Baca SELURUH paket dan langsung jalankan semua tahapnya.\n"
         f"Repo: {IDENTITAS_REPO}. Cabang sumber paket: {cabang_sumber}.\n"
         f"Commit PAKET: {sha_paket}. Path: {rel_paket}. Commit TARGET pemeriksaan (berbeda): {sha_target}.\n"
-        f"Gunakan git/gh terautentikasi (termasuk repo privat), mis. git show <SHA_PAKET>:<PATH>; jangan andalkan web/raw URL. Jika paket/sasaran tidak terbaca atau tidak cocok, berhenti dan laporkan; jangan menebak atau meminta token.\n"
+        f"Pastikan origin repo di atas. Gunakan git/gh terautentikasi (termasuk privat): git fetch --no-write-fetch-head origin <SHA_PAKET>, lalu git show <SHA_PAKET>:<PATH>; jangan andalkan web/raw URL. Jika paket/sasaran tidak terbaca atau tidak cocok, berhenti dan laporkan; jangan menebak atau meminta token.\n"
         f"Jangan ubah kode; tulis HANYA laporan. Tanpa meminta Lee lagi, commit dan push otomatis melalui alat/kirim-laporan.py dari SHA PAKET ke cabang SESIMU SENDIRI. Cabang/working tree bisa dipakai bersama: draf UUID + snapshot, commit terisolasi, retry fast-forward; jangan merge/rebase/reset/force-push/menimpa atau push cabang sumber/main.\n"
         f"Wajib verifikasi remote; bukti akhir: repo, cabang tujuan, path laporan, commit SHA, remote_tip dan SHA-256. Chat/lokal saja bukan selesai. Jika TERBLOKIR, pertahankan laporan dan nyatakan BELUM TERVERIFIKASI, jangan klaim selesai."
     )
@@ -267,6 +267,7 @@ def uji_diri() -> int:
     catat("sasaran gagal-tertutup", "berhenti dan laporkan" in contoh and "jangan menebak" in contoh)
     catat("larangan merge dan push main", "jangan merge" in contoh and "main" in contoh)
     catat("bukti serah-terima GitHub", "bukti akhir: repo, cabang tujuan, path laporan, commit SHA" in contoh)
+    catat("bootstrap objek paket sebelum membaca", "git fetch --no-write-fetch-head origin <SHA_PAKET>" in contoh)
     catat("pengiriman otomatis tanpa pengingat", "Tanpa meminta Lee lagi" in contoh and "kirim-laporan.py" in contoh)
     catat("working tree bersama tidak diasumsikan unik", "working tree bisa dipakai bersama" in contoh)
     catat("bukti remote dan hambatan jujur", "verifikasi remote" in contoh and "BELUM TERVERIFIKASI" in contoh)
