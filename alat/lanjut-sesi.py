@@ -848,6 +848,16 @@ def daftar_sesi() -> int:
     if not baris:
         print("  (tidak ada cabang sesi di GitHub)")
     ditinggalkan = sesi_ditinggalkan(AKAR)
+    # Aturan TERSERAP (permintaan Lee 2026-09-21): cabang yang ujungnya sudah termuat di cabang
+    # lain = pekerjaannya sudah dilanjutkan rantai lebih baru → bukan kandidat aktif, bukan
+    # ditinggalkan. Mekanis (merge-base), bukan tebakan.
+    def terserap(sha_x: str, semua: list) -> bool:
+        for _c, _t, _j, sha_y, _a, _p in semua:
+            if sha_y == sha_x:
+                continue
+            if 0 == jalankan(["git", "merge-base", "--is-ancestor", sha_x, sha_y], cwd=AKAR)[0]:
+                return True
+        return False
     for i, (cabang, tanggal, judul, _sha, punya_alat, punya_prompt) in enumerate(baris, 1):
         kode, n = jalankan(["git", "rev-list", "--count", f"origin/main..origin/{cabang}"], cwd=AKAR)
         jarak = f"{n.strip()} commit di atas main" if kode == 0 and n.strip().isdigit() else "jarak tak terbaca"
@@ -858,6 +868,8 @@ def daftar_sesi() -> int:
             tanda.append("SEDANG DITUJU")
         if cabang in ditinggalkan:
             tanda.append(f"SENGAJA DITINGGALKAN ({ditinggalkan[cabang]})")
+        elif terserap(_sha, baris):
+            tanda.append("terserap (sudah termuat di cabang lain — bukan kandidat)")
         elif cabang != target and cabang != cabang_sekarang:
             # Bukan ditinggalkan — hanya BUKAN sesi aktif. Tetap boleh ditawarkan (Lee bisa
             # memilihnya), tapi jangan sampai terlihat seperti sesi yang sedang dituju.

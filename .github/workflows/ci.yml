@@ -119,6 +119,9 @@ jobs:
       - name: Bukti mutasi pagar migrasi 0018 — perangkat terdaftar T1-24 (semua mutasi WAJIB MERAH)
         run: python3 alat/uji-mutasi-0018.py
 
+      - name: Papan tugas maraton valid (AL-16 — lingkup eksklusif, nomor aman, status sah)
+        run: python3 alat/periksa-maraton.py
+
       # Kenapa ada (temuan audit I F-07): sebelum ini, berkas Edge hanya dijaga pemeriksa TEKS —
       # tidak ada yang pernah MENJALANKAN handler-nya. Uji ini mengubah berkas ASLI TS → JS dengan
       # esbuild (dipasang bersama `npm ci --prefix alat`) lalu menjalankannya di VM tanpa jaringan,

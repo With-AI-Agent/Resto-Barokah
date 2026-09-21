@@ -40,6 +40,7 @@ purpose: BUKU PEDOMAN INDUK (manual book) untuk Lee — satu tempat untuk SEMUA 
 | Mengubah aturan/gaya/panggilan nama | **AL-12** | pengaturan |
 | **Minta dibimbing langkah demi langkah** (mode bimbingan) | **AL-14** | kerja harian |
 | **Minta disiapkan pemeriksaan/audit/review** (prompt pendek) | **AL-15** | verifikasi |
+| **Maraton kerja sama multi-sesi** (pekerja paralel + satu integrator) | **AL-16** | koordinasi |
 
 > **Sebelum mulai sesi baru:** permintaan Lee sepanjang proyek tersimpan di `docs/teknis/REKAM_PESAN_PEMILIK.md`.
 > Agent wajib membacanya di awal sesi (ada di Prompt Pembuka Bagian C1) supaya tidak ada permintaan yang terlewat.
@@ -307,6 +308,18 @@ Setiap alur ditulis dengan pola yang sama supaya mudah dibaca:
 
 ---
 
+### AL-16 — Maraton kerja sama (beberapa sesi paralel, satu integrator)
+
+- **Apa ini:** kerja maraton dibagi ke beberapa sesi Arena sekaligus seperti tim: satu **sesi integrator** (sesi kerja utama) membagi tugas; **pekerja** (maksimal **4 per gelombang**) mengerjakan di cabang masing-masing dengan **lingkup berkas eksklusif** dan nomor migrasi cadangan. Hasil dipanen integrator **satu per satu** ke cabang resmi — tidak pernah dua tulisan masuk bersamaan. Papan: `docs/ops/PAPAN_TUGAS.md` (penulis tunggal: integrator; diperiksa `alat/periksa-maraton.py` + CI). **OPT-IN**: hidup hanya bila Lee meminta / agent menawarkan dan Lee setuju; tanpa itu sistem biasa.
+- **Kapan dipakai:** ada ≥2 tugas yang benar-benar independen (mis. uji SQL vs dokumen vs komponen UI), CI hijau, handoff bersih. **Agent WAJIB menolak (dengan alasan + tawaran jalan serial) bila:** CI merah · handoff belum bersih · tugas tak bisa dipisah per kepemilikan berkas · sedang refactor satu modul · menyangkut keputusan uang/keamanan belum terkunci · menyentuh migrasi beku.
+- **Kalimat Lee → yang terjadi:** `Siapkan maraton kerja sama.` → integrator menyiapkan gelombang (papan + prompt pekerja). · `<N> pekerja maraton sudah selesai.` / `Panen hasil maraton.` → integrator memverifikasi sendiri lalu memanen berurutan (boleh sebagian, tak harus tunggu semua) + menilai vs DoD.
+- **Langkah Lee:** (1) bilang `Siapkan maraton kerja sama.`; (2) buka sesi pekerja (base branch = cabang pekerja yang integrator tulis), tempel **prompt pendek** dari `PROMPT_PEKERJA_MARATON.md` yang integrator berikan (baris pertama sudah terisi: ID tugas + cabang); (3) bila pekerja lapor selesai, kabari integrator: `Panen hasil maraton.`
+- **Yang agent lakukan:** INTEGRATOR: cek kelayakan → pecah tugas per **kepemilikan berkas** + cadangkan nomor migrasi → tulis papan (`DIBERIKAN`, DoD+bukti per tugas) → `alat/periksa-maraton.py` LOLOS → commit+push → serahkan prompt pekerja. Saat panen: verifikasi sendiri (papan + `git ls-remote` + baca `docs/ops/maraton/LAPORAN-<tugas>.md` — jangan andalkan kabar) → merge satu per satu, **setiap merge → seluruh baterai uji + CI** → `DITERIMA` / `DITOLAK (<alasan>)` (yang ditolak kembali ke kolam, tidak hilang senyap) → papan final LOLOS → penutup AL-3. PEKERJA: orientasi `PRO.md` MODE PEKERJA (tak bertanya "mau apa") → kerja HANYA di lingkup → uji lingkup hijau → tulis laporan → push cabang sendiri; DILARANG: cabang resmi, migrasi beku, berkas pagar/pemeriksa, keputusan uang, lockfile, papan/handoff.
+- **Bukti yang Lee terima:** daftar tugas → status akhir masing-masing + hasil baterai/CI per merge + tugas yang kembali ke kolam (bila ada).
+- **Lama:** siapkan ~15 menit; panen ~5–15 menit per pekerja.
+- **Kalau macet:** pekerja macet = tulis jujur di laporan, integrator menilai saat panen; papan cacat = `alat/periksa-maraton.py` menolak → perbaiki papan dulu, jangan memanen di atasnya; lingkup ternyata tumpang tindih = pekerja berhenti, integrator yang memutuskan.
+- **Dasar riset (2026-09-21):** konflik antar-agent turun ke ~0 bila kepemilikan berkas tidak tumpang tindih; merge wajib berurutan oleh satu integrator dengan verifikasi tiap langkah; klaim tugas eksplisit mencegah kerja ganda; jumlah pekerja dibatasi kapasitas panen, bukan semangat.
+
 ## Bagian C — Semua prompt (dengan label siapa yang memakai)
 
 **Aturan label:** **[LEE → AGENT]** = tempel di sesi kerja · **[LEE → PENINJAU]** = tempel di chat BARU (auditor/peninjau). Kalau prompt salah tempat, agent menolak dengan sopan dan meminta yang benar — itu fitur, bukan kerusakan.
@@ -374,6 +387,8 @@ Tutup sesi ini dengan benar:
 
 | Situasi | Kalimat Lee |
 |---|---|
+| Maraton kerja sama (paralel, satu integrator) | `Siapkan maraton kerja sama.` (= **AL-16** — agent boleh menolak dengan alasan bila fase tidak mengizinkan) |
+| Pekerja maraton sudah selesai | `<N> pekerja maraton sudah selesai.` / `Panen hasil maraton.` (= **AL-16** panen berurutan + penilaian) |
 | Buka sesi baru untuk APA PUN (lanjut/update/pemeriksaan/tanya) | `baca pro.md` — agent wajib orientasi dulu lewat `PRO.md` (susul sesi aktif, baca handoff/konteks), lalu bertanya mau apa |
 | Melanjutkan sesi lama di sesi ini | `mau lanjut sesi` / `lanjutkan sesi yang kemarin` (= susul cabang aktif per `PRO.md` + kerjakan rencana §3 handoff) |
 | Minta dijelaskan | `Jelaskan dengan bahasa sederhana: apa yang baru berubah, dan apa risikonya buat aku.` |

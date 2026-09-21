@@ -14,7 +14,11 @@
    - Lee sudah menyebut cabang tertentu → itu yang menang.
    - Kalau tidak: cabang yang `docs/ops/SIAP-LANJUT.md`-nya menunjuk **dirinya sendiri** dan
      **tidak** tercatat di `docs/ops/SESI_DITINGGALKAN.md`. Tepat satu → itu sesi aktif.
-   - Kandidat lebih dari satu, atau nol → **BERHENTI**: tampilkan daftar, tanya Lee. JANGAN memilih sendiri.
+   - Aturan TERSERAP: calon yang ujung cabangnya sudah menjadi nenek-moyang cabang calon lain
+     (pekerjaannya dilanjutkan rantai yang lebih baru) otomatis GUGUR — bukan kandidat, bukan
+     ditinggalkan, hanya sudah terserap.
+   - Kandidat (sesudah aturan terserap) lebih dari satu, atau nol → **BERHENTI**: tampilkan daftar,
+     tanya Lee. JANGAN memilih sendiri.
    - Cabang yang tercatat DITINGGALKAN → jangan pernah ditawarkan. Kalau Lee sendiri yang menyebutnya,
      konfirmasi dulu: *"Sesi ini tercatat sengaja kamu tinggalkan (alasan: …) — yakin mau dibangkitkan?"*
      Bangkitkan hanya setelah Lee jawab ya, dan cabut barisnya dari daftar (dengan tanggal).
@@ -24,6 +28,10 @@
 5. Baca berurutan: `docs/ops/SIAP-LANJUT.md` (keadaan + rencana §3) → `PROJECT_STATE.md` →
    `STATUS.md` → `docs/teknis/REKAM_PESAN_PEMILIK.md` (pesan pemilik + aturan bahasa: Indonesia
    sederhana, panggil **Lee**, setiap balasan ditutup **"Langkah Lee"**) → `_log-sesi/` terbaru.
+
+**MODE PEKERJA MARATON:** kalau pesan Lee memuat tugas maraton (template `PROMPT_PEKERJA_MARATON.md`,
+baris "TUGAS MARATON SAYA" terisi) → lewati pertanyaan "mau apa": kerjakan tugas itu sesuai alur AL-16
+(lingkup eksklusif di `docs/ops/PAPAN_TUGAS.md`), lalu lapor satu kalimat.
 
 ## 2. Lalu tanya Lee — jangan berasumsi
 

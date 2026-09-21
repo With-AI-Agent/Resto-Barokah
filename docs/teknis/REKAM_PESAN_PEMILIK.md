@@ -449,3 +449,14 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
    `alat/periksa-panduan.py`); sesi yang tidak dipilih TIDAK otomatis ditinggalkan (label "tidak aktif");
    status ditinggalkan hanya dari kata Lee; penghapusan cabang hanya atas permintaan eksplisit per cabang,
    selalu dengan tawaran arsip tag lebih dulu. Kebijakan lengkap di header `docs/ops/SESI_DITINGGALKAN.md`.
+6. *"Aku mau kita buat mekanisme kerja sama/gotong royong/maraton bersama … satu sesi kerja utama …
+   prompt yang pendek saja … siap copy paste … setelah semua sesi selesai kerja, semua otomatis masuk
+   github … dia bakal kumpulkan semua hasil kerja nya dan menilai semuanya"* — **Dijalankan (2026-09-21):**
+   alur **AL-16 Maraton kerja sama** (satu integrator + ≤4 pekerja per gelombang, lingkup berkas
+   EKSKLUSIF, nomor migrasi dicadangkan, panen BERURUTAN dengan baterai penuh tiap merge, OPT-IN via
+   `Siapkan maraton kerja sama.`); `docs/ops/PAPAN_TUGAS.md` (penulis tunggal integrator) +
+   `PROMPT_PEKERJA_MARATON.md` (pendek, siap tempel) + `alat/periksa-maraton.py` (9 kasus uji-diri,
+   gerbang CI) + mode pekerja di `PRO.md` + aturan TERSERAP di pemilihan sesi (menjawab kekhawatiran Lee
+   soal daftar menumpuk: kandidat terserap gugur otomatis, tanpa mengarang status ditinggalkan).
+   Kritik yang disampaikan ke Lee dan diterima: 10 pekerja → maks 4/gelombang; "otomatis masuk GitHub"
+   = cabang pekerja otomatis, cabang resmi TIDAK PERNAH otomatis; panen tidak menunggu semua.
