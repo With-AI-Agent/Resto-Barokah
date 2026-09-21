@@ -1,0 +1,4 @@
+# Aplikasi ini dipakai pegawai dan pelanggan di alamat tertentu.
+# Halaman di dalamnya butuh masuk (login), jadi sengaja tidak diindeks mesin pencari.
+User-agent: *
+Disallow: /

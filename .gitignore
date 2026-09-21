@@ -1,0 +1,30 @@
+# Berkas sementara Python
+__pycache__/
+*.pyc
+
+# Simpul alat (tidak ikut disimpan)
+node_modules
+
+# ⚠️ RAHASIA — jangan pernah masuk Git (kunci Supabase/Cloudflare/Resend)
+.env
+.env.*
+!.env.example
+*.local
+*.local.md
+
+# Hasil build & cache
+dist/
+build/
+.next/
+.vercel/
+.wrangler/
+coverage/
+
+# Log & berkas sementara
+*.log
+*.tmp
+
+# Sistem operasi & editor
+.DS_Store
+Thumbs.db
+.obsidian/
