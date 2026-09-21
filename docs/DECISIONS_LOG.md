@@ -1481,3 +1481,11 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 **Keputusan:** (1) blok-3 `rls_semua_tabel.sql` memeriksa SETIAP policy (bukan cukup-satu) — satu policy PERMISSIVE longgar menggugurkan semua yang ketat karena digabung OR; (2) registri blok-4 tiap baris membawa `alasan` + jenis kebijakan — pemisahan `TOLAK-SEMUA` vs `GLOBAL-TERBUKA` (policy `using(true)` di tabel acuan global tanpa data penyewa, yaitu `izin_kode`, dinyatakan AMAN secara eksplisit, bukan lolos diam-diam); (3) blok-6 transitif MEMAKSA rantai jangkar tercatat per fungsi (`pesanan_sepenyewa`→{`penyewa_saya`,`cabang_pantau_saya`} dst.) dan GAGAL bila tercatat-tak-sebut — menutup kekurangan "transitif data-hanya" yang dituduh temuan; (4) keempat pagar dibuktikan peka lewat `alat/uji-mutasi-0009.py` (4 mutasi WAJIB MERAH + kontrol hijau + penutup hijau, langkah CI + pola gerbang).
 
 **Bukti:** suite SQL 62/62 LOLOS; 4 mutasi merah dengan alasan blok yang tepat (cabang-dibuang → blok 6 · policy longgar → blok 3 · tanpa RLS → blok 1 · tanpa policy → blok 2).
+
+## [Keamanan/2026-09-21] F F-18: sisa oracle boolean PIN DITERIMA sebagai risiko (opsi A, keputusan Lee)
+
+**Konteks:** temuan K-3 audit AUD-3 (sesi `arena/01a0bbd2`): `simpan_pin`/`ganti_pin` membocorkan 1 bit ("kandidat = PIN aktif seorang kolega?") lewat `'PIN tersimpan.'` vs penolakan netral. Definisi hidup: `0018_perangkat_terdaftar.sql:336` (kutipan auditor `0015` sudah tertimpa).
+
+**Keputusan (Lee, laporan Batch-1 2026-09-21 — opsi A):** sisa diterima sebagai risiko, TANPA perubahan kode. Batas yang diterima: oracle hanya bisa dipakai orang-dalam (akun sah + PIN lama sendiri + perangkat terdaftar), ≤20 tebakan/15 menit per akun, hanya kandidat kuat 6-angka yang dijawab, jawaban tak menyebut milik siapa, dan SETIAP tebakan tercatat permanen beralasan di `percobaan_simpan_pin` (tak bisa dibaca klien). Opsi yang DITOLAK: B (simpan-async "diproses" — ubah UX + kerja Fase-2) dan C (cabut-keunikan-PIN — hilangkan deteksi PIN-berbagi + balik keputusan T1-23); biayanya melebihi nilai penutupan sisa K-3 selapis ini.
+
+**Bukti:** `supabase/tes/pin_bukan_oracle.sql` (pesan netral) + `supabase/tes/pin_batas_pasang.sql` (pembatas 20/15) tetap hidup dan hijau — pagar batasnya dijaga mesin; temuan DITUTUP di `docs/uji/AUDIT_RIWAYAT.md` §1c.
