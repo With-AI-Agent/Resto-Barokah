@@ -66,6 +66,8 @@ echo "== batas Edge Function verifikasi_pin (berkas asli dijalankan tanpa jaring
 # Butuh esbuild dari `npm ci --prefix alat` (dipasang di awal skrip ini).
 (cd "$REPO" && node alat/uji-edge-pin.mjs)
 
+(cd "$REPO" && python3 alat/periksa-maraton.py && python3 alat/periksa-maraton.py --uji-diri)
+
 echo "== pemeriksa Python =="
 
 (cd "$REPO" && python3 _sistem/validate_system.py)

@@ -147,14 +147,16 @@ def uji_diri() -> int:
 | T-04 | `docs/lama/**` | — | `arena/ddd-pekerja-4` | DITOLAK (DoD tak terbukti) | laporan | kembali ke kolam |
 """
     tertinggi = migrasi_tertinggi(AKAR)
+    cadangan = f"{tertinggi + 1:04d}"
+    sehat = sehat.replace("0020", cadangan)
     kasus = [
         ("papan sehat diterima", sehat, False),
         ("mutasi: lingkup dua tugas aktif bersinggungan → ditolak",
          sehat.replace("`docs/lama/**`", "`docs/**`").replace("DITOLAK (DoD tak terbukti)", "DIBERIKAN"), True),
         ("mutasi: nomor migrasi cadangan ganda → ditolak",
-         sehat.replace("| T-02 | `docs/**` | — |", "| T-02 | `docs/**` | 0020 |"), True),
+         sehat.replace("| T-02 | `docs/**` | — |", f"| T-02 | `docs/**` | {cadangan} |"), True),
         ("mutasi: nomor cadangan ≤ migrasi tertinggi → ditolak",
-         sehat.replace("| 0020 |", f"| {tertinggi:04d} |"), True),
+         sehat.replace(f"| {cadangan} |", f"| {tertinggi:04d} |"), True),
         ("mutasi: tugas aktif tanpa pekerja → ditolak",
          sehat.replace("`arena/bbb-pekerja-2`", "—"), True),
         ("mutasi: status di luar himpunan sah → ditolak",

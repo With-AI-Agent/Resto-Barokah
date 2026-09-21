@@ -182,7 +182,7 @@ class Pengiriman(unittest.TestCase):
         prev = Path.cwd()
         try:
             os.chdir(self.work)
-            args = ['kirim-laporan.py', '--jenis', 'audit', '--sumber', 'arena/sumber']
+            args = ['kirim-laporan.py', '--jenis', 'audit', '--sumber', 'arena/sumber', '--penanda', 'G3_T04']
             paths = []
             for _ in range(2):
                 output = io.StringIO()
@@ -190,6 +190,14 @@ class Pengiriman(unittest.TestCase):
                     self.assertEqual(m.main(), 0)
                 paths.append(Path(output.getvalue().strip()))
             self.assertNotEqual(paths[0], paths[1])
+            self.assertTrue(all(p.name.startswith('LAPORAN_G3_T04_') for p in paths))
+            for penanda in ('', '../sumber', 'a:b', 'x'*41):
+                with patch.object(sys, 'argv', args[:-2]+['--penanda', penanda, '--siapkan']), \
+                     contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(m.main(), 1)
+            with patch.object(sys, 'argv', args[:-1]+['G3_T05', '--laporan', str(paths[0])]), \
+                 contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(m.main(), 1)
             paths[0].write_bytes(b'laporan utuh')
             with patch.object(sys, 'argv', args+['--laporan', str(paths[0])]), \
                  patch.object(m, 'kirim', side_effect=Terblokir('izin ditolak')), \
@@ -264,6 +272,27 @@ class KontrakPrompt(unittest.TestCase):
             self.assertIn('Tanpa meminta Lee lagi', isi)
             self.assertIn('--jenis review-pr --sumber arena/01a0c2c1-resto-barokah', isi)
             self.assertNotIn('git add docs/uji/review-pr/', isi)
+
+    def test_paket_g3_target_artefak_dan_namespace_per_tugas(self):
+        import re
+        root = Path(__file__).resolve().parent.parent
+        target = 'e50bac4d897ca65b37dde9e64dbd246a3891b041'
+        for nomor in ('04', '05', '06'):
+            path = root / f'docs/uji/maraton/G3-T-{nomor}-2026-09-21-SIAP-TEMPEL.md'
+            text = path.read_text()
+            self.assertIn(f'**Tugas:** T-{nomor}', text)
+            self.assertIn(f'**Commit target:** `{target}`', text)
+            self.assertIn(f'--penanda G3_T{nomor}', text)
+            self.assertIn('35600019563', text)
+            self.assertIn('Tanpa meminta Lee lagi', text)
+            self.assertIn('BELUM TERVERIFIKASI', text)
+            self.assertIn('## 5. Checklist', text)
+            self.assertNotIn('git add docs/uji/', text)
+            bagian = text.split('## 2. Artefak primer')[1].split('## 3.')[0]
+            artifacts = re.findall(r'^- `([^`]+)`', bagian, re.M)
+            self.assertGreaterEqual(len(artifacts), 6)
+            for artifact in artifacts:
+                self.assertEqual(git(root, 'cat-file', '-e', target+':'+artifact).returncode, 0)
 
     def test_dokumen_kanonik_tidak_kembali_ke_pengiriman_bersama(self):
         root = Path(__file__).resolve().parent.parent

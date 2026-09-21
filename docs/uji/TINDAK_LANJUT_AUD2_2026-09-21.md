@@ -7,6 +7,18 @@ perluasan fitur. Pemilik seluruh tindak lanjut: **agent integrator T1-45**, deng
 agent T1-30 untuk katalog/gerbang. Ini pekerjaan teknis, bukan keputusan Lee yang
 baru; lanjutkan reproduksi K-2 dulu pada pekerjaan audit berikutnya.
 
+## Penugasan G3 yang disetujui Lee (2026-09-21)
+
+**Siap dibagikan, belum ada hasil baru.** T-04 memeriksa A-F01/A-F03, T-05 A-F02,
+T-06 B-F01..B-F09. Paket `docs/uji/maraton/`, papan `docs/ops/PAPAN_TUGAS.md`.
+Ini bantah-balik, bukan audit AUD-2 pengganti; sesi ketiga lama tetap diabaikan.
+Target kerja G3 adalah **e50bac4d897ca65b37dde9e64dbd246a3891b041** (CI 35600019563
+SUCCESS), dibandingkan dengan 09bcb89 historis. Paket/alat pengiriman terbit pada
+commit berbeda. Tidak mengubah target atau isi dua laporan asli.
+Pekerja hanya laporan, lingkungan uji terisolasi. Integrator verifikasi ulang lalu
+memperbaiki berurutan; semua status temuan di bawah tetap TERBUKA. A-F04/A-F05/A-F06/
+B-F10 milik integrator setelah penghalang K-2/pagar uji, tidak terlupakan.
+
 ## Provenance dan akar kegagalan push
 
 Repo `With-AI-Agent/Resto-Barokah`, cabang auditor
@@ -73,3 +85,15 @@ bukan auditor/model baru. Bukti/perintah lengkap ada pada F-xx laporan bersangku
 A-F05/A-F06/B-F10. Setiap penutup perlu hasil mentah kontrol/cacat/pulih, SHA perbaikan
 serta CI commit itu; jangan menutup seluruh tugas dari laporan format-hijau.
 Tidak ada perubahan uang/aplikasi dalam batch mekanisme pengiriman ini.
+
+## Catatan mekanisme ditemukan saat persiapan G3 (belum ditutup)
+
+Pemilik integrator T1-44, sesudah panen penghalang K-2: pemeriksa paket AUD lama
+masih mencari teks checkout--detach di pembuka, sedangkan generator/prompt baru
+mengutamakan salinan terisolasi tanpa checkout bersama. **DUGAAN ketidakselarasan
+kontrak**, belum menjalankan fixture end-to-end paket AUD baru untuk menutupnya.
+Langkah berikut: buat paket AUD baru di salinan → jalankan periksa-paket → buktikan
+kontrol lama/baru dan mutan bootstrap hilang, lalu selaraskan tanpa melonggarkan
+pin target/CI atau menyunting paket beku. G3 adalah kontrak tugas reproduksi di
+folder maraton, bukan audit AUD dengan klaim lulus validator AUD; jangan memakai
+G3 sebagai alasan menghindari gerbang itu ketika menerbitkan audit penuh kelak.

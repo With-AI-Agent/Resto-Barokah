@@ -24,6 +24,9 @@ atau salinan sementara unik; jangan checkout/detach pada working tree bersama.
 3. Jalankan `python3 <runner>/kirim-laporan.py --jenis audit --sumber <cabang-sumber> --siapkan`.
    Untuk review gunakan `--jenis review-pr`. Hasilnya path draf UUID yang dialokasikan
    secara eksklusif, bukan penanda cabang (cabang bisa sama antar-sesi).
+   Untuk tugas maraton laporan-saja, tambahkan `--penanda G3_T04` (atau ID namespace
+   dari paket) pada persiapan DAN pengiriman; pengirim menolak prefix tugas lain.
+   Penanda tugas bukan ID sesi—UUID tetap dibuat eksklusif.
 4. Isi laporan di path tersebut; validasi format sesuai paket dalam salinan terisolasi
    bila checkout bersama kotor. Dilarang membersihkan/stage pekerjaan orang lain.
 5. Langsung jalankan pengirim dengan parameter sama, ganti `--siapkan` menjadi

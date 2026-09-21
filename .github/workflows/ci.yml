@@ -142,6 +142,9 @@ jobs:
       - name: Papan tugas maraton valid (AL-16 — lingkup eksklusif, nomor aman, status sah)
         run: python3 alat/periksa-maraton.py
 
+      - name: Uji-diri papan maraton (lingkup dan cabang bersama)
+        run: python3 alat/periksa-maraton.py --uji-diri
+
       # Kenapa ada (temuan audit I F-07): sebelum ini, berkas Edge hanya dijaga pemeriksa TEKS —
       # tidak ada yang pernah MENJALANKAN handler-nya. Uji ini mengubah berkas ASLI TS → JS dengan
       # esbuild (dipasang bersama `npm ci --prefix alat`) lalu menjalankannya di VM tanpa jaringan,

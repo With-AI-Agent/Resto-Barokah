@@ -502,3 +502,10 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
 - **[ringkas]** Lee kembali mode kerja normal, meminta kritik lebih dalam, skill/riset internet dan penyelidikan insiden push, bukan menerima solusi integrator antrean begitu saja. Repo privat harus bisa diakses via repo/cabang/SHA paket/path; SHA target berbeda. Semua pemeriksa otomatis commit/push/verifikasi tanpa pengingat lagi; platform dapat memberi cabang yang sama. Prompt pendek wajib di chat untuk penyerahan mendatang, prompt panjang juga memuat kontrak.
 - **[ringkas]** Dua laporan sudah tersedia; sesi ketiga error diabaikan. Jangan meminta audit ulang. Ceklist sementara boleh disimpan lalu dihapus setelah ditangani.
 - **Pelaksanaan:** `alat/kirim-laporan.py`, kontrak terpusat untuk dua generator, AL-15 + mutasi, uji bare-remote/race di CI. Bukti dan keterbatasan: `docs/uji/PENGIRIMAN_LAPORAN_AMAN.md`. Dua laporan asal disimpan terpisah; temuan belum ditutup, daftar tindak lanjut lintas-sesi lengkap di `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md`. Tidak ada izin merge/deploy; paket beku utuh.
+
+## §23. Maraton kerja sama pemeriksaan G3 (2026-09-21)
+
+- **[verbatim]** “Siapkan maraton kerja sama sesuai pembagian itu, utamakan kualitas”.
+- **Pembagian disetujui:** A membuktikan K-2 pembekuan setelah pembayaran; B K-2 isolasi tanpa identitas; C kelemahan pengujian/CI. Tahap awal hanya laporan paralel, integrator memverifikasi dan memperbaiki berurutan. Bukan izin semua pekerja mengedit kode atau merge/deploy.
+- **Pelaksanaan:** papan T-04/T-05/T-06 DIBERIKAN, tiga paket lengkap di `docs/uji/maraton/`, target e50bac4 ber-CI-hijau (35600019563), pembanding 09bcb89. Prompt pendek per tugas wajib langsung di chat; penanda laporan per tugas + UUID/hash, otomatis push/verifikasi dari SHA paket. Dua laporan asli tetap bahan; bukan mengulang audit penuh atau menghidupkan sesi error lama.
+- **Batas:** disiapkan bukan klaim sudah dijalankan; Lee membuka satu sesi baru per prompt. Platform boleh memberi cabang sama, tidak memindahkan tanggung jawab ke Lee. Pekerja memakai salinan uji unik; empat temuan lain tetap antrean integrator.

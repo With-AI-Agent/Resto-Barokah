@@ -113,6 +113,11 @@ def bangun_prompt_pendek(rel_paket: str, sha_paket: str, sha_target: str | None,
     if not re.fullmatch(r"docs/uji/[A-Za-z0-9_./-]+\.md", rel_paket) or ".." in rel_paket.split("/"):
         raise ValueError("path paket tidak sah")
     apakah = "PENINJAU REVIEW PR INDEPENDEN" if "/review-pr/" in rel_paket else "AUDITOR INDEPENDEN"
+    if "/maraton/" in rel_paket:
+        tugas = re.search(r"T-\d+", pathlib.PurePosixPath(rel_paket).name)
+        if not tugas:
+            raise ValueError("paket maraton wajib punya ID tugas")
+        apakah = f"PEMERIKSA MARATON {tugas.group()} (bantah-balik, laporan-saja)"
     return (
         f"Kamu {apakah} Resto Barokah. Baca SELURUH paket dan langsung jalankan semua tahapnya.\n"
         f"Repo: {IDENTITAS_REPO}. Cabang sumber paket: {cabang_sumber}.\n"
@@ -267,6 +272,8 @@ def uji_diri() -> int:
     catat("bukti remote dan hambatan jujur", "verifikasi remote" in contoh and "BELUM TERVERIFIKASI" in contoh)
     catat("prompt ≤ 10 baris", len(contoh.splitlines()) <= 10, f"{len(contoh.splitlines())} baris")
     review = bangun_prompt_pendek("docs/uji/review-pr/PKT-x-SIAP-TEMPEL.md", "f" * 40, "a" * 40, cabang_sumber="arena/sumber-review")
+    maraton = bangun_prompt_pendek("docs/uji/maraton/G3-T-04-SIAP-TEMPEL.md", "f" * 40, "a" * 40, cabang_sumber="arena/sumber-uji")
+    catat("maraton punya peran/ID dan otomatis kirim", "PEMERIKSA MARATON T-04" in maraton and "Tanpa meminta Lee lagi" in maraton)
     catat("paket review → peran peninjau", "PENINJAU REVIEW" in review)
     catat("paket audit → peran auditor", "AUDITOR INDEPENDEN" in contoh)
 

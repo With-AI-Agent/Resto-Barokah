@@ -8,6 +8,7 @@ Tidak menjamin akses/jaringan/izin tersedia; gagal-tertutup tanpa klaim selesai.
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 import stat
 import uuid
@@ -20,6 +21,7 @@ def main():
     ap.add_argument('--jenis', required=True, choices=['audit', 'review-pr'])
     ap.add_argument('--laporan', help='berkas UTF-8 yang SUDAH divalidasi kontraknya')
     ap.add_argument('--sumber', required=True, help='cabang sumber paket; dilarang menjadi tujuan')
+    ap.add_argument('--penanda', help='namespace laporan tugas, mis. G3_T04 (bukan ID cabang)')
     ap.add_argument('--siapkan', action='store_true', help='alokasikan nama draf unik lebih dulu')
     a = ap.parse_args()
     try:
@@ -28,17 +30,22 @@ def main():
         repo, cabang = identitas_repo(akar)
         if cabang == a.sumber:
             raise Terblokir('Cabang pemeriksa sama dengan pembangun; gunakan sesi pemeriksa, jangan push di sini.')
+        if a.penanda is not None and not re.fullmatch(r'[A-Za-z0-9_]{1,40}', a.penanda):
+            raise Terblokir('Penanda hanya huruf/angka/underscore, maksimal 40 karakter.')
+        penanda = a.penanda or a.jenis.replace('-', '_')
         spool.mkdir(mode=0o700, exist_ok=True)
         if spool.is_symlink():
             raise Terblokir('Folder cadangan tidak boleh symlink.')
         if a.siapkan:
-            nama = spool / f'LAPORAN_{a.jenis.replace("-", "_")}_{uuid.uuid4().hex}.md'
+            nama = spool / f'LAPORAN_{penanda}_{uuid.uuid4().hex}.md'
             with nama.open('x', encoding='utf-8'):
                 pass
             print(nama)
             return 0
         if not a.laporan:
             ap.error('--laporan diperlukan kecuali --siapkan')
+        if a.penanda is not None and not Path(a.laporan).name.startswith(f'LAPORAN_{penanda}_'):
+            raise Terblokir('Nama laporan tidak cocok penanda tugas; jangan kirim laporan tugas lain.')
         fd = os.open(a.laporan, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
         with os.fdopen(fd, 'rb') as f:
             sebelum = os.fstat(f.fileno())

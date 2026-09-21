@@ -1557,3 +1557,13 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 **Bukti/desain/sumber resmi:** `docs/uji/PENGIRIMAN_LAPORAN_AMAN.md`; TDD bentrok nama merah dahulu, uji race dengan remote Git asli + failure injection, kedua prompt dan AL-15 dijaga CI.
 
 **Batas:** prompt tidak menjamin kepatuhan agent/izin jaringan; transport bukan pengesahan temuan. Dua laporan asli tidak direkonsiliasi diam-diam; `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md` menahan T1-30/T1-45 sampai K-2 dibuktikan/diselesaikan. Runtime uang/paket beku tidak diubah, tidak merge/deploy.
+
+## [Koordinasi/2026-09-21] G3: tiga pemeriksa, satu integrator, laporan-saja
+
+**Dasar:** Lee menyetujui pembagian A uang (A-F01/F03), B identitas (A-F02), C sembilan gerbang (B-F01..09), kualitas diutamakan. CI target e50bac4 SUCCESS 35600019563 diverifikasi sebelum persiapan.
+
+**Keputusan:** tugas T-04/T-05/T-06, tanpa cadangan migrasi/perubahan kode pekerja; lingkungan uji unik, prefix laporan per tugas + UUID/hash. Perluasan kecil `--penanda` pada pengirim menjaga kepemilikan laporan di papan tanpa mengasumsikan cabang unik. Mode G3 memakai paket lengkap dan prompt pendek AL-15, bukan template pekerja coding yang dahulu menyuruh pull/merge. Petunjuk tidak aman itu dicabut; inspeksi boleh membaca berkas sama, penulisan kode tidak diparalelkan. Integrator memanen laporan tanpa merge cabang, memverifikasi lalu memperbaiki serial.
+
+**Gerbang:** status laporan parsial/terblokir tidak menjadi selesai substantif; jangan menutup K-2/T1-30/T1-45 dari format/transport hijau. Target historis 09bcb89 tetap pada laporan lama; target kerja baru e50bac4 terpisah dari SHA paket. Sisa A-F04/A-F05/A-F06/B-F10 tetap ditangani integrator, dicatat pada ledger. Tidak ada izin deploy/merge.
+
+**Verifikasi persiapan:** uji prefix eksklusif/salah-tugas/traversal, peran+ID prompt; `periksa-maraton --uji-diri` menemukan fixture sehat basi 0020 yang kini sudah ada. Nomor fixture sehat dibuat dari migrasi tertinggi +1 (bukan melonggarkan aturan produksi), 13 kontrol/mutasi tetap diuji dan didaftarkan pada CI/jalur lokal.

@@ -4,6 +4,12 @@
 > Siapa pun agent-nya, model apa pun: jalankan bagian 1 → 2 → 3 berurutan.
 > Jangan melompat, jangan menebak, jangan mengarang mekanisme baru.
 
+> **Pengecualian orientasi untuk mandat PEMERIKSA MARATON laporan-saja:** bila prompt
+> sudah menunjuk ID tugas + repo/cabang sumber/SHA paket/path + SHA target, baca
+> paket itu dahulu melalui git/gh. Jangan jalankan `--susul`/checkout/pull pada tree
+> bersama, jangan bertanya memilih sesi/tugas lagi. Pemeriksaan di salinan unik,
+> pengiriman terisolasi otomatis sesuai paket; aturan keamanan tetap berlaku.
+
 ## 1. Orientasi (WAJIB, sebelum mengerjakan apa pun)
 
 1. Jalankan: `python3 alat/lanjut-sesi.py --daftar-sesi`
