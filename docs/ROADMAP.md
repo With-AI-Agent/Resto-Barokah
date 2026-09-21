@@ -617,7 +617,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Verifikasi:** 3 uji mutasi pada salinan (lingkup diambil dari meja kerja → GAGAL · angka grup ditulis tangan → GAGAL · CI merah/tanpa run → paket ditolak) · paket berikutnya dibuat dengan mekanisme baru dan tetap bisa ditarik lewat `--ambil-laporan`.
   - **Progres 2026-09-21 (B F-16 — bagian terakhir mekanisme, DITUTUP):** B F-09 & B F-17 sudah DITUTUP 2026-09-20; sisa B F-16 mendarat: `kelompokkan_berkas` baca pohon target (`git ls-tree`, dulu indeks meja kerja) + penanda sumber & berkas paket di tiap paket + Aturan 6 `alat/periksa-paket.py` (jumlah grup = total · total = pohon · tak-tertutup [] · penanda · belum-berggrup nol). 3 uji mutasi TERPENUHI: meja-kotor→kebal & total-salah→GAGAL (`python3 alat/audit-independen.py --uji-diri`, `python3 alat/periksa-paket.py --uji-diri`) · angka-tangan→GAGAL (uji-diri Aturan 6) · CI-merah→ditolak (ada sejak H F-02). Hitung ulang artefak temuan (target `4fccc9d5`): total 334 · `_sistem` 15 (tertulis 16) · tak-tertutup []. `alat/review-pr.py` tak tersentuh (paket review tak punya tabel grup — diverifikasi). `T1-44` tetap `[ ]`: sisa bukti lapangan = paket nyata berikutnya.
 
-- [ ] T1-45 — Penutupan temuan putaran verifikasi 2026-09-19 + AUD-3 2026-09-20 (43 temuan NYATA: AUD-3 D + review PR putaran16 + AUD-3 F; **+ 31 temuan dua laporan lanjutan 2026-09-20** — laporan H sesi `01a0bbcb` dan laporan I ronde kedua `01a0bbd2`, sudah terdaftar di daftar penutup §1d/§1e `docs/uji/AUDIT_RIWAYAT.md`) ⚠️ ❓ T-025
+- [ ] T1-45 — Penutupan temuan putaran verifikasi 2026-09-19 + AUD-3 2026-09-20 (43 temuan NYATA: AUD-3 D + review PR putaran16 + AUD-3 F; **+ 31 temuan dua laporan lanjutan 2026-09-20** — laporan H sesi `01a0bbcb` dan laporan I ronde kedua `01a0bbd2`, sudah terdaftar di daftar penutup §1d/§1e `docs/uji/AUDIT_RIWAYAT.md`) ⚠️ T-025
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-025(a) sudah diputuskan: larang ubah/void sesudah pembayaran pertama, termasuk pembayaran sebagian; migrasi 0022 + uji masih WAJIB. Bukan lagi menunggu pilihan Lee.
   - **Tujuan:** menutup seluruh temuan yang ditemukan dua peninjau independen pada commit `93a50ba` dan sudah **dibantah-balik dengan probe sendiri** di sesi kerja — 1 temuan K-1 (penanda transaksi bisa dipalsukan kasir), 5 K-2 (diskon pada pesanan lunas · void satu item membatalkan seluruh pesanan · kebocoran hitungan lintas resto · oracle PIN kembar · kunci kalibrasi di dalam repo), sisanya K-3/K-4 (izin & jejak, PIN warisan, gerbang CI gagal-terbuka, grant, tautan meja, dsb.).
   - **Ref:** `docs/uji/AUDIT_RIWAYAT.md` §1b & §1c · `docs/uji/REVIEW_PR_RIWAYAT.md` §1b · `docs/uji/TEMUAN_LUAR_CAKUPAN_REVIEW.md` · `docs/KEAMANAN.md` §1
   - **File:** `supabase/migrations/0015_penutup_celah_putaran16.sql`, `supabase/tes/`, `alat/periksa-gerbang-ci.py`, `alat/audit-independen.py`, `alat/lanjut-sesi.py`
@@ -686,7 +687,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); akun telantar → mitigasi: daftar pegawai nonaktif + tinjauan berkala di panduan owner.
   - **Verifikasi:** uji manual: tambah pegawai → bisa masuk → nonaktifkan → tidak bisa masuk lagi.
 
-- [ ] T2-04 — Masuk pelanggan: Google (utama) + email terverifikasi (kedua) ❓ T-022
+- [ ] T2-04 — Masuk pelanggan: Google (utama) + email terverifikasi (kedua) T-022
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-022: Lee mengizinkan menunda pemilihan pengirim email ke Fase 2; usulan SMTP Gmail BELUM persetujuan layanan. Sebelum mengaktifkan email pelanggan, tetapkan kanal tanpa biaya dengan Lee. Google Sign-In tidak menunggu kanal email.
   - **Tujuan:** pelanggan bisa mendaftar tanpa SMS dan tanpa biaya.
   - **Ref:** PRD M10 & M12; TECH_SPEC §7 (integrasi)
   - **File:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/lib/google.ts`
@@ -695,7 +697,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10); data berlebih → mitigasi: hanya nama, email, nomor HP opsional, persetujuan.
   - **Verifikasi:** uji manual masuk Google di perangkat Android + jalur email di desktop.
 
-- [ ] T2-05 — Pemulihan akses pelanggan (lupa PIN / ganti perangkat) ❓ T-022 ❓ T-023
+- [ ] T2-05 — Pemulihan akses pelanggan (lupa PIN / ganti perangkat) T-022 T-023
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-023: PIN pelanggan DIHAPUS (putusan Lee). Pemulihan mengikuti penyedia identitas; dokumen/alur diselaraskan pada Batch-5. T-022 tetap gerbang sebelum kanal email diaktifkan.
   - **Tujuan:** pelanggan tidak terjebak kehilangan vouchernya.
   - **Ref:** PRD M10 (kasus tepi); TECH_SPEC §7
   - **File:** `supabase/functions/pemulihan_pelanggan/index.ts`, `aplikasi/src/layar/masuk/LupaAkses.tsx`
@@ -787,7 +790,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); staf tidak bisa masuk saat jam sibuk → mitigasi: papan angka besar, tanpa kata sandi, pesan berbahasa Indonesia, dan tombol "minta bantuan admin".
   - **Verifikasi:** uji komponen (aksi terdaftar `masuk.pin` memanggil RPC yang benar) + naskah jalan pemilik.
 
-- [ ] T2-15 — Pendaftaran perangkat (kode/QR) + persetujuan pegawai baru ⚠️ ❓ T-015
+- [ ] T2-15 — Pendaftaran perangkat (kode/QR) + persetujuan pegawai baru ⚠️ T-015
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-015: panduan umum boleh dibuat sekarang; uji perangkat nyata WAJIB sebelum tugas ini dinyatakan selesai. Belum ada klaim perangkat kedai sudah diuji.
   - **Tujuan:** hanya perangkat yang didaftarkan admin/owner yang bisa dipakai kerja, dan pegawai baru harus disetujui pemilik.
   - **Ref:** TECH_SPEC §4.6 & §9 ART-11; PRD M12
   - **File:** `aplikasi/src/layar/pengaturan/Perangkat.tsx`, `supabase/functions/kode_perangkat/index.ts`, `docs/SPESIFIKASI_UI.md`
@@ -1186,7 +1190,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
-## Fase 6 — Cetak termal ESC/POS (⚠️ ART-7) ❓ T-002
+## Fase 6 — Cetak termal ESC/POS (⚠️ ART-7) T-002
 
 - [ ] T6-01 — Pembungkus ESC/POS (perintah dasar) + uji unit
   - **Tujuan:** satu lapisan kode untuk menyusun struk/tiket agar mudah diuji tanpa printer.
@@ -1251,7 +1255,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** salah printer tercetak di cabang lain → mitigasi: pemasangan wajib per perangkat + tampilkan nama printer aktif.
   - **Verifikasi:** uji manual 2 perangkat pada 1 cabang.
 
-- [ ] T6-08 — ❓ T-002 Uji cetak nyata di Kedai Oasis
+- [ ] T6-08 — T-002 Uji cetak nyata di Kedai Oasis
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-002: placeholder ESC/POS generik + cadangan digital disetujui; minta merek/tipe/koneksi ke pengelola SEBELUM Fase 6. Uji printer nyata tetap gerbang, tidak boleh diganti hasil emulator.
   - **Tujuan:** membuktikan cetak bekerja pada printer sungguhan sebelum gelombang berikutnya (risiko #1 PRD).
   - **Ref:** TECH_SPEC §11 (uji nyata) & §12 (data lapangan); PRD §9 risiko #1
   - **File:** `docs/uji/UJI_CETAK_KEDAI_OASIS.md`
@@ -1430,11 +1435,12 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pendaftaran gagal karena verifikasi → mitigasi: jalur bantuan "didaftarkan kasir" (T8-07) + pesan jelas.
   - **Verifikasi:** uji manual dua jalur (Google & email) di HP.
 
-- [ ] T8-07 — Verifikasi email + anti email sekali-pakai + normalisasi Gmail ⚠️ ❓ T-011
+- [ ] T8-07 — Verifikasi email + anti email sekali-pakai + normalisasi Gmail ⚠️ T-011
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-011: draf kebijakan boleh dibuat agent; tinjauan Lee sebelum Fase 8 dan persetujuan pelanggan lewat T8-15 tetap WAJIB sebelum pengumpulan data.
   - **Tujuan:** satu orang tidak bisa mengklaim berkali-kali dengan email berbeda-beda.
   - **Ref:** PRD M10 (pengaman anti-kecurangan 1–8); TECH_SPEC §9 ART-5/ART-10
   - **File:** `supabase/functions/verifikasi_pelanggan/index.ts`, `aplikasi/src/lib/emailNormalisasi.ts`, `supabase/tes/anti_email_palsu.sql`
-  - **Catatan:** ❓ T-011 (kebijakan privasi + kotak persetujuan) wajib ada SEBELUM tugas ini mengumpulkan data pelanggan pertama
+  - **Catatan:** T-011 (kebijakan privasi + kotak persetujuan) wajib ada SEBELUM tugas ini mengumpulkan data pelanggan pertama
   - **DoD:** email wajib terverifikasi (kecuali didaftarkan kasir dengan izin pelanggan & tercatat); email sekali-pakai ditolak; titik & tanda `+` pada Gmail dinormalisasi; satu identitas = satu voucher per kampanye; uji lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5) & Privasi (ART-10); mitigasi: daftar domain sekali-pakai + normalisasi + uji kasus.
@@ -1505,7 +1511,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
-- [ ] T8-15 — Privasi pelanggan (persetujuan & anonimisasi) ⚠️ ❓ T-011
+- [ ] T8-15 — Privasi pelanggan (persetujuan & anonimisasi) ⚠️ T-011
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-011: draf agent disetujui sebagai langkah awal, BUKAN persetujuan kebijakan final. Minta tinjauan Lee sebelum Fase 8; tanpa itu jangan mengumpulkan data pelanggan.
   - **Tujuan:** data pelanggan hanya disimpan dengan persetujuan, dan bisa dianonimkan atas permintaan (UU PDP).
   - **Ref:** TECH_SPEC §9 ART-14; PRD M10 & M12; docs/KEAMANAN.md §11
   - **File:** migrasi `privasi_pelanggan` (nomor final saat Fase 8 — 0017 sudah terpakai), `supabase/tes/privasi.sql`, `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx`
@@ -1767,7 +1774,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Ketahanan; cadangan rusak tanpa disadari → mitigasi: latihan nyata minimal sekali sebelum pilot + pemeriksa cadangan berjadwal.
   - **Verifikasi:** laporan latihan (tanggal, jumlah baris, temuan) + langkah Buku Insiden dijalankan.
 
-- [ ] T10-16 — Tinjauan kode pemulihan MFA & kata sandi bocor (T-016) ⚠️ ❓ T-016
+- [ ] T10-16 — Tinjauan kode pemulihan MFA & kata sandi bocor (T-016) ⚠️ T-016
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-016: sementara pemulihan melalui peran atas + sandi minimal 12 karakter. Tinjauan HIBP/kode mandiri tetap dilakukan di Fase 10; biaya atau perubahan kontrol butuh keputusan Lee.
   - **Tujuan:** menutup dua celah yang kini sengaja dibiarkan (pemulihan MFA mandiri & pemeriksa kata sandi bocor), dengan keputusan pemilik bila ada biaya.
   - **Ref:** docs/KEAMANAN.md §7 & §15; docs/TERTANGGUH.md T-016
   - **File:** `docs/teknis/TINJAUAN_KEAMANAN_F10.md`, `supabase/tes/mfa.sql`
@@ -1796,7 +1804,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** langkah terlalu teknis → mitigasi: ditulis seperti instruksi ke pegawai baru, diuji dulu oleh 1 orang non-teknis.
   - **Verifikasi:** pemilik menjalankan daftar ini sampai semua langkah tercentang.
 
-- [ ] T11-03 — ❓ T-002 Uji cetak nyata di Kedai Oasis
+- [ ] T11-03 — T-002 Uji cetak nyata di Kedai Oasis
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-002: keputusan placeholder bukan bukti cetak; tugas ini tetap terbuka sampai bukti printer nyata diterima.
   - **Tujuan:** risiko #1 PRD (cetak) terbukti selesai, bukan diasumsikan.
   - **Ref:** PRD §9 risiko #1; TECH_SPEC §11 & §12
   - **File:** `docs/uji/UJI_CETAK_KEDAI_OASIS.md` (hasil terisi)
@@ -1805,7 +1814,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Cetak (ART-7); mitigasi: jalur cadangan digital tetap wajib.
   - **Verifikasi:** foto struk & tiket nyata + lembar hasil bertanda tangan. · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima.
 
-- [ ] T11-04 — Uji perangkat kedua (iPhone/Android lain) ❓ T-003
+- [ ] T11-04 — Uji perangkat kedua (iPhone/Android lain) T-003
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-003: sasaran awal Android/Windows disetujui; daftar perangkat final dikonfirmasi sebelum Fase 11, dan uji nyata tetap wajib.
   - **Tujuan:** memastikan aplikasi benar-benar "jalan di perangkat apa pun" seperti syarat pemilik.
   - **Ref:** PRD §6 (batasan pemilik: perangkat apa pun); TECH_SPEC §12
   - **File:** `docs/uji/UJI_PERANGKAT.md`
@@ -1851,9 +1861,10 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Verifikasi:** uji dengan angka tiruan (70%, 90%) → peringatan muncul.
 
 - [ ] T11-09 — Panduan pegawai (1 halaman) + pelatihan
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-010: panduan boleh dibuat agent; pelatihan, penunjukan admin, dan uji terima nyata wajib dikoordinasikan sebelum Fase 11.
   - **Tujuan:** pegawai baru bisa memakai sistem dalam 15 menit.
   - **Ref:** PRD §3 (metrik sukses: tanpa balik ke kertas)
-  - **File:** `docs/ops/PANDUAN_PEGAWAI.md` ❓ T-010 (pelatihan & penunjukan admin cabang)
+  - **File:** `docs/ops/PANDUAN_PEGAWAI.md` T-010 (pelatihan & penunjukan admin cabang)
   - **DoD:** panduan 1 halaman berisi 5 alur (buka kas → pesan → kirim dapur → bayar → tutup kas), 1 halaman untuk dapur, 1 halaman untuk pemilik (laporan); bahasa sangat sederhana; ada bagian "kalau ada masalah, lakukan ini".
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** panduan tidak dibaca → mitigasi: ditempel di dekat kasir & dapur + versi ringkas 6 langkah.
@@ -1907,7 +1918,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] Integrasi pihak ketiga punya task setup + uji: Supabase T0-00/T0-08/T1-* · Google T2-04 · Resend T2-04/T2-05/T8-07 · Cloudflare+Wrangler T0-00/T0-09/T11-07 · pg_cron T10-08
 - [x] Hal kecil tidak terlupakan: `README.md` T0-06 · `.env.example` T0-05 · favicon T0-01 · halaman error T2-08 · keadaan memuat/kosong/gagal T0-04/T3-15/T4-10 · a11y T0-04/T3-10/T11-05 · responsif T11-05 · panduan pegawai T11-09 · cadangan T11-10
 
-**Keterangan ❓ (semua ada di `docs/TERTANGGUH.md`):** T-002 (printer) → T6-08, T11-03 · T-003 (perangkat) → T11-04 · T-010 (pelatihan) → T11-09 · T-011 (privasi pelanggan) → T8-07 · Butir T-001 (nama → "Sajian"), T-004, T-005, T-006, T-007, T-008, T-009, **T-012** (cadangan di artefak terenkripsi repo privat) dan **T-013** (penutup shift = Admin Cabang → Owner Pusat) sudah **ditutup** 2026-09-16 (lihat tabel Butir selesai di `docs/TERTANGGUH.md`).
+**Status keputusan tertangguh (2026-09-21):** sembilan keputusan terakhir sudah dijawab di `docs/TERTANGGUH.md`; penanda menunggu-jawaban dicabut. Sisa implementasi, tinjauan Fase 2/8/10, perangkat/printer dan uji lapangan tetap WAJIB pada catatan tugas masing-masing; tidak ada tugas otomatis menjadi `[x]`.
 
 **Jumlah tugas:** F0 15 · F1 45 · F2 19 · F3 16 · F4 10 · F5 12 · F6 8 · F7 12 · F8 15 · F9 12 · F10 16 · F11 13 = **193 tugas**, semuanya ber-7 atribut. (F1 41 → 44 pada 2026-09-17: +T1-42 bantuan kontekstual · +T1-43 Buku Uji Pemilik · +T1-44 perketat paket audit; 44 → **45** pada 2026-09-19: **+T1-45 penutupan temuan putaran verifikasi**.)
 | 2026-09-17 (putaran 4) | **Buku pedoman induk + penjaga mesin** (+T0-11 `[x]`) dan **audit menyeluruh lebih dulu** (+T0-12 ⚠️) → **184 tugas**; AUD-3 memakai lingkup menyeluruh (`--semua`) & gerbang `tahan_semua` | Permintaan pemilik: *"sekarang aku mau audit dulu"*; mekanisme harus menyeluruh *"termasuk file2 yang disiapkan untuk pengguna"*; *"satu file untuk pengguna yang betul-betul isinya lengkap… semacam manual book"* |

@@ -146,6 +146,7 @@ jobs:
           python3 _sistem/validate_system.py
           python3 alat/periksa-fungsi-pin.py
           python3 alat/periksa-roadmap.py
+          python3 alat/periksa-roadmap.py --uji-diri
           python3 alat/periksa-fondasi-independen.py
           python3 alat/audit-independen.py --uji-diri
           python3 alat/siapkan-pemeriksaan.py --uji-diri

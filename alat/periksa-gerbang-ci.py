@@ -77,6 +77,7 @@ GERBANG_WAJIB = [
     ("validator sistem", r"python3 _sistem/validate_system.py"),
     ("pemeriksa fungsi PIN", r"python3 alat/periksa-fungsi-pin.py"),
     ("pemeriksa roadmap", r"python3 alat/periksa-roadmap.py"),
+    ("uji-diri penanda tertangguh roadmap", r"python3 alat/periksa-roadmap.py --uji-diri"),
     ("pemeriksa fondasi independen", r"python3 alat/periksa-fondasi-independen.py"),
     ("uji-diri pemeriksa audit independen", r"python3 alat/audit-independen.py --uji-diri"),
     ("uji-diri penyiap pemeriksaan (frasa → paket + prompt pendek)", r"python3 alat/siapkan-pemeriksaan.py --uji-diri"),

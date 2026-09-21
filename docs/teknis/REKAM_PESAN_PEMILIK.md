@@ -482,3 +482,8 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
 1. *"Lanjut"* (×4) — **Dijalankan (2026-09-21):** Batch-1 (B F-16, B F-14, F F-18) · Batch-2 (T1-22, B F-11, D F-08, parsial F F-07/F F-08, F F-12-dipagari) · Batch-3 (F F-13-verifikasi, A F-07-peta, F F-09-tutup, I F-17+T-025) · Batch-4 (PG nyata via pgserver; F F-13 + F F-12 DITUTUP uji 2-koneksi).
 2. *"Ya, aku setuju saran terbaik dari kamu."* — **Dijalankan (2026-09-21):** 9 butir → Selesai (T-025=(a) LARANG; T-023=hapus PIN pelanggan; sisanya terima placeholder/usulan); KEAMANAN §10 disegarkan. Tindak lanjut Batch-5: penegak 0022 + goresan PIN + sapu ❓.
 3. *"Aku mau lanjut di sesi baru. Siapkan perpindahan sesi."* — **Dijalankan (2026-09-21):** putusan dicatat, handoff disegarkan (`--siapkan`), semua di-commit+push, `lanjut-sesi` LOLOS; blok prompt sesi baru dikirim di chat.
+
+## §20. Batch-5 (2026-09-21) — mandat maraton saat Lee persiapan exam
+
+- **[ringkas]** CI wajib hijau dulu → 0022 penegak T-025(a) + uji → hapus PIN pelanggan di PRD/TECH_SPEC → sapu penanda tertangguh basi → T1-30-sisa bila sempat. Kualitas, bukan kecepatan; jangan ganggu untuk hal yang aman ditunda. Jika batas keamanan/uang/biaya membutuhkan Lee, berhenti di batas aman.
+- **Status:** berjalan di `arena/01a0c2c1-resto-barokah`; pemulihan CI dulu. Rekam kerja & tindak lanjut: `_log-sesi/LOG_SESI_2026-09-21_2.md`, `docs/ROADMAP.md`, `docs/ops/SIAP-LANJUT.md`. Tidak ada izin deploy atau merge PR baru.

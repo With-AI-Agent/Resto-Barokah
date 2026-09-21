@@ -83,6 +83,45 @@ def blok_tugas(teks: str) -> list[tuple[str, str]]:
     return hasil
 
 
+def periksa_tunggu(tugas: str, tunggu: str) -> list[str]:
+    """Nol butir terbuka sah; setiap butir terbuka wajib punya penanda pada TUGAS.
+
+    Jangan hitung contoh format T-000 atau riwayat di luar blok tugas sebagai penanda.
+    Penanda ke butir selesai juga ditolak, supaya dua pemeriksa tidak bertentangan.
+    """
+    semua = set(re.findall(r"^\|\s*(T-\d{3})\s*\|", tunggu, re.M)) - {"T-000"}
+    terbuka = set(re.findall(r"^\|\s*(T-\d{3})\s*\|[^\n]*\[ \] terbuka", tunggu, re.M)) - {"T-000"}
+    tanda = set(re.findall(r"❓\s*(T-\d{3})", tugas))
+    return ([f"RUJUKAN MATI: ❓ {t} tidak ada di docs/TERTANGGUH.md" for t in sorted(tanda - semua)]
+            + [f"❓ {t} basi: butir sudah selesai" for t in sorted(tanda & (semua - terbuka))]
+            + [f"{t} masih terbuka tetapi tidak ditandai ❓ pada tugas" for t in sorted(terbuka - tanda)])
+
+
+def uji_diri() -> int:
+    from bantu_uji_diri import laporkan
+    buka = "| T-026 | 2026-09-21 | uji | [ ] terbuka |"
+    tutup = "| T-025 | 2026-09-21 | selesai |"
+    kasus = [
+        ("kosong sah", "", "", False),
+        ("semua selesai sah", "", tutup, False),
+        ("terbuka bertanda sah", "❓ T-026", buka, False),
+        ("terbuka tak bertanda ditolak", "", buka, True),
+        ("ID palsu ditolak", "❓ T-999", buka, True),
+        ("penanda basi ditolak", "❓ T-025", tutup, True),
+        ("contoh format bukan butir nyata", "", "`| T-000 | contoh | [ ] terbuka |`", False),
+        ("butir kedua tanpa penanda ditolak", "❓ T-026", buka + "\n| T-027 | x | [ ] terbuka |", True),
+    ]
+    hasil = []
+    for nama, tugas, tunggu, ditolak in kasus:
+        err = periksa_tunggu(tugas, tunggu)
+        hasil.append((nama, bool(err) == ditolak, "; ".join(err) or "bersih"))
+    # Bukti penanda di judul fase/riwayat tidak menggantikan penanda tugas.
+    contoh = "## Fase ❓ T-026\n- [ ] T2-01 — tugas\n  - isi\n---\nriwayat ❓ T-026"
+    err = periksa_tunggu("\n".join(isi for _, isi in blok_tugas(contoh)), buka)
+    hasil.append(("penanda hanya di luar tugas ditolak", bool(err), str(err)))
+    return laporkan("periksa-roadmap", hasil)
+
+
 def main() -> int:
     if not ROADMAP.is_file():
         print("GAGAL: docs/ROADMAP.md tidak ada")
@@ -121,12 +160,12 @@ def main() -> int:
     if tugas_berisiko < 20:
         gagal.append(f"hanya {tugas_berisiko} tugas bertanda ⚠️ — Area Berisiko seharusnya tersebar di banyak tugas")
 
-    ids_tertangguh = set(re.findall(r"\|\s*(T-\d{3})\s*\|", TERTANGGUH.read_text(encoding="utf-8"))) if TERTANGGUH.is_file() else set()
-    tanda_tanya = set(re.findall(r"❓\s*(T-\d{3})", teks))
-    if not tanda_tanya:
-        gagal.append("tidak ada tanda ❓ T-xxx (padahal ada butir tertangguh)")
-    for t in sorted(tanda_tanya - ids_tertangguh):
-        gagal.append(f"RUJUKAN MATI: ❓ {t} tidak ada di docs/TERTANGGUH.md")
+    tunggu = TERTANGGUH.read_text(encoding="utf-8") if TERTANGGUH.is_file() else ""
+    ids_tertangguh = set(re.findall(r"^\|\s*(T-\d{3})\s*\|", tunggu, re.M))
+    tanda_tanya = set(re.findall(r"❓\s*(T-\d{3})", isi_tugas))
+    gagal.extend(periksa_tunggu(isi_tugas, tunggu))
+    if not TERTANGGUH.is_file():
+        gagal.append("docs/TERTANGGUH.md tidak ada")
 
     for label, pola in HAL_KECIL.items():
         if pola not in teks:
@@ -160,4 +199,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(uji_diri() if "--uji-diri" in sys.argv else main())
