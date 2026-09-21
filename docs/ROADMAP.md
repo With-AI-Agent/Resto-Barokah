@@ -647,6 +647,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Progres 2026-09-21 (F F-18 DITUTUP — opsi A, keputusan Lee):** Lee memilih A (terima-sebagai-risiko) — tanpa ubah kode; B & C ditolak karena biayanya melebihi nilai penutupan sisa K-3 ini. Keputusan + batas yang diterima dikunci di `docs/DECISIONS_LOG.md`; pagar batas (`supabase/tes/pin_bukan_oracle.sql`, `supabase/tes/pin_batas_pasang.sql`) tetap hijau.
   - **Progres 2026-09-21 (B F-11 DITUTUP — duplikat K F-03, Batch-2):** lapis PIN-perangkat memakai nama kiriman klien = cacat yang sama dengan K F-03; obat permanen (0018) + uji diperketat + harness mutasi sudah mendarat dan diverifikasi ulang hijau (harness 0018 LOLOS, suite 62/62).
   - **Progres 2026-09-21 (D F-08 DITUTUP — duplikat F F-13, Batch-2):** tabrakan nomor pesanan = cacat yang sama dengan F F-13; mitigasi (advisory lock §10b + VOLATILE) + uji sifat + 2 mutasi sudah mendarat; risiko lanjut tetap TERBUKA-dipagari di F F-13 (uji 2-transaksi menunggu lingkungan). Baterai Batch-2 hijau (harness 0015 LOLOS).
+  - **Progres 2026-09-21 (parsial F F-07/F F-08, Batch-2):** F F-07: tabel `catatan_audit` mendarat (0020 + uji hijau) → DITUTUP-sebagian; sisa trigger (`T1-13`) + rantai hash (`T1-27`). F F-08: inti perangkat-terdaftar mendarat (0018 + uji + harness hijau) → DITUTUP-sebagian; sisa sesi (`T1-25`) + percobaan_masuk (`T1-26`) + kode/persetujuan (sisa T1-24) + MFA (`T2-13`). Ketidakadaan tabel sisa diverifikasi (grep kosong).
 
 ## Fase 2 — Masuk & kerangka aplikasi
 
