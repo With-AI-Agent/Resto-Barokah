@@ -10,11 +10,12 @@
 - **Cabang yang dilanjutkan:** `arena/01a0c97c-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0c97c-resto-barokah`
-- **Commit keadaan kerja:** `ee064977a7e736f78d2043a5b6ed19f868230cf0`
+- **Commit keadaan kerja:** `4a05aaa422b3febc60ac3dc04be349e900b57fbf`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit ee064977)
+- **CI terakhir:** (belum ada run CI untuk commit 4a05aaa4 — periksa lagi setelah push)
+- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-22 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **0** — (tidak ada)
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (89 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (182 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -68,6 +69,35 @@ JANGAN merge apa pun tanpa keputusan Lee.
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**RENCANA AKTIF (2026-09-22, sesi arena/01a0c97c) — sisa Fase 4 (nomor tugas = `docs/ROADMAP.md`):**
+
+1. **Fase 4 (sisa): layar dapur/KDS & stok** — T4-01 `aplikasi/src/layar/dapur/LayarDapur.tsx`
+   (antrean FIFO makanan per `dikirim_ke_dapur_pada` dari DB + penyegaran realtime, tampilan
+   besar terbaca jauh) · T4-02 UI `LayarBar.tsx` (filter `pesanan_item.tujuan = 'bar'` — kolom
+   salinan sudah ada di migrasi `0033`) · T4-03 `KartuPesanan.tsx` (lencana tipe pesanan
+   dinein/bawa-pulang/ojol + catatan khusus mencolok + nomor meja) · T4-05 `TombolHabis.tsx`
+   (penanda habis dapur → kasir & katalog; periksa dulu RPC `tandai_habis` yang disebut
+   TECH_SPEC M9 sebelum menambah apa pun) · T4-06 `Stok.tsx` + RPC `set_stok` (buku besar
+   `stok_pergerakan` sudah ada & hanya-tambah) · T4-07 `Opname.tsx` + RPC `opname_stok` ·
+   T4-08 tanda waktu pesanan (ambang 10/20 menit bisa diatur; pakai WAKTU PELADEN; hormati
+   "kurangi gerak") · T4-09 `supabase/tes/anti_dobel.sql` + uji dua perangkat nyata ·
+   T4-10 keadaan kosong/muat/gagal + simpan pesanan terakhir saat jaringan putus + tata
+   letak TV/monitor besar.
+2. **SELESAI di batch ini (jangan dikerjakan ulang):** T4-04 `0032_status_item_dapur.sql`
+   (riwayat status item hanya-tambah anti-dobel + sinkron status pesanan + RPC
+   `set_status_item`; 7/7 mutasi merah; keputusan di `DECISIONS_LOG` [State Machine/
+   2026-09-22] — pembatas peran sengaja TIDAK ditambah, kontrak `status_item_transisi.sql`
+   mengunci jalur sah terbuka) + T4-02 bagian SQL `0033_tujuan_item.sql` (2/2 mutasi merah).
+   Suite SQL kini **74 berkas LULUS · 0 GAGAL**.
+3. **Aturan tetap:** TDD per tugas (tes merah → kode → hijau → uji mutasi untuk gerbang baru)
+   · migrasi 0001–0014 BEKU · jangan longgarkan `periksa-struktur` (tanpa warna mentah —
+   komentar pun dipindai) · perubahan skema dicatat di `docs/TECH_SPEC.md` §4.2/§4.3 ·
+   **kontrak tes lama MENANG atas rancangan baru** (baca `supabase/tes/*.sql` yang relevan
+   sebelum menambah penjaga — pelajaran T4-02/T4-04 batch ini) · `--siapkan` SEBELUM commit
+   penutup · PR #1/#2/#3/#4 jangan merge tanpa keputusan Lee · tanpa deploy/sebar Supabase.
+
+### Arsip riwayat penutup §3 (sejarah — JANGAN dijadikan rencana; nomor tugas lama di bawah bisa tidak sesuai ROADMAP)
 
 > **MARATON FASE 1B, 1C, FASE 2, & FASE 3 KASIR/PESANAN POS SELESAI LENGKAP 100% (2026-09-22):** Seluruh fondasi Fase 1B, 1C, Fase 2, serta seluruh komponen utama Terminal Kasir POS Fase 3 (T3-01 s/d T3-16: Katalog Menu POS dinamis, Keranjang Server-Calculated tanpa manipulasi klien, Pemilih Denah Meja & Tipe Pesanan, Tagihan Terbuka / Open Bill, Kirim ke Dapur, Pembayaran Tunai/QRIS/EDC, Layar Pesanan Pelayan Mobile HP, Riwayat Pesanan Harian, Uji E2E Kasir & Beban Ringan) telah selesai dikerjakan dan diverifikasi penuh. Vitest suite 45 berkas (213 pengujian unit) dan 72 SQL suite 100% LULUS. Gerbang CI 100 gerbang diawasi dua arah.
 
