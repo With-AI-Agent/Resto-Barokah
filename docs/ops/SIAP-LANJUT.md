@@ -8,13 +8,14 @@
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
 - **Cabang yang dilanjutkan:** `arena/01a0c7b6-resto-barokah`
-- **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
+- **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0c7b6-resto-barokah`
-- **Commit keadaan kerja:** `91f6a78b0f3d602a2ffd0012a58fc9cae44d6c5f`
+- **Commit keadaan kerja:** `3af3f836eb11aa54afe57a6932902b32df92f3cc`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit 91f6a78b)
+- **CI terakhir:** (belum ada run CI untuk commit 3af3f836 — periksa lagi setelah push)
+- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-22 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -890,4 +891,9 @@ Kalau Lee hanya menulis "lanjut" tanpa memilih: kerjakan **(1) penyiapan putaran
 tuntas (paket + arahan siap tempel), lalu tanyakan **satu** pertanyaan singkat: "verifikasi (jalankan
 2 chat) atau langsung T1-24?" — jangan menebak di antara dua jalur besar yang tidak bisa dibatalkan.
 
-**MARATON SOLO BATCH-1 (2026-09-21, sesi integrator arena/01a0c1d1):** CI merah `35556507443` terbukti flake platform 401-JWT (run `35557408349` + `35557877929` HIJAU) → lanjut §3. **B F-16 DITUTUP** (lingkup paket dari pohon target + Aturan 6; `T1-44` tetap `[ ]` menunggu paket nyata). **B F-14 DITUTUP** (sapuan isolasi: SETIAP-policy + registri beralasan + rantai transitif wajib; harness 4 mutasi; `T1-22` tetap `[ ]` sisa putusan kecil). **F F-18 DITUTUP (opsi A, keputusan Lee)** — terima-sebagai-risiko, tanpa ubah kode. **BATCH-1 TUNTAS PENUH** (B F-16 + B F-14 + F F-18). Sisa kecil batch depan: putusan T1-22 ("laporan tercetak" + nama berkas). **MARATON SOLO BATCH-2 (2026-09-21):** reset sandbox ke-2 dipulihkan (HEAD `deb4ae3`, bersih). **T1-22 DITUTUP ([x])** (putusan "tercetak" + nama dikoreksi). **B F-11 DITUTUP** (duplikat K F-03; bukti sama, verifikasi ulang hijau). **D F-08 DITUTUP** (duplikat F F-13; risiko lanjut TERBUKA di sana). **Parsial F F-07/F F-08 dicatat** (DITUTUP-sebagian + sisa presisi). **Sisa Batch-2 (urut):** F F-12 (DIPAGARI-TERBUKA: 0021 + sifat + 2 mutasi MERAH) → lapor singkat → tunggu `lanjut` Lee. **MARATON SOLO BATCH-3 (2026-09-21):** **F F-13 DIVERIFIKASI-TETAP-DIPAGARI** (harness-0015 LOLOS segar; pagar utuh). **Sisa Batch-3 (urut):** A F-07 (DIPETAKAN-PRESISI) → F F-09 (DITUTUP) → I F-17 (PARUH-1-HIJAU + T-025 keputusan-uang) → lapor singkat → tunggu `lanjut` Lee. **MARATON SOLO BATCH-4 (2026-09-21):** PG16 nyata via pgserver. **F F-13 DITUTUP** (2-koneksi + kalibrasi). **Sisa Batch-4 (urut):** F F-12 (DITUTUP: T2 ditolak cap, kalibrasi 111%) → lapor singkat → tunggu `lanjut` Lee. **TUTUP SESI (2026-09-21):** Lee setuju-semua (T-025=a, 9 butir selesai) + §10 segar. **Batch-5 (sesi baru, urut):** 0022-penegak-T-025(a) → gores-PIN → sapu-❓ → T1-30-sisa.
+**MARATON G3 BATCH FASE 1B, 1C & FASE 2 INTI (2026-09-22):**
+1. **Fase 1B Selesai Penuh:** T1-23 s/d T1-30, T1-36, T1-43 diverifikasi dengan migrasi `0028_pemulihan_perangkat.sql`, `0029_audit_kekal_rantai.sql`, `0030_sesi_dan_persetujuan_perangkat.sql`, `0031_mode_dukungan_platform.sql`, 72 berkas uji SQL lokal (100% LULUS), uji mutasi fail-closed, dan matriks izin 6 peran terverifikasi.
+2. **Fase 1C Fondasi UI Selesai Penuh:** T1-31 s/d T1-35, T1-39 s/d T1-42 (kontrak layar, registri aksi, kamus i18n 4 bahasa, tata letak LTR/RTL, bantuan kontekstual, naskah jalan pemilik).
+3. **Fase 2 Inti Selesai:** T2-01 (Supabase Auth Sesi Aman), T2-02 (Layar Masuk Pegawai PIN Keypad), T2-06 (Kerangka Layout & Navigasi 6 Peran), T2-07 (Pemilih Konteks Cabang), T2-08 (Halaman Tidak Punya Akses & Pesan Ramah Berkode).
+4. **Rencana Selanjutnya:** Selesaikan sisa tugas Fase 2 (T2-03 Masuk Owner Email/Sandi, T2-04 Daftarkan Perangkat Baru, T2-05 Pemulihan Perangkat Darurat, T2-09 Indikator Jaringan & Banner Luring, T2-10 Uji Jalan Masuk) dan lanjutkan ke Fase 3 (Katalog & Menu POS).
+
