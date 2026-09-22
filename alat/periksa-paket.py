@@ -314,7 +314,11 @@ def paket_ditulis_sah(ref: str, jalur: str, sha: str) -> bool | None:
 
     Mengembalikan None bila riwayat tidak bisa dibaca (mis. klon dangkal) — pemanggil melewatkan.
     """
-    kode, kel = jalankan(["git", "log", "--format=%H %P", ref, "--", jalur])
+    # `--full-history` wajib karena integrator dapat merekonsiliasi dua riwayat
+    # yang divergen dengan merge commit. Tanpa opsi ini, git menyederhanakan
+    # riwayat jalur ke parent pertama dan menyembunyikan commit paket sah di
+    # parent kedua — lalu paket lama dituduh melanggar F-11 secara palsu.
+    kode, kel = jalankan(["git", "log", "--full-history", "--format=%H %P", ref, "--", jalur])
     if kode != 0:
         return None
     for baris in kel.splitlines():
