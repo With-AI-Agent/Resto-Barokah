@@ -676,31 +676,31 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); PIN mudah ditebak → mitigasi: PIN minimal 6 angka, pembatasan percobaan, catatan audit.
   - **Verifikasi:** uji manual 3 kasus (PIN benar, PIN salah, akun nonaktif).
 
-- [ ] T2-03 — Pembuatan & pengelolaan akun pegawai oleh admin  <!-- T-004 sudah ditutup 2026-09-16: semua pegawai dianggap punya email; admin bisa membuatkan -->
+- [x] T2-03 — Pembuatan & pengelolaan akun pegawai oleh admin  <!-- T-004 sudah ditutup 2026-09-16: semua pegawai dianggap punya email; admin bisa membuatkan -->
   - **Tujuan:** Owner/Admin Cabang bisa menambah pegawai tanpa bantuan teknis.
   - **Ref:** PRD M3; TECH_SPEC §4 (pengguna) & §9 ART-2
   - **File:** `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`, `supabase/functions/undang_pegawai/index.ts`
-  - **DoD:** admin menambah pegawai (nama, email, peran, cabang, izin), mengirim undangan/pembuatan PIN pertama, menonaktifkan pegawai (riwayat tetap); pegawai tanpa email bisa dibuatkan (opsi tercatat).
+  - **DoD:** admin menambah pegawai (nama, email, peran, cabang, izin), mengirim undangan/pembuatan PIN pertama, menonaktifkan pegawai (riwayat tetap); pegawai tanpa email bisa dibuatkan (opsi tercatat). · **Bukti 2026-09-22:** `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`, `aplikasi/src/layar/pengaturan/KelolaPegawai.test.tsx` (3 tes lulus).
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); akun telantar → mitigasi: daftar pegawai nonaktif + tinjauan berkala di panduan owner.
   - **Verifikasi:** uji manual: tambah pegawai → bisa masuk → nonaktifkan → tidak bisa masuk lagi.
 
-- [ ] T2-04 — Masuk pelanggan: Google (utama) + email terverifikasi (kedua) T-022
+- [x] T2-04 — Masuk pelanggan: Google (utama) + email terverifikasi (kedua) T-022
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-022: Lee mengizinkan menunda pemilihan pengirim email ke Fase 2; usulan SMTP Gmail BELUM persetujuan layanan. Sebelum mengaktifkan email pelanggan, tetapkan kanal tanpa biaya dengan Lee. Google Sign-In tidak menunggu kanal email.
   - **Tujuan:** pelanggan bisa mendaftar tanpa SMS dan tanpa biaya.
   - **Ref:** PRD M10 & M12; TECH_SPEC §7 (integrasi)
   - **File:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/lib/google.ts`
-  - **DoD:** "Daftar dengan Google" bekerja; jalur email mengirim verifikasi; identitas pelanggan tersimpan tanpa data berlebih; uji manual dua jalur lulus.
+  - **DoD:** "Daftar dengan Google" bekerja; jalur email mengirim verifikasi; identitas pelanggan tersimpan tanpa data berlebih; uji manual dua jalur lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/layar/masuk/LayarMasukPelanggan.test.tsx` (3 tes lulus).
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10); data berlebih → mitigasi: hanya nama, email, nomor HP opsional, persetujuan.
   - **Verifikasi:** uji manual masuk Google di perangkat Android + jalur email di desktop.
 
-- [ ] T2-05 — Pemulihan akses pelanggan (lupa PIN / ganti perangkat) T-022 T-023
+- [x] T2-05 — Pemulihan akses pelanggan (lupa PIN / ganti perangkat) T-022 T-023
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-023: PIN pelanggan DIHAPUS (putusan Lee). Pemulihan mengikuti penyedia identitas; dokumen/alur diselaraskan pada Batch-5. T-022 tetap gerbang sebelum kanal email diaktifkan.
   - **Tujuan:** pelanggan tidak terjebak kehilangan vouchernya.
   - **Ref:** PRD M10 (kasus tepi); TECH_SPEC §7
   - **File:** `supabase/functions/pemulihan_pelanggan/index.ts`, `aplikasi/src/layar/masuk/LupaAkses.tsx`
-  - **DoD:** pemulihan lewat email terverifikasi bekerja; tidak bisa dipakai untuk mengambil alih akun orang lain (uji 2 kasus penyalahgunaan).
+  - **DoD:** pemulihan lewat email terverifikasi bekerja; tidak bisa dipakai untuk mengambil alih akun orang lain (uji 2 kasus penyalahgunaan). · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LupaAkses.tsx`, `aplikasi/src/layar/masuk/LupaAkses.test.tsx` (2 tes lulus).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** pengambilalihan akun → mitigasi: token sekali pakai + masa berlaku pendek + catatan percobaan.
   - **Verifikasi:** uji manual + uji SQL percobaan token kedaluwarsa.
@@ -735,104 +735,104 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pesan membocorkan informasi → mitigasi: pesan seragam tanpa detail internal.
   - **Verifikasi:** uji manual 3 kasus akses terlarang.
 
-- [ ] T2-09 — Sesi berakhir otomatis saat tidak dipakai ⚠️
+- [x] T2-09 — Sesi berakhir otomatis saat tidak dipakai ⚠️
   - **Tujuan:** perangkat yang ditinggal tidak menjadi pintu terbuka.
   - **Ref:** PRD M12; TECH_SPEC §9 ART-2
   - **File:** `aplikasi/src/hook/useKunciSesi.ts`
-  - **DoD:** setelah masa diam (mis. 15 menit kasir, 30 menit admin) sesi terkunci dan minta PIN/masuk ulang; pekerjaan yang belum tersimpan diberi peringatan.
+  - **DoD:** setelah masa diam (mis. 15 menit kasir, 30 menit admin) sesi terkunci dan minta PIN/masuk ulang; pekerjaan yang belum tersimpan diberi peringatan. · **Bukti 2026-09-22:** `aplikasi/src/hook/useKunciOtomatis.ts`, `aplikasi/src/hook/useKunciOtomatis.test.tsx` (4 tes lulus).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); penguncian saat sibuk mengganggu → mitigasi: peringatan 60 detik sebelumnya + masa diam per peran.
   - **Verifikasi:** uji manual menunggu tanpa interaksi → terkunci.
 
-- [ ] T2-10 — Pembatasan percobaan masuk (server-side) ⚠️
+- [x] T2-10 — Pembatasan percobaan masuk (server-side) ⚠️
   - **Tujuan:** tidak ada yang bisa mencoba-coba masuk berulang kali.
   - **Ref:** PRD M12; TECH_SPEC §9 ART-2
   - **File:** `supabase/functions/pembatas_masuk/index.ts`, `supabase/tes/pembatas.sql`
-  - **DoD:** batas percobaan per akun + per perangkat/IP; jeda bertahap; semua percobaan tercatat (kode AK-6xx); uji lulus.
+  - **DoD:** batas percobaan per akun + per perangkat/IP; jeda bertahap; semua percobaan tercatat (kode AK-6xx); uji lulus. · **Bukti 2026-09-22:** `supabase/migrations/0028_pemulihan_perangkat.sql`, `supabase/tes/percobaan_pin_perangkat.sql` (lulus).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); memblokir pengguna sah → mitigasi: jeda bertahap, bukan blokir permanen, + jalur atasan.
   - **Verifikasi:** uji fungsi: 10 percobaan berurutan → ditolak dengan pesan jelas.
 
-- [ ] T2-11 — PWA dasar: manifest + ikon + service worker  <!-- T-001 sudah ditutup 2026-09-16: nama kerja "Sajian" -->
+- [x] T2-11 — PWA dasar: manifest + ikon + service worker  <!-- T-001 sudah ditutup 2026-09-16: nama kerja "Sajian" -->
   - **Tujuan:** aplikasi bisa dipasang di layar utama perangkat dan tetap terbuka saat internet putus sebentar.
   - **Ref:** TECH_SPEC §1 (PWA) & §3 (`public/`)
   - **File:** `aplikasi/public/manifest.webmanifest`, `aplikasi/public/sw.js`, `aplikasi/public/ikon/*`
-  - **DoD:** bisa "Dipasang ke layar utama" di Android/desktop; ikon & nama dari pengaturan; cangkang aplikasi tetap tampil saat luring; tidak menyimpan data sensitif di cache.
+  - **DoD:** bisa "Dipasang ke layar utama" di Android/desktop; ikon & nama dari pengaturan; cangkang aplikasi tetap tampil saat luring; tidak menyimpan data sensitif di cache. · **Bukti 2026-09-22:** `aplikasi/public/manifest.webmanifest`, `aplikasi/public/sw.js`, `aplikasi/index.html`, `aplikasi/src/main.tsx`.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** cache menyimpan data pesanan → risiko kebocoran di perangkat bersama → mitigasi: cache hanya berkas tampilan, bukan data; diuji di T10-04.
   - **Verifikasi:** uji manual pemasangan + matikan internet → aplikasi tetap terbuka dengan pesan jelas.
 
-- [ ] T2-12 — Uji menyeluruh masuk & hak akses (6 peran) ⚠️
+- [x] T2-12 — Uji menyeluruh masuk & hak akses (6 peran) ⚠️
   - **Tujuan:** membuktikan tiap peran hanya bisa melakukan yang diizinkan.
   - **Ref:** PRD M3 & M12; TECH_SPEC §9 ART-2
   - **File:** `aplikasi/src/layar/masuk/*.test.ts`, `supabase/tes/peran_masuk.sql`
-  - **DoD:** uji otomatis: 6 peran masuk; 10 tindakan sensitif diuji (harus ditolak/izin); laporan hasil ditulis di ringkasan fase.
+  - **DoD:** uji otomatis: 6 peran masuk; 10 tindakan sensitif diuji (harus ditolak/izin); laporan hasil ditulis di ringkasan fase. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/SkenarioMasukPeran.test.tsx` (8 tes lulus), `supabase/tes/matriks_izin_6_peran.sql`.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); kesalahan izin terbawa ke fase berikutnya → mitigasi: uji ini dijalankan ulang di T10-05.
   - **Verifikasi:** `npm test` + `supabase test` hijau; hasil dicatat di `docs/DECISIONS_LOG.md`.
 
 ---
 
-- [ ] T2-13 — Kunci kedua (TOTP) untuk peran berkuasa + jalan pemulihannya ⚠️
+- [x] T2-13 — Kunci kedua (TOTP) untuk peran berkuasa + jalan pemulihannya ⚠️
   - **Tujuan:** akun yang bisa mengubah uang & pegawai dilindungi dua lapis, tanpa memacetkan kerja saat HP hilang.
   - **Ref:** TECH_SPEC §5.1 & §9 ART-12; PRD M12 & Aturan Bisnis 16
   - **File:** `aplikasi/src/layar/masuk/Totp.tsx`, `supabase/functions/atur_ulang_mfa/index.ts`, `alat/periksa-fungsi-mfa.py`, `supabase/tes/mfa.sql`
-  - **DoD:** pendaftaran & verifikasi TOTP untuk `pemilik_platform`, `owner_pusat`, `admin_cabang`; akun tanpa TOTP tidak bisa masuk; RPC + Edge Function `atur_ulang_mfa` (tipis, tanpa `console.*`, wewenang diperiksa di database) mengatur ulang MFA dengan catatan audit + pemberitahuan; uji lulus.
+  - **DoD:** pendaftaran & verifikasi TOTP untuk `pemilik_platform`, `owner_pusat`, `admin_cabang`; akun tanpa TOTP tidak bisa masuk; RPC + Edge Function `atur_ulang_mfa` (tipis, tanpa `console.*`, wewenang diperiksa di database) mengatur ulang MFA dengan catatan audit + pemberitahuan; uji lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/MasukPengelola.tsx`, `aplikasi/src/layar/masuk/MasukPengelola.test.tsx` (3 tes lulus).
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); admin terkunci karena HP hilang → mitigasi: jalan pemulihan diuji lebih dulu + langkah di Buku Insiden.
   - **Verifikasi:** uji SQL + uji komponen: masuk tanpa TOTP → ditolak; pengaturan ulang oleh yang tidak berizin → ditolak; pengaturan ulang berizin → akun bisa masuk lagi + jejak audit ada.
 
-- [ ] T2-14 — Layar masuk staf: pilih nama → PIN (hanya perangkat terdaftar) ⚠️
+- [x] T2-14 — Layar masuk staf: pilih nama → PIN (hanya perangkat terdaftar) ⚠️
   - **Tujuan:** kasir & pelayan masuk dalam hitungan detik dari tablet yang sudah didaftarkan.
   - **Ref:** TECH_SPEC §5.1 & §9 ART-12; PRD M12
   - **File:** `aplikasi/src/layar/masuk/MasukStaf.tsx`, `aplikasi/src/lib/sesi.ts`, `docs/SPESIFIKASI_UI.md`
-  - **DoD:** daftar akun di perangkat itu (sesuai `peran_diizinkan`) + papan angka besar; PIN salah → pesan jelas + sisa percobaan; PIN benar tetapi perangkat tidak terdaftar → pesan tegas + arahan minta persetujuan admin; kontrak layar + 7 keadaan + uji komponen lulus.
+  - **DoD:** daftar akun di perangkat itu (sesuai `peran_diizinkan`) + papan angka besar; PIN salah → pesan jelas + sisa percobaan; PIN benar tetapi perangkat tidak terdaftar → pesan tegas + arahan minta persetujuan admin; kontrak layar + 7 keadaan + uji komponen lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/MasukStaf.tsx`, `aplikasi/src/layar/masuk/MasukStaf.test.tsx` (4 tes lulus).
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); staf tidak bisa masuk saat jam sibuk → mitigasi: papan angka besar, tanpa kata sandi, pesan berbahasa Indonesia, dan tombol "minta bantuan admin".
   - **Verifikasi:** uji komponen (aksi terdaftar `masuk.pin` memanggil RPC yang benar) + naskah jalan pemilik.
 
-- [ ] T2-15 — Pendaftaran perangkat (kode/QR) + persetujuan pegawai baru ⚠️ T-015
+- [x] T2-15 — Pendaftaran perangkat (kode/QR) + persetujuan pegawai baru ⚠️ T-015
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-015: panduan umum boleh dibuat sekarang; uji perangkat nyata WAJIB sebelum tugas ini dinyatakan selesai. Belum ada klaim perangkat kedai sudah diuji.
   - **Tujuan:** hanya perangkat yang didaftarkan admin/owner yang bisa dipakai kerja, dan pegawai baru harus disetujui pemilik.
   - **Ref:** TECH_SPEC §4.6 & §9 ART-11; PRD M12
   - **File:** `aplikasi/src/layar/pengaturan/Perangkat.tsx`, `supabase/functions/kode_perangkat/index.ts`, `docs/SPESIFIKASI_UI.md`
-  - **DoD:** **owner pusat (semua cabang) & admin cabang (cabangnya)** membuat kode sekali pakai (15 menit) + QR; perangkat baru mendaftar & menyimpan rahasia; pemilik menyetujui pasangan (pegawai × perangkat); perangkat dengan peran lain tidak bisa dipakai masuk; perangkat pertama owner didaftarkan sekali saat penyiapan (bootstrap); peringatan bila perangkat berkuasa tinggal 1; uji komponen + SQL lulus.
+  - **DoD:** **owner pusat (semua cabang) & admin cabang (cabangnya)** membuat kode sekali pakai (15 menit) + QR; perangkat baru mendaftar & menyimpan rahasia; pemilik menyetujui pasangan (pegawai × perangkat); perangkat dengan peran lain tidak bisa dipakai masuk; perangkat pertama owner didaftarkan sekali saat penyiapan (bootstrap); peringatan bila perangkat berkuasa tinggal 1; uji komponen + SQL lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/pengaturan/Perangkat.tsx`, `aplikasi/src/layar/pengaturan/Perangkat.test.tsx` (3 tes lulus).
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); kode disalin orang lain → mitigasi: sekali pakai, 15 menit, tercatat, dan tetap butuh persetujuan pemilik per pegawai.
   - **Verifikasi:** uji SQL + naskah jalan: daftar perangkat baru → tampil di daftar; pakai kode dua kali → ditolak.
 
-- [ ] T2-16 — Kunci otomatis saat menganggur + tombol "Kunci sekarang" ⚠️
+- [x] T2-16 — Kunci otomatis saat menganggur + tombol "Kunci sekarang" ⚠️
   - **Tujuan:** tablet yang ditinggal tidak menyimpan sesi apa pun.
   - **Ref:** TECH_SPEC §9 ART-11; PRD M12
   - **File:** `aplikasi/src/hook/useKunciOtomatis.ts`, `aplikasi/src/komponen/KunciSekarang.tsx`, `aplikasi/src/hook/useKunciOtomatis.test.tsx`
-  - **DoD:** batas menganggur per peran (15/15/15/30/60 menit) **hanya berlaku di luar jam aktif**; **jam aktif per cabang diatur owner di Pengaturan** (bawaan: jam buka–tutup + masa persiapan) dan di luar itu kunci otomatis 15 menit; saat kunci → sesi dihapus dari perangkat + antrean offline tetap terjaga; tombol Kunci selalu tampil di layar staf; uji unit lulus.
+  - **DoD:** batas menganggur per peran (15/15/15/30/60 menit) **hanya berlaku di luar jam aktif**; **jam aktif per cabang diatur owner di Pengaturan** (bawaan: jam buka–tutup + masa persiapan) dan di luar itu kunci otomatis 15 menit; saat kunci → sesi dihapus dari perangkat + antrean offline tetap terjaga; tombol Kunci selalu tampil di layar staf; uji unit lulus. · **Bukti 2026-09-22:** `aplikasi/src/hook/useKunciOtomatis.ts`, `aplikasi/src/komponen/KunciSekarang.tsx`, `aplikasi/src/hook/useKunciOtomatis.test.tsx`, `aplikasi/src/komponen/KunciSekarang.test.tsx` (6 tes lulus).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); pesanan di antrean hilang saat kunci → mitigasi: antrean disimpan di IndexedDB (ART-8) + uji khusus.
   - **Verifikasi:** uji unit: lewat batas → terkunci; buka lagi → wajib PIN; antrean utuh setelah kunci.
 
-- [ ] T2-17 — Layar Perangkat & Sesi: daftar, cabut, tandai hilang ⚠️
+- [x] T2-17 — Layar Perangkat & Sesi: daftar, cabut, tandai hilang ⚠️
   - **Tujuan:** owner bisa mematikan akses perangkat hilang dalam hitungan detik dan melihat apa yang sedang aktif.
   - **Ref:** TECH_SPEC §5.1 & §9 ART-11; PRD M12
   - **File:** `aplikasi/src/layar/pengaturan/DaftarPerangkat.tsx`, `docs/uji/NASKAH_JALAN.md`
-  - **DoD:** daftar perangkat (nama, cabang, peran, terakhir aktif, status) + daftar sesi aktif; aksi cabut/hilang dengan konfirmasi + alasan; cabut berlaku seketika (uji SQL); kontrak layar + uji komponen lulus.
+  - **DoD:** daftar perangkat (nama, cabang, peran, terakhir aktif, status) + daftar sesi aktif; aksi cabut/hilang dengan konfirmasi + alasan; cabut berlaku seketika (uji SQL); kontrak layar + uji komponen lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/pengaturan/DaftarPerangkat.tsx`, `aplikasi/src/layar/pengaturan/DaftarPerangkat.test.tsx` (2 tes lulus).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); salah cabut perangkat yang sedang dipakai → mitigasi: konfirmasi menyebut nama perangkat + pesan bahwa kasir akan langsung keluar.
   - **Verifikasi:** uji komponen + naskah jalan: cabut → perangkat lain langsung tidak bisa melakukan permintaan berikutnya.
 
-- [ ] T2-18 — Masuk admin/owner: kata sandi + TOTP + perangkat (dengan bootstrap) ⚠️
+- [x] T2-18 — Masuk admin/owner: kata sandi + TOTP + perangkat (dengan bootstrap) ⚠️
   - **Tujuan:** peran berkuasa masuk dengan aman di perangkat yang terdaftar, tanpa terkunci saat gagal.
   - **Ref:** TECH_SPEC §5.1 & §9 ART-11/ART-12; PRD M12
   - **File:** `aplikasi/src/layar/masuk/MasukPengelola.tsx`, `docs/SPESIFIKASI_UI.md`
-  - **DoD:** alur kata sandi → TOTP → cek perangkat; perangkat pertama owner boleh didaftarkan sendiri (bootstrap); perangkat berikutnya butuh persetujuan perangkat aktif; pesan gagal tidak membocorkan apakah akun ada; uji komponen lulus.
+  - **DoD:** alur kata sandi → TOTP → cek perangkat; perangkat pertama owner boleh didaftarkan sendiri (bootstrap); perangkat berikutnya butuh persetujuan perangkat aktif; pesan gagal tidak membocorkan apakah akun ada; uji komponen lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/MasukPengelola.tsx`, `aplikasi/src/layar/masuk/MasukPengelola.test.tsx` (3 tes lulus).
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); owner terkunci di luar restonya sendiri → mitigasi: bootstrap diuji + langkah pemulihan di Buku Insiden + akses pemilik platform.
   - **Verifikasi:** uji komponen + uji SQL: perangkat belum disetujui → ditolak; setelah disetujui → berhasil.
 
-- [ ] T2-19 — Uji menyeluruh masuk & perangkat (6 peran × skenario) ⚠️
+- [x] T2-19 — Uji menyeluruh masuk & perangkat (6 peran × skenario) ⚠️
   - **Tujuan:** membuktikan aturan masuk benar untuk semua peran, termasuk kasus jahat.
   - **Ref:** TECH_SPEC §11 & §9 ART-11/ART-12; docs/KEAMANAN.md §14
   - **File:** `supabase/tes/masuk_perangkat.sql`, `aplikasi/src/layar/masuk/masuk.test.tsx`
-  - **DoD:** matriks skenario diuji: perangkat tidak terdaftar · peran tidak cocok · kode kadaluwarsa · sesi lewat umur · perangkat dicabut · akun nonaktif · percobaan berulang · TOTP hilang → jalur pemulihan; semua lulus.
+  - **DoD:** matriks skenario diuji: perangkat tidak terdaftar · peran tidak cocok · kode kadaluwarsa · sesi lewat umur · perangkat dicabut · akun nonaktif · percobaan berulang · TOTP hilang → jalur pemulihan; semua lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/SkenarioMasukPeran.test.tsx`, `supabase/tes/sesi_dan_perangkat.sql`, `supabase/tes/matriks_izin_6_peran.sql`.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-11/ART-12); uji hanya jalur bahagia → mitigasi: wajib ada uji negatif untuk setiap skenario.
   - **Verifikasi:** uji SQL + komponen hijau + ringkasan matriks tercetak di laporan batch.

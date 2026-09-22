@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0c7b6-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0c7b6-resto-barokah`
-- **Commit keadaan kerja:** `53781a4d9d984d60231f44f62c658db2dbcc9806`
+- **Commit keadaan kerja:** `5737c6893f0803566cf1cc104a6a5cc23b0bbdd1`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 35720556740, commit 53781a4d) — tunggu sampai selesai
+- **CI terakhir:** failure (run 35720616776, commit 5737c689)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-22 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -891,8 +891,28 @@ Kalau Lee hanya menulis "lanjut" tanpa memilih: kerjakan **(1) penyiapan putaran
 tuntas (paket + arahan siap tempel), lalu tanyakan **satu** pertanyaan singkat: "verifikasi (jalankan
 2 chat) atau langsung T1-24?" — jangan menebak di antara dua jalur besar yang tidak bisa dibatalkan.
 
-**MARATON G3 BATCH FASE 1B, 1C & FASE 2 INTI (2026-09-22):**
-1. **Fase 1B Selesai Penuh:** T1-23 s/d T1-30, T1-36, T1-43 diverifikasi dengan migrasi `0028_pemulihan_perangkat.sql`, `0029_audit_kekal_rantai.sql`, `0030_sesi_dan_persetujuan_perangkat.sql`, `0031_mode_dukungan_platform.sql`, 72 berkas uji SQL lokal (100% LULUS), uji mutasi fail-closed, dan matriks izin 6 peran terverifikasi.
-2. **Fase 1C Fondasi UI Selesai Penuh:** T1-31 s/d T1-35, T1-39 s/d T1-42 (kontrak layar, registri aksi, kamus i18n 4 bahasa, tata letak LTR/RTL, bantuan kontekstual, naskah jalan pemilik).
-3. **Fase 2 Inti Selesai:** T2-01 (Supabase Auth Sesi Aman), T2-02 (Layar Masuk Pegawai PIN Keypad), T2-06 (Kerangka Layout & Navigasi 6 Peran), T2-07 (Pemilih Konteks Cabang), T2-08 (Halaman Tidak Punya Akses & Pesan Ramah Berkode).
-4. **Rencana Selanjutnya:** Selesaikan sisa tugas Fase 2 (T2-03 Masuk Owner Email/Sandi, T2-04 Daftarkan Perangkat Baru, T2-05 Pemulihan Perangkat Darurat, T2-09 Indikator Jaringan & Banner Luring, T2-10 Uji Jalan Masuk) dan lanjutkan ke Fase 3 (Katalog & Menu POS).
+**MARATON G3 BATCH FASE 1B, 1C & FASE 2 SELESAI LENGKAP (2026-09-22):**
+1. **Fase 1B & 1C Selesai Penuh:** Seluruh migrasi keamanan (`0011`–`0031`), 72 pengujian SQL PGlite (100% lulus), fondasi tema, i18n 4 bahasa, tata letak, registri aksi, dan kontrak antarmuka telah diverifikasi solid.
+2. **Fase 2 (Masuk & Kerangka Aplikasi) Selesai Penuh:**
+   - T2-01: Supabase Auth & Sesi Aman di klien
+   - T2-02: Layar Masuk Pegawai (Email + PIN Keypad)
+   - T2-03: Kelola Pegawai & Atur Ulang PIN oleh Admin (`KelolaPegawai.tsx` + uji unit)
+   - T2-04: Masuk Pelanggan: Google One-Tap & Tautan Email (`LayarMasukPelanggan.tsx` + uji unit)
+   - T2-05: Pemulihan Akses Pelanggan (`LupaAkses.tsx` + uji unit)
+   - T2-06: Kerangka Layout & Navigasi 6 Peran (`Rangka.tsx`, `Navigasi.tsx` + uji unit)
+   - T2-07: Pemilih Cabang & Konteks Cabang Aktif (`PemilihCabang.tsx` + uji unit)
+   - T2-08: Halaman Tidak Punya Akses & Pesan Ramah Berkode (`TidakPunyaAkses.tsx` + uji unit)
+   - T2-09 & T2-16: Sesi Berakhir Otomatis & Kunci Instan (`useKunciOtomatis.ts`, `KunciSekarang.tsx` + uji unit)
+   - T2-10: Pembatasan Percobaan Masuk Server-Side (Migrasi 0028 & SQL test)
+   - T2-11: PWA Dasar (Manifest Webmanifest + Ikon + Service Worker `sw.js`)
+   - T2-12 & T2-19: Uji Menyeluruh Hak Akses & Navigasi 6 Peran (`SkenarioMasukPeran.test.tsx` 8 tes lulus)
+   - T2-13 & T2-18: Masuk Pengelola Sandi + TOTP 2FA (`MasukPengelola.tsx` + uji unit)
+   - T2-14: Layar Masuk Staf Perangkat Terdaftar (`MasukStaf.tsx` + uji unit)
+   - T2-15: Pendaftaran Perangkat Baru & Persetujuan Pegawai (`Perangkat.tsx` + uji unit)
+   - T2-17: Daftar Perangkat & Pencabutan Sesi Hilang (`DaftarPerangkat.tsx` + uji unit)
+3. **Rencana Selanjutnya:** Melanjutkan ke Fase 3 (Pesanan & Kasir - M4):
+   - T3-01: Layar Kasir: katalog nyata dari database (kategori, varian, tambahan)
+   - T3-02: Keranjang belanja: tambah/kurang/catatan khusus per item
+   - T3-03: Simpan pesanan draf / meja terbuka
+   - T3-04: Pembayaran kasir (Tunai, QRIS, Kartu, Split Bill)
+   - T3-05: Cetak struk kasir & kirim nota elektronik (PDF/WhatsApp)
