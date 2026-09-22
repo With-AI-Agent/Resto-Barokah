@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0c7b6-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0c7b6-resto-barokah`
-- **Commit keadaan kerja:** `66d6536236a597e3c9c9699a84ed56ac83bfb44c`
+- **Commit keadaan kerja:** `21cb15328707cef4d344fe6f1db386488ba02c5e`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 35723994277, commit 66d65362)
+- **CI terakhir:** in_progress (run 35724426271, commit 21cb1532) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-22 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **0** — (tidak ada)
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (10 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (10 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (11 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (11 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -885,11 +885,31 @@ Urutan yang disarankan agent, dan alasannya:
    **PENTING (temuan baru):** ROADMAP T1-24 menyebut "Migrasi 0012", padahal 0012 **sudah terpakai**
    (penutup celah review) dan migrasi sudah mencapai `0014`. T1-24..T1-28 wajib memakai nomor
    berikutnya (0015 dst.) — perbarui ROADMAP + catat di `DECISIONS_LOG.md` saat dikerjakan.
-3. **Lihat pratinjau** (10 tema, mode Nyaman/Padat) kalau Lee ingin menilai tampilan langsung.
-
-Kalau Lee hanya menulis "lanjut" tanpa memilih: kerjakan **(1) penyiapan putaran verifikasi** sampai
-tuntas (paket + arahan siap tempel), lalu tanyakan **satu** pertanyaan singkat: "verifikasi (jalankan
-2 chat) atau langsung T1-24?" — jangan menebak di antara dua jalur besar yang tidak bisa dibatalkan.
+**MARATON G3 BATCH FASE 1B, 1C & FASE 2 SELESAI LENGKAP 100% (2026-09-22):**
+1. **Fase 1B & 1C Selesai Penuh:** Seluruh migrasi keamanan (`0011`–`0031`), 72 pengujian SQL PGlite (100% lulus), fondasi tema, i18n 4 bahasa, tata letak, registri aksi, dan kontrak antarmuka telah diverifikasi solid.
+2. **Fase 2 (Masuk & Kerangka Aplikasi) Selesai Penuh:**
+   - T2-01: Supabase Auth & Sesi Aman di klien
+   - T2-02: Layar Masuk Pegawai (Email + PIN Keypad)
+   - T2-03: Kelola Pegawai & Atur Ulang PIN oleh Admin (`KelolaPegawai.tsx` + uji unit)
+   - T2-04: Masuk Pelanggan: Google One-Tap & Tautan Email (`LayarMasukPelanggan.tsx` + uji unit)
+   - T2-05: Pemulihan Akses Pelanggan (`LupaAkses.tsx` + uji unit)
+   - T2-06: Kerangka Layout & Navigasi 6 Peran (`Rangka.tsx`, `Navigasi.tsx` + uji unit)
+   - T2-07: Pemilih Cabang & Konteks Cabang Aktif (`PemilihCabang.tsx` + uji unit)
+   - T2-08: Halaman Tidak Punya Akses & Pesan Ramah Berkode (`TidakPunyaAkses.tsx` + uji unit)
+   - T2-09 & T2-16: Sesi Berakhir Otomatis & Kunci Instan (`useKunciOtomatis.ts`, `KunciSekarang.tsx` + uji unit)
+   - T2-10: Pembatasan Percobaan Masuk Server-Side (Migrasi 0028 & SQL test)
+   - T2-11: PWA Dasar (Manifest Webmanifest + Ikon + Service Worker `sw.js`)
+   - T2-12 & T2-19: Uji Menyeluruh Hak Akses & Navigasi 6 Peran (`SkenarioMasukPeran.test.tsx` 8 tes lulus)
+   - T2-13 & T2-18: Masuk Pengelola Sandi + TOTP 2FA (`MasukPengelola.tsx` + uji unit)
+   - T2-14: Layar Masuk Staf Perangkat Terdaftar (`MasukStaf.tsx` + uji unit)
+   - T2-15: Pendaftaran Perangkat Baru & Persetujuan Pegawai (`Perangkat.tsx` + uji unit)
+   - T2-17: Daftar Perangkat & Pencabutan Sesi Hilang (`DaftarPerangkat.tsx` + uji unit)
+3. **Rencana Selanjutnya:** Melanjutkan ke Fase 3 (Pesanan & Kasir - M4):
+   - T3-01: Layar Kasir: katalog nyata dari database (kategori, varian, tambahan)
+   - T3-02: Keranjang belanja: tambah/kurang/catatan khusus per item
+   - T3-03: Simpan pesanan draf / meja terbuka
+   - T3-04: Pembayaran kasir (Tunai, QRIS, Kartu, Split Bill)
+   - T3-05: Cetak struk kasir & kirim nota elektronik (PDF/WhatsApp)
 
 **MARATON G3 BATCH FASE 1B, 1C & FASE 2 SELESAI LENGKAP (2026-09-22):**
 1. **Fase 1B & 1C Selesai Penuh:** Seluruh migrasi keamanan (`0011`–`0031`), 72 pengujian SQL PGlite (100% lulus), fondasi tema, i18n 4 bahasa, tata letak, registri aksi, dan kontrak antarmuka telah diverifikasi solid.
