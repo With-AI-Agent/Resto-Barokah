@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0c97c-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0c97c-resto-barokah`
-- **Commit keadaan kerja:** `4988cee634e058ea15ef632976c569b1dec46e89`
+- **Commit keadaan kerja:** `d923e994de6d32bef0908ef127a0a6460110d9d6`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 35797632049, commit 4988cee6) — tunggu sampai selesai
+- **CI terakhir:** in_progress (run 35797734100, commit d923e994) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-22 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -69,6 +69,8 @@ JANGAN merge apa pun tanpa keputusan Lee.
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PINDAH SESI (2026-09-23, permintaan Lee — tanpa merge):** sesi baru melanjutkan dari `arena/01a0c97c-resto-barokah` (ujung `d923e99`, semua ter-push) lewat pintu **"baca pro.md"**. **Langkah pertama sesi baru: periksa hasil CI `35797734100` (commit `d923e99`) — jangan klaim hijau tanpa bukti run sukses, dan jangan mulai pekerjaan baru sebelum CI terbaca.**
 
 **RENCANA AKTIF (2026-09-22 malam, sesi arena/01a0c97c) — FASE 4 TUNTAS di kode & uji; sisa kecil:**
 

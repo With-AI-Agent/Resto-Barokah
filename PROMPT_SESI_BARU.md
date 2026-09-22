@@ -1,4 +1,4 @@
-SESI YANG AKU LANJUT: .......... (isi nama cabang sesi di sini; contoh bentuknya: arena/01a0a8a2-resto-barokah)
+SESI YANG AKU LANJUT: arena/01a0c97c-resto-barokah
 
 > BERKAS INI STATIS (tidak berubah tiap batch) — simpan sekali, pakai terus.
 > Bagian yang kamu isi HANYA baris pertama di atas. Sisa berkas ini jangan diubah.
