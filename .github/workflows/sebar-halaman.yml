@@ -1,0 +1,60 @@
+name: Naikkan Halaman ke Cloudflare (disengaja, milik pemilik)
+
+# APA INI: membangun aplikasi lalu mengunggahnya ke Cloudflare Workers + Static Assets,
+# sehingga halaman punya alamat publik `*.workers.dev`. Ini tindakan PUBLIK dan tidak bisa
+# ditarik diam-diam, karena itu alurnya terpisah dari `ci.yml` dan hanya menyala kalau diminta.
+#
+# CARA MEMICU (sekali saja): buat berkas penanda `aplikasi/SEBAR-HALAMAN`, lalu push. Setelah
+# hijau dan alamat publiknya dicatat, berkas penanda dihapus — kiriman penghapusan itu AMAN
+# karena alur langsung berhenti di pemeriksaan penanda (`test -f ...`) tanpa mengunggah apa pun.
+#
+# KUNCI YANG DIBUTUHKAN (dipasang pemilik, tidak pernah masuk repo/percakapan):
+#   GitHub → repo → Settings → Secrets and variables → Actions → New repository secret
+#     1) CLOUDFLARE_API_TOKEN — token Cloudflare dengan izin "Edit Cloudflare Workers"
+# Nomor akun Cloudflare (bukan rahasia) sudah diisi di bawah dari
+# `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`.
+#
+# KENAPA SATU BLOK `run:`: pemeriksaan penanda harus bisa menghentikan SELURUH alur. Pada alur
+# berlangkah banyak, `exit 0` di langkah pertama hanya menghentikan langkah itu — langkah unggah
+# berikutnya tetap jalan. `set -euo pipefail` juga memastikan unggahan batal kalau pemasangan
+# pustaka gagal.
+
+on:
+  push:
+    paths:
+      - 'aplikasi/SEBAR-HALAMAN'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sebar-halaman
+  cancel-in-progress: false
+
+jobs:
+  sebar:
+    name: Unggah halaman ke Cloudflare
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 2b55bd03207235e421de6ec18837b654
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v5
+
+      - name: Pasang Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22.12.0'
+          cache: npm
+          cache-dependency-path: aplikasi/package-lock.json
+
+      - name: Periksa penanda & kunci, lalu pasang pustaka dan unggah
+        run: |
+          set -euo pipefail
+          test -f aplikasi/SEBAR-HALAMAN || { echo "PENANDA SUDAH DIHAPUS — tidak ada yang diunggah."; exit 0; }
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "RAHASIA HILANG: CLOUDFLARE_API_TOKEN belum dipasang di GitHub (Settings → Secrets and variables → Actions)."; exit 1; }
+          npm ci --prefix aplikasi
+          npm run --prefix aplikasi deploy
+          node aplikasi/alat/catat-alamat.mjs

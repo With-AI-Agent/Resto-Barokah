@@ -1,0 +1,215 @@
+name: CI
+
+# Gerbang otomatis: setiap kiriman kode diperiksa. Repositori ini PUBLIK sejak
+# 2026-09-20 (keputusan Lee) — menit GitHub Actions tak terbatas untuk repo publik.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  periksa:
+    name: Periksa (lint · tipe · uji · pemeriksa Python)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v5
+        with:
+          # Riwayat PENUH (bukan klon dangkal) wajib sejak 2026-09-19: pemeriksa
+          # `alat/periksa-paket.py` menyelidiki commit yang ditunjuk paket audit/review
+          # (`git cat-file -e <commit>:<jalur>`). Di klon dangkal commit itu tidak ada,
+          # sehingga paket yang SEBENARNYA sah akan ditolak — dan pemeriksa itu kini
+          # dijalankan sungguhan di CI, bukan hanya uji-dirinya.
+          fetch-depth: 0
+
+      - name: Pasang Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.12.0"
+          cache: npm
+          cache-dependency-path: aplikasi/package-lock.json
+
+      - name: Pasang pustaka (npm ci)
+        working-directory: aplikasi
+        run: npm ci
+
+      - name: Kerapian kode (Prettier)
+        working-directory: aplikasi
+        run: npm run format:check
+
+      - name: Aturan kode (ESLint)
+        working-directory: aplikasi
+        run: npm run lint
+
+      - name: Tipe (TypeScript ketat)
+        working-directory: aplikasi
+        run: npm run typecheck
+
+      - name: Uji unit (Vitest)
+        working-directory: aplikasi
+        run: npm test
+
+      # Bukti uji unit benar-benar MENJAGA perilaku (I F-19, F F-14/I F-05, I F-06):
+      # setiap mutasi perilaku di salinan sementara WAJIB membuat uji MERAH.
+      - name: Bukti mutasi kode aplikasi (uji wajib MERAH pada cacat nyata)
+        run: node aplikasi/alat/uji-mutasi-app.mjs
+
+      - name: Uji-diri harness mutasi aplikasi (harness wajib bisa MENOLAK)
+        run: node aplikasi/alat/uji-mutasi-app.mjs --uji-diri
+
+      - name: Bangun aplikasi
+        working-directory: aplikasi
+        run: npm run build
+
+      - name: Kerentanan dependency (npm audit — 0 toleransi)
+        working-directory: aplikasi
+        run: npm audit --audit-level=low
+      # T0-08: membuktikan aplikasi tersambung ke proyek Supabase memakai KUNCI PUBLIK saja.
+      # Kenapa di CI: lingkungan agent tidak punya jalan keluar jaringan ke `*.supabase.co`,
+      # sedangkan runner GitHub punya — jadi bukti ini bisa diperiksa ulang siapa pun.
+      # Dua nilai di bawah MEMANG untuk publik (kunci `publishable`/anon; data dijaga RLS) dan
+      # tercatat di `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`. Kunci rahasia TIDAK PERNAH di sini.
+      # Sejak 2026-09-19 langkah ini juga membaca SATU kolom dari maksimal SATU baris tabel katalog
+      # (`menu_item` — memang publik di MVP): kalau migrasi belum disebar, jawabannya 404 dan langkah
+      # ini MERAH. Jadi "hijau" berarti alamat + kunci + tabel nyata, bukan sekadar jaringan hidup.
+      # Kalau langkah ini merah dengan "tidak menjawab": biasanya proyek Supabase paket gratis
+      # sedang DIJEDA karena lama tidak dipakai — buka dashboard pemilik lalu pilih Restore/Resume.
+      - name: Cek sambungan Supabase (kunci publik saja — tugas T0-08)
+        working-directory: aplikasi
+        env:
+          VITE_SUPABASE_URL: https://bdvjirmbuqelmduztryj.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_b1TMUnIFZAJjmA59X8_WFA_z7SyMXwM
+        run: npm run cek:supabase
+
+      - name: Pasang alat uji SQL
+        run: npm ci --prefix alat
+
+      # Perintah penuh (tanpa `--daftar`). Opsi `--daftar` TETAP menjalankan seluruh uji,
+      # tetapi namanya menjebak: peninjau putaran11 membacanya sebagai "hanya cetak daftar"
+      # lalu melaporkan CI tidak menguji apa pun. Pakai bentuk penuh supaya tidak bisa
+      # disalahbaca siapa pun.
+      # Nama langkah SENGAJA tanpa angka berkas uji: angka di nama langkah selalu basi
+      # (temuan review putaran13 PR-07: "(28 berkas)" padahal nyata 31). Jumlah nyata
+      # selalu tercetak di keluaran langkah ini, jadi tidak perlu ditulis dua kali.
+      - name: Uji SQL penuh — RLS, isolasi resto & fungsi identitas
+        run: node alat/uji-sql.mjs
+
+      - name: Bukti mutasi pagar migrasi 0012 + 0013 (kontrol hijau + semua mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0012.py
+
+      - name: Bukti mutasi pagar migrasi 0014 — putaran13 & audit 2026-09-18 (17 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0014.py
+
+      - name: Bukti mutasi pagar migrasi 0015 — putaran16 K-1 + K-2 (semua mutasi WAJIB MERAH)
+        run: python3 alat/uji-mutasi-0015.py
+
+      - name: Bukti mutasi pagar migrasi 0016 — penutup celah PIN putaran18 F-13…F-16 (semua mutasi WAJIB MERAH)
+        run: python3 alat/uji-mutasi-0016.py
+
+      - name: Bukti mutasi pagar migrasi 0017 — pesanan tertutup beku H F-07 (semua mutasi WAJIB MERAH)
+        run: python3 alat/uji-mutasi-0017.py
+
+      - name: Bukti mutasi pagar migrasi 0018 — perangkat terdaftar T1-24 (semua mutasi WAJIB MERAH)
+        run: python3 alat/uji-mutasi-0018.py
+
+      - name: Bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22, 4 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0009.py
+
+      - name: Bukti mutasi kunci serialisasi uang 0021 (F F-12, 2 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0021.py
+
+      - name: Bukti mutasi pembekuan setelah bayar 0022 (T-025a)
+        run: python3 alat/uji-mutasi-0022.py
+
+      - name: Bukti mutasi pembekuan satu-pernyataan 0024 (G3 A-F03)
+        run: python3 alat/uji-mutasi-0024.py
+
+      - name: Bukti mutasi isolasi identitas kosong 0025 (G3 A-F02)
+        run: python3 alat/uji-mutasi-0025.py
+
+      - name: Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka)
+        run: |
+          python3 -m pip install --quiet --break-system-packages pgserver "psycopg[binary]"
+          python3 alat/uji-konkuren.py
+          python3 alat/uji-konkuren.py --uji-diri
+          python3 alat/uji-konkuren-0022.py
+          python3 alat/uji-konkuren-a04.py
+
+      - name: Keamanan SQL efektif (search_path, ACL, RLS) dan bukti mutasi T1-30
+        run: |
+          python3 alat/periksa-keamanan-sql.py
+          python3 alat/periksa-keamanan-sql.py --uji-diri
+
+      - name: Papan tugas maraton valid (AL-16 — lingkup eksklusif, nomor aman, status sah)
+        run: python3 alat/periksa-maraton.py
+
+      - name: Uji-diri papan maraton (lingkup dan cabang bersama)
+        run: python3 alat/periksa-maraton.py --uji-diri
+
+      # Kenapa ada (temuan audit I F-07): sebelum ini, berkas Edge hanya dijaga pemeriksa TEKS —
+      # tidak ada yang pernah MENJALANKAN handler-nya. Uji ini mengubah berkas ASLI TS → JS dengan
+      # esbuild (dipasang bersama `npm ci --prefix alat`) lalu menjalankannya di VM tanpa jaringan,
+      # menuntut batasnya benar: JSON null/array → 400, UUID tidak sah → 400 SEBELUM menyentuh
+      # database, jaringan putus & jawaban bukan JSON → jawaban gagal terkendali (bukan exception).
+      - name: Uji batas Edge Function verifikasi_pin (berkas asli dijalankan tanpa jaringan)
+        run: node alat/uji-edge-pin.mjs
+
+      - name: Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras
+        run: |
+          python3 _sistem/validate_system.py
+          python3 alat/periksa-fungsi-pin.py
+          python3 alat/periksa-roadmap.py
+          python3 alat/periksa-roadmap.py --uji-diri
+          python3 alat/periksa-fondasi-independen.py
+          python3 alat/audit-independen.py --uji-diri
+          python3 alat/ci_target.py --uji-diri
+          python3 alat/periksa-paritas-ci.py
+          python3 alat/periksa-paritas-ci.py --uji-diri
+          python3 alat/siapkan-pemeriksaan.py --uji-diri
+          python3 alat/uji-kirim-laporan.py
+          python3 alat/periksa-panduan.py
+          python3 alat/periksa-panduan.py --uji-diri
+          python3 alat/periksa-rujukan.py
+          python3 alat/periksa-rujukan.py --uji-diri
+          python3 alat/periksa-temuan-audit.py
+          python3 alat/periksa-temuan-audit.py --uji-diri
+          python3 alat/periksa-buku-uji.py
+          python3 alat/periksa-buku-uji.py --uji-diri
+          python3 alat/review-pr.py --uji-diri
+          python3 aplikasi/alat/periksa-kerapatan.py
+          python3 aplikasi/alat/periksa-kerapatan.py --uji-diri
+          python3 aplikasi/alat/periksa-antarmuka.py
+          python3 aplikasi/alat/periksa-antarmuka.py --uji-diri
+          python3 alat/periksa-rahasia.py
+          python3 alat/periksa-rahasia.py --uji-diri
+          python3 alat/periksa-bersih.py
+          python3 alat/periksa-gerbang-ci.py
+          python3 alat/periksa-kunci-kalibrasi.py
+          python3 alat/periksa-kunci-kalibrasi.py --uji-diri
+          python3 alat/periksa-paket.py
+          python3 alat/periksa-paket.py --uji-diri
+          python3 alat/lanjut-sesi.py --di-ci
+          python3 alat/lanjut-sesi.py --uji-diri
+          python3 alat/mulai-sesi.py --uji-diri
+          python3 alat/periksa-angka-bukti.py
+          python3 alat/periksa-angka-bukti.py --uji-diri
+          python3 alat/periksa-migrasi-beku.py
+          python3 alat/periksa-migrasi-beku.py --uji-diri
+          node aplikasi/alat/catat-alamat.mjs --uji-diri
+          python3 alat/periksa-gerbang-ci.py --uji-diri
+          python3 alat/periksa-bersih.py --uji-diri
+          python3 aplikasi/alat/periksa-struktur.py
+          python3 aplikasi/alat/periksa-node.py
+          python3 aplikasi/alat/periksa-node.py --uji-diri
+          python3 aplikasi/alat/periksa-komponen-env.py --uji-diri
+          python3 aplikasi/alat/periksa-uji.py
+          python3 aplikasi/alat/periksa-uji.py --uji-diri
+          python3 aplikasi/alat/uji-kontras.py
+          python3 aplikasi/alat/uji-kontras.py --uji-diri

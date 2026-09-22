@@ -1,0 +1,290 @@
+/* ==========================================================================
+   TATA LETAK & KOMPONEN APLIKASI
+   --------------------------------------------------------------------------
+   Kelas bawaan rancangan (tombol, kartu, chip, tabel, segmen, dsb.) ada di
+   token/tema.css supaya tampilan aplikasi sama dengan prototipe yang sudah
+   disetujui pemilik. Berkas ini menambah kerangka halaman dan komponen yang
+   belum ada di rancangan (lapis mengambang, pemberitahuan, keadaan halaman).
+   Larangan: jangan menulis warna mentah di sini — pakai var(--...).
+   ========================================================================== */
+
+/* ------------------------------ kerangka halaman ------------------------- */
+
+.halaman {
+  width: 100%;
+  max-width: 1340px;
+  margin: 0 auto;
+  padding: var(--s-5) clamp(var(--s-4), 3vw, var(--s-7)) var(--s-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+}
+
+.kepala-halaman {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.kepala-halaman h1 {
+  font-size: var(--t-8);
+}
+
+.baris-tombol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+
+.kisi-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--s-5);
+}
+
+/* baris contoh untuk memperlihatkan efek kerapatan (Nyaman vs Padat) */
+.baris-rapat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-3) 0;
+  border-bottom: 1px dashed var(--border);
+}
+.baris-rapat:last-child {
+  border-bottom: 0;
+}
+
+.angka-besar {
+  font-family: var(--font-display);
+  font-weight: var(--judul-berat);
+  letter-spacing: var(--judul-ls);
+  font-size: var(--t-8);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------ contoh huruf ---------------------------- */
+
+.contoh-huruf {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+}
+
+.contoh-huruf > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 150px;
+}
+
+.contoh-huruf .nama-huruf {
+  font-size: var(--t-7);
+}
+
+.huruf-outfit {
+  font-family: 'Outfit', system-ui, sans-serif;
+}
+
+.huruf-bigshoulders {
+  font-family: 'BigShoulders', system-ui, sans-serif;
+}
+
+.huruf-youngserif {
+  font-family: 'YoungSerif', Georgia, serif;
+}
+
+.huruf-bricolage {
+  font-family: 'Bricolage', system-ui, sans-serif;
+}
+
+/* ------------------------------ pemilih tema ---------------------------- */
+
+.tombol-tema {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+}
+
+.tombol-tema .tanda {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border-kuat);
+  flex: none;
+  margin-top: 5px;
+}
+
+/* --------------------------- lapis mengambang --------------------------- */
+
+.lapis-latar {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-4);
+  background: var(--kaca);
+  backdrop-filter: blur(var(--blur-kuat)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--blur-kuat)) saturate(140%);
+}
+
+.lapis-panel {
+  width: min(560px, 100%);
+  max-height: min(86dvh, 760px);
+  overflow: auto;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--sh-4);
+  padding: var(--s-5);
+  animation: muncul var(--dur-2) var(--ease-masuk);
+}
+
+.lapis-kepala {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-4);
+}
+
+.lapis-judul {
+  font-size: var(--t-6);
+}
+
+.lapis-isi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.lapis-kaki {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--border);
+}
+
+/* ----------------------------- pemberitahuan ---------------------------- */
+
+.toast-sukses {
+  background: var(--success-soft);
+  color: var(--success);
+  border: 1px solid var(--success);
+}
+
+.toast-gagal {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.toast-info {
+  background: var(--info-soft);
+  color: var(--info);
+  border: 1px solid var(--info);
+}
+
+/* ------------------------------- tabel ---------------------------------- */
+
+.tabel-bungkus {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* ---------------------------- kolom isian ------------------------------- */
+
+.kolom-isian {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.galat-isian {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* ------------------------- keadaan halaman ------------------------------ */
+
+.keadaan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  text-align: center;
+  padding: var(--s-7) var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.keadaan-ikon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: var(--t-6);
+  font-weight: 700;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.keadaan-judul {
+  font-family: var(--font-display);
+  font-weight: var(--judul-berat);
+  font-size: var(--t-5);
+}
+
+.keadaan-aksi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  justify-content: center;
+  margin-top: var(--s-2);
+}
+
+.keadaan-gagal {
+  border-color: var(--danger);
+}
+
+.keadaan-gagal .keadaan-ikon {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: transparent;
+}
+
+/* ------------------------------- pemuat --------------------------------- */
+
+.pemuat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  width: min(420px, 100%);
+}
+
+.pemuat-batang {
+  height: 14px;
+  border-radius: var(--radius-pil);
+  background: var(--surface-2);
+  animation: denyut 1.4s var(--ease) infinite;
+}
+
+.pemuat-batang:nth-child(2) {
+  width: 82%;
+}
+
+.pemuat-batang:nth-child(3) {
+  width: 64%;
+}

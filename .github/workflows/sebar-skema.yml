@@ -1,0 +1,69 @@
+name: Sebar Skema ke Supabase (disengaja, milik pemilik)
+
+# APA INI: menyebar SELURUH berkas migrasi di `supabase/migrations/` ke PROYEK SUPABASE NYATA
+# (angka SENGAJA tidak ditulis di komentar: angka di teks selalu basi — pola ci.yml, temuan audit J F-05)
+# milik pemilik (mengubah isi database). Karena itu alurnya SENGAJA terpisah dari `ci.yml`
+# dan sengaja TIDAK menyala di setiap kiriman kode.
+#
+# CARA MEMICU (sekali saja): buat berkas penanda `supabase/SEBAR-SKEMA`, lalu push. Setelah alur
+# ini hijau, berkas penanda itu DIHAPUS lagi — dan kiriman penghapusan itu AMAN: alur memang
+# menyala, tetapi langsung berhenti di pemeriksaan penanda (baris `test -f ...`) tanpa menyentuh
+# proyek. Jadi tidak ada penyebaran tak sengaja di kiriman berikutnya.
+#
+# KUNCI YANG DIBUTUHKAN (dipasang pemilik, tidak pernah masuk repo/percakapan):
+#   GitHub → repo → Settings → Secrets and variables → Actions → New repository secret
+#     1) SUPABASE_ACCESS_TOKEN  — token pribadi dari Supabase (Account → Access Tokens)
+#     2) SUPABASE_DB_PASSWORD   — kata sandi database proyek
+# Nomor proyek (bukan rahasia) sudah diisi di bawah dari `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`.
+#
+# KALAU GAGAL "connection refused / timeout": pada paket gratis, proyek Supabase DIJEDA bila lama
+# tidak dibuka — buka dashboard pemilik lalu pilih Restore/Resume, kemudian jalankan alur ini lagi
+# (pasang berkas penanda sekali lagi). Bukan masalah kode.
+#
+# KENAPA SATU BLOK `run:` (bukan beberapa langkah): semua perintah berjalan berurutan dengan
+# `set -euo pipefail`, jadi (1) pratinjau `--dry-run` TIDAK MUNGKIN terlewat sebelum penyebaran,
+# dan (2) pemeriksaan penanda dapat menghentikan seluruh alur — pada alur berlangkah banyak,
+# `exit 0` di awal hanya menghentikan satu langkah dan langkah berikutnya tetap jalan.
+# Kata sandi dikirim lewat `--password` supaya CLI tidak pernah menunggu jawaban (jebakan lama:
+# `db push` di CI bisa "sukses" tanpa menyebar) dan tetap ditutup `migration list` sebagai bukti.
+
+on:
+  push:
+    paths:
+      - 'supabase/SEBAR-SKEMA'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sebar-skema
+  cancel-in-progress: false
+
+jobs:
+  sebar:
+    name: Sebar migrasi ke proyek Supabase nyata
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_PROJECT_REF: bdvjirmbuqelmduztryj
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v5
+
+      - name: Pasang Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22.12.0'
+
+      - name: Periksa penanda & kunci, lalu sebar (pratinjau lebih dulu)
+        run: |
+          set -euo pipefail
+          test -f supabase/SEBAR-SKEMA || { echo "PENANDA SUDAH DIHAPUS — tidak ada yang dikerjakan, proyek tidak disentuh."; exit 0; }
+          test -n "$SUPABASE_ACCESS_TOKEN" || { echo "RAHASIA HILANG: SUPABASE_ACCESS_TOKEN belum dipasang di GitHub (Settings → Secrets and variables → Actions)."; exit 1; }
+          test -n "$SUPABASE_DB_PASSWORD" || { echo "RAHASIA HILANG: SUPABASE_DB_PASSWORD belum dipasang di GitHub (Settings → Secrets and variables → Actions)."; exit 1; }
+          npx --yes supabase@2.117.0 --yes link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+          npx --yes supabase@2.117.0 --yes db push --dry-run --password "$SUPABASE_DB_PASSWORD"
+          npx --yes supabase@2.117.0 --yes db push --password "$SUPABASE_DB_PASSWORD"
+          npx --yes supabase@2.117.0 --yes migration list --linked --password "$SUPABASE_DB_PASSWORD"
