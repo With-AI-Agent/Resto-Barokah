@@ -138,6 +138,30 @@ export const DAFTAR_LAYAR: Record<string, KontrakLayar> = {
     berkasUji: 'src/layar/dapur/LayarDapur.test.tsx',
     naskahJalan: 'W-4-01',
   },
+  bar: {
+    idLayar: 'bar',
+    rute: '/bar',
+    judul: 'Pesanan Bar',
+    peran: ['owner_pusat', 'admin_cabang', 'kasir', 'dapur'],
+    tujuan:
+      'menampilkan pesanan minuman untuk bartender — otomatis terpisah dari pesanan makanan berdasarkan tujuan kategori menu',
+    masukDari: ['dapur'],
+    keluarKe: ['dapur'],
+    dataDitampilkan: ['antrean minuman tertua di atas', 'jenis pesanan', 'catatan khusus', 'status tiap minuman'],
+    aksiTerkait: ['dapur.mulai_masak', 'dapur.selesai_masak'],
+    keadaan: {
+      kosong: 'Belum ada pesanan minuman.',
+      memuat: 'Memuat antrean pesanan bar...',
+      dataSebagian: 'Menampilkan antrean lokal yang tersimpan.',
+      gagal: 'Gagal memuat antrean — periksa sambungan',
+    },
+    aturanTampilan: [
+      'Menyamai layar dapur: FIFO, penanda waktu tegas, sentuhan skala besar',
+      'Sumber kebenaran pemisahan = peladen (pesanan_item.tujuan)',
+    ],
+    berkasUji: 'src/layar/dapur/LayarBar.test.tsx',
+    naskahJalan: 'W-4-02',
+  },
   laporan: {
     id: 'laporan',
     rute: '/laporan',

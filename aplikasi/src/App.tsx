@@ -7,6 +7,8 @@ import { LayarMasukPegawai } from './layar/masuk/LayarMasukPegawai'
 import { LayarKasir } from './layar/kasir/LayarKasir'
 import { KelolaPegawai } from './layar/pengaturan/KelolaPegawai'
 import { DaftarPerangkat } from './layar/pengaturan/DaftarPerangkat'
+import { LayarDapur } from './layar/dapur/LayarDapur'
+import { LayarBar } from './layar/dapur/LayarBar'
 
 export default function App() {
   const { sesi, sedangMasuk, masuk, keluar } = useSesi()
@@ -20,6 +22,22 @@ export default function App() {
         return <KelolaPegawai cabangAktifId={sesi?.cabangAktifId || 'cab-01'} />
       case 'pengaturan':
         return <DaftarPerangkat />
+      case 'dapur':
+        return (
+          <LayarDapur
+            tiket={[]}
+            waktuSekarang={new Date().toISOString()}
+            onKeBar={() => setLayarAktif('bar')}
+          />
+        )
+      case 'bar':
+        return (
+          <LayarBar
+            tiket={[]}
+            waktuSekarang={new Date().toISOString()}
+            onKeDapur={() => setLayarAktif('dapur')}
+          />
+        )
       default:
         return <LayarContoh />
     }
