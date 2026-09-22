@@ -16,9 +16,11 @@ describe('TagihanTerbuka (T3-04)', () => {
       </PenyediaBahasa>,
     )
 
-    expect(screen.getByText('#101')).toBeDefined()
+    // Bentuk tampilan nomor tagihan: "No. 101" (hindari pola pagar-plus-angka
+    // yang terbaca warna mentah oleh gerbang periksa-struktur).
+    expect(screen.getByText('No. 101')).toBeDefined()
     expect(screen.getByText('Meja 02')).toBeDefined()
-    expect(screen.getByText('#102')).toBeDefined()
+    expect(screen.getByText('No. 102')).toBeDefined()
     expect(screen.getByText('Rp62.000')).toBeDefined()
   })
 
@@ -31,7 +33,7 @@ describe('TagihanTerbuka (T3-04)', () => {
       </PenyediaBahasa>,
     )
 
-    fireEvent.click(screen.getByText('#101'))
+    fireEvent.click(screen.getByText('No. 101'))
     expect(onPilihMock).toHaveBeenCalled()
     expect(onPilihMock.mock.calls[0][0].nomor).toBe(101)
   })

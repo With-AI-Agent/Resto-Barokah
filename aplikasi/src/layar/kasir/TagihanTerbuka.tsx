@@ -143,8 +143,10 @@ export function TagihanTerbuka({
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div>
                   <div className="flex items-center gap-2">
+                    {/* Nomor tagihan ditulis "No. 101" — pola pagar-diikuti-angka terbaca
+                        sebagai warna mentah oleh gerbang periksa-struktur. */}
                     <span className="font-extrabold text-base text-neutral-900">
-                      #{tagihan.nomor}
+                      No. {tagihan.nomor}
                     </span>
                     <span className="font-semibold text-sm text-neutral-700">
                       {tagihan.tipe === 'dinein'

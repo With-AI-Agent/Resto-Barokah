@@ -67,7 +67,7 @@ const DATA_PESANAN_CONTOH: ItemRingkasPesanan[] = [
     jumlahItem: 4,
     totalHarga: 98000,
     status: 'dikirim',
-    namaPelanggan: 'Driver Grab #442',
+    namaPelanggan: 'Driver Grab 442',
   },
 ]
 

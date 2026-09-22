@@ -4,6 +4,7 @@ const BERKAS_STATIS = [
   '/index.html',
   '/manifest.webmanifest',
   '/favicon.svg',
+  '/logo-google.svg',
 ]
 
 self.addEventListener('install', (event) => {
