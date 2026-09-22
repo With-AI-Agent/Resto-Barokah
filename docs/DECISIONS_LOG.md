@@ -1750,3 +1750,24 @@ Aturan ini dikunci dalam `PROFIL_PENGGUNA.md`, `docs/AGENT_OPERATING_GUIDE.md` (
 - SQL Suite: 72 berkas uji PGlite SQL LULUS 100%.
 
 
+
+## [State Machine/2026-09-22] Jejak Status Item Dapur: Anti-Dobel & Riwayat Kekal (T4-04)
+
+**Area:** State Machine & Alur Pesanan (ART-4), PRD M5
+**Dasar:** TECH_SPEC §9 ART-4 (status item hanya maju satu langkah: baru → dimasak → siap), PRD M5 (kasus tepi dua orang menandai item sama), PRD Aturan Bisnis 7 & 11 (pembatalan berjejak). Peta transisi sudah dijaga `picu_item_jaga` (0015 — aturan terkunci; uji kontrak: `supabase/tes/status_item_transisi.sql` yang MENJAGA jalur sah tetap terbuka untuk kasir/pelayan/dapur sesuai kebijakan baris pesanan).
+
+**Keputusan:**
+1. **Tidak menambah pembatas peran baru** pada pemajuan status item — kontrak uji `status_item_transisi.sql` (probe AUD-3 F-04) mengunci bahwa jalur sah `baru → dimasak → siap` terbuka bagi peran yang boleh menyentuh baris pesanan (termasuk kasir). Pembatas peran sempat dirancang lalu DIBATALKAN karena melanggar kontrak itu (jejak diskusi: `_log-sesi/LOG_SESI_2026-09-22.md`).
+2. **Anti-dobel dua perangkat** diselesaikan dengan pencatatan yang hanya berbunyi pada transisi nyata (WHEN status benar-benar berubah) + RPC `set_status_item` dengan kunci baris `FOR UPDATE`, balasan `diubah=false` untuk tanda dobel, dan **kunci idempoten** (identitas permintaan; ulangan lama diabaikan utuh walau membawa status berikutnya).
+3. **Riwayat hanya-tambah** `pesanan_item_status_riwayat` (siapa, kapan, dari → ke) dijaga tiga lapis: tanpa policy ubah/hapus, grant select+insert saja, revoke update+delete. Tabel rantai penyewa lewat `pesanan_id` (terdaftar di `rls_semua_tabel.sql` F-10).
+4. **Status pesanan maju mengikuti item** (bukan sebaliknya): item pertama masak → pesanan `dimasak`; seluruh item non-batal siap → pesanan `siap`. Sinkron ditulis pemicu `picu_item_status_catat` (SECURITY DEFINER + search_path terkunci — karena peran `dapur` sengaja tidak punya hak UPDATE umum di tabel `pesanan`, kebijakan `pesanan_ubah` 0009; fungsi pemicu tidak bisa dipanggil lewat SELECT).
+
+**Pelaksanaan:**
+1. `supabase/migrations/0032_status_item_dapur.sql`: tabel riwayat + pemicu pencatatan & sinkron + RPC `set_status_item`.
+2. `supabase/tes/status_item.sql`: 7 kelompok uji (anon ditolak, transisi tercatat persis satu, anti-dobel via RPC & update mentah, kunci lama diabaikan, sinkron pesanan bertahap, riwayat kekal, isolasi item asing).
+3. `alat/uji-mutasi-0032.py`: **7/7 mutasi WAJIB MERAH** (riwayat dihapus · anti-dobel RPC dihapus · WHEN disaring dihapus · sinkron siap/dimasak dihapus · hak ubah riwayat diberikan · kunci idempoten dihapus) + `--uji-diri` LOLOS.
+
+**Verifikasi:**
+- SQL Suite: **73 berkas uji SQL LULUS · 0 GAGAL** (72 lama + `status_item.sql`).
+- Uji Mutasi: `python3 alat/uji-mutasi-0032.py` 7/7 MERAH & `--uji-diri` LOLOS.
+- Kontrak lama tak tersentuh: `status_item_transisi.sql`, `item_penjaga.sql`, `pesanan.sql` tetap lulus tanpa diubah.

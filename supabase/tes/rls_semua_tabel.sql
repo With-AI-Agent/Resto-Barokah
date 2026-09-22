@@ -146,6 +146,7 @@ begin
       ('percobaan_pin',        'auth.uid',            'terlihat pemilik akun; pengelola pegawai melihat se-resto'),
       ('percobaan_simpan_pin', 'auth.uid',            'tercatat per akun (+ policy tolak-semua untuk select)'),
       ('pesanan_item',         'pesanan_sepenyewa',   'item milik pesanan — ikut resto pesanan induknya'),
+      ('pesanan_item_status_riwayat', 'pesanan_sepenyewa', 'riwayat status masak item (T4-04) — menempel pada pesanan, ikut resto pesanan induknya'),
       ('sesi_cabang',          'TOLAK-SEMUA',         'sesi cabang — hanya fungsi peladen')
     ) as j(tabel, jangkar, alasan)
     where j.tabel = r.tabel;
