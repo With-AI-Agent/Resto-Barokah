@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0c2c1-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0c2c1-resto-barokah`
-- **Commit keadaan kerja:** `7f93dcad5eff13c16836b6e33abbfbe74ab7cf30`
+- **Commit keadaan kerja:** `041e06777ce4554802ebc4e8e3e79d3de91c9383`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit 7f93dcad)
+- **CI terakhir:** success (1 run, commit 041e0677)
 - **Ditulis:** 2026-09-22 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **0** — (tidak ada)
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (70 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (163 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (71 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (164 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -69,7 +69,7 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-> **MARATON G3 — PANEN + INTEGRASI SOLO (2026-09-22):** T-04/A, T-05/B, T-06/C sudah diterima; provenance tiga laporan dan checksum ada di papan. Target laporan `e50bac4d897ca65b37dde9e64dbd246a3891b041`; paket `598e40ca4e873ccea719cfb281e072a4e723a5ff`. Batch lokal menanam pagar 0024/0025/0026, regresi/mutasi, serta penguatan B-F01..B-F09 dan dokumen B-F10/A-F05/A-F06. **Hosted CI `35688759734` untuk commit `7f93dca` SUCCESS penuh, termasuk pemeriksa fondasi/history.** Tidak merge/deploy/sebar Supabase. Batas produksi A-F02 dan sisa tugas ada di `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md`.
+> **MARATON G3 — PANEN + INTEGRASI SOLO (2026-09-22):** T-04/A, T-05/B, T-06/C sudah diterima; provenance tiga laporan dan checksum ada di papan. Target laporan `e50bac4d897ca65b37dde9e64dbd246a3891b041`; paket `598e40ca4e873ccea719cfb281e072a4e723a5ff`. Batch lokal menanam pagar 0024/0025/0026, regresi/mutasi, serta penguatan B-F01..B-F09 dan dokumen B-F10/A-F05/A-F06. **Hosted CI `35689329127` untuk commit `041e067` SUCCESS penuh, termasuk pemeriksa fondasi/history.** Tidak merge/deploy/sebar Supabase. Batas produksi A-F02 dan sisa tugas ada di `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md`.
 
 **RIWAYAT SEBELUM G3 — dua laporan diterima, tindak lanjut TERBUKA:** dua laporan asal `5529eae` dan `b8290b3` disimpan terpisah, byte-identik; format lolos di klon bersih. Sesi ketiga error **diabaikan**, tidak meminta audit/prompt pengganti. Target tetap `09bcb89`; K-2 A-F01/A-F02 BELUM direproduksi integrator, verdict B tidak menutupnya. Antrean 16 temuan, pemilik dan syarat bukti: `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md`. T1-30/T1-45 tetap terbuka; tidak merge/deploy/perluasan fitur. Atas izin Lee, alur pengiriman berikutnya memakai locator privat repo/cabang/SHA paket/path, SHA target terpisah, prompt pendek DI CHAT, otomatis commit/push/verifikasi tanpa pengingat dengan index terisolasi + retry fast-forward (`docs/uji/PENGIRIMAN_LAPORAN_AMAN.md`). Cabang/working tree bisa bersama; larangan force/rebase/merge/timpa tetap. Paket beku tidak disunting.
 
