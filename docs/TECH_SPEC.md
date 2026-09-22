@@ -157,8 +157,8 @@ peladen yang memutuskan dan mencatat.
 
 | Tabel | Kolom inti | Catatan |
 |---|---|---|
-| `kategori_menu` | `id`, `penyewa_id`, `nama`, `urutan`, `aktif` | |
-| `menu_item` | `id`, `penyewa_id`, `kategori_id`, `nama`, `deskripsi`, `harga`, `foto_path`, `urutan`, `unggulan`, `jenis` (makanan/minuman/lainnya), `aktif` | `jenis` menentukan tujuan tiket (dapur vs bar) |
+| `kategori_menu` | `id`, `penyewa_id`, `nama`, `urutan`, `aktif`, `tujuan` (dapur/bar) | `tujuan` menentukan layar tujuan tiket — setelan owner/admin, bawaan `dapur` (T4-02, migrasi 0033) |
+| `menu_item` | `id`, `penyewa_id`, `kategori_id`, `nama`, `deskripsi`, `harga`, `foto_path`, `urutan`, `unggulan`, `jenis` (makanan/minuman/lainnya), `aktif` | `kategori_id` wajib; tujuan tiket (dapur vs bar) diturunkan dari `kategori_menu.tujuan` (0033); `jenis` = klasifikasi menu |
 | `menu_varian` | `menu_item_id`, `nama` (panas/es, reguler/jumbo), `tambahan_harga`, `aktif` | |
 | `menu_tambahan` | `menu_item_id` (boleh null = berlaku semua), `nama`, `harga`, `aktif` | |
 | `menu_cabang` | `cabang_id`, `menu_item_id`, `harga` (boleh null = ikut pusat), `aktif`, `habis` | Harga beda per cabang + penanda habis (M9) |
@@ -172,7 +172,8 @@ peladen yang memutuskan dan mencatat.
 | `shift_kas` | `id`, `cabang_id`, `dibuka_oleh`, `ditutup_oleh`, `dibuka_pada`, `ditutup_pada`, `modal_awal`, `uang_seharusnya`, `uang_fisik`, `selisih`, `alasan_selisih` | M7. Selisih wajib beralasan |
 | `kas_pergerakan` | `id`, `shift_id`, `jenis` (setoran/pengeluaran/koreksi), `jumlah`, `alasan`, `pelaku_id`, `disetujui_oleh` | Buka laci tanpa transaksi wajib tercatat |
 | `pesanan` | `id`, `penyewa_id`, `cabang_id`, `nomor` (per cabang/hari), `tipe` (dinein/takeaway/ojol), `meja_id`, `status`, `pelayan_id`, `kasir_id`, `shift_id`, `dibuat_pada`, `dikirim_ke_dapur_pada`, `catatan`, `subtotal`, `pajak`, `service`, `total_diskon`, `total`, `dibayar_pada`, `dibatalkan_pada`, `alasan_batal`, `kunci_idempoten` (unik) | `status`: `draf` → `dikirim` → `dimasak` → `siap` → `lunas` / `batal` |
-| `pesanan_item` | `id`, `pesanan_id`, `menu_item_id`, `nama_saat_itu`, `harga_saat_itu`, `qty`, `varian` (jsonb), `tambahan` (jsonb), `catatan`, `status` (baru/dimasak/siap/batal), `subtotal` | Catatan khusus per item (M4) |
+| `pesanan_item` | `id`, `pesanan_id`, `menu_item_id`, `nama_saat_itu`, `harga_saat_itu`, `qty`, `varian` (jsonb), `tambahan` (jsonb), `catatan`, `status` (baru/dimasak/siap/batal), `subtotal`, `tujuan` (dapur/bar, salinan kategori saat pesanan dibuat — 0033) | Catatan khusus per item (M4); `tujuan` = salinan kekal (T4-02) |
+| `pesanan_item_status_riwayat` | `id`, `pesanan_item_id`, `pesanan_id`, `dari`, `ke`, `oleh_pengguna_id`, `kunci_idempoten` (unik bila diisi), `dibuat_pada` | Jejak hanya-tambah transisi status item (T4-04, 0032) — tidak diubah/dihapus |
 | `pembayaran` | `id`, `pesanan_id`, `metode`, `jumlah`, `diterima`, `kembalian`, `referensi`, `kasir_id`, `shift_id`, `waktu`, `kunci_idempoten` | Tunai → hitung kembalian; lain-lain → catat referensi |
 | `diskon_transaksi` | `id`, `pesanan_id`, `jenis` (voucher/manual/promo), `persen`, `nominal`, `nilai`, `alasan`, `pelaku_id`, `disetujui_oleh`, `voucher_id` | Aturan Bisnis 2 & 8 |
 | `pembatalan` | `id`, `pesanan_id`, `pesanan_item_id` (boleh null), `tahap` (sebelum_dapur/sesudah_dapur), `pelaku_id`, `disetujui_oleh`, `alasan`, `nilai_kerugian`, `bahan_terbuang` (bool), `waktu` | Void bertingkat (Aturan Bisnis 7) |
