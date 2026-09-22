@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0c7b6-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0c7b6-resto-barokah`
-- **Commit keadaan kerja:** `3af3f836eb11aa54afe57a6932902b32df92f3cc`
+- **Commit keadaan kerja:** `53781a4d9d984d60231f44f62c658db2dbcc9806`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit 3af3f836 — periksa lagi setelah push)
+- **CI terakhir:** in_progress (run 35720556740, commit 53781a4d) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-22 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -896,4 +896,3 @@ tuntas (paket + arahan siap tempel), lalu tanyakan **satu** pertanyaan singkat: 
 2. **Fase 1C Fondasi UI Selesai Penuh:** T1-31 s/d T1-35, T1-39 s/d T1-42 (kontrak layar, registri aksi, kamus i18n 4 bahasa, tata letak LTR/RTL, bantuan kontekstual, naskah jalan pemilik).
 3. **Fase 2 Inti Selesai:** T2-01 (Supabase Auth Sesi Aman), T2-02 (Layar Masuk Pegawai PIN Keypad), T2-06 (Kerangka Layout & Navigasi 6 Peran), T2-07 (Pemilih Konteks Cabang), T2-08 (Halaman Tidak Punya Akses & Pesan Ramah Berkode).
 4. **Rencana Selanjutnya:** Selesaikan sisa tugas Fase 2 (T2-03 Masuk Owner Email/Sandi, T2-04 Daftarkan Perangkat Baru, T2-05 Pemulihan Perangkat Darurat, T2-09 Indikator Jaringan & Banner Luring, T2-10 Uji Jalan Masuk) dan lanjutkan ke Fase 3 (Katalog & Menu POS).
-
