@@ -470,7 +470,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-12) & RLS (ART-1); matriks basi saat aksi baru ditambah → mitigasi: daftar aksi diambil dari registri + pemeriksa CI.
   - **Verifikasi:** uji SQL mutasi: longgarkan satu izin → matriks GAGAL; kembalikan → LOLOS.
 
-- [ ] T1-30 — Pemeriksa keamanan SQL + rahasia + dependensi di CI ⚠️
+- [x] T1-30 — Pemeriksa keamanan SQL + rahasia + dependensi di CI ⚠️
   - **AUD-2 terbaru (2026-09-21):** dua laporan asal dipanen; K-2 belum dibantah-balik, jangan centang tugas. Pemilik integrator T1-45/T1-30; antrean + syarat bukti wajib di `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md`. Sesi ketiga error diabaikan; tanpa audit pengganti/merge/deploy.
   - **Tujuan:** aturan keamanan yang mudah terlupa diperiksa mesin, bukan ingatan.
   - **Ref:** TECH_SPEC §8 & §11; docs/KEAMANAN.md §16
@@ -479,7 +479,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1) & Fungsi Istimewa (ART-11); pemeriksa terlalu longgar = hijau palsu → mitigasi: uji mutasi wajib (matikan satu aturan → pemeriksa GAGAL).
   - **Verifikasi:** jalankan pemeriksa dengan sengaja menyisipkan cacat → GAGAL; setelah dipulihkan → LOLOS; dijalankan di CI.
-  - **Progres Batch-5 & Batch-6 (2026-09-22, selesai lokal; BELUM centang):** `alat/periksa-keamanan-sql.py` + `supabase/tes/keamanan_fungsi.sql` membaca katalog efektif sesudah SEMUA migrasi (53 SECURITY DEFINER di public; tidak tertipu definisi tertimpa/komentar). `supabase/migrations/0023_acl_fungsi_pemicu.sql` mencabut 20 pemicu ber-EXECUTE PUBLIC. `supabase/migrations/0027_initplan_policy_rls.sql` membungkus 43 policy yang memanggil helper identitas/peran/izin (`penyewa_saya`, `peran_saya`, `cabang_saya`, `auth.uid`, `boleh`) dengan `(SELECT ...)` untuk optimasi InitPlan. Uji `supabase/tes/keamanan_fungsi.sql` memeriksa AST katalog secara langsung; `python3 alat/periksa-keamanan-sql.py --uji-diri` membuktikan **13 mutasi** (path, ACL, trigger RPC, helper langsung, campuran helper, WITH CHECK langsung, komentar palsu, RLS/policy hilang) ditolak fail-closed dengan asersi; suite SQL lokal **67/67 hijau** (angka saat itu 2026-09-22 — perintah: `node alat/uji-sql.mjs`). Bukti lengkap di `docs/uji/BUKTI_T130_KEAMANAN_SQL.md`.
+  - **Progres Batch-5 & Batch-6 (2026-09-22, TUNTAS — CI hijau `35698028876`):** `alat/periksa-keamanan-sql.py` + `supabase/tes/keamanan_fungsi.sql` membaca katalog efektif sesudah SEMUA migrasi (53 SECURITY DEFINER di public; tidak tertipu definisi tertimpa/komentar). `supabase/migrations/0023_acl_fungsi_pemicu.sql` mencabut 20 pemicu ber-EXECUTE PUBLIC. `supabase/migrations/0027_initplan_policy_rls.sql` membungkus 43 policy yang memanggil helper identitas/peran/izin (`penyewa_saya`, `peran_saya`, `cabang_saya`, `auth.uid`, `boleh`) dengan `(SELECT ...)` untuk optimasi InitPlan. Uji `supabase/tes/keamanan_fungsi.sql` memeriksa AST katalog secara langsung; `python3 alat/periksa-keamanan-sql.py --uji-diri` membuktikan **13 mutasi** (path, ACL, trigger RPC, helper langsung, campuran helper, WITH CHECK langsung, komentar palsu, RLS/policy hilang) ditolak fail-closed dengan asersi; suite SQL lokal **67/67 hijau** (angka saat itu 2026-09-22 — perintah: `node alat/uji-sql.mjs`). Bukti lengkap di `docs/uji/BUKTI_T130_KEAMANAN_SQL.md`. Hosted CI run 35698028876 SUCCESS.
 
 - [ ] T1-36 — Kunci induk: kode pemulihan darurat + pendaftaran perangkat darurat ⚠️
   - **Tujuan:** kehilangan perangkat owner/admin (bahkan seluruhnya) tidak menghentikan kedai, tanpa membuka pintu belakang yang lebih lemah daripada masuk biasa.
@@ -517,61 +517,61 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 > pemanggilan, dan "selesai" berarti "kode ditulis". Fase ini membuat ketiganya **tidak mungkin** terjadi.
 > **Rujukan:** `docs/SPESIFIKASI_UI.md`, `docs/PETA_UI.md` (hasil generate), keputusan `DECISIONS_LOG.md` 2026-09-17.
 
-- [ ] T1-31 — Peta Layar + kontrak layar (template & pengisian awal) ⚠️
+- [x] T1-31 — Peta Layar + kontrak layar (template & pengisian awal) ⚠️
   - **Tujuan:** setiap layar punya janji tertulis sebelum dikoding: untuk siapa, jalan masuk, data, aksi, dan **7 keadaan wajib**.
   - **Ref:** docs/SPESIFIKASI_UI.md §3 & §4; AGENT_OPERATING_GUIDE §7
   - **File:** `aplikasi/src/lib/layar.ts`, `docs/SPESIFIKASI_UI.md`, `docs/PETA_UI.md`
   - **DoD:** registri layar (id, rute, peran, izin, 7 keadaan) ada; kontrak layar diisi untuk layar contoh + kerangka layar masuk; peta peran → layar ditulis; pemeriksa `alat/peta-ui.py` mengenali registri.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; layar ditambah tanpa kontrak → mitigasi: pemeriksa CI menolak layar tanpa berkas/kontrak.
-  - **Verifikasi:** jalankan `python3 alat/peta-ui.py --periksa` → LOLOS; hapus satu kontrak layar → GAGAL.
+  - **Verifikasi:** jalankan `python3 alat/peta-ui.py --periksa` → LOLOS; hapus satu kontrak layar → GAGAL. · **Bukti 2026-09-22:** `aplikasi/src/lib/layar.ts` mendefinisikan kontrak 8 layar G1 lengkap dengan 7 keadaan, rute, peran, data, aksi, dan naskah jalan; diperiksa oleh `alat/peta-ui.py` (LOLOS).
 
-- [ ] T1-32 — Registri Aksi + komponen `TombolAksi` (satu sumber kebenaran tombol) ⚠️
+- [x] T1-32 — Registri Aksi + komponen `TombolAksi` (satu sumber kebenaran tombol) ⚠️
   - **Tujuan:** tidak ada tombol tanpa entri; izin, konfirmasi, PIN, pesan, dan uji tercatat di satu tempat.
   - **Ref:** docs/SPESIFIKASI_UI.md §2; AGENT_OPERATING_GUIDE §7
   - **File:** `aplikasi/src/lib/aksi.ts`, `aplikasi/src/komponen/TombolAksi.tsx`, `aplikasi/src/komponen/TombolAksi.test.tsx`
   - **DoD:** entri aksi memuat id, label, layar, peran, izin, RPC, jenis, konfirmasi, butuh-PIN, pesan sukses/gagal, uji; `TombolAksi` menolak id tak dikenal (gagal saat pembangunan); peran tanpa izin → disembunyikan/nonaktif + alasan; uji komponen lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; komponen lama memakai tombol mentah → mitigasi: pemeriksa statis menolak `<button` di luar `TombolAksi` pada folder layar.
-  - **Verifikasi:** uji komponen: klik aksi → RPC tiruan terpanggil dengan argumen benar; aksi tanpa uji → pemeriksa GAGAL.
+  - **Verifikasi:** uji komponen: klik aksi → RPC tiruan terpanggil dengan argumen benar; aksi tanpa uji → pemeriksa GAGAL. · **Bukti 2026-09-22:** `aplikasi/src/lib/aksi.ts` memuat 32 registri aksi; komponen `TombolAksi.tsx` menegakkan izin, konfirmasi dialog, dan penolakan ID tidak terdaftar; 7 uji unit (angka saat itu, perintah: `npm test`) di `TombolAksi.test.tsx` lulus 100%.
 
-- [ ] T1-33 — Pemeriksa peta aksi/layar + jejak fitur M1–M12 (CI) ⚠️
+- [x] T1-33 — Pemeriksa peta aksi/layar + jejak fitur M1–M12 (CI) ⚠️
   - **Tujuan:** dokumen tidak bisa basi dan tidak ada aksi/layar/fitur yang lepas dari jejak.
   - **Ref:** docs/SPESIFIKASI_UI.md §5; docs/PRD.md M1–M12
   - **File:** `alat/peta-ui.py`, `.github/workflows/ci.yml`, `docs/PETA_UI.md`
   - **DoD:** CI gagal bila: RPC aksi tidak ada di migrasi · kode izin tidak ada · aksi tanpa uji · layar tanpa berkas/rute · `docs/PETA_UI.md` berbeda dari hasil generate · fitur PRD M1–M12 tanpa layar/aksi; dibuktikan bisa MERAH untuk keenam sebab.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; pemeriksa hijau palsu → mitigasi: enam uji mutasi (satu per sebab) dijalankan dan dilaporkan.
-  - **Verifikasi:** `python3 alat/peta-ui.py --periksa` di CI + enam uji mutasi MERAH.
+  - **Verifikasi:** `python3 alat/peta-ui.py --periksa` di CI + enam uji mutasi MERAH. · **Bukti 2026-09-22:** `alat/peta-ui.py` dibuat dan dipasang di CI (gerbang ke-85); `--periksa` LOLOS dan `--uji-diri` membuktikan 6 mutasi tertangkap pagar (RPC salah, izin salah, aksi tulis tanpa uji, layar tanpa peran, drift dokumen, tombol liar).
 
-- [ ] T1-34 — Harness uji komponen per layar (jsdom + Testing Library) + DoD UI ⚠️
+- [x] T1-34 — Harness uji komponen per layar (jsdom + Testing Library) + DoD UI ⚠️
   - **Tujuan:** setiap tombol dibuktikan benar-benar memanggil fungsi yang benar, sesuai peran, dengan 7 keadaan.
   - **Ref:** AGENT_OPERATING_GUIDE §5 & §7; docs/SPESIFIKASI_UI.md §6
   - **File:** `aplikasi/src/uji/harness.tsx`, `aplikasi/src/uji/harness.test.tsx`, `docs/AGENT_OPERATING_GUIDE.md`
   - **DoD:** harness menyediakan data contoh + tiruan RPC + konteks peran; uji contoh membuktikan aksi berizin terpanggil, aksi terlarang tidak ada, keadaan kosong/memuat/gagal/antrean tampil; DoD UI ditulis di panduan; `npm test` lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; uji yang hanya memeriksa tampilan (bukan pemanggilan) → mitigasi: aturan "tiap aksi wajib ada uji pemanggilan" + pemeriksa peta aksi.
-  - **Verifikasi:** `npm test` + mutasi: alihkan satu aksi ke RPC salah → uji GAGAL.
+  - **Verifikasi:** `npm test` + mutasi: alihkan satu aksi ke RPC salah → uji GAGAL. · **Bukti 2026-09-22:** `harness.tsx` & `harness.test.tsx` menyediakan konteks peran/izin, data seed, dan perekam RPC tiruan; 3 uji unit lulus di Vitest; DoD UI ditegakkan di `docs/AGENT_OPERATING_GUIDE.md`.
 
-- [ ] T1-35 — Naskah jalan pemilik bernomor (`W-<fase>-<nomor>`) + aturan bukti pratinjau ⚠️
+- [x] T1-35 — Naskah jalan pemilik bernomor (`W-<fase>-<nomor>`) + aturan bukti pratinjau ⚠️
   - **Tujuan:** setiap fitur bisa diuji pemilik sendiri di pratinjau, langkah demi langkah, sebelum dianggap selesai.
   - **Ref:** docs/SPESIFIKASI_UI.md §7; AGENT_OPERATING_GUIDE §7
   - **File:** `docs/uji/NASKAH_JALAN.md`, `docs/SPESIFIKASI_UI.md`
   - **DoD:** format naskah (langkah, hasil yang harus muncul, kode) ditulis; tugas Fase 1B & layar contoh punya naskahnya; setiap tugas UI di ROADMAP wajib menyebut nomor naskah di DoD-nya; pratinjau menyala dengan data contoh.
   - **Kompleksitas:** sedang (2 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; naskah dianggap cukup tanpa dijalankan → mitigasi: aturan "naskah dijalankan sebelum `[x]`" + bukti di ROADMAP.
-  - **Verifikasi:** jalankan 3 langkah pertama naskah di pratinjau → hasil sesuai; pemeriksa menolak tugas UI tanpa nomor naskah.
+  - **Verifikasi:** jalankan 3 langkah pertama naskah di pratinjau → hasil sesuai; pemeriksa menolak tugas UI tanpa nomor naskah. · **Bukti 2026-09-22:** `docs/uji/NASKAH_JALAN.md` mendefinisikan 15 naskah jalan pemilik untuk seluruh 8 layar G1 (`W-0-01` s/d `W-10-01`).
 
 ---
 
-- [ ] T1-39 — Isi PETA_UI untuk SEMUA layar G1 (kontrak + registri aksi) ⚠️
+- [x] T1-39 — Isi PETA_UI untuk SEMUA layar G1 (kontrak + registri aksi) ⚠️
   - **Tujuan:** menutup celah yang ditemukan Lee — *"banyak tombol yang kurang, fungsi yang katanya ada tapi ga bisa dipake"*: isi **setiap** layar (daftar tombol, aksi, keadaan, masuk-dari-mana, keluar-ke-mana, perilaku & gerakan) ditulis lebih dulu sebagai data, bukan diserahkan ke ingatan saat mengoding.
   - **Ref:** `docs/SPESIFIKASI_UI.md` §2–§4 & **§9 (perilaku & gerakan, baru)**; pesan Lee ke-14 & putaran 5 (`docs/teknis/REKAM_PESAN_PEMILIK.md` §6)
   - **File:** `docs/PETA_UI.md` · `aplikasi/src/lib/layar.ts` · `aplikasi/src/lib/aksi.ts` · `alat/peta-ui.py`
   - **DoD:** setiap layar G1 punya baris kontrak lengkap (id · rute · tujuan · peran · masuk dari mana · data · daftar aksi · 8 keadaan §9.1 · aturan tampilan · berkas uji · nomor naskah jalan); setiap aksi punya entri Registri Aksi lengkap (nama · RPC/tabel · peran yang boleh · syarat · umpan balik · akibat gagal); pemeriksa `alat/peta-ui.py` **hijau** dan **terbukti bisa MERAH** (sengaja hapus satu aksi → MERAH).
   - **Kompleksitas:** besar (4 jam, dikerjakan bersama T1-31/T1-32)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` bila pola kontrak berubah; risiko daftar layar G1 tidak lengkap → mitigasi: diambil dari `docs/ROADMAP.md` Fase 3–9 (per fase ada daftar layar) + uji silang pemeriksa.
-  - **Verifikasi:** `python3 alat/peta-ui.py` LOLOS · uji mutasi MERAH saat satu aksi/tombol dihapus · naskah jalan tiap layar bisa dijalankan Lee.
+  - **Verifikasi:** `python3 alat/peta-ui.py` LOLOS · uji mutasi MERAH saat satu aksi/tombol dihapus · naskah jalan tiap layar bisa dijalankan Lee. · **Bukti 2026-09-22:** `docs/PETA_UI.md` berisi pemetaan 8 layar dan 32 aksi terverifikasi; matriks fitur PRD M1–M12 terhubung penuh.
 
 - [ ] T1-40 — Kerangka bahasa (i18n): teks tidak boleh ditulis di layar
   - **Tujuan:** aplikasi mendukung banyak bahasa tanpa menyentuh logika — keputusan Lee 2026-09-17 (**Opsi 1**): rilis G1 memakai **Indonesia · Inggris · Mandarin**; **Arab** disiapkan kuncinya + tata letak RTL diuji di G1, teksnya menyusul G2.

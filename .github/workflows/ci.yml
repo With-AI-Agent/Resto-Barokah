@@ -182,6 +182,8 @@ jobs:
           python3 alat/periksa-temuan-audit.py --uji-diri
           python3 alat/periksa-buku-uji.py
           python3 alat/periksa-buku-uji.py --uji-diri
+          python3 alat/peta-ui.py
+          python3 alat/peta-ui.py --uji-diri
           python3 alat/review-pr.py --uji-diri
           python3 aplikasi/alat/periksa-kerapatan.py
           python3 aplikasi/alat/periksa-kerapatan.py --uji-diri

@@ -104,6 +104,8 @@ python3 alat/periksa-temuan-audit.py
 python3 alat/periksa-temuan-audit.py --uji-diri
 python3 alat/periksa-buku-uji.py
 python3 alat/periksa-buku-uji.py --uji-diri
+python3 alat/peta-ui.py
+python3 alat/peta-ui.py --uji-diri
 python3 alat/periksa-gerbang-ci.py
 python3 alat/periksa-gerbang-ci.py --uji-diri
 python3 alat/periksa-kunci-kalibrasi.py

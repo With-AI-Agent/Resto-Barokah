@@ -1593,3 +1593,26 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 
 **Batas jujur & Implikasi:** migrasi beku 0001–0016 tetap tidak diubah. T1-30 siap ditutup setelah hosted CI batch hijau. Tidak ada perubahan izin bisnis atau pelemahan isolasi.
 
+
+## [Pelaksanaan/2026-09-22] Fase 1C: Fondasi Kontrak Layar, Registri Aksi, Pemeriksa Peta UI, dan Naskah Jalan (T1-31, T1-32, T1-33, T1-34, T1-35, T1-39)
+
+**Area:** Kelengkapan UI & Keamanan Interaksi Antarmuka  
+**Dasar:** Menutup akar masalah yang ditemukan pemilik — *"banyak tombol yang kurang, fungsi yang katanya ada tapi ga bisa dipake"*. Semua interaksi UI wajib tercatat sebagai data dan dikunci oleh pemeriksa mesin sebelum layar dikoding.
+
+**Pelaksanaan:**
+1. `aplikasi/src/lib/layar.ts` (T1-31): Mendefinisikan kontrak 8 layar G1 (`masuk`, `kasir`, `dapur`, `laporan`, `pengaturan`, `voucher`, `pelanggan-publik`, `contoh`), mencakup id, rute, peran yang berhak, jalan masuk, komponen, sumber data, daftar aksi, 7 keadaan wajib, aturan tampilan, berkas uji, dan tautan naskah jalan.
+2. `aplikasi/src/lib/aksi.ts` (T1-32): Registri 32 aksi lengkap dengan pemetaan peran, hak izin (`public.izin_kode`), keterkaitan RPC peladen, jenis aksi (baca/tulis/navigasi), teks konfirmasi dialog, kewajiban PIN dan audit log, pesan umpan balik (sukses/gagal), dan ID uji pembuktian.
+3. `aplikasi/src/komponen/TombolAksi.tsx` & `TombolAksi.test.tsx` (T1-32): Komponen satu-satunya pintu render aksi di folder layar. Menolak aksi tidak dikenal (gagal saat bangun), menyembunyikan/menonaktifkan tombol sesuai izin + alasan, mengeksekusi dialog konfirmasi otomatis, dan lulus 7 uji unit Vitest.
+4. `alat/peta-ui.py` & `docs/PETA_UI.md` (T1-33, T1-39): Pembangkit dan pemeriksa CI otomatis yang memvalidasi (a) RPC terdaftar di migrasi, (b) Izin terdaftar di kamus izin resmi, (c) Aksi tulis wajib memiliki uji, (d) Layar valid ber-7 keadaan, (e) Anti-drift `docs/PETA_UI.md`, (f) Jejak PRD M1–M12, (g) Larangan `<button>` mentah di folder layar. Memiliki `--uji-diri` dengan 6 mutasi fail-closed yang lolos 100%.
+5. `aplikasi/src/uji/harness.tsx` & `harness.test.tsx` (T1-34): Harness pengujian komponen dengan konteks peran/izin, data seed bawaan (`DATA_CONTOH`), perekam riwayat RPC tiruan, dan pembuktian 7 keadaan layar.
+6. `docs/uji/NASKAH_JALAN.md` (T1-35): 15 naskah jalan pengujian manusia bernomor `W-<fase>-<nomor>` (mis. `W-0-01` s/d `W-10-01`) dengan skenario langkah demi langkah, hasil yang harus muncul, dan kondisi yang dilarang terjadi.
+7. Alur CI `.github/workflows/ci.yml`, `alat/periksa-gerbang-ci.py` (85 gerbang), dan `aplikasi/alat/periksa-semua.sh` diselaraskan.
+
+**Verifikasi:**
+- Vitest: 13 berkas uji, 111 pengujian unit LULUS (100%).
+- TypeScript: Typecheck ketat lolos tanpa galat.
+- ESLint & Prettier: Lolos tanpa peringatan.
+- Peta UI: `python3 alat/peta-ui.py --periksa` & `--uji-diri` (6/6 mutasi) LULUS.
+- Gerbang CI & Paritas: 85 gerbang LULUS.
+
+

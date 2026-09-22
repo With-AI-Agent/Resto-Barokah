@@ -108,6 +108,8 @@ GERBANG_WAJIB = [
     ("uji-diri pemeriksa temuan audit", r"python3 alat/periksa-temuan-audit.py --uji-diri"),
     ("pemeriksa buku uji", r"python3 alat/periksa-buku-uji.py"),
     ("uji-diri pemeriksa buku uji", r"python3 alat/periksa-buku-uji.py --uji-diri"),
+    ("pemeriksa peta UI (T1-33/T1-39)", r"python3 alat/peta-ui\.py"),
+    ("uji-diri pemeriksa peta UI (T1-33/T1-39)", r"python3 alat/peta-ui\.py --uji-diri"),
     ("uji-diri pemeriksa laporan review", r"python3 alat/review-pr.py --uji-diri"),
     ("pemeriksa kerapatan tampilan", r"python3 aplikasi/alat/periksa-kerapatan.py"),
     ("uji-diri pemeriksa kerapatan", r"python3 aplikasi/alat/periksa-kerapatan.py --uji-diri"),

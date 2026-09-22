@@ -1,0 +1,92 @@
+# PETA_UI.md — Peta Layar & Registri Aksi Resto Barokah
+
+> **Pemberitahuan:** Berkas ini dihasilkan secara otomatis oleh `alat/peta-ui.py`.
+> DILARANG menyunting berkas ini secara manual. Seluruh pembaruan wajib melalui
+> `aplikasi/src/lib/layar.ts` dan `aplikasi/src/lib/aksi.ts`.
+
+---
+
+## 1. Ringkasan Eksekutif Antarmuka (G1)
+
+- **Total Layar Terdaftar:** 8 layar
+- **Total Aksi Terdaftar:** 32 aksi
+  - Aksi Tulis / Transaksi: 19
+  - Aksi Baca / Filter: 7
+  - Aksi Navigasi / UI: 6
+- **Aksi dengan Izin Spesifik:** 15 aksi
+- **Aksi dengan Dialog Konfirmasi:** 9 aksi
+- **Aksi Wajib Jejak Audit:** 12 aksi
+
+---
+
+## 2. Daftar Kontrak Layar
+
+| ID Layar | Judul | Rute | Peran yang Berhak | Masuk Dari | Berkas Uji | Naskah Jalan |
+|---|---|---|---|---|---|---|
+| `contoh` | Contoh Komponen & Tema | `/contoh` | `owner_pusat`, `admin_cabang`, `kasir`, `pelayan`, `dapur`, `pemilik_platform`, `pelanggan` | Pengembang / Penguji, Bilah tema | `src/layar/contoh/LayarContoh.test.tsx` | `W-0-01` |
+| `dapur` | Pesanan Dapur & Bar | `/dapur` | `owner_pusat`, `admin_cabang`, `kasir`, `dapur` | Bilah navigasi Dapur, Menu Utama | `src/layar/dapur/LayarDapur.test.tsx` | `W-4-01` |
+| `kasir` | Kasir & Transaksi | `/kasir` | `owner_pusat`, `admin_cabang`, `kasir` | Bilah navigasi bawah Kasir, Setelah buka shift | `src/layar/kasir/LayarKasir.test.tsx` | `W-3-01` |
+| `laporan` | Laporan Penjualan & Kas | `/laporan` | `owner_pusat`, `admin_cabang` | Bilah navigasi Laporan, Menu Pengelola | `src/layar/laporan/LayarLaporan.test.tsx` | `W-7-01` |
+| `masuk` | Masuk Pegawai | `/masuk` | `pemilik_platform`, `owner_pusat`, `admin_cabang`, `kasir`, `pelayan`, `dapur` | Awal aplikasi, Keluar sesi, Kunci otomatis | `src/layar/masuk/LayarMasuk.test.tsx` | `W-2-01` |
+| `pelanggan-publik` | Katalog Menu Publik | `/menu` | `pelanggan`, `kasir`, `pelayan`, `admin_cabang`, `owner_pusat`, `pemilik_platform` | Tautan publik / QR Meja, Peramban pelanggan | `src/layar/pelanggan-publik/LayarPelangganPublik.test.tsx` | `W-8-02` |
+| `pengaturan` | Pengaturan Resto | `/pengaturan` | `owner_pusat`, `admin_cabang` | Bilah navigasi Pengaturan, Menu Utama | `src/layar/pengaturan/LayarPengaturan.test.tsx` | `W-9-01` |
+| `voucher` | Voucher & Diskon | `/voucher` | `owner_pusat`, `admin_cabang`, `kasir` | Panel Pembayaran Kasir, Menu Voucher | `src/layar/voucher/LayarVoucher.test.tsx` | `W-8-01` |
+
+---
+
+## 3. Matriks Jejak Fitur PRD M1–M12
+
+| Kode PRD | Nama Fitur | Layar Terkait | Aksi Terkait |
+|---|---|---|---|
+| `M1` | Pemesanan Kasir Cepat | `kasir` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kirim_dapur` (+4 lainnya) |
+| `M2` | Papan Dapur & Bar Real-Time | `dapur` | `dapur.mulai_masak`, `dapur.selesai_masak`, `dapur.tandai_habis` |
+| `M3` | Manajemen Meja & Status Layanan | `kasir`, `pengaturan` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kirim_dapur` (+10 lainnya) |
+| `M4` | Pembayaran Fleksibel & Multi-Metode | `kasir` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kirim_dapur` (+4 lainnya) |
+| `M5` | Laporan Penjualan & Rekonsiliasi Kas | `laporan` | `laporan.cetak_laporan`, `laporan.ekspor_data`, `laporan.filter_tanggal`, `laporan.pilih_cabang` |
+| `M6` | Manajemen Pegawai & Hak Akses Berjenjang | `masuk`, `pengaturan` | `masuk.batal`, `masuk.ganti_pengguna`, `masuk.verifikasi_pin`, `pengaturan.hapus_meja` (+5 lainnya) |
+| `M7` | Katalog Menu & Kustomisasi Varian | `kasir`, `pelanggan-publik` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kirim_dapur` (+6 lainnya) |
+| `M8` | Voucher Diskon & Promosi | `kasir`, `voucher` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kirim_dapur` (+7 lainnya) |
+| `M9` | Manajemen Stok Bahan & Peringatan Habis | `dapur`, `pengaturan` | `dapur.mulai_masak`, `dapur.selesai_masak`, `dapur.tandai_habis`, `pengaturan.hapus_meja` (+5 lainnya) |
+| `M10` | Menu Digital Pelanggan (Self-Order QR) | `pelanggan-publik` | `pelanggan.cari_menu`, `pelanggan.filter_kategori` |
+| `M11` | Dukungan Multi-Cabang Terpusat | `laporan`, `pengaturan` | `laporan.cetak_laporan`, `laporan.ekspor_data`, `laporan.filter_tanggal`, `laporan.pilih_cabang` (+6 lainnya) |
+| `M12` | Audit Log & Keamanan Data Transaksi | `masuk`, `kasir`, `pengaturan` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kirim_dapur` (+13 lainnya) |
+
+---
+
+## 4. Registri Aksi Lengkap
+
+| ID Aksi | Label | Layar | Peran | Izin | RPC | Jenis | Konfirmasi | Audit | Uji |
+|---|---|---|---|---|---|---|---|---|---|
+| `contoh.ganti_kerapatan` | Ganti Kerapatan | `contoh` | owner_pusat, admin_cabang, kasir, pelayan, dapur, pemilik_platform, pelanggan | - | - | `navigasi` | - | - | `uji_contoh_ganti_kerapatan` |
+| `contoh.ganti_tema` | Ganti Tema | `contoh` | owner_pusat, admin_cabang, kasir, pelayan, dapur, pemilik_platform, pelanggan | - | - | `navigasi` | - | - | `uji_contoh_ganti_tema` |
+| `contoh.picu_toast` | Picu Toast Pemberitahuan | `contoh` | owner_pusat, admin_cabang, kasir, pelayan, dapur, pemilik_platform, pelanggan | - | - | `navigasi` | - | - | `uji_contoh_picu_toast` |
+| `dapur.mulai_masak` | Mulai Masak | `dapur` | owner_pusat, admin_cabang, kasir, dapur | - | - | `tulis` | - | - | `uji_dapur_mulai_masak` |
+| `dapur.selesai_masak` | Siap Saji | `dapur` | owner_pusat, admin_cabang, kasir, dapur | - | - | `tulis` | - | - | `uji_dapur_selesai_masak` |
+| `dapur.tandai_habis` | Tandai Habis | `dapur` | owner_pusat, admin_cabang, dapur | `ubah_stok` | - | `tulis` | Ya | Ya | `uji_dapur_tandai_menu_habis` |
+| `kasir.batal_item` | Batalkan Item | `kasir` | owner_pusat, admin_cabang, kasir | `void_sebelum_dapur` | `hitung_total` | `tulis` | Ya | Ya | `uji_kasir_batal_item_pra_dapur` |
+| `kasir.beri_diskon` | Beri Diskon | `kasir` | owner_pusat, admin_cabang, kasir | `beri_diskon` | `hitung_total` | `tulis` | Ya | Ya | `uji_kasir_diskon_transaksi` |
+| `kasir.buka_shift` | Buka Shift | `kasir` | owner_pusat, admin_cabang, kasir | - | - | `tulis` | - | Ya | `uji_kasir_buka_shift` |
+| `kasir.kirim_dapur` | Kirim ke Dapur | `kasir` | owner_pusat, admin_cabang, kasir | - | `hitung_total` | `tulis` | - | - | `uji_kirim_tiket_dapur` |
+| `kasir.kurang_item` | Kurangi Item | `kasir` | owner_pusat, admin_cabang, kasir | - | `hitung_total` | `tulis` | - | - | `uji_kasir_kurang_item` |
+| `kasir.proses_bayar` | Bayar Pesanan | `kasir` | owner_pusat, admin_cabang, kasir | - | `hitung_total` | `tulis` | Ya | Ya | `uji_kasir_bayar_tunai_lunas` |
+| `kasir.tambah_item` | Tambah Item | `kasir` | owner_pusat, admin_cabang, kasir | - | `hitung_total` | `tulis` | - | - | `uji_kasir_tambah_item` |
+| `kasir.tutup_shift` | Tutup Shift | `kasir` | owner_pusat, admin_cabang, kasir | `tutup_kas` | - | `tulis` | Ya | Ya | `uji_kasir_tutup_shift` |
+| `laporan.cetak_laporan` | Cetak Laporan | `laporan` | owner_pusat, admin_cabang | `lihat_laporan` | - | `baca` | - | - | `uji_laporan_cetak` |
+| `laporan.ekspor_data` | Ekspor Ringkasan | `laporan` | owner_pusat, admin_cabang | `lihat_laporan` | - | `baca` | - | - | `uji_laporan_ekspor` |
+| `laporan.filter_tanggal` | Filter Tanggal | `laporan` | owner_pusat, admin_cabang | `lihat_laporan` | - | `baca` | - | - | `uji_laporan_filter_tanggal` |
+| `laporan.pilih_cabang` | Pilih Cabang | `laporan` | owner_pusat, admin_cabang | `lihat_laporan` | - | `baca` | - | - | `uji_laporan_pilih_cabang` |
+| `masuk.batal` | Batal | `masuk` | pemilik_platform, owner_pusat, admin_cabang, kasir, pelayan, dapur | - | - | `navigasi` | - | - | `uji_batal_masuk` |
+| `masuk.ganti_pengguna` | Ganti Pegawai | `masuk` | pemilik_platform, owner_pusat, admin_cabang, kasir, pelayan, dapur | - | - | `navigasi` | - | - | `uji_navigasi_ganti_pegawai` |
+| `masuk.verifikasi_pin` | Masuk | `masuk` | pemilik_platform, owner_pusat, admin_cabang, kasir, pelayan, dapur | - | `verifikasi_pin` | `tulis` | - | - | `uji_masuk_pin_sah`, `uji_masuk_pin_salah` |
+| `pelanggan.cari_menu` | Cari Menu | `pelanggan-publik` | pelanggan, kasir, pelayan, admin_cabang, owner_pusat, pemilik_platform | - | - | `baca` | - | - | `uji_pelanggan_cari_menu` |
+| `pelanggan.filter_kategori` | Pilih Kategori | `pelanggan-publik` | pelanggan, kasir, pelayan, admin_cabang, owner_pusat, pemilik_platform | - | - | `baca` | - | - | `uji_pelanggan_filter_kategori` |
+| `pengaturan.hapus_meja` | Hapus Meja | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | - | `tulis` | Ya | Ya | `uji_pengaturan_hapus_meja` |
+| `pengaturan.simpan_pajak` | Simpan Pajak & Service | `pengaturan` | owner_pusat | `atur_pengaturan` | - | `tulis` | Ya | Ya | `uji_pengaturan_pajak` |
+| `pengaturan.simpan_tema` | Terapkan Tema | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | - | `tulis` | - | - | `uji_pengaturan_tema` |
+| `pengaturan.tambah_meja` | Tambah Meja | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | - | `tulis` | - | Ya | `uji_pengaturan_tambah_meja` |
+| `pengaturan.tambah_pegawai` | Tambah Pegawai | `pengaturan` | owner_pusat, admin_cabang | `kelola_pegawai` | `simpan_pin` | `tulis` | - | Ya | `uji_pengaturan_tambah_pegawai` |
+| `pengaturan.ubah_izin` | Ubah Izin Peran | `pengaturan` | owner_pusat | `kelola_pegawai` | - | `tulis` | Ya | Ya | `uji_pengaturan_ubah_izin` |
+| `voucher.batal` | Tutup | `voucher` | owner_pusat, admin_cabang, kasir | - | - | `navigasi` | - | - | `uji_voucher_batal` |
+| `voucher.cek_kode` | Periksa Voucher | `voucher` | owner_pusat, admin_cabang, kasir | - | - | `baca` | - | - | `uji_voucher_cek_kode` |
+| `voucher.klaim_diskon` | Terapkan Voucher | `voucher` | owner_pusat, admin_cabang, kasir | `pakai_voucher` | `hitung_total` | `tulis` | Ya | Ya | `uji_voucher_klaim_diskon` |
+
