@@ -10,18 +10,19 @@ import { Tombol } from '../../komponen/Tombol'
 import { KeadaanGagal } from '../../komponen/KeadaanGagal'
 import { KeadaanKosong } from '../../komponen/KeadaanKosong'
 import { KeadaanMemuat } from '../../komponen/KeadaanMemuat'
+import { LembarBantuan } from '../../komponen/LembarBantuan'
 import { rupiah, jamLokal, tanggalLokal } from '../../lib/format'
 import { KERAPATAN, TEMA, type KodeTema, type Kerapatan } from '../../lib/tema'
 import { statusEnv } from '../../lib/env'
 import { useJam } from '../../hook/useJam'
 import { useTema } from '../../hook/useTema'
+import { useBahasa, DAFTAR_BAHASA, type KodeBahasa } from '../../bahasa'
 
 /**
- * Layar bukti Fase 0 (bukan layar produksi).
- * Membuktikan: 10 tema + 2 kerapatan bisa diganti tanpa memuat ulang halaman,
- * seluruh komponen dasar (termasuk keadaan kosong/memuat/gagal) hidup di
- * aplikasi, dan pengaturan rahasia terbaca dari berkas `.env`.
- * Halaman ini diganti layar sungguhan mulai Fase 2.
+ * Layar bukti Fase 0, 1C, i18n & Bantuan Kontekstual.
+ * Membuktikan: 10 tema + 2 kerapatan + 4 bahasa (i18n LTR/RTL) bisa diganti
+ * tanpa memuat ulang halaman, seluruh komponen dasar hidup, bantuan kontekstual
+ * tanda '?' berfungsi, dan pengaturan rahasia terbaca aman.
  */
 
 type BarisPesanan = {
@@ -47,6 +48,8 @@ const KOLOM_PESANAN: readonly KolomTabel<BarisPesanan>[] = [
 export default function LayarContoh() {
   const sekarang = useJam()
   const { tema, kerapatan, gantiTema, gantiKerapatan } = useTema()
+  const { bahasa, meta, arah, gantiBahasa, t } = useBahasa()
+
   const temaAktif = TEMA.find((butir) => butir.kode === tema) ?? TEMA[0]
   const kerapatanAktif = KERAPATAN.find((butir) => butir.kode === kerapatan) ?? KERAPATAN[0]
 
@@ -58,12 +61,28 @@ export default function LayarContoh() {
   return (
     <div className="halaman">
       <header className="kepala-halaman">
-        <p className="label">Contoh tampilan · Fase 0</p>
-        <h1>Sajian</h1>
-        <p className="aksen">Kasir, dapur, laporan, dan pelanggan dalam satu tempat.</p>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 'var(--s-2)',
+          }}
+        >
+          <p className="label">Contoh tampilan · Fase 0 & 1C</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
+            <LembarBantuan idLayar="contoh" />
+          </div>
+        </div>
+        <h1>{t('umum.aplikasi')}</h1>
+        <p className="aksen">
+          {t('umum.selamat_datang')} — Kasir, dapur, laporan, dan pelanggan dalam satu tempat.
+        </p>
         <p className="small muted">
           Sekarang {jamLokal(sekarang)} · {tanggalLokal(sekarang)} · tema aktif{' '}
-          <strong>{temaAktif.nama}</strong> · kerapatan <strong>{kerapatanAktif.nama}</strong>
+          <strong>{temaAktif.nama}</strong> · kerapatan <strong>{kerapatanAktif.nama}</strong> ·
+          bahasa <strong>{meta.namaLokal}</strong> ({arah.toUpperCase()})
         </p>
       </header>
 
@@ -73,7 +92,7 @@ export default function LayarContoh() {
           nada="sukses"
           aksi={
             <Tombol ragam="polos" onClick={() => setToastTampil(false)} nama="Tutup pemberitahuan">
-              Tutup
+              {t('umum.tutup')}
             </Tombol>
           }
         />
@@ -85,7 +104,7 @@ export default function LayarContoh() {
         </div>
       )}
 
-      <div className="row wrap-row">
+      <div className="row wrap-row" style={{ gap: 'var(--s-3)' }}>
         <PemilihRingkas
           label={`Pilih tema (${TEMA.length} pilihan)`}
           anakTombol={`Ganti tema (${TEMA.length})`}
@@ -125,16 +144,29 @@ export default function LayarContoh() {
             </button>
           ))}
         </div>
+
+        <div className="segmen" role="group" aria-label="Pilihan Bahasa">
+          {DAFTAR_BAHASA.map((b) => (
+            <button
+              key={b.kode}
+              type="button"
+              aria-pressed={b.kode === bahasa}
+              onClick={() => gantiBahasa(b.kode as KodeBahasa)}
+            >
+              {b.namaLokal}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="kisi-2">
         <Kartu judul="Tombol" aksi={<Lencana nada="netral">5 ragam</Lencana>}>
           <div className="baris-tombol">
-            <Tombol>Simpan pesanan</Tombol>
+            <Tombol>{t('umum.simpan')}</Tombol>
             <Tombol ragam="biasa">Tahan</Tombol>
             <Tombol ragam="kecil">Kecil</Tombol>
             <Tombol ragam="polos">Polos</Tombol>
-            <Tombol ragam="bahaya">Batalkan</Tombol>
+            <Tombol ragam="bahaya">{t('umum.batal')}</Tombol>
           </div>
           <div className="baris-tombol mt-16">
             <Tombol nonaktif>Sedang nonaktif</Tombol>
@@ -156,7 +188,7 @@ export default function LayarContoh() {
           <hr className="pemisah" />
           <div className="between">
             <div>
-              <p className="label">Total belanja</p>
+              <p className="label">{t('kasir.total_belanja')}</p>
               <p className="angka-besar">{rupiah(27500)}</p>
             </div>
             <Lencana nada="warn">Meja 3</Lencana>
@@ -218,14 +250,14 @@ export default function LayarContoh() {
       <div className="kisi-2">
         <Kartu judul="Keadaan kosong">
           <KeadaanKosong
-            judul="Belum ada pesanan hari ini"
-            keterangan="Pesanan yang masuk dari kasir akan muncul di daftar ini."
+            judul={t('keadaan.kosong_judul')}
+            keterangan={t('keadaan.kosong_keterangan')}
             aksi={<Tombol ragam="biasa">Buat pesanan</Tombol>}
           />
         </Kartu>
 
         <Kartu judul="Sedang memuat">
-          <KeadaanMemuat judul="Memuat daftar pesanan…" baris={3} />
+          <KeadaanMemuat judul={t('keadaan.memuat_judul')} baris={3} />
         </Kartu>
 
         <Kartu judul="Gagal memuat">
@@ -281,7 +313,7 @@ export default function LayarContoh() {
         kaki={
           <>
             <Tombol ragam="biasa" onClick={() => setLapisBuka(false)}>
-              Tutup
+              {t('umum.tutup')}
             </Tombol>
             <Tombol
               onClick={() => {
@@ -289,7 +321,7 @@ export default function LayarContoh() {
                 setToastTampil(true)
               }}
             >
-              Kirim ke dapur
+              {t('kasir.kirim_dapur')}
             </Tombol>
           </>
         }

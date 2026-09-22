@@ -5,6 +5,7 @@ import { pasangTemaAwal } from './lib/tema'
 import './gaya/token/tema.css'
 import './gaya/token/dasar.css'
 import './gaya/komponen.css'
+import './gaya/arah.css'
 
 // tema & kerapatan dipasang sebelum render supaya tidak ada kedipan warna
 pasangTemaAwal()

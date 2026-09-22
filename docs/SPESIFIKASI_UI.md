@@ -210,3 +210,23 @@ berulang (aksesibilitas) · angka di atas **diuji** lewat pemeriksa kontras & at
 | Kunci bahasa lengkap di semua bahasa rilis | pemeriksa yang sama (kunci `id` = acuan) | setiap commit UI |
 | Dua layar contoh benar saat arah dibalik | `aplikasi/alat/periksa-arah.py` + naskah jalan | T1-41 |
 | Ukuran huruf Mandarin di bawah ambang | `periksa-arah.py` (aturan ukuran) | T1-41 |
+
+## 11. Bantuan kontekstual di SETIAP laman (tanda "?" + panduan terstruktur)
+
+> **Tujuan:** pegawai baru bisa memakai setiap laman tanpa harus mengingat sosialisasi — bantuan singkat muncul di tempat kerja, bukan di buku terpisah. (Permintaan Lee 2026-09-17.) Rujukan: `docs/ROADMAP.md` T1-42.
+
+### 11.1 Aturan Bantuan Kontekstual
+
+1. **Setiap layar wajib memiliki pemicu bantuan `?`** yang membuka lembar panduan kontekstual (`aplikasi/src/komponen/LembarBantuan.tsx`).
+2. **Satu sumber kebenaran data bantuan** di `aplikasi/src/kontrak/bantuan.ts`, terhubung langsung dengan ID layar dan Registri Aksi.
+3. **Format isi bantuan per layar wajib memuat 5 bidang**:
+   - `judul`: nama panduan layar yang ramah non-teknis.
+   - `ringkasan`: 1–2 kalimat penjelasan tujuan layar bagi pengguna.
+   - `langkah`: maksimal 5 langkah pengoperasian berurutan.
+   - `kalauMacet`: petunjuk tindakan jika terjadi kendala atau galat pada layar.
+   - `peranBoleh`: daftar peran yang berhak mengoperasikan layar tersebut.
+   - `aksiTerkait`: daftar ID aksi yang relevan dari registri aksi.
+4. **Penyimpanan preferensi tampil**: dialog panduan dapat ditutup dan disimpan agar tidak muncul otomatis lagi bagi pengguna yang sudah paham.
+5. **Dukungan cetak**: tombol cetak ringkasan tersedia untuk mencetak lembar panduan peran.
+6. **Penjaga otomatis CI**: `alat/periksa-bantuan.py` memastikan seluruh layar terdaftar memiliki bantuan lengkap tanpa ada langkah yang melampaui batas 5 butir.
+

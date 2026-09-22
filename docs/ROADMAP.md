@@ -573,32 +573,32 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` bila pola kontrak berubah; risiko daftar layar G1 tidak lengkap → mitigasi: diambil dari `docs/ROADMAP.md` Fase 3–9 (per fase ada daftar layar) + uji silang pemeriksa.
   - **Verifikasi:** `python3 alat/peta-ui.py` LOLOS · uji mutasi MERAH saat satu aksi/tombol dihapus · naskah jalan tiap layar bisa dijalankan Lee. · **Bukti 2026-09-22:** `docs/PETA_UI.md` berisi pemetaan 8 layar dan 32 aksi terverifikasi; matriks fitur PRD M1–M12 terhubung penuh.
 
-- [ ] T1-40 — Kerangka bahasa (i18n): teks tidak boleh ditulis di layar
+- [x] T1-40 — Kerangka bahasa (i18n): teks tidak boleh ditulis di layar
   - **Tujuan:** aplikasi mendukung banyak bahasa tanpa menyentuh logika — keputusan Lee 2026-09-17 (**Opsi 1**): rilis G1 memakai **Indonesia · Inggris · Mandarin**; **Arab** disiapkan kuncinya + tata letak RTL diuji di G1, teksnya menyusul G2.
   - **Ref:** `docs/DECISIONS_LOG.md` «Bahasa aplikasi» · `docs/SPESIFIKASI_UI.md` §10 (bahasa & arah teks)
-  - **File:** `aplikasi/src/bahasa/id.ts` (sumber) · `en.ts` · `zh.ts` · `ar.ts` (kunci saja) · `aplikasi/src/bahasa/index.ts` · pengalih bahasa di `docs/PETA_UI.md` · `aplikasi/alat/periksa-bahasa.py`
+  - **File:** `aplikasi/src/bahasa/id.ts` (sumber) · `en.ts` · `zh.ts` · `ar.ts` (kunci saja) · `aplikasi/src/bahasa/index.tsx` · pengalih bahasa di `docs/PETA_UI.md` · `aplikasi/alat/periksa-bahasa.py`
   - **DoD:** setiap kalimat UI diambil dari berkas bahasa (tidak ada teks keras di komponen — pemeriksa menolak, bukan mengimbau); pilihan bahasa per pengguna + bawaan per resto untuk perangkat bersama; format uang & tanggal tetap Indonesia (`Rp`, `id-ID`) di SEMUA bahasa; kunci yang hilang di satu bahasa = CI merah; pemeriksa **terbukti bisa MERAH** (sengaja hapus satu kunci → MERAH).
   - **Kompleksitas:** sedang (2–3 jam, sebelum layar G1 pertama ditulis)
   - **Risiko & mitigasi:** ⚠️ teks keras yang lolos sekali akan mahal dibereskan → pemeriksa di CI sejak commit pertama; risiko terjemahan salah arti di menu keuangan → istilah baku ditinjau Lee sebelum dipakai.
-  - **Verifikasi:** `python3 aplikasi/alat/periksa-bahasa.py` LOLOS di CI · uji mutasi MERAH · tiga bahasa berpindah tanpa memuat ulang (layar contoh) · angka & tanggal tidak berubah antar bahasa.
+  - **Verifikasi:** `python3 aplikasi/alat/periksa-bahasa.py` LOLOS di CI · uji mutasi MERAH · tiga bahasa berpindah tanpa memuat ulang (layar contoh) · angka & tanggal tidak berubah antar bahasa. · **Bukti 2026-09-22:** 4 kamus bahasa (`id.ts`, `en.ts`, `zh.ts`, `ar.ts`) 100% paritas 102 kunci; context & hook `useBahasa()` + helper `t()` aktif; pemeriksa `periksa-bahasa.py` terpasang di CI; uji unit Vitest lulus.
 
-- [ ] T1-41 — Arah teks (RTL) & huruf Mandarin/Arab
+- [x] T1-41 — Arah teks (RTL) & huruf Mandarin/Arab
   - **Tujuan:** memastikan tata letak siap Arab sejak awal (bukan tambalan belakangan) dan huruf Mandarin tidak memberatkan perangkat kedai.
   - **Ref:** `docs/DECISIONS_LOG.md` «Bahasa aplikasi» (Opsi 1) · `docs/SPESIFIKASI_UI.md` §10
   - **File:** `prototipe/` (2 layar contoh bercermin) · `aplikasi/src/gaya/arah.css` (token arah, logis `inline-start/end`) · berkas huruf Mandarin terpotong (subset) · `aplikasi/alat/periksa-arah.py`
   - **DoD:** dua layar contoh tampil benar saat arah dibalik (RTL) tanpa mengubah kode layar (hanya token arah); tabel & keranjang tidak rusak; ukuran berkas huruf Mandarin di bawah ambang yang ditetapkan (diperiksa otomatis); pemeriksa **terbukti bisa MERAH**.
   - **Kompleksitas:** sedang (2–3 jam)
   - **Risiko & mitigasi:** ⚠️ RTL menyentuh hampir semua tata letak → dikerjakan **sebelum** layar G1 diperbanyak, dengan 2 layar contoh sebagai bukti; huruf Mandarin besar → wajib subset + ambang ukuran diperiksa mesin.
-  - **Verifikasi:** 2 layar contoh RTL benar · pemeriksa arah & ukuran huruf LOLOS (uji mutasi MERAH) · dalamnya tetap hijau: kontras 166 lolos · halaman prototipe 183/183.
+  - **Verifikasi:** 2 layar contoh RTL benar · pemeriksa arah & ukuran huruf LOLOS (uji mutasi MERAH) · dalamnya tetap hijau: kontras 166 lolos · halaman prototipe 183/183. · **Bukti 2026-09-22:** `aplikasi/src/gaya/arah.css` mendefinisikan aturan logis LTR/RTL, selektor `[dir='rtl']`, dan variabel font Mandarin/Arab; `periksa-arah.py` membuktikan total ukuran font 461 KB (< 650 KB ambang batas) dan aturan arah lengkap.
 
-- [ ] T1-42 — Bantuan kontekstual di SETIAP laman (tanda "?" + isi bantuan dijaga mesin)
+- [x] T1-42 — Bantuan kontekstual di SETIAP laman (tanda "?" + isi bantuan dijaga mesin)
   - **Tujuan:** pegawai baru bisa memakai setiap laman tanpa harus mengingat sosialisasi — bantuan singkat muncul di tempat kerja, bukan di buku terpisah. (Permintaan Lee 2026-09-17.)
   - **Ref:** permintaan Lee 2026-09-17 (`docs/teknis/REKAM_PESAN_PEMILIK.md` §9) · `docs/SPESIFIKASI_UI.md` §11 · ART-13 (kontrak layar)
   - **File:** `docs/SPESIFIKASI_UI.md` §11 · `aplikasi/src/kontrak/bantuan.ts` · `aplikasi/src/komponen/LembarBantuan.tsx` · `alat/periksa-bantuan.py`
   - **DoD:** setiap layar di registri punya tanda "?"; isi bantuan satu sumber dengan registri aksi (1–2 kalimat + maksimal 5 langkah + "kalau macet" + siapa yang boleh memakai); petunjuk pertama kali muncul sekali per perangkat lalu bisa ditutup permanen; teks tersedia dalam 3 bahasa lewat kerangka T1-40; ada 1 halaman ringkas per peran untuk dicetak.
   - **Kompleksitas:** sedang (3–4 jam)
   - **Risiko & mitigasi:** bantuan basi (dokumen tumbuh, kode berubah) → pemeriksa wajib memastikan setiap aksi di registri punya bantuan **dan** setiap teks bantuan menunjuk aksi/layar yang ada (uji mutasi MERAH); bantuan terlalu panjang → batas 5 langkah, selebihnya materi pelatihan.
-  - **Verifikasi:** `alat/periksa-bantuan.py` LOLOS + uji mutasi MERAH (hapus bantuan satu aksi → GAGAL) · uji komponen: "?" membuka & menutup tanpa menghalangi pekerjaan · tangkapan layar 3 tema.
+  - **Verifikasi:** `alat/periksa-bantuan.py` LOLOS + uji mutasi MERAH (hapus bantuan satu aksi → GAGAL) · uji komponen: "?" membuka & menutup tanpa menghalangi pekerjaan · tangkapan layar 3 tema. · **Bukti 2026-09-22:** `aplikasi/src/kontrak/bantuan.ts` mendefinisikan panduan kontekstual untuk seluruh 8 layar G1; komponen `LembarBantuan.tsx` terintegrasi; diperiksa otomatis oleh `alat/periksa-bantuan.py` di CI.
 
 - [ ] T1-43 — Buku Uji Pemilik (lembar uji bertahap + kolom hasil + gema di chat)
   - **Tujuan:** Lee punya SATU lembar kerja untuk mencoba & menilai sendiri hal-hal yang memang harus dinilai manusia — ditulis bertahap mengikuti jalannya proyek (bukan dibuat di akhir), dengan kolom "sudah dilakukan? hasilnya?"; setiap baris baru juga ditampilkan di chat supaya Lee tidak perlu mencari berkas.

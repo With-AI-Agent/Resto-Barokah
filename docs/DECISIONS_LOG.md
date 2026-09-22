@@ -1615,4 +1615,25 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 - Peta UI: `python3 alat/peta-ui.py --periksa` & `--uji-diri` (6/6 mutasi) LULUS.
 - Gerbang CI & Paritas: 85 gerbang LULUS.
 
+## [Pelaksanaan/2026-09-22] Fase 1C: Multi-Bahasa (i18n), Tata Letak Dua Arah (RTL/LTR), dan Bantuan Kontekstual Per Layar (T1-40, T1-41, T1-42)
+
+**Area:** Internasionalisasi (i18n), Aksesibilitas Tata Letak (RTL/LTR), dan Bantuan Kontekstual  
+**Dasar:** Keputusan pemilik 2026-09-17 (Opsi 1): rilis G1 mendukung 3 bahasa (Indonesia · Inggris · Mandarin), Arab disiapkan kunci & tata letak RTL diuji di G1; teks tidak boleh ditulis keras di komponen; serta bantuan singkat "?" di setiap layar agar pegawai baru langsung paham tanpa sosialisasi panjang.
+
+**Pelaksanaan:**
+1. `aplikasi/src/bahasa/` (`id.ts`, `en.ts`, `zh.ts`, `ar.ts`, `index.tsx`, `bahasa.test.tsx`): Kerangka multi-bahasa berbasis React Context & hook `useBahasa()`. Memuat 102 kunci teks antarmuka dengan 100% paritas kunci terjemahan di seluruh 4 kamus bahasa. Format rupiah (`Rp`, `id-ID`) dan tanggal tetap seragam di seluruh bahasa.
+2. `aplikasi/alat/periksa-bahasa.py`: Validator integritas kamus multi-bahasa fail-closed (+ `--uji-diri` 3 kasus) yang menolak kunci hilang, kunci berlebih, atau perbedaan struktur kamus.
+3. `aplikasi/src/gaya/arah.css`: Aturan CSS logis (`margin-inline-start`, `padding-inline-end`, dsb.), selektor `[dir='rtl']` & `[dir='ltr']`, isolasi nominal uang LTR, dan token variabel font Mandarin & Arab.
+4. `aplikasi/alat/periksa-arah.py`: Validator aturan CSS arah teks dan penjaga ambang batas ukuran total font subset (< 650 KB, terbukti 19 berkas font = 461 KB) beserta `--uji-diri` 3 kasus.
+5. `aplikasi/src/kontrak/bantuan.ts` & `aplikasi/src/komponen/LembarBantuan.tsx` (+ `LembarBantuan.test.tsx`): Kontrak dan komponen tombol bantuan "?" interaktif untuk seluruh 8 layar G1, menyajikan ringkasan tujuan, langkah kerja (maksimal 5 langkah), panduan kalau macet, dan peran yang berhak.
+6. `alat/periksa-bantuan.py`: Skrip pemeriksa kelengkapan entri bantuan untuk setiap layar di registri `layar.ts` (+ `--uji-diri` 3 kasus).
+7. Alur CI `.github/workflows/ci.yml`, `alat/periksa-gerbang-ci.py` (91 gerbang), dan `aplikasi/alat/periksa-semua.sh` diselaraskan.
+
+**Verifikasi:**
+- Vitest: 17 berkas uji, 123 pengujian unit LULUS (100%).
+- Pemeriksa multi-bahasa: `python3 aplikasi/alat/periksa-bahasa.py` & `--uji-diri` LOLOS.
+- Pemeriksa arah teks & font: `python3 aplikasi/alat/periksa-arah.py` & `--uji-diri` LOLOS.
+- Pemeriksa bantuan: `python3 alat/periksa-bantuan.py` & `--uji-diri` LOLOS.
+- Gerbang CI & Paritas: 91 gerbang LULUS.
+
 

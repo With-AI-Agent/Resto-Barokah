@@ -106,6 +106,12 @@ python3 alat/periksa-buku-uji.py
 python3 alat/periksa-buku-uji.py --uji-diri
 python3 alat/peta-ui.py
 python3 alat/peta-ui.py --uji-diri
+python3 aplikasi/alat/periksa-bahasa.py
+python3 aplikasi/alat/periksa-bahasa.py --uji-diri
+python3 aplikasi/alat/periksa-arah.py
+python3 aplikasi/alat/periksa-arah.py --uji-diri
+python3 alat/periksa-bantuan.py
+python3 alat/periksa-bantuan.py --uji-diri
 python3 alat/periksa-gerbang-ci.py
 python3 alat/periksa-gerbang-ci.py --uji-diri
 python3 alat/periksa-kunci-kalibrasi.py

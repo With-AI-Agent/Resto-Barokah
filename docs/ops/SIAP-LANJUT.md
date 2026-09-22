@@ -7,14 +7,14 @@
 
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
-- **Cabang yang dilanjutkan:** `arena/01a0c2c1-resto-barokah`
-- **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
-- **Ditulis oleh sesi:** `arena/01a0c2c1-resto-barokah`
-- **Commit keadaan kerja:** `be14b406704c2db98555bb1c1b3774e251cbdc30`
+- **Cabang yang dilanjutkan:** `arena/01a0c7b6-resto-barokah`
+- **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
+- **Ditulis oleh sesi:** `arena/01a0c7b6-resto-barokah`
+- **Commit keadaan kerja:** `91f6a78b0f3d602a2ffd0012a58fc9cae44d6c5f`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit be14b406)
+- **CI terakhir:** success (1 run, commit 91f6a78b)
 - **Ditulis:** 2026-09-22 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **0** — (tidak ada)
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (73 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (166 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -42,12 +42,12 @@ Sesi baru di platform ini mulai dari `main`, sedangkan pekerjaan ada di cabang s
 Jalankan (tanpa memindahkan cabang sesimu):
 
 ```
-git fetch origin arena/01a0c2c1-resto-barokah:refs/remotes/origin/kerja-terakhir
+git fetch origin arena/01a0c7b6-resto-barokah:refs/remotes/origin/kerja-terakhir
 git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py      # cetak KARTU SESI, lalu LAPORKAN ke Lee
 ```
 
-Cabang `arena/01a0c2c1-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
+Cabang `arena/01a0c7b6-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
 LAIN: saat membuka chat baru, ia menulis pilihannya di baris pertama `PROMPT_SESI_BARU.md` — dan baris
 itu yang **MENANG** bila berbeda dengan handoff ini. Laporkan bedanya, lalu rapikan catatan handoff
 dengan `python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang>`. Sesi yang belum pernah di-push
@@ -64,10 +64,18 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 **Base branch bila Lee membuka sesi baru lagi di Arena:** pilih cabang yang disebut di §1
-(`arena/01a0c2c1-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
+(`arena/01a0c7b6-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+> **MARATON FASE 1C SELESAI LENGKAP (2026-09-22):** Seluruh fondasi Fase 1C (T1-31 Kontrak Layar, T1-32 Registri Aksi & TombolAksi, T1-33 Pemeriksa Peta UI di CI, T1-34 Harness Uji Komponen, T1-35 Naskah Jalan Pemilik, T1-39 Pemetaan Layar G1, T1-40 Multi-Bahasa i18n 4 bahasa, T1-41 Tata Letak RTL/LTR & Font, T1-42 Bantuan Kontekstual Per Layar) selesai dikerjakan dan diverifikasi penuh. Vitest suite 17 berkas (123 pengujian unit) dan 67 SQL suite 100% LULUS. Gerbang CI 91 gerbang diawasi dua arah.
+
+**Langkah berikutnya (urut):**
+1. **T1-43: Buku Uji Pemilik & Gema Chat** (`docs/uji/BUKU_UJI_PEMILIK.md`, pemeriksa `alat/periksa-buku-uji.py`).
+2. **T1-36: Tangga Pemulihan Perangkat Hilang** (migrasi `0028_pemulihan_perangkat.sql`, RPC darurat, masa tenggang 30 menit).
+3. **T1-37 & Fase 1B**: Pekerjaan ulang B.1–B.9, sesi perangkat `0029_sesi_perangkat.sql`, audit log trigger `catatan_audit`.
+4. **Fase 2 / Layar G1**: Mulai implementasi komponen layar G1 (`LayarMasuk`, `LayarKasir`, `LayarDapur`, dsb.) berdasarkan kontrak yang sudah terkunci.
 
 > **MARATON G3 — HANDOFF SESI BARU (2026-09-22):** T-04/A, T-05/B, T-06/C sudah dipanen; pagar 0024/0025/0026, regresi/mutasi, dan penguatan B-F01..B-F09 sudah masuk branch sesi. **Hosted CI `35691286819` untuk commit `be14b40` SUCCESS penuh, termasuk pemeriksa fondasi/history.** Sesi berikutnya melanjutkan pekerjaan teknis agent-owned T1-45/T1-30 dan bantah-balik AUD-2; jangan merge PR, deploy, atau sebar Supabase. A-F02 tentang keterjangkauan PostgREST produksi masih belum terverifikasi dan memerlukan izin Lee sebelum uji/sebar produksi. Rincian ada di `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md`.
 
