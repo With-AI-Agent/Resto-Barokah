@@ -503,9 +503,12 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
 - **[ringkas]** Dua laporan sudah tersedia; sesi ketiga error diabaikan. Jangan meminta audit ulang. Ceklist sementara boleh disimpan lalu dihapus setelah ditangani.
 - **Pelaksanaan:** `alat/kirim-laporan.py`, kontrak terpusat untuk dua generator, AL-15 + mutasi, uji bare-remote/race di CI. Bukti dan keterbatasan: `docs/uji/PENGIRIMAN_LAPORAN_AMAN.md`. Dua laporan asal disimpan terpisah; temuan belum ditutup, daftar tindak lanjut lintas-sesi lengkap di `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md`. Tidak ada izin merge/deploy; paket beku utuh.
 
-## §23. Maraton kerja sama pemeriksaan G3 (2026-09-21)
+## §24. Format Komunikasi Penutup Chat Wajib 3 Bagian (2026-09-22)
 
-- **[verbatim]** “Siapkan maraton kerja sama sesuai pembagian itu, utamakan kualitas”.
-- **Pembagian disetujui:** A membuktikan K-2 pembekuan setelah pembayaran; B K-2 isolasi tanpa identitas; C kelemahan pengujian/CI. Tahap awal hanya laporan paralel, integrator memverifikasi dan memperbaiki berurutan. Bukan izin semua pekerja mengedit kode atau merge/deploy.
-- **Pelaksanaan:** papan T-04/T-05/T-06 DIBERIKAN, tiga paket lengkap di `docs/uji/maraton/`, target e50bac4 ber-CI-hijau (35600019563), pembanding 09bcb89. Prompt pendek per tugas wajib langsung di chat; penanda laporan per tugas + UUID/hash, otomatis push/verifikasi dari SHA paket. Dua laporan asli tetap bahan; bukan mengulang audit penuh atau menghidupkan sesi error lama.
-- **Batas:** disiapkan bukan klaim sudah dijalankan; Lee membuka satu sesi baru per prompt. Platform boleh memberi cabang sama, tidak memindahkan tanggung jawab ke Lee. Pekerja memakai salinan uji unik; empat temuan lain tetap antrean integrator.
+- **[verbatim]** “Aku lihat saat ini kamu setiap akhir chat tidak menjelaskan apa yang selanjutnya. Dan itu sering bikin aku bingung. Aku rasa sebaiknya ditanamkan dalam sistem ini bahwa setiap akhir chat, sebelum beritahu apa yang harus aku lakukan, kamu juga harus jelasin terkait posisi kita dan langkah selanjutnya, dijelaskan dengan bahasa yang mudah aku pahami dan sebisa mungkin tanpa bertele-tele (ringkas) kecuali klo memang butuh penjelasan panjang… Ok. Lanjut. Tanamkan itu semua dan lanjutkan maraton”.
+- **Pelaksanaan:** Menanamkan aturan format penutup wajib 3 bagian di setiap akhir balasan agent ke Lee:
+  1. **📍 Posisi Sekarang:** status posisi roadmap/tugas saat ini & apa yang baru saja selesai.
+  2. **⏩ Rencana Selanjutnya (Agent):** langkah konkret berikutnya yang akan dikerjakan agent.
+  3. **👉 Langkah Lee:** tindakan nyata yang perlu dilakukan Lee atau penegasan cukup ketik *"Lanjut"*.
+- **Batas:** Bukan pembatasan informasi — info penting, risiko, atau pertimbangan tetap disampaikan di badan pesan. Format ini dikunci di `PROFIL_PENGGUNA.md`, `docs/AGENT_OPERATING_GUIDE.md`, `PANDUAN_PENGGUNA.md`, dan `docs/DECISIONS_LOG.md`.
+

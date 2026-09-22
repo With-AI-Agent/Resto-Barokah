@@ -26,7 +26,13 @@ from klasifikasi_mutasi import HIJAU, MERAH_PAGAR, RUSAK, klasifikasi
 
 AKAR = Path(__file__).resolve().parent.parent
 TES = ['supabase/tes/keamanan_fungsi.sql', 'supabase/tes/rls_semua_tabel.sql']
-MIG = 'supabase/migrations/0027_initplan_policy_rls.sql'
+
+def migrasi_terakhir() -> str:
+    mig_dir = AKAR / 'supabase' / 'migrations'
+    migs = sorted([f.name for f in mig_dir.glob('*.sql')])
+    return f'supabase/migrations/{migs[-1]}'
+
+MIG = migrasi_terakhir()
 
 
 def jalankan(akar: Path) -> subprocess.CompletedProcess:

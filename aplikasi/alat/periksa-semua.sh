@@ -63,6 +63,10 @@ echo "== bukti mutasi pagar migrasi 0012 & 0013 (kontrol hijau + semua mutasi WA
 (cd "$REPO" && python3 alat/uji-mutasi-0022.py | tail -2)
 (cd "$REPO" && python3 alat/uji-mutasi-0024.py | tail -2)
 (cd "$REPO" && python3 alat/uji-mutasi-0025.py | tail -2)
+(cd "$REPO" && python3 alat/uji-mutasi-0028.py | tail -2)
+(cd "$REPO" && python3 alat/uji-mutasi-0029.py | tail -2)
+(cd "$REPO" && python3 alat/uji-mutasi-0030.py | tail -2)
+(cd "$REPO" && python3 alat/uji-mutasi-0031.py | tail -2)
 (cd "$REPO" && python3 alat/uji-konkuren.py | tail -3)
 (cd "$REPO" && python3 alat/uji-konkuren.py --uji-diri | tail -2)
 (cd "$REPO" && python3 alat/uji-konkuren-0022.py | tail -3)
@@ -104,6 +108,7 @@ python3 alat/periksa-temuan-audit.py
 python3 alat/periksa-temuan-audit.py --uji-diri
 python3 alat/periksa-buku-uji.py
 python3 alat/periksa-buku-uji.py --uji-diri
+python3 alat/tambah-uji.py --uji-diri
 python3 alat/peta-ui.py
 python3 alat/peta-ui.py --uji-diri
 python3 aplikasi/alat/periksa-bahasa.py
@@ -112,6 +117,10 @@ python3 aplikasi/alat/periksa-arah.py
 python3 aplikasi/alat/periksa-arah.py --uji-diri
 python3 alat/periksa-bantuan.py
 python3 alat/periksa-bantuan.py --uji-diri
+python3 alat/periksa-audit.py
+python3 alat/periksa-audit.py --uji-diri
+python3 alat/periksa-matriks-izin.py
+python3 alat/periksa-matriks-izin.py --uji-diri
 python3 alat/periksa-gerbang-ci.py
 python3 alat/periksa-gerbang-ci.py --uji-diri
 python3 alat/periksa-kunci-kalibrasi.py

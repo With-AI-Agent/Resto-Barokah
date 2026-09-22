@@ -361,10 +361,28 @@ membuatnya tersesat. Karena itu ada **mode bicara** khusus: `Tolong bimbing.` ·
 
 ---
 
+## 15. Format Penutup Chat Wajib 3 Bagian (permintaan Lee 2026-09-22)
+
+Setiap akhir balasan agent ke Lee **WAJIB** memuat 3 bagian ringkas berikut:
+
+1. **📍 Posisi Sekarang:**
+   Penjelasan 1–2 kalimat sederhana mengenai posisi kita dalam rencana kerja/roadmap dan apa yang baru saja diselesaikan.
+2. **⏩ Rencana Selanjutnya (Agent):**
+   Langkah konkret atau target tugas berikutnya yang akan dikerjakan agent.
+3. **👉 Langkah Lee:**
+   Pernyataan jelas mengenai apa yang harus Lee lakukan:
+   - Jika butuh tindakan nyata (seperti memasang rahasia atau memberi keputusan), sebutkan tindakannya.
+   - Jika tidak ada tindakan khusus, sebutkan cukup ketik **"Lanjut"** untuk melanjutkan pekerjaan.
+
+*(Catatan: Bagian ini diletakkan di akhir balasan. Semua penjelasan penting, pertimbangan, atau rincian masalah tetap disampaikan di atas bagian penutup ini).*
+
+---
+
 ## Log Keputusan (riwayat dokumen ini)
 
 | Tanggal | Perubahan | Alasan |
 |---|---|---|
+| 2026-09-22 | §15 **Format Penutup Chat Wajib 3 Bagian** (Posisi Sekarang, Rencana Selanjutnya, Langkah Lee) | Permintaan Lee: agar tidak bingung dan selalu tahu status kerja, langkah agent, dan apa aksi pengguna |
 | 2026-09-16 | `AGENT_OPERATING_GUIDE.md` ditulis & berlaku (Tahap 4) | Pemilik: *"Cukup, lanjut."* atas 10 topik aturan kerja |
 | 2026-09-16 | §2 **Pemasangan Skill Otomatis** ditambahkan + `alat/mulai-sesi.py` dibuat | Permintaan pemilik: sesi baru otomatis tahu semua konteks & memasang seluruh skill (model tiap sesi bisa berbeda) |
 | 2026-09-16 | §0 **Fakta platform lmarena** ditulis eksplisit (model berbeda, branch otomatis, base branch di awal, akses hilang setelah merge/close) | Penegasan pemilik 2026-09-16; memengaruhi aturan commit/push & penutupan sesi |

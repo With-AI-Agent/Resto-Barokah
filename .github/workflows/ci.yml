@@ -134,6 +134,18 @@ jobs:
       - name: Bukti mutasi isolasi identitas kosong 0025 (G3 A-F02)
         run: python3 alat/uji-mutasi-0025.py
 
+      - name: Bukti mutasi pemulihan perangkat 0028 (T1-36)
+        run: python3 alat/uji-mutasi-0028.py
+
+      - name: Bukti mutasi audit kekal & rantai hash 0029 (T1-13/T1-27)
+        run: python3 alat/uji-mutasi-0029.py
+
+      - name: Bukti mutasi sesi & pendaftaran perangkat 0030 (T1-24/T1-25/T1-26)
+        run: python3 alat/uji-mutasi-0030.py
+
+      - name: Bukti mutasi mode dukungan platform 0031 (T1-28)
+        run: python3 alat/uji-mutasi-0031.py
+
       - name: Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka)
         run: |
           python3 -m pip install --quiet --break-system-packages pgserver "psycopg[binary]"
@@ -182,6 +194,7 @@ jobs:
           python3 alat/periksa-temuan-audit.py --uji-diri
           python3 alat/periksa-buku-uji.py
           python3 alat/periksa-buku-uji.py --uji-diri
+          python3 alat/tambah-uji.py --uji-diri
           python3 alat/peta-ui.py
           python3 alat/peta-ui.py --uji-diri
           python3 aplikasi/alat/periksa-bahasa.py
@@ -190,6 +203,10 @@ jobs:
           python3 aplikasi/alat/periksa-arah.py --uji-diri
           python3 alat/periksa-bantuan.py
           python3 alat/periksa-bantuan.py --uji-diri
+          python3 alat/periksa-audit.py
+          python3 alat/periksa-audit.py --uji-diri
+          python3 alat/periksa-matriks-izin.py
+          python3 alat/periksa-matriks-izin.py --uji-diri
           python3 alat/review-pr.py --uji-diri
           python3 aplikasi/alat/periksa-kerapatan.py
           python3 aplikasi/alat/periksa-kerapatan.py --uji-diri

@@ -7,6 +7,11 @@
 - **Bahasa pilihan:** Indonesia (dikonfirmasi pemilik 2026-09-16)
 - **Gaya komunikasi:** Menyesuaikan kebutuhan — ramah orang non-teknis, tanpa jargon. Kalau bisa singkat, singkat; kalau memang perlu rinci, rinci. Jawaban pemilik: "Sesuai kebutuhan aja. Yang pastinya kamu harus sesuain sama aku yang ga paham coding dan programing dan hal-hal berkaitan dengan itu"
 - **Mode bimbingan (permintaan Lee 2026-09-19):** kalau Lee bilang **"Tolong bimbing" / "Mode bimbingan" / "Beri arahan step by step"**, agent masuk mode singkat: satu tindakan sekali, tanpa istilah, tiap balasan diakhiri satu langkah berikutnya. Ditutup dengan **"Sudah beres, lanjut normal."** — aturan lengkapnya di `docs/AGENT_OPERATING_GUIDE.md` §14 / alur **AL-14**.
+- **Format Penutup Chat Wajib 3 Bagian (permintaan Lee 2026-09-22):** Setiap akhir balasan agent ke Lee **WAJIB** ditutup dengan 3 bagian ringkas:
+  1. **📍 Posisi Sekarang:** status posisi roadmap & apa yang baru saja diselesaikan.
+  2. **⏩ Rencana Selanjutnya (Agent):** langkah konkret yang akan dikerjakan agent berikutnya.
+  3. **👉 Langkah Lee:** tindakan nyata yang harus dilakukan Lee (atau penegasan cukup ketik *"Lanjut"*).
+  *(Info penting lainnya tetap disampaikan di atas bagian penutup ini).*
 - **Tingkat detail penjelasan:** Sedang — setiap istilah teknis wajib diterjemahkan ke bahasa sehari-hari; kalau pemilik perlu melakukan sesuatu, tulis langkah-langkahnya satu per satu (step-by-step), bukan daftar istilah
 
 - **Penyerahan audit/review/pemeriksaan independen (ditegaskan 2026-09-21):** selalu tampilkan prompt pendek langsung di chat dalam blok siap-tempel; tautan/berkas saja tidak cukup. Prompt memakai repo + cabang sumber + SHA paket + path (privat via git/gh), SHA target terpisah. Tanpa pengingat lagi wajib otomatis commit/push/verifikasi laporan ke GitHub memakai pengirim terisolasi; cabang/working tree bisa bersama. Bukti repo/cabang/path/commit/hash atau TERBLOKIR, bukan klaim selesai lokal. Periksa draf sebelum mengirim (AL-15). Jangan kirim ulang bila Lee sudah menjalankannya dan tidak meminta penggantian.
@@ -41,6 +46,7 @@
 | Tanggal | Perubahan | Alasan |
 |---|---|---|
 | 2026-09-15 | Template dibuat (prinsip komunikasi adaptif) | Agar agent tidak kaku Indonesia/teknis, tapi menyesuaikan otak pengguna — dibaca tiap sesi sebelum PROJECT_STATE |
+| 2026-09-22 | Format penutup chat wajib 3 bagian (Posisi Sekarang, Rencana Selanjutnya, Langkah Lee) | Permintaan Lee: agar tidak bingung dan selalu tahu posisi serta langkah berikutnya |
 | 2026-09-19 | Mode bimbingan ditambahkan (AL-14 / AGENT_OPERATING_GUIDE §14) | Lee minta respon cepat saat dibimbing; agent mengusulkan batasnya: cepat untuk bimbingan, tetap teliti untuk bukti |
 | 2026-09-17 | Panggilan resmi: **Lee** (bukan "Bapak") | Permintaan Lee: *"mulai sekarang agent ga boleh sebut aku bapak. Nama aku Lee."* |
 | 2026-09-16 | Profil diisi pertama kali di sesi aplikasi Resto Barokah (Tahap 1 Discovery) | 4 pertanyaan wajib dijawab pemilik: Indonesia; gaya menyesuaikan kebutuhan tapi wajib ramah non-teknis; nol coding; rekomendasi terbaik + alasan (boleh ditambah usulan lain) — LANGKAH 0 AGENT_SYSTEM.md terpenuhi |

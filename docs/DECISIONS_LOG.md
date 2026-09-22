@@ -1636,4 +1636,112 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 - Pemeriksa bantuan: `python3 alat/periksa-bantuan.py` & `--uji-diri` LOLOS.
 - Gerbang CI & Paritas: 91 gerbang LULUS.
 
+## [Keamanan/2026-09-22] Tangga Pemulihan Perangkat Darurat & Kunci Induk (T1-36, ART-11)
+
+**Area:** Akses Perangkat (ART-11), Keamanan Otentikasi & Pemulihan Bencana  
+**Dasar:** TECH_SPEC §9 ART-11 & §5.1, `docs/KEAMANAN.md` §4b, PRD M12. Kehilangan perangkat owner/admin tidak boleh menghentikan operasional kedai, tanpa membuka pintu belakang yang melemahkan keamanan.
+
+**Pelaksanaan:**
+1. `supabase/migrations/0028_pemulihan_perangkat.sql`:
+   - Tabel `public.kredensial_pemulihan`: menyimpan kode pemulihan darurat dalam bentuk hash bcrypt (NOT NULL check regex bcrypt), RLS aktif tolak semua select bagi klien.
+   - Tabel `public.pemulihan_perangkat`: antrean permohonan pemulihan dengan masa tenggang wajib 30 menit (`aktif_setelah = now() + interval '30 minutes'`), RLS aktif hanya untuk pengelola resto terkait.
+   - RPC `buat_kode_pemulihan(p_kode)`: dibatasi ketat hanya untuk `owner_pusat`, kode lama yang belum terpakai otomatis dibatalkan, hash bcrypt tersimpan, tercatat di `catatan_audit`.
+   - RPC `pulihkan_perangkat(p_kode_pemulihan, p_nama, p_kunci, p_cabang_id)`: hanya dapat diajukan oleh `owner_pusat`, memvalidasi kecocokan kode bcrypt yang belum terpakai, mendaftarkan perangkat dengan status nonaktif (`aktif = false`), memasukkan antrean masa tenggang 30 menit, menandai kode sebagai terpakai (sekali pakai), dan mencatat ke `catatan_audit`.
+   - RPC `batalkan_pemulihan(p_pemulihan_id, p_alasan)`: membatalkan permohonan pemulihan sebelum 30 menit dan mengunci perangkat tetap nonaktif.
+   - RPC `selesaikan_pemulihan(p_pemulihan_id)`: menyelesaikan pemulihan dan mengaktifkan perangkat darurat hanya setelah masa tenggang 30 menit berlalu.
+2. `supabase/tes/pemulihan.sql`: 13 skenario pengujian menyeluruh (hak owner, penolakan non-owner, pencegahan pakai ulang kode, verifikasi masa tenggang 30 menit, pembatalan, aktivasi sukses, isolasi RLS).
+3. `alat/uji-mutasi-0028.py`: Harness mutasi dengan 4 kasus mutasi fail-closed yang seluruhnya wajib MERAH.
+4. `docs/ops/PEMULIHAN_PERANGKAT.md`: Panduan operasional darurat bagi pemilik dengan protokol 2 amplop fisik tersegel dan rotasi tahunan.
+
+**Verifikasi:**
+- SQL Suite: 68 berkas pengujian SQL LULUS (100%).
+- Uji Mutasi: `python3 alat/uji-mutasi-0028.py` (4/4 mutasi WAJIB MERAH) & `--uji-diri` LOLOS.
+
+## [Keamanan/2026-09-22] Catatan Audit Kekal & Rantai Hash Anti-Manipulasi (T1-13 & T1-27, ART-6 & ART-13)
+
+**Area:** Audit (ART-6), Jejak Audit (ART-13), Integritas Kriptografis Database  
+**Dasar:** TECH_SPEC §4 & §9 ART-6/ART-13, PRD M3 & M12. Jejak audit tindakan sensitif tidak boleh dapat diubah atau dihapus oleh siapa pun (termasuk owner dan superuser), dan setiap baris mengikat hash kriptografis baris sebelumnya sehingga manipulasi langsung pada database terdeteksi seketika.
+
+**Pelaksanaan:**
+1. `supabase/migrations/0029_audit_kekal_rantai.sql`:
+   - Trigger `catatan_audit_cegah_ubah_hapus`: menolak secara mutlak (`BEFORE UPDATE OR DELETE`) seluruh operasi ubah atau hapus pada `public.catatan_audit` (T1-13).
+   - Kolom `hash_sebelumnya` & `hash_baris`: menyimpan rantai hash SHA-256 (T1-27).
+   - Trigger `hitung_hash_catatan_audit`: (`BEFORE INSERT`) secara atomik mengambil `hash_baris` terakhir untuk penyewa yang sama (dengan `FOR UPDATE` untuk mencegah percabangan rantai) dan menghitung hash baris baru.
+   - RPC `verifikasi_rantai_audit(p_penyewa_id)`: memvalidasi keutuhan rantai dari genesis block hingga baris terakhir dan melaporkan ID baris yang rusak bila terjadi pemutusan rantai.
+2. `supabase/tes/audit_rantai.sql`: Pengujian unit penolakan UPDATE/DELETE, pembentukan rantai hash otomatis, dan pembuktian deteksi pemutusan rantai (100% LULUS).
+3. `alat/periksa-audit.py`: Validator skema audit (+ `--uji-diri` 3 kasus) terdaftar di CI.
+4. `alat/uji-mutasi-0029.py`: Harness mutasi dengan 3 kasus fail-closed (100% MERAH).
+
+**Verifikasi:**
+- SQL Suite: 69 berkas pengujian SQL LULUS (100%).
+- Uji Mutasi: `python3 alat/uji-mutasi-0029.py` (3/3 mutasi WAJIB MERAH) & `--uji-diri` LOLOS.
+- Pemeriksa Audit: `python3 alat/periksa-audit.py` & `--uji-diri` LOLOS.
+
+## [Keamanan/2026-09-22] Sesi Perangkat, Kode Pendaftaran, & Percobaan Masuk (T1-24, T1-25, T1-26, ART-11 & ART-12)
+
+**Area:** Akses Perangkat (ART-11), Keamanan Akun (ART-12), Manajemen Sesi  
+**Dasar:** TECH_SPEC §4.6 & §9 ART-11/ART-12, PRD M12. Akses staf dibatasi mutlak hanya dari perangkat terdaftar yang sah, sesi memiliki batas umur maksimum menurut peran, pencabutan perangkat memutus sesi seketika, dan percobaan masuk gagal dibatasi ketat (5× akun & 12× perangkat per 15 menit).
+
+**Pelaksanaan:**
+1. `supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql`:
+   - Tabel `kode_pendaftaran_perangkat` & RPC `buat_kode_perangkat()`, `daftarkan_perangkat_dengan_kode()` (T1-24).
+   - Tabel `persetujuan_perangkat` & RPC `setujui_perangkat_pegawai()` (T1-24).
+   - Tabel `sesi_perangkat` & RPC `ikat_sesi_perangkat()`, `keluar_semua_perangkat()`, `cabut_perangkat()` (T1-25).
+   - Tabel `percobaan_masuk` & RPC `catat_percobaan_masuk()`, `periksa_kunci_masuk()` (T1-26).
+2. `supabase/tes/sesi_dan_perangkat.sql`: Pengujian unit lengkap untuk seluruh alur pendaftaran kode, persetujuan, pengikatan sesi, pemutusan seketika saat pencabutan perangkat, dan penguncian akun 5× gagal.
+3. `alat/uji-mutasi-0030.py`: Harness mutasi 4 kasus fail-closed (100% MERAH).
+
+**Verifikasi:**
+- SQL Suite: 70 berkas pengujian SQL LULUS (100%).
+- Uji Mutasi: `python3 alat/uji-mutasi-0030.py` (4/4 mutasi WAJIB MERAH) & `--uji-diri` LOLOS.
+- Gerbang CI: 97 gerbang terdaftar dan terverifikasi penuh.
+
+## [Komunikasi/2026-09-22] Format Penutup Chat Wajib 3 Bagian (Posisi Sekarang, Rencana Selanjutnya, Langkah Lee)
+
+**Area:** Komunikasi & Alur Kerja Agent (Operasional)  
+**Dasar:** Permintaan langsung Lee (pesan 2026-09-22) agar setiap balasan agent diakhiri dengan struktur yang jelas, ringkas, dan tidak membuat bingung.
+
+**Pelaksanaan:**
+Setiap akhir balasan agent ke Lee **WAJIB** ditutup dengan 3 bagian ringkas:
+1. **📍 Posisi Sekarang:** status posisi saat ini dalam roadmap dan apa yang baru saja diselesaikan.
+2. **⏩ Rencana Selanjutnya (Agent):** langkah konkret yang akan dikerjakan agent berikutnya.
+3. **👉 Langkah Lee:** tindakan yang harus dilakukan Lee atau pernyataan cukup ketik *"Lanjut"*.
+Aturan ini dikunci dalam `PROFIL_PENGGUNA.md`, `docs/AGENT_OPERATING_GUIDE.md` (§15), dan `docs/teknis/REKAM_PESAN_PEMILIK.md` (§24).
+
+## [Keamanan/2026-09-22] Mode Dukungan Pemilik Platform & Matriks Izin 6 Peran (T1-28, T1-29, ART-15, ART-12)
+
+**Area:** Akses Lintas Penyewa (ART-15), Matriks Hak Akses Peran (ART-12)  
+**Dasar:** TECH_SPEC §9 ART-15 & §8, PRD §9 & M12. Pemilik platform secara bawaan tidak dapat membaca data penyewa. Akses hanya dibuka melalui mode dukungan berbatas waktu (15–120 menit, bawaan 60 menit), beralasan jelas (min 10 karakter), bersifat HANYA-BACA (read-only), serta seluruh pembukaan dan penutupannya tercatat pada jejak audit resto yang bersangkutan. Matriks hak akses 6 peran diuji secara menyeluruh dan fail-closed.
+
+**Pelaksanaan:**
+1. `supabase/migrations/0031_mode_dukungan_platform.sql`:
+   - Tabel `mode_dukungan` & indeks pelaku aktif.
+   - Fungsi `mode_dukungan_aktif(p_penyewa_id)` & pembaruan `penyewa_saya()` yang mengembalikan target penyewa saat mode dukungan aktif.
+   - RPC `masuk_mode_dukungan()` & `keluar_mode_dukungan()` dengan pencatatan otomatis ke `catatan_audit`.
+2. `supabase/tes/mode_dukungan.sql`: Uji SQL mode dukungan (akses tanpa mode = 0 baris, aktivasi sah, pembacaan data resto, penolakan penulisan data/hanya-baca, audit terlihat oleh owner, dan penutupan mode).
+3. `alat/uji-mutasi-0031.py`: Harness mutasi 4/4 fail-closed lolos.
+4. `supabase/tes/matriks_izin_6_peran.sql` & `alat/periksa-matriks-izin.py`: Uji matriks komprehensif 6 peran × 10 izin + RPC.
+
+**Verifikasi:**
+- SQL Suite: 72 berkas uji SQL LULUS (100%).
+- Uji Mutasi: `python3 alat/uji-mutasi-0031.py` (4/4 mutasi WAJIB MERAH) & `--uji-diri` LOLOS.
+- Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` (13/13 mutasi fail-closed) LOLOS.
+- Gerbang CI: 98 gerbang CI terverifikasi utuh.
+
+## [Antarmuka/2026-09-22] Autentikasi Pegawai, Navigasi 6 Peran, & Pesan Ramah Berkode (T2-01, T2-02, T2-06, T2-07, T2-08)
+
+**Area:** Autentikasi Klien (TECH_SPEC §1), Navigasi & Tata Letak Peran (ART-2), Konteks Cabang (ART-1), Standar Pesan Error (AGENT_OPERATING_GUIDE §6)  
+**Dasar:** Akses staf mengikat kombinasi email + PIN 6 angka dengan perangkat terdaftar lokal. Navigasi antarmuka beradaptasi dinamis menyajikan menu relevan untuk 6 peran tanpa mengorbankan keamanan server (keamanan tetap dipagari RLS/RPC). Pemilih cabang mengunci staf cabang tunggal dan membebaskan owner pusat. Pesan kesalahan diterjemahkan ke format ramah berkode (mis. AK-403, AK-601, PIN-401, PRG-404) dengan instruksi tindakan jelas.
+
+**Pelaksanaan:**
+1. `aplikasi/src/lib/auth.ts` & `aplikasi/src/hook/useSesi.ts`: Manajemen sesi lokal aman, pemanggilan RPC verifikasi PIN terpadu perangkat, dan pembersihan sesi saat keluar.
+2. `aplikasi/src/layar/masuk/LayarMasukPegawai.tsx`: Antarmuka login staf dengan keypad angka responsif, indikator PIN, dan panduan bantuan.
+3. `aplikasi/src/komponen/Navigasi.tsx` & `aplikasi/src/komponen/Rangka.tsx`: Layout utama dan bilah menu beradaptasi per peran dengan tombol kontrol tema, kerapatan, bahasa, bantuan, dan logout.
+4. `aplikasi/src/hook/useCabang.ts` & `aplikasi/src/komponen/PemilihCabang.tsx`: Penguncian konteks cabang aktif sesuai hak akses peran.
+5. `aplikasi/src/layar/TidakPunyaAkses.tsx` & `aplikasi/src/lib/pesan.ts`: Penanganan halaman terlarang dengan kode kesalahan ramah tanpa jargon teknis.
+
+**Verifikasi:**
+- Uji Unit: 26 berkas pengujian Vitest (154 uji unit) LULUS 100%.
+- Pemeriksa Struktur & Uji: `periksa-uji.py` & `periksa-struktur.py` LOLOS tanpa pelanggaran token/warna.
+- Kompilasi: TypeScript `tsc -b` & Vite production build lulus tanpa galat.
 
