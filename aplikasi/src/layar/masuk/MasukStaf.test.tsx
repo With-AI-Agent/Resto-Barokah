@@ -18,7 +18,7 @@ describe('MasukStaf (T2-14)', () => {
     render(
       <PenyediaBahasa>
         <MasukStaf daftarStaf={stafDummy} onVerifikasiPin={vi.fn()} />
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     expect(screen.getByText('Budi Santoso')).toBeDefined()
@@ -37,7 +37,7 @@ describe('MasukStaf (T2-14)', () => {
           onVerifikasiPin={onVerifikasiMock}
           onMasukSukses={onSuksesMock}
         />
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     // Klik nama staf Budi
@@ -67,7 +67,7 @@ describe('MasukStaf (T2-14)', () => {
     render(
       <PenyediaBahasa>
         <MasukStaf daftarStaf={stafDummy} onVerifikasiPin={onVerifikasiMock} />
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     fireEvent.click(screen.getByRole('button', { name: /Budi Santoso/i }))
@@ -93,7 +93,7 @@ describe('MasukStaf (T2-14)', () => {
           perangkatTerdaftar={false}
           onVerifikasiPin={onVerifikasiMock}
         />
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     expect(screen.getByText('Belum Terdaftar')).toBeDefined()

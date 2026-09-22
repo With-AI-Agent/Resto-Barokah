@@ -32,9 +32,7 @@ describe('DaftarPerangkat (T2-17)', () => {
   ]
 
   it('merender daftar perangkat resmi dan status keaktifannya', () => {
-    render(
-      <DaftarPerangkat daftarPerangkat={daftarContoh} onCabutPerangkat={vi.fn()} />
-    )
+    render(<DaftarPerangkat daftarPerangkat={daftarContoh} onCabutPerangkat={vi.fn()} />)
 
     expect(screen.getByText('Tablet POS Kasir 1')).toBeDefined()
     expect(screen.getByText('Tablet Waiter Outdoor')).toBeDefined()
@@ -45,9 +43,7 @@ describe('DaftarPerangkat (T2-17)', () => {
   it('membuka dialog konfirmasi saat tombol Cabut Izin diklik dan memanggil onCabutPerangkat', async () => {
     const onCabutMock = vi.fn().mockResolvedValue({ sukses: true })
 
-    render(
-      <DaftarPerangkat daftarPerangkat={daftarContoh} onCabutPerangkat={onCabutMock} />
-    )
+    render(<DaftarPerangkat daftarPerangkat={daftarContoh} onCabutPerangkat={onCabutMock} />)
 
     // Klik tombol Cabut Izin pada Tablet POS Kasir 1
     const tombolCabut = screen.getByRole('button', { name: /Cabut Izin/i })
@@ -64,7 +60,7 @@ describe('DaftarPerangkat (T2-17)', () => {
     await waitFor(() => {
       expect(onCabutMock).toHaveBeenCalledWith(
         'dev-01',
-        'Perangkat hilang / ditarik dari operasional'
+        'Perangkat hilang / ditarik dari operasional',
       )
     })
   })

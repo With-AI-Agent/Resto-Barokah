@@ -13,7 +13,7 @@ describe('MasukPengelola (T2-18 & T2-13)', () => {
     render(
       <PenyediaBahasa>
         <MasukPengelola onMasukKataSandi={vi.fn()} />
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     expect(screen.getByLabelText(/Alamat Email Pengelola/i)).toBeDefined()
@@ -28,7 +28,7 @@ describe('MasukPengelola (T2-18 & T2-13)', () => {
     render(
       <PenyediaBahasa>
         <MasukPengelola onMasukKataSandi={onMasukMock} onMasukSukses={onSuksesMock} />
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     fireEvent.change(screen.getByLabelText(/Alamat Email Pengelola/i), {
@@ -57,7 +57,7 @@ describe('MasukPengelola (T2-18 & T2-13)', () => {
     render(
       <PenyediaBahasa>
         <MasukPengelola onMasukKataSandi={onMasukMock} onMasukSukses={onSuksesMock} />
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     fireEvent.change(screen.getByLabelText(/Alamat Email Pengelola/i), {

@@ -55,7 +55,7 @@ export function LayarMasukPelanggan({
       const hasil = await onKirimTautanEmail?.(email.trim())
       if (hasil?.sukses) {
         setPesanSukses(
-          `Tautan masuk telah dikirim ke ${email}. Silakan buka email Anda untuk masuk langsung tanpa sandi.`
+          `Tautan masuk telah dikirim ke ${email}. Silakan buka email Anda untuk masuk langsung tanpa sandi.`,
         )
         setEmail('')
       } else {
@@ -79,25 +79,26 @@ export function LayarMasukPelanggan({
         </div>
 
         {pesanGalat && (
-          <div role="alert" className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800 mb-4">
+          <div
+            role="alert"
+            className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800 mb-4"
+          >
             {pesanGalat}
           </div>
         )}
 
         {pesanSukses && (
-          <div role="status" className="p-3 bg-emerald-50 border border-emerald-200 rounded text-sm text-emerald-800 mb-4">
+          <div
+            role="status"
+            className="p-3 bg-emerald-50 border border-emerald-200 rounded text-sm text-emerald-800 mb-4"
+          >
             {pesanSukses}
           </div>
         )}
 
         <div className="space-y-4">
           {/* Tombol Masuk Google Utama */}
-          <Tombol
-            ragam="biasa"
-            lebar
-            onClick={tanganiGoogle}
-            nonaktif={sedangGoogle}
-          >
+          <Tombol ragam="biasa" lebar onClick={tanganiGoogle} nonaktif={sedangGoogle}>
             <span className="flex items-center justify-center gap-3">
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -155,13 +156,15 @@ export function LayarMasukPelanggan({
               onChange={(e) => setSetujuPrivasi(e.target.checked)}
               className="mt-1 h-4 w-4 rounded border-neutral-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
             />
-            <label htmlFor="persetujuan-privasi" className="text-xs text-neutral-600 cursor-pointer">
+            <label
+              htmlFor="persetujuan-privasi"
+              className="text-xs text-neutral-600 cursor-pointer"
+            >
               Saya menyetujui data saya (nama & email) digunakan hanya untuk layanan resto sesuai{' '}
-              <Tombol
-                ragam="polos"
-                onClick={onBukaKebijakanPrivasi}
-              >
-                <span className="text-emerald-700 underline font-medium">Kebijakan Privasi Resto</span>
+              <Tombol ragam="polos" onClick={onBukaKebijakanPrivasi}>
+                <span className="text-emerald-700 underline font-medium">
+                  Kebijakan Privasi Resto
+                </span>
               </Tombol>
               . Resto Barokah tidak membagikan data ke pihak ketiga.
             </label>

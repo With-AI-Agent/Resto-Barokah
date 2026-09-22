@@ -13,7 +13,7 @@ describe('LayarMasukPelanggan (T2-04)', () => {
     render(
       <PenyediaBahasa>
         <LayarMasukPelanggan />
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     expect(screen.getByText(/Lanjut dengan Akun Google/i)).toBeDefined()
@@ -27,7 +27,7 @@ describe('LayarMasukPelanggan (T2-04)', () => {
     render(
       <PenyediaBahasa>
         <LayarMasukPelanggan onMasukGoogle={onGoogleMock} />
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     fireEvent.click(screen.getByText(/Lanjut dengan Akun Google/i))
@@ -45,7 +45,7 @@ describe('LayarMasukPelanggan (T2-04)', () => {
     render(
       <PenyediaBahasa>
         <LayarMasukPelanggan onKirimTautanEmail={onKirimEmailMock} />
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     // Centang privasi

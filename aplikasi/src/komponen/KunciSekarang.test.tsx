@@ -25,7 +25,7 @@ describe('KunciSekarang (T2-16)', () => {
         dalamPeringatan={true}
         sisaDetik={45}
         onBatalkanPeringatan={onBatalkan}
-      />
+      />,
     )
 
     expect(screen.getByRole('alert')).toBeDefined()

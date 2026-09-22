@@ -159,30 +159,17 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
                 }}
               >
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((num) => (
-                  <Tombol
-                    key={num}
-                    ragam="biasa"
-                    onClick={() => handleTekanAngka(num)}
-                  >
+                  <Tombol key={num} ragam="biasa" onClick={() => handleTekanAngka(num)}>
                     {num}
                   </Tombol>
                 ))}
-                <Tombol
-                  ragam="biasa"
-                  onClick={handleResetPin}
-                >
+                <Tombol ragam="biasa" onClick={handleResetPin}>
                   C
                 </Tombol>
-                <Tombol
-                  ragam="biasa"
-                  onClick={() => handleTekanAngka('0')}
-                >
+                <Tombol ragam="biasa" onClick={() => handleTekanAngka('0')}>
                   0
                 </Tombol>
-                <Tombol
-                  ragam="biasa"
-                  onClick={handleHapusAngka}
-                >
+                <Tombol ragam="biasa" onClick={handleHapusAngka}>
                   ⌫
                 </Tombol>
               </div>

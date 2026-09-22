@@ -9,7 +9,7 @@ export interface MasukPengelolaProps {
   onMasukKataSandi: (
     email: string,
     kataSandi: string,
-    kodeTotp?: string
+    kodeTotp?: string,
   ) => Promise<{
     sukses: boolean
     butuhTotp?: boolean
@@ -34,7 +34,12 @@ export function MasukPengelola({
   const [kodeTotp, setKodeTotp] = useState('')
   const [tahapTotp, setTahapTotp] = useState(false)
   const [sedangMemproses, setSedangMemproses] = useState(false)
-  const [pesanGalat, setPesanGalat] = useState<{ judul: string; pesan: string; tindakan: string; kode: string } | null>(null)
+  const [pesanGalat, setPesanGalat] = useState<{
+    judul: string
+    pesan: string
+    tindakan: string
+    kode: string
+  } | null>(null)
 
   const tanganiSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,7 +58,11 @@ export function MasukPengelola({
     setSedangMemproses(true)
     setPesanGalat(null)
     try {
-      const hasil = await onMasukKataSandi(email.trim(), kataSandi, tahapTotp ? kodeTotp : undefined)
+      const hasil = await onMasukKataSandi(
+        email.trim(),
+        kataSandi,
+        tahapTotp ? kodeTotp : undefined,
+      )
       if (hasil.sukses) {
         onMasukSukses?.()
       } else if (hasil.butuhTotp) {
@@ -84,7 +93,10 @@ export function MasukPengelola({
         </div>
 
         {pesanGalat && (
-          <div role="alert" className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800 mb-4">
+          <div
+            role="alert"
+            className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800 mb-4"
+          >
             <div className="font-semibold mb-0.5">{pesanGalat.judul}</div>
             <div className="text-xs text-red-600 mb-1">{pesanGalat.pesan}</div>
             <div className="text-xs text-neutral-600 mb-1">{pesanGalat.tindakan}</div>
@@ -130,13 +142,15 @@ export function MasukPengelola({
             ragam="utama"
             jenis="submit"
             lebar
-            nonaktif={sedangMemproses || !email || !kataSandi || (tahapTotp && kodeTotp.length !== 6)}
+            nonaktif={
+              sedangMemproses || !email || !kataSandi || (tahapTotp && kodeTotp.length !== 6)
+            }
           >
             {sedangMemproses
               ? 'Memverifikasi...'
               : tahapTotp
-              ? 'Verifikasi & Masuk'
-              : 'Masuk sebagai Pengelola'}
+                ? 'Verifikasi & Masuk'
+                : 'Masuk sebagai Pengelola'}
           </Tombol>
 
           {tahapTotp && (
@@ -158,10 +172,7 @@ export function MasukPengelola({
 
           {!tahapTotp && onLupaSandi && (
             <div className="text-center">
-              <Tombol
-                ragam="polos"
-                onClick={onLupaSandi}
-              >
+              <Tombol ragam="polos" onClick={onLupaSandi}>
                 <span className="text-xs text-neutral-500 hover:text-neutral-800 underline">
                   Lupa kata sandi pengelola?
                 </span>
@@ -172,10 +183,7 @@ export function MasukPengelola({
 
         {onBeralihKeStaf && (
           <div className="mt-6 pt-4 border-t border-neutral-200 text-center">
-            <Tombol
-              ragam="polos"
-              onClick={onBeralihKeStaf}
-            >
+            <Tombol ragam="polos" onClick={onBeralihKeStaf}>
               <span className="text-sm text-emerald-700 font-medium hover:text-emerald-800">
                 ← Masuk sebagai Pegawai (PIN 6 Digit)
               </span>

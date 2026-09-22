@@ -39,7 +39,7 @@ describe('KelolaPegawai (T2-03)', () => {
         onTambahPegawai={vi.fn()}
         onUbahStatusPegawai={vi.fn()}
         onAturUlangPin={vi.fn()}
-      />
+      />,
     )
 
     expect(screen.getByText('Budi Santoso')).toBeDefined()
@@ -60,7 +60,7 @@ describe('KelolaPegawai (T2-03)', () => {
         onTambahPegawai={onTambahMock}
         onUbahStatusPegawai={vi.fn()}
         onAturUlangPin={vi.fn()}
-      />
+      />,
     )
 
     // Klik tombol tambah
@@ -71,7 +71,9 @@ describe('KelolaPegawai (T2-03)', () => {
 
     // Isi formulir
     fireEvent.change(screen.getByLabelText(/Nama Lengkap/i), { target: { value: 'Dewi Sartika' } })
-    fireEvent.change(screen.getByLabelText(/Alamat Email/i), { target: { value: 'dewi@barokah.id' } })
+    fireEvent.change(screen.getByLabelText(/Alamat Email/i), {
+      target: { value: 'dewi@barokah.id' },
+    })
     fireEvent.change(screen.getByLabelText(/PIN Awal/i), { target: { value: '654321' } })
 
     // Submit
@@ -99,7 +101,7 @@ describe('KelolaPegawai (T2-03)', () => {
         onTambahPegawai={vi.fn()}
         onUbahStatusPegawai={onUbahStatusMock}
         onAturUlangPin={vi.fn()}
-      />
+      />,
     )
 
     // Klik tombol Nonaktifkan untuk Budi Santoso

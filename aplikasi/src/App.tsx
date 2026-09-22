@@ -4,6 +4,7 @@ import { useSesi } from './hook/useSesi'
 import { Rangka } from './komponen/Rangka'
 import LayarContoh from './layar/contoh/LayarContoh'
 import { LayarMasukPegawai } from './layar/masuk/LayarMasukPegawai'
+import { LayarKasir } from './layar/kasir/LayarKasir'
 import { KelolaPegawai } from './layar/pengaturan/KelolaPegawai'
 import { DaftarPerangkat } from './layar/pengaturan/DaftarPerangkat'
 
@@ -13,8 +14,10 @@ export default function App() {
 
   const renderKonten = () => {
     switch (layarAktif) {
+      case 'kasir':
+        return <LayarKasir cabangId={sesi?.cabangAktifId || 'cab-01'} />
       case 'pegawai':
-        return <KelolaPegawai />
+        return <KelolaPegawai cabangAktifId={sesi?.cabangAktifId || 'cab-01'} />
       case 'pengaturan':
         return <DaftarPerangkat />
       default:

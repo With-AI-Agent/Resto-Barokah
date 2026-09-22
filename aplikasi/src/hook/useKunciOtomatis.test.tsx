@@ -49,7 +49,7 @@ describe('useKunciOtomatis (T2-09 & T2-16)', () => {
         detikTenggangPeringatan: 60,
         onPeringatan,
         onKunci,
-      })
+      }),
     )
 
     // Majukan waktu ke 13 menit 50 detik (830 detik) -> belum peringatan

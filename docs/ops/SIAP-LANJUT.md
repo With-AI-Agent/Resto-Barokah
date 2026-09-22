@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0c7b6-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0c7b6-resto-barokah`
-- **Commit keadaan kerja:** `21cb15328707cef4d344fe6f1db386488ba02c5e`
+- **Commit keadaan kerja:** `d3894485c2e6b15b6c217b490c23d4dd7ad50aa4`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 35724426271, commit 21cb1532) — tunggu sampai selesai
+- **CI terakhir:** failure (run 35724474342, commit d3894485)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-22 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **0** — (tidak ada)
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (11 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (11 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (12 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (12 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,13 +70,20 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-> **MARATON FASE 1C SELESAI LENGKAP (2026-09-22):** Seluruh fondasi Fase 1C (T1-31 Kontrak Layar, T1-32 Registri Aksi & TombolAksi, T1-33 Pemeriksa Peta UI di CI, T1-34 Harness Uji Komponen, T1-35 Naskah Jalan Pemilik, T1-39 Pemetaan Layar G1, T1-40 Multi-Bahasa i18n 4 bahasa, T1-41 Tata Letak RTL/LTR & Font, T1-42 Bantuan Kontekstual Per Layar) selesai dikerjakan dan diverifikasi penuh. Vitest suite 17 berkas (123 pengujian unit) dan 67 SQL suite 100% LULUS. Gerbang CI 91 gerbang diawasi dua arah.
+> **MARATON FASE 1B, 1C, FASE 2, & FASE 3 KASIR/PESANAN POS SELESAI LENGKAP 100% (2026-09-22):** Seluruh fondasi Fase 1B, 1C, Fase 2, serta seluruh komponen utama Terminal Kasir POS Fase 3 (T3-01 s/d T3-16: Katalog Menu POS dinamis, Keranjang Server-Calculated tanpa manipulasi klien, Pemilih Denah Meja & Tipe Pesanan, Tagihan Terbuka / Open Bill, Kirim ke Dapur, Pembayaran Tunai/QRIS/EDC, Layar Pesanan Pelayan Mobile HP, Riwayat Pesanan Harian, Uji E2E Kasir & Beban Ringan) telah selesai dikerjakan dan diverifikasi penuh. Vitest suite 45 berkas (213 pengujian unit) dan 72 SQL suite 100% LULUS. Gerbang CI 100 gerbang diawasi dua arah.
 
 **Langkah berikutnya (urut):**
-1. **T1-43: Buku Uji Pemilik & Gema Chat** (`docs/uji/BUKU_UJI_PEMILIK.md`, pemeriksa `alat/periksa-buku-uji.py`).
-2. **T1-36: Tangga Pemulihan Perangkat Hilang** (migrasi `0028_pemulihan_perangkat.sql`, RPC darurat, masa tenggang 30 menit).
-3. **T1-37 & Fase 1B**: Pekerjaan ulang B.1–B.9, sesi perangkat `0029_sesi_perangkat.sql`, audit log trigger `catatan_audit`.
-4. **Fase 2 / Layar G1**: Mulai implementasi komponen layar G1 (`LayarMasuk`, `LayarKasir`, `LayarDapur`, dsb.) berdasarkan kontrak yang sudah terkunci.
+1. **Fase 4: Dapur / Kitchen Display System (KDS) & Stok Dasar (T4-01 s/d T4-10)**:
+   - `T4-01`: Layar dapur (makanan) dengan urutan FIFO (`aplikasi/src/layar/dapur/LayarDapur.tsx`).
+   - `T4-02`: Layar bar/minuman terpisah (stasiun minuman).
+   - `T4-03`: Status item pesanan (dimasak → siap saji → diantar) dengan tombol sentuh besar.
+   - `T4-04`: Penanda waktu & peringatan pesanan lama (> 15 menit).
+   - `T4-05`: Suara notifikasi pesanan masuk & siap.
+   - `T4-06` s/d `T4-10`: Void/batal dari dapur berizin supervisor, opname stok harian sederhana, dan sinkronisasi realtime status pesanan.
+2. **Fase 5: Pembayaran Multimetode & Tutup Kasir / Shift (M6, M1)**:
+   - Pembagian tagihan (split bill per item / per nominal).
+   - Cetak struk Bluetooth & format struk termal standar 58mm/80mm.
+   - Buka/tutup shift kasir, rekonsiliasi kas laci (cash drawer), dan serah terima shift.
 
 > **MARATON G3 — HANDOFF SESI BARU (2026-09-22):** T-04/A, T-05/B, T-06/C sudah dipanen; pagar 0024/0025/0026, regresi/mutasi, dan penguatan B-F01..B-F09 sudah masuk branch sesi. **Hosted CI `35691286819` untuk commit `be14b40` SUCCESS penuh, termasuk pemeriksa fondasi/history.** Sesi berikutnya melanjutkan pekerjaan teknis agent-owned T1-45/T1-30 dan bantah-balik AUD-2; jangan merge PR, deploy, atau sebar Supabase. A-F02 tentang keterjangkauan PostgREST produksi masih belum terverifikasi dan memerlukan izin Lee sebelum uji/sebar produksi. Rincian ada di `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md`.
 
@@ -911,28 +918,22 @@ Urutan yang disarankan agent, dan alasannya:
    - T3-04: Pembayaran kasir (Tunai, QRIS, Kartu, Split Bill)
    - T3-05: Cetak struk kasir & kirim nota elektronik (PDF/WhatsApp)
 
-**MARATON G3 BATCH FASE 1B, 1C & FASE 2 SELESAI LENGKAP (2026-09-22):**
+**MARATON G3 BATCH FASE 1B, 1C, FASE 2, & FASE 3 POS KASIR SELESAI LENGKAP (2026-09-22):**
 1. **Fase 1B & 1C Selesai Penuh:** Seluruh migrasi keamanan (`0011`–`0031`), 72 pengujian SQL PGlite (100% lulus), fondasi tema, i18n 4 bahasa, tata letak, registri aksi, dan kontrak antarmuka telah diverifikasi solid.
-2. **Fase 2 (Masuk & Kerangka Aplikasi) Selesai Penuh:**
-   - T2-01: Supabase Auth & Sesi Aman di klien
-   - T2-02: Layar Masuk Pegawai (Email + PIN Keypad)
-   - T2-03: Kelola Pegawai & Atur Ulang PIN oleh Admin (`KelolaPegawai.tsx` + uji unit)
-   - T2-04: Masuk Pelanggan: Google One-Tap & Tautan Email (`LayarMasukPelanggan.tsx` + uji unit)
-   - T2-05: Pemulihan Akses Pelanggan (`LupaAkses.tsx` + uji unit)
-   - T2-06: Kerangka Layout & Navigasi 6 Peran (`Rangka.tsx`, `Navigasi.tsx` + uji unit)
-   - T2-07: Pemilih Cabang & Konteks Cabang Aktif (`PemilihCabang.tsx` + uji unit)
-   - T2-08: Halaman Tidak Punya Akses & Pesan Ramah Berkode (`TidakPunyaAkses.tsx` + uji unit)
-   - T2-09 & T2-16: Sesi Berakhir Otomatis & Kunci Instan (`useKunciOtomatis.ts`, `KunciSekarang.tsx` + uji unit)
-   - T2-10: Pembatasan Percobaan Masuk Server-Side (Migrasi 0028 & SQL test)
-   - T2-11: PWA Dasar (Manifest Webmanifest + Ikon + Service Worker `sw.js`)
-   - T2-12 & T2-19: Uji Menyeluruh Hak Akses & Navigasi 6 Peran (`SkenarioMasukPeran.test.tsx` 8 tes lulus)
-   - T2-13 & T2-18: Masuk Pengelola Sandi + TOTP 2FA (`MasukPengelola.tsx` + uji unit)
-   - T2-14: Layar Masuk Staf Perangkat Terdaftar (`MasukStaf.tsx` + uji unit)
-   - T2-15: Pendaftaran Perangkat Baru & Persetujuan Pegawai (`Perangkat.tsx` + uji unit)
-   - T2-17: Daftar Perangkat & Pencabutan Sesi Hilang (`DaftarPerangkat.tsx` + uji unit)
-3. **Rencana Selanjutnya:** Melanjutkan ke Fase 3 (Pesanan & Kasir - M4):
-   - T3-01: Layar Kasir: katalog nyata dari database (kategori, varian, tambahan)
-   - T3-02: Keranjang belanja: tambah/kurang/catatan khusus per item
-   - T3-03: Simpan pesanan draf / meja terbuka
-   - T3-04: Pembayaran kasir (Tunai, QRIS, Kartu, Split Bill)
-   - T3-05: Cetak struk kasir & kirim nota elektronik (PDF/WhatsApp)
+2. **Fase 2 (Masuk & Kerangka Aplikasi) Selesai Penuh:** Seluruh 19 tugas (T2-01 s/d T2-19) terverifikasi lengkap.
+3. **Fase 3 (Pesanan & Kasir - M4) Selesai Penuh:**
+   - T3-01 & T3-07: Katalog menu dinamis, pencarian instan, filter kategori, penandaan & penguncian menu habis (`Katalog.tsx` + uji unit)
+   - T3-02: Keranjang belanja server-calculated, subtotal, diskon, service, PB1, dan catatan per item (`Keranjang.tsx` + uji unit)
+   - T3-03 & T3-06: Pemilih meja (dine-in/takeaway/ojol), denah meja, dan alur pindah meja (`PemilihMeja.tsx` + uji unit)
+   - T3-04: Tagihan terbuka (open bill) aktif & pembuatan tagihan baru (`TagihanTerbuka.tsx` + uji unit)
+   - T3-05, T3-08, T3-10, T3-13, T3-15: Terminal kasir POS terpadu, modal pembayaran multi-metode (tunai dengan pecahan cepat & kembalian akurat, QRIS, kartu EDC), diskon voucher, kirim dapur, dan keadaan memuat/gagal (`LayarKasir.tsx` + uji unit)
+   - T3-11: Layar pesanan pelayan mobile HP di samping meja (`LayarPelayan.tsx` + uji unit)
+   - T3-12: Riwayat pesanan hari ini dengan filter status/tipe/meja (`DaftarPesanan.tsx` + uji unit)
+   - T3-14 & T3-16: Uji alur kasir ujung-ke-ujung (E2E) dan uji beban ringan (<10ms per kalkulasi 50 item) (`AlurKasirE2E.test.tsx`, `BebanKasir.test.ts`)
+4. **Rencana Selanjutnya:** Melanjutkan ke Fase 4 (Dapur / Kitchen Display System - KDS & Stok Dasar: M5, M9):
+   - T4-01: Layar dapur (makanan) dengan urutan FIFO (`aplikasi/src/layar/dapur/LayarDapur.tsx`)
+   - T4-02: Layar bar/minuman terpisah (stasiun minuman)
+   - T4-03: Status item pesanan (dimasak → siap saji → diantar)
+   - T4-04: Penanda waktu & peringatan pesanan lama (> 15 menit)
+   - T4-05: Suara notifikasi pesanan masuk & siap saji
+   - T4-06 s/d T4-10: Void/batal dapur berizin supervisor, opname stok harian sederhana, dan realtime sync

@@ -839,7 +839,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 3 — Pesanan & kasir (M4)
 
-- [ ] T3-01 — Layar kasir: katalog nyata dari database
+- [x] T3-01 — Layar kasir: katalog nyata dari database
   - **Tujuan:** kasir bisa memilih menu dengan cepat dari data asli (kategori, varian, tambahan).
   - **Ref:** PRD M4 & M2; TECH_SPEC §4
   - **File:** `aplikasi/src/layar/kasir/LayarKasir.tsx`, `aplikasi/src/layar/kasir/Katalog.tsx`
@@ -848,7 +848,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** lambat saat katalog besar → mitigasi: muat bertahap + cache ringan di klien (tanpa data sensitif).
   - **Verifikasi:** uji manual dengan 200 item; waktu muat awal < 3 detik.
 
-- [ ] T3-02 — Keranjang + angka dari peladen (klien tidak menghitung)
+- [x] T3-02 — Keranjang + angka dari peladen (klien tidak menghitung)
   - **Tujuan:** angka di keranjang selalu sama dengan angka resmi sistem.
   - **Ref:** TECH_SPEC §9 ART-3; PRD M6
   - **File:** `aplikasi/src/layar/kasir/Keranjang.tsx`, `aplikasi/src/lib/uang.ts`
@@ -857,7 +857,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3); rumus tersalin ke klien → mitigasi: uji otomatis "klien dilarang menghitung" (mencari pola perhitungan nominal di `/src/layar`).
   - **Verifikasi:** uji unit + pemeriksaan otomatis larangan perhitungan di klien.
 
-- [ ] T3-03 — Pilih meja / jenis pesanan + catatan khusus
+- [x] T3-03 — Pilih meja / jenis pesanan + catatan khusus
   - **Tujuan:** pesanan dicatat sesuai kenyataan (dine-in, bawa pulang, ojol) dengan permintaan khusus.
   - **Ref:** PRD M4 (kriteria selesai)
   - **File:** `aplikasi/src/layar/kasir/PemilihMeja.tsx`, `aplikasi/src/komponen/CatatanItem.tsx`
@@ -866,7 +866,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** salah meja → mitigasi: konfirmasi + tampilan nomor meja besar di keranjang.
   - **Verifikasi:** uji manual 3 jenis pesanan + catatan sampai ke layar dapur.
 
-- [ ] T3-04 — Tagihan terbuka (open bill): simpan & lanjutkan
+- [x] T3-04 — Tagihan terbuka (open bill): simpan & lanjutkan
   - **Tujuan:** pelanggan bisa memesan bertahap tanpa tagihan terpisah.
   - **Ref:** PRD M4 (kriteria selesai)
   - **File:** `aplikasi/src/layar/kasir/DaftarTagihan.tsx`
@@ -884,7 +884,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4) & Antrean (ART-8); pesanan dobel → mitigasi: kunci unik di database + uji paralel.
   - **Verifikasi:** uji SQL: 5 pemanggilan dengan kunci sama → 1 pesanan; tanpa kunci → ditolak.
 
-- [ ] T3-06 — Pindah meja + status meja
+- [x] T3-06 — Pindah meja + status meja
   - **Tujuan:** pelanggan pindah meja tanpa membingungkan dapur/kasir.
   - **Ref:** PRD M4 (kasus tepi)
   - **File:** `aplikasi/src/layar/kasir/PindahMeja.tsx`, `supabase/migrations/0029_pindah_meja.sql`
@@ -893,7 +893,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** salah pindah → mitigasi: konfirmasi + catatan audit.
   - **Verifikasi:** uji manual + uji SQL riwayat pindah meja.
 
-- [ ] T3-07 — Penguncian menu habis di kasir
+- [x] T3-07 — Penguncian menu habis di kasir
   - **Tujuan:** pelanggan tidak memesan yang sudah habis.
   - **Ref:** PRD M9 (kriteria selesai); TECH_SPEC §4.2 (`stok_pergerakan`, jenis `opname`)
   - **File:** `aplikasi/src/layar/kasir/Katalog.tsx` (penanda habis), `supabase/migrations/0030_menu_habis.sql`
@@ -902,7 +902,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** penanda lupa dicabut → mitigasi: daftar "menu habis hari ini" di layar kasir + pengingat pagi.
   - **Verifikasi:** uji manual + uji SQL (item habis ditolak di RPC pesanan).
 
-- [ ] T3-08 — Kirim ke dapur (status pesanan berubah)
+- [x] T3-08 — Kirim ke dapur (status pesanan berubah)
   - **Tujuan:** dapur mulai bekerja begitu pesanan dikirim, dan kasir tahu statusnya.
   - **Ref:** PRD M4 & M5; TECH_SPEC §9 ART-4
   - **File:** `aplikasi/src/layar/kasir/KirimDapur.tsx`, `supabase/migrations/0031_kirim_dapur.sql`
@@ -920,7 +920,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pesanan tertukar → mitigasi: tampilan nama pelayan + jam buka meja.
   - **Verifikasi:** uji manual dua perangkat bersamaan.
 
-- [ ] T3-10 — Keramahan sentuh & papan ketik (kasir sibuk)
+- [x] T3-10 — Keramahan sentuh & papan ketik (kasir sibuk)
   - **Tujuan:** kasir bekerja cepat walau tanpa mouse.
   - **Ref:** AGENT_OPERATING_GUIDE §3 (a11y)
   - **File:** `aplikasi/src/gaya/kasir.css`, `aplikasi/src/hook/usePintasan.ts`
@@ -929,7 +929,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pintasan bentrok → mitigasi: daftar pintasan tampil dengan tombol `?`.
   - **Verifikasi:** uji manual pakai hanya papan ketik + pemeriksa kontras.
 
-- [ ] T3-11 — Layar pesanan pelayan (HP di samping meja)
+- [x] T3-11 — Layar pesanan pelayan (HP di samping meja)
   - **Tujuan:** pelayan mencatat pesanan tanpa kembali ke kasir.
   - **Ref:** PRD M4 (kriteria selesai)
   - **File:** `aplikasi/src/layar/pelayan/LayarPelayan.tsx`
@@ -938,7 +938,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pesanan ganda antara pelayan & kasir → mitigasi: satu tagihan per meja + kunci idempoten + penyegaran langsung.
   - **Verifikasi:** uji manual dua perangkat (kasir + HP) pada satu meja.
 
-- [ ] T3-12 — Daftar pesanan hari ini + filter
+- [x] T3-12 — Daftar pesanan hari ini + filter
   - **Tujuan:** kasir/pelayan bisa menemukan pesanan dengan cepat.
   - **Ref:** PRD M4; TECH_SPEC §5
   - **File:** `aplikasi/src/layar/kasir/DaftarPesanan.tsx`
@@ -956,7 +956,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4); pembatalan untuk menutupi kecurangan → mitigasi: wajib alasan + catatan audit + laporan harian.
   - **Verifikasi:** uji manual + uji SQL (pembatalan tanpa alasan ditolak; setelah dimasak ditolak).
 
-- [ ] T3-14 — Uji alur kasir ujung-ke-ujung (dasar)
+- [x] T3-14 — Uji alur kasir ujung-ke-ujung (dasar)
   - **Tujuan:** jalur utama kasir terbukti bekerja sebelum masuk ke fase berikutnya.
   - **Ref:** TECH_SPEC §11 (uji); AGENT_OPERATING_GUIDE §5
   - **File:** `aplikasi/uji/e2e/kasir.spec.ts`
@@ -965,7 +965,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** uji rapuh → mitigasi: pemilih berbasis peran teks bahasa Indonesia (stabil) + tunggu kondisi, bukan waktu.
   - **Verifikasi:** uji dijalankan di CI dan lulus.
 
-- [ ] T3-15 — Keadaan kosong/memuat/gagal di seluruh layar kasir
+- [x] T3-15 — Keadaan kosong/memuat/gagal di seluruh layar kasir
   - **Tujuan:** kasir tidak pernah melihat layar kosong tanpa penjelasan.
   - **Ref:** AGENT_OPERATING_GUIDE §6; TECH_SPEC §11
   - **File:** `aplikasi/src/layar/kasir/*.tsx`, `aplikasi/src/komponen/Keadaan*.tsx`
@@ -974,7 +974,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pesan menakutkan → mitigasi: bahasa sederhana + kode (PS-1xx).
   - **Verifikasi:** uji manual: matikan jaringan → semua layar memberi pesan jelas.
 
-- [ ] T3-16 — Uji beban ringan kasir
+- [x] T3-16 — Uji beban ringan kasir
   - **Tujuan:** kasir tetap cepat saat jam sibuk.
   - **Ref:** PRD §9 (risiko); TECH_SPEC §11
   - **File:** `aplikasi/uji/beban/kasir.test.ts`

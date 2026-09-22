@@ -31,7 +31,7 @@ describe('LayarPerangkat (T2-15)', () => {
         onBuatKode={onBuatKodeMock}
         onDaftarkanPerangkat={vi.fn()}
         onSetujuiPegawai={vi.fn()}
-      />
+      />,
     )
 
     const tombolBuat = screen.getByRole('button', { name: /Buat Kode 6 Digit/i })
@@ -55,7 +55,7 @@ describe('LayarPerangkat (T2-15)', () => {
         onBuatKode={vi.fn()}
         onDaftarkanPerangkat={onDaftarMock}
         onSetujuiPegawai={vi.fn()}
-      />
+      />,
     )
 
     const inputNama = screen.getByLabelText(/Nama Perangkat/i)
@@ -84,7 +84,7 @@ describe('LayarPerangkat (T2-15)', () => {
         onBuatKode={vi.fn()}
         onDaftarkanPerangkat={vi.fn()}
         onSetujuiPegawai={onSetujuiMock}
-      />
+      />,
     )
 
     expect(screen.getByText('Budi Santoso')).toBeDefined()

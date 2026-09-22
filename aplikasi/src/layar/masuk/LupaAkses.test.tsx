@@ -13,7 +13,7 @@ describe('LupaAkses (T2-05)', () => {
     render(
       <PenyediaBahasa>
         <LupaAkses onMintaTautanPemulihan={vi.fn()} />
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     expect(screen.getByLabelText(/Alamat Email Terdaftar/i)).toBeDefined()
@@ -26,7 +26,7 @@ describe('LupaAkses (T2-05)', () => {
     render(
       <PenyediaBahasa>
         <LupaAkses onMintaTautanPemulihan={onMintaMock} />
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     fireEvent.change(screen.getByLabelText(/Alamat Email Terdaftar/i), {

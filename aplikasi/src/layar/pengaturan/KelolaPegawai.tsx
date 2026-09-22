@@ -28,8 +28,14 @@ export interface KelolaPegawaiProps {
     cabangId: string
     pinAwal: string
   }) => Promise<{ sukses: boolean; pegawaiId?: string; pesan?: string }>
-  onUbahStatusPegawai?: (pegawaiId: string, aktif: boolean) => Promise<{ sukses: boolean; pesan?: string }>
-  onAturUlangPin?: (pegawaiId: string, pinBaru: string) => Promise<{ sukses: boolean; pesan?: string }>
+  onUbahStatusPegawai?: (
+    pegawaiId: string,
+    aktif: boolean,
+  ) => Promise<{ sukses: boolean; pesan?: string }>
+  onAturUlangPin?: (
+    pegawaiId: string,
+    pinBaru: string,
+  ) => Promise<{ sukses: boolean; pesan?: string }>
 }
 
 const CONTOH_PEGAWAI: PegawaiResto[] = [
@@ -140,7 +146,7 @@ export function KelolaPegawai({
       const hasil = await onUbahStatusPegawai(pegawai.id, statusBaru)
       if (hasil.sukses) {
         setPegawaiList((prev) =>
-          prev.map((p) => (p.id === pegawai.id ? { ...p, aktif: statusBaru } : p))
+          prev.map((p) => (p.id === pegawai.id ? { ...p, aktif: statusBaru } : p)),
         )
       } else {
         alert(hasil.pesan || 'Gagal mengubah status keaktifan pegawai.')
@@ -178,7 +184,8 @@ export function KelolaPegawai({
         <div>
           <h2 className="text-2xl font-bold text-neutral-900">Kelola Akun Pegawai</h2>
           <p className="text-sm text-neutral-500">
-            Tambah staf baru, atur PIN kasir/pelayan/dapur, dan nonaktifkan akun tanpa menghapus riwayat audit.
+            Tambah staf baru, atur PIN kasir/pelayan/dapur, dan nonaktifkan akun tanpa menghapus
+            riwayat audit.
           </p>
         </div>
         <Tombol ragam="utama" onClick={() => setModalBuka(true)}>
@@ -245,7 +252,10 @@ export function KelolaPegawai({
         <Lapis buka={true} onTutup={() => setModalBuka(false)} judul="Tambah Akun Pegawai Baru">
           <form onSubmit={tanganiTambah} className="p-4 space-y-4">
             {galatForm && (
-              <div role="alert" className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
+              <div
+                role="alert"
+                className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800"
+              >
                 {galatForm}
               </div>
             )}
@@ -304,10 +314,15 @@ export function KelolaPegawai({
 
       {/* Modal Reset PIN */}
       {modalPinBuka && pegawaiTargetPin && (
-        <Lapis buka={true} onTutup={() => setModalPinBuka(false)} judul={`Reset PIN: ${pegawaiTargetPin.nama}`}>
+        <Lapis
+          buka={true}
+          onTutup={() => setModalPinBuka(false)}
+          judul={`Reset PIN: ${pegawaiTargetPin.nama}`}
+        >
           <form onSubmit={tanganiSimpanResetPin} className="p-4 space-y-4">
             <p className="text-sm text-neutral-600">
-              Masukkan 6 digit angka PIN baru untuk <strong>{pegawaiTargetPin.nama}</strong> ({pegawaiTargetPin.email}).
+              Masukkan 6 digit angka PIN baru untuk <strong>{pegawaiTargetPin.nama}</strong> (
+              {pegawaiTargetPin.email}).
             </p>
 
             <KolomIsian
@@ -319,7 +334,11 @@ export function KelolaPegawai({
             />
 
             <div className="flex justify-end gap-2 pt-2 border-t border-neutral-200">
-              <Tombol ragam="biasa" onClick={() => setModalPinBuka(false)} nonaktif={sedangResetPin}>
+              <Tombol
+                ragam="biasa"
+                onClick={() => setModalPinBuka(false)}
+                nonaktif={sedangResetPin}
+              >
                 Batal
               </Tombol>
               <Tombol

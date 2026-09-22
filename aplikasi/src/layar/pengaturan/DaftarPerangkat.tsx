@@ -19,7 +19,10 @@ export interface ItemPerangkat {
 
 export interface DaftarPerangkatProps {
   daftarPerangkat?: ItemPerangkat[]
-  onCabutPerangkat?: (perangkatId: string, alasan: string) => Promise<{ sukses: boolean; pesan?: string }>
+  onCabutPerangkat?: (
+    perangkatId: string,
+    alasan: string,
+  ) => Promise<{ sukses: boolean; pesan?: string }>
   onSegarkan?: () => void
 }
 
@@ -79,7 +82,9 @@ export function DaftarPerangkat({
       const hasil = await onCabutPerangkat(perangkatTarget.id, alasanCabut.trim())
       if (hasil.sukses) {
         setDaftar((prev) =>
-          prev.map((p) => (p.id === perangkatTarget.id ? { ...p, aktif: false, jumlahSesiAktif: 0 } : p))
+          prev.map((p) =>
+            p.id === perangkatTarget.id ? { ...p, aktif: false, jumlahSesiAktif: 0 } : p,
+          ),
         )
         setPerangkatTarget(null)
         onSegarkan?.()
@@ -99,7 +104,8 @@ export function DaftarPerangkat({
         <div>
           <h2 className="text-2xl font-bold text-neutral-900">Daftar Perangkat & Sesi Kasir</h2>
           <p className="text-sm text-neutral-500">
-            Pantau tablet POS aktif dan cabut izin seketika bila ada perangkat yang hilang atau dicuri.
+            Pantau tablet POS aktif dan cabut izin seketika bila ada perangkat yang hilang atau
+            dicuri.
           </p>
         </div>
       </div>
@@ -171,15 +177,20 @@ export function DaftarPerangkat({
 
       {/* Dialog Konfirmasi Cabut Perangkat */}
       {perangkatTarget && (
-        <Lapis buka={true} onTutup={() => setPerangkatTarget(null)} judul="Konfirmasi Cabut Izin Perangkat">
+        <Lapis
+          buka={true}
+          onTutup={() => setPerangkatTarget(null)}
+          judul="Konfirmasi Cabut Izin Perangkat"
+        >
           <div className="p-4 space-y-4">
             <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
               <p className="font-semibold mb-1">
-                Peringatan Keamanan: Perangkat &quot;{perangkatTarget.nama}&quot; akan langsung diputuskan!
+                Peringatan Keamanan: Perangkat &quot;{perangkatTarget.nama}&quot; akan langsung
+                diputuskan!
               </p>
               <p className="text-xs">
-                Seluruh staf yang sedang masuk di perangkat ini akan dikeluarkan seketika, dan perangkat tidak dapat
-                digunakan lagi sampai didaftarkan ulang dengan kode baru.
+                Seluruh staf yang sedang masuk di perangkat ini akan dikeluarkan seketika, dan
+                perangkat tidak dapat digunakan lagi sampai didaftarkan ulang dengan kode baru.
               </p>
             </div>
 
@@ -192,7 +203,11 @@ export function DaftarPerangkat({
             />
 
             <div className="flex justify-end gap-2 pt-2 border-t border-neutral-200">
-              <Tombol ragam="biasa" onClick={() => setPerangkatTarget(null)} nonaktif={sedangMencabut}>
+              <Tombol
+                ragam="biasa"
+                onClick={() => setPerangkatTarget(null)}
+                nonaktif={sedangMencabut}
+              >
                 Batal
               </Tombol>
               <Tombol

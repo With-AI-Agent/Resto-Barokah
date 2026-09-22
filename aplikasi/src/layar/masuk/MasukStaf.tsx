@@ -18,7 +18,10 @@ export interface MasukStafProps {
   daftarStaf?: ProfilStafPerangkat[]
   namaPerangkat?: string
   perangkatTerdaftar?: boolean
-  onVerifikasiPin: (email: string, pin: string) => Promise<{ sukses: boolean; kodeGalat?: string; sisaPercobaan?: number }>
+  onVerifikasiPin: (
+    email: string,
+    pin: string,
+  ) => Promise<{ sukses: boolean; kodeGalat?: string; sisaPercobaan?: number }>
   onMintaBantuanAdmin?: () => void
   onMasukSukses?: (staf: ProfilStafPerangkat) => void
 }
@@ -43,7 +46,12 @@ export function MasukStaf({
   const [stafTerpilih, setStafTerpilih] = useState<ProfilStafPerangkat | null>(null)
   const [pin, setPin] = useState<string>('')
   const [sedangMemproses, setSedangMemproses] = useState(false)
-  const [pesanGalat, setPesanGalat] = useState<{ judul: string; pesan: string; tindakan: string; kode: string } | null>(null)
+  const [pesanGalat, setPesanGalat] = useState<{
+    judul: string
+    pesan: string
+    tindakan: string
+    kode: string
+  } | null>(null)
   const [sisaPercobaan, setSisaPercobaan] = useState<number | null>(null)
 
   const tekanAngka = (angka: string) => {
@@ -71,9 +79,7 @@ export function MasukStaf({
 
   const prosesMasuk = async (staf: ProfilStafPerangkat, pinInput: string) => {
     if (!perangkatTerdaftar) {
-      setPesanGalat(
-        formatPesanError('PERANGKAT_BELUM_TERDAFTAR')
-      )
+      setPesanGalat(formatPesanError('PERANGKAT_BELUM_TERDAFTAR'))
       return
     }
 
@@ -91,9 +97,7 @@ export function MasukStaf({
         }
       }
     } catch {
-      setPesanGalat(
-        formatPesanError('JARINGAN_TERPUTUS')
-      )
+      setPesanGalat(formatPesanError('JARINGAN_TERPUTUS'))
       setPin('')
     } finally {
       setSedangMemproses(false)
@@ -121,7 +125,10 @@ export function MasukStaf({
               className="p-3 bg-red-50 text-red-800 rounded border border-red-200 text-sm mb-4"
             >
               <div className="font-semibold mb-1">Perangkat Belum Terdaftar (PRG-404)</div>
-              <div>Perangkat ini belum disetujui oleh Owner / Admin. Hubungi pengelola resto untuk mendaftarkan tablet ini.</div>
+              <div>
+                Perangkat ini belum disetujui oleh Owner / Admin. Hubungi pengelola resto untuk
+                mendaftarkan tablet ini.
+              </div>
             </div>
           )}
 
@@ -138,11 +145,13 @@ export function MasukStaf({
                     resetPin()
                   }}
                 >
-                  <div className={`p-3 rounded-lg border text-left transition-all flex flex-col gap-1 w-full ${
-                    aktif
-                      ? 'border-emerald-600 bg-emerald-50 text-emerald-900 shadow-sm ring-2 ring-emerald-500'
-                      : 'border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-800'
-                  }`}>
+                  <div
+                    className={`p-3 rounded-lg border text-left transition-all flex flex-col gap-1 w-full ${
+                      aktif
+                        ? 'border-emerald-600 bg-emerald-50 text-emerald-900 shadow-sm ring-2 ring-emerald-500'
+                        : 'border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-800'
+                    }`}
+                  >
                     <div className="font-semibold text-base">{staf.nama}</div>
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-neutral-500">{staf.email}</span>
@@ -157,10 +166,7 @@ export function MasukStaf({
 
         {onMintaBantuanAdmin && (
           <div className="text-center">
-            <Tombol
-              ragam="polos"
-              onClick={onMintaBantuanAdmin}
-            >
+            <Tombol ragam="polos" onClick={onMintaBantuanAdmin}>
               <span className="text-sm text-neutral-600 hover:text-neutral-900 underline">
                 Lupa PIN atau butuh bantuan Admin?
               </span>
@@ -199,7 +205,9 @@ export function MasukStaf({
                   <div className="font-semibold mb-0.5">{pesanGalat.judul}</div>
                   <div className="text-xs text-red-600 mb-1">{pesanGalat.pesan}</div>
                   <div className="text-xs text-neutral-600 mb-1">{pesanGalat.tindakan}</div>
-                  <div className="text-[11px] font-mono text-neutral-500">Kode: {pesanGalat.kode}</div>
+                  <div className="text-[11px] font-mono text-neutral-500">
+                    Kode: {pesanGalat.kode}
+                  </div>
                   {sisaPercobaan !== null && sisaPercobaan < 5 && (
                     <div className="text-xs font-semibold mt-1 text-amber-700">
                       Sisa percobaan: {sisaPercobaan}x sebelum terkunci
@@ -229,11 +237,7 @@ export function MasukStaf({
                   <span className="text-sm font-semibold">Reset</span>
                 </Tombol>
 
-                <Tombol
-                  ragam="biasa"
-                  nonaktif={sedangMemproses}
-                  onClick={() => tekanAngka('0')}
-                >
+                <Tombol ragam="biasa" nonaktif={sedangMemproses} onClick={() => tekanAngka('0')}>
                   <span className="text-xl font-bold">0</span>
                 </Tombol>
 
@@ -283,7 +287,9 @@ export function MasukStaf({
                 />
               </svg>
               <div className="font-medium text-neutral-700 mb-1">Silakan pilih nama Anda</div>
-              <div className="text-xs text-neutral-500">Pilih dari daftar di sebelah kiri untuk membuka keypad PIN</div>
+              <div className="text-xs text-neutral-500">
+                Pilih dari daftar di sebelah kiri untuk membuka keypad PIN
+              </div>
             </div>
           )}
         </Kartu>

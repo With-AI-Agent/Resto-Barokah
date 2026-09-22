@@ -25,9 +25,18 @@ export interface LayarPerangkatProps {
   cabangId: string
   peranUser: PeranPengguna
   daftarPersetujuan?: PegawaiMenungguPersetujuan[]
-  onBuatKode: (cabangId: string, peran: PeranPengguna[]) => Promise<{ kode: string; kedaluwarsaPada: string }>
-  onDaftarkanPerangkat: (kode: string, namaPerangkat: string) => Promise<{ sukses: boolean; perangkatId?: string; pesan?: string }>
-  onSetujuiPegawai: (penggunaId: string, perangkatId: string) => Promise<{ sukses: boolean; pesan?: string }>
+  onBuatKode: (
+    cabangId: string,
+    peran: PeranPengguna[],
+  ) => Promise<{ kode: string; kedaluwarsaPada: string }>
+  onDaftarkanPerangkat: (
+    kode: string,
+    namaPerangkat: string,
+  ) => Promise<{ sukses: boolean; perangkatId?: string; pesan?: string }>
+  onSetujuiPegawai: (
+    penggunaId: string,
+    perangkatId: string,
+  ) => Promise<{ sukses: boolean; pesan?: string }>
 }
 
 export function LayarPerangkat({
@@ -45,11 +54,15 @@ export function LayarPerangkat({
   const [inputKode, setInputKode] = useState('')
   const [inputNamaPerangkat, setInputNamaPerangkat] = useState('')
   const [sedangDaftar, setSedangDaftar] = useState(false)
-  const [pesanHasilDaftar, setPesanHasilDaftar] = useState<{ sukses: boolean; teks: string } | null>(null)
+  const [pesanHasilDaftar, setPesanHasilDaftar] = useState<{
+    sukses: boolean
+    teks: string
+  } | null>(null)
 
   const [daftarTunggu, setDaftarTunggu] = useState<PegawaiMenungguPersetujuan[]>(daftarPersetujuan)
 
-  const berhakBuatKode = peranUser === 'owner_pusat' || peranUser === 'admin_cabang' || peranUser === 'pemilik_platform'
+  const berhakBuatKode =
+    peranUser === 'owner_pusat' || peranUser === 'admin_cabang' || peranUser === 'pemilik_platform'
 
   const tanganiBuatKode = async () => {
     setSedangMembuatKode(true)
@@ -105,7 +118,7 @@ export function LayarPerangkat({
       const hasil = await onSetujuiPegawai(penggunaId, perangkatId)
       if (hasil.sukses) {
         setDaftarTunggu((prev) =>
-          prev.filter((p) => !(p.penggunaId === penggunaId && p.perangkatId === perangkatId))
+          prev.filter((p) => !(p.penggunaId === penggunaId && p.perangkatId === perangkatId)),
         )
       }
     } catch {
@@ -117,7 +130,9 @@ export function LayarPerangkat({
     <div className="layar-perangkat space-y-6 max-w-5xl mx-auto p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-neutral-900">Pendaftaran & Persetujuan Perangkat</h2>
+          <h2 className="text-2xl font-bold text-neutral-900">
+            Pendaftaran & Persetujuan Perangkat
+          </h2>
           <p className="text-sm text-neutral-500">
             Kelola tablet kasir, printer, dan persetujuan staf untuk bekerja di perangkat resmi.
           </p>
@@ -129,7 +144,8 @@ export function LayarPerangkat({
         {berhakBuatKode ? (
           <Kartu judul="Buat Kode Pendaftaran Baru">
             <p className="text-sm text-neutral-600 mb-4">
-              Kode 6-digit sekali pakai ini berlaku selama <strong>15 menit</strong> untuk mendaftarkan tablet baru di resto Anda.
+              Kode 6-digit sekali pakai ini berlaku selama <strong>15 menit</strong> untuk
+              mendaftarkan tablet baru di resto Anda.
             </p>
 
             <div className="space-y-4">
@@ -146,7 +162,7 @@ export function LayarPerangkat({
                         ragam={dipilih ? 'utama' : 'biasa'}
                         onClick={() => {
                           setPeranTerpilih((prev) =>
-                            dipilih ? prev.filter((p) => p !== peran) : [...prev, peran]
+                            dipilih ? prev.filter((p) => p !== peran) : [...prev, peran],
                           )
                         }}
                       >
@@ -167,12 +183,15 @@ export function LayarPerangkat({
 
               {kodeDibuat && (
                 <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex flex-col items-center justify-center gap-2">
-                  <div className="text-xs text-emerald-800 font-medium">KODE PENDAFTARAN PERANGKAT:</div>
+                  <div className="text-xs text-emerald-800 font-medium">
+                    KODE PENDAFTARAN PERANGKAT:
+                  </div>
                   <div className="text-3xl font-mono font-bold tracking-widest text-emerald-950 bg-white px-4 py-2 rounded border border-emerald-300">
                     {kodeDibuat.kode}
                   </div>
                   <div className="text-xs text-emerald-700">
-                    Berlaku sampai: {new Date(kodeDibuat.kedaluwarsaPada).toLocaleTimeString('id-ID')}
+                    Berlaku sampai:{' '}
+                    {new Date(kodeDibuat.kedaluwarsaPada).toLocaleTimeString('id-ID')}
                   </div>
                 </div>
               )}
@@ -190,7 +209,8 @@ export function LayarPerangkat({
         <Kartu judul="Daftarkan Tablet Ini">
           <form onSubmit={tanganiDaftarPerangkat} className="space-y-4">
             <p className="text-sm text-neutral-600">
-              Masukkan nama pengenal (mis. POS Kasir Meja #1) dan kode 6 digit dari Admin untuk mendaftarkan perangkat ini.
+              Masukkan nama pengenal (mis. POS Kasir Meja #1) dan kode 6 digit dari Admin untuk
+              mendaftarkan perangkat ini.
             </p>
 
             <KolomIsian

@@ -33,7 +33,7 @@ describe('Uji Menyeluruh Hak Akses & Navigasi 6 Peran (T2-12 & T2-19)', () => {
       // 2. Verifikasi batas waktu inactivity (T2-09 & T2-16)
       const batas = batasWaktuInaktifMenit(peran)
       expect(batas).toBe(timeoutMenit)
-    }
+    },
   )
 
   it('merender Rangka kerja aplikasi dengan lencana peran dan info cabang untuk kasir', () => {
@@ -52,7 +52,7 @@ describe('Uji Menyeluruh Hak Akses & Navigasi 6 Peran (T2-12 & T2-19)', () => {
         <Rangka sesi={sesiKasir} layarAktif="kasir" onPilihLayar={vi.fn()}>
           <div data-testid="konten-kasir">Layar Kasir Aktif</div>
         </Rangka>
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     expect(screen.getByText('Siti Kasir')).toBeDefined()
@@ -76,7 +76,7 @@ describe('Uji Menyeluruh Hak Akses & Navigasi 6 Peran (T2-12 & T2-19)', () => {
         <Rangka sesi={sesiDapur} layarAktif="dapur" onPilihLayar={vi.fn()}>
           <div data-testid="konten-dapur">Layar Pesanan Dapur</div>
         </Rangka>
-      </PenyediaBahasa>
+      </PenyediaBahasa>,
     )
 
     expect(screen.getByText('Chef Junaidi')).toBeDefined()

@@ -69,7 +69,9 @@ export function useKunciOtomatis({
   useEffect(() => {
     // Kunci otomatis hanya berjalan jika di luar jam operasional atau sesuai kebijakan keamanan
     // Jika di luar jam operasional, batas waktu default 15 menit
-    const batasEfektifMs = diLuarJamOperasional ? Math.min(batasWaktuMs, 15 * 60 * 1000) : batasWaktuMs
+    const batasEfektifMs = diLuarJamOperasional
+      ? Math.min(batasWaktuMs, 15 * 60 * 1000)
+      : batasWaktuMs
     const batasPeringatanMs = batasEfektifMs - detikTenggangPeringatan * 1000
 
     const interval = setInterval(() => {
@@ -106,7 +108,16 @@ export function useKunciOtomatis({
       window.removeEventListener('touchstart', tanganiAktivitas)
       window.removeEventListener('scroll', tanganiAktivitas)
     }
-  }, [batasWaktuMs, diLuarJamOperasional, detikTenggangPeringatan, kunci, rekamAktivitas, terkunci, dalamPeringatan, onPeringatan])
+  }, [
+    batasWaktuMs,
+    diLuarJamOperasional,
+    detikTenggangPeringatan,
+    kunci,
+    rekamAktivitas,
+    terkunci,
+    dalamPeringatan,
+    onPeringatan,
+  ])
 
   return {
     terkunci,

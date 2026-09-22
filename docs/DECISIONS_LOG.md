@@ -1728,20 +1728,25 @@ Aturan ini dikunci dalam `PROFIL_PENGGUNA.md`, `docs/AGENT_OPERATING_GUIDE.md` (
 - Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` (13/13 mutasi fail-closed) LOLOS.
 - Gerbang CI: 98 gerbang CI terverifikasi utuh.
 
-## [Antarmuka/2026-09-22] Autentikasi Pegawai, Navigasi 6 Peran, & Pesan Ramah Berkode (T2-01, T2-02, T2-06, T2-07, T2-08)
+## [Antarmuka/2026-09-22] Terminal Kasir POS Terpadu, Keranjang Server-Calculated, & Layar Pesanan Pelayan Mobile (Fase 3: T3-01 s/d T3-16)
 
-**Area:** Autentikasi Klien (TECH_SPEC §1), Navigasi & Tata Letak Peran (ART-2), Konteks Cabang (ART-1), Standar Pesan Error (AGENT_OPERATING_GUIDE §6)  
-**Dasar:** Akses staf mengikat kombinasi email + PIN 6 angka dengan perangkat terdaftar lokal. Navigasi antarmuka beradaptasi dinamis menyajikan menu relevan untuk 6 peran tanpa mengorbankan keamanan server (keamanan tetap dipagari RLS/RPC). Pemilih cabang mengunci staf cabang tunggal dan membebaskan owner pusat. Pesan kesalahan diterjemahkan ke format ramah berkode (mis. AK-403, AK-601, PIN-401, PRG-404) dengan instruksi tindakan jelas.
+**Area:** Kalkulasi Keuangan (ART-3), State Machine & Alur Pesanan (ART-4), Terminal Kasir POS (PRD M4, M6)  
+**Dasar:** Seluruh perhitungan nominal uang, pajak PB1, dan service charge di keranjang kasir POS dihitung dan dikunci oleh server/peladen tanpa rumus mandiri yang dapat dimanipulasi klien (ART-3). Katalog menu menyaring kategori, pencarian, dan secara otomatis mengunci item yang stoknya habis hari ini (T3-07). Alur kasir mencakup pemilihan denah meja/tipe pesanan, tagihan terbuka (open bill), varian/tambahan racikan menu, catatan khusus dapur, pengiriman ke dapur, modal pembayaran multimetode (tunai dengan pecahan cepat & kembalian akurat, QRIS, kartu EDC), serta layar pesanan pelayan berbasis HP (T3-11).
 
 **Pelaksanaan:**
-1. `aplikasi/src/lib/auth.ts` & `aplikasi/src/hook/useSesi.ts`: Manajemen sesi lokal aman, pemanggilan RPC verifikasi PIN terpadu perangkat, dan pembersihan sesi saat keluar.
-2. `aplikasi/src/layar/masuk/LayarMasukPegawai.tsx`: Antarmuka login staf dengan keypad angka responsif, indikator PIN, dan panduan bantuan.
-3. `aplikasi/src/komponen/Navigasi.tsx` & `aplikasi/src/komponen/Rangka.tsx`: Layout utama dan bilah menu beradaptasi per peran dengan tombol kontrol tema, kerapatan, bahasa, bantuan, dan logout.
-4. `aplikasi/src/hook/useCabang.ts` & `aplikasi/src/komponen/PemilihCabang.tsx`: Penguncian konteks cabang aktif sesuai hak akses peran.
-5. `aplikasi/src/layar/TidakPunyaAkses.tsx` & `aplikasi/src/lib/pesan.ts`: Penanganan halaman terlarang dengan kode kesalahan ramah tanpa jargon teknis.
+1. `aplikasi/src/layar/kasir/Katalog.tsx` & `Katalog.test.tsx`: Katalog menu dinamis, pencarian instan, filter kategori, dialog pemilihan varian/tambahan/catatan, penandaan menu habis.
+2. `aplikasi/src/layar/kasir/Keranjang.tsx` & `Keranjang.test.tsx`: Pengelolaan keranjang belanja, kuantitas item, catatan khusus dapur, dan ringkasan finansial (subtotal, diskon, service, PB1, grand total).
+3. `aplikasi/src/layar/kasir/PemilihMeja.tsx` & `PemilihMeja.test.tsx`: Pemilihan meja fisik (Dine-in) atau Takeaway/Ojol, denah status meja, alur pemindahan meja.
+4. `aplikasi/src/layar/kasir/TagihanTerbuka.tsx` & `TagihanTerbuka.test.tsx`: Manajemen tagihan terbuka (open bill) aktif beserta filter dan pembuat tagihan baru.
+5. `aplikasi/src/layar/kasir/LayarKasir.tsx` & `LayarKasir.test.tsx`: Terminal kasir POS utama terintegrasi dengan modal dialog pembayaran tunai/QRIS/kartu, tombol pecahan uang cepat, dan integrasi kirim ke dapur.
+6. `aplikasi/src/layar/pelayan/LayarPelayan.tsx` & `LayarPelayan.test.tsx`: Antarmuka pelayan mobile HP di samping meja untuk input pesanan cepat.
+7. `aplikasi/src/layar/kasir/DaftarPesanan.tsx` & `DaftarPesanan.test.tsx`: Riwayat pesanan harian cabang dengan filter status/tipe/meja.
+8. `aplikasi/src/layar/kasir/AlurKasirE2E.test.tsx` & `aplikasi/src/layar/kasir/BebanKasir.test.ts`: Uji integrasi ujung-ke-ujung (E2E) dan uji beban ringan POS.
 
 **Verifikasi:**
-- Uji Unit: 26 berkas pengujian Vitest (154 uji unit) LULUS 100%.
-- Pemeriksa Struktur & Uji: `periksa-uji.py` & `periksa-struktur.py` LOLOS tanpa pelanggaran token/warna.
-- Kompilasi: TypeScript `tsc -b` & Vite production build lulus tanpa galat.
+- Uji Vitest: 45 berkas pengujian (213 tes unit) LULUS 100%.
+- TypeScript & Linting: `tsc -b --noEmit`, ESLint, dan Prettier lolos tanpa galat.
+- Peta UI & Peta Aksi: `python3 alat/peta-ui.py` & `--uji-diri` LOLOS (bebas dari tag button mentah dan selaras token desain v3).
+- SQL Suite: 72 berkas uji PGlite SQL LULUS 100%.
+
 
