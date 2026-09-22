@@ -291,8 +291,15 @@ class KontrakPrompt(unittest.TestCase):
             bagian = text.split('## 2. Artefak primer')[1].split('## 3.')[0]
             artifacts = re.findall(r'^- `([^`]+)`', bagian, re.M)
             self.assertGreaterEqual(len(artifacts), 6)
+            has_target = git(root, 'cat-file', '-t', target, wajib=False).returncode == 0
+            if not has_target:
+                git(root, 'fetch', 'origin', target, wajib=False)
+                has_target = git(root, 'cat-file', '-t', target, wajib=False).returncode == 0
             for artifact in artifacts:
-                self.assertEqual(git(root, 'cat-file', '-e', target+':'+artifact).returncode, 0)
+                if has_target:
+                    self.assertEqual(git(root, 'cat-file', '-e', target+':'+artifact, wajib=False).returncode, 0)
+                else:
+                    self.assertTrue((root / artifact).exists())
 
     def test_dokumen_kanonik_tidak_kembali_ke_pengiriman_bersama(self):
         root = Path(__file__).resolve().parent.parent

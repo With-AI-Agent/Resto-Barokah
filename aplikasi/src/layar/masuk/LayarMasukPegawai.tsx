@@ -159,40 +159,32 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
                 }}
               >
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((num) => (
-                  <button
+                  <Tombol
                     key={num}
-                    type="button"
-                    className="btn"
+                    ragam="biasa"
                     onClick={() => handleTekanAngka(num)}
-                    style={{ fontSize: 'var(--t-6)', fontWeight: 'bold', height: '52px' }}
                   >
                     {num}
-                  </button>
+                  </Tombol>
                 ))}
-                <button
-                  type="button"
-                  className="btn"
+                <Tombol
+                  ragam="biasa"
                   onClick={handleResetPin}
-                  style={{ fontSize: 'var(--t-3)' }}
                 >
                   C
-                </button>
-                <button
-                  type="button"
-                  className="btn"
+                </Tombol>
+                <Tombol
+                  ragam="biasa"
                   onClick={() => handleTekanAngka('0')}
-                  style={{ fontSize: 'var(--t-6)', fontWeight: 'bold', height: '52px' }}
                 >
                   0
-                </button>
-                <button
-                  type="button"
-                  className="btn"
+                </Tombol>
+                <Tombol
+                  ragam="biasa"
                   onClick={handleHapusAngka}
-                  style={{ fontSize: 'var(--t-4)' }}
                 >
                   ⌫
-                </button>
+                </Tombol>
               </div>
             </div>
 

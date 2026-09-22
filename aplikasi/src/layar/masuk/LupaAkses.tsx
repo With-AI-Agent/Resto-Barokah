@@ -87,13 +87,14 @@ export function LupaAkses({
 
         {onKembaliKeMasuk && (
           <div className="mt-6 pt-4 border-t border-neutral-200 text-center">
-            <button
-              type="button"
+            <Tombol
+              ragam="polos"
               onClick={onKembaliKeMasuk}
-              className="text-sm text-emerald-700 font-medium hover:text-emerald-800"
             >
-              ← Kembali ke Layar Masuk
-            </button>
+              <span className="text-sm text-emerald-700 font-medium hover:text-emerald-800">
+                ← Kembali ke Layar Masuk
+              </span>
+            </Tombol>
           </div>
         )}
       </Kartu>

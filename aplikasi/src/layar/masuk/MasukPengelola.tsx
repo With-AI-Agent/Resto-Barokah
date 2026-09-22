@@ -141,42 +141,45 @@ export function MasukPengelola({
 
           {tahapTotp && (
             <div className="text-center">
-              <button
-                type="button"
+              <Tombol
+                ragam="polos"
                 onClick={() => {
                   setTahapTotp(false)
                   setKodeTotp('')
                   setPesanGalat(null)
                 }}
-                className="text-xs text-neutral-600 hover:text-neutral-900 underline"
               >
-                Kembali ke Form Kata Sandi
-              </button>
+                <span className="text-xs text-neutral-600 hover:text-neutral-900 underline">
+                  Kembali ke Form Kata Sandi
+                </span>
+              </Tombol>
             </div>
           )}
 
           {!tahapTotp && onLupaSandi && (
             <div className="text-center">
-              <button
-                type="button"
+              <Tombol
+                ragam="polos"
                 onClick={onLupaSandi}
-                className="text-xs text-neutral-500 hover:text-neutral-800 underline"
               >
-                Lupa kata sandi pengelola?
-              </button>
+                <span className="text-xs text-neutral-500 hover:text-neutral-800 underline">
+                  Lupa kata sandi pengelola?
+                </span>
+              </Tombol>
             </div>
           )}
         </form>
 
         {onBeralihKeStaf && (
           <div className="mt-6 pt-4 border-t border-neutral-200 text-center">
-            <button
-              type="button"
+            <Tombol
+              ragam="polos"
               onClick={onBeralihKeStaf}
-              className="text-sm text-emerald-700 font-medium hover:text-emerald-800"
             >
-              ← Masuk sebagai Pegawai (PIN 6 Digit)
-            </button>
+              <span className="text-sm text-emerald-700 font-medium hover:text-emerald-800">
+                ← Masuk sebagai Pegawai (PIN 6 Digit)
+              </span>
+            </Tombol>
           </div>
         )}
       </Kartu>

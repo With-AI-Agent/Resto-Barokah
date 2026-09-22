@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Kartu } from '../../komponen/Kartu'
 import { Lencana } from '../../komponen/Lencana'
+import { Tombol } from '../../komponen/Tombol'
 import { formatPesanError } from '../../lib/pesan'
 import { useBahasa } from '../../bahasa'
 import type { PeranPengguna } from '../../lib/auth'
@@ -129,25 +130,26 @@ export function MasukStaf({
             {daftarStaf.map((staf) => {
               const aktif = stafTerpilih?.id === staf.id
               return (
-                <button
+                <Tombol
                   key={staf.id}
-                  type="button"
+                  ragam="polos"
                   onClick={() => {
                     setStafTerpilih(staf)
                     resetPin()
                   }}
-                  className={`p-3 rounded-lg border text-left transition-all flex flex-col gap-1 ${
+                >
+                  <div className={`p-3 rounded-lg border text-left transition-all flex flex-col gap-1 w-full ${
                     aktif
                       ? 'border-emerald-600 bg-emerald-50 text-emerald-900 shadow-sm ring-2 ring-emerald-500'
                       : 'border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-800'
-                  }`}
-                >
-                  <div className="font-semibold text-base">{staf.nama}</div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-neutral-500">{staf.email}</span>
-                    <Lencana nada="netral">{staf.peran.toUpperCase()}</Lencana>
+                  }`}>
+                    <div className="font-semibold text-base">{staf.nama}</div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-neutral-500">{staf.email}</span>
+                      <Lencana nada="netral">{staf.peran.toUpperCase()}</Lencana>
+                    </div>
                   </div>
-                </button>
+                </Tombol>
               )
             })}
           </div>
@@ -155,13 +157,14 @@ export function MasukStaf({
 
         {onMintaBantuanAdmin && (
           <div className="text-center">
-            <button
-              type="button"
+            <Tombol
+              ragam="polos"
               onClick={onMintaBantuanAdmin}
-              className="text-sm text-neutral-600 hover:text-neutral-900 underline"
             >
-              Lupa PIN atau butuh bantuan Admin?
-            </button>
+              <span className="text-sm text-neutral-600 hover:text-neutral-900 underline">
+                Lupa PIN atau butuh bantuan Admin?
+              </span>
+            </Tombol>
           </div>
         )}
       </div>
@@ -208,41 +211,37 @@ export function MasukStaf({
               {/* Keypad Angka 3x4 */}
               <div className="grid grid-cols-3 gap-3 w-full max-w-xs">
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((angka) => (
-                  <button
+                  <Tombol
                     key={angka}
-                    type="button"
-                    disabled={sedangMemproses}
+                    ragam="biasa"
+                    nonaktif={sedangMemproses}
                     onClick={() => tekanAngka(angka)}
-                    className="h-14 text-xl font-bold bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 rounded-lg border border-neutral-200 text-neutral-800 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
-                    {angka}
-                  </button>
+                    <span className="text-xl font-bold">{angka}</span>
+                  </Tombol>
                 ))}
 
-                <button
-                  type="button"
-                  disabled={sedangMemproses || pin.length === 0}
+                <Tombol
+                  ragam="biasa"
+                  nonaktif={sedangMemproses || pin.length === 0}
                   onClick={resetPin}
-                  className="h-14 text-sm font-semibold bg-neutral-100 hover:bg-neutral-200 rounded-lg border border-neutral-200 text-neutral-700 transition-all focus:outline-none"
                 >
-                  Reset
-                </button>
+                  <span className="text-sm font-semibold">Reset</span>
+                </Tombol>
 
-                <button
-                  type="button"
-                  disabled={sedangMemproses}
+                <Tombol
+                  ragam="biasa"
+                  nonaktif={sedangMemproses}
                   onClick={() => tekanAngka('0')}
-                  className="h-14 text-xl font-bold bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 rounded-lg border border-neutral-200 text-neutral-800 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
-                  0
-                </button>
+                  <span className="text-xl font-bold">0</span>
+                </Tombol>
 
-                <button
-                  type="button"
-                  disabled={sedangMemproses || pin.length === 0}
+                <Tombol
+                  ragam="biasa"
+                  nonaktif={sedangMemproses || pin.length === 0}
                   onClick={hapusAngka}
-                  aria-label="Hapus satu angka"
-                  className="h-14 flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 rounded-lg border border-neutral-200 text-neutral-700 transition-all focus:outline-none"
+                  nama="Hapus satu angka"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -260,7 +259,7 @@ export function MasukStaf({
                     <line x1="18" y1="9" x2="12" y2="15"></line>
                     <line x1="12" y1="9" x2="18" y2="15"></line>
                   </svg>
-                </button>
+                </Tombol>
               </div>
 
               {sedangMemproses && (

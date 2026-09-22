@@ -141,22 +141,17 @@ export function LayarPerangkat({
                   {(['kasir', 'pelayan', 'dapur'] as PeranPengguna[]).map((peran) => {
                     const dipilih = peranTerpilih.includes(peran)
                     return (
-                      <button
+                      <Tombol
                         key={peran}
-                        type="button"
+                        ragam={dipilih ? 'utama' : 'biasa'}
                         onClick={() => {
                           setPeranTerpilih((prev) =>
                             dipilih ? prev.filter((p) => p !== peran) : [...prev, peran]
                           )
                         }}
-                        className={`px-3 py-1.5 rounded text-xs font-medium border transition-colors ${
-                          dipilih
-                            ? 'bg-emerald-600 border-emerald-600 text-white'
-                            : 'bg-neutral-50 border-neutral-300 text-neutral-700 hover:bg-neutral-100'
-                        }`}
                       >
                         {peran.toUpperCase()} {dipilih ? '✓' : '+'}
-                      </button>
+                      </Tombol>
                     )
                   })}
                 </div>
