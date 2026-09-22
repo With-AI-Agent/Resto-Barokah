@@ -44,3 +44,40 @@ select uji.harap_gagal_sebab(
  'A-F06: fungsi trigger tidak dapat dipanggil sebagai RPC biasa');
 reset role;
 select uji.klaim(null);
+
+-- T1-30 (InitPlan helper RLS): seluruh pemanggilan helper identitas/peran/izin
+-- tanpa argumen berkorelasi wajib dibungkus (SELECT ...) agar dioptimasi InitPlan.
+-- pg_get_expr mengurai pohon AST; pemanggilan langsung FuncExpr tidak memiliki awalan SELECT.
+select uji.harap(
+ not exists (
+  with pol_expr as (
+    select 
+      c.relname as tabel,
+      pol.polname as policy,
+      pg_get_expr(pol.polqual, pol.polrelid) as qual,
+      pg_get_expr(pol.polwithcheck, pol.polrelid) as with_check
+    from pg_policy pol
+    join pg_class c on c.oid = pol.polrelid
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+  ),
+  semua_expr as (
+    select tabel, policy, 'qual' as tipe, qual as expr from pol_expr where qual is not null
+    union all
+    select tabel, policy, 'with_check' as tipe, with_check as expr from pol_expr where with_check is not null
+  ),
+  dibersihkan as (
+    select tabel, policy, tipe, expr,
+      regexp_replace(
+        expr,
+        '[(][ ]*SELECT[ ]+((public|auth)[.])?(penyewa_saya|peran_saya|cabang_saya|uid|cabang_ids_saya|boleh)[(][^)]*[)][^)]*[)]',
+        '__INITPLAN_OK__',
+        'gi'
+      ) as expr_sisa
+    from semua_expr
+  )
+  select 1
+  from dibersihkan
+  where expr_sisa ~* '(^|[^a-z0-9_])((public|auth)[.])?(penyewa_saya|peran_saya|cabang_saya|uid|cabang_ids_saya|boleh)[(]'
+ ),
+ 'T130-initplan: semua pemanggilan helper bebas-korelasi di policy RLS wajib dibungkus (SELECT ...)');

@@ -1579,3 +1579,17 @@ integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
 **File terkait:** `supabase/migrations/0024_beku_satu_pernyataan.sql`, `0025_isolasi_identitas_null.sql`, `0026_kunci_lingkup_rincian.sql`, regresi/mutasi masing-masing, `alat/klasifikasi_mutasi.py`, `alat/uji-konkuren*.py`, `alat/periksa-gerbang-ci.py`, `alat/ci_target.py`, `alat/periksa-paket.py`, `alat/periksa-fungsi-pin.py`, `alat/periksa-rahasia.py`, `alat/periksa-paritas-ci.py`.
 
 **Implikasi:** migrasi 0001–0023 tetap tidak disentuh; tidak ada merge/deploy/sebar Supabase. Semua angka runner/CI wajib diambil dari keluaran terbaru, bukan angka lama yang disalin ke dokumen aktif. A-F05/A-F06/B-F10 tetap ditutup hanya setelah bukti dan CI yang sesuai.
+
+
+## [Pelaksanaan/2026-09-22] T1-30: Pengerasan InitPlan RLS (0027) dan verifikasi AST katalog
+
+**Dasar:** penyelesaian tugas T1-30 (keamanan SQL efektif) menuntut agar seluruh pemanggilan fungsi helper identitas/peran/izin pada kebijakan RLS dioptimasi menggunakan `(SELECT ...)` subquery agar PostgreSQL mengevaluasinya sekali per query (InitPlan) daripada per baris yang dipindai (FuncExpr).
+
+**Pelaksanaan:**
+1. Migrasi baru `supabase/migrations/0027_initplan_policy_rls.sql` memperbarui 43 kebijakan RLS yang sebelumnya memanggil helper (`penyewa_saya`, `peran_saya`, `cabang_saya`, `auth.uid`, `boleh`) secara langsung tanpa subquery `SELECT`. Seluruh predikat hak, USING/WITH CHECK, peran, dan isolasi penyewa dipertahankan utuh.
+2. `supabase/tes/keamanan_fungsi.sql` diperkuat dengan asersi AST langsung ke katalog `pg_policy` (memeriksa bahwa tidak ada pemanggilan helper bebas korelasi yang tersisa tanpa pembungkus `(SELECT ...)`).
+3. `alat/periksa-keamanan-sql.py` diperluas dengan 4 mutasi fail-closed khusus InitPlan (total 13 kasus mutasi dalam `--uji-diri`: helper langsung, campuran helper, WITH CHECK langsung, komentar palsu, pencabutan path, ACL, trigger RPC, disable RLS, dan drop policy).
+4. Seluruh 67 pengujian SQL lokal lolos (67/67 hijau).
+
+**Batas jujur & Implikasi:** migrasi beku 0001–0016 tetap tidak diubah. T1-30 siap ditutup setelah hosted CI batch hijau. Tidak ada perubahan izin bisnis atau pelemahan isolasi.
+

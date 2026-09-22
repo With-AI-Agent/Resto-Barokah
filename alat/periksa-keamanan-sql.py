@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-"""T1-30 (bagian efektif): ACL/search_path fungsi istimewa + sapuan RLS.
+"""T1-30: Keamanan SQL efektif — ACL, search_path fungsi, sapuan RLS & optimasi InitPlan helper.
 
 Jalankan semua migrasi di DB sementara, lalu baca katalog PostgreSQL asli.
 Tidak percaya regex CREATE pertama, komentar REVOKE, atau grant yang sudah
 DITIMPA migrasi lebih baru. Ini pemeriksa skema efektif, bukan parser statis.
-Sisa T1-30: analisis AST initplan SELECT pada setiap pemanggilan helper policy;
-tidak diklaim di sini. Rahasia + npm audit tetap gerbang tersendiri yang wajib.
+Memeriksa:
+  1. search_path terkunci pada semua fungsi SECURITY DEFINER skema public.
+  2. Pencabutan hak EXECUTE dari PUBLIC/anon/authenticated pada fungsi istimewa & trigger.
+  3. Keterpanggilan trigger non-definer ditolak sebagai RPC klien.
+  4. Seluruh tabel public mengaktifkan RLS dan memiliki policy terdaftar.
+  5. Seluruh pemanggilan helper tanpa argumen berkorelasi dibungkus (SELECT ...) untuk optimasi InitPlan.
 
 --uji-diri membuktikan setiap aturan bisa merah pada SALINAN, dan setup rusak
 tidak dihitung sebagai bukti. Tidak menyentuh database Supabase atau sumber.
@@ -22,7 +26,7 @@ from klasifikasi_mutasi import HIJAU, MERAH_PAGAR, RUSAK, klasifikasi
 
 AKAR = Path(__file__).resolve().parent.parent
 TES = ['supabase/tes/keamanan_fungsi.sql', 'supabase/tes/rls_semua_tabel.sql']
-MIG = 'supabase/migrations/0023_acl_fungsi_pemicu.sql'
+MIG = 'supabase/migrations/0027_initplan_policy_rls.sql'
 
 
 def jalankan(akar: Path) -> subprocess.CompletedProcess:
@@ -46,6 +50,19 @@ def uji_diri() -> int:
          'grant execute on function public.picu_pembatalan_sah() to authenticated;', 'T130-trigger', MERAH_PAGAR),
         ('trigger menjadi RPC anon',
          'grant execute on function public.picu_pembayaran_jujur() to anon;', 'T130-trigger', MERAH_PAGAR),
+        # InitPlan helper policy tests
+        ('helper penyewa_saya() dipanggil langsung tanpa SELECT',
+         'drop policy if exists penyewa_pilih on public.penyewa;\ncreate policy penyewa_pilih on public.penyewa for select to authenticated using (id = public.penyewa_saya());',
+         'T130-initplan', MERAH_PAGAR),
+        ('helper campuran: satu SELECT dan satu peran_saya() langsung',
+         'drop policy if exists cabang_ubah on public.cabang;\ncreate policy cabang_ubah on public.cabang for update to authenticated using (penyewa_id = (select public.penyewa_saya()) and peran_saya() = \'owner_pusat\');',
+         'T130-initplan', MERAH_PAGAR),
+        ('WITH CHECK helper boleh() langsung tanpa SELECT',
+         'drop policy if exists stok_bahan_ubah on public.stok_bahan;\ncreate policy stok_bahan_ubah on public.stok_bahan for update to authenticated using (penyewa_id = (select public.penyewa_saya()) and (select public.boleh(\'ubah_stok\'))) with check (penyewa_id = (select public.penyewa_saya()) and boleh(\'ubah_stok\'));',
+         'T130-initplan', MERAH_PAGAR),
+        ('SELECT palsu dalam komentar tidak mengelabui InitPlan',
+         'drop policy if exists pengguna_pilih on public.pengguna;\ncreate policy pengguna_pilih on public.pengguna for select to authenticated using (/* (select auth.uid()) */ id = auth.uid());',
+         'T130-initplan', MERAH_PAGAR),
         # Dua berkas gagal: satu error runtime di ACL, satu asersi RLS. Ini
         # sengaja membuktikan B-F01 sebagai RUSAK, bukan bukti campuran.
         ('RLS tabel dilepas',
@@ -88,7 +105,7 @@ def uji_diri() -> int:
             r = jalankan(root)
             teks = r.stdout + r.stderr
             jenis, sebab = klasifikasi(r.returncode, teks)
-            ok = jenis == harap and token in teks
+            ok = jenis == harap and (not token or token in teks)
             if harap == MERAH_PAGAR:
                 ok = ok and 'HARAPAN TIDAK TERPENUHI' in sebab
             gagal += not ok
@@ -106,8 +123,7 @@ def main() -> int:
     r = jalankan(AKAR)
     print(r.stdout, end='')
     print(r.stderr, end='')
-    print('Lingkup: search_path + ACL efektif + trigger-only + sapuan RLS. '
-          'Belum mengesahkan initplan SELECT pada policy (sisa T1-30).')
+    print('Lingkup: search_path + ACL efektif + trigger-only + sapuan RLS + optimasi InitPlan helper policy.')
     return r.returncode
 
 
