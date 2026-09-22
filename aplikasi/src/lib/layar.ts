@@ -147,7 +147,12 @@ export const DAFTAR_LAYAR: Record<string, KontrakLayar> = {
       'menampilkan pesanan minuman untuk bartender — otomatis terpisah dari pesanan makanan berdasarkan tujuan kategori menu',
     masukDari: ['dapur'],
     keluarKe: ['dapur'],
-    dataDitampilkan: ['antrean minuman tertua di atas', 'jenis pesanan', 'catatan khusus', 'status tiap minuman'],
+    dataDitampilkan: [
+      'antrean minuman tertua di atas',
+      'jenis pesanan',
+      'catatan khusus',
+      'status tiap minuman',
+    ],
     aksiTerkait: ['dapur.mulai_masak', 'dapur.selesai_masak'],
     keadaan: {
       kosong: 'Belum ada pesanan minuman.',

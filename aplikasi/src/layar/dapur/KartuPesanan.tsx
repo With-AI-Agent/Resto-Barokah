@@ -69,7 +69,10 @@ export function umurMenit(dikirimPada: string, waktuSekarang: string): number {
 export type TingkatWaktu = 'biasa' | 'waspada' | 'mendesak'
 
 /** Tingkat keterlambatan: [ambang waspada, ambang mendesak], menit. */
-export function tingkatWaktu(umur: number, ambang: readonly [number, number] = [10, 20]): TingkatWaktu {
+export function tingkatWaktu(
+  umur: number,
+  ambang: readonly [number, number] = [10, 20],
+): TingkatWaktu {
   if (umur >= ambang[1]) return 'mendesak'
   if (umur >= ambang[0]) return 'waspada'
   return 'biasa'
@@ -101,8 +104,18 @@ export function KartuPesanan({
   const tingkat = tingkatWaktu(umur, ambangMenit)
 
   return (
-    <Kartu judul={`No. ${tiket.nomor}`} aksi={<Lencana nada={NADA_TIPE[tiket.tipe]}>{LABEL_TIPE[tiket.tipe]}</Lencana>}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)', marginBottom: 'var(--s-3)' }}>
+    <Kartu
+      judul={`No. ${tiket.nomor}`}
+      aksi={<Lencana nada={NADA_TIPE[tiket.tipe]}>{LABEL_TIPE[tiket.tipe]}</Lencana>}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--s-3)',
+          marginBottom: 'var(--s-3)',
+        }}
+      >
         {tiket.tipe === 'dinein' && tiket.meja ? (
           <span
             data-testid="meja-kartu"
@@ -118,12 +131,25 @@ export function KartuPesanan({
 
       <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 'var(--s-3)' }}>
         {items.map((item) => (
-          <li key={item.id} data-testid={`baris-item-${item.id}`} style={{ borderTop: '1px solid var(--b-netral)', paddingTop: 'var(--s-2)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--s-2)' }}>
+          <li
+            key={item.id}
+            data-testid={`baris-item-${item.id}`}
+            style={{ borderTop: '1px solid var(--b-netral)', paddingTop: 'var(--s-2)' }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 'var(--s-2)',
+              }}
+            >
               <span style={{ fontSize: 'var(--t-4)', fontWeight: 700 }}>
                 {item.qty} × {item.namaSaatItu}
               </span>
-              <Lencana nada={LABEL_STATUS[item.status].nada}>{LABEL_STATUS[item.status].teks}</Lencana>
+              <Lencana nada={LABEL_STATUS[item.status].nada}>
+                {LABEL_STATUS[item.status].teks}
+              </Lencana>
             </div>
             {item.catatan ? (
               <p

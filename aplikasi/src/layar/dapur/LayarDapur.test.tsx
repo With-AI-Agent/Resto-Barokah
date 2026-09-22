@@ -12,7 +12,12 @@ afterEach(() => {
   cleanup()
 })
 
-function tiket(id: string, nomor: number, dikirimPada: string, items: TiketPesanan['items']): TiketPesanan {
+function tiket(
+  id: string,
+  nomor: number,
+  dikirimPada: string,
+  items: TiketPesanan['items'],
+): TiketPesanan {
   return { id, nomor, tipe: 'dinein', meja: String(nomor), dikirimPada, items }
 }
 
@@ -109,12 +114,7 @@ describe('LayarDapur (T4-10 — keadaan & ketahanan)', () => {
   it('saat "sebagian/tertunda": antrean cadangan tampil dengan tanda Tertunda', () => {
     const cadangan = [tiket('lokal', 9, '2026-09-22T09:00:00.000Z', [ITEM_DAPUR('i9')])]
     render(
-      <LayarDapur
-        tiket={[]}
-        waktuSekarang={WAKTU}
-        keadaan="sebagian"
-        antreanCadangan={cadangan}
-      />,
+      <LayarDapur tiket={[]} waktuSekarang={WAKTU} keadaan="sebagian" antreanCadangan={cadangan} />,
     )
     expect(screen.getByTestId('kartu-lokal')).toBeTruthy()
     expect(screen.getByText(/Tertunda/)).toBeTruthy()
@@ -148,9 +148,7 @@ describe('pembantu LayarDapur', () => {
 
   it('saringBagian mengabaikan item batal saat menilai tiket', () => {
     const data = [
-      tiket('x', 1, '2026-09-22T10:00:00.000Z', [
-        { ...ITEM_DAPUR('i1'), status: 'batal' },
-      ]),
+      tiket('x', 1, '2026-09-22T10:00:00.000Z', [{ ...ITEM_DAPUR('i1'), status: 'batal' }]),
     ]
     expect(saringBagian(data, 'dapur')).toHaveLength(0)
   })

@@ -146,6 +146,12 @@ jobs:
       - name: Bukti mutasi mode dukungan platform 0031 (T1-28)
         run: python3 alat/uji-mutasi-0031.py
 
+      - name: Bukti mutasi status item dapur 0032 (T4-04 — riwayat anti-dobel)
+        run: python3 alat/uji-mutasi-0032.py
+
+      - name: Bukti mutasi tujuan item dapur/bar 0033 (T4-02)
+        run: python3 alat/uji-mutasi-0033.py
+
       - name: Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka)
         run: |
           python3 -m pip install --quiet --break-system-packages pgserver "psycopg[binary]"

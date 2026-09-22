@@ -6,12 +6,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi, afterEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
-import {
-  KartuPesanan,
-  umurMenit,
-  tingkatWaktu,
-  type TiketPesanan,
-} from './KartuPesanan'
+import { KartuPesanan, umurMenit, tingkatWaktu, type TiketPesanan } from './KartuPesanan'
 
 afterEach(() => {
   cleanup()
@@ -64,11 +59,19 @@ describe('KartuPesanan (T4-03)', () => {
 
   it('menampilkan tipe bawa pulang & ojol dengan labelnya (tanpa nomor meja)', () => {
     const { rerender } = render(
-      <KartuPesanan tiket={tiketContoh({ tipe: 'bawa_pulang', meja: null })} waktuSekarang={waktuSetelah(1)} />,
+      <KartuPesanan
+        tiket={tiketContoh({ tipe: 'bawa_pulang', meja: null })}
+        waktuSekarang={waktuSetelah(1)}
+      />,
     )
     expect(screen.getByText('Bawa Pulang')).toBeTruthy()
     expect(screen.queryByTestId('meja-kartu')).toBeNull()
-    rerender(<KartuPesanan tiket={tiketContoh({ tipe: 'ojol', meja: null })} waktuSekarang={waktuSetelah(1)} />)
+    rerender(
+      <KartuPesanan
+        tiket={tiketContoh({ tipe: 'ojol', meja: null })}
+        waktuSekarang={waktuSetelah(1)}
+      />,
+    )
     expect(screen.getByText('Ojol')).toBeTruthy()
   })
 
@@ -127,7 +130,9 @@ describe('KartuPesanan (T4-08 — penanda waktu)', () => {
   })
 
   it('warna lencana waktu mengikuti tingkat pada layar', () => {
-    const { rerender } = render(<KartuPesanan tiket={tiketContoh()} waktuSekarang={waktuSetelah(3)} />)
+    const { rerender } = render(
+      <KartuPesanan tiket={tiketContoh()} waktuSekarang={waktuSetelah(3)} />,
+    )
     expect(screen.getByTestId('penanda-waktu').getAttribute('data-tingkat')).toBe('biasa')
     rerender(<KartuPesanan tiket={tiketContoh()} waktuSekarang={waktuSetelah(12)} />)
     expect(screen.getByTestId('penanda-waktu').getAttribute('data-tingkat')).toBe('waspada')

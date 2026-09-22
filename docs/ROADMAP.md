@@ -1015,6 +1015,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Verifikasi:** uji manual + pemeriksaan kontras aplikasi. · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima.
 
 - [ ] T4-04 — Ubah status per item & seluruh pesanan (anti-dobel) ⚠️
+  - entitas baru: `pesanan_item_status_riwayat` (riwayat status item hanya-tambah anti-dobel, migrasi `0032_status_item_dapur.sql`, trigger `picu_item_status_catat`, RPC `set_status_item`) — SELESAI
   - **Tujuan:** dua orang menandai item sama tidak menghasilkan status ganda/salah.
   - **Ref:** PRD M5 (kasus tepi); TECH_SPEC §9 ART-4 · RPC resmi: `set_status_item`, `tandai_habis`
   - **File:** `supabase/migrations/0034_status_item.sql`, `supabase/tes/status_item.sql`

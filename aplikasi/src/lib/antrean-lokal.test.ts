@@ -3,11 +3,7 @@
  */
 // @vitest-environment jsdom
 import { describe, expect, it, beforeEach } from 'vitest'
-import {
-  simpanAntreanTerakhir,
-  muatAntreanTerakhir,
-  hapusAntreanTerakhir,
-} from './antrean-lokal'
+import { simpanAntreanTerakhir, muatAntreanTerakhir, hapusAntreanTerakhir } from './antrean-lokal'
 
 describe('antrean-lokal (T4-10)', () => {
   beforeEach(() => {
@@ -15,7 +11,10 @@ describe('antrean-lokal (T4-10)', () => {
   })
 
   it('menyimpan lalu memuat kembali tiket antrean', () => {
-    const tiket = [{ id: 't1', nomor: 7 }, { id: 't2', nomor: 8 }]
+    const tiket = [
+      { id: 't1', nomor: 7 },
+      { id: 't2', nomor: 8 },
+    ]
     simpanAntreanTerakhir('dapur', tiket)
     expect(muatAntreanTerakhir<{ id: string }>('dapur')).toEqual(tiket)
   })

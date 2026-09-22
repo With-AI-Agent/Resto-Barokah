@@ -62,7 +62,13 @@ describe('LayarBar (T4-02)', () => {
 
   it('penanda waktu bar sama seperti dapur (ambang bisa diatur)', () => {
     // dikirim 10:10, sekarang 10:20 = 10 menit → waspada pada ambang [5, 15]
-    render(<LayarBar tiket={[TIKET_CAMPUR]} waktuSekarang="2026-09-22T10:20:00.000Z" ambangMenit={[5, 15]} />)
+    render(
+      <LayarBar
+        tiket={[TIKET_CAMPUR]}
+        waktuSekarang="2026-09-22T10:20:00.000Z"
+        ambangMenit={[5, 15]}
+      />,
+    )
     expect(screen.getByTestId('penanda-waktu').getAttribute('data-tingkat')).toBe('waspada')
   })
 })

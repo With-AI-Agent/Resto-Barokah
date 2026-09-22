@@ -38,7 +38,7 @@ export function LayarBar({
   onKeDapur?: () => void
 }) {
   const tertunda = keadaan === 'sebagian'
-  const sumber = keadaan === 'gagal' || tertunda ? antreanCadangan ?? [] : tiket
+  const sumber = keadaan === 'gagal' || tertunda ? (antreanCadangan ?? []) : tiket
   const papan = urutFifo(saringBagian(sumber, 'bar'))
 
   return (
@@ -53,7 +53,9 @@ export function LayarBar({
         fontSize: modeTv ? 'var(--t-5)' : 'var(--t-3)',
       }}
     >
-      <header style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)', flexWrap: 'wrap' }}>
+      <header
+        style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)', flexWrap: 'wrap' }}
+      >
         <h2 style={{ margin: 0, fontSize: 'var(--t-6)' }}>Antrean Bar</h2>
         {tertunda ? <Lencana nada="warn">Tertunda — menampilkan antrean tersimpan</Lencana> : null}
         {keadaan === 'gagal' ? <Lencana nada="danger">Koneksi terputus</Lencana> : null}
@@ -74,7 +76,9 @@ export function LayarBar({
         />
       ) : null}
 
-      {(keadaan === 'siap' || keadaan === 'sebagian' || (keadaan === 'gagal' && papan.length > 0)) &&
+      {(keadaan === 'siap' ||
+        keadaan === 'sebagian' ||
+        (keadaan === 'gagal' && papan.length > 0)) &&
       papan.length === 0 ? (
         <KeadaanKosong
           judul="Belum ada pesanan minuman."
@@ -86,7 +90,9 @@ export function LayarBar({
         data-testid="papan-antrean"
         style={{
           display: 'grid',
-          gridTemplateColumns: modeTv ? 'repeat(auto-fill, minmax(28rem, 1fr))' : 'repeat(auto-fill, minmax(18rem, 1fr))',
+          gridTemplateColumns: modeTv
+            ? 'repeat(auto-fill, minmax(28rem, 1fr))'
+            : 'repeat(auto-fill, minmax(18rem, 1fr))',
           gap: modeTv ? 'var(--s-5)' : 'var(--s-3)',
         }}
       >

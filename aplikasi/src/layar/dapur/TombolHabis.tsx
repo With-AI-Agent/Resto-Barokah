@@ -10,13 +10,7 @@
 import { useState } from 'react'
 import { Tombol } from '../../komponen/Tombol'
 
-export function TombolHabis({
-  namaMenu,
-  onTandai,
-}: {
-  namaMenu: string
-  onTandai: () => void
-}) {
+export function TombolHabis({ namaMenu, onTandai }: { namaMenu: string; onTandai: () => void }) {
   const [mengonfirmasi, setMengonfirmasi] = useState(false)
 
   if (!mengonfirmasi) {

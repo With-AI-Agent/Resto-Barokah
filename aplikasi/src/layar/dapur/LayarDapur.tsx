@@ -56,7 +56,7 @@ export function LayarDapur({
   onKeBar?: () => void
 }) {
   const tertunda = keadaan === 'sebagian'
-  const sumber = keadaan === 'gagal' || tertunda ? antreanCadangan ?? [] : tiket
+  const sumber = keadaan === 'gagal' || tertunda ? (antreanCadangan ?? []) : tiket
   const papan = urutFifo(saringBagian(sumber, 'dapur'))
 
   const menuHabis = new Map<string, string>()
@@ -78,7 +78,9 @@ export function LayarDapur({
         fontSize: modeTv ? 'var(--t-5)' : 'var(--t-3)',
       }}
     >
-      <header style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)', flexWrap: 'wrap' }}>
+      <header
+        style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)', flexWrap: 'wrap' }}
+      >
         <h2 style={{ margin: 0, fontSize: 'var(--t-6)' }}>Antrean Dapur</h2>
         {tertunda ? <Lencana nada="warn">Tertunda — menampilkan antrean tersimpan</Lencana> : null}
         {keadaan === 'gagal' ? <Lencana nada="danger">Koneksi terputus</Lencana> : null}
@@ -99,7 +101,9 @@ export function LayarDapur({
         />
       ) : null}
 
-      {(keadaan === 'siap' || keadaan === 'sebagian' || (keadaan === 'gagal' && papan.length > 0)) &&
+      {(keadaan === 'siap' ||
+        keadaan === 'sebagian' ||
+        (keadaan === 'gagal' && papan.length > 0)) &&
       papan.length === 0 ? (
         <KeadaanKosong
           judul="Tidak ada antrean pesanan yang perlu dimasak."
@@ -111,7 +115,9 @@ export function LayarDapur({
         data-testid="papan-antrean"
         style={{
           display: 'grid',
-          gridTemplateColumns: modeTv ? 'repeat(auto-fill, minmax(28rem, 1fr))' : 'repeat(auto-fill, minmax(18rem, 1fr))',
+          gridTemplateColumns: modeTv
+            ? 'repeat(auto-fill, minmax(28rem, 1fr))'
+            : 'repeat(auto-fill, minmax(18rem, 1fr))',
           gap: modeTv ? 'var(--s-5)' : 'var(--s-3)',
         }}
       >
