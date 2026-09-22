@@ -71,6 +71,9 @@ MIG21 = "supabase/migrations/0021_kunci_diskon.sql"
 # F-01/F-02 harus mengenai salinan ini, bukan definisi lama di 0015; kalau tidak,
 # uji tetap hijau palsu meskipun pagar yang masih berjalan tidak pernah disentuh.
 MIG25 = "supabase/migrations/0025_isolasi_identitas_null.sql"
+# 0027 menulis ulang policy `izin_pilih` sebagai definisi efektif terakhir. Mutasi
+# F-10 harus mengenai salinan ini agar tidak ditimpa kembali oleh 0027.
+MIG27 = "supabase/migrations/0027_initplan_policy_rls.sql"
 UJI = "supabase/tes/pembatalan_penanda_palsu.sql"                       # bagian 1 (K-1)
 UJI_PR02 = "supabase/tes/void_satu_item.sql"                            # bagian 2 (K-2a)
 UJI_F01 = "supabase/tes/diskon_sesudah_lunas.sql"                       # bagian 3 (K-2b)
@@ -565,21 +568,29 @@ def main() -> int:
 
     # -------------------------------------------------------- bagian 11 (AUD-3 F-10)
     # 26) Lingkup baca izin dikembalikan ke se-penyewa (cacat asli F-10) → MERAH.
+    #    Sasaran = salinan 0027 (DEFINISI HIDUP): `izin_pilih` ditulis ulang di 0027
+    #    sebagai policy efektif ber-InitPlan, sehingga mutasi diarahkan ke 0027.
     def izin_kembali_sepenyewa(t: str) -> str:
         return ganti_terakhir(
             t,
-            """      and public.peran_saya() = 'admin_cabang'
+            """    or (
+      public.sepenyewa(pengguna_id)
+      and (select public.peran_saya()) = 'admin_cabang'
       and exists (
         select 1
           from public.pengguna_cabang pc
          where pc.pengguna_id = public.izin.pengguna_id
-           and pc.cabang_id = public.cabang_saya()
-      )""",
-            """      and public.peran_saya() = 'admin_cabang'""",
+           and pc.cabang_id = (select public.cabang_saya())
+      )
+    )""",
+            """    or (
+      public.sepenyewa(pengguna_id)
+      and (select public.peran_saya()) = 'admin_cabang'
+    )""",
         )
 
     hasil.append(mutasi("lingkup baca izin admin cabang dikembalikan ke se-penyewa (cacat AUD-3 F-10)",
-                        izin_kembali_sepenyewa, uji=UJI_F10))
+                        izin_kembali_sepenyewa, uji=UJI_F10, berkas_rel=MIG27))
 
     # Kontrol penutup: setelah semua mutasi dipulihkan, SEMUA uji wajib hijau lagi.
     hijau_akhir, keluar_akhir = semua_hijau()
