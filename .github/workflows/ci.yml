@@ -152,6 +152,15 @@ jobs:
       - name: Bukti mutasi tujuan item dapur/bar 0033 (T4-02)
         run: python3 alat/uji-mutasi-0033.py
 
+      - name: Bukti mutasi menu habis sumber 0035 (T4-05)
+        run: python3 alat/uji-mutasi-0035.py
+
+      - name: Bukti mutasi set_stok 0036 (T4-06)
+        run: python3 alat/uji-mutasi-0036.py
+
+      - name: Bukti mutasi opname_stok 0037 (T4-07)
+        run: python3 alat/uji-mutasi-0037.py
+
       - name: Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka)
         run: |
           python3 -m pip install --quiet --break-system-packages pgserver "psycopg[binary]"

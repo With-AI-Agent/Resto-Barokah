@@ -395,6 +395,119 @@ def uji_f12(uri: str) -> tuple[bool, str]:
     return True, (f"T1 masuk 30rb, T2 ditolak cap sesudah tertahan {hasil['tunggu']:.2f} dtk; "
                   f"1 baris tersimpan — serialisasi cap terbukti")
 
+# --- T4-09: dua perangkat paralel menandai item sama → tepat satu perubahan ---
+DAPUR_UJI = "90000000-0000-0000-0000-000000000006"   # petugas dapur Cabang Dua
+ITEM_T409 = "00000000-0000-0000-0000-00000000f162"
+KUNCI_T409 = "kunci-t409-bersama"
+
+SETUP_T409 = """
+insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten)
+values ('00000000-0000-0000-0000-00000000f062','11111111-1111-1111-1111-111111111111',
+        'a1a1a1a1-0000-0000-0000-000000000002', 123, current_date, 'dinein', 'dikirim', 't409-setup');
+insert into public.pesanan_item (id, pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, subtotal)
+values ('00000000-0000-0000-0000-00000000f162','00000000-0000-0000-0000-00000000f062',
+        'beef0000-0000-0000-0000-000000000001','Nasi Goreng',27000,1,27000);
+"""
+
+MUTASI_T409_TANPA_PENJAGA = """
+-- Kalibrasi T4-09: pemicu TANPA klausa WHEN + RPC TANPA lapis no-op/idempoten
+-- (satu-satunya beda dari 0032). Ulangan wajib meninggalkan rekaman kembar.
+drop trigger if exists item_status_catat on public.pesanan_item;
+create trigger item_status_catat
+  after update of status on public.pesanan_item
+  for each row
+  execute function public.picu_item_status_catat();
+
+create or replace function public.set_status_item(
+  p_item_id uuid,
+  p_status text,
+  p_kunci_idempoten text default null
+)
+returns jsonb
+language plpgsql
+set search_path = public, pg_temp
+as $$
+declare
+  v_status_lama text;
+begin
+  if p_status not in ('dimasak', 'siap') then
+    raise exception 'set_status_item hanya menerima status dimasak atau siap (diterima: %).',
+      coalesce(p_status, '(null)');
+  end if;
+
+  select pi.status into v_status_lama
+    from public.pesanan_item pi
+   where pi.id = p_item_id
+   for update;
+  if not found then
+    raise exception 'Item pesanan % tidak ditemukan atau bukan milik resto Anda.', p_item_id;
+  end if;
+
+  perform set_config('resto.kunci_status_item', coalesce(p_kunci_idempoten, ''), true);
+  update public.pesanan_item set status = p_status where id = p_item_id;
+  return jsonb_build_object('berhasil', true, 'diubah', true, 'status', p_status);
+end
+$$;
+"""
+
+
+def uji_t409(uri: str) -> tuple[bool, str]:
+    """Dua koneksi NYATA menandai item yang sama bersamaan → tepat satu perubahan."""
+    with psycopg.connect(uri, autocommit=True) as s:
+        for pernyataan in SETUP_T409.strip().split(";"):
+            if pernyataan.strip():
+                s.execute(pernyataan)
+    hasil: dict = {}
+    galat: list[str] = []
+    siap = threading.Event()
+
+    def perangkat(nama_t: str) -> None:
+        try:
+            c = psycopg.connect(uri)
+            c.execute("select uji.klaim(%s)", (DAPUR_UJI,))
+            siap.wait(15)
+            r = c.execute(
+                "select public.set_status_item(%s, 'dimasak', %s)",
+                (ITEM_T409, KUNCI_T409),
+            ).fetchone()[0]
+            hasil[nama_t] = r
+            c.commit()
+            c.close()
+        except Exception as e:  # noqa: BLE001 — dicatat, bukan ditelan
+            galat.append(f"{nama_t}: {e!r}")
+
+    a = threading.Thread(target=perangkat, args=("P1",))
+    b = threading.Thread(target=perangkat, args=("P2",))
+    a.start()
+    b.start()
+    siap.set()
+    a.join(20)
+    b.join(20)
+    if a.is_alive() or b.is_alive():
+        return False, "utas menggantung (>20 dtk) — kemungkinan deadlock tak terduga"
+    if galat:
+        detail = " / ".join(galat)
+        if "UniqueViolation" in detail and ("kunci_idempoten" in detail or "pesanan_item_status_riwayat" in detail):
+            return False, "MUTASI-PELANGGARAN-T409: rekaman kembar ditolak kunci unik — " + detail
+        return False, "RUNTIME-ERROR-T409: " + detail
+    with psycopg.connect(uri, autocommit=True) as s:
+        baris = s.execute(
+            "select count(*) from public.pesanan_item_status_riwayat where pesanan_item_id = %s",
+            (ITEM_T409,),
+        ).fetchone()[0]
+        status = s.execute(
+            "select status from public.pesanan_item where id = %s", (ITEM_T409,)
+        ).fetchone()[0]
+    if baris == 0:
+        return False, "RUNTIME-ERROR-T409: tidak ada riwayat tercatat"
+    if baris != 1:
+        return False, f"MUTASI-PELANGGARAN-T409: riwayat ganda {baris} baris (harap 1)"
+    if status != "dimasak":
+        return False, f"status akhir {status} (harap dimasak)"
+    return True, ("dua koneksi paralel menandai item sama → tepat 1 riwayat (status dimasak); "
+                  f"respon perangkat: {hasil}")
+
+
 def validasi_kalibrasi_mutasi(nama: str, lulus: bool, catat: str) -> tuple[bool, str]:
     """Terima hanya kegagalan mutan yang merupakan bukti kontrak spesifik.
 
@@ -406,6 +519,8 @@ def validasi_kalibrasi_mutasi(nama: str, lulus: bool, catat: str) -> tuple[bool,
     if nama == "F-13" and "MUTASI-PELANGGARAN-F13:" in catat:
         return True, catat
     if nama == "F-12" and "MUTASI-PELANGGARAN-F12:" in catat:
+        return True, catat
+    if nama == "T-409" and "MUTASI-PELANGGARAN-T409:" in catat:
         return True, catat
     return False, f"{nama}: hasil bukan bukti mutasi yang terkalibrasi — {catat}"
 
@@ -419,6 +534,9 @@ def uji_diri() -> int:
         ("F-12", False, "MUTASI-PELANGGARAN-F12: CAP JEBOL", True),
         ("F-12", False, "RUNTIME-ERROR-F12: timeout", False),
         ("F-12", True, "serialisasi cap terbukti", False),
+        ("T-409", False, "MUTASI-PELANGGARAN-T409: riwayat ganda 2 baris", True),
+        ("T-409", False, "RUNTIME-ERROR-T409: koneksi putus", False),
+        ("T-409", True, "tepat 1 riwayat", False),
     ]
     gagal = 0
     for nama, lulus, catat, harap in kasus:
@@ -455,6 +573,27 @@ def main() -> int:
     finally:
         srv.cleanup()
 
+
+    print("== T4-09 · skema utuh (harap LULUS) ==")
+    srv = server_baru("konkuren-t409-utuh")
+    try:
+        muat_skema(srv.get_uri())
+        lulus, catat = uji_t409(srv.get_uri())
+        print(f"  [{'OK' if lulus else 'X '}] {catat}")
+        gagal += 0 if lulus else 1
+    finally:
+        srv.cleanup()
+
+    print("== T4-09 · penjaga anti-dobel dilepas (harap GAGAL = bug tereproduksi) ==")
+    srv = server_baru("konkuren-t409-mutasi")
+    try:
+        muat_skema(srv.get_uri(), MUTASI_T409_TANPA_PENJAGA)
+        lulus, catat = uji_t409(srv.get_uri())
+        kalibrasi, bukti = validasi_kalibrasi_mutasi("T-409", lulus, catat)
+        print(f"  [{'OK' if kalibrasi else 'X '}] kalibrasi: {'bukti mutasi spesifik — ' if kalibrasi else 'DITOLAK — '}{bukti}")
+        gagal += 0 if kalibrasi else 1
+    finally:
+        srv.cleanup()
 
     print("== F F-12 · skema utuh (harap LULUS) ==")
     srv = server_baru("konkuren-f12-utuh")

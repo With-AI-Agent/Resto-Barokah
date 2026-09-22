@@ -9,6 +9,8 @@ import { KelolaPegawai } from './layar/pengaturan/KelolaPegawai'
 import { DaftarPerangkat } from './layar/pengaturan/DaftarPerangkat'
 import { LayarDapur } from './layar/dapur/LayarDapur'
 import { LayarBar } from './layar/dapur/LayarBar'
+import { Stok } from './layar/dapur/Stok'
+import { Opname } from './layar/dapur/Opname'
 
 export default function App() {
   const { sesi, sedangMasuk, masuk, keluar } = useSesi()
@@ -38,6 +40,10 @@ export default function App() {
             onKeDapur={() => setLayarAktif('dapur')}
           />
         )
+      case 'menu_stok':
+        return <Stok bahan={[]} riwayat={[]} onKeOpname={() => setLayarAktif('opname')} />
+      case 'opname':
+        return <Opname bahan={[]} onKembali={() => setLayarAktif('menu_stok')} />
       default:
         return <LayarContoh />
     }

@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0c97c-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0c97c-resto-barokah`
-- **Commit keadaan kerja:** `715dbd0ec0826ef95cf831ed3c3843e2d6372826`
+- **Commit keadaan kerja:** `285bd3d23dfb702ed78010ae364184c8ced7195c`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 35793000274, commit 715dbd0e)
+- **CI terakhir:** failure (run 35796505521, commit 285bd3d2)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-22 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -70,32 +70,28 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**RENCANA AKTIF (2026-09-22, sesi arena/01a0c97c) — sisa Fase 4 (nomor tugas = `docs/ROADMAP.md`):**
+**RENCANA AKTIF (2026-09-22 malam, sesi arena/01a0c97c) — FASE 4 TUNTAS di kode & uji; sisa kecil:**
 
-1. **Fase 4 (sisa): layar dapur/KDS & stok** — T4-01 `aplikasi/src/layar/dapur/LayarDapur.tsx`
-   (antrean FIFO makanan per `dikirim_ke_dapur_pada` dari DB + penyegaran realtime, tampilan
-   besar terbaca jauh) · T4-02 UI `LayarBar.tsx` (filter `pesanan_item.tujuan = 'bar'` — kolom
-   salinan sudah ada di migrasi `0033`) · T4-03 `KartuPesanan.tsx` (lencana tipe pesanan
-   dinein/bawa-pulang/ojol + catatan khusus mencolok + nomor meja) · T4-05 `TombolHabis.tsx`
-   (penanda habis dapur → kasir & katalog; periksa dulu RPC `tandai_habis` yang disebut
-   TECH_SPEC M9 sebelum menambah apa pun) · T4-06 `Stok.tsx` + RPC `set_stok` (buku besar
-   `stok_pergerakan` sudah ada & hanya-tambah) · T4-07 `Opname.tsx` + RPC `opname_stok` ·
-   T4-08 tanda waktu pesanan (ambang 10/20 menit bisa diatur; pakai WAKTU PELADEN; hormati
-   "kurangi gerak") · T4-09 `supabase/tes/anti_dobel.sql` + uji dua perangkat nyata ·
-   T4-10 keadaan kosong/muat/gagal + simpan pesanan terakhir saat jaringan putus + tata
-   letak TV/monitor besar.
-2. **SELESAI di batch ini (jangan dikerjakan ulang):** T4-04 `0032_status_item_dapur.sql`
-   (riwayat status item hanya-tambah anti-dobel + sinkron status pesanan + RPC
-   `set_status_item`; 7/7 mutasi merah; keputusan di `DECISIONS_LOG` [State Machine/
-   2026-09-22] — pembatas peran sengaja TIDAK ditambah, kontrak `status_item_transisi.sql`
-   mengunci jalur sah terbuka) + T4-02 bagian SQL `0033_tujuan_item.sql` (2/2 mutasi merah).
-   Suite SQL kini **74 berkas LULUS · 0 GAGAL**.
-3. **Aturan tetap:** TDD per tugas (tes merah → kode → hijau → uji mutasi untuk gerbang baru)
-   · migrasi 0001–0014 BEKU · jangan longgarkan `periksa-struktur` (tanpa warna mentah —
-   komentar pun dipindai) · perubahan skema dicatat di `docs/TECH_SPEC.md` §4.2/§4.3 ·
-   **kontrak tes lama MENANG atas rancangan baru** (baca `supabase/tes/*.sql` yang relevan
-   sebelum menambah penjaga — pelajaran T4-02/T4-04 batch ini) · `--siapkan` SEBELUM commit
-   penutup · PR #1/#2/#3/#4 jangan merge tanpa keputusan Lee · tanpa deploy/sebar Supabase.
+1. **SELESAI batch ini (jangan dikerjakan ulang):** seluruh Fase 4 — T4-01 `LayarDapur.tsx` (FIFO
+   `dikirimPada` waktu peladen + keadaan + cadangan `antrean-lokal` + mode TV/T4-10) · T4-02
+   `LayarBar.tsx` + `0033_tujuan_item.sql` · T4-03 `KartuPesanan.tsx` · T4-04 `0032` · T4-05
+   `TombolHabis.tsx` + `0035_menu_habis_sumber.sql` (RPC `tandai_habis`, riwayat `menu_habis_riwayat`) ·
+   T4-06 `Stok.tsx` + `0036_stok.sql` (RPC `set_stok`) · T4-07 `Opname.tsx` + `0037_opname.sql`
+   (RPC `opname_stok`) · T4-08 penanda waktu 10/20 mnt · T4-09 `supabase/tes/anti_dobel.sql` +
+   kasus T-409 dua koneksi nyata terkalibrasi di `alat/uji-konkuren.py` · T4-10. Bukti: suite SQL
+   **78 berkas lulus**, aplikasi **253 tes lulus**, mutasi 0032/0033/0035/0036/0037 semua merah.
+2. **Sisa Fase 4 (butuh keputusan/bukti Lee):** (a) bukti manual/visual — foto T4-03 (baca 2 meter),
+   uji dua perangkat manual T4-05 (dapur & kasir), uji cabut-jaringan T4-10; (b) infra e2e
+   Playwright (`aplikasi/uji/e2e/dapur.spec.ts`) — belum ada pustakanya, butuh izin tambah
+   dependensi; (c) **kabel data realtime** (langganan perubahan) untuk antrean KDS & penanda
+   habis — saat ini komponen murni menunggu kontainer; (d) registri `DAFTAR_LAYAR` DIKUNCI tes
+   lama (tepat 8 layar G1) — layar baru hidup via `App.tsx` tanpa entri registri; perluasan
+   registri = perubahan kontrak = butuh putusan Lee.
+3. **Lanjut natural berikutnya:** Fase 5 (pembayaran multimode, split bill, struk termal,
+   buka/tutup shift) di `docs/ROADMAP.md` — atau kerjakan sisa (2) di atas lebih dulu.
+4. **Aturan tetap:** TDD · migrasi 0001–0014 BEKU · kontrak tes lama MENANG (pelajaran
+   `layar.test.ts` batch ini) · tanpa warna mentah · `--siapkan` SEBELUM commit penutup ·
+   PR #1–#4 jangan merge tanpa keputusan Lee · tanpa deploy/sebar Supabase.
 
 ### Arsip riwayat penutup §3 (sejarah — JANGAN dijadikan rencana; nomor tugas lama di bawah bisa tidak sesuai ROADMAP)
 

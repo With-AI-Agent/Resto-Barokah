@@ -1025,6 +1025,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Verifikasi:** uji SQL dua pemanggilan paralel → satu perubahan.
 
 - [ ] T4-05 — Tombol menu habis dari dapur (mengunci kasir + katalog)
+  - entitas baru: `menu_habis_riwayat` (jejak hanya-tambah siapa & kapan, migrasi `0035_menu_habis_sumber.sql`) + RPC `tandai_habis(menu, cabang, habis)`; sumber kebenaran `menu_cabang.habis` — kode SELESAI (bukti otomatis: `supabase/tes/menu_habis_sumber.sql`, mutasi 0035 3/3 merah; verifikasi manual dua perangkat menunggu Lee)
   - **Tujuan:** satu tombol di dapur langsung mencegah penjualan menu yang habis.
   - **Ref:** PRD M5 & M9
   - **File:** `aplikasi/src/layar/dapur/TombolHabis.tsx`, `supabase/migrations/0035_menu_habis_sumber.sql`
