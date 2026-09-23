@@ -14,4 +14,4 @@ Ringkasan keadaan kerja untuk sesi berikutnya. Rincian rencana ada di
 > **Catatan (2026-09-23):** commit `227a51b` dan `7aec492` yang sempat tertahan token GitHub
 > kedaluwarsa **sudah ter-push**. Tidak ada pekerjaan yang tertinggal.
 
-**Waktu pembaruan:** 2026-09-23 — sesi kelima: T-002 dijawab Lee (5 merek printer) dan T6-02/T6-03 selesai; **printer merek lain dijamin tetap jalan** lewat profil umum + penelusuran BLE + jalur USB apa pun, dikunci 6 mutasi MERAH (578 tes aplikasi, 87 uji SQL, mutasi UI 65/65). Uji cetak printer nyata tetap gerbang T6-08.
+**Waktu pembaruan:** 2026-09-23 — sesi keenam (ditutup untuk pindah sesi): lima uji printer masuk daftar milik Lee (M-12, M-22…M-25) dan T6-08 dikunci sampai ada hasil cetak nyata; tidak ada kode berubah. Fase 5 tuntas (bagian agent), Fase 6 T6-01…T6-05 selesai. Arah sesi baru: Fase 7 (kas & shift), mulai T7-01. CI hijau run 35886937856.

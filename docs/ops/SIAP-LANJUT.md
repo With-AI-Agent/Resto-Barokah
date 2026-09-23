@@ -214,6 +214,29 @@ JANGAN merge apa pun tanpa keputusan Lee.
    tidak menyentuh Bluetooth/USB. Itu disengaja: uji printer nyata (T6-08) hanya sesekali, jadi
    tata letak dikunci uji byte-level yang jalan di CI setiap saat.
 
+0G. **MULAI DARI SINI (sesi baru, 2026-09-23).** Keadaan: Fase 5 tuntas untuk bagian agent;
+   Fase 6 **T6-01/T6-02/T6-03/T6-04/T6-05 SELESAI**. **CI HIJAU** run `35886937856` (commit
+   `5b9d4bf`). Tidak ada pekerjaan tergantung, pohon kerja bersih.
+   **Kerjakan berikutnya: FASE 7 — kas & shift, mulai `T7-01` (buka kas / modal awal).** Alasan
+   memilih Fase 7 dan bukan menuntaskan Fase 6: sisa Fase 6 semuanya terhalang hal di luar kode
+   (printer nyata & keputusan RPC), sedangkan Fase 7 murni data + layar dan menutup lubang yang
+   sudah terasa sejak T5-11 — tagihan ditinggal & pencocokan kas per metode saat tutup shift.
+   Migrasi berikutnya: **≥ 0044** (T7-01 merencanakan `0045_buka_shift.sql`; periksa dulu nomor
+   yang masih kosong sebelum menulis).
+
+0H. **HATI-HATI: sandbox pernah DI-KLON ULANG dua kali** (2026-09-23). Gejalanya: ruang kerja
+   tiba-tiba tampak kotor berisi puluhan berkas dan `git log` pendek/mundur. **Itu BUKAN pekerjaan
+   yang hilang.** Jangan mengerjakan ulang apa pun sebelum menjalankan:
+   `git ls-remote origin arena/01a0cca9-resto-barokah` — bandingkan dengan commit terakhir yang
+   tercatat di PROJECT_STATE. Pemulihannya: `git stash -u`, `git fetch --unshallow origin <cabang>`,
+   `git reset --hard FETCH_HEAD`, periksa isi stash (biasanya murni penghapusan) lalu buang.
+   `node_modules` juga ikut hilang → `npm ci` di folder `aplikasi`.
+
+0I. **MILIK LEE, JANGAN DISENTUH AGENT: lima uji printer** (M-12, M-22, M-23, M-24, M-25) kini
+   tercantum di blok paling atas `docs/uji/RENCANA_UJI_MANUAL.md`. Lee sudah menyatakan akan
+   mengeceknya nanti. **`T6-08` DILARANG dicentang** sampai ada hasil cetak sungguhan, dan agent
+   dilarang mencentangnya sendiri.
+
 0D. **T-002 DIJAWAB LEE (2026-09-23) — T6-02 & T6-03 SELESAI.** Printer Kedai Oasis: Goojprt
    PT-210, Kassen BT-P290, Blueprint Lite-58, Xprinter XP-N160II, Epson TM-T82X. Butir T-002 di
    `docs/TERTANGGUH.md` sudah ditutup. Berkas baru: `lib/printer/profil.ts`, `lib/printer/kirim.ts`,

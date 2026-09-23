@@ -6,6 +6,35 @@
 
 ---
 
+## 🖨️ YANG MENUNGGU LEE SEKARANG — UJI PRINTER (5 baris)
+
+> Ditambahkan 2026-09-23 atas permintaan Lee: _"Untuk printer aku ceknya nanti.
+> Masukin aja dulu ke daftar yang harus aku uji."_
+
+Printer sudah **selesai dikerjakan dan lulus uji otomatis**, tetapi uji otomatis
+memakai printer **tiruan** di dalam komputer. Itu membuktikan logikanya benar,
+**bukan** bahwa kertasnya benar-benar keluar. Lima baris di bawah ini hanya bisa
+dibuktikan Lee dengan printer sungguhan:
+
+| ID | Yang dicek | Perlu apa |
+|---|---|---|
+| **M-12** | Cetak struk ke printer sungguhan | Printer mana pun |
+| **M-22** | Uji cetak halaman contoh & lebar kertas benar | Printer mana pun |
+| **M-23** | **Printer merek LAIN tetap jalan** | Printer di luar 5 merek Lee |
+| **M-24** | Tiket dapur: nomor besar, catatan mencolok, tanpa harga | Printer mana pun |
+| **M-25** | Pesan jelas saat printer mati di tengah cetak | Printer mana pun |
+
+**Mulai dari M-22** — itu yang paling cepat (tidak perlu transaksi, cukup tekan
+"Uji cetak" di Pengaturan). Kalau M-22 sudah benar, empat sisanya lebih mudah.
+
+Langkah rincinya ada di **`docs/uji/PANDUAN_PRINTER.md`** (bahasa sehari-hari,
+ada tabel kelima printer Lee). Rincian tiap baris ada di **Bagian C** di bawah.
+
+> ⚠️ **Tugas `T6-08` di ROADMAP tidak boleh dicentang** sampai lima baris ini
+> punya hasil nyata. Agent tidak boleh mencentangnya sendiri.
+
+---
+
 ## Bagian A — Baca ini dulu (3 menit)
 
 ### A1. Kenapa berkas ini ada
