@@ -5,6 +5,6 @@
 - [x] Fase 4 UI: KDS (LayarDapur/Bar/KartuPesanan/TombolHabis) + Stok/Opname (253 tes lulus).
 - [x] T4-09: uji anti-dobel dua koneksi nyata terkalibrasi (alat/uji-konkuren.py).
 - [ ] Bukti manual/visual Lee (T4-03 foto, uji dua perangkat manual T4-05, cabut-jaringan T4-10).
-- [ ] Infra e2e Playwright (`aplikasi/uji/e2e/dapur.spec.ts`) — butuh keputusan Lee.
+- [ ] Infra e2e Playwright (`aplikasi/uji/e2e/dapur.spec.ts` — rencana, belum dibuat) — butuh keputusan Lee.
 - [ ] Kabel data realtime (langganan perubahan) untuk KDS & penanda habis.
 - [ ] Fase 5: pembayaran multimode & tutup kasir/shift.

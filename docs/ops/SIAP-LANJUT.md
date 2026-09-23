@@ -7,16 +7,16 @@
 
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
-- **Cabang yang dilanjutkan:** `arena/01a0c97c-resto-barokah`
+- **Cabang yang dilanjutkan:** `arena/01a0cb7f-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
-- **Ditulis oleh sesi:** `arena/01a0c97c-resto-barokah`
-- **Commit keadaan kerja:** `d923e994de6d32bef0908ef127a0a6460110d9d6`
+- **Ditulis oleh sesi:** `arena/01a0cb7f-resto-barokah`
+- **Commit keadaan kerja:** `f1e5edd15fc982587c002983e8d4b4393e7956cd`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 35797734100, commit d923e994) — tunggu sampai selesai
+- **CI terakhir:** (belum ada run CI untuk commit f1e5edd1 — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
-- **Ditulis:** 2026-09-22 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
+- **Ditulis:** 2026-09-23 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
 - **Berkas yang Lee salin ke chat baru:** `PROMPT_SESI_BARU.md` (STATIS — mesin memeriksanya, bukan
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **0** — (tidak ada)
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (101 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (194 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -43,12 +43,12 @@ Sesi baru di platform ini mulai dari `main`, sedangkan pekerjaan ada di cabang s
 Jalankan (tanpa memindahkan cabang sesimu):
 
 ```
-git fetch origin arena/01a0c97c-resto-barokah:refs/remotes/origin/kerja-terakhir
+git fetch origin arena/01a0cb7f-resto-barokah:refs/remotes/origin/kerja-terakhir
 git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py      # cetak KARTU SESI, lalu LAPORKAN ke Lee
 ```
 
-Cabang `arena/01a0c97c-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
+Cabang `arena/01a0cb7f-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
 LAIN: saat membuka chat baru, ia menulis pilihannya di baris pertama `PROMPT_SESI_BARU.md` — dan baris
 itu yang **MENANG** bila berbeda dengan handoff ini. Laporkan bedanya, lalu rapikan catatan handoff
 dengan `python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang>`. Sesi yang belum pernah di-push
@@ -65,10 +65,35 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 **Base branch bila Lee membuka sesi baru lagi di Arena:** pilih cabang yang disebut di §1
-(`arena/01a0c97c-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
+(`arena/01a0cb7f-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**KEADAAN SESI INI (2026-09-23, `arena/01a0cb7f` — pintu "baca pro.md"):**
+
+1. **Pindah sesi SUDAH terjadi.** Sesi ini dibuka dari `arena/01a0c97c` dan bekerja di cabang sendiri
+   `arena/01a0cb7f-resto-barokah`. Handoff di atas kini menunjuk cabang ini (`--lanjut-dari`).
+2. **Perintah pertama PRO.md §1 sudah dikerjakan — CI merah DIPERBAIKI (baca, bukan klaim):**
+   run `35797734100` (`d923e99`) ternyata **cancelled** (tertimpa push `f7fd468`); run penggantinya
+   `35798327450` (`f7fd468`) **failure** di langkah "Pemeriksa fondasi, roadmap, struktur, komponen,
+   uji & kontras". 5 dari 53 perintah langkah itu gagal lokal. Empat cacat nyata ditutup:
+   (a) `uji-mutasi-0032/0033/0035/0036/0037.py` masuk `ci.yml` tanpa entri `GERBANG_WAJIB`;
+   (b) lima perintah yang sama tidak ada di `aplikasi/alat/periksa-semua.sh` (paritas CI);
+   (c) `PANDUAN_PENGGUNA.md` menulis "72 berkas uji" padahal nyata 78;
+   (d) `docs/PROJECT_STATE.md` merujuk `aplikasi/uji/e2e/dapur.spec.ts` (berkas rencana — belum dibuat) tanpa penanda rencana.
+   Bukti lokal: 53/53 perintah langkah itu LOLOS · `bash aplikasi/alat/periksa-semua.sh` kode keluar 0
+   · Prettier bersih. Rincian: `_log-sesi/LOG_SESI_2026-09-23.md` bagian sesi `arena/01a0cb7f`.
+3. **LANGKAH PERTAMA SESI BERIKUTNYA:** buktikan run CI pengganti commit ini **success**
+   (`gh run list --branch arena/01a0cb7f-resto-barokah`). Kalau masih merah, perbaiki dulu — jangan
+   mulai pekerjaan baru, dan jangan klaim hijau tanpa run sukses yang terbaca.
+4. **Penting bila Lee membuka sesi baru lagi:** baris pertama `PROMPT_SESI_BARU.md` masih berisi
+   `arena/01a0c97c-resto-barokah` (berkas STATIS — hanya Lee yang mengisinya). Ganti ke
+   `arena/01a0cb7f-resto-barokah` supaya pekerjaan perbaikan CI ini tidak tertinggal.
+5. **Sesudah CI hijau:** sisa Fase 4 tetap seperti daftar di bawah (bukti manual/visual Lee, keputusan
+   infra e2e Playwright, kabel data realtime KDS, registri `DAFTAR_LAYAR` terkunci) → lalu Fase 5.
+
+### Riwayat penutup §3 (jangan dijadikan rencana)
 
 **PINDAH SESI (2026-09-23, permintaan Lee — tanpa merge):** sesi baru melanjutkan dari `arena/01a0c97c-resto-barokah` (ujung `d923e99`, semua ter-push) lewat pintu **"baca pro.md"**. **Langkah pertama sesi baru: periksa hasil CI `35797734100` (commit `d923e99`) — jangan klaim hijau tanpa bukti run sukses, dan jangan mulai pekerjaan baru sebelum CI terbaca.**
 
@@ -84,7 +109,7 @@ JANGAN merge apa pun tanpa keputusan Lee.
    **78 berkas lulus**, aplikasi **253 tes lulus**, mutasi 0032/0033/0035/0036/0037 semua merah.
 2. **Sisa Fase 4 (butuh keputusan/bukti Lee):** (a) bukti manual/visual — foto T4-03 (baca 2 meter),
    uji dua perangkat manual T4-05 (dapur & kasir), uji cabut-jaringan T4-10; (b) infra e2e
-   Playwright (`aplikasi/uji/e2e/dapur.spec.ts`) — belum ada pustakanya, butuh izin tambah
+   Playwright (`aplikasi/uji/e2e/dapur.spec.ts` — rencana, belum dibuat) — belum ada pustakanya, butuh izin tambah
    dependensi; (c) **kabel data realtime** (langganan perubahan) untuk antrean KDS & penanda
    habis — saat ini komponen murni menunggu kontainer; (d) registri `DAFTAR_LAYAR` DIKUNCI tes
    lama (tepat 8 layar G1) — layar baru hidup via `App.tsx` tanpa entri registri; perluasan
