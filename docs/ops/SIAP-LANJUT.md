@@ -10,7 +10,7 @@
 - **Cabang yang dilanjutkan:** `arena/01a0cca9-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0cca9-resto-barokah`
-- **Commit keadaan kerja:** `7aec49249c9ef63dc337ec5cb736183c440881a3`
+- **Commit keadaan kerja:** `8e71414a4d71c1dfb1b396c3b9727078754db2d0`
 - **PR:** HTTP 401: Bad credentials (https://api.github.com/graphql)
 Try authenticating with:  gh auth login — **JANGAN MERGE tanpa keputusan Lee**
 - **CI terakhir:** (status CI tidak terbaca dari sini — periksa di GitHub)
