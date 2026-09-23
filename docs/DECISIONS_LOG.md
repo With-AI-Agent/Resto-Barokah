@@ -2130,3 +2130,39 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   `/tmp/mutasi-0015-rb`), jadi **dua penilai tidak boleh berjalan bersamaan** — hasilnya saling
   merusak dan memberi "GAGAL" palsu. Jalankan berurutan.
 
+
+## [Cetak/2026-09-23] Struk Digital Membungkus Struk yang Sama, Bukan Menggambar Ulang (T5-09)
+
+- **Area:** Cetak (ART-7) — `TECH_SPEC` §13 K3 (printer bermasalah) & PRD M6 kasus tepi
+- **Konteks:** printer termal adalah bagian yang paling sering rusak di kedai (kertas habis,
+  kepala kotor, kabel longgar). Tanpa jalan cadangan, pelanggan pulang tanpa bukti bayar dan
+  kasir tidak punya apa pun untuk ditunjukkan bila ada sengketa. Pemeriksaan lebih dulu
+  (kebiasaan yang dikunci sejak T5-06) menunjukkan `Struk.tsx` **sudah ada** dari T5-03 — yang
+  belum ada adalah cara **menyerahkannya**.
+- **Keputusan:** `StrukDigital.tsx` **membungkus** `<Struk>` yang sama, bukan menggambar ulang.
+  Ini bukan sekadar hemat kode: DoD menuntut "isi identik dengan struk cetak", dan satu-satunya
+  cara menjamin itu selamanya adalah memastikan hanya ada SATU tempat yang menggambar struk.
+  Kalau digital dan kertas digambar terpisah, cepat atau lambat angkanya berbeda — dan itu
+  jenis cacat yang baru ketahuan saat pelanggan protes di depan kasir.
+- **Dijaga uji, bukan niat baik:** dua penjaga berbasis `?raw` melarang berkas ini beraritmetika
+  atas medan uang (`data.subtotal|pajak|service` diikuti operator) dan mewajibkannya tetap
+  memuat `<Struk`. Uang tetap datang dari peladen, persis aturan yang sama dengan T5-03.
+- **Tiga jalan penyerahan, sengaja berlapis dari paling enak ke paling pasti ada:**
+  (1) `navigator.share` — lembar berbagi bawaan HP, tercepat di lapangan; (2) `window.print` —
+  dialog cetak peramban punya "Simpan sebagai PDF" di Android maupun desktop, dan jalur yang
+  sama dipakai bila kasir mau mencetak ke printer biasa; (3) `navigator.clipboard` — jaring
+  pengaman terakhir, selalu bisa ditempel ke chat apa pun.
+- **Tombol yang tidak didukung DISEMBUNYIKAN, bukan ditampilkan lalu gagal.** Kasir yang sedang
+  diburu antrean tidak boleh menebak tombol mana yang benar-benar bekerja. "Simpan PDF" selalu
+  tampil karena itu satu-satunya yang pasti tersedia di semua peramban.
+- **Yang sengaja TIDAK dilakukan:** ringkasan berbagi dibuat ringkas (nomor, tanggal, total,
+  status lunas) — bukan salinan penuh struk. Yang dibutuhkan pelanggan di chat adalah bukti yang
+  terbaca sekilas; rincian lengkap ada di PDF dan di catatan resto. Berbagi yang **dibatalkan**
+  pengguna tidak diperlakukan sebagai kegagalan menakutkan, hanya diingatkan bahwa masih ada
+  jalan lain.
+- **File:** `aplikasi/src/komponen/StrukDigital.tsx`, `StrukDigital.test.tsx`,
+  `aplikasi/src/gaya/komponen.css` (`@media print` menyembunyikan tombol agar PDF bersih),
+  `aplikasi/alat/uji-mutasi-app.mjs`
+- **Bukti:** `StrukDigital.test.tsx` **15 tes LULUS** · aplikasi **64 berkas / 392 tes LULUS** ·
+  `uji-mutasi-app.mjs` **28/28 MERAH** · `tsc` bersih · lint 0 error · format bersih.
+- **Sisa milik Lee:** verifikasi manual di Android & desktop (tidak bisa dijalankan agent).

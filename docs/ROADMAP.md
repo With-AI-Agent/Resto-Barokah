@@ -1275,10 +1275,27 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10); mitigasi: data minimal + persetujuan + bisa dilewati.
   - **Verifikasi:** uji manual alur cepat tanpa data pelanggan.
 
-- [ ] T5-09 — Struk digital (cadangan wajib saat printer bermasalah) ⚠️
+- [x] T5-09 — Struk digital (cadangan wajib saat printer bermasalah) ⚠️
   - **Tujuan:** pembayaran tetap bisa diserahkan ke pelanggan walau printer mati.
   - **Ref:** TECH_SPEC §13 K3 & §9 ART-7; PRD M6 (kasus tepi)
-  - **File:** `aplikasi/src/komponen/StrukDigital.tsx`
+  - **File:** `aplikasi/src/komponen/StrukDigital.tsx` (+`StrukDigital.test.tsx`)
+  - **Mitigasi ART-7 ditepati harfiah:** komponen ini **tidak menggambar ulang struk** —
+    ia membungkus `<Struk>` yang sama persis dipakai pratinjau & cetak termal (T5-03),
+    sehingga isi digital dan kertas mustahil berbeda. Dijaga dua uji penjaga berbasis
+    `?raw`: berkas ini dilarang beraritmetika atas medan uang (`data.subtotal|pajak|service`)
+    dan wajib tetap memuat `<Struk`.
+  - **Tiga jalan penyerahan, berlapis:** `navigator.share` (lembar berbagi HP → WhatsApp dll) ·
+    `window.print` (dialog cetak punya "Simpan sebagai PDF" di Android & desktop) ·
+    `navigator.clipboard` (jaring pengaman: selalu bisa ditempel ke chat). Tombol yang tidak
+    didukung peramban **disembunyikan**, bukan ditampilkan lalu gagal saat ditekan —
+    "Simpan PDF" selalu ada karena itu jalan yang paling pasti tersedia.
+  - **Bukti (2026-09-23):** `StrukDigital.test.tsx` **15 tes LULUS** · aplikasi **64 berkas /
+    392 tes LULUS** · `uji-mutasi-app.mjs` **28/28 MERAH** (2 mutasi baru: tombol Bagikan
+    tampil walau tak didukung, ringkasan mengaku LUNAS padahal belum dibayar) · `tsc` bersih ·
+    lint 0 error · format bersih.
+  - **Catatan jujur:** `@media print` menyembunyikan tombol & catatan alasan agar PDF hanya
+    berisi struknya. Verifikasi manual di Android & desktop tetap milik Lee (tidak bisa
+    dijalankan agent) — sama seperti bukti visual T4-03/T4-05.
   - **DoD:** struk tampil di layar dalam format struk; bisa dibagikan (bagikan berkas/gambar) & disimpan PDF; isi identik dengan struk cetak.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Cetak (ART-7); mitigasi: satu tampilan struk untuk semua jalur (cetak & digital).

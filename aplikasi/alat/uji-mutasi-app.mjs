@@ -245,6 +245,22 @@ const MUTASI = [
     ganti: '<Tombol ragam="biasa" onClick={onLewati} nama="Lewati data pelanggan" nonaktif>',
     uji: 'src/layar/kasir/DataPelanggan.test.tsx',
   },
+
+  // ------------------------------------------------- T5-09 struk digital (cadangan)
+  {
+    nama: 'StrukDigital: tombol Bagikan tampil walau peramban tidak mendukung (T5-09) — kasir menekan tombol mati saat antre',
+    berkas: 'src/komponen/StrukDigital.tsx',
+    cari: '        {bisaBagikan() && (',
+    ganti: '        {true && (',
+    uji: 'src/komponen/StrukDigital.test.tsx',
+  },
+  {
+    nama: 'StrukDigital: ringkasan mengaku LUNAS walau belum dibayar (T5-09)',
+    berkas: 'src/komponen/StrukDigital.tsx',
+    cari: "    lunas ? 'LUNAS — terima kasih.' : 'Belum lunas.',",
+    ganti: "    'LUNAS — terima kasih.',",
+    uji: 'src/komponen/StrukDigital.test.tsx',
+  },
 ]
 
 /**
