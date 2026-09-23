@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0cb7f-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0cb7f-resto-barokah`
-- **Commit keadaan kerja:** `cfd28cedca1934f192d6563af5f3e8c528c44fff`
+- **Commit keadaan kerja:** `76504833ff5f560569e5b84fcc3ab3bc42ebb936`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 35802387905, commit cfd28ced) — tunggu sampai selesai
+- **CI terakhir:** (belum ada run CI untuk commit 76504833 — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-23 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **0** — (tidak ada)
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (103 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (196 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (106 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (199 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -91,8 +91,18 @@ JANGAN merge apa pun tanpa keputusan Lee.
 4. **Penting bila Lee membuka sesi baru lagi:** baris pertama `PROMPT_SESI_BARU.md` masih berisi
    `arena/01a0c97c-resto-barokah` (berkas STATIS — hanya Lee yang mengisinya). Ganti ke
    `arena/01a0cb7f-resto-barokah` supaya pekerjaan perbaikan CI ini tidak tertinggal.
-5. **Sesudah CI hijau:** sisa Fase 4 tetap seperti daftar di bawah (bukti manual/visual Lee, keputusan
-   infra e2e Playwright, kabel data realtime KDS, registri `DAFTAR_LAYAR` terkunci) → lalu Fase 5.
+5. **KABEL DATA REALTIME KDS = SELESAI (batch `7650483`, 2026-09-23).** `useTiketDapur` jadi
+   kontainer `LayarDapur`/`LayarBar`; umur tiket dari jam peladen (migrasi `0038_waktu_peladen.sql`).
+   Bukti: suite SQL **79 lulus** · aplikasi **268 tes lulus** · mutasi 0038 **3/3 MERAH** ·
+   62/62 perintah langkah pemeriksa CI LOLOS lokal. Rincian: `_log-sesi/LOG_SESI_2026-09-23.md`
+   bagian "BATCH 2".
+6. **URUTAN BERIKUTNYA (Lee menyerahkan urutan ke agent, 2026-09-23):** (a) perluas registri
+   `DAFTAR_LAYAR` + revisi kontrak `layar.test.ts` (layar bar/stok/opname sudah punya komponen & uji,
+   tapi butuh entri `REGISTRI_AKSI` baru + `peta-ui.py --generate`); (b) infra e2e Playwright
+   (`aplikasi/uji/e2e/dapur.spec.ts` — berkas rencana, belum dibuat) — butuh dependensi dev baru;
+   (c) Fase 5 pembayaran multimode/split bill/struk termal/buka-tutup shift.
+   **Bukti manual/visual T4-03, T4-05, T4-10 tetap milik Lee** (agent tidak bisa memotret layar
+   atau mencabut kabel jaringan).
 
 ### Riwayat penutup §3 (jangan dijadikan rencana)
 
