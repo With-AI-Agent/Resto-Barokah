@@ -114,7 +114,9 @@ peladen yang memutuskan dan mencatat.
     /lib
       supabase.ts               ← klien Supabase (aman untuk publik)
       antrean-offline.ts        ← antrean di IndexedDB + kunci idempoten
-      printer-escpos.ts         ← Bluetooth/USB
+      /printer/expos.ts         ← penyusun perintah ESC/POS (murni, diuji byte-level)
+      /printer/bluetooth.ts     ← Web Bluetooth (T6-02, belum ada)
+      /printer/usb.ts           ← WebUSB (T6-03, belum ada)
       format.ts                 ← rupiah, tanggal, jam (WIB)
     /hook                       ← pemakaian data (React Query ringan)
 /supabase
@@ -359,7 +361,7 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 - Transaksi lewat tengah malam masuk **tanggal transaksi**, bukan tanggal tutup kas (PRD M8).
 
 ### ART-7. Cetak (ESC/POS) & perangkat
-- Perintah cetak disusun di satu berkas (`lib/printer-escpos.ts`); bila ada perubahan, **uji cetak nyata** wajib diulang.
+- Perintah cetak disusun di satu berkas (`aplikasi/src/lib/printer/expos.ts` — sejak T6-01; nama lama `lib/printer-escpos.ts` tidak dipakai, ROADMAP T6-01 yang jadi acuan); bila ada perubahan, **uji cetak nyata** wajib diulang. Berkas itu sengaja MURNI (tidak menyentuh Bluetooth/USB) supaya tata letak struk bisa diuji byte-level tanpa printer di antara dua uji lapangan.
 - Wajib ada **jalur cadangan**: tiket dapur tetap tampil di layar; struk bisa ditampilkan/dibagikan sebagai berkas.
 - Jangan menganggap printer selalu siap: status printer harus terlihat di layar, dan kegagalan cetak **tidak boleh** membatalkan/menghilangkan pesanan.
 

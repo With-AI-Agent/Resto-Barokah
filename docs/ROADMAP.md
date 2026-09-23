@@ -1379,7 +1379,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 6 — Cetak termal ESC/POS (⚠️ ART-7) T-002
 
-- [ ] T6-01 — Pembungkus ESC/POS (perintah dasar) + uji unit
+- [x] T6-01 — Pembungkus ESC/POS (perintah dasar) + uji unit
   - **Tujuan:** satu lapisan kode untuk menyusun struk/tiket agar mudah diuji tanpa printer.
   - **Ref:** TECH_SPEC §1 (cetak) & §9 ART-7
   - **File:** `aplikasi/src/lib/printer/expos.ts`, `aplikasi/src/lib/printer/expos.test.ts`
@@ -1387,6 +1387,20 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Cetak (ART-7); huruf Indonesia rusak → mitigasi: uji teks beraksen & panjang baris 32/48 kolom.
   - **Verifikasi:** `npm test` untuk 10 kasus struk contoh.
+  - **Bentuk yang dipilih (2026-09-23):** berkas ini **murni** — hanya data → byte, tidak
+    menyentuh Bluetooth/USB/jaringan/jam perangkat. Sambungan perangkat keras sengaja ditunda ke
+    T6-02 & T6-03. Alasannya: uji printer nyata (T6-08) hanya sesekali, jadi tata letak harus
+    dikunci uji byte-level yang jalan di CI setiap saat.
+  - **Tiga aturan yang dikunci uji:** (1) angka uang tidak pernah dipotong — yang dikorbankan
+    nama menu; (2) huruf beraksen diganti huruf polos, bukan dibuang (kalau dibuang, kolom rupiah
+    bergeser); (3) potong kertas selalu didahului umpan baris, kalau tidak baris terakhir struk
+    ikut terpotong pisau.
+  - **Rujukan berkas diselaraskan:** `TECH_SPEC` sempat menyebut `lib/printer-escpos.ts`; dipakai
+    nama ROADMAP (`lib/printer/expos.ts`) dan TECH_SPEC dikoreksi supaya tidak ada dua nama.
+  - **Temuan jujur:** uji mutasi menangkap aturan (1) yang sudah ditulis di komentar tetapi belum
+    punya uji — mutasi "potong angka" sempat tetap hijau. Ujinya ditambah; komentar bukan pengaman.
+  - **Bukti (2026-09-23):** `expos.test.ts` **29 tes LULUS** · `uji-mutasi-app.mjs` **47/47 MERAH**
+    (5 mutasi ESC/POS baru) · aplikasi **69 berkas / 479 tes LULUS** · tsc bersih · lint 0 error.
 
 - [ ] T6-02 — Sambungan Web Bluetooth (Android/Windows)
   - **Tujuan:** printer termal Bluetooth bisa dipakai dari perangkat kasir.
@@ -1406,7 +1420,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** konflik driver → mitigasi: panduan pemasangan singkat + jalur cadangan digital.
   - **Verifikasi:** uji manual cetak via USB (bila perangkat tersedia) atau uji simulasi + cadangan digital.
 
-- [ ] T6-04 — Cetak struk (header/footer dari pengaturan)
+- [x] T6-04 — Cetak struk (header/footer dari pengaturan)
   - **Tujuan:** struk memuat identitas resto yang benar tanpa perlu ubah kode.
   - **Ref:** PRD M6 (isi struk) & M2 (header/footer bisa diatur)
   - **File:** `aplikasi/src/lib/printer/struk.ts`
@@ -1414,8 +1428,17 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** perubahan nama resto mengubah struk lama → mitigasi: struk lama hanya disimpan sebagai data (tidak dicetak ulang dengan header baru) + catatan di DECISIONS_LOG.
   - **Verifikasi:** uji unit struktur + uji manual cetak.
+  - **Dikerjakan 2026-09-23:** `aplikasi/src/lib/printer/struk.ts` + 22 tes. **Rumus pembulatan
+    TIDAK disalin** — `selisihPembulatan` diimpor dari `komponen/Struk.tsx`, mengikuti keputusan
+    T5-09: kalau kertas dan layar punya rumus sendiri-sendiri, suatu hari angkanya berbeda dan
+    tidak ada yang tahu mana yang benar. Urutan baris sengaja meniru `Struk.tsx` persis (pajak &
+    service selalu tampil walau 0 %, diskon hanya bila ada, pembulatan hanya bila bukan nol).
+  - **Cacat nyata yang ditangkap uji:** nama menu panjang semula dicetak mentah sehingga baris
+    melebihi 32 kolom dan printer melipatnya di tempat sembarang. Diperbaiki dengan `bungkusTeks`.
+  - **Laci kas hanya terbuka bila diminta pemanggil** — bayar QRIS/kartu tidak boleh membuka laci.
+  - **Bukti:** `struk.test.ts` **22 tes LULUS** · 6 mutasi T6-04 semuanya MERAH.
 
-- [ ] T6-05 — Cetak tiket dapur
+- [x] T6-05 — Cetak tiket dapur
   - **Tujuan:** dapur menerima tiket fisik walau layar penuh.
   - **Ref:** PRD M4 & M5
   - **File:** `aplikasi/src/lib/printer/tiket.ts`
@@ -1423,6 +1446,15 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** tiket tercetak dua kali → mitigasi: status cetak per pesanan + tanda "SALINAN".
   - **Verifikasi:** uji manual + uji unit.
+  - **Dikerjakan 2026-09-23:** `aplikasi/src/lib/printer/tiket.ts` + 20 tes. Tiket dapur sengaja
+    **tidak memuat satu pun angka uang** (dijaga uji): dapur tidak perlu harga, dan baris tambahan
+    hanya memperlambat pembacaan di tengah kesibukan.
+  - **Catatan khusus dibuat MENCOLOK** — huruf tebal + awalan `>>`. Alasannya bukan estetika:
+    "tanpa kacang" yang terlewat bisa berarti alergi, bukan sekadar selera. Nomor pesanan dicetak
+    huruf besar karena tiket dibaca sambil lalu dari jarak satu meter.
+  - **Pemisahan stasiun:** `susunTiketTerpisah` menghasilkan tiket makanan & minuman terpisah;
+    stasiun tanpa item **tidak** menghasilkan tiket kosong. Item tanpa stasiun dianggap makanan.
+  - **Bukti:** `tiket.test.ts` **20 tes LULUS** · 6 mutasi T6-05 semuanya MERAH.
 
 - [ ] T6-06 — Antrean cetak, cetak ulang, deteksi gagal ⚠️ ❓ T-028
   - **Tujuan:** printer bermasalah tidak boleh membuat transaksi hilang atau misterius.

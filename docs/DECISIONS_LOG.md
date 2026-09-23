@@ -2131,6 +2131,68 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   merusak dan memberi "GAGAL" palsu. Jalankan berurutan.
 
 
+## [Cetak/2026-09-23] Struk Termal Mengimpor Rumus Pembulatan, Tiket Dapur Tanpa Uang (T6-04 & T6-05)
+
+- **Area:** Cetak (ART-7) — PRD M6 (isi struk), M2 (header/footer diatur), M4 & M5 (tiket dapur)
+- **Keputusan 1 — struk termal TIDAK menyalin rumus uang.** `lib/printer/struk.ts` mengimpor
+  `selisihPembulatan` dan tipe `DataStruk` langsung dari `komponen/Struk.tsx`. Ini kelanjutan
+  keputusan T5-09: satu-satunya cara menjamin kertas dan layar selamanya menyebut angka yang
+  sama adalah memastikan rumusnya hanya hidup di SATU tempat. Struk termal juga tidak
+  menghitung kembalian sendiri — angkanya datang dari peladen (ART-3).
+- **Keputusan 2 — tiket dapur tidak memuat satu pun angka uang**, dan itu dijaga uji. Dapur tidak
+  memerlukan harga; setiap baris tambahan memperlambat pembacaan di saat sibuk. Sebagai gantinya
+  yang ditonjolkan adalah hal yang benar-benar dipakai dapur: nomor pesanan (huruf besar, dibaca
+  sambil lalu) dan catatan khusus (tebal + awalan `>>`). Catatan dibuat mencolok karena "tanpa
+  kacang" yang terlewat bisa berarti alergi, bukan sekadar selera.
+- **Keputusan 3 — stasiun tanpa item tidak mencetak tiket.** `susunTiketTerpisah` hanya
+  menghasilkan tiket untuk stasiun yang benar-benar punya pesanan. Tiket kosong membuang kertas
+  dan membuat dapur ragu apakah ada yang tertinggal. Item tanpa keterangan stasiun dianggap
+  makanan — asumsi paling aman untuk kedai kecil yang dapur panasnya jadi stasiun bawaan.
+- **Keputusan 4 — laci kas hanya terbuka bila pemanggil memintanya.** Membuka laci pada
+  pembayaran QRIS/kartu adalah lubang kontrol kas: laci yang terbuka tanpa alasan uang tunai
+  membuat selisih sulit ditelusuri. Karena itu `bukaLaci` adalah pilihan sadar pemanggil.
+- **Cacat nyata yang ditangkap uji (bukan dari membaca ulang kode):** nama menu panjang semula
+  dicetak mentah, sehingga baris melampaui 32 kolom dan printer melipatnya di tempat sembarang —
+  kadang memotong angka di baris berikutnya. Uji "tidak ada baris melebihi lebar kertas" yang
+  menemukannya; diperbaiki dengan pembungkus kata.
+- **Catatan jujur soal uji:** versi pertama pembaca byte di uji hanya membuang byte kendali tanpa
+  parameternya, sehingga huruf parameter (`E` dari `ESC E`, `a` dari `ESC a`) ikut terbaca sebagai
+  isi struk dan tiga uji gagal karena alasan yang salah. Pembacanya diperbaiki lebih dulu sebelum
+  menyimpulkan ada cacat di kode — penting supaya tidak "memperbaiki" kode yang sebenarnya benar.
+- **Bukti:** `struk.test.ts` **22 tes** · `tiket.test.ts` **20 tes** · `uji-mutasi-app.mjs`
+  **59/59 MERAH** (12 mutasi cetak baru) · aplikasi **71 berkas / 521 tes LULUS** · tsc bersih.
+
+## [Cetak/2026-09-23] Penyusun ESC/POS Dibuat MURNI Supaya Bisa Diuji Tanpa Printer (T6-01)
+
+- **Area:** Cetak (ART-7) — `TECH_SPEC` §9 ART-7 & §1 (cetak)
+- **Konteks:** Fase 6 adalah fase paling berisiko di proyek ini karena kebenarannya baru
+  terlihat di atas kertas sungguhan, sedangkan uji printer nyata (T6-08) hanya terjadi sesekali
+  dan butuh koordinasi dengan pengelola kedai. Kalau tata letak struk hanya dijaga oleh uji
+  lapangan, setiap perubahan kecil di antara dua uji itu berjalan tanpa pengawasan.
+- **Keputusan:** `aplikasi/src/lib/printer/expos.ts` dibuat **murni** — hanya mengubah data
+  menjadi byte, tidak menyentuh Bluetooth, USB, jaringan, atau jam perangkat. Sambungan
+  perangkat keras dipisah ke T6-02 (Bluetooth) dan T6-03 (USB). Dengan begitu seluruh tata
+  letak bisa dikunci uji byte-level yang jalan di CI setiap kali, dan uji printer nyata tetap
+  menjadi gerbang (tidak digantikan emulator, sesuai keputusan Lee 2026-09-21 pada T-002).
+- **Tiga aturan yang dikunci uji, bukan niat baik:**
+  1. **Angka uang tidak pernah dipotong.** Kalau baris sempit, yang dikorbankan nama menu.
+     Bahkan bila harga lebih lebar dari kertas, harga tetap dicetak utuh — struk yang
+     kehilangan digit rupiah jauh lebih berbahaya daripada nama menu terpotong.
+  2. **Huruf beraksen diganti huruf polos, bukan dibuang** ("Crème" → "Creme"). Printer termal
+     memakai satu byte per huruf (CP437); membuang huruf membuat panjang baris meleset dan
+     kolom rupiah di kanan ikut bergeser.
+  3. **Potong kertas selalu didahului umpan baris.** Pisau printer berada beberapa milimeter di
+     atas kepala cetak, jadi tanpa umpan itu baris terakhir struk ikut terpotong.
+- **Temuan jujur saat mengerjakan:** uji mutasi menangkap jaring yang bocor — aturan (1) sudah
+  saya tulis di komentar kode tetapi **belum ada ujinya**, sehingga mutasi "potong angka" tetap
+  hijau. Ujinya ditambahkan; sekarang 5 mutasi ESC/POS semuanya MERAH. Komentar bukan pengaman.
+- **Rujukan berkas diselaraskan:** `TECH_SPEC` sempat menyebut `lib/printer-escpos.ts` sedangkan
+  ROADMAP T6-01 menyebut `lib/printer/expos.ts`. Dipakai versi ROADMAP (satu folder `printer/`
+  menampung penyusun + dua jalur sambungan), dan TECH_SPEC dikoreksi agar tidak ada dua nama
+  untuk satu berkas.
+- **Bukti:** `expos.test.ts` **29 tes LULUS** · `uji-mutasi-app.mjs` **47/47 MERAH** ·
+  aplikasi **69 berkas / 479 tes LULUS** · tsc bersih.
+
 ## [Cetak/2026-09-23] Struk Digital Membungkus Struk yang Sama, Bukan Menggambar Ulang (T5-09)
 
 - **Area:** Cetak (ART-7) — `TECH_SPEC` §13 K3 (printer bermasalah) & PRD M6 kasus tepi

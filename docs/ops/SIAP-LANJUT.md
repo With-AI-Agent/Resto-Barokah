@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0cca9-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0cca9-resto-barokah`
-- **Commit keadaan kerja:** `2397380d6ed6b5219655e698c055adacd13fe4fb`
+- **Commit keadaan kerja:** `a51a158b45c6ed105f1ceae39c5c65a295c306a2`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit 2397380d — periksa lagi setelah push)
+- **CI terakhir:** (belum ada run CI untuk commit a51a158b — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-23 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (137 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (230 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (139 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (232 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -149,8 +149,8 @@ JANGAN merge apa pun tanpa keputusan Lee.
    T5-03 (struk termal) sudah selesai, jadi **periksa dulu** apa yang sudah ada di berkas struk
    sebelum membuat yang baru — dua batch terakhir menunjukkan rencana ROADMAP sering lebih tua
    daripada isi repo. Migrasi berikutnya bila perlu: **≥ 0043**.
-0p. **Kalau butuh angka bukti terakhir:** aplikasi **68 berkas / 450 tes LULUS** · suite SQL
-   **87 LULUS** · `uji-mutasi-app.mjs` **42/42 MERAH** · `uji-mutasi-0043.py` **4/4 MERAH** ·
+0p. **Kalau butuh angka bukti terakhir:** aplikasi **71 berkas / 521 tes LULUS** · suite SQL
+   **87 LULUS** · `uji-mutasi-app.mjs` **59/59 MERAH** · `uji-mutasi-0043.py` **4/4 MERAH** ·
    `uji-mutasi-0042.py` **4/4 MERAH** · `uji-mutasi-0012.py` **16/16** · gerbang & paritas CI
    LOLOS · `tsc` bersih · lint 0 error.
 
@@ -207,6 +207,28 @@ JANGAN merge apa pun tanpa keputusan Lee.
    atau HAK BACA-nya?" — kalau isi, pindahkan kursinya. Aplikasi sendiri tidak pernah membaca
    tabel `pembatalan` langsung (`grep from('pembatalan')` = kosong), jadi pagar ini tidak
    memutus fitur mana pun.
+
+0A. **FASE 6 DIMULAI — T6-01, T6-04, T6-05 SELESAI (2026-09-23).** Tiga tugas cetak yang bisa
+   dikerjakan tanpa printer sudah jadi: `aplikasi/src/lib/printer/expos.ts` (penyusun ESC/POS),
+   `struk.ts` (struk pelanggan), `tiket.ts` (tiket dapur). Semuanya **murni** — hanya data → byte,
+   tidak menyentuh Bluetooth/USB. Itu disengaja: uji printer nyata (T6-08) hanya sesekali, jadi
+   tata letak dikunci uji byte-level yang jalan di CI setiap saat.
+
+0B. **SISA FASE 6 BERHENTI DI STOP CONDITION — jangan dipaksakan.**
+   - **T6-02 (Web Bluetooth) & T6-03 (WebUSB):** butuh **perangkat keras nyata**. Keduanya juga
+     bergantung butir tertangguh **T-002** (merek/tipe printer Kedai Oasis belum diketahui). Lee
+     sudah menyetujui "placeholder ESC/POS generik" — dan placeholder itulah yang kini SELESAI.
+     Menulis kode sambungan tanpa tahu perangkatnya = menebak.
+   - **T6-06 (antrean cetak & jejak audit):** memuat blok 🔴 **T-028** yang menuntut **RPC baru**;
+     RPC di luar `docs/TECH_SPEC.md` §5 adalah keputusan pemilik → Stop Condition.
+   - **T6-07 (printer per perangkat):** butuh migrasi `0044_printer.sql` + pengaturan; bisa
+     dikerjakan agent, tetapi tanpa T6-02/T6-03 ia tidak bisa dibuktikan bekerja ujung-ke-ujung.
+   - **T6-08:** uji cetak nyata di kedai — milik Lee.
+
+0C. **Yang paling berguna dikerjakan berikutnya bila Lee belum sempat urus printer:** lompat ke
+   **Fase 7** (kas & shift, `T7-01` buka kas). Fase 7 murni data + layar, tidak bergantung
+   perangkat keras, dan menutup lubang yang sudah terasa sejak T5-11 (tagihan ditinggal &
+   pencocokan kas per metode).
 
 0y. **FASE 5 TUNTAS untuk bagian yang bisa dikerjakan agent.** Yang tersisa di Fase 5 adalah
    **bukti manual milik Lee** (T4-03 foto, T4-05 dua perangkat, T4-10 cabut jaringan, 5 metode

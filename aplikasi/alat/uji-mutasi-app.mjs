@@ -368,6 +368,133 @@ const MUTASI = [
     ganti: "  return 'Sebelum dapur mulai'",
     uji: 'src/layar/laporan/DaftarPembatalan.test.tsx',
   },
+
+  // ------------------------------------------------ T6-01 ESC/POS termal
+  {
+    nama: 'ESC/POS memotong ANGKA saat baris sempit (T6-01) — struk menyebut nilai uang yang salah',
+    berkas: 'src/lib/printer/expos.ts',
+    cari: '  if (lebarKanan >= lebar) return kanan',
+    ganti: '  if (lebarKanan >= lebar) return potong(kanan, lebar)',
+    uji: 'src/lib/printer/expos.test.ts',
+  },
+  {
+    nama: 'Huruf beraksen DIBUANG, bukan diganti (T6-01) — panjang baris meleset, kolom rupiah bergeser',
+    berkas: 'src/lib/printer/expos.ts',
+    cari: "    keluar.push(0x3f) // '?'",
+    ganti: '    continue',
+    uji: 'src/lib/printer/expos.test.ts',
+  },
+  {
+    nama: 'Potong kertas tanpa umpan baris (T6-01) — baris terakhir struk ikut terpotong pisau',
+    berkas: 'src/lib/printer/expos.ts',
+    cari: '    this.lf().lf().lf()\n    this.bagian.push(GS, 0x56, 0x00)',
+    ganti: '    this.bagian.push(GS, 0x56, 0x00)',
+    uji: 'src/lib/printer/expos.test.ts',
+  },
+  {
+    nama: 'Lebar 80 mm disamakan dengan 58 mm (T6-01) — separuh kertas terbuang',
+    berkas: 'src/lib/printer/expos.ts',
+    cari: 'export const LEBAR_80MM = 48',
+    ganti: 'export const LEBAR_80MM = 32',
+    uji: 'src/lib/printer/expos.test.ts',
+  },
+  {
+    nama: 'Pembungkus catatan memenggal kata di tengah (T6-01) — catatan dapur berubah arti',
+    berkas: 'src/lib/printer/expos.ts',
+    cari: '    if (lebarCetak(calon) <= lebar) {',
+    ganti: '    if (lebarCetak(calon) <= lebar + 4) {',
+    uji: 'src/lib/printer/expos.test.ts',
+  },
+
+  // -------------------------------------------------- T6-04 struk termal
+  {
+    nama: 'Struk termal menyembunyikan pajak/service saat 0 persen (T6-04) — resto tampak menyembunyikan pungutan',
+    berkas: 'src/lib/printer/struk.ts',
+    cari: "  p.kiriKanan('PB1 (pajak)', rupiah(data.pajak))\n  p.kiriKanan('Service', rupiah(data.service))",
+    ganti:
+      "  if (data.pajak > 0) p.kiriKanan('PB1 (pajak)', rupiah(data.pajak))\n  if (data.service > 0) p.kiriKanan('Service', rupiah(data.service))",
+    uji: 'src/lib/printer/struk.test.ts',
+  },
+  {
+    nama: 'Struk termal diam soal sisa tagihan (T6-04) — tamu mengira sudah lunas, selisih baru ketahuan saat tutup kas',
+    berkas: 'src/lib/printer/struk.ts',
+    cari: "      p.kiriKanan('Sisa tagihan', rupiah(sisa))",
+    ganti: '      void sisa',
+    uji: 'src/lib/printer/struk.test.ts',
+  },
+  {
+    nama: 'Struk termal menghitung kembalian sendiri (T6-04) — melanggar ART-3, angka layar bisa beda dari kas',
+    berkas: 'src/lib/printer/struk.ts',
+    cari: "    p.kiriKanan('Kembalian', rupiah(opsi.kembalian ?? 0))",
+    ganti:
+      "    p.kiriKanan('Kembalian', rupiah(Math.max(0, dibayarSementara(pembayaran) - data.total)))",
+    uji: 'src/lib/printer/struk.test.ts',
+  },
+  {
+    nama: 'Struk termal membuka laci kas untuk SEMUA metode (T6-04) — laci terbuka saat bayar QRIS',
+    berkas: 'src/lib/printer/struk.ts',
+    cari: '  if (opsi.bukaLaci) p.bukaLaci()',
+    ganti: '  p.bukaLaci()',
+    uji: 'src/lib/printer/struk.test.ts',
+  },
+  {
+    nama: 'Nama menu panjang dicetak mentah (T6-04) — baris melebihi kertas, printer melipat sembarangan',
+    berkas: 'src/lib/printer/struk.ts',
+    cari: '    for (const barisNama of bungkusTeks(item.nama, lebar)) p.baris(barisNama)',
+    ganti: '    p.baris(item.nama)',
+    uji: 'src/lib/printer/struk.test.ts',
+  },
+  {
+    nama: 'Tanda SALINAN dihapus dari struk termal (T6-04/T5-10) — cetakan kedua bisa menyamar jadi bukti asli',
+    berkas: 'src/lib/printer/struk.ts',
+    cari: "    p.tebal(true).baris('SALINAN - CETAK ULANG').tebal(false)",
+    ganti: '    p.tebal(false)',
+    uji: 'src/lib/printer/struk.test.ts',
+  },
+
+  // -------------------------------------------------- T6-05 tiket dapur
+  {
+    nama: 'Catatan khusus tidak lagi dicetak tebal (T6-05) — "tanpa kacang" tenggelam, padahal bisa berarti alergi',
+    berkas: 'src/lib/printer/tiket.ts',
+    cari: '      for (const baris of bungkusTeks(`>> ${item.catatan}`, lebar)) p.baris(baris)',
+    ganti: '      for (const baris of bungkusTeks(`${item.catatan}`, lebar)) p.baris(baris)',
+    uji: 'src/lib/printer/tiket.test.ts',
+  },
+  {
+    nama: 'Catatan khusus dibuang dari tiket (T6-05) — dapur tidak pernah tahu permintaan tamu',
+    berkas: 'src/lib/printer/tiket.ts',
+    cari: '    if (item.catatan) {',
+    ganti: '    if (false && item.catatan) {',
+    uji: 'src/lib/printer/tiket.test.ts',
+  },
+  {
+    nama: 'Nomor pesanan dicetak ukuran biasa (T6-05) — pelayan salah ambil pesanan',
+    berkas: 'src/lib/printer/tiket.ts',
+    cari: '  p.hurufBesar(true).tebal(true).baris(`#${data.nomor}`).tebal(false).hurufBesar(false)',
+    ganti: '  p.baris(`#${data.nomor}`)',
+    uji: 'src/lib/printer/tiket.test.ts',
+  },
+  {
+    nama: 'Tiket stasiun ikut memuat item stasiun lain (T6-05) — dapur memasak minuman, bar memasak nasi',
+    berkas: 'src/lib/printer/tiket.ts',
+    cari: "  const minuman = data.item.filter((i) => i.stasiun === 'minuman')",
+    ganti: '  const minuman = data.item',
+    uji: 'src/lib/printer/tiket.test.ts',
+  },
+  {
+    nama: 'Stasiun kosong tetap mencetak tiket (T6-05) — kertas terbuang & tiket kosong membingungkan',
+    berkas: 'src/lib/printer/tiket.ts',
+    cari: '  if (minuman.length > 0) {',
+    ganti: '  if (true) {',
+    uji: 'src/lib/printer/tiket.test.ts',
+  },
+  {
+    nama: 'Nama menu panjang dicetak mentah di tiket (T6-05) — baris melebihi kertas',
+    berkas: 'src/lib/printer/tiket.ts',
+    cari: '    for (const baris of bungkusTeks(`${item.qty}x ${item.nama}`, lebar)) p.baris(baris)',
+    ganti: '    p.baris(`${item.qty}x ${item.nama}`)',
+    uji: 'src/lib/printer/tiket.test.ts',
+  },
 ]
 
 /**
