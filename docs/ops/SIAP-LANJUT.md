@@ -72,6 +72,20 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 **KEADAAN SESI INI (2026-09-23 sesi kedua, `arena/01a0cca9` — MODE MARATON Fase 5):**
 
+0J. **ATURAN TUTUP SESI — 3 hal wajib disebut agent (teguran Lee 2026-09-23).** Saat menutup sesi /
+   menyiapkan pindah sesi (AL-13), agent **tidak boleh** berhenti di kalimat "siap pindah sesi".
+   Wajib ditulis langsung di bagian **👉 Langkah Lee**: (a) **base branch** = nama cabang aktif
+   **apa adanya** (saat ini `arena/01a0cca9-resto-barokah`, **bukan** `main`, bukan cabang lama
+   `arena/01a0cb7f-resto-barokah` yang masih hidup di `e07ae6d`); (b) **prompt pembuka** = salin isi
+   `PROMPT_SESI_BARU.md` (jalan pendek untuk chat yang sudah di cabang benar: `baca pro.md`);
+   (c) **konfirmasi** baris pertama `PROMPT_SESI_BARU.md` menunjuk cabang aktif. Alasan: informasi
+   ini SUDAH ada di `PROMPT_SESI_BARU.md`, tetapi Lee tidak tahu berkas itu harus dibuka.
+0K. **PENJAGA BARU di `alat/lanjut-sesi.py`.** Pemeriksa kini **GAGAL** bila baris
+   `SESI YANG AKU LANJUT:` menunjuk cabang yang **tidak memuat** HEAD sekarang. Dulu ia hanya
+   memastikan baris itu ADA — sehingga baris basi (menunjuk sesi lama yang masih hidup di GitHub)
+   lolos diam-diam dan sesi baru mendarat di pekerjaan tertinggal 25 commit tanpa peringatan apa pun.
+   Perbaikannya: `python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang-aktif>`.
+
 0g. **T5-05 SELESAI (batch keempat).** Cacat nyata ditemukan & ditutup: `picu_diskon_batas()`
    memeriksa izin PEMANGGIL, sedangkan bukti PIN atasan (0016) tidak pernah menaikkan batas —
    alur "di atas batas → PIN atasan" (PRD M3) **mustahil dijalankan**. Ditutup migrasi

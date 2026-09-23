@@ -558,6 +558,48 @@ def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
     kode_induk, induk = jalankan(["git", "rev-parse", "HEAD^"], cwd=akar)
     induk = induk.strip() if kode_induk == 0 else ""
 
+    # --- PENJAGA BARU (2026-09-23, temuan Lee): baris pilihan di PROMPT_SESI_BARU.md
+    # wajib menunjuk cabang yang BENAR-BENAR memuat pekerjaan terakhir.
+    #
+    # Kejadian nyata yang melahirkan penjaga ini: baris itu masih tertulis
+    # `arena/01a0cb7f-resto-barokah` (sesi LAMA) sementara pekerjaan sudah pindah ke
+    # `arena/01a0cca9-resto-barokah`. Berkas ini STATIS, jadi tidak ada yang pernah
+    # memperbaruinya — dan pemeriksa lama hanya memastikan barisnya ADA, bukan ISInya
+    # masih benar. Akibatnya kalau Lee menyalinnya apa adanya, sesi baru mendarat di
+    # cabang lama dan 25 commit (seluruh Fase 6) tidak terlihat.
+    if nama_cabang and prompt:
+        cocok_pilihan = re.search(rf"(?m)^{re.escape(BARIS_PILIHAN)}\s*(\S+)", prompt)
+        tertulis = cocok_pilihan.group(1).strip() if cocok_pilihan else ""
+        belum_diisi = tertulis.startswith("..") or tertulis == ""
+        if belum_diisi:
+            pass  # memang menunggu Lee mengisi — bukan kesalahan.
+        elif tertulis != nama_cabang:
+            # Cabang berbeda hanya AMAN bila cabang itu sudah memuat HEAD kita.
+            # Cari sha cabang tertulis: ref lokal dulu, lalu tanya GitHub.
+            kode_ref, sha_tertulis = jalankan(
+                ["git", "rev-parse", "--verify", "-q", f"refs/remotes/origin/{tertulis}"], cwd=akar)
+            sha_tertulis = sha_tertulis.strip() if kode_ref == 0 else ""
+            if not sha_tertulis:
+                kode_lr, lr = jalankan(
+                    ["git", "ls-remote", "origin", f"refs/heads/{tertulis}"], cwd=akar)
+                sha_tertulis = lr.split()[0].strip() if (kode_lr == 0 and lr.split()) else ""
+            # Objeknya harus ADA lokal, kalau tidak kita tak bisa menilai (klon dangkal / repo uji).
+            kode_ada, _ = jalankan(["git", "cat-file", "-e", f"{sha_tertulis}^{{commit}}"], cwd=akar) \
+                if sha_tertulis else (1, "")
+            if not sha_tertulis or kode_ada != 0:
+                print(f"  [catatan] cabang '{tertulis}' di baris pilihan tidak bisa diperiksa "
+                      f"(ref/objek tidak tersedia) — uji kesegaran baris pilihan dilewati")
+                kode_isi = 0
+            else:
+                kode_isi, _ = jalankan(
+                    ["git", "merge-base", "--is-ancestor", sha_head, sha_tertulis], cwd=akar)
+            if kode_isi != 0:
+                masalah.append(
+                    f"{NAMA_PROMPT_SESI} baris '{BARIS_PILIHAN}' menunjuk `{tertulis}`, padahal "
+                    f"pekerjaan terakhir ada di `{nama_cabang}` — kalau Lee menyalin berkas itu apa "
+                    f"adanya, sesi baru mendarat di cabang yang TIDAK memuat pekerjaan ini. "
+                    f"Perbaiki: python3 alat/lanjut-sesi.py --siapkan --lanjut-dari {nama_cabang}")
+
     if nama_cabang:
         kode, sisi_luar = jalankan(["git", "rev-parse", f"origin/{nama_cabang}"], cwd=akar)
         if kode != 0:
