@@ -1922,3 +1922,30 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   mencetak selisih pembulatan bila ada. Sumber `DataStruk` saat ini masih ringkasan kasir;
   begitu kontainer membaca baris `pesanan` dari peladen, cukup ganti sumbernya — komponen
   struk tidak perlu disentuh.
+
+### [Fase 5/2026-09-23] T5-04 diskon: mekanismenya sudah ada sejak 0019 — yang kurang BUKTINYA
+
+- **Area:** Kalkulasi Keuangan (ART-3)
+- **Keputusan:** **tidak membuat migrasi baru untuk T5-04.** Saat mengerjakannya, pagar yang
+  diminta DoD ternyata sudah hidup di `picu_diskon_batas()` (`0019_pesan_diskon_jujur.sql`,
+  dengan cap kumulatif dari `0014`): satu diskon per transaksi bila `tumpuk_diskon = false`,
+  dan cap resto (persen/nominal) diperiksa pada TOTAL. Menambah migrasi kedua untuk aturan
+  yang sama justru berbahaya — dua tempat yang mengatur uang berarti dua tempat yang bisa
+  berbeda. Rencana lama juga menyebut nomor `0039_diskon.sql` yang sudah terpakai
+  `bayar_pesanan`, jadi mengikutinya buta akan menabrak migrasi yang ada.
+- **Yang dikerjakan sebagai gantinya:** BUKTI, karena pagar tanpa uji yang tajam sama saja
+  dengan tidak ada. Ditambahkan `supabase/tes/diskon_tumpuk.sql` (6 kelompok asersi) dan
+  `alat/uji-mutasi-0019.py` (**5/5 mutasi wajib MERAH**), lalu didaftarkan ke `ci.yml`,
+  `GERBANG_WAJIB` (`alat/periksa-gerbang-ci.py`), dan `aplikasi/alat/periksa-semua.sh`
+  sekaligus — aturan paritas CI: perintah CI baru yang tidak didaftarkan membuat CI merah
+  sendiri (pernah terjadi 2026-09-22).
+- **Temuan jujur saat menulis ujinya:** asersi pertama untuk "total diskon melebihi subtotal"
+  TIDAK benar-benar menguji pagar itu — satu baris besar lebih dulu ditahan pagar BATAS IZIN
+  (owner pun berbatas 20 %). Ketahuan karena mutasi ke-5 tetap hijau. Ujinya diperbaiki
+  (tumpuk menyala + cap 100 % + penambahan bertahap) sampai pagar subtotal benar-benar yang
+  menahan — mutasinya TIDAK dibuang untuk menghijaukan hasil.
+- **File terkait:** `supabase/tes/diskon_tumpuk.sql`, `alat/uji-mutasi-0019.py`,
+  `.github/workflows/ci.yml`, `alat/periksa-gerbang-ci.py`, `aplikasi/alat/periksa-semua.sh`
+- **Implikasi:** sebelum menulis migrasi baru untuk butir ROADMAP mana pun, periksa dulu apakah
+  aturannya sudah ada di migrasi lama; nomor migrasi di ROADMAP adalah rencana lama, bukan
+  perintah. Nomor yang benar = berikutnya yang belum terpakai.

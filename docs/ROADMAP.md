@@ -1143,14 +1143,24 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     `aplikasi/alat/uji-mutasi-app.mjs` (struk menghitung pajak sendiri, selisih pembulatan
     mengabaikan diskon, baris 0% disembunyikan) — semuanya terbukti MERAH.
 
-- [ ] T5-04 — Diskon: satu per transaksi (bawaan) + opsi tumpuk dengan batas ⚠️
+- [x] T5-04 — Diskon: satu per transaksi (bawaan) + opsi tumpuk dengan batas ⚠️
   - **Tujuan:** diskon terkendali dan tidak bisa menumpuk tanpa izin.
   - **Ref:** PRD M6 & M2; TECH_SPEC §9 ART-3
-  - **File:** `supabase/migrations/0039_diskon.sql`, `supabase/tes/diskon.sql`
-  - **DoD:** bawaan menolak diskon kedua; bila pengaturan mengizinkan tumpuk, total diskon tidak boleh melebihi batas; uji lulus.
+  - **File:** mekanismenya SUDAH ada di `supabase/migrations/0019_pesan_diskon_jujur.sql`
+    (`picu_diskon_batas()`; cap kumulatif dari `0014`) — jadi **tidak ada migrasi baru**; yang
+    ditambah 2026-09-23 adalah BUKTINYA: `supabase/tes/diskon_tumpuk.sql` + `alat/uji-mutasi-0019.py`.
+    (Rencana lama menyebut `0039_diskon.sql`; nomor itu sudah terpakai `bayar_pesanan`.)
+  - **DoD:** bawaan menolak diskon kedua; bila pengaturan mengizinkan tumpuk, total diskon tidak
+    boleh melebihi batas; uji lulus.
   - **Kompleksitas:** besar (4 jam)
-  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3); kombinasi diskon merugikan → mitigasi: batas total + uji kombinasi.
-  - **Verifikasi:** uji SQL: 2 diskon tanpa izin tumpuk → ditolak; dengan tumpuk & melebihi batas → ditolak.
+  - **Risiko & mitigasi:** ⚠️ `DECISIONS_LOG.md` [Fase 5/2026-09-23] — Area: Kalkulasi Keuangan
+    (ART-3); kombinasi diskon merugikan → mitigasi: cap resto diperiksa pada TOTAL (kumulatif),
+    bukan per baris, sehingga diskon besar tidak bisa dipecah menjadi banyak baris kecil.
+  - **Verifikasi:** `supabase/tes/diskon_tumpuk.sql` (6 kelompok: diskon kedua ditolak saat tumpuk
+    mati walau nilainya kecil · tumpuk menyala → boleh · cap persen kumulatif · cap tepat di batas
+    tetap diterima · cap nominal ditegakkan · total tidak melebihi subtotal · tumpuk dimatikan lagi)
+    + `alat/uji-mutasi-0019.py` **5/5 MERAH** (satu diskon dilepas, `tumpuk_diskon` dibaca terbalik,
+    cap persen per baris, cap nominal tidak diperiksa, pagar subtotal dilepas).
 
 - [ ] T5-05 — Diskon manual butuh izin + PIN di atas batas ⚠️
   - **Tujuan:** kasir bisa memberi diskon kecil, tetapi tidak bisa memberi diskon besar tanpa atasan.
@@ -1822,7 +1832,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 11 — Uji terima, deploy produksi, audit (penutup G1)
 
-- [ ] T11-01 — Playwright: 7 alur wajib + voucher & katalog
+- [ ] T11-01 — Playwright: 7 alur wajib + voucher & katalog ❓ T-026
   - **Tujuan:** semua alur inti terbukti berjalan otomatis, bukan hanya "katanya".
   - **Ref:** TECH_SPEC §11 (uji ujung-ke-ujung); AGENT_OPERATING_GUIDE §5
   - **File:** `aplikasi/uji/e2e/*.spec.ts`, `.github/workflows/ci.yml`
@@ -1917,7 +1927,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
-- [ ] T11-11 — Uji peramban (Playwright) 9 alur wajib di CI
+- [ ] T11-11 — Uji peramban (Playwright) 9 alur wajib di CI ❓ T-026
   - **Tujuan:** membuktikan alur nyata bisa diklik dari awal sampai akhir tanpa tangan manusia.
   - **Ref:** TECH_SPEC §11 & §9 ART-7/ART-8; AGENT_OPERATING_GUIDE §5
   - **File:** `.github/workflows/e2e.yml`, `uji-e2e/*.spec.ts`
