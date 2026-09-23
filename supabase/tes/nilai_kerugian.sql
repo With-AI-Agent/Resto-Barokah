@@ -24,12 +24,19 @@ select uji.harap_gagal_sebab($$insert into public.pembatalan (pesanan_id, tahap,
 -- 2. Mengirim 0 = "tolong isi peladen" → DIISI dari salinan harga (54.000).
 insert into public.pembatalan (pesanan_id, tahap, alasan, nilai_kerugian)
 values ('00000000-0000-0000-0000-00000000b001', 'sebelum_dapur', 'barang salah', 0);
+reset role;
+select uji.klaim(null);
+-- Dibaca DI LUAR kursi kasir: sejak 0043 (T5-12) daftar pembatalan hanya boleh
+-- dibaca pemegang izin `lihat_laporan`. Yang diuji di sini adalah ISI barisnya,
+-- bukan siapa yang boleh melihatnya.
 select uji.sama(
   (select b.nilai_kerugian::bigint from public.pembatalan b
      where b.pesanan_id = '00000000-0000-0000-0000-00000000b001'),
   54000::bigint,
   'nilai kerugian diisi PELADEN dari salinan harga (54.000), bukan angka klien'
 );
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
 
 -- 3. Baris item: angka yang SAMA dengan hitungan peladen tetap boleh (tidak kaku).
 --    CATATAN (putaran13): uji ini dulu menambah item pada pesanan yang SUDAH dibatalkan
@@ -46,9 +53,14 @@ select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
 insert into public.pembatalan (pesanan_id, pesanan_item_id, tahap, alasan, nilai_kerugian)
 values ('00000000-0000-0000-0000-00000000b003','00000000-0000-0000-0000-00000000b002','sebelum_dapur','salah masak', 54000);
+reset role;
+select uji.klaim(null);
+-- Dibaca DI LUAR kursi kasir (lihat catatan di atas: 0043/T5-12).
 select uji.sama(
   (select b.nilai_kerugian::bigint from public.pembatalan b
      where b.pesanan_item_id = '00000000-0000-0000-0000-00000000b002'),
   54000::bigint,
   'angka yang SAMA dengan hitungan peladen tetap diterima (tidak menutup jalur sah)'
 );
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;

@@ -93,11 +93,18 @@ select uji.sama(
   (select pi.status from public.pesanan_item pi where pi.id = 'e8000000-0000-0000-0000-000000000102'),
   'batal', 'pembatalan resmi menandai item batal'
 );
+reset role;
+select uji.klaim(null);
+-- Dibaca DI LUAR kursi kasir: sejak 0043 (T5-12) daftar pembatalan hanya boleh
+-- dibaca pemegang izin `lihat_laporan`. Yang diuji di sini adalah ISI barisnya,
+-- bukan siapa yang boleh melihatnya.
 select uji.sama(
   (select pb.nilai_kerugian from public.pembatalan pb
     where pb.pesanan_item_id = 'e8000000-0000-0000-0000-000000000102'),
   5000, 'nilai kerugian dihitung peladen dari salinan harga (5.000)'
 );
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
 -- 5. Item yang sudah batal tidak bisa "dihidupkan kembali" oleh perangkat.
 select uji.harap_gagal_sebab(
   $$update public.pesanan_item set status = 'baru' where id = 'e8000000-0000-0000-0000-000000000102'$$,

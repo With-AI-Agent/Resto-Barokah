@@ -155,14 +155,20 @@ select uji.sama(
   'batal',
   'kasir cabangnya boleh membatalkan item lewat baris pembatalan resmi (baris item tetap ada)'
 );
+select uji.harap_gagal_sebab($$update public.pesanan set status = 'entah' where id = 'eeee0000-0000-0000-0000-000000000001'$$, 'Perpindahan status pesanan batal → entah tidak diizinkan dari perangkat — status itu hanya', 'status pesanan di luar daftar resmi ditolak');
+reset role;
+select uji.klaim(null);
+
+-- Jejaknya diperiksa DI LUAR kursi kasir. Sejak migrasi 0043 (T5-12) daftar
+-- pembatalan hanya boleh dibaca pemegang izin `lihat_laporan`, dan kasir tidak
+-- memilikinya — ia boleh MENCATAT pembatalan, tetapi tidak membaca daftarnya
+-- kembali. Yang diuji di sini adalah "jejaknya tercatat", bukan "kasir bisa
+-- melihatnya", jadi pembacaannya dipindah ke pemilik tabel.
 select uji.sama(
   (select count(*) from public.pembatalan pb where pb.pesanan_id = 'eeee0000-0000-0000-0000-000000000001'),
   1::bigint,
   'jejak pembatalan tercatat SATU baris (bukan pembatalan tanpa jejak)'
 );
-select uji.harap_gagal_sebab($$update public.pesanan set status = 'entah' where id = 'eeee0000-0000-0000-0000-000000000001'$$, 'Perpindahan status pesanan batal → entah tidak diizinkan dari perangkat — status itu hanya', 'status pesanan di luar daftar resmi ditolak');
-reset role;
-select uji.klaim(null);
 
 -- 9. Daftar status resmi = TECH_SPEC §4.3.
 select uji.sama(

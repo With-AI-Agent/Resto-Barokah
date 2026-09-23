@@ -128,6 +128,9 @@ jobs:
       - name: Bukti mutasi pagar bahan terbuang 0042 — T5-07 penanda ditentukan peladen (4 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0042.py
 
+      - name: Bukti mutasi pagar baca laporan pembatalan 0043 — T5-12 hanya pemegang lihat_laporan (4 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0043.py
+
       - name: Bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22, 4 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0009.py
 

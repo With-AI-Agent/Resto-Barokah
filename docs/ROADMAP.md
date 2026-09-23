@@ -1347,7 +1347,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     aplikasi **66 berkas / 422 tes LULUS** · `uji-mutasi-app.mjs` **34/34 MERAH** (3 mutasi baru:
     umur selalu "baru", sisa mengabaikan uang masuk, umur ditulis menit mentah).
 
-- [ ] T5-12 — Laporan pembatalan (siapa, nilai, alasan)
+- [x] T5-12 — Laporan pembatalan (siapa, nilai, alasan)
   - **Tujuan:** owner bisa memeriksa setiap pembatalan, bukan hanya jumlahnya.
   - **Ref:** PRD M8 (kriteria laporan) & M6
   - **File:** `supabase/migrations/0043_laporan_pembatalan.sql`, `aplikasi/src/layar/laporan/DaftarPembatalan.tsx`
@@ -1355,6 +1355,25 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** laporan tidak cocok dengan data → mitigasi: uji golden membandingkan hasil laporan dengan data mentah.
   - **Verifikasi:** uji SQL golden + uji manual.
+  - **Celah yang ditutup (2026-09-23):** policy `pembatalan_pilih` (asalnya di
+    `0010_pembayaran.sql`) hanya menuntut `pesanan_sepenyewa(pesanan_id)` — artinya
+    pelayan, kasir, dan dapur **bisa membaca seluruh nilai kerugian beserta nama
+    pembatalnya**. Migrasi `0043` menambah syarat `lihat_laporan` (hanya owner_pusat &
+    admin_cabang). Hak **menulis** tidak diubah: kasir tetap boleh mencatat pembatalan,
+    hanya tidak boleh membaca daftarnya kembali.
+  - **Catatan bentuk:** laporan disajikan sebagai **view** `public.laporan_pembatalan`
+    (view pertama di proyek ini), bukan RPC — nama RPC laporan pembatalan tidak ada di
+    TECH_SPEC §5, dan menambah nama baru sendiri = melanggar Stop Condition. `security_invoker
+    = true` wajib; tanpa itu view melewati RLS pemanggilnya (dibuktikan mutasi 3).
+  - **Nama pelaku sengaja TIDAK dibekukan** (beda dari harga/ART-3): yang dilaporkan adalah
+    orangnya, jadi koreksi ejaan nama harus ikut terbaca di laporan lama — diuji eksplisit.
+  - **Imbas ke uji lama (jujur dicatat):** 7 berkas uji SQL sempat MERAH karena mereka
+    memverifikasi hasil tulisan dengan **membaca ulang dari kursi kasir**. Yang diuji di sana
+    adalah "jejaknya tercatat", bukan "kasir boleh melihat", jadi pembacaannya dipindah ke luar
+    kursi kasir — bukan pagarnya yang dilonggarkan.
+  - **Bukti (2026-09-23):** SQL **87 LULUS · 0 GAGAL** · `alat/uji-mutasi-0043.py` **4/4 MERAH** ·
+    `DaftarPembatalan.test.tsx` **16 tes LULUS** · aplikasi **68 berkas / 450 tes LULUS** ·
+    `uji-mutasi-app.mjs` **42/42 MERAH** · `periksa-gerbang-ci.py` + `periksa-paritas-ci.py` LOLOS.
 
 ---
 

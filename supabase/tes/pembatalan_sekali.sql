@@ -38,6 +38,10 @@ select uji.harap_gagal_sebab(
   'sudah dibatalkan',
   'F-05: ganti alasan tidak menghidupkan kembali target yang sudah batal'
 );
+reset role;
+select uji.klaim(null);
+-- Dibaca DI LUAR kursi kasir: sejak 0043 (T5-12) daftar pembatalan hanya boleh
+-- dibaca pemegang `lihat_laporan`. Yang diuji di sini jumlah/isi jejaknya.
 select uji.sama(
   (select count(*) from public.pembatalan pb where pb.pesanan_id = 'e5000000-0000-0000-0000-000000000001'),
   1::bigint, 'jejak pembatalan tetap SATU untuk satu aksi'
@@ -47,6 +51,8 @@ select uji.sama(
     where pb.pesanan_id = 'e5000000-0000-0000-0000-000000000001'),
   54000::bigint, 'kerugian tidak tergandakan (hanya 54.000, bukan 108.000)'
 );
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
 reset role;
 select uji.klaim(null);
 
@@ -67,12 +73,13 @@ values ('e5000000-0000-0000-0000-000000000002', 'e5000000-0000-0000-0000-0000000
 insert into public.pembatalan (pesanan_id, pesanan_item_id, tahap, alasan)
 values ('e5000000-0000-0000-0000-000000000002', 'e5000000-0000-0000-0000-000000000202',
         'sebelum_dapur', 'pelanggan berubah pikiran');
+reset role;
+select uji.klaim(null);
+-- Dibaca di luar kursi kasir (0043/T5-12).
 select uji.sama(
   (select count(*) from public.pembatalan pb where pb.pesanan_id = 'e5000000-0000-0000-0000-000000000002'),
   2::bigint, 'kontrol: dua item BERBEDA tetap bisa dibatalkan masing-masing satu kali'
 );
-reset role;
-select uji.klaim(null);
 
 -- 3. Pembatalan tingkat PESANAN dua kali → kiriman kedua ditolak.
 insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten)

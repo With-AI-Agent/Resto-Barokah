@@ -39,13 +39,15 @@ select uji.sama(
 insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, bahan_terbuang)
 values ('eeee0000-0000-0000-0000-000000000010', 'sesudah_dapur',
         '90000000-0000-0000-0000-000000000002', 'void dengan bukti PIN', true);
+reset role;
+select uji.klaim(null);
+-- Dibaca DI LUAR kursi kasir: sejak 0043 (T5-12) daftar pembatalan hanya boleh
+-- dibaca pemegang `lihat_laporan`. Yang diuji di sini penerimaan barisnya.
 select uji.sama(
   (select count(*) from public.pembatalan where alasan = 'void dengan bukti PIN'),
   1::bigint,
   'pembatalan DITERIMA setelah bukti PIN penyetuju ada'
 );
-reset role;
-select uji.klaim(null);
 
 -- 4. Bukti KEDALUWARSA tidak berlaku: pesanan kedua, bukti dimundurkan waktunya.
 insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status,

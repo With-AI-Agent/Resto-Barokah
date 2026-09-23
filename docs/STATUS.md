@@ -14,4 +14,4 @@ Ringkasan keadaan kerja untuk sesi berikutnya. Rincian rencana ada di
 > **Catatan (2026-09-23):** commit `227a51b` dan `7aec492` yang sempat tertahan token GitHub
 > kedaluwarsa **sudah ter-push**. Tidak ada pekerjaan yang tertinggal.
 
-**Waktu pembaruan:** 2026-09-23 — Fase 5: T5-01…T5-09 + T5-11 selesai, T5-10 sebagian; T-027 tarif pengaturan selesai (434 tes aplikasi, 86 uji SQL, mutasi 0042 4/4 MERAH, mutasi UI 38/38 MERAH); T-026 & T-028 sudah dijawab Lee dan terjadwal (Fase 11 / Fase 6)
+**Waktu pembaruan:** 2026-09-23 — Fase 5: T5-01…T5-09 + T5-11 + **T5-12 selesai**, T5-10 sebagian; laporan pembatalan kini hanya bisa dibaca pemegang `lihat_laporan` (celah baca ditutup oleh migrasi 0043) — 450 tes aplikasi, 87 uji SQL, mutasi 0043 4/4 MERAH, mutasi UI 42/42 MERAH; T-026 & T-028 sudah dijawab Lee dan terjadwal (Fase 11 / Fase 6)

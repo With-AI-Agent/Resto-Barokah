@@ -285,11 +285,17 @@ select uji.harap_gagal_sebab(
 insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, bahan_terbuang)
 values ('eeee0000-0000-0000-0000-000000000023', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002',
         'void sesudah dapur dengan bukti PIN', true);
+reset role;
+select uji.klaim(null);
+-- Dibaca DI LUAR kursi kasir: sejak 0043 (T5-12) daftar pembatalan hanya boleh
+-- dibaca pemegang `lihat_laporan`. Yang diuji di sini isi/penerimaan barisnya.
 select uji.sama(
   (select count(*) from public.pembatalan b
     where b.pesanan_id = 'eeee0000-0000-0000-0000-000000000023' and b.alasan = 'void sesudah dapur dengan bukti PIN'),
   1::bigint, 'pembatalan sah dengan alasan benar DITERIMA (jalur sah tetap terbuka)'
 );
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
 -- Pasangan positifnya: kalimat yang sama dengan alasan benar → diterima.
 -- SEJAK AUDIT AUD-3 K-2 (A F-03): persetujuan harus TERBUKTI — penyetuju memasukkan
 -- PIN-nya sendiri untuk aksi void_sesudah_dapur (bukan sekadar namanya ditulis).
@@ -325,11 +331,16 @@ select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kembali sebagai k
 set local role authenticated;
 insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan)
 values ('eeee0000-0000-0000-0000-000000000012', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', 'alasan benar sebagai pembanding');
+reset role;
+select uji.klaim(null);
+-- Dibaca di luar kursi kasir (0043/T5-12).
 select uji.sama(
   (select count(*) from public.pembatalan where alasan = 'alasan benar sebagai pembanding'),
   1::bigint,
   'pembatalan dengan alasan benar diterima (pembanding)'
 );
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
 
 -- Dua penolakan tahap & satu penolakan izin memakai pesanan KETIGA (eeee…0013) yang masih
 -- hidup, supaya yang menolak benar-benar aturan yang dimaksud (bukan aturan idempotensi).
@@ -382,11 +393,16 @@ select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kembali sebagai k
 set local role authenticated;
 insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, bahan_terbuang)
 values ('eeee0000-0000-0000-0000-000000000011', 'sesudah_dapur', '90000000-0000-0000-0000-000000000002', 'pelanggan membatalkan, makanan sudah dimasak', true);
+reset role;
+select uji.klaim(null);
+-- Dibaca di luar kursi kasir (0043/T5-12).
 select uji.sama(
   (select pb.nilai_kerugian from public.pembatalan pb where pb.pesanan_id = 'eeee0000-0000-0000-0000-000000000011' limit 1),
   54000,
   'nilai kerugian dihitung dari salinan subtotal pesanan (54.000)'
 );
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
 -- TEMUAN AUD-3 F-05: kiriman ULANG baris pembatalan yang sama WAJIB ditolak (idempoten).
 select uji.harap_gagal_sebab(
   $$insert into public.pembatalan (pesanan_id, tahap, disetujui_oleh, alasan, bahan_terbuang)
@@ -394,11 +410,16 @@ select uji.harap_gagal_sebab(
   'sudah dibatalkan',
   'kiriman ulang pembatalan ditolak (satu aksi = satu jejak)'
 );
+reset role;
+select uji.klaim(null);
+-- Dibaca di luar kursi kasir (0043/T5-12).
 select uji.sama(
   (select count(*) from public.pembatalan pb where pb.pesanan_id = 'eeee0000-0000-0000-0000-000000000011'),
   1::bigint,
   'tetap SATU jejak pembatalan untuk satu aksi'
 );
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
 reset role;
 select uji.klaim(null);
 

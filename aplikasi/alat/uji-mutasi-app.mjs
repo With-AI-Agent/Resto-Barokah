@@ -338,6 +338,36 @@ const MUTASI = [
       '  const ringkasanUang: RingkasanUang = hitungPerkiraan(subtotal, diskonAktif, TARIF_BAWAAN)',
     uji: 'src/layar/kasir/LayarKasir.test.tsx',
   },
+
+  // ------------------------------------------ T5-12 laporan pembatalan
+  {
+    nama: 'Laporan pembatalan menghitung SEMUA baris sebagai kerugian (T5-12) — pesanan yang belum dimasak pun dilaporkan rugi',
+    berkas: 'src/layar/laporan/DaftarPembatalan.tsx',
+    cari: '        totalKerugian: akum.totalKerugian + (sesudah ? baris.nilaiKerugian : 0),',
+    ganti: '        totalKerugian: akum.totalKerugian + baris.nilaiKerugian,',
+    uji: 'src/layar/laporan/DaftarPembatalan.test.tsx',
+  },
+  {
+    nama: 'Laporan pembatalan menyembunyikan alasan (T5-12) — pola masalah berulang tidak bisa ditelusuri',
+    berkas: 'src/layar/laporan/DaftarPembatalan.tsx',
+    cari: '                “{baris.alasan}”',
+    ganti: '                “dibatalkan”',
+    uji: 'src/layar/laporan/DaftarPembatalan.test.tsx',
+  },
+  {
+    nama: 'Laporan pembatalan tidak menyebut pelakunya (T5-12) — PRD M8 menuntut "siapa"',
+    berkas: 'src/layar/laporan/DaftarPembatalan.tsx',
+    cari: "                  oleh {baris.pelakuNama ?? 'pengguna terhapus'}",
+    ganti: '                  oleh pegawai',
+    uji: 'src/layar/laporan/DaftarPembatalan.test.tsx',
+  },
+  {
+    nama: 'Semua pembatalan ditandai sebagai pra-dapur (T5-12) — kerugian nyata tak bisa dibedakan',
+    berkas: 'src/layar/laporan/DaftarPembatalan.tsx',
+    cari: "  return tahap === 'sesudah_dapur' ? 'Sesudah dapur mulai' : 'Sebelum dapur mulai'",
+    ganti: "  return 'Sebelum dapur mulai'",
+    uji: 'src/layar/laporan/DaftarPembatalan.test.tsx',
+  },
 ]
 
 /**

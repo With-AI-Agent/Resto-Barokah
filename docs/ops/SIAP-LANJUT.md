@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0cca9-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0cca9-resto-barokah`
-- **Commit keadaan kerja:** `bfe6cf569065e2631d05050b7fcbebcfb62cf226`
+- **Commit keadaan kerja:** `315dbbd68f42a7e3c78942d87ccc9af0a55a1cbd`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit bfe6cf56)
+- **CI terakhir:** success (1 run, commit 315dbbd6)
 - **Ditulis:** 2026-09-23 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -26,9 +26,9 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
 - Posisi proyek: lihat `PROJECT_STATE.md` (STATUS + PUTARAN terakhir) dan `STATUS.md`.
 - Bukti terakhir yang hijau: `node alat/uji-sql.mjs` · `python3 alat/uji-mutasi-0012.py` ·
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
-- Butir tertangguh terbuka: **3** — T-026, T-027, T-028
+- Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (16 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (16 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (136 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (229 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -148,10 +148,10 @@ JANGAN merge apa pun tanpa keputusan Lee.
    T5-03 (struk termal) sudah selesai, jadi **periksa dulu** apa yang sudah ada di berkas struk
    sebelum membuat yang baru — dua batch terakhir menunjukkan rencana ROADMAP sering lebih tua
    daripada isi repo. Migrasi berikutnya bila perlu: **≥ 0043**.
-0p. **Kalau butuh angka bukti terakhir:** aplikasi **66 berkas / 422 tes LULUS** · suite SQL
-   **86 LULUS** · `uji-mutasi-app.mjs` **34/34 MERAH** · `uji-mutasi-0042.py` **4/4 MERAH** ·
-   `uji-mutasi-0012.py` **16/16** · gerbang & paritas CI LOLOS · `tsc` bersih · lint 0 error ·
-   **CI HIJAU** pada run `35853873026` (commit `bfe6cf5`).
+0p. **Kalau butuh angka bukti terakhir:** aplikasi **68 berkas / 450 tes LULUS** · suite SQL
+   **87 LULUS** · `uji-mutasi-app.mjs` **42/42 MERAH** · `uji-mutasi-0043.py` **4/4 MERAH** ·
+   `uji-mutasi-0042.py` **4/4 MERAH** · `uji-mutasi-0012.py` **16/16** · gerbang & paritas CI
+   LOLOS · `tsc` bersih · lint 0 error.
 
 0q. **T5-09 SELESAI (batch kedelapan).** `StrukDigital.tsx` **membungkus `<Struk>` yang sama**,
    tidak menggambar ulang — mitigasi ART-7: kalau struk digital punya kode tata letak sendiri,
@@ -189,11 +189,41 @@ JANGAN merge apa pun tanpa keputusan Lee.
    `cancelled` TIDAK boleh dibaca sebagai aman — tunggu satu run sampai `success`, atau
    jalankan sendiri pemeriksa langkah CI itu secara lokal sebelum push.**
 
-0v. **Berikutnya: T5-12 laporan pembatalan** (`0043_laporan_pembatalan.sql` +
-   `aplikasi/src/layar/laporan/DaftarPembatalan.tsx` — keduanya **belum dibuat**). DoD menuntut
-   **uji golden**: hasil laporan dibandingkan dengan data mentah. **Periksa dulu** apa yang sudah
-   ada — tabel `pembatalan` (`0010`) beserta pagarnya sudah lengkap, jadi kemungkinan besar yang
-   dibutuhkan hanya pembacaan/agregasi, bukan aturan uang baru. Migrasi berikutnya **≥ 0043**.
+0v. **T5-12 laporan pembatalan SELESAI.** `supabase/migrations/0043_laporan_pembatalan.sql` +
+   `aplikasi/src/layar/laporan/DaftarPembatalan.tsx`. Dugaan di butir ini ternyata **salah**:
+   pagar tabel `pembatalan` TIDAK lengkap. Policy `pembatalan_pilih` hanya menuntut
+   `pesanan_sepenyewa(pesanan_id)`, jadi **pelayan/kasir/dapur bisa membaca seluruh nilai
+   kerugian dan nama pembatalnya**. 0043 menambah syarat `lihat_laporan`. Laporan berupa **view**
+   `public.laporan_pembatalan` (bukan RPC — nama RPC-nya tidak ada di TECH_SPEC §5), wajib
+   `security_invoker = true`. **Jangan longgarkan lagi:** `alat/uji-mutasi-0043.py` menahan 4
+   mutasi. Migrasi berikutnya **≥ 0044**.
+
+0w. **Pelajaran yang mahal: memperketat RLS membuat uji lama merah, dan itu WAJAR.** Tujuh berkas
+   uji SQL jatuh setelah 0043 karena mereka memverifikasi hasil tulisan dengan **membaca ulang
+   dari kursi kasir**. Yang benar: pembacaan verifikasi dipindah ke luar kursi kasir
+   (`reset role; select uji.klaim(null);` … lalu klaim ulang), **bukan pagarnya dilonggarkan**.
+   Kalau suatu saat ada uji pembatalan merah lagi, tanya dulu: "uji ini sedang menguji ISI jejak,
+   atau HAK BACA-nya?" — kalau isi, pindahkan kursinya. Aplikasi sendiri tidak pernah membaca
+   tabel `pembatalan` langsung (`grep from('pembatalan')` = kosong), jadi pagar ini tidak
+   memutus fitur mana pun.
+
+0y. **FASE 5 TUNTAS untuk bagian yang bisa dikerjakan agent.** Yang tersisa di Fase 5 adalah
+   **bukti manual milik Lee** (T4-03 foto, T4-05 dua perangkat, T4-10 cabut jaringan, 5 metode
+   bayar) — daftar periksanya sudah siap di `docs/uji/RENCANA_UJI_MANUAL.md`, tinggal Lee jalankan
+   dan isi kolom centangnya. **Agent tidak boleh mencentangnya sendiri.**
+
+0z. **Arah sesi berikutnya (urutan usulan, bukan perintah):** (1) mulai **Fase 6** — di sanalah
+   **T6-06 memuat blok 🔴 WAJIB DIKERJAKAN DI SINI untuk T-028** (jejak audit cetak ulang), butir
+   tertangguh yang sudah dijawab Lee dan tidak boleh terlewat; (2) T-026 (infra e2e Playwright)
+   tetap terjadwal **Fase 11**, jangan dimajukan tanpa alasan kuat karena butuh dependensi dev
+   baru + langkah CI baru; (3) ingat aturan tiga tempat: setiap perintah CI baru wajib didaftarkan
+   di `.github/workflows/ci.yml`, `GERBANG_WAJIB` (`alat/periksa-gerbang-ci.py`), **dan**
+   `aplikasi/alat/periksa-semua.sh` — kalau tidak, CI merah sendiri.
+
+0x. **Penjaga `keamanan_fungsi.sql` (T130-initplan) menangkap cacat kinerja nyata.** Versi pertama
+   0043 menulis `and public.boleh('lihat_laporan')` tanpa bungkus — PostgreSQL memanggil fungsi itu
+   **sekali per baris**, bukan sekali per perintah. Bentuk yang benar: `and (select public.boleh(...))`.
+   Setiap policy baru yang memanggil helper izin wajib memakai bentuk berbungkus ini.
 
 
 

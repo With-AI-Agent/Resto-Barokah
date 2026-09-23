@@ -631,3 +631,101 @@
   font-size: var(--t-kecil);
   color: var(--teks-lemah);
 }
+
+/* ------------------------------------------- T5-12 laporan pembatalan */
+.daftar-pembatalan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.daftar-pembatalan__konteks {
+  margin: 0;
+  font-size: var(--t-kecil);
+  color: var(--teks-lemah);
+}
+
+.daftar-pembatalan__ringkas {
+  display: flex;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+}
+
+.daftar-pembatalan__ringkas > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.daftar-pembatalan__angka {
+  font-size: var(--t-besar);
+  font-weight: 800;
+}
+
+.daftar-pembatalan__label {
+  font-size: var(--t-kecil);
+  color: var(--teks-lemah);
+}
+
+.daftar-pembatalan__saring {
+  display: flex;
+  gap: var(--s-1);
+  flex-wrap: wrap;
+}
+
+.daftar-pembatalan__hasil {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+/* Garis kiri tebal membedakan kerugian nyata dari sekadar salah ketik,
+   terbaca dari ujung mata tanpa harus membaca lencananya. */
+.daftar-pembatalan__baris {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--garis);
+  border-left-width: 4px;
+  border-radius: var(--r-2);
+}
+
+.daftar-pembatalan__baris[data-tahap='sebelum_dapur'] {
+  border-left-color: var(--garis);
+}
+
+.daftar-pembatalan__baris[data-tahap='sesudah_dapur'] {
+  border-left-color: var(--danger);
+}
+
+.daftar-pembatalan__kepala,
+.daftar-pembatalan__kaki {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+
+.daftar-pembatalan__kaki,
+.daftar-pembatalan__jam,
+.daftar-pembatalan__item {
+  font-size: var(--t-kecil);
+  color: var(--teks-lemah);
+}
+
+.daftar-pembatalan__item,
+.daftar-pembatalan__alasan {
+  margin: 0;
+}
+
+.daftar-pembatalan__alasan {
+  font-style: italic;
+}
+
+.daftar-pembatalan__kerugian {
+  font-weight: 700;
+  color: var(--danger);
+}

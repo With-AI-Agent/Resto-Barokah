@@ -61,6 +61,7 @@ echo "== bukti mutasi pagar migrasi 0012 & 0013 (kontrol hijau + semua mutasi WA
 (cd "$REPO" && python3 alat/uji-mutasi-0019.py | tail -2)
 (cd "$REPO" && python3 alat/uji-mutasi-0041.py | tail -2)
 (cd "$REPO" && python3 alat/uji-mutasi-0042.py | tail -2)
+(cd "$REPO" && python3 alat/uji-mutasi-0043.py | tail -2)
 (cd "$REPO" && python3 alat/uji-mutasi-0009.py | tail -2)
 (cd "$REPO" && python3 alat/uji-mutasi-0021.py | tail -2)
 (cd "$REPO" && python3 alat/uji-mutasi-0022.py | tail -2)

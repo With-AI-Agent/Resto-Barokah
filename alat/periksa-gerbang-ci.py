@@ -69,6 +69,8 @@ GERBANG_WAJIB = [
      r"python3 alat/uji-mutasi-0041.py"),
     ("bukti mutasi pagar bahan terbuang 0042 (T5-07 penanda ditentukan peladen)",
      r"python3 alat/uji-mutasi-0042.py"),
+    ("bukti mutasi pagar baca laporan pembatalan 0043 (T5-12 hanya pemegang lihat_laporan)",
+     r"python3 alat/uji-mutasi-0043.py"),
     ("bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22)",
      r"python3 alat/uji-mutasi-0009.py"),
     ("bukti mutasi kunci serialisasi uang 0021 (F F-12)",
