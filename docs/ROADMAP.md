@@ -1190,10 +1190,32 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     PIN benar tapi tanpa izin) + `alat/uji-mutasi-0041.py` **6/6 MERAH** +
     `DiskonManual.test.tsx` 17 tes + 6 mutasi UI di `uji-mutasi-app.mjs` (total **20/20 MERAH**).
 
-- [ ] T5-06 — Void sebelum dapur mulai (alasan wajib) ⚠️
+- [x] T5-06 — Void sebelum dapur mulai (alasan wajib) ⚠️
   - **Tujuan:** salah input cepat dibereskan, selalu dengan jejak.
+  - **TEMUAN (2026-09-23):** pagar DATABASE-nya sudah ada dan terbukti sejak putaran
+    penutupan celah — `picu_pembatalan_sah()` di `0015_penutup_celah_putaran16.sql`
+    sudah menegakkan seluruh DoD: tahap dibaca dari DUA tanda (`dikirim_ke_dapur_pada`
+    **dan** status), alasan wajib (`check (length(btrim(alasan)) > 0)` di tabel
+    `pembatalan`, `0010`), satu target hanya boleh dibatalkan sekali, nilai kerugian
+    diambil dari SALINAN harga, dan sesudah dapur mulai wajib kupon PIN sekali-pakai.
+    Jadi **tidak ada migrasi baru yang dibuat** — menulis `0041_void_pra.sql` hanya akan
+    menduplikasi pagar yang sudah hijau (dan mengulang jebakan `berkas_berlaku()`).
+  - **Yang SUNGGUH kurang: sisi LAYAR.** Tombol "Hapus item" di keranjang kasir hanya
+    membuang baris dari daftar di layar (`filter`) untuk SEMUA keadaan — tanpa alasan,
+    tanpa pelaku, tanpa jejak. Tabel `pembatalan` beserta pagarnya tidak pernah dipanggil
+    siapa pun, sehingga laporan pembatalan harian selalu kosong walau kasir membatalkan
+    banyak item. Itulah yang ditutup di sini.
   - **Ref:** PRD M6 (aturan bertingkat); TECH_SPEC §9 ART-4
-  - **File:** `supabase/migrations/0041_void_pra.sql`, `supabase/tes/void_pra.sql`
+  - **File:** `aplikasi/src/layar/kasir/VoidItem.tsx`, `VoidItem.test.tsx`,
+    `LayarKasirVoid.test.tsx`, sambungan di `LayarKasir.tsx`;
+    pagar peladen `supabase/migrations/0015_penutup_celah_putaran16.sql`
+  - **Bukti (2026-09-23):** VoidItem 8 tes + LayarKasirVoid 7 tes LULUS · aplikasi
+    62 berkas / 368 tes LULUS · `uji-mutasi-app.mjs` 24/24 MERAH (4 mutasi baru T5-06:
+    alasan tidak wajib, penolakan disulap berhasil, hapus tanpa alasan, item lenyap
+    walau ditolak) · suite SQL 84 LULUS · tsc bersih.
+  - **Catatan jujur:** `onBatalkanItem` adalah kontrak layar; kabel RPC-nya dipasang
+    kontainer saat layar kasir tersambung peladen sungguhan. Selama prop itu tidak
+    dipasang, keranjang tetap dianggap draf lokal (memang belum ada yang perlu dicatat).
   - **DoD:** hanya sebelum dimasak; alasan wajib dari daftar/ketik; masuk laporan; tidak ada penghapusan data; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4); mitigasi: aturan di database + laporan harian.

@@ -89,6 +89,24 @@ JANGAN merge apa pun tanpa keputusan Lee.
    yang dicetak struk — tetapi bila tarif resto berbeda, angka keranjang bisa meleset. Ini juga
    membuat DoD **T3-02** belum sepenuhnya ditepati; dicatat apa adanya di ROADMAP (❓ T-027).
    Tertangguh terbuka kini **2** (T-026 Playwright, T-027 keranjang).
+0j. **T5-06 SELESAI (batch kelima) — TANPA migrasi baru, dan itu disengaja.** ROADMAP
+   menjadwalkan `0041_void_pra.sql`, tetapi pemeriksaan isi database lebih dulu menunjukkan
+   **seluruh DoD T5-06 sudah ditegakkan** `picu_pembatalan_sah()` di
+   `0015_penutup_celah_putaran16.sql`: tahap dibaca dari DUA tanda, alasan wajib lewat `check`
+   di tabel `pembatalan` (`0010`), satu target sekali batal, nilai kerugian dari salinan harga,
+   tidak ada penghapusan data. Menulis migrasi kembar justru akan mengulang jebakan 0h.
+0k. **Cacat nyata T5-06 ada di LAYAR:** tombol "Hapus item" memakai `filter` untuk SEMUA keadaan,
+   sehingga item yang sudah tercatat hilang tanpa alasan, tanpa pelaku, tanpa jejak — akibatnya
+   tabel `pembatalan` beserta pagarnya **tidak pernah dipanggil siapa pun** dan laporan
+   pembatalan harian selalu kosong. Ditutup `aplikasi/src/layar/kasir/VoidItem.tsx` (alasan
+   WAJIB, alasan cepat, nilai yang batal ditagih terlihat, peringatan PIN bila dapur sudah
+   mulai) + percabangan jujur di `LayarKasir.tsx`: tanpa prop `onBatalkanItem` keranjang tetap
+   draf lokal; dengan prop itu, item **hanya** hilang setelah peladen menjawab berhasil.
+   Bukti: **368 tes** aplikasi · `uji-mutasi-app.mjs` **24/24 MERAH** · SQL **84 LULUS**.
+0l. **Berikutnya T5-07** (void SESUDAH dapur mulai: PIN atasan + bahan terbuang). Pagar PIN-nya
+   juga sudah ada di `0015` — **periksa dulu seperti di 0j** sebelum menulis migrasi; yang
+   kemungkinan besar kurang adalah layar `VoidPasca.tsx` (rencana, belum dibuat) dan
+   perhitungan nilai bahan terbuang. Migrasi berikutnya bila memang perlu: **≥ 0042**.
 
 
 

@@ -198,6 +198,37 @@ const MUTASI = [
     ganti: '    if (true) {\n      setDiskonAktif((sebelumnya) => sebelumnya + masukan.nilai)',
     uji: 'src/layar/kasir/LayarKasirDiskon.test.tsx',
   },
+
+  // ----------------------------------------------------------- T5-06 void pra-dapur
+  {
+    nama: 'VoidItem: alasan tidak lagi wajib (T5-06) — laporan pembatalan jadi kosong artinya',
+    berkas: 'src/layar/kasir/VoidItem.tsx',
+    cari: '  const alasanTerisi = alasan.trim().length > 0',
+    ganti: '  const alasanTerisi = true',
+    uji: 'src/layar/kasir/VoidItem.test.tsx',
+  },
+  {
+    nama: 'VoidItem: penolakan peladen disulap jadi berhasil (T5-06)',
+    berkas: 'src/layar/kasir/VoidItem.tsx',
+    cari: '    if (hasil && !hasil.berhasil) {',
+    ganti: '    if (false) {',
+    uji: 'src/layar/kasir/VoidItem.test.tsx',
+  },
+  {
+    nama: 'LayarKasir: item tercatat dihapus tanpa alasan (T5-06) — celah lama kambuh',
+    berkas: 'src/layar/kasir/LayarKasir.tsx',
+    cari: '    if (!onBatalkanItem) {',
+    ganti: '    if (true) {',
+    uji: 'src/layar/kasir/LayarKasirVoid.test.tsx',
+  },
+  {
+    nama: 'LayarKasir: item lenyap dari layar walau peladen MENOLAK pembatalan (T5-06)',
+    berkas: 'src/layar/kasir/LayarKasir.tsx',
+    cari: '    if (hasil?.berhasil) {\n      setDaftarItemKeranjang((prev) => prev.filter((i) => i.id !== itemVoid))',
+    ganti:
+      '    if (true) {\n      setDaftarItemKeranjang((prev) => prev.filter((i) => i.id !== itemVoid))',
+    uji: 'src/layar/kasir/LayarKasirVoid.test.tsx',
+  },
 ]
 
 /**

@@ -25,6 +25,7 @@ import { PemilihMeja, type MejaData, type TipePesanan } from './PemilihMeja'
 import { TagihanTerbuka } from './TagihanTerbuka'
 import { Bayar, type BarisTagihan, type HasilBayar, type MetodeBayar, type Tagihan } from './Bayar'
 import { DiskonManual, type BatasDiskon, type HasilDiskon } from './DiskonManual'
+import { VoidItem, type HasilVoid } from './VoidItem'
 import type { DataStruk } from '../../komponen/Struk'
 
 export interface LayarKasirProps {
@@ -73,6 +74,18 @@ export interface LayarKasirProps {
     alasan: string
     disetujuiOleh: string | null
   }) => Promise<HasilDiskon | null> | void
+
+  // ------------------------------------------------------- T5-06 void pra-dapur
+  /**
+   * Mencatat pembatalan item yang SUDAH tersimpan di peladen (insert baris
+   * `pembatalan`; pagar di `picu_pembatalan_sah`, migrasi 0015). Bila prop ini
+   * tidak dipasang, layar menganggap keranjang masih draf lokal dan tombol hapus
+   * bekerja seperti biasa — draf yang belum pernah dikirim memang tidak punya
+   * apa-apa untuk dicatat.
+   */
+  onBatalkanItem?: (masukan: { itemId: string; alasan: string }) => Promise<HasilVoid | null> | void
+  /** Apakah pesanan ini sudah dikirim ke dapur (penanda untuk kasir). */
+  sudahKeDapur?: boolean
 }
 
 export function LayarKasir({
@@ -93,6 +106,8 @@ export function LayarKasir({
   daftarAtasan = [],
   onMintaPersetujuanDiskon,
   onTerapkanDiskon,
+  onBatalkanItem,
+  sudahKeDapur = false,
 }: LayarKasirProps) {
   // Keranjang State
   const [daftarItemKeranjang, setDaftarItemKeranjang] = useState<ItemKeranjang[]>([])
@@ -110,6 +125,8 @@ export function LayarKasir({
   const [bukaOpenBillModal, setBukaOpenBillModal] = useState(false)
   const [bukaBayarModal, setBukaBayarModal] = useState(false)
   const [bukaDiskonModal, setBukaDiskonModal] = useState(false)
+  /** Id item yang sedang dimintai alasan pembatalan (T5-06); null = tidak ada. */
+  const [itemVoid, setItemVoid] = useState<string | null>(null)
 
   /**
    * Diskon yang SUDAH tercatat di peladen untuk tagihan ini (T5-05).
@@ -239,8 +256,32 @@ export function LayarKasir({
     )
   }
 
+  /**
+   * Menghapus item (T5-06). Dua jalur yang SENGAJA dibedakan:
+   *
+   *  - **Draf lokal** (`onBatalkanItem` tidak dipasang): item belum pernah sampai
+   *    peladen, jadi tidak ada apa pun untuk dicatat — buang saja dari daftar.
+   *  - **Sudah tercatat** (`onBatalkanItem` dipasang): item hanya boleh hilang
+   *    lewat baris `pembatalan` yang beralasan. Layar membuka dialog alasan dan
+   *    TIDAK membuang item sampai peladen menerima — kalau tidak, item lenyap
+   *    dari mata kasir padahal masih hidup (dan masih ditagih) di database.
+   */
   const tanganiHapusItem = (id: string) => {
-    setDaftarItemKeranjang((prev) => prev.filter((i) => i.id !== id))
+    if (!onBatalkanItem) {
+      setDaftarItemKeranjang((prev) => prev.filter((i) => i.id !== id))
+      return
+    }
+    setItemVoid(id)
+  }
+
+  const tanganiBatalkanItem = async (masukan: { alasan: string }): Promise<HasilVoid | null> => {
+    if (!itemVoid) return null
+    const hasil = (await onBatalkanItem?.({ itemId: itemVoid, alasan: masukan.alasan })) ?? null
+    if (hasil?.berhasil) {
+      setDaftarItemKeranjang((prev) => prev.filter((i) => i.id !== itemVoid))
+      setItemVoid(null)
+    }
+    return hasil
   }
 
   const tanganiUbahCatatan = (id: string, catatan: string) => {
@@ -462,6 +503,20 @@ export function LayarKasir({
             onMintaPersetujuan={onMintaPersetujuanDiskon}
             onTerapkan={tanganiTerapkanDiskon}
             onBatal={() => setBukaDiskonModal(false)}
+          />
+        </Lapis>
+      )}
+
+      {itemVoid && (
+        <Lapis buka={true} onTutup={() => setItemVoid(null)} judul="Batalkan Item">
+          <VoidItem
+            namaTarget={
+              daftarItemKeranjang.find((i) => i.id === itemVoid)?.menuItem.nama ?? 'Item pesanan'
+            }
+            nilai={daftarItemKeranjang.find((i) => i.id === itemVoid)?.subtotal ?? 0}
+            sudahKeDapur={sudahKeDapur}
+            onBatalkan={tanganiBatalkanItem}
+            onTutup={() => setItemVoid(null)}
           />
         </Lapis>
       )}

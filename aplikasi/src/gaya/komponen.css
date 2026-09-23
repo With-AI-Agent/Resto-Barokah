@@ -403,3 +403,37 @@
   padding-top: var(--s-2);
   border-top: 1px solid var(--garis);
 }
+
+/* ------------------------------------------------- T5-06 void item pra-dapur */
+.void-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  max-width: 28rem;
+}
+
+.void-item__target {
+  font-size: var(--t-2);
+  color: var(--text-muted);
+}
+
+/* Alasan cepat dibuat sebaris supaya kasir tidak mengetik saat antrean panjang. */
+.void-item__alasan-cepat {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.void-item__pesan {
+  color: var(--bahaya);
+  font-size: var(--t-2);
+}
+
+.void-item__aksi {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-2);
+}

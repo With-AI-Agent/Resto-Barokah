@@ -1984,3 +1984,43 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **Ditangguhkan (bukan diputuskan diam-diam):** **T-027** — pajak & service di keranjang kasir
   masih perkiraan 10 %/5 % di layar. Tidak membahayakan uang (struk & layar Bayar memakai angka
   peladen), tetapi menyatukannya adalah pilihan rasa-pakai yang milik Lee.
+
+## [State Machine/2026-09-23] Void Pra-Dapur: Pagarnya Sudah Ada, yang Hilang Pintunya (T5-06)
+
+- **Konteks:** ROADMAP T5-06 menjadwalkan migrasi baru `0041_void_pra.sql` + `supabase/tes/void_pra.sql`.
+  Sebelum menulisnya, isi database diperiksa dulu — dan ternyata **seluruh DoD T5-06 sudah ditegakkan**
+  oleh `picu_pembatalan_sah()` di `0015_penutup_celah_putaran16.sql`: tahap dibaca dari DUA tanda
+  (`dikirim_ke_dapur_pada` **dan** status pesanan, supaya satu tanda yang lupa diisi tidak meloloskan
+  pembatalan tanpa PIN), alasan wajib lewat `check (length(btrim(alasan)) > 0)` pada tabel `pembatalan`
+  (`0010`), satu target hanya boleh dibatalkan sekali (kunci idempotensi, temuan AUD-3 F-05), nilai
+  kerugian diambil dari SALINAN harga (bukan harga menu sekarang), dan tidak ada penghapusan data —
+  yang terjadi adalah pencatatan. Ujinya pun sudah hijau: `void_satu_item.sql`, `pembatalan_sekali.sql`,
+  `pembatalan_penanda_palsu.sql`, `persetujuan_void.sql`, `nilai_kerugian.sql`.
+- **Keputusan:** **tidak menulis migrasi baru.** Menambah `0041_void_pra.sql` hanya akan menduplikasi
+  pagar yang sudah terbukti, dan — pelajaran mahal dari T5-05 — migrasi baru yang memuat frasa SQL
+  yang sama membuat `berkas_berlaku()` di berkas uji mutasi SQL (mis. `alat/uji-mutasi-0012.py`) menyasar berkas salah,
+  sehingga pagar lama terbaca "tumpul" padahal utuh. Nomor `0042` dibiarkan bebas untuk T5-07.
+- **Cacat nyata yang ditutup — di LAYAR, bukan di database:** tombol "Hapus item" di keranjang kasir
+  memakai satu jalan untuk semua keadaan, `setDaftarItemKeranjang((prev) => prev.filter(...))`. Untuk
+  keranjang draf itu benar (belum ada apa pun di peladen untuk dicatat). Untuk item yang SUDAH
+  tercatat itu celah: item hilang tanpa alasan, tanpa pelaku, tanpa jejak. Akibatnya tabel `pembatalan`
+  beserta seluruh pagarnya **tidak pernah dipanggil siapa pun**, dan laporan pembatalan harian yang
+  dijanjikan ke pemilik selalu kosong walau kasir membatalkan banyak item.
+- **Bentuk penutupannya:** `VoidItem.tsx` — alasan **wajib** (tombol mati sampai terisi; spasi saja
+  tetap dianggap kosong), alasan cepat sebaris supaya kasir tidak mengetik saat antrean panjang,
+  nilai yang batal ditagih ditampilkan supaya kasir sadar besarnya, dan peringatan dini bila pesanan
+  sudah masuk dapur (wajib PIN atasan). `LayarKasir.tsx` bercabang jujur: bila `onBatalkanItem` tidak
+  dipasang, keranjang diperlakukan sebagai draf lokal seperti dulu; bila dipasang, item **hanya**
+  hilang dari layar setelah peladen menjawab berhasil.
+- **Yang sengaja TIDAK dilakukan:** layar tidak memutuskan tahap ("sebelum/sesudah dapur"). Penanda
+  `sudahKeDapur` murni untuk memberi tahu kasir lebih awal; yang menegakkan tetap peladen, dan
+  penolakannya ditampilkan apa adanya — tidak pernah disulap jadi "berhasil".
+- **File:** `aplikasi/src/layar/kasir/VoidItem.tsx` (+`VoidItem.test.tsx`),
+  `aplikasi/src/layar/kasir/LayarKasirVoid.test.tsx`, `aplikasi/src/layar/kasir/LayarKasir.tsx`,
+  `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-mutasi-app.mjs`
+- **Bukti:** VoidItem **8 tes** + LayarKasirVoid **7 tes** LULUS · aplikasi **62 berkas / 368 tes**
+  LULUS · `uji-mutasi-app.mjs` **24/24 MERAH** (4 mutasi baru T5-06 semuanya menggigit) · suite SQL
+  **84 LULUS** · `tsc` bersih · lint 0 error · gerbang & paritas CI LOLOS.
+- **Catatan jujur:** `onBatalkanItem` baru kontrak layar; kabel RPC-nya dipasang saat layar kasir
+  tersambung peladen sungguhan (sama polanya seperti `onTerapkanDiskon` di T5-05). Tidak ada perintah
+  CI baru — uji baru ikut terbawa `vitest run` dan `uji-mutasi-app.mjs` yang sudah terdaftar di gerbang.
