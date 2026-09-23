@@ -102,8 +102,7 @@ JANGAN merge apa pun tanpa keputusan Lee.
    ulang, kontrak `layar.test.ts` direvisi (layar tak dikenal tetap ditolak), kabel data baru
    `aplikasi/src/hook/useStok.ts`. Dasar keputusan Lee + bukti: `docs/DECISIONS_LOG.md`
    [Kelengkapan UI/2026-09-23] dan `_log-sesi/LOG_SESI_2026-09-23.md` bagian "BATCH 3".
-7. **URUTAN BERIKUTNYA:** (a) infra e2e Playwright (`aplikasi/uji/e2e/dapur.spec.ts` — berkas
-   rencana, belum dibuat) — butuh dependensi dev baru + langkah CI baru (ingat: setiap perintah CI
+7. **URUTAN BERIKUTNYA:** (a) infra e2e Playwright (`aplikasi/uji/e2e/dapur.spec.ts` — berkasnya belum dibuat) — butuh dependensi dev baru + langkah CI baru (ingat: setiap perintah CI
    baru WAJIB didaftarkan di `GERBANG_WAJIB` + `periksa-semua.sh`, kalau tidak CI merah sendiri);
    (b) Fase 5 pembayaran multimode/split bill/struk termal/buka-tutup shift.
    **Bukti manual/visual T4-03, T4-05, T4-10 tetap milik Lee** (agent tidak bisa memotret layar
