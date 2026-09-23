@@ -74,6 +74,13 @@ MIG25 = "supabase/migrations/0025_isolasi_identitas_null.sql"
 # 0027 menulis ulang policy `izin_pilih` sebagai definisi efektif terakhir. Mutasi
 # F-10 harus mengenai salinan ini agar tidak ditimpa kembali oleh 0027.
 MIG27 = "supabase/migrations/0027_initplan_policy_rls.sql"
+# 0042 (T5-07) menulis ulang UTUH `picu_pembatalan_sah` sebagai definisi efektif terakhir.
+# Mutasi F-05 (idempotensi pembatalan) HARUS mengenai salinan ini: memutasi 0015 tidak
+# berpengaruh apa-apa karena langsung ditimpa 0042 → mutasi terbaca "pagar TUMPUL" padahal
+# pagarnya utuh. Jebakan yang sama sudah memakan M6 di uji-mutasi-0012.py; aturannya:
+# setiap kali sebuah fungsi ditulis ulang di migrasi baru, semua mutasi yang menyasarnya
+# wajib ikut dipindahkan ke berkas yang BENAR-BENAR berlaku.
+MIG42 = "supabase/migrations/0042_bahan_terbuang_jujur.sql"
 UJI = "supabase/tes/pembatalan_penanda_palsu.sql"                       # bagian 1 (K-1)
 UJI_PR02 = "supabase/tes/void_satu_item.sql"                            # bagian 2 (K-2a)
 UJI_F01 = "supabase/tes/diskon_sesudah_lunas.sql"                       # bagian 3 (K-2b)
@@ -473,7 +480,7 @@ def main() -> int:
         )
 
     hasil.append(mutasi("pembatalan bisa diulang untuk target yang sudah batal (cacat AUD-3 F-05)",
-                        pembatalan_boleh_diulang, uji=UJI_F05))
+                        pembatalan_boleh_diulang, uji=UJI_F05, berkas_rel=MIG42))
 
     # 20) Penjaga stempel lifecycle dilepas (cacat asli F-06) → MERAH.
     def stempel_boleh_dikarang(t: str) -> str:

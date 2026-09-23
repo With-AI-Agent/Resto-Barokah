@@ -126,6 +126,13 @@ JANGAN merge apa pun tanpa keputusan Lee.
    menunjuk tempatnya. Yang dikunci & diuji: persetujuan eksplisit (dikirim sebagai data, bukan
    diasumsikan), minimalisasi (HP + nama panggilan saja), penjelasan di layar, dan tombol
    **Lewati selalu hidup** agar pembayaran tidak pernah terhambat.
+0o1. **JEBAKAN 0m KAMBUH LAGI DI TEMPAT KEDUA — dan hanya tertangkap `periksa-semua.sh` penuh.**
+   Selain M6 di `uji-mutasi-0012.py`, ternyata **F-05 di `alat/uji-mutasi-0015.py`** juga
+   menyasar `picu_pembatalan_sah` di `0015` yang kini ditimpa `0042` → dilaporkan "pagar
+   TUMPUL" padahal pagarnya utuh. Diperbaiki dengan konstanta `MIG42` + `berkas_rel=MIG42`.
+   **Pelajaran prosedur: sesudah menambah migrasi, JANGAN cukup menjalankan suite SQL —
+   jalankan seluruh uji mutasi (atau `periksa-semua.sh` penuh). Suite bisa hijau sempurna
+   sementara penilai mutasi diam-diam lumpuh.**
 0o. **Berikutnya T5-09** (struk digital sebagai cadangan saat printer bermasalah). Perhatikan:
    T5-03 (struk termal) sudah selesai, jadi **periksa dulu** apa yang sudah ada di berkas struk
    sebelum membuat yang baru — dua batch terakhir menunjukkan rencana ROADMAP sering lebih tua

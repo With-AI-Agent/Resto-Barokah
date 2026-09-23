@@ -2095,3 +2095,29 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-mutasi-app.mjs`
 - **Bukti:** `DataPelanggan.test.tsx` **9 tes LULUS** · `uji-mutasi-app.mjs` **26/26 MERAH**
   (2 mutasi baru: kirim tanpa persetujuan, Lewati dimatikan) · aplikasi **377 tes LULUS**.
+
+## [Mutu gerbang/2026-09-23] Jebakan "Fungsi Ditulis Ulang → Mutasi Menyasar Berkas Mati" (ketiga kalinya)
+
+- **Area:** Mutu gerbang otomatis — menjaga agar bukti uji mutasi tidak berbohong
+- **Kejadian:** `0042` menulis ulang utuh `picu_pembatalan_sah()`. Dua uji mutasi yang menyasar
+  fungsi itu di `0015` seketika kehilangan gigi: **M6** di `alat/uji-mutasi-0012.py` (kupon PIN
+  sekali pakai) dan **F-05** di `alat/uji-mutasi-0015.py` (idempotensi pembatalan). Keduanya
+  melaporkan "pagar TUMPUL" padahal pagarnya utuh — yang terjadi adalah mutasinya menyunting
+  definisi yang **sudah tidak berlaku**, lalu ditimpa `0042` saat pemasangan.
+- **Kenapa berbahaya:** kegagalannya berbunyi seperti temuan keamanan ("pagar tumpul"), sehingga
+  godaannya adalah "memperbaiki" pagar yang sebenarnya sehat — atau, lebih buruk, melonggarkan
+  uji supaya hijau. Sebaliknya juga bisa terjadi: kalau pagar aslinya BENAR-BENAR jebol, mutasi
+  yang menyasar berkas mati akan tetap hijau dan kita tidak akan pernah tahu.
+- **Keputusan (aturan tetap):** **setiap kali sebuah fungsi/policy ditulis ulang di migrasi baru,
+  semua uji mutasi yang menyasarnya WAJIB ikut dipindahkan ke berkas yang benar-benar berlaku**,
+  dan alasannya ditulis sebagai komentar di titik jangkarnya. Prosedur sesudah menambah migrasi
+  bukan lagi "jalankan suite SQL", melainkan **jalankan seluruh uji mutasi SQL** — suite bisa
+  hijau sempurna (85 LULUS) sementara dua penilai mutasi diam-diam lumpuh.
+- **Riwayat kambuh:** (1) T5-05/`0041` → M6 `uji-mutasi-0012.py`; (2) T5-07/`0042` → M6 lagi;
+  (3) T5-07/`0042` → F-05 `uji-mutasi-0015.py` (tertangkap hanya karena `periksa-semua.sh`
+  dijalankan penuh, bukan oleh suite SQL).
+- **File:** `alat/uji-mutasi-0012.py` (jangkar M6 → `0042`), `alat/uji-mutasi-0015.py`
+  (`MIG42` + `berkas_rel=MIG42` pada F-05)
+- **Bukti:** `uji-mutasi-0015.py` **LOLOS** (sebelumnya "17/17 + 1 tumpul") · `uji-mutasi-0012.py`
+  **16/16** · suite SQL **85 LULUS**.
+
