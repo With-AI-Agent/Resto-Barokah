@@ -1092,14 +1092,23 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** salah tekan nominal → mitigasi: konfirmasi nilai + tampilan kembalian besar + tombol batal mudah.
   - **Verifikasi:** uji manual 5 metode + uji unit format uang.
 
-- [ ] T5-02 — RPC bayar_pesanan (tunai + kembalian) ⚠️
+- [x] T5-02 — RPC bayar_pesanan (tunai + kembalian) ⚠️
   - **Tujuan:** pembayaran tercatat sekali, benar, dan tidak bisa hilang walau jaringan goyah.
   - **Ref:** TECH_SPEC §5 & §9 ART-3 · RPC resmi: `batal_pesanan`, `batal_item`
-  - **File:** `supabase/migrations/0038_bayar_pesanan.sql`, `supabase/tes/bayar.sql`
-  - **DoD:** memvalidasi status pesanan, jumlah bayar ≥ total (kecuali dicatat sebagai kurang), menghitung kembalian lewat `hitung_total()`, menulis catatan audit, idempoten (kunci sama = satu pembayaran); uji lulus.
+  - **File:** `supabase/migrations/0039_bayar_pesanan.sql`, `supabase/tes/bayar_pesanan.sql`
+    (nomor migrasi digeser: `0038` sudah terpakai `waktu_peladen.sql`; nama berkas uji
+    mengikuti nama RPC agar sejalan dengan `alat/uji-mutasi-0039.py`)
+  - **DoD:** memvalidasi status pesanan, menjaga total dibayar ≤ total pesanan
+    (pembayaran "kurang" = pembayaran SEBAGIAN yang sah, pesanan belum lunas; uang
+    melebihi total ditolak — pagar `picu_pembayaran_jujur` 0010, dipertahankan),
+    kembalian dihitung peladen (`diterima − jumlah`, dihitung ulang pemicu 0010 dan
+    dibaca balik lewat `RETURNING` — bukan `hitung_total()`, yang hanya menulis kolom
+    uang pesanan), menulis catatan audit, idempoten (kunci sama = satu pembayaran),
+    kunci baris pesanan anti balap dua kasir, memajukan pesanan ke `lunas` tepat saat
+    total tertutup; uji lulus.
   - **Kompleksitas:** besar (5 jam)
-  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3) & State Machine (ART-4); uang tidak cocok → mitigasi: kembalian dihitung peladen, uji 8 kasus.
-  - **Verifikasi:** uji SQL 8 kasus (uang pas, lebih, kurang, metode berbeda, dobel tekan).
+  - **Risiko & mitigasi:** ⚠️ `DECISIONS_LOG.md` diperbarui — Area: Kalkulasi Keuangan (ART-3) & State Machine (ART-4); uang tidak cocok → mitigasi: kembalian dihitung peladen, uji 14 kelompok asersi.
+  - **Verifikasi:** uji SQL `bayar_pesanan.sql` (uang pas, uang lebih → kembalian, uang kurang/lebih dari total → ditolak, metode tunai vs non-tunai, dobel tekan) + bukti mutasi `alat/uji-mutasi-0039.py` 6/6 MERAH.
 
 - [ ] T5-03 — Pajak & service tampil terpisah di struk
   - **Tujuan:** pelanggan melihat rincian yang benar; owner bisa menjelaskan pajak.

@@ -164,6 +164,12 @@ jobs:
       - name: Bukti mutasi waktu peladen 0038 (KDS — jam peladen, bukan jam perangkat)
         run: python3 alat/uji-mutasi-0038.py
 
+      - name: Bukti mutasi bayar_pesanan 0039 (T5-02 — pintu tunggal uang masuk)
+        run: python3 alat/uji-mutasi-0039.py
+
+      - name: Bukti mutasi urutan rantai audit 0040 (anti seri satu transaksi)
+        run: python3 alat/uji-mutasi-0040.py
+
       - name: Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka)
         run: |
           python3 -m pip install --quiet --break-system-packages pgserver "psycopg[binary]"

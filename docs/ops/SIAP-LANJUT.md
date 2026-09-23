@@ -10,12 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0cb7f-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0cb7f-resto-barokah`
-- **Commit keadaan kerja:** `ab446744dabb8c388a2ce7bb44fe371e1a27b3a2`
+- **Commit keadaan kerja:** `574662a97a35fb0373e2f038154aa165c8c2df63`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit ab446744 — periksa lagi setelah push)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (1 run, commit 574662a9)
 - **Ditulis:** 2026-09-23 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -29,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **0** — (tidak ada)
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (113 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (206 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (114 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (207 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -111,9 +110,27 @@ JANGAN merge apa pun tanpa keputusan Lee.
    dijalankan lokal sebelum push.
 9. **URUTAN BERIKUTNYA:** (a) infra e2e Playwright (`aplikasi/uji/e2e/dapur.spec.ts` — berkasnya belum dibuat) — butuh dependensi dev baru + langkah CI baru (ingat: setiap perintah CI
    baru WAJIB didaftarkan di `GERBANG_WAJIB` + `periksa-semua.sh`, kalau tidak CI merah sendiri);
-   (b) Fase 5 pembayaran multimode/split bill/struk termal/buka-tutup shift.
+   (b) Fase 5 sisa: **T5-01 layar Bayar** + **T5-03 struk** (pintu uangnya sudah ada, lihat butir 10),
+   lalu pembayaran multimode/split bill/struk termal/buka-tutup shift.
    **Bukti manual/visual T4-03, T4-05, T4-10 tetap milik Lee** (agent tidak bisa memotret layar
    atau mencabut kabel jaringan).
+10. **T5-02 RPC `bayar_pesanan` = SELESAI (batch 2026-09-23).** Pintu tunggal uang masuk ada di
+    `supabase/migrations/0039_bayar_pesanan.sql` (kunci baris pesanan, pagar peran DI DALAM fungsi,
+    kembalian dihitung peladen, idempoten, memajukan pesanan ke `lunas`, jejak audit, kode galat
+    **BY-301**). Bukti: `supabase/tes/bayar_pesanan.sql` + `alat/uji-mutasi-0039.py` **6/6 MERAH**;
+    suite SQL **81 lulus**. Dasar: `docs/DECISIONS_LOG.md` [Fase 5/2026-09-23].
+11. **CACAT FONDASI DITUTUP: urutan rantai hash audit (migrasi `0040_urutan_rantai_audit.sql`).**
+    `catatan_audit.waktu` memakai `now()` = waktu mulai transaksi, jadi dua baris audit dalam SATU
+    transaksi selalu seri waktunya dan urutan rantai ditentukan UUID acak → pemeriksa rantai bisa
+    melaporkan "tautan terputus" padahal tidak ada yang diubah (terukur 7 dari 12 run merah saat uji
+    T5-02 ditulis). Kini rantai diurutkan kolom `urutan bigserial` yang diterbitkan peladen; payload
+    hash tidak berubah sehingga hash lama tetap sah. Bukti: `supabase/tes/urutan_rantai_audit.sql`
+    + `alat/uji-mutasi-0040.py` **4/4 MERAH**. Dasar: `docs/DECISIONS_LOG.md` [Fase 5/2026-09-23].
+12. **Yang diukur dan TIDAK jadi diuji (jangan diulang):** kunci baris `for update` di 0039 tidak bisa
+    dibuktikan dengan mutasi karena `picu_pembayaran_jujur` (0012) mengunci baris pesanan yang sama saat
+    INSERT — diukur langsung dua koneksi nyata (pgserver): pekerja tetap tertahan di pemicu, bukti
+    `pg_stat_activity` wait_event `transactionid`, CONTEXT "while locking tuple (0,4) in relation
+    pesanan". Jadi kunci 0039 adalah pagar lapis kedua; alasan lengkap di kepala `alat/uji-mutasi-0039.py`.
 
 ### Riwayat penutup §3 (jangan dijadikan rencana)
 

@@ -93,6 +93,8 @@ GERBANG_WAJIB = [
      r"python3 alat/uji-mutasi-0037\.py"),
     ("bukti mutasi waktu peladen 0038 (KDS — jam peladen)",
      r"python3 alat/uji-mutasi-0038\.py"),
+    ("bukti mutasi bayar_pesanan 0039 (T5-02)", r"python3 alat/uji-mutasi-0039\.py"),
+    ("bukti mutasi urutan rantai audit 0040", r"python3 alat/uji-mutasi-0040\.py"),
     ("pasang pustaka uji concurrency nyata (pip pgserver+psycopg)",
      r"python3 -m pip install.*pgserver.*"),
     ("uji concurrency nyata 2 koneksi (PostgreSQL pgserver)",

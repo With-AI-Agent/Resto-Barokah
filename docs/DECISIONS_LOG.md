@@ -1811,3 +1811,51 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - `python3 alat/periksa-bantuan.py` + `--uji-diri` LOLOS (11/11 layar berpanduan).
 - Seluruh **62 perintah** langkah CI "Pemeriksa fondasi…" LOLOS lokal.
 - Kalibrasi uji baru: mutasi `angka()` (biarkan NaN lolos) → 2 uji MERAH; dikembalikan.
+
+### [Fase 5/2026-09-23] bayar_pesanan menjadi pintu tunggal uang masuk (T5-02)
+- **Area:** Kalkulasi Keuangan (ART-3) & State Machine (ART-4)
+- **Keputusan:** satu RPC `public.bayar_pesanan(pesanan_id, metode_id, jumlah, diterima, referensi, kunci_idempoten)`
+  di migrasi `0039_bayar_pesanan.sql` menjadi satu-satunya pintu yang dianjurkan untuk mencatat uang masuk.
+  Yang ia kerjakan: (1) kunci baris pesanan `for update` sebelum memeriksa apa pun; (2) validasi peran
+  pemanggil (`owner_pusat`/`admin_cabang`/`kasir`) DI DALAM fungsi; (3) metode bayar dicari di resto
+  PEMANGGIL, pesanan dicari di resto PESANAN; (4) tunai → `diterima` wajib dan kembalian dihitung peladen,
+  non-tunai → `referensi` wajib; (5) batas `total_dibayar + jumlah ≤ total` dengan kode galat **BY-301**;
+  (6) idempoten per `(pesanan_id, kunci_idempoten)`; (7) pesanan dimajukan ke `lunas` + stempel
+  `dibayar_pada` tepat saat total tertutup, di transaksi yang sama; (8) satu baris `catatan_audit`
+  per pembayaran baru. Balasan memakai amplop TECH_SPEC §5 (`berhasil`/`kode`/`pesan`) + rincian uang.
+- **Alasan:** pagar baris uang sudah ada di `picu_pembayaran_jujur` (0010, beku) dan tetap berlaku — tetapi
+  tidak ada satu pintu pun yang menolak dua pembayaran SERENTAK yang jumlahnya kalau dijumlah melebihi total,
+  yang memajukan status ke `lunas` tepat waktu, dan yang menulis jejak. Kasir yang menulis baris langsung
+  bisa mendapat tiga masalah itu sekaligus. Pagar peran ditulis di dalam fungsi karena RPC ini
+  `SECURITY DEFINER`: kebijakan RLS `pembayaran_tambah` TIDAK berlaku di dalamnya (tanpa pagar itu dapur
+  dan pelayan bisa mencatat uang — terbukti saat uji pertama berkas `bayar_pesanan.sql` ditulis).
+  Kembalian TIDAK dihitung lewat `hitung_total()`: fungsi itu hanya penulis kolom uang pesanan (keputusan
+  2026-09-16); kembalian = `diterima − jumlah`, dihitung ulang oleh pemicu 0010 dan dibaca balik RPC lewat
+  `RETURNING` sehingga balasan tidak pernah berbeda dari jejak yang tersimpan.
+- **File terkait:** `supabase/migrations/0039_bayar_pesanan.sql`, `supabase/tes/bayar_pesanan.sql`,
+  `alat/uji-mutasi-0039.py` (6 mutasi wajib MERAH), `docs/ROADMAP.md` T5-02
+- **Implikasi:** layar Bayar (T5-01) dan struk (T5-03) WAJIL memanggil RPC ini, bukan `insert` ke
+  `pembayaran`. Kode BY-301 adalah satu-satunya penanda bahwa yang menolak adalah pintu ini (pemicu 0010
+  punya pesan serupa tanpa kode) — jangan menyalin pesannya tanpa kodenya. Pembayaran "kurang dari total"
+  BUKAN keadaan gagal: itu pembayaran sebagian yang sah dan pesanan tetap belum lunas.
+
+### [Fase 5/2026-09-23] Rantai hash audit diurutkan kolom `urutan`, bukan jam (menutup cacat 0029)
+- **Area:** Jejak Audit (T1-13/T1-27) — menyentuh semua fitur yang menulis `catatan_audit`
+- **Keputusan:** migrasi `0040_urutan_rantai_audit.sql` menambah `catatan_audit.urutan bigserial NOT NULL`,
+  menerbitkannya dari pemicu (nilai kiriman klien ditimpa), dan mengubah `hitung_hash_catatan_audit()`
+  serta `verifikasi_rantai_audit()` agar menelusuri rantai lewat `urutan`. Payload hash TIDAK diubah, jadi
+  hash baris lama tetap sah.
+- **Alasan:** `waktu` memakai `now()` = WAKTU MULAI TRANSAKSI. Dua baris audit yang ditulis dalam SATU
+  transaksi selalu berbagi `waktu` yang sama persis, sehingga urutan ditentukan pemecah seri `id` (UUID acak):
+  pembangun mengambil induk lewat `waktu desc, id desc`, pemeriksa berjalan lewat `waktu asc, id asc`.
+  Bila UUID baris kedua lebih kecil, pemeriksa mulai dari baris yang `hash_sebelumnya`-nya bukan GENESIS dan
+  melaporkan rantai PUTUS padahal tidak ada bit yang diubah. Terukur saat menulis uji T5-02: **7 dari 12
+  run merah** dengan pesan "Tautan rantai terputus pada baris ke-1". Jalur nyata yang sudah menulis lebih
+  dari satu baris per transaksi: `keluar_mode_dukungan` (0031, satu baris per penyewa) dan `bayar_pesanan`
+  (0039). `clock_timestamp()` tidak dipakai karena masih bisa seri pada INSERT banyak baris satu pernyataan.
+- **File terkait:** `supabase/migrations/0040_urutan_rantai_audit.sql`, `supabase/tes/urutan_rantai_audit.sql`,
+  `alat/uji-mutasi-0040.py` (4 mutasi wajib MERAH)
+- **Implikasi:** siapa pun yang menambah penulis jejak baru tidak perlu lagi khawatir jumlah baris per
+  transaksi. Jangan mengurutkan rantai audit dengan `waktu` di laporan/kueri ad-hoc — pakai `urutan`.
+  Kolom `urutan` adalah teknis dan SENGAJA tidak ikut di-hash; `waktu` tetap disimpan, tetap di-hash, dan
+  tetap yang tampil ke pengguna.
