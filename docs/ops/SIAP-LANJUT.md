@@ -7,14 +7,13 @@
 
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
-- **Cabang yang dilanjutkan:** `arena/01a0cb7f-resto-barokah`
+- **Cabang yang dilanjutkan:** `arena/01a0cca9-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
-- **Ditulis oleh sesi:** `arena/01a0cb7f-resto-barokah`
-- **Commit keadaan kerja:** `db6e64ca6b77157588d3cb1cff3542e4a94d9396`
-- **PR:** PR #3 (base main)
-PR #2 (base main)
-PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 35819761987, commit db6e64ca) — tunggu sampai selesai
+- **Ditulis oleh sesi:** `arena/01a0cca9-resto-barokah`
+- **Commit keadaan kerja:** `227a51b1f451f0fad055ebf67405e6848d3c10fc`
+- **PR:** HTTP 401: Bad credentials (https://api.github.com/graphql)
+Try authenticating with:  gh auth login — **JANGAN MERGE tanpa keputusan Lee**
+- **CI terakhir:** (status CI tidak terbaca dari sini — periksa di GitHub)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-23 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -27,9 +26,9 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
 - Posisi proyek: lihat `PROJECT_STATE.md` (STATUS + PUTARAN terakhir) dan `STATUS.md`.
 - Bukti terakhir yang hijau: `node alat/uji-sql.mjs` · `python3 alat/uji-mutasi-0012.py` ·
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
-- Butir tertangguh terbuka: **0** — (tidak ada)
+- Butir tertangguh terbuka: **1** — T-026
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (118 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (211 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -43,12 +42,12 @@ Sesi baru di platform ini mulai dari `main`, sedangkan pekerjaan ada di cabang s
 Jalankan (tanpa memindahkan cabang sesimu):
 
 ```
-git fetch origin arena/01a0cb7f-resto-barokah:refs/remotes/origin/kerja-terakhir
+git fetch origin arena/01a0cca9-resto-barokah:refs/remotes/origin/kerja-terakhir
 git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py      # cetak KARTU SESI, lalu LAPORKAN ke Lee
 ```
 
-Cabang `arena/01a0cb7f-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
+Cabang `arena/01a0cca9-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
 LAIN: saat membuka chat baru, ia menulis pilihannya di baris pertama `PROMPT_SESI_BARU.md` — dan baris
 itu yang **MENANG** bila berbeda dengan handoff ini. Laporkan bedanya, lalu rapikan catatan handoff
 dengan `python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang>`. Sesi yang belum pernah di-push
@@ -65,12 +64,49 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 **Base branch bila Lee membuka sesi baru lagi di Arena:** pilih cabang yang disebut di §1
-(`arena/01a0cb7f-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
+(`arena/01a0cca9-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-23, `arena/01a0cb7f` — pintu "baca pro.md"):**
+**KEADAAN SESI INI (2026-09-23 sesi kedua, `arena/01a0cca9` — MODE MARATON Fase 5):**
+
+0. **BACA DULU — SATU HAL YANG BELUM SELESAI: commit `227a51b` BELUM TER-PUSH.** Token GitHub
+   kedaluwarsa di akhir sesi (`gh auth status` → "The github.com token in GH_TOKEN is no longer
+   valid"; `git push` menolak dengan "could not read Username"). Pekerjaannya **aman sebagai commit
+   lokal** di cabang `arena/01a0cca9-resto-barokah`. **Langkah pertama sesi baru:** minta Lee
+   menyambungkan ulang GitHub di Arena, lalu `git push origin arena/01a0cca9-resto-barokah`, lalu
+   periksa CI commit terakhir sebelum memulai pekerjaan baru. Jangan mengulang pekerjaannya —
+   cek `git log` dulu.
+0b. **FASE 5 YANG SUDAH SELESAI di sesi ini (jangan dikerjakan ulang):** **T5-01 sambungan**
+   (`e8baf2c`), **T5-03 struk** (`66312f9`), **T5-04 diskon** (`227a51b`).
+   Sisa Fase 5 menurut `docs/ROADMAP.md`: struk termal, buka/tutup shift, dan butir lain yang
+   belum `[x]`.
+0c. **T5-04 — pelajaran yang mahal, jangan diulang:** pagar diskon **sudah ada** sejak
+   `0019_pesan_diskon_jujur.sql` (`picu_diskon_batas()`; cap kumulatif dari `0014`), jadi TIDAK
+   dibuat migrasi baru — dua tempat yang mengatur uang berarti dua tempat yang bisa berbeda.
+   Nomor migrasi yang tertulis di ROADMAP adalah rencana lama, bukan perintah (`0039_diskon.sql`
+   sudah terpakai `bayar_pesanan`). **Sebelum menulis migrasi untuk butir ROADMAP mana pun,
+   periksa dulu apakah aturannya sudah hidup di migrasi lama.** Yang ditambah: bukti —
+   `supabase/tes/diskon_tumpuk.sql` + `alat/uji-mutasi-0019.py` (5/5 MERAH).
+0d. **Jebakan uji diskon (sudah dua kali memakan korban):** asersi "total diskon melebihi subtotal"
+   mudah jadi hijau-palsu karena satu baris diskon besar lebih dulu ditahan pagar **batas izin**
+   (owner pun berbatas 20 %), sehingga pagar subtotal tak pernah tersentuh. Cara yang benar:
+   tumpuk menyala + cap resto 100 % + penambahan **bertahap**. Ketahuan hanya karena uji mutasi —
+   ini alasan uji mutasi tidak boleh dilewati.
+0e. **T-026 TERBUKA (butuh jawaban Lee):** infra e2e Playwright. Chromium **tidak bisa diunduh**
+   di ruang kerja agent — dicoba dua cara 2026-09-23 dan dua-duanya gagal (paket sistem tak
+   tersedia; "Download failure code=1"). Karena itu langkah CI e2e **tidak** ditambahkan: menambah
+   perintah CI yang tidak bisa dijalankan lokal melanggar paritas CI dan membuat CI merah sendiri.
+   `T11-01`/`T11-11` di ROADMAP ditandai ❓ T-026. Pilihan untuk Lee ada di `docs/TERTANGGUH.md`.
+0f. **Bukti akhir sesi ini:** aplikasi **330 tes LULUS** · suite SQL **83 LULUS · 0 GAGAL** ·
+   `uji-mutasi-app.mjs` 14/14 MERAH · `uji-mutasi-0019.py` 5/5 MERAH · gerbang & paritas CI LOLOS
+   (**109 perintah**) · `periksa-rujukan.py`/`periksa-bersih.py`/`periksa-roadmap.py` LOLOS ·
+   `bash aplikasi/alat/periksa-semua.sh` hijau pada seluruh pemeriksa kode.
+
+---
+
+**KEADAAN SESI SEBELUMNYA (2026-09-23, `arena/01a0cb7f` — pintu "baca pro.md"):**
 
 1. **Pindah sesi SUDAH terjadi.** Sesi ini dibuka dari `arena/01a0c97c` dan bekerja di cabang sendiri
    `arena/01a0cb7f-resto-barokah`. Handoff di atas kini menunjuk cabang ini (`--lanjut-dari`).

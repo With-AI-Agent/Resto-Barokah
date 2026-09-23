@@ -11,4 +11,8 @@ Ringkasan keadaan kerja untuk sesi berikutnya. Rincian rencana ada di
 
 **Pekerjaan belum tersimpan:** Tidak ada
 
-**Waktu pembaruan:** 2026-09-22 — Fase 4 (KDS + Stok + anti-dobel) tuntas di kode & uji; sisa bukti manual menunggu Lee
+> **Catatan (2026-09-23):** semua pekerjaan sudah ter-*commit* (karena itu field di atas "Tidak ada"),
+> tetapi commit `227a51b` **belum ter-*push*** — token GitHub kedaluwarsa di akhir sesi. Sesi
+> berikutnya: sambungkan ulang GitHub, lalu `git push origin arena/01a0cca9-resto-barokah`.
+
+**Waktu pembaruan:** 2026-09-23 — Fase 5: T5-01/T5-03/T5-04 selesai (330 tes aplikasi, 83 uji SQL, mutasi 0019 5/5 MERAH); T-026 Playwright menunggu Lee
