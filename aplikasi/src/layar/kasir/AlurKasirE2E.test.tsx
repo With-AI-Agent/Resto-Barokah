@@ -17,9 +17,14 @@ describe('Uji Alur Kasir Ujung-ke-Ujung (T3-14)', () => {
     const onKirimKeDapurMock = vi.fn().mockResolvedValue({
       sukses: true,
     })
-    const onBayarPesananMock = vi.fn().mockResolvedValue({
-      sukses: true,
-      kembalian: 22000,
+    // T5-01: uang lewat `onBayar` (RPC `bayar_pesanan`), balasannya angka peladen.
+    const onBayarMock = vi.fn().mockResolvedValue({
+      jumlah: 13800,
+      kembalian: 36200,
+      totalDibayar: 13800,
+      totalPesanan: 13800,
+      lunas: true,
+      dobel: false,
     })
 
     render(
@@ -29,7 +34,10 @@ describe('Uji Alur Kasir Ujung-ke-Ujung (T3-14)', () => {
           namaCabang="Cabang Barokah Utama"
           onSimpanPesanan={onSimpanPesananMock}
           onKirimKeDapur={onKirimKeDapurMock}
-          onBayarPesanan={onBayarPesananMock}
+          metodeBayar={[
+            { id: 'm-tunai', nama: 'Tunai', jenis: 'tunai', butuhReferensi: false, urutan: 1 },
+          ]}
+          onBayar={onBayarMock}
         />
       </PenyediaBahasa>,
     )
@@ -73,12 +81,19 @@ describe('Uji Alur Kasir Ujung-ke-Ujung (T3-14)', () => {
 
     expect(screen.getByText('Pembayaran Transaksi Kasir')).toBeDefined()
 
-    // 7. Eksekusi bayar tunai
-    const tombolSelesaikan = screen.getByRole('button', { name: /Selesaikan Pembayaran & Tutup/i })
-    fireEvent.click(tombolSelesaikan)
+    // 7. Eksekusi bayar tunai: uang diterima → tinjau → catat
+    fireEvent.click(screen.getByText('Rp50.000'))
+    fireEvent.click(screen.getByText('Tinjau pembayaran'))
+    fireEvent.click(screen.getByText('Ya, catat pembayaran'))
 
     await waitFor(() => {
-      expect(onBayarPesananMock).toHaveBeenCalled()
+      expect(onBayarMock).toHaveBeenCalled()
+    })
+    // Uang yang dicatat = total tagihan menurut kasir, bukan uang yang diterima.
+    expect(onBayarMock.mock.calls[0][0]).toMatchObject({
+      metodeId: 'm-tunai',
+      jumlah: 13800,
+      diterima: 50000,
     })
   })
 })

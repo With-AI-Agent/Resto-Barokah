@@ -42,11 +42,25 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
   })
 
   it('menjalankan alur pembayaran tunai dan menyelesaikan transaksi pesanan', async () => {
-    const onBayarMock = vi.fn().mockResolvedValue({ sukses: true, kembalian: 0 })
+    // Sejak T5-01 uang dicatat lewat `onBayar` (pintu RPC `bayar_pesanan`),
+    // dan metode bayar datang dari kontainer — bukan daftar keras-kode layar.
+    const onBayarMock = vi.fn().mockResolvedValue({
+      jumlah: 13800,
+      kembalian: 36200,
+      totalDibayar: 13800,
+      totalPesanan: 13800,
+      lunas: true,
+      dobel: false,
+    })
 
     render(
       <PenyediaBahasa>
-        <LayarKasir onBayarPesanan={onBayarMock} />
+        <LayarKasir
+          metodeBayar={[
+            { id: 'm-tunai', nama: 'Tunai', jenis: 'tunai', butuhReferensi: false, urutan: 1 },
+          ]}
+          onBayar={onBayarMock}
+        />
       </PenyediaBahasa>,
     )
 
@@ -56,12 +70,14 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
     // Klik tombol Bayar Pesanan
     fireEvent.click(screen.getByRole('button', { name: /Bayar Pesanan/i }))
 
-    // Modal pembayaran terbuka
+    // Modal pembayaran terbuka, metodenya dari kontainer
     expect(screen.getByText('Pembayaran Transaksi Kasir')).toBeDefined()
-    expect(screen.getByRole('button', { name: /Uang Tunai/i })).toBeDefined()
+    expect(screen.getByTestId('metode-Tunai')).toBeDefined()
 
-    // Klik tombol Selesaikan Pembayaran
-    fireEvent.click(screen.getByRole('button', { name: /Selesaikan Pembayaran & Tutup/i }))
+    // Isi uang diterima, tinjau, lalu catat
+    fireEvent.click(screen.getByText('Rp50.000'))
+    fireEvent.click(screen.getByText('Tinjau pembayaran'))
+    fireEvent.click(screen.getByText('Ya, catat pembayaran'))
 
     await waitFor(() => {
       expect(onBayarMock).toHaveBeenCalled()

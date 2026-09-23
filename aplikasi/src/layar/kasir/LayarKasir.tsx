@@ -1,13 +1,30 @@
+/**
+ * LayarKasir — terminal POS kasir (Fase 3) yang kini memakai layar Bayar (T5-01).
+ *
+ * **Perubahan penting (2026-09-23):** modal pembayaran lama dibuang. Dulu berkas
+ * ini mengeras-kodekan tiga metode ('tunai' | 'qris' | 'kartu'), sehingga metode
+ * yang dinonaktifkan pemilik tetap tampil dan metode baru mustahil muncul tanpa
+ * koding. Sekarang:
+ *  - daftar metode datang dari kontainer (`useBayar` → tabel `metode_bayar`,
+ *    hanya `aktif = true`) dan diteruskan apa adanya ke `Bayar.tsx`;
+ *  - uang dicatat lewat `onBayar`, yang di produksi dipasang ke RPC
+ *    `bayar_pesanan` (migrasi 0039) — pintu tunggal uang masuk, idempoten;
+ *  - kembalian yang ditampilkan sesudah pembayaran adalah ANGKA PELADEN, bukan
+ *    hasil kurang-kurangan di layar;
+ *  - keranjang HANYA dikosongkan setelah tagihan benar-benar lunas dan kasir
+ *    menekan Selesai (pembayaran sebagian tidak boleh menghapus pesanan).
+ *
+ * Berkas ini tetap kontainer UI murni: tidak ada jaringan di dalamnya.
+ */
 import { useState } from 'react'
 import { Tombol } from '../../komponen/Tombol'
 import { Lapis } from '../../komponen/Lapis'
 import { KolomIsian } from '../../komponen/KolomIsian'
-import { rupiah } from '../../lib/format'
-import { formatPesanError } from '../../lib/pesan'
 import { Katalog, type MenuItemData, type VarianItem, type TambahanItem } from './Katalog'
 import { Keranjang, type ItemKeranjang, type RingkasanUang } from './Keranjang'
 import { PemilihMeja, type MejaData, type TipePesanan } from './PemilihMeja'
 import { TagihanTerbuka } from './TagihanTerbuka'
+import { Bayar, type BarisTagihan, type HasilBayar, type MetodeBayar, type Tagihan } from './Bayar'
 
 export interface LayarKasirProps {
   cabangId?: string
@@ -16,21 +33,41 @@ export interface LayarKasirProps {
     pesananData: unknown,
   ) => Promise<{ sukses: boolean; pesananId?: string; pesan?: string }>
   onKirimKeDapur?: (pesananId: string) => Promise<{ sukses: boolean; pesan?: string }>
-  onBayarPesanan?: (
-    pesananId: string,
-    metode: string,
-    jumlahBayar: number,
-  ) => Promise<{ sukses: boolean; kembalian?: number; pesan?: string }>
+  /** Id tagihan yang sedang dibayar; kontainer yang menentukannya. */
+  pesananId?: string
+  nomorTagihan?: number
+  /** Metode bayar AKTIF dari peladen. Layar tidak punya daftar bawaan. */
+  metodeBayar?: MetodeBayar[]
+  keadaanBayar?: 'memuat' | 'gagal' | 'siap' | 'mengirim' | 'berhasil'
+  pesanBayar?: string | null
+  /** Hasil pembayaran SAH dari peladen (RPC `bayar_pesanan`). */
+  terakhirBayar?: BarisTagihan | null
+  /** Pintu tunggal pencatatan uang — dipasang ke `useBayar().bayar`. */
+  onBayar?: (masukan: {
+    metodeId: string
+    jumlah: number
+    diterima?: number | null
+    referensi?: string | null
+  }) => Promise<HasilBayar | null> | void
+  /** Kasir menutup struk: kontainer mengembalikan keadaan ke `siap`. */
+  onSelesaiBayar?: () => void
+  onCobaBayar?: () => void
 }
-
-const PECAHAN_UANG_CEPAT = [20000, 50000, 100000, 150000, 200000]
 
 export function LayarKasir({
   cabangId = 'cab-01',
   namaCabang = 'Cabang Utama',
   onSimpanPesanan = async () => ({ sukses: true, pesananId: 'ord-new' }),
   onKirimKeDapur = async () => ({ sukses: true }),
-  onBayarPesanan = async () => ({ sukses: true, kembalian: 0 }),
+  pesananId = 'ord-current',
+  nomorTagihan = 1,
+  metodeBayar = [],
+  keadaanBayar = 'siap',
+  pesanBayar = null,
+  terakhirBayar = null,
+  onBayar,
+  onSelesaiBayar,
+  onCobaBayar,
 }: LayarKasirProps) {
   // Keranjang State
   const [daftarItemKeranjang, setDaftarItemKeranjang] = useState<ItemKeranjang[]>([])
@@ -48,12 +85,6 @@ export function LayarKasir({
   const [bukaOpenBillModal, setBukaOpenBillModal] = useState(false)
   const [bukaBayarModal, setBukaBayarModal] = useState(false)
   const [bukaVoucherModal, setBukaVoucherModal] = useState(false)
-
-  // Payment State
-  const [metodeBayar, setMetodeBayar] = useState<'tunai' | 'qris' | 'kartu'>('tunai')
-  const [uangDiterima, setUangDiterima] = useState<string>('')
-  const [sedangBayar, setSedangBayar] = useState(false)
-  const [pesanHasilBayar, setPesanHasilBayar] = useState<string | null>(null)
 
   // Voucher State
   const [kodeVoucherInput, setKodeVoucherInput] = useState('')
@@ -195,37 +226,28 @@ export function LayarKasir({
   }
 
   const tanganiMulaiBayar = () => {
-    setUangDiterima(String(total))
-    setPesanHasilBayar(null)
     setBukaBayarModal(true)
   }
 
-  const tanganiEksekusiBayar = async () => {
-    const nominal = Number(uangDiterima.replace(/\D/g, '')) || 0
-    if (metodeBayar === 'tunai' && nominal < total) {
-      setPesanHasilBayar('Uang tunai yang diterima kurang dari total tagihan.')
-      return
-    }
+  /** Tagihan yang diserahkan ke layar Bayar; totalnya dari ringkasan kasir. */
+  const tagihanAktif: Tagihan = {
+    id: pesananId,
+    nomor: nomorTagihan,
+    total,
+    sudahDibayar: terakhirBayar ? terakhirBayar.totalDibayar : 0,
+  }
 
-    setSedangBayar(true)
-    setPesanHasilBayar(null)
-    try {
-      const res = await onBayarPesanan('ord-current', metodeBayar, nominal)
-      if (res.sukses) {
-        const kembalian = res.kembalian ?? Math.max(0, nominal - total)
-        alert(`Pembayaran Sukses!\nKembalian: ${rupiah(kembalian)}`)
-        setDaftarItemKeranjang([])
-        setDiskonAktif(0)
-        setBukaBayarModal(false)
-      } else {
-        setPesanHasilBayar(res.pesan || 'Pembayaran gagal diproses.')
-      }
-    } catch {
-      const err = formatPesanError('JARINGAN_TERPUTUS')
-      setPesanHasilBayar(`${err.judul}: ${err.pesan}`)
-    } finally {
-      setSedangBayar(false)
+  /**
+   * Kasir menutup struk. Keranjang HANYA dikosongkan bila tagihan sudah lunas —
+   * pembayaran sebagian harus menyisakan pesanan supaya sisanya bisa ditagih.
+   */
+  const tanganiSelesaiBayar = () => {
+    if (terakhirBayar?.lunas) {
+      setDaftarItemKeranjang([])
+      setDiskonAktif(0)
+      setBukaBayarModal(false)
     }
+    onSelesaiBayar?.()
   }
 
   const tanganiKlaimVoucher = () => {
@@ -334,124 +356,25 @@ export function LayarKasir({
         </Lapis>
       )}
 
-      {/* Modal Pembayaran Transaksi */}
+      {/* Layar Bayar (T5-01) — metode & pencatatan uang milik `Bayar.tsx`.
+          Layar kasir tidak lagi punya daftar metode sendiri. */}
       {bukaBayarModal && (
         <Lapis
           buka={true}
           onTutup={() => setBukaBayarModal(false)}
           judul="Pembayaran Transaksi Kasir"
         >
-          <div className="p-4 space-y-4 max-w-lg mx-auto">
-            {pesanHasilBayar && (
-              <div
-                role="alert"
-                className="p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-xs font-medium"
-              >
-                {pesanHasilBayar}
-              </div>
-            )}
-
-            {/* Total Tagihan Besar */}
-            <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-center">
-              <div className="text-xs text-emerald-800 font-semibold uppercase tracking-wider">
-                Total Tagihan yang Harus Dibayar
-              </div>
-              <div className="text-3xl font-extrabold text-emerald-950 mt-1">{rupiah(total)}</div>
-            </div>
-
-            {/* Pilihan Metode Bayar */}
-            <div>
-              <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-2">
-                Pilih Metode Pembayaran:
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                <Tombol
-                  ragam={metodeBayar === 'tunai' ? 'utama' : 'biasa'}
-                  onClick={() => setMetodeBayar('tunai')}
-                >
-                  💵 Uang Tunai
-                </Tombol>
-
-                <Tombol
-                  ragam={metodeBayar === 'qris' ? 'utama' : 'biasa'}
-                  onClick={() => setMetodeBayar('qris')}
-                >
-                  📱 QRIS Dinamis
-                </Tombol>
-
-                <Tombol
-                  ragam={metodeBayar === 'kartu' ? 'utama' : 'biasa'}
-                  onClick={() => setMetodeBayar('kartu')}
-                >
-                  💳 Kartu Debit/Kredit
-                </Tombol>
-              </div>
-            </div>
-
-            {/* Form Nominal Tunai & Pecahan Cepat */}
-            {metodeBayar === 'tunai' && (
-              <div className="space-y-3 pt-2 border-t border-neutral-200">
-                <KolomIsian
-                  label="Jumlah Uang Tunai Diterima"
-                  jenis="text"
-                  nilai={uangDiterima ? rupiah(Number(uangDiterima.replace(/\D/g, '')) || 0) : ''}
-                  onUbah={(v) => setUangDiterima(v.replace(/\D/g, ''))}
-                  wajib
-                />
-
-                <div>
-                  <div className="text-xs text-neutral-500 mb-1 font-medium">
-                    Pecahan Uang Pas / Cepat:
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    <Tombol ragam="kecil" onClick={() => setUangDiterima(String(total))}>
-                      Uang Pas ({rupiah(total)})
-                    </Tombol>
-                    {PECAHAN_UANG_CEPAT.map((nominal) => (
-                      <Tombol
-                        key={nominal}
-                        ragam="kecil"
-                        onClick={() => setUangDiterima(String(nominal))}
-                      >
-                        {rupiah(nominal)}
-                      </Tombol>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Info Kembalian */}
-                {Number(uangDiterima) >= total && (
-                  <div className="p-3 bg-neutral-100 rounded-lg flex justify-between items-center text-sm">
-                    <span className="font-medium text-neutral-700">Uang Kembalian:</span>
-                    <span className="font-extrabold text-base text-neutral-900">
-                      {rupiah(Number(uangDiterima) - total)}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* QRIS Tampilan */}
-            {metodeBayar === 'qris' && (
-              <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200 text-center space-y-2">
-                <div className="w-40 h-40 mx-auto bg-white border border-neutral-300 rounded-lg flex items-center justify-center text-5xl">
-                  📱
-                </div>
-                <div className="text-xs text-neutral-600 font-medium">
-                  Tunjukkan QRIS ini kepada pelanggan. Saldo akan otomatis terverifikasi.
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-end gap-2 pt-3 border-t border-neutral-200">
-              <Tombol ragam="biasa" onClick={() => setBukaBayarModal(false)} nonaktif={sedangBayar}>
-                Batal
-              </Tombol>
-              <Tombol ragam="utama" onClick={tanganiEksekusiBayar} nonaktif={sedangBayar}>
-                {sedangBayar ? 'Memproses Transaksi...' : 'Selesaikan Pembayaran & Tutup'}
-              </Tombol>
-            </div>
-          </div>
+          <Bayar
+            tagihan={tagihanAktif}
+            metode={metodeBayar}
+            keadaan={keadaanBayar}
+            pesan={pesanBayar}
+            terakhir={terakhirBayar}
+            onBayar={onBayar}
+            onCoba={onCobaBayar}
+            onLanjut={tanganiSelesaiBayar}
+            onBatal={() => setBukaBayarModal(false)}
+          />
         </Lapis>
       )}
 

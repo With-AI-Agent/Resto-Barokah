@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PenyediaBahasa } from './bahasa'
 import { useSesi } from './hook/useSesi'
+import { useBayar } from './hook/useBayar'
 import { useStok } from './hook/useStok'
 import { useTiketDapur } from './hook/useTiketDapur'
 import { Rangka } from './komponen/Rangka'
@@ -18,6 +19,9 @@ export default function App() {
   const { sesi, sedangMasuk, masuk, keluar } = useSesi()
   const [layarAktif, setLayarAktif] = useState<string>('kasir')
   const cabangId = sesi?.cabangAktifId || 'cab-01'
+  // Tagihan yang sedang dilayani kasir. Untuk sekarang satu tagihan berjalan
+  // per terminal; pemilihan tagihan dari Open Bill menyusul bersama T5-03.
+  const [pesananAktifId, setPesananAktifId] = useState<string | null>(null)
   // Kabel data papan dapur & bar (sisa Fase 4 butir c): tiket nyata dari peladen,
   // waktu peladen (bukan jam perangkat), cadangan antrean saat jaringan putus,
   // dan aksi tulis lewat RPC. Komponen layar tetap murni — kontainer di sini.
@@ -26,11 +30,38 @@ export default function App() {
   // Kabel data stok & opname (T4-06/T4-07): saldo bahan, buku besar, dan aksi
   // tulis lewat RPC set_stok / opname_stok (selisih dihitung peladen).
   const stok = useStok()
+  // Kabel data pembayaran (T5-01): metode AKTIF dari peladen dan pencatatan uang
+  // lewat RPC `bayar_pesanan` (migrasi 0039). Layar kasir tidak lagi punya daftar
+  // metode sendiri dan tidak pernah menghitung kembalian yang disimpan.
+  const bayar = useBayar(pesananAktifId)
 
   const renderKonten = () => {
     switch (layarAktif) {
       case 'kasir':
-        return <LayarKasir cabangId={sesi?.cabangAktifId || 'cab-01'} />
+        return (
+          <LayarKasir
+            cabangId={cabangId}
+            pesananId={pesananAktifId ?? 'ord-current'}
+            metodeBayar={bayar.metode}
+            keadaanBayar={bayar.keadaan}
+            pesanBayar={bayar.pesan}
+            terakhirBayar={bayar.terakhir}
+            onBayar={bayar.bayar}
+            onCobaBayar={() => void bayar.muat()}
+            onSelesaiBayar={() => {
+              bayar.lanjut()
+              // Tagihan lunas selesai dilayani: terminal siap untuk tagihan baru.
+              if (bayar.terakhir?.lunas) setPesananAktifId(null)
+            }}
+            onSimpanPesanan={async (data) => {
+              // Penyimpanan pesanan nyata menyusul (T5-03); yang penting di sini
+              // id tagihan yang dipakai layar Bayar ikut diperbarui.
+              const hasil = (data as { pesananId?: string })?.pesananId ?? null
+              if (hasil) setPesananAktifId(hasil)
+              return { sukses: true, pesananId: hasil ?? 'ord-new' }
+            }}
+          />
+        )
       case 'pegawai':
         return <KelolaPegawai cabangAktifId={sesi?.cabangAktifId || 'cab-01'} />
       case 'pengaturan':
