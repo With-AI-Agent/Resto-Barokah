@@ -103,10 +103,24 @@ JANGAN merge apa pun tanpa keputusan Lee.
    mulai) + percabangan jujur di `LayarKasir.tsx`: tanpa prop `onBatalkanItem` keranjang tetap
    draf lokal; dengan prop itu, item **hanya** hilang setelah peladen menjawab berhasil.
    Bukti: **368 tes** aplikasi · `uji-mutasi-app.mjs` **24/24 MERAH** · SQL **84 LULUS**.
-0l. **Berikutnya T5-07** (void SESUDAH dapur mulai: PIN atasan + bahan terbuang). Pagar PIN-nya
-   juga sudah ada di `0015` — **periksa dulu seperti di 0j** sebelum menulis migrasi; yang
-   kemungkinan besar kurang adalah layar `VoidPasca.tsx` (rencana, belum dibuat) dan
-   perhitungan nilai bahan terbuang. Migrasi berikutnya bila memang perlu: **≥ 0042**.
+0l. **T5-07 SELESAI (batch keenam) — migrasi `0042_bahan_terbuang_jujur.sql`.** Dugaan di
+   butir sebelumnya benar sebagian: PIN atasan & nilai kerugian memang sudah terpasang di
+   `0015`. Yang **tidak pernah dijaga siapa pun** ternyata kolom `pembatalan.bahan_terbuang`
+   itu sendiri — ada sejak `0010`, dipakai laporan kerugian, nol pemicu memeriksanya. Kasir
+   bisa membatalkan pesanan yang **sudah dimasak** sambil mengirim `false`: sah, ber-PIN,
+   bernilai benar, tetapi kerugian bahannya **lenyap dari laporan selamanya**. Sekarang
+   penanda dihitung peladen dari tahap; kiriman bawaan ditimpa, kiriman bertentangan ditolak.
+   Layar `VoidPasca.tsx` **tidak dibuat** — `VoidItem.tsx` sudah menangani kedua tahap.
+0m. **JEBAKAN `berkas_berlaku` KAMBUH (kedua kalinya) — hafalkan:** `0042` menulis ulang utuh
+   `picu_pembatalan_sah()`, sehingga mutasi **M6** di `alat/uji-mutasi-0012.py` yang menyasar
+   `0015` tidak berpengaruh lagi (yang berlaku definisi TERAKHIR) → 16/16 turun 15/16.
+   Jangkarnya dipindah ke `0042` dan pulih. **Aturan: setiap kali sebuah fungsi ditulis ulang
+   di migrasi baru, SEMUA uji mutasi yang menyasarnya wajib ikut dipindahkan — dan sesudah
+   menambah migrasi, jalankan uji mutasi lama, jangan hanya suite SQL.**
+0n. **Berikutnya T5-08** (nomor HP pelanggan opsional untuk poin/voucher). Ini menyentuh
+   **data pribadi pelanggan**, jadi periksa dulu apakah PRD/keputusan terkunci sudah mengatur
+   penyimpanan & penghapusannya; bila belum jelas, itu Stop Condition (bukan dikarang sendiri).
+   Migrasi berikutnya: **≥ 0043**.
 
 
 

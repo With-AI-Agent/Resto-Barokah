@@ -1221,10 +1221,32 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4); mitigasi: aturan di database + laporan harian.
   - **Verifikasi:** uji SQL + uji manual.
 
-- [ ] T5-07 — Void setelah dapur mulai: PIN atasan + bahan terbuang ⚠️
+- [x] T5-07 — Void setelah dapur mulai: PIN atasan + bahan terbuang ⚠️
   - **Tujuan:** kerugian terlihat sebagai angka, bukan hilang diam-diam.
+  - **TEMUAN (2026-09-23):** separuh tugas ini sudah terpasang — PIN atasan wajib,
+    kupon terikat pesanan & sekali pakai, nilai kerugian dari salinan harga, semua
+    di `picu_pembatalan_sah()` (`0015`). Yang **tidak pernah dijaga siapa pun** adalah
+    kolom `pembatalan.bahan_terbuang` itu sendiri: ada sejak `0010`, dipakai laporan
+    kerugian, ikut dikirim di hampir semua jalur — tetapi **nol pemicu memeriksanya**.
+    Kasir bisa membatalkan pesanan yang makanannya sudah dimasak sambil mengirim
+    `bahan_terbuang = false`; barisnya sah, PIN-nya benar, nilainya benar, tetapi
+    kerugian bahannya **lenyap dari laporan selamanya** (tabel append-only).
+    Sebaliknya pembatalan pra-dapur bisa ditandai `true` dan memompa angka kerugian.
   - **Ref:** PRD M6 (dikunci pemilik); TECH_SPEC §9 ART-4
-  - **File:** `supabase/migrations/0042_void_pasca.sql`, `aplikasi/src/layar/kasir/VoidPasca.tsx`
+  - **File:** `supabase/migrations/0042_bahan_terbuang_jujur.sql`,
+    `supabase/tes/bahan_terbuang.sql`, `alat/uji-mutasi-0042.py`
+  - **Aturan yang dikunci:** `sebelum_dapur` → `false`, `sesudah_dapur` → `true`,
+    dihitung peladen dari tahap (dan tahap sendiri sudah dipaksa cocok dengan keadaan
+    pesanan, jadi tidak bisa diakali dengan mengirim tahap palsu). Kiriman bawaan
+    ditimpa; kiriman `true` yang bertentangan **ditolak** — pola sama persis dengan
+    `nilai_kerugian` sejak `0015`.
+  - **Bukti (2026-09-23):** suite SQL **85 LULUS · 0 GAGAL** · `uji-mutasi-0042.py`
+    **4/4 MERAH** · `uji-mutasi-0012.py` **16/16** (M6 dipindah ke `0042` — lihat catatan
+    jebakan) · gerbang & paritas CI LOLOS setelah perintah baru didaftarkan.
+  - **Catatan jujur:** layar `VoidPasca.tsx` yang direncanakan **tidak dibuat terpisah** —
+    `VoidItem.tsx` (T5-06) sudah menangani kedua tahap, termasuk peringatan "dapur sudah
+    mulai, wajib PIN atasan". Mengisi PIN-nya sendiri memakai alur persetujuan yang sama
+    dengan diskon; penyambungannya menunggu kontainer kasir tersambung peladen.
   - **DoD:** wajib PIN atasan/owner + alasan; nilai bahan terbuang dihitung dari harga saat itu; muncul di laporan harian sebagai kerugian; uji lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4) & Kalkulasi (ART-3); mitigasi: PIN + audit + laporan.

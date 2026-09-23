@@ -2024,3 +2024,43 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **Catatan jujur:** `onBatalkanItem` baru kontrak layar; kabel RPC-nya dipasang saat layar kasir
   tersambung peladen sungguhan (sama polanya seperti `onTerapkanDiskon` di T5-05). Tidak ada perintah
   CI baru — uji baru ikut terbawa `vitest run` dan `uji-mutasi-app.mjs` yang sudah terdaftar di gerbang.
+
+## [Kalkulasi/2026-09-23] "Bahan Terbuang" Ditentukan Peladen, Bukan Dititipkan Kasir (T5-07, migrasi 0042)
+
+- **Konteks:** T5-07 dijadwalkan membuat `0042_void_pasca.sql` + `VoidPasca.tsx`. Pemeriksaan
+  lebih dulu (kebiasaan yang dikunci di T5-06) menunjukkan **separuh tugasnya sudah terpasang**:
+  PIN atasan wajib, kupon terikat pesanan & sekali pakai, nilai kerugian dari salinan harga —
+  semuanya di `picu_pembatalan_sah()` (`0015`), dengan uji hijau.
+- **Cacat nyata yang ditemukan:** kolom `pembatalan.bahan_terbuang` ada sejak `0010`, dipakai
+  laporan kerugian, dan ikut dikirim di hampir semua jalur uji — tetapi **tidak ada satu pemicu
+  pun yang memeriksanya**. Yang dijaga hanya `nilai_kerugian`. Akibatnya persis kebalikan dari
+  tujuan T5-07 ("kerugian terlihat sebagai angka, bukan hilang diam-diam"):
+  (1) kasir membatalkan pesanan yang **sudah dimasak** sambil mengirim `bahan_terbuang = false` —
+  barisnya sah, PIN-nya benar, nilainya benar, tetapi kerugian bahannya lenyap dari laporan
+  **selamanya** karena tabelnya append-only; (2) sebaliknya pembatalan pra-dapur bisa ditandai
+  `true` dan memompa angka kerugian untuk kejadian yang tidak membuang apa pun.
+- **Keputusan:** migrasi **`0042_bahan_terbuang_jujur.sql`** — penanda dihitung peladen dari
+  tahap: `sebelum_dapur` → `false`, `sesudah_dapur` → `true`. Tahap itu sendiri sudah dipaksa
+  cocok dengan keadaan pesanan (dua tanda) di pagar yang sama, jadi ini tidak bisa diakali dengan
+  mengirim tahap palsu.
+- **Sikap terhadap kiriman klien — sengaja meniru `nilai_kerugian`:** nilai **bawaan** (`false`,
+  setara `nilai_kerugian = 0`) berarti "peladen yang mengisi" dan **ditimpa**; nilai non-bawaan
+  yang **bertentangan** (`true` pada pembatalan pra-dapur) **ditolak**. Pembedaan ini bukan
+  kosmetik: pemicu tidak bisa membedakan "klien mengirim false" dari "klien tidak menyebut
+  kolomnya", sehingga menolak `false` akan mematahkan semua pemanggil jujur — termasuk uji lama
+  `persetujuan_void.sql` yang memang menyerahkan pengisian ke peladen. Yang menutup celah utama
+  adalah **penimpaan wajib**, bukan penolakannya.
+- **Layar:** `VoidPasca.tsx` yang direncanakan **tidak dibuat terpisah** — `VoidItem.tsx` (T5-06)
+  sudah menangani kedua tahap dan sudah memperingatkan "dapur sudah mulai, wajib PIN atasan".
+  Menambah layar kembar hanya akan menduplikasi alur persetujuan yang sama.
+- **Jebakan yang kena lagi (kedua kalinya) & ditutup:** `0042` menulis ulang utuh
+  `picu_pembatalan_sah()`, sehingga mutasi **M6** di `alat/uji-mutasi-0012.py` yang menyasar
+  `0015` **tidak lagi berpengaruh** (definisi terakhir yang berlaku saat pemasangan adalah
+  `0042`) — M6 terbaca "pagar tumpul", 16/16 → 15/16. Jangkar berkasnya dipindah ke `0042` dan
+  pulih 16/16. **Aturan umum yang kini dicatat di berkas itu: setiap kali sebuah fungsi ditulis
+  ulang di migrasi baru, semua uji mutasi yang menyasarnya WAJIB ikut dipindahkan.**
+- **File:** `supabase/migrations/0042_bahan_terbuang_jujur.sql`, `supabase/tes/bahan_terbuang.sql`,
+  `alat/uji-mutasi-0042.py`, `alat/uji-mutasi-0012.py` (jangkar M6),
+  `.github/workflows/ci.yml` + `alat/periksa-gerbang-ci.py` + `aplikasi/alat/periksa-semua.sh`
+- **Bukti:** suite SQL **85 LULUS · 0 GAGAL** · `uji-mutasi-0042.py` **4/4 MERAH** ·
+  `uji-mutasi-0012.py` **16/16** · `uji-mutasi-0018/0019/0041` LOLOS · gerbang & paritas CI LOLOS.
