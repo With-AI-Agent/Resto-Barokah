@@ -2114,10 +2114,19 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   bukan lagi "jalankan suite SQL", melainkan **jalankan seluruh uji mutasi SQL** — suite bisa
   hijau sempurna (85 LULUS) sementara dua penilai mutasi diam-diam lumpuh.
 - **Riwayat kambuh:** (1) T5-05/`0041` → M6 `uji-mutasi-0012.py`; (2) T5-07/`0042` → M6 lagi;
-  (3) T5-07/`0042` → F-05 `uji-mutasi-0015.py` (tertangkap hanya karena `periksa-semua.sh`
-  dijalankan penuh, bukan oleh suite SQL).
+  (3) T5-07/`0042` → F-05 `uji-mutasi-0015.py`; (4) **T5-05/`0041` → SELURUH 5 mutasi
+  `uji-mutasi-0019.py`** (pagar diskon T5-04). Yang keempat paling mengkhawatirkan: penilainya
+  **lumpuh total sejak T5-05** dan CI merah empat kali berturut-turut, tetapi pesan lokalnya
+  ("Mutasi 1 … LOLOS (pagar tumpul!)") mudah disalahartikan sebagai cacat pagar diskon.
+  Sesudah jangkarnya dipindah ke `0041`: **5/5 MERAH** — pagarnya memang sehat sepanjang waktu.
+- **Cara mendeteksinya dengan cepat:** `grep -rln "<teks jangkar>" supabase/migrations/` — bila
+  teksnya muncul di lebih dari satu migrasi, jangkar mutasi harus menunjuk yang **paling akhir**.
 - **File:** `alat/uji-mutasi-0012.py` (jangkar M6 → `0042`), `alat/uji-mutasi-0015.py`
-  (`MIG42` + `berkas_rel=MIG42` pada F-05)
-- **Bukti:** `uji-mutasi-0015.py` **LOLOS** (sebelumnya "17/17 + 1 tumpul") · `uji-mutasi-0012.py`
-  **16/16** · suite SQL **85 LULUS**.
+  (`MIG42` + `berkas_rel=MIG42` pada F-05), `alat/uji-mutasi-0019.py` (`MIGRASI` → `0041`)
+- **Bukti:** `uji-mutasi-0015.py` **LOLOS** · `uji-mutasi-0019.py` **5/5 MERAH** ·
+  `uji-mutasi-0012.py` **16/16** · `uji-mutasi-0014.py` **17/17** · `uji-mutasi-0016.py` LOLOS ·
+  suite SQL **85 LULUS** · `periksa-semua.sh` **43 LOLOS** (sisa hanya handoff, bukan langkah CI).
+- **Catatan alat:** penilai mutasi memakai direktori kerja tetap di `/tmp` (mis.
+  `/tmp/mutasi-0015-rb`), jadi **dua penilai tidak boleh berjalan bersamaan** — hasilnya saling
+  merusak dan memberi "GAGAL" palsu. Jalankan berurutan.
 

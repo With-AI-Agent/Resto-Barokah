@@ -133,6 +133,17 @@ JANGAN merge apa pun tanpa keputusan Lee.
    **Pelajaran prosedur: sesudah menambah migrasi, JANGAN cukup menjalankan suite SQL —
    jalankan seluruh uji mutasi (atau `periksa-semua.sh` penuh). Suite bisa hijau sempurna
    sementara penilai mutasi diam-diam lumpuh.**
+0o2. **JEBAKAN 0m KAMBUH DI TEMPAT KETIGA — inilah penyebab CI merah 4× berturut-turut.**
+   `alat/uji-mutasi-0019.py` (pagar diskon T5-04) menyasar `picu_diskon_batas` di `0019`,
+   padahal `0041` (T5-05) menulis ulang fungsi itu utuh. Akibatnya **SELURUH 5 mutasinya
+   lumpuh sejak T5-05** dan CI gagal di langkah itu pada run 35842018455 & 35842912994;
+   pesannya ("pagar tumpul!") mudah disalahartikan sebagai cacat pagar diskon. Sesudah
+   `MIGRASI` diarahkan ke `0041`: **5/5 MERAH** — pagarnya sehat sepanjang waktu.
+   **Cara cepat memeriksa: `grep -rln "<teks jangkar>" supabase/migrations/` — kalau muncul
+   di lebih dari satu migrasi, jangkar wajib menunjuk yang PALING AKHIR.**
+0o3. **Catatan alat:** penilai mutasi memakai direktori kerja tetap di `/tmp`
+   (mis. `/tmp/mutasi-0015-rb`), jadi **jangan menjalankan dua penilai bersamaan** — hasilnya
+   saling merusak dan memberi "GAGAL" palsu. Ini sempat menipu saya satu putaran.
 0o. **Berikutnya T5-09** (struk digital sebagai cadangan saat printer bermasalah). Perhatikan:
    T5-03 (struk termal) sudah selesai, jadi **periksa dulu** apa yang sudah ada di berkas struk
    sebelum membuat yang baru — dua batch terakhir menunjukkan rencana ROADMAP sering lebih tua

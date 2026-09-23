@@ -23,7 +23,13 @@ import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MIGRASI = os.path.join(REPO, "supabase", "migrations", "0019_pesan_diskon_jujur.sql")
+# JEBAKAN "fungsi ditulis ulang" (lihat DECISIONS_LOG [Mutu gerbang/2026-09-23]):
+# pagar-pagar ini hidup di `picu_diskon_batas()`, yang ditulis ULANG UTUH oleh
+# `0041_diskon_pin_atasan.sql` (T5-05). Definisi yang benar-benar berlaku saat
+# pemasangan adalah yang TERAKHIR, jadi memutasi salinan lama di 0019 tidak
+# berpengaruh apa pun dan SEMUA mutasi terbaca "pagar tumpul" padahal pagarnya utuh.
+# Setiap kali fungsi ini ditulis ulang lagi, konstanta di bawah WAJIB ikut pindah.
+MIGRASI = os.path.join(REPO, "supabase", "migrations", "0041_diskon_pin_atasan.sql")
 BERKAS_UJI = "supabase/tes/diskon_tumpuk.sql"
 
 
