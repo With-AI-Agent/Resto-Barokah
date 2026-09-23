@@ -25,6 +25,7 @@ import { Keranjang, type ItemKeranjang, type RingkasanUang } from './Keranjang'
 import { PemilihMeja, type MejaData, type TipePesanan } from './PemilihMeja'
 import { TagihanTerbuka } from './TagihanTerbuka'
 import { Bayar, type BarisTagihan, type HasilBayar, type MetodeBayar, type Tagihan } from './Bayar'
+import type { DataStruk } from '../../komponen/Struk'
 
 export interface LayarKasirProps {
   cabangId?: string
@@ -238,6 +239,31 @@ export function LayarKasir({
   }
 
   /**
+   * Rincian struk (T5-03). Komponen `Struk` tidak menghitung apa pun: ia hanya
+   * mencetak angka yang diberikan. Di sini angkanya masih dari ringkasan kasir;
+   * begitu kontainer membaca baris `pesanan` dari peladen, cukup ganti sumbernya
+   * tanpa menyentuh komponen struk.
+   */
+  const dataStruk: DataStruk = {
+    nomor: nomorTagihan,
+    tanggal: new Date().toISOString(),
+    namaResto: namaCabang,
+    namaMeja: tipePesanan === 'dinein' ? mejaAktif.nama : null,
+    item: daftarItemKeranjang.map((baris) => ({
+      nama: baris.menuItem.nama,
+      qty: baris.qty,
+      hargaSatuan: Math.round(baris.subtotal / baris.qty),
+      subtotal: baris.subtotal,
+      catatan: baris.catatan,
+    })),
+    subtotal: ringkasanUang.subtotal,
+    totalDiskon: ringkasanUang.totalDiskon,
+    pajak: ringkasanUang.pajak,
+    service: ringkasanUang.service,
+    total: ringkasanUang.total,
+  }
+
+  /**
    * Kasir menutup struk. Keranjang HANYA dikosongkan bila tagihan sudah lunas —
    * pembayaran sebagian harus menyisakan pesanan supaya sisanya bisa ditagih.
    */
@@ -370,6 +396,7 @@ export function LayarKasir({
             keadaan={keadaanBayar}
             pesan={pesanBayar}
             terakhir={terakhirBayar}
+            struk={dataStruk}
             onBayar={onBayar}
             onCoba={onCobaBayar}
             onLanjut={tanganiSelesaiBayar}

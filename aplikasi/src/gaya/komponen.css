@@ -288,3 +288,80 @@
 .pemuat-batang:nth-child(3) {
   width: 64%;
 }
+
+/* -------------------------------- struk ---------------------------------- */
+/* Struk (T5-03): satu kolom sempit supaya pratinjau layar dan cetak termal
+   58/80 mm memakai tata letak yang sama. Angka rata kanan agar mudah dicocokkan
+   dengan kalkulator; baris total ditebalkan karena itu yang dibaca pelanggan. */
+
+.struk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  width: min(360px, 100%);
+  padding: var(--s-4);
+  background: var(--surface-1);
+  border: 1px solid var(--garis);
+  border-radius: var(--radius-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.struk-kepala {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  text-align: center;
+}
+
+.struk-nama-resto {
+  margin: 0;
+  font-size: var(--t-6);
+}
+
+.struk-item,
+.struk-rincian,
+.struk-bayar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding-top: var(--s-2);
+  border-top: 1px dashed var(--garis);
+}
+
+.struk-baris,
+.struk-baris-item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-2);
+  align-items: baseline;
+}
+
+.struk-baris-item {
+  flex-wrap: wrap;
+}
+
+.struk-item-nama {
+  flex: 1 1 60%;
+}
+
+.struk-nilai {
+  margin-left: auto;
+  text-align: right;
+}
+
+.struk-tebal {
+  font-weight: 700;
+}
+
+.struk-lunas {
+  margin: 0;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.struk-kaki {
+  text-align: center;
+  font-size: var(--t-2);
+  color: var(--text-muted);
+}

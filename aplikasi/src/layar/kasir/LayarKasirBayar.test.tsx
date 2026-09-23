@@ -139,8 +139,17 @@ describe('LayarKasir ↔ Bayar (T5-01, sambungan)', () => {
     bukaBayar()
 
     expect(screen.getByText('Bayar sisa Rp8.800')).toBeTruthy()
-    // Keranjang masih berisi: uang belum tertutup, pesanan belum boleh hilang.
+
+    // Kasir menutup struk sementara untuk menagih sisanya. Keranjang WAJIB tetap
+    // berisi: kalau dikosongkan di sini, sisa Rp8.800 kehilangan pesanannya.
+    // "Tutup" muncul dua kali (tombol Lapis + tombol kartu Bayar); yang dipakai
+    // kasir adalah yang di dalam kartu, bersebelahan dengan "Bayar sisa".
+    const tutupKartu = screen.getAllByText('Tutup')
+    fireEvent.click(tutupKartu[tutupKartu.length - 1])
+
     expect(screen.queryByText(/Keranjang Masih Kosong/i)).toBeNull()
+    // Modal juga tidak boleh menutup sendiri saat tagihan belum lunas.
+    expect(screen.getByText('Bayar sisa Rp8.800')).toBeTruthy()
   })
 
   it('sesudah lunas dan kasir menekan Selesai: keranjang dikosongkan & modal tertutup', async () => {

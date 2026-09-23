@@ -1886,3 +1886,39 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   idempoten stabil. Jangan menulis `insert into pembayaran` dari klien. `LayarKasir.tsx` masih
   punya modal bayar lama yang mengeras-kodekan tiga metode — itu yang harus diganti saat layar
   ini disambungkan ke alur kasir (belum dilakukan di batch ini).
+
+### [Fase 5/2026-09-23] Terminal kasir memakai layar Bayar; struk tidak pernah menghitung uang (T5-01 sambungan + T5-03)
+
+- **Area:** Kalkulasi Keuangan (ART-3) · Antarmuka
+- **Keputusan:**
+  1. **`LayarKasir.tsx` tidak lagi punya daftar metode bayar.** Modal bayar lama —
+     yang menulis `'tunai' | 'qris' | 'kartu'` di dalam berkas layar — dibuang dan diganti
+     komponen `Bayar.tsx`. Metode datang dari kontainer (`useBayar` → `metode_bayar`
+     dengan saringan `aktif = true`) dan uang dicatat lewat RPC `bayar_pesanan` (0039).
+     Konsekuensi yang disengaja: prop lama `onBayarPesanan(pesananId, metodeString, nominal)`
+     DIHAPUS, karena ia jalan pintas yang melewati pintu tunggal uang masuk.
+  2. **Keranjang hanya dikosongkan bila tagihan LUNAS.** Sebelumnya modal lama mengosongkan
+     keranjang begitu panggilan bayar sukses — pada pembayaran sebagian (split bill) itu
+     menghapus pesanan yang sisanya belum tertagih.
+  3. **`Struk.tsx` mencetak, tidak menghitung.** Subtotal, diskon, PB1, service, dan total
+     diambil apa adanya dari angka peladen (kolom yang ditulis `hitung_total()`). Struk
+     dilarang menghitung sendiri (mis. `subtotal × 10%`), karena begitu ada diskon atau
+     pembulatan, angkanya akan berbeda dari uang yang benar-benar tercatat.
+  4. **Baris "Pembulatan" adalah SELISIH, bukan angka baru:**
+     `total − (subtotal − diskon + pajak + service)`. Peladen membulatkan total KE BAWAH
+     mengikuti pengaturan resto (none/100/500/1000) sementara baris pajak & service tidak
+     ikut berubah; tanpa baris selisih ini, rincian di kertas tidak akan menjumlah ke total.
+     Selisih dicetak terbuka, tidak disembunyikan.
+  5. **Pajak & service 0 % tetap punya barisnya sendiri bernilai Rp0** — supaya resto yang
+     belum memungut PB1 terlihat memang tidak memungut, bukan seolah menyembunyikan baris.
+- **Alasan:** satu sumber kebenaran untuk uang (peladen), dan struk yang selalu bisa
+  dicocokkan dengan kas. Keputusan 4 lahir dari uji SQL: dengan pembulatan 500, rincian
+  62.100 versus total 62.000 tidak ketemu kalau selisihnya tidak dicetak.
+- **File terkait:** `aplikasi/src/layar/kasir/LayarKasir.tsx` (+ `LayarKasirBayar.test.tsx`),
+  `aplikasi/src/App.tsx` (memasang `useBayar`), `aplikasi/src/komponen/Struk.tsx`
+  (+ `Struk.test.tsx`), `aplikasi/src/layar/kasir/Bayar.tsx` (menampilkan struk),
+  `supabase/tes/pajak_service.sql`, `aplikasi/alat/uji-mutasi-app.mjs` (+5 mutasi)
+- **Implikasi:** layar baru mana pun yang menampilkan uang WAJIB membaca angka peladen dan
+  mencetak selisih pembulatan bila ada. Sumber `DataStruk` saat ini masih ringkasan kasir;
+  begitu kontainer membaca baris `pesanan` dari peladen, cukup ganti sumbernya — komponen
+  struk tidak perlu disentuh.

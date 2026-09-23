@@ -27,6 +27,7 @@ import { Lapis } from '../../komponen/Lapis'
 import { KeadaanKosong } from '../../komponen/KeadaanKosong'
 import { KeadaanGagal } from '../../komponen/KeadaanGagal'
 import { KeadaanMemuat } from '../../komponen/KeadaanMemuat'
+import { Struk, type DataStruk } from '../../komponen/Struk'
 import { rupiah } from '../../lib/format'
 
 export interface MetodeBayar {
@@ -89,9 +90,16 @@ export function Bayar({
   onCoba,
   onLanjut,
   onBatal,
+  struk,
 }: {
   tagihan: Tagihan
   metode: MetodeBayar[]
+  /**
+   * Rincian struk (T5-03) — angka peladen apa adanya. Bila diberikan, struk
+   * dicetak di layar sesudah pembayaran tercatat, sehingga kasir bisa langsung
+   * memperlihatkan rincian PB1 & service kepada pelanggan.
+   */
+  struk?: DataStruk | null
   keadaan?: 'memuat' | 'gagal' | 'siap' | 'mengirim' | 'berhasil'
   pesan?: string | null
   terakhir?: BarisTagihan | null
@@ -181,6 +189,14 @@ export function Bayar({
             {rupiah(terakhir.totalDibayar)} dari {rupiah(terakhir.totalPesanan)}
           </p>
           <KembalianBesar nilai={terakhir.kembalian} />
+          {/* T5-03: rincian PB1 & service terpisah, angka peladen apa adanya. */}
+          {struk ? (
+            <Struk
+              data={struk}
+              pembayaran={[{ metode: 'Dibayar', jumlah: terakhir.totalDibayar }]}
+              kembalian={terakhir.kembalian}
+            />
+          ) : null}
           {terakhir.lunas ? (
             <Lencana nada="success">Tagihan No. {tagihan.nomor} lunas</Lencana>
           ) : (

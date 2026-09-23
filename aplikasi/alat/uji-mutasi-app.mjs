@@ -118,6 +118,44 @@ const MUTASI = [
     ganti: 'urutanBayar.current += 1',
     uji: 'src/hook/useBayar.test.tsx',
   },
+  {
+    nama: 'LayarKasir: metode bayar dikeras-kodekan lagi di layar (T5-01)',
+    berkas: 'src/layar/kasir/LayarKasir.tsx',
+    cari: '            metode={metodeBayar}',
+    ganti:
+      "            metode={[{ id: 'qris', nama: 'QRIS Dinamis', jenis: 'non_tunai', butuhReferensi: false, urutan: 1 }]}",
+    uji: 'src/layar/kasir/LayarKasirBayar.test.tsx',
+  },
+  {
+    nama: 'LayarKasir: keranjang dikosongkan walau tagihan belum lunas (T5-01)',
+    berkas: 'src/layar/kasir/LayarKasir.tsx',
+    cari: '    if (terakhirBayar?.lunas) {',
+    ganti: '    if (true) {',
+    uji: 'src/layar/kasir/LayarKasirBayar.test.tsx',
+  },
+  {
+    nama: 'Struk: pajak dihitung ulang di layar, bukan memakai angka peladen (T5-03)',
+    berkas: 'src/komponen/Struk.tsx',
+    cari: '<Baris label="PB1 (pajak)" nilai={rupiah(data.pajak)} penanda="pajak" />',
+    ganti:
+      '<Baris label="PB1 (pajak)" nilai={rupiah(Math.round(data.subtotal * 0.1))} penanda="pajak" />',
+    uji: 'src/komponen/Struk.test.tsx',
+  },
+  {
+    nama: 'Struk: selisih pembulatan tidak memperhitungkan diskon (T5-03)',
+    berkas: 'src/komponen/Struk.tsx',
+    cari: 'return data.total - (data.subtotal - data.totalDiskon + data.pajak + data.service)',
+    ganti: 'return data.total - (data.subtotal + data.pajak + data.service)',
+    uji: 'src/komponen/Struk.test.tsx',
+  },
+  {
+    nama: 'Struk: baris pajak 0 persen disembunyikan (T5-03)',
+    berkas: 'src/komponen/Struk.tsx',
+    cari: '        <Baris label="Service" nilai={rupiah(data.service)} penanda="service" />',
+    ganti:
+      '        {data.service > 0 ? <Baris label="Service" nilai={rupiah(data.service)} penanda="service" /> : null}',
+    uji: 'src/komponen/Struk.test.tsx',
+  },
 ]
 
 /**

@@ -1098,9 +1098,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** salah tekan nominal → mitigasi: lapis konfirmasi ("Periksa dulu sebelum
     dicatat") + kembalian besar + tombol Batal; kunci idempoten STABIL per tagihan + urutan
     pembayaran sehingga dobel tekan tidak mencatat uang dua kali.
-  - **Verifikasi:** 25 uji unit (12 layar + 13 kabel data) + 4 mutasi perilaku baru di
-    `aplikasi/alat/uji-mutasi-app.mjs` (9/9 MERAH). Uji manual 5 metode di resto nyata tetap
-    milik Lee (butuh perangkat + Supabase terisi).
+  - **Verifikasi:** 25 uji unit (12 layar + 13 kabel data) + 4 mutasi perilaku di
+    `aplikasi/alat/uji-mutasi-app.mjs`. **Sambungan ke terminal kasir SELESAI (2026-09-23):**
+    modal bayar keras-kode di `LayarKasir.tsx` dibuang (dulu 'tunai'|'qris'|'kartu' ditulis di
+    dalam layar, sehingga metode nonaktif tetap tampil dan metode baru mustahil muncul tanpa
+    koding); `App.tsx` memasang `useBayar` sebagai kontainernya; keranjang hanya dikosongkan
+    setelah tagihan LUNAS. Bukti: `aplikasi/src/layar/kasir/LayarKasirBayar.test.tsx` (9 uji,
+    semuanya terbukti MERAH sebelum implementasi) + 2 mutasi baru. Uji manual 5 metode di resto
+    nyata tetap milik Lee (butuh perangkat + Supabase terisi).
 
 - [x] T5-02 — RPC bayar_pesanan (tunai + kembalian) ⚠️
   - **Tujuan:** pembayaran tercatat sekali, benar, dan tidak bisa hilang walau jaringan goyah.
@@ -1120,14 +1125,23 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ `DECISIONS_LOG.md` diperbarui — Area: Kalkulasi Keuangan (ART-3) & State Machine (ART-4); uang tidak cocok → mitigasi: kembalian dihitung peladen, uji 14 kelompok asersi.
   - **Verifikasi:** uji SQL `bayar_pesanan.sql` (uang pas, uang lebih → kembalian, uang kurang/lebih dari total → ditolak, metode tunai vs non-tunai, dobel tekan) + bukti mutasi `alat/uji-mutasi-0039.py` 6/6 MERAH.
 
-- [ ] T5-03 — Pajak & service tampil terpisah di struk
+- [x] T5-03 — Pajak & service tampil terpisah di struk
   - **Tujuan:** pelanggan melihat rincian yang benar; owner bisa menjelaskan pajak.
   - **Ref:** PRD M6 (kriteria selesai); TECH_SPEC §9 ART-3
-  - **File:** `aplikasi/src/komponen/Struk.tsx`, `supabase/tes/pajak_service.sql`
-  - **DoD:** subtotal, diskon, PB1, service, pembulatan, total tampil terpisah; angka identik dengan `hitung_total()`; uji lulus untuk pajak/service 0%.
+  - **File:** `aplikasi/src/komponen/Struk.tsx`, `aplikasi/src/komponen/Struk.test.tsx`,
+    `supabase/tes/pajak_service.sql`
+  - **DoD:** subtotal, diskon, PB1, service, pembulatan, total tampil terpisah; angka identik
+    dengan `hitung_total()`; uji lulus untuk pajak/service 0%.
   - **Kompleksitas:** sedang (3 jam)
-  - **Risiko & mitigasi:** pembulatan membuat selisih 1 rupiah → mitigasi: uji kasus .01 & kombinasi diskon penuh.
-  - **Verifikasi:** uji unit + bandingkan struk contoh dengan kalkulator.
+  - **Risiko & mitigasi:** pembulatan membuat selisih 1 rupiah → mitigasi: baris "Pembulatan"
+    dicetak sebagai SELISIH `total − (subtotal − diskon + pajak + service)`, sehingga rincian
+    struk selalu menjumlah persis ke total; diuji untuk diskon penuh, persen pecahan (11,11% &
+    2,22%), dan pembulatan 500/1000.
+  - **Verifikasi:** `supabase/tes/pajak_service.sql` (pajak & service dihitung SETELAH diskon,
+    diskon penuh → nol tanpa minus, 0% tetap bernilai 0, pembulatan hanya mengubah total dan
+    selalu KE BAWAH) + 16 uji unit `Struk.test.tsx` + 3 mutasi perilaku baru di
+    `aplikasi/alat/uji-mutasi-app.mjs` (struk menghitung pajak sendiri, selisih pembulatan
+    mengabaikan diskon, baris 0% disembunyikan) — semuanya terbukti MERAH.
 
 - [ ] T5-04 — Diskon: satu per transaksi (bawaan) + opsi tumpuk dengan batas ⚠️
   - **Tujuan:** diskon terkendali dan tidak bisa menumpuk tanpa izin.
