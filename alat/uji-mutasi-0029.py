@@ -25,6 +25,8 @@ from klasifikasi_mutasi import HIJAU, MERAH_PAGAR, RUSAK, klasifikasi  # noqa: E
 AKAR = pathlib.Path(__file__).resolve().parent.parent
 KERJA = pathlib.Path("/tmp/mutasi-0029-rb")
 MIG = "supabase/migrations/0029_audit_kekal_rantai.sql"
+# Definisi `verifikasi_rantai_audit` yang berlaku sejak 0040 (lihat catatan di mutasi 3).
+MIG_VERIFIKASI = "supabase/migrations/0040_urutan_rantai_audit.sql"
 UJI_RANTAI = "supabase/tes/audit_rantai.sql"
 SEMUA_UJI = (
     UJI_RANTAI,
@@ -73,8 +75,8 @@ def semua_hijau() -> tuple[bool, str]:
     return True, ""
 
 
-def mutasi(nama: str, ubah, uji: str) -> tuple[str, bool, str]:
-    berkas = KERJA / MIG
+def mutasi(nama: str, ubah, uji: str, migrasi: str = MIG) -> tuple[str, bool, str]:
+    berkas = KERJA / migrasi
     asli = berkas.read_text(encoding="utf-8")
     try:
         baru = ubah(asli)
@@ -131,8 +133,12 @@ create trigger catatan_audit_hitung_hash
       return;
     end if;"""
         return t.replace(lama, "-- mutasi: validasi tautan hash dilepas\n", 1)
+    # Sejak migrasi 0040 fungsi `verifikasi_rantai_audit` DIDEFINISIKAN ULANG (urutannya
+    # pindah ke kolom `urutan`). Mutasi harus mengenai definisi yang BERLAKU — kalau
+    # tetap menyunting 0029, 0040 menimpanya dan mutasi jadi tidak berpengaruh (CI
+    # membuktikan ini: langkah 0029 HIJAU padahal pagar sengaja ditumpulkan).
     hasil.append(mutasi("validasi tautan hash dilepas pada verifikasi_rantai_audit",
-                        lepas_validasi_rantai, UJI_RANTAI))
+                        lepas_validasi_rantai, UJI_RANTAI, migrasi=MIG_VERIFIKASI))
 
     hijau_akhir, keluar_akhir = semua_hijau()
     if not hijau_akhir:
