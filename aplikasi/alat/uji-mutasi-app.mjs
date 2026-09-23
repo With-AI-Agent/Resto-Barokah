@@ -284,6 +284,29 @@ const MUTASI = [
     ganti: '          nonaktif={false}',
     uji: 'src/layar/kasir/DaftarTransaksi.test.tsx',
   },
+
+  // ------------------------- T5-11 tagihan ditinggal & pembayaran sebagian
+  {
+    nama: 'DaftarTagihan: tingkat umur selalu "baru" (T5-11) — tagihan 3 jam terlihat sama santainya dengan yang 5 menit',
+    berkas: 'src/layar/kasir/DaftarTagihan.tsx',
+    cari: "  if (menit >= BATAS_MENDESAK_MENIT) return 'mendesak'",
+    ganti: "  if (false) return 'mendesak'",
+    uji: 'src/layar/kasir/DaftarTagihan.test.tsx',
+  },
+  {
+    nama: 'DaftarTagihan: sisa tagihan mengabaikan uang yang sudah masuk (T5-11) — tamu ditagih dua kali',
+    berkas: 'src/layar/kasir/DaftarTagihan.tsx',
+    cari: '  return Math.max(0, baris.total - baris.sudahDibayar)',
+    ganti: '  return baris.total',
+    uji: 'src/layar/kasir/DaftarTagihan.test.tsx',
+  },
+  {
+    nama: 'DaftarTagihan: umur ditulis sebagai angka menit mentah (T5-11) — "200 menit" harus dihitung sendiri oleh kasir',
+    berkas: 'src/layar/kasir/DaftarTagihan.tsx',
+    cari: '  if (menit < 60) return `${menit} menit`',
+    ganti: '  return `${menit} menit`\n  if (menit < 60) return `${menit} menit`',
+    uji: 'src/layar/kasir/DaftarTagihan.test.tsx',
+  },
 ]
 
 /**

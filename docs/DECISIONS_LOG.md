@@ -2203,3 +2203,33 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **Bukti:** `DaftarTransaksi.test.tsx` **13 tes LULUS** · `Struk.test.tsx` **16 tes** tetap hijau ·
   aplikasi **65 berkas / 405 tes LULUS** · `uji-mutasi-app.mjs` **31/31 MERAH** · `tsc` bersih ·
   lint 0 error · format bersih.
+
+## [Uang/2026-09-23] Pembayaran Sebagian = Beberapa Baris pada SATU Tagihan, Bukan Tagihan yang Dipecah (T5-11)
+
+- **Area:** Uang (ART-1/ART-4) · Tampilan kasir
+- **Keputusan MVP yang ditegaskan:** "split bill" resmi adalah pekerjaan fase 2. Untuk MVP,
+  pembayaran sebagian dicatat sebagai **beberapa baris `pembayaran` terpisah pada satu pesanan** —
+  bukan dua pesanan, dan bukan satu baris yang ditimpa berkali-kali.
+- **Kenapa bentuk itu yang dipilih:** tiap kali uang berpindah tangan harus punya barisnya sendiri
+  (metode, jumlah, waktu). Kalau baris pertama ditimpa saat pelunasan, kas tidak bisa dicocokkan
+  per metode di akhir shift: 20.000 tunai + 14.500 QRIS akan terbaca sebagai satu angka saja, dan
+  selisih laci kas jadi tidak bisa dijelaskan siapa pun.
+- **Kenapa tagihan ditinggal harus TERLIHAT:** meja yang belum membayar itu kejadian harian. Kalau
+  layar kasir tidak pernah menampilkannya, tagihan itu hanya hidup di ingatan kasir — dan yang
+  lupa berubah menjadi selisih kas tanpa penjelasan. `DaftarTagihan.tsx` menampilkannya dengan
+  **penanda umur bertingkat** (baru → lama ≥30 menit → mendesak ≥120 menit), karena tagihan 10
+  menit dan tagihan 3 jam adalah dua masalah yang sangat berbeda tetapi terlihat sama kalau hanya
+  ditulis jamnya.
+- **Rincian rasa-pakai yang disengaja:** yang ditonjolkan adalah **sisa**, bukan total — itulah
+  angka yang diucapkan kasir ke tamu; uang yang sudah masuk tetap ditulis supaya tidak ada yang
+  merasa uangnya hilang; umur ditulis "3 jam 20 menit", bukan "200 menit", karena kasir sedang
+  berdiri di depan tamu, bukan membaca laporan.
+- **TEMUAN saat menulis uji SQL:** kolom `total` yang dikirim klien **tidak dipercaya** peladen —
+  ia dihitung ulang (pajak 10 % + service 5 %), sehingga pesanan uji 30.000 menjadi 34.500 yang
+  sah. Uji disesuaikan mengikuti angka peladen, **bukan sebaliknya**; menurunkan harapan uji agar
+  cocok dengan angka klien justru akan melumpuhkan pagar yang benar.
+- **File:** `supabase/tes/pembayaran_sebagian.sql`, `aplikasi/src/layar/kasir/DaftarTagihan.tsx`
+  (+uji), `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-mutasi-app.mjs`
+- **Bukti:** SQL **86 LULUS · 0 GAGAL** · `DaftarTagihan.test.tsx` **17 tes LULUS** · aplikasi
+  **66 berkas / 422 tes LULUS** · `uji-mutasi-app.mjs` **34/34 MERAH** · `tsc` bersih · lint 0
+  error · format bersih. Tidak ada migrasi baru (RPC `bayar_pesanan` sudah mendukung sebagian).

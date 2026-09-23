@@ -1323,7 +1323,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** penyalahgunaan cetak ulang → mitigasi: tanda "SALINAN" + catatan audit.
   - **Verifikasi:** uji manual + uji SQL (tidak ada perubahan data).
 
-- [ ] T5-11 — Pembayaran sebagian & tagihan ditinggal
+- [x] T5-11 — Pembayaran sebagian & tagihan ditinggal
   - **Tujuan:** kenyataan lapangan tercatat rapi sesuai keputusan MVP.
   - **Ref:** PRD M6 (kasus tepi)
   - **File:** `supabase/tes/pembayaran_sebagian.sql`, `aplikasi/src/layar/kasir/DaftarTagihan.tsx`
@@ -1331,6 +1331,21 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** kesalahpahaman "split bill" → mitigasi: teks di layar menjelaskan; split resmi = fase 2.
   - **Verifikasi:** uji SQL + uji manual.
+  - **SELESAI 2026-09-23.** `supabase/tes/pembayaran_sebagian.sql` membuktikan keputusan MVP:
+    bayar sebagian → belum lunas; pelunasan dengan metode berbeda → **DUA baris pembayaran
+    terpisah** bertahan pada SATU pesanan (baris pertama tidak ditimpa), jumlahnya persis sama
+    dengan total sah dari peladen, dan pembayaran ketiga sesudah lunas **ditolak** sehingga jalur
+    "sebagian" tidak bisa dipakai menyelundupkan uang. `DaftarTagihan.tsx` menampilkan tagihan
+    ditinggal dengan **penanda umur** bertingkat (baru → lama ≥30 mnt → mendesak ≥120 mnt),
+    menonjolkan **sisa** (angka yang diucapkan kasir ke tamu) sambil tetap menulis uang yang sudah
+    masuk, dan menjelaskan di layar bahwa split bill resmi menyusul — supaya kasir tidak mencari
+    tombol yang belum ada.
+  - **Temuan saat menulis uji:** `total` yang ditulis klien **tidak dipercaya** peladen; ia
+    dihitung ulang (pajak 10 % + service 5 %). Uji disesuaikan mengikuti angka peladen, bukan
+    sebaliknya — itu memang pagarnya.
+  - **Bukti (2026-09-23):** SQL **86 LULUS · 0 GAGAL** · `DaftarTagihan.test.tsx` **17 tes LULUS** ·
+    aplikasi **66 berkas / 422 tes LULUS** · `uji-mutasi-app.mjs` **34/34 MERAH** (3 mutasi baru:
+    umur selalu "baru", sisa mengabaikan uang masuk, umur ditulis menit mentah).
 
 - [ ] T5-12 — Laporan pembatalan (siapa, nilai, alasan)
   - **Tujuan:** owner bisa memeriksa setiap pembatalan, bukan hanya jumlahnya.

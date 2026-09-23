@@ -565,3 +565,69 @@
   justify-content: flex-end;
   gap: var(--s-2);
 }
+
+/* ---------------------------------- T5-11 tagihan ditinggal & penanda umur */
+.daftar-tagihan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.daftar-tagihan__catatan {
+  margin: 0;
+  font-size: var(--t-kecil);
+  color: var(--teks-lemah);
+}
+
+.daftar-tagihan__hasil {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+/* Garis kiri tebal: umur terbaca dari ujung mata, tanpa harus membaca lencana. */
+.daftar-tagihan__baris {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--garis);
+  border-left-width: 4px;
+  border-radius: var(--r-2);
+}
+
+.daftar-tagihan__baris--baru {
+  border-left-color: var(--garis);
+}
+.daftar-tagihan__baris--lama {
+  border-left-color: var(--warn);
+}
+.daftar-tagihan__baris--mendesak {
+  border-left-color: var(--danger);
+}
+
+.daftar-tagihan__kiri,
+.daftar-tagihan__kanan {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.daftar-tagihan__kanan {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.daftar-tagihan__sisa {
+  font-weight: 700;
+}
+
+.daftar-tagihan__jam,
+.daftar-tagihan__terbayar {
+  font-size: var(--t-kecil);
+  color: var(--teks-lemah);
+}
