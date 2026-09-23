@@ -95,11 +95,23 @@ export function Struk({
   data,
   pembayaran = [],
   kembalian = 0,
+  salinan = false,
 }: {
   data: DataStruk
   pembayaran?: PembayaranStruk[]
   /** Kembalian SAH dari peladen (balasan RPC `bayar_pesanan`). */
   kembalian?: number
+  /**
+   * Tandai struk sebagai CETAK ULANG (T5-10).
+   *
+   * Kenapa penting: struk yang tercetak dua kali dengan tampilan identik bisa
+   * dipakai menagih dua kali, atau diajukan sebagai dua bukti pengeluaran yang
+   * berbeda. Tanda "SALINAN" membuat lembar kedua tidak bisa menyamar sebagai
+   * lembar pertama — mitigasi yang diminta ROADMAP T5-10.
+   *
+   * Tanda ini murni penampilan; ia TIDAK mengubah satu pun angka pada struk.
+   */
+  salinan?: boolean
 }) {
   const pembulatan = selisihPembulatan(data)
   const totalDibayar = pembayaran.reduce((jumlah, bayar) => jumlah + bayar.jumlah, 0)
@@ -110,6 +122,11 @@ export function Struk({
   return (
     <article className="struk" data-testid="struk">
       <header className="struk-kepala">
+        {salinan ? (
+          <p className="struk-salinan" data-testid="struk-salinan">
+            SALINAN — CETAK ULANG
+          </p>
+        ) : null}
         {data.header ? <p className="struk-header">{data.header}</p> : null}
         {data.namaResto ? <h2 className="struk-nama-resto">{data.namaResto}</h2> : null}
         <p className="small muted">

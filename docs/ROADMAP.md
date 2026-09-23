@@ -1301,10 +1301,23 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Cetak (ART-7); mitigasi: satu tampilan struk untuk semua jalur (cetak & digital).
   - **Verifikasi:** uji manual di Android & desktop.
 
-- [ ] T5-10 — Cetak ulang struk + pencarian transaksi
+- [ ] T5-10 — Cetak ulang struk + pencarian transaksi ❓ T-028
   - **Tujuan:** struk hilang bisa dicetak ulang tanpa membuat transaksi baru.
   - **Ref:** PRD M6 (kasus tepi)
-  - **File:** `aplikasi/src/layar/kasir/DaftarTransaksi.tsx`
+  - **File:** `aplikasi/src/layar/kasir/DaftarTransaksi.tsx` (+`DaftarTransaksi.test.tsx`),
+    penanda salinan di `aplikasi/src/komponen/Struk.tsx`
+  - **SUDAH DIKERJAKAN (2026-09-23):** pencarian transaksi (nomor / jam / nominal, titik ribuan
+    boleh diabaikan), pratinjau, dan cetak ulang yang **SELALU bertanda "SALINAN — CETAK ULANG"** —
+    termasuk di pratinjau layar, supaya lembar kedua tidak pernah bisa menyamar sebagai lembar
+    pertama. "Tidak mengubah data" dijaga uji penjaga `?raw`: berkas ini dilarang memuat
+    `.rpc(`, `fetch(`, `.insert(`, `.update(`, `.delete(`.
+  - **BELUM (sengaja, lihat ❓ T-028):** bagian **catatan audit** dari mitigasi. Mencatat siapa
+    mencetak ulang butuh RPC baru, sedangkan RPC yang belum ada di `TECH_SPEC.md` §5 adalah
+    **Stop Condition** yang wajib diputuskan pemilik (`DECISIONS_LOG` [Tahap 6/2026-09-16]).
+    Karena itu centang tugas ini **belum** diberikan.
+  - **Bukti (2026-09-23):** `DaftarTransaksi.test.tsx` **13 tes LULUS** · `Struk.test.tsx` **16 tes**
+    tetap hijau · `uji-mutasi-app.mjs` **31/31 MERAH** (3 mutasi baru: tanda SALINAN tidak pernah
+    tampil, pratinjau tanpa tanda salinan, tombol cetak ulang hidup tanpa memilih transaksi).
   - **DoD:** cari transaksi (nomor/waktu/nominal), cetak ulang (bertanda "cetak ulang"), tidak mengubah data.
   - **Kompleksitas:** sedang (2,5 jam)
   - **Risiko & mitigasi:** penyalahgunaan cetak ulang → mitigasi: tanda "SALINAN" + catatan audit.

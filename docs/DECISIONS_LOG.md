@@ -2166,3 +2166,40 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **Bukti:** `StrukDigital.test.tsx` **15 tes LULUS** · aplikasi **64 berkas / 392 tes LULUS** ·
   `uji-mutasi-app.mjs` **28/28 MERAH** · `tsc` bersih · lint 0 error · format bersih.
 - **Sisa milik Lee:** verifikasi manual di Android & desktop (tidak bisa dijalankan agent).
+
+## [Cetak/2026-09-23] Cetak Ulang Struk: Tanda SALINAN Dikerjakan, Jejak Audit Berhenti di Stop Condition (T5-10)
+
+- **Area:** Cetak (ART-7) · menyentuh Jejak audit (ART-9)
+- **Konteks:** struk hilang, robek, atau tidak jadi tercetak adalah kejadian harian. Tanpa jalan
+  resmi mencetak ulang, kasir akan mencari jalan sendiri — dan jalan yang paling sering dipakai
+  adalah **membuat pesanan baru lalu membatalkannya**, yang mengotori laporan penjualan sekaligus
+  angka pembatalan. Jadi tugas ini sebenarnya melindungi kebersihan laporan, bukan sekadar
+  kenyamanan.
+- **Yang dikerjakan:** `DaftarTransaksi.tsx` — cari transaksi lewat **nomor, jam, atau nominal**
+  (tiga hal yang benar-benar diingat orang: "tadi sekitar jam 2", "kira-kira 62 ribu"), pratinjau,
+  lalu cetak ulang. Titik ribuan diabaikan saat mencocokkan angka: kasir tidak boleh gagal
+  menemukan transaksi gara-gara mengetik `62100` alih-alih `62.100`.
+- **Mitigasi penyalahgunaan — tanda SALINAN:** `Struk.tsx` mendapat prop `salinan` yang mencetak
+  **"SALINAN — CETAK ULANG"** di kepala struk. Tandanya muncul **juga di pratinjau layar**, bukan
+  hanya di hasil cetak. Alasannya: struk kedua yang terlihat identik dengan yang pertama bisa
+  dipakai menagih dua kali, atau diajukan sebagai dua bukti pengeluaran yang berbeda. Prop ini
+  murni penampilan — ia tidak menyentuh satu pun angka.
+- **"Tidak mengubah data" dijaga uji, bukan janji:** penjaga `?raw` melarang `DaftarTransaksi.tsx`
+  memuat `.rpc(`, `fetch(`, `.insert(`, `.update(`, atau `.delete(`. Komponen ini hanya membaca
+  daftar yang sudah diberikan kontainer.
+- **YANG SENGAJA BERHENTI — dan kenapa:** ROADMAP meminta mitigasi "tanda SALINAN **+ catatan
+  audit**". Bagian catatan audit tidak dikerjakan karena mencatat "siapa mencetak ulang, kapan"
+  memerlukan **RPC baru** (`catatan_audit` hanya bisa ditulis lewat jalur peladen/definer), dan
+  `TECH_SPEC.md` §5 tidak memuat RPC semacam itu. Keputusan terkunci
+  [Tahap 6/2026-09-16] menyatakan RPC yang belum ada di TECH_SPEC §5 = perubahan dokumen fondasi
+  = **Stop Condition** yang wajib disetujui pemilik lebih dulu. Saya tidak mengarang RPC sendiri,
+  dan **tugas T5-10 tidak dicentang** — dibuka sebagai **T-028** dengan tiga pilihan untuk Lee.
+- **Kenapa aman ditinggalkan sementara:** penyalahgunaan diam-diam sudah tertutup oleh tanda
+  SALINAN yang tidak bisa dimatikan dari layar (3 mutasi membuktikan). Yang belum ada hanyalah
+  jejak siapa/kapan — berguna untuk penelusuran, tetapi bukan pintu uang.
+- **File:** `aplikasi/src/layar/kasir/DaftarTransaksi.tsx` (+uji), `aplikasi/src/komponen/Struk.tsx`
+  (prop `salinan`), `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-mutasi-app.mjs`,
+  `docs/TERTANGGUH.md` (T-028)
+- **Bukti:** `DaftarTransaksi.test.tsx` **13 tes LULUS** · `Struk.test.tsx` **16 tes** tetap hijau ·
+  aplikasi **65 berkas / 405 tes LULUS** · `uji-mutasi-app.mjs` **31/31 MERAH** · `tsc` bersih ·
+  lint 0 error · format bersih.

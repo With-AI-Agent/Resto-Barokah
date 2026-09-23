@@ -261,6 +261,29 @@ const MUTASI = [
     ganti: "    'LUNAS — terima kasih.',",
     uji: 'src/komponen/StrukDigital.test.tsx',
   },
+
+  // ------------------------------------------- T5-10 cetak ulang struk (SALINAN)
+  {
+    nama: 'Struk: tanda SALINAN tidak pernah tampil (T5-10) — cetak ulang bisa menyamar jadi struk asli',
+    berkas: 'src/komponen/Struk.tsx',
+    cari: '        {salinan ? (',
+    ganti: '        {false ? (',
+    uji: 'src/layar/kasir/DaftarTransaksi.test.tsx',
+  },
+  {
+    nama: 'DaftarTransaksi: pratinjau cetak ulang dirender TANPA tanda salinan (T5-10)',
+    berkas: 'src/layar/kasir/DaftarTransaksi.tsx',
+    cari: '            kembalian={barisDipilih.kembalian ?? 0}\n            salinan',
+    ganti: '            kembalian={barisDipilih.kembalian ?? 0}',
+    uji: 'src/layar/kasir/DaftarTransaksi.test.tsx',
+  },
+  {
+    nama: 'DaftarTransaksi: tombol cetak ulang hidup tanpa memilih transaksi (T5-10)',
+    berkas: 'src/layar/kasir/DaftarTransaksi.tsx',
+    cari: '          nonaktif={!barisDipilih}',
+    ganti: '          nonaktif={false}',
+    uji: 'src/layar/kasir/DaftarTransaksi.test.tsx',
+  },
 ]
 
 /**
