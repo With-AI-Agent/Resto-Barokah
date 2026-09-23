@@ -848,7 +848,15 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** lambat saat katalog besar → mitigasi: muat bertahap + cache ringan di klien (tanpa data sensitif).
   - **Verifikasi:** uji manual dengan 200 item; waktu muat awal < 3 detik.
 
-- [x] T3-02 — Keranjang + angka dari peladen (klien tidak menghitung)
+- [x] T3-02 — Keranjang + angka dari peladen (klien tidak menghitung) ❓ T-027
+  - **TEMUAN JUJUR (2026-09-23, saat T5-05):** DoD ini **belum sepenuhnya ditepati**. `Keranjang.tsx`
+    memang tidak menghitung, tetapi kontainernya `LayarKasir.tsx` masih menghitung pajak 10 % dan
+    service 5 % sendiri sebagai PERKIRAAN selagi pesanan disusun. Tidak membahayakan uang — angka
+    yang sah selalu dari `hitung_total()` dan itulah yang dipakai layar Bayar & dicetak di struk —
+    tetapi bila resto memakai tarif berbeda, angka keranjang bisa berbeda dari total sebenarnya.
+    Cara menutupnya butuh keputusan rasa-pakai (lebih akurat vs lebih lambat), jadi dicatat sebagai
+    **T-027** di `docs/TERTANGGUH.md`, bukan diputuskan diam-diam. Centang tidak dicabut karena
+    pekerjaan aslinya ada; kekurangannya ditulis di sini supaya tidak hilang.
   - **Tujuan:** angka di keranjang selalu sama dengan angka resmi sistem.
   - **Ref:** TECH_SPEC §9 ART-3; PRD M6
   - **File:** `aplikasi/src/layar/kasir/Keranjang.tsx`, `aplikasi/src/lib/uang.ts`
@@ -1162,14 +1170,25 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     + `alat/uji-mutasi-0019.py` **5/5 MERAH** (satu diskon dilepas, `tumpuk_diskon` dibaca terbalik,
     cap persen per baris, cap nominal tidak diperiksa, pagar subtotal dilepas).
 
-- [ ] T5-05 — Diskon manual butuh izin + PIN di atas batas ⚠️
+- [x] T5-05 — Diskon manual butuh izin + PIN di atas batas ⚠️
   - **Tujuan:** kasir bisa memberi diskon kecil, tetapi tidak bisa memberi diskon besar tanpa atasan.
   - **Ref:** PRD M3 (batas maksimal %) & M6; TECH_SPEC §9 ART-2
-  - **File:** `aplikasi/src/layar/kasir/DiskonManual.tsx`, `supabase/migrations/0040_diskon_izin.sql`
-  - **DoD:** batas per pegawai dari pengaturan izin; di atas batas → wajib PIN atasan; tercatat (pelaku, nilai, alasan).
+  - **File:** `aplikasi/src/layar/kasir/DiskonManual.tsx` + `DiskonManual.test.tsx` ·
+    `supabase/migrations/0041_diskon_pin_atasan.sql` (nomor `0040` sudah terpakai rantai audit) ·
+    `supabase/tes/diskon_pin_atasan.sql` · `alat/uji-mutasi-0041.py` ·
+    `aplikasi/src/layar/kasir/LayarKasirDiskon.test.tsx` (penjaga anti voucher keras-kode).
+  - **DoD:** batas per pegawai dari pengaturan izin; di atas batas → wajib PIN atasan; tercatat
+    (pelaku, nilai, alasan). **Tercapai** — cacat yang ditemukan & ditutup: pemicu lama memeriksa
+    izin PEMANGGIL saja, sehingga bukti PIN atasan (0016) ada tetapi tidak pernah menaikkan batas;
+    alur "di atas batas → PIN atasan" mustahil dijalankan. Kini batas penyetuju yang berlaku bila
+    buktinya sah (terikat pesanan itu, sekali pakai, ≤5 menit, penyetuju dicek ulang izinnya).
   - **Kompleksitas:** sedang (3 jam)
-  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); mitigasi: gerbang `boleh()` + PIN + audit.
-  - **Verifikasi:** uji manual 3 kasus (di bawah batas, di atas batas tanpa PIN, dengan PIN).
+  - **Risiko & mitigasi:** ⚠️ `DECISIONS_LOG.md` [Fase 5/2026-09-23] — Area: Role & Permission
+    (ART-2); mitigasi: gerbang `boleh()`/`izin_efektif_untuk()` + kupon PIN sekali pakai + audit.
+  - **Verifikasi:** `supabase/tes/diskon_pin_atasan.sql` (di bawah batas · di atas batas tanpa PIN ·
+    stempel dikarang · dengan PIN sah · di atas batas ATASAN · kupon pesanan lain · kupon bekas ·
+    PIN benar tapi tanpa izin) + `alat/uji-mutasi-0041.py` **6/6 MERAH** +
+    `DiskonManual.test.tsx` 17 tes + 6 mutasi UI di `uji-mutasi-app.mjs` (total **20/20 MERAH**).
 
 - [ ] T5-06 — Void sebelum dapur mulai (alasan wajib) ⚠️
   - **Tujuan:** salah input cepat dibereskan, selalu dengan jejak.

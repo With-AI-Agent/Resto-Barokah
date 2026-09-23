@@ -148,9 +148,15 @@ DAFTAR = [
      "  new.subtotal := new.harga_saat_itu * new.qty;",
      "  new.subtotal := coalesce(new.subtotal, new.harga_saat_itu * new.qty);",
      "supabase/tes/harga_item.sql", "0014_penutup_celah_putaran13.sql"),
+    # Penjaga "kupon PIN sekali pakai" untuk VOID ada di `picu_pembatalan_sah`, yang
+    # definisi berlakunya ditulis ulang 0015. Berkasnya DITULIS EKSPLISIT sejak 2026-09-23:
+    # pola `and pp.dipakai_pada is null` juga muncul di pemicu lain (0016 persetujuan diskon,
+    # lalu 0041 batas diskon), sehingga pencarian "migrasi terbaru dulu" mulai mengenai
+    # berkas yang SALAH dan M6 terbaca "pagar tumpul" padahal pagar void tidak tersentuh —
+    # persis jebakan hijau/merah-palsu yang sudah pernah terjadi pada M5k (2026-09-19).
     ("M6 bukti PIN boleh dipakai berulang",
      "       and pp.dipakai_pada is null", "       and (pp.dipakai_pada is null or true)",
-     "supabase/tes/persetujuan_void.sql"),
+     "supabase/tes/persetujuan_void.sql", "0015_penutup_celah_putaran16.sql"),
     ("M7 pelaku pengaturan boleh dikarang",
      "       and new.diubah_oleh is distinct from old.diubah_oleh then", "       and false then",
      "supabase/tes/jejak_pengaturan.sql"),

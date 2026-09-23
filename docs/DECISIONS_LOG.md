@@ -1949,3 +1949,38 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **Implikasi:** sebelum menulis migrasi baru untuk butir ROADMAP mana pun, periksa dulu apakah
   aturannya sudah ada di migrasi lama; nomor migrasi di ROADMAP adalah rencana lama, bukan
   perintah. Nomor yang benar = berikutnya yang belum terpakai.
+
+### [Fase 5/2026-09-23] T5-05 diskon: PIN atasan akhirnya BENAR-BENAR menaikkan batas
+
+- **Area:** Role & Permission (ART-2) + Kalkulasi Keuangan (ART-3)
+- **Cacat yang ditemukan:** `picu_diskon_batas()` memeriksa `public.boleh('beri_diskon', …)` —
+  izin **pemanggil**. Pemicu `picu_diskon_setuju_jujur()` (0016) sudah membuktikan atasan
+  menekan PIN-nya untuk pesanan itu, tetapi dua pemicu itu **tidak pernah berbicara**: bukti
+  persetujuan ada, batas yang dipakai tetap batas kasir. Akibat nyatanya, alur yang dijanjikan
+  PRD M3 ("di atas batas → PIN atasan") **mustahil dijalankan** — satu-satunya jalan adalah
+  atasan logout-login di tengah antrean. Pesan 0019 yang menyuruh "minta atasan yang memproses"
+  ternyata memang satu-satunya kenyataan yang tersedia.
+- **Keputusan:** migrasi **`0041_diskon_pin_atasan.sql`** (nomor `0040` sudah terpakai rantai
+  audit; nomor `0040_diskon_izin.sql` di ROADMAP adalah rencana lama). Bila baris diskon membawa
+  `disetujui_oleh`, batas yang diperiksa adalah batas **penyetuju** — dengan syarat yang sama
+  persis seperti konsumsi kupon di 0016: bukti PIN untuk aksi `beri_diskon`, terikat pesanan itu,
+  belum dipakai, umur ≤5 menit, dan penyetuju **dicek ulang izinnya** (pelajaran F-16: kecocokan
+  rahasia bukan otorisasi). PIN atasan menaikkan batas **sampai batas atasan**, bukan tanpa batas.
+- **Yang sengaja TIDAK berubah:** kupon tidak dikonsumsi di pemicu batas — `diskon_batas` berjalan
+  sebelum `diskon_setuju_jujur` (urutan alfabetis), jadi di sini kupon hanya **dibaca**; yang
+  menandai `dipakai_pada` tetap 0016. Satu tempat saja, supaya sifat sekali-pakai tidak bocor
+  lewat dua jalur. Tanpa stempel, perilaku lama berlaku apa adanya.
+- **Sisi layar:** `DiskonManual.tsx` menggantikan **voucher keras-kode** di `LayarKasir.tsx` —
+  mengetik `BAROKAH10K` dulu langsung memotong Rp10.000 tanpa izin, tanpa alasan, tanpa jejak
+  pemberi, dan tanpa voucher apa pun di database. Sekarang diskon hanya masuk lewat
+  `diskon_transaksi`. Layar juga **tidak memotong tagihan sebelum peladen menerima** (bahaya khas
+  "optimistic update" pada uang), dan bila batas pemakai belum diketahui layar bersikap hati-hati:
+  anggap perlu persetujuan.
+- **File:** `supabase/migrations/0041_diskon_pin_atasan.sql`, `supabase/tes/diskon_pin_atasan.sql`,
+  `alat/uji-mutasi-0041.py`, `aplikasi/src/layar/kasir/DiskonManual.tsx` (+uji),
+  `aplikasi/src/layar/kasir/LayarKasirDiskon.test.tsx`, `aplikasi/src/lib/aksi.ts`
+- **Bukti:** suite SQL **84 LULUS** · `uji-mutasi-0041.py` **6/6 MERAH** · aplikasi **353 tes** ·
+  `uji-mutasi-app.mjs` **20/20 MERAH** · gerbang & paritas CI LOLOS (110 perintah).
+- **Ditangguhkan (bukan diputuskan diam-diam):** **T-027** — pajak & service di keranjang kasir
+  masih perkiraan 10 %/5 % di layar. Tidak membahayakan uang (struk & layar Bayar memakai angka
+  peladen), tetapi menyatukannya adalah pilihan rasa-pakai yang milik Lee.

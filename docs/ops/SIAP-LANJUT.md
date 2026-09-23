@@ -10,7 +10,7 @@
 - **Cabang yang dilanjutkan:** `arena/01a0cca9-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0cca9-resto-barokah`
-- **Commit keadaan kerja:** `227a51b1f451f0fad055ebf67405e6848d3c10fc`
+- **Commit keadaan kerja:** `7aec49249c9ef63dc337ec5cb736183c440881a3`
 - **PR:** HTTP 401: Bad credentials (https://api.github.com/graphql)
 Try authenticating with:  gh auth login — **JANGAN MERGE tanpa keputusan Lee**
 - **CI terakhir:** (status CI tidak terbaca dari sini — periksa di GitHub)
@@ -26,7 +26,7 @@ Try authenticating with:  gh auth login — **JANGAN MERGE tanpa keputusan Lee**
 - Posisi proyek: lihat `PROJECT_STATE.md` (STATUS + PUTARAN terakhir) dan `STATUS.md`.
 - Bukti terakhir yang hijau: `node alat/uji-sql.mjs` · `python3 alat/uji-mutasi-0012.py` ·
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
-- Butir tertangguh terbuka: **1** — T-026
+- Butir tertangguh terbuka: **2** — T-026, T-027
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
 - **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
@@ -70,6 +70,27 @@ JANGAN merge apa pun tanpa keputusan Lee.
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 **KEADAAN SESI INI (2026-09-23 sesi kedua, `arena/01a0cca9` — MODE MARATON Fase 5):**
+
+0g. **T5-05 SELESAI (batch keempat).** Cacat nyata ditemukan & ditutup: `picu_diskon_batas()`
+   memeriksa izin PEMANGGIL, sedangkan bukti PIN atasan (0016) tidak pernah menaikkan batas —
+   alur "di atas batas → PIN atasan" (PRD M3) **mustahil dijalankan**. Ditutup migrasi
+   **`0041_diskon_pin_atasan.sql`**: batas PENYETUJU berlaku bila buktinya sah (terikat pesanan
+   itu, sekali pakai, ≤5 menit, penyetuju dicek ulang izinnya), sampai batas atasan saja.
+   Sisi layar: **voucher keras-kode `BAROKAH10K` dibuang** (dulu memotong Rp10.000 tanpa izin,
+   tanpa alasan, tanpa jejak, tanpa voucher di database), diganti `DiskonManual.tsx`.
+0h. **Jebakan yang kena di batch ini — CATAT, mudah terulang:** menambah migrasi baru yang memuat
+   pola `and pp.dipakai_pada is null` membuat mutasi **M6** di `alat/uji-mutasi-0012.py` mengenai
+   berkas BARU (pencarian "migrasi terbaru dulu"), sehingga M6 terbaca "pagar tumpul" padahal
+   pagar void tidak tersentuh — turun 16/16 → 15/16. Perbaikannya: sebut berkas migrasinya
+   EKSPLISIT (`0015_penutup_celah_putaran16.sql`). **Pelajaran umum: sesudah menambah migrasi,
+   jalankan `periksa-semua.sh` penuh — mutasi lama bisa tergeser diam-diam.**
+0i. **T-027 dibuka (butuh keputusan Lee):** pajak & service di keranjang kasir masih dihitung
+   layar (10 %/5 % perkiraan). Tidak membahayakan uang — angka sah selalu dari peladen dan itulah
+   yang dicetak struk — tetapi bila tarif resto berbeda, angka keranjang bisa meleset. Ini juga
+   membuat DoD **T3-02** belum sepenuhnya ditepati; dicatat apa adanya di ROADMAP (❓ T-027).
+   Tertangguh terbuka kini **2** (T-026 Playwright, T-027 keranjang).
+
+
 
 0. **BACA DULU — SATU HAL YANG BELUM SELESAI: commit `227a51b` BELUM TER-PUSH.** Token GitHub
    kedaluwarsa di akhir sesi (`gh auth status` → "The github.com token in GH_TOKEN is no longer

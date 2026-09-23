@@ -19,12 +19,12 @@
 import { useState } from 'react'
 import { Tombol } from '../../komponen/Tombol'
 import { Lapis } from '../../komponen/Lapis'
-import { KolomIsian } from '../../komponen/KolomIsian'
 import { Katalog, type MenuItemData, type VarianItem, type TambahanItem } from './Katalog'
 import { Keranjang, type ItemKeranjang, type RingkasanUang } from './Keranjang'
 import { PemilihMeja, type MejaData, type TipePesanan } from './PemilihMeja'
 import { TagihanTerbuka } from './TagihanTerbuka'
 import { Bayar, type BarisTagihan, type HasilBayar, type MetodeBayar, type Tagihan } from './Bayar'
+import { DiskonManual, type BatasDiskon, type HasilDiskon } from './DiskonManual'
 import type { DataStruk } from '../../komponen/Struk'
 
 export interface LayarKasirProps {
@@ -53,6 +53,26 @@ export interface LayarKasirProps {
   /** Kasir menutup struk: kontainer mengembalikan keadaan ke `siap`. */
   onSelesaiBayar?: () => void
   onCobaBayar?: () => void
+
+  // ------------------------------------------------------------ T5-05 diskon
+  /**
+   * Batas diskon pemakai yang sedang masuk, dari `izin_efektif('beri_diskon')`.
+   * `null` = belum diketahui; layar lalu bersikap hati-hati (minta persetujuan).
+   */
+  batasDiskon?: BatasDiskon | null
+  /** Atasan yang bisa dimintai persetujuan PIN di layar ini. */
+  daftarAtasan?: { id: string; nama: string }[]
+  /** Verifikasi PIN atasan untuk pesanan ini (RPC `verifikasi_pin`). */
+  onMintaPersetujuanDiskon?: (masukan: {
+    atasanId: string
+    pin: string
+  }) => Promise<HasilDiskon | null> | void
+  /** Mencatat diskon (insert `diskon_transaksi`; pagar di migrasi 0041). */
+  onTerapkanDiskon?: (masukan: {
+    nilai: number
+    alasan: string
+    disetujuiOleh: string | null
+  }) => Promise<HasilDiskon | null> | void
 }
 
 export function LayarKasir({
@@ -69,6 +89,10 @@ export function LayarKasir({
   onBayar,
   onSelesaiBayar,
   onCobaBayar,
+  batasDiskon = null,
+  daftarAtasan = [],
+  onMintaPersetujuanDiskon,
+  onTerapkanDiskon,
 }: LayarKasirProps) {
   // Keranjang State
   const [daftarItemKeranjang, setDaftarItemKeranjang] = useState<ItemKeranjang[]>([])
@@ -85,17 +109,32 @@ export function LayarKasir({
   const [bukaMejaModal, setBukaMejaModal] = useState(false)
   const [bukaOpenBillModal, setBukaOpenBillModal] = useState(false)
   const [bukaBayarModal, setBukaBayarModal] = useState(false)
-  const [bukaVoucherModal, setBukaVoucherModal] = useState(false)
+  const [bukaDiskonModal, setBukaDiskonModal] = useState(false)
 
-  // Voucher State
-  const [kodeVoucherInput, setKodeVoucherInput] = useState('')
+  /**
+   * Diskon yang SUDAH tercatat di peladen untuk tagihan ini (T5-05).
+   *
+   * Dulu di sini ada voucher keras-kode: mengetik "BAROKAH10K" langsung memotong
+   * Rp10.000 tanpa pagar izin, tanpa alasan, tanpa jejak siapa yang memberi, dan
+   * tanpa voucher apa pun di database. Itu dibuang. Sekarang diskon hanya masuk
+   * lewat `onTerapkanDiskon` → tabel `diskon_transaksi`, yang dijaga pemicu
+   * `picu_diskon_batas` (migrasi 0041): batas izin, PIN atasan bila di atas
+   * batas, alasan wajib, cap resto, dan jejak pelaku + penyetuju.
+   */
   const [diskonAktif, setDiskonAktif] = useState<number>(0)
 
-  // Hitung Nilai Rangkuman Terpusat (Berdasarkan aturan PB1 & Service)
+  /**
+   * Angka ringkasan. CATATAN JUJUR: pajak & service di sini masih dihitung layar
+   * dengan tarif 10 % / 5 % sebagai PERKIRAAN untuk mata kasir selagi keranjang
+   * disusun. Angka yang SAH selalu datang dari peladen (`hitung_total`) dan itulah
+   * yang dipakai layar Bayar serta dicetak di struk — layar tidak pernah menjadi
+   * sumber kebenaran uang. Menyatukan keduanya = butir tersendiri (lihat
+   * docs/TERTANGGUH.md T-027).
+   */
   const subtotal = daftarItemKeranjang.reduce((sum, item) => sum + item.subtotal, 0)
   const subtotalSetelahDiskon = Math.max(0, subtotal - diskonAktif)
-  const service = Math.round(subtotalSetelahDiskon * 0.05) // 5% Service charge
-  const pajak = Math.round(subtotalSetelahDiskon * 0.1) // 10% PB1
+  const service = Math.round(subtotalSetelahDiskon * 0.05) // 5% Service charge (perkiraan)
+  const pajak = Math.round(subtotalSetelahDiskon * 0.1) // 10% PB1 (perkiraan)
   const total = subtotalSetelahDiskon + service + pajak
 
   const ringkasanUang: RingkasanUang = {
@@ -276,15 +315,22 @@ export function LayarKasir({
     onSelesaiBayar?.()
   }
 
-  const tanganiKlaimVoucher = () => {
-    if (kodeVoucherInput.toUpperCase() === 'BAROKAH10K') {
-      setDiskonAktif(10000)
-      setBukaVoucherModal(false)
-      setKodeVoucherInput('')
-      alert('Voucher diskon Rp10.000 berhasil digunakan!')
-    } else {
-      alert('Kode voucher tidak ditemukan atau sudah kedaluwarsa.')
+  /**
+   * Diskon dicatat peladen dulu, baru layar ikut berubah. Urutannya sengaja:
+   * kalau peladen menolak (di atas batas, cap resto, tagihan sudah lunas), layar
+   * TIDAK boleh terlanjur menampilkan potongan yang tidak pernah tercatat.
+   */
+  const tanganiTerapkanDiskon = async (masukan: {
+    nilai: number
+    alasan: string
+    disetujuiOleh: string | null
+  }): Promise<HasilDiskon | null> => {
+    const hasil = (await onTerapkanDiskon?.(masukan)) ?? null
+    if (hasil?.berhasil) {
+      setDiskonAktif((sebelumnya) => sebelumnya + masukan.nilai)
+      setBukaDiskonModal(false)
     }
+    return hasil
   }
 
   return (
@@ -335,7 +381,7 @@ export function LayarKasir({
           onKirimKeDapur={tanganiKirimKeDapur}
           onProsesBayar={tanganiMulaiBayar}
           onBukaPemilihMeja={() => setBukaMejaModal(true)}
-          onBukaVoucher={() => setBukaVoucherModal(true)}
+          onBukaVoucher={() => setBukaDiskonModal(true)}
         />
       </div>
 
@@ -405,34 +451,18 @@ export function LayarKasir({
         </Lapis>
       )}
 
-      {/* Modal Klaim Voucher */}
-      {bukaVoucherModal && (
-        <Lapis
-          buka={true}
-          onTutup={() => setBukaVoucherModal(false)}
-          judul="Gunakan Voucher Diskon"
-        >
-          <div className="p-4 space-y-4 max-w-md mx-auto">
-            <KolomIsian
-              label="Masukkan Kode Voucher Pelanggan"
-              contoh="Mis. BAROKAH10K"
-              nilai={kodeVoucherInput}
-              onUbah={setKodeVoucherInput}
-            />
-
-            <div className="flex justify-end gap-2 pt-2 border-t border-neutral-200">
-              <Tombol ragam="biasa" onClick={() => setBukaVoucherModal(false)}>
-                Batal
-              </Tombol>
-              <Tombol
-                ragam="utama"
-                onClick={tanganiKlaimVoucher}
-                nonaktif={!kodeVoucherInput.trim()}
-              >
-                Cek & Terapkan
-              </Tombol>
-            </div>
-          </div>
+      {/* Diskon manual (T5-05) — menggantikan modal voucher keras-kode.
+          Pagar sungguhannya di migrasi 0041; layar hanya lapis pertama. */}
+      {bukaDiskonModal && (
+        <Lapis buka={true} onTutup={() => setBukaDiskonModal(false)} judul="Beri Diskon Manual">
+          <DiskonManual
+            subtotal={subtotal}
+            batas={batasDiskon}
+            daftarAtasan={daftarAtasan}
+            onMintaPersetujuan={onMintaPersetujuanDiskon}
+            onTerapkan={tanganiTerapkanDiskon}
+            onBatal={() => setBukaDiskonModal(false)}
+          />
         </Lapis>
       )}
     </div>

@@ -122,6 +122,9 @@ jobs:
       - name: Bukti mutasi pagar diskon 0019 — T5-04 satu diskon + tumpuk berbatas (5 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0019.py
 
+      - name: Bukti mutasi pagar diskon 0041 — T5-05 PIN atasan menaikkan batas (6 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0041.py
+
       - name: Bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22, 4 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0009.py
 

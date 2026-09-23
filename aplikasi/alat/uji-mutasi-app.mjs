@@ -156,6 +156,48 @@ const MUTASI = [
       '        {data.service > 0 ? <Baris label="Service" nilai={rupiah(data.service)} penanda="service" /> : null}',
     uji: 'src/komponen/Struk.test.tsx',
   },
+  {
+    nama: 'DiskonManual: batas yang belum diketahui dianggap AMAN (T5-05) — layar berjanji lebih longgar daripada peladen',
+    berkas: 'src/layar/kasir/DiskonManual.tsx',
+    cari: '  if (!batas) return true',
+    ganti: '  if (!batas) return false',
+    uji: 'src/layar/kasir/DiskonManual.test.tsx',
+  },
+  {
+    nama: 'DiskonManual: batas PERSEN tidak diperiksa (T5-05) — diskon kecil-rupiah tapi besar-persen lolos tanpa atasan',
+    berkas: 'src/layar/kasir/DiskonManual.tsx',
+    cari: '  if (batas.batasPersen !== null && persenEfektif(nilai, subtotal) > batas.batasPersen) return true',
+    ganti: '  // mutasi: batas persen tidak diperiksa',
+    uji: 'src/layar/kasir/DiskonManual.test.tsx',
+  },
+  {
+    nama: 'DiskonManual: tombol terapkan hidup tanpa persetujuan atasan (T5-05)',
+    berkas: 'src/layar/kasir/DiskonManual.tsx',
+    cari: '    nilai > 0 && alasanTerisi && !sedangKirim && (!perluPersetujuan || sudahDisetujui)',
+    ganti: '    nilai > 0 && alasanTerisi && !sedangKirim',
+    uji: 'src/layar/kasir/DiskonManual.test.tsx',
+  },
+  {
+    nama: 'DiskonManual: alasan tidak lagi wajib (T5-05) — laporan diskon kehilangan maknanya',
+    berkas: 'src/layar/kasir/DiskonManual.tsx',
+    cari: '  const alasanTerisi = alasan.trim().length > 0',
+    ganti: '  const alasanTerisi = true',
+    uji: 'src/layar/kasir/DiskonManual.test.tsx',
+  },
+  {
+    nama: 'DiskonManual: PIN yang DITOLAK tetap dianggap persetujuan sah (T5-05)',
+    berkas: 'src/layar/kasir/DiskonManual.tsx',
+    cari: '    if (hasil?.berhasil) {\n      setDisetujuiOleh(atasanId)',
+    ganti: '    if (true) {\n      setDisetujuiOleh(atasanId)',
+    uji: 'src/layar/kasir/DiskonManual.test.tsx',
+  },
+  {
+    nama: 'LayarKasir: diskon yang DITOLAK peladen tetap memotong tagihan di layar (T5-05)',
+    berkas: 'src/layar/kasir/LayarKasir.tsx',
+    cari: '    if (hasil?.berhasil) {\n      setDiskonAktif((sebelumnya) => sebelumnya + masukan.nilai)',
+    ganti: '    if (true) {\n      setDiskonAktif((sebelumnya) => sebelumnya + masukan.nilai)',
+    uji: 'src/layar/kasir/LayarKasirDiskon.test.tsx',
+  },
 ]
 
 /**

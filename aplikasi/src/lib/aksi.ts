@@ -148,9 +148,14 @@ export const REGISTRI_AKSI: Record<string, EntriAksi> = {
     layar: 'kasir',
     peran: ['owner_pusat', 'admin_cabang', 'kasir'],
     izin: 'beri_diskon',
-    rpc: 'hitung_total',
+    // T5-05: diskon dicatat ke `diskon_transaksi`; pagar batas/PIN atasan ada di
+    // pemicu `picu_diskon_batas` (migrasi 0041). `hitung_total` hanya menyusul
+    // memperbarui angka pesanan, jadi bukan itu pintu aksinya.
+    rpc: 'diskon_transaksi',
     jenis: 'tulis',
     konfirmasi: 'Terapkan diskon pada transaksi ini?',
+    // Bukan selalu: PIN atasan diminta hanya bila nilainya di atas batas pemakai.
+    // Layar menanyakannya sendiri (DiskonManual.tsx) dan peladen menegakkannya.
     pin: false,
     audit: true,
     sukses: 'Diskon berhasil diterapkan pada pesanan.',

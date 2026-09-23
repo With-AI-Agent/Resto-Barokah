@@ -11,8 +11,7 @@ Ringkasan keadaan kerja untuk sesi berikutnya. Rincian rencana ada di
 
 **Pekerjaan belum tersimpan:** Tidak ada
 
-> **Catatan (2026-09-23):** semua pekerjaan sudah ter-*commit* (karena itu field di atas "Tidak ada"),
-> tetapi commit `227a51b` **belum ter-*push*** — token GitHub kedaluwarsa di akhir sesi. Sesi
-> berikutnya: sambungkan ulang GitHub, lalu `git push origin arena/01a0cca9-resto-barokah`.
+> **Catatan (2026-09-23):** commit `227a51b` dan `7aec492` yang sempat tertahan token GitHub
+> kedaluwarsa **sudah ter-push**. Tidak ada pekerjaan yang tertinggal.
 
-**Waktu pembaruan:** 2026-09-23 — Fase 5: T5-01/T5-03/T5-04 selesai (330 tes aplikasi, 83 uji SQL, mutasi 0019 5/5 MERAH); T-026 Playwright menunggu Lee
+**Waktu pembaruan:** 2026-09-23 — Fase 5: T5-01…T5-05 selesai (353 tes aplikasi, 84 uji SQL, mutasi 0041 6/6 MERAH, mutasi UI 20/20 MERAH); T-026 & T-027 menunggu Lee
