@@ -1083,14 +1083,24 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 5 — Pembayaran & pembatalan (M6)
 
-- [ ] T5-01 — Layar pembayaran (metode + uang diterima)
+- [x] T5-01 — Layar pembayaran (metode + uang diterima)
   - **Tujuan:** kasir menyelesaikan pembayaran dalam hitungan detik dengan pilihan metode yang jelas.
   - **Ref:** PRD M6; TECH_SPEC §4 (metode_bayar)
-  - **File:** `aplikasi/src/layar/kasir/Bayar.tsx`
-  - **DoD:** metode aktif dari pengaturan (tunai, QRIS, transfer, e-wallet, kartu); tombol uang cepat (50rb/100rb/uang pas); kembalian besar & jelas; metode nonaktif tidak tampil.
+  - **File:** `aplikasi/src/layar/kasir/Bayar.tsx` (komponen murni) + `aplikasi/src/hook/useBayar.ts`
+    (kabel data: metode aktif dari `metode_bayar`, uang lewat RPC `bayar_pesanan`) +
+    `aplikasi/src/layar/kasir/Bayar.test.tsx` + `aplikasi/src/hook/useBayar.test.tsx`
+  - **DoD:** metode aktif dari peladen (layar tidak punya daftar metode bawaan — yang nonaktif
+    memang tidak dikirim, disaring `.eq('aktif', true)`); tombol uang cepat (Uang pas/50rb/100rb);
+    kembalian besar & jelas (pra-konfirmasi = perkiraan, sesudah tercatat = angka peladen);
+    konfirmasi nilai sebelum dicatat + tombol Batal mudah; pembayaran sebagian sah (split bill)
+    dengan tawaran "Bayar sisa".
   - **Kompleksitas:** sedang (4 jam)
-  - **Risiko & mitigasi:** salah tekan nominal → mitigasi: konfirmasi nilai + tampilan kembalian besar + tombol batal mudah.
-  - **Verifikasi:** uji manual 5 metode + uji unit format uang.
+  - **Risiko & mitigasi:** salah tekan nominal → mitigasi: lapis konfirmasi ("Periksa dulu sebelum
+    dicatat") + kembalian besar + tombol Batal; kunci idempoten STABIL per tagihan + urutan
+    pembayaran sehingga dobel tekan tidak mencatat uang dua kali.
+  - **Verifikasi:** 25 uji unit (12 layar + 13 kabel data) + 4 mutasi perilaku baru di
+    `aplikasi/alat/uji-mutasi-app.mjs` (9/9 MERAH). Uji manual 5 metode di resto nyata tetap
+    milik Lee (butuh perangkat + Supabase terisi).
 
 - [x] T5-02 — RPC bayar_pesanan (tunai + kembalian) ⚠️
   - **Tujuan:** pembayaran tercatat sekali, benar, dan tidak bisa hilang walau jaringan goyah.

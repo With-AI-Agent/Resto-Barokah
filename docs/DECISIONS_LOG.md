@@ -1859,3 +1859,30 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   transaksi. Jangan mengurutkan rantai audit dengan `waktu` di laporan/kueri ad-hoc — pakai `urutan`.
   Kolom `urutan` adalah teknis dan SENGAJA tidak ikut di-hash; `waktu` tetap disimpan, tetap di-hash, dan
   tetap yang tampil ke pengguna.
+
+### [Fase 5/2026-09-23] Layar Bayar: metode dari peladen, kunci idempoten stabil di klien
+- **Area:** Kontrak UI ↔ RPC pembayaran (menyentuh ART-3 uang)
+- **Keputusan:** `aplikasi/src/layar/kasir/Bayar.tsx` adalah komponen MURNI; kabel datanya
+  `aplikasi/src/hook/useBayar.ts`. Tiga aturan yang mengikat:
+  1. **Daftar metode bayar datang dari peladen** (`.eq('aktif', true)`, urut `urutan` lalu nama).
+     Layar tidak punya daftar metode bawaan — sebelumnya `LayarKasir.tsx` mengeras-kodekan
+     `'tunai' | 'qris' | 'kartu'`, yang membuat metode nonaktif tetap tampil dan metode baru
+     tidak pernah muncul.
+  2. **Kunci idempoten dibuat di klien dan STABIL**: `bayar-<pesananId>-<urutanBayar>`, bukan acak
+     per klik. RPC 0039 idempoten per `(pesanan_id, kunci_idempoten)`; kunci yang stabil membuat
+     tombol yang terkirim dua kali tidak mencatat uang dua kali. Urutan hanya maju untuk balasan
+     yang `dobel: false`.
+  3. **Kembalian di layar sebelum konfirmasi adalah PERKIRAAN** dan disebut demikian di UI; angka
+     SAH adalah `kembalian` dari balasan peladen dan itulah yang ditampilkan besar sesudah
+     pembayaran tercatat. Layar tidak pernah menghitung uang untuk disimpan.
+- **Alasan:** mengikuti pola kontainer/komponen yang sudah dipakai `useTiketDapur` (KDS) dan
+  `useStok` (Stok/Opname) — layar tetap bisa diuji tanpa jaringan, dan semua aturan uang tetap di
+  peladen. Kunci acak per klik akan membuat fitur idempoten 0039 tidak berguna sama sekali.
+- **File terkait:** `aplikasi/src/layar/kasir/Bayar.tsx` (+ uji), `aplikasi/src/hook/useBayar.ts`
+  (+ uji), `aplikasi/src/lib/aksi.ts` (`kasir.proses_bayar` kini menunjuk RPC `bayar_pesanan`,
+  sebelumnya `hitung_total`), `docs/PETA_UI.md` (digenerate ulang),
+  `aplikasi/alat/uji-mutasi-app.mjs` (+4 mutasi)
+- **Implikasi:** layar apa pun yang mencatat uang WAJIL lewat `bayar_pesanan` dan memakai kunci
+  idempoten stabil. Jangan menulis `insert into pembayaran` dari klien. `LayarKasir.tsx` masih
+  punya modal bayar lama yang mengeras-kodekan tiga metode — itu yang harus diganti saat layar
+  ini disambungkan ke alur kasir (belum dilakukan di batch ini).

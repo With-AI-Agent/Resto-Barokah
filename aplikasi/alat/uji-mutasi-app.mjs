@@ -90,6 +90,34 @@ const MUTASI = [
     ganti: '  if (!simpan) return false\n  simpan.setItem(kunci, nilai)\n  return true',
     uji: 'src/hook/useTema.test.tsx',
   },
+  {
+    nama: 'Bayar: penjaga uang diterima kurang dilepas (T5-01)',
+    berkas: 'src/layar/kasir/Bayar.tsx',
+    cari: '    (!tunai || nilaiDiterima >= jumlahBayar) &&',
+    ganti: '    (!tunai || true) &&',
+    uji: 'src/layar/kasir/Bayar.test.tsx',
+  },
+  {
+    nama: 'Bayar: perkiraan kembalian tidak mengurangi tagihan (T5-01)',
+    berkas: 'src/layar/kasir/Bayar.tsx',
+    cari: 'Math.max(0, nilaiDiterima - sisa)',
+    ganti: 'Math.max(0, nilaiDiterima)',
+    uji: 'src/layar/kasir/Bayar.test.tsx',
+  },
+  {
+    nama: 'useBayar: kunci idempoten diacak per klik — dobel tekan mencatat uang dua kali (T5-01)',
+    berkas: 'src/hook/useBayar.ts',
+    cari: 'p_kunci_idempoten: kunciIdempoten(pesananId, urutanBayar.current + 1),',
+    ganti: 'p_kunci_idempoten: `bayar-${Math.random()}`,',
+    uji: 'src/hook/useBayar.test.tsx',
+  },
+  {
+    nama: 'useBayar: balasan dobel tetap memajukan urutan kunci (T5-01)',
+    berkas: 'src/hook/useBayar.ts',
+    cari: 'if (!balasan.dobel) urutanBayar.current += 1',
+    ganti: 'urutanBayar.current += 1',
+    uji: 'src/hook/useBayar.test.tsx',
+  },
 ]
 
 /**

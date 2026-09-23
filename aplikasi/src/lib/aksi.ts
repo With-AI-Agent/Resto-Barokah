@@ -165,14 +165,20 @@ export const REGISTRI_AKSI: Record<string, EntriAksi> = {
     layar: 'kasir',
     peran: ['owner_pusat', 'admin_cabang', 'kasir'],
     izin: null,
-    rpc: 'hitung_total',
+    // Sejak T5-02 uang masuk HANYA lewat RPC bayar_pesanan (migrasi 0039):
+    // hitung_total hanya penulis kolom uang pesanan, bukan pencatat pembayaran.
+    rpc: 'bayar_pesanan',
     jenis: 'tulis',
-    konfirmasi: 'Selesaikan transaksi pembayaran?',
+    konfirmasi: 'Periksa nominal dan metode, lalu catat pembayaran?',
     pin: false,
     audit: true,
-    sukses: 'Pembayaran diterima dan pesanan ditutup lunas.',
+    sukses: 'Pembayaran tercatat. Kembalian dan status lunas mengikuti hitungan peladen.',
     gagal: 'Pembayaran gagal diproses.',
-    uji: ['uji_kasir_bayar_tunai_lunas'],
+    uji: [
+      'uji_kasir_bayar_tunai_lunas',
+      'src/hook/useBayar.test.tsx',
+      'src/layar/kasir/Bayar.test.tsx',
+    ],
     sembunyikanBilaTanpaIzin: true,
   },
   'kasir.buka_shift': {

@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0cb7f-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0cb7f-resto-barokah`
-- **Commit keadaan kerja:** `574662a97a35fb0373e2f038154aa165c8c2df63`
+- **Commit keadaan kerja:** `d1866ed7eee7beb7929d5adbcfcf9cc10ef6d34a`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit 574662a9)
+- **CI terakhir:** success (1 run, commit d1866ed7)
 - **Ditulis:** 2026-09-23 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **0** — (tidak ada)
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (114 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (207 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (116 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (209 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -110,8 +110,9 @@ JANGAN merge apa pun tanpa keputusan Lee.
    dijalankan lokal sebelum push.
 9. **URUTAN BERIKUTNYA:** (a) infra e2e Playwright (`aplikasi/uji/e2e/dapur.spec.ts` — berkasnya belum dibuat) — butuh dependensi dev baru + langkah CI baru (ingat: setiap perintah CI
    baru WAJIB didaftarkan di `GERBANG_WAJIB` + `periksa-semua.sh`, kalau tidak CI merah sendiri);
-   (b) Fase 5 sisa: **T5-01 layar Bayar** + **T5-03 struk** (pintu uangnya sudah ada, lihat butir 10),
-   lalu pembayaran multimode/split bill/struk termal/buka-tutup shift.
+   (b) Fase 5 sisa: **T5-03 struk** (pajak & service terpisah), **menyambungkan `LayarKasir.tsx`
+   ke layar Bayar** (lihat butir 13 — modal lama masih mengeras-kodekan 3 metode), lalu struk
+   termal/buka-tutup shift. T5-01 dan T5-02 sudah selesai (butir 10 & 13).
    **Bukti manual/visual T4-03, T4-05, T4-10 tetap milik Lee** (agent tidak bisa memotret layar
    atau mencabut kabel jaringan).
 10. **T5-02 RPC `bayar_pesanan` = SELESAI (batch 2026-09-23).** Pintu tunggal uang masuk ada di
@@ -126,6 +127,26 @@ JANGAN merge apa pun tanpa keputusan Lee.
     T5-02 ditulis). Kini rantai diurutkan kolom `urutan bigserial` yang diterbitkan peladen; payload
     hash tidak berubah sehingga hash lama tetap sah. Bukti: `supabase/tes/urutan_rantai_audit.sql`
     + `alat/uji-mutasi-0040.py` **4/4 MERAH**. Dasar: `docs/DECISIONS_LOG.md` [Fase 5/2026-09-23].
+13. **T5-01 LAYAR BAYAR = SELESAI (batch 2026-09-23, CI `35817220796` SUCCESS).**
+    `aplikasi/src/layar/kasir/Bayar.tsx` (komponen murni) + `aplikasi/src/hook/useBayar.ts`
+    (kabel data). Metode bayar dari peladen dan hanya yang aktif; uang lewat RPC `bayar_pesanan`;
+    kunci idempoten STABIL `bayar-<pesananId>-<urutan>`; kembalian pra-konfirmasi = perkiraan,
+    yang sah dari peladen; pembayaran sebagian sah ("Bayar sisa"). Registri aksi
+    `kasir.proses_bayar` dipindah dari `hitung_total` ke `bayar_pesanan`; `PETA_UI.md` digenerate
+    ulang. Bukti: aplikasi **56 berkas / 305 tes**, `uji-mutasi-app.mjs` **9/9 MERAH** (+4 mutasi).
+    **Yang sengaja belum:** `LayarKasir.tsx` belum disambungkan ke layar ini — modal bayar lamanya
+    masih mengeras-kodekan `'tunai' | 'qris' | 'kartu'`. Menyambungkan berarti mengubah alur kasir
+    (dan `AlurKasirE2E.test.tsx`), jadi sebaiknya diputuskan Lee lebih dulu.
+14. **CATATAN LINGKUNGAN (2026-09-23):** sandbox sempat di-reset saat GitHub disambung ulang —
+    klon kembali ke commit dasar dan **riwayat lokal hilang** (commit yang belum ter-push lenyap),
+    tetapi isi berkas dikembalikan snapshot sebagai perubahan belum di-commit. Pemulihannya:
+    `git fetch origin` → `git reset <ujung-remote>` (tanpa menyentuh isi kerja) → commit ulang.
+    Klon baru juga **dangkal**: `periksa-paket.py` merah palsu sampai `git fetch --unshallow`
+    (CI memakai `fetch-depth: 0`). Dependensi (`npm ci`, `pip install pgserver psycopg`) hilang semua.
+    **Pelajaran: push segera setelah bukti lengkap.**
+15. **Dua jebakan pemeriksa yang kena di batch ini:** (a) test id di repo ini `data-testid`, bukan
+    `data-uji`; (b) `periksa-struktur.py` menolak pola warna heksadesimal di SEMUA `.ts/.tsx`
+    termasuk berkas uji — teks `#101` pun kena, pakai `No. 101`.
 12. **Yang diukur dan TIDAK jadi diuji (jangan diulang):** kunci baris `for update` di 0039 tidak bisa
     dibuktikan dengan mutasi karena `picu_pembayaran_jujur` (0012) mengunci baris pesanan yang sama saat
     INSERT — diukur langsung dua koneksi nyata (pgserver): pekerja tetap tertahan di pemicu, bukti
