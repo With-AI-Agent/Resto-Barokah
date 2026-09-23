@@ -84,9 +84,10 @@ JANGAN merge apa pun tanpa keputusan Lee.
    (d) `docs/PROJECT_STATE.md` merujuk `aplikasi/uji/e2e/dapur.spec.ts` (berkas rencana — belum dibuat) tanpa penanda rencana.
    Bukti lokal: 53/53 perintah langkah itu LOLOS · `bash aplikasi/alat/periksa-semua.sh` kode keluar 0
    · Prettier bersih. Rincian: `_log-sesi/LOG_SESI_2026-09-23.md` bagian sesi `arena/01a0cb7f`.
-3. **LANGKAH PERTAMA SESI BERIKUTNYA:** buktikan run CI pengganti commit ini **success**
-   (`gh run list --branch arena/01a0cb7f-resto-barokah`). Kalau masih merah, perbaiki dulu — jangan
-   mulai pekerjaan baru, dan jangan klaim hijau tanpa run sukses yang terbaca.
+3. **CI SUDAH HIJAU TERBUKTI:** run **`35801364931`** pada commit **`9a6a6c8`** = `completed success`
+   (job "Periksa (lint · tipe · uji · pemeriksa Python)" ✓ 11m51s, 0 langkah merah). Pembanding: run
+   `35798327450` pada `f7fd468` (pohon sebelum perbaikan) = failure. Sesudah commit penutup batch ini,
+   sesi berikutnya tetap wajib membaca ulang status CI commit terakhir sebelum mulai pekerjaan baru.
 4. **Penting bila Lee membuka sesi baru lagi:** baris pertama `PROMPT_SESI_BARU.md` masih berisi
    `arena/01a0c97c-resto-barokah` (berkas STATIS — hanya Lee yang mengisinya). Ganti ke
    `arena/01a0cb7f-resto-barokah` supaya pekerjaan perbaikan CI ini tidak tertinggal.
