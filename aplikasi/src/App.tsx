@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PenyediaBahasa } from './bahasa'
 import { useSesi } from './hook/useSesi'
+import { useTiketDapur } from './hook/useTiketDapur'
 import { Rangka } from './komponen/Rangka'
 import LayarContoh from './layar/contoh/LayarContoh'
 import { LayarMasukPegawai } from './layar/masuk/LayarMasukPegawai'
@@ -15,6 +16,12 @@ import { Opname } from './layar/dapur/Opname'
 export default function App() {
   const { sesi, sedangMasuk, masuk, keluar } = useSesi()
   const [layarAktif, setLayarAktif] = useState<string>('kasir')
+  const cabangId = sesi?.cabangAktifId || 'cab-01'
+  // Kabel data papan dapur & bar (sisa Fase 4 butir c): tiket nyata dari peladen,
+  // waktu peladen (bukan jam perangkat), cadangan antrean saat jaringan putus,
+  // dan aksi tulis lewat RPC. Komponen layar tetap murni — kontainer di sini.
+  const dapur = useTiketDapur({ cabangId, bagian: 'dapur' })
+  const bar = useTiketDapur({ cabangId, bagian: 'bar' })
 
   const renderKonten = () => {
     switch (layarAktif) {
@@ -27,16 +34,27 @@ export default function App() {
       case 'dapur':
         return (
           <LayarDapur
-            tiket={[]}
-            waktuSekarang={new Date().toISOString()}
+            tiket={dapur.tiket}
+            waktuSekarang={dapur.waktuSekarang}
+            keadaan={dapur.keadaan}
+            antreanCadangan={dapur.antreanCadangan}
+            onMulaiMasak={(itemId) => void dapur.mulaiMasak(itemId)}
+            onSelesaiMasak={(itemId) => void dapur.selesaiMasak(itemId)}
+            onTandaiHabis={(menuItemId) => void dapur.tandaiHabis(menuItemId)}
+            onCoba={dapur.muatUlang}
             onKeBar={() => setLayarAktif('bar')}
           />
         )
       case 'bar':
         return (
           <LayarBar
-            tiket={[]}
-            waktuSekarang={new Date().toISOString()}
+            tiket={bar.tiket}
+            waktuSekarang={bar.waktuSekarang}
+            keadaan={bar.keadaan}
+            antreanCadangan={bar.antreanCadangan}
+            onMulaiMasak={(itemId) => void bar.mulaiMasak(itemId)}
+            onSelesaiMasak={(itemId) => void bar.selesaiMasak(itemId)}
+            onCoba={bar.muatUlang}
             onKeDapur={() => setLayarAktif('dapur')}
           />
         )

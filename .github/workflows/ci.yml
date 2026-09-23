@@ -161,6 +161,9 @@ jobs:
       - name: Bukti mutasi opname_stok 0037 (T4-07)
         run: python3 alat/uji-mutasi-0037.py
 
+      - name: Bukti mutasi waktu peladen 0038 (KDS — jam peladen, bukan jam perangkat)
+        run: python3 alat/uji-mutasi-0038.py
+
       - name: Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka)
         run: |
           python3 -m pip install --quiet --break-system-packages pgserver "psycopg[binary]"
