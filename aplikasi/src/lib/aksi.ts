@@ -148,10 +148,12 @@ export const REGISTRI_AKSI: Record<string, EntriAksi> = {
     layar: 'kasir',
     peran: ['owner_pusat', 'admin_cabang', 'kasir'],
     izin: 'beri_diskon',
-    // T5-05: diskon dicatat ke `diskon_transaksi`; pagar batas/PIN atasan ada di
-    // pemicu `picu_diskon_batas` (migrasi 0041). `hitung_total` hanya menyusul
-    // memperbarui angka pesanan, jadi bukan itu pintu aksinya.
-    rpc: 'diskon_transaksi',
+    // T5-05: diskon TIDAK lewat RPC — ia dicatat sebagai baris `diskon_transaksi`
+    // (insert biasa yang dijaga RLS), dan pagar batas/PIN atasan ditegakkan pemicu
+    // `picu_diskon_batas` (migrasi 0041). Kolom ini sengaja `null`: menuliskan nama
+    // tabel di sini membuat pemeriksa peta-ui mencarinya sebagai fungsi dan gagal,
+    // sekaligus menyesatkan pembaca seolah ada RPC bernama sama.
+    rpc: null,
     jenis: 'tulis',
     konfirmasi: 'Terapkan diskon pada transaksi ini?',
     // Bukan selalu: PIN atasan diminta hanya bila nilainya di atas batas pemakai.

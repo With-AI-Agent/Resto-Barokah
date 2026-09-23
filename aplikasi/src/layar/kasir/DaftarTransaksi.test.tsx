@@ -110,14 +110,14 @@ describe('DaftarTransaksi — cetak ulang', () => {
 
   it('pratinjau struk SUDAH bertanda SALINAN, bukan hanya hasil cetaknya', () => {
     render(<DaftarTransaksi daftar={DAFTAR} />)
-    fireEvent.click(screen.getByTestId('transaksi-101'))
+    fireEvent.click(screen.getByRole('button', { name: /Lihat struk No. 101/i }))
 
     expect(screen.getByTestId('struk-salinan').textContent).toContain('SALINAN')
   })
 
   it('angka struk salinan sama persis dengan aslinya (cetak ulang, bukan hitung ulang)', () => {
     render(<DaftarTransaksi daftar={DAFTAR} />)
-    fireEvent.click(screen.getByTestId('transaksi-101'))
+    fireEvent.click(screen.getByRole('button', { name: /Lihat struk No. 101/i }))
 
     expect(screen.getByTestId('struk-total').textContent).toContain('Rp62.100')
   })
@@ -126,7 +126,7 @@ describe('DaftarTransaksi — cetak ulang', () => {
     const onCetakUlang = vi.fn()
     render(<DaftarTransaksi daftar={DAFTAR} onCetakUlang={onCetakUlang} />)
 
-    fireEvent.click(screen.getByTestId('transaksi-102'))
+    fireEvent.click(screen.getByRole('button', { name: /Lihat struk No. 102/i }))
     fireEvent.click(screen.getByRole('button', { name: /Cetak ulang struk/i }))
 
     expect(onCetakUlang).toHaveBeenCalledTimes(1)

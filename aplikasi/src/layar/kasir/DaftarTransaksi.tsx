@@ -106,21 +106,29 @@ export function DaftarTransaksi({ daftar, onCetakUlang, onTutup }: DaftarTransak
       ) : (
         <ul className="daftar-transaksi__hasil" data-testid="transaksi-hasil">
           {hasil.map((baris) => (
-            <li key={baris.id}>
-              <button
-                type="button"
-                className={
-                  baris.id === dipilih
-                    ? 'daftar-transaksi__baris daftar-transaksi__baris--pilih'
-                    : 'daftar-transaksi__baris'
-                }
+            /* Barisnya memakai <Tombol>, bukan tombol mentah: kontrak UI
+               (peta-ui Aturan 7) melarang tombol liar supaya gaya, ukuran
+               sentuh, dan label aksesibel tidak berbeda-beda antar layar. */
+            <li
+              key={baris.id}
+              className={
+                baris.id === dipilih
+                  ? 'daftar-transaksi__baris daftar-transaksi__baris--pilih'
+                  : 'daftar-transaksi__baris'
+              }
+              data-testid={`transaksi-${baris.data.nomor}`}
+              data-pilih={baris.id === dipilih ? 'ya' : 'tidak'}
+            >
+              <Tombol
+                ragam="polos"
+                lebar
+                nama={`Lihat struk No. ${baris.data.nomor}`}
                 onClick={() => setDipilih(baris.id)}
-                data-testid={`transaksi-${baris.data.nomor}`}
               >
                 <span>No. {baris.data.nomor}</span>
                 <span>{jamLokal(new Date(baris.data.tanggal))}</span>
                 <span>{rupiah(baris.data.total)}</span>
-              </button>
+              </Tombol>
             </li>
           ))}
         </ul>
