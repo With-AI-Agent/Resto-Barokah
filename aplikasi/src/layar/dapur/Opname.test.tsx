@@ -50,6 +50,15 @@ describe('Opname (T4-07)', () => {
     expect(onSimpan).not.toHaveBeenCalled()
   })
 
+  it('keadaan gagal tampil tegas (bukan daftar kosong yang menipu) + bisa dicoba lagi', () => {
+    const onCoba = vi.fn()
+    render(<Opname bahan={[]} keadaan="gagal" onCoba={onCoba} />)
+    expect(screen.getByText('Gagal memuat daftar bahan')).toBeTruthy()
+    expect(screen.queryByText('Belum ada bahan untuk diopname.')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /coba lagi/i }))
+    expect(onCoba).toHaveBeenCalled()
+  })
+
   it('keadaan kosong ramah + kembali ke stok', () => {
     const onKembali = vi.fn()
     render(<Opname bahan={[]} onKembali={onKembali} />)

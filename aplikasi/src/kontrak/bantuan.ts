@@ -175,4 +175,52 @@ export const DAFTAR_BANTUAN: Record<string, BantuanLayar> = {
     ],
     aksiTerkait: ['contoh.ganti_tema', 'contoh.ganti_kerapatan', 'contoh.picu_toast'],
   },
+  bar: {
+    idLayar: 'bar',
+    judul: 'Panduan Antrean Bar & Minuman',
+    ringkasan:
+      'Minuman masuk ke papan bar terpisah dari dapur; ubah statusnya saat mulai dibuat dan saat siap.',
+    langkah: [
+      'Perhatikan kartu paling atas: itu pesanan minuman paling lama menunggu.',
+      'Tekan Mulai Buat pada kartu minuman yang sedang Anda kerjakan.',
+      'Tekan Siap Saji setelah minuman selesai agar kasir dan pelayan tahu.',
+      'Bila bahan minuman habis, tandai habis dari papan dapur agar kasir berhenti menjual.',
+    ],
+    kalauMacet:
+      'Bila papan tidak bertambah, periksa sambungan: layar memakai antrean tersimpan dengan tanda Tertunda sampai peladen terjangkau lagi.',
+    peranBoleh: ['owner_pusat', 'admin_cabang', 'kasir', 'dapur'],
+    aksiTerkait: ['bar.mulai_buat', 'bar.selesai_buat'],
+  },
+  stok: {
+    idLayar: 'stok',
+    judul: 'Panduan Stok Bahan',
+    ringkasan:
+      'Saldo bahan dan buku besar perubahan: catat penambahan atau pengurangan sebagai selisih dengan alasan.',
+    langkah: [
+      'Cari bahan yang berubah jumlahnya pada tabel saldo.',
+      'Tekan tombol Catat pada bahan itu, lalu isi perubahan (+ masuk, − terpakai).',
+      'Tulis alasannya; alasan wajib supaya riwayat bisa diaudit.',
+      'Simpan; buku besar mencatat siapa, kapan, berapa, dan alasannya.',
+    ],
+    kalauMacet:
+      'Riwayat stok tidak bisa diubah atau dihapus dari layar mana pun; bila ada angka yang keliru, perbaiki lewat opname.',
+    peranBoleh: ['owner_pusat', 'admin_cabang', 'dapur'],
+    aksiTerkait: ['stok.catat_perubahan', 'stok.ke_opname'],
+  },
+  opname: {
+    idLayar: 'opname',
+    judul: 'Panduan Opname Stok',
+    ringkasan:
+      'Hitung fisik bahan, isi hasilnya; selisih terhadap saldo sistem tampil apa adanya dan tercatat.',
+    langkah: [
+      'Tekan Hitung pada bahan yang sudah Anda hitung fisiknya.',
+      'Isi jumlah nyata hasil hitung (bukan selisihnya).',
+      'Periksa pratinjau selisih yang muncul apa adanya.',
+      'Tulis alasan opname lalu simpan; selisih nol memang tidak dicatat.',
+    ],
+    kalauMacet:
+      'Opname tidak menghapus riwayat lama: catatan sebelumnya tetap ada di buku besar untuk diperiksa.',
+    peranBoleh: ['owner_pusat', 'admin_cabang', 'dapur'],
+    aksiTerkait: ['opname.catat_fisik', 'opname.kembali_stok'],
+  },
 }

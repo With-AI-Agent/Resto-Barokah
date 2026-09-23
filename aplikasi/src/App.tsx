@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PenyediaBahasa } from './bahasa'
 import { useSesi } from './hook/useSesi'
+import { useStok } from './hook/useStok'
 import { useTiketDapur } from './hook/useTiketDapur'
 import { Rangka } from './komponen/Rangka'
 import LayarContoh from './layar/contoh/LayarContoh'
@@ -22,6 +23,9 @@ export default function App() {
   // dan aksi tulis lewat RPC. Komponen layar tetap murni — kontainer di sini.
   const dapur = useTiketDapur({ cabangId, bagian: 'dapur' })
   const bar = useTiketDapur({ cabangId, bagian: 'bar' })
+  // Kabel data stok & opname (T4-06/T4-07): saldo bahan, buku besar, dan aksi
+  // tulis lewat RPC set_stok / opname_stok (selisih dihitung peladen).
+  const stok = useStok()
 
   const renderKonten = () => {
     switch (layarAktif) {
@@ -59,9 +63,28 @@ export default function App() {
           />
         )
       case 'menu_stok':
-        return <Stok bahan={[]} riwayat={[]} onKeOpname={() => setLayarAktif('opname')} />
+        return (
+          <Stok
+            bahan={stok.bahan}
+            riwayat={stok.riwayat}
+            keadaan={stok.keadaan}
+            onSimpan={(bahanId, delta, alasan) => void stok.catatStok(bahanId, delta, alasan)}
+            onKeOpname={() => setLayarAktif('opname')}
+            onCoba={stok.muatUlang}
+          />
+        )
       case 'opname':
-        return <Opname bahan={[]} onKembali={() => setLayarAktif('menu_stok')} />
+        return (
+          <Opname
+            bahan={stok.bahan}
+            keadaan={stok.keadaan}
+            onCoba={stok.muatUlang}
+            onSimpan={(bahanId, jumlahFisik, alasan) =>
+              void stok.catatOpname(bahanId, jumlahFisik, alasan)
+            }
+            onKembali={() => setLayarAktif('menu_stok')}
+          />
+        )
       default:
         return <LayarContoh />
     }

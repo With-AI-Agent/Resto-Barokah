@@ -10,6 +10,7 @@ import { Lencana } from '../../komponen/Lencana'
 import { Tombol } from '../../komponen/Tombol'
 import { KolomIsian } from '../../komponen/KolomIsian'
 import { KeadaanKosong } from '../../komponen/KeadaanKosong'
+import { KeadaanGagal } from '../../komponen/KeadaanGagal'
 import { KeadaanMemuat } from '../../komponen/KeadaanMemuat'
 import type { BarisBahan } from './Stok'
 
@@ -18,11 +19,15 @@ export function Opname({
   keadaan = 'siap',
   onSimpan,
   onKembali,
+  onCoba,
 }: {
   bahan: BarisBahan[]
-  keadaan?: 'memuat' | 'siap'
+  /** `gagal` ditambahkan saat layar ini dikabel ke data nyata (useStok): tanpa
+   *  keadaan itu kegagalan jaringan tampil sebagai daftar kosong yang menipu. */
+  keadaan?: 'memuat' | 'gagal' | 'siap'
   onSimpan?: (bahanId: string, jumlahFisik: number, alasan: string) => void
   onKembali?: () => void
+  onCoba?: () => void
 }) {
   const [dipilih, setDipilih] = useState<BarisBahan | null>(null)
   const [fisik, setFisik] = useState('')
@@ -49,6 +54,13 @@ export function Opname({
       </header>
 
       {keadaan === 'memuat' ? <KeadaanMemuat judul="Memuat daftar bahan..." /> : null}
+      {keadaan === 'gagal' ? (
+        <KeadaanGagal
+          judul="Gagal memuat daftar bahan"
+          keterangan="Periksa sambungan ke peladen, lalu coba lagi."
+          onCoba={onCoba}
+        />
+      ) : null}
       {keadaan === 'siap' && bahan.length === 0 ? (
         <KeadaanKosong
           judul="Belum ada bahan untuk diopname."

@@ -2,17 +2,37 @@ import { describe, it, expect } from 'vitest'
 import { DAFTAR_LAYAR, type KontrakLayar } from './layar'
 
 describe('Registri dan Kontrak Layar (layar.ts)', () => {
-  it('memuat 8 layar G1 yang sah dan terdaftar', () => {
+  // KONTRAK DIREVISI 2026-09-23 atas keputusan Lee ("semuanya dikerjakan, urutan
+  // ikut agent"): delapan layar G1 di bawah TETAP wajib ada — tidak boleh hilang
+  // atau berganti id. Yang dilonggarkan hanya jumlah total: layar Fase 4
+  // (bar/stok/opname) kini terdaftar resmi di sini, bukan lagi hidup lewat
+  // App.tsx tanpa entri registri.
+  const LAYAR_G1_WAJIB = [
+    'masuk',
+    'kasir',
+    'dapur',
+    'laporan',
+    'pengaturan',
+    'voucher',
+    'pelanggan-publik',
+    'contoh',
+  ] as const
+
+  const LAYAR_FASE4 = ['bar', 'stok', 'opname'] as const
+
+  it('delapan layar G1 tetap terdaftar (tidak boleh hilang)', () => {
     const keys = Object.keys(DAFTAR_LAYAR)
-    expect(keys.length).toBe(8)
-    expect(keys).toContain('masuk')
-    expect(keys).toContain('kasir')
-    expect(keys).toContain('dapur')
-    expect(keys).toContain('laporan')
-    expect(keys).toContain('pengaturan')
-    expect(keys).toContain('voucher')
-    expect(keys).toContain('pelanggan-publik')
-    expect(keys).toContain('contoh')
+    for (const id of LAYAR_G1_WAJIB) expect(keys).toContain(id)
+  })
+
+  it('layar Fase 4 terdaftar resmi: bar, stok, opname', () => {
+    const keys = Object.keys(DAFTAR_LAYAR)
+    for (const id of LAYAR_FASE4) expect(keys).toContain(id)
+  })
+
+  it('tidak ada layar tak dikenal yang menyelinap ke registri', () => {
+    const sah: string[] = [...LAYAR_G1_WAJIB, ...LAYAR_FASE4]
+    for (const id of Object.keys(DAFTAR_LAYAR)) expect(sah).toContain(id)
   })
 
   it('setiap layar memiliki atribut kontrak yang lengkap dan valid', () => {

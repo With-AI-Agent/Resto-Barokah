@@ -8,14 +8,14 @@
 
 ## 1. Ringkasan Eksekutif Antarmuka (G1)
 
-- **Total Layar Terdaftar:** 8 layar
-- **Total Aksi Terdaftar:** 32 aksi
-  - Aksi Tulis / Transaksi: 19
+- **Total Layar Terdaftar:** 11 layar
+- **Total Aksi Terdaftar:** 38 aksi
+  - Aksi Tulis / Transaksi: 23
   - Aksi Baca / Filter: 7
-  - Aksi Navigasi / UI: 6
-- **Aksi dengan Izin Spesifik:** 15 aksi
-- **Aksi dengan Dialog Konfirmasi:** 9 aksi
-- **Aksi Wajib Jejak Audit:** 12 aksi
+  - Aksi Navigasi / UI: 8
+- **Aksi dengan Izin Spesifik:** 17 aksi
+- **Aksi dengan Dialog Konfirmasi:** 11 aksi
+- **Aksi Wajib Jejak Audit:** 14 aksi
 
 ---
 
@@ -23,13 +23,16 @@
 
 | ID Layar | Judul | Rute | Peran yang Berhak | Masuk Dari | Berkas Uji | Naskah Jalan |
 |---|---|---|---|---|---|---|
+| `bar` | Antrean Bar & Minuman | `/bar` | `owner_pusat`, `admin_cabang`, `kasir`, `dapur` | Tombol "Ke Layar Bar" di Antrean Dapur, Bilah navigasi Dapur | `src/layar/dapur/LayarBar.test.tsx` | `W-4-02` |
 | `contoh` | Contoh Komponen & Tema | `/contoh` | `owner_pusat`, `admin_cabang`, `kasir`, `pelayan`, `dapur`, `pemilik_platform`, `pelanggan` | Pengembang / Penguji, Bilah tema | `src/layar/contoh/LayarContoh.test.tsx` | `W-0-01` |
 | `dapur` | Pesanan Dapur & Bar | `/dapur` | `owner_pusat`, `admin_cabang`, `kasir`, `dapur` | Bilah navigasi Dapur, Menu Utama | `src/layar/dapur/LayarDapur.test.tsx` | `W-4-01` |
 | `kasir` | Kasir & Transaksi | `/kasir` | `owner_pusat`, `admin_cabang`, `kasir` | Bilah navigasi bawah Kasir, Setelah buka shift | `src/layar/kasir/LayarKasir.test.tsx` | `W-3-01` |
 | `laporan` | Laporan Penjualan & Kas | `/laporan` | `owner_pusat`, `admin_cabang` | Bilah navigasi Laporan, Menu Pengelola | `src/layar/laporan/LayarLaporan.test.tsx` | `W-7-01` |
 | `masuk` | Masuk Pegawai | `/masuk` | `pemilik_platform`, `owner_pusat`, `admin_cabang`, `kasir`, `pelayan`, `dapur` | Awal aplikasi, Keluar sesi, Kunci otomatis | `src/layar/masuk/LayarMasuk.test.tsx` | `W-2-01` |
+| `opname` | Opname Stok | `/opname` | `owner_pusat`, `admin_cabang`, `dapur` | Tombol "Ke Opname" di layar Stok | `src/layar/dapur/Opname.test.tsx` | `W-5-02` |
 | `pelanggan-publik` | Katalog Menu Publik | `/menu` | `pelanggan`, `kasir`, `pelayan`, `admin_cabang`, `owner_pusat`, `pemilik_platform` | Tautan publik / QR Meja, Peramban pelanggan | `src/layar/pelanggan-publik/LayarPelangganPublik.test.tsx` | `W-8-02` |
 | `pengaturan` | Pengaturan Resto | `/pengaturan` | `owner_pusat`, `admin_cabang` | Bilah navigasi Pengaturan, Menu Utama | `src/layar/pengaturan/LayarPengaturan.test.tsx` | `W-9-01` |
+| `stok` | Stok Bahan | `/stok` | `owner_pusat`, `admin_cabang`, `dapur` | Menu Utama, Tombol "Ke Opname" di layar Stok | `src/layar/dapur/Stok.test.tsx` | `W-5-01` |
 | `voucher` | Voucher & Diskon | `/voucher` | `owner_pusat`, `admin_cabang`, `kasir` | Panel Pembayaran Kasir, Menu Voucher | `src/layar/voucher/LayarVoucher.test.tsx` | `W-8-01` |
 
 ---
@@ -57,6 +60,8 @@
 
 | ID Aksi | Label | Layar | Peran | Izin | RPC | Jenis | Konfirmasi | Audit | Uji |
 |---|---|---|---|---|---|---|---|---|---|
+| `bar.mulai_buat` | Mulai Buat | `bar` | owner_pusat, admin_cabang, kasir, dapur | - | `set_status_item` | `tulis` | - | - | `uji_status_item_transisi` |
+| `bar.selesai_buat` | Siap Saji | `bar` | owner_pusat, admin_cabang, kasir, dapur | - | `set_status_item` | `tulis` | - | - | `uji_status_item_transisi` |
 | `contoh.ganti_kerapatan` | Ganti Kerapatan | `contoh` | owner_pusat, admin_cabang, kasir, pelayan, dapur, pemilik_platform, pelanggan | - | - | `navigasi` | - | - | `uji_contoh_ganti_kerapatan` |
 | `contoh.ganti_tema` | Ganti Tema | `contoh` | owner_pusat, admin_cabang, kasir, pelayan, dapur, pemilik_platform, pelanggan | - | - | `navigasi` | - | - | `uji_contoh_ganti_tema` |
 | `contoh.picu_toast` | Picu Toast Pemberitahuan | `contoh` | owner_pusat, admin_cabang, kasir, pelayan, dapur, pemilik_platform, pelanggan | - | - | `navigasi` | - | - | `uji_contoh_picu_toast` |
@@ -78,6 +83,8 @@
 | `masuk.batal` | Batal | `masuk` | pemilik_platform, owner_pusat, admin_cabang, kasir, pelayan, dapur | - | - | `navigasi` | - | - | `uji_batal_masuk` |
 | `masuk.ganti_pengguna` | Ganti Pegawai | `masuk` | pemilik_platform, owner_pusat, admin_cabang, kasir, pelayan, dapur | - | - | `navigasi` | - | - | `uji_navigasi_ganti_pegawai` |
 | `masuk.verifikasi_pin` | Masuk | `masuk` | pemilik_platform, owner_pusat, admin_cabang, kasir, pelayan, dapur | - | `verifikasi_pin` | `tulis` | - | - | `uji_masuk_pin_sah`, `uji_masuk_pin_salah` |
+| `opname.catat_fisik` | Catat Jumlah Fisik | `opname` | owner_pusat, admin_cabang, dapur | `ubah_stok` | `opname_stok` | `tulis` | Ya | Ya | `uji_opname_stok` |
+| `opname.kembali_stok` | Kembali ke Stok | `opname` | owner_pusat, admin_cabang, dapur | - | - | `navigasi` | - | - | `uji_opname_stok` |
 | `pelanggan.cari_menu` | Cari Menu | `pelanggan-publik` | pelanggan, kasir, pelayan, admin_cabang, owner_pusat, pemilik_platform | - | - | `baca` | - | - | `uji_pelanggan_cari_menu` |
 | `pelanggan.filter_kategori` | Pilih Kategori | `pelanggan-publik` | pelanggan, kasir, pelayan, admin_cabang, owner_pusat, pemilik_platform | - | - | `baca` | - | - | `uji_pelanggan_filter_kategori` |
 | `pengaturan.hapus_meja` | Hapus Meja | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | - | `tulis` | Ya | Ya | `uji_pengaturan_hapus_meja` |
@@ -86,6 +93,8 @@
 | `pengaturan.tambah_meja` | Tambah Meja | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | - | `tulis` | - | Ya | `uji_pengaturan_tambah_meja` |
 | `pengaturan.tambah_pegawai` | Tambah Pegawai | `pengaturan` | owner_pusat, admin_cabang | `kelola_pegawai` | `simpan_pin` | `tulis` | - | Ya | `uji_pengaturan_tambah_pegawai` |
 | `pengaturan.ubah_izin` | Ubah Izin Peran | `pengaturan` | owner_pusat | `kelola_pegawai` | - | `tulis` | Ya | Ya | `uji_pengaturan_ubah_izin` |
+| `stok.catat_perubahan` | Catat Perubahan Stok | `stok` | owner_pusat, admin_cabang, dapur | `ubah_stok` | `set_stok` | `tulis` | Ya | Ya | `uji_set_stok` |
+| `stok.ke_opname` | Ke Opname | `stok` | owner_pusat, admin_cabang, dapur | - | - | `navigasi` | - | - | `uji_opname_stok` |
 | `voucher.batal` | Tutup | `voucher` | owner_pusat, admin_cabang, kasir | - | - | `navigasi` | - | - | `uji_voucher_batal` |
 | `voucher.cek_kode` | Periksa Voucher | `voucher` | owner_pusat, admin_cabang, kasir | - | - | `baca` | - | - | `uji_voucher_cek_kode` |
 | `voucher.klaim_diskon` | Terapkan Voucher | `voucher` | owner_pusat, admin_cabang, kasir | `pakai_voucher` | `hitung_total` | `tulis` | Ya | Ya | `uji_voucher_klaim_diskon` |

@@ -1771,3 +1771,43 @@ Aturan ini dikunci dalam `PROFIL_PENGGUNA.md`, `docs/AGENT_OPERATING_GUIDE.md` (
 - SQL Suite: **73 berkas uji SQL LULUS · 0 GAGAL** (72 lama + `status_item.sql`).
 - Uji Mutasi: `python3 alat/uji-mutasi-0032.py` 7/7 MERAH & `--uji-diri` LOLOS.
 - Kontrak lama tak tersentuh: `status_item_transisi.sql`, `item_penjaga.sql`, `pesanan.sql` tetap lulus tanpa diubah.
+
+
+## [Kelengkapan UI/2026-09-23] Registri Layar Diperluas ke Fase 4 + Kontrak `layar.test.ts` Direvisi
+
+**Area:** Kelengkapan UI (ART-7), PRD M2 (papan dapur & bar real-time) & M9 (stok bahan)
+**Dasar:** `docs/ops/SIAP-LANJUT.md` §3 butir (d) menyebut registri `DAFTAR_LAYAR` DIKUNCI tes lama
+(tepat 8 layar G1) sehingga layar Fase 4 hidup lewat `App.tsx` tanpa entri registri — artinya peta UI,
+bantuan kontekstual, dan jejak fitur tidak menutup `bar`/`stok`/`opname`. Perluasan registri =
+perubahan kontrak = butuh putusan Lee. **Lee memutuskan 2026-09-23:** *"kalau memang semuanya harus
+dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."*
+
+**Keputusan:**
+1. **Delapan layar G1 tidak boleh hilang atau berganti id.** Yang dilonggarkan hanya jumlah total:
+   `layar.test.ts` kini mengunci daftar `LAYAR_G1_WAJIB` (8 id) + `LAYAR_FASE4` (`bar`, `stok`,
+   `opname`) dan **menolak layar tak dikenal** yang menyelinap — jadi kontraknya diperluas, bukan
+   dilunakkan (mutasi "hapus satu layar G1" tetap MERAH).
+2. **Satu layar = satu entri di tiga registri:** `DAFTAR_LAYAR` (kontrak 7 keadaan), `REGISTRI_AKSI`
+   (6 aksi baru; yang menulis menunjuk RPC nyata `set_status_item`/`set_stok`/`opname_stok` dengan
+   izin `ubah_stok`), dan `DAFTAR_BANTUAN` (panduan kontekstual ≤5 langkah). `docs/PETA_UI.md`
+   digenerate ulang dari sumbernya, tidak ditulis tangan.
+3. **`Opname.tsx` diberi keadaan `gagal`.** Tanpa itu kegagalan jaringan tampil sebagai daftar kosong
+   yang menipu ("belum ada bahan") — bertentangan dengan aturan 7 keadaan wajib. Komponen lain tidak
+   diubah: kontainer data (`useStok`) yang menyesuaikan diri, bukan layar yang dipaksa.
+
+**Pelaksanaan:**
+1. `aplikasi/src/lib/layar.ts`: +3 layar (total 11).
+2. `aplikasi/src/lib/aksi.ts`: +6 aksi (total 38).
+3. `aplikasi/src/kontrak/bantuan.ts`: +3 panduan (total 11).
+4. `aplikasi/src/lib/layar.test.ts`: kontrak direvisi seperti butir 1.
+5. `aplikasi/src/hook/useStok.ts` (+ uji): kabel data Stok/Opname — saldo `stok_bahan`, buku besar
+   `stok_pergerakan` (terbaru lebih dulu, dibatasi), aksi tulis lewat RPC, `numeric` peladen
+   dipetakan aman (tidak ada NaN ke layar).
+6. `docs/PETA_UI.md`: digenerate `python3 alat/peta-ui.py --generate`.
+
+**Verifikasi:**
+- Aplikasi: **54 berkas uji / 280 tes LULUS** (sebelumnya 53/268).
+- `python3 alat/peta-ui.py` LOLOS (11 layar, 38 aksi, PRD M1–M12 terhubung).
+- `python3 alat/periksa-bantuan.py` + `--uji-diri` LOLOS (11/11 layar berpanduan).
+- Seluruh **62 perintah** langkah CI "Pemeriksa fondasi…" LOLOS lokal.
+- Kalibrasi uji baru: mutasi `angka()` (biarkan NaN lolos) → 2 uji MERAH; dikembalikan.
