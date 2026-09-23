@@ -437,3 +437,35 @@
   justify-content: flex-end;
   gap: var(--s-2);
 }
+
+/* --------------------------------------------- T5-08 data pelanggan opsional */
+.data-pelanggan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  max-width: 28rem;
+}
+
+/* Penjelasan kegunaan data dibuat mudah dibaca, bukan huruf kecil tersembunyi. */
+.data-pelanggan__jelas {
+  font-size: var(--t-2);
+  color: var(--text-muted);
+}
+
+.data-pelanggan__setuju {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  font-size: var(--t-2);
+}
+
+.data-pelanggan__pesan {
+  color: var(--bahaya);
+  font-size: var(--t-2);
+}
+
+.data-pelanggan__aksi {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-2);
+}

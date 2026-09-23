@@ -1252,10 +1252,24 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4) & Kalkulasi (ART-3); mitigasi: PIN + audit + laporan.
   - **Verifikasi:** uji SQL + uji manual + cek kemunculan di laporan (T7-12).
 
-- [ ] T5-08 — Nomor HP pelanggan opsional (untuk poin/voucher) ⚠️
+- [x] T5-08 — Nomor HP pelanggan opsional (untuk poin/voucher) ⚠️
   - **Tujuan:** kasir bisa menawarkan voucher tanpa memaksa pelanggan memberi data.
-  - **Ref:** PRD M6 & M10; TECH_SPEC §9 ART-10
-  - **File:** `aplikasi/src/layar/kasir/DataPelanggan.tsx`
+  - **Ref:** PRD M6 & M10; TECH_SPEC §9 ART-10; `docs/KEAMANAN.md` §11 (UU PDP 27/2022)
+  - **File:** `aplikasi/src/layar/kasir/DataPelanggan.tsx` (+`DataPelanggan.test.tsx`)
+  - **BATAS YANG SENGAJA DIPEGANG (2026-09-23):** hanya **layar pengumpul**, sesuai kolom
+    **File** tugas ini. **Tidak ada tabel, migrasi, atau penyimpanan** yang dibuat — menyimpan
+    data pelanggan masih tertahan **T-011** (kebijakan privasi + halaman persetujuan, disetujui
+    2026-09-21: draf `KEAMANAN.md` §11 + migrasi/halaman **T8-15**, ditinjau pemilik sebelum F8).
+    Komponen ini menyerahkan datanya ke kontainer lewat `onSimpan`; kabelnya baru dipasang
+    setelah T8-15 ada, sehingga tidak ada data pribadi yang tersimpan sebelum kebijakannya siap.
+  - **Bukti (2026-09-23):** `DataPelanggan.test.tsx` **9 tes LULUS** (nomor tidak terkirim tanpa
+    persetujuan; persetujuan tanpa nomor juga tidak cukup; persetujuan ikut sebagai data
+    `setuju: true`; tombol Lewati selalu hidup; melewati tidak mengirim apa pun) ·
+    `uji-mutasi-app.mjs` **26/26 MERAH** (2 mutasi baru: kirim tanpa persetujuan, Lewati
+    dimatikan) · aplikasi **377 tes LULUS** · `tsc` bersih.
+  - **Catatan jujur:** nomor tidak divalidasi ketat (cukup ≥8 angka). Menolak format tak biasa
+    hanya membuat kasir mengarang nomor supaya bisa lanjut — data karangan lebih buruk daripada
+    tidak ada data.
   - **DoD:** bersifat opsional dengan penjelasan singkat; persetujuan dicatat; bisa dilewati; tidak boleh menghambat pembayaran.
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10); mitigasi: data minimal + persetujuan + bisa dilewati.

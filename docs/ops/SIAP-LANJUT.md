@@ -117,10 +117,22 @@ JANGAN merge apa pun tanpa keputusan Lee.
    Jangkarnya dipindah ke `0042` dan pulih. **Aturan: setiap kali sebuah fungsi ditulis ulang
    di migrasi baru, SEMUA uji mutasi yang menyasarnya wajib ikut dipindahkan — dan sesudah
    menambah migrasi, jalankan uji mutasi lama, jangan hanya suite SQL.**
-0n. **Berikutnya T5-08** (nomor HP pelanggan opsional untuk poin/voucher). Ini menyentuh
-   **data pribadi pelanggan**, jadi periksa dulu apakah PRD/keputusan terkunci sudah mengatur
-   penyimpanan & penghapusannya; bila belum jelas, itu Stop Condition (bukan dikarang sendiri).
-   Migrasi berikutnya: **≥ 0043**.
+0n. **T5-08 SELESAI (batch ketujuh) — layar saja, penyimpanan SENGAJA belum.** Pemeriksaan
+   keputusan terkunci menjawab pertanyaannya: **T-011** (disetujui 2026-09-21) menyatakan data
+   pelanggan baru boleh **disimpan** setelah ada kebijakan privasi + halaman persetujuan, dan
+   migrasinya dijadwalkan **T8-15**. Jadi yang dibuat hanya `DataPelanggan.tsx` — **tanpa tabel,
+   migrasi, atau RPC apa pun** — sehingga tidak ada nomor pelanggan yang bisa tersimpan sebelum
+   kebijakannya siap. Bukan Stop Condition: keputusannya tidak bertentangan, malah sudah
+   menunjuk tempatnya. Yang dikunci & diuji: persetujuan eksplisit (dikirim sebagai data, bukan
+   diasumsikan), minimalisasi (HP + nama panggilan saja), penjelasan di layar, dan tombol
+   **Lewati selalu hidup** agar pembayaran tidak pernah terhambat.
+0o. **Berikutnya T5-09** (struk digital sebagai cadangan saat printer bermasalah). Perhatikan:
+   T5-03 (struk termal) sudah selesai, jadi **periksa dulu** apa yang sudah ada di berkas struk
+   sebelum membuat yang baru — dua batch terakhir menunjukkan rencana ROADMAP sering lebih tua
+   daripada isi repo. Migrasi berikutnya bila perlu: **≥ 0043**.
+0p. **Kalau butuh angka bukti terakhir:** aplikasi **63 berkas / 377 tes LULUS** · suite SQL
+   **85 LULUS** · `uji-mutasi-app.mjs` **26/26 MERAH** · `uji-mutasi-0042.py` **4/4 MERAH** ·
+   `uji-mutasi-0012.py` **16/16** · gerbang & paritas CI LOLOS · `tsc` bersih · lint 0 error.
 
 
 

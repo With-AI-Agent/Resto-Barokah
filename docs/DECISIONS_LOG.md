@@ -2064,3 +2064,34 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   `.github/workflows/ci.yml` + `alat/periksa-gerbang-ci.py` + `aplikasi/alat/periksa-semua.sh`
 - **Bukti:** suite SQL **85 LULUS · 0 GAGAL** · `uji-mutasi-0042.py` **4/4 MERAH** ·
   `uji-mutasi-0012.py` **16/16** · `uji-mutasi-0018/0019/0041` LOLOS · gerbang & paritas CI LOLOS.
+
+## [Privasi/2026-09-23] Nomor HP Pelanggan: Layarnya Dibuat, Penyimpanannya Sengaja Belum (T5-08)
+
+- **Area:** Privasi pelanggan (ART-10) — `docs/KEAMANAN.md` §11, UU PDP 27/2022
+- **Konteks:** T5-08 meminta nomor HP opsional untuk poin/voucher. Ini menyentuh data pribadi,
+  jadi sebelum menulis kode saya periksa keputusan terkunci lebih dulu — dan memang ada:
+  **T-011** (disetujui 2026-09-21) menyatakan data pelanggan baru boleh **dikumpulkan dan
+  disimpan** setelah ada kebijakan privasi + kotak persetujuan, dengan migrasi/halamannya
+  dijadwalkan di **T8-15** dan ditinjau pemilik sebelum Fase 8.
+- **Keputusan:** kerjakan **layar pengumpulnya saja** — persis sebatas kolom **File** tugas ini
+  (`aplikasi/src/layar/kasir/DataPelanggan.tsx`). **Tidak ada tabel, migrasi, RPC, atau
+  penyimpanan apa pun** yang dibuat. Komponen menyerahkan data ke kontainer lewat `onSimpan`,
+  dan kabel itu baru dipasang setelah T8-15 ada. Dengan begitu tidak ada satu pun nomor
+  pelanggan yang bisa tersimpan sebelum kebijakannya siap — janji T-011 tetap utuh, tetapi
+  pekerjaan Fase 5 tidak perlu menunggu.
+- **Kenapa bukan Stop Condition:** keputusannya tidak bertentangan dan tidak perlu diubah;
+  T-011 sudah menjawab pertanyaannya dan menunjuk tempatnya (T8-15). Yang dilakukan di sini
+  justru menghormati batas itu, bukan menembusnya.
+- **Yang dikunci di layar (semua diuji):** persetujuan **eksplisit** — tombol simpan mati
+  sampai kotak dicentang, dan persetujuan dikirim sebagai data (`setuju: true`), bukan
+  diasumsikan; **minimalisasi** — hanya nomor HP + nama panggilan opsional, tidak ada NIK,
+  alamat, atau tanggal lahir; **penjelasan di layar** (bukan hanya di halaman kebijakan) bahwa
+  data dipakai untuk poin/voucher kedai ini, tidak dijual, dan bisa dihapus; **tombol Lewati
+  selalu hidup** sehingga bagian ini tidak pernah menghambat pembayaran (DoD eksplisit).
+- **Pilihan yang dijelaskan terbuka:** nomor **tidak** divalidasi ketat (cukup ≥8 angka).
+  Menolak format tak biasa hanya membuat kasir mengarang nomor supaya bisa lanjut, dan data
+  karangan di basis pelanggan lebih buruk daripada tidak ada data.
+- **File:** `aplikasi/src/layar/kasir/DataPelanggan.tsx`, `DataPelanggan.test.tsx`,
+  `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-mutasi-app.mjs`
+- **Bukti:** `DataPelanggan.test.tsx` **9 tes LULUS** · `uji-mutasi-app.mjs` **26/26 MERAH**
+  (2 mutasi baru: kirim tanpa persetujuan, Lewati dimatikan) · aplikasi **377 tes LULUS**.

@@ -10,6 +10,7 @@
       · T5-05 diskon manual + PIN atasan (migrasi `0041`, mutasi 6/6 MERAH; voucher keras-kode dibuang).
       · T5-06 void pra-dapur: pagar `0015` sudah lengkap, yang hilang pintunya — `VoidItem.tsx` alasan wajib (tanpa migrasi baru).
       · T5-07 bahan terbuang ditentukan peladen (migrasi `0042`, mutasi 4/4 MERAH; kolomnya dulu tak dijaga sama sekali).
+      · T5-08 layar nomor HP pelanggan (persetujuan eksplisit, boleh dilewati) — TANPA penyimpanan, menghormati T-011/T8-15.
 - [ ] Fase 5 sisa: mulai T5-06 (void sebelum dapur mulai), lalu T5-07…T5-12 (lihat `docs/ROADMAP.md`).
 - [ ] Infra e2e Playwright (`aplikasi/uji/e2e/dapur.spec.ts` — rencana, belum dibuat) — **T-026**, Chromium tidak bisa diunduh di ruang kerja agent; butuh keputusan Lee.
 - [ ] **T-027** — pajak & service di keranjang kasir masih perkiraan layar (10 %/5 %); angka sah tetap dari peladen. Butuh keputusan Lee.

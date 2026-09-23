@@ -229,6 +229,22 @@ const MUTASI = [
       '    if (true) {\n      setDaftarItemKeranjang((prev) => prev.filter((i) => i.id !== itemVoid))',
     uji: 'src/layar/kasir/LayarKasirVoid.test.tsx',
   },
+
+  // ------------------------------------------------- T5-08 data pelanggan (privasi)
+  {
+    nama: 'DataPelanggan: nomor HP terkirim TANPA persetujuan (T5-08) — pelanggaran UU PDP',
+    berkas: 'src/layar/kasir/DataPelanggan.tsx',
+    cari: '  const bolehSimpan = setuju && nomorMasukAkal(noHp) && !sedangKirim',
+    ganti: '  const bolehSimpan = nomorMasukAkal(noHp) && !sedangKirim',
+    uji: 'src/layar/kasir/DataPelanggan.test.tsx',
+  },
+  {
+    nama: 'DataPelanggan: tombol Lewati dimatikan (T5-08) — data pelanggan jadi syarat membayar',
+    berkas: 'src/layar/kasir/DataPelanggan.tsx',
+    cari: '<Tombol ragam="biasa" onClick={onLewati} nama="Lewati data pelanggan">',
+    ganti: '<Tombol ragam="biasa" onClick={onLewati} nama="Lewati data pelanggan" nonaktif>',
+    uji: 'src/layar/kasir/DataPelanggan.test.tsx',
+  },
 ]
 
 /**
