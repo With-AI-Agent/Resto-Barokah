@@ -94,4 +94,46 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
     fireEvent.click(screen.getByText(/Tagihan Terbuka/i))
     expect(screen.getByText('Tagihan Terbuka (Open Bill)')).toBeDefined()
   })
+
+  // ---------------------------------------------- T-027 tarif dari pengaturan
+  //
+  // Sebelum ini keranjang selalu memakai 10 %/5 % yang ditulis di kode, sehingga
+  // kedai dengan tarif berbeda melihat angka keranjang meleset dari yang
+  // akhirnya ditagih peladen. Dua uji berikut mengunci perilaku barunya.
+
+  it('memakai tarif resto dari pengaturan, bukan 10 %/5 % keras-kode (T-027)', async () => {
+    render(
+      <PenyediaBahasa>
+        {/* Kedai dengan pajak 11 % dan TANPA service charge. */}
+        <LayarKasir tarif={{ pajakPersen: 11, servicePersen: 0, pembulatan: 'none' }} />
+      </PenyediaBahasa>,
+    )
+
+    // Es Teh punya varian, jadi dialog pilihan muncul dulu sebelum masuk keranjang.
+    fireEvent.click(screen.getByText('Es Teh Manis Melati')) // Rp6.000
+    fireEvent.click(screen.getByText('Manis Sedang'))
+    fireEvent.click(screen.getByText('Tambahkan ke Pesanan'))
+
+    // 6.000 + pajak 11 % (660) + service 0 = 6.660
+    await waitFor(() => {
+      expect(screen.getByText('Rp6.660')).toBeDefined()
+    })
+  })
+
+  it('tanpa prop tarif, keranjang memakai tarif bawaan 10 %/5 % (T-027)', async () => {
+    render(
+      <PenyediaBahasa>
+        <LayarKasir />
+      </PenyediaBahasa>,
+    )
+
+    fireEvent.click(screen.getByText('Es Teh Manis Melati')) // Rp6.000
+    fireEvent.click(screen.getByText('Manis Sedang'))
+    fireEvent.click(screen.getByText('Tambahkan ke Pesanan'))
+
+    // 6.000 + pajak 600 + service 300 = 6.900
+    await waitFor(() => {
+      expect(screen.getByText('Rp6.900')).toBeDefined()
+    })
+  })
 })

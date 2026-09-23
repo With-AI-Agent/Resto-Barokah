@@ -848,7 +848,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** lambat saat katalog besar → mitigasi: muat bertahap + cache ringan di klien (tanpa data sensitif).
   - **Verifikasi:** uji manual dengan 200 item; waktu muat awal < 3 detik.
 
-- [x] T3-02 — Keranjang + angka dari peladen (klien tidak menghitung) ❓ T-027
+- [x] T3-02 — Keranjang + angka dari peladen (klien tidak menghitung)
   - **TEMUAN JUJUR (2026-09-23, saat T5-05):** DoD ini **belum sepenuhnya ditepati**. `Keranjang.tsx`
     memang tidak menghitung, tetapi kontainernya `LayarKasir.tsx` masih menghitung pajak 10 % dan
     service 5 % sendiri sebagai PERKIRAAN selagi pesanan disusun. Tidak membahayakan uang — angka
@@ -1405,11 +1405,21 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** tiket tercetak dua kali → mitigasi: status cetak per pesanan + tanda "SALINAN".
   - **Verifikasi:** uji manual + uji unit.
 
-- [ ] T6-06 — Antrean cetak, cetak ulang, deteksi gagal ⚠️
+- [ ] T6-06 — Antrean cetak, cetak ulang, deteksi gagal ⚠️ ❓ T-028
   - **Tujuan:** printer bermasalah tidak boleh membuat transaksi hilang atau misterius.
   - **Ref:** TECH_SPEC §9 ART-7; PRD M4 (kasus tepi)
   - **File:** `aplikasi/src/lib/printer/antrean.ts`, `aplikasi/src/komponen/StatusPrinter.tsx`
   - **DoD:** bila gagal → pesan jelas + otomatis tawarkan cadangan digital; antrean cetak tidak menumpuk ganda; status printer terlihat di layar kasir.
+  - **🔴 WAJIB DIKERJAKAN DI SINI — UTANG DARI T5-10 (butir `T-028`):** jejak audit **cetak ulang
+    struk** (siapa mencetak ulang, kapan, struk mana). T5-10 sudah memasang tanda "SALINAN —
+    CETAK ULANG" pada tiap cetakan kedua, tetapi **tidak ada catatan siapa yang melakukannya**.
+    Waktu itu pekerjaan dihentikan karena mencatatnya memerlukan RPC baru, sedangkan RPC di luar
+    `docs/TECH_SPEC.md` §5 adalah keputusan pemilik. **Lee sudah menyetujui penundaan ke sini pada
+    2026-09-23, dengan syarat tegas: tidak boleh terlupakan.** Jadi sebelum T6-06 boleh dicentang:
+    (a) tambahkan RPC pencatat cetak ulang ke TECH_SPEC §5 lebih dulu (mintakan persetujuan Lee
+    bila bentuknya berubah dari rencana), (b) tulis barisnya ke `public.catatan_audit`, (c) beri
+    uji yang membuktikan cetak ulang meninggalkan jejak, lalu (d) tutup butir `T-028` di
+    `docs/TERTANGGUH.md`. **Jangan mencentang T6-06 selama `T-028` masih terbuka.**
   - **Kompleksitas:** besar (3,5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Cetak (ART-7); mitigasi: cadangan digital wajib + indikator status selalu terlihat.
   - **Verifikasi:** uji manual: matikan printer di tengah cetak → pesan + cadangan muncul.
@@ -1966,7 +1976,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [ ] T11-02 — Daftar uji terima bahasa manusia (dijalankan pemilik)
   - **Tujuan:** pemilik/pegawai bisa membuktikan sendiri aplikasi benar sebelum dipakai harian.
   - **Ref:** AGENT_OPERATING_GUIDE §5
-  - **File:** `docs/uji/UJI_TERIMA_G1.md`
+  - **File:** `docs/uji/UJI_TERIMA_G1.md` (belum dibuat)
+  - **Sudah ada cikal bakalnya:** `docs/uji/RENCANA_UJI_MANUAL.md` (dibuat 2026-09-23 sebagai
+    syarat Lee menunda `T-026`) memuat 21 baris uji manual M-01…M-21 lengkap dengan langkah,
+    tanda berhasil, tanda gagal, dan kolom centang. T11-02 tinggal merapikannya menjadi lembar
+    uji terima resmi — **jangan menulis ulang dari nol.**
   - **DoD:** daftar langkah bernomor mencakup kasir, dapur, kas, voucher, laporan, pengaturan; tiap langkah punya hasil yang diharapkan; kolom tanda tangan/centang; ada tempat menulis catatan masalah.
   - **Kompleksitas:** sedang (2 jam)
   - **Risiko & mitigasi:** langkah terlalu teknis → mitigasi: ditulis seperti instruksi ke pegawai baru, diuji dulu oleh 1 orang non-teknis.

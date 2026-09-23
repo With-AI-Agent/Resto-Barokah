@@ -14,6 +14,7 @@
       · T5-09 struk digital: `StrukDigital.tsx` membungkus `<Struk>` yang sama (bagikan/PDF/salin); 28/28 mutasi UI MERAH.
       · T5-10 SEBAGIAN: cari transaksi + cetak ulang bertanda SALINAN selesai; catatan audit = Stop Condition (T-028), tugas belum dicentang.
       · T5-11 selesai: pembayaran sebagian = beberapa baris pada SATU tagihan (uji SQL); DaftarTagihan.tsx dengan penanda umur.
+      · T-027 selesai: tarif pajak/service dibaca dari pengaturan (lib/tarif.ts meniru rumus peladen); T-026 & T-028 ditunda dengan syarat terpenuhi.
 - [ ] Fase 5 sisa: mulai T5-06 (void sebelum dapur mulai), lalu T5-07…T5-12 (lihat `docs/ROADMAP.md`).
 - [ ] Infra e2e Playwright (`aplikasi/uji/e2e/dapur.spec.ts` — rencana, belum dibuat) — **T-026**, Chromium tidak bisa diunduh di ruang kerja agent; butuh keputusan Lee.
 - [ ] **T-027** — pajak & service di keranjang kasir masih perkiraan layar (10 %/5 %); angka sah tetap dari peladen. Butuh keputusan Lee.

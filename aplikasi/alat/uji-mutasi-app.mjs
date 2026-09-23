@@ -307,6 +307,37 @@ const MUTASI = [
     ganti: '  return `${menit} menit`\n  if (menit < 60) return `${menit} menit`',
     uji: 'src/layar/kasir/DaftarTagihan.test.tsx',
   },
+
+  // ------------------------------ T-027 tarif pajak/service dari pengaturan
+  {
+    nama: 'Keranjang kembali memakai pajak 10% keras-kode (T-027) — kedai bertarif lain melihat angka meleset',
+    berkas: 'src/lib/tarif.ts',
+    cari: '  const pajak = Math.round((dasar * bersihkanPersen(tarif.pajakPersen)) / 100)',
+    ganti: '  const pajak = Math.round(dasar * 0.1)',
+    uji: 'src/lib/tarif.test.ts',
+  },
+  {
+    nama: 'Perkiraan menghitung pajak SEBELUM diskon (T-027) — beda dari peladen tepat saat ada diskon',
+    berkas: 'src/lib/tarif.ts',
+    cari: '  const dasar = Math.max(0, subtotal - totalDiskon)',
+    ganti: '  const dasar = Math.max(0, subtotal)',
+    uji: 'src/lib/tarif.test.ts',
+  },
+  {
+    nama: 'Pembulatan total dibulatkan NAIK (T-027) — perkiraan lebih besar daripada tagihan sebenarnya',
+    berkas: 'src/lib/tarif.ts',
+    cari: '  const total = langkah > 0 ? Math.floor(kasar / langkah) * langkah : kasar',
+    ganti: '  const total = langkah > 0 ? Math.ceil(kasar / langkah) * langkah : kasar',
+    uji: 'src/lib/tarif.test.ts',
+  },
+  {
+    nama: 'LayarKasir mengabaikan prop tarif dan memakai bawaan (T-027)',
+    berkas: 'src/layar/kasir/LayarKasir.tsx',
+    cari: '  const ringkasanUang: RingkasanUang = hitungPerkiraan(subtotal, diskonAktif, tarif)',
+    ganti:
+      '  const ringkasanUang: RingkasanUang = hitungPerkiraan(subtotal, diskonAktif, TARIF_BAWAAN)',
+    uji: 'src/layar/kasir/LayarKasir.test.tsx',
+  },
 ]
 
 /**

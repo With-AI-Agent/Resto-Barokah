@@ -27,6 +27,7 @@ import { Bayar, type BarisTagihan, type HasilBayar, type MetodeBayar, type Tagih
 import { DiskonManual, type BatasDiskon, type HasilDiskon } from './DiskonManual'
 import { VoidItem, type HasilVoid } from './VoidItem'
 import type { DataStruk } from '../../komponen/Struk'
+import { TARIF_BAWAAN, hitungPerkiraan, type TarifResto } from '../../lib/tarif'
 
 export interface LayarKasirProps {
   cabangId?: string
@@ -86,6 +87,14 @@ export interface LayarKasirProps {
   onBatalkanItem?: (masukan: { itemId: string; alasan: string }) => Promise<HasilVoid | null> | void
   /** Apakah pesanan ini sudah dikirim ke dapur (penanda untuk kasir). */
   sudahKeDapur?: boolean
+
+  // ------------------------------------------------- T-027 tarif dari pengaturan
+  /**
+   * Tarif pajak & service resto dari `public.pengaturan`. Bila belum termuat,
+   * layar memakai `TARIF_BAWAAN` (10 %/5 %, sama dengan nilai bawaan kolomnya)
+   * supaya keranjang tidak pernah menampilkan tarif yang tidak ada di mana pun.
+   */
+  tarif?: TarifResto
 }
 
 export function LayarKasir({
@@ -108,6 +117,7 @@ export function LayarKasir({
   onTerapkanDiskon,
   onBatalkanItem,
   sudahKeDapur = false,
+  tarif = TARIF_BAWAAN,
 }: LayarKasirProps) {
   // Keranjang State
   const [daftarItemKeranjang, setDaftarItemKeranjang] = useState<ItemKeranjang[]>([])
@@ -141,26 +151,22 @@ export function LayarKasir({
   const [diskonAktif, setDiskonAktif] = useState<number>(0)
 
   /**
-   * Angka ringkasan. CATATAN JUJUR: pajak & service di sini masih dihitung layar
-   * dengan tarif 10 % / 5 % sebagai PERKIRAAN untuk mata kasir selagi keranjang
-   * disusun. Angka yang SAH selalu datang dari peladen (`hitung_total`) dan itulah
-   * yang dipakai layar Bayar serta dicetak di struk — layar tidak pernah menjadi
-   * sumber kebenaran uang. Menyatukan keduanya = butir tersendiri (lihat
-   * docs/TERTANGGUH.md T-027).
+   * Angka ringkasan keranjang — PERKIRAAN untuk mata kasir selagi pesanan
+   * disusun. Angka yang SAH selalu datang dari peladen (`hitung_total`) dan
+   * itulah yang dipakai layar Bayar serta dicetak di struk; layar tidak pernah
+   * menjadi sumber kebenaran uang.
+   *
+   * T-027: tarifnya kini dibaca dari PENGATURAN RESTO (prop `tarif`), bukan
+   * 10 %/5 % yang dulu ditulis langsung di kode. Dua alasannya: (1) kedai yang
+   * memakai tarif lain tidak lagi melihat angka keranjang meleset dari yang
+   * akhirnya ditagih, dan (2) kalau tarif pajak berubah karena aturan
+   * pemerintah, pemilik bisa menyesuaikannya sendiri lewat pengaturan tanpa
+   * menunggu aplikasi diperbarui. Rumusnya meniru peladen persis — lihat
+   * `lib/tarif.ts`.
    */
   const subtotal = daftarItemKeranjang.reduce((sum, item) => sum + item.subtotal, 0)
-  const subtotalSetelahDiskon = Math.max(0, subtotal - diskonAktif)
-  const service = Math.round(subtotalSetelahDiskon * 0.05) // 5% Service charge (perkiraan)
-  const pajak = Math.round(subtotalSetelahDiskon * 0.1) // 10% PB1 (perkiraan)
-  const total = subtotalSetelahDiskon + service + pajak
-
-  const ringkasanUang: RingkasanUang = {
-    subtotal,
-    totalDiskon: diskonAktif,
-    service,
-    pajak,
-    total,
-  }
+  const ringkasanUang: RingkasanUang = hitungPerkiraan(subtotal, diskonAktif, tarif)
+  const { total } = ringkasanUang
 
   // Tambah item dari katalog ke keranjang
   const tanganiTambahKeKeranjang = (

@@ -2233,3 +2233,60 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **Bukti:** SQL **86 LULUS · 0 GAGAL** · `DaftarTagihan.test.tsx` **17 tes LULUS** · aplikasi
   **66 berkas / 422 tes LULUS** · `uji-mutasi-app.mjs` **34/34 MERAH** · `tsc` bersih · lint 0
   error · format bersih. Tidak ada migrasi baru (RPC `bayar_pesanan` sudah mendukung sebagian).
+
+## [Uang/2026-09-23] Tarif Pajak & Service Dibaca dari Pengaturan, Bukan Keras-Kode (T-027)
+
+- **Area:** Uang (ART-4) · Pengaturan resto
+- **Keputusan Lee (2026-09-23):** pilihan (b) — keranjang membaca tarif dari `pengaturan`.
+- **Alasan Lee, yang lebih kuat daripada alasan saya:** saya mengusulkannya demi akurasi angka,
+  tetapi Lee menambahkan alasan yang menentukan — **tarif pajak bisa berubah karena aturan
+  pemerintah**, dan pemilik kedai harus bisa menyesuaikannya sendiri **tanpa menunggu aplikasi
+  diperbarui**. Angka yang terkunci di kode berarti setiap perubahan aturan pajak menuntut rilis
+  baru; itu ketergantungan yang tidak perlu.
+- **Temuan saat mengerjakan:** kolomnya **sudah ada sejak migrasi 0004**
+  (`pajak_pb1_persen`, `service_persen`, `pembulatan`) dan peladen **sudah memakainya**
+  (`hitung_total`, migrasi 0025). Jadi yang keras-kode hanya layarnya. Tidak ada migrasi baru.
+- **Yang dibuat:** `aplikasi/src/lib/tarif.ts` — `hitungPerkiraan()` yang **meniru rumus peladen
+  persis**: dasar = subtotal − diskon (pajak dihitung SESUDAH diskon), lalu pembulatan total
+  **ke BAWAH** mengikuti `pengaturan.pembulatan`.
+- **Dua rincian yang sengaja dipilih:** (1) pembulatan ke bawah, bukan ke atas — perkiraan yang
+  lebih besar daripada tagihan sebenarnya membuat tamu merasa ditagih lebih, dan itu keluhan
+  yang mahal; (2) tarif tidak masuk akal (negatif/NaN) menjadi 0, bukan `NaN` — kasir yang
+  melihat "RpNaN" tidak punya cara menebak apa yang salah, sedangkan angka 0 langsung terbaca
+  keliru dan bisa dilaporkan.
+- **Tetap sebuah perkiraan.** Layar tidak pernah menjadi sumber kebenaran uang; yang ditagih dan
+  dicetak selalu hasil hitungan peladen. Yang berubah: perkiraannya kini memakai tarif yang sama.
+- **Bukti:** `tarif.test.ts` **10 tes LULUS** · 2 tes `LayarKasir` (tarif 11 %/0 % → total 6.660;
+  tanpa prop → 6.900) · aplikasi **67 berkas / 434 tes LULUS** · `uji-mutasi-app.mjs`
+  **38/38 MERAH** (4 mutasi baru).
+
+## [Proses/2026-09-23] Dua Penundaan Disetujui Lee — dan Cara Memastikannya Tidak Terlupa
+
+- **Area:** Proses & mutu
+- **Konteks:** Lee menyetujui dua penundaan (T-026 uji peramban → Fase 11; T-028 jejak audit
+  cetak ulang → Fase 6), tetapi **keduanya bersyarat**. Syarat itu bagian dari keputusan, bukan
+  tambahan opsional.
+- **Syarat Lee untuk T-026:** semua yang perlu diperiksa manusia harus "tercatat dan dijelaskan
+  dengan baik dan sistematis dan mudah aku pahami" — apa yang dicek, cara ceknya, langkah yang
+  harus Lee lakukan, indikator berhasilnya — dan berbentuk **daftar centang**.
+  → Dilaksanakan: `docs/uji/RENCANA_UJI_MANUAL.md`, 21 baris uji (M-01…M-21) dikelompokkan
+  **Uang → Struk & Cetak → Alur Harian → Tampilan** (uang didahulukan karena salah tampilan bikin
+  malu, salah uang bikin rugi). Tiap baris punya **kenapa penting**, **langkah**, **tanda
+  berhasil**, **tanda gagal**, **kesiapan** (SIAP / MENUNGGU FITUR / BUTUH ALAT), dan kolom status.
+- **Syarat Lee untuk T-028:** "harus tercatat dan catatannya harus terbaca oleh agent yang
+  ngerjain selanjutnya."
+  → Dilaksanakan dengan **lima pengait, bukan satu**, karena satu catatan mudah terlewat:
+  1. butir `T-028` **sengaja dibiarkan terbuka** di `docs/TERTANGGUH.md`;
+  2. `T5-10` **tidak dicentang** dan menyebut alasannya;
+  3. `T6-06` diberi tanda `❓ T-028` + blok **🔴 WAJIB DIKERJAKAN DI SINI** berisi langkah (a)–(d)
+     dan larangan mencentang T6-06 selama T-028 terbuka;
+  4. entri `DECISIONS_LOG` [Cetak/2026-09-23];
+  5. `docs/ops/SIAP-LANJUT.md` §3 yang wajib dibaca sesi berikutnya sebelum bekerja.
+- **Pengait yang paling kuat adalah yang dijaga mesin:** `alat/periksa-roadmap.py` menolak bila
+  butir terbuka kehilangan tanda `❓` pada tugas. **Dibuktikan, bukan diasumsikan:** pada salinan
+  repo, tanda `❓ T-028` dihapus → `GAGAL (1 temuan): T-028 masih terbuka tetapi tidak ditandai`;
+  tanda `❓ T-026` dihapus → `GAGAL: T-026 masih terbuka tetapi tidak ditandai`. Artinya melupakan
+  butir ini **membuat CI merah**, bukan lewat diam-diam.
+- **Catatan jujur atas percobaan itu:** percobaan pertama saya **tidak gagal** karena masih ada
+  tanda `❓ T-028` ketiga di badan teks T5-10 yang belum saya hapus. Itu justru berguna: kalau
+  saya berhenti di percobaan pertama, saya akan melaporkan "terbukti" padahal belum.
