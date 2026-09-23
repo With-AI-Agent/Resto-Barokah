@@ -149,8 +149,8 @@ JANGAN merge apa pun tanpa keputusan Lee.
    T5-03 (struk termal) sudah selesai, jadi **periksa dulu** apa yang sudah ada di berkas struk
    sebelum membuat yang baru — dua batch terakhir menunjukkan rencana ROADMAP sering lebih tua
    daripada isi repo. Migrasi berikutnya bila perlu: **≥ 0043**.
-0p. **Kalau butuh angka bukti terakhir:** aplikasi **71 berkas / 521 tes LULUS** · suite SQL
-   **87 LULUS** · `uji-mutasi-app.mjs` **59/59 MERAH** · `uji-mutasi-0043.py` **4/4 MERAH** ·
+0p. **Kalau butuh angka bukti terakhir:** aplikasi **74 berkas / 578 tes LULUS** · suite SQL
+   **87 LULUS** · `uji-mutasi-app.mjs` **65/65 MERAH** · `uji-mutasi-0043.py` **4/4 MERAH** ·
    `uji-mutasi-0042.py` **4/4 MERAH** · `uji-mutasi-0012.py` **16/16** · gerbang & paritas CI
    LOLOS · `tsc` bersih · lint 0 error.
 
@@ -213,6 +213,23 @@ JANGAN merge apa pun tanpa keputusan Lee.
    `struk.ts` (struk pelanggan), `tiket.ts` (tiket dapur). Semuanya **murni** — hanya data → byte,
    tidak menyentuh Bluetooth/USB. Itu disengaja: uji printer nyata (T6-08) hanya sesekali, jadi
    tata letak dikunci uji byte-level yang jalan di CI setiap saat.
+
+0D. **T-002 DIJAWAB LEE (2026-09-23) — T6-02 & T6-03 SELESAI.** Printer Kedai Oasis: Goojprt
+   PT-210, Kassen BT-P290, Blueprint Lite-58, Xprinter XP-N160II, Epson TM-T82X. Butir T-002 di
+   `docs/TERTANGGUH.md` sudah ditutup. Berkas baru: `lib/printer/profil.ts`, `lib/printer/kirim.ts`,
+   `layar/pengaturan/PasangPrinter.tsx`. **Butir 0B di bawah soal T6-02/T6-03 sudah TIDAK berlaku.**
+
+0E. **ATURAN YANG TIDAK BOLEH DILANGGAR PENERUS: daftar merek printer = JALAN PINTAS, BUKAN SYARAT.**
+   Lee bertanya khusus apakah printer di luar daftar tetap jalan, dan jawabannya sudah dijanjikan
+   "ya". `tebakProfil()` wajib SELALU mengembalikan profil yang bisa dipakai (jatuh ke
+   `PROFIL_UMUM`), penelusuran BLE menyeluruh wajib tetap ada, dan jalur USB wajib menerima jalur
+   keluar apa pun bila kelas 7 tidak ketemu. **Enam mutasi menjaga ini** — kalau ada yang
+   "merapikan" kode dengan membatasi ke merek terdaftar, CI langsung merah. Jangan dilonggarkan.
+
+0F. **Yang MASIH kurang soal printer:** semua diuji dengan printer TIRUAN. Itu membuktikan
+   logikanya, bukan kertasnya. **T6-08 (uji cetak nyata) tetap gerbang dan milik Lee** — langkahnya
+   sudah ditulis awam di `docs/uji/PANDUAN_PRINTER.md`, ceklisnya M-22…M-25 di
+   `docs/uji/RENCANA_UJI_MANUAL.md`. Jangan mencentang T6-08 tanpa hasil cetak sungguhan.
 
 0B. **SISA FASE 6 BERHENTI DI STOP CONDITION — jangan dipaksakan.**
    - **T6-02 (Web Bluetooth) & T6-03 (WebUSB):** butuh **perangkat keras nyata**. Keduanya juga

@@ -1402,7 +1402,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Bukti (2026-09-23):** `expos.test.ts` **29 tes LULUS** · `uji-mutasi-app.mjs` **47/47 MERAH**
     (5 mutasi ESC/POS baru) · aplikasi **69 berkas / 479 tes LULUS** · tsc bersih · lint 0 error.
 
-- [ ] T6-02 — Sambungan Web Bluetooth (Android/Windows)
+- [x] T6-02 — Sambungan Web Bluetooth (Android/Windows)
   - **Tujuan:** printer termal Bluetooth bisa dipakai dari perangkat kasir.
   - **Ref:** TECH_SPEC §1 & §13 K3
   - **File:** `aplikasi/src/lib/printer/bluetooth.ts`, `aplikasi/src/layar/pengaturan/PasangPrinter.tsx`
@@ -1410,8 +1410,22 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Cetak (ART-7); browser tidak mendukung → mitigasi: deteksi dukungan + arahkan ke cadangan digital.
   - **Verifikasi:** uji manual cetak 1 halaman di perangkat Android.
+  - **Dikerjakan 2026-09-23.** `lib/printer/profil.ts`, `lib/printer/kirim.ts`,
+    `layar/pengaturan/PasangPrinter.tsx`. **Merek printer dipastikan Lee:** Goojprt PT-210,
+    Kassen BT-P290, Blueprint Lite-58, Xprinter XP-N160II, Epson TM-T82X (butir `T-002` terjawab).
+  - **JAMINAN MEREK LAIN (pertanyaan Lee 2026-09-23):** printer di luar daftar **tetap bisa
+    dipakai**. Daftar merek hanya jalan pintas, bukan syarat. Penyambungan BLE bertingkat: coba
+    alamat layanan yang dikenal, lalu **telusuri semua layanan** dan pakai karakteristik apa pun
+    yang bisa ditulisi. Dikunci uji + 3 mutasi (`tebakProfil` menolak merek asing · penelusuran
+    menyeluruh dicabut · profil umum diubah lebarnya) — semuanya wajib MERAH.
+  - **Data dikirim potong 20 byte**: BLE hanya menjamin sebanyak itu, dan printer murah benar-benar
+    berhenti di tengah bila dikirim sekaligus — cacat yang sangat sulit ditebak di lapangan.
+  - **Pesan "tidak didukung" menyebut jalan keluar** (iPhone → pakai struk digital), bukan tombol
+    mati tanpa penjelasan.
+  - **Bukti:** `profil.test.ts` **20 tes** · `kirim.test.ts` **23 tes** · `PasangPrinter.test.tsx`
+    **14 tes** · 6 mutasi T6-02/T6-03 MERAH.
 
-- [ ] T6-03 — Sambungan WebUSB (komputer)
+- [x] T6-03 — Sambungan WebUSB (komputer)
   - **Tujuan:** komputer kasir bisa memakai printer kabel tanpa aplikasi tambahan.
   - **Ref:** TECH_SPEC §1
   - **File:** `aplikasi/src/lib/printer/usb.ts`
@@ -1419,6 +1433,12 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** konflik driver → mitigasi: panduan pemasangan singkat + jalur cadangan digital.
   - **Verifikasi:** uji manual cetak via USB (bila perangkat tersedia) atau uji simulasi + cadangan digital.
+  - **Dikerjakan 2026-09-23** bersama T6-02 di `lib/printer/kirim.ts` (`cariJalurUsb`, `cetakUsb`).
+    Printer struk hampir selalu memakai kelas USB 7 (Printer) dengan satu jalur keluar; kalau
+    kelas 7 tidak ada, dipakai **jalur keluar apa pun** — itu yang membuat printer tak dikenal
+    tetap bekerja. Diuji dengan perangkat tiruan; uji perangkat nyata tetap T6-08.
+  - **Antarmuka selalu dilepas di blok `finally`**, termasuk saat cetak gagal. Kalau tidak, cetak
+    BERIKUTNYA gagal dengan pesan menyesatkan "sedang dipakai program lain" — dikunci mutasi.
 
 - [x] T6-04 — Cetak struk (header/footer dari pengaturan)
   - **Tujuan:** struk memuat identitas resto yang benar tanpa perlu ubah kode.

@@ -729,3 +729,63 @@
   font-weight: 700;
   color: var(--danger);
 }
+
+/* --------------------------------------------- T6-02 pemasangan printer */
+.pasang-printer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  max-width: 34rem;
+}
+
+.pasang-printer__catatan,
+.pasang-printer__keterangan {
+  margin: 0;
+  font-size: var(--t-kecil);
+  color: var(--teks-lemah);
+}
+
+.pasang-printer__label {
+  font-weight: 700;
+}
+
+.pasang-printer__pilih {
+  padding: var(--s-2);
+  border: 1px solid var(--garis);
+  border-radius: var(--r-2);
+  font-size: inherit;
+  min-height: 44px;
+}
+
+.pasang-printer__lebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  border: 1px solid var(--garis);
+  border-radius: var(--r-2);
+  padding: var(--s-2) var(--s-3);
+}
+
+.pasang-printer__lebar label {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+}
+
+/* Peringatan perangkat tak didukung harus terbaca sebagai pemberitahuan,
+   bukan kegagalan — selalu ada jalan keluar (struk digital). */
+.pasang-printer__peringatan {
+  margin: 0;
+  padding: var(--s-2) var(--s-3);
+  border-left: 4px solid var(--peringatan, var(--garis));
+  background: var(--lapis-2, transparent);
+  border-radius: var(--r-2);
+  font-size: var(--t-kecil);
+}
+
+.pasang-printer__aksi {
+  display: flex;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}

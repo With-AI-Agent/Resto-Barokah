@@ -2131,6 +2131,45 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   merusak dan memberi "GAGAL" palsu. Jalankan berurutan.
 
 
+## [Cetak/2026-09-23] Daftar Merek Printer Adalah Jalan Pintas, BUKAN Syarat (T6-02 & T6-03, butir T-002)
+
+- **Area:** Cetak (ART-7) — TECH_SPEC §1 & §13 K3; menutup butir tertangguh **T-002**
+- **Konteks:** Lee menyebut lima printer Kedai Oasis (Goojprt PT-210, Kassen BT-P290, Blueprint
+  Lite-58, Xprinter XP-N160II, Epson TM-T82X) lalu bertanya hal yang justru paling menentukan:
+  **"kalau ada yang pakai printer lain selain ini, bisa tetap berjalan tidak?"**
+- **Keputusan: daftar merek hanya JALAN PINTAS, tidak pernah menjadi syarat.** Kalau daftar
+  dijadikan syarat, setiap kedai baru dengan printer berbeda akan tertahan menunggu rilis aplikasi
+  — dan itu justru melawan nilai jual produk ini ("bisa diatur tanpa koding"). Maka:
+  - `tebakProfil()` **selalu** mengembalikan profil yang bisa dipakai; nama tak dikenal jatuh ke
+    `PROFIL_UMUM`, tidak pernah `null` dan tidak pernah melempar galat.
+  - **Bluetooth bertingkat:** coba alamat layanan yang dikenal (`18f0`, `ff00`, `ffe0`, `fff0`,
+    ISSC `49535343…`, `e7810a71…`), lalu **telusuri semua layanan** dan pakai karakteristik apa pun
+    yang bisa ditulisi. Tidak ada standar alamat untuk printer struk, jadi tahap kedua inilah yang
+    menyelamatkan merek asing.
+  - **USB bertingkat:** utamakan antarmuka kelas 7 (Printer), lalu terima **jalur keluar apa pun**.
+  - **Lebar kertas dijadikan pilihan pengguna** (58/80 mm), karena itu satu-satunya hal yang
+    benar-benar harus diketahui dan bisa dijawab siapa pun sambil melihat kertasnya.
+- **Anggapan bawaan sengaja dipilih yang "salahnya aman":** profil umum = 58 mm, tanpa pisau,
+  tanpa laci. Struk 58 mm di printer 80 mm hanya menyisakan ruang kosong; sebaliknya struk 80 mm di
+  printer 58 mm **kehilangan angka di sisi kanan**. Kalau harus salah, salahlah ke arah yang tidak
+  merusak bukti bayar.
+- **Janji ini dikunci uji mutasi, bukan sekadar ditulis:** tiga mutasi wajib MERAH — (a) merek di
+  luar daftar ditolak, (b) penelusuran BLE menyeluruh dicabut, (c) lebar profil umum diubah diam-diam.
+  Jadi jaminan "merek lain tetap jalan" tidak bisa hilang tanpa ketahuan CI.
+- **Data dikirim potong 20 byte.** BLE hanya menjamin sebanyak itu per kiriman; banyak printer murah
+  benar-benar berhenti di tengah bila dikirim sekaligus — cacat yang sulit sekali ditebak sebabnya
+  di lapangan karena gejalanya "struk tercetak separuh".
+- **Antarmuka USB selalu dilepas di `finally`,** termasuk saat cetak gagal. Kalau tidak, cetak
+  berikutnya gagal dengan pesan menyesatkan "sedang dipakai program lain".
+- **Pesan tak-didukung wajib menyebut jalan keluar.** iPhone/iPad tidak akan pernah mendukung Web
+  Bluetooth di Safari; pesannya menyebutkan itu **dan** menawarkan struk digital, supaya kasir tidak
+  mengira aplikasinya rusak.
+- **Batas yang jujur:** semua ini diuji dengan printer **tiruan**. Itu membuktikan logikanya, bukan
+  kertasnya. **Uji cetak di printer nyata tetap gerbang T6-08** dan tidak boleh dianggap tergantikan.
+  Panduan langkah untuk pemilik ditulis di `docs/uji/PANDUAN_PRINTER.md`.
+- **Bukti:** `profil.test.ts` **20 tes** · `kirim.test.ts` **23 tes** · `PasangPrinter.test.tsx`
+  **14 tes** · `uji-mutasi-app.mjs` **65/65 MERAH** · aplikasi **74 berkas / 578 tes LULUS**.
+
 ## [Cetak/2026-09-23] Struk Termal Mengimpor Rumus Pembulatan, Tiket Dapur Tanpa Uang (T6-04 & T6-05)
 
 - **Area:** Cetak (ART-7) — PRD M6 (isi struk), M2 (header/footer diatur), M4 & M5 (tiket dapur)

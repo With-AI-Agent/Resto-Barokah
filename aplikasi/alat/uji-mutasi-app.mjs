@@ -495,6 +495,50 @@ const MUTASI = [
     ganti: '    p.baris(`${item.qty}x ${item.nama}`)',
     uji: 'src/lib/printer/tiket.test.ts',
   },
+
+  // ------------------- T6-02/T6-03 sambungan + JAMINAN merek lain jalan
+  {
+    nama: 'Printer di luar daftar DITOLAK (T6-02) — janji "merek lain tetap jalan" dilanggar',
+    berkas: 'src/lib/printer/profil.ts',
+    cari: '  return PROFIL_UMUM\n}',
+    ganti: "  throw new Error('printer tidak dikenal')\n}",
+    uji: 'src/lib/printer/profil.test.ts',
+  },
+  {
+    nama: 'Profil umum diam-diam jadi 80 mm (T6-02) — struk 58 mm kehilangan angka di kanan',
+    berkas: 'src/lib/printer/profil.ts',
+    cari: "  id: 'umum-58',\n  nama: 'Printer ESC/POS umum (58 mm)',\n  lebar: LEBAR_58MM,",
+    ganti: "  id: 'umum-58',\n  nama: 'Printer ESC/POS umum (58 mm)',\n  lebar: LEBAR_80MM,",
+    uji: 'src/lib/printer/profil.test.ts',
+  },
+  {
+    nama: 'Penelusuran BLE menyeluruh dicabut (T6-02) — hanya printer beralamat dikenal yang bisa dipakai',
+    berkas: 'src/lib/printer/kirim.ts',
+    cari: "  if (typeof peladen.getPrimaryServices === 'function') {",
+    ganti: '  if (false) {',
+    uji: 'src/lib/printer/kirim.test.ts',
+  },
+  {
+    nama: 'USB hanya menerima kelas 7 (T6-03) — printer yang tidak mengaku printer ditolak',
+    berkas: 'src/lib/printer/kirim.ts',
+    cari: '  // Tahap 2 — jalur keluar apa pun.\n  for (const antarmuka of konfigurasi.interfaces) {',
+    ganti: '  // Tahap 2 dicabut.\n  for (const antarmuka of [] as AntarmukaUsb[]) {',
+    uji: 'src/lib/printer/kirim.test.ts',
+  },
+  {
+    nama: 'Data dikirim sekaligus tanpa dipotong (T6-02) — printer mencetak setengah lalu berhenti',
+    berkas: 'src/lib/printer/kirim.ts',
+    cari: '  for (let i = 0; i < data.length; i += besar) {\n    hasil.push(data.slice(i, i + besar))\n  }',
+    ganti: '  hasil.push(data)',
+    uji: 'src/lib/printer/kirim.test.ts',
+  },
+  {
+    nama: 'Antarmuka USB tidak dilepas sesudah cetak (T6-03) — cetak berikutnya gagal "dipakai program lain"',
+    berkas: 'src/lib/printer/kirim.ts',
+    cari: '      if (nomorAntarmuka !== null && perangkat.releaseInterface) {\n        await perangkat.releaseInterface(nomorAntarmuka)\n      }',
+    ganti: '      void nomorAntarmuka',
+    uji: 'src/lib/printer/kirim.test.ts',
+  },
 ]
 
 /**

@@ -14,4 +14,4 @@ Ringkasan keadaan kerja untuk sesi berikutnya. Rincian rencana ada di
 > **Catatan (2026-09-23):** commit `227a51b` dan `7aec492` yang sempat tertahan token GitHub
 > kedaluwarsa **sudah ter-push**. Tidak ada pekerjaan yang tertinggal.
 
-**Waktu pembaruan:** 2026-09-23 — sesi keempat: Fase 5 tuntas (bagian agent); **Fase 6 dimulai: T6-01/T6-04/T6-05 selesai** — cetak termal ESC/POS, struk, tiket dapur, semuanya murni & diuji byte-level tanpa printer (521 tes aplikasi, 87 uji SQL, mutasi UI 59/59 MERAH). Sisa Fase 6 berhenti di Stop Condition: T6-02/T6-03 butuh printer nyata (T-002), T6-06 butuh RPC baru (T-028).
+**Waktu pembaruan:** 2026-09-23 — sesi kelima: T-002 dijawab Lee (5 merek printer) dan T6-02/T6-03 selesai; **printer merek lain dijamin tetap jalan** lewat profil umum + penelusuran BLE + jalur USB apa pun, dikunci 6 mutasi MERAH (578 tes aplikasi, 87 uji SQL, mutasi UI 65/65). Uji cetak printer nyata tetap gerbang T6-08.
