@@ -38,7 +38,12 @@ import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MIGRASI = os.path.join(REPO, "supabase", "migrations", "0039_bayar_pesanan.sql")
+# JEBAKAN "fungsi ditulis ulang" (lihat DECISIONS_LOG [Mutu gerbang/2026-09-23]):
+# fungsi `public.bayar_pesanan` ditulis ULANG UTUH oleh `0048_wajib_shift.sql` (T7-04)
+# untuk menambahkan validasi shift kasir aktif (wajib_shift).
+# Definisi yang benar-benar berlaku saat pemasangan adalah yang TERAKHIR (0048),
+# jadi memutasi 0039 tidak berpengaruh karena ditimpa oleh 0048.
+MIGRASI = os.path.join(REPO, "supabase", "migrations", "0048_wajib_shift.sql")
 
 
 def jalankan_uji():

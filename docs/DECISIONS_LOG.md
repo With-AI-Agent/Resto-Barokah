@@ -2636,6 +2636,18 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Vitest Total: 79 berkas / 625 tes LULUS (100%).
   - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run build` sukses.
 
+### [Mutu gerbang / 2026-09-24] Uji mutasi bayar_pesanan (0039) menargetkan definisi aktif di 0048_wajib_shift.sql
+- **Konteks:**
+  Langkah CI `Bukti mutasi bayar_pesanan 0039` gagal karena Mutasi 1 (Pintu identitas dilepas) dilaporkan lolos (pagar tumpul).
+- **Penyebab:**
+  Fungsi RPC `public.bayar_pesanan` yang awalnya dibuat di `0039_bayar_pesanan.sql` ditulis ulang secara utuh pada `0048_wajib_shift.sql` (T7-04) untuk menegakkan aturan shift kas aktif sebelum pembayaran dicatat. Ketika `alat/uji-mutasi-0039.py` memutasi berkas migrasi `0039_bayar_pesanan.sql`, berkas migrasi `0048_wajib_shift.sql` yang dijalankan sesudahnya menimpa kembali fungsi tersebut dengan versi aslinya, sehingga mutasi tampak tidak berdampak (tumpul). Pola ini sama persis dengan mutasi `0046_tutup_shift.sql` yang ditimpa oleh `0049_pengingat_shift.sql`.
+- **Keputusan:**
+  Mengarahkan target berkas mutasi pada `alat/uji-mutasi-0039.py` ke `supabase/migrations/0048_wajib_shift.sql` di mana definisi aktif `public.bayar_pesanan` berada.
+- **Bukti:**
+  - `python3 alat/uji-mutasi-0039.py`: 6/6 mutasi kritis TERBUKTI MERAH.
+  - `python3 alat/uji-mutasi-0039.py --uji-diri`: OK (kontrol positif hijau & deteksi jangkar bekerja).
+
+
 
 
 

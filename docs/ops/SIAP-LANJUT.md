@@ -8,13 +8,13 @@
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
-- **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
+- **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `08d7469cc4cc69b9f520223b45587b0570b1e771`
+- **Commit keadaan kerja:** `d796c0b6275f49ee31efdc4cf2ccbedb03f0b8a1`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** queued (run 35969506413, commit 08d7469c) — tunggu sampai selesai
+- **CI terakhir:** failure (run 35969530427, commit d796c0b6)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (27 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (27 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
