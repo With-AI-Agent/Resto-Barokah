@@ -134,6 +134,9 @@ jobs:
       - name: Bukti mutasi pagar buka shift 0045 — T7-01 modal awal & shift unik (6 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0045.py
 
+      - name: Bukti mutasi pagar tutup shift 0046 — T7-02 rekonsiliasi kas & alasan selisih (6 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0046.py
+
       - name: Bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22, 4 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0009.py
 
