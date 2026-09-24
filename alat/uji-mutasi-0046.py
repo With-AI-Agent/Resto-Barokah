@@ -20,7 +20,12 @@ import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MIGRASI = os.path.join(REPO, "supabase", "migrations", "0046_tutup_shift.sql")
+# JEBAKAN "fungsi ditulis ulang" (lihat DECISIONS_LOG [Mutu gerbang/2026-09-23]):
+# fungsi `public.tutup_shift` ditulis ULANG UTUH oleh `0047_kas_pergerakan.sql` (T7-03)
+# untuk memperhitungkan tunai_masuk & tunai_keluar dari tabel `kas_pergerakan`.
+# Definisi yang benar-benar berlaku saat pemasangan adalah yang TERAKHIR (0047),
+# jadi memutasi 0046 tidak berpengaruh karena ditimpa oleh 0047.
+MIGRASI = os.path.join(REPO, "supabase", "migrations", "0047_kas_pergerakan.sql")
 BERKAS_UJI = ["supabase/tes/tutup_shift.sql"]
 
 
