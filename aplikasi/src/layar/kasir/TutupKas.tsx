@@ -480,14 +480,13 @@ export function TutupKas({
                 </span>
                 <div className="chips-baris">
                   {ALASAN_CEPAT.map((alasan) => (
-                    <button
+                    <Tombol
                       key={alasan}
-                      type="button"
-                      className="chip-tombol"
+                      ragam="kecil"
                       onClick={() => tanganiPilihAlasanCepat(alasan)}
                     >
                       {alasan}
-                    </button>
+                    </Tombol>
                   ))}
                 </div>
               </div>

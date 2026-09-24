@@ -148,32 +148,53 @@ export function PemilihMeja({
           {t('kasir.pilih_meja_judul')}
         </div>
         <div className="tipe-pesanan-grid">
-          <button
-            type="button"
+          <div
+            role="button"
+            tabIndex={0}
             className={`tipe-pesanan-btn ${tipe === 'dinein' ? 'tipe-pesanan-btn--aktif' : ''}`}
             onClick={() => tanganiPilihTipe('dinein')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                tanganiPilihTipe('dinein')
+              }
+            }}
           >
             <span style={{ fontSize: '20px' }}>🍽️</span>
             <span>{t('kasir.tipe_dinein')}</span>
-          </button>
+          </div>
 
-          <button
-            type="button"
+          <div
+            role="button"
+            tabIndex={0}
             className={`tipe-pesanan-btn ${tipe === 'takeaway' ? 'tipe-pesanan-btn--aktif' : ''}`}
             onClick={() => tanganiPilihTipe('takeaway')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                tanganiPilihTipe('takeaway')
+              }
+            }}
           >
             <span style={{ fontSize: '20px' }}>🥡</span>
             <span>{t('kasir.tipe_takeaway')}</span>
-          </button>
+          </div>
 
-          <button
-            type="button"
+          <div
+            role="button"
+            tabIndex={0}
             className={`tipe-pesanan-btn ${tipe === 'ojol' ? 'tipe-pesanan-btn--aktif' : ''}`}
             onClick={() => tanganiPilihTipe('ojol')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                tanganiPilihTipe('ojol')
+              }
+            }}
           >
             <span style={{ fontSize: '20px' }}>🛵</span>
             <span>{t('kasir.tipe_ojol')}</span>
-          </button>
+          </div>
         </div>
       </div>
 
@@ -297,14 +318,9 @@ export function PemilihMeja({
         </label>
         <div className="chips-baris">
           {CATATAN_CEPAT.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              className="chip-tombol"
-              onClick={() => tambahCatatanCepat(tag)}
-            >
+            <Tombol key={tag} ragam="kecil" onClick={() => tambahCatatanCepat(tag)}>
               + {tag}
-            </button>
+            </Tombol>
           ))}
         </div>
 

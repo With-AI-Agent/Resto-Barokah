@@ -176,25 +176,15 @@ export function Keranjang({
                 </Tombol>
 
                 <div className="keranjang-item__qty">
-                  <button
-                    type="button"
-                    className="keranjang-item__qty-btn"
-                    onClick={() => onKurangQty(item.id)}
-                    aria-label="Kurangi"
-                  >
+                  <Tombol ragam="kecil" onClick={() => onKurangQty(item.id)} nama="Kurangi">
                     -
-                  </button>
+                  </Tombol>
                   <span style={{ fontWeight: 700, minWidth: '22px', textAlign: 'center' }}>
                     {item.qty}
                   </span>
-                  <button
-                    type="button"
-                    className="keranjang-item__qty-btn"
-                    onClick={() => onTambahQty(item.id)}
-                    aria-label="Tambah"
-                  >
+                  <Tombol ragam="kecil" onClick={() => onTambahQty(item.id)} nama="Tambah">
                     +
-                  </button>
+                  </Tombol>
                   <Tombol ragam="bahaya" onClick={() => onHapusItem(item.id)} nama="Hapus item">
                     ✕
                   </Tombol>
