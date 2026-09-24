@@ -102,47 +102,51 @@ export function BukaKas({
   // Jika kasir sudah memiliki shift aktif di cabang ini
   if (shiftAktif) {
     return (
-      <div className="buka-kas-wadah p-6 max-w-lg mx-auto bg-white rounded-2xl border border-neutral-200 shadow-sm space-y-5">
-        <div className="flex items-center gap-3 text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-200">
-          <span className="text-2xl">⚠️</span>
+      <div className="buka-kas-wadah">
+        <div className="kotak-peringatan">
+          <span style={{ fontSize: '24px' }}>⚠️</span>
           <div>
-            <h3 className="font-bold text-base">Shift Kasir Sudah Aktif</h3>
-            <p className="text-xs text-amber-800 mt-0.5">
+            <h3 style={{ fontWeight: 700, fontSize: 'var(--t-4)', margin: 0 }}>
+              Shift Kasir Sudah Aktif
+            </h3>
+            <p style={{ fontSize: 'var(--t-2)', margin: '4px 0 0' }}>
               Anda masih memiliki sesi shift kasir yang aktif di cabang ini.
             </p>
           </div>
         </div>
 
-        <div className="p-4 bg-neutral-50 rounded-xl space-y-2 text-sm text-neutral-700 border border-neutral-200">
-          <div className="flex justify-between">
-            <span className="text-neutral-500">Cabang:</span>
-            <span className="font-semibold">{namaCabang}</span>
+        <div className="kotak-rincian-kas">
+          <div className="kotak-rincian-kas__baris">
+            <span style={{ color: 'var(--text-muted)' }}>Cabang:</span>
+            <span style={{ fontWeight: 600 }}>{namaCabang}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-neutral-500">Kasir:</span>
-            <span className="font-semibold">{namaKasir}</span>
+          <div className="kotak-rincian-kas__baris">
+            <span style={{ color: 'var(--text-muted)' }}>Kasir:</span>
+            <span style={{ fontWeight: 600 }}>{namaKasir}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-neutral-500">ID Shift:</span>
-            <span className="font-mono text-xs">{shiftAktif.id}</span>
+          <div className="kotak-rincian-kas__baris">
+            <span style={{ color: 'var(--text-muted)' }}>ID Shift:</span>
+            <span style={{ fontFamily: 'var(--mono)' }}>{shiftAktif.id}</span>
           </div>
           {shiftAktif.modalAwal !== undefined && (
-            <div className="flex justify-between">
-              <span className="text-neutral-500">Modal Awal:</span>
-              <span className="font-bold text-neutral-900">{rupiah(shiftAktif.modalAwal)}</span>
+            <div className="kotak-rincian-kas__baris">
+              <span style={{ color: 'var(--text-muted)' }}>Modal Awal:</span>
+              <span style={{ fontWeight: 800, color: 'var(--text)' }}>
+                {rupiah(shiftAktif.modalAwal)}
+              </span>
             </div>
           )}
           {shiftAktif.dibukaPada && (
-            <div className="flex justify-between">
-              <span className="text-neutral-500">Waktu Buka:</span>
-              <span className="text-xs">
+            <div className="kotak-rincian-kas__baris">
+              <span style={{ color: 'var(--text-muted)' }}>Waktu Buka:</span>
+              <span style={{ fontSize: 'var(--t-2)' }}>
                 {new Date(shiftAktif.dibukaPada).toLocaleString('id-ID')}
               </span>
             </div>
           )}
         </div>
 
-        <div className="flex gap-3 pt-2">
+        <div style={{ display: 'flex', gap: 'var(--s-2)', paddingTop: 'var(--s-2)' }}>
           {onLanjut && (
             <Tombol ragam="utama" lebar onClick={onLanjut}>
               Lanjut ke Kasir POS
@@ -161,35 +165,50 @@ export function BukaKas({
   // Jika pembukaan shift berhasil
   if (statusLokal === 'berhasil' || keadaan === 'berhasil') {
     return (
-      <div className="buka-kas-berhasil p-6 max-w-lg mx-auto bg-white rounded-2xl border border-emerald-200 shadow-sm space-y-5 text-center">
-        <div className="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-3xl mx-auto">
+      <div className="buka-kas-wadah" style={{ textAlign: 'center' }}>
+        <div
+          style={{
+            width: '64px',
+            height: '64px',
+            borderRadius: '50%',
+            background: 'var(--success-soft)',
+            color: 'var(--success)',
+            display: 'grid',
+            placeItems: 'center',
+            fontSize: '28px',
+            margin: '0 auto',
+            fontWeight: 'bold',
+          }}
+        >
           ✓
         </div>
         <div>
-          <h3 className="font-bold text-lg text-emerald-900">Shift Berhasil Dibuka!</h3>
-          <p className="text-sm text-neutral-600 mt-1">
+          <h3 style={{ fontWeight: 800, fontSize: 'var(--t-5)', color: 'var(--text)', margin: 0 }}>
+            Shift Berhasil Dibuka!
+          </h3>
+          <p style={{ fontSize: 'var(--t-2)', color: 'var(--text-muted)', marginTop: '4px' }}>
             {pesanHasil || 'Modal awal kasir telah dicatat di sistem.'}
           </p>
         </div>
 
-        <div className="p-4 bg-neutral-50 rounded-xl space-y-2 text-sm text-neutral-700 border border-neutral-200 text-left">
-          <div className="flex justify-between">
-            <span className="text-neutral-500">Cabang:</span>
-            <span className="font-semibold">{namaCabang}</span>
+        <div className="kotak-rincian-kas" style={{ textAlign: 'left' }}>
+          <div className="kotak-rincian-kas__baris">
+            <span style={{ color: 'var(--text-muted)' }}>Cabang:</span>
+            <span style={{ fontWeight: 600 }}>{namaCabang}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-neutral-500">Kasir:</span>
-            <span className="font-semibold">{namaKasir}</span>
+          <div className="kotak-rincian-kas__baris">
+            <span style={{ color: 'var(--text-muted)' }}>Kasir:</span>
+            <span style={{ fontWeight: 600 }}>{namaKasir}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-neutral-500">Modal Awal:</span>
-            <span className="font-bold text-emerald-800">
+          <div className="kotak-rincian-kas__baris">
+            <span style={{ color: 'var(--text-muted)' }}>Modal Awal:</span>
+            <span style={{ fontWeight: 800, color: 'var(--accent)' }}>
               {nominalValid ? rupiah(Math.round(nominalBersih)) : '-'}
             </span>
           </div>
         </div>
 
-        <div className="pt-2">
+        <div style={{ paddingTop: 'var(--s-2)' }}>
           {onLanjut && (
             <Tombol ragam="utama" lebar onClick={onLanjut}>
               Mulai Transaksi Kasir
@@ -201,39 +220,59 @@ export function BukaKas({
   }
 
   return (
-    <div className="buka-kas-wadah p-6 max-w-lg mx-auto bg-white rounded-2xl border border-neutral-200 shadow-sm space-y-5">
+    <div className="buka-kas-wadah">
       {/* Header Info */}
       <div>
-        <h2 className="font-extrabold text-xl text-neutral-900">Buka Shift Kasir</h2>
-        <p className="text-xs text-neutral-500 mt-1">
+        <h2
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontWeight: 800,
+            fontSize: 'var(--t-6)',
+            margin: 0,
+          }}
+        >
+          Buka Shift Kasir
+        </h2>
+        <p style={{ fontSize: 'var(--t-2)', color: 'var(--text-muted)', marginTop: '4px' }}>
           Catat modal tunai awal di laci kas sebelum memulai transaksi transaksi hari ini.
         </p>
       </div>
 
-      <div className="p-3 bg-neutral-50 rounded-xl space-y-1.5 text-xs text-neutral-600 border border-neutral-200">
-        <div className="flex justify-between">
-          <span className="text-neutral-400">Cabang:</span>
-          <span className="font-medium text-neutral-800">
+      <div className="kotak-rincian-kas">
+        <div className="kotak-rincian-kas__baris">
+          <span style={{ color: 'var(--text-muted)' }}>Cabang:</span>
+          <span style={{ fontWeight: 600 }}>
             {namaCabang} ({cabangId})
           </span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-neutral-400">Kasir:</span>
-          <span className="font-medium text-neutral-800">{namaKasir}</span>
+        <div className="kotak-rincian-kas__baris">
+          <span style={{ color: 'var(--text-muted)' }}>Kasir:</span>
+          <span style={{ fontWeight: 600 }}>{namaKasir}</span>
         </div>
       </div>
 
       {/* Pesan Kesalahan */}
       {galatDitampilkan && (
-        <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
-          <span className="text-base leading-none">⚠️</span>
+        <div
+          style={{
+            padding: 'var(--s-3)',
+            background: 'var(--danger-soft)',
+            border: '1px solid var(--danger)',
+            borderRadius: 'var(--radius)',
+            fontSize: 'var(--t-2)',
+            color: 'var(--danger)',
+            display: 'flex',
+            gap: 'var(--s-2)',
+          }}
+        >
+          <span>⚠️</span>
           <span>{galatDitampilkan}</span>
         </div>
       )}
 
       {/* Formulir Buka Shift */}
       {!konfirmasi ? (
-        <div className="space-y-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-3)' }}>
           <KolomIsian
             label="Modal Awal Kasir"
             nilai={modalAwalInput}
@@ -248,9 +287,18 @@ export function BukaKas({
           />
 
           {/* Tombol Uang Cepat */}
-          <div className="space-y-1.5">
-            <span className="text-xs font-semibold text-neutral-500">Pilihan Cepat:</span>
-            <div className="flex flex-wrap gap-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-1)' }}>
+            <span
+              style={{
+                fontSize: 'var(--t-1)',
+                fontWeight: 700,
+                color: 'var(--text-muted)',
+                textTransform: 'uppercase',
+              }}
+            >
+              Pilihan Cepat:
+            </span>
+            <div className="uang-cepat-grid">
               <Tombol ragam="kecil" onClick={() => tanganiPilihUangCepat(0)}>
                 Rp0 (Nol)
               </Tombol>
@@ -264,9 +312,28 @@ export function BukaKas({
 
           {/* Pratinjau Nilai Format Rupiah */}
           {nominalValid && (
-            <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-between">
-              <span className="text-xs text-emerald-800 font-medium">Pratinjau Modal:</span>
-              <span className="text-base font-extrabold text-emerald-900">
+            <div
+              style={{
+                padding: 'var(--s-3)',
+                background: 'var(--accent-soft)',
+                borderRadius: 'var(--radius)',
+                border: '1px solid var(--accent)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <span style={{ fontSize: 'var(--t-2)', fontWeight: 600, color: 'var(--accent)' }}>
+                Pratinjau Modal:
+              </span>
+              <span
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'var(--t-5)',
+                  fontWeight: 800,
+                  color: 'var(--accent)',
+                }}
+              >
                 {rupiah(Math.round(nominalBersih))}
               </span>
             </div>
@@ -281,7 +348,7 @@ export function BukaKas({
           />
 
           {/* Tombol Aksi */}
-          <div className="flex gap-3 pt-3">
+          <div style={{ display: 'flex', gap: 'var(--s-2)', paddingTop: 'var(--s-2)' }}>
             <Tombol
               ragam="utama"
               lebar
@@ -305,31 +372,53 @@ export function BukaKas({
         </div>
       ) : (
         /* Langkah Konfirmasi */
-        <div className="space-y-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--s-3)',
+            padding: 'var(--s-4)',
+            background: 'var(--warn-soft)',
+            borderRadius: 'var(--radius)',
+            border: '1px solid var(--warn)',
+          }}
+        >
           <div>
-            <h4 className="font-bold text-sm text-amber-900">Konfirmasi Buka Shift</h4>
-            <p className="text-xs text-amber-800 mt-1">
+            <h4
+              style={{ fontWeight: 800, fontSize: 'var(--t-4)', color: 'var(--warn)', margin: 0 }}
+            >
+              Konfirmasi Buka Shift
+            </h4>
+            <p style={{ fontSize: 'var(--t-2)', marginTop: '4px' }}>
               Periksa kembali data modal awal sebelum membuka shift. Modal awal tidak dapat diubah
               secara langsung setelah shift terbuka.
             </p>
           </div>
 
-          <div className="p-3 bg-white rounded-lg border border-amber-200 text-sm space-y-1">
-            <div className="flex justify-between">
-              <span className="text-neutral-500 text-xs">Modal Awal:</span>
-              <span className="font-bold text-neutral-900">
+          <div
+            style={{
+              padding: 'var(--s-3)',
+              background: 'var(--surface)',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--border)',
+              fontSize: 'var(--t-3)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: 'var(--text-muted)' }}>Modal Awal:</span>
+              <span style={{ fontWeight: 800, color: 'var(--text)' }}>
                 {rupiah(Math.round(nominalBersih))}
               </span>
             </div>
             {catatanInput.trim() && (
-              <div className="flex justify-between">
-                <span className="text-neutral-500 text-xs">Catatan:</span>
-                <span className="text-xs italic text-neutral-700">{catatanInput.trim()}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Catatan:</span>
+                <span style={{ fontStyle: 'italic' }}>{catatanInput.trim()}</span>
               </div>
             )}
           </div>
 
-          <div className="flex gap-2 pt-2">
+          <div style={{ display: 'flex', gap: 'var(--s-2)', paddingTop: 'var(--s-2)' }}>
             <Tombol ragam="utama" lebar nonaktif={statusAktif} onClick={tanganiBukaKas}>
               {statusAktif ? 'Membuka Shift...' : 'Ya, Buka Shift Sekarang'}
             </Tombol>

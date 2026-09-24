@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useBahasa } from '../../bahasa'
 import { Tombol } from '../../komponen/Tombol'
 import { Lencana } from '../../komponen/Lencana'
 import { Lapis } from '../../komponen/Lapis'
@@ -63,6 +64,7 @@ export function Keranjang({
   onBukaPemilihMeja,
   onBukaVoucher,
 }: KeranjangProps) {
+  const { t } = useBahasa()
   const [itemCatatanEdit, setItemCatatanEdit] = useState<ItemKeranjang | null>(null)
   const [inputCatatan, setInputCatatan] = useState<string>('')
 
@@ -81,93 +83,118 @@ export function Keranjang({
   const kosong = daftarItem.length === 0
 
   return (
-    <div className="keranjang-kasir flex flex-col h-full bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+    <div className="keranjang-kotak">
       {/* Header Info Meja & Tipe Pesanan */}
-      <div className="p-3.5 bg-neutral-50/80 border-b border-neutral-200 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="font-bold text-base text-neutral-800">
+      <div className="keranjang-kepala">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
+          <div style={{ fontWeight: 800, fontSize: 'var(--t-4)', color: 'var(--text)' }}>
             {tipePesanan === 'dinein'
               ? `🍽️ ${namaMeja}`
               : tipePesanan === 'takeaway'
-                ? '🥡 Bawa Pulang'
-                : '🛵 Ojek Online'}
+                ? `🥡 ${t('kasir.tipe_takeaway')}`
+                : `🛵 ${t('kasir.tipe_ojol')}`}
           </div>
           <Lencana nada="info">
             {tipePesanan === 'dinein'
-              ? 'Dine In'
+              ? t('kasir.tipe_dinein')
               : tipePesanan === 'takeaway'
-                ? 'Takeaway'
-                : 'Ojol'}
+                ? t('kasir.tipe_takeaway')
+                : t('kasir.tipe_ojol')}
           </Lencana>
         </div>
 
         {onBukaPemilihMeja && (
           <Tombol ragam="kecil" onClick={onBukaPemilihMeja}>
-            Ubah Meja / Tipe
+            {t('kasir.pilih_meja')}
           </Tombol>
         )}
       </div>
 
       {/* Daftar Item Pesanan */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2.5 max-h-[48vh] min-h-[180px]">
+      <div className="keranjang-daftar">
         {kosong ? (
-          <div className="flex flex-col items-center justify-center h-full py-12 text-neutral-400">
-            <div className="text-3xl mb-1">🛒</div>
-            <div className="text-sm font-medium">Keranjang Masih Kosong</div>
-            <div className="text-xs text-neutral-400">
-              Pilih menu dari katalog di sebelah kiri untuk memesan.
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              padding: 'var(--s-8) 0',
+              color: 'var(--text-muted)',
+            }}
+          >
+            <div style={{ fontSize: '32px', marginBottom: 'var(--s-1)' }}>🛒</div>
+            <div style={{ fontWeight: 700, fontSize: 'var(--t-3)' }}>Keranjang Masih Kosong</div>
+            <div style={{ fontSize: 'var(--t-2)', textAlign: 'center', padding: '0 var(--s-3)' }}>
+              {t('kasir.keranjang_kosong_petunjuk')}
             </div>
           </div>
         ) : (
           daftarItem.map((item) => (
-            <div
-              key={item.id}
-              className="item-keranjang p-2.5 rounded-xl border border-neutral-100 bg-neutral-50/50 hover:bg-neutral-50 transition-colors flex flex-col gap-1.5"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1">
-                  <div className="font-bold text-sm text-neutral-800">{item.menuItem.nama}</div>
+            <div key={item.id} className="keranjang-item">
+              <div className="keranjang-item__baris">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="keranjang-item__nama">{item.menuItem.nama}</div>
                   {item.varian && (
-                    <div className="text-xs text-neutral-500 font-medium">
-                      Varian: {item.varian.nama}
+                    <div style={{ fontSize: 'var(--t-1)', color: 'var(--text-muted)' }}>
+                      {t('kasir.varian_ukuran')}: {item.varian.nama}
                     </div>
                   )}
                   {item.tambahan && item.tambahan.length > 0 && (
-                    <div className="text-xs text-neutral-500">
-                      + {item.tambahan.map((t) => t.nama).join(', ')}
+                    <div style={{ fontSize: 'var(--t-1)', color: 'var(--text-muted)' }}>
+                      + {item.tambahan.map((tambahan) => tambahan.nama).join(', ')}
                     </div>
                   )}
                   {item.catatan && (
-                    <div className="text-xs text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 mt-1 inline-block">
+                    <div
+                      style={{
+                        fontSize: 'var(--t-1)',
+                        color: 'var(--accent)',
+                        background: 'var(--accent-soft)',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        marginTop: '4px',
+                        display: 'inline-block',
+                      }}
+                    >
                       📝 {item.catatan}
                     </div>
                   )}
                 </div>
 
                 {/* Subtotal Item */}
-                <div className="text-right">
-                  <div className="font-extrabold text-sm text-neutral-900">
-                    {rupiah(item.subtotal)}
-                  </div>
-                </div>
+                <div className="keranjang-item__harga">{rupiah(item.subtotal)}</div>
               </div>
 
               {/* Kontrol Kuantitas & Catatan */}
-              <div className="flex items-center justify-between pt-1 border-t border-neutral-200/60 text-xs">
+              <div className="keranjang-item__kontrol">
                 <Tombol ragam="polos" onClick={() => bukaEditCatatan(item)}>
-                  <span className="text-neutral-500 hover:text-neutral-800 underline">
+                  <span style={{ fontSize: 'var(--t-1)', textDecoration: 'underline' }}>
                     {item.catatan ? 'Ubah Catatan' : '+ Tambah Catatan'}
                   </span>
                 </Tombol>
 
-                <div className="flex items-center gap-1.5">
-                  <Tombol ragam="kecil" onClick={() => onKurangQty(item.id)} nama="Kurangi jumlah">
+                <div className="keranjang-item__qty">
+                  <button
+                    type="button"
+                    className="keranjang-item__qty-btn"
+                    onClick={() => onKurangQty(item.id)}
+                    aria-label="Kurangi"
+                  >
                     -
-                  </Tombol>
-                  <span className="font-bold text-sm min-w-[20px] text-center">{item.qty}</span>
-                  <Tombol ragam="kecil" onClick={() => onTambahQty(item.id)} nama="Tambah jumlah">
+                  </button>
+                  <span style={{ fontWeight: 700, minWidth: '22px', textAlign: 'center' }}>
+                    {item.qty}
+                  </span>
+                  <button
+                    type="button"
+                    className="keranjang-item__qty-btn"
+                    onClick={() => onTambahQty(item.id)}
+                    aria-label="Tambah"
+                  >
                     +
-                  </Tombol>
+                  </button>
                   <Tombol ragam="bahaya" onClick={() => onHapusItem(item.id)} nama="Hapus item">
                     ✕
                   </Tombol>
@@ -178,59 +205,68 @@ export function Keranjang({
         )}
       </div>
 
-      {/* Rangkuman Keuangan & Pajak (Dihitung Server/Peladen) */}
-      <div className="p-3.5 bg-neutral-50 border-t border-neutral-200 space-y-2">
-        <div className="space-y-1 text-xs text-neutral-600">
-          <div className="flex justify-between">
-            <span>Subtotal Menu</span>
-            <span className="font-semibold text-neutral-800">{rupiah(ringkasan.subtotal)}</span>
-          </div>
-
-          {ringkasan.totalDiskon > 0 && (
-            <div className="flex justify-between text-emerald-700">
-              <span>Diskon / Voucher Promo</span>
-              <span className="font-semibold">-{rupiah(ringkasan.totalDiskon)}</span>
-            </div>
-          )}
-
-          {ringkasan.service > 0 && (
-            <div className="flex justify-between">
-              <span>Biaya Layanan (Service)</span>
-              <span className="font-semibold">{rupiah(ringkasan.service)}</span>
-            </div>
-          )}
-
-          {ringkasan.pajak > 0 && (
-            <div className="flex justify-between">
-              <span>PB1 / Pajak Resto</span>
-              <span className="font-semibold">{rupiah(ringkasan.pajak)}</span>
-            </div>
-          )}
-
-          <div className="flex justify-between pt-2 border-t border-neutral-200 text-sm font-extrabold text-neutral-900">
-            <span>Total Tagihan</span>
-            <span className="text-lg text-emerald-700">{rupiah(ringkasan.total)}</span>
-          </div>
+      {/* Rangkuman Keuangan & Pajak */}
+      <div className="keranjang-ringkasan">
+        <div className="keranjang-ringkasan__baris">
+          <span>{t('kasir.subtotal')}</span>
+          <span style={{ fontWeight: 600, color: 'var(--text)' }}>
+            {rupiah(ringkasan.subtotal)}
+          </span>
         </div>
 
-        {/* Tombol Voucher Diskon */}
+        {ringkasan.totalDiskon > 0 && (
+          <div className="keranjang-ringkasan__baris" style={{ color: 'var(--success)' }}>
+            <span>Diskon / Voucher Promo</span>
+            <span style={{ fontWeight: 700 }}>-{rupiah(ringkasan.totalDiskon)}</span>
+          </div>
+        )}
+
+        {ringkasan.service > 0 && (
+          <div className="keranjang-ringkasan__baris">
+            <span>{t('kasir.service')}</span>
+            <span style={{ fontWeight: 600 }}>{rupiah(ringkasan.service)}</span>
+          </div>
+        )}
+
+        {ringkasan.pajak > 0 && (
+          <div className="keranjang-ringkasan__baris">
+            <span>{t('kasir.pajak')}</span>
+            <span style={{ fontWeight: 600 }}>{rupiah(ringkasan.pajak)}</span>
+          </div>
+        )}
+
+        <div className="keranjang-ringkasan__total">
+          <span>{t('kasir.total_belanja')}</span>
+          <span style={{ color: 'var(--accent)', fontSize: 'var(--t-6)' }}>
+            {rupiah(ringkasan.total)}
+          </span>
+        </div>
+      </div>
+
+      {/* Tombol Aksi Utama */}
+      <div className="keranjang-aksi">
         {onBukaVoucher && !kosong && (
           <Tombol ragam="biasa" lebar onClick={onBukaVoucher}>
             🎟️ Tambah Voucher / Diskon
           </Tombol>
         )}
 
-        {/* Tombol Aksi Utama */}
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: onKirimKeDapur && onProsesBayar ? '1fr 1fr' : '1fr',
+            gap: 'var(--s-2)',
+          }}
+        >
           {onKirimKeDapur && (
             <Tombol ragam="biasa" onClick={onKirimKeDapur} nonaktif={kosong || sedangMemproses}>
-              🍳 Kirim ke Dapur
+              🍳 {t('kasir.kirim_dapur')}
             </Tombol>
           )}
 
           {onProsesBayar && (
             <Tombol ragam="utama" onClick={onProsesBayar} nonaktif={kosong || sedangMemproses}>
-              💳 Bayar Pesanan
+              💳 {t('kasir.proses_bayar')}
             </Tombol>
           )}
         </div>
@@ -243,17 +279,31 @@ export function Keranjang({
           onTutup={() => setItemCatatanEdit(null)}
           judul={`Catatan: ${itemCatatanEdit.menuItem.nama}`}
         >
-          <div className="p-4 space-y-4">
+          <div
+            style={{
+              padding: 'var(--s-4)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--s-3)',
+            }}
+          >
             <KolomIsian
               label="Catatan Khusus untuk Dapur / Bar"
               contoh="Contoh: Es dipisah, sambal banyakin, jangan pakai MSG"
               nilai={inputCatatan}
               onUbah={setInputCatatan}
             />
-
-            <div className="flex justify-end gap-2 pt-2 border-t border-neutral-200">
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: 'var(--s-2)',
+                paddingTop: 'var(--s-2)',
+                borderTop: '1px solid var(--border)',
+              }}
+            >
               <Tombol ragam="biasa" onClick={() => setItemCatatanEdit(null)}>
-                Batal
+                {t('umum.batal')}
               </Tombol>
               <Tombol ragam="utama" onClick={simpanCatatan}>
                 Simpan Catatan

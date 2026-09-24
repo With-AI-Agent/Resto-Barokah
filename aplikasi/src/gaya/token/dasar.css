@@ -12,6 +12,16 @@
   box-sizing: border-box;
 }
 
+:root {
+  --latar-utama: var(--bg);
+  --teks-utama: var(--text);
+  --latar-kartu: var(--surface);
+  --latar-kartu-abu: var(--surface-2);
+  --b-netral: var(--border);
+  --warna-aksen: var(--accent);
+  --teks-redup: var(--text-muted);
+}
+
 #root {
   min-height: 100dvh;
   display: flex;

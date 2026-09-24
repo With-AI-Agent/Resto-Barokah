@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useBahasa } from '../../bahasa'
 import { Tombol } from '../../komponen/Tombol'
 import { Lencana } from '../../komponen/Lencana'
 import { KolomIsian } from '../../komponen/KolomIsian'
@@ -81,6 +82,7 @@ export function PemilihMeja({
   onSimpanCatatanPesanan,
   onTutup,
 }: PemilihMejaProps) {
+  const { t } = useBahasa()
   const [tipe, setTipe] = useState<TipePesanan>(tipePesanan)
   const [mejaDipilih, setMejaDipilih] = useState<string>(mejaTerpilihId)
   const [catatan, setCatatan] = useState<string>(catatanPesanan)
@@ -88,9 +90,9 @@ export function PemilihMeja({
   const [sedangPindah, setSedangPindah] = useState(false)
   const [pesanInfo, setPesanInfo] = useState<string | null>(null)
 
-  const tanganiPilihTipe = (t: TipePesanan) => {
-    setTipe(t)
-    onPilihTipe(t)
+  const tanganiPilihTipe = (tipeInput: TipePesanan) => {
+    setTipe(tipeInput)
+    onPilihTipe(tipeInput)
   }
 
   const tanganiPilihMeja = (meja: MejaData) => {
@@ -132,38 +134,60 @@ export function PemilihMeja({
   }
 
   return (
-    <div className="pemilih-meja space-y-4 max-w-2xl mx-auto p-4 bg-white rounded-2xl border border-neutral-200">
+    <div className="pemilih-meja">
       {/* Header & Pilihan Tipe Pesanan */}
       <div>
-        <div className="font-bold text-lg text-neutral-800 mb-2">Tipe Pesanan & Meja</div>
-        <div className="grid grid-cols-3 gap-2">
-          <Tombol
-            ragam={tipe === 'dinein' ? 'utama' : 'biasa'}
+        <div
+          style={{
+            fontWeight: 800,
+            fontSize: 'var(--t-4)',
+            color: 'var(--text)',
+            marginBottom: 'var(--s-2)',
+          }}
+        >
+          {t('kasir.pilih_meja_judul')}
+        </div>
+        <div className="tipe-pesanan-grid">
+          <button
+            type="button"
+            className={`tipe-pesanan-btn ${tipe === 'dinein' ? 'tipe-pesanan-btn--aktif' : ''}`}
             onClick={() => tanganiPilihTipe('dinein')}
           >
-            🍽️ Makan di Tempat (Dine In)
-          </Tombol>
+            <span style={{ fontSize: '20px' }}>🍽️</span>
+            <span>{t('kasir.tipe_dinein')}</span>
+          </button>
 
-          <Tombol
-            ragam={tipe === 'takeaway' ? 'utama' : 'biasa'}
+          <button
+            type="button"
+            className={`tipe-pesanan-btn ${tipe === 'takeaway' ? 'tipe-pesanan-btn--aktif' : ''}`}
             onClick={() => tanganiPilihTipe('takeaway')}
           >
-            🥡 Bawa Pulang (Takeaway)
-          </Tombol>
+            <span style={{ fontSize: '20px' }}>🥡</span>
+            <span>{t('kasir.tipe_takeaway')}</span>
+          </button>
 
-          <Tombol
-            ragam={tipe === 'ojol' ? 'utama' : 'biasa'}
+          <button
+            type="button"
+            className={`tipe-pesanan-btn ${tipe === 'ojol' ? 'tipe-pesanan-btn--aktif' : ''}`}
             onClick={() => tanganiPilihTipe('ojol')}
           >
-            🛵 Ojek Online (GoFood/Grab)
-          </Tombol>
+            <span style={{ fontSize: '20px' }}>🛵</span>
+            <span>{t('kasir.tipe_ojol')}</span>
+          </button>
         </div>
       </div>
 
       {pesanInfo && (
         <div
           role="status"
-          className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800"
+          style={{
+            padding: 'var(--s-3)',
+            background: 'var(--accent-soft)',
+            border: '1px solid var(--accent)',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: 'var(--t-2)',
+            color: 'var(--accent)',
+          }}
         >
           {pesanInfo}
         </div>
@@ -171,9 +195,17 @@ export function PemilihMeja({
 
       {/* Grid Meja untuk Makan di Tempat */}
       {tipe === 'dinein' && (
-        <div className="space-y-3 pt-2 border-t border-neutral-200">
-          <div className="flex items-center justify-between">
-            <div className="text-sm font-bold text-neutral-700">
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--s-3)',
+            paddingTop: 'var(--s-2)',
+            borderTop: '1px solid var(--border)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ fontSize: 'var(--t-3)', fontWeight: 700, color: 'var(--text)' }}>
               {modePindahMeja ? '👉 Pilih Meja Tujuan Pindah:' : 'Pilih Meja Resto:'}
             </div>
 
@@ -188,7 +220,7 @@ export function PemilihMeja({
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-56 overflow-y-auto">
+          <div className="meja-grid" style={{ maxHeight: '240px', overflowY: 'auto' }}>
             {daftarMeja.map((meja) => {
               const aktifDipilih = mejaDipilih === meja.id
               return (
@@ -203,14 +235,17 @@ export function PemilihMeja({
                       tanganiPilihMeja(meja)
                     }
                   }}
-                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between select-none ${
-                    aktifDipilih
-                      ? 'border-emerald-600 bg-emerald-50 shadow-sm ring-2 ring-emerald-500'
-                      : 'border-neutral-200 bg-white hover:bg-neutral-50'
-                  }`}
+                  className={`meja-kartu ${aktifDipilih ? 'meja-kartu--terpilih' : ''}`}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="font-bold text-sm text-neutral-800">{meja.nama}</span>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 'var(--s-1)',
+                    }}
+                  >
+                    <span className="meja-kartu__nama">{meja.nama}</span>
                     <Lencana
                       nada={
                         meja.status === 'kosong'
@@ -221,16 +256,16 @@ export function PemilihMeja({
                       }
                     >
                       {meja.status === 'kosong'
-                        ? 'Kosong'
+                        ? t('kasir.meja_kosong')
                         : meja.status === 'terisi'
-                          ? 'Terisi'
-                          : 'Siap'}
+                          ? t('kasir.meja_terisi')
+                          : t('kasir.meja_siap')}
                     </Lencana>
                   </div>
 
-                  <div className="text-[11px] text-neutral-500">
+                  <div className="meja-kartu__lokasi">
                     {meja.area || 'Indoor'}
-                    {meja.jumlahTamu ? ` • ${meja.jumlahTamu} Tamu` : ''}
+                    {meja.jumlahTamu ? ` • ${meja.jumlahTamu} ${t('kasir.tamu')}` : ''}
                   </div>
                 </div>
               )
@@ -240,20 +275,41 @@ export function PemilihMeja({
       )}
 
       {/* Catatan Khusus Cepat untuk Seluruh Pesanan */}
-      <div className="pt-2 border-t border-neutral-200 space-y-2">
-        <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider">
-          Catatan Khusus Pesanan (Cepat)
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--s-2)',
+          paddingTop: 'var(--s-2)',
+          borderTop: '1px solid var(--border)',
+        }}
+      >
+        <label
+          style={{
+            fontSize: 'var(--t-1)',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            color: 'var(--text-muted)',
+          }}
+        >
+          {t('kasir.catatan_khusus')}
         </label>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="chips-baris">
           {CATATAN_CEPAT.map((tag) => (
-            <Tombol key={tag} ragam="kecil" onClick={() => tambahCatatanCepat(tag)}>
+            <button
+              key={tag}
+              type="button"
+              className="chip-tombol"
+              onClick={() => tambahCatatanCepat(tag)}
+            >
               + {tag}
-            </Tombol>
+            </button>
           ))}
         </div>
 
         <KolomIsian
-          label="Catatan Tambahan untuk Dapur"
+          label={t('kasir.catatan_dapur')}
           contoh="Mis. Meja 01 mau makanan diantar bersamaan, sambal dipisah"
           nilai={catatan}
           onUbah={(v) => {
@@ -264,9 +320,16 @@ export function PemilihMeja({
       </div>
 
       {onTutup && (
-        <div className="flex justify-end pt-2 border-t border-neutral-200">
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            paddingTop: 'var(--s-2)',
+            borderTop: '1px solid var(--border)',
+          }}
+        >
           <Tombol ragam="utama" onClick={onTutup}>
-            Selesai & Lanjutkan
+            {t('kasir.selesai_lanjutkan')}
           </Tombol>
         </div>
       )}

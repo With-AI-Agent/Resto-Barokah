@@ -70,14 +70,14 @@ export default function LayarContoh() {
             gap: 'var(--s-2)',
           }}
         >
-          <p className="label">Contoh tampilan · Fase 0 & 1C</p>
+          <p className="label">{t('contoh.judul_halaman')}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
             <LembarBantuan idLayar="contoh" />
           </div>
         </div>
         <h1>{t('umum.aplikasi')}</h1>
         <p className="aksen">
-          {t('umum.selamat_datang')} — Kasir, dapur, laporan, dan pelanggan dalam satu tempat.
+          {t('umum.selamat_datang')} — {t('contoh.keterangan_selamat')}
         </p>
         <p className="small muted">
           Sekarang {jamLokal(sekarang)} · {tanggalLokal(sekarang)} · tema aktif{' '}
@@ -88,7 +88,7 @@ export default function LayarContoh() {
 
       {toastTampil ? (
         <Toast
-          pesan="Contoh pemberitahuan: pesanan meja 3 sudah tersimpan."
+          pesan={t('contoh.pemberitahuan_pesan')}
           nada="sukses"
           aksi={
             <Tombol ragam="polos" onClick={() => setToastTampil(false)} nama="Tutup pemberitahuan">
@@ -99,7 +99,7 @@ export default function LayarContoh() {
       ) : (
         <div className="baris-tombol">
           <Tombol ragam="kecil" onClick={() => setToastTampil(true)}>
-            Tampilkan pemberitahuan lagi
+            {t('contoh.tampilkan_pemberitahuan')}
           </Tombol>
         </div>
       )}
@@ -160,30 +160,33 @@ export default function LayarContoh() {
       </div>
 
       <div className="kisi-2">
-        <Kartu judul="Tombol" aksi={<Lencana nada="netral">5 ragam</Lencana>}>
+        <Kartu
+          judul={t('contoh.kartu_tombol')}
+          aksi={<Lencana nada="netral">{t('contoh.ragam_5')}</Lencana>}
+        >
           <div className="baris-tombol">
             <Tombol>{t('umum.simpan')}</Tombol>
-            <Tombol ragam="biasa">Tahan</Tombol>
-            <Tombol ragam="kecil">Kecil</Tombol>
-            <Tombol ragam="polos">Polos</Tombol>
+            <Tombol ragam="biasa">{t('contoh.tombol_tahan')}</Tombol>
+            <Tombol ragam="kecil">{t('contoh.tombol_kecil')}</Tombol>
+            <Tombol ragam="polos">{t('contoh.tombol_polos')}</Tombol>
             <Tombol ragam="bahaya">{t('umum.batal')}</Tombol>
           </div>
           <div className="baris-tombol mt-16">
-            <Tombol nonaktif>Sedang nonaktif</Tombol>
+            <Tombol nonaktif>{t('contoh.tombol_nonaktif')}</Tombol>
             <Tombol ragam="biasa" lebar>
-              Lebar penuh
+              {t('contoh.tombol_lebar')}
             </Tombol>
           </div>
         </Kartu>
 
-        <Kartu judul="Lencana">
+        <Kartu judul={t('contoh.kartu_lencana')}>
           <div className="row wrap-row">
-            <Lencana nada="accent">Aksen</Lencana>
-            <Lencana nada="success">Lunas</Lencana>
-            <Lencana nada="warn">Belum dibayar</Lencana>
-            <Lencana nada="danger">Dibatalkan</Lencana>
-            <Lencana nada="info">Dibungkus</Lencana>
-            <Lencana>Netral</Lencana>
+            <Lencana nada="accent">{t('contoh.lencana_aksen')}</Lencana>
+            <Lencana nada="success">{t('contoh.lencana_lunas')}</Lencana>
+            <Lencana nada="warn">{t('contoh.lencana_belum_bayar')}</Lencana>
+            <Lencana nada="danger">{t('contoh.lencana_dibatalkan')}</Lencana>
+            <Lencana nada="info">{t('contoh.lencana_dibungkus')}</Lencana>
+            <Lencana>{t('contoh.lencana_netral')}</Lencana>
           </div>
           <hr className="pemisah" />
           <div className="between">
@@ -196,28 +199,28 @@ export default function LayarContoh() {
         </Kartu>
       </div>
 
-      <Kartu judul="Kolom isian" aksi={<Lencana nada="info">44 px</Lencana>}>
+      <Kartu judul={t('contoh.kartu_kolom_isian')} aksi={<Lencana nada="info">44 px</Lencana>}>
         <div className="kisi-2">
           <KolomIsian
-            label="Nama pelanggan"
+            label={t('contoh.nama_pelanggan')}
             nilai={catatan}
             onUbah={setCatatan}
-            keterangan="Boleh dikosongkan."
-            contoh="contoh: Budi"
+            keterangan={t('contoh.boleh_kosong')}
+            contoh={t('contoh.contoh_nama')}
           />
           <KolomIsian
-            label="Nomor meja"
+            label={t('contoh.nomor_meja')}
             nilai=""
             onUbah={() => undefined}
             jenis="number"
             wajib
-            galat="Nomor meja wajib diisi."
+            galat={t('contoh.galat_meja')}
           />
         </div>
       </Kartu>
 
       <Kartu
-        judul="Tabel pesanan"
+        judul={t('contoh.kartu_tabel')}
         aksi={
           <Tombol ragam="kecil" onClick={() => setLapisBuka(true)}>
             Buka lapis

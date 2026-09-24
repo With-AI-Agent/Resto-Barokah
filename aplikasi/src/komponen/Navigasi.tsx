@@ -115,7 +115,11 @@ export const Navigasi: React.FC<NavigasiProps> = ({
               }}
             >
               <span>{item.ikon}</span>
-              <span>{item.label}</span>
+              <span>
+                {t(`navigasi.${item.id}`) !== `navigasi.${item.id}`
+                  ? t(`navigasi.${item.id}`)
+                  : item.label}
+              </span>
             </button>
           )
         })}
@@ -194,7 +198,7 @@ export const Navigasi: React.FC<NavigasiProps> = ({
               fontSize: 'var(--t-2)',
             }}
           >
-            ❓ {t('bantuan')}
+            ❓ {t('umum.bantuan')}
           </button>
         )}
 
@@ -211,7 +215,7 @@ export const Navigasi: React.FC<NavigasiProps> = ({
               fontSize: 'var(--t-2)',
             }}
           >
-            🚪 {t('keluar')}
+            🚪 {t('umum.keluar')}
           </button>
         )}
       </div>

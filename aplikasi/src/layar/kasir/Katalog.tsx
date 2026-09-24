@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useBahasa } from '../../bahasa'
 import { Tombol } from '../../komponen/Tombol'
 import { Lencana } from '../../komponen/Lencana'
 import { Lapis } from '../../komponen/Lapis'
@@ -48,13 +49,6 @@ export interface KatalogProps {
     catatan?: string,
   ) => void
 }
-
-const CONTOH_KATEGORI: KategoriData[] = [
-  { id: 'kat-0', nama: 'Semua Menu' },
-  { id: 'kat-1', nama: 'Makanan Utama' },
-  { id: 'kat-2', nama: 'Minuman Segar' },
-  { id: 'kat-3', nama: 'Cemilan & Pendamping' },
-]
 
 const CONTOH_MENU: MenuItemData[] = [
   {
@@ -130,11 +124,22 @@ const CONTOH_MENU: MenuItemData[] = [
 ]
 
 export function Katalog({
-  daftarKategori = CONTOH_KATEGORI,
+  daftarKategori,
   daftarMenu = CONTOH_MENU,
   sedangMemuat = false,
   onTambahKeKeranjang,
 }: KatalogProps) {
+  const { t } = useBahasa()
+  const kategoriTersedia = useMemo(() => {
+    if (daftarKategori && daftarKategori.length > 0) return daftarKategori
+    return [
+      { id: 'kat-0', nama: t('kasir.semua_menu') },
+      { id: 'kat-1', nama: t('kasir.makanan_utama') },
+      { id: 'kat-2', nama: t('kasir.minuman_segar') },
+      { id: 'kat-3', nama: t('kasir.cemilan_pendamping') },
+    ]
+  }, [daftarKategori, t])
+
   const [kategoriTerpilih, setKategoriTerpilih] = useState<string>('kat-0')
   const [kataKunci, setKataKunci] = useState<string>('')
 
@@ -187,28 +192,28 @@ export function Katalog({
     setItemDipilih(null)
   }
 
-  const toggleTambahan = (t: TambahanItem) => {
+  const toggleTambahan = (tItem: TambahanItem) => {
     setTambahanTerpilih((prev) =>
-      prev.some((item) => item.id === t.id)
-        ? prev.filter((item) => item.id !== t.id)
-        : [...prev, t],
+      prev.some((item) => item.id === tItem.id)
+        ? prev.filter((item) => item.id !== tItem.id)
+        : [...prev, tItem],
     )
   }
 
   return (
-    <div className="katalog-kasir flex flex-col h-full space-y-3">
+    <div className="katalog-wadah">
       {/* Bilah Pencarian & Kategori */}
-      <div className="space-y-2">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-2)' }}>
         <KolomIsian
           label=""
-          contoh="🔍 Cari nama makanan atau minuman..."
+          contoh={`🔍 ${t('kasir.cari_menu')}`}
           nilai={kataKunci}
           onUbah={setKataKunci}
         />
 
         {/* Tab Kategori Horisontal */}
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-          {daftarKategori.map((kat) => {
+        <div className="kategori-pills">
+          {kategoriTersedia.map((kat) => {
             const aktif = kategoriTerpilih === kat.id
             return (
               <Tombol
@@ -225,17 +230,30 @@ export function Katalog({
 
       {/* Grid Katalog Menu */}
       {sedangMemuat ? (
-        <div className="flex-1 flex items-center justify-center py-12 text-neutral-500">
-          <div className="text-sm animate-pulse">Memuat katalog menu resto...</div>
+        <div style={{ padding: 'var(--s-8) 0', textAlign: 'center', color: 'var(--text-muted)' }}>
+          <div>{t('umum.memuat')}</div>
         </div>
       ) : daftarMenuTersaring.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center py-12 text-neutral-400">
-          <div className="text-3xl mb-2">🍽️</div>
-          <div className="text-sm font-medium">Menu tidak ditemukan</div>
-          <div className="text-xs">Coba kata kunci lain atau pilih kategori Semua Menu.</div>
+        <div
+          style={{
+            padding: 'var(--s-8) 0',
+            textAlign: 'center',
+            color: 'var(--text-muted)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 'var(--s-2)',
+          }}
+        >
+          <div style={{ fontSize: '32px' }}>🍽️</div>
+          <div style={{ fontWeight: 700 }}>{t('keadaan.kosong_judul')}</div>
+          <div style={{ fontSize: 'var(--t-2)' }}>{t('keadaan.kosong_keterangan')}</div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 overflow-y-auto max-h-[65vh] pr-1">
+        <div
+          className="kisi-menu-grid"
+          style={{ overflowY: 'auto', maxHeight: '65vh', paddingRight: '4px' }}
+        >
           {daftarMenuTersaring.map((item) => {
             const terkunciHabis = item.habis
             return (
@@ -250,51 +268,39 @@ export function Katalog({
                     tanganiKlikItem(item)
                   }
                 }}
-                className={`kartu-menu relative p-3.5 rounded-xl border flex flex-col justify-between transition-all select-none text-left ${
-                  terkunciHabis
-                    ? 'bg-neutral-100 border-neutral-200 text-neutral-400 opacity-70 cursor-not-allowed'
-                    : 'bg-white hover:bg-neutral-50 active:scale-[0.98] border-neutral-200 hover:border-emerald-500 hover:shadow-sm cursor-pointer'
-                }`}
+                className={`kartu-menu ${terkunciHabis ? 'kartu-menu--habis' : ''}`}
               >
                 {/* Lencana Unggulan atau Habis */}
-                <div className="flex items-center justify-between gap-1 mb-1.5">
-                  <span className="text-[11px] uppercase tracking-wider text-neutral-400 font-semibold">
+                <div className="kartu-menu__atas">
+                  <span
+                    style={{
+                      fontSize: 'var(--t-1)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      color: 'var(--text-muted)',
+                      fontWeight: 700,
+                    }}
+                  >
                     {item.jenis}
                   </span>
                   {terkunciHabis ? (
-                    <Lencana nada="danger">Habis</Lencana>
+                    <Lencana nada="danger">{t('kasir.habis')}</Lencana>
                   ) : item.unggulan ? (
-                    <Lencana nada="accent">⭐ Favorit</Lencana>
+                    <Lencana nada="accent">⭐ {t('kasir.favorit')}</Lencana>
                   ) : null}
                 </div>
 
                 {/* Info Menu */}
-                <div className="flex-1 mb-2">
-                  <div
-                    className={`font-bold text-sm line-clamp-2 ${
-                      terkunciHabis ? 'text-neutral-500' : 'text-neutral-800'
-                    }`}
-                  >
-                    {item.nama}
-                  </div>
-                  {item.deskripsi && (
-                    <div className="text-xs text-neutral-400 line-clamp-1 mt-0.5">
-                      {item.deskripsi}
-                    </div>
-                  )}
+                <div>
+                  <div className="kartu-menu__nama">{item.nama}</div>
+                  {item.deskripsi && <div className="kartu-menu__deskripsi">{item.deskripsi}</div>}
                 </div>
 
                 {/* Harga & Tombol Tambah */}
-                <div className="flex items-center justify-between mt-auto pt-2 border-t border-neutral-100">
-                  <div
-                    className={`font-extrabold text-sm ${
-                      terkunciHabis ? 'text-neutral-400' : 'text-emerald-700'
-                    }`}
-                  >
-                    {rupiah(item.harga)}
-                  </div>
+                <div className="kartu-menu__bawah">
+                  <div className="kartu-menu__harga">{rupiah(item.harga)}</div>
                   {!terkunciHabis && (
-                    <span className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-base hover:bg-emerald-600 hover:text-white transition-colors">
+                    <span className="kartu-menu__tombol-tambah" aria-label={`Tambah ${item.nama}`}>
                       +
                     </span>
                   )}
@@ -310,21 +316,56 @@ export function Katalog({
         <Lapis
           buka={true}
           onTutup={() => setItemDipilih(null)}
-          judul={`Pilih Opsi: ${itemDipilih.nama}`}
+          judul={`${t('kasir.opsi_item')}: ${itemDipilih.nama}`}
         >
-          <div className="p-4 space-y-4 max-h-[75vh] overflow-y-auto">
-            <div className="flex justify-between items-center pb-2 border-b border-neutral-200">
-              <span className="text-sm font-semibold text-neutral-700">Harga Dasar:</span>
-              <span className="font-bold text-emerald-700">{rupiah(itemDipilih.harga)}</span>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--s-4)',
+              padding: 'var(--s-3)',
+              maxHeight: '75vh',
+              overflowY: 'auto',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderBottom: '1px solid var(--border)',
+                paddingBottom: 'var(--s-2)',
+              }}
+            >
+              <span style={{ fontSize: 'var(--t-3)', fontWeight: 600, color: 'var(--text)' }}>
+                {t('kasir.harga_dasar')}:
+              </span>
+              <span style={{ fontWeight: 800, color: 'var(--accent)', fontSize: 'var(--t-4)' }}>
+                {rupiah(itemDipilih.harga)}
+              </span>
             </div>
 
             {/* Pilihan Varian (Radio) */}
             {itemDipilih.daftarVarian && itemDipilih.daftarVarian.length > 0 && (
-              <div>
-                <label className="block text-xs font-bold text-neutral-700 mb-2 uppercase tracking-wider">
-                  Pilihan Varian / Ukuran *
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-2)' }}>
+                <label
+                  style={{
+                    fontSize: 'var(--t-2)',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: 'var(--text-muted)',
+                  }}
+                >
+                  {t('kasir.varian_ukuran')} *
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: 'var(--s-2)',
+                  }}
+                >
                   {itemDipilih.daftarVarian.map((varian) => {
                     const dipilih = varianTerpilih?.nama === varian.nama
                     return (
@@ -333,10 +374,18 @@ export function Katalog({
                         ragam={dipilih ? 'utama' : 'biasa'}
                         onClick={() => setVarianTerpilih(varian)}
                       >
-                        <span className="flex justify-between items-center w-full">
+                        <span
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%',
+                            gap: 'var(--s-2)',
+                          }}
+                        >
                           <span>{varian.nama}</span>
                           {varian.tambahanHarga > 0 && (
-                            <span className="text-xs opacity-90 font-mono">
+                            <span style={{ fontSize: 'var(--t-2)', opacity: 0.9 }}>
                               +{rupiah(varian.tambahanHarga)}
                             </span>
                           )}
@@ -350,25 +399,47 @@ export function Katalog({
 
             {/* Pilihan Tambahan / Toppings (Checkbox) */}
             {itemDipilih.daftarTambahan && itemDipilih.daftarTambahan.length > 0 && (
-              <div>
-                <label className="block text-xs font-bold text-neutral-700 mb-2 uppercase tracking-wider">
-                  Tambahan / Topping (Opsional)
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-2)' }}>
+                <label
+                  style={{
+                    fontSize: 'var(--t-2)',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: 'var(--text-muted)',
+                  }}
+                >
+                  {t('kasir.tambahan_topping')}
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: 'var(--s-2)',
+                  }}
+                >
                   {itemDipilih.daftarTambahan.map((tambahan) => {
-                    const dipilih = tambahanTerpilih.some((t) => t.id === tambahan.id)
+                    const dipilih = tambahanTerpilih.some((tItem) => tItem.id === tambahan.id)
                     return (
                       <Tombol
                         key={tambahan.id}
                         ragam={dipilih ? 'utama' : 'biasa'}
                         onClick={() => toggleTambahan(tambahan)}
                       >
-                        <span className="flex justify-between items-center w-full">
+                        <span
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%',
+                            gap: 'var(--s-2)',
+                          }}
+                        >
                           <span>
                             {dipilih ? '✓ ' : '+ '}
                             {tambahan.nama}
                           </span>
-                          <span className="text-xs opacity-90 font-mono">
+                          <span style={{ fontSize: 'var(--t-2)', opacity: 0.9 }}>
                             +{rupiah(tambahan.harga)}
                           </span>
                         </span>
@@ -381,18 +452,26 @@ export function Katalog({
 
             {/* Catatan Khusus Item */}
             <KolomIsian
-              label="Catatan Khusus untuk Dapur"
+              label={t('kasir.catatan_dapur')}
               contoh="Mis. Kurang pedas, jangan pakai daun bawang, es dipisah"
               nilai={catatanKhusus}
               onUbah={setCatatanKhusus}
             />
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-neutral-200">
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: 'var(--s-2)',
+                paddingTop: 'var(--s-3)',
+                borderTop: '1px solid var(--border)',
+              }}
+            >
               <Tombol ragam="biasa" onClick={() => setItemDipilih(null)}>
-                Batal
+                {t('umum.batal')}
               </Tombol>
               <Tombol ragam="utama" onClick={tanganiSimpanOpsi}>
-                Tambahkan ke Pesanan
+                {t('kasir.tambah_ke_pesanan')}
               </Tombol>
             </div>
           </div>

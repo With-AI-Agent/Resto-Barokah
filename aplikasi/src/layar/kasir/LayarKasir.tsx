@@ -17,6 +17,7 @@
  * Berkas ini tetap kontainer UI murni: tidak ada jaringan di dalamnya.
  */
 import { useState } from 'react'
+import { useBahasa } from '../../bahasa'
 import { Tombol } from '../../komponen/Tombol'
 import { Lapis } from '../../komponen/Lapis'
 import { Katalog, type MenuItemData, type VarianItem, type TambahanItem } from './Katalog'
@@ -143,6 +144,7 @@ export function LayarKasir({
   uangSeharusnyaPerkiraan,
   onTutupShift,
 }: LayarKasirProps) {
+  const { t } = useBahasa()
   // Keranjang State
   const [daftarItemKeranjang, setDaftarItemKeranjang] = useState<ItemKeranjang[]>([])
   const [tipePesanan, setTipePesanan] = useState<TipePesanan>('dinein')
@@ -407,55 +409,51 @@ export function LayarKasir({
   }
 
   return (
-    <div className="layar-kasir-utama flex flex-col lg:flex-row gap-4 p-3 max-w-7xl mx-auto min-h-[85vh]">
-      {/* Kolom Kiri: Header Kasir & Katalog Menu (60-65% Lebar) */}
-      <div className="w-full lg:w-[62%] flex flex-col space-y-3">
+    <div className="pos-wadah">
+      {/* Kolom Kiri: Header Kasir & Katalog Menu */}
+      <div className="pos-kiri">
         {/* Bilah Status Kasir Atas */}
-        <div className="p-3 bg-white rounded-xl border border-neutral-200 flex items-center justify-between shadow-sm">
-          <div>
-            <div className="font-extrabold text-base text-neutral-800">
-              Kasir POS — {namaCabang}
-            </div>
-            <div className="text-xs text-neutral-400">Cabang ID: {cabangId}</div>
+        <div className="bilah-kasir-atas">
+          <div className="bilah-kasir-atas__info">
+            <div className="bilah-kasir-atas__judul">Kasir POS — {namaCabang}</div>
+            <div className="bilah-kasir-atas__sub">Cabang ID: {cabangId}</div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="bilah-kasir-atas__aksi">
             {shiftAktif ? (
               <>
                 <Tombol ragam="bahaya" onClick={() => setBukaTutupKasModal(true)}>
-                  🔴 Tutup Kas
+                  🔴 {t('kasir.tutup_shift')}
                 </Tombol>
                 <Tombol ragam="biasa" onClick={() => setBukaShiftModal(true)}>
-                  🟢 Shift Aktif
+                  🟢 {t('kasir.shift_aktif')}
                 </Tombol>
               </>
             ) : (
               <Tombol ragam="utama" onClick={() => setBukaShiftModal(true)}>
-                🟡 Buka Kas
+                🟡 {t('kasir.buka_shift')}
               </Tombol>
             )}
             <Tombol ragam="biasa" onClick={() => setBukaOpenBillModal(true)}>
-              📋 Tagihan Terbuka
+              📋 {t('kasir.tagihan_terbuka')}
             </Tombol>
             <Tombol ragam="biasa" onClick={() => setBukaMejaModal(true)}>
               🍽️{' '}
               {tipePesanan === 'dinein'
                 ? mejaAktif.nama
                 : tipePesanan === 'takeaway'
-                  ? 'Bawa Pulang'
-                  : 'Ojol'}
+                  ? t('kasir.tipe_takeaway')
+                  : t('kasir.tipe_ojol')}
             </Tombol>
           </div>
         </div>
 
         {/* Katalog Menu Component */}
-        <div className="flex-1 p-3.5 bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
-          <Katalog onTambahKeKeranjang={tanganiTambahKeKeranjang} />
-        </div>
+        <Katalog onTambahKeKeranjang={tanganiTambahKeKeranjang} />
       </div>
 
-      {/* Kolom Kanan: Keranjang Pesanan & Ringkasan Pembayaran (35-40% Lebar) */}
-      <div className="w-full lg:w-[38%] flex flex-col">
+      {/* Kolom Kanan: Keranjang Pesanan & Ringkasan Pembayaran */}
+      <div className="pos-kanan">
         <Keranjang
           daftarItem={daftarItemKeranjang}
           ringkasan={ringkasanUang}
@@ -477,7 +475,7 @@ export function LayarKasir({
         <Lapis
           buka={true}
           onTutup={() => setBukaMejaModal(false)}
-          judul="Pilih Meja & Tipe Pesanan"
+          judul={t('kasir.pilih_meja_judul')}
         >
           <PemilihMeja
             mejaTerpilihId={mejaAktif.id}
