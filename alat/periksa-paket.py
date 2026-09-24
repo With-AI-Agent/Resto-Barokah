@@ -393,10 +393,15 @@ def periksa_paket(ref: str, jalur: str, isi: str | None = None,
         if "SAMBUNGAN: PAKET AUDIT" not in isi:
             masalah.append(f"{jalur}: tidak memuat bagian 'SAMBUNGAN: PAKET AUDIT' (paketnya tidak ikut tersalin)")
         pembuka_st = isi.split("SAMBUNGAN: PAKET AUDIT")[0]
-        if "git fetch origin" not in pembuka_st or "git checkout --detach" not in pembuka_st:
+        punya_cara_ambil = (
+            ("git fetch origin" in pembuka_st and "git checkout --detach" in pembuka_st)
+            or ("git/gh" in pembuka_st and ("prompt pendek" in pembuka_st or "salinan sementara" in pembuka_st))
+            or ("git fetch" in pembuka_st and ("git show" in pembuka_st or "tar -x" in pembuka_st or "salinan sementara" in pembuka_st or "TANPA checkout/detach" in pembuka_st))
+        )
+        if not punya_cara_ambil:
             masalah.append(
                 f"{jalur}: bagian PEMBUKA tidak memuat cara MENGAMBIL BAHAN (perintah git fetch origin + "
-                "git checkout --detach); sesi auditor baru bercabang dari main dan tanpa perintah itu "
+                "git checkout --detach atau git/gh + prompt pendek/salinan); sesi auditor baru bercabang dari main dan tanpa perintah itu "
                 "ia berhenti di langkah 1 (protokol tidak ada) — kejadian nyata 2026-09-19"
             )
         if "protokol" in isi and "PROTOKOL_AUDIT_INDEPENDEN.md" not in isi:
