@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `eabc2e328fc1d057b0cb0e7b3d274973f6b89a93`
+- **Commit keadaan kerja:** `b825f4a9df39a7bbe35b64e20f91a218521ff130`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** queued (run 35961718218, commit eabc2e32) — tunggu sampai selesai
+- **CI terakhir:** pending (run 35961753501, commit b825f4a9) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
