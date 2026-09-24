@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `4e2ae47f5f836920f28c6614ac7a90c9de6e77be`
+- **Commit keadaan kerja:** `6fa4a7362b4229da0a1f8f0e7572aa74e7da7ba0`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 35987420155, commit 4e2ae47f)
+- **CI terakhir:** failure (run 35990768466, commit 6fa4a736)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (37 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (37 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,18 +70,28 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-24, `arena/01a0d09b-resto-barokah` — FASE 7 KAS & SHIFT):**
+**KEADAAN SESI INI (2026-09-24, `arena/01a0d09b-resto-barokah` — FASE 7 KAS & SHIFT TUNTAS):**
 
-0Q. **T7-07 (Laporan A: kas harian per shift) SELESAI.**
-   - Migrasi `0051_laporan_kas.sql` mendefinisikan view `public.laporan_kas_shift` (`security_invoker = true`), RPC `public.laporan_shift`, dan RPC `public.laporan_harian`.
-   - RPC `public.laporan_shift` menyajikan kalkulasi terpadu satu sumber di peladen: kas awal, kas masuk, kas keluar, setoran brankas, penjualan tunai & non-tunai, uang seharusnya vs fisik vs selisih, omzet per kategori (makanan/minuman/lainnya), diskon & voucher, rincian metode pembayaran, pergerakan kas, riwayat koreksi modal awal, serta daftar pembatalan/void pesanan bernilai rugi.
-   - RPC `public.laporan_harian` menyediakan rekapitulasi seluruh shift per cabang (admin cabang/owner) atau multi-cabang (owner_pusat) untuk tanggal tertentu.
-   - Suite pengujian SQL `supabase/tes/laporan_kas.sql` (94/94 tes LULUS).
-   - Pengujian mutasi `alat/uji-mutasi-0051.py` membuktikan 6/6 mutasi MERAH (izin lihat_laporan, isolasi multi-tenant shift & cabang, formula uang_seharusnya, omzet per jenis).
-   - Komponen UI `LaporanKas.tsx` & `LayarLaporan.tsx` memuat kartu KPI ringkasan, rincian metode bayar, tabel shift kasir, dialog modal rincian shift `Lapis`, filter tanggal, dan pemilih cabang berjenjang.
-   - Kamus multi-bahasa lengkap 100% pada 4 bahasa (`id`, `en`, `zh`, `ar` dengan 231 kunci).
-   - Bukti: suite SQL **94 LULUS** · uji mutasi SQL 0051 **6/6 MERAH** · Vitest **80 berkas / 634 tes LULUS** · CI **119 gerbang utuh** · tsc & vite build sukses bersih.
-   - Langkah berikutnya di Fase 7: `T7-08 Laporan penjualan dasar (kategori, metode)`.
+0U. **T7-12 (Uji golden: laporan = data mentah) SELESAI — FASE 7 TUNTAS PENUH 100%.**
+   - Berkas uji `supabase/tes/golden_laporan.sql` membuktikan secara matematis dan deterministik bahwa seluruh angka laporan operasional (`laporan_penjualan`, `laporan_menu`, `laporan_harian`, `laporan_shift`, `laporan_pembatalan`, `laporan_koreksi_modal`) sama persis (|selisih| = 0) dengan hasil hitung langsung dari tabel data mentah transaksi (`pesanan`, `pesanan_item`, `pembayaran`, `kas_pergerakan`, `koreksi_modal_shift`, `shift_kas`).
+   - Skenario pengujian menguji seluruh kasus tepi dunia nyata 1 hari penuh: transaksi tunai, diskon manual kasir, diskon atasan via bukti PIN, pembayaran QRIS, split payment (tunai + QRIS), pembatalan parsial satu item pra-dapur, pembatalan penuh pasca-dapur dengan bahan terbuang disetujui PIN atasan, kas masuk/keluar, setoran brankas, koreksi modal awal shift (+50.000), dan rekonsiliasi tutup shift fisik pas.
+   - Perbaikan `alat/uji-mutasi-0014.py` (M14-7) mengenali definisi aktif `picu_pesanan_jejak_jujur()` di `0054` sehingga mutasi 0014 kembali **17/17 MERAH**.
+   - Suite SQL kini **98 berkas LULUS · 0 GAGAL** · seluruh uji mutasi Fase 7 lulus 100% (0045..0054) · panduan pengguna diselaraskan 98 berkas uji.
+   - **PENGINGAT AUDIT MENYELURUH FASE 7 (§25 REKAM_PESAN_PEMILIK.md):** Seluruh 12 tugas Fase 7 telah selesai lengkap 100%. Sesuai instruksi Lee, proyek mengambil jeda wajib untuk mekanisme audit dan pemeriksaan menyeluruh bersama Lee sebelum melangkah ke Fase 8. Dilarang lanjut ke Fase 8 tanpa jeda dan persetujuan Lee.
+
+0T. **T7-11 (Transaksi lewat tengah malam ⚠️ ART-9) SELESAI.**
+   - Migrasi `0054_transaksi_tengah_malam.sql` menegakkan penanggalan berbasis zona waktu resto (`tanggal_lokal_cabang`), mematikan default UTC `pesanan.tanggal`, menyelaraskan penomoran pesanan operasional, dan memperbarui `laporan_harian` dengan pemotongan batas hari zona waktu resto.
+   - Berkas uji `supabase/tes/tengah_malam.sql` mensimulasikan transaksi jam 23:50 WIB dan 00:10 WIB hari berikutnya.
+   - Uji mutasi `alat/uji-mutasi-0054.py` membuktikan 6/6 mutasi MERAH.
+
+0S. **T7-10 (Tampilan laporan siap cetak/simpan PDF + filter cabang) SELESAI.**
+   - Komponen `FormatLaporan.tsx` dan integrasi tab Format Siap Cetak di `LayarLaporan.tsx`.
+   - Tata letak dokumen standar A4 / PDF dengan kop resmi Resto Barokah, periode laporan, pemisah cabang sesuai wewenang (mitigasi kebocoran lintas cabang T2-07), ringkasan keuangan, metode bayar, rekonsiliasi kas shift & brankas, menu terlaris, pengawasan promosi/pembatalan, serta kolom pengesahan tanda tangan kasir dan pemilik.
+
+0R. **T7-09 (Laporan menu terlaris + diskon/voucher terpakai) SELESAI & T7-08 (Laporan penjualan dasar) SELESAI.**
+   - Migrasi `0053_laporan_menu.sql` (RPC `laporan_menu`) dan `0052_laporan_penjualan.sql` (RPC `laporan_penjualan`).
+   - Layar UI `LaporanMenu.tsx` dan `LaporanPenjualan.tsx` dengan filter cabang dan tab visual.
+   - Uji mutasi `alat/uji-mutasi-0053.py` (6/6 MERAH) dan `alat/uji-mutasi-0052.py` (6/6 MERAH).
 
 0P. **T7-06 (Koreksi modal awal dengan izin atasan ⚠️) SELESAI.**
    - Migrasi `0050_koreksi_modal.sql` membuat tabel riwayat append-only `public.koreksi_modal_shift`, pemicu kekal `picu_koreksi_modal_kekal` (anti update/delete), dan mengunci kolom `modal_awal` pada `public.shift_kas` dari perubahan langsung via UPDATE biasa.

@@ -1617,10 +1617,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Zona waktu (ART-9); mitigasi: semua perhitungan waktu memakai zona penyewa + uji jam simulasi.
   - **Verifikasi:** uji SQL dengan data jam 23.50 & 00.10.
 
-- [ ] T7-12 — Uji golden: laporan = data mentah
+- [x] T7-12 — Uji golden: laporan = data mentah
   - **Tujuan:** membuktikan laporan tidak berbohong.
   - **Ref:** TECH_SPEC §11
   - **File:** `supabase/tes/golden_laporan.sql`
+  - **Bukti (2026-09-24):** Berkas uji SQL `supabase/tes/golden_laporan.sql` membuktikan seluruh angka laporan operasional (`laporan_penjualan`, `laporan_menu`, `laporan_harian`, `laporan_shift`, `laporan_pembatalan`, `laporan_koreksi_modal`) sama persis (|selisih| = 0) dengan hasil hitung langsung dari tabel data mentah transaksi (`pesanan`, `pesanan_item`, `pembayaran`, `kas_pergerakan`, `koreksi_modal_shift`, `shift_kas`). Skenario 1 hari penuh menguji seluruh kasus tepi: transaksi tunai, diskon manual kasir, diskon atasan via bukti PIN, pembayaran QRIS, split payment (tunai + QRIS), pembatalan item pra-dapur, pembatalan pasca-dapur dengan bahan terbuang disetujui PIN atasan, kas masuk/keluar, setoran brankas, koreksi modal awal shift (+50.000), dan rekonsiliasi tutup shift fisik pas. Suite SQL 98 berkas lulus 100% · uji mutasi 0014 (17/17 MERAH), 0051 (6/6 MERAH), 0052 (6/6 MERAH), 0053 (6/6 MERAH), 0054 (6/6 MERAH).
   - **DoD:** untuk 1 hari data contoh, semua angka laporan (omzet, metode, diskon, pembatalan, kas) sama dengan hasil hitung langsung dari tabel transaksi; uji dijalankan di CI.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** uji tidak menangkap kasus tepi → mitigasi: data contoh memuat void, diskon, voucher, pembayaran campuran.

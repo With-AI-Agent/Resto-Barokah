@@ -128,7 +128,9 @@ DAFTAR = [
      "    new.kasir_id := coalesce(new.kasir_id, auth.uid());",
      "supabase/tes/jejak_pesanan.sql"),
     ("M14-7 tanggal pesanan mundur boleh lagi",
-     "    if new.tanggal is not null and new.tanggal <> current_date then",
+     "    if new.tanggal is not null and new.tanggal <> v_tanggal_lokal then"
+     if (KERJA / "supabase/migrations/0054_transaksi_tengah_malam.sql").exists()
+     else "    if new.tanggal is not null and new.tanggal <> current_date then",
      "    if false then",
      "supabase/tes/jejak_pesanan.sql"),
     ("M14-8 metode bayar tidak lagi wajib (label boleh dikarang)",
