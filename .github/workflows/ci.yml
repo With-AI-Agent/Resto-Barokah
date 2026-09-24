@@ -143,6 +143,12 @@ jobs:
       - name: Bukti mutasi pagar wajib shift 0048 — T7-04 transaksi hanya dalam shift terbuka (6 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0048.py
 
+      - name: Bukti mutasi pagar pengingat shift 0049 — T7-05 pengingat belum ditutup (6 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0049.py
+
+      - name: Bukti mutasi pagar koreksi modal 0050 — T7-06 koreksi modal awal izin atasan (6 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0050.py
+
       - name: Bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22, 4 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0009.py
 

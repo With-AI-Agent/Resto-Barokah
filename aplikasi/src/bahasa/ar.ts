@@ -75,6 +75,16 @@ export const ar: KamusBahasa = {
       'لم يقم الكاشير بفتح وردية الصندوق بعد. يرجى فتح الوردية أولاً قبل تنفيذ المعاملات.',
     tombol_buka_kas_cepat: 'فتح الوردية الآن',
     transaksi_wajib_shift: 'لا يمكن معالجة المعاملات إلا بعد فتح وردية الصندوق.',
+    pengingat_shift_lewat_tengah_malam:
+      'مناوبة الكاشير تجاوزت منتصف الليل! فُتحت بالأمس ولم تُغلق بعد. يُرجى إغلاق المناوبة فوراً.',
+    pengingat_shift_lewat_jam_tutup:
+      'انتهت ساعات العمل. الوقت الحالي تجاوز وقت إغلاق الكاشير. يُرجى إغلاق المناوبة.',
+    pengingat_shift_durasi_panjang:
+      'مناوبة الكاشير تعمل منذ أكثر من 12 ساعة. يُرجى التحقق وإجراء إغلاق المناوبة.',
+    pengingat_shift_mendekati_tutup:
+      'اقترب وقت إغلاق المطعم. يُرجى تجهيز عد النقد الفعلي لإغلاق المناوبة.',
+    tombol_tutup_kas_sekarang: 'إغلاق المناوبة الآن',
+    tombol_ingatkan_nanti: 'تذكير لاحقاً',
     tagihan_terbuka: 'الفواتير المفتوحة',
     total_belanja: 'الإجمالي الكلي',
     subtotal: 'المجموع الفرعي',
@@ -127,6 +137,20 @@ export const ar: KamusBahasa = {
     disetujui_oleh_label: 'تمت الموافقة من (اختياري)',
     simpan_kas: 'حفظ حركة النقد',
     sukses_kas_pergerakan: 'تم تسجيل حركة النقد بنجاح.',
+    koreksi_modal: 'تصحيح الرصيد الافتتاحي',
+    koreksi_modal_judul: 'تصحيح عهدة بداية الوردية',
+    koreksi_modal_petunjuk: 'يمكن تصحيح خطأ العهدة الافتتاحية بموافقة المشرف دون حذف البيانات.',
+    modal_awal_saat_ini: 'العهدة الافتتاحية الحالية',
+    modal_awal_baru: 'العهدة الافتتاحية الجديدة (Rp)',
+    selisih_koreksi: 'فارق التصحيح',
+    alasan_koreksi_modal: 'سبب التصحيح (إلزامي)',
+    alasan_koreksi_placeholder: 'اكتب سبب تصحيح العهدة الافتتاحية...',
+    penyetuju_atasan: 'المشرف المعتمد',
+    pilih_atasan: 'اختر المشرف',
+    pin_atasan: 'رمز المشرف (PIN)',
+    pin_atasan_petunjuk: 'يجب إدخاله من قبل المشرف المخول.',
+    simpan_koreksi_modal: 'حفظ تصحيح العهدة',
+    sukses_koreksi_modal: 'تم تصحيح العهدة الافتتاحية بنجاح.',
   },
   dapur: {
     judul: 'شاشة المطبخ والبار',

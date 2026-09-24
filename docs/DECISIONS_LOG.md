@@ -2562,6 +2562,82 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (77/77 mutasi TERBUKTI MERAH, `--uji-diri` lolos).
   - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run typecheck` bersih, `npm run lint` 0 galat, `npm run build` sukses.
 
+## [Kas/2026-09-24] Pengingat Shift Belum Ditutup: Mitigasi Shift Menggantung, Deteksi Tengah Malam, dan Audit Harian Pemilik (T7-05)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 & TECH_SPEC §4.3, §9 ART-6
+- **Konteks & Risiko (ART-6):** Kasir yang lupa menutup shift di akhir jam operasional menyebabkan shift berstatus menggantung (hanging shift). Risiko:
+  1. Transaksi keesokan harinya bisa tercampur ke shift kemarin jika shift tidak ditutup.
+  2. Rekonsiliasi modal awal & penerimaan kas lintas hari menjadi rancu dan merusak laporan laba/rugi harian.
+  3. Pengingat diabaikan kasir tanpa konsekuensi atau jejak pengawasan pemilik.
+- **Keputusan:**
+  1. **Deteksi Otomatis Shift Melewati Tengah Malam di Basis Data:**
+     - Penambahan kolom `melewati_tengah_malam boolean not null default false` pada `public.shift_kas`.
+     - Penambahan kolom konfigurasi `jam_tutup text not null default '22:00'` pada `public.pengaturan`.
+     - Pemicu `trg_shift_kas_tengah_malam` yang otomatis mendeteksi ketika tanggal penutupan berbeda dengan tanggal pembukaan shift (`sekarang::date > dibuka_pada::date`), menyetel `NEW.melewati_tengah_malam = true`.
+  2. **Audit Kriptografis Berantai Hash untuk Kejadian Khusus Shift Lewat Tengah Malam:**
+     - Pada fungsi RPC `public.tutup_shift`, jika penutupan melewati tengah malam, sistem otomatis menyisipkan rekaman audit `shift_melewati_tengah_malam` ke dalam `public.catatan_audit` terlindungi rantai hash kriptografis SHA-256.
+  3. **Laporan & Tampilan Pengawasan Pemilik (`public.laporan_shift_menggantung`):**
+     - Dibuat view aman `public.laporan_shift_menggantung` dengan `security_invoker = true` yang menampilkan seluruh shift yang belum ditutup beserta penanda durasi jam, waktu operasional terlewati, dan status apakah sudah melewati batas tengah malam.
+  4. **Komponen Pengingat Proaktif & Kritis di UI Kasir (`PengingatShift.tsx` & `LayarKasir.tsx`):**
+     - Banner cerdas dengan tingkat urgensi hierarkis:
+       * 🚨 Kritis: `melewati_tengah_malam` (tidak dapat disembunyikan/diabaikan, wajib tutup shift).
+       * ⏰ Mendesak: `lewat_jam_tutup` (waktu sekarang melewati jam tutup operasional resto).
+       * ⏳ Peringatan: `durasi_panjang` (shift aktif > 12 jam).
+       * ⏳ Informatif: `mendekati_tutup` (30 menit sebelum jam tutup resto, dapat diabaikan sementara dengan opsi "Ingatkan Nanti").
+     - Integrasi langsung ke `LayarKasir.tsx`: tombol "Tutup Kas Sekarang" langsung membuka dialog rekonsiliasi kas.
+  5. **Dukungan Multibahasa Lengkap (i18n):**
+     - Menambahkan 6 kunci terjemahan (`pengingat_shift_lewat_tengah_malam`, `pengingat_shift_lewat_jam_tutup`, `pengingat_shift_durasi_panjang`, `pengingat_shift_mendekati_tutup`, `tombol_tutup_kas_sekarang`, `tombol_ingatkan_nanti`) pada 4 bahasa (`id`, `en`, `zh`, `ar`).
+- **Bukti:**
+  - Migrasi: `supabase/migrations/0049_pengingat_shift.sql`.
+  - SQL Suite: `supabase/tes/pengingat_shift.sql` (12 skenario pengujian ketat), seluruh 92 berkas uji SQL LULUS (100%).
+  - Uji Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` LULUS hijau (2/2 suite: search_path, ACL, RLS, InitPlan).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0049.py` (6/6 mutasi kritis TERBUKTI MERAH, `--uji-diri` lolos).
+  - Gerbang CI: `alat/periksa-gerbang-ci.py` 117 gerbang LULUS.
+  - Paritas Bahasa: `python3 aplikasi/alat/periksa-bahasa.py` 194/194 kunci identik LULUS.
+  - Vitest Komponen: `src/komponen/PengingatShift.test.tsx` (6/6 tes LULUS), `src/layar/kasir/LayarKasir.test.tsx` (12/12 tes LULUS).
+  - Vitest Total: 78 berkas / 616 tes LULUS (100%).
+  - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (77/77 mutasi TERBUKTI MERAH, `--uji-diri` lolos).
+  - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run typecheck` bersih, `npm run lint` 0 galat, `npm run build` sukses.
+
+## [Kas/2026-09-24] Koreksi Modal Awal Shift: Izin Atasan, Riwayat Hanya-Tambah, dan Jejak Audit Kekal (T7-06)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 (kasus tepi) & TECH_SPEC §4.3, §9 ART-6
+- **Konteks & Risiko (ART-6):** Saat kasir membuka shift kas, terdapat kemungkinan terjadinya kesalahan ketik atau salah hitung modal awal di laci kasir (misalnya mengetik Rp10.000 padahal uang fisik Rp100.000, atau pecahan uang receh tertinggal di brankas). Menghapus shift kas atau menimpa langsung kolom modal tanpa jejak membuka celah kecurangan: kasir nakal dapat mengubah modal awal sesuka hati untuk menyembunyikan uang yang diambil. Oleh karena itu, prinsip ART-6 menegaskan: salah isi modal bisa dibetulkan tanpa menghapus data, wajib izin atasan (Owner/Admin Cabang) dengan verifikasi PIN, alasan wajib non-kosong, riwayat hanya-tambah (append-only ledger), dan tercatat dalam jejak audit kriptografis berantai hash SHA-256.
+- **Keputusan:**
+  1. **Tabel Append-Only `public.koreksi_modal_shift`:**
+     - Menyimpan seluruh riwayat perubahan modal: `id`, `penyewa_id`, `cabang_id`, `shift_id`, `modal_awal_sebelumnya`, `modal_awal_baru`, `selisih`, `alasan`, `diajukan_oleh`, `disetujui_oleh`, `kunci_idempoten`, `dibuat_pada`.
+     - Dilindungi RLS ketat berbasis penyewa dan cabang (`cabang_pantau_saya`).
+     - Pemicu `picu_koreksi_modal_kekal` menolak secara mutlak operasi UPDATE dan DELETE pada riwayat koreksi (kekal).
+  2. **Koreksi Terkendali & Penguncian `modal_awal` pada `public.shift_kas`:**
+     - Pemicu `picu_shift_kas_jaga` melarang modifikasi langsung kolom `modal_awal` lewat UPDATE langsung, kecuali dalam sesi konfigurasi internal khusus (`app.dalam_koreksi_modal = 'true'`).
+  3. **Persetujuan Atasan (PIN Kupon Sekali Pakai) via RPC `public.koreksi_modal_shift`:**
+     - Memvalidasi wewenang atasan (`owner_pusat` atau `admin_cabang` pengelola cabang shift terkait).
+     - Memverifikasi kupon persetujuan PIN dari `public.percobaan_pin` (aksi `'koreksi_modal_shift'`, usia maksimal 5 menit, belum pernah dipakai).
+     - Mengonsumsi kupon (`dipakai_pada = now()`) agar tidak dapat dipakai ulang (sekali pakai).
+     - Menghitung dan menyimpan `selisih = modal_awal_baru - modal_awal_sebelumnya`.
+     - Mengunci baris shift dan memperbarui `modal_awal` pada shift terbuka (shift tertutup ditolak keras).
+     - Menjamin idempoten lewat parameter `p_kunci_idempoten`.
+     - Menyisipkan rekaman jejak audit berantai hash SHA-256 ke `public.catatan_audit`.
+  4. **View Laporan Pengawasan Pemilik (`public.laporan_koreksi_modal`):**
+     - Dibuat view aman dengan `security_invoker = true` yang menggabungkan rincian koreksi modal, nama cabang, nama kasir pengaju, nama atasan penyetuju, selisih koreksi, dan alasan pengajuan.
+  5. **Antarmuka Kasir Terpadu (`KoreksiModal.tsx` & `LayarKasir.tsx`):**
+     - Komponen dialog `KoreksiModal` dengan kalkulasi selisih visual secara dinamis (+/- Rupiah), dropdown atasan berwenang, kolom sandi PIN atasan, dan alasan wajib.
+     - Peta UI hijau, tombol bebas tag liar, dan penanganan status responsif.
+  6. **Multi-Bahasa Penuh (i18n):**
+     - Menambahkan 14 kunci terjemahan pada kamus `id`, `en`, `zh`, `ar` dengan 100% paritas.
+- **Bukti:**
+  - Migrasi: `supabase/migrations/0050_koreksi_modal.sql`.
+  - SQL Suite: `supabase/tes/koreksi_modal.sql` (11 skenario pengujian ketat), seluruh 93 berkas uji SQL LULUS (100%).
+  - Uji Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` LULUS hijau (2/2 suite: search_path, ACL, RLS, InitPlan).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0050.py` (6/6 mutasi kritis TERBUKTI MERAH, `--uji-diri` lolos).
+  - Gerbang CI: `alat/periksa-gerbang-ci.py` 118 gerbang LULUS.
+  - Paritas Bahasa: `python3 aplikasi/alat/periksa-bahasa.py` 208/208 kunci identik LULUS.
+  - Vitest Komponen: `src/layar/kasir/KoreksiModal.test.tsx` (7/7 tes LULUS), `src/layar/kasir/LayarKasir.test.tsx` (14/14 tes LULUS).
+  - Vitest Total: 79 berkas / 625 tes LULUS (100%).
+  - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run build` sukses.
+
+
+
 
 
 

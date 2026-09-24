@@ -1,32 +1,27 @@
 #!/usr/bin/env python3
 """
-UJI MUTASI 0046 — membuktikan ketajaman pagar T7-02 di `0046_tutup_shift.sql`:
-"tutup kasir membandingkan uang seharusnya vs fisik, selisih wajib beralasan,
-izin tutup_kas ditegakkan, dan shift ditutup tidak dapat ditutup ulang".
+UJI MUTASI 0049 — membuktikan ketajaman pagar T7-05 di `0049_pengingat_shift.sql`:
+"pengingat shift belum ditutup, penanda & audit shift melewati tengah malam,
+serta view laporan shift menggantung".
 
-Mutasi yang wajib membuat `supabase/tes/tutup_shift.sql` MERAH:
-  1. Validasi alasan selisih dicabut (selisih tanpa alasan diizinkan)
-  2. Validasi uang fisik negatif dicabut
-  3. Pagar izin tutup_kas dicabut (pelayan/dapur diizinkan)
-  4. Pagar shift sudah ditutup dicabut (shift bisa ditutup ulang)
-  5. Rumus uang seharusnya dirusak (modal awal dihilangkan dari hitungan)
-  6. Pengecekan ketersediaan shift terbuka dicabut
+Mutasi yang wajib membuat `supabase/tes/pengingat_shift.sql` MERAH:
+  1. Penanda shift melewati tengah malam dimatikan (selalu false)
+  2. Pemicu tanggal berbeda pada shift_kas dinonaktifkan
+  3. Catatan audit shift_melewati_tengah_malam ditiadakan
+  4. View laporan_shift_menggantung tidak menyaring status shift terbuka
+  5. View tingkat_peringatan melewati_tengah_malam dicabut
+  6. View penanda melewati_tengah_malam dipalsukan selalu false
 
-Verifikasi: python3 alat/uji-mutasi-0046.py
-            python3 alat/uji-mutasi-0046.py --uji-diri
+Verifikasi: python3 alat/uji-mutasi-0049.py
+            python3 alat/uji-mutasi-0049.py --uji-diri
 """
 import os
 import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# JEBAKAN "fungsi ditulis ulang" (lihat DECISIONS_LOG [Mutu gerbang/2026-09-23]):
-# fungsi `public.tutup_shift` ditulis ULANG UTUH oleh `0049_pengingat_shift.sql` (T7-05)
-# untuk menambahkan penanda dan audit shift melewati tengah malam.
-# Definisi yang benar-benar berlaku saat pemasangan adalah yang TERAKHIR (0049),
-# jadi memutasi 0046/0047 tidak berpengaruh karena ditimpa oleh 0049.
 MIGRASI = os.path.join(REPO, "supabase", "migrations", "0049_pengingat_shift.sql")
-BERKAS_UJI = ["supabase/tes/tutup_shift.sql"]
+BERKAS_UJI = ["supabase/tes/pengingat_shift.sql"]
 
 
 def jalankan_uji():
@@ -42,40 +37,40 @@ def jalankan_uji():
 
 DAFTAR_MUTASI = [
     (
-        "validasi alasan selisih dicabut",
-        "  if v_selisih <> 0 and v_alasan = '' then",
-        "  if false and v_selisih <> 0 and v_alasan = '' then",
+        "penanda shift melewati tengah malam dimatikan (selalu false)",
+        "  if timezone('Asia/Jakarta', now())::date > timezone('Asia/Jakarta', v_shift.dibuka_pada)::date then\n    v_melewati_tengah_malam := true;\n  end if;",
+        "  v_melewati_tengah_malam := false;",
     ),
     (
-        "validasi uang fisik negatif dicabut",
-        "  if p_uang_fisik is null or p_uang_fisik < 0 then",
-        "  if false then",
+        "pemicu tanggal berbeda pada shift_kas dinonaktifkan",
+        "  if timezone('Asia/Jakarta', coalesce(new.ditutup_pada, now()))::date > timezone('Asia/Jakarta', new.dibuka_pada)::date then\n    new.melewati_tengah_malam := true;\n  end if;",
+        "  null;",
     ),
     (
-        "pagar izin tutup_kas dicabut (pelayan & dapur diizinkan)",
-        "  if not public.boleh('tutup_kas', v_shift.cabang_id) then",
-        "  if false then",
+        "catatan audit shift_melewati_tengah_malam ditiadakan",
+        "  if v_melewati_tengah_malam then",
+        "  if false and v_melewati_tengah_malam then",
     ),
     (
-        "pagar shift sudah ditutup dicabut",
-        "    if v_shift.status <> 'terbuka' then",
-        "    if false and v_shift.status <> 'terbuka' then",
+        "view laporan_shift_menggantung tidak menyaring status shift terbuka",
+        " where s.status = 'terbuka';",
+        " where true;",
     ),
     (
-        "rumus uang seharusnya dirusak (modal awal dihilangkan)",
-        "  v_uang_seharusnya := v_shift.modal_awal + v_tunai_masuk - v_tunai_keluar;",
-        "  v_uang_seharusnya := v_tunai_masuk - v_tunai_keluar;",
+        "view tingkat_peringatan melewati_tengah_malam dicabut",
+        "      when (s.melewati_tengah_malam or timezone('Asia/Jakarta', now())::date > timezone('Asia/Jakarta', s.dibuka_pada)::date) then 'melewati_tengah_malam'",
+        "      when false then 'melewati_tengah_malam'",
     ),
     (
-        "pengecekan ketersediaan shift terbuka dicabut",
-        "    if v_shift.id is null then\n      raise exception 'Tidak ada shift kas terbuka yang dapat ditutup.';",
-        "    if false and v_shift.id is null then\n      raise exception 'Tidak ada shift kas terbuka yang dapat ditutup.';",
+        "view penanda melewati_tengah_malam dipalsukan selalu false",
+        "    (s.melewati_tengah_malam or timezone('Asia/Jakarta', now())::date > timezone('Asia/Jakarta', s.dibuka_pada)::date) as melewati_tengah_malam,",
+        "    false as melewati_tengah_malam,",
     ),
 ]
 
 
 def uji_mutasi():
-    print("UJI MUTASI 0046 (T7-02 — rekonsiliasi tutup shift kasir)")
+    print("UJI MUTASI 0049 (T7-05 — pengingat shift belum ditutup & penanda tengah malam)")
     with open(MIGRASI, "r", encoding="utf-8") as f:
         asli = f.read()
 
@@ -103,7 +98,7 @@ def uji_mutasi():
 
         print(
             f"\nHASIL: LOLOS — semua {len(DAFTAR_MUTASI)} mutasi WAJIB MERAH benar-benar merah; "
-            "pagar rekonsiliasi tutup shift (T7-02) terbukti bekerja."
+            "pagar pengingat shift belum ditutup (T7-05) terbukti bekerja."
         )
         return 0
     finally:
@@ -112,7 +107,7 @@ def uji_mutasi():
 
 
 def uji_diri():
-    print("UJI DIRI penilai mutasi 0046")
+    print("UJI DIRI penilai mutasi 0049")
     with open(MIGRASI, "r", encoding="utf-8") as f:
         asli = f.read()
     palsu = asli.replace("jangkar-yang-tidak-akan-ada-xyz", "rusak")

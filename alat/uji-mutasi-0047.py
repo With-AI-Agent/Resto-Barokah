@@ -21,6 +21,10 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIGRASI = os.path.join(REPO, "supabase", "migrations", "0047_kas_pergerakan.sql")
+# JEBAKAN "fungsi ditulis ulang" (lihat DECISIONS_LOG [Mutu gerbang/2026-09-23]):
+# `public.tutup_shift` ditulis ulang di 0049_pengingat_shift.sql (T7-05), sehingga
+# mutasi integrasi tutup_shift harus menyasar berkas yang berlaku saat pemasangan.
+MIGRASI_TUTUP = os.path.join(REPO, "supabase", "migrations", "0049_pengingat_shift.sql")
 BERKAS_UJI = ["supabase/tes/kas_pergerakan.sql"]
 
 
@@ -40,39 +44,50 @@ DAFTAR_MUTASI = [
         "validasi jumlah <= 0 dicabut",
         "  if p_jumlah is null or p_jumlah <= 0 then",
         "  if false and p_jumlah <= 0 then",
+        MIGRASI,
     ),
     (
         "validasi alasan wajib dicabut",
         "  if p_alasan is null or btrim(p_alasan) = '' then",
         "  if false then",
+        MIGRASI,
     ),
     (
         "pemicu kekal anti-update/delete dinonaktifkan",
         "  raise exception 'Pergerakan kas adalah jejak keuangan kekal; tidak dapat diubah atau dihapus.';",
         "  return null;",
+        MIGRASI,
     ),
     (
         "pagar shift tertutup dicabut",
         "  if v_shift.status <> 'terbuka' and p_jenis <> 'koreksi' then",
         "  if false then",
+        MIGRASI,
     ),
     (
         "pagar izin pergerakan kas dicabut (pelayan diizinkan)",
         "  if not public.boleh('tutup_kas', v_shift.cabang_id) then",
         "  if false then",
+        MIGRASI,
     ),
     (
         "integrasi kas keluar di tutup_shift dirusak (pengeluaran tidak mengurangi uang)",
         "  v_tunai_keluar := v_kas_keluar;",
         "  v_tunai_keluar := 0;",
+        MIGRASI_TUTUP,
     ),
 ]
 
 
 def uji_mutasi():
     print("UJI MUTASI 0047 (T7-03 — kas pergerakan masuk/keluar & setoran)")
-    with open(MIGRASI, "r", encoding="utf-8") as f:
-        asli = f.read()
+
+    # Simpan isi asli berkas yang akan dimutasi
+    berkas_terlibat = {entry[3] for entry in DAFTAR_MUTASI}
+    asli = {}
+    for b in berkas_terlibat:
+        with open(b, "r", encoding="utf-8") as f:
+            asli[b] = f.read()
 
     try:
         lulus, keluaran = jalankan_uji()
@@ -82,14 +97,19 @@ def uji_mutasi():
             return 1
         print("  OK  kontrol: salinan utuh → " + " + ".join(BERKAS_UJI) + " hijau")
 
-        for nomor, (nama, asal, ganti) in enumerate(DAFTAR_MUTASI, start=1):
-            hasil = asli.replace(asal, ganti)
-            if hasil == asli:
-                print(f"  [X] Mutasi {nomor}: teks mutasi TIDAK MENEMPEL pada berkas — periksa jangkar!")
+        for nomor, (nama, asal, ganti, target_berkas) in enumerate(DAFTAR_MUTASI, start=1):
+            konten_sekarang = asli[target_berkas]
+            hasil = konten_sekarang.replace(asal, ganti)
+            if hasil == konten_sekarang:
+                print(f"  [X] Mutasi {nomor}: teks mutasi TIDAK MENEMPEL pada {os.path.basename(target_berkas)} — periksa jangkar!")
                 return 1
-            with open(MIGRASI, "w", encoding="utf-8") as f:
+            with open(target_berkas, "w", encoding="utf-8") as f:
                 f.write(hasil)
             lulus, keluaran = jalankan_uji()
+            # Kembalikan segera ke asli
+            with open(target_berkas, "w", encoding="utf-8") as f:
+                f.write(asli[target_berkas])
+
             if lulus:
                 print(f"  [X] Mutasi {nomor}: {nama} LOLOS (pagar tumpul!)")
                 print(keluaran[-1500:])
@@ -102,8 +122,9 @@ def uji_mutasi():
         )
         return 0
     finally:
-        with open(MIGRASI, "w", encoding="utf-8") as f:
-            f.write(asli)
+        for b, isi in asli.items():
+            with open(b, "w", encoding="utf-8") as f:
+                f.write(isi)
 
 
 def uji_diri():

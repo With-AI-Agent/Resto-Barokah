@@ -75,6 +75,16 @@ export const en: KamusBahasa = {
       'Cashier has not opened a cash shift. Please open cash register before processing transactions.',
     tombol_buka_kas_cepat: 'Open Shift Now',
     transaksi_wajib_shift: 'Transactions can only be processed after opening a cashier shift.',
+    pengingat_shift_lewat_tengah_malam:
+      'Cashier shift passed midnight! Opened yesterday and not yet closed. Please close the shift immediately.',
+    pengingat_shift_lewat_jam_tutup:
+      'Operational hours have ended. Current time has passed closing time. Please proceed to close the shift.',
+    pengingat_shift_durasi_panjang:
+      'Cashier shift has been running for over 12 hours. Please check and proceed to close the shift.',
+    pengingat_shift_mendekati_tutup:
+      'Approaching restaurant closing time. Prepare physical cash counting for shift closing.',
+    tombol_tutup_kas_sekarang: 'Close Shift Now',
+    tombol_ingatkan_nanti: 'Remind Later',
     tagihan_terbuka: 'Open Bills',
     total_belanja: 'Grand Total',
     subtotal: 'Subtotal',
@@ -127,6 +137,21 @@ export const en: KamusBahasa = {
     disetujui_oleh_label: 'Approved By (Optional)',
     simpan_kas: 'Save Cash Movement',
     sukses_kas_pergerakan: 'Cash movement successfully recorded.',
+    koreksi_modal: 'Correct Opening Cash',
+    koreksi_modal_judul: 'Correct Shift Opening Cash',
+    koreksi_modal_petunjuk:
+      'Incorrect opening cash can be fixed with supervisor approval without deleting data.',
+    modal_awal_saat_ini: 'Current Opening Cash',
+    modal_awal_baru: 'New Opening Cash (Rp)',
+    selisih_koreksi: 'Correction Difference',
+    alasan_koreksi_modal: 'Correction Reason (Required)',
+    alasan_koreksi_placeholder: 'Enter reason for opening cash correction...',
+    penyetuju_atasan: 'Approving Supervisor',
+    pilih_atasan: 'Select Supervisor',
+    pin_atasan: 'Supervisor PIN',
+    pin_atasan_petunjuk: 'Must be entered by the authorized supervisor.',
+    simpan_koreksi_modal: 'Save Cash Correction',
+    sukses_koreksi_modal: 'Opening cash successfully corrected.',
   },
   dapur: {
     judul: 'Kitchen & Bar Display',

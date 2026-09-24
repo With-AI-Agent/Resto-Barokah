@@ -72,6 +72,25 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 **KEADAAN SESI INI (2026-09-24, `arena/01a0d09b-resto-barokah` — FASE 7 KAS & SHIFT):**
 
+0P. **T7-06 (Koreksi modal awal dengan izin atasan ⚠️) SELESAI.**
+   - Migrasi `0050_koreksi_modal.sql` membuat tabel riwayat append-only `public.koreksi_modal_shift`, pemicu kekal `picu_koreksi_modal_kekal` (anti update/delete), dan mengunci kolom `modal_awal` pada `public.shift_kas` dari perubahan langsung via UPDATE biasa.
+   - Prosedur RPC `public.koreksi_modal_shift` memvalidasi wewenang atasan (owner pusat atau admin cabang pengelola), memeriksa kupon PIN atasan (aksi 'koreksi_modal_shift', batas 5 menit), mengonsumsi kupon (sekali pakai), mengunci shift terbuka, memutasi `modal_awal`, serta mencatat rekaman audit berantai hash SHA-256 pada `public.catatan_audit`.
+   - View pengawasan pemilik `public.laporan_koreksi_modal` (`security_invoker = true`) menggabungkan rincian riwayat koreksi modal, nama pengaju, nama penyetuju, dan alasan.
+   - Komponen UI `KoreksiModal.tsx` dan integrasi di `LayarKasir.tsx` dengan kalkulasi selisih visual dinamis (+/- Rupiah), pemilih atasan, kolom PIN atasan, dan alasan wajib.
+   - Multibahasa 100% lengkap pada 4 bahasa (`id`, `en`, `zh`, `ar` dengan 208 kunci).
+   - Bukti: suite SQL **93 LULUS** · uji mutasi SQL 0050 **6/6 MERAH** · Vitest **79 berkas / 625 tes LULUS** · CI **118 gerbang utuh** · kontrak UI hijau (`peta-ui.py`).
+   - Langkah berikutnya di Fase 7: `T7-07 Laporan A: kas harian per shift`.
+
+0O. **T7-05 (Pengingat shift belum ditutup & mitigasi shift menggantung) SELESAI.**
+   - Migrasi `0049_pengingat_shift.sql` menambahkan kolom `melewati_tengah_malam` pada `public.shift_kas`, kolom `jam_tutup` (bawaan '22:00') pada `public.pengaturan`.
+   - Pemicu `trg_shift_kas_tengah_malam` otomatis mendeteksi ketika shift ditutup di hari berbeda (`sekarang::date > dibuka_pada::date`), menyetel `NEW.melewati_tengah_malam = true`.
+   - RPC `public.tutup_shift` otomatis mencatat rekaman audit `shift_melewati_tengah_malam` berantai hash kriptografis SHA-256 pada `public.catatan_audit`.
+   - View pengawasan pemilik `public.laporan_shift_menggantung` (dengan `security_invoker = true`) menampilkan shift aktif yang belum ditutup, durasi jam, dan tanda melewati tengah malam.
+   - Komponen UI `PengingatShift.tsx` dan integrasi di `LayarKasir.tsx` dengan banner bertingkat (🚨 Kritis melewati tengah malam, ⏰ Mendesak lewat jam tutup, ⏳ Peringatan > 12 jam, ⏳ Informatif mendekati tutup dengan aksi Ingatkan Nanti), serta tombol aksi langsung buka dialog tutup kas.
+   - Multibahasa 100% lengkap pada 4 bahasa (`id`, `en`, `zh`, `ar` dengan 194 kunci).
+   - Bukti: suite SQL **92 LULUS** · uji mutasi SQL 0049 **6/6 MERAH** · Vitest **78 berkas / 616 tes LULUS** · mutasi aplikasi **77/77 MERAH** · CI **117 gerbang utuh** · kontrak UI hijau (`peta-ui.py`).
+   - Langkah berikutnya di Fase 7: `T7-06 Koreksi modal awal dengan izin atasan ⚠️`.
+
 0N. **T7-04 (Transaksi hanya dalam shift terbuka ⚠️) SELESAI.**
    - Migrasi `0048_wajib_shift.sql` menambahkan konfigurasi `wajib_shift` pada `public.pengaturan`.
    - Pemicu `picu_pesanan_validasi_shift_terbuka` menolak pembuatan pesanan jika `wajib_shift = true` dan kasir/pelayan tidak punya shift kasir berstatus `'terbuka'`.

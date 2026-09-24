@@ -1554,7 +1554,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); kasir lupa buka kas saat sibuk → mitigasi: pengingat + tombol buka kas cepat.
   - **Verifikasi:** uji SQL + uji manual.
 
-- [ ] T7-05 — Pengingat shift belum ditutup
+- [x] T7-05 — Pengingat shift belum ditutup
   - **Tujuan:** shift menggantung tidak menumpuk dan tidak merusak laporan.
   - **Ref:** PRD M7 (kasus tepi)
   - **File:** `aplikasi/src/komponen/PengingatShift.tsx`, `supabase/migrations/0049_pengingat_shift.sql`
@@ -1563,7 +1563,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pengingat diabaikan → mitigasi: tercatat di laporan harian owner.
   - **Verifikasi:** uji manual (ubah jam sistem uji) + uji SQL.
 
-- [ ] T7-06 — Koreksi modal awal dengan izin atasan ⚠️
+- [x] T7-06 — Koreksi modal awal dengan izin atasan ⚠️
   - **Tujuan:** salah isi modal bisa dibetulkan tanpa menghapus data.
   - **Ref:** PRD M7 (kasus tepi)
   - **File:** `supabase/migrations/0050_koreksi_modal.sql`

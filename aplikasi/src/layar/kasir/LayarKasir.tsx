@@ -30,6 +30,8 @@ import { VoidItem, type HasilVoid } from './VoidItem'
 import { BukaKas, type ShiftAktifInfo } from './BukaKas'
 import { TutupKas, type HasilTutupKas } from './TutupKas'
 import { KasKeluarMasuk, type KasPergerakanInput, type HasilKasPergerakan } from './KasKeluarMasuk'
+import { KoreksiModal, type KoreksiModalInput, type HasilKoreksiModal } from './KoreksiModal'
+import { PengingatShift } from '../../komponen/PengingatShift'
 import type { DataStruk } from '../../komponen/Struk'
 import { TARIF_BAWAAN, hitungPerkiraan, type TarifResto } from '../../lib/tarif'
 
@@ -120,6 +122,13 @@ export interface LayarKasirProps {
 
   // ------------------------------------------------- T7-03 kas pergerakan (masuk/keluar/setoran)
   onKasPergerakan?: (data: KasPergerakanInput) => Promise<HasilKasPergerakan> | HasilKasPergerakan
+
+  // ------------------------------------------------- T7-05 pengingat shift belum ditutup
+  jamTutup?: string
+  waktuSekarangPengingat?: Date
+
+  // ------------------------------------------------- T7-06 koreksi modal awal shift
+  onKoreksiModal?: (masukan: KoreksiModalInput) => Promise<HasilKoreksiModal>
 }
 
 export function LayarKasir({
@@ -146,10 +155,13 @@ export function LayarKasir({
   wajibShift = false,
   shiftAktif = null,
   namaKasir = 'Kasir Bertugas',
+  jamTutup = '22:00',
+  waktuSekarangPengingat,
   onBukaShift,
   uangSeharusnyaPerkiraan,
   onTutupShift,
   onKasPergerakan,
+  onKoreksiModal,
 }: LayarKasirProps) {
   const { t } = useBahasa()
   // Keranjang State
@@ -171,6 +183,7 @@ export function LayarKasir({
   const [bukaShiftModal, setBukaShiftModal] = useState(false)
   const [bukaTutupKasModal, setBukaTutupKasModal] = useState(false)
   const [bukaKasPergerakanModal, setBukaKasPergerakanModal] = useState(false)
+  const [bukaKoreksiModal, setBukaKoreksiModal] = useState(false)
   /** Id item yang sedang dimintai alasan pembatalan (T5-06); null = tidak ada. */
   const [itemVoid, setItemVoid] = useState<string | null>(null)
 
@@ -438,6 +451,9 @@ export function LayarKasir({
           <div className="bilah-kasir-atas__aksi">
             {shiftAktif ? (
               <>
+                <Tombol ragam="biasa" onClick={() => setBukaKoreksiModal(true)}>
+                  ✏️ {t('kasir.koreksi_modal')}
+                </Tombol>
                 <Tombol ragam="biasa" onClick={() => setBukaKasPergerakanModal(true)}>
                   💸 {t('kasir.kas_pergerakan')}
                 </Tombol>
@@ -494,6 +510,18 @@ export function LayarKasir({
             >
               🔓 {t('kasir.tombol_buka_kas_cepat')}
             </Tombol>
+          </div>
+        )}
+
+        {/* Pengingat Shift Belum Ditutup (T7-05) */}
+        {shiftAktif && (
+          <div style={{ margin: 'var(--s-2) var(--s-3)' }}>
+            <PengingatShift
+              shiftAktif={shiftAktif}
+              jamTutup={jamTutup}
+              waktuSekarang={waktuSekarangPengingat}
+              onTutupKas={() => setBukaTutupKasModal(true)}
+            />
           </div>
         )}
 
@@ -656,6 +684,29 @@ export function LayarKasir({
             onSimpan={onKasPergerakan || (async () => ({ sukses: true }))}
             onTutup={() => setBukaKasPergerakanModal(false)}
             onBatal={() => setBukaKasPergerakanModal(false)}
+          />
+        </Lapis>
+      )}
+
+      {/* Modal Koreksi Modal Awal Shift (T7-06) */}
+      {bukaKoreksiModal && shiftAktif && (
+        <Lapis
+          buka={true}
+          onTutup={() => setBukaKoreksiModal(false)}
+          judul={t('kasir.koreksi_modal_judul')}
+        >
+          <KoreksiModal
+            shiftId={shiftAktif.id}
+            modalAwalSaatIni={shiftAktif.modalAwal ?? 0}
+            daftarAtasan={daftarAtasan}
+            onSimpanKoreksi={async (input) => {
+              if (onKoreksiModal) {
+                return await onKoreksiModal(input)
+              }
+              return { sukses: true, pesan: t('kasir.sukses_koreksi_modal') }
+            }}
+            onTutup={() => setBukaKoreksiModal(false)}
+            onBatal={() => setBukaKoreksiModal(false)}
           />
         </Lapis>
       )}

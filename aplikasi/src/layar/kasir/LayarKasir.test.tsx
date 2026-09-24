@@ -227,4 +227,133 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
     expect(screen.getByText('Buka Shift Kasir')).toBeDefined()
     expect(screen.getByLabelText(/Modal Awal Kasir/i)).toBeDefined()
   })
+
+  // ---------------------------------------------- T7-05 Pengingat Shift di Layar Kasir
+  it('menampilkan banner pengingat shift saat melewati jam tutup dan membuka modal Tutup Kas (T7-05)', () => {
+    const shiftHariIni = {
+      id: 'shift-pos-01',
+      cabangId: 'cab-01',
+      modalAwal: 100000,
+      dibukaPada: new Date('2026-09-24T10:00:00').toISOString(),
+    }
+    // Jam 22:30 (melewati jam tutup 22:00)
+    const waktuLewat = new Date('2026-09-24T22:30:00')
+
+    render(
+      <PenyediaBahasa>
+        <LayarKasir
+          shiftAktif={shiftHariIni}
+          jamTutup="22:00"
+          waktuSekarangPengingat={waktuLewat}
+          uangSeharusnyaPerkiraan={150000}
+        />
+      </PenyediaBahasa>,
+    )
+
+    const bannerPengingat = screen.getByTestId('pengingat-shift')
+    expect(bannerPengingat).toBeDefined()
+    expect(bannerPengingat.getAttribute('data-tingkat')).toBe('lewat_jam_tutup')
+
+    // Klik tombol tutup kas di banner pengingat
+    const btnTutup = screen.getByRole('button', { name: /Tutup Kas Sekarang/i })
+    fireEvent.click(btnTutup)
+
+    // Dialog Tutup Kas terbuka
+    expect(screen.getByText('Tutup Shift Kasir')).toBeDefined()
+  })
+
+  it('menampilkan banner pengingat kritis saat shift melewati tengah malam (T7-05)', () => {
+    const shiftKemarin = {
+      id: 'shift-pos-kemarin',
+      cabangId: 'cab-01',
+      modalAwal: 100000,
+      dibukaPada: new Date('2026-09-23T15:00:00').toISOString(),
+    }
+    // Hari berikutnya jam 08:00
+    const waktuBesok = new Date('2026-09-24T08:00:00')
+
+    render(
+      <PenyediaBahasa>
+        <LayarKasir
+          shiftAktif={shiftKemarin}
+          jamTutup="22:00"
+          waktuSekarangPengingat={waktuBesok}
+        />
+      </PenyediaBahasa>,
+    )
+
+    const bannerPengingat = screen.getByTestId('pengingat-shift')
+    expect(bannerPengingat).toBeDefined()
+    expect(bannerPengingat.getAttribute('data-tingkat')).toBe('melewati_tengah_malam')
+    expect(screen.getByText(/melewati tengah malam/i)).toBeDefined()
+  })
+
+  // ---------------------------------------------- T7-06 Koreksi Modal Awal Shift
+  it('menampilkan tombol koreksi modal saat shift aktif dan membuka dialog KoreksiModal (T7-06)', () => {
+    const shift = {
+      id: 'shift-pos-01',
+      cabangId: 'cab-01',
+      modalAwal: 100000,
+      dibukaPada: new Date().toISOString(),
+    }
+
+    render(
+      <PenyediaBahasa>
+        <LayarKasir shiftAktif={shift} />
+      </PenyediaBahasa>,
+    )
+
+    const btnKoreksi = screen.getByRole('button', { name: /Koreksi Modal Awal/i })
+    expect(btnKoreksi).toBeDefined()
+
+    fireEvent.click(btnKoreksi)
+
+    expect(screen.getByTestId('koreksi-modal')).toBeDefined()
+    expect(screen.getByTestId('modal-awal-saat-ini').textContent).toContain('100.000')
+  })
+
+  it('memproses koreksi modal awal shift melalui onKoreksiModal (T7-06)', async () => {
+    const shift = {
+      id: 'shift-pos-01',
+      cabangId: 'cab-01',
+      modalAwal: 100000,
+      dibukaPada: new Date().toISOString(),
+    }
+    const atasan = [{ id: 'owner-01', nama: 'Pak Hendra', peran: 'owner_pusat' }]
+    const onKoreksi = vi.fn().mockResolvedValue({
+      sukses: true,
+      pesan: 'Modal awal berhasil dikoreksi.',
+      data: { modalAwalBaru: 150000 },
+    })
+
+    render(
+      <PenyediaBahasa>
+        <LayarKasir shiftAktif={shift} daftarAtasan={atasan} onKoreksiModal={onKoreksi} />
+      </PenyediaBahasa>,
+    )
+
+    const btnKoreksi = screen.getByRole('button', { name: /Koreksi Modal Awal/i })
+    fireEvent.click(btnKoreksi)
+
+    const inputModalBaru = screen.getByLabelText(/Modal Awal Baru/i)
+    const inputAlasan = screen.getByLabelText(/Alasan Koreksi/i)
+    const inputPin = screen.getByLabelText(/PIN Atasan/i)
+    const tombolSimpan = screen.getByRole('button', { name: /Simpan Koreksi Modal/i })
+
+    fireEvent.change(inputModalBaru, { target: { value: '150000' } })
+    fireEvent.change(inputAlasan, { target: { value: 'Ketinggalan di brankas' } })
+    fireEvent.change(inputPin, { target: { value: '738294' } })
+
+    fireEvent.click(tombolSimpan)
+
+    await waitFor(() => {
+      expect(onKoreksi).toHaveBeenCalledWith({
+        shiftId: 'shift-pos-01',
+        modalAwalBaru: 150000,
+        alasan: 'Ketinggalan di brankas',
+        disetujuiOleh: 'owner-01',
+        pinAtasan: '738294',
+      })
+    })
+  })
 })

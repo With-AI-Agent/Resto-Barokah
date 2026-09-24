@@ -73,6 +73,16 @@ export const id = {
       'Kasir belum membuka shift kas. Silakan buka kas terlebih dahulu sebelum melayani transaksi.',
     tombol_buka_kas_cepat: 'Buka Kas Sekarang',
     transaksi_wajib_shift: 'Transaksi hanya dapat diproses setelah shift kasir dibuka.',
+    pengingat_shift_lewat_tengah_malam:
+      'Shift kasir melewati tengah malam! Dibuka kemarin dan belum ditutup. Segera lakukan penutupan kas.',
+    pengingat_shift_lewat_jam_tutup:
+      'Jam operasional telah berakhir. Waktu sekarang melewati jam tutup kasir. Silakan lakukan penutupan kas.',
+    pengingat_shift_durasi_panjang:
+      'Shift kasir telah berjalan lebih dari 12 jam. Segera periksa dan lakukan penutupan kas.',
+    pengingat_shift_mendekati_tutup:
+      'Mendekati jam tutup resto. Siapkan penghitungan uang fisik untuk penutupan kas.',
+    tombol_tutup_kas_sekarang: 'Tutup Kas Sekarang',
+    tombol_ingatkan_nanti: 'Ingatkan Nanti',
     tagihan_terbuka: 'Tagihan Terbuka',
     total_belanja: 'Total Belanja',
     subtotal: 'Subtotal',
@@ -125,6 +135,21 @@ export const id = {
     disetujui_oleh_label: 'Disetujui Oleh (Opsional)',
     simpan_kas: 'Simpan Catatan Kas',
     sukses_kas_pergerakan: 'Pergerakan kas berhasil dicatat.',
+    koreksi_modal: 'Koreksi Modal Awal',
+    koreksi_modal_judul: 'Koreksi Modal Awal Shift',
+    koreksi_modal_petunjuk:
+      'Salah isi modal awal dapat diperbaiki dengan persetujuan atasan tanpa menghapus data.',
+    modal_awal_saat_ini: 'Modal Awal Saat Ini',
+    modal_awal_baru: 'Modal Awal Baru (Rp)',
+    selisih_koreksi: 'Selisih Koreksi',
+    alasan_koreksi_modal: 'Alasan Koreksi (Wajib)',
+    alasan_koreksi_placeholder: 'Tuliskan alasan koreksi modal awal...',
+    penyetuju_atasan: 'Atasan Penyetuju',
+    pilih_atasan: 'Pilih Atasan',
+    pin_atasan: 'PIN Atasan',
+    pin_atasan_petunjuk: 'Wajib dimasukkan oleh atasan yang bersangkutan.',
+    simpan_koreksi_modal: 'Simpan Koreksi Modal',
+    sukses_koreksi_modal: 'Modal awal berhasil dikoreksi.',
   },
   dapur: {
     judul: 'Pesanan Dapur & Bar',
