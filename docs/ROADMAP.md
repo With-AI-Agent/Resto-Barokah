@@ -1599,7 +1599,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** data menu berubah → mitigasi: memakai `nama_saat_itu` agar laporan lama tidak berubah.
   - **Verifikasi:** uji SQL + uji manual.
 
-- [ ] T7-10 — Tampilan laporan siap cetak/simpan + filter cabang
+- [x] T7-10 — Tampilan laporan siap cetak/simpan + filter cabang
   - **Tujuan:** owner bisa menyimpan laporan harian untuk pembukuan.
   - **Ref:** PRD M8 (kasus tepi: dicetak disimpan = fase 2 → di G1 cukup rapi & bisa disimpan PDF)
   - **File:** `aplikasi/src/layar/laporan/FormatLaporan.tsx`

@@ -225,6 +225,13 @@ export const ar: KamusBahasa = {
     disetujui: 'تمت الموافقة بواسطة',
     potongan: 'قيمة الخصم',
     rata_harga: 'متوسط السعر',
+    tanda_tangan: 'التحقق والتوقيع',
+    dibuat_oleh: 'أُعدت بواسطة',
+    disetujui_oleh: 'اعتُمدت بواسطة',
+    waktu_cetak: 'وقت الطباعة',
+    dicetak_oleh: 'طُبعت بواسطة',
+    kembali_ke_laporan: 'العودة إلى التقارير',
+    format_cetak: 'تنسيق الطباعة / حفظ PDF',
   },
   pengaturan: {
     judul: 'إعدادات المطعم',

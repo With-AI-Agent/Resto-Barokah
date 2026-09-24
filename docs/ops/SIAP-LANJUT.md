@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `0f62508d66817e8b2f54f706967cd412181dfac4`
+- **Commit keadaan kerja:** `2140cba6995fea2c84ab74ea266db594e1e6e643`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 35983400829, commit 0f62508d)
+- **CI terakhir:** in_progress (run 35986447016, commit 2140cba6) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (35 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (35 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (36 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (36 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1449,4 +1449,21 @@ Urutan yang disarankan agent, dan alasannya:
    - Kamus terjemahan 4 bahasa (`id`, `en`, `zh`, `ar`): 100% sinkron (262 kunci).
    - Total Vitest aplikasi: 83 berkas uji / 659 tes LULUS 100%.
 4. **Pengingat Audit Fase 7 (§25):** Jeda wajib tetap berlaku setelah T7-12 sebelum beralih ke Fase 8.
-5. **Rencana Selanjutnya:** Melangkah ke `T7-10 — Tampilan laporan siap cetak/simpan + filter cabang`.
+
+**FASE 7 T7-10 FORMAT LAPORAN SIAP CETAK / PDF & FILTER CABANG SELESAI (2026-09-24):**
+1. **Komponen Cetak & PDF `FormatLaporan.tsx`:**
+   - Tata letak dokumen resmi siap cetak / simpan berkas PDF standar A4 untuk pembukuan fisik pemilik.
+   - Kop Resto Barokah, judul resmi, tanggal / periode laporan, identitas cabang aktif atau konsolidasi seluruh cabang, serta waktu cetak.
+   - Rincian komprehensif: ringkasan omzet & potongan pajak/service/diskon, rincian metode pembayaran, rekonsiliasi kas shift & brankas, top 5 menu terlaris, pengawasan biaya promosi dan kerugian pembatalan pesanan (void).
+   - Lembar pengesahan & tanda tangan ganda: Dibuat Oleh (Kasir / Petugas) dan Diperiksa/Disetujui Oleh (Pemilik / Pengelola Resto).
+2. **Filter Cabang Sesuai Peran & Pagar Keamanan:**
+   - Pemilik (`owner_pusat`) dapat memilih cabang spesifik atau semua cabang via dropdown.
+   - Admin cabang (`admin_cabang`) dikunci hanya pada cabang binaannya sendiri tanpa dropdown pemilih cabang (mitigasi kebocoran data lintas cabang T2-07).
+3. **Gaya Cetak CSS & Aksesibilitas:**
+   - Kelas styling print di `komponen.css` dengan media query `@media print` yang secara otomatis menyembunyikan bilah aksi, tombol, dan navigasi saat jendela cetak peramban terbuka (`window.print()`).
+4. **Integrasi Dasbor & Pengujian:**
+   - Tab "🖨️ Format Cetak / Simpan PDF" dihubungkan langsung ke `LayarLaporan.tsx`.
+   - Kamus 4 bahasa (`id`, `en`, `zh`, `ar`) diselaraskan 100% (269 kunci).
+   - Suite uji unit `FormatLaporan.test.tsx` (11 tes) dan `LayarLaporan.test.tsx` (5 tes) lulus 100%.
+   - Total Vitest aplikasi: 84 berkas uji / 671 tes LULUS 100%.
+5. **Rencana Selanjutnya:** Melangkah ke `T7-11 — Transaksi lewat tengah malam ⚠️`.

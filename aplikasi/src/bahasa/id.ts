@@ -224,6 +224,13 @@ export const id = {
     disetujui: 'Disetujui',
     potongan: 'Nilai Potongan',
     rata_harga: 'Rata-rata Harga',
+    tanda_tangan: 'Pengesahan & Tanda Tangan',
+    dibuat_oleh: 'Dibuat Oleh',
+    disetujui_oleh: 'Disetujui Oleh',
+    waktu_cetak: 'Waktu Cetak',
+    dicetak_oleh: 'Dicetak Oleh',
+    kembali_ke_laporan: 'Kembali ke Laporan',
+    format_cetak: 'Format Cetak / Simpan PDF',
   },
   pengaturan: {
     judul: 'Pengaturan Resto',

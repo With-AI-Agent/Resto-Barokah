@@ -1370,3 +1370,91 @@
   align-items: center;
   justify-content: space-between;
 }
+
+/* --------------------------------------------- T7-10 Format Laporan Siap Cetak / PDF */
+.format-laporan {
+  max-width: 850px;
+  margin: 0 auto;
+  background: var(--surface, #ffffff);
+  color: var(--text, #111827);
+  padding: var(--s-5, 24px);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: var(--radius, 8px);
+  font-family: inherit;
+}
+
+.format-laporan__header {
+  border-bottom: 2px solid var(--text, #111827);
+  padding-bottom: var(--s-3, 12px);
+  margin-bottom: var(--s-4, 16px);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.format-laporan__tabel {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--s-4, 16px);
+  font-size: var(--t-3, 0.875rem);
+}
+
+.format-laporan__tabel th,
+.format-laporan__tabel td {
+  border: 1px solid var(--border, #d1d5db);
+  padding: 6px 10px;
+}
+
+.format-laporan__tabel th {
+  background: var(--surface-2, #f9fafb);
+  font-weight: 600;
+  text-align: left;
+}
+
+.format-laporan__ttd {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--s-6, 36px);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.format-laporan__kotak-ttd {
+  width: 240px;
+  text-align: center;
+  font-size: var(--t-3, 0.875rem);
+}
+
+.format-laporan__garis-ttd {
+  margin-top: 60px;
+  border-top: 1px solid var(--text, #111827);
+  padding-top: 4px;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .format-laporan__bilah-aksi,
+  .layar-laporan > [role='tablist'],
+  header,
+  nav {
+    display: none !important;
+  }
+
+  .format-laporan {
+    border: none !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .format-laporan__tabel th {
+    background-color: #f3f4f6 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

@@ -181,4 +181,21 @@ describe('LayarLaporan', () => {
     expect(screen.getByText('50 Porsi')).toBeDefined()
     expect(screen.getAllByText('Rp1.500.000').length).toBeGreaterThanOrEqual(1)
   })
+
+  it('dapat berpindah ke tab Format Siap Cetak dan menampilkan lembar laporan cetak', () => {
+    render(
+      <LayarLaporan
+        dataPenjualan={DATA_PENJUALAN_MOCK}
+        dataHarian={DATA_HARIAN_MOCK}
+        dataMenu={DATA_MENU_MOCK}
+      />,
+    )
+
+    const tombolTabCetak = screen.getByRole('button', { name: /format cetak \/ simpan pdf/i })
+    fireEvent.click(tombolTabCetak)
+
+    expect(screen.getByTestId('lembar-laporan-cetak')).toBeDefined()
+    expect(screen.getByRole('heading', { level: 1, name: 'RESTO BAROKAH' })).toBeDefined()
+    expect(screen.getByText(/Pengesahan & Tanda Tangan|Dibuat Oleh/i)).toBeDefined()
+  })
 })

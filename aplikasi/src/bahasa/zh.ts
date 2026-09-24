@@ -220,6 +220,13 @@ export const zh: KamusBahasa = {
     disetujui: '审批人',
     potongan: '优惠金额',
     rata_harga: '平均售价',
+    tanda_tangan: '核准与签名',
+    dibuat_oleh: '制表人',
+    disetujui_oleh: '审核人',
+    waktu_cetak: '打印时间',
+    dicetak_oleh: '打印人',
+    kembali_ke_laporan: '返回报表',
+    format_cetak: '打印格式 / 保存PDF',
   },
   pengaturan: {
     judul: '餐厅管理设置',

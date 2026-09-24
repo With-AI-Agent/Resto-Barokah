@@ -12,10 +12,11 @@ import { LaporanPenjualan, type DataLaporanPenjualan } from './LaporanPenjualan'
 import { LaporanMenu, type DataLaporanMenu } from './LaporanMenu'
 import { LaporanKas, type DataLaporanHarian, type DataLaporanShiftDetail } from './LaporanKas'
 import { DaftarPembatalan, type BarisPembatalan } from './DaftarPembatalan'
+import { FormatLaporan } from './FormatLaporan'
 import { Tombol } from '../../komponen/Tombol'
 import { useBahasa } from '../../bahasa'
 
-export type TabLaporan = 'penjualan' | 'menu' | 'kas' | 'pembatalan'
+export type TabLaporan = 'penjualan' | 'menu' | 'kas' | 'pembatalan' | 'cetak'
 
 export interface LayarLaporanProps {
   dataPenjualan?: DataLaporanPenjualan | null
@@ -120,6 +121,12 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
         >
           ❌ {t('laporan.total_pembatalan')} ({barisBatal.length})
         </Tombol>
+        <Tombol
+          ragam={tabAktif === 'cetak' ? 'utama' : 'polos'}
+          onClick={() => setTabAktif('cetak')}
+        >
+          🖨️ {t('laporan.format_cetak')}
+        </Tombol>
       </div>
 
       {tabAktif === 'penjualan' && (
@@ -184,6 +191,22 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
                 ? `Cabang: ${dataPenjualan.cabang.nama}`
                 : undefined
           }
+        />
+      )}
+
+      {tabAktif === 'cetak' && (
+        <FormatLaporan
+          dataPenjualan={dataPenjualan}
+          dataHarian={dataHarian}
+          dataMenu={dataMenu}
+          daftarCabang={daftarCabang}
+          cabangAktifId={cabangAktifId}
+          peranPengguna={peranPengguna}
+          tanggal={tanggal}
+          tanggalMulai={tanggalMulai}
+          tanggalAkhir={tanggalAkhir}
+          onPilihCabang={onPilihCabang}
+          onTutup={() => setTabAktif('penjualan')}
         />
       )}
     </div>

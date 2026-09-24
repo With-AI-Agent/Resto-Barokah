@@ -226,6 +226,13 @@ export const en: KamusBahasa = {
     disetujui: 'Approved By',
     potongan: 'Discount Value',
     rata_harga: 'Average Price',
+    tanda_tangan: 'Verification & Signature',
+    dibuat_oleh: 'Prepared By',
+    disetujui_oleh: 'Approved By',
+    waktu_cetak: 'Print Time',
+    dicetak_oleh: 'Printed By',
+    kembali_ke_laporan: 'Back to Reports',
+    format_cetak: 'Print Format / Save PDF',
   },
   pengaturan: {
     judul: 'Restaurant Settings',
