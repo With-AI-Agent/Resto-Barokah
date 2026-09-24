@@ -512,3 +512,9 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
   3. **👉 Langkah Lee:** tindakan nyata yang perlu dilakukan Lee atau penegasan cukup ketik *"Lanjut"*.
 - **Batas:** Bukan pembatasan informasi — info penting, risiko, atau pertimbangan tetap disampaikan di badan pesan. Format ini dikunci di `PROFIL_PENGGUNA.md`, `docs/AGENT_OPERATING_GUIDE.md`, `PANDUAN_PENGGUNA.md`, dan `docs/DECISIONS_LOG.md`.
 
+## §25. Peringatan Penyelesaian Fase 7 & Audit Menyeluruh (2026-09-24)
+
+- **[verbatim]** “Lanjut. Dan ingatkan klo fase 7 udah selesai, aku mau melakukan mekanisme pemeriksaan dan audit menyeluruh”
+- **Pelaksanaan:** Menjadwalkan pengingat eksplisit kepada Lee tepat saat seluruh tugas Fase 7 selesai (setelah T7-12 tuntas diverifikasi), bahwa Fase 7 telah selesai dan Lee ingin melakukan mekanisme pemeriksaan dan audit menyeluruh. Agent dilarang langsung meloncat ke Fase 8 tanpa jeda dan persetujuan Lee untuk audit tersebut.
+
+

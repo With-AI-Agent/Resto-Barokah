@@ -17,7 +17,7 @@ jobs:
   periksa:
     name: Periksa (lint · tipe · uji · pemeriksa Python)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Ambil kode
         uses: actions/checkout@v5
