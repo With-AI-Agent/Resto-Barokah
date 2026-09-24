@@ -85,49 +85,7 @@ create trigger trg_koreksi_modal_kekal
   for each row execute function public.picu_koreksi_modal_kekal();
 
 -- ---------------------------------------------------------------------------
--- 4. Perbarui pemicu shift_kas agar mengizinkan pembaruan modal awal
---    HANYA melalui prosedur koreksi modal (app.dalam_koreksi_modal = 'true')
--- ---------------------------------------------------------------------------
-create or replace function public.picu_shift_kas_jaga()
-returns trigger
-language plpgsql
-security definer
-set search_path = public, pg_temp
-as $$
-begin
-  if TG_OP = 'DELETE' then
-    raise exception 'Baris shift kas tidak boleh dihapus demi integritas jejak audit.';
-  end if;
-
-  if TG_OP = 'UPDATE' then
-    -- Identitas dasar tidak boleh diubah
-    NEW.penyewa_id := OLD.penyewa_id;
-    NEW.cabang_id := OLD.cabang_id;
-    NEW.dibuka_oleh := OLD.dibuka_oleh;
-    NEW.dibuka_pada := OLD.dibuka_pada;
-
-    -- Modal awal tidak boleh diubah langsung lewat update biasa tanpa prosedur koreksi modal
-    if NEW.modal_awal <> OLD.modal_awal then
-      if current_setting('app.dalam_koreksi_modal', true) is distinct from 'true' then
-        raise exception 'Modal awal tidak boleh diubah langsung — gunakan prosedur koreksi modal.';
-      end if;
-    end if;
-
-    -- Shift yang sudah ditutup tidak boleh diubah lagi
-    if OLD.status = 'ditutup' then
-      raise exception 'Shift yang sudah ditutup tidak boleh diubah lagi.';
-    end if;
-  end if;
-
-  return NEW;
-end;
-$$;
-
-comment on function public.picu_shift_kas_jaga() is
-  'Mencegah penghapusan riwayat shift kas dan mengunci identitas serta modal awal dari perubahan langsung tanpa prosedur koreksi modal.';
-
--- ---------------------------------------------------------------------------
--- 5. RPC koreksi_modal_shift
+-- 4. RPC koreksi_modal_shift
 -- ---------------------------------------------------------------------------
 create or replace function public.koreksi_modal_shift(
   p_shift_id        uuid,

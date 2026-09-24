@@ -91,7 +91,9 @@ begin
 
     -- Modal awal tidak boleh diubah langsung lewat update
     if NEW.modal_awal <> OLD.modal_awal then
-      raise exception 'Modal awal tidak boleh diubah langsung — gunakan prosedur koreksi modal.';
+      if current_setting('app.dalam_koreksi_modal', true) is distinct from 'true' then
+        raise exception 'Modal awal tidak boleh diubah langsung — gunakan prosedur koreksi modal.';
+      end if;
     end if;
 
     -- Shift yang sudah ditutup tidak boleh diubah lagi
