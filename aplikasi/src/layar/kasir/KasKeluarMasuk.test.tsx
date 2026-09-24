@@ -86,6 +86,26 @@ describe('KasKeluarMasuk (T7-03 — Kas Masuk, Kas Keluar, Setoran, dan Koreksi)
     expect(btnSimpan.hasAttribute('disabled')).toBe(true)
   })
 
+  it('menolak pengiriman jika alasan kosong', async () => {
+    const onSimpan = vi.fn()
+    renderDenganBahasa(<KasKeluarMasuk shiftId="shift-1" cabangId="cabang-1" onSimpan={onSimpan} />)
+
+    // Isi nominal tanpa mengisi alasan
+    fireEvent.click(screen.getByText('+Rp10.000'))
+
+    // Tombol submit lumpuh saat alasan kosong
+    const btnSimpan = screen.getByText('Simpan Catatan Kas').closest('button')!
+    expect(btnSimpan.hasAttribute('disabled')).toBe(true)
+
+    // Form disubmit langsung harus memunculkan pesan galat alasan wajib
+    const formEl = btnSimpan.closest('form')!
+    fireEvent.submit(formEl)
+
+    const alertEl = await screen.findByRole('alert')
+    expect(alertEl.textContent).toContain('tidak boleh kosong')
+    expect(onSimpan).not.toHaveBeenCalled()
+  })
+
   it('berhasil menyimpan pergerakan kas keluar dan menampilkan layar sukses', async () => {
     const onSimpan = vi.fn().mockResolvedValue({
       sukses: true,
