@@ -598,6 +598,20 @@ const MUTASI = [
     ganti: '      {false ? (',
     uji: 'src/layar/kasir/TutupKas.test.tsx',
   },
+  {
+    nama: 'KasKeluarMasuk: tombol simpan hidup walau jumlah uang 0 (T7-03)',
+    berkas: 'src/layar/kasir/KasKeluarMasuk.tsx',
+    cari: 'nonaktif={memproses || jumlah <= 0 || !alasan.trim()}',
+    ganti: 'nonaktif={memproses || !alasan.trim()}',
+    uji: 'src/layar/kasir/KasKeluarMasuk.test.tsx',
+  },
+  {
+    nama: 'KasKeluarMasuk: alasan pergerakan kas tidak lagi wajib (T7-03)',
+    berkas: 'src/layar/kasir/KasKeluarMasuk.tsx',
+    cari: 'if (!alasan.trim()) {',
+    ganti: 'if (false && !alasan.trim()) {',
+    uji: 'src/layar/kasir/KasKeluarMasuk.test.tsx',
+  },
 ]
 
 /**

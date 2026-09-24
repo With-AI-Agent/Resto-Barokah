@@ -1281,7 +1281,8 @@
 }
 
 .buka-kas-wadah,
-.tutup-kas-wadah {
+.tutup-kas-wadah,
+.kas-pergerakan-wadah {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -1294,6 +1295,43 @@
   margin: 0 auto;
 }
 
+.opsi-jenis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-2);
+}
+
+.opsi-jenis-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-3) var(--s-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text-sec);
+  font-size: var(--teks-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  text-align: center;
+  gap: var(--s-1);
+}
+
+.opsi-jenis-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.opsi-jenis-btn--aktif {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-soft);
+}
+
 .kotak-peringatan {
   display: flex;
   align-items: center;
@@ -1303,6 +1341,17 @@
   border: 1px solid var(--warn);
   border-radius: var(--radius);
   color: var(--warn);
+}
+
+.kotak-galat {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+  color: var(--danger);
 }
 
 .kotak-rincian-kas {

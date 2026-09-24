@@ -29,6 +29,7 @@ import { DiskonManual, type BatasDiskon, type HasilDiskon } from './DiskonManual
 import { VoidItem, type HasilVoid } from './VoidItem'
 import { BukaKas, type ShiftAktifInfo } from './BukaKas'
 import { TutupKas, type HasilTutupKas } from './TutupKas'
+import { KasKeluarMasuk, type KasPergerakanInput, type HasilKasPergerakan } from './KasKeluarMasuk'
 import type { DataStruk } from '../../komponen/Struk'
 import { TARIF_BAWAAN, hitungPerkiraan, type TarifResto } from '../../lib/tarif'
 
@@ -115,6 +116,9 @@ export interface LayarKasirProps {
     catatan?: string
     shiftId?: string
   }) => Promise<HasilTutupKas>
+
+  // ------------------------------------------------- T7-03 kas pergerakan (masuk/keluar/setoran)
+  onKasPergerakan?: (data: KasPergerakanInput) => Promise<HasilKasPergerakan> | HasilKasPergerakan
 }
 
 export function LayarKasir({
@@ -143,6 +147,7 @@ export function LayarKasir({
   onBukaShift,
   uangSeharusnyaPerkiraan,
   onTutupShift,
+  onKasPergerakan,
 }: LayarKasirProps) {
   const { t } = useBahasa()
   // Keranjang State
@@ -163,6 +168,7 @@ export function LayarKasir({
   const [bukaDiskonModal, setBukaDiskonModal] = useState(false)
   const [bukaShiftModal, setBukaShiftModal] = useState(false)
   const [bukaTutupKasModal, setBukaTutupKasModal] = useState(false)
+  const [bukaKasPergerakanModal, setBukaKasPergerakanModal] = useState(false)
   /** Id item yang sedang dimintai alasan pembatalan (T5-06); null = tidak ada. */
   const [itemVoid, setItemVoid] = useState<string | null>(null)
 
@@ -422,6 +428,9 @@ export function LayarKasir({
           <div className="bilah-kasir-atas__aksi">
             {shiftAktif ? (
               <>
+                <Tombol ragam="biasa" onClick={() => setBukaKasPergerakanModal(true)}>
+                  💸 {t('kasir.kas_pergerakan')}
+                </Tombol>
                 <Tombol ragam="bahaya" onClick={() => setBukaTutupKasModal(true)}>
                   🔴 {t('kasir.tutup_shift')}
                 </Tombol>
@@ -588,6 +597,25 @@ export function LayarKasir({
             onTutupShift={onTutupShift}
             onSelesai={() => setBukaTutupKasModal(false)}
             onBatal={() => setBukaTutupKasModal(false)}
+          />
+        </Lapis>
+      )}
+
+      {/* Modal Kas Keluar Masuk / Pergerakan Kas (T7-03) */}
+      {bukaKasPergerakanModal && shiftAktif && (
+        <Lapis
+          buka={true}
+          onTutup={() => setBukaKasPergerakanModal(false)}
+          judul="Kas Masuk & Keluar"
+        >
+          <KasKeluarMasuk
+            shiftId={shiftAktif.id}
+            cabangId={cabangId}
+            namaCabang={namaCabang}
+            namaKasir={namaKasir}
+            onSimpan={onKasPergerakan || (async () => ({ sukses: true }))}
+            onTutup={() => setBukaKasPergerakanModal(false)}
+            onBatal={() => setBukaKasPergerakanModal(false)}
           />
         </Lapis>
       )}

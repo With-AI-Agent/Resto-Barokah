@@ -162,4 +162,31 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
     expect(screen.getByText('Rp100.000')).toBeDefined()
     expect(screen.getByText('Rp300.000')).toBeDefined()
   })
+
+  // ---------------------------------------------- T7-03 Kas Masuk & Keluar di Layar Kasir
+  it('menampilkan tombol Kas Masuk & Keluar saat ada shift aktif dan membuka dialog pergerakan kas (T7-03)', () => {
+    const onKasPergerakan = vi.fn().mockResolvedValue({ sukses: true })
+
+    render(
+      <PenyediaBahasa>
+        <LayarKasir
+          shiftAktif={{
+            id: 'shift-pos-01',
+            cabangId: 'cab-01',
+            modalAwal: 100000,
+            dibukaPada: '2026-09-24T08:00:00Z',
+          }}
+          onKasPergerakan={onKasPergerakan}
+        />
+      </PenyediaBahasa>,
+    )
+
+    const tombolKasPergerakan = screen.getByRole('button', { name: /Kas Masuk & Keluar/i })
+    expect(tombolKasPergerakan).toBeDefined()
+
+    fireEvent.click(tombolKasPergerakan)
+
+    expect(screen.getByText(/Pencatatan Pergerakan Kas/i)).toBeDefined()
+    expect(screen.getByTestId('pilih-jenis-keluar')).toBeDefined()
+  })
 })

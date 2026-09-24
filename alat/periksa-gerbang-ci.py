@@ -75,6 +75,8 @@ GERBANG_WAJIB = [
      r"python3 alat/uji-mutasi-0045.py"),
     ("bukti mutasi pagar tutup shift 0046 (T7-02 rekonsiliasi kas & alasan selisih)",
      r"python3 alat/uji-mutasi-0046.py"),
+    ("bukti mutasi pagar kas pergerakan 0047 (T7-03 masuk/keluar kas & setoran)",
+     r"python3 alat/uji-mutasi-0047.py"),
     ("bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22)",
      r"python3 alat/uji-mutasi-0009.py"),
     ("bukti mutasi kunci serialisasi uang 0021 (F F-12)",

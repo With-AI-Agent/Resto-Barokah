@@ -221,6 +221,23 @@ export const REGISTRI_AKSI: Record<string, EntriAksi> = {
     sembunyikanBilaTanpaIzin: false,
     alasanNonaktifBilaTanpaIzin: 'Memerlukan izin penutupan kas.',
   },
+  'kasir.kas_pergerakan': {
+    id: 'kasir.kas_pergerakan',
+    label: 'Catat Kas Masuk/Keluar',
+    layar: 'kasir',
+    peran: ['owner_pusat', 'admin_cabang', 'kasir'],
+    izin: 'tutup_kas',
+    rpc: 'kas_pergerakan',
+    jenis: 'tulis',
+    konfirmasi: 'Simpan pergerakan kas ini?',
+    pin: false,
+    audit: true,
+    sukses: 'Pergerakan kas berhasil dicatat.',
+    gagal: 'Gagal mencatat pergerakan kas.',
+    uji: ['uji_kasir_kas_pergerakan', 'src/layar/kasir/KasKeluarMasuk.test.tsx'],
+    sembunyikanBilaTanpaIzin: false,
+    alasanNonaktifBilaTanpaIzin: 'Memerlukan wewenang pengelolaan kas.',
+  },
 
   // ------------------------------------------------------------- Layar Dapur
   'dapur.mulai_masak': {

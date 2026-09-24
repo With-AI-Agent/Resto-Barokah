@@ -37,8 +37,8 @@ def ekstrak_kunci(konten: str) -> set[str]:
                 stack.pop()
             continue
             
-        # Cocokkan properti `kunci: 'nilai',` atau `kunci: "nilai",`
-        m_prop = re.match(r"^([a-zA-Z0-9_]+)\s*:\s*['\"`]", line)
+        # Cocokkan properti `kunci: 'nilai',` atau `kunci:` bila baris nilai terpisah
+        m_prop = re.match(r"^([a-zA-Z0-9_]+)\s*:\s*(?:['\"`]|(?:\n|$))", line)
         if m_prop:
             nama_prop = m_prop.group(1)
             full_path = ".".join(stack + [nama_prop])

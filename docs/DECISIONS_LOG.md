@@ -2473,4 +2473,49 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (73/73 mutasi TERBUKTI MERAH, `--uji-diri` lolos).
   - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run typecheck` bersih, `npm run lint` 0 galat, `npm run build` sukses.
 
+## [Kas/2026-09-24] Kas Pergerakan: Uang Masuk, Keluar Tunai, Setoran, dan Koreksi Kekal (T7-03)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 & TECH_SPEC §4.3, §5, §9 ART-6
+- **Konteks & Risiko (ART-6):** Selama jam operasional laci kasir, uang tunai sering keluar-masuk
+  di luar transaksi penjualan (misalnya: belanja bumbu/es batu mendadak, kasbon staf darurat,
+  tambahan uang receh modal kembalian dari bank, atau setoran berkala uang laci ke brankas/bank).
+  Bila transaksi kas ini tidak tercatat secara terstruktur dan tidak diperhitungkan ke dalam
+  uang seharusnya (`uang_seharusnya = modal_awal + tunai_masuk - tunai_keluar`), rekonsiliasi tutup
+  kas akan selalu mencatat selisih palsu dan membuka celah penggelapan uang laci tanpa jejak.
+- **Keputusan:**
+  1. **Tabel `public.kas_pergerakan`:** Menyimpan id, penyewa_id, cabang_id, shift_id, jenis
+     (`'masuk'`, `'keluar'`, `'setoran'`, `'koreksi'`), jumlah (> 0), alasan (wajib, tidak kosong),
+     pelaku_id, disetujui_oleh (opsional), kunci_idempoten (unik), dan dibuat_pada.
+  2. **Pagar Kekal (Append-Only Financial Ledger):** Pemicu `picu_kas_pergerakan_kekal` menolak keras
+     setiap upaya `UPDATE` atau `DELETE` langsung pada tabel `kas_pergerakan`. Hak izin DML langsung
+     juga dicabut dari `authenticated`, `anon`, dan `public`.
+  3. **Integritas Status Shift Kasir:** Pemicu `picu_kas_pergerakan_validasi_shift` dan RPC `kas_pergerakan`
+     memastikan kas operasional (`masuk`, `keluar`, `setoran`) HANYA dapat dicatat pada shift kasir yang
+     berstatus `'terbuka'`. Bila shift sudah ditutup, pergerakan kas baru ditolak.
+  4. **Koreksi Pasca Tutup Shift (ART-6):** Sesuai prinsip ART-6, setelah shift kasir ditutup, baris
+     lama tetap **beku**. Bila ditemukan uang terselip atau ketidaksesuaian pasca penutupan, koreksi
+     dicatat sebagai baris `kas_pergerakan` baru bertanda `'koreksi'` dengan izin atasan dan jejak audit.
+  5. **Integrasi Matematis ke Tutup Shift:** RPC `public.tutup_shift` diperbarui untuk menghitung
+     `tunai_masuk` (penjualan tunai + kas_pergerakan masuk) dan `tunai_keluar` (kas_pergerakan keluar + setoran),
+     sehingga `uang_seharusnya = modal_awal + tunai_masuk - tunai_keluar` selalu akurat dan terverifikasi.
+  6. **Jejak Audit Kriptografis Berantai Hash:** Setiap baris pergerakan kas tercatat otomatis di
+     `public.catatan_audit` (`aksi = 'kas_pergerakan_' || p_jenis`, `entitas = 'kas_pergerakan'`)
+     yang terlindungi rantai hash SHA-256.
+  7. **Antarmuka Pengguna `KasKeluarMasuk.tsx` & Integrasi `LayarKasir.tsx`:**
+     - Pemilihan jenis: Kas Keluar (Operasional), Kas Masuk (Tambah Modal), Setoran (Brankas/Bank), Koreksi.
+     - Isian jumlah Rupiah dengan tombol nominal cepat (+Rp10rb, +Rp20rb, +Rp50rb, +Rp100rb, +Rp500rb, Reset).
+     - Kolom alasan wajib dengan saran alasan cepat per jenis operasional.
+     - Validasi sisi klien: tombol simpan lumpuh saat jumlah 0 atau alasan kosong.
+     - Ringkasan transaksi dan dialog konfirmasi sukses.
+     - Tombol akses `💸 Kas Masuk & Keluar` di bilah kasir atas saat terdapat shift aktif.
+     - Kepatuhan penuh `alat/peta-ui.py` Aturan 7 (bebas tombol liar) dan desain token CSS.
+- **Bukti:**
+  - SQL: `supabase/tes/kas_pergerakan.sql` (13 skenario lengkap, 90/90 suite SQL LULUS).
+  - Uji Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` LULUS hijau (2/2 suite).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0047.py` (6/6 mutasi kritis TERBUKTI MERAH, `--uji-diri` lolos).
+  - Vitest: `src/layar/kasir/KasKeluarMasuk.test.tsx` (8/8 tes LULUS), total aplikasi 77 berkas / 605 tes LULUS.
+  - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (75/75 mutasi TERBUKTI MERAH, `--uji-diri` lolos).
+  - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run typecheck` bersih, `npm run lint` 0 galat, `npm run build` sukses.
+
+
 

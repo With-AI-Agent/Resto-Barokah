@@ -1536,7 +1536,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); mitigasi: rumus di peladen + uji golden.
   - **Verifikasi:** uji SQL 5 kasus (pas, lebih, kurang, tanpa alasan, dua kasir satu shift).
 
-- [ ] T7-03 — Kas pergerakan (masuk/keluar tunai, setoran) ⚠️
+- [x] T7-03 — Kas pergerakan (masuk/keluar tunai, setoran) ⚠️
   - **Tujuan:** uang yang keluar-masuk di luar penjualan tetap tercatat.
   - **Ref:** PRD M7; TECH_SPEC §4 (kas_pergerakan)
   - **File:** `supabase/migrations/0047_kas_pergerakan.sql`, `aplikasi/src/layar/kasir/KasKeluarMasuk.tsx`
