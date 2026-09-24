@@ -4,8 +4,42 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { LayarLaporan } from './LayarLaporan'
 import type { DataLaporanHarian } from './LaporanKas'
 import type { DataLaporanPenjualan } from './LaporanPenjualan'
+import type { DataLaporanMenu } from './LaporanMenu'
 
 afterEach(cleanup)
+
+const DATA_MENU_MOCK: DataLaporanMenu = {
+  rentang: {
+    tanggal_mulai: '2026-09-18',
+    tanggal_akhir: '2026-09-24',
+    jumlah_hari: 7,
+  },
+  cabang: {
+    id: 'c-01',
+    nama: 'Cabang Utama',
+  },
+  ringkasan: {
+    total_porsi: 50,
+    total_omzet_menu: 1500000,
+    total_diskon_manual: 50000,
+    total_voucher: 25000,
+    total_biaya_promosi: 75000,
+  },
+  peringkat_menu: [
+    {
+      menu_item_id: 'm-01',
+      nama_menu: 'Ayam Goreng Sambal Bawang',
+      kategori_nama: 'Makanan Utama',
+      jenis: 'makanan',
+      qty_terjual: 50,
+      total_omzet: 1500000,
+      rata_harga: 30000,
+      persentase: 100,
+    },
+  ],
+  diskon_manual: [],
+  voucher_terpakai: [],
+}
 
 const DATA_PENJUALAN_MOCK: DataLaporanPenjualan = {
   rentang: {
@@ -135,5 +169,16 @@ describe('LayarLaporan', () => {
     expect(screen.getByText('Bebek Bakar')).toBeDefined()
     expect(screen.getByText(/pelanggan membatalkan setelah dimasak/i)).toBeDefined()
     expect(screen.getByText('Rp25.000')).toBeDefined()
+  })
+
+  it('dapat berpindah ke tab Menu & Promo dan menampilkan peringkat menu terlaris', () => {
+    render(<LayarLaporan dataPenjualan={DATA_PENJUALAN_MOCK} dataMenu={DATA_MENU_MOCK} />)
+
+    const tombolTabMenu = screen.getByRole('button', { name: /menu & promo/i })
+    fireEvent.click(tombolTabMenu)
+
+    expect(screen.getByText('Ayam Goreng Sambal Bawang')).toBeDefined()
+    expect(screen.getByText('50 Porsi')).toBeDefined()
+    expect(screen.getAllByText('Rp1.500.000').length).toBeGreaterThanOrEqual(1)
   })
 })

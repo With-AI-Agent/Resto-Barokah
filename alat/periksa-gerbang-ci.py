@@ -87,6 +87,8 @@ GERBANG_WAJIB = [
      r"python3 alat/uji-mutasi-0051.py"),
     ("bukti mutasi pagar laporan penjualan 0052 (T7-08 laporan penjualan dasar)",
      r"python3 alat/uji-mutasi-0052.py"),
+    ("bukti mutasi pagar laporan menu 0053 (T7-09 menu terlaris & diskon/voucher)",
+     r"python3 alat/uji-mutasi-0053.py"),
     ("bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22)",
      r"python3 alat/uji-mutasi-0009.py"),
     ("bukti mutasi kunci serialisasi uang 0021 (F F-12)",

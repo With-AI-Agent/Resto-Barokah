@@ -9,15 +9,17 @@
 
 import React, { useState } from 'react'
 import { LaporanPenjualan, type DataLaporanPenjualan } from './LaporanPenjualan'
+import { LaporanMenu, type DataLaporanMenu } from './LaporanMenu'
 import { LaporanKas, type DataLaporanHarian, type DataLaporanShiftDetail } from './LaporanKas'
 import { DaftarPembatalan, type BarisPembatalan } from './DaftarPembatalan'
 import { Tombol } from '../../komponen/Tombol'
 import { useBahasa } from '../../bahasa'
 
-export type TabLaporan = 'penjualan' | 'kas' | 'pembatalan'
+export type TabLaporan = 'penjualan' | 'menu' | 'kas' | 'pembatalan'
 
 export interface LayarLaporanProps {
   dataPenjualan?: DataLaporanPenjualan | null
+  dataMenu?: DataLaporanMenu | null
   dataHarian?: DataLaporanHarian | null
   shiftTerpilihDetail?: DataLaporanShiftDetail | null
   daftarCabang?: Array<{ id: string; nama: string }>
@@ -26,6 +28,7 @@ export interface LayarLaporanProps {
   tanggal?: string
   tanggalMulai?: string
   tanggalAkhir?: string
+  urutBerdasarkanMenu?: 'nilai' | 'jumlah'
   sedangMemuat?: boolean
   pesanGagal?: string | null
   daftarPembatalan?: BarisPembatalan[]
@@ -33,6 +36,7 @@ export interface LayarLaporanProps {
   onPilihCabang?: (cabangId: string) => void
   onPilihTanggal?: (tanggal: string) => void
   onPilihRentangTanggal?: (mulai: string, akhir: string) => void
+  onGantiUrutanMenu?: (urutan: 'nilai' | 'jumlah') => void
   onPilihShift?: (shiftId: string) => void
   onTutupRincianShift?: () => void
   onMuatUlang?: () => void
@@ -40,6 +44,7 @@ export interface LayarLaporanProps {
 
 export const LayarLaporan: React.FC<LayarLaporanProps> = ({
   dataPenjualan,
+  dataMenu,
   dataHarian,
   shiftTerpilihDetail,
   daftarCabang = [],
@@ -48,6 +53,7 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
   tanggal,
   tanggalMulai,
   tanggalAkhir,
+  urutBerdasarkanMenu = 'nilai',
   sedangMemuat = false,
   pesanGagal = null,
   daftarPembatalan = [],
@@ -55,6 +61,7 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
   onPilihCabang,
   onPilihTanggal,
   onPilihRentangTanggal,
+  onGantiUrutanMenu,
   onPilihShift,
   onTutupRincianShift,
   onMuatUlang,
@@ -101,6 +108,9 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
         >
           📊 {t('laporan.tab_penjualan')}
         </Tombol>
+        <Tombol ragam={tabAktif === 'menu' ? 'utama' : 'polos'} onClick={() => setTabAktif('menu')}>
+          🍛 {t('laporan.tab_menu')}
+        </Tombol>
         <Tombol ragam={tabAktif === 'kas' ? 'utama' : 'polos'} onClick={() => setTabAktif('kas')}>
           💰 {t('laporan.tab_kas')}
         </Tombol>
@@ -124,6 +134,24 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
           pesanGagal={pesanGagal}
           onPilihCabang={onPilihCabang}
           onPilihRentangTanggal={onPilihRentangTanggal}
+          onMuatUlang={onMuatUlang}
+        />
+      )}
+
+      {tabAktif === 'menu' && (
+        <LaporanMenu
+          data={dataMenu}
+          daftarCabang={daftarCabang}
+          cabangAktifId={cabangAktifId}
+          peranPengguna={peranPengguna}
+          tanggalMulai={tanggalMulai}
+          tanggalAkhir={tanggalAkhir}
+          urutBerdasarkan={urutBerdasarkanMenu}
+          sedangMemuat={sedangMemuat}
+          pesanGagal={pesanGagal}
+          onPilihCabang={onPilihCabang}
+          onPilihRentangTanggal={onPilihRentangTanggal}
+          onGantiUrutan={onGantiUrutanMenu}
           onMuatUlang={onMuatUlang}
         />
       )}

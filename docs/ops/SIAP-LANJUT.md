@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `fdf48acab695c48c7a38b63297e26a7f2fd1f686`
+- **Commit keadaan kerja:** `0f62508d66817e8b2f54f706967cd412181dfac4`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 35979910147, commit fdf48aca)
+- **CI terakhir:** failure (run 35983400829, commit 0f62508d)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (35 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (35 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1428,4 +1428,25 @@ Urutan yang disarankan agent, dan alasannya:
    - Kamus terjemahan 4 bahasa (`id`, `en`, `zh`, `ar`): 100% sinkron (250 kunci).
    - Total Vitest aplikasi: 82 berkas uji / 646 tes LULUS 100%.
 4. **Pengingat Audit Fase 7 (§25):** Sesi ini mengingat bahwa setelah T7-12 tuntas, wajib berhenti untuk audit menyeluruh sebelum melangkah ke Fase 8.
-5. **Rencana Selanjutnya:** Melangkah ke `T7-09 — Laporan menu terlaris + diskon/voucher terpakai`.
+
+**FASE 7 T7-09 LAPORAN MENU TERLARIS & PROMOSI SELESAI (2026-09-24):**
+1. **Migrasi `0053_laporan_menu.sql`:**
+   - View `public.laporan_menu_terlaris` (`security_invoker = true`): menyajikan rekapitulasi penjualan per item menu, cabang, dan tanggal.
+   - RPC `public.laporan_menu(p_cabang_id, p_tanggal_mulai, p_tanggal_akhir, p_urut_berdasarkan)`:
+     * Peringkat menu terlaris berdasarkan kuantitas porsi (`jumlah`) atau nilai penjualan (`nilai`).
+     * Mitigasi risiko data menu: menggunakan `pi.nama_saat_itu` dari tabel `pesanan_item` sehingga laporan historis kebal terhadap perubahan nama atau penghapusan item menu.
+     * Rincian diskon manual: mencakup alasan diskon, persentase/nominal, kasir pembuat, dan atasan penyetuju (jika melebihi batas kasir).
+     * Rincian voucher/promo terpakai: mencakup kode promo/voucher, nilai potongan, kasir pemakai, dan penyetuju.
+     * Pagar keamanan: verifikasi `auth.uid()`, hak akses `lihat_laporan`, pembatasan 90 hari, wewenang cabang binaan admin_cabang, multi-cabang untuk owner_pusat, serta isolasi penyewa.
+2. **Pengujian & Bukti Mutasi:**
+   - Suite SQL `supabase/tes/laporan_menu.sql`: 96 berkas uji SQL lulus 100%.
+   - Uji keamanan SQL `python3 alat/periksa-keamanan-sql.py`: lolos search_path, ACL, RLS, InitPlan.
+   - Uji mutasi `alat/uji-mutasi-0053.py`: 6/6 mutasi terbukti MERAH.
+   - 121 gerbang CI terverifikasi utuh (`python3 alat/periksa-gerbang-ci.py`).
+3. **Komponen Antarmuka & Internasionalisasi:**
+   - `LaporanMenu.tsx` & pengujian `LaporanMenu.test.tsx` (12/12 tes lolos).
+   - Tab navigasi Menu & Promo di `LayarLaporan.tsx` & pengujian `LayarLaporan.test.tsx` (4/4 tes lolos).
+   - Kamus terjemahan 4 bahasa (`id`, `en`, `zh`, `ar`): 100% sinkron (262 kunci).
+   - Total Vitest aplikasi: 83 berkas uji / 659 tes LULUS 100%.
+4. **Pengingat Audit Fase 7 (§25):** Jeda wajib tetap berlaku setelah T7-12 sebelum beralih ke Fase 8.
+5. **Rencana Selanjutnya:** Melangkah ke `T7-10 — Tampilan laporan siap cetak/simpan + filter cabang`.

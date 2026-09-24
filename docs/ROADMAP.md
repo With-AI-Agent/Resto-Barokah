@@ -1590,7 +1590,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** laporan berat → mitigasi: agregasi di peladen + batas rentang tanggal.
   - **Verifikasi:** uji SQL + uji manual.
 
-- [ ] T7-09 — Laporan menu terlaris + diskon/voucher terpakai
+- [x] T7-09 — Laporan menu terlaris + diskon/voucher terpakai
   - **Tujuan:** owner tahu menu andalan & biaya promosi.
   - **Ref:** PRD M8 & M10
   - **File:** `supabase/migrations/0053_laporan_menu.sql`, `aplikasi/src/layar/laporan/LaporanMenu.tsx`
