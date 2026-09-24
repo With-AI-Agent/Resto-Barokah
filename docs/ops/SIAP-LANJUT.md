@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `b243978313665d3bf38bf177489d25e8cf572a7c`
+- **Commit keadaan kerja:** `ddde6ae60af55ebd6a02c00140998eb9586457b4`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** queued (run 35943247967, commit b2439783) — tunggu sampai selesai
+- **CI terakhir:** in_progress (run 35947180586, commit ddde6ae6) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -1345,3 +1345,21 @@ Urutan yang disarankan agent, dan alasannya:
    - T4-04: Penanda waktu & peringatan pesanan lama (> 15 menit)
    - T4-05: Suara notifikasi pesanan masuk & siap saji
    - T4-06 s/d T4-10: Void/batal dapur berizin supervisor, opname stok harian sederhana, dan realtime sync
+
+**PERBAIKAN TAMPILAN, POS 2-KOLOM, DAN PARITAS BAHASA SELESAI LENGKAP (2026-09-24):**
+1. **Penyelarasan Kamus Multi-Bahasa:** 100% sinkronisasi 171 kunci di seluruh 4 bahasa (`id.ts`, `en.ts`, `zh.ts`, `ar.ts`).
+2. **Design Tokens & Komponen CSS:** Penambahan variabel token di `dasar.css` dan layout kelas POS modern (`.pos-wadah`, `.pos-kiri`, `.pos-kanan`, `.katalog-wadah`, `.kategori-pills`, `.kisi-menu-grid`, `.kartu-menu`, `.keranjang-kotak`, `.pemilih-meja`, `.tipe-pesanan-grid`, `.meja-grid`, `.meja-kartu`, `.buka-kas-wadah`, `.tutup-kas-wadah`, `.kotak-rincian-kas`).
+3. **Penyempurnaan Komponen UI:**
+   - `LayarKasir.tsx`: Tata letak 2 kolom desktop (katalog di kiri, keranjang belanja sticky di kanan).
+   - `Katalog.tsx`: Kategori pills filter, pencarian cepat, kartu menu ber-elevasi bersih, tag favorit & habis.
+   - `Keranjang.tsx`: Ringkasan tagihan server-calculated, kontrol kuantitas, catatan dapur per item, tombol voucher.
+   - `PemilihMeja.tsx`: Pilihan segmented Dine In/Takeaway/Ojol, denah kartu meja dengan lencana status & kapasitas tamu.
+   - `BukaKas.tsx` & `TutupKas.tsx`: Formulir modal terstruktur dengan kalkulasi selisih kas dan alasan otomatis.
+   - `Navigasi.tsx` & `LayarContoh.tsx`: Terjemahan 100% terhubung via i18n hook.
+4. **Verifikasi Kualitas:**
+   - 76 berkas uji Vitest (596 tes lulus 100%).
+   - 73/73 mutasi aplikasi terbunuh (100% mutation score).
+   - 89 berkas uji SQL PGlite lulus (100%).
+   - `python3 aplikasi/alat/periksa-struktur.py` (29 OK, 0 GAGAL).
+   - `python3 aplikasi/alat/periksa-bahasa.py` (100% paritas).
+   - Build produksi Vite bersih 0 eror.
