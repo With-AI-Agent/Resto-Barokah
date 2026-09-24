@@ -1581,7 +1581,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** angka tidak cocok → mitigasi: uji golden (T7-12) + satu sumber hitung.
   - **Verifikasi:** uji SQL golden + uji manual bandingkan dengan data transaksi.
 
-- [ ] T7-08 — Laporan penjualan dasar (kategori, metode)
+- [x] T7-08 — Laporan penjualan dasar (kategori, metode)
   - **Tujuan:** owner tahu dari mana uang datang.
   - **Ref:** PRD M8
   - **File:** `supabase/migrations/0052_laporan_penjualan.sql`, `aplikasi/src/layar/laporan/LaporanPenjualan.tsx`

@@ -1,50 +1,60 @@
 /**
- * LayarLaporan.tsx — Dasbor Laporan Keuangan, Kas Shift, dan Pembatalan (T7-07 & T5-12).
+ * LayarLaporan.tsx — Dasbor Laporan Keuangan, Penjualan, Kas Shift, dan Pembatalan (T7-08, T7-07 & T5-12).
  *
  * Menggabungkan:
- *  1. Laporan Kas Harian & per Shift (`LaporanKas`)
- *  2. Laporan Pembatalan Pesanan / Void (`DaftarPembatalan`)
+ *  1. Laporan Penjualan Dasar (`LaporanPenjualan`) — PRD M8 / T7-08
+ *  2. Laporan Kas Harian & per Shift (`LaporanKas`) — PRD M8 / T7-07
+ *  3. Laporan Pembatalan Pesanan / Void (`DaftarPembatalan`) — T5-12
  */
 
 import React, { useState } from 'react'
+import { LaporanPenjualan, type DataLaporanPenjualan } from './LaporanPenjualan'
 import { LaporanKas, type DataLaporanHarian, type DataLaporanShiftDetail } from './LaporanKas'
 import { DaftarPembatalan, type BarisPembatalan } from './DaftarPembatalan'
 import { Tombol } from '../../komponen/Tombol'
 import { useBahasa } from '../../bahasa'
 
-export type TabLaporan = 'kas' | 'pembatalan'
+export type TabLaporan = 'penjualan' | 'kas' | 'pembatalan'
 
 export interface LayarLaporanProps {
+  dataPenjualan?: DataLaporanPenjualan | null
   dataHarian?: DataLaporanHarian | null
   shiftTerpilihDetail?: DataLaporanShiftDetail | null
   daftarCabang?: Array<{ id: string; nama: string }>
   cabangAktifId?: string | null
   peranPengguna?: 'owner_pusat' | 'admin_cabang' | 'kasir'
   tanggal?: string
+  tanggalMulai?: string
+  tanggalAkhir?: string
   sedangMemuat?: boolean
   pesanGagal?: string | null
   daftarPembatalan?: BarisPembatalan[]
   tabAwal?: TabLaporan
   onPilihCabang?: (cabangId: string) => void
   onPilihTanggal?: (tanggal: string) => void
+  onPilihRentangTanggal?: (mulai: string, akhir: string) => void
   onPilihShift?: (shiftId: string) => void
   onTutupRincianShift?: () => void
   onMuatUlang?: () => void
 }
 
 export const LayarLaporan: React.FC<LayarLaporanProps> = ({
+  dataPenjualan,
   dataHarian,
   shiftTerpilihDetail,
   daftarCabang = [],
   cabangAktifId = null,
   peranPengguna = 'owner_pusat',
   tanggal,
+  tanggalMulai,
+  tanggalAkhir,
   sedangMemuat = false,
   pesanGagal = null,
   daftarPembatalan = [],
-  tabAwal = 'kas',
+  tabAwal = 'penjualan',
   onPilihCabang,
   onPilihTanggal,
+  onPilihRentangTanggal,
   onPilihShift,
   onTutupRincianShift,
   onMuatUlang,
@@ -82,10 +92,17 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
           gap: '8px',
           borderBottom: '1px solid var(--warna-garis, #e5e7eb)',
           paddingBottom: '8px',
+          flexWrap: 'wrap',
         }}
       >
+        <Tombol
+          ragam={tabAktif === 'penjualan' ? 'utama' : 'polos'}
+          onClick={() => setTabAktif('penjualan')}
+        >
+          📊 {t('laporan.tab_penjualan')}
+        </Tombol>
         <Tombol ragam={tabAktif === 'kas' ? 'utama' : 'polos'} onClick={() => setTabAktif('kas')}>
-          💰 {t('laporan.kas_harian')} & Shift
+          💰 {t('laporan.tab_kas')}
         </Tombol>
         <Tombol
           ragam={tabAktif === 'pembatalan' ? 'utama' : 'polos'}
@@ -95,7 +112,23 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
         </Tombol>
       </div>
 
-      {tabAktif === 'kas' ? (
+      {tabAktif === 'penjualan' && (
+        <LaporanPenjualan
+          data={dataPenjualan}
+          daftarCabang={daftarCabang}
+          cabangAktifId={cabangAktifId}
+          peranPengguna={peranPengguna}
+          tanggalMulai={tanggalMulai}
+          tanggalAkhir={tanggalAkhir}
+          sedangMemuat={sedangMemuat}
+          pesanGagal={pesanGagal}
+          onPilihCabang={onPilihCabang}
+          onPilihRentangTanggal={onPilihRentangTanggal}
+          onMuatUlang={onMuatUlang}
+        />
+      )}
+
+      {tabAktif === 'kas' && (
         <LaporanKas
           dataHarian={dataHarian}
           shiftTerpilihDetail={shiftTerpilihDetail}
@@ -111,10 +144,18 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
           onTutupRincianShift={onTutupRincianShift}
           onMuatUlang={onMuatUlang}
         />
-      ) : (
+      )}
+
+      {tabAktif === 'pembatalan' && (
         <DaftarPembatalan
           daftar={barisBatal}
-          keterangan={dataHarian?.nama_cabang ? `Cabang: ${dataHarian.nama_cabang}` : undefined}
+          keterangan={
+            dataHarian?.nama_cabang
+              ? `Cabang: ${dataHarian.nama_cabang}`
+              : dataPenjualan?.cabang?.nama
+                ? `Cabang: ${dataPenjualan.cabang.nama}`
+                : undefined
+          }
         />
       )}
     </div>

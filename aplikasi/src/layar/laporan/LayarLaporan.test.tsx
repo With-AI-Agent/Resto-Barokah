@@ -3,8 +3,65 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { LayarLaporan } from './LayarLaporan'
 import type { DataLaporanHarian } from './LaporanKas'
+import type { DataLaporanPenjualan } from './LaporanPenjualan'
 
 afterEach(cleanup)
+
+const DATA_PENJUALAN_MOCK: DataLaporanPenjualan = {
+  rentang: {
+    tanggal_mulai: '2026-09-18',
+    tanggal_akhir: '2026-09-24',
+    jumlah_hari: 7,
+  },
+  cabang: {
+    id: 'c-01',
+    nama: 'Cabang Utama',
+  },
+  ringkasan: {
+    total_omzet: 500000,
+    total_subtotal: 480000,
+    total_pajak: 40000,
+    total_service: 20000,
+    total_diskon: 40000,
+    total_transaksi: 15,
+    rata_rata_transaksi: 33333,
+  },
+  jenis_menu: {
+    omzet_makanan: 350000,
+    omzet_minuman: 130000,
+    omzet_lainnya: 0,
+  },
+  per_kategori: [
+    {
+      kategori_id: 'kat-01',
+      kategori_nama: 'Makanan Utama',
+      qty_terjual: 20,
+      total_omzet: 350000,
+      persentase: 72.9,
+    },
+  ],
+  per_metode: [
+    {
+      metode_id: 'met-01',
+      metode_nama: 'QRIS',
+      jenis: 'qris',
+      jumlah_transaksi: 15,
+      total_nominal: 500000,
+      persentase: 100,
+    },
+  ],
+  tren_harian: [
+    {
+      tanggal: '2026-09-24',
+      jumlah_transaksi: 15,
+      omzet_makanan: 350000,
+      omzet_minuman: 130000,
+      omzet_lainnya: 0,
+      total_diskon: 40000,
+      total_omzet: 500000,
+    },
+  ],
+}
 
 const DATA_HARIAN_MOCK: DataLaporanHarian = {
   tanggal: '2026-09-24',
@@ -52,14 +109,24 @@ const DATA_HARIAN_MOCK: DataLaporanHarian = {
 }
 
 describe('LayarLaporan', () => {
-  it('menampilkan tab Kas Harian secara bawaan', () => {
-    render(<LayarLaporan dataHarian={DATA_HARIAN_MOCK} />)
+  it('menampilkan tab Penjualan secara bawaan', () => {
+    render(<LayarLaporan dataPenjualan={DATA_PENJUALAN_MOCK} />)
+    expect(screen.getByRole('heading', { level: 2, name: /penjualan/i })).toBeDefined()
+    expect(screen.getAllByText('Rp500.000').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('dapat berpindah ke tab Kas dan menampilkan laporan kas harian', () => {
+    render(<LayarLaporan dataPenjualan={DATA_PENJUALAN_MOCK} dataHarian={DATA_HARIAN_MOCK} />)
+
+    const tombolTabKas = screen.getByRole('button', { name: /kas & shift/i })
+    fireEvent.click(tombolTabKas)
+
     expect(screen.getByText(/laporan penjualan & kas/i)).toBeDefined()
     expect(screen.getAllByText('Rp200.000').length).toBeGreaterThanOrEqual(1)
   })
 
   it('dapat berpindah ke tab Pembatalan dan menampilkan rincian pembatalan', () => {
-    render(<LayarLaporan dataHarian={DATA_HARIAN_MOCK} />)
+    render(<LayarLaporan dataPenjualan={DATA_PENJUALAN_MOCK} dataHarian={DATA_HARIAN_MOCK} />)
 
     const tombolTabBatal = screen.getByRole('button', { name: /pembatalan/i })
     fireEvent.click(tombolTabBatal)

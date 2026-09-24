@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `e885292450858c78aab8827a90e0c0d28952109e`
+- **Commit keadaan kerja:** `fdf48acab695c48c7a38b63297e26a7f2fd1f686`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 35979807435, commit e8852924) — tunggu sampai selesai
+- **CI terakhir:** failure (run 35979910147, commit fdf48aca)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (33 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (33 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1411,3 +1411,21 @@ Urutan yang disarankan agent, dan alasannya:
    - `python3 aplikasi/alat/periksa-struktur.py` (29 OK, 0 GAGAL).
    - `python3 aplikasi/alat/periksa-bahasa.py` (100% paritas).
    - Build produksi Vite bersih 0 eror.
+
+**FASE 7 T7-08 LAPORAN PENJUALAN DASAR SELESAI (2026-09-24):**
+1. **Migrasi `0052_laporan_penjualan.sql`:**
+   - View `public.laporan_penjualan_harian` (`security_invoker = true`): rekapitulasi penjualan per cabang per tanggal (transaksi, subtotal, diskon, pajak, service, omzet).
+   - RPC `public.laporan_penjualan`: agregasi omzet per kategori menu, jenis menu (makanan, minuman, lainnya), rincian per metode bayar, batas rentang tanggal maks 90 hari, dan tren penjualan harian lengkap.
+   - Pagar keamanan: `auth.uid() is not null`, izin `lihat_laporan`, wewenang pantau cabang binaan untuk admin_cabang, multi-cabang (cabang_id null) untuk owner_pusat, serta isolasi multi-tenant.
+2. **Pengujian & Bukti Mutasi:**
+   - Suite SQL `supabase/tes/laporan_penjualan.sql`: 95 berkas uji SQL lulus 100%.
+   - Uji keamanan SQL `python3 alat/periksa-keamanan-sql.py`: search_path, ACL, RLS, InitPlan 100% lolos.
+   - Uji mutasi `alat/uji-mutasi-0052.py`: 6/6 mutasi terbukti MERAH.
+   - 120 gerbang CI terverifikasi utuh (`python3 alat/periksa-gerbang-ci.py`).
+3. **Komponen Antarmuka & Internasionalisasi:**
+   - `LaporanPenjualan.tsx` & pengujian `LaporanPenjualan.test.tsx` (9/9 tes lolos).
+   - Integrasi tab laporan di `LayarLaporan.tsx` & pengujian `LayarLaporan.test.tsx` (3/3 tes lolos).
+   - Kamus terjemahan 4 bahasa (`id`, `en`, `zh`, `ar`): 100% sinkron (250 kunci).
+   - Total Vitest aplikasi: 82 berkas uji / 646 tes LULUS 100%.
+4. **Pengingat Audit Fase 7 (§25):** Sesi ini mengingat bahwa setelah T7-12 tuntas, wajib berhenti untuk audit menyeluruh sebelum melangkah ke Fase 8.
+5. **Rencana Selanjutnya:** Melangkah ke `T7-09 — Laporan menu terlaris + diskon/voucher terpakai`.
