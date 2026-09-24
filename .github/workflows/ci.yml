@@ -167,6 +167,9 @@ jobs:
       - name: Bukti mutasi pagar truncate_audit_ditolak 0057 — N F-02 audit 2026-09-24 TRUNCATE catatan_audit (kontrol positif + 3 mutasi; PGlite bug ditandai)
         run: python3 alat/uji-mutasi-0057.py
 
+      - name: Bukti mutasi pagar sesi_masih_aktif 0058 — N F-03 audit 2026-09-24 pencabutan sesi阻断 (3 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0058.py
+
       - name: Bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22, 4 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0009.py
 
