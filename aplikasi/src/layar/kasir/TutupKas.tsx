@@ -369,9 +369,7 @@ export function TutupKas({
                 </span>
               </div>
               <span data-testid="nilai-selisih" className="text-lg font-extrabold">
-                {selisihPerkiraan > 0
-                  ? `+${rupiah(selisihPerkiraan)}`
-                  : rupiah(selisihPerkiraan)}
+                {selisihPerkiraan > 0 ? `+${rupiah(selisihPerkiraan)}` : rupiah(selisihPerkiraan)}
               </span>
             </div>
           )}
