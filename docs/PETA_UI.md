@@ -75,7 +75,7 @@
 | `kasir.kurang_item` | Kurangi Item | `kasir` | owner_pusat, admin_cabang, kasir | - | `hitung_total` | `tulis` | - | - | `uji_kasir_kurang_item` |
 | `kasir.proses_bayar` | Bayar Pesanan | `kasir` | owner_pusat, admin_cabang, kasir | - | `bayar_pesanan` | `tulis` | Ya | Ya | `uji_kasir_bayar_tunai_lunas`, `src/hook/useBayar.test.tsx`, `src/layar/kasir/Bayar.test.tsx` |
 | `kasir.tambah_item` | Tambah Item | `kasir` | owner_pusat, admin_cabang, kasir | - | `hitung_total` | `tulis` | - | - | `uji_kasir_tambah_item` |
-| `kasir.tutup_shift` | Tutup Shift | `kasir` | owner_pusat, admin_cabang, kasir | `tutup_kas` | - | `tulis` | Ya | Ya | `uji_kasir_tutup_shift` |
+| `kasir.tutup_shift` | Tutup Shift | `kasir` | owner_pusat, admin_cabang, kasir | `tutup_kas` | `tutup_shift` | `tulis` | Ya | Ya | `uji_kasir_tutup_shift`, `src/layar/kasir/TutupKas.test.tsx` |
 | `laporan.cetak_laporan` | Cetak Laporan | `laporan` | owner_pusat, admin_cabang | `lihat_laporan` | - | `baca` | - | - | `uji_laporan_cetak` |
 | `laporan.ekspor_data` | Ekspor Ringkasan | `laporan` | owner_pusat, admin_cabang | `lihat_laporan` | - | `baca` | - | - | `uji_laporan_ekspor` |
 | `laporan.filter_tanggal` | Filter Tanggal | `laporan` | owner_pusat, admin_cabang | `lihat_laporan` | - | `baca` | - | - | `uji_laporan_filter_tanggal` |

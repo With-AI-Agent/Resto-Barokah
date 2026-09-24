@@ -2428,3 +2428,49 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (69/69 mutasi TERBUKTI MERAH).
   - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `tsc -b --noEmit` bersih, lint 0 error, format bersih.
 
+## [Kas/2026-09-24] Tutup Kas: Rekonsiliasi Seharusnya vs Fisik, Alasan Selisih Wajib, dan Jejak Audit Kekal (T7-02)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 & TECH_SPEC §4.3, §9 ART-6
+- **Konteks & Risiko (ART-6):** Sesi kasir yang ditutup tanpa rekonsiliasi matematis uang seharusnya
+  membuka celah manipulasi kas laci. Jika kasir dapat menutup shift yang berselisih tanpa memberikan
+  alasan yang dapat dipertanggungjawabkan, pemilik resto kehilangan visibilitas atas selisih uang
+  (lebih/kurang) dan jejak pertanggungjawaban kasir.
+- **Keputusan:**
+  1. **Rumus Integritas Uang Seharusnya:** `uang_seharusnya = modal_awal + tunai_masuk - tunai_keluar`,
+     dihitung di peladen dalam RPC `public.tutup_shift()`. `tunai_masuk` dihitung dari transaksi pembayaran
+     tunai yang sah selama shift berlangsung (`pembayaran.shift_id = v_shift.id` atau waktu transaksi dalam
+     rentang buka-tutup shift jika relasi belum terpasang). `tunai_keluar` saat ini 0 (akan bertambah dari
+     pencatatan kas keluar T7-03).
+  2. **Selisih Kas dan Alasan Wajib:** `selisih = uang_fisik - uang_seharusnya`. Constraint tabel
+     `shift_kas_selisih_alasan` memastikan: bila `selisih <> 0`, kolom `alasan_selisih` wajib diisi
+     (tidak boleh null atau string kosong). Jika `selisih = 0`, alasan opsional.
+  3. **Penyambungan Otomatis Pembayaran ke Shift Kasir:** Pemicu `picu_isi_shift_kas_pembayaran`
+     otomatis mengisi `pembayaran.shift_id` dengan shift aktif kasir yang bersangkutan pada saat
+     pembayaran dicatat.
+  4. **Keamanan RPC `tutup_shift`:**
+     - Memeriksa hak izin `tutup_kas` atau `kelola_kas` via `public.punya_hak_di_cabang`.
+     - Kasir hanya boleh menutup shift milik dirinya sendiri, kecuali atasan dengan hak `kelola_kas`
+       dapat menutup shift kasir lain jika ditentukan secara eksplisit.
+     - Mencegah penutupan shift yang sudah ditutup sebelumnya (`SH-409`).
+     - Menolak nominal uang fisik negatif (`SH-400`).
+     - Menyimpan `ditutup_oleh = auth.uid()` dan `ditutup_pada = now()` dari peladen.
+  5. **Jejak Audit Kriptografis Berantai Hash:** Setiap penutupan shift berhasil mencatat baris baru
+     ke `public.catatan_audit` (`aksi = 'tutup_shift'`, `entitas = 'shift_kas'`) dengan pemicu
+     `hitung_hash_catatan_audit` yang menjaga rantai hash SHA-256 tahan manipulasi.
+  6. **Komponen UI `TutupKas.tsx` & Integrasi `LayarKasir.tsx`:**
+     - Menampilkan modal awal, uang seharusnya perkiraan, dan masukan uang fisik di laci.
+     - Perhitungan selisih real-time dengan status visual jelas: Pas (hijau), Lebih (biru), Kurang (merah).
+     - Tombol cepat Uang Pas, tombol pecahan (+Rp10rb, +Rp20rb, +Rp50rb, +Rp100rb), dan Reset Rp0.
+     - Kolom alasan selisih muncul dan wajib diisi bila terdapat selisih. Tersedia tombol alasan cepat
+       (contoh: kembalian receh tidak diambil, kurang pecahan kecil, dsb).
+     - Langkah konfirmasi ringkasan sebelum data dikirim ke peladen.
+     - Terintegrasi di `LayarKasir` bilah status kasir atas saat terdapat shift aktif.
+- **Bukti:**
+  - SQL: `supabase/tes/tutup_shift.sql` (10 skenario lengkap, 89/89 suite SQL LULUS).
+  - Uji Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` LULUS hijau (2/2 suite).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0046.py` (6/6 mutasi kritis TERBUKTI MERAH, `--uji-diri` lolos).
+  - Vitest: `src/layar/kasir/TutupKas.test.tsx` (9/9 tes LULUS), total aplikasi 76 berkas / 596 tes LULUS.
+  - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (73/73 mutasi TERBUKTI MERAH, `--uji-diri` lolos).
+  - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run typecheck` bersih, `npm run lint` 0 galat, `npm run build` sukses.
+
+

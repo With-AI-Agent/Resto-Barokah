@@ -1527,7 +1527,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); mitigasi: aturan satu shift terbuka + audit.
   - **Verifikasi:** uji SQL + uji manual.
 
-- [ ] T7-02 — Tutup kas (seharusnya vs fisik) + alasan selisih ⚠️
+- [x] T7-02 — Tutup kas (seharusnya vs fisik) + alasan selisih ⚠️
   - **Tujuan:** kasir tidak pernah dituduh selisih, owner melihat kenyataan.
   - **Ref:** PRD M7 (kriteria selesai)
   - **File:** `supabase/migrations/0046_tutup_shift.sql`, `aplikasi/src/layar/kasir/TutupKas.tsx`

@@ -136,4 +136,30 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
       expect(screen.getByText('Rp6.900')).toBeDefined()
     })
   })
+
+  // ---------------------------------------------- T7-02 Tutup Kas di Layar Kasir
+  it('menampilkan tombol Tutup Kas saat ada shift aktif dan membuka dialog rekonsiliasi (T7-02)', () => {
+    render(
+      <PenyediaBahasa>
+        <LayarKasir
+          shiftAktif={{
+            id: 'shift-pos-01',
+            cabangId: 'cab-01',
+            modalAwal: 100000,
+            dibukaPada: '2026-09-24T08:00:00Z',
+          }}
+          uangSeharusnyaPerkiraan={300000}
+        />
+      </PenyediaBahasa>,
+    )
+
+    const tombolTutupKas = screen.getByRole('button', { name: /Tutup Kas/i })
+    expect(tombolTutupKas).toBeDefined()
+
+    fireEvent.click(tombolTutupKas)
+
+    expect(screen.getByText('Tutup Shift Kasir')).toBeDefined()
+    expect(screen.getByText('Rp100.000')).toBeDefined()
+    expect(screen.getByText('Rp300.000')).toBeDefined()
+  })
 })

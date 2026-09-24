@@ -569,6 +569,35 @@ const MUTASI = [
     ganti: '      {false ? (',
     uji: 'src/layar/kasir/BukaKas.test.tsx',
   },
+  // ------------------------------------------------- T7-02 tutup shift kasir
+  {
+    nama: 'TutupKas: alasan selisih kas tidak wajib meski ada selisih (T7-02)',
+    berkas: 'src/layar/kasir/TutupKas.tsx',
+    cari: "    if (adaSelisih && alasanInput.trim() === '') {",
+    ganti: "    if (false && alasanInput.trim() === '') {",
+    uji: 'src/layar/kasir/TutupKas.test.tsx',
+  },
+  {
+    nama: 'TutupKas: nominal fisik dikirim 0 mentah mengabaikan input kasir (T7-02)',
+    berkas: 'src/layar/kasir/TutupKas.tsx',
+    cari: '        uangFisik: Math.round(uangFisikBersih),',
+    ganti: '        uangFisik: 0,',
+    uji: 'src/layar/kasir/TutupKas.test.tsx',
+  },
+  {
+    nama: 'TutupKas: selisih kas selalu dianggap pas nol (T7-02)',
+    berkas: 'src/layar/kasir/TutupKas.tsx',
+    cari: '    adaUangSeharusnya && nominalValid ? Math.round(uangFisikBersih) - uangSeharusnyaPerkiraan : 0',
+    ganti: '    0',
+    uji: 'src/layar/kasir/TutupKas.test.tsx',
+  },
+  {
+    nama: 'TutupKas: langkah konfirmasi ditiadakan sebelum eksekusi (T7-02)',
+    berkas: 'src/layar/kasir/TutupKas.tsx',
+    cari: '      {!konfirmasi ? (',
+    ganti: '      {false ? (',
+    uji: 'src/layar/kasir/TutupKas.test.tsx',
+  },
 ]
 
 /**
