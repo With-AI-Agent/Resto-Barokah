@@ -8,13 +8,13 @@
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
-- **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
+- **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `ec73303ed8bb394953e57410dd62557e27e50586`
+- **Commit keadaan kerja:** `740a1704a4c973363fdf5ed6472f44f81aacdd44`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit ec73303e — periksa lagi setelah push)
+- **CI terakhir:** in_progress (run 35940097761, commit 740a1704) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (1 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (1 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (151 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (244 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,7 +70,17 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-23 sesi kedua, `arena/01a0cca9` — MODE MARATON Fase 5):**
+**KEADAAN SESI INI (2026-09-24, `arena/01a0d09b-resto-barokah` — FASE 7 KAS & SHIFT):**
+
+0L. **T7-01 (Buka kas & modal awal) & T7-02 (Tutup kas & selisih) SELESAI.**
+   - Migrasi `0045_buka_shift.sql` & `0046_tutup_shift.sql` menegakkan siklus hidup shift kasir.
+   - Perhitungan uang seharusnya otomatis di peladen: `modal_awal + tunai_masuk - tunai_keluar`.
+   - Constraint `shift_kas_selisih_alasan` mewajibkan kasir mengisi alasan jika terjadi selisih kas fisik vs catatan sistem.
+   - Pemicu `picu_isi_shift_kas_pembayaran` otomatis menyambungkan transaksi tunai ke shift aktif kasir.
+   - Komponen antarmuka `BukaKas.tsx` dan `TutupKas.tsx` terintegrasi di `LayarKasir.tsx` dengan live variance counter, tombol pecahan kas cepat, chips alasan cepat, dan konfirmasi aman.
+   - Jejak audit kriptografis berantai hash tersimpan di `public.catatan_audit` (`aksi = 'tutup_shift'`).
+   - Uji mutasi backend `0045` (6/6), `0046` (6/6), dan frontend (73/73) terbukti MERAH.
+   - Langkah berikutnya di Fase 7: `T7-03 Kas pergerakan (masuk/keluar tunai, setoran) ⚠️`.
 
 0J. **ATURAN TUTUP SESI — 3 hal wajib disebut agent (teguran Lee 2026-09-23).** Saat menutup sesi /
    menyiapkan pindah sesi (AL-13), agent **tidak boleh** berhenti di kalimat "siap pindah sesi".
