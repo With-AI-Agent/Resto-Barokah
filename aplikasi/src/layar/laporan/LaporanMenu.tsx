@@ -198,7 +198,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
             <span
               style={{
                 fontSize: 'var(--t-2, 0.75rem)',
-                color: 'var(--warna-teks-redup, #666)',
+                color: 'var(--text-muted)',
               }}
             >
               ({data.rentang.tanggal_mulai} s/d {data.rentang.tanggal_akhir} ·{' '}
@@ -313,8 +313,8 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
           role="alert"
           style={{
             padding: 'var(--s-2, 8px) var(--s-3, 12px)',
-            backgroundColor: 'var(--warna-bahaya-latar, #fef2f2)',
-            color: 'var(--warna-bahaya, #b91c1c)',
+            backgroundColor: 'var(--danger-soft)',
+            color: 'var(--danger)',
             borderRadius: '6px',
             fontSize: 'var(--t-3, 0.875rem)',
             fontWeight: 500,
@@ -345,7 +345,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                 style={{
                   fontSize: 'var(--t-6, 1.5rem)',
                   fontWeight: 700,
-                  color: 'var(--warna-sukses, #16a34a)',
+                  color: 'var(--success)',
                 }}
               >
                 {data.ringkasan.total_porsi} Porsi
@@ -353,7 +353,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
               <div
                 style={{
                   fontSize: 'var(--t-2, 0.75rem)',
-                  color: 'var(--warna-teks-redup, #666)',
+                  color: 'var(--text-muted)',
                   marginTop: '4px',
                 }}
               >
@@ -369,7 +369,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
               <div
                 style={{
                   fontSize: 'var(--t-2, 0.75rem)',
-                  color: 'var(--warna-teks-redup, #666)',
+                  color: 'var(--text-muted)',
                   marginTop: '4px',
                 }}
               >
@@ -383,7 +383,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                 style={{
                   fontSize: 'var(--t-6, 1.5rem)',
                   fontWeight: 700,
-                  color: 'var(--warna-peringatan, #b45309)',
+                  color: 'var(--warn)',
                 }}
               >
                 {rupiah(data.ringkasan.total_diskon_manual)}
@@ -391,7 +391,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
               <div
                 style={{
                   fontSize: 'var(--t-2, 0.75rem)',
-                  color: 'var(--warna-teks-redup, #666)',
+                  color: 'var(--text-muted)',
                   marginTop: '4px',
                 }}
               >
@@ -405,7 +405,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                 style={{
                   fontSize: 'var(--t-6, 1.5rem)',
                   fontWeight: 700,
-                  color: 'var(--warna-bahaya, #b91c1c)',
+                  color: 'var(--danger)',
                 }}
               >
                 {rupiah(data.ringkasan.total_biaya_promosi)}
@@ -413,7 +413,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
               <div
                 style={{
                   fontSize: 'var(--t-2, 0.75rem)',
-                  color: 'var(--warna-teks-redup, #666)',
+                  color: 'var(--text-muted)',
                   marginTop: '4px',
                 }}
               >
@@ -463,7 +463,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
             </div>
 
             {data.peringkat_menu.length === 0 ? (
-              <div style={{ color: 'var(--warna-teks-redup, #666)', fontStyle: 'italic' }}>
+              <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
                 Belum ada data menu terjual pada rentang tanggal ini.
               </div>
             ) : (
@@ -472,7 +472,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                   <thead>
                     <tr
                       style={{
-                        borderBottom: '2px solid var(--warna-garis, #e5e7eb)',
+                        borderBottom: '2px solid var(--border)',
                         textAlign: 'left',
                       }}
                     >
@@ -497,13 +497,13 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                     {data.peringkat_menu.map((menu, idx) => (
                       <tr
                         key={menu.menu_item_id || `${menu.nama_menu}-${idx}`}
-                        style={{ borderBottom: '1px solid var(--warna-garis, #f3f4f6)' }}
+                        style={{ borderBottom: '1px solid var(--border)' }}
                       >
                         <td
                           style={{
                             padding: '8px',
                             fontWeight: 700,
-                            color: 'var(--warna-teks-redup, #666)',
+                            color: 'var(--text-muted)',
                           }}
                         >
                           {idx + 1}
@@ -523,7 +523,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                             padding: '8px',
                             textAlign: 'right',
                             fontWeight: 700,
-                            color: 'var(--warna-sukses, #16a34a)',
+                            color: 'var(--success)',
                           }}
                         >
                           {rupiah(menu.total_omzet)}
@@ -560,7 +560,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
               </h3>
 
               {data.diskon_manual.length === 0 ? (
-                <div style={{ color: 'var(--warna-teks-redup, #666)', fontStyle: 'italic' }}>
+                <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
                   Tidak ada pemberian diskon manual pada periode ini.
                 </div>
               ) : (
@@ -569,7 +569,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                     <thead>
                       <tr
                         style={{
-                          borderBottom: '2px solid var(--warna-garis, #e5e7eb)',
+                          borderBottom: '2px solid var(--border)',
                           textAlign: 'left',
                         }}
                       >
@@ -583,16 +583,13 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                     </thead>
                     <tbody>
                       {data.diskon_manual.map((dm) => (
-                        <tr
-                          key={dm.id}
-                          style={{ borderBottom: '1px solid var(--warna-garis, #f3f4f6)' }}
-                        >
+                        <tr key={dm.id} style={{ borderBottom: '1px solid var(--border)' }}>
                           <td style={{ padding: '8px', fontWeight: 600 }}>
                             #{dm.nomor_pesanan}
                             <div
                               style={{
                                 fontSize: 'var(--t-2, 0.75rem)',
-                                color: 'var(--warna-teks-redup, #666)',
+                                color: 'var(--text-muted)',
                               }}
                             >
                               {formatWaktu(dm.waktu)}
@@ -604,7 +601,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                               padding: '8px',
                               textAlign: 'right',
                               fontWeight: 700,
-                              color: 'var(--warna-peringatan, #b45309)',
+                              color: 'var(--warn)',
                             }}
                           >
                             - {rupiah(dm.nilai)}
@@ -612,7 +609,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                           <td style={{ padding: '8px', fontSize: 'var(--t-2, 0.75rem)' }}>
                             <div>{dm.kasir_nama || 'Kasir'}</div>
                             {dm.penyetuju_nama && (
-                              <div style={{ color: 'var(--warna-teks-redup, #666)' }}>
+                              <div style={{ color: 'var(--text-muted)' }}>
                                 Acc: {dm.penyetuju_nama}
                               </div>
                             )}
@@ -638,7 +635,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
               </h3>
 
               {data.voucher_terpakai.length === 0 ? (
-                <div style={{ color: 'var(--warna-teks-redup, #666)', fontStyle: 'italic' }}>
+                <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
                   Tidak ada penukaran voucher atau promo pada periode ini.
                 </div>
               ) : (
@@ -647,7 +644,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                     <thead>
                       <tr
                         style={{
-                          borderBottom: '2px solid var(--warna-garis, #e5e7eb)',
+                          borderBottom: '2px solid var(--border)',
                           textAlign: 'left',
                         }}
                       >
@@ -661,16 +658,13 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                     </thead>
                     <tbody>
                       {data.voucher_terpakai.map((vc) => (
-                        <tr
-                          key={vc.id}
-                          style={{ borderBottom: '1px solid var(--warna-garis, #f3f4f6)' }}
-                        >
+                        <tr key={vc.id} style={{ borderBottom: '1px solid var(--border)' }}>
                           <td style={{ padding: '8px', fontWeight: 600 }}>
                             #{vc.nomor_pesanan}
                             <div
                               style={{
                                 fontSize: 'var(--t-2, 0.75rem)',
-                                color: 'var(--warna-teks-redup, #666)',
+                                color: 'var(--text-muted)',
                               }}
                             >
                               {formatWaktu(vc.waktu)}
@@ -684,7 +678,7 @@ export const LaporanMenu: React.FC<LaporanMenuProps> = ({
                               padding: '8px',
                               textAlign: 'right',
                               fontWeight: 700,
-                              color: 'var(--warna-peringatan, #b45309)',
+                              color: 'var(--warn)',
                             }}
                           >
                             - {rupiah(vc.nilai)}

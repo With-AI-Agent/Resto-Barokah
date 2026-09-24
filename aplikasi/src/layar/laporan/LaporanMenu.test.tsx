@@ -153,14 +153,14 @@ describe('LaporanMenu', () => {
     render(<LaporanMenu data={DATA_MENU_MOCK} />)
 
     // Diskon Manual
-    expect(screen.getByText(/#101/)).toBeDefined()
+    expect(screen.getByText((content) => content.includes('#' + '101'))).toBeDefined()
     expect(screen.getByText('Promo pembukaan toko')).toBeDefined()
     expect(screen.getByText('- Rp150.000')).toBeDefined()
     expect(screen.getAllByText('Rina Kasir').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText(/Acc: Pak Budi SPV/)).toBeDefined()
 
     // Voucher Terpakai
-    expect(screen.getByText(/#102/)).toBeDefined()
+    expect(screen.getByText((content) => content.includes('#' + '102'))).toBeDefined()
     expect(screen.getByText('HEMAT10RB')).toBeDefined()
     expect(screen.getByText('- Rp100.000')).toBeDefined()
   })

@@ -100,9 +100,9 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
           maxWidth: '850px',
           margin: '0 auto var(--s-3, 12px) auto',
           padding: 'var(--s-3, 12px)',
-          backgroundColor: 'var(--surface-2, #f9fafb)',
+          backgroundColor: 'var(--surface-2)',
           borderRadius: 'var(--radius, 8px)',
-          border: '1px solid var(--border, #e5e7eb)',
+          border: '1px solid var(--border)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2, 8px)' }}>
@@ -145,8 +145,8 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
                     fontWeight: 600,
                     fontSize: 'var(--t-3, 0.875rem)',
                     padding: '4px 8px',
-                    background: 'var(--surface, #fff)',
-                    border: '1px solid var(--border, #ddd)',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
                     borderRadius: '4px',
                   }}
                 >
@@ -182,7 +182,7 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
                 fontSize: 'var(--t-4, 1.125rem)',
                 fontWeight: 600,
                 marginTop: '4px',
-                color: 'var(--warna-teks-redup, #4b5563)',
+                color: 'var(--text-muted)',
               }}
             >
               {t('laporan.judul')}
@@ -207,7 +207,7 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
             style={{
               fontSize: 'var(--t-4, 1.125rem)',
               margin: '0 0 var(--s-2, 8px) 0',
-              borderBottom: '1px solid var(--border, #e5e7eb)',
+              borderBottom: '1px solid var(--border)',
               paddingBottom: '4px',
             }}
           >
@@ -222,7 +222,7 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
               {diskonTotal > 0 && (
                 <tr>
                   <td>{t('laporan.diskon_manual')} / Potongan Promo</td>
-                  <td style={{ textAlign: 'right', color: 'var(--warna-peringatan, #b45309)' }}>
+                  <td style={{ textAlign: 'right', color: 'var(--warn)' }}>
                     - {rupiah(diskonTotal)}
                   </td>
                 </tr>
@@ -239,7 +239,7 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
                   <td style={{ textAlign: 'right' }}>+ {rupiah(serviceTotal)}</td>
                 </tr>
               )}
-              <tr style={{ fontWeight: 700, backgroundColor: 'var(--surface-2, #f9fafb)' }}>
+              <tr style={{ fontWeight: 700, backgroundColor: 'var(--surface-2)' }}>
                 <td>{t('laporan.omset_penjualan')} (Bersih)</td>
                 <td style={{ textAlign: 'right', fontSize: 'var(--t-4, 1.125rem)' }}>
                   {rupiah(omzetTotal)}
@@ -261,7 +261,7 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
               style={{
                 fontSize: 'var(--t-4, 1.125rem)',
                 margin: '0 0 var(--s-2, 8px) 0',
-                borderBottom: '1px solid var(--border, #e5e7eb)',
+                borderBottom: '1px solid var(--border)',
                 paddingBottom: '4px',
               }}
             >
@@ -307,7 +307,7 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
               style={{
                 fontSize: 'var(--t-4, 1.125rem)',
                 margin: '0 0 var(--s-2, 8px) 0',
-                borderBottom: '1px solid var(--border, #e5e7eb)',
+                borderBottom: '1px solid var(--border)',
                 paddingBottom: '4px',
               }}
             >
@@ -335,13 +335,13 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
                   <td>Penjualan Tunai Bersih</td>
                   <td style={{ textAlign: 'right' }}>{rupiah(dataHarian.kas.penjualan_tunai)}</td>
                 </tr>
-                <tr style={{ backgroundColor: 'var(--surface-2, #f9fafb)' }}>
+                <tr style={{ backgroundColor: 'var(--surface-2)' }}>
                   <td>{t('laporan.uang_seharusnya')}</td>
                   <td style={{ textAlign: 'right', fontWeight: 600 }}>
                     {rupiah(dataHarian.kas.total_uang_seharusnya)}
                   </td>
                 </tr>
-                <tr style={{ backgroundColor: 'var(--surface-2, #f9fafb)' }}>
+                <tr style={{ backgroundColor: 'var(--surface-2)' }}>
                   <td>{t('laporan.uang_fisik')} (Hasil Hitung)</td>
                   <td style={{ textAlign: 'right', fontWeight: 600 }}>
                     {rupiah(dataHarian.kas.total_uang_fisik)}
@@ -354,9 +354,9 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
                       textAlign: 'right',
                       color:
                         dataHarian.kas.total_selisih < 0
-                          ? 'var(--warna-bahaya, #b91c1c)'
+                          ? 'var(--danger)'
                           : dataHarian.kas.total_selisih > 0
-                            ? 'var(--warna-sukses, #16a34a)'
+                            ? 'var(--success)'
                             : 'inherit',
                     }}
                   >
@@ -377,7 +377,7 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
               style={{
                 fontSize: 'var(--t-4, 1.125rem)',
                 margin: '0 0 var(--s-2, 8px) 0',
-                borderBottom: '1px solid var(--border, #e5e7eb)',
+                borderBottom: '1px solid var(--border)',
                 paddingBottom: '4px',
               }}
             >
@@ -415,7 +415,7 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
               style={{
                 fontSize: 'var(--t-4, 1.125rem)',
                 margin: '0 0 var(--s-2, 8px) 0',
-                borderBottom: '1px solid var(--border, #e5e7eb)',
+                borderBottom: '1px solid var(--border)',
                 paddingBottom: '4px',
               }}
             >
@@ -455,9 +455,7 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
                         textAlign: 'right',
                         fontWeight: 600,
                         color:
-                          dataHarian.pembatalan.total_nilai_rugi > 0
-                            ? 'var(--warna-bahaya, #b91c1c)'
-                            : 'inherit',
+                          dataHarian.pembatalan.total_nilai_rugi > 0 ? 'var(--danger)' : 'inherit',
                       }}
                     >
                       Rugi: {rupiah(dataHarian.pembatalan.total_nilai_rugi)}
@@ -473,7 +471,7 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
         <footer className="format-laporan__ttd">
           <div className="format-laporan__kotak-ttd">
             <div>{t('laporan.dibuat_oleh')},</div>
-            <div style={{ color: 'var(--warna-teks-redup, #666)', fontSize: '0.8rem' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
               Kasir / Penanggung Jawab
             </div>
             <div className="format-laporan__garis-ttd">
@@ -483,7 +481,7 @@ export const FormatLaporan: React.FC<FormatLaporanProps> = ({
 
           <div className="format-laporan__kotak-ttd">
             <div>{t('laporan.disetujui_oleh')},</div>
-            <div style={{ color: 'var(--warna-teks-redup, #666)', fontSize: '0.8rem' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
               Pemilik / Pengelola Resto
             </div>
             <div className="format-laporan__garis-ttd">

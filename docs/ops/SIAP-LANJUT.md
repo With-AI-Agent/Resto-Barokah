@@ -10,7 +10,7 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `6fa4a7362b4229da0a1f8f0e7572aa74e7da7ba0`
+- **Commit keadaan kerja:** `4b3784f86bed33b1a28bb342547ce1844d59b932`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
@@ -1493,3 +1493,15 @@ Urutan yang disarankan agent, dan alasannya:
    - Total Vitest aplikasi: 84 berkas uji / 671 tes LULUS 100%.
 3. **Pengingat Audit Fase 7 (§25):** Jeda wajib tetap berlaku setelah T7-12 sebelum beralih ke Fase 8.
 4. **Rencana Selanjutnya:** Melangkah ke `T7-12 — Uji golden: laporan = data mentah`.
+
+**FASE 7 T7-12 UJI GOLDEN LAPORAN = DATA MENTAH SELESAI & FASE 7 TUNTAS (2026-09-24):**
+1. **Uji Golden Laporan = Data Mentah (`supabase/tes/golden_laporan.sql`):**
+   - Membuktikan secara matematis & deterministik bahwa seluruh angka laporan operasional (omzet, subtotal, diskon manual, voucher, pajak, biaya layanan, metode pembayaran, omzet menu terlaris, kerugian pembatalan sesudah dapur, serta kas fisik/selisih shift) sama persis dengan agregasi langsung dari tabel mentah transaksi (`pesanan`, `pesanan_item`, `pembayaran`, `pembatalan`, `kas_pergerakan`, `shift_kas`). Selisih = 0.
+   - Skenario komprehensif 1 hari operasional mencakup: transaksi reguler makan di tempat, transaksi diskon manual dengan PIN atasan, transaksi voucher, transaksi batal/void sesudah dapur (kerugian bahan), transaksi campuran, pembukaan shift kasir, dan penutupan shift kasir dengan rekonsiliasi kas.
+   - Suite SQL kini memuat 98 berkas uji SQL dan seluruhnya LULUS 100% (98 LULUS · 0 GAGAL).
+2. **Penyelarasan Token Desain & Pemeriksa Struktur:**
+   - Menghilangkan seluruh nilai warna mentah (raw hex fallback) pada komponen antarmuka laporan & kasir (`PengingatShift.tsx`, `KoreksiModal.tsx`, `FormatLaporan.tsx`, `LaporanKas.tsx`, `LaporanMenu.tsx`, `LaporanPenjualan.tsx`, `LayarLaporan.tsx`, `komponen.css`) sehingga 100% sesuai standar token tema (`periksa-struktur.py` LOLOS).
+   - Seluruh rangkaian pemeriksaan kualitas (`format:check`, `lint`, `typecheck`, `test` 84 berkas / 671 tes) lulus 100%.
+3. **Pengingat Audit Menyeluruh Fase 7 (§25 REKAM_PESAN_PEMILIK.md):**
+   - Fase 7 (T7-01 s.d. T7-12) resmi tuntas 100%.
+   - Sesuai amanat pemilik (§25), proses pengerjaan DIJEDA untuk memberikan kesempatan kepada Lee guna melakukan audit menyeluruh atau review independen atas hasil Fase 7 sebelum menyentuh Fase 8. Dilarang lanjut ke Fase 8 tanpa persetujuan Lee.

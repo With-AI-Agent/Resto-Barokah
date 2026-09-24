@@ -1375,16 +1375,16 @@
 .format-laporan {
   max-width: 850px;
   margin: 0 auto;
-  background: var(--surface, #ffffff);
-  color: var(--text, #111827);
+  background: var(--surface);
+  color: var(--text);
   padding: var(--s-5, 24px);
-  border: 1px solid var(--border, #e5e7eb);
+  border: 1px solid var(--border);
   border-radius: var(--radius, 8px);
   font-family: inherit;
 }
 
 .format-laporan__header {
-  border-bottom: 2px solid var(--text, #111827);
+  border-bottom: 2px solid var(--text);
   padding-bottom: var(--s-3, 12px);
   margin-bottom: var(--s-4, 16px);
   display: flex;
@@ -1401,12 +1401,12 @@
 
 .format-laporan__tabel th,
 .format-laporan__tabel td {
-  border: 1px solid var(--border, #d1d5db);
+  border: 1px solid var(--border);
   padding: 6px 10px;
 }
 
 .format-laporan__tabel th {
-  background: var(--surface-2, #f9fafb);
+  background: var(--surface-2);
   font-weight: 600;
   text-align: left;
 }
@@ -1427,14 +1427,14 @@
 
 .format-laporan__garis-ttd {
   margin-top: 60px;
-  border-top: 1px solid var(--text, #111827);
+  border-top: 1px solid var(--text);
   padding-top: 4px;
 }
 
 @media print {
   body {
-    background: #ffffff !important;
-    color: #000000 !important;
+    background: var(--surface) !important;
+    color: var(--text) !important;
   }
 
   .format-laporan__bilah-aksi,
@@ -1453,7 +1453,7 @@
   }
 
   .format-laporan__tabel th {
-    background-color: #f3f4f6 !important;
+    background-color: var(--surface-2) !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }

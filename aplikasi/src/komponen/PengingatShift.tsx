@@ -100,18 +100,9 @@ export const PengingatShift: React.FC<PengingatShiftProps> = ({
     }
   }
 
-  const warnaLatar =
-    tingkat === 'melewati_tengah_malam'
-      ? 'var(--warna-merah-latar, #ffebee)'
-      : 'var(--warna-kuning-latar, #fff8e1)'
-  const warnaTeks =
-    tingkat === 'melewati_tengah_malam'
-      ? 'var(--warna-merah-teks, #b71c1c)'
-      : 'var(--warna-kuning-teks, #f57f17)'
-  const warnaBorder =
-    tingkat === 'melewati_tengah_malam'
-      ? 'var(--warna-merah-tepi, #ef9a9a)'
-      : 'var(--warna-kuning-tepi, #ffe082)'
+  const warnaLatar = tingkat === 'melewati_tengah_malam' ? 'var(--danger-soft)' : 'var(--warn-soft)'
+  const warnaTeks = tingkat === 'melewati_tengah_malam' ? 'var(--danger)' : 'var(--warn)'
+  const warnaBorder = tingkat === 'melewati_tengah_malam' ? 'var(--danger)' : 'var(--warn)'
   const ikon =
     tingkat === 'melewati_tengah_malam' ? '🚨' : tingkat === 'lewat_jam_tutup' ? '⏰' : '⏳'
 

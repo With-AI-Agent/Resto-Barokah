@@ -364,9 +364,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
           >
             {/* Omzet Total */}
             <Kartu kelas="kpi-kartu">
-              <span
-                style={{ fontSize: 'var(--t-2, 0.75rem)', color: 'var(--warna-teks-redup, #666)' }}
-              >
+              <span style={{ fontSize: 'var(--t-2, 0.75rem)', color: 'var(--text-muted)' }}>
                 {t('laporan.omset_penjualan')}
               </span>
               <div style={{ fontSize: 'var(--t-6, 1.5rem)', fontWeight: 700, margin: '4px 0' }}>
@@ -391,9 +389,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
 
             {/* Jumlah Transaksi & Diskon */}
             <Kartu kelas="kpi-kartu">
-              <span
-                style={{ fontSize: 'var(--t-2, 0.75rem)', color: 'var(--warna-teks-redup, #666)' }}
-              >
+              <span style={{ fontSize: 'var(--t-2, 0.75rem)', color: 'var(--text-muted)' }}>
                 {t('laporan.transaksi_selesai')}
               </span>
               <div style={{ fontSize: 'var(--t-6, 1.5rem)', fontWeight: 700, margin: '4px 0' }}>
@@ -402,7 +398,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
               <div
                 style={{
                   fontSize: 'var(--t-2, 0.75rem)',
-                  color: 'var(--warna-peringatan, #b45309)',
+                  color: 'var(--warn)',
                 }}
               >
                 🏷️ {t('laporan.total_diskon')}: {rupiah(dataHarian.penjualan.total_diskon)}
@@ -411,9 +407,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
 
             {/* Uang Kas Seharusnya vs Fisik */}
             <Kartu kelas="kpi-kartu">
-              <span
-                style={{ fontSize: 'var(--t-2, 0.75rem)', color: 'var(--warna-teks-redup, #666)' }}
-              >
+              <span style={{ fontSize: 'var(--t-2, 0.75rem)', color: 'var(--text-muted)' }}>
                 {t('laporan.uang_seharusnya')}
               </span>
               <div style={{ fontSize: 'var(--t-6, 1.5rem)', fontWeight: 700, margin: '4px 0' }}>
@@ -440,25 +434,23 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
 
             {/* Arus Kas & Pembatalan */}
             <Kartu kelas="kpi-kartu">
-              <span
-                style={{ fontSize: 'var(--t-2, 0.75rem)', color: 'var(--warna-teks-redup, #666)' }}
-              >
+              <span style={{ fontSize: 'var(--t-2, 0.75rem)', color: 'var(--text-muted)' }}>
                 Arus Kas & Pembatalan
               </span>
               <div style={{ fontSize: 'var(--t-3, 0.875rem)', margin: '4px 0' }}>
-                <span style={{ color: 'var(--warna-sukses, #15803d)' }}>
+                <span style={{ color: 'var(--success)' }}>
                   + {rupiah(dataHarian.kas.kas_masuk)}
                 </span>
                 {' / '}
-                <span style={{ color: 'var(--warna-bahaya, #b91c1c)' }}>
+                <span style={{ color: 'var(--danger)' }}>
                   - {rupiah(dataHarian.kas.kas_keluar + dataHarian.kas.setoran)}
                 </span>
               </div>
               <div style={{ fontSize: 'var(--t-2, 0.75rem)' }}>
                 {dataHarian.pembatalan.jumlah === 0 ? (
-                  <span style={{ color: 'var(--warna-sukses, #15803d)' }}>✅ Tanpa Pembatalan</span>
+                  <span style={{ color: 'var(--success)' }}>✅ Tanpa Pembatalan</span>
                 ) : (
-                  <span style={{ color: 'var(--warna-bahaya, #b91c1c)' }}>
+                  <span style={{ color: 'var(--danger)' }}>
                     ⚠️ {dataHarian.pembatalan.jumlah} batal (
                     {rupiah(dataHarian.pembatalan.total_nilai_rugi)} rugi)
                   </span>
@@ -480,7 +472,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
               {dataHarian.metode_bayar.length === 0 ? (
                 <p
                   style={{
-                    color: 'var(--warna-teks-redup, #666)',
+                    color: 'var(--text-muted)',
                     fontSize: 'var(--t-3, 0.875rem)',
                   }}
                 >
@@ -497,7 +489,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   <thead>
                     <tr
                       style={{
-                        borderBottom: '1px solid var(--warna-garis, #e5e7eb)',
+                        borderBottom: '1px solid var(--border)',
                         textAlign: 'left',
                       }}
                     >
@@ -510,7 +502,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                     {dataHarian.metode_bayar.map((mb, idx) => (
                       <tr
                         key={mb.metode_id || idx}
-                        style={{ borderBottom: '1px solid var(--warna-garis-redup, #f3f4f6)' }}
+                        style={{ borderBottom: '1px solid var(--surface-2)' }}
                       >
                         <td style={{ padding: '8px' }}>
                           <strong>{mb.metode_nama}</strong>
@@ -544,7 +536,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Penjualan Tunai:</span>
-                  <span style={{ color: 'var(--warna-sukses, #15803d)' }}>
+                  <span style={{ color: 'var(--success)' }}>
                     + {rupiah(dataHarian.kas.penjualan_tunai)}
                   </span>
                 </div>
@@ -554,27 +546,25 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>{t('laporan.kas_masuk')}:</span>
-                  <span style={{ color: 'var(--warna-sukses, #15803d)' }}>
+                  <span style={{ color: 'var(--success)' }}>
                     + {rupiah(dataHarian.kas.kas_masuk)}
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>{t('laporan.kas_keluar')}:</span>
-                  <span style={{ color: 'var(--warna-bahaya, #b91c1c)' }}>
+                  <span style={{ color: 'var(--danger)' }}>
                     - {rupiah(dataHarian.kas.kas_keluar)}
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>{t('laporan.setoran')} Bank:</span>
-                  <span style={{ color: 'var(--warna-bahaya, #b91c1c)' }}>
-                    - {rupiah(dataHarian.kas.setoran)}
-                  </span>
+                  <span style={{ color: 'var(--danger)' }}>- {rupiah(dataHarian.kas.setoran)}</span>
                 </div>
                 <div
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    borderTop: '2px dashed var(--warna-garis, #e5e7eb)',
+                    borderTop: '2px dashed var(--border)',
                     paddingTop: '8px',
                     fontWeight: 700,
                   }}
@@ -589,9 +579,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
           {/* 4. Daftar Shift Kasir Hari Ini */}
           <Kartu judul={`${t('laporan.kas_shift')} (${dataHarian.shifts.length} Shift)`}>
             {dataHarian.shifts.length === 0 ? (
-              <p
-                style={{ color: 'var(--warna-teks-redup, #666)', fontSize: 'var(--t-3, 0.875rem)' }}
-              >
+              <p style={{ color: 'var(--text-muted)', fontSize: 'var(--t-3, 0.875rem)' }}>
                 Belum ada shift kasir yang tercatat pada tanggal ini.
               </p>
             ) : (
@@ -606,7 +594,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   <thead>
                     <tr
                       style={{
-                        borderBottom: '2px solid var(--warna-garis, #e5e7eb)',
+                        borderBottom: '2px solid var(--border)',
                         textAlign: 'left',
                       }}
                     >
@@ -624,10 +612,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   </thead>
                   <tbody>
                     {dataHarian.shifts.map((s) => (
-                      <tr
-                        key={s.shift_id}
-                        style={{ borderBottom: '1px solid var(--warna-garis-redup, #f3f4f6)' }}
-                      >
+                      <tr key={s.shift_id} style={{ borderBottom: '1px solid var(--surface-2)' }}>
                         <td style={{ padding: '10px 8px' }}>
                           <div style={{ fontWeight: 600 }}>{s.nama_cabang}</div>
                           {s.melewati_tengah_malam && (
@@ -645,7 +630,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                             <div
                               style={{
                                 fontSize: 'var(--t-2, 0.75rem)',
-                                color: 'var(--warna-teks-redup, #666)',
+                                color: 'var(--text-muted)',
                               }}
                             >
                               Tutup: {s.kasir_tutup_nama}
@@ -666,7 +651,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                           <div
                             style={{
                               fontSize: 'var(--t-2, 0.75rem)',
-                              color: 'var(--warna-teks-redup, #666)',
+                              color: 'var(--text-muted)',
                             }}
                           >
                             {s.jumlah_transaksi} trx
@@ -682,18 +667,11 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                           {s.selisih === null ? (
                             '-'
                           ) : s.selisih === 0 ? (
-                            <span
-                              style={{ color: 'var(--warna-sukses, #15803d)', fontWeight: 600 }}
-                            >
-                              Rp0
-                            </span>
+                            <span style={{ color: 'var(--success)', fontWeight: 600 }}>Rp0</span>
                           ) : (
                             <span
                               style={{
-                                color:
-                                  s.selisih < 0
-                                    ? 'var(--warna-bahaya, #b91c1c)'
-                                    : 'var(--warna-peringatan, #b45309)',
+                                color: s.selisih < 0 ? 'var(--danger)' : 'var(--warn)',
                                 fontWeight: 600,
                               }}
                             >
@@ -736,7 +714,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                 gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                 gap: '8px',
                 padding: '12px',
-                backgroundColor: 'var(--warna-latar-kartu, #f9fafb)',
+                backgroundColor: 'var(--surface-2)',
                 borderRadius: '8px',
                 fontSize: 'var(--t-3, 0.875rem)',
               }}
@@ -766,7 +744,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                 {shiftTerpilihDetail.shift.melewati_tengah_malam && (
                   <div
                     style={{
-                      color: 'var(--warna-peringatan, #b45309)',
+                      color: 'var(--warn)',
                       fontSize: 'var(--t-2, 0.75rem)',
                     }}
                   >
@@ -786,7 +764,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
             >
               <div
                 style={{
-                  border: '1px solid var(--warna-garis, #e5e7eb)',
+                  border: '1px solid var(--border)',
                   borderRadius: '8px',
                   padding: '12px',
                   fontSize: 'var(--t-3, 0.875rem)',
@@ -807,7 +785,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                       display: 'flex',
                       justifyContent: 'space-between',
                       marginBottom: '4px',
-                      color: 'var(--warna-peringatan, #b45309)',
+                      color: 'var(--warn)',
                     }}
                   >
                     <span>Koreksi Modal Awal:</span>
@@ -818,7 +796,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}
                 >
                   <span>Penjualan Tunai:</span>
-                  <span style={{ color: 'var(--warna-sukses, #15803d)' }}>
+                  <span style={{ color: 'var(--success)' }}>
                     + {rupiah(shiftTerpilihDetail.kas.penjualan_tunai)}
                   </span>
                 </div>
@@ -826,7 +804,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}
                 >
                   <span>{t('laporan.kas_masuk')}:</span>
-                  <span style={{ color: 'var(--warna-sukses, #15803d)' }}>
+                  <span style={{ color: 'var(--success)' }}>
                     + {rupiah(shiftTerpilihDetail.kas.kas_masuk)}
                   </span>
                 </div>
@@ -834,7 +812,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}
                 >
                   <span>{t('laporan.kas_keluar')}:</span>
-                  <span style={{ color: 'var(--warna-bahaya, #b91c1c)' }}>
+                  <span style={{ color: 'var(--danger)' }}>
                     - {rupiah(shiftTerpilihDetail.kas.kas_keluar)}
                   </span>
                 </div>
@@ -842,7 +820,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}
                 >
                   <span>{t('laporan.setoran')}:</span>
-                  <span style={{ color: 'var(--warna-bahaya, #b91c1c)' }}>
+                  <span style={{ color: 'var(--danger)' }}>
                     - {rupiah(shiftTerpilihDetail.kas.setoran)}
                   </span>
                 </div>
@@ -850,7 +828,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    borderTop: '1px solid var(--warna-garis, #e5e7eb)',
+                    borderTop: '1px solid var(--border)',
                     paddingTop: '6px',
                     fontWeight: 700,
                   }}
@@ -886,7 +864,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                     style={{
                       marginTop: '4px',
                       fontSize: 'var(--t-2, 0.75rem)',
-                      color: 'var(--warna-teks-redup, #666)',
+                      color: 'var(--text-muted)',
                     }}
                   >
                     Alasan: {shiftTerpilihDetail.kas.alasan_selisih}
@@ -897,7 +875,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
               {/* Rincian Penjualan & Kategori */}
               <div
                 style={{
-                  border: '1px solid var(--warna-garis, #e5e7eb)',
+                  border: '1px solid var(--border)',
                   borderRadius: '8px',
                   padding: '12px',
                   fontSize: 'var(--t-3, 0.875rem)',
@@ -947,7 +925,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                     display: 'flex',
                     justifyContent: 'space-between',
                     marginBottom: '4px',
-                    color: 'var(--warna-peringatan, #b45309)',
+                    color: 'var(--warn)',
                   }}
                 >
                   <span>{t('laporan.total_diskon')}:</span>
@@ -957,7 +935,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    borderTop: '1px solid var(--warna-garis, #e5e7eb)',
+                    borderTop: '1px solid var(--border)',
                     paddingTop: '6px',
                     fontWeight: 700,
                   }}
@@ -969,7 +947,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   style={{
                     fontSize: 'var(--t-2, 0.75rem)',
                     marginTop: '4px',
-                    color: 'var(--warna-teks-redup, #666)',
+                    color: 'var(--text-muted)',
                   }}
                 >
                   {shiftTerpilihDetail.penjualan.jumlah_transaksi} Transaksi Selesai
@@ -987,7 +965,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   <thead>
                     <tr
                       style={{
-                        borderBottom: '1px solid var(--warna-garis, #e5e7eb)',
+                        borderBottom: '1px solid var(--border)',
                         textAlign: 'left',
                       }}
                     >
@@ -1000,10 +978,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   </thead>
                   <tbody>
                     {shiftTerpilihDetail.koreksi_modal.map((km, i) => (
-                      <tr
-                        key={km.id || i}
-                        style={{ borderBottom: '1px solid var(--warna-garis-redup, #f3f4f6)' }}
-                      >
+                      <tr key={km.id || i} style={{ borderBottom: '1px solid var(--surface-2)' }}>
                         <td style={{ padding: '6px' }}>{formatJam(km.waktu)}</td>
                         <td style={{ padding: '6px' }}>
                           {rupiah(km.modal_awal_lama)} → {rupiah(km.modal_awal_baru)}
@@ -1025,7 +1000,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   style={{
                     margin: '0 0 6px 0',
                     fontSize: 'var(--t-4, 1rem)',
-                    color: 'var(--warna-bahaya, #b91c1c)',
+                    color: 'var(--danger)',
                   }}
                 >
                   Pembatalan Pesanan / Void ({shiftTerpilihDetail.pembatalan.jumlah} Item)
@@ -1034,7 +1009,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   <thead>
                     <tr
                       style={{
-                        borderBottom: '1px solid var(--warna-garis, #e5e7eb)',
+                        borderBottom: '1px solid var(--border)',
                         textAlign: 'left',
                       }}
                     >
@@ -1047,10 +1022,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                   </thead>
                   <tbody>
                     {shiftTerpilihDetail.pembatalan.daftar.map((pb) => (
-                      <tr
-                        key={pb.id}
-                        style={{ borderBottom: '1px solid var(--warna-garis-redup, #f3f4f6)' }}
-                      >
+                      <tr key={pb.id} style={{ borderBottom: '1px solid var(--surface-2)' }}>
                         <td style={{ padding: '6px' }}>#{pb.nomor_pesanan}</td>
                         <td style={{ padding: '6px' }}>{pb.item_nama || 'Seluruh Pesanan'}</td>
                         <td style={{ padding: '6px' }}>
@@ -1062,8 +1034,7 @@ export const LaporanKas: React.FC<LaporanKasProps> = ({
                           style={{
                             padding: '6px',
                             fontWeight: 600,
-                            color:
-                              pb.nilai_kerugian > 0 ? 'var(--warna-bahaya, #b91c1c)' : 'inherit',
+                            color: pb.nilai_kerugian > 0 ? 'var(--danger)' : 'inherit',
                           }}
                         >
                           {rupiah(pb.nilai_kerugian)}

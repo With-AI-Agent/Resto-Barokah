@@ -143,12 +143,12 @@ export function KoreksiModal({
           gap: '0.75rem',
           marginBottom: '1rem',
           padding: '0.75rem',
-          background: '#f8fafc',
+          background: 'var(--surface-2)',
           borderRadius: '0.5rem',
         }}
       >
         <div>
-          <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
             {t('kasir.modal_awal_saat_ini')}
           </span>
           <div style={{ fontWeight: 600, fontSize: '1.1rem' }} data-testid="modal-awal-saat-ini">
@@ -156,14 +156,19 @@ export function KoreksiModal({
           </div>
         </div>
         <div>
-          <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
             {t('kasir.selisih_koreksi')}
           </span>
           <div
             style={{
               fontWeight: 600,
               fontSize: '1.1rem',
-              color: selisih > 0 ? '#16a34a' : selisih < 0 ? '#dc2626' : '#64748b',
+              color:
+                selisih > 0
+                  ? 'var(--success)'
+                  : selisih < 0
+                    ? 'var(--danger)'
+                    : 'var(--text-muted)',
             }}
             data-testid="selisih-koreksi"
           >
@@ -216,7 +221,7 @@ export function KoreksiModal({
               width: '100%',
               padding: '0.5rem',
               borderRadius: '0.375rem',
-              border: '1px solid #cbd5e1',
+              border: '1px solid var(--border)',
             }}
             data-testid="select-atasan"
           >
@@ -251,8 +256,8 @@ export function KoreksiModal({
               padding: '0.75rem',
               borderRadius: '0.375rem',
               marginBottom: '1rem',
-              background: pesan.tipe === 'sukses' ? '#dcfce7' : '#fee2e2',
-              color: pesan.tipe === 'sukses' ? '#166534' : '#991b1b',
+              background: pesan.tipe === 'sukses' ? 'var(--success-soft)' : 'var(--danger-soft)',
+              color: pesan.tipe === 'sukses' ? 'var(--success)' : 'var(--danger)',
               fontSize: '0.875rem',
             }}
             data-testid="pesan-koreksi"

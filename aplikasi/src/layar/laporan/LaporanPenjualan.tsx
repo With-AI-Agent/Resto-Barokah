@@ -186,7 +186,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
             <span
               style={{
                 fontSize: 'var(--t-2, 0.75rem)',
-                color: 'var(--warna-teks-redup, #666)',
+                color: 'var(--text-muted)',
               }}
             >
               ({data.rentang.tanggal_mulai} s/d {data.rentang.tanggal_akhir} ·{' '}
@@ -301,8 +301,8 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
           role="alert"
           style={{
             padding: 'var(--s-2, 8px) var(--s-3, 12px)',
-            backgroundColor: 'var(--warna-bahaya-latar, #fef2f2)',
-            color: 'var(--warna-bahaya, #b91c1c)',
+            backgroundColor: 'var(--danger-soft)',
+            color: 'var(--danger)',
             borderRadius: '6px',
             fontSize: 'var(--t-3, 0.875rem)',
             fontWeight: 500,
@@ -330,7 +330,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                 style={{
                   fontSize: 'var(--t-6, 1.5rem)',
                   fontWeight: 700,
-                  color: 'var(--warna-sukses, #16a34a)',
+                  color: 'var(--success)',
                 }}
               >
                 {rupiah(data.ringkasan.total_omzet)}
@@ -338,7 +338,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
               <div
                 style={{
                   fontSize: 'var(--t-2, 0.75rem)',
-                  color: 'var(--warna-teks-redup, #666)',
+                  color: 'var(--text-muted)',
                   marginTop: '4px',
                 }}
               >
@@ -354,7 +354,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
               <div
                 style={{
                   fontSize: 'var(--t-2, 0.75rem)',
-                  color: 'var(--warna-teks-redup, #666)',
+                  color: 'var(--text-muted)',
                   marginTop: '4px',
                 }}
               >
@@ -370,7 +370,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
               <div
                 style={{
                   fontSize: 'var(--t-2, 0.75rem)',
-                  color: 'var(--warna-teks-redup, #666)',
+                  color: 'var(--text-muted)',
                   marginTop: '4px',
                 }}
               >
@@ -384,7 +384,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                 style={{
                   fontSize: 'var(--t-6, 1.5rem)',
                   fontWeight: 700,
-                  color: 'var(--warna-peringatan, #b45309)',
+                  color: 'var(--warn)',
                 }}
               >
                 {rupiah(data.ringkasan.total_diskon)}
@@ -392,7 +392,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
               <div
                 style={{
                   fontSize: 'var(--t-2, 0.75rem)',
-                  color: 'var(--warna-teks-redup, #666)',
+                  color: 'var(--text-muted)',
                   marginTop: '4px',
                 }}
               >
@@ -424,8 +424,8 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                 style={{
                   padding: 'var(--s-3, 12px)',
                   borderRadius: '8px',
-                  backgroundColor: 'var(--warna-latar-kartu, #f9fafb)',
-                  border: '1px solid var(--warna-garis, #e5e7eb)',
+                  backgroundColor: 'var(--surface-2)',
+                  border: '1px solid var(--border)',
                 }}
               >
                 <div style={{ fontSize: 'var(--t-2, 0.75rem)', fontWeight: 600 }}>
@@ -446,8 +446,8 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                 style={{
                   padding: 'var(--s-3, 12px)',
                   borderRadius: '8px',
-                  backgroundColor: 'var(--warna-latar-kartu, #f9fafb)',
-                  border: '1px solid var(--warna-garis, #e5e7eb)',
+                  backgroundColor: 'var(--surface-2)',
+                  border: '1px solid var(--border)',
                 }}
               >
                 <div style={{ fontSize: 'var(--t-2, 0.75rem)', fontWeight: 600 }}>
@@ -469,8 +469,8 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                   style={{
                     padding: 'var(--s-3, 12px)',
                     borderRadius: '8px',
-                    backgroundColor: 'var(--warna-latar-kartu, #f9fafb)',
-                    border: '1px solid var(--warna-garis, #e5e7eb)',
+                    backgroundColor: 'var(--surface-2)',
+                    border: '1px solid var(--border)',
                   }}
                 >
                   <div style={{ fontSize: 'var(--t-2, 0.75rem)', fontWeight: 600 }}>
@@ -510,7 +510,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                 🏷️ {t('laporan.omzet_kategori')}
               </h3>
               {data.per_kategori.length === 0 ? (
-                <div style={{ color: 'var(--warna-teks-redup, #666)', fontStyle: 'italic' }}>
+                <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
                   {t('laporan.tidak_ada_data')}
                 </div>
               ) : (
@@ -519,7 +519,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                     <thead>
                       <tr
                         style={{
-                          borderBottom: '2px solid var(--warna-garis, #e5e7eb)',
+                          borderBottom: '2px solid var(--border)',
                           textAlign: 'left',
                         }}
                       >
@@ -539,7 +539,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                       {data.per_kategori.map((kat, idx) => (
                         <tr
                           key={kat.kategori_id || idx}
-                          style={{ borderBottom: '1px solid var(--warna-garis, #f3f4f6)' }}
+                          style={{ borderBottom: '1px solid var(--border)' }}
                         >
                           <td style={{ padding: '8px', fontWeight: 600 }}>
                             {kat.kategori_nama || t('laporan.tanpa_kategori')}
@@ -571,7 +571,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                 💳 {t('laporan.rincian_metode')}
               </h3>
               {data.per_metode.length === 0 ? (
-                <div style={{ color: 'var(--warna-teks-redup, #666)', fontStyle: 'italic' }}>
+                <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
                   {t('laporan.tidak_ada_data')}
                 </div>
               ) : (
@@ -580,7 +580,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                     <thead>
                       <tr
                         style={{
-                          borderBottom: '2px solid var(--warna-garis, #e5e7eb)',
+                          borderBottom: '2px solid var(--border)',
                           textAlign: 'left',
                         }}
                       >
@@ -598,14 +598,14 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                       {data.per_metode.map((met, idx) => (
                         <tr
                           key={met.metode_id || idx}
-                          style={{ borderBottom: '1px solid var(--warna-garis, #f3f4f6)' }}
+                          style={{ borderBottom: '1px solid var(--border)' }}
                         >
                           <td style={{ padding: '8px', fontWeight: 600 }}>
                             {met.metode_nama}{' '}
                             <span
                               style={{
                                 fontSize: 'var(--t-2, 0.75rem)',
-                                color: 'var(--warna-teks-redup, #666)',
+                                color: 'var(--text-muted)',
                               }}
                             >
                               ({met.jenis})
@@ -641,7 +641,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
               📈 {t('laporan.tren_harian')}
             </h3>
             {data.tren_harian.length === 0 ? (
-              <div style={{ color: 'var(--warna-teks-redup, #666)', fontStyle: 'italic' }}>
+              <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
                 {t('laporan.tidak_ada_data')}
               </div>
             ) : (
@@ -650,7 +650,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                   <thead>
                     <tr
                       style={{
-                        borderBottom: '2px solid var(--warna-garis, #e5e7eb)',
+                        borderBottom: '2px solid var(--border)',
                         textAlign: 'left',
                       }}
                     >
@@ -674,10 +674,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                   </thead>
                   <tbody>
                     {data.tren_harian.map((tr) => (
-                      <tr
-                        key={tr.tanggal}
-                        style={{ borderBottom: '1px solid var(--warna-garis, #f3f4f6)' }}
-                      >
+                      <tr key={tr.tanggal} style={{ borderBottom: '1px solid var(--border)' }}>
                         <td style={{ padding: '8px', fontWeight: 600 }}>{formatTgl(tr.tanggal)}</td>
                         <td style={{ padding: '8px', textAlign: 'right' }}>
                           {tr.jumlah_transaksi}
@@ -692,8 +689,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                           style={{
                             padding: '8px',
                             textAlign: 'right',
-                            color:
-                              tr.total_diskon > 0 ? 'var(--warna-peringatan, #b45309)' : 'inherit',
+                            color: tr.total_diskon > 0 ? 'var(--warn)' : 'inherit',
                           }}
                         >
                           {tr.total_diskon > 0 ? `- ${rupiah(tr.total_diskon)}` : 'Rp 0'}
@@ -703,7 +699,7 @@ export const LaporanPenjualan: React.FC<LaporanPenjualanProps> = ({
                             padding: '8px',
                             textAlign: 'right',
                             fontWeight: 700,
-                            color: tr.total_omzet > 0 ? 'var(--warna-sukses, #16a34a)' : 'inherit',
+                            color: tr.total_omzet > 0 ? 'var(--success)' : 'inherit',
                           }}
                         >
                           {rupiah(tr.total_omzet)}

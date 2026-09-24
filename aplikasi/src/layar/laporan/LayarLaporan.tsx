@@ -98,7 +98,7 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
         style={{
           display: 'flex',
           gap: '8px',
-          borderBottom: '1px solid var(--warna-garis, #e5e7eb)',
+          borderBottom: '1px solid var(--border)',
           paddingBottom: '8px',
           flexWrap: 'wrap',
         }}
