@@ -8,6 +8,7 @@ import { Rangka } from './komponen/Rangka'
 import LayarContoh from './layar/contoh/LayarContoh'
 import { LayarMasukPegawai } from './layar/masuk/LayarMasukPegawai'
 import { LayarKasir } from './layar/kasir/LayarKasir'
+import type { ShiftAktifInfo } from './layar/kasir/BukaKas'
 import { KelolaPegawai } from './layar/pengaturan/KelolaPegawai'
 import { DaftarPerangkat } from './layar/pengaturan/DaftarPerangkat'
 import { LayarDapur } from './layar/dapur/LayarDapur'
@@ -18,6 +19,7 @@ import { Opname } from './layar/dapur/Opname'
 export default function App() {
   const { sesi, sedangMasuk, masuk, keluar } = useSesi()
   const [layarAktif, setLayarAktif] = useState<string>('kasir')
+  const [shiftAktif, setShiftAktif] = useState<ShiftAktifInfo | null>(null)
   const cabangId = sesi?.cabangAktifId || 'cab-01'
   // Tagihan yang sedang dilayani kasir. Untuk sekarang satu tagihan berjalan
   // per terminal; pemilihan tagihan dari Open Bill menyusul bersama T5-03.
@@ -59,6 +61,44 @@ export default function App() {
               const hasil = (data as { pesananId?: string })?.pesananId ?? null
               if (hasil) setPesananAktifId(hasil)
               return { sukses: true, pesananId: hasil ?? 'ord-new' }
+            }}
+            shiftAktif={shiftAktif}
+            namaKasir={sesi?.nama ?? 'Kasir Bertugas'}
+            uangSeharusnyaPerkiraan={
+              (shiftAktif?.modalAwal ?? 0) + (bayar.terakhir?.totalPesanan ?? 0)
+            }
+            onBukaShift={async ({ modalAwal }) => {
+              const baru: ShiftAktifInfo = {
+                id: `shift-${Date.now()}`,
+                cabangId,
+                modalAwal,
+                dibukaPada: new Date().toISOString(),
+              }
+              setShiftAktif(baru)
+              return { sukses: true, shiftId: baru.id }
+            }}
+            onTutupShift={async ({ uangFisik, alasanSelisih }) => {
+              const modal = shiftAktif?.modalAwal ?? 0
+              const tunai = bayar.terakhir?.totalPesanan ?? 0
+              const seharusnya = modal + tunai
+              const selisih = uangFisik - seharusnya
+              setShiftAktif(null)
+              return {
+                sukses: true,
+                data: {
+                  shiftId: shiftAktif?.id ?? `shift-${Date.now()}`,
+                  cabangId,
+                  modalAwal: modal,
+                  tunaiMasuk: tunai,
+                  tunaiKeluar: 0,
+                  uangSeharusnya: seharusnya,
+                  uangFisik,
+                  selisih,
+                  alasanSelisih,
+                  status: 'ditutup',
+                  ditutupPada: new Date().toISOString(),
+                },
+              }
             }}
           />
         )
