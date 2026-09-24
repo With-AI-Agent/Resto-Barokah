@@ -93,6 +93,8 @@ GERBANG_WAJIB = [
      r"python3 alat/uji-mutasi-0054.py"),
     ("bukti mutasi pagar cabang_aktif_saya 0056 (N F-04 audit 2026-09-24 fallback kas_pergerakan)",
      r"python3 alat/uji-mutasi-0056.py"),
+    ("bukti mutasi pagar truncate_audit_ditolak 0057 (N F-02 audit 2026-09-24 TRUNCATE catatan_audit)",
+     r"python3 alat/uji-mutasi-0057.py"),
     ("bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22)",
      r"python3 alat/uji-mutasi-0009.py"),
     ("bukti mutasi kunci serialisasi uang 0021 (F F-12)",
