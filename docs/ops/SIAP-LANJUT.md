@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `95f3c2e471f77a2e6ae84cf4db06251e20616773`
+- **Commit keadaan kerja:** `eabc2e328fc1d057b0cb0e7b3d274973f6b89a93`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 35957443759, commit 95f3c2e4) — tunggu sampai selesai
+- **CI terakhir:** queued (run 35961718218, commit eabc2e32) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -71,6 +71,15 @@ JANGAN merge apa pun tanpa keputusan Lee.
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
 **KEADAAN SESI INI (2026-09-24, `arena/01a0d09b-resto-barokah` — FASE 7 KAS & SHIFT):**
+
+0N. **T7-04 (Transaksi hanya dalam shift terbuka ⚠️) SELESAI.**
+   - Migrasi `0048_wajib_shift.sql` menambahkan konfigurasi `wajib_shift` pada `public.pengaturan`.
+   - Pemicu `picu_pesanan_validasi_shift_terbuka` menolak pembuatan pesanan jika `wajib_shift = true` dan kasir/pelayan tidak punya shift kasir berstatus `'terbuka'`.
+   - Pemicu `picu_pembayaran_validasi_shift_terbuka` dan RPC `bayar_pesanan` menolak pencatatan pembayaran tanpa shift terbuka, serta menyambungkan transaksi ke `shift_id` aktif.
+   - Pagar UI di `LayarKasir.tsx`: banner peringatan kasir belum buka kas tampil jika `wajibShift && !shiftAktif`, tombol cepat `Buka Kasir Sekarang` untuk membuka modal shift langsung, serta tombol bayar dan kirim dapur otomatis mengalihkan kasir ke dialog `BukaKas`.
+   - Multibahasa 100% lengkap pada 4 bahasa (`id`, `en`, `zh`, `ar` dengan 188 kunci).
+   - Bukti: suite SQL **91 LULUS** · uji mutasi SQL 0048 **6/6 MERAH** · Vitest **77 berkas / 608 tes LULUS** · mutasi aplikasi **77/77 MERAH** · CI **116 gerbang utuh** · kontrak UI hijau (`peta-ui.py`).
+   - Langkah berikutnya di Fase 7: `T7-05 Pengingat shift belum ditutup`.
 
 0M. **T7-03 (Kas pergerakan uang masuk/keluar tunai, setoran, & koreksi) SELESAI.**
    - Migrasi `0047_kas_pergerakan.sql` mencatat uang tunai operasional di luar penjualan.
