@@ -612,6 +612,21 @@ const MUTASI = [
     ganti: 'if (false && !alasan.trim()) {',
     uji: 'src/layar/kasir/KasKeluarMasuk.test.tsx',
   },
+  // ------------------------------------------------- T7-04 transaksi wajib shift
+  {
+    nama: 'LayarKasir: banner peringatan shift disembunyikan walau shift kosong (T7-04)',
+    berkas: 'src/layar/kasir/LayarKasir.tsx',
+    cari: '        {wajibShift && !shiftAktif && (',
+    ganti: '        {false && (',
+    uji: 'src/layar/kasir/LayarKasir.test.tsx',
+  },
+  {
+    nama: 'LayarKasir: kasir tanpa shift aktif lolos bayar tanpa buka kas (T7-04)',
+    berkas: 'src/layar/kasir/LayarKasir.tsx',
+    cari: '    if (wajibShift && !shiftAktif) {\n      setBukaShiftModal(true)\n      return\n    }\n    setBukaBayarModal(true)',
+    ganti: '    setBukaBayarModal(true)',
+    uji: 'src/layar/kasir/LayarKasir.test.tsx',
+  },
 ]
 
 /**

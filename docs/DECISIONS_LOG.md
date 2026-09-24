@@ -2514,8 +2514,54 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Uji Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` LULUS hijau (2/2 suite).
   - Uji Mutasi SQL: `alat/uji-mutasi-0047.py` (6/6 mutasi kritis TERBUKTI MERAH, `--uji-diri` lolos).
   - Vitest: `src/layar/kasir/KasKeluarMasuk.test.tsx` (8/8 tes LULUS), total aplikasi 77 berkas / 605 tes LULUS.
-  - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (75/75 mutasi TERBUKTI MERAH, `--uji-diri` lolos).
   - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run typecheck` bersih, `npm run lint` 0 galat, `npm run build` sukses.
+
+## [Kas/2026-09-24] Transaksi Hanya Dalam Shift Terbuka: Cegah Penjualan di Luar Kas dan Audit Utuh (T7-04)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 & TECH_SPEC §4.3, §9 ART-6
+- **Konteks & Risiko (ART-6):** Transaksi pesanan atau pembayaran yang dilakukan di luar shift kasir
+  terbuka membuka peluang terjadinya penjualan "di luar kas" (shadow sales) yang tidak tercatat dalam
+  pertanggungjawaban modal/kas fisik kasir. Jika kasir dapat mencatat pesanan baru atau menerima
+  pembayaran tanpa sesi shift yang aktif, rekonsiliasi uang fisik saat tutup kas menjadi cacat dan
+  audit penerimaan kas resto kehilangan titik mula yang dapat dipertanggungjawabkan.
+- **Keputusan:**
+  1. **Konfigurasi `wajib_shift` pada `public.pengaturan`:**
+     - Menambahkan kolom `wajib_shift boolean not null default false` pada `public.pengaturan`.
+     - Memberikan fleksibilitas bagi pemilik cabang/resto untuk mengaktifkan kebijakan wajib shift
+       sesuai SOP kedai.
+     - Setiap perubahan konfigurasi `wajib_shift` dicatat secara kekal di `public.catatan_audit`
+       (`entitas = 'pengaturan'`, `kunci_pengaturan = 'wajib_shift'`) dengan rantai hash kriptografis SHA-256.
+  2. **Pagar Integritas Transaksi Tingkat Database (Database Gatekeeper):**
+     - Pemicu `picu_pesanan_validasi_shift_terbuka` pada tabel `public.pesanan`: menolak pembuatan pesanan
+       baru (`status = 'draf'` atau lainnya) jika pengaturan cabang mengaktifkan `wajib_shift = true` dan
+       kasir/pelayan tidak memiliki shift kasir berstatus `'terbuka'` di cabang bersangkutan.
+     - Pemicu `picu_pembayaran_validasi_shift_terbuka` pada tabel `public.pembayaran`: menolak pencatatan
+       pembayaran jika `wajib_shift = true` dan kasir yang bertugas tidak memiliki shift kasir terbuka.
+     - RPC `public.bayar_pesanan` diperbarui untuk memvalidasi keberadaan shift kasir aktif pembuat
+       transaksi saat `wajib_shift` bernilai aktif, serta mengaitkan pembayaran ke `shift_id` terbuka.
+  3. **Pencegahan Sisi Klien & UX Proaktif (`LayarKasir.tsx`):**
+     - Prop `wajibShift?: boolean` (nilai bawaan: `false`) ditambahkan ke `LayarKasirProps`.
+     - Saat `wajibShift = true` dan `shiftAktif` kosong / `null`:
+       * Menampilkan banner peringatan ramah kasir (`kotak-peringatan` bertanda status) yang menjelaskan
+         bahwa shift kasir belum dibuka sehingga transaksi belum dapat diproses.
+       * Menyediakan tombol aksi cepat `Buka Kasir Sekarang` di dalam banner untuk membuka dialog `BukaKas`
+         hanya dengan 1 klik.
+       * Menjaga alur interaksi: aksi menekan tombol kirim ke dapur (`tanganiKirimKeDapur`) dan tombol
+         bayar (`tanganiMulaiBayar`) akan otomatis mengalihkan kasir ke modal `BukaKas` dan mencegah
+         pesanan terkirim / pembayaran dilakukan di luar shift.
+  4. **Dukungan Multibahasa Penuh (i18n):**
+     - String peringatan dan tombol buka kas cepat diterjemahkan lengkap pada 4 bahasa (`id`, `en`, `zh`, `ar`).
+- **Bukti:**
+  - Migrasi: `supabase/migrations/0048_wajib_shift.sql`.
+  - SQL Suite: `supabase/tes/wajib_shift.sql` (11 skenario pengujian ketat), seluruh 91 berkas uji SQL LULUS (100%).
+  - Uji Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` LULUS hijau (2/2 suite: search_path, ACL, RLS, InitPlan).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0048.py` (6/6 mutasi kritis TERBUKTI MERAH, `--uji-diri` lolos).
+  - Gerbang CI: `alat/periksa-gerbang-ci.py` 116 gerbang LULUS.
+  - Paritas Bahasa: `python3 aplikasi/alat/periksa-bahasa.py` 188/188 kunci identik LULUS.
+  - Vitest: `src/layar/kasir/LayarKasir.test.tsx` (10/10 tes LULUS), total aplikasi 77 berkas / 608 tes LULUS (100%).
+  - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (77/77 mutasi TERBUKTI MERAH, `--uji-diri` lolos).
+  - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run typecheck` bersih, `npm run lint` 0 galat, `npm run build` sukses.
+
 
 
 

@@ -71,6 +71,10 @@ export const ar: KamusBahasa = {
     buka_shift: 'فتح الوردية',
     tutup_shift: 'إغلاق الوردية',
     shift_aktif: 'الوردية النشطة',
+    peringatan_belum_buka_kas:
+      'لم يقم الكاشير بفتح وردية الصندوق بعد. يرجى فتح الوردية أولاً قبل تنفيذ المعاملات.',
+    tombol_buka_kas_cepat: 'فتح الوردية الآن',
+    transaksi_wajib_shift: 'لا يمكن معالجة المعاملات إلا بعد فتح وردية الصندوق.',
     tagihan_terbuka: 'الفواتير المفتوحة',
     total_belanja: 'الإجمالي الكلي',
     subtotal: 'المجموع الفرعي',

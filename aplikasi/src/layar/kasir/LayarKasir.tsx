@@ -101,6 +101,7 @@ export interface LayarKasirProps {
   tarif?: TarifResto
 
   // ------------------------------------------------- T7-01 shift kas & modal awal
+  wajibShift?: boolean
   shiftAktif?: ShiftAktifInfo | null
   namaKasir?: string
   onBukaShift?: (masukan: {
@@ -142,6 +143,7 @@ export function LayarKasir({
   onBatalkanItem,
   sudahKeDapur = false,
   tarif = TARIF_BAWAAN,
+  wajibShift = false,
   shiftAktif = null,
   namaKasir = 'Kasir Bertugas',
   onBukaShift,
@@ -330,6 +332,10 @@ export function LayarKasir({
 
   const tanganiKirimKeDapur = async () => {
     if (daftarItemKeranjang.length === 0) return
+    if (wajibShift && !shiftAktif) {
+      setBukaShiftModal(true)
+      return
+    }
     try {
       const simpanRes = await onSimpanPesanan({
         mejaId: mejaAktif.id,
@@ -347,6 +353,10 @@ export function LayarKasir({
   }
 
   const tanganiMulaiBayar = () => {
+    if (wajibShift && !shiftAktif) {
+      setBukaShiftModal(true)
+      return
+    }
     setBukaBayarModal(true)
   }
 
@@ -456,6 +466,36 @@ export function LayarKasir({
             </Tombol>
           </div>
         </div>
+
+        {/* Banner Peringatan Wajib Shift (T7-04) */}
+        {wajibShift && !shiftAktif && (
+          <div
+            role="status"
+            data-testid="banner-wajib-shift"
+            className="kotak-peringatan"
+            style={{
+              margin: 'var(--s-2) var(--s-3)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 'var(--s-2)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
+              <span>⚠️</span>
+              <span>{t('kasir.peringatan_belum_buka_kas')}</span>
+            </div>
+            <Tombol
+              jenis="button"
+              ragam="utama"
+              onClick={() => setBukaShiftModal(true)}
+              data-testid="btn-buka-kas-cepat"
+            >
+              🔓 {t('kasir.tombol_buka_kas_cepat')}
+            </Tombol>
+          </div>
+        )}
 
         {/* Katalog Menu Component */}
         <Katalog onTambahKeKeranjang={tanganiTambahKeKeranjang} />

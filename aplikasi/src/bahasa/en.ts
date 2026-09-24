@@ -71,6 +71,10 @@ export const en: KamusBahasa = {
     buka_shift: 'Open Shift',
     tutup_shift: 'Close Shift',
     shift_aktif: 'Active Shift',
+    peringatan_belum_buka_kas:
+      'Cashier has not opened a cash shift. Please open cash register before processing transactions.',
+    tombol_buka_kas_cepat: 'Open Shift Now',
+    transaksi_wajib_shift: 'Transactions can only be processed after opening a cashier shift.',
     tagihan_terbuka: 'Open Bills',
     total_belanja: 'Grand Total',
     subtotal: 'Subtotal',

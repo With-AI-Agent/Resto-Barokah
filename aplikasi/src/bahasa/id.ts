@@ -69,6 +69,10 @@ export const id = {
     buka_shift: 'Buka Kas',
     tutup_shift: 'Tutup Kas',
     shift_aktif: 'Shift Aktif',
+    peringatan_belum_buka_kas:
+      'Kasir belum membuka shift kas. Silakan buka kas terlebih dahulu sebelum melayani transaksi.',
+    tombol_buka_kas_cepat: 'Buka Kas Sekarang',
+    transaksi_wajib_shift: 'Transaksi hanya dapat diproses setelah shift kasir dibuka.',
     tagihan_terbuka: 'Tagihan Terbuka',
     total_belanja: 'Total Belanja',
     subtotal: 'Subtotal',

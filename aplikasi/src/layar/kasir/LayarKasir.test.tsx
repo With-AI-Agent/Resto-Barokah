@@ -56,6 +56,12 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
     render(
       <PenyediaBahasa>
         <LayarKasir
+          shiftAktif={{
+            id: 'shift-pos-01',
+            cabangId: 'cab-01',
+            modalAwal: 100000,
+            dibukaPada: '2026-09-24T08:00:00Z',
+          }}
           metodeBayar={[
             { id: 'm-tunai', nama: 'Tunai', jenis: 'tunai', butuhReferensi: false, urutan: 1 },
           ]}
@@ -188,5 +194,37 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
 
     expect(screen.getByText(/Pencatatan Pergerakan Kas/i)).toBeDefined()
     expect(screen.getByTestId('pilih-jenis-keluar')).toBeDefined()
+  })
+
+  // ---------------------------------------------- T7-04 Wajib Shift di Layar Kasir
+  it('menampilkan banner peringatan wajib buka kas jika shift belum dibuka (T7-04)', () => {
+    render(
+      <PenyediaBahasa>
+        <LayarKasir shiftAktif={null} wajibShift={true} />
+      </PenyediaBahasa>,
+    )
+
+    expect(screen.getByTestId('banner-wajib-shift')).toBeDefined()
+    expect(screen.getByText(/Kasir belum membuka shift kas/i)).toBeDefined()
+    expect(screen.getByRole('button', { name: /Buka Kas Sekarang/i })).toBeDefined()
+  })
+
+  it('mengklik tombol bayar saat belum ada shift membuka modal Buka Kas (T7-04)', async () => {
+    render(
+      <PenyediaBahasa>
+        <LayarKasir shiftAktif={null} wajibShift={true} />
+      </PenyediaBahasa>,
+    )
+
+    // Tambah item ke keranjang
+    fireEvent.click(screen.getByText('Tahu Tempe Goreng Lengkuas'))
+
+    // Klik tombol bayar pesanan
+    const btnBayar = screen.getByRole('button', { name: /Bayar Pesanan/i })
+    fireEvent.click(btnBayar)
+
+    // Modal Buka Kas muncul secara otomatis untuk memandu kasir
+    expect(screen.getByText('Buka Shift Kasir')).toBeDefined()
+    expect(screen.getByLabelText(/Modal Awal Kasir/i)).toBeDefined()
   })
 })

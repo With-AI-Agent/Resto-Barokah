@@ -1545,7 +1545,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); mitigasi: izin + audit.
   - **Verifikasi:** uji SQL + uji manual.
 
-- [ ] T7-04 — Transaksi hanya dalam shift terbuka ⚠️
+- [x] T7-04 — Transaksi hanya dalam shift terbuka ⚠️
   - **Tujuan:** tidak ada penjualan "di luar kas" yang tidak bisa diaudit.
   - **Ref:** PRD M7 (kriteria selesai)
   - **File:** `supabase/migrations/0048_wajib_shift.sql`, `supabase/tes/wajib_shift.sql`
