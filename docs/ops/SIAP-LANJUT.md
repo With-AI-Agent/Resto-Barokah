@@ -7,16 +7,16 @@
 
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
-- **Cabang yang dilanjutkan:** `arena/01a0cca9-resto-barokah`
-- **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
-- **Ditulis oleh sesi:** `arena/01a0cca9-resto-barokah`
-- **Commit keadaan kerja:** `419ee6d61483eceaa670245847aed8f0efce22e7`
+- **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
+- **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
+- **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
+- **Commit keadaan kerja:** `ec73303ed8bb394953e57410dd62557e27e50586`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 35931745001, commit 419ee6d6) — tunggu sampai selesai
+- **CI terakhir:** (belum ada run CI untuk commit ec73303e — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
-- **Ditulis:** 2026-09-23 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
+- **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
 - **Berkas yang Lee salin ke chat baru:** `PROMPT_SESI_BARU.md` (STATIS — mesin memeriksanya, bukan
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (146 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (239 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (1 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (1 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -43,12 +43,12 @@ Sesi baru di platform ini mulai dari `main`, sedangkan pekerjaan ada di cabang s
 Jalankan (tanpa memindahkan cabang sesimu):
 
 ```
-git fetch origin arena/01a0cca9-resto-barokah:refs/remotes/origin/kerja-terakhir
+git fetch origin arena/01a0d09b-resto-barokah:refs/remotes/origin/kerja-terakhir
 git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py      # cetak KARTU SESI, lalu LAPORKAN ke Lee
 ```
 
-Cabang `arena/01a0cca9-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
+Cabang `arena/01a0d09b-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
 LAIN: saat membuka chat baru, ia menulis pilihannya di baris pertama `PROMPT_SESI_BARU.md` — dan baris
 itu yang **MENANG** bila berbeda dengan handoff ini. Laporkan bedanya, lalu rapikan catatan handoff
 dengan `python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang>`. Sesi yang belum pernah di-push
@@ -65,7 +65,7 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 **Base branch bila Lee membuka sesi baru lagi di Arena:** pilih cabang yang disebut di §1
-(`arena/01a0cca9-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
+(`arena/01a0d09b-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
@@ -221,6 +221,17 @@ JANGAN merge apa pun tanpa keputusan Lee.
    atau HAK BACA-nya?" — kalau isi, pindahkan kursinya. Aplikasi sendiri tidak pernah membaca
    tabel `pembatalan` langsung (`grep from('pembatalan')` = kosong), jadi pagar ini tidak
    memutus fitur mana pun.
+
+0L. **FASE 7 BERJALAN — T7-01 (Buka kas / modal awal) SELESAI (2026-09-24, sesi arena/01a0d09b).**
+   - Migrasi `supabase/migrations/0045_buka_shift.sql`: tabel `public.shift_kas`, RLS InitPlan,
+     aturan satu shift terbuka per kasir per cabang (indeks unik parsial + kode SH-409), audit hash otomatis,
+     kunci foreign `pesanan.shift_id` & `pembayaran.shift_id`.
+   - RPC: `public.buka_shift(cabang_id, modal_awal, catatan)` terpasang di `aplikasi/src/lib/aksi.ts`.
+   - UI: `aplikasi/src/layar/kasir/BukaKas.tsx` + `BukaKas.test.tsx` (8 unit test murni) terpasang di `LayarKasir.tsx`.
+   - Bukti: 88 suite SQL LULUS, mutasi 0045 6/6 MERAH, 75 berkas Vitest / 586 tes LULUS, mutasi UI 69/69 MERAH,
+     kontrak `peta-ui.py` LULUS, tsc/lint/format/build bersih.
+   - **TUGAS BERIKUTNYA:** `T7-02 — Tutup kas (seharusnya vs fisik) + alasan selisih ⚠️` (RPC `tutup_shift`,
+     layar `TutupKas.tsx`, perhitungan saldo sistem uang_seharusnya vs uang_fisik, toleransi selisih).
 
 0A. **FASE 6 DIMULAI — T6-01, T6-04, T6-05 SELESAI (2026-09-23).** Tiga tugas cetak yang bisa
    dikerjakan tanpa printer sudah jadi: `aplikasi/src/lib/printer/expos.ts` (penyusun ESC/POS),

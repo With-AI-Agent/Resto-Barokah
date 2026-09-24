@@ -539,6 +539,36 @@ const MUTASI = [
     ganti: '      void nomorAntarmuka',
     uji: 'src/lib/printer/kirim.test.ts',
   },
+
+  // ------------------- T7-01 buka kas / modal awal (M7)
+  {
+    nama: 'BukaKas: tombol lanjut aktif meski modal awal kosong (T7-01) — modal awal tidak lagi wajib',
+    berkas: 'src/layar/kasir/BukaKas.tsx',
+    cari: 'nonaktif={!nominalValid || statusAktif}',
+    ganti: 'nonaktif={false}',
+    uji: 'src/layar/kasir/BukaKas.test.tsx',
+  },
+  {
+    nama: 'BukaKas: nominal dikirim 0 mentah mengabaikan masukan kasir (T7-01)',
+    berkas: 'src/layar/kasir/BukaKas.tsx',
+    cari: 'modalAwal: Math.round(nominalBersih),',
+    ganti: 'modalAwal: 0,',
+    uji: 'src/layar/kasir/BukaKas.test.tsx',
+  },
+  {
+    nama: 'BukaKas: peringatan shift aktif disembunyikan (T7-01) — kasir bisa lupa shift sudah jalan',
+    berkas: 'src/layar/kasir/BukaKas.tsx',
+    cari: '  if (shiftAktif) {',
+    ganti: '  if (false && shiftAktif) {',
+    uji: 'src/layar/kasir/BukaKas.test.tsx',
+  },
+  {
+    nama: 'BukaKas: langkah konfirmasi ditiadakan (T7-01) — salah ketik modal langsung terkirim',
+    berkas: 'src/layar/kasir/BukaKas.tsx',
+    cari: '      {!konfirmasi ? (',
+    ganti: '      {false ? (',
+    uji: 'src/layar/kasir/BukaKas.test.tsx',
+  },
 ]
 
 /**

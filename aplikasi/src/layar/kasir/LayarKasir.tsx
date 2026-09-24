@@ -26,6 +26,7 @@ import { TagihanTerbuka } from './TagihanTerbuka'
 import { Bayar, type BarisTagihan, type HasilBayar, type MetodeBayar, type Tagihan } from './Bayar'
 import { DiskonManual, type BatasDiskon, type HasilDiskon } from './DiskonManual'
 import { VoidItem, type HasilVoid } from './VoidItem'
+import { BukaKas, type ShiftAktifInfo } from './BukaKas'
 import type { DataStruk } from '../../komponen/Struk'
 import { TARIF_BAWAAN, hitungPerkiraan, type TarifResto } from '../../lib/tarif'
 
@@ -95,6 +96,14 @@ export interface LayarKasirProps {
    * supaya keranjang tidak pernah menampilkan tarif yang tidak ada di mana pun.
    */
   tarif?: TarifResto
+
+  // ------------------------------------------------- T7-01 shift kas & modal awal
+  shiftAktif?: ShiftAktifInfo | null
+  namaKasir?: string
+  onBukaShift?: (masukan: {
+    modalAwal: number
+    catatan?: string
+  }) => Promise<{ sukses: boolean; shiftId?: string; pesan?: string } | void> | void
 }
 
 export function LayarKasir({
@@ -118,6 +127,9 @@ export function LayarKasir({
   onBatalkanItem,
   sudahKeDapur = false,
   tarif = TARIF_BAWAAN,
+  shiftAktif = null,
+  namaKasir = 'Kasir Bertugas',
+  onBukaShift,
 }: LayarKasirProps) {
   // Keranjang State
   const [daftarItemKeranjang, setDaftarItemKeranjang] = useState<ItemKeranjang[]>([])
@@ -135,6 +147,7 @@ export function LayarKasir({
   const [bukaOpenBillModal, setBukaOpenBillModal] = useState(false)
   const [bukaBayarModal, setBukaBayarModal] = useState(false)
   const [bukaDiskonModal, setBukaDiskonModal] = useState(false)
+  const [bukaShiftModal, setBukaShiftModal] = useState(false)
   /** Id item yang sedang dimintai alasan pembatalan (T5-06); null = tidak ada. */
   const [itemVoid, setItemVoid] = useState<string | null>(null)
 
@@ -394,6 +407,9 @@ export function LayarKasir({
           </div>
 
           <div className="flex items-center gap-2">
+            <Tombol ragam={shiftAktif ? 'biasa' : 'utama'} onClick={() => setBukaShiftModal(true)}>
+              {shiftAktif ? '🟢 Shift Aktif' : '🟡 Buka Kas'}
+            </Tombol>
             <Tombol ragam="biasa" onClick={() => setBukaOpenBillModal(true)}>
               📋 Tagihan Terbuka
             </Tombol>
@@ -509,6 +525,25 @@ export function LayarKasir({
             onMintaPersetujuan={onMintaPersetujuanDiskon}
             onTerapkan={tanganiTerapkanDiskon}
             onBatal={() => setBukaDiskonModal(false)}
+          />
+        </Lapis>
+      )}
+
+      {/* Modal Buka Kas / Shift Kasir (T7-01) */}
+      {bukaShiftModal && (
+        <Lapis
+          buka={true}
+          onTutup={() => setBukaShiftModal(false)}
+          judul="Shift Kasir & Modal Awal"
+        >
+          <BukaKas
+            cabangId={cabangId}
+            namaCabang={namaCabang}
+            namaKasir={namaKasir}
+            shiftAktif={shiftAktif}
+            onBukaShift={onBukaShift}
+            onLanjut={() => setBukaShiftModal(false)}
+            onBatal={() => setBukaShiftModal(false)}
           />
         </Lapis>
       )}

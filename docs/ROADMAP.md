@@ -1518,9 +1518,9 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 7 — Kas & shift + laporan harian (M7, M8)
 
-- [ ] T7-01 — Buka kas (modal awal) ⚠️
+- [x] T7-01 — Buka kas (modal awal) ⚠️
   - **Tujuan:** setiap shift dimulai dengan modal yang tercatat, sehingga selisih bisa dihitung jujur.
-  - **Ref:** PRD M7; TECH_SPEC §9 ART-6 · RPC resmi: `tutup_shift`, `kas_pergerakan`
+  - **Ref:** PRD M7; TECH_SPEC §9 ART-6 · RPC resmi: `buka_shift`, `tutup_shift`, `kas_pergerakan`
   - **File:** `supabase/migrations/0045_buka_shift.sql`, `aplikasi/src/layar/kasir/BukaKas.tsx`
   - **DoD:** modal awal wajib; satu shift terbuka per kasir per cabang; tercatat siapa & kapan; uji lulus.
   - **Kompleksitas:** sedang (3 jam)

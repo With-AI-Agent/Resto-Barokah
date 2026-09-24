@@ -2391,3 +2391,40 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **Catatan jujur atas percobaan itu:** percobaan pertama saya **tidak gagal** karena masih ada
   tanda `❓ T-028` ketiga di badan teks T5-10 yang belum saya hapus. Itu justru berguna: kalau
   saya berhenti di percobaan pertama, saya akan melaporkan "terbukti" padahal belum.
+
+## [Kas/2026-09-24] Buka Kas: Modal Awal Wajib, Satu Shift Terbuka, dan Jejak Audit Kekal (T7-01)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 & TECH_SPEC §4.3, §9 ART-6
+- **Konteks & Risiko (ART-6):** Sesi kasir tanpa modal awal yang tercatat membuat rekonsiliasi uang
+  fisik di akhir shift kehilangan titik acuan: selisih kas tidak bisa dihitung secara jujur. Jika
+  seorang kasir bisa membuka beberapa shift sekaligus di cabang yang sama, pencatatan transaksi
+  dan pergerakan kas menjadi terpecah tanpa batas tanggung jawab yang jelas.
+- **Keputusan:**
+  1. **Tabel `public.shift_kas` mencatat sesi kasir per cabang:** kolom `id`, `penyewa_id`, `cabang_id`,
+     `dibuka_oleh`, `ditutup_oleh`, `dibuka_pada`, `ditutup_pada`, `modal_awal`, `uang_seharusnya`,
+     `uang_fisik`, `selisih`, `alasan_selisih`, `status` (`'terbuka'`/`'ditutup'`), `catatan`.
+     Kunci asing `pesanan.shift_id` dan `pembayaran.shift_id` disambungkan ke `shift_kas(id)`.
+  2. **Modal awal wajib diisi dan tidak boleh negatif (`check (modal_awal >= 0)`):** peladen menolak
+     nilai null atau negatif pada tingkat skema dan fungsi RPC.
+  3. **Satu shift terbuka per kasir per cabang (DoD T7-01):** ditegakkan berlapis oleh indeks parsial unik
+     `shift_kas_aktif_unik on public.shift_kas (cabang_id, dibuka_oleh) where (status = 'terbuka')`
+     di database dan pengecekan ramah kasir dengan kode `SH-409` pada RPC `public.buka_shift()`.
+  4. **Siapa & kapan dicatat secara tegas dari peladen:** `dibuka_oleh := auth.uid()` dan
+     `dibuka_pada := now()`, bukan kiriman perangkat klien (prinsip integritas waktu peladen).
+  5. **Keamanan RLS & hak tabel:** tabel `shift_kas` diberi hak `SELECT` kepada `authenticated`
+     dengan kebijakan RLS InitPlan `penyewa_id = (select public.penyewa_saya()) and public.cabang_pantau_saya(cabang_id)`.
+     Hak `INSERT`/`UPDATE`/`DELETE` dicabut dari klien; perubahan status/modal wajib melalui RPC definer.
+  6. **Pemicu `picu_shift_kas_jaga`:** menolak `DELETE` mutlak dan mengunci `modal_awal` serta
+     identitas pembuka dari perubahan `UPDATE` langsung (koreksi modal awal menyusul via prosedur T7-06).
+  7. **Jejak audit kriptografis berantai hash:** setiap panggilan sukses `buka_shift` otomatis
+     mencatat baris peristiwa di `public.catatan_audit` (`aksi = 'buka_shift'`, `entitas = 'shift_kas'`).
+  8. **Antarmuka `BukaKas.tsx`:** komponen murni tanpa panggilan jaringan langsung; memuat info cabang &
+     kasir, input modal awal dengan format Rupiah & tombol uang cepat (0 / 50rb / 100rb / 200rb / 500rb),
+     langkah konfirmasi anti salah ketik, penanganan galat `SH-409`, dan deteksi shift aktif.
+- **Bukti:**
+  - SQL: `supabase/tes/buka_shift.sql` (88/88 suite SQL LULUS).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0045.py` (6/6 mutasi kritis TERBUKTI MERAH).
+  - Vitest: `src/layar/kasir/BukaKas.test.tsx` (8/8 tes LULUS), total aplikasi 75 berkas / 586 tes LULUS.
+  - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (69/69 mutasi TERBUKTI MERAH).
+  - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `tsc -b --noEmit` bersih, lint 0 error, format bersih.
+

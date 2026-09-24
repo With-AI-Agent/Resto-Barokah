@@ -70,7 +70,7 @@
 | `dapur.tandai_habis` | Tandai Habis | `dapur` | owner_pusat, admin_cabang, dapur | `ubah_stok` | - | `tulis` | Ya | Ya | `uji_dapur_tandai_menu_habis` |
 | `kasir.batal_item` | Batalkan Item | `kasir` | owner_pusat, admin_cabang, kasir | `void_sebelum_dapur` | `hitung_total` | `tulis` | Ya | Ya | `uji_kasir_batal_item_pra_dapur` |
 | `kasir.beri_diskon` | Beri Diskon | `kasir` | owner_pusat, admin_cabang, kasir | `beri_diskon` | - | `tulis` | Ya | Ya | `uji_kasir_diskon_transaksi` |
-| `kasir.buka_shift` | Buka Shift | `kasir` | owner_pusat, admin_cabang, kasir | - | - | `tulis` | - | Ya | `uji_kasir_buka_shift` |
+| `kasir.buka_shift` | Buka Shift | `kasir` | owner_pusat, admin_cabang, kasir | - | `buka_shift` | `tulis` | - | Ya | `uji_kasir_buka_shift`, `src/layar/kasir/BukaKas.test.tsx` |
 | `kasir.kirim_dapur` | Kirim ke Dapur | `kasir` | owner_pusat, admin_cabang, kasir | - | `hitung_total` | `tulis` | - | - | `uji_kirim_tiket_dapur` |
 | `kasir.kurang_item` | Kurangi Item | `kasir` | owner_pusat, admin_cabang, kasir | - | `hitung_total` | `tulis` | - | - | `uji_kasir_kurang_item` |
 | `kasir.proses_bayar` | Bayar Pesanan | `kasir` | owner_pusat, admin_cabang, kasir | - | `bayar_pesanan` | `tulis` | Ya | Ya | `uji_kasir_bayar_tunai_lunas`, `src/hook/useBayar.test.tsx`, `src/layar/kasir/Bayar.test.tsx` |
