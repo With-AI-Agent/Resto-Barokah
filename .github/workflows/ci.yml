@@ -149,6 +149,9 @@ jobs:
       - name: Bukti mutasi pagar koreksi modal 0050 — T7-06 koreksi modal awal izin atasan (6 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0050.py
 
+      - name: Bukti mutasi pagar laporan kas 0051 — T7-07 laporan kas harian & per shift (6 mutasi wajib MERAH)
+        run: python3 alat/uji-mutasi-0051.py
+
       - name: Bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22, 4 mutasi wajib MERAH)
         run: python3 alat/uji-mutasi-0009.py
 

@@ -1572,7 +1572,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); mitigasi: hanya-tambah + PIN.
   - **Verifikasi:** uji SQL (riwayat koreksi tetap ada).
 
-- [ ] T7-07 — Laporan A: kas harian per shift
+- [x] T7-07 — Laporan A: kas harian per shift
   - **Tujuan:** owner membuka satu layar dan langsung tahu kondisi hari ini.
   - **Ref:** PRD M8 (kriteria selesai — laporan A dikunci untuk G1) · RPC resmi: `laporan_shift`, `laporan_harian`
   - **File:** `supabase/migrations/0051_laporan_kas.sql`, `aplikasi/src/layar/laporan/LaporanKas.tsx`

@@ -72,6 +72,17 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 **KEADAAN SESI INI (2026-09-24, `arena/01a0d09b-resto-barokah` — FASE 7 KAS & SHIFT):**
 
+0Q. **T7-07 (Laporan A: kas harian per shift) SELESAI.**
+   - Migrasi `0051_laporan_kas.sql` mendefinisikan view `public.laporan_kas_shift` (`security_invoker = true`), RPC `public.laporan_shift`, dan RPC `public.laporan_harian`.
+   - RPC `public.laporan_shift` menyajikan kalkulasi terpadu satu sumber di peladen: kas awal, kas masuk, kas keluar, setoran brankas, penjualan tunai & non-tunai, uang seharusnya vs fisik vs selisih, omzet per kategori (makanan/minuman/lainnya), diskon & voucher, rincian metode pembayaran, pergerakan kas, riwayat koreksi modal awal, serta daftar pembatalan/void pesanan bernilai rugi.
+   - RPC `public.laporan_harian` menyediakan rekapitulasi seluruh shift per cabang (admin cabang/owner) atau multi-cabang (owner_pusat) untuk tanggal tertentu.
+   - Suite pengujian SQL `supabase/tes/laporan_kas.sql` (94/94 tes LULUS).
+   - Pengujian mutasi `alat/uji-mutasi-0051.py` membuktikan 6/6 mutasi MERAH (izin lihat_laporan, isolasi multi-tenant shift & cabang, formula uang_seharusnya, omzet per jenis).
+   - Komponen UI `LaporanKas.tsx` & `LayarLaporan.tsx` memuat kartu KPI ringkasan, rincian metode bayar, tabel shift kasir, dialog modal rincian shift `Lapis`, filter tanggal, dan pemilih cabang berjenjang.
+   - Kamus multi-bahasa lengkap 100% pada 4 bahasa (`id`, `en`, `zh`, `ar` dengan 231 kunci).
+   - Bukti: suite SQL **94 LULUS** · uji mutasi SQL 0051 **6/6 MERAH** · Vitest **80 berkas / 634 tes LULUS** · CI **119 gerbang utuh** · tsc & vite build sukses bersih.
+   - Langkah berikutnya di Fase 7: `T7-08 Laporan penjualan dasar (kategori, metode)`.
+
 0P. **T7-06 (Koreksi modal awal dengan izin atasan ⚠️) SELESAI.**
    - Migrasi `0050_koreksi_modal.sql` membuat tabel riwayat append-only `public.koreksi_modal_shift`, pemicu kekal `picu_koreksi_modal_kekal` (anti update/delete), dan mengunci kolom `modal_awal` pada `public.shift_kas` dari perubahan langsung via UPDATE biasa.
    - Prosedur RPC `public.koreksi_modal_shift` memvalidasi wewenang atasan (owner pusat atau admin cabang pengelola), memeriksa kupon PIN atasan (aksi 'koreksi_modal_shift', batas 5 menit), mengonsumsi kupon (sekali pakai), mengunci shift terbuka, memutasi `modal_awal`, serta mencatat rekaman audit berantai hash SHA-256 pada `public.catatan_audit`.
