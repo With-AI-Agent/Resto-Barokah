@@ -22,7 +22,7 @@ create table if not exists public.kas_pergerakan (
   cabang_id         uuid not null references public.cabang(id) on delete cascade,
   shift_id          uuid not null references public.shift_kas(id) on delete restrict,
   jenis             text not null check (jenis in ('masuk', 'keluar', 'setoran', 'koreksi')),
-  jumlah            integer not null check (jumlah > 0),
+  jumlah            integer not null check (jumlah >= 1),
   alasan            text not null check (btrim(alasan) <> ''),
   pelaku_id         uuid not null references public.pengguna(id),
   disetujui_oleh    uuid references public.pengguna(id),
