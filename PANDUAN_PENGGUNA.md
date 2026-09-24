@@ -63,7 +63,7 @@ Lee tidak perlu menyentuh kode. Lee **memutuskan**; agent **mengerjakan + membuk
 | Sudah jadi & teruji | Belum jadi (jangan dipakai untuk kedai dulu) |
 |---|---|
 | Dokumen fondasi (Discovery, PRD, Tech Spec, aturan agent, Roadmap) — **dikunci** | Layar aplikasi untuk dipakai kedai (baru kerangka; layar fitur menyusul Fase 2–10) |
-| Database: penyewa, cabang, pengguna, izin, pengaturan, katalog, stok, meja, pesanan, pembayaran — diuji otomatis (102 berkas uji, semua LULUS) | Perangkat terdaftar & login staf (Fase 1B), kontrak UI (Fase 1C) |
+| Database: penyewa, cabang, pengguna, izin, pengaturan, katalog, stok, meja, pesanan, pembayaran — diuji otomatis (103 berkas uji, semua LULUS) | Perangkat terdaftar & login staf (Fase 1B), kontrak UI (Fase 1C) |
 | Alat pemeriksa otomatis + CI (uji SQL, uji unit, pemeriksa dokumen & buku ini) + **uji sambung Supabase** dengan kunci publik (jalan di CI) | Tabel database **sudah** ada di proyek Supabase nyata (14 migrasi tersebar) dan halaman kerangka **sudah** publik di <https://resto-barokah.fatrizmubarok.workers.dev> (HTTP 200). Yang belum: fitur kedai (Fase 2+) dan domain sendiri — masih alamat gratis `*.workers.dev` |
 | Mekanisme audit independen + review PR independen (protokol, alat, kalibrasi cacat) | Pekerjaan ulang artefak lama (T1-37) — daftarnya sudah ada & terukur |
 
@@ -530,7 +530,7 @@ mempercayai deskripsi PR tanpa membuktikan, menaikkan verdict di atas bukti, dan
 kelulusan pemeriksa — itu teater, bukan review.
 ```
 
-### C7. Cara review & merge perubahan (tanpa membaca kode)
+### C6. Cara review & merge perubahan (tanpa membaca kode)
 
 Lee **tidak perlu** membaca *Files changed*. Alurnya:
 
@@ -544,7 +544,7 @@ Lee **tidak perlu** membaca *Files changed*. Alurnya:
 
 > **Yang boleh dan tidak boleh Lee putuskan sendiri:** merge = keputusan Lee. Tapi kalau Kartu Keputusan berkata `JANGAN MERGE DULU`, agent wajib menjelaskan apa yang kurang dengan bahasa sederhana — dan Lee tidak disarankan memaksa merge.
 
-### C6. Cara mengisi paket audit/review (kalau disuruh memilih)
+### C7. Cara mengisi paket audit/review (kalau disuruh memilih)
 
 | Yang diminta paket | Artinya | Yang Lee tulis |
 |---|---|---|
@@ -736,7 +736,7 @@ Lee **tidak perlu** membaca *Files changed*. Alurnya:
 
 ### H2. Memakai sistem ini sebagai template (untuk aplikasi berikutnya)
 
-### H1. Cara pakai sebagai template (copy folder ini jadi repo baru)
+### H3. Cara pakai sebagai template (copy folder ini jadi repo baru)
 
 **Ini sudah siap sebagai template.** Kapanpun mau buat aplikasi baru, tinggal copy folder `sistem-building-aplikasi` ini jadi repo tersendiri — semua mekanisme, skill, dan prompt ikut.
 
@@ -764,8 +764,6 @@ Lee **tidak perlu** membaca *Files changed*. Alurnya:
 
 
 ### H3. Kebiasaan yang perlu dijaga
-
-### H4. Kebiasaan yang perlu dijaga
 
 - **Checkpoint tiap tahap/task + commit & push** — jangan tunda.
 - **Log sesi berkelanjutan** (`_log-sesi/`) — agent update setelah tiap pertukaran penting, header "Keadaan Sesi" selalu segar, `CLOSED` di akhir. Kalau sesi crash, sesi baru baca log `OPEN` itu — kalau tidak ada, backstop = `PROJECT_STATE.md` + `STATUS.md`.

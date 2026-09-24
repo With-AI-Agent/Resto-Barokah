@@ -62,25 +62,50 @@ INTEGRASI = {"Supabase": "Supabase", "Google": "Google", "Resend": "Resend",
              "Cloudflare": "Cloudflare", "pg_cron": "pg_cron"}
 
 
-def blok_tugas(teks: str) -> list[tuple[str, str]]:
-    """Pisahkan ROADMAP menjadi blok per tugas → [(id, isi_blok)]."""
-    hasil: list[tuple[str, str]] = []
-    sekarang_id, sekarang_isi = None, []
+def blok_tugas(teks: str) -> list[tuple[str, str, bool]]:
+    """Pisahkan ROADMAP menjadi blok per tugas → [(id, isi_blok, status_done)]."""
+    hasil: list[tuple[str, str, bool]] = []
+    sekarang_id, sekarang_isi, sekarang_done = None, [], False
     for baris in teks.splitlines():
-        m = re.match(r"^- \[[ x]\] (T\d+-\d+) — (.+)$", baris)
+        m = re.match(r"^- \[([ x])\] (T\d+-\d+) — (.+)$", baris)
         if m:
             if sekarang_id:
-                hasil.append((sekarang_id, "\n".join(sekarang_isi)))
-            sekarang_id, sekarang_isi = m.group(1), [m.group(2)]
+                hasil.append((sekarang_id, "\n".join(sekarang_isi), sekarang_done))
+            sekarang_id = m.group(2)
+            sekarang_isi = [m.group(3)]
+            sekarang_done = (m.group(1) == "x")
         elif sekarang_id is not None:
             if baris.startswith("## ") or baris.strip() == "---":
-                hasil.append((sekarang_id, "\n".join(sekarang_isi)))
-                sekarang_id, sekarang_isi = None, []
+                hasil.append((sekarang_id, "\n".join(sekarang_isi), sekarang_done))
+                sekarang_id, sekarang_isi, sekarang_done = None, [], False
             else:
                 sekarang_isi.append(baris)
     if sekarang_id:
-        hasil.append((sekarang_id, "\n".join(sekarang_isi)))
+        hasil.append((sekarang_id, "\n".join(sekarang_isi), sekarang_done))
     return hasil
+
+
+def periksa_file_ada_di_git(tugas_id: str, blok: str) -> list[str]:
+    """Tugas [x] wajib menyebut jalur File: yang ada di Git."""
+    import subprocess
+    out = subprocess.run(["git", "ls-files"], capture_output=True, text=True, cwd=ROOT)
+    file_git = set(out.stdout.split("\n"))
+    salah: list[str] = []
+    for baris in blok.splitlines():
+        if "File:" not in baris:
+            continue
+        if "rencana" in baris.lower() or "akan dibangun" in baris.lower():
+            continue
+        for path in re.findall(r"`([^`]+)`", baris):
+            if any(ch in path for ch in ("*", "?", "[")) or path.endswith("/"):
+                continue
+            if path in ("en.ts", "zh.ts", "ar.ts"):
+                continue
+            if path.endswith(".local.md") or path.endswith(".local"):
+                continue
+            if path not in file_git:
+                salah.append(f"RUJUKAN FILE TIDAK ADA: {tugas_id} menyebut `{path}` tapi tidak ada di Git")
+    return salah
 
 
 def periksa_tunggu(tugas: str, tunggu: str) -> list[str]:
@@ -117,7 +142,7 @@ def uji_diri() -> int:
         hasil.append((nama, bool(err) == ditolak, "; ".join(err) or "bersih"))
     # Bukti penanda di judul fase/riwayat tidak menggantikan penanda tugas.
     contoh = "## Fase ❓ T-026\n- [ ] T2-01 — tugas\n  - isi\n---\nriwayat ❓ T-026"
-    err = periksa_tunggu("\n".join(isi for _, isi in blok_tugas(contoh)), buka)
+    err = periksa_tunggu("\n".join(isi for _, isi, _ in blok_tugas(contoh)), buka)
     hasil.append(("penanda hanya di luar tugas ditolak", bool(err), str(err)))
     return laporkan("periksa-roadmap", hasil)
 
@@ -134,14 +159,16 @@ def main() -> int:
     if len(tugas) < 100:
         gagal.append(f"jumlah tugas mencurigakan: {len(tugas)} (harusnya ratusan)")
 
-    for tid, isi in tugas:
+    for tid, isi, status_done in tugas:
         kurang = [a for a in ATRIBUT if a not in isi]
         if kurang:
             gagal.append(f"{tid}: atribut hilang → {', '.join(kurang)}")
         if "⚠️" in isi and "DECISIONS_LOG" not in isi:
             gagal.append(f"{tid}: bertanda ⚠️ tetapi tidak menyebut DECISIONS_LOG")
+        if status_done:
+            gagal.extend(periksa_file_ada_di_git(tid, isi))
 
-    isi_tugas = "\n".join(isi for _, isi in tugas)
+    isi_tugas = "\n".join(isi for _, isi, _ in tugas)
     for m in FITUR:
         if not re.search(rf"\b{m}\b", teks):
             gagal.append(f"fitur wajib {m} tidak punya tugas")
@@ -156,7 +183,7 @@ def main() -> int:
             gagal.append(f"Area Berisiko Tinggi {a} tidak disinggung")
         elif f"{a} " not in teks and f"{a}(" not in teks and f"{a}/" not in teks and f"({a})" not in teks:
             catatan.append(f"{a} disinggung tanpa konteks jelas — periksa manual")
-    tugas_berisiko = sum(1 for _, isi in tugas if "⚠️" in isi)
+    tugas_berisiko = sum(1 for _, isi, _ in tugas if "⚠️" in isi)
     if tugas_berisiko < 20:
         gagal.append(f"hanya {tugas_berisiko} tugas bertanda ⚠️ — Area Berisiko seharusnya tersebar di banyak tugas")
 
@@ -174,9 +201,8 @@ def main() -> int:
         if pola not in teks:
             gagal.append(f"integrasi terlewat: {label}")
 
-    # ringkasan
     per_fase: dict[str, int] = {}
-    for tid, _ in tugas:
+    for tid, _, _ in tugas:
         f = tid.split("-")[0]
         per_fase[f] = per_fase.get(f, 0) + 1
     print("PERIKSA ROADMAP — Resto Barokah")
