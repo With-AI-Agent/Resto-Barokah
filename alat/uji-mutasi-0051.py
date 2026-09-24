@@ -19,7 +19,12 @@ import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MIGRASI = os.path.join(REPO, "supabase", "migrations", "0051_laporan_kas.sql")
+# JEBAKAN "fungsi ditulis ulang" (lihat DECISIONS_LOG [Mutu gerbang/2026-09-24]):
+# fungsi `public.laporan_harian` ditulis ulang di `0054_transaksi_tengah_malam.sql` (T7-11)
+# untuk pemotongan batas hari berbasis zona waktu cabang (ART-9). Mutasi laporan_harian
+# harus menyasar berkas yang berlaku saat runtime (0054).
+MIGRASI_51 = os.path.join(REPO, "supabase", "migrations", "0051_laporan_kas.sql")
+MIGRASI_54 = os.path.join(REPO, "supabase", "migrations", "0054_transaksi_tengah_malam.sql")
 BERKAS_UJI = ["supabase/tes/laporan_kas.sql"]
 
 
@@ -44,12 +49,14 @@ DAFTAR_MUTASI = [
     raise exception 'Anda tidak berwenang melihat laporan shift ini.';
   end if;""",
         "  null;",
+        MIGRASI_51,
     ),
     (
         "isolasi penyewa pada laporan_shift dinonaktifkan",
         """  where s.id = p_shift_id
     and s.penyewa_id = v_penyewa;""",
         """  where s.id = p_shift_id;""",
+        MIGRASI_51,
     ),
     (
         "pagar izin lihat_laporan pada laporan_harian dinonaktifkan",
@@ -57,21 +64,25 @@ DAFTAR_MUTASI = [
     raise exception 'Anda tidak berwenang melihat laporan harian.';
   end if;""",
         "  null;",
+        MIGRASI_54,
     ),
     (
         "isolasi penyewa pada laporan_harian dinonaktifkan",
         """         and c.penyewa_id = v_penyewa""",
         """         -- isolasi penyewa dicabut""",
+        MIGRASI_54,
     ),
     (
         "perhitungan uang_seharusnya pada laporan_shift dirusak (tanpa penjualan tunai)",
         """    v_uang_seharusnya := v_shift.modal_awal + v_penjualan_tunai + v_kas_masuk - v_kas_keluar - v_setoran;""",
         """    v_uang_seharusnya := v_shift.modal_awal + v_kas_masuk - v_kas_keluar - v_setoran;""",
+        MIGRASI_51,
     ),
     (
         "perhitungan omzet minuman pada laporan_shift dirusak (dibuat 0)",
         """    coalesce(sum(case when coalesce(mi.jenis, 'lainnya') = 'minuman' then pi.subtotal else 0 end), 0),""",
         """    0,""",
+        MIGRASI_51,
     ),
 ]
 
@@ -88,19 +99,19 @@ def uji_diri():
 
 
 def uji_mutasi():
-    with open(MIGRASI, "r", encoding="utf-8") as f:
-        isi_asli = f.read()
-
     semua_lolos = True
-    for i, (nama, asli, mutasi) in enumerate(DAFTAR_MUTASI, 1):
+    for i, (nama, asli, mutasi, berkas_target) in enumerate(DAFTAR_MUTASI, 1):
+        with open(berkas_target, "r", encoding="utf-8") as f:
+            isi_asli = f.read()
+
         if asli not in isi_asli:
-            print(f"[{i}/{len(DAFTAR_MUTASI)}] GAGAL CARI: snippet tidak ditemukan di {MIGRASI}")
+            print(f"[{i}/{len(DAFTAR_MUTASI)}] GAGAL CARI: snippet tidak ditemukan di {berkas_target}")
             print(f"Snippet:\n{asli}")
             semua_lolos = False
             continue
 
         isi_mutasi = isi_asli.replace(asli, mutasi, 1)
-        with open(MIGRASI, "w", encoding="utf-8") as f:
+        with open(berkas_target, "w", encoding="utf-8") as f:
             f.write(isi_mutasi)
 
         try:
@@ -111,7 +122,7 @@ def uji_mutasi():
             else:
                 print(f"[{i}/{len(DAFTAR_MUTASI)}] OK (MERAH): {nama}")
         finally:
-            with open(MIGRASI, "w", encoding="utf-8") as f:
+            with open(berkas_target, "w", encoding="utf-8") as f:
                 f.write(isi_asli)
 
     return semua_lolos

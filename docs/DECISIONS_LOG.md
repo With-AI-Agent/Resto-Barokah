@@ -2647,6 +2647,32 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - `python3 alat/uji-mutasi-0039.py`: 6/6 mutasi kritis TERBUKTI MERAH.
   - `python3 alat/uji-mutasi-0039.py --uji-diri`: OK (kontrol positif hijau & deteksi jangkar bekerja).
 
+## [Zona Waktu / 2026-09-24] Transaksi Lewat Tengah Malam: Penanggalan Berbasis Zona Resto, Penomoran Operasional, dan Pemotongan Laporan (T7-11)
+
+- **Area:** Zona waktu (ART-9) · PRD M8 (kasus tepi) & TECH_SPEC §9 ART-9
+- **Konteks & Risiko (ART-9):** Restoran yang beroperasi larut malam atau 24 jam menerima pesanan yang melintasi batas tengah malam (contoh simulasi: pukul 23:50 sampai 00:10). Jika sistem mengandalkan waktu UTC server atau `current_date` bawaan Postgres secara membabi buta, transaksi pukul 00:10 WIB (17:10 UTC hari sebelumnya) akan salah tanggal operasional, terpecah ke hari berikutnya atau sebaliknya, dan laporan omzet harian tidak sinkron dengan fisik kas di laci kasir. Selain itu, nomor antrean/pesanan harian bisa meloncat atau terbagi secara keliru. Prinsip ART-9 mewajibkan: transaksi masuk tanggal transaksi (bukan tanggal tutup kas); nomor pesanan mengikuti hari operasional; seluruh perhitungan waktu memakai zona waktu penyewa/cabang (`coalesce(cabang.zona_waktu, penyewa.zona_waktu, 'Asia/Jakarta')`); laporan tidak terpecah salah tanggal; dan uji lulus dengan jam simulasi 23:50 dan 00:10.
+- **Keputusan:**
+  1. **Helper Penanggalan Berbasis Zona Resto (`public.zona_waktu_cabang` & `public.tanggal_lokal_cabang`):**
+     - Mendeteksi zona waktu cabang/penyewa (default `'Asia/Jakarta'`).
+     - Mengonversi `timestamptz` ke tanggal kalender lokal resto: `(p_waktu at time zone v_zona)::date`.
+  2. **Pelepasan Default UTC pada `pesanan.tanggal`:**
+     - Menghapus `default current_date` pada kolom `pesanan.tanggal` (`alter table public.pesanan alter column tanggal drop default;`).
+     - Pemicu integritas pesanan (`picu_pesanan_jejak_jujur`) selalu mengisi dan memvalidasi `NEW.tanggal` secara otomatis berdasarkan waktu pesanan (`NEW.dibuat_pada` dikonversi ke zona waktu cabang).
+     - Menolak pembuatan pesanan jika klien mencoba menyisipkan tanggal manual yang tidak cocok dengan tanggal operasional cabang saat itu.
+  3. **Penomoran Pesanan Operasional Harian:**
+     - Urutan nomor pesanan (`public.nomor_pesanan_berikutnya`) dihitung per cabang dan per tanggal operasional cabang tersebut, menjaga kesinambungan nomor pesanan kasir sepanjang hari operasional.
+  4. **Penyelarasan Pemotongan Waktu RPC Laporan Kas Harian (`public.laporan_harian`):**
+     - Memotong transaksi pembayaran, pembukaan shift, dan pergerakan kas berdasarkan tanggal operasional lokal cabang (`(pb.waktu at time zone v_zona)::date = v_tanggal`), bukan tanggal UTC server.
+  5. **Penyelarasan Skrip Mutasi (`alat/uji-mutasi-0015.py` & `alat/uji-mutasi-0051.py`):**
+     - Menargetkan fungsi aktif di `0054_transaksi_tengah_malam.sql` untuk pemicu integritas pesanan dan `laporan_harian`.
+- **Bukti:**
+  - Migrasi: `supabase/migrations/0054_transaksi_tengah_malam.sql`.
+  - Berkas Uji SQL: `supabase/tes/tengah_malam.sql` (uji simulasi jam 23:50 WIB dan 00:10 WIB; seluruh 97 berkas uji SQL LULUS 100%).
+  - Uji Mutasi: `alat/uji-mutasi-0054.py` (6/6 mutasi terbukti MERAH).
+  - Gerbang CI: `alat/periksa-gerbang-ci.py` (122 gerbang LULUS).
+  - Frontend Vitest: 84 berkas / 671 tes LULUS (100%).
+
+
 
 
 

@@ -1608,7 +1608,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** kebocoran data lintas cabang → mitigasi: filter di peladen (T2-07).
   - **Verifikasi:** uji manual simpan PDF.
 
-- [ ] T7-11 — Transaksi lewat tengah malam ⚠️
+- [x] T7-11 — Transaksi lewat tengah malam ⚠️
   - **Tujuan:** laporan tidak terpecah salah tanggal.
   - **Ref:** PRD M8 (kasus tepi); TECH_SPEC §9 ART-9
   - **File:** `supabase/tes/tengah_malam.sql`

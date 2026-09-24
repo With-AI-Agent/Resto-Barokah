@@ -81,6 +81,10 @@ MIG27 = "supabase/migrations/0027_initplan_policy_rls.sql"
 # setiap kali sebuah fungsi ditulis ulang di migrasi baru, semua mutasi yang menyasarnya
 # wajib ikut dipindahkan ke berkas yang BENAR-BENAR berlaku.
 MIG42 = "supabase/migrations/0042_bahan_terbuang_jujur.sql"
+# 0054 (T7-11) menulis ulang UTUH `picu_pesanan_jejak_jujur` sebagai definisi efektif terakhir
+# untuk penanggalan berbasis zona waktu resto (ART-9). Mutasi F-06 (stempel lifecycle) HARUS
+# mengenai salinan ini agar tidak ditimpa kembali oleh 0054.
+MIG54 = "supabase/migrations/0054_transaksi_tengah_malam.sql"
 UJI = "supabase/tes/pembatalan_penanda_palsu.sql"                       # bagian 1 (K-1)
 UJI_PR02 = "supabase/tes/void_satu_item.sql"                            # bagian 2 (K-2a)
 UJI_F01 = "supabase/tes/diskon_sesudah_lunas.sql"                       # bagian 3 (K-2b)
@@ -497,7 +501,7 @@ def main() -> int:
         )
 
     hasil.append(mutasi("stempel lifecycle pesanan boleh dikarang perangkat (cacat AUD-3 F-06)",
-                        stempel_boleh_dikarang, uji=UJI_F06))
+                        stempel_boleh_dikarang, uji=UJI_F06, berkas_rel=MIG54))
 
     # ---------------------------------------------------------- bagian 9 (AUD-3 F-04)
     # 21) Aturan transisi status item dilepas (cacat asli F-04) → MERAH.

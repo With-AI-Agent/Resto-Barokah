@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `2140cba6995fea2c84ab74ea266db594e1e6e643`
+- **Commit keadaan kerja:** `4e2ae47f5f836920f28c6614ac7a90c9de6e77be`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 35986447016, commit 2140cba6) — tunggu sampai selesai
+- **CI terakhir:** failure (run 35987420155, commit 4e2ae47f)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (36 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (36 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (37 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (37 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1467,3 +1467,19 @@ Urutan yang disarankan agent, dan alasannya:
    - Suite uji unit `FormatLaporan.test.tsx` (11 tes) dan `LayarLaporan.test.tsx` (5 tes) lulus 100%.
    - Total Vitest aplikasi: 84 berkas uji / 671 tes LULUS 100%.
 5. **Rencana Selanjutnya:** Melangkah ke `T7-11 — Transaksi lewat tengah malam ⚠️`.
+
+**FASE 7 T7-11 TRANSAKSI LEWAT TENGAH MALAM SELESAI (2026-09-24):**
+1. **Migrasi `0054_transaksi_tengah_malam.sql`:**
+   - Pelepasan default UTC `pesanan.tanggal` (`alter table public.pesanan alter column tanggal drop default;`).
+   - Helper zona waktu resto: `public.zona_waktu_cabang(uuid)` dan `public.tanggal_lokal_cabang(uuid, timestamptz)` untuk mendeteksi zona waktu cabang/penyewa (default `'Asia/Jakarta'`).
+   - Pemicu integritas pesanan (`picu_pesanan_jejak_jujur`): menolak tanggal sembarang dari klien dan memastikan tanggal pesanan selalu menggunakan tanggal lokal cabang operasional.
+   - Penomoran pesanan operasional: nomor urut pesanan harian terisolasi per cabang dan per tanggal operasional cabang tersebut.
+   - RPC `public.laporan_harian`: memotong transaksi pembayaran, pembukaan shift, dan pergerakan kas berdasarkan tanggal operasional lokal cabang (`(pb.waktu at time zone v_zona)::date = v_tanggal`), bukan tanggal UTC server.
+2. **Pengujian & Bukti Mutasi:**
+   - Suite SQL `supabase/tes/tengah_malam.sql`: 97 berkas uji SQL lulus 100% (uji simulasi jam 23:50 WIB dan 00:10 WIB hari berikutnya).
+   - Uji mutasi `alat/uji-mutasi-0054.py`: 6/6 mutasi kritis terbukti MERAH.
+   - Uji mutasi `alat/uji-mutasi-0015.py` & `alat/uji-mutasi-0051.py` diselaraskan ke definisi aktif di `0054` dan lulus 100%.
+   - 122 gerbang CI terverifikasi utuh (`python3 alat/periksa-gerbang-ci.py`).
+   - Total Vitest aplikasi: 84 berkas uji / 671 tes LULUS 100%.
+3. **Pengingat Audit Fase 7 (§25):** Jeda wajib tetap berlaku setelah T7-12 sebelum beralih ke Fase 8.
+4. **Rencana Selanjutnya:** Melangkah ke `T7-12 — Uji golden: laporan = data mentah`.
