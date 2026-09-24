@@ -10,11 +10,12 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `c51ada66747088cd4c1b3669f5df82e4a47b3074`
+- **Commit keadaan kerja:** `e7818e2f8c51d4b6503ce6becd1cbc3b7d11be6b`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit c51ada66)
+- **CI terakhir:** failure (run 36009322838, commit e7818e2f)
+- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-20.md` → `cbba4010` (41 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (41 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-24.md` → `e7818e2f` (0 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (281 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -69,7 +70,13 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-24, `arena/01a0d09b-resto-barokah` — FASE 7 KAS & SHIFT TUNTAS):**
+**KEADAAN SESI INI (2026-09-24, `arena/01a0d09b-resto-barokah` — PERSIAPAN AUDIT MENYELURUH DI SESI BARU):**
+
+0V. **PERSIAPAN PINDAH SESI & AUDIT MENYELURUH SESUAI INSTRUKSI LEE.**
+   - Lee menginstruksikan jeda untuk pindah sesi dan menjalankan audit/pemeriksaan menyeluruh di sesi baru secara maksimal dan sempurna, mencakup UI, UX, fungsi, fitur, hingga fondasi dan seluruh aspek pembangunan aplikasi.
+   - Seluruh 12 tugas Fase 7 (T7-01 s.d. T7-12) telah tuntas 100% dan terbukti lolos uji golden matematis (|selisih| = 0).
+   - Paket audit menyeluruh AUD-3 telah dibuat: `docs/uji/paket-audit/AUD-3-2026-09-24.md` dan berkas siap-tempel `docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md` (mencakup 383 berkas proyek, 193 tugas roadmap, 72 klaim bukti, dan bahan kalibrasi).
+   - Rencana di sesi baru: Jalankan audit komprehensif atau instruksikan sesi auditor independen sesuai paket AUD-3-2026-09-24, kemudian analisis dan panen temuan audit untuk perbaikan menyeluruh sebelum melangkah ke Fase 8.
 
 0U. **T7-12 (Uji golden: laporan = data mentah) SELESAI — FASE 7 TUNTAS PENUH 100%.**
    - Berkas uji `supabase/tes/golden_laporan.sql` membuktikan secara matematis dan deterministik bahwa seluruh angka laporan operasional (`laporan_penjualan`, `laporan_menu`, `laporan_harian`, `laporan_shift`, `laporan_pembatalan`, `laporan_koreksi_modal`) sama persis (|selisih| = 0) dengan hasil hitung langsung dari tabel data mentah transaksi (`pesanan`, `pesanan_item`, `pembayaran`, `kas_pergerakan`, `koreksi_modal_shift`, `shift_kas`).
