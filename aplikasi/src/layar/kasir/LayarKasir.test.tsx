@@ -152,14 +152,14 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
             id: 'shift-pos-01',
             cabangId: 'cab-01',
             modalAwal: 100000,
-            dibukaPada: '2026-09-24T08:00:00Z',
+            dibukaPada: new Date().toISOString(),
           }}
           uangSeharusnyaPerkiraan={300000}
         />
       </PenyediaBahasa>,
     )
 
-    const tombolTutupKas = screen.getByRole('button', { name: /Tutup Kas/i })
+    const tombolTutupKas = screen.getByRole('button', { name: /🔴\s*Tutup Kas/i })
     expect(tombolTutupKas).toBeDefined()
 
     fireEvent.click(tombolTutupKas)

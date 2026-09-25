@@ -49,6 +49,13 @@ LAPORAN = {
     # Kalibrasi ronde ini TIDAK BISA DINILAI: kunci di luar repo hilang saat reset sandbox (dicatat jujur).
     "J": "docs/uji/audit/LAPORAN_AUD-3_2026-09-20_menyeluruh__01a0bf6e.md",
     "K": "docs/uji/audit/LAPORAN_AUD-3_2026-09-20_menyeluruh__01a0bf6d.md",
+    # Ronde 2026-09-24 (AUD-3-2026-09-24, tiga sesi auditor paralel atas paket menyeluruh,
+    # target e7818e2f). L = LOLOS KONTRAK (9 temuan). M = LOLOS KONTRAK (1 temuan). N = DITOLAK
+    # KONTRAK (4 grup cakupan tak ditabelkan) tetapi isinya tetap dipakai dan wajib dibantah-balik
+    # per baris (preseden D/H/K). Lihat §1 ronde 2026-09-24 di AUDIT_RIWAYAT.md untuk bantah-balik.
+    "L": "docs/uji/audit/LAPORAN_AUD_3_9f19269c3ee54a4ba7c9c9d70b3ce99c__ac94e5bf535640ef358056fb728b60a32af74122f3f731af21685ce3f7d721cb.md",
+    "M": "docs/uji/audit/LAPORAN_audit_7ccbb132764743c09650ac2e8205c9df__6b34b619088528c572356f59fd5c0f5c87fd5ad7804757e5bc1e96eac6c8a7f6.md",
+    "N": "docs/uji/audit/LAPORAN_audit_f34c9a1ccd2e49d5b30e0a8d56249223__9903355985ffde05bbad395e73dbf7d2453237d1ecd237632d41805dd8c76a8c.md",
 }
 ROADMAP = "docs/ROADMAP.md"
 

@@ -720,6 +720,7 @@ def _kenali_cabang_asal(teks: str, folder: str = "docs/uji/audit/") -> dict:
     tidak bisa dikotori sesi kerja — jadi ia yang dipakai bila tersedia (cacat mekanisme #10).
     """
     _, refs = jalankan(["git", "for-each-ref", "--format=%(refname:short)", "refs/remotes/origin/"])
+    kandidat_cadangan = {}
     for ref in [r.strip() for r in refs.splitlines() if r.strip()]:
         _, berkas = jalankan(["git", "ls-tree", "-r", "--name-only", ref, "--", folder])
         for jalur in [b.strip() for b in berkas.splitlines() if b.strip().lower().endswith(".md")]:
@@ -728,8 +729,11 @@ def _kenali_cabang_asal(teks: str, folder: str = "docs/uji/audit/") -> dict:
                 bukti = _bukti_cabang_laporan(ref, folder)
                 if bukti:
                     bukti["berkas"] = jalur
-                    return bukti
-    return {}
+                    if bukti.get("hanya_laporan"):
+                        return bukti
+                    if not kandidat_cadangan:
+                        kandidat_cadangan = bukti
+    return kandidat_cadangan
 
 
 def _kontrak_target_memuat(sha: str, penanda: str, berkas_alat: str = "alat/audit-independen.py") -> bool | None:

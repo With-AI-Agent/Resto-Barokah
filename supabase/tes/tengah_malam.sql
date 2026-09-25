@@ -83,6 +83,11 @@ update public.shift_kas
  where cabang_id = 'a1a1a1a1-0000-0000-0000-000000000001'
    and status = 'terbuka';
 
+-- Bersihkan pesanan yang sudah ada di tanggal 2026-09-24 & 2026-09-25 agar nomor urut mulai dari 1
+delete from public.pembayaran where pesanan_id in (select id from public.pesanan where cabang_id = 'a1a1a1a1-0000-0000-0000-000000000001' and tanggal in ('2026-09-24'::date, '2026-09-25'::date));
+delete from public.pesanan_item where pesanan_id in (select id from public.pesanan where cabang_id = 'a1a1a1a1-0000-0000-0000-000000000001' and tanggal in ('2026-09-24'::date, '2026-09-25'::date));
+delete from public.pesanan where cabang_id = 'a1a1a1a1-0000-0000-0000-000000000001' and tanggal in ('2026-09-24'::date, '2026-09-25'::date);
+
 -- Buat shift kas malam baru (simulasi dibuka 2026-09-24 18:00 WIB / 11:00 UTC)
 insert into public.shift_kas (
   id,

@@ -50,9 +50,9 @@ DAFTAR_MUTASI = [
         """  v_tanggal_lokal := current_date; -- (mutasi) dipaksa tanggal UTC peladen""",
     ),
     (
-        "penomoran pesanan harian dirusak (memakai UTC current_date, bukan tanggal hari operasional)",
+        "penomoran pesanan harian dirusak (memakai UTC, bukan tanggal hari operasional)",
         """    new.nomor := public.nomor_pesanan_berikutnya(new.cabang_id, new.tanggal);""",
-        """    new.nomor := public.nomor_pesanan_berikutnya(new.cabang_id, current_date); -- (mutasi) nomor mengikuti UTC""",
+        """    new.nomor := public.nomor_pesanan_berikutnya(new.cabang_id, (coalesce(new.dibuat_pada, now()) at time zone 'UTC')::date); -- (mutasi) nomor mengikuti UTC""",
     ),
     (
         "helper zona_waktu_cabang dirusak (selalu mengembalikan 'UTC' alih-alih zona resto)",
