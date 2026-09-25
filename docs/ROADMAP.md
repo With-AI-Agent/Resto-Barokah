@@ -1668,14 +1668,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pencarian lambat di perangkat lama → mitigasi: pencarian di klien atas data yang sudah dimuat (tanpa data sensitif).
   - **Verifikasi:** uji manual 5 pencarian. · **Bukti 2026-09-25:** implementasi pencarian klien instan di `aplikasi/src/layar/pelanggan-publik/Menu.tsx` mencakup pencarian nama dan deskripsi menu, tombol bersihkan ✕ cepat, penyaringan kategori, tombol chip cepat menu unggulan (⭐ Unggulan), dan carousel kartu sorotan rekomendasi menu; 12 uji unit komprehensif di `Menu.test.tsx` termasuk 5 uji unit khusus skenario pencarian sesuai kriteria DoD (12 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm --prefix aplikasi test -- src/layar/pelanggan-publik/Menu.test.tsx`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `aplikasi/alat/periksa-struktur.py` lolos tanpa warna mentah; `alat/peta-ui.py` lolos bebas tombol liar.
 
-- [ ] T8-05 — Tautan & QR katalog per resto
+- [x] T8-05 — Tautan & QR katalog per resto
   - **Tujuan:** pelanggan bisa membuka menu dari meja atau dari media sosial.
   - **Ref:** PRD M10 & M2 (nomor & area meja)
   - **File:** `aplikasi/src/layar/pengaturan/TautanKatalog.tsx`
   - **DoD:** tautan publik + QR yang bisa diunduh/dicetak; QR per meja opsional (menyertakan nomor meja).
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** QR salah cetak → mitigasi: pratinjau sebelum cetak + uji pindai 2 perangkat.
-  - **Verifikasi:** uji pindai QR dengan kamera HP.
+  - **Verifikasi:** uji pindai QR dengan kamera HP. · **Bukti 2026-09-25:** implementasi `aplikasi/src/layar/pengaturan/TautanKatalog.tsx` terintegrasi rute di `aplikasi/src/App.tsx`; mendukung tautan publik resto dengan tombol salin & bagikan WhatsApp, generator kode QR akrilik per nomor meja dan meja kustom dengan parameter URL query `?meja=...`, pratinjau cetak stand akrilik A6, tombol cetak langsung (`window.print`) dan unduh berkas SVG siap cetak, panel mitigasi risiko salah cetak uji pindai 2 perangkat (Android dan iOS), serta tab cetak massal seluruh meja cabang; 9 uji unit di `TautanKatalog.test.tsx` (9 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm --prefix aplikasi test -- src/layar/pengaturan/TautanKatalog.test.tsx`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `aplikasi/alat/periksa-struktur.py` lolos tanpa warna mentah; `alat/peta-ui.py` lolos bebas tombol liar.
 
 - [ ] T8-06 — Halaman kampanye + pendaftaran pelanggan
   - **Tujuan:** calon pelanggan bisa ikut kampanye undang-teman tanpa bantuan kasir.

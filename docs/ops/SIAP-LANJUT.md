@@ -10,11 +10,12 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `5bac456661348c1ed73effde02eeaec3ba2bae51`
+- **Commit keadaan kerja:** `9b70c383478679d286f1fd951192710d130c6180`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit 5bac4566)
+- **CI terakhir:** in_progress (run 36117989002, commit 9b70c383) — tunggu sampai selesai
+- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (7 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (299 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (8 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (300 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -69,18 +70,27 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01, T8-02, T8-03, & T8-04 SELESAI, LANJUT T8-05):**
+**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01, T8-02, T8-03, T8-04, & T8-05 SELESAI, LANJUT T8-06):**
 
-0ZA. **FASE 8: T8-04 (Pencarian & penyaringan menu instan klien) SELESAI & T8-05 SIAP LANJUT.**
+0ZB. **FASE 8: T8-05 (Tautan & QR katalog per resto — nomor meja & media sosial) SELESAI & T8-06 SIAP LANJUT.**
+   - Implementasi pengaturan tautan dan kode QR katalog di `aplikasi/src/layar/pengaturan/TautanKatalog.tsx`:
+     1. Tautan resmi menu publik resto dengan tombol salin tautan instan, bagikan WhatsApp, dan pratinjau peramban.
+     2. Generator kode QR akrilik meja per nomor meja dan meja kustom dengan parameter URL query `?meja=...&meja_id=...`.
+     3. Pratinjau kartu meja akrilik fisik A6 (nama resto, tagline, nomor meja tebal, kode QR tajam, instruksi awam kamera ponsel).
+     4. Tombol cetak langsung (`window.print()`) dan unduh berkas SVG siap cetak.
+     5. Panel mitigasi risiko salah cetak: pengujian simulasi pindai 2 perangkat (Android dan iOS) sebelum cetak massal.
+     6. Tab cetak massal seluruh meja cabang sekaligus.
+     7. 9 uji unit di `TautanKatalog.test.tsx` (total 91 berkas Vitest frontend / 713 tes unit hijau).
+   - Langkah selanjutnya: T8-06 (Halaman kampanye + pendaftaran voucher pelanggan).
+
+0ZA. **FASE 8: T8-04 (Pencarian & penyaringan menu instan klien) SELESAI.**
    - Implementasi pencarian instan pada `Menu.tsx`:
      1. Kotak pencarian responsif dengan pencarian nama menu dan deskripsi/bahan tanpa lag dan tanpa perlu memuat ulang halaman.
      2. Tombol hapus/reset kata kunci ✕ instan untuk mengembalikan seluruh menu dalam satu ketukan.
      3. Tab penyaringan per-kategori yang terintegrasi secara mulus dengan kueri pencarian.
      4. Tombol chip filter cepat menu unggulan (⭐ Unggulan) untuk menyaring hanya menu rekomendasi resto.
      5. Carousel sorotan menu unggulan di bagian atas dengan kartu rekomendasi visual.
-     6. Pengujian Vitest: 12 uji unit di `Menu.test.tsx` termasuk 5 uji unit khusus skenario pencarian DoD T8-04 (nama parsial, case-insensitive, deskripsi/bahan, kombinasi kategori + cari, dan reset pencarian kosong).
-     7. Total Vitest frontend: 90 berkas lulus, 704 tes unit hijau.
-   - Langkah selanjutnya: T8-05 (Tautan & QR katalog per resto — layar pengaturan tautan & generator cetak QR per meja).
+     6. Pengujian Vitest: 12 uji unit di `Menu.test.tsx` termasuk 5 uji unit khusus skenario pencarian DoD T8-04.
 
 0Z. **FASE 8: T8-03 (Daftar menu + foto + harga + penanda habis) SELESAI.**
    - Implementasi daftar menu interaktif terintegrasi:

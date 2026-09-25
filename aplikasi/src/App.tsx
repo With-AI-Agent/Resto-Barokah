@@ -20,6 +20,7 @@ import { LayarLaporan } from './layar/laporan/LayarLaporan'
 import { LayarPelayan } from './layar/pelayan/LayarPelayan'
 import { DaftarTransaksi } from './layar/kasir/DaftarTransaksi'
 import { PasangPrinter } from './layar/pengaturan/PasangPrinter'
+import { TautanKatalog } from './layar/pengaturan/TautanKatalog'
 import { LayarPelangganPublik } from './layar/pelanggan-publik/LayarPelangganPublik'
 import { klienSupabase } from './lib/supabase'
 import { masukDenganGoogle, kirimTautanMasukEmail } from './lib/auth'
@@ -439,6 +440,9 @@ export default function App() {
         return <LayarPelayan namaPelayan={sesi?.nama ?? 'Pelayan'} />
       case 'printer':
         return <PasangPrinter />
+      case 'tautan_katalog':
+      case 'qr_katalog':
+        return <TautanKatalog onKembali={() => setLayarAktif('pengaturan')} />
       case 'pelanggan-publik':
       case 'katalog':
         return (
