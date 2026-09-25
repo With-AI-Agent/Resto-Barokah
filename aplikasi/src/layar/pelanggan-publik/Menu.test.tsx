@@ -56,7 +56,7 @@ const DUMMY_MENU: MenuItemPublik[] = [
   },
 ]
 
-describe('Komponen Menu Publik (Menu.tsx — T8-03)', () => {
+describe('Komponen Menu Publik (Menu.tsx — T8-03 & T8-04)', () => {
   afterEach(cleanup)
 
   it('merender daftar kategori dan menghitung jumlah item per kategori', () => {
@@ -177,35 +177,108 @@ describe('Komponen Menu Publik (Menu.tsx — T8-03)', () => {
     expect(screen.queryByTestId('konten-modal-rincian')).toBeNull()
   })
 
-  it('melakukan penyaringan berdasarkan tab kategori dan pencarian kata kunci', () => {
+  // ===================== PENGUJIAN T8-04 =====================
+
+  it('merender bagian sorotan item unggulan (featured items) di bagian atas', () => {
     render(<Menu kategori={DUMMY_KATEGORI} menu={DUMMY_MENU} />)
 
-    // Klik kategori Minuman Segar
-    const tabMinuman = screen.getByRole('button', { name: /kategori minuman segar/i })
-    fireEvent.click(tabMinuman)
+    // Bagian sorotan unggulan muncul
+    const sorotan = screen.getByTestId('sorotan-unggulan')
+    expect(sorotan).toBeDefined()
+    expect(screen.getByText('Rekomendasi Resto')).toBeDefined()
 
-    expect(screen.getByText('Es Kelapa Muda Jeruk')).toBeDefined()
-    expect(screen.queryByText('Nasi Liwet Komplit Barokah')).toBeNull()
-    expect(screen.queryByText('Tahu Cabe Garam Krispi')).toBeNull()
+    // Menampilkan kartu sorotan untuk Nasi Liwet dan Tahu Cabe Garam (item unggulan yang tersedia)
+    expect(screen.getByTestId('kartu-sorotan-m-01')).toBeDefined()
+    expect(screen.getByTestId('kartu-sorotan-m-03')).toBeDefined()
+  })
 
-    // Kembali ke semua kategori
-    const tabSemua = screen.getByRole('button', { name: /kategori semua/i })
-    fireEvent.click(tabSemua)
+  it('dapat menyaring hanya menu unggulan lewat tombol filter cepat ⭐ Unggulan', () => {
+    render(<Menu kategori={DUMMY_KATEGORI} menu={DUMMY_MENU} />)
 
+    // Klik tombol filter cepat "⭐ Unggulan"
+    const tombolFilterUnggulan = screen.getByRole('button', { name: /filter hanya menu unggulan/i })
+    fireEvent.click(tombolFilterUnggulan)
+
+    // Hanya item unggulan yang tampil di kisi menu
     expect(screen.getByText('Nasi Liwet Komplit Barokah')).toBeDefined()
-    expect(screen.getByText('Es Kelapa Muda Jeruk')).toBeDefined()
     expect(screen.getByText('Tahu Cabe Garam Krispi')).toBeDefined()
-
-    // Cari kata kunci "Tahu"
-    const inputCari = screen.getByRole('searchbox', { name: /cari menu/i })
-    fireEvent.change(inputCari, { target: { value: 'Tahu' } })
-
-    expect(screen.getByText('Tahu Cabe Garam Krispi')).toBeDefined()
-    expect(screen.queryByText('Nasi Liwet Komplit Barokah')).toBeNull()
     expect(screen.queryByText('Es Kelapa Muda Jeruk')).toBeNull()
+  })
 
-    // Cari kata kunci yang tidak ada
-    fireEvent.change(inputCari, { target: { value: 'Pizza Keju' } })
-    expect(screen.getByTestId('menu-kosong')).toBeDefined()
+  describe('Verifikasi 5 Skenario Pencarian & Penyaringan Menu (T8-04 DoD)', () => {
+    it('Skenario 1: pencarian berdasarkan nama menu parsial', () => {
+      render(<Menu kategori={DUMMY_KATEGORI} menu={DUMMY_MENU} />)
+      const inputCari = screen.getByRole('searchbox', { name: /cari menu/i })
+
+      fireEvent.change(inputCari, { target: { value: 'Liwet' } })
+
+      expect(screen.getByText('Nasi Liwet Komplit Barokah')).toBeDefined()
+      expect(screen.queryByText('Es Kelapa Muda Jeruk')).toBeNull()
+      expect(screen.queryByText('Tahu Cabe Garam Krispi')).toBeNull()
+
+      // Sorotan unggulan disembunyikan agar hasil pencarian tetap fokus
+      expect(screen.queryByTestId('sorotan-unggulan')).toBeNull()
+    })
+
+    it('Skenario 2: pencarian tidak sensitif huruf besar/kecil (case-insensitive)', () => {
+      render(<Menu kategori={DUMMY_KATEGORI} menu={DUMMY_MENU} />)
+      const inputCari = screen.getByRole('searchbox', { name: /cari menu/i })
+
+      fireEvent.change(inputCari, { target: { value: 'kElApA' } })
+
+      expect(screen.getByText('Es Kelapa Muda Jeruk')).toBeDefined()
+      expect(screen.queryByText('Nasi Liwet Komplit Barokah')).toBeNull()
+    })
+
+    it('Skenario 3: pencarian berdasarkan kata kunci deskripsi/bahan', () => {
+      render(<Menu kategori={DUMMY_KATEGORI} menu={DUMMY_MENU} />)
+      const inputCari = screen.getByRole('searchbox', { name: /cari menu/i })
+
+      // Kata 'rempah' ada di deskripsi Nasi Liwet
+      fireEvent.change(inputCari, { target: { value: 'rempah' } })
+
+      expect(screen.getByText('Nasi Liwet Komplit Barokah')).toBeDefined()
+      expect(screen.queryByText('Tahu Cabe Garam Krispi')).toBeNull()
+
+      // Menampilkan ringkasan jumlah hasil pencarian
+      expect(screen.getByTestId('ringkasan-pencarian').textContent).toContain('1')
+    })
+
+    it('Skenario 4: kombinasi pencarian kata kunci dengan pemilihan tab kategori', () => {
+      render(<Menu kategori={DUMMY_KATEGORI} menu={DUMMY_MENU} />)
+      const inputCari = screen.getByRole('searchbox', { name: /cari menu/i })
+
+      // Pilih kategori Camilan
+      const tabCamilan = screen.getByRole('button', { name: /kategori camilan/i })
+      fireEvent.click(tabCamilan)
+
+      // Cari 'Tahu' dalam kategori Camilan -> Ditemukan
+      fireEvent.change(inputCari, { target: { value: 'Tahu' } })
+      expect(screen.getByText('Tahu Cabe Garam Krispi')).toBeDefined()
+
+      // Pilih kategori Minuman Segar selagi kata kunci 'Tahu' masih ada -> Kosong
+      const tabMinuman = screen.getByRole('button', { name: /kategori minuman segar/i })
+      fireEvent.click(tabMinuman)
+      expect(screen.getByTestId('menu-kosong')).toBeDefined()
+      expect(screen.queryByText('Tahu Cabe Garam Krispi')).toBeNull()
+    })
+
+    it('Skenario 5: kata kunci tidak ditemukan, lalu reset via tombol Bersihkan / Hapus ✕', () => {
+      render(<Menu kategori={DUMMY_KATEGORI} menu={DUMMY_MENU} />)
+      const inputCari = screen.getByRole('searchbox', { name: /cari menu/i })
+
+      fireEvent.change(inputCari, { target: { value: 'Bebek Betutu' } })
+      expect(screen.getByTestId('menu-kosong')).toBeDefined()
+
+      // Klik tombol silang ✕ untuk menghapus kata kunci
+      const tombolHapus = screen.getByRole('button', { name: /hapus kata kunci pencarian/i })
+      fireEvent.click(tombolHapus)
+
+      // Seluruh menu kembali tampil instan
+      expect(screen.getByText('Nasi Liwet Komplit Barokah')).toBeDefined()
+      expect(screen.getByText('Es Kelapa Muda Jeruk')).toBeDefined()
+      expect(screen.getByText('Tahu Cabe Garam Krispi')).toBeDefined()
+      expect(screen.queryByTestId('menu-kosong')).toBeNull()
+    })
   })
 })

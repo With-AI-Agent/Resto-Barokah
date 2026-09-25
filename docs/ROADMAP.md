@@ -1659,14 +1659,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** foto besar membebani kuota gratis → mitigasi: unggah otomatis diperkecil + format modern.
   - **Verifikasi:** uji manual pada HP + ukur ukuran halaman. · **Bukti 2026-09-25:** implementasi `aplikasi/src/layar/pelanggan-publik/Menu.tsx` terintegrasi dengan `Katalog.tsx`; dukungan foto teroptimasi (lazy-loading, decoding async, rasio aspek anti-CLS, fallback ikon placeholder), format rupiah standar, opsi varian rasa/ukuran dan topping tambahan dengan simulasi harga real-time dalam modal `Lapis`; penanda habis visual (overlay redup tertutup, lencana HABIS `Lencana nada="danger"`, keterangan stok habis di cabang ini) serta sakelar filter sembunyikan/tampilkan menu habis; 6 uji unit di `Menu.test.tsx` (6 uji unit hijau, angka saat itu 2026-09-25 — perintah: `cd aplikasi && npm test`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `aplikasi/alat/periksa-struktur.py` lolos tanpa warna mentah; `alat/peta-ui.py` lolos bebas tombol liar.
 
-- [ ] T8-04 — Pencarian & penyaringan menu
+- [x] T8-04 — Pencarian & penyaringan menu
   - **Tujuan:** pelanggan menemukan menu cepat.
   - **Ref:** PRD M10
   - **File:** `aplikasi/src/layar/pelanggan-publik/Menu.tsx`
   - **DoD:** pencarian nama, filter kategori, sorotan item unggulan; hasil instan tanpa memuat ulang.
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** pencarian lambat di perangkat lama → mitigasi: pencarian di klien atas data yang sudah dimuat (tanpa data sensitif).
-  - **Verifikasi:** uji manual 5 pencarian.
+  - **Verifikasi:** uji manual 5 pencarian. · **Bukti 2026-09-25:** implementasi pencarian klien instan di `aplikasi/src/layar/pelanggan-publik/Menu.tsx` mencakup pencarian nama dan deskripsi menu, tombol bersihkan ✕ cepat, penyaringan kategori, tombol chip cepat menu unggulan (⭐ Unggulan), dan carousel kartu sorotan rekomendasi menu; 12 uji unit komprehensif di `Menu.test.tsx` termasuk 5 uji unit khusus skenario pencarian sesuai kriteria DoD (12 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm --prefix aplikasi test -- src/layar/pelanggan-publik/Menu.test.tsx`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `aplikasi/alat/periksa-struktur.py` lolos tanpa warna mentah; `alat/peta-ui.py` lolos bebas tombol liar.
 
 - [ ] T8-05 — Tautan & QR katalog per resto
   - **Tujuan:** pelanggan bisa membuka menu dari meja atau dari media sosial.

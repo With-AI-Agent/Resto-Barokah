@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `bd76852329b5b8ac7c075f2c9edb4d90b9576591`
+- **Commit keadaan kerja:** `5bac456661348c1ed73effde02eeaec3ba2bae51`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (run 36113049037, commit bd768523)
+- **CI terakhir:** success (1 run, commit 5bac4566)
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (6 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (298 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (7 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (299 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -69,16 +69,32 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01 & T8-02 SELESAI, LANJUT T8-03):**
+**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01, T8-02, T8-03, & T8-04 SELESAI, LANJUT T8-05):**
 
-0Z. **FASE 8: T8-02 (Halaman katalog publik per resto merek sendiri) SELESAI & T8-03 SIAP LANJUT.**
+0ZA. **FASE 8: T8-04 (Pencarian & penyaringan menu instan klien) SELESAI & T8-05 SIAP LANJUT.**
+   - Implementasi pencarian instan pada `Menu.tsx`:
+     1. Kotak pencarian responsif dengan pencarian nama menu dan deskripsi/bahan tanpa lag dan tanpa perlu memuat ulang halaman.
+     2. Tombol hapus/reset kata kunci ✕ instan untuk mengembalikan seluruh menu dalam satu ketukan.
+     3. Tab penyaringan per-kategori yang terintegrasi secara mulus dengan kueri pencarian.
+     4. Tombol chip filter cepat menu unggulan (⭐ Unggulan) untuk menyaring hanya menu rekomendasi resto.
+     5. Carousel sorotan menu unggulan di bagian atas dengan kartu rekomendasi visual.
+     6. Pengujian Vitest: 12 uji unit di `Menu.test.tsx` termasuk 5 uji unit khusus skenario pencarian DoD T8-04 (nama parsial, case-insensitive, deskripsi/bahan, kombinasi kategori + cari, dan reset pencarian kosong).
+     7. Total Vitest frontend: 90 berkas lulus, 704 tes unit hijau.
+   - Langkah selanjutnya: T8-05 (Tautan & QR katalog per resto — layar pengaturan tautan & generator cetak QR per meja).
+
+0Z. **FASE 8: T8-03 (Daftar menu + foto + harga + penanda habis) SELESAI.**
+   - Implementasi daftar menu interaktif terintegrasi:
+     1. Komponen `aplikasi/src/layar/pelanggan-publik/Menu.tsx`: menyajikan menu berkategori, format rupiah standar, foto teroptimasi dengan lazy loading dan decoding asinkron.
+     2. Modal rincian menu `Lapis`: varian porsi/rasa dan tambahan topping opsional dengan simulasi harga total interaktif secara real-time.
+     3. Penanda habis visual: item habis ditampilkan tertutup dengan overlay redup, lencana bahaya HABIS, serta opsi sakelar sembunyikan/tampilkan menu habis.
+
+0Y. **FASE 8: T8-02 (Halaman katalog publik per resto merek sendiri) SELESAI.**
    - Implementasi antarmuka publik selesai penuh:
-     1. Komponen `aplikasi/src/layar/pelanggan-publik/Katalog.tsx`: menampilkan merek resto (nama, logo, tagline), banner hero, jam operasional, kontak & lokasi cabang, penyaringan kategori, pencarian menu real-time, indikator penanda habis jelas, serta modal berbagi tautan dan QR.
+     1. Komponen `aplikasi/src/layar/pelanggan-publik/Katalog.tsx`: menampilkan merek resto (nama, logo, tagline), banner hero, jam operasional, kontak & lokasi cabang, penyaringan kategori, indikator penanda habis jelas, serta modal berbagi tautan dan QR.
      2. Kontrak Layar `aplikasi/src/layar/pelanggan-publik/LayarPelangganPublik.tsx`: menangani 7 keadaan wajib kontrak UI (memuat, gagal, kosong, berhasil) dan mengintegrasikan RPC `katalog_publik`.
      3. Generator QR Code mandiri `aplikasi/src/lib/qrcode.ts` & komponen `aplikasi/src/komponen/KomponenQr.tsx`: menghasilkan matriks modul dan SVG tajam tanpa dependensi eksternal pihak ketiga (0 kerentanan keamanan).
-     4. Pengujian Vitest: 4 uji di `Katalog.test.tsx`, 5 uji di `LayarPelangganPublik.test.tsx`, 2 uji di `KomponenQr.test.tsx`, 4 uji di `qrcode.test.ts` (semua 15 uji lulus).
+     4. Pengujian Vitest: 4 uji di `Katalog.test.tsx`, 5 uji di `LayarPelangganPublik.test.tsx`, 2 uji di `KomponenQr.test.tsx`, 4 uji di `qrcode.test.ts`.
      5. Pemeriksa UI: `prototipe/uji-kontras.py` 166 lolos 0 gagal, `alat/peta-ui.py` hijau bebas tombol liar, `App.tsx` tersambung dengan navigasi publik dan fallback lokal.
-   - Langkah selanjutnya: T8-03 (Daftar menu + foto + harga + penanda habis, optimasi muat di jaringan seluler < 3s).
 
 0Y. **FASE 8: T8-01 (RPC katalog_publik tanpa data sensitif) SELESAI.**
    - Migrasi `0062_katalog_publik.sql`: fungsi RPC `public.katalog_publik(p_penyewa_id, p_cabang_id)` memungkinkan pengunjung publik/pelanggan membaca informasi profil resto, jam operasional, kontak cabang, kategori, dan menu beserta ketersediaan per cabang secara terisolasi.

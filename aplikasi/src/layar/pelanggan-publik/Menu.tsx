@@ -85,6 +85,7 @@ export function Menu({
   const [kategoriLokal, setKategoriLokal] = useState<string>('semua')
   const [kataKunciLokal, setKataKunciLokal] = useState<string>('')
   const [sembunyikanHabis, setSembunyikanHabis] = useState<boolean>(sembunyikanHabisAwal)
+  const [hanyaUnggulan, setHanyaUnggulan] = useState<boolean>(false)
 
   // State untuk rincian modal item menu
   const [itemRincian, setItemRincian] = useState<MenuItemPublik | null>(null)
@@ -110,7 +111,7 @@ export function Menu({
     }
   }
 
-  // Hitung jumlah item per kategori
+  // Hitung jumlah item per kategori & unggulan
   const hitunganKategori = useMemo(() => {
     const peta: Record<string, number> = { semua: menu.length }
     for (const kat of kategori) {
@@ -119,7 +120,16 @@ export function Menu({
     return peta
   }, [kategori, menu])
 
-  // Filter daftar menu
+  const jumlahUnggulan = useMemo(() => {
+    return menu.filter((m) => m.unggulan).length
+  }, [menu])
+
+  // Daftar item unggulan untuk sorotan (featured carousel)
+  const daftarSorotanUnggulan = useMemo(() => {
+    return menu.filter((item) => item.unggulan && (!sembunyikanHabis || !item.habis))
+  }, [menu, sembunyikanHabis])
+
+  // Filter daftar menu secara instan di klien (in-memory)
   const menuTersaring = useMemo(() => {
     return menu.filter((item) => {
       // 1. Sembunyikan item habis jika opsi aktif
@@ -127,12 +137,17 @@ export function Menu({
         return false
       }
 
-      // 2. Filter kategori
+      // 2. Filter hanya unggulan jika aktif
+      if (hanyaUnggulan && !item.unggulan) {
+        return false
+      }
+
+      // 3. Filter kategori
       if (kategoriAktif !== 'semua' && item.kategori_id !== kategoriAktif) {
         return false
       }
 
-      // 3. Filter kata kunci pencarian
+      // 4. Filter kata kunci pencarian (nama & deskripsi)
       if (kataKunciAktif.trim()) {
         const cari = kataKunciAktif.toLowerCase()
         const cocokNama = item.nama.toLowerCase().includes(cari)
@@ -144,7 +159,7 @@ export function Menu({
 
       return true
     })
-  }, [menu, sembunyikanHabis, kategoriAktif, kataKunciAktif])
+  }, [menu, sembunyikanHabis, hanyaUnggulan, kategoriAktif, kataKunciAktif])
 
   // Tangani buka modal rincian
   const bukaRincian = (item: MenuItemPublik) => {
@@ -188,7 +203,7 @@ export function Menu({
 
   return (
     <div className="menu-publik-container" data-testid="komponen-menu">
-      {/* 1. KONTROL MENU: TAB KATEGORI, SAKELAR HABIS, & PENCARIAN */}
+      {/* 1. KONTROL MENU: PENCARIAN, TAB KATEGORI, TOGGLE UNGGULAN & SAKELAR HABIS */}
       <div
         style={{
           display: 'flex',
@@ -197,8 +212,8 @@ export function Menu({
           marginBottom: 'var(--s-4)',
         }}
       >
-        {/* Bilah Pencarian Langsung */}
-        <div style={{ position: 'relative', width: '100%' }}>
+        {/* Bilah Pencarian Langsung dengan Tombol Hapus */}
+        <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
           <input
             type="search"
             value={kataKunciAktif}
@@ -209,6 +224,7 @@ export function Menu({
             style={{
               width: '100%',
               paddingLeft: 'var(--s-4)',
+              paddingRight: kataKunciAktif ? 'var(--s-8)' : 'var(--s-4)',
               borderRadius: 'var(--radius-md)',
               border: '1px solid var(--border)',
               background: 'var(--surface)',
@@ -217,9 +233,45 @@ export function Menu({
             }}
             data-testid="input-cari-menu"
           />
+          {kataKunciAktif && (
+            <div style={{ position: 'absolute', right: 'var(--s-2)', zIndex: 5 }}>
+              <Tombol
+                ragam="polos"
+                onClick={() => setKataKunci('')}
+                nama="Hapus kata kunci pencarian"
+              >
+                ✕
+              </Tombol>
+            </div>
+          )}
         </div>
 
-        {/* Pil Kategori & Toggle Menu Habis */}
+        {/* Banner Ringkasan Pencarian (jika aktif) */}
+        {kataKunciAktif.trim() && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: 'var(--s-2) var(--s-3)',
+              background: 'var(--surface-2)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--border)',
+              fontSize: 'var(--t-2)',
+            }}
+            data-testid="ringkasan-pencarian"
+          >
+            <span>
+              Menampilkan <strong>{menuTersaring.length}</strong> menu untuk kata kunci "
+              <strong>{kataKunciAktif}</strong>"
+            </span>
+            <Tombol ragam="polos" onClick={() => setKataKunci('')} nama="Reset pencarian">
+              Reset
+            </Tombol>
+          </div>
+        )}
+
+        {/* Pil Kategori & Tombol Saringan */}
         <div
           style={{
             display: 'flex',
@@ -242,20 +294,38 @@ export function Menu({
             }}
           >
             <Tombol
-              ragam={kategoriAktif === 'semua' ? 'utama' : 'biasa'}
-              onClick={() => setKategori('semua')}
+              ragam={kategoriAktif === 'semua' && !hanyaUnggulan ? 'utama' : 'biasa'}
+              onClick={() => {
+                setKategori('semua')
+                setHanyaUnggulan(false)
+              }}
               nama="Kategori Semua"
             >
               Semua ({hitunganKategori['semua'] || 0})
             </Tombol>
+
+            {/* Tombol Filter Cepat Unggulan */}
+            {jumlahUnggulan > 0 && (
+              <Tombol
+                ragam={hanyaUnggulan ? 'utama' : 'biasa'}
+                onClick={() => setHanyaUnggulan(!hanyaUnggulan)}
+                nama="Filter hanya menu unggulan"
+              >
+                ⭐ Unggulan ({jumlahUnggulan})
+              </Tombol>
+            )}
+
             {kategori.map((kat) => {
-              const aktif = kategoriAktif === kat.id
+              const aktif = kategoriAktif === kat.id && !hanyaUnggulan
               const jumlah = hitunganKategori[kat.id] || 0
               return (
                 <Tombol
                   key={kat.id}
                   ragam={aktif ? 'utama' : 'biasa'}
-                  onClick={() => setKategori(kat.id)}
+                  onClick={() => {
+                    setKategori(kat.id)
+                    setHanyaUnggulan(false)
+                  }}
                   nama={`Kategori ${kat.nama}`}
                 >
                   {kat.nama} ({jumlah})
@@ -277,7 +347,146 @@ export function Menu({
         </div>
       </div>
 
-      {/* 2. DAFTAR KISI MENU */}
+      {/* 2. SOROTAN ITEM UNGGULAN (FEATURED ITEMS CAROUSEL) — T8-04 */}
+      {!kataKunciAktif.trim() &&
+        kategoriAktif === 'semua' &&
+        !hanyaUnggulan &&
+        daftarSorotanUnggulan.length > 0 && (
+          <section
+            style={{
+              marginBottom: 'var(--s-5)',
+              padding: 'var(--s-3)',
+              background: 'var(--surface-2)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--border)',
+            }}
+            data-testid="sorotan-unggulan"
+            aria-label="Sorotan Menu Unggulan"
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 'var(--s-3)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
+                <span style={{ fontSize: '20px' }}>⭐</span>
+                <div>
+                  <h3
+                    style={{
+                      fontSize: 'var(--t-4)',
+                      fontWeight: 800,
+                      margin: 0,
+                      color: 'var(--text)',
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    Rekomendasi Resto
+                  </h3>
+                  <span style={{ fontSize: 'var(--t-1)', color: 'var(--text-muted)' }}>
+                    Paling disukai dan dicari pelanggan
+                  </span>
+                </div>
+              </div>
+              <Lencana nada="accent">{daftarSorotanUnggulan.length} Menu Pilihan</Lencana>
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                gap: 'var(--s-3)',
+                overflowX: 'auto',
+                paddingBottom: 'var(--s-2)',
+              }}
+              data-testid="daftar-sorotan-unggulan"
+            >
+              {daftarSorotanUnggulan.map((item) => (
+                <div
+                  key={`sorotan-${item.id}`}
+                  className="kartu"
+                  style={{
+                    minWidth: '220px',
+                    maxWidth: '240px',
+                    flex: '0 0 auto',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-md)',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxShadow: 'var(--sh-1)',
+                  }}
+                  data-testid={`kartu-sorotan-${item.id}`}
+                >
+                  <div style={{ height: '110px', width: '100%', position: 'relative' }}>
+                    {item.foto_path ? (
+                      <img
+                        src={item.foto_path}
+                        alt={item.nama}
+                        loading="lazy"
+                        decoding="async"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <PlaceholderFoto jenis={item.jenis} />
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      padding: 'var(--s-2)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      flex: 1,
+                    }}
+                  >
+                    <h4
+                      style={{
+                        fontSize: 'var(--t-2)',
+                        fontWeight: 700,
+                        margin: '0 0 var(--s-1) 0',
+                        color: 'var(--text)',
+                        lineHeight: 1.2,
+                      }}
+                      data-testid={`judul-sorotan-${item.id}`}
+                    >
+                      ⭐ {item.nama}
+                    </h4>
+                    <div
+                      style={{
+                        marginTop: 'auto',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        paddingTop: 'var(--s-1)',
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 'var(--t-2)',
+                          fontWeight: 800,
+                          color: 'var(--accent)',
+                        }}
+                      >
+                        {rupiah(item.harga)}
+                      </span>
+                      <Tombol
+                        ragam="kecil"
+                        onClick={() => bukaRincian(item)}
+                        nama={`Pilih rekomendasi ${item.nama}`}
+                      >
+                        Pilih
+                      </Tombol>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+      {/* 3. DAFTAR KISI MENU */}
       {menuTersaring.length === 0 ? (
         <div
           className="kartu"
@@ -301,11 +510,13 @@ export function Menu({
           >
             {kataKunciAktif
               ? `Tidak ditemukan menu dengan kata kunci "${kataKunciAktif}". Coba cari kata kunci lain.`
-              : sembunyikanHabis
-                ? 'Semua menu di kategori ini sedang habis stoknya di cabang ini.'
-                : 'Belum ada menu yang didaftarkan pada kategori ini.'}
+              : hanyaUnggulan
+                ? 'Tidak ada menu unggulan yang sesuai dengan saringan ini.'
+                : sembunyikanHabis
+                  ? 'Semua menu di kategori ini sedang habis stoknya di cabang ini.'
+                  : 'Belum ada menu yang didaftarkan pada kategori ini.'}
           </p>
-          {(kataKunciAktif || sembunyikanHabis || kategoriAktif !== 'semua') && (
+          {(kataKunciAktif || sembunyikanHabis || kategoriAktif !== 'semua' || hanyaUnggulan) && (
             <div style={{ marginTop: 'var(--s-4)' }}>
               <Tombol
                 ragam="biasa"
@@ -313,6 +524,7 @@ export function Menu({
                   setKataKunci('')
                   setKategori('semua')
                   setSembunyikanHabis(false)
+                  setHanyaUnggulan(false)
                 }}
                 nama="Reset filter menu"
               >
@@ -374,7 +586,6 @@ export function Menu({
                         display: 'block',
                       }}
                       onError={(e) => {
-                        // Sembunyikan elemen gambar rusak dan biarkan fallback
                         e.currentTarget.style.display = 'none'
                       }}
                     />
@@ -542,7 +753,7 @@ export function Menu({
         </div>
       )}
 
-      {/* 3. MODAL RINCIAN MENU & VARIAN/TAMBAHAN (LAPIS) */}
+      {/* 4. MODAL RINCIAN MENU & VARIAN/TAMBAHAN (LAPIS) */}
       <Lapis
         buka={itemRincian !== null}
         judul={itemRincian?.nama || 'Rincian Menu'}
