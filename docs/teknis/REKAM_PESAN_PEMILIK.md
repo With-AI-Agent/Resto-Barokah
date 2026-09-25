@@ -527,5 +527,11 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
 - **[verbatim]** “Aku berubah pikiran. Aku rasa sebaiknya kamu saja yang lanjutkan. Aku tadi udh terlanjur buka sesi baru, tapi aku mau lupakan itu. Aku udh buka 3 sesi agent pemeriksa independen menyeluruh dan mereka udh selesai. Silahkan liat hasilnya”
 - **Pelaksanaan:** Sesi kerja ini (`arena/01a0d09b-resto-barokah`) tetap menjadi PEKERJA UTAMA sesuai keputusan Lee. Sesi baru yang sempat dibuka Lee (`arena/01a0d3d7-resto-barokah`) dilupakan/tidak diserap otomatis tanpa izin eksplisit Lee. Ketiga laporan audit independen dari `origin/arena/01a0d3d8-resto-barokah` (Laporan L, M, N) telah ditarik dan diperiksa secara menyeluruh. Ditemukan 15 temuan nyata (L: 9, M: 1, N: 5). Hasil telaah lengkap dipaparkan secara terstruktur, jelas, dan tanpa jargon kepada Lee beserta opsi rencana penanganan langkah demi langkah.
 
+## §28. Persiapan Audit Putaran Kedua (AUD-4) & Jaminan Kesiapan Handoff (2026-09-25)
+
+- **[ringkas]** Lee menginstruksikan dua hal penting: (1) Jaminan handoff total bila sesi sewaktu-waktu terputus/eror — Lee cukup mengatur base branch ke `arena/01a0d09b-resto-barokah` dan mengirim chat *"baca pro.md"* untuk melanjutkan tanpa kehilangan konteks apa pun. (2) Mempersiapkan pemeriksaan menyeluruh putaran kedua (AUD-4) yang jauh lebih dalam, teliti, dan sempurna, dibagi ke beberapa agen pemeriksa independen terfokus (Agent A: Keamanan & Sistem/DB, Agent B: UI & Desain Antarmuka, Agent C: Logika Bisnis / POS / Kasir).
+- **Pelaksanaan:** Menyiapkan 4 paket audit independen AUD-4 di `docs/uji/paket-audit/` lengkap dengan format SIAP-TEMPEL dan instruksi eksekusi terisolasi: (i) Master AUD-4 Menyeluruh (409 berkas), (ii) Agent A Keamanan (173 berkas), (iii) Agent B Antarmuka UI/UX (96 berkas), dan (iv) Agent C Bisnis & Kasir POS (191 berkas). Menyegarkan `PRO.md`, `docs/ops/SIAP-LANJUT.md`, `STATUS.md`, dan `PROJECT_STATE.md` agar transisi antar-sesi terjamin mulus dan deterministic.
+
+
 
 

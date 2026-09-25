@@ -1,5 +1,13 @@
 # Project State
 
+> **AUDIT MENYELURUH PUTARAN KEDUA (AUD-4) SIAP & JAMINAN HANDOFF LENGKAP (2026-09-25, sesi arena/01a0d09b).** Sesuai arahan Lee untuk pemeriksaan putaran kedua yang jauh lebih dalam, teliti, dan sempurna, telah disiapkan paket audit independen AUD-4 baik versi menyeluruh maupun paket spesifik per domain:
+> 1. Paket Master AUD-4 Menyeluruh: `docs/uji/paket-audit/AUD-4-2026-09-25.md` & `AUD-4-2026-09-25-SIAP-TEMPEL.md` (409 berkas proyek, 74 klaim bukti, 193 tugas roadmap).
+> 2. Agent A (Keamanan & Sistem/DB): `docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md` & `AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md` (173 berkas: RLS, database, auth, trigger, hash chain audit, edge functions).
+> 3. Agent B (UI/UX & Desain Antarmuka): `docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md` & `AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md` (96 berkas: 10 tema, CSS, kontras, sentuh ≥44px, komponen UI, i18n).
+> 4. Agent C (Logika Bisnis POS / Kasir / Laporan): `docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md` & `AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md` (191 berkas: migrasi, kasir, dapur KDS, shift kas, void, laporan keuangan).
+> Mekanisme handoff diselaraskan 100%: jika sesi terputus/eror, Lee cukup mengatur base branch ke `arena/01a0d09b-resto-barokah` dan mengirim "baca pro.md" untuk langsung melanjutkan tanpa kehilangan konteks apa pun.
+> Status teknis: 104 berkas SQL LULUS (58 migrasi aktif) · 85 berkas Vitest frontend / 677 tes LULUS · seluruh uji mutasi Fase 7 dan migrasi 0056–0061 (17/17) terbukti merah · seluruh pemeriksa fondasi dan repo LOLOS.
+
 > **RESOLUSI AUDIT AUD-3 SELESAI: 13/15 TEMUAN DITUTUP RESMI (2026-09-25, sesi arena/01a0d09b, commit 0e477a8).** Seluruh temuan yang dapat diselesaikan pada level aplikasi dan database telah dituntaskan 100% dan terbukti dengan uji SQL, uji Vitest, dan pagar mutasi merah:
 > 1. N F-04: Migrasi `0056_cabang_aktif_saya.sql`, uji `supabase/tes/cabang_aktif_saya.sql`, mutasi `alat/uji-mutasi-0056.py` (2/2 MERAH).
 > 2. N F-02: Migrasi `0057_truncate_audit_ditolak.sql`, uji `supabase/tes/truncate_audit_ditolak.sql`, mutasi `alat/uji-mutasi-0057.py` (2/2 MERAH).

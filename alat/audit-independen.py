@@ -110,10 +110,10 @@ LENSA = {
     "L6": ("Privasi & Kepatuhan", "Data pelanggan seminimal mungkin? Persetujuan sebelum simpan? Anonimisasi tanpa menghapus catatan keuangan? "
                                   "Jalur kebocoran 3×24 jam siap? Rahasia tidak pernah masuk repo/log?"),
 }
-LENSA_MINIMUM = {"AUD-2": ["L1", "L3", "L4"], "AUD-3": ["L1", "L2", "L3", "L4", "L5", "L6"]}
-SERANGAN_MIN = {"AUD-2": 5, "AUD-3": 12}
+LENSA_MINIMUM = {"AUD-2": ["L1", "L3", "L4"], "AUD-3": ["L1", "L2", "L3", "L4", "L5", "L6"], "AUD-4": ["L1", "L2", "L3", "L4", "L5", "L6"]}
+SERANGAN_MIN = {"AUD-2": 5, "AUD-3": 12, "AUD-4": 15}
 
-# LINGKUP BIDANG (permintaan Lee 2026-09-20: "pemeriksaan menyeluruh di bidang keamanan").
+# LINGKUP BIDANG (permintaan Lee: pemeriksaan mendalam terfokus per domain / agen independen).
 # Audit bidang = pipeline menyeluruh yang DIPERSEMPIT: hanya berkas di bawah prefiks ini yang
 # wajib diperiksa sedalam-dalamnya. Temuan di luar lingkup TETAP wajib dilaporkan (bagian 8
 # paket) — lingkup menentukan kedalaman wajib, bukan izin melapor.
@@ -126,6 +126,27 @@ BIDANG_PREFIKS: dict[str, list[str]] = {
         "alat/periksa-kunci-kalibrasi.py",
         "alat/uji-edge-pin.mjs",
         "aplikasi/src/lib/",              # klien Supabase & penyimpanan lokal
+    ],
+    "antarmuka": [
+        "aplikasi/src/komponen/",         # komponen UI/UX visual
+        "aplikasi/src/layar/",            # layar antarmuka aplikasi
+        "aplikasi/src/gaya/",             # tema, CSS & kontras
+        "aplikasi/src/bahasa/",           # kamus multi-bahasa
+        "aplikasi/alat/",                 # alat pemeriksa antarmuka & aksesibilitas
+        "aplikasi/src/App.tsx",
+        "aplikasi/src/index.css",
+        "docs/SPESIFIKASI_UI.md",
+        "docs/PETA_UI.md",
+    ],
+    "bisnis": [
+        "supabase/migrations/",           # logika bisnis SQL, state machine
+        "supabase/tes/",                  # pengujian transaksi & alur operasional
+        "aplikasi/src/layar/kasir/",      # antarmuka kasir & alur penjualan
+        "aplikasi/src/layar/dapur/",      # alur dapur (KDS) & tiket
+        "aplikasi/src/layar/laporan/",    # rekonsiliasi kas, shift & laporan
+        "aplikasi/src/lib/printer/",      # modul cetak struk & tiket
+        "docs/PRD.md",
+        "docs/TECH_SPEC.md",
     ],
 }
 
@@ -332,9 +353,10 @@ def mode_paket(tingkat: str, tugas_spec: str | None, fase: str | None, semua: bo
     # paket kedua pada hari yang sama MENIMPA paket pertama tanpa suara — padahal paket
     # lama sudah di-commit dan/atau sedang dipakai sesi auditor (dilarang disunting, F-11).
     # Sekarang: kalau nama itu sudah ada, pakai akhiran SHA commit yang diaudit.
-    keluar = DIR_PAKET / f"{tingkat}-{tanggal}.md"
+    nama_dasar = f"{tingkat}-{tanggal}-{bidang}" if bidang else f"{tingkat}-{tanggal}"
+    keluar = DIR_PAKET / f"{nama_dasar}.md"
     if keluar.exists():
-        keluar = DIR_PAKET / f"{tingkat}-{tanggal}-{sha[:7]}.md"
+        keluar = DIR_PAKET / f"{nama_dasar}-{sha[:7]}.md"
 
     # BUKTI CI PADA COMMIT TARGET (temuan audit H F-02, 2026-09-20): paket hanya boleh menargetkan
     # commit yang CI-nya SUDAH hijau. Bila belum/tidak bisa diperiksa → MENOLAK, kecuali pemilik
@@ -782,10 +804,10 @@ def periksa_laporan(berkas: pathlib.Path, cek_git: bool = True, cek_sha: bool = 
     if not verdict:
         gagal.append("Verdict harus salah satu: BERSIH / BERSIH-DENGAN-CATATAN / TIDAK-BERSIH")
 
-    tingkat_m = re.search(r"- \*\*Tingkat audit:\*\*\s*`?(AUD-[23])`?", teks)
+    tingkat_m = re.search(r"- \*\*Tingkat audit:\*\*\s*`?(AUD-[234])`?", teks)
     tingkat = tingkat_m.group(1) if tingkat_m else ""
     if not tingkat:
-        gagal.append("Tingkat audit harus AUD-2 atau AUD-3")
+        gagal.append("Tingkat audit harus AUD-2, AUD-3, atau AUD-4")
 
     # tujuh bagian
     bagian = ["## 1. Cakupan", "## 2. Klaim pembangun yang saya coba falsifikasi",
@@ -905,12 +927,12 @@ def periksa_laporan(berkas: pathlib.Path, cek_git: bool = True, cek_sha: bool = 
     if berat_terverifikasi and verdict != "TIDAK-BERSIH":
         gagal.append(f"verdict '{verdict}' tidak konsisten: ada {len(berat_terverifikasi)} temuan K-1/K-2 TERVERIFIKASI")
 
-    # kalibrasi (AUD-3)
+    # kalibrasi (AUD-3 & AUD-4)
     kal = re.search(r"Ditemukan:\s*(\d+)\s*dari\s*(\d+)", teks)
     angka["kalibrasi"] = kal.groups() if kal else None
-    if tingkat == "AUD-3":
+    if tingkat in ("AUD-3", "AUD-4"):
         if not kal:
-            gagal.append("AUD-3 wajib memuat 'Ditemukan: X dari Y' pada bagian 5 (kalibrasi cacat tanaman)")
+            gagal.append(f"{tingkat} wajib memuat 'Ditemukan: X dari Y' pada bagian 5 (kalibrasi cacat tanaman)")
         else:
             x, y = int(kal.group(1)), int(kal.group(2))
             if verdict == "BERSIH":
@@ -1684,12 +1706,12 @@ def mode_uji_diri() -> int:
 # -------------------------------------------------------------------- CLI
 def main() -> int:
     p = argparse.ArgumentParser(description="Mekanisme audit independen (paket · periksa laporan · kalibrasi · uji diri)")
-    p.add_argument("--paket", choices=["AUD-2", "AUD-3"], help="buat paket audit untuk sesi auditor")
+    p.add_argument("--paket", choices=["AUD-2", "AUD-3", "AUD-4"], help="buat paket audit untuk sesi auditor")
     p.add_argument("--tugas", help="rentang tugas, mis. T1-01..T1-10")
     p.add_argument("--fase", help="seluruh tugas satu fase, mis. 1")
-    p.add_argument("--semua", action="store_true", help="mode menyeluruh: seluruh berkas proyek masuk lingkup (AUD-3)")
+    p.add_argument("--semua", action="store_true", help="mode menyeluruh: seluruh berkas proyek masuk lingkup (AUD-3/AUD-4)")
     p.add_argument("--bidang", choices=sorted(BIDANG_PREFIKS),
-                   help="persempit audit menyeluruh ke satu bidang (mis. keamanan); temuan luar lingkup tetap wajib dilaporkan")
+                   help="persempit audit menyeluruh ke satu bidang (mis. keamanan, antarmuka, bisnis); temuan luar lingkup tetap wajib dilaporkan")
     p.add_argument("--periksa-laporan", dest="periksa", help="validasi laporan auditor")
     p.add_argument("--tanpa-cek-git", action="store_true", help="lewati pemeriksaan repo bersih")
     p.add_argument("--kalibrasi-siapkan", action="store_true", help="tanam cacat pada salinan HEAD")

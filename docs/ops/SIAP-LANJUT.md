@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `d6dec479a3071d06ce2f554df3097dcffd193a69`
+- **Commit keadaan kerja:** `804ed86f3464490d5bc6c466b7e268d138b78e5e`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 36087143940, commit d6dec479)
+- **CI terakhir:** failure (run 36088466076, commit 804ed86f)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-24.md` → `e7818e2f` (10 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-24.md` → `e7818e2f` (11 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (292 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,7 +70,26 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — RESOLUSI AUDIT MENYELURUH AUD-3 SELESAI):**
+**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — PERSIAPAN AUDIT PUTARAN KEDUA AUD-4 & JAMINAN HANDOFF):**
+
+0X. **AUDIT MENYELURUH PUTARAN KEDUA (AUD-4) & JAMINAN HANDOFF TOTAL.**
+   - Sesuai arahan Lee, pemeriksaan menyeluruh putaran kedua (AUD-4) disiapkan secara jauh lebih dalam, teliti, dan sempurna dengan pembagian spesifik ke 3 agen pemeriksa independen (plus 1 paket master menyeluruh):
+     1. **Agent A (Keamanan, Database, RLS, Auth, Concurrency & Integritas Data):**
+        - Berkas paket: `docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md`
+        - Berkas siap-tempel: `docs/uji/paket-audit/AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md` (173 berkas)
+        - Fokus: RLS multi-tenant, Security Definer search_path, mitigasi TRUNCATE audit, session timeout 15 menit, verifikasi PIN perangkat, anti-bypass tabel `pembayaran`, proteksi brute force, penolakan token kadaluwarsa, sanitasi input Edge Functions.
+     2. **Agent B (UI/UX, Desain, Aksesibilitas, Responsivitas Mobile/Tablet/Desktop, 10 Tema):**
+        - Berkas paket: `docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md`
+        - Berkas siap-tempel: `docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md` (96 berkas)
+        - Fokus: target sentuh ≥44px di seluruh tombol/input, kontras warna WCAG AAA/AA di 10 tema (terang, gelap, kedai, bara, kontras tinggi, dll), konsistensi token CSS, penanganan orientasi layar HP/tablet, navigasi kasir/dapur/laporan, tidak ada teks keras (i18n 100% paritas kamus bahasa ID, EN, ZH, AR).
+     3. **Agent C (Logika Bisnis POS, Transaksi, Kasir & Shift, KDS Dapur, Diskon, Void, Laporan):**
+        - Berkas paket: `docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md`
+        - Berkas siap-tempel: `docs/uji/paket-audit/AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md` (191 berkas)
+        - Fokus: state machine pesanan & item dapur, pembatalan pra/pasca-dapur dengan bahan terbuang jujur, rekonsiliasi kas modal awal & tutup shift, transaksi tengah malam (penanggalan operasional cabang), laporan keuangan & akurasi golden test (|selisih| = 0).
+     4. **Paket Master AUD-4 Menyeluruh (Opsional bila satu sesi mandiri):**
+        - Berkas paket: `docs/uji/paket-audit/AUD-4-2026-09-25.md`
+        - Berkas siap-tempel: `docs/uji/paket-audit/AUD-4-2026-09-25-SIAP-TEMPEL.md` (409 berkas, 74 klaim bukti, 193 tugas roadmap).
+   - **Jaminan Handoff:** Jika sesi ini sewaktu-waktu terputus/eror, Lee cukup mengatur base branch ke `arena/01a0d09b-resto-barokah` dan mengirim pesan chat: "baca pro.md". Sesi baru akan otomatis membaca `PRO.md`, menjalankan `--susul`, membaca handoff ini, dan langsung siap melanjutkan tanpa kehilangan konteks satu pun.
 
 0W. **RESOLUSI TEMUAN AUDIT INDEPENDEN MENYELURUH AUD-3 (13/15 TEMUAN DITUTUP RESMI).**
    - 3 sesi agent auditor independen menyeluruh ditarik (Laporan L, M, N) menghasilkan 15 temuan nyata.

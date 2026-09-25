@@ -36,7 +36,7 @@ IDENTITAS_REPO = "With-AI-Agent/Resto-Barokah"  # dari `git remote get-url origi
 FOLDER_PAKET = ("docs/uji/paket-audit/", "docs/uji/review-pr/")
 
 # ------------------------------------------------------------------ frasa → jenis
-JENIS = ("menyeluruh", "keamanan", "review-pr", "fondasi")
+JENIS = ("menyeluruh", "keamanan", "antarmuka", "bisnis", "review-pr", "fondasi")
 
 
 def kenali_frasa(teks: str) -> str | None:
@@ -49,6 +49,10 @@ def kenali_frasa(teks: str) -> str | None:
         return "fondasi"
     if "keamanan" in t or "security" in t:
         return "keamanan"
+    if "antarmuka" in t or "desain" in t or " ui" in t or "ui " in t:
+        return "antarmuka"
+    if "bisnis" in t or "kasir" in t or "pos" in t:
+        return "bisnis"
     if any(k in t for k in ("menyeluruh", "audit", "pemeriksaan", "periksa independen")):
         return "menyeluruh"
     return None
@@ -218,10 +222,10 @@ def mode_siapkan(jenis: str, pr: int | None, izin_ci: str | None) -> int:
         perintah = ["python3", "alat/review-pr.py", "--siapkan"]
         if pr:
             perintah += ["--pr", str(pr)]
-    else:  # menyeluruh / keamanan
-        perintah = ["python3", "alat/audit-independen.py", "--paket", "AUD-3", "--semua"]
-        if jenis == "keamanan":
-            perintah += ["--bidang", "keamanan"]
+    else:  # menyeluruh / keamanan / antarmuka / bisnis
+        perintah = ["python3", "alat/audit-independen.py", "--paket", "AUD-4", "--semua"]
+        if jenis in ("keamanan", "antarmuka", "bisnis"):
+            perintah += ["--bidang", jenis]
     if izin_ci:
         perintah += ["--izinkan-ci-belum-hijau", izin_ci]
     kode = jalankan_alat(perintah)
