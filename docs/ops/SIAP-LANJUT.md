@@ -10,12 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `9b70c383478679d286f1fd951192710d130c6180`
+- **Commit keadaan kerja:** `75e6020b102a2ca03731dcb05632dc2883fafe53`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36117989002, commit 9b70c383) — tunggu sampai selesai
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (1 run, commit 75e6020b)
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -29,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (8 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (300 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (9 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (301 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,9 +69,17 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01, T8-02, T8-03, T8-04, & T8-05 SELESAI, LANJUT T8-06):**
+**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01...T8-06 SELESAI, LANJUT T8-07):**
 
-0ZB. **FASE 8: T8-05 (Tautan & QR katalog per resto — nomor meja & media sosial) SELESAI & T8-06 SIAP LANJUT.**
+0ZC. **FASE 8: T8-06 (Halaman kampanye + pendaftaran pelanggan) SELESAI & T8-07 SIAP LANJUT.**
+   - Implementasi halaman kampanye promo dan pendaftaran pelanggan untuk klaim voucher mandiri:
+     1. Komponen `aplikasi/src/layar/voucher/Kampanye.tsx`: banner promo hero merek resto, rincian syarat & ketentuan dengan bahasa awam, penanda kuota voucher & progress bar kuota, banner pengundang eksklusif bila tautan berasal dari referral (`nama_pengundang` dan `kode_referral`), intip katalog menu, tombol aksi bagikan via WhatsApp dan salin tautan kampanye, serta modal lapis pendaftaran/klaim.
+     2. Komponen `aplikasi/src/layar/voucher/Daftar.tsx`: formulir pendaftaran nama (wajib), email (wajib), nomor WhatsApp/telepon & alamat pengiriman (opsional sesuai Aturan Bisnis 3), persetujuan pemrosesan data privasi UU PDP (`data-testid="centang-privasi-voucher"`), integrasi verifikasi Google Sign-In & Email Magic Link, jalur bantuan ramah "didaftarkan kasir" bila pelanggan kesulitan verifikasi mandiri, serta kartu pratinjau voucher terbit dengan kode acak tidak berurutan dan barcode QR (`KomponenQr`).
+     3. Rute terhubung di `aplikasi/src/App.tsx` (`kampanye` dan `klaim_voucher`).
+     4. 10 uji unit di `Daftar.test.tsx` dan `Kampanye.test.tsx` (total 93 berkas Vitest frontend / 723 tes unit hijau).
+   - Langkah selanjutnya: T8-07 (Verifikasi email + anti email sekali-pakai + normalisasi Gmail).
+
+0ZB. **FASE 8: T8-05 (Tautan & QR katalog per resto — nomor meja & media sosial) SELESAI.**
    - Implementasi pengaturan tautan dan kode QR katalog di `aplikasi/src/layar/pengaturan/TautanKatalog.tsx`:
      1. Tautan resmi menu publik resto dengan tombol salin tautan instan, bagikan WhatsApp, dan pratinjau peramban.
      2. Generator kode QR akrilik meja per nomor meja dan meja kustom dengan parameter URL query `?meja=...&meja_id=...`.

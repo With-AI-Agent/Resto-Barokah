@@ -1677,14 +1677,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** QR salah cetak → mitigasi: pratinjau sebelum cetak + uji pindai 2 perangkat.
   - **Verifikasi:** uji pindai QR dengan kamera HP. · **Bukti 2026-09-25:** implementasi `aplikasi/src/layar/pengaturan/TautanKatalog.tsx` terintegrasi rute di `aplikasi/src/App.tsx`; mendukung tautan publik resto dengan tombol salin & bagikan WhatsApp, generator kode QR akrilik per nomor meja dan meja kustom dengan parameter URL query `?meja=...`, pratinjau cetak stand akrilik A6, tombol cetak langsung (`window.print`) dan unduh berkas SVG siap cetak, panel mitigasi risiko salah cetak uji pindai 2 perangkat (Android dan iOS), serta tab cetak massal seluruh meja cabang; 9 uji unit di `TautanKatalog.test.tsx` (9 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm --prefix aplikasi test -- src/layar/pengaturan/TautanKatalog.test.tsx`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `aplikasi/alat/periksa-struktur.py` lolos tanpa warna mentah; `alat/peta-ui.py` lolos bebas tombol liar.
 
-- [ ] T8-06 — Halaman kampanye + pendaftaran pelanggan
+- [x] T8-06 — Halaman kampanye + pendaftaran pelanggan
   - **Tujuan:** calon pelanggan bisa ikut kampanye undang-teman tanpa bantuan kasir.
   - **Ref:** PRD M10 (alur voucher)
   - **File:** `aplikasi/src/layar/voucher/Kampanye.tsx`, `aplikasi/src/layar/voucher/Daftar.tsx`
   - **DoD:** alur: tautan kampanye → isi nama (wajib), email/HP (sekali) → verifikasi → kode voucher muncul; bahasa jelas; tampil rapi di HP.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** pendaftaran gagal karena verifikasi → mitigasi: jalur bantuan "didaftarkan kasir" (T8-07) + pesan jelas.
-  - **Verifikasi:** uji manual dua jalur (Google & email) di HP.
+  - **Verifikasi:** uji manual dua jalur (Google & email) di HP. · **Bukti 2026-09-25:** implementasi `aplikasi/src/layar/voucher/Kampanye.tsx` dan `aplikasi/src/layar/voucher/Daftar.tsx` terintegrasi rute di `aplikasi/src/App.tsx`; mendukung pendaftaran nama (wajib), email (wajib), telepon & alamat (opsional sesuai Aturan Bisnis 3), persetujuan privasi UU PDP (`centang-privasi-voucher`), verifikasi Google Sign-In & Email Magic Link, jalur bantuan "didaftarkan kasir", serta kartu pratinjau voucher dengan kode acak dan barcode QR (`KomponenQr`); halaman kampanye menyajikan banner hero, kuota voucher, syarat & ketentuan awam, banner pengundang eksklusif (referral), intip menu katalog, bagikan WhatsApp, dan salin tautan; 10 uji unit di `Daftar.test.tsx` dan `Kampanye.test.tsx` (10 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm --prefix aplikasi test -- src/layar/voucher/`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `aplikasi/alat/periksa-struktur.py` lolos tanpa warna mentah; `alat/peta-ui.py` lolos bebas tombol liar.
 
 - [ ] T8-07 — Verifikasi email + anti email sekali-pakai + normalisasi Gmail ⚠️ T-011
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-011: draf kebijakan boleh dibuat agent; tinjauan Lee sebelum Fase 8 dan persetujuan pelanggan lewat T8-15 tetap WAJIB sebelum pengumpulan data.

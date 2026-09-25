@@ -22,6 +22,7 @@ import { DaftarTransaksi } from './layar/kasir/DaftarTransaksi'
 import { PasangPrinter } from './layar/pengaturan/PasangPrinter'
 import { TautanKatalog } from './layar/pengaturan/TautanKatalog'
 import { LayarPelangganPublik } from './layar/pelanggan-publik/LayarPelangganPublik'
+import { Kampanye } from './layar/voucher/Kampanye'
 import { klienSupabase } from './lib/supabase'
 import { masukDenganGoogle, kirimTautanMasukEmail } from './lib/auth'
 
@@ -443,6 +444,15 @@ export default function App() {
       case 'tautan_katalog':
       case 'qr_katalog':
         return <TautanKatalog onKembali={() => setLayarAktif('pengaturan')} />
+      case 'kampanye':
+      case 'klaim_voucher':
+        return (
+          <Kampanye
+            onBukaKatalog={() => setLayarAktif('katalog')}
+            onMasukGoogle={masukDenganGoogle}
+            onKirimEmail={kirimTautanMasukEmail}
+          />
+        )
       case 'pelanggan-publik':
       case 'katalog':
         return (
