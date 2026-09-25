@@ -42,14 +42,21 @@ select uji.sama(
   'PIN 4 digit ditolak dengan kode FORMAT_PIN_SALAH'
 );
 
--- 3. Email tidak terdaftar ditolak
+-- 2b. Login tanpa perangkat ditolak (faktor wajib staf)
 select uji.sama(
-  (public.verifikasi_pin_perangkat('hantu@contoh.test', '516372')->>'kode'),
-  'PENGGUNA_TIDAK_DITEMUKAN',
-  'Email tidak dikenal ditolak PENGGUNA_TIDAK_DITEMUKAN'
+  (public.verifikasi_pin_perangkat('kasir.a1@contoh.test', '516372', null)->>'kode'),
+  'PERANGKAT_WAJIB',
+  'Login tanpa perangkat ditolak PERANGKAT_WAJIB'
 );
 
--- 4. PIN salah ditolak
+-- 3. Email tidak terdaftar ditolak (anti-oracle: kode & pesan seragam)
+select uji.sama(
+  (public.verifikasi_pin_perangkat('hantu@contoh.test', '516372', 'de000000-0000-0000-0000-000000000003')->>'kode'),
+  'KREDENSIAL_TIDAK_VALID',
+  'Email tidak dikenal ditolak KREDENSIAL_TIDAK_VALID'
+);
+
+-- 4. PIN salah ditolak (anti-oracle: kode & pesan seragam)
 select uji.sama(
   (public.verifikasi_pin_perangkat(
     'kasir.a1@contoh.test',
@@ -57,8 +64,8 @@ select uji.sama(
     'de000000-0000-0000-0000-000000000003',
     'hp-kasir'
   )->>'kode'),
-  'PIN_SALAH',
-  'PIN salah ditolak dengan kode PIN_SALAH'
+  'KREDENSIAL_TIDAK_VALID',
+  'PIN salah ditolak dengan kode KREDENSIAL_TIDAK_VALID'
 );
 
 -- 5. Perangkat dicabut / tidak sah ditolak

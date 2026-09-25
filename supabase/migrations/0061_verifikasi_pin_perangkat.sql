@@ -8,10 +8,11 @@
 -- ============================================================================
 
 create or replace function public.verifikasi_pin_perangkat(
-  p_email          text,
-  p_pin            text,
-  p_perangkat_id   uuid default null,
-  p_perangkat_nama text default null
+  p_email           text,
+  p_pin             text,
+  p_perangkat_id    uuid default null,
+  p_perangkat_nama  text default null,
+  p_kunci_perangkat text default null
 )
 returns jsonb
 language plpgsql
@@ -21,12 +22,12 @@ as $$
 declare
   v_pengguna     record;
   v_perangkat    record;
+  v_kunci_hash   text;
   v_hash         text;
   v_gagal_akun   int;
   v_gagal_alat   int;
   v_cabang_ids   uuid[];
   v_berhasil     boolean;
-  v_alat_nama    text;
 begin
   if p_email is null or trim(p_email) = '' or p_pin is null or trim(p_pin) = '' then
     return jsonb_build_object(
@@ -45,7 +46,46 @@ begin
     );
   end if;
 
-  -- 2. Cari data pengguna berdasarkan email
+  -- 2. Validasi perangkat terdaftar (faktor wajib staf: KEAMANAN.md §1.3)
+  if p_perangkat_id is null then
+    return jsonb_build_object(
+      'berhasil', false,
+      'kode', 'PERANGKAT_WAJIB',
+      'pesan', 'Perangkat kasir/staf wajib terdaftar untuk mengakses sistem.'
+    );
+  end if;
+
+  select id, nama, aktif, penyewa_id, peran_diizinkan
+    into v_perangkat
+    from public.perangkat
+   where id = p_perangkat_id;
+
+  if v_perangkat.id is null or not coalesce(v_perangkat.aktif, false) then
+    return jsonb_build_object(
+      'berhasil', false,
+      'kode', 'PERANGKAT_TIDAK_SAH',
+      'pesan', 'Perangkat tidak terdaftar atau telah dicabut.'
+    );
+  end if;
+
+  -- Verifikasi kunci token rahasia perangkat bila terdaftar di kredensial_perangkat
+  if p_kunci_perangkat is not null and exists (
+    select 1 from public.kredensial_perangkat kp where kp.perangkat_id = p_perangkat_id
+  ) then
+    select kp.kunci_hash into v_kunci_hash
+      from public.kredensial_perangkat kp
+     where kp.perangkat_id = p_perangkat_id;
+
+    if v_kunci_hash is not null and crypt(p_kunci_perangkat, v_kunci_hash) <> v_kunci_hash then
+      return jsonb_build_object(
+        'berhasil', false,
+        'kode', 'PERANGKAT_TIDAK_SAH',
+        'pesan', 'Kunci token rahasia perangkat tidak cocok.'
+      );
+    end if;
+  end if;
+
+  -- 3. Cari data pengguna berdasarkan email (anti-oracle: pesan dan kode diseragamkan)
   select p.id, p.penyewa_id, p.nama, p.peran, p.aktif
     into v_pengguna
     from public.pengguna p
@@ -54,44 +94,26 @@ begin
   if v_pengguna.id is null or not coalesce(v_pengguna.aktif, false) then
     return jsonb_build_object(
       'berhasil', false,
-      'kode', 'PENGGUNA_TIDAK_DITEMUKAN',
-      'pesan', 'Email atau PIN tidak cocok.'
+      'kode', 'KREDENSIAL_TIDAK_VALID',
+      'pesan', 'Email, PIN, atau perangkat tidak cocok.'
     );
   end if;
 
-  -- 3. Validasi perangkat terdaftar jika p_perangkat_id disediakan
-  if p_perangkat_id is not null then
-    select id, nama, aktif, penyewa_id, peran_diizinkan
-      into v_perangkat
-      from public.perangkat
-     where id = p_perangkat_id;
+  -- Validasi relasi tenant & peran terhadap perangkat
+  if v_perangkat.penyewa_id <> v_pengguna.penyewa_id then
+    return jsonb_build_object(
+      'berhasil', false,
+      'kode', 'RESTO_TIDAK_COCOK',
+      'pesan', 'Perangkat tidak terdaftar pada restoran ini.'
+    );
+  end if;
 
-    if v_perangkat.id is null or not coalesce(v_perangkat.aktif, false) then
-      return jsonb_build_object(
-        'berhasil', false,
-        'kode', 'PERANGKAT_TIDAK_SAH',
-        'pesan', 'Perangkat tidak terdaftar atau telah dicabut.'
-      );
-    end if;
-
-    if v_perangkat.penyewa_id <> v_pengguna.penyewa_id then
-      return jsonb_build_object(
-        'berhasil', false,
-        'kode', 'RESTO_TIDAK_COCOK',
-        'pesan', 'Perangkat tidak terdaftar pada restoran ini.'
-      );
-    end if;
-
-    if not (v_pengguna.peran::text = any(v_perangkat.peran_diizinkan)) then
-      return jsonb_build_object(
-        'berhasil', false,
-        'kode', 'PERAN_TIDAK_DIIZINKAN',
-        'pesan', 'Peran pengguna tidak diizinkan pada perangkat ini.'
-      );
-    end if;
-    v_alat_nama := v_perangkat.nama;
-  else
-    v_alat_nama := coalesce(p_perangkat_nama, 'tidak-diketahui');
+  if not (v_pengguna.peran::text = any(v_perangkat.peran_diizinkan)) then
+    return jsonb_build_object(
+      'berhasil', false,
+      'kode', 'PERAN_TIDAK_DIIZINKAN',
+      'pesan', 'Peran pengguna tidak diizinkan pada perangkat ini.'
+    );
   end if;
 
   -- 4. Pembatasan brute-force (5x per akun / 12x per perangkat per 15 menit)
@@ -101,15 +123,11 @@ begin
      and not pp.berhasil
      and pp.waktu > now() - interval '15 minutes';
 
-  if p_perangkat_id is not null then
-    select count(*) into v_gagal_alat
-      from public.percobaan_pin pp
-     where pp.perangkat_id = p_perangkat_id
-       and not pp.berhasil
-       and pp.waktu > now() - interval '15 minutes';
-  else
-    v_gagal_alat := 0;
-  end if;
+  select count(*) into v_gagal_alat
+    from public.percobaan_pin pp
+   where pp.perangkat_id = p_perangkat_id
+     and not pp.berhasil
+     and pp.waktu > now() - interval '15 minutes';
 
   if v_gagal_akun >= 5 or v_gagal_alat >= 12 then
     return jsonb_build_object(
@@ -130,14 +148,14 @@ begin
   insert into public.percobaan_pin (
     pengguna_id, perangkat, berhasil, aksi, pemanggil_id, perangkat_id, waktu
   ) values (
-    v_pengguna.id, v_alat_nama, v_berhasil, 'masuk_pin', v_pengguna.id, p_perangkat_id, now()
+    v_pengguna.id, v_perangkat.nama, v_berhasil, 'masuk_pin', v_pengguna.id, p_perangkat_id, now()
   );
 
   if not v_berhasil then
     return jsonb_build_object(
       'berhasil', false,
-      'kode', 'PIN_SALAH',
-      'pesan', 'Email atau PIN tidak cocok.'
+      'kode', 'KREDENSIAL_TIDAK_VALID',
+      'pesan', 'Email, PIN, atau perangkat tidak cocok.'
     );
   end if;
 
@@ -157,14 +175,15 @@ begin
       'nama', v_pengguna.nama,
       'peran', v_pengguna.peran,
       'penyewa_id', v_pengguna.penyewa_id,
-      'cabang_ids', v_cabang_ids
+      'cabang_ids', v_cabang_ids,
+      'perangkat_id', v_perangkat.id
     )
   );
 end;
 $$;
 
-comment on function public.verifikasi_pin_perangkat(text, text, uuid, text) is
-  'Verifikasi PIN staf saat login dari perangkat terdaftar (T2-02 / N F-01).';
+comment on function public.verifikasi_pin_perangkat(text, text, uuid, text, text) is
+  'Verifikasi PIN staf saat login dari perangkat terdaftar (T2-02 / N F-01 & AUD-4).';
 
-revoke all on function public.verifikasi_pin_perangkat(text, text, uuid, text) from public;
-grant execute on function public.verifikasi_pin_perangkat(text, text, uuid, text) to anon, authenticated, service_role;
+revoke all on function public.verifikasi_pin_perangkat(text, text, uuid, text, text) from public;
+grant execute on function public.verifikasi_pin_perangkat(text, text, uuid, text, text) to anon, authenticated, service_role;

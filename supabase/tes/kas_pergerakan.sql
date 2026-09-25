@@ -342,3 +342,35 @@ select uji.harap_gagal_sebab(
   'tidak berwenang',
   'Pelayan ditolak saat memanggil kas_pergerakan'
 );
+
+-- Penyetuju wajib atasan (owner/admin di resto yang sama)
+select uji.klaim('90000000-0000-0000-0000-000000000004'); -- Rina kasir
+set local role authenticated;
+
+select uji.harap_gagal_sebab(
+  $$
+    select public.kas_pergerakan(
+      p_jenis := 'masuk',
+      p_jumlah := 25000,
+      p_alasan := 'Tambah uang kecil',
+      p_cabang_id := 'a1a1a1a1-0000-0000-0000-000000000001',
+      p_disetujui_oleh := '90000000-0000-0000-0000-000000000005' -- Pelayan Dedi
+    );
+  $$,
+  'bukan atasan',
+  'Penyetuju kas pergerakan ditolak bila bukan atasan'
+);
+
+-- Penyetuju owner diterima
+select uji.sama(
+  (public.kas_pergerakan(
+    p_jenis := 'masuk',
+    p_jumlah := 25000,
+    p_alasan := 'Tambah modal disetujui owner',
+    p_cabang_id := 'a1a1a1a1-0000-0000-0000-000000000001',
+    p_disetujui_oleh := '90000000-0000-0000-0000-000000000002' -- Bu Oasis (owner)
+  )->>'berhasil')::boolean,
+  true,
+  'Kas pergerakan berhasil dengan persetujuan atasan yang sah'
+);
+

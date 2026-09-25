@@ -16,6 +16,7 @@ import { LayarDapur } from './layar/dapur/LayarDapur'
 import { LayarBar } from './layar/dapur/LayarBar'
 import { Stok } from './layar/dapur/Stok'
 import { Opname } from './layar/dapur/Opname'
+import { LayarLaporan } from './layar/laporan/LayarLaporan'
 import { klienSupabase } from './lib/supabase'
 import { masukDenganGoogle, kirimTautanMasukEmail } from './lib/auth'
 
@@ -100,6 +101,13 @@ export default function App() {
                     }
                   }
 
+                  // Panggil hitung_total eksplisit untuk memastikan nominal terkunci
+                  try {
+                    await klien.rpc('hitung_total', { p_pesanan_id: idPesanan })
+                  } catch {
+                    // Penjaga pemicu 0022 tetap berjalan jika RPC tak sengaja gagal
+                  }
+
                   setPesananAktifId(idPesanan)
                   return { sukses: true, pesananId: idPesanan }
                 } catch (e) {
@@ -118,6 +126,57 @@ export default function App() {
             uangSeharusnyaPerkiraan={
               (shiftAktif?.modalAwal ?? 0) + (bayar.terakhir?.totalPesanan ?? 0)
             }
+            onKirimKeDapur={async (id) => {
+              const klien = klienSupabase()
+              if (klien) {
+                const { error } = await klien
+                  .from('pesanan')
+                  .update({ status: 'antri' })
+                  .eq('id', id)
+                if (error) {
+                  return { sukses: false, pesan: error.message }
+                }
+              }
+              return { sukses: true }
+            }}
+            onKasPergerakan={async (data) => {
+              const klien = klienSupabase()
+              if (klien) {
+                const { error } = await klien.rpc('kas_pergerakan', {
+                  p_jenis: data.jenis,
+                  p_jumlah: data.jumlah,
+                  p_alasan: data.alasan,
+                  p_shift_id: shiftAktif?.id ?? null,
+                  p_cabang_id: cabangId,
+                })
+                if (error) {
+                  return { sukses: false, pesan: error.message }
+                }
+                return { sukses: true }
+              }
+              return { sukses: true }
+            }}
+            onKoreksiModal={async (data) => {
+              const klien = klienSupabase()
+              if (klien) {
+                const { error } = await klien.rpc('koreksi_modal_shift', {
+                  p_shift_id: shiftAktif?.id,
+                  p_modal_baru: data.modalAwalBaru,
+                  p_alasan: data.alasan,
+                })
+                if (error) {
+                  return { sukses: false, pesan: error.message }
+                }
+                if (shiftAktif) {
+                  setShiftAktif({ ...shiftAktif, modalAwal: data.modalAwalBaru })
+                }
+                return { sukses: true }
+              }
+              if (shiftAktif) {
+                setShiftAktif({ ...shiftAktif, modalAwal: data.modalAwalBaru })
+              }
+              return { sukses: true }
+            }}
             onBukaShift={async ({ modalAwal, catatan }) => {
               const klien = klienSupabase()
               if (klien) {
@@ -290,6 +349,19 @@ export default function App() {
             onKembali={() => setLayarAktif('menu_stok')}
           />
         )
+      case 'laporan':
+        return (
+          <LayarLaporan
+            cabangAktifId={cabangId}
+            peranPengguna={
+              sesi?.peran === 'owner_pusat' ||
+              sesi?.peran === 'admin_cabang' ||
+              sesi?.peran === 'kasir'
+                ? sesi.peran
+                : 'kasir'
+            }
+          />
+        )
       default:
         return <LayarContoh />
     }
@@ -320,8 +392,9 @@ export default function App() {
           <div>
             <LayarMasukPegawai
               onMasuk={async (email, pin) => masuk(email, pin)}
-              onMasukSukses={() => {
-                setLayarAktif(sesi?.peran === 'dapur' ? 'dapur' : 'kasir')
+              onMasukSukses={(sesiMasuk) => {
+                const peranBaru = sesiMasuk?.peran || sesi?.peran
+                setLayarAktif(peranBaru === 'dapur' ? 'dapur' : 'kasir')
               }}
             />
             <div className="text-center pb-8">

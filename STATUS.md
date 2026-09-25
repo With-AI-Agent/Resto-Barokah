@@ -1,10 +1,9 @@
 # Status — Aplikasi Resto Barokah
 
-> **AUDIT MENYELURUH PUTARAN KEDUA (AUD-4) SIAP & JAMINAN HANDOFF LENGKAP (2026-09-25, sesi arena/01a0d09b).** Sesuai arahan Lee untuk pemeriksaan putaran kedua yang jauh lebih dalam, teliti, dan sempurna, telah disiapkan paket audit independen AUD-4 baik versi menyeluruh maupun paket spesifik per domain:
-> 1. Paket Master AUD-4 Menyeluruh: `docs/uji/paket-audit/AUD-4-2026-09-25.md` & `AUD-4-2026-09-25-SIAP-TEMPEL.md` (409 berkas proyek, 74 klaim bukti, 193 tugas roadmap).
-> 2. Agent A (Keamanan & Sistem/DB): `docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md` & `AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md` (173 berkas: RLS, database, auth, trigger, hash chain audit, edge functions).
-> 3. Agent B (UI/UX & Desain Antarmuka): `docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md` & `AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md` (96 berkas: 10 tema, CSS, kontras, sentuh ≥44px, komponen UI, i18n).
-> 4. Agent C (Logika Bisnis POS / Kasir / Laporan): `docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md` & `AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md` (191 berkas: migrasi, kasir, dapur KDS, shift kas, void, laporan keuangan).
+> **AUDIT INDEPENDEN PUTARAN KEDUA (AUD-4) SELESAI: 6 PEMERIKSA DITERIMA & TEMUAN DITUNTASKAN (2026-09-25, sesi arena/01a0d09b).** Lee telah menjalankan 6 pemeriksa independen (masing-masing 2 pemeriksa untuk Keamanan, Antarmuka, dan Logika Bisnis). Seluruh 6 laporan telah ditarik, divalidasi 100% LOLOS KONTRAK, dan seluruh temuannya telah dituntaskan:
+> 1. Keamanan Staf & Perangkat: Pengetatan `verifikasi_pin_perangkat` (0061) dengan mewajibkan perangkat kasir terdaftar, verifikasi kunci token rahasia perangkat, dan anti-oracle enumerasi email lewat penyeragaman kode `KREDENSIAL_TIDAK_VALID`.
+> 2. Antarmuka Kasir & Navigasi: Penyambungan `LayarLaporan.tsx` ke rute `laporan` di `App.tsx`, pengkabelan `onKasPergerakan`, `onKoreksiModal`, dan `onKirimKeDapur` ke RPC peladen nyata, status koneksi dinamis di footer `Rangka.tsx`, serta perutean langsung peran dapur saat login pegawai.
+> 3. Logika Bisnis & Pertahanan DB: Validasi persetujuan atasan pada `kas_pergerakan` (0047), isolasi multi-tenant eksplisit pada penutupan pembayaran di `tutup_shift` (0046), serta pemanggilan `hitung_total` sebelum pembayaran.
 > Mekanisme handoff diselaraskan 100%: jika sesi terputus/eror, Lee cukup mengatur base branch ke `arena/01a0d09b-resto-barokah` dan mengirim "baca pro.md" untuk langsung melanjutkan tanpa kehilangan konteks apa pun.
 > Status teknis: 104 berkas SQL LULUS (58 migrasi aktif) · 85 berkas Vitest frontend / 677 tes LULUS · seluruh uji mutasi Fase 7 dan migrasi 0056–0061 (17/17) terbukti merah · seluruh pemeriksa fondasi dan repo LOLOS.
 

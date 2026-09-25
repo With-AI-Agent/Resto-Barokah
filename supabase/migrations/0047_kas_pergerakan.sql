@@ -235,6 +235,19 @@ begin
     raise exception 'Peran % tidak berwenang mencatat pergerakan kas di cabang ini.', coalesce(public.peran_saya(), '(kosong)');
   end if;
 
+  -- Validasi penyetuju kas (wajib atasan/admin di resto yang sama)
+  if p_disetujui_oleh is not null then
+    if not exists (
+      select 1 from public.pengguna
+       where id = p_disetujui_oleh
+         and penyewa_id = v_penyewa
+         and coalesce(aktif, false)
+         and peran in ('owner_pusat', 'admin_cabang')
+    ) then
+      raise exception 'Pengguna penyetuju tidak valid atau bukan atasan di restoran ini.';
+    end if;
+  end if;
+
   -- Rekam pergerakan kas
   insert into public.kas_pergerakan (
     penyewa_id,

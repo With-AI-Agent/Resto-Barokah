@@ -10,12 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `804ed86f3464490d5bc6c466b7e268d138b78e5e`
+- **Commit keadaan kerja:** `474e018054645d6927557af80302094dca2270d7`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 36088466076, commit 804ed86f)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (1 run, commit 474e0180)
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -29,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-24.md` → `e7818e2f` (11 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (292 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (1 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (293 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1537,3 +1536,15 @@ Urutan yang disarankan agent, dan alasannya:
 3. **Pengingat Audit Menyeluruh Fase 7 (§25 REKAM_PESAN_PEMILIK.md):**
    - Fase 7 (T7-01 s.d. T7-12) resmi tuntas 100%.
    - Sesuai amanat pemilik (§25), proses pengerjaan DIJEDA untuk memberikan kesempatan kepada Lee guna melakukan audit menyeluruh atau review independen atas hasil Fase 7 sebelum menyentuh Fase 8. Dilarang lanjut ke Fase 8 tanpa persetujuan Lee.
+
+**AUDIT INDEPENDEN AUD-4 SELESAI & PERBAIKAN DITUNTASKAN (2026-09-25):**
+1. **Penerimaan 6 Laporan Audit Independen:**
+   - 6 auditor independen di cabang `arena/01a0d6aa-resto-barokah` telah diperiksa dan 100% LOLOS KONTRAK integritas audit independen.
+   - Domain yang diperiksa: Keamanan (2 auditor), Antarmuka (2 auditor), dan Logika Bisnis (2 auditor).
+2. **Penyelesaian Temuan Nyata:**
+   - Database & Keamanan: `0061_verifikasi_pin_perangkat.sql` (wajib perangkat kasir terdaftar, validasi token rahasia perangkat, anti-oracle akun, pencatatan percobaan gagal), `0047_kas_pergerakan.sql` (validasi atasan aktif tenant sama), `0046_tutup_shift.sql` (isolasi tenant pada pembayaran tunai).
+   - Antarmuka & UX: Menghubungkan `LayarLaporan.tsx` di `App.tsx`, integrasi prop `onKasPergerakan`, `onKoreksiModal`, `onKirimKeDapur`, status koneksi dinamis di `Rangka.tsx`, perutean login dapur langsung.
+3. **Kesiapan Handoff & Lanjut Sesi:**
+   - Sesi terhubung penuh dengan `arena/01a0d09b-resto-barokah`. Jika sesi terputus, Lee cukup menunjuk sesi ini dan mengirim "baca pro.md".
+4. **Rencana Selanjutnya:**
+   - Melaporkan hasil penuntasan AUD-4 kepada Lee dan menunggu instruksi langkah selanjutnya (apakah rilis/sebar ke produksi, atau melangkah ke Fase 8).

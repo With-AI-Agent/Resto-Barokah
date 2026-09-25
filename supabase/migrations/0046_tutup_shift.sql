@@ -169,7 +169,7 @@ begin
   update public.pembayaran
      set shift_id = v_shift.id
    where shift_id is null
-     and pesanan_id in (select id from public.pesanan where cabang_id = v_shift.cabang_id)
+     and pesanan_id in (select id from public.pesanan where cabang_id = v_shift.cabang_id and penyewa_id = v_penyewa)
      and waktu >= v_shift.dibuka_pada
      and waktu <= now();
 

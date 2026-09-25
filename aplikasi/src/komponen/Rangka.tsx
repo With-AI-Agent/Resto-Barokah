@@ -4,6 +4,7 @@ import type { PenggunaSesi } from '../lib/auth'
 import { LembarBantuan } from './LembarBantuan'
 import { Navigasi } from './Navigasi'
 import { PemilihCabang } from './PemilihCabang'
+import { klienSupabase } from '../lib/supabase'
 
 export interface RangkaProps {
   sesi: PenggunaSesi | null
@@ -118,7 +119,9 @@ export const Rangka: React.FC<RangkaProps> = ({
         }}
       >
         <div>Resto Barokah POS &copy; 2026 — Sistem Kasir Mandiri & Teruji</div>
-        <div>Status: Terhubung & Siap Bertugas</div>
+        <div>
+          Status: {klienSupabase() ? '🟢 Terhubung & Siap Bertugas' : '🟡 Mode Offline / Simulasi'}
+        </div>
       </footer>
     </div>
   )

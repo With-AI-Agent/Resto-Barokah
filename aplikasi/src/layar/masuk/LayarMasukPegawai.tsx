@@ -3,16 +3,16 @@ import { Kartu } from '../../komponen/Kartu'
 import { KolomIsian } from '../../komponen/KolomIsian'
 import { LembarBantuan } from '../../komponen/LembarBantuan'
 import { Tombol } from '../../komponen/Tombol'
-import { ambilPerangkatLokal } from '../../lib/auth'
+import { ambilPerangkatLokal, type PenggunaSesi } from '../../lib/auth'
 import { formatPesanError } from '../../lib/pesan'
 import type { PesanRamah } from '../../lib/pesan'
 
 export interface LayarMasukPegawaiProps {
-  onMasukSukses?: () => void
+  onMasukSukses?: (sesi?: PenggunaSesi | null) => void
   onMasuk: (
     email: string,
     pin: string,
-  ) => Promise<{ berhasil: boolean; kode?: string; pesan: string }>
+  ) => Promise<{ berhasil: boolean; kode?: string; pesan: string; sesi?: PenggunaSesi | null }>
 }
 
 export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSukses, onMasuk }) => {
@@ -67,7 +67,7 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
     try {
       const res = await onMasuk(email, pin)
       if (res.berhasil) {
-        if (onMasukSukses) onMasukSukses()
+        if (onMasukSukses) onMasukSukses(res.sesi)
       } else {
         setErrorRamah(formatPesanError(res))
         setPin('')
