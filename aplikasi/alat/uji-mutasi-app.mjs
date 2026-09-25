@@ -648,9 +648,8 @@ const MUTASI = [
   {
     nama: 'Kampanye: validasi diskon persen > 100% dilepas di formulir (T8-11)',
     berkas: 'src/layar/pengaturan/Kampanye.tsx',
-    cari: "    if (jenisAturan === 'persen') {\n      const persen = Number(nilaiDiskon)\n      if (persen <= 0 || persen > 100) {",
-    ganti:
-      "    if (jenisAturan === 'persen') {\n      const persen = Number(nilaiDiskon)\n      if (false) {",
+    cari: "    if (jenis === 'persen' && (nilai <= 0 || nilai > 100)) {",
+    ganti: "    if (false && jenis === 'persen' && (nilai <= 0 || nilai > 100)) {",
     uji: 'src/layar/pengaturan/Kampanye.test.tsx',
   },
 ]
