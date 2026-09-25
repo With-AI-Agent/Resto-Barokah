@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `75aacc2443caf612cb8bfa35ca0dfccb981ae638`
+- **Commit keadaan kerja:** `aa548a19fa03b846a575078efe641dedfe17618c`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit 75aacc24)
+- **CI terakhir:** success (1 run, commit aa548a19)
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (31 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (323 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (32 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (324 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -69,7 +69,20 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01...T8-15 TUNTAS PENUH 100%):**
+**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-01 SELESAI):**
+
+0ZM. **FASE 9: T9-01 (Pengaturan identitas & tampilan resto — PRD M2) SELESAI & T9-02 SIAP LANJUT.**
+   - Migrasi `supabase/migrations/0070_identitas_resto.sql`:
+     1. Kolom `tagline`, `logo_url`, `banner_url`, dan `versi_pengaturan` pada tabel `public.pengaturan`.
+     2. RPC resmi `public.simpan_pengaturan` dengan penjaga versi optimistik (stempel waktu P0001), isolasi penyewa ketat (`penyewa_saya()`), otorisasi peran `owner_pusat` atau staf berizin `atur_pengaturan`, dan pencatatan jejak audit kekal di `public.catatan_audit`.
+     3. RPC `public.ambil_pengaturan_identitas()` untuk formulir pengaturan resto.
+     4. Pembaruan RPC `public.katalog_publik(p_slug, p_cabang_id)` menyajikan nama, tagline, logo_url, dan banner_url langsung ke pelanggan publik tanpa login.
+   - Berkas uji `supabase/tes/pengaturan_identitas.sql` membuktikan 11 kasus uji (114 berkas uji SQL lulus 100%).
+   - Skrip penilai mutasi SQL `alat/uji-mutasi-0070.py` (7/7 mutasi kritis terbukti WAJIB MERAH).
+   - Komponen antarmuka `aplikasi/src/layar/pengaturan/Identitas.tsx` (validasi format JPG/PNG/WebP, logo maks 2 MB, banner maks 3 MB, kompresi/auto-resize client-side via canvas, live preview katalog & struk).
+   - Komponen induk `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx` menyatukan bilah tab pengaturan resto terintegrasi di `App.tsx`.
+   - 13 uji unit di `Identitas.test.tsx` dan 6 uji unit di `LayarPengaturan.test.tsx` lulus 100% (total 103 berkas Vitest frontend / 811 tes unit lulus).
+   - Langkah selanjutnya: T9-02 (Tema & warna merek — 10 tema siap pakai).
 
 0ZL. **FASE 8: T8-15 (Privasi pelanggan - persetujuan & anonimisasi UU PDP ⚠️ T-011) SELESAI — SELURUH FASE 8 TUNTAS.**
    - Migrasi `supabase/migrations/0069_privasi_pelanggan.sql`:

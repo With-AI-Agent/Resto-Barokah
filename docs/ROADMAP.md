@@ -1774,14 +1774,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 9 — Pengaturan tanpa koding & multi-cabang (M1, M2, M3, M11)
 
-- [ ] T9-01 — Pengaturan identitas & tampilan resto
+- [x] T9-01 — Pengaturan identitas & tampilan resto
   - **Tujuan:** owner mengubah nama, logo, banner, tagline sendiri tanpa menghubungi siapa pun.
   - **Ref:** PRD M2 (identitas & tampilan) · RPC resmi: `simpan_pengaturan`, `simpan_menu`, `simpan_meja`, `simpan_metode_bayar`
-  - **File:** `aplikasi/src/layar/pengaturan/Identitas.tsx`, `supabase/migrations/0059_unggah_gambar.sql`
+  - **File:** `aplikasi/src/layar/pengaturan/Identitas.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`, `supabase/migrations/0070_identitas_resto.sql`
   - **DoD:** unggah logo & banner (dengan validasi ukuran/jenis), tagline, nama resto; perubahan langsung terlihat di katalog & struk baru; struk/laporan lama tidak berubah.
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** gambar besar → mitigasi: perkecil otomatis + batas ukuran + penyimpanan gratis 1 GB dipantau (T11-06).
-  - **Verifikasi:** uji manual unggah 3 gambar (kecil, besar, jenis salah).
+  - **Verifikasi:** uji manual unggah 3 gambar (kecil, besar, jenis salah). · **Bukti 2026-09-26:** migrasi 0070 (`0070_identitas_resto.sql`) menambahkan kolom tagline, logo_url, banner_url, dan versi_pengaturan pada tabel pengaturan serta mengimplementasikan RPC resmi `simpan_pengaturan` (optimistic locking stempel waktu P0001, isolasi penyewa, otorisasi owner_pusat / izin atur_pengaturan, jejak audit kekal di catatan_audit) dan pembaruan RPC `katalog_publik`; berkas uji SQL `supabase/tes/pengaturan_identitas.sql` membuktikan 11 kasus uji (114 berkas uji SQL lulus 100% — angka saat itu 2026-09-26 — perintah: `node alat/uji-sql.mjs`); penilai mutasi SQL `alat/uji-mutasi-0070.py` membuktikan 7/7 mutasi fail-closed tertangkap merah 100%; implementasi antarmuka `aplikasi/src/layar/pengaturan/Identitas.tsx` menyediakan validasi format berkas (JPG/PNG/WebP), batas ukuran logo 2 MB dan banner 3 MB, auto-resize via canvas, pratinjau live katalog publik & struk belanja; komponen induk `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx` mengintegrasikan modul pengaturan; 13 uji unit di `Identitas.test.tsx` dan 6 uji unit di `LayarPengaturan.test.tsx` lulus 100% (angka saat itu 2026-09-26 — perintah: `npm --prefix aplikasi test -- src/layar/pengaturan/Identitas.test.tsx src/layar/pengaturan/LayarPengaturan.test.tsx`); 811 uji unit frontend lulus (103 berkas); seluruh pemeriksaan arsitektur lolos (`python3 aplikasi/alat/periksa-struktur.py` dan `python3 alat/periksa-keamanan-sql.py`).
 
 - [ ] T9-02 — Tema & warna merek (10 tema siap pakai)
   - **Tujuan:** setiap resto bisa tampil dengan warna sendiri tanpa desain ulang.

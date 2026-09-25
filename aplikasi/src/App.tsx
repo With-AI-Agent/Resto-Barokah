@@ -11,7 +11,7 @@ import { LayarMasukPelanggan } from './layar/masuk/LayarMasukPelanggan'
 import { LayarKasir } from './layar/kasir/LayarKasir'
 import type { ShiftAktifInfo } from './layar/kasir/BukaKas'
 import { KelolaPegawai } from './layar/pengaturan/KelolaPegawai'
-import { DaftarPerangkat } from './layar/pengaturan/DaftarPerangkat'
+import { LayarPengaturan } from './layar/pengaturan/LayarPengaturan'
 import { LayarDapur } from './layar/dapur/LayarDapur'
 import { LayarBar } from './layar/dapur/LayarBar'
 import { Stok } from './layar/dapur/Stok'
@@ -339,7 +339,7 @@ export default function App() {
       case 'pegawai':
         return <KelolaPegawai cabangAktifId={sesi?.cabangAktifId || 'cab-01'} />
       case 'pengaturan':
-        return <DaftarPerangkat />
+        return <LayarPengaturan />
       case 'dapur':
         return (
           <LayarDapur
