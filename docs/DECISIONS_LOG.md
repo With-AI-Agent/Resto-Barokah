@@ -2836,13 +2836,16 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Berkas Uji SQL: `supabase/tes/pengaman_voucher.sql` menguji kesepuluh lapis pengaman secara komprehensif (110 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`).
   - Uji Mutasi SQL: `alat/uji-mutasi-0067.py` membuktikan 6/6 mutasi kritis WAJIB MERAH (lapis kuota klaim pelanggan, kuota harian cabang, batas anggaran kampanye, rate limiting perangkat penyerang, anti-tempmail, dan hak akses audit kasir vs admin); runner `--uji-diri` lolos.
   - Penyelarasan Mutasi 0065: `alat/uji-mutasi-0065.py` diperbarui merujuk ke definisi aktif di migrasi 0067 (5/5 mutasi WAJIB MERAH tetap terbukti tajam).
+### [Fase 8/2026-09-26] Pelaksanaan Privasi Pelanggan (UU PDP) & Anonimisasi (T8-15)
+- **Area:** Data Pelanggan (ART-14)
+- **Keputusan:**
+  1. Migrasi `0069_privasi_pelanggan.sql` menegakkan kolom persetujuan, waktu, dan versi kebijakan (v1.0), status privasi (`status_privasi in ('aktif', 'teranonimkan')`), serta stempel waktu dan alasan anonimisasi.
+  2. RPC atomik `public.anonimkan_pelanggan(p_pelanggan_id, p_alasan)` menghapus kontak pribadi (nama disamarkan menjadi 'Pelanggan Teranonimkan (UU PDP)', email/telepon/alamat null) tanpa menghapus catatan transaksi finansial, voucher, atau diskon.
+  3. Kejadian anonimisasi dicatat kekal pada tabel `public.catatan_audit` (aksi = 'anonimisasi_pelanggan').
+  4. Halaman `KebijakanPrivasi.tsx` menyajikan transparansi hak subjek data (akses, koreksi, anonimisasi/hapus maksimal 3×24 jam) dalam bahasa Indonesia yang ramah bagi pelanggan dan staf kedai.
+- **File terkait:** `supabase/migrations/0069_privasi_pelanggan.sql`, `supabase/tes/privasi.sql`, `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx`, `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.test.tsx`
+- **Bukti:**
+  - Migrasi Basis Data: `supabase/migrations/0069_privasi_pelanggan.sql` (skema kolom privasi, penyesuaian pemicu/constraint, RPC `anonimkan_pelanggan`, dan RPC `cek_privasi_pelanggan`).
+  - Berkas Uji SQL: `supabase/tes/privasi.sql` membuktikan 9 kasus kepatuhan privasi UU PDP (113 berkas uji SQL lulus 100%, angka saat itu 2026-09-26 — perintah: `node alat/uji-sql.mjs`).
+  - Antarmuka & Pengujian Unit: `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx` dan `KebijakanPrivasi.test.tsx` (6 uji unit hijau, angka saat itu 2026-09-26 — perintah: `npm --prefix aplikasi test -- src/layar/pelanggan-publik/KebijakanPrivasi.test.tsx`).
   - Keamanan Basis Data: `python3 alat/periksa-keamanan-sql.py` lulus (RLS, search_path, dan izin fungsi terverifikasi aman).
-
-
-
-
-
-
-
-
-

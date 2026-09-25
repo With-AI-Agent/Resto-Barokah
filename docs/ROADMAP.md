@@ -1762,7 +1762,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
-- [ ] T8-15 — Privasi pelanggan (persetujuan & anonimisasi) ⚠️ T-011
+- [x] T8-15 — Privasi pelanggan (persetujuan & anonimisasi) ⚠️ T-011
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-011: draf agent disetujui sebagai langkah awal, BUKAN persetujuan kebijakan final. Minta tinjauan Lee sebelum Fase 8; tanpa itu jangan mengumpulkan data pelanggan.
   - **Tujuan:** data pelanggan hanya disimpan dengan persetujuan, dan bisa dianonimkan atas permintaan (UU PDP).
   - **Ref:** TECH_SPEC §9 ART-14; PRD M10 & M12; docs/KEAMANAN.md §11
@@ -1770,7 +1770,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **DoD:** kolom persetujuan + waktu + versi kebijakan; fungsi anonimisasi menghapus kontak tanpa menghapus catatan keuangan; halaman kebijakan berbahasa Indonesia; uji SQL lulus; draf kebijakan ditinjau pemilik sebelum data pelanggan pertama masuk.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Data Pelanggan (ART-14); data terlanjur tersimpan tanpa persetujuan → mitigasi: pendaftaran tanpa centang = ditolak database; anonimisasi menyisakan jejak audit.
-  - **Verifikasi:** uji SQL: pelanggan tanpa persetujuan ditolak · anonimisasi menghapus kontak · transaksi & voucher tetap ada.
+  - **Verifikasi:** uji SQL: pelanggan tanpa persetujuan ditolak · anonimisasi menghapus kontak · transaksi & voucher tetap ada. · **Bukti 2026-09-26:** migrasi 0069 (`0069_privasi_pelanggan.sql`) menegakkan kolom persetujuan, waktu, versi kebijakan (v1.0), status privasi ('aktif' | 'teranonimkan'), serta RPC atomik `public.anonimkan_pelanggan` dan `public.cek_privasi_pelanggan`; berkas uji SQL `supabase/tes/privasi.sql` memverifikasi 9 kasus kepatuhan UU PDP (pelanggan tanpa persetujuan ditolak database, tersimpan lengkap persetujuan + waktu + versi kebijakan, pemanggilan anonimkan_pelanggan menghapus kontak nama/email/telepon/alamat, catatan voucher dan transaksi keuangan tetap utuh, jejak audit kekal tercatat di catatan_audit, sifat idempoten terbukti, isolasi tenant terjaga); 113 berkas uji SQL lulus 100% (angka saat itu 2026-09-26 — perintah: `node alat/uji-sql.mjs`); implementasi UI `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx` menyajikan transparansi hak subjek data (hak akses, hak koreksi, hak anonimisasi dalam 3x24 jam) berbahasa Indonesia sesuai UU 27/2022; 6 uji unit di `KebijakanPrivasi.test.tsx` lulus 100% (angka saat itu 2026-09-26 — perintah: `npm --prefix aplikasi test -- src/layar/pelanggan-publik/KebijakanPrivasi.test.tsx`); 792 uji unit frontend lulus (101 berkas); verifikasi keamanan fungsi dan sapuan RLS lolos (`python3 alat/periksa-keamanan-sql.py`).
 
 ## Fase 9 — Pengaturan tanpa koding & multi-cabang (M1, M2, M3, M11)
 

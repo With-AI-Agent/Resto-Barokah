@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `e05447954d3a87efb6197d78d69822afb620d1b2`
+- **Commit keadaan kerja:** `75aacc2443caf612cb8bfa35ca0dfccb981ae638`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit e0544795)
+- **CI terakhir:** success (1 run, commit 75aacc24)
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (30 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (322 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (31 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (323 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -69,7 +69,20 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01...T8-14 SELESAI, LANJUT T8-15):**
+**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01...T8-15 TUNTAS PENUH 100%):**
+
+0ZL. **FASE 8: T8-15 (Privasi pelanggan - persetujuan & anonimisasi UU PDP ⚠️ T-011) SELESAI — SELURUH FASE 8 TUNTAS.**
+   - Migrasi `supabase/migrations/0069_privasi_pelanggan.sql`:
+     1. Kolom status privasi, persetujuan, waktu, versi kebijakan (v1.0), alasan, waktu, dan pelaku anonimisasi pada `public.pelanggan`.
+     2. Penyesuaian pemicu `picu_pelanggan_validasi_email` dan batasan `pelanggan_cara_masuk_valid` agar mendukung pembersihan data kontak saat status `teranonimkan`.
+     3. RPC atomik `public.anonimkan_pelanggan(p_pelanggan_id, p_alasan)` yang menghapus kontak pribadi (nama disamarkan, email/telepon/alamat null) tanpa merusak catatan keuangan (transaksi & voucher tetap utuh) dengan jejak audit kekal di `public.catatan_audit`.
+     4. RPC `public.cek_privasi_pelanggan(p_pelanggan_id)` di bawah isolasi penyewa.
+   - Berkas uji `supabase/tes/privasi.sql` membuktikan 10 kasus kepatuhan privasi UU PDP (113/113 berkas uji SQL lulus 100%).
+   - Skrip uji mutasi SQL `alat/uji-mutasi-0069.py` (7/7 mutasi kritis terbukti WAJIB MERAH) dan `--uji-diri` lolos.
+   - Layar kebijakan privasi `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx` menyajikan hak subjek data berbahasa Indonesia yang transparan dan ramah awam.
+   - 6 uji unit Vitest di `KebijakanPrivasi.test.tsx` lulus 100% (total 101 berkas Vitest frontend / 792 tes unit lulus).
+   - Seluruh pemeriksaan keamanan SQL, paritas CI, gerbang CI, dan aturan desain lolos 100%.
+   - Langkah selanjutnya: Laporkan penuntasan Fase 8 kepada Lee. Sesuai keputusan Lee, langkah berikutnya adalah melangkah ke Fase 9 (Pengaturan tanpa koding & multi-cabang: M1, M2, M3, M11 mulai dari T9-01) atau menjalankan audit menyeluruh independen pasca Fase 8.
 
 0ZK. **FASE 8: T8-14 (Uji lengkap aturan voucher [6 kasus wajib] PRD M10 & TECH_SPEC §8) SELESAI & T8-15 SIAP LANJUT.**
    - Berkas uji `supabase/tes/voucher_aturan.sql` membuktikan 6 kasus wajib PRD M10 & TECH_SPEC §8:
