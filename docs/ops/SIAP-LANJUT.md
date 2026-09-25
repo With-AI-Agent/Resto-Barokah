@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `bc7ff8e11d6156687fb9ea99c70ee0028eb7453d`
+- **Commit keadaan kerja:** `ba64a1b1a5f546db8f50bc20f45d465872999b1f`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit bc7ff8e1)
+- **CI terakhir:** success (1 run, commit ba64a1b1)
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (14 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (306 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (15 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (307 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -69,9 +69,34 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01...T8-07 SELESAI, LANJUT T8-08):**
+**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01...T8-09 SELESAI, LANJUT T8-10):**
 
-0ZD. **FASE 8: T8-07 (Verifikasi email + anti email sekali-pakai + normalisasi Gmail ⚠️ T-011) SELESAI & T8-08 SIAP LANJUT.**
+0ZF. **FASE 8: T8-09 (Layar kasir: Cek [baca saja] & Pakai [atomik + PIN] ⚠️) SELESAI & T8-10 SIAP LANJUT.**
+   - Implementasi modul kasir cek & pakai voucher secara aman dan atomik:
+     1. Migrasi `supabase/migrations/0065_kasir_cek_pakai_voucher.sql`:
+        - Pembaruan pemicu `picu_diskon_batas()` yang memvalidasi voucher sungguhan di basis data saat `jenis = 'voucher'`, memastikan voucher sah terdaftar, berstatus `terpakai`, dan terikat ke `pesanan_id`.
+        - RPC `public.cek_voucher(p_kode, p_cabang_id, p_subtotal)` yang MURNI BACA-SAJA (read-only): tidak mengubah status voucher atau tabel transaksi apa pun, mencatat log audit ke `voucher_percobaan`, dan menghitung estimasi potongan secara presisi berdasarkan aturan kampanye (persen plafon maks atau nominal).
+        - RPC `public.pakai_voucher(p_pesanan_id, p_kode, p_pin_kasir, p_kunci_idempoten)` yang mengeksekusi pencairan voucher secara atomik sekali-pakai (ART-5): memverifikasi otentikasi kasir (`auth.uid()`), izin `pakai_voucher`, otorisasi PIN kasir berizin secara kriptografis (`crypt(pin, pin_hash)`), idempoten anti-dobel diskon, penolakan larangan tumpuk diskon jika konfigurasi resto melarang, dan penyisipan baris ke `diskon_transaksi`.
+     2. Berkas Uji SQL `supabase/tes/kasir_voucher.sql`: 108/108 berkas uji SQL lulus 100%, membuktikan:
+        - Cek voucher tidak mengubah status baris voucher di database sama sekali (baca saja terbukti).
+        - Cek voucher menghitung potongan persen dan nominal secara presisi.
+        - Pakai voucher menolak PIN kasir yang salah dan mencatat kegagalan ke `percobaan_pin`.
+        - Pakai voucher dengan PIN benar mencairkan voucher secara atomik dan mengurangi tagihan pesanan.
+        - Dobel klaim voucher yang sama pada transaksi lain ditolak (`VOUCHER_SUDAH_TERPAKAI`).
+        - Penolakan tumpuk diskon berjalan jika resto melarangnya.
+     3. Penilai mutasi `alat/uji-mutasi-0065.py`: 5/5 mutasi kritis terbukti MERAH (PIN kasir tidak divalidasi, status voucher tidak diubah ke terpakai, cek voucher merusak sifat baca-saja, pembatasan tumpuk diskon dimatikan, dan plafon batas maksimal potongan diabaikan).
+     4. Komponen Kasir `aplikasi/src/layar/kasir/VoucherKasir.tsx` & `Voucher.tsx`: antarmuka ramah awam dengan kolom isian kode voucher, tombol cek baca-saja, kartu hasil cek terperinci, kolom PIN kasir berkeamanan tinggi, tombol eksekusi atomik sekali-pakai, dan pesan kegagalan spesifik tanpa jargon teknis.
+     5. Integrasi `aplikasi/src/layar/kasir/LayarKasir.tsx`: tab navigasi antara Diskon Manual dan Voucher Promosi, terhubung dengan state `diskonAktif`.
+     6. Uji unit Vitest `aplikasi/src/layar/kasir/VoucherKasir.test.tsx` (8 uji unit) dan `LayarKasirDiskon.test.tsx` (8 uji unit) lulus 100%.
+     7. Dokumentasi: `docs/DECISIONS_LOG.md` (Area: Voucher ART-5), `PANDUAN_PENGGUNA.md` (108 berkas uji SQL), `docs/ROADMAP.md` (DoD T8-09 dicentang `[x]`).
+   - Langkah selanjutnya: T8-10 (Scan kamera + ketik manual untuk kasir).
+
+0ZE. **FASE 8: T8-08 (Terbitkan kode voucher acak + barcode) SELESAI.**
+   - Migrasi `0064_terbit_voucher_acak.sql`: generator kode acak non-sekuensial `buat_kode_voucher_acak()`, validator format `apakah_format_voucher_acak()`, pembuat pola bit barcode garis 1D `pola_barcode_garis()`, dan RPC `ambil_kartu_voucher(p_kode)`.
+   - Komponen `KartuVoucher.tsx`: tiket voucher, barcode SVG 1D, barcode 2D QR Code, info kedaluwarsa, salin dan cetak.
+   - Uji SQL `supabase/tes/voucher_terbit.sql` dan mutasi `alat/uji-mutasi-0064.py` (5/5 MERAH).
+
+0ZD. **FASE 8: T8-07 (Verifikasi email + anti email sekali-pakai + normalisasi Gmail ⚠️ T-011) SELESAI.**
    - Implementasi perlindungan ketat dari manipulasi pendaftaran pelanggan dan voucher:
      1. Pustaka utilitas klien `aplikasi/src/lib/emailNormalisasi.ts`: normalisasi Gmail (buang titik, potong alias `+...`, satukan `googlemail.com` ke `gmail.com`), saringan domain email sekali-pakai (disposable email blacklist mencakup 39+ domain populer), dan penanganan format email standar. 9 uji unit di `emailNormalisasi.test.ts` membuktikan 6 kasus tepi wajib DoD 100% lulus.
      2. Formulir pendaftaran `aplikasi/src/layar/voucher/Daftar.tsx`: terintegrasi langsung dengan saringan `normalisasiEmail` di sisi browser untuk memberikan umpan balik langsung sebelum pengiriman data. 6 uji unit di `Daftar.test.tsx` lulus 100%.

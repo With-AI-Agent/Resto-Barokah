@@ -1706,7 +1706,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** kode terguess → mitigasi: panjang memadai + pembatasan percobaan (T8-12).
   - **Verifikasi:** uji SQL unik + uji manual tampilan kartu voucher.
 
-- [ ] T8-09 — Layar kasir: Cek (baca saja) & Pakai (atomik + PIN) ⚠️
+- [x] T8-09 — Layar kasir: Cek (baca saja) & Pakai (atomik + PIN) ⚠️
   - **Tujuan:** kasir bisa memeriksa dengan tenang, lalu memakai sekali saja dengan jejak.
   - **Ref:** PRD M10 (aturan voucher) & M3 (izin pakai voucher); TECH_SPEC §9 ART-5
   - **File:** `aplikasi/src/layar/kasir/Voucher.tsx`

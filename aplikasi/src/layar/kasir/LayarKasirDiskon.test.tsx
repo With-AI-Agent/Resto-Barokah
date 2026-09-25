@@ -173,3 +173,112 @@ describe('LayarKasir ↔ DiskonManual (T5-05, sambungan)', () => {
     )
   })
 })
+
+describe('LayarKasir ↔ VoucherKasir (T8-09, alur cek & pakai voucher)', () => {
+  it('dapat beralih ke tab voucher promo dan memeriksa kode voucher', async () => {
+    const onCekVoucher = vi.fn().mockResolvedValue({
+      berhasil: true,
+      kode: 'SUKSES',
+      pesan: 'Voucher sah.',
+      data: {
+        voucher_id: 'vcr-1',
+        kode_voucher: 'VC-HEMAT20',
+        status: 'aktif',
+        nama_kampanye: 'Promo Diskon 20%',
+        jenis: 'persen',
+        nilai: 20,
+        min_belanja: 50000,
+        maks_potongan: 20000,
+        estimasi_potongan: 10000,
+      },
+    })
+
+    render(
+      <PenyediaBahasa>
+        <LayarKasir onCekVoucher={onCekVoucher} />
+      </PenyediaBahasa>,
+    )
+
+    bukaDiskon()
+    fireEvent.click(screen.getByRole('button', { name: /Tab Voucher Promo/i }))
+    expect(screen.getByTestId('voucher-kasir')).toBeTruthy()
+
+    fireEvent.change(screen.getByLabelText(/Kode voucher/i), {
+      target: { value: 'VC-HEMAT20' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /Cek voucher/i }))
+
+    await waitFor(() => {
+      expect(onCekVoucher).toHaveBeenCalledWith(
+        expect.objectContaining({
+          kode: 'VC-HEMAT20',
+        }),
+      )
+      expect(screen.getByTestId('voucher-hasil-cek-sukses')).toBeTruthy()
+      expect(screen.getByText('Promo Diskon 20%')).toBeTruthy()
+    })
+  })
+
+  it('voucher yang berhasil dipakai memotong tagihan di layar kasir', async () => {
+    const onCekVoucher = vi.fn().mockResolvedValue({
+      berhasil: true,
+      kode: 'SUKSES',
+      pesan: 'Voucher sah.',
+      data: {
+        voucher_id: 'vcr-1',
+        kode_voucher: 'VC-HEMAT20',
+        status: 'aktif',
+        nama_kampanye: 'Promo Diskon 20%',
+        jenis: 'persen',
+        nilai: 20,
+        min_belanja: 10000,
+        maks_potongan: null,
+        estimasi_potongan: 5000,
+      },
+    })
+    const onPakaiVoucher = vi.fn().mockResolvedValue({
+      berhasil: true,
+      kode: 'SUKSES',
+      pesan: 'Voucher berhasil digunakan.',
+      data: {
+        voucher_id: 'vcr-1',
+        kode_voucher: 'VC-HEMAT20',
+        nilai_potongan: 5000,
+        nama_kampanye: 'Promo Diskon 20%',
+      },
+    })
+
+    render(
+      <PenyediaBahasa>
+        <LayarKasir onCekVoucher={onCekVoucher} onPakaiVoucher={onPakaiVoucher} />
+      </PenyediaBahasa>,
+    )
+
+    bukaDiskon()
+    fireEvent.click(screen.getByRole('button', { name: /Tab Voucher Promo/i }))
+
+    fireEvent.change(screen.getByLabelText(/Kode voucher/i), {
+      target: { value: 'VC-HEMAT20' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /Cek voucher/i }))
+    await waitFor(() => expect(screen.getByTestId('voucher-hasil-cek-sukses')).toBeTruthy())
+
+    fireEvent.change(screen.getByLabelText(/PIN Kasir/i), {
+      target: { value: '1234' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /Pakai voucher/i }))
+
+    await waitFor(() => {
+      expect(onPakaiVoucher).toHaveBeenCalledWith({
+        kode: 'VC-HEMAT20',
+        pinKasir: '1234',
+        pesananId: 'ord-current',
+      })
+    })
+
+    // Potongan diskon tampil di ringkasan pesanan
+    await waitFor(() => {
+      expect(screen.getByText(/Diskon \/ Voucher Promo/i)).toBeTruthy()
+    })
+  })
+})

@@ -26,6 +26,7 @@ import { PemilihMeja, type MejaData, type TipePesanan } from './PemilihMeja'
 import { TagihanTerbuka } from './TagihanTerbuka'
 import { Bayar, type BarisTagihan, type HasilBayar, type MetodeBayar, type Tagihan } from './Bayar'
 import { DiskonManual, type BatasDiskon, type HasilDiskon } from './DiskonManual'
+import { VoucherKasir, type HasilCekVoucher, type HasilPakaiVoucher } from './VoucherKasir'
 import { VoidItem, type HasilVoid } from './VoidItem'
 import { BukaKas, type ShiftAktifInfo } from './BukaKas'
 import { TutupKas, type HasilTutupKas } from './TutupKas'
@@ -81,6 +82,24 @@ export interface LayarKasirProps {
     alasan: string
     disetujuiOleh: string | null
   }) => Promise<HasilDiskon | null> | void
+
+  // ------------------------------------------------------------ T8-09 voucher
+  /**
+   * Cek status & estimasi potongan voucher (baca-saja, RPC `cek_voucher`).
+   */
+  onCekVoucher?: (masukan: {
+    kode: string
+    subtotal: number
+    cabangId?: string
+  }) => Promise<HasilCekVoucher | null> | void
+  /**
+   * Pemakaian atomik voucher dengan PIN kasir (RPC `pakai_voucher`).
+   */
+  onPakaiVoucher?: (masukan: {
+    kode: string
+    pinKasir: string
+    pesananId?: string
+  }) => Promise<HasilPakaiVoucher | null> | void
 
   // ------------------------------------------------------- T5-06 void pra-dapur
   /**
@@ -149,6 +168,8 @@ export function LayarKasir({
   daftarAtasan = [],
   onMintaPersetujuanDiskon,
   onTerapkanDiskon,
+  onCekVoucher,
+  onPakaiVoucher,
   onBatalkanItem,
   sudahKeDapur = false,
   tarif = TARIF_BAWAAN,
@@ -180,6 +201,7 @@ export function LayarKasir({
   const [bukaOpenBillModal, setBukaOpenBillModal] = useState(false)
   const [bukaBayarModal, setBukaBayarModal] = useState(false)
   const [bukaDiskonModal, setBukaDiskonModal] = useState(false)
+  const [tabDiskon, setTabDiskon] = useState<'manual' | 'voucher'>('manual')
   const [bukaShiftModal, setBukaShiftModal] = useState(false)
   const [bukaTutupKasModal, setBukaTutupKasModal] = useState(false)
   const [bukaKasPergerakanModal, setBukaKasPergerakanModal] = useState(false)
@@ -443,6 +465,22 @@ export function LayarKasir({
     return hasil
   }
 
+  const tanganiPakaiVoucher = async (masukan: {
+    kode: string
+    pinKasir: string
+    pesananId?: string
+  }): Promise<HasilPakaiVoucher | null> => {
+    const hasil = (await onPakaiVoucher?.(masukan)) ?? null
+    if (hasil?.berhasil && hasil.data) {
+      setDiskonAktif((sebelumnya) => sebelumnya + (hasil.data?.nilai_potongan ?? 0))
+    }
+    return hasil
+  }
+
+  const tanganiSelesaiPakaiVoucher = () => {
+    setBukaDiskonModal(false)
+  }
+
   return (
     <div className="pos-wadah">
       {/* Kolom Kiri: Header Kasir & Katalog Menu */}
@@ -619,18 +657,58 @@ export function LayarKasir({
         </Lapis>
       )}
 
-      {/* Diskon manual (T5-05) — menggantikan modal voucher keras-kode.
-          Pagar sungguhannya di migrasi 0041; layar hanya lapis pertama. */}
+      {/* Diskon manual (T5-05) & Voucher Promosi (T8-09) */}
       {bukaDiskonModal && (
-        <Lapis buka={true} onTutup={() => setBukaDiskonModal(false)} judul="Beri Diskon Manual">
-          <DiskonManual
-            subtotal={subtotal}
-            batas={batasDiskon}
-            daftarAtasan={daftarAtasan}
-            onMintaPersetujuan={onMintaPersetujuanDiskon}
-            onTerapkan={tanganiTerapkanDiskon}
-            onBatal={() => setBukaDiskonModal(false)}
-          />
+        <Lapis
+          buka={true}
+          onTutup={() => setBukaDiskonModal(false)}
+          judul={tabDiskon === 'voucher' ? 'Cek & Pakai Voucher' : 'Beri Diskon Manual'}
+        >
+          <div
+            style={{
+              display: 'flex',
+              gap: 'var(--s-2)',
+              marginBottom: 'var(--s-3)',
+              borderBottom: '1px solid var(--garis)',
+              paddingBottom: 'var(--s-2)',
+            }}
+          >
+            <Tombol
+              ragam={tabDiskon === 'manual' ? 'utama' : 'biasa'}
+              onClick={() => setTabDiskon('manual')}
+              nama="Tab Diskon Manual"
+            >
+              🏷️ Diskon Manual
+            </Tombol>
+            <Tombol
+              ragam={tabDiskon === 'voucher' ? 'utama' : 'biasa'}
+              onClick={() => setTabDiskon('voucher')}
+              nama="Tab Voucher Promo"
+            >
+              🎟️ Voucher Promosi
+            </Tombol>
+          </div>
+
+          {tabDiskon === 'manual' ? (
+            <DiskonManual
+              subtotal={subtotal}
+              batas={batasDiskon}
+              daftarAtasan={daftarAtasan}
+              onMintaPersetujuan={onMintaPersetujuanDiskon}
+              onTerapkan={tanganiTerapkanDiskon}
+              onBatal={() => setBukaDiskonModal(false)}
+            />
+          ) : (
+            <VoucherKasir
+              subtotal={subtotal}
+              pesananId={pesananId}
+              cabangId={cabangId}
+              onCek={onCekVoucher ?? (() => {})}
+              onPakai={tanganiPakaiVoucher}
+              onBatal={() => setBukaDiskonModal(false)}
+              onSelesai={tanganiSelesaiPakaiVoucher}
+            />
+          )}
         </Lapis>
       )}
 

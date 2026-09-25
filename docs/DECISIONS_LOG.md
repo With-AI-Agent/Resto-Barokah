@@ -2693,6 +2693,36 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Berkas Uji SQL: `supabase/tes/katalog_publik.sql` (105 berkas uji SQL lulus 100%; uji mencakup asersi otomatis ketiadaan kolom sensitif).
   - Uji Mutasi: `alat/uji-mutasi-0062.py` (3/3 mutasi kritis TERBUKTI MERAH).
 
+## [Voucher & Kasir / 2026-09-25] Layar Kasir Cek (Baca Saja) & Pakai (Atomik + PIN Kasir) (T8-09 / ART-5, PRD M10, M3)
+
+- **Area:** Voucher (ART-5) & Kasir (PRD M10, M3, TECH_SPEC §9 ART-5)
+- **Konteks & Risiko (ART-5):**
+  Kasir membutuhkan fasilitas untuk memeriksa apakah voucher yang dibawa pelanggan sah dan berapa nominal potongan yang didapat sebelum tagihan dibayar, tanpa menghanguskan atau mengubah status voucher pelanggan (sifat baca-saja). Jika tombol cek mengubah status voucher di basis data, voucher pelanggan bisa hangus meskipun transaksi akhirnya batal. Di sisi lain, pemakaian voucher rawan dobel klaim (*double redemption*) bila dua kasir atau perangkat memasukkan kode voucher yang sama secara bersamaan (kondisi balapan/konkuren). Dari sisi akuntabilitas keuangan (PRD M3 & TECH_SPEC §9 ART-5), pemakaian voucher memotong penerimaan kedai, sehingga wajib diotorisasi oleh kasir berizin dengan pembuktian PIN terenkripsi.
+- **Keputusan:**
+  1. **RPC `public.cek_voucher` Bersifat MURNI BACA SAJA (Read-Only):**
+     - Tidak mengubah status voucher apa pun di basis data (dibuktikan lewat asersi uji bahwa baris voucher dan stempel waktu tetap tidak berubah).
+     - Menilai masa berlaku voucher, status aktif/terpakai/kedaluwarsa/dibatalkan, kesesuaian cabang kampanye, dan syarat minimal belanja pesanan.
+     - Menghitung estimasi potongan secara presisi berdasarkan persentase promo (dengan batasan batas maksimal plafon potongan) atau nominal tetap.
+     - Mencatat audit penelusuran ke `public.voucher_percobaan` tanpa menyentuh tabel transaksi.
+  2. **RPC `public.pakai_voucher` Eksekusi Atomik Sekali Pakai (ART-5):**
+     - Memverifikasi otentikasi kasir (`auth.uid()`), izin `pakai_voucher`, dan verifikasi kriptografis PIN kasir (`crypt(pin, pin_hash)` terhadap `public.kredensial_pin`).
+     - Melakukan penguncian atomik baris database: `UPDATE public.voucher SET status = 'terpakai', pesanan_id = p_pesanan_id, terpakai_di_cabang = ..., terpakai_oleh = ..., terpakai_pada = now() WHERE kode = ... AND status = 'aktif' AND ... RETURNING *`. Baris yang sudah terpakai tidak dapat diperbarui ulang, menutup celah dobel klaim.
+     - Penanganan idempoten: jika voucher yang sama dipanggil ulang untuk pesanan yang sama, RPC mengembalikan status sukses idempoten tanpa menduplikasi baris diskon.
+     - Mencegah tumpuk diskon jika konfigurasi resto melarangnya (`pengaturan.tumpuk_diskon = false`).
+     - Menyisipkan baris `public.diskon_transaksi` dengan `jenis = 'voucher'` dan `voucher_id` yang sah, memperbarui tagihan pesanan secara otomatis melalui pemicu peladen.
+  3. **Pembaruan Pemicu `public.picu_diskon_batas()`:**
+     - Menggantikan pagar sementara fail-closed lama. Memverifikasi keabsahan voucher nyata di basis data, status `terpakai`, kecocokan kepemilikan tenant, dan keterikatan sah pada `pesanan_id` yang bersangkutan.
+  4. **Antarmuka Kasir Ramah Awam (`VoucherKasir.tsx` & `LayarKasir.tsx`):**
+     - Integrasi tab navigasi antara Diskon Manual dan Voucher Promosi.
+     - Kolom PIN kasir bertipe kata sandi dan langsung dibersihkan dari memori peramban segera setelah digunakan demi keamanan kredensial staf.
+     - Penolakan ramah awam dengan sebab kegagalan spesifik dari peladen (tanpa jargon teknis).
+- **Bukti:**
+  - Migrasi Basis Data: `supabase/migrations/0065_kasir_cek_pakai_voucher.sql`.
+  - Berkas Uji SQL: `supabase/tes/kasir_voucher.sql` (108 berkas uji SQL lulus 100%).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0065.py` (5/5 mutasi kritis terbukti MERAH).
+  - Komponen Frontend: `aplikasi/src/layar/kasir/VoucherKasir.tsx` & `aplikasi/src/layar/kasir/VoucherKasir.test.tsx` (8 uji unit lulus 100%).
+  - Integrasi Layar Kasir: `aplikasi/src/layar/kasir/LayarKasir.tsx` & `aplikasi/src/layar/kasir/LayarKasirDiskon.test.tsx` (8 uji unit lulus 100%).
+
 ## [Voucher & Privasi / 2026-09-25] Normalisasi Email Gmail, Anti Email Sekali-Pakai, dan 1 Identitas 1 Voucher (T8-07 / ART-5, ART-10)
 
 - **Area:** Voucher (ART-5) & Privasi Pelanggan (ART-10) · PRD M10 & TECH_SPEC §4.4, §5, §9 ART-5, ART-10
