@@ -5,6 +5,7 @@ import { Lencana } from '../../komponen/Lencana'
 import { KolomIsian } from '../../komponen/KolomIsian'
 import { KomponenQr } from '../../komponen/KomponenQr'
 import { rupiah, tanggalLokal } from '../../lib/format'
+import { normalisasiEmail } from '../../lib/emailNormalisasi'
 
 export interface KampanyeInfo {
   id: string
@@ -125,14 +126,18 @@ export function Daftar({
     setPesanGalat(null)
     if (!validasiDasar()) return
 
-    if (!email.trim() || !email.includes('@')) {
-      setPesanGalat('Mohon masukkan alamat email yang sah untuk menerima voucher.')
+    const validasi = normalisasiEmail(email)
+    if (!validasi.sah) {
+      setPesanGalat(
+        validasi.pesan || 'Mohon masukkan alamat email yang sah untuk menerima voucher.',
+      )
       return
     }
 
     setSedangProses(true)
     try {
-      const hasil = onKirimEmail ? await onKirimEmail(email.trim()) : { sukses: true }
+      const emailBersih = validasi.email_normalisasi || email.trim()
+      const hasil = onKirimEmail ? await onKirimEmail(emailBersih) : { sukses: true }
       if (hasil.sukses) {
         const voucherBaru: VoucherKlaimHasil = {
           kode: buatKodeVoucherAcak(),
@@ -142,11 +147,11 @@ export function Daftar({
           maks_potongan: kampanye.maks_potongan,
           berlaku_sampai: batasWaktuFormatted,
           nama_pelanggan: nama.trim(),
-          email_pelanggan: email.trim(),
+          email_pelanggan: emailBersih,
           telepon_pelanggan: telepon.trim() || undefined,
         }
         setVoucherHasil(voucherBaru)
-        setPesanSukses(`Tautan verifikasi dan kode voucher telah dikirimkan ke ${email.trim()}.`)
+        setPesanSukses(`Tautan verifikasi dan kode voucher telah dikirimkan ke ${emailBersih}.`)
         onKlaimSukses?.(voucherBaru)
       } else {
         setPesanGalat(hasil.pesan || 'Gagal memproses pendaftaran email.')

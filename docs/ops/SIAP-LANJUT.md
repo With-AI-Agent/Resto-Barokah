@@ -69,7 +69,18 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01...T8-06 SELESAI, LANJUT T8-07):**
+**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01...T8-07 SELESAI, LANJUT T8-08):**
+
+0ZD. **FASE 8: T8-07 (Verifikasi email + anti email sekali-pakai + normalisasi Gmail ⚠️ T-011) SELESAI & T8-08 SIAP LANJUT.**
+   - Implementasi perlindungan ketat dari manipulasi pendaftaran pelanggan dan voucher:
+     1. Pustaka utilitas klien `aplikasi/src/lib/emailNormalisasi.ts`: normalisasi Gmail (buang titik, potong alias `+...`, satukan `googlemail.com` ke `gmail.com`), saringan domain email sekali-pakai (disposable email blacklist mencakup 39+ domain populer), dan penanganan format email standar. 9 uji unit di `emailNormalisasi.test.ts` membuktikan 6 kasus tepi wajib DoD 100% lulus.
+     2. Formulir pendaftaran `aplikasi/src/layar/voucher/Daftar.tsx`: terintegrasi langsung dengan saringan `normalisasiEmail` di sisi browser untuk memberikan umpan balik langsung sebelum pengiriman data. 6 uji unit di `Daftar.test.tsx` lulus 100%.
+     3. Edge Function `supabase/functions/verifikasi_pelanggan/index.ts`: penerima pendaftaran mandiri dengan validasi wajib persetujuan privasi UU PDP (T-011), validasi nama, saringan domain email sekali-pakai, dan penerusan aman ke database. 10 uji batas VM tanpa jaringan di `alat/uji-edge-verifikasi-pelanggan.mjs` lolos 100%.
+     4. Migrasi `supabase/migrations/0063_anti_email_palsu.sql`: tabel `pelanggan`, `kampanye_voucher`, `voucher`, `voucher_percobaan`, RPC atomik `daftar_voucher`, fungsi SQL `normalisasi_email`, pemicu validasi privasi eksplisit `persetujuan_privasi = true`, indeks unik `(penyewa_id, email_normalisasi)` dan batasan satu voucher per identitas per kampanye `unique (kampanye_id, pelanggan_id)`, serta kebijakan RLS multi-tenant yang memenuhi F-10.
+     5. Suite SQL `supabase/tes/anti_email_palsu.sql`: 106/106 berkas uji SQL lulus 100%.
+     6. Penilai mutasi `alat/uji-mutasi-0063.py`: 4/4 mutasi kritis terbukti MERAH.
+     7. Dokumentasi: `docs/DECISIONS_LOG.md` (ART-5 & ART-10), `PANDUAN_PENGGUNA.md` (106 berkas uji SQL), `docs/ROADMAP.md` (DoD T8-07 dicentang `[x]`).
+   - Langkah selanjutnya: T8-08 (Terbitkan kode voucher acak + barcode).
 
 0ZC. **FASE 8: T8-06 (Halaman kampanye + pendaftaran pelanggan) SELESAI & T8-07 SIAP LANJUT.**
    - Implementasi halaman kampanye promo dan pendaftaran pelanggan untuk klaim voucher mandiri:

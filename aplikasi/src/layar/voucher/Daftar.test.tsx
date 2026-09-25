@@ -146,4 +146,23 @@ describe('Komponen Formulir Pendaftaran Voucher (Daftar.tsx — T8-06)', () => {
       expect(screen.getByText('✓ Kode Tersalin!')).toBeDefined()
     })
   })
+
+  it('menolak klaim jika menggunakan email sekali-pakai (T8-07)', async () => {
+    render(<Daftar kampanye={CONTOH_KAMPANYE} />)
+
+    fireEvent.change(screen.getByPlaceholderText(/Contoh: Rian Anggoro/i), {
+      target: { value: 'Budi Santoso' },
+    })
+    fireEvent.change(screen.getByPlaceholderText(/nama@email.com/i), {
+      target: { value: 'budi@tempmail.com' },
+    })
+    fireEvent.click(screen.getByTestId('centang-privasi-voucher'))
+
+    const tombolEmail = screen.getByRole('button', { name: /klaim voucher lewat email/i })
+    fireEvent.click(tombolEmail)
+
+    expect(screen.getByRole('alert').textContent).toMatch(
+      /Email sementara atau sekali-pakai tidak diizinkan/i,
+    )
+  })
 })

@@ -2693,6 +2693,31 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Berkas Uji SQL: `supabase/tes/katalog_publik.sql` (105 berkas uji SQL lulus 100%; uji mencakup asersi otomatis ketiadaan kolom sensitif).
   - Uji Mutasi: `alat/uji-mutasi-0062.py` (3/3 mutasi kritis TERBUKTI MERAH).
 
+## [Voucher & Privasi / 2026-09-25] Normalisasi Email Gmail, Anti Email Sekali-Pakai, dan 1 Identitas 1 Voucher (T8-07 / ART-5, ART-10)
+
+- **Area:** Voucher (ART-5) & Privasi Pelanggan (ART-10) · PRD M10 & TECH_SPEC §4.4, §5, §9 ART-5, ART-10
+- **Konteks & Risiko (ART-5, ART-10):**
+  Kampanye promo voucher undang-teman rawan dimanipulasi oleh pihak yang berniat memborong voucher secara massal menggunakan banyak akun palsu atau email sementara (*burner/disposable email* seperti 10minutemail, tempmail, mailinator). Selain itu, fitur sub-addressing dan alias titik pada penyedia email populer seperti Gmail (`john.doe@gmail.com`, `j.o.h.n.d.o.e@gmail.com`, `johndoe+promo1@gmail.com`) mengarah ke satu kotak masuk yang sama, sehingga rentan disalahgunakan untuk mengklaim kuota voucher berkali-kali tanpa terdeteksi jika hanya diperiksa secara literal. Dari sisi regulasi UU PDP (UU 27/2022 Pasal 20 & T-011), pendaftaran dan pemrosesan data pribadi pelanggan wajib didasarkan pada persetujuan eksplisit dan data kontak yang sah.
+- **Keputusan:**
+  1. **Normalisasi Gmail Ketat (`normalisasiEmail` di TS & `public.normalisasi_email` di SQL):**
+     - Pada domain `gmail.com` dan `googlemail.com`: seluruh tanda titik (`.`) di bagian nama pengguna dihilangkan, tag alias sub-addressing (karakter `+` dan teks sesudahnya) dipotong bersih, dan domain disatukan ke `gmail.com`.
+     - Seluruh alamat email diubah ke huruf kecil (*lowercase*) dan spasi dihilangkan (*trim*).
+  2. **Penolakan Email Sekali-Pakai (Disposable Email Blacklist):**
+     - Daftar domain email sementara (39+ domain populer: `10minutemail.com`, `tempmail.com`, `mailinator.com`, `trashmail.com`, `guerrillamail.com`, `yopmail.com`, dll) ditolak secara tegas, baik di lapisan antarmuka klien (`emailNormalisasi.ts`), fungsi edge (`verifikasi_pelanggan`), maupun pemicu basis data (`public.apakah_email_sekali_pakai`).
+  3. **Pagar Database Satu Identitas Satu Voucher Per Kampanye:**
+     - Tabel `public.pelanggan` mengunci keunikan identitas per resto lewat indeks unik `(penyewa_id, email_normalisasi)`.
+     - Tabel `public.voucher` mengunci pembatasan kuota individu melalui `unique (kampanye_id, pelanggan_id)`. Percobaan klaim kedua kali untuk kampanye yang sama ditolak oleh RPC `daftar_voucher` dengan kode `VOUCHER_SUDAH_DIKLAIM`.
+  4. **Persetujuan Privasi Eksplisit (T-011 & UU PDP):**
+     - Setiap pendaftaran pelanggan dan penerbitan voucher mewajibkan `persetujuan_privasi = true` dengan catatan versi (`v1.0`) dan stempel waktu. Permintaan tanpa persetujuan ditolak langsung di level basis data (`CHECK (persetujuan_privasi = true)`).
+  5. **Jalur Bantuan Kasir:**
+     - Jika pelanggan tidak memiliki email atau kesulitan verifikasi mandiri, kasir dapat mendaftarkan langsung atas izin lisan/tertulis pelanggan (`cara_masuk = 'kasir'`) dan tercatat siapa pegawai yang mendaftarkan (`didaftarkan_oleh`).
+- **Bukti:**
+  - Pustaka TS & Pengujian: `aplikasi/src/lib/emailNormalisasi.ts` dan `aplikasi/src/lib/emailNormalisasi.test.ts` (9 uji unit 100% lulus mencakup 6 kasus wajib DoD).
+  - Edge Function: `supabase/functions/verifikasi_pelanggan/index.ts` dan runner uji batas `alat/uji-edge-verifikasi-pelanggan.mjs` (10 uji batas lulus tanpa jaringan).
+  - Migrasi Basis Data: `supabase/migrations/0063_anti_email_palsu.sql` (tabel `pelanggan`, `kampanye_voucher`, `voucher`, `voucher_percobaan`, RPC `daftar_voucher`, pemicu validasi, dan RLS).
+  - Berkas Uji SQL: `supabase/tes/anti_email_palsu.sql` (seluruh 106 berkas uji SQL LULUS 100%).
+  - Uji Mutasi: `alat/uji-mutasi-0063.py` (4/4 mutasi kritis terbukti MERAH).
+
 
 
 
