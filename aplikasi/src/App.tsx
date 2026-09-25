@@ -17,6 +17,9 @@ import { LayarBar } from './layar/dapur/LayarBar'
 import { Stok } from './layar/dapur/Stok'
 import { Opname } from './layar/dapur/Opname'
 import { LayarLaporan } from './layar/laporan/LayarLaporan'
+import { LayarPelayan } from './layar/pelayan/LayarPelayan'
+import { DaftarTransaksi } from './layar/kasir/DaftarTransaksi'
+import { PasangPrinter } from './layar/pengaturan/PasangPrinter'
 import { klienSupabase } from './lib/supabase'
 import { masukDenganGoogle, kirimTautanMasukEmail } from './lib/auth'
 
@@ -176,6 +179,41 @@ export default function App() {
                 setShiftAktif({ ...shiftAktif, modalAwal: data.modalAwalBaru })
               }
               return { sukses: true }
+            }}
+            onBatalkanItem={async ({ itemId, alasan }) => {
+              const klien = klienSupabase()
+              if (klien && pesananAktifId) {
+                const { error } = await klien.from('pembatalan').insert({
+                  pesanan_id: pesananAktifId,
+                  pesanan_item_id:
+                    itemId.startsWith('ord-item-') || itemId.length > 20 ? itemId : null,
+                  alasan,
+                  tahap: 'sebelum_dapur',
+                })
+                if (error) {
+                  return { berhasil: false, pesan: error.message }
+                }
+                return { berhasil: true }
+              }
+              return { berhasil: true }
+            }}
+            onTerapkanDiskon={async ({ nilai, alasan, disetujuiOleh }) => {
+              const klien = klienSupabase()
+              if (klien && pesananAktifId) {
+                const { error } = await klien.from('diskon_transaksi').insert({
+                  pesanan_id: pesananAktifId,
+                  jenis: 'manual',
+                  nilai,
+                  nominal: nilai,
+                  alasan,
+                  disetujui_oleh: disetujuiOleh,
+                })
+                if (error) {
+                  return { berhasil: false, pesan: error.message }
+                }
+                return { berhasil: true }
+              }
+              return { berhasil: true }
             }}
             onBukaShift={async ({ modalAwal, catatan }) => {
               const klien = klienSupabase()
@@ -362,6 +400,44 @@ export default function App() {
             }
           />
         )
+      case 'riwayat':
+        return (
+          <DaftarTransaksi
+            daftar={
+              bayar.terakhir
+                ? [
+                    {
+                      id: pesananAktifId ?? 'tx-01',
+                      data: {
+                        nomor: 1,
+                        tanggal: new Date().toISOString(),
+                        namaResto: 'Resto Barokah',
+                        item: [],
+                        subtotal: bayar.terakhir.totalPesanan,
+                        totalDiskon: 0,
+                        pajak: 0,
+                        service: 0,
+                        total: bayar.terakhir.totalPesanan,
+                      },
+                      pembayaran: [
+                        {
+                          metode: 'Tunai',
+                          jumlah: bayar.terakhir.totalDibayar,
+                        },
+                      ],
+                      kembalian: bayar.terakhir.kembalian,
+                    },
+                  ]
+                : []
+            }
+            onTutup={() => setLayarAktif('kasir')}
+          />
+        )
+      case 'pesanan_meja':
+      case 'status_pesanan':
+        return <LayarPelayan namaPelayan={sesi?.nama ?? 'Pelayan'} />
+      case 'printer':
+        return <PasangPrinter />
       default:
         return <LayarContoh />
     }

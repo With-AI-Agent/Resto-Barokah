@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `474e018054645d6927557af80302094dca2270d7`
+- **Commit keadaan kerja:** `edc529aaa87c554b6f105e58c9be0ae18cb9f2bf`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit 474e0180)
+- **CI terakhir:** success (1 run, commit edc529aa)
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (1 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (293 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (2 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (55 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1547,4 +1547,4 @@ Urutan yang disarankan agent, dan alasannya:
 3. **Kesiapan Handoff & Lanjut Sesi:**
    - Sesi terhubung penuh dengan `arena/01a0d09b-resto-barokah`. Jika sesi terputus, Lee cukup menunjuk sesi ini dan mengirim "baca pro.md".
 4. **Rencana Selanjutnya:**
-   - Melaporkan hasil penuntasan AUD-4 kepada Lee dan menunggu instruksi langkah selanjutnya (apakah rilis/sebar ke produksi, atau melangkah ke Fase 8).
+   - Melangkah ke **Fase 8 — Katalog pelanggan & voucher undang-teman (M10)** dimulai dari `T8-01 — RPC katalog_publik (tanpa data sensitif) ⚠️`.
