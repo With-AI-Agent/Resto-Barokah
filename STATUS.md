@@ -1,6 +1,6 @@
 # Status — Aplikasi Resto Barokah
 
-> **RESOLUSI AUDIT AUD-3 SELESAI: 13/15 TEMUAN DITUTUP RESMI (2026-09-25, sesi arena/01a0d09b).** Seluruh temuan yang dapat diselesaikan pada level aplikasi dan database telah dituntaskan 100% dan terbukti dengan uji SQL, uji Vitest, dan pagar mutasi merah:
+> **RESOLUSI AUDIT AUD-3 SELESAI: 13/15 TEMUAN DITUTUP RESMI (2026-09-25, sesi arena/01a0d09b, commit 0e477a8).** Seluruh temuan yang dapat diselesaikan pada level aplikasi dan database telah dituntaskan 100% dan terbukti dengan uji SQL, uji Vitest, dan pagar mutasi merah:
 > 1. N F-04: Migrasi `0056_cabang_aktif_saya.sql`, uji `supabase/tes/cabang_aktif_saya.sql`, mutasi `alat/uji-mutasi-0056.py` (2/2 MERAH).
 > 2. N F-02: Migrasi `0057_truncate_audit_ditolak.sql`, uji `supabase/tes/truncate_audit_ditolak.sql`, mutasi `alat/uji-mutasi-0057.py` (2/2 MERAH).
 > 3. N F-03: Migrasi `0058_sesi_masih_aktif.sql`, uji `supabase/tes/sesi_kedaluwarsa.sql`, mutasi `alat/uji-mutasi-0058.py` (4/4 MERAH).
