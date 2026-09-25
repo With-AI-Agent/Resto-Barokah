@@ -1751,14 +1751,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** salah tuduh pelanggan → mitigasi: istilah "perlu diperiksa", bukan "curang".
   - **Verifikasi:** uji SQL + uji manual. · **Bukti 2026-09-25:** migrasi `supabase/migrations/0068_laporan_voucher.sql` (view `laporan_voucher_ringkasan` dengan security_invoker = true, RPC `deteksi_anomali_voucher` mendeteksi 4 kategori anomali, RPC `laporan_voucher` agregasi metrik klaim, pemakaian, potongan rupiah, konversi, tren harian, rincian kampanye & cabang, dan identitas klaim berulang); berkas uji SQL `supabase/tes/laporan_voucher.sql` (111 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); penilai mutasi `alat/uji-mutasi-0068.py` (7/7 mutasi kritis terbukti MERAH); antarmuka `aplikasi/src/layar/laporan/LaporanVoucher.tsx` dan integrasi tab `LayarLaporan.tsx` teruji unit 100% (`npx vitest run src/layar/laporan/LaporanVoucher.test.tsx`); penilai mutasi aplikasi `aplikasi/alat/uji-mutasi-app.mjs` (81/81 mutasi terbukti MERAH).
 
-- [ ] T8-14 — Uji lengkap aturan voucher (6 kasus wajib)
+- [x] T8-14 — Uji lengkap aturan voucher (6 kasus wajib)
   - **Tujuan:** aturan voucher terbukti benar sebelum dipakai di kedai.
   - **Ref:** PRD M10 (kasus tepi); TECH_SPEC §11
-  - **File:** `supabase/tes/voucher_lengkap.sql`, `aplikasi/uji/e2e/voucher.spec.ts`
+  - **File:** `supabase/tes/voucher_aturan.sql`, `aplikasi/uji/e2e/voucher.spec.ts` (rencana di Fase 11 sesuai T-026)
   - **DoD:** uji: sekali pakai, kedaluwarsa, minimum belum terpenuhi, salah cabang, kuota habis, cek tidak mengubah status; semua lulus di CI.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** uji tidak menutup seluruh kasus → mitigasi: daftar kasus diambil langsung dari PRD M10.
-  - **Verifikasi:** CI hijau + ringkasan hasil dicatat.
+  - **Verifikasi:** CI hijau + ringkasan hasil dicatat. · **Bukti 2026-09-25:** berkas uji SQL `supabase/tes/voucher_aturan.sql` membuktikan 6 kasus wajib PRD M10 & TECH_SPEC §8 (1. min belanja ditolak `SUBTOTAL_KURANG` dan lolos saat subtotal dipenuhi; 2. diskon persen dipotong tepat plafon nominal sampai rupiah terkecil 18.222; 3. kedaluwarsa ditolak `VOUCHER_KEDALUWARSA`; 4. kuota harian cabang habis ditolak `KUOTA_HARIAN_CABANG_HABIS` & anggaran kampanye habis ditolak `ANGGARAN_KAMPANYE_HABIS`; 5. beda cabang ditolak `CABANG_TIDAK_BERLAKU` dan lolos di cabang sah; 6. sekali pakai ditolak `VOUCHER_SUDAH_TERPAKAI` pada pesanan berbeda & idempoten pada pesanan sama); 112 berkas uji SQL lulus 100% (angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); verifikasi keamanan fungsi dan RLS lolos (`python3 alat/periksa-keamanan-sql.py`).
 
 ---
 

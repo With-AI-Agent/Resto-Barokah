@@ -10,11 +10,12 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `9ebc05ccc1291827024a37b6dea79fd1e7f9855a`
+- **Commit keadaan kerja:** `c7ce3a9114f6d4ced0a8f96ce11a44e4438138ae`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit 9ebc05cc)
+- **CI terakhir:** failure (run 36163434812, commit c7ce3a91)
+- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (25 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (26 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1699,7 +1700,26 @@ Urutan yang disarankan agent, dan alasannya:
    - Pengujian unit Vitest `LaporanVoucher.test.tsx` (13 tes) dan `LayarLaporan.test.tsx` (6 tes) LULUS 100%.
    - Uji mutasi kode aplikasi `aplikasi/alat/uji-mutasi-app.mjs` terbukti 81/81 mutasi WAJIB MERAH.
    - Pemeriksa bahasa (`periksa-bahasa.py`), struktur (`periksa-struktur.py`), peta UI (`peta-ui.py`), dan roadmap (`periksa-roadmap.py`) 100% LOLOS.
-4. **Rencana Selanjutnya:**
-   - Melangkah ke `T8-14 — Uji lengkap aturan voucher (6 kasus wajib)` (PRD M10 / TECH_SPEC §8).
-   - Menyiapkan suite uji komprehensif 6 skenario aturan voucher (belanja kurang ditolak, batas plafon persen, masa berlaku kedaluwarsa, kuota habis, isolasi cabang terkunci, dan voucher terpakai pesanan lain ditolak).
-   - Melanjutkan hingga seluruh Fase 8 (T8-01 s/d T8-15) tuntas 100%.
+**FASE 8 T8-14 UJI LENGKAP ATURAN VOUCHER (6 KASUS WAJIB) SELESAI (2026-09-25):**
+1. **Penyusunan Berkas Uji Komprehensif `supabase/tes/voucher_aturan.sql`:**
+   - Membuktikan 6 kasus tepi wajib aturan voucher sesuai PRD M10 & TECH_SPEC §8:
+     1. Belanja kurang dari minimum ditolak (`SUBTOTAL_KURANG`) dan berhasil saat pesanan ditambah item hingga melewati batas minimum belanja.
+     2. Diskon persen dipotong tepat plafon batas nominal sampai satuan rupiah terkecil (40% dari 100.000 terpotong di plafon 25.000; 40% dari 45.555 terpotong presisi tepat 18.222 rupiah).
+     3. Masa berlaku lewat ditolak (`VOUCHER_KEDALUWARSA`).
+     4. Kuota harian cabang habis ditolak (`KUOTA_HARIAN_CABANG_HABIS`) dan batas anggaran kampanye habis ditolak (`ANGGARAN_KAMPANYE_HABIS`).
+     5. Beda cabang ditolak bila cabang terkunci (`CABANG_TIDAK_BERLAKU`) dan berhasil pada cabang yang diizinkan.
+     6. Sekali pakai ditolak jika digunakan pada pesanan berbeda (`VOUCHER_SUDAH_TERPAKAI`), serta bersifat idempoten bila dipanggil ulang pada pesanan yang sama (`IDEMPOTEN`).
+2. **Penyelarasan Runner Uji SQL Lokal (`alat/uji-sql.mjs`):**
+   - Menetapkan timezone sesi `'Asia/Jakarta'` pada `SKEMA_UJI` agar `current_date` selaras dengan pergantian hari operasional cabang (00:00-07:00 WIB pasca tengah malam).
+3. **Pemeriksaan & Gerbang Kualitas:**
+   - Seluruh 112 berkas uji SQL lulus 100% (`node alat/uji-sql.mjs`).
+   - Keamanan fungsi dan RLS lolos (`python3 alat/periksa-keamanan-sql.py`).
+   - Buku pedoman induk tersinkron 112 berkas uji (`python3 alat/periksa-panduan.py` LOLOS).
+   - Roadmap dan angka bukti valid (`python3 alat/periksa-roadmap.py` & `python3 alat/periksa-angka-bukti.py` LOLOS).
+   - Seluruh struktur CSS, token, dan paritas CI 100% LOLOS.
+
+## 3. Rencana berikutnya
+- Mengerjakan **T8-15 — Pengujian integrasi alur voucher (tuntas Fase 8)** (PRD M10 / TECH_SPEC §8).
+- Menguji integrasi alur ujung-ke-ujung voucher mulai dari pendaftaran identitas pelanggan -> penerbitan kode acak -> pemeriksaan estimasi diskon oleh kasir (baca-saja) -> pemakaian transaksi atomik dengan verifikasi PIN kasir -> pencatatan diskon pesanan -> laporan rekonsiliasi kampanye dan deteksi anomali.
+- Menuntaskan seluruh tugas Fase 8 (T8-01 sampai T8-15), sehingga Fase 8 berstatus SELESAI PENUH 100%.
+- Menyiapkan berkas handoff rapi (`SIAP-LANJUT.md`, `PRO.md`, `lanjut-sesi.py`) untuk persiapan transisi sesi berikutnya sesuai arahan Lee.

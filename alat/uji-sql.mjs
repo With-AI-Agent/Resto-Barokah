@@ -48,6 +48,8 @@ const berkasUjiPilihan = args.filter((a) => a.endsWith('.sql'))
 // 1. Alat bantu uji (skema `uji`) — meniru Supabase, hanya untuk pengujian
 // ---------------------------------------------------------------------------
 const SKEMA_UJI = `
+set timezone = 'Asia/Jakarta';
+
 create role anon nologin;
 create role authenticated nologin;
 create role service_role nologin bypassrls;
