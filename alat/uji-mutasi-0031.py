@@ -14,6 +14,7 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIGRASI_0031 = os.path.join(REPO, "supabase", "migrations", "0031_mode_dukungan_platform.sql")
+MIGRASI_0058 = os.path.join(REPO, "supabase", "migrations", "0058_sesi_masih_aktif.sql")
 
 def jalankan_uji():
     res = subprocess.run(
@@ -30,6 +31,10 @@ def uji_mutasi():
     print("UJI MUTASI 0031 (Mode Dukungan Pemilik Platform)")
     with open(MIGRASI_0031, "r", encoding="utf-8") as f:
         asli_migrasi = f.read()
+    asli_0058 = None
+    if os.path.exists(MIGRASI_0058):
+        with open(MIGRASI_0058, "r", encoding="utf-8") as f:
+            asli_0058 = f.read()
 
     try:
         # Kontrol awal: harus hijau
@@ -79,13 +84,28 @@ def uji_mutasi():
             return 1
         print("  [OK] Mutasi 3: Pelepasan pencatatan audit TERBUKTI MERAH")
 
+        # Kembalikan 0031 sebelum Mutasi 4
+        with open(MIGRASI_0031, "w", encoding="utf-8") as f:
+            f.write(asli_migrasi)
+
         # Mutasi 4: Pelepasan kondisi md.aktif pada penyewa_saya()
+        # JEBAKAN: penyewa_saya() ditulis ulang di 0058_sesi_masih_aktif.sql (N F-03),
+        # sehingga mutasi harus mengenai berkas yang berlaku saat runner SQL mengeksekusi migrasi.
         m4 = asli_migrasi.replace(
             "and md.aktif\n         and md.berakhir_pada > now()",
             "and md.berakhir_pada > now()"
         )
         with open(MIGRASI_0031, "w", encoding="utf-8") as f:
             f.write(m4)
+
+        if asli_0058:
+            m4_58 = asli_0058.replace(
+                "and md.aktif\n         and md.berakhir_pada > now()",
+                "and md.berakhir_pada > now()"
+            )
+            with open(MIGRASI_0058, "w", encoding="utf-8") as f:
+                f.write(m4_58)
+
         lulus, out = jalankan_uji()
         if lulus:
             print("  [X] Mutasi 4: Pelepasan kondisi md.aktif LOLOS (Pagar tumpul!)")
@@ -98,6 +118,9 @@ def uji_mutasi():
     finally:
         with open(MIGRASI_0031, "w", encoding="utf-8") as f:
             f.write(asli_migrasi)
+        if asli_0058:
+            with open(MIGRASI_0058, "w", encoding="utf-8") as f:
+                f.write(asli_0058)
 
 def uji_diri():
     print("UJI DIRI penilai mutasi 0031")
