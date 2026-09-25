@@ -251,9 +251,9 @@ GABUNGAN = [
     # = 0, jadi potongan sekecil apa pun melewatinya). Ketiganya dimatikan sekaligus supaya
     # yang diuji benar-benar perilaku tanpa penjaga — bukan kebetulan tertahan cap.
     ("M3k diskon boleh ditanam pada subtotal 0 (tiga penjaga dimatikan sekaligus)",
-     [("if coalesce(v_pesanan.subtotal, 0) <= 0 then", "if false then"),
-      ("if v_total > v_pesanan.subtotal then", "if false then"),
-      ("if v_cap_persen is not null and v_cap_persen < 100", "if false and v_cap_persen < 100")],
+     [("0065_kasir_cek_pakai_voucher.sql", "if coalesce(v_pesanan.subtotal, 0) <= 0 then", "if false then"),
+      ("0065_kasir_cek_pakai_voucher.sql", "if v_total > v_pesanan.subtotal then", "if false then"),
+      ("0065_kasir_cek_pakai_voucher.sql", "if v_cap_persen is not null and v_cap_persen < 100", "if false and v_cap_persen < 100")],
      "supabase/tes/diskon_cap.sql"),
 ]
 
