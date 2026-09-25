@@ -198,4 +198,37 @@ describe('LayarLaporan', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'RESTO BAROKAH' })).toBeDefined()
     expect(screen.getByText(/Pengesahan & Tanda Tangan|Dibuat Oleh/i)).toBeDefined()
   })
+
+  it('dapat berpindah ke tab Voucher & Promo dan menampilkan dasbor voucher', () => {
+    render(
+      <LayarLaporan
+        dataPenjualan={DATA_PENJUALAN_MOCK}
+        dataVoucher={{
+          rentang: { tanggal_mulai: '2026-09-01', tanggal_akhir: '2026-09-25', jumlah_hari: 25 },
+          cabang: { id: 'c-01', nama: 'Cabang Utama' },
+          ringkasan: {
+            total_klaim: 12,
+            total_terpakai: 8,
+            total_potongan: 160000,
+            tingkat_konversi_persen: 66.7,
+            rata_rata_potongan: 20000,
+          },
+          per_kampanye: [],
+          per_cabang: [],
+          tren_harian: [],
+          klaim_berulang: [],
+          anomali: [],
+        }}
+      />,
+    )
+
+    const tombolTabVoucher = screen.getByRole('button', { name: /voucher & promo/i })
+    fireEvent.click(tombolTabVoucher)
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: /laporan voucher & promosi/i }),
+    ).toBeDefined()
+    expect(screen.getByText('Rp160.000')).toBeDefined()
+    expect(screen.getByText('66.7%')).toBeDefined()
+  })
 })

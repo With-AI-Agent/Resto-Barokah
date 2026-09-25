@@ -1742,14 +1742,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5); mitigasi: batas berlapis di database + laporan anomali.
   - **Verifikasi:** uji SQL: klaim ke-2 identitas sama → ditolak; lampaui anggaran → ditolak. · **Bukti 2026-09-25:** migrasi `supabase/migrations/0067_pengaman_voucher.sql` (10 lapis pengaman voucher, kolom kuota_harian_cabang & kuota_per_pelanggan, rate limiting brute-force 5 kegagalan per 15 menit dengan fungsi apakah_perangkat_terblokir, pengamanan cek_voucher, pakai_voucher, daftar_voucher, dan RPC audit admin ambil_log_percobaan_voucher); berkas uji SQL `supabase/tes/pengaman_voucher.sql` (110 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); penilai mutasi `alat/uji-mutasi-0067.py` (6/6 mutasi kritis terbukti MERAH); `alat/uji-mutasi-0065.py` diselaraskan (5/5 mutasi terbukti MERAH); `DECISIONS_LOG.md` diperbarui pada Area Berisiko Tinggi ART-5.
 
-- [ ] T8-13 — Laporan klaim voucher + dasar deteksi anomali
+- [x] T8-13 — Laporan klaim voucher + dasar deteksi anomali
   - **Tujuan:** owner melihat apakah kampanye berjalan wajar atau ada pola aneh.
   - **Ref:** PRD M10 (laporan anomali fase 2 → dasar di G1)
-  - **File:** `supabase/migrations/0058_laporan_voucher.sql`, `aplikasi/src/layar/laporan/LaporanVoucher.tsx`
+  - **File:** `supabase/migrations/0068_laporan_voucher.sql`, `aplikasi/src/layar/laporan/LaporanVoucher.tsx`, `supabase/tes/laporan_voucher.sql`, `alat/uji-mutasi-0068.py`
   - **DoD:** jumlah klaim & pemakaian per kampanye/cabang/hari, nilai potongan, daftar identitas klaim berulang, peringatan sederhana (mis. >3 klaim dari satu identitas).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** salah tuduh pelanggan → mitigasi: istilah "perlu diperiksa", bukan "curang".
-  - **Verifikasi:** uji SQL + uji manual.
+  - **Verifikasi:** uji SQL + uji manual. · **Bukti 2026-09-25:** migrasi `supabase/migrations/0068_laporan_voucher.sql` (view `laporan_voucher_ringkasan` dengan security_invoker = true, RPC `deteksi_anomali_voucher` mendeteksi 4 kategori anomali, RPC `laporan_voucher` agregasi metrik klaim, pemakaian, potongan rupiah, konversi, tren harian, rincian kampanye & cabang, dan identitas klaim berulang); berkas uji SQL `supabase/tes/laporan_voucher.sql` (111 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); penilai mutasi `alat/uji-mutasi-0068.py` (7/7 mutasi kritis terbukti MERAH); antarmuka `aplikasi/src/layar/laporan/LaporanVoucher.tsx` dan integrasi tab `LayarLaporan.tsx` teruji unit 100% (`npx vitest run src/layar/laporan/LaporanVoucher.test.tsx`); penilai mutasi aplikasi `aplikasi/alat/uji-mutasi-app.mjs` (81/81 mutasi terbukti MERAH).
 
 - [ ] T8-14 — Uji lengkap aturan voucher (6 kasus wajib)
   - **Tujuan:** aturan voucher terbukti benar sebelum dipakai di kedai.

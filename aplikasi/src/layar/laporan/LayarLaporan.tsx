@@ -11,17 +11,19 @@ import React, { useState } from 'react'
 import { LaporanPenjualan, type DataLaporanPenjualan } from './LaporanPenjualan'
 import { LaporanMenu, type DataLaporanMenu } from './LaporanMenu'
 import { LaporanKas, type DataLaporanHarian, type DataLaporanShiftDetail } from './LaporanKas'
+import { LaporanVoucher, type DataLaporanVoucher } from './LaporanVoucher'
 import { DaftarPembatalan, type BarisPembatalan } from './DaftarPembatalan'
 import { FormatLaporan } from './FormatLaporan'
 import { Tombol } from '../../komponen/Tombol'
 import { useBahasa } from '../../bahasa'
 
-export type TabLaporan = 'penjualan' | 'menu' | 'kas' | 'pembatalan' | 'cetak'
+export type TabLaporan = 'penjualan' | 'menu' | 'kas' | 'voucher' | 'pembatalan' | 'cetak'
 
 export interface LayarLaporanProps {
   dataPenjualan?: DataLaporanPenjualan | null
   dataMenu?: DataLaporanMenu | null
   dataHarian?: DataLaporanHarian | null
+  dataVoucher?: DataLaporanVoucher | null
   shiftTerpilihDetail?: DataLaporanShiftDetail | null
   daftarCabang?: Array<{ id: string; nama: string }>
   cabangAktifId?: string | null
@@ -47,6 +49,7 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
   dataPenjualan,
   dataMenu,
   dataHarian,
+  dataVoucher,
   shiftTerpilihDetail,
   daftarCabang = [],
   cabangAktifId = null,
@@ -116,6 +119,12 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
           💰 {t('laporan.tab_kas')}
         </Tombol>
         <Tombol
+          ragam={tabAktif === 'voucher' ? 'utama' : 'polos'}
+          onClick={() => setTabAktif('voucher')}
+        >
+          🎟️ {t('laporan.tab_voucher')}
+        </Tombol>
+        <Tombol
           ragam={tabAktif === 'pembatalan' ? 'utama' : 'polos'}
           onClick={() => setTabAktif('pembatalan')}
         >
@@ -177,6 +186,22 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
           onPilihTanggal={onPilihTanggal}
           onPilihShift={onPilihShift}
           onTutupRincianShift={onTutupRincianShift}
+          onMuatUlang={onMuatUlang}
+        />
+      )}
+
+      {tabAktif === 'voucher' && (
+        <LaporanVoucher
+          data={dataVoucher}
+          daftarCabang={daftarCabang}
+          cabangAktifId={cabangAktifId}
+          peranPengguna={peranPengguna}
+          tanggalMulai={tanggalMulai}
+          tanggalAkhir={tanggalAkhir}
+          sedangMemuat={sedangMemuat}
+          pesanGagal={pesanGagal}
+          onPilihCabang={onPilihCabang}
+          onPilihRentangTanggal={onPilihRentangTanggal}
           onMuatUlang={onMuatUlang}
         />
       )}

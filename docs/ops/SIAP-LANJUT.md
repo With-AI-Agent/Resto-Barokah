@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `251766d32ddbfafaf9339d84df48aeda41d129ea`
+- **Commit keadaan kerja:** `9ebc05ccc1291827024a37b6dea79fd1e7f9855a`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit 251766d3)
+- **CI terakhir:** success (1 run, commit 9ebc05cc)
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (24 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (25 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1681,23 +1681,25 @@ Urutan yang disarankan agent, dan alasannya:
    - 6 pengujian unit Vitest baru di `Menu.test.tsx` (total 90 berkas uji / 698 tes unit lulus 100%).
    - Tanpa warna mentah (`aplikasi/alat/periksa-struktur.py` LOLOS 100%), kontras tema WCAG 2.1 (166/166 LOLOS), bebas tombol liar (`alat/peta-ui.py` LOLOS), typecheck, format, lint, dan build Vite bersih.
    - `docs/ROADMAP.md` menandai T8-03 sebagai selesai `[x]`.
-**FASE 8 T8-08 TERBITKAN KODE VOUCHER ACAK + BARCODE SELESAI (2026-09-25):**
-1. **Database & RPC (Migrasi `0064_terbit_voucher_acak.sql`):**
-   - Kolom `berlaku_sampai` pada tabel `voucher`.
-   - Generator kode acak `buat_kode_voucher_acak()` non-sekuensial (ruang kemungkinan $\ge 10^{11}$, bebas karakter ambigu 0/O/1/I/L dengan format `RB-XXXX-XXXX`).
-   - Validator pola kode `apakah_format_voucher_acak()`.
-   - Generator pola garis barcode 1D bit `pola_barcode_garis()`.
-   - RPC publik `ambil_kartu_voucher(p_kode)`: aman tanpa kebocoran data pelanggan (email & nomor HP rahasia) dengan auto-evaluasi kedaluwarsa.
-   - Pagar keunikan 1 voucher per identitas per kampanye tetap terjaga di tingkat database.
-2. **Frontend & Kartu Tiket:**
-   - Komponen resmi `aplikasi/src/layar/voucher/KartuVoucher.tsx` (desain tiket voucher, kode monospaced kontras, barcode garis 1D SVG presisi, barcode 2D QR Code, info kedaluwarsa ramah awam, tombol salin clipboard dan cetak).
-   - Helper `aplikasi/src/lib/barcode.ts` dan pengujian `barcode.test.ts`.
-   - Integrasi formulir pendaftaran pelanggan `Daftar.tsx`.
+**FASE 8 T8-13 LAPORAN KLAIM VOUCHER + DASAR DETEKSI ANOMALI SELESAI (2026-09-25):**
+1. **Database & RPC (Migrasi `0068_laporan_voucher.sql`):**
+   - View `public.laporan_voucher_ringkasan` (`security_invoker = true`): agregasi klaim, pemakaian, dan total potongan rupiah diskon per kampanye, cabang penukaran, dan tanggal.
+   - RPC `public.deteksi_anomali_voucher(p_cabang_id, p_ambang_klaim)` (`security definer`): mendeteksi 4 kategori anomali:
+     1. Klaim berulang berlebih (>3 klaim dari 1 identitas).
+     2. Brute force / kegagalan beruntun (>=5 percobaan gagal dalam 15 menit).
+     3. Pemakaian kilat (<2 menit dari saat terbit ke saat ditebus).
+     4. Serapan anggaran / kuota kampanye menipis (>=80%).
+   - RPC `public.laporan_voucher(p_cabang_id, p_kampanye_id, p_tanggal_mulai, p_tanggal_akhir)`: ringkasan metrik (total klaim, total terpakai, total potongan rupiah, tingkat konversi persen, rata-rata potongan), perincian per kampanye, rincian per cabang, tren harian, identitas klaim berulang (>= 2 kali), dan anomali.
+2. **Frontend & Tab Laporan:**
+   - Komponen `aplikasi/src/layar/laporan/LaporanVoucher.tsx` dengan filter tanggal & cabang, kartu KPI metrik utama, deteksi anomali ramah awam (status bersih jika nihil, peringatan/bahaya jika terdeteksi), tabel per kampanye, per cabang, tren harian, dan tabel klaim berulang dengan lencana 'Frekuensi Tinggi' jika > 3 kali klaim.
+   - Integrasi tab 'Voucher & Promo' pada `LayarLaporan.tsx`.
 3. **Pemeriksaan & Mutasi:**
-   - 107 berkas uji SQL LULUS (100%).
-   - Uji mutasi `alat/uji-mutasi-0064.py` terbukti 5/5 MERAH.
-   - Vitest frontend 96 berkas / 742 tes unit LULUS.
-   - Tanpa warna mentah, format prettier, ESLint, dan typecheck tsc bersih.
+   - Berkas uji SQL `supabase/tes/laporan_voucher.sql` (111 berkas uji SQL LULUS 100%).
+   - Uji mutasi SQL `alat/uji-mutasi-0068.py` terbukti 7/7 mutasi kritis WAJIB MERAH.
+   - Pengujian unit Vitest `LaporanVoucher.test.tsx` (13 tes) dan `LayarLaporan.test.tsx` (6 tes) LULUS 100%.
+   - Uji mutasi kode aplikasi `aplikasi/alat/uji-mutasi-app.mjs` terbukti 81/81 mutasi WAJIB MERAH.
+   - Pemeriksa bahasa (`periksa-bahasa.py`), struktur (`periksa-struktur.py`), peta UI (`peta-ui.py`), dan roadmap (`periksa-roadmap.py`) 100% LOLOS.
 4. **Rencana Selanjutnya:**
-   - Melangkah ke `T8-09 — Layar kasir: Cek (baca saja) & Pakai (atomik + PIN) ⚠️`.
-   - Persiapan transisi sesi baru pasca-Fase 8 selesai semua (T8-01...T8-15) sesuai arahan Lee.
+   - Melangkah ke `T8-14 — Uji lengkap aturan voucher (6 kasus wajib)` (PRD M10 / TECH_SPEC §8).
+   - Menyiapkan suite uji komprehensif 6 skenario aturan voucher (belanja kurang ditolak, batas plafon persen, masa berlaku kedaluwarsa, kuota habis, isolasi cabang terkunci, dan voucher terpakai pesanan lain ditolak).
+   - Melanjutkan hingga seluruh Fase 8 (T8-01 s/d T8-15) tuntas 100%.

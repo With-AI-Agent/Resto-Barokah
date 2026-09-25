@@ -652,6 +652,14 @@ const MUTASI = [
     ganti: "    if (false && jenis === 'persen' && (nilai <= 0 || nilai > 100)) {",
     uji: 'src/layar/pengaturan/Kampanye.test.tsx',
   },
+  {
+    nama: 'LaporanVoucher: validasi batas rentang 90 hari dilepas (T8-13)',
+    berkas: 'src/layar/laporan/LaporanVoucher.tsx',
+    cari: "    if (selisih > 90) {\n      setPesanValidasi(t('laporan.batas_90_hari'))\n      return\n    }",
+    ganti:
+      "    if (false && selisih > 90) {\n      setPesanValidasi(t('laporan.batas_90_hari'))\n      return\n    }",
+    uji: 'src/layar/laporan/LaporanVoucher.test.tsx',
+  },
 ]
 
 /**
