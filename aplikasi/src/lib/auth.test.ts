@@ -6,6 +6,8 @@ import {
   bacaSesiLokal,
   hapusSesiLokal,
   masukDenganPin,
+  masukDenganGoogle,
+  kirimTautanMasukEmail,
   simpanPerangkatLokal,
   simpanSesiLokal,
 } from './auth'
@@ -69,5 +71,15 @@ describe('Auth & Manajemen Sesi (T2-01, T2-02)', () => {
     expect(hasil.sesi?.peran).toBe('kasir')
     expect(hasil.sesi?.email).toBe('kasir@resto.test')
     expect(bacaSesiLokal()).toEqual(hasil.sesi)
+  })
+
+  it('masukDenganGoogle menangani ketiadaan klien Supabase tanpa crash', async () => {
+    const hasil = await masukDenganGoogle()
+    expect(typeof hasil.berhasil).toBe('boolean')
+  })
+
+  it('kirimTautanMasukEmail menangani ketiadaan klien Supabase tanpa crash', async () => {
+    const hasil = await kirimTautanMasukEmail('pelanggan@test.com')
+    expect(typeof hasil.sukses).toBe('boolean')
   })
 })

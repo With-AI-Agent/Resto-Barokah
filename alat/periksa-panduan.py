@@ -186,6 +186,29 @@ def main(akar: pathlib.Path | None = None) -> int:
         if not re.search(pola_heading, teks, re.MULTILINE):
             errs.append(f"rujukan 'Bagian {huruf}{nomor}' menunjuk bagian yang tidak ada di buku (heading '### {huruf}{nomor}.' hilang)")
 
+    # --- v2c: urutan dan keunikan sub-bagian (### C1., ### H1., dst.) — resolusi audit L F-07 ---
+    bagian_terakhir = None
+    nomor_terakhir = 0
+    kunci_ditemukan = set()
+    for idx, b in enumerate(baris, 1):
+        m_sub = re.match(r"^###\s+([A-H])(\d+)\.", b.strip())
+        if m_sub:
+            huruf = m_sub.group(1)
+            nomor = int(m_sub.group(2))
+            kunci = f"{huruf}{nomor}"
+            if kunci in kunci_ditemukan:
+                errs.append(f"baris {idx}: heading sub-bagian ganda '{kunci}' di PANDUAN_PENGGUNA.md")
+            kunci_ditemukan.add(kunci)
+            if huruf != bagian_terakhir:
+                bagian_terakhir = huruf
+                nomor_terakhir = nomor
+                if nomor != 1:
+                    errs.append(f"baris {idx}: Bagian {huruf} harus dimulai dari sub-bagian 1, bukan {nomor}")
+            else:
+                if nomor != nomor_terakhir + 1:
+                    errs.append(f"baris {idx}: sub-bagian {huruf}{nomor} tidak berurutan (sebelumnya {huruf}{nomor_terakhir})")
+                nomor_terakhir = nomor
+
     # --- v2: sapaan (boleh menyebut "Bapak" HANYA dalam kalimat larangan/koreksi) ---
     for i, baris_ in enumerate(baris, 1):
         if any(s in baris_ for s in LARANGAN_SAPAAN):
@@ -543,6 +566,16 @@ def uji_diri() -> int:
                 kode5, _ = jalankan_pemeriksa(main, tmp5)
                 hasil.append(("mutasi: angka berkas uji dibuat basi", kode5 != 0,
                               "ditolak" if kode5 != 0 else "DILOLOSKAN (angka basi tidak dijaga)"))
+
+        # Mutasi 5: sub-bagian ditukar urutannya → harus GAGAL (audit L F-07)
+        with salin_pohon() as tmp6:
+            berkas = tmp6 / "PANDUAN_PENGGUNA.md"
+            isi = berkas.read_text(encoding="utf-8")
+            isi_mutasi = isi.replace("### C1.", "### C_TEMP.").replace("### C2.", "### C1.").replace("### C_TEMP.", "### C2.")
+            berkas.write_text(isi_mutasi, encoding="utf-8")
+            kode6, keluar6 = jalankan_pemeriksa(main, tmp6)
+            hasil.append(("mutasi: urutan sub-bagian ditukar", kode6 != 0 and "tidak berurutan" in keluar6,
+                          "ditolak" if kode6 != 0 else "DILOLOSKAN (urutan sub-bagian tidak dijaga)"))
     return laporkan("periksa-panduan", hasil)
 
 

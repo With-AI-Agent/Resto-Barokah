@@ -97,6 +97,61 @@ def periksa_tunggu(tugas: str, tunggu: str) -> list[str]:
             + [f"{t} masih terbuka tetapi tidak ditandai ❓ pada tugas" for t in sorted(terbuka - tanda)])
 
 
+POLA_HARAPAN_FILE = re.compile(
+    r"\(rencana|belum ada|belum dibuat|akan dibuat|menyusul|dijadwalkan|pindah ke|menggantikan|"
+    r"tidak dibuat|disatukan|dilebur|terbuka di|diimplementasikan|tidak di-commit|pengganti|"
+    r"nama lama|nomor rencana|L F-|T\d+-\d+",
+    re.I
+)
+
+
+def periksa_jalur_file(teks: str, akar: Path = ROOT) -> list[str]:
+    """Pastikan setiap berkas yang dirujuk di `File:` untuk tugas `[x]` benar-benar ada di repo.
+
+    Kecuali bila baris tersebut menandai bahwa berkas memang rencana, dipindah, disatukan,
+    atau ditangguhkan (POLA_HARAPAN_FILE). Temuan audit L F-08.
+    """
+    gagal = []
+    lines = teks.splitlines()
+    cur_tid = None
+    cur_checked = False
+    cur_lines = []
+
+    def _evaluasi():
+        if cur_tid and cur_checked:
+            for l in cur_lines:
+                if not l.strip().startswith("- **File:**"):
+                    continue
+                tokens = re.findall(r"`([^`]+)`(?:\s*\(([^)]+)\))?", l)
+                for tok, note in tokens:
+                    tok = tok.strip()
+                    if "/" not in tok or "*" in tok:
+                        continue
+                    if note and POLA_HARAPAN_FILE.search(note):
+                        continue
+                    if POLA_HARAPAN_FILE.search(l) and any(k in l for k in (tok.split("/")[-1], tok)):
+                        continue
+                    if not (akar / tok).exists():
+                        gagal.append(f"{cur_tid}: berkas `{tok}` pada File: tidak ada di repo (tandai rencana bila memang belum ada)")
+
+    for line in lines:
+        m = re.match(r"^- \[([ x])\] (T\d+-\d+) — (.+)$", line)
+        if m:
+            _evaluasi()
+            cur_tid = m.group(2)
+            cur_checked = (m.group(1) == "x")
+            cur_lines = [line]
+        elif cur_tid:
+            if line.startswith("## ") or line.strip() == "---":
+                _evaluasi()
+                cur_tid = None
+                cur_lines = []
+            else:
+                cur_lines.append(line)
+    _evaluasi()
+    return gagal
+
+
 def uji_diri() -> int:
     from bantu_uji_diri import laporkan
     buka = "| T-026 | 2026-09-21 | uji | [ ] terbuka |"
@@ -119,6 +174,18 @@ def uji_diri() -> int:
     contoh = "## Fase ❓ T-026\n- [ ] T2-01 — tugas\n  - isi\n---\nriwayat ❓ T-026"
     err = periksa_tunggu("\n".join(isi for _, isi in blok_tugas(contoh)), buka)
     hasil.append(("penanda hanya di luar tugas ditolak", bool(err), str(err)))
+
+    # Uji verifikasi rujukan File: tugas [x] (L F-08)
+    teks_uji_file_ok = "- [x] T99-01 — tugas\n  - **File:** `alat/periksa-roadmap.py`\n"
+    teks_uji_file_hilang = "- [x] T99-02 — tugas\n  - **File:** `alat/tidak-pernah-ada-12345.py`\n"
+    teks_uji_file_rencana = "- [x] T99-03 — tugas\n  - **File:** `alat/tidak-pernah-ada-12345.py` (rencana)\n"
+    teks_uji_file_belum = "- [ ] T99-04 — tugas belum selesai\n  - **File:** `alat/tidak-pernah-ada-12345.py`\n"
+
+    hasil.append(("file [x] nyata sah", len(periksa_jalur_file(teks_uji_file_ok, ROOT)) == 0, ""))
+    hasil.append(("file [x] hilang ditolak", len(periksa_jalur_file(teks_uji_file_hilang, ROOT)) == 1, ""))
+    hasil.append(("file [x] hilang ditandai rencana sah", len(periksa_jalur_file(teks_uji_file_rencana, ROOT)) == 0, ""))
+    hasil.append(("file [ ] belum selesai dilewati", len(periksa_jalur_file(teks_uji_file_belum, ROOT)) == 0, ""))
+
     return laporkan("periksa-roadmap", hasil)
 
 
@@ -166,6 +233,10 @@ def main() -> int:
     gagal.extend(periksa_tunggu(isi_tugas, tunggu))
     if not TERTANGGUH.is_file():
         gagal.append("docs/TERTANGGUH.md tidak ada")
+
+    kesalahan_file = periksa_jalur_file(teks, ROOT)
+    if kesalahan_file:
+        gagal.extend(kesalahan_file)
 
     for label, pola in HAL_KECIL.items():
         if pola not in teks:

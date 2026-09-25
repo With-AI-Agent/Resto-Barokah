@@ -65,4 +65,24 @@ describe('LayarMasukPelanggan (T2-04)', () => {
       expect(screen.getByText(/Tautan masuk telah dikirim/i)).toBeDefined()
     })
   })
+
+  it('memanggil onMasukGoogle ketika privasi disetujui dan tombol Google ditekan', async () => {
+    const onGoogleMock = vi.fn().mockResolvedValue(undefined)
+
+    render(
+      <PenyediaBahasa>
+        <LayarMasukPelanggan onMasukGoogle={onGoogleMock} />
+      </PenyediaBahasa>,
+    )
+
+    // Centang privasi
+    fireEvent.click(screen.getByRole('checkbox'))
+
+    // Klik Google
+    fireEvent.click(screen.getByText(/Lanjut dengan Akun Google/i))
+
+    await waitFor(() => {
+      expect(onGoogleMock).toHaveBeenCalledTimes(1)
+    })
+  })
 })

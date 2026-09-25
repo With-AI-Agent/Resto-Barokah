@@ -7,6 +7,7 @@ import { useTiketDapur } from './hook/useTiketDapur'
 import { Rangka } from './komponen/Rangka'
 import LayarContoh from './layar/contoh/LayarContoh'
 import { LayarMasukPegawai } from './layar/masuk/LayarMasukPegawai'
+import { LayarMasukPelanggan } from './layar/masuk/LayarMasukPelanggan'
 import { LayarKasir } from './layar/kasir/LayarKasir'
 import type { ShiftAktifInfo } from './layar/kasir/BukaKas'
 import { KelolaPegawai } from './layar/pengaturan/KelolaPegawai'
@@ -15,9 +16,12 @@ import { LayarDapur } from './layar/dapur/LayarDapur'
 import { LayarBar } from './layar/dapur/LayarBar'
 import { Stok } from './layar/dapur/Stok'
 import { Opname } from './layar/dapur/Opname'
+import { klienSupabase } from './lib/supabase'
+import { masukDenganGoogle, kirimTautanMasukEmail } from './lib/auth'
 
 export default function App() {
   const { sesi, sedangMasuk, masuk, keluar } = useSesi()
+  const [modeMasuk, setModeMasuk] = useState<'pegawai' | 'pelanggan'>('pegawai')
   const [layarAktif, setLayarAktif] = useState<string>('kasir')
   const [shiftAktif, setShiftAktif] = useState<ShiftAktifInfo | null>(null)
   const cabangId = sesi?.cabangAktifId || 'cab-01'
@@ -56,9 +60,56 @@ export default function App() {
               if (bayar.terakhir?.lunas) setPesananAktifId(null)
             }}
             onSimpanPesanan={async (data) => {
-              // Penyimpanan pesanan nyata menyusul (T5-03); yang penting di sini
-              // id tagihan yang dipakai layar Bayar ikut diperbarui.
-              const hasil = (data as { pesananId?: string })?.pesananId ?? null
+              const klien = klienSupabase()
+              const masukan = data as {
+                mejaId?: string
+                tipe?: string
+                pesananId?: string
+                items?: Array<{ id: string; nama: string; harga: number; qty: number }>
+              }
+
+              if (klien) {
+                try {
+                  const idPesanan = masukan.pesananId || crypto.randomUUID()
+                  const { error: errPesanan } = await klien.from('pesanan').insert({
+                    id: idPesanan,
+                    penyewa_id: sesi?.penyewaId,
+                    cabang_id: cabangId,
+                    meja_id: masukan.mejaId ?? null,
+                    tipe: masukan.tipe ?? 'dinein',
+                    shift_id: shiftAktif?.id ?? null,
+                    kunci_idempoten: `pos-${idPesanan}`,
+                  })
+
+                  if (errPesanan) {
+                    return { sukses: false, pesan: errPesanan.message }
+                  }
+
+                  if (masukan.items && masukan.items.length > 0) {
+                    const itemRows = masukan.items.map((it) => ({
+                      pesanan_id: idPesanan,
+                      menu_item_id: it.id,
+                      nama_saat_itu: it.nama,
+                      harga_saat_itu: it.harga,
+                      qty: it.qty,
+                      subtotal: it.harga * it.qty,
+                    }))
+                    const { error: errItems } = await klien.from('pesanan_item').insert(itemRows)
+                    if (errItems) {
+                      return { sukses: false, pesan: errItems.message }
+                    }
+                  }
+
+                  setPesananAktifId(idPesanan)
+                  return { sukses: true, pesananId: idPesanan }
+                } catch (e) {
+                  const msg = e instanceof Error ? e.message : 'Gagal menyimpan pesanan ke peladen.'
+                  return { sukses: false, pesan: msg }
+                }
+              }
+
+              // Mode simulasi / lokal tanpa koneksi peladen
+              const hasil = masukan?.pesananId ?? null
               if (hasil) setPesananAktifId(hasil)
               return { sukses: true, pesananId: hasil ?? 'ord-new' }
             }}
@@ -67,7 +118,39 @@ export default function App() {
             uangSeharusnyaPerkiraan={
               (shiftAktif?.modalAwal ?? 0) + (bayar.terakhir?.totalPesanan ?? 0)
             }
-            onBukaShift={async ({ modalAwal }) => {
+            onBukaShift={async ({ modalAwal, catatan }) => {
+              const klien = klienSupabase()
+              if (klien) {
+                const { data, error } = await klien.rpc('buka_shift', {
+                  p_modal_awal: modalAwal,
+                  p_cabang_id: cabangId,
+                  p_catatan: catatan ?? null,
+                })
+                if (error) {
+                  return { sukses: false, pesan: error.message }
+                }
+                const res = data as {
+                  berhasil?: boolean
+                  pesan?: string
+                  shift_id?: string
+                  cabang_id?: string
+                  modal_awal?: number
+                  dibuka_pada?: string
+                } | null
+                if (!res?.berhasil || !res.shift_id) {
+                  return { sukses: false, pesan: res?.pesan || 'Gagal membuka shift kasir.' }
+                }
+                const baru: ShiftAktifInfo = {
+                  id: res.shift_id,
+                  cabangId: res.cabang_id || cabangId,
+                  modalAwal: res.modal_awal ?? modalAwal,
+                  dibukaPada: res.dibuka_pada || new Date().toISOString(),
+                }
+                setShiftAktif(baru)
+                return { sukses: true, shiftId: res.shift_id }
+              }
+
+              // Mode simulasi / lokal tanpa koneksi peladen
               const baru: ShiftAktifInfo = {
                 id: `shift-${Date.now()}`,
                 cabangId,
@@ -77,7 +160,58 @@ export default function App() {
               setShiftAktif(baru)
               return { sukses: true, shiftId: baru.id }
             }}
-            onTutupShift={async ({ uangFisik, alasanSelisih }) => {
+            onTutupShift={async ({ uangFisik, alasanSelisih, catatan }) => {
+              const klien = klienSupabase()
+              if (klien) {
+                const { data, error } = await klien.rpc('tutup_shift', {
+                  p_uang_fisik: uangFisik,
+                  p_alasan_selisih: alasanSelisih ?? null,
+                  p_shift_id: shiftAktif?.id ?? null,
+                  p_catatan: catatan ?? null,
+                })
+                if (error) {
+                  return { sukses: false, pesan: error.message }
+                }
+                const res = data as {
+                  berhasil?: boolean
+                  pesan?: string
+                  data?: {
+                    shift_id: string
+                    cabang_id: string
+                    modal_awal: number
+                    tunai_masuk: number
+                    tunai_keluar: number
+                    uang_seharusnya: number
+                    uang_fisik: number
+                    selisih: number
+                    alasan_selisih: string | null
+                    status: string
+                    ditutup_pada: string
+                  }
+                } | null
+                if (!res?.berhasil || !res.data) {
+                  return { sukses: false, pesan: res?.pesan || 'Gagal menutup shift kasir.' }
+                }
+                setShiftAktif(null)
+                return {
+                  sukses: true,
+                  data: {
+                    shiftId: res.data.shift_id,
+                    cabangId: res.data.cabang_id,
+                    modalAwal: res.data.modal_awal,
+                    tunaiMasuk: res.data.tunai_masuk,
+                    tunaiKeluar: res.data.tunai_keluar,
+                    uangSeharusnya: res.data.uang_seharusnya,
+                    uangFisik: res.data.uang_fisik,
+                    selisih: res.data.selisih,
+                    alasanSelisih: res.data.alasan_selisih,
+                    status: res.data.status,
+                    ditutupPada: res.data.ditutup_pada,
+                  },
+                }
+              }
+
+              // Mode simulasi / lokal tanpa koneksi peladen
               const modal = shiftAktif?.modalAwal ?? 0
               const tunai = bayar.terakhir?.totalPesanan ?? 0
               const seharusnya = modal + tunai
@@ -164,12 +298,43 @@ export default function App() {
   return (
     <PenyediaBahasa>
       {!sedangMasuk ? (
-        <LayarMasukPegawai
-          onMasuk={async (email, pin) => masuk(email, pin)}
-          onMasukSukses={() => {
-            setLayarAktif(sesi?.peran === 'dapur' ? 'dapur' : 'kasir')
-          }}
-        />
+        modeMasuk === 'pelanggan' ? (
+          <div>
+            <LayarMasukPelanggan
+              onMasukGoogle={async () => {
+                await masukDenganGoogle()
+              }}
+              onKirimTautanEmail={kirimTautanMasukEmail}
+            />
+            <div className="text-center pb-8">
+              <button
+                type="button"
+                onClick={() => setModeMasuk('pegawai')}
+                className="text-xs text-neutral-500 hover:text-neutral-800 underline"
+              >
+                ← Kembali ke Masuk Pegawai (PIN)
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <LayarMasukPegawai
+              onMasuk={async (email, pin) => masuk(email, pin)}
+              onMasukSukses={() => {
+                setLayarAktif(sesi?.peran === 'dapur' ? 'dapur' : 'kasir')
+              }}
+            />
+            <div className="text-center pb-8">
+              <button
+                type="button"
+                onClick={() => setModeMasuk('pelanggan')}
+                className="text-xs text-neutral-500 hover:text-neutral-800 underline"
+              >
+                Masuk sebagai Pelanggan (Google / Email) →
+              </button>
+            </div>
+          </div>
+        )
       ) : (
         <Rangka sesi={sesi} layarAktif={layarAktif} onPilihLayar={setLayarAktif} onKeluar={keluar}>
           {renderKonten()}

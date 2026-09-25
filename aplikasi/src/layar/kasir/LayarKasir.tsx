@@ -355,10 +355,16 @@ export function LayarKasir({
         tipe: tipePesanan,
         items: daftarItemKeranjang,
       })
+      if (!simpanRes.sukses) {
+        alert(simpanRes.pesan || 'Gagal menyimpan pesanan.')
+        return
+      }
       const pesananId = simpanRes.pesananId || 'ord-current'
       const res = await onKirimKeDapur(pesananId)
       if (res.sukses) {
         alert('Pesanan berhasil dikirim ke dapur!')
+      } else {
+        alert(res.pesan || 'Gagal mengirim pesanan ke dapur.')
       }
     } catch {
       alert('Gagal mengirim pesanan ke dapur.')

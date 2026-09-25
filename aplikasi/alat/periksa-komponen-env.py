@@ -181,7 +181,21 @@ def uji_env() -> None:
     else:
         ok.append("OK: tidak ada kunci service_role di dalam aplikasi")
 
-    # bukti nyata lewat git, bukan dari komentar
+    # bukti nyata lewat git bila ada, atau periksa teks .gitignore bila di pohon arsip (L F-09)
+    if not (AKAR_REPO / ".git").exists():
+        gi_utama = (AKAR_REPO / ".gitignore").read_text(encoding="utf-8") if (AKAR_REPO / ".gitignore").exists() else ""
+        gi_app = (APLIKASI / ".gitignore").read_text(encoding="utf-8") if (APLIKASI / ".gitignore").exists() else ""
+        semua_gi = [b.strip() for b in (gi_utama + "\n" + gi_app).splitlines()]
+        if any(b in (".env", ".env*", ".env.*") for b in semua_gi):
+            ok.append("OK: bukan repositori Git: berkas .gitignore memuat aturan pengabaian .env")
+        else:
+            gagal.append("GAGAL: .gitignore tidak memuat pengabaian .env")
+        if any(b in ("!.env.example", "!/aplikasi/.env.example") for b in semua_gi):
+            ok.append("OK: bukan repositori Git: berkas .gitignore memuat aturan pengecualian .env.example")
+        else:
+            gagal.append("GAGAL: .gitignore tidak mengecualikan .env.example")
+        return
+
     def diabaikan(jalur: str) -> bool | None:
         hasil = subprocess.run(
             ["git", "check-ignore", "-q", jalur], cwd=str(AKAR_REPO), capture_output=True

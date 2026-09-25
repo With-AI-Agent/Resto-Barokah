@@ -10,13 +10,13 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `8f37ab4f508001605e3bb95d2f92fa204f52b8c6`
+- **Commit keadaan kerja:** `47e3b0d3d75989028624b94b89e8bfe57e42b803`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36012660221, commit 8f37ab4f) — tunggu sampai selesai
+- **CI terakhir:** failure (run 36079958964, commit 47e3b0d3)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
-- **Ditulis:** 2026-09-24 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
+- **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
 - **Berkas yang Lee salin ke chat baru:** `PROMPT_SESI_BARU.md` (STATIS — mesin memeriksanya, bukan
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-3-2026-09-24.md` → `e7818e2f` (3 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (284 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-3-2026-09-24.md` → `e7818e2f` (6 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,12 +70,19 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-24, `arena/01a0d09b-resto-barokah` — PERSIAPAN AUDIT MENYELURUH DI SESI BARU):**
+**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — RESOLUSI AUDIT MENYELURUH AUD-3 SELESAI):**
+
+0W. **RESOLUSI TEMUAN AUDIT INDEPENDEN MENYELURUH AUD-3 (13/15 TEMUAN DITUTUP RESMI).**
+   - 3 sesi agent auditor independen menyeluruh ditarik (Laporan L, M, N) menghasilkan 15 temuan nyata.
+   - Sesi ini ditugaskan kembali oleh Lee sebagai pekerja utama (§27 REKAM_PESAN_PEMILIK.md).
+   - Seluruh 13 temuan teknis (database RLS, SQL security definer, pergerakan kas, UI/UX, navigasi, rujukan roadmap, dan panduan) telah diselesaikan dan dibuktikan 100% dengan tes SQL (104 berkas lolos), Vitest frontend (85 berkas / 677 tes lolos), dan mutasi (17/17 mutasi merah pada skrip 0056 s.d. 0061).
+   - 2 temuan tetap terbuka dengan penugasan sah: L F-05 (uji perangkat fisik printer Bluetooth/USB T6-08 milik Lee) dan L F-06 (antrean offline multi-koneksi T8-03 di Fase 8).
+   - Rekapitulasi lengkap dan status roadmap siap dilaporkan kepada Lee untuk keputusan langkah berikutnya (misal memasuki Fase 8 atau pengujian visual).
 
 0V. **PERSIAPAN PINDAH SESI & AUDIT MENYELURUH SESUAI INSTRUKSI LEE.**
    - Lee menginstruksikan jeda untuk pindah sesi dan menjalankan audit/pemeriksaan menyeluruh di sesi baru secara maksimal dan sempurna, mencakup UI, UX, fungsi, fitur, hingga fondasi dan seluruh aspek pembangunan aplikasi.
    - Seluruh 12 tugas Fase 7 (T7-01 s.d. T7-12) telah tuntas 100% dan terbukti lolos uji golden matematis (|selisih| = 0).
-   - Paket audit menyeluruh AUD-3 telah dibuat: `docs/uji/paket-audit/AUD-3-2026-09-24.md` dan berkas siap-tempel `docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md` (mencakup 383 berkas proyek, 193 tugas roadmap, 72 klaim bukti, dan bahan kalibrasi).
+   - Paket audit menyeluruh AUD-3 telah dibuat: docs/uji/paket-audit/AUD-3-2026-09-24.md dan berkas siap-tempel docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md (mencakup 383 berkas proyek, 193 tugas roadmap, 72 klaim bukti, dan bahan kalibrasi).
    - Rencana di sesi baru: Jalankan audit komprehensif atau instruksikan sesi auditor independen sesuai paket AUD-3-2026-09-24, kemudian analisis dan panen temuan audit untuk perbaikan menyeluruh sebelum melangkah ke Fase 8.
 
 0U. **T7-12 (Uji golden: laporan = data mentah) SELESAI — FASE 7 TUNTAS PENUH 100%.**

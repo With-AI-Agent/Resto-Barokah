@@ -225,6 +225,58 @@ export async function masukDenganPin(
 }
 
 /**
+ * Masuk pelanggan menggunakan Google OAuth (T2-04).
+ */
+export async function masukDenganGoogle(): Promise<{ berhasil: boolean; pesan?: string }> {
+  const supabase = klienSupabase()
+  if (!supabase) {
+    return { berhasil: false, pesan: 'Layanan Supabase belum dikonfigurasi.' }
+  }
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
+      },
+    })
+    if (error) {
+      return { berhasil: false, pesan: error.message }
+    }
+    return { berhasil: true }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return { berhasil: false, pesan: `Gagal menghubungkan ke Google: ${msg}` }
+  }
+}
+
+/**
+ * Kirim tautan masuk via email (magic link) untuk pelanggan (T2-04).
+ */
+export async function kirimTautanMasukEmail(
+  email: string,
+): Promise<{ sukses: boolean; pesan?: string }> {
+  const supabase = klienSupabase()
+  if (!supabase) {
+    return { sukses: false, pesan: 'Layanan Supabase belum dikonfigurasi.' }
+  }
+  try {
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim().toLowerCase(),
+      options: {
+        emailRedirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
+      },
+    })
+    if (error) {
+      return { sukses: false, pesan: error.message }
+    }
+    return { sukses: true }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return { sukses: false, pesan: `Gagal mengirim email: ${msg}` }
+  }
+}
+
+/**
  * Keluar dari sistem dan mencabut sesi lokal.
  */
 export async function keluar(): Promise<void> {

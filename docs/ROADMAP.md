@@ -444,13 +444,13 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **DoD:** tabel `catatan_audit` ada tanpa hak ubah/hapus; `hash_sebelumnya` & `hash_baris` dihitung pemicu (aman untuk penyisipan bersamaan); pemeriksa rantai menunjuk baris pertama yang putus; audit ditulis oleh perubahan izin, PIN, perangkat, mode dukungan; uji SQL lulus.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Jejak Audit (ART-13); rantai bercabang saat dua penulisan bersamaan → mitigasi: kunci baris terakhir saat pemicu berjalan + uji dua transaksi.
-  - **Catatan penomoran (2026-09-19):** nomor yang direncanakan di berkas ini (**`supabase/migrations/0015_audit.sql`**) sudah TERPAKAI oleh migrasi penutup temuan audit (`0012`–`0014`) dan sejak 2026-09-19 berkas `0001`–`0014` **DIBEKUKAN** (lihat `docs/DECISIONS_LOG.md`). Pekerjaan ini wajib memakai nomor BARU **`0029_audit_kekal_rantai.sql`** (dan nama berkas menyesuaikan), dijaga `alat/periksa-migrasi-beku.py`.
+  - **Catatan penomoran (2026-09-19):** nomor yang direncanakan di berkas ini (**`0015_audit.sql` (nomor rencana lama)**) sudah TERPAKAI oleh migrasi penutup temuan audit (`0012`–`0014`) dan sejak 2026-09-19 berkas `0001`–`0014` **DIBEKUKAN** (lihat `docs/DECISIONS_LOG.md`). Pekerjaan ini wajib memakai nomor BARU **`0029_audit_kekal_rantai.sql`** (dan nama berkas menyesuaikan), dijaga `alat/periksa-migrasi-beku.py`.
   - **Verifikasi:** uji SQL + pemeriksa: ubah satu baris → pemeriksa menunjuk baris itu; hapus satu baris → putus terdeteksi; audit tidak bisa diubah/dihapus oleh peran mana pun. · **Bukti 2026-09-22:** `supabase/migrations/0029_audit_kekal_rantai.sql` mengimplementasikan rantai hash sha256 atomik per resto & RPC `verifikasi_rantai_audit()`; dibuktikan di `supabase/tes/audit_rantai.sql`, `alat/periksa-audit.py`, dan `alat/uji-mutasi-0029.py`.
 
 - [x] T1-28 — Migrasi 0016: mode dukungan pemilik platform (beralasan, berbatas waktu, tercatat) ⚠️
   - **Tujuan:** pemilik platform tetap bisa menolong tanpa pernah mengintip data penyewa diam-diam.
   - **Ref:** TECH_SPEC §9 ART-15; PRD §9 & M12
-  - **File:** `supabase/migrations/0016_mode_dukungan.sql` (diimplementasikan di `supabase/migrations/0031_mode_dukungan_platform.sql`), `supabase/tes/mode_dukungan.sql`, `alat/uji-mutasi-0031.py`
+  - **File:** `supabase/migrations/0031_mode_dukungan_platform.sql` (menggantikan nomor rencana `0016_mode_dukungan.sql`), `supabase/tes/mode_dukungan.sql`, `alat/uji-mutasi-0031.py`
   - **DoD:** RPC `mode_dukungan` (alasan wajib min 10 karakter, bawaan 60 menit maks 120 menit, hanya-baca); policy membedakan pemilik platform biasa vs mode aktif; berakhir otomatis & saat keluar; catatan audit masuk/keluar pada resto penyewa; uji SQL & uji mutasi 4/4 lulus. · **Bukti 2026-09-22:** `supabase/migrations/0031_mode_dukungan_platform.sql`, `supabase/tes/mode_dukungan.sql`, `alat/uji-mutasi-0031.py`.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Lintas Penyewa (ART-15); mode lupa ditutup → data terbuka lebih lama → mitigasi: kedaluwarsa otomatis + pemeriksa berkala.
@@ -571,7 +571,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T1-40 — Kerangka bahasa (i18n): teks tidak boleh ditulis di layar
   - **Tujuan:** aplikasi mendukung banyak bahasa tanpa menyentuh logika — keputusan Lee 2026-09-17 (**Opsi 1**): rilis G1 memakai **Indonesia · Inggris · Mandarin**; **Arab** disiapkan kuncinya + tata letak RTL diuji di G1, teksnya menyusul G2.
   - **Ref:** `docs/DECISIONS_LOG.md` «Bahasa aplikasi» · `docs/SPESIFIKASI_UI.md` §10 (bahasa & arah teks)
-  - **File:** `aplikasi/src/bahasa/id.ts` (sumber) · `en.ts` · `zh.ts` · `ar.ts` (kunci saja) · `aplikasi/src/bahasa/index.tsx` · pengalih bahasa di `docs/PETA_UI.md` · `aplikasi/alat/periksa-bahasa.py`
+  - **File:** `aplikasi/src/bahasa/id.ts` (sumber), `aplikasi/src/bahasa/en.ts`, `aplikasi/src/bahasa/zh.ts`, `aplikasi/src/bahasa/ar.ts` (kunci saja), `aplikasi/src/bahasa/index.tsx`, `docs/PETA_UI.md`, `aplikasi/alat/periksa-bahasa.py`
   - **DoD:** setiap kalimat UI diambil dari berkas bahasa (tidak ada teks keras di komponen — pemeriksa menolak, bukan mengimbau); pilihan bahasa per pengguna + bawaan per resto untuk perangkat bersama; format uang & tanggal tetap Indonesia (`Rp`, `id-ID`) di SEMUA bahasa; kunci yang hilang di satu bahasa = CI merah; pemeriksa **terbukti bisa MERAH** (sengaja hapus satu kunci → MERAH).
   - **Kompleksitas:** sedang (2–3 jam, sebelum layar G1 pertama ditulis)
   - **Risiko & mitigasi:** ⚠️ teks keras yang lolos sekali akan mahal dibereskan → pemeriksa di CI sejak commit pertama; risiko terjemahan salah arti di menu keuangan → istilah baku ditinjau Lee sebelum dipakai.
@@ -580,7 +580,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T1-41 — Arah teks (RTL) & huruf Mandarin/Arab
   - **Tujuan:** memastikan tata letak siap Arab sejak awal (bukan tambalan belakangan) dan huruf Mandarin tidak memberatkan perangkat kedai.
   - **Ref:** `docs/DECISIONS_LOG.md` «Bahasa aplikasi» (Opsi 1) · `docs/SPESIFIKASI_UI.md` §10
-  - **File:** `prototipe/` (2 layar contoh bercermin) · `aplikasi/src/gaya/arah.css` (token arah, logis `inline-start/end`) · berkas huruf Mandarin terpotong (subset) · `aplikasi/alat/periksa-arah.py`
+  - **File:** `prototipe/` (2 layar contoh bercermin), `aplikasi/src/gaya/arah.css` (token arah, logis inline-start / inline-end), `aplikasi/alat/periksa-arah.py`
   - **DoD:** dua layar contoh tampil benar saat arah dibalik (RTL) tanpa mengubah kode layar (hanya token arah); tabel & keranjang tidak rusak; ukuran berkas huruf Mandarin di bawah ambang yang ditetapkan (diperiksa otomatis); pemeriksa **terbukti bisa MERAH**.
   - **Kompleksitas:** sedang (2–3 jam)
   - **Risiko & mitigasi:** ⚠️ RTL menyentuh hampir semua tata letak → dikerjakan **sebelum** layar G1 diperbanyak, dengan 2 layar contoh sebagai bukti; huruf Mandarin besar → wajib subset + ambang ukuran diperiksa mesin.
@@ -679,7 +679,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T2-03 — Pembuatan & pengelolaan akun pegawai oleh admin  <!-- T-004 sudah ditutup 2026-09-16: semua pegawai dianggap punya email; admin bisa membuatkan -->
   - **Tujuan:** Owner/Admin Cabang bisa menambah pegawai tanpa bantuan teknis.
   - **Ref:** PRD M3; TECH_SPEC §4 (pengguna) & §9 ART-2
-  - **File:** `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`, `supabase/functions/undang_pegawai/index.ts`
+  - **File:** `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`, `aplikasi/src/layar/pengaturan/KelolaPegawai.test.tsx` (Edge Function `undang_pegawai` tidak dibuat, alur akun ditangani antarmuka)
   - **DoD:** admin menambah pegawai (nama, email, peran, cabang, izin), mengirim undangan/pembuatan PIN pertama, menonaktifkan pegawai (riwayat tetap); pegawai tanpa email bisa dibuatkan (opsi tercatat). · **Bukti 2026-09-22:** `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`, `aplikasi/src/layar/pengaturan/KelolaPegawai.test.tsx` (3 tes lulus).
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); akun telantar → mitigasi: daftar pegawai nonaktif + tinjauan berkala di panduan owner.
@@ -689,7 +689,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-022: Lee mengizinkan menunda pemilihan pengirim email ke Fase 2; usulan SMTP Gmail BELUM persetujuan layanan. Sebelum mengaktifkan email pelanggan, tetapkan kanal tanpa biaya dengan Lee. Google Sign-In tidak menunggu kanal email.
   - **Tujuan:** pelanggan bisa mendaftar tanpa SMS dan tanpa biaya.
   - **Ref:** PRD M10 & M12; TECH_SPEC §7 (integrasi)
-  - **File:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/lib/google.ts`
+  - **File:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/layar/masuk/LayarMasukPelanggan.test.tsx` (`aplikasi/src/lib/google.ts` rencana, terbuka di L F-02)
   - **DoD:** "Daftar dengan Google" bekerja; jalur email mengirim verifikasi; identitas pelanggan tersimpan tanpa data berlebih; uji manual dua jalur lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/layar/masuk/LayarMasukPelanggan.test.tsx` (3 tes lulus).
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10); data berlebih → mitigasi: hanya nama, email, nomor HP opsional, persetujuan.
@@ -699,7 +699,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-023: PIN pelanggan DIHAPUS (putusan Lee). Pemulihan mengikuti penyedia identitas; dokumen/alur diselaraskan pada Batch-5. T-022 tetap gerbang sebelum kanal email diaktifkan.
   - **Tujuan:** pelanggan tidak terjebak kehilangan vouchernya.
   - **Ref:** PRD M10 (kasus tepi); TECH_SPEC §7
-  - **File:** `supabase/functions/pemulihan_pelanggan/index.ts`, `aplikasi/src/layar/masuk/LupaAkses.tsx`
+  - **File:** `aplikasi/src/layar/masuk/LupaAkses.tsx`, `aplikasi/src/layar/masuk/LupaAkses.test.tsx` (Edge Function `pemulihan_pelanggan` tidak dibuat sesuai keputusan Lee T-023)
   - **DoD:** pemulihan lewat email terverifikasi bekerja; tidak bisa dipakai untuk mengambil alih akun orang lain (uji 2 kasus penyalahgunaan). · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LupaAkses.tsx`, `aplikasi/src/layar/masuk/LupaAkses.test.tsx` (2 tes lulus).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** pengambilalihan akun → mitigasi: token sekali pakai + masa berlaku pendek + catatan percobaan.
@@ -738,7 +738,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T2-09 — Sesi berakhir otomatis saat tidak dipakai ⚠️
   - **Tujuan:** perangkat yang ditinggal tidak menjadi pintu terbuka.
   - **Ref:** PRD M12; TECH_SPEC §9 ART-2
-  - **File:** `aplikasi/src/hook/useKunciSesi.ts`
+  - **File:** `aplikasi/src/hook/useKunciOtomatis.ts`, `aplikasi/src/hook/useKunciOtomatis.test.tsx` (menggantikan nama rencana `useKunciSesi.ts`)
   - **DoD:** setelah masa diam (mis. 15 menit kasir, 30 menit admin) sesi terkunci dan minta PIN/masuk ulang; pekerjaan yang belum tersimpan diberi peringatan. · **Bukti 2026-09-22:** `aplikasi/src/hook/useKunciOtomatis.ts`, `aplikasi/src/hook/useKunciOtomatis.test.tsx` (4 tes lulus).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); penguncian saat sibuk mengganggu → mitigasi: peringatan 60 detik sebelumnya + masa diam per peran.
@@ -747,7 +747,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T2-10 — Pembatasan percobaan masuk (server-side) ⚠️
   - **Tujuan:** tidak ada yang bisa mencoba-coba masuk berulang kali.
   - **Ref:** PRD M12; TECH_SPEC §9 ART-2
-  - **File:** `supabase/functions/pembatas_masuk/index.ts`, `supabase/tes/pembatas.sql`
+  - **File:** `supabase/migrations/0028_pemulihan_perangkat.sql`, `supabase/tes/percobaan_pin_perangkat.sql` (menggantikan nama rencana `pembatas_masuk` & `pembatas.sql`)
   - **DoD:** batas percobaan per akun + per perangkat/IP; jeda bertahap; semua percobaan tercatat (kode AK-6xx); uji lulus. · **Bukti 2026-09-22:** `supabase/migrations/0028_pemulihan_perangkat.sql`, `supabase/tes/percobaan_pin_perangkat.sql` (lulus).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); memblokir pengguna sah → mitigasi: jeda bertahap, bukan blokir permanen, + jalur atasan.
@@ -756,7 +756,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T2-11 — PWA dasar: manifest + ikon + service worker  <!-- T-001 sudah ditutup 2026-09-16: nama kerja "Sajian" -->
   - **Tujuan:** aplikasi bisa dipasang di layar utama perangkat dan tetap terbuka saat internet putus sebentar.
   - **Ref:** TECH_SPEC §1 (PWA) & §3 (`public/`)
-  - **File:** `aplikasi/public/manifest.webmanifest`, `aplikasi/public/sw.js`, `aplikasi/public/ikon/*`
+  - **File:** `aplikasi/public/manifest.webmanifest`, `aplikasi/public/sw.js`, `aplikasi/public/favicon.svg`
   - **DoD:** bisa "Dipasang ke layar utama" di Android/desktop; ikon & nama dari pengaturan; cangkang aplikasi tetap tampil saat luring; tidak menyimpan data sensitif di cache. · **Bukti 2026-09-22:** `aplikasi/public/manifest.webmanifest`, `aplikasi/public/sw.js`, `aplikasi/index.html`, `aplikasi/src/main.tsx`.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** cache menyimpan data pesanan → risiko kebocoran di perangkat bersama → mitigasi: cache hanya berkas tampilan, bukan data; diuji di T10-04.
@@ -765,7 +765,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T2-12 — Uji menyeluruh masuk & hak akses (6 peran) ⚠️
   - **Tujuan:** membuktikan tiap peran hanya bisa melakukan yang diizinkan.
   - **Ref:** PRD M3 & M12; TECH_SPEC §9 ART-2
-  - **File:** `aplikasi/src/layar/masuk/*.test.ts`, `supabase/tes/peran_masuk.sql`
+  - **File:** `aplikasi/src/layar/masuk/SkenarioMasukPeran.test.tsx`, `supabase/tes/matriks_izin_6_peran.sql` (menggantikan pola rencana `*.test.ts` & `peran_masuk.sql`)
   - **DoD:** uji otomatis: 6 peran masuk; 10 tindakan sensitif diuji (harus ditolak/izin); laporan hasil ditulis di ringkasan fase. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/SkenarioMasukPeran.test.tsx` (8 tes lulus), `supabase/tes/matriks_izin_6_peran.sql`.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); kesalahan izin terbawa ke fase berikutnya → mitigasi: uji ini dijalankan ulang di T10-05.
@@ -773,10 +773,10 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
-- [x] T2-13 — Kunci kedua (TOTP) untuk peran berkuasa + jalan pemulihannya ⚠️
+- [ ] T2-13 — Kunci kedua (TOTP) untuk peran berkuasa + jalan pemulihannya ⚠️
   - **Tujuan:** akun yang bisa mengubah uang & pegawai dilindungi dua lapis, tanpa memacetkan kerja saat HP hilang.
   - **Ref:** TECH_SPEC §5.1 & §9 ART-12; PRD M12 & Aturan Bisnis 16
-  - **File:** `aplikasi/src/layar/masuk/Totp.tsx`, `supabase/functions/atur_ulang_mfa/index.ts`, `alat/periksa-fungsi-mfa.py`, `supabase/tes/mfa.sql`
+  - **File:** `aplikasi/src/layar/masuk/MasukPengelola.tsx`, `aplikasi/src/layar/masuk/MasukPengelola.test.tsx` (komponen `Totp.tsx`, Edge Function `atur_ulang_mfa`, `periksa-fungsi-mfa.py`, dan `mfa.sql` rencana, terbuka di L F-01)
   - **DoD:** pendaftaran & verifikasi TOTP untuk `pemilik_platform`, `owner_pusat`, `admin_cabang`; akun tanpa TOTP tidak bisa masuk; RPC + Edge Function `atur_ulang_mfa` (tipis, tanpa `console.*`, wewenang diperiksa di database) mengatur ulang MFA dengan catatan audit + pemberitahuan; uji lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/MasukPengelola.tsx`, `aplikasi/src/layar/masuk/MasukPengelola.test.tsx` (3 tes lulus).
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); admin terkunci karena HP hilang → mitigasi: jalan pemulihan diuji lebih dulu + langkah di Buku Insiden.
@@ -785,7 +785,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T2-14 — Layar masuk staf: pilih nama → PIN (hanya perangkat terdaftar) ⚠️
   - **Tujuan:** kasir & pelayan masuk dalam hitungan detik dari tablet yang sudah didaftarkan.
   - **Ref:** TECH_SPEC §5.1 & §9 ART-12; PRD M12
-  - **File:** `aplikasi/src/layar/masuk/MasukStaf.tsx`, `aplikasi/src/lib/sesi.ts`, `docs/SPESIFIKASI_UI.md`
+  - **File:** `aplikasi/src/layar/masuk/MasukStaf.tsx`, `aplikasi/src/layar/masuk/MasukStaf.test.tsx`, `docs/SPESIFIKASI_UI.md` (nama rencana `sesi.ts` disatukan ke MasukStaf)
   - **DoD:** daftar akun di perangkat itu (sesuai `peran_diizinkan`) + papan angka besar; PIN salah → pesan jelas + sisa percobaan; PIN benar tetapi perangkat tidak terdaftar → pesan tegas + arahan minta persetujuan admin; kontrak layar + 7 keadaan + uji komponen lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/MasukStaf.tsx`, `aplikasi/src/layar/masuk/MasukStaf.test.tsx` (4 tes lulus).
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); staf tidak bisa masuk saat jam sibuk → mitigasi: papan angka besar, tanpa kata sandi, pesan berbahasa Indonesia, dan tombol "minta bantuan admin".
@@ -795,7 +795,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-015: panduan umum boleh dibuat sekarang; uji perangkat nyata WAJIB sebelum tugas ini dinyatakan selesai. Belum ada klaim perangkat kedai sudah diuji.
   - **Tujuan:** hanya perangkat yang didaftarkan admin/owner yang bisa dipakai kerja, dan pegawai baru harus disetujui pemilik.
   - **Ref:** TECH_SPEC §4.6 & §9 ART-11; PRD M12
-  - **File:** `aplikasi/src/layar/pengaturan/Perangkat.tsx`, `supabase/functions/kode_perangkat/index.ts`, `docs/SPESIFIKASI_UI.md`
+  - **File:** `aplikasi/src/layar/pengaturan/Perangkat.tsx`, `aplikasi/src/layar/pengaturan/Perangkat.test.tsx`, `docs/SPESIFIKASI_UI.md` (Edge Function `kode_perangkat` tidak dibuat terpisah)
   - **DoD:** **owner pusat (semua cabang) & admin cabang (cabangnya)** membuat kode sekali pakai (15 menit) + QR; perangkat baru mendaftar & menyimpan rahasia; pemilik menyetujui pasangan (pegawai × perangkat); perangkat dengan peran lain tidak bisa dipakai masuk; perangkat pertama owner didaftarkan sekali saat penyiapan (bootstrap); peringatan bila perangkat berkuasa tinggal 1; uji komponen + SQL lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/pengaturan/Perangkat.tsx`, `aplikasi/src/layar/pengaturan/Perangkat.test.tsx` (3 tes lulus).
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); kode disalin orang lain → mitigasi: sekali pakai, 15 menit, tercatat, dan tetap butuh persetujuan pemilik per pegawai.
@@ -831,7 +831,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T2-19 — Uji menyeluruh masuk & perangkat (6 peran × skenario) ⚠️
   - **Tujuan:** membuktikan aturan masuk benar untuk semua peran, termasuk kasus jahat.
   - **Ref:** TECH_SPEC §11 & §9 ART-11/ART-12; docs/KEAMANAN.md §14
-  - **File:** `supabase/tes/masuk_perangkat.sql`, `aplikasi/src/layar/masuk/masuk.test.tsx`
+  - **File:** `aplikasi/src/layar/masuk/SkenarioMasukPeran.test.tsx`, `supabase/tes/sesi_dan_perangkat.sql`, `supabase/tes/matriks_izin_6_peran.sql` (menggantikan nama rencana `masuk_perangkat.sql` & `masuk.test.tsx`)
   - **DoD:** matriks skenario diuji: perangkat tidak terdaftar · peran tidak cocok · kode kadaluwarsa · sesi lewat umur · perangkat dicabut · akun nonaktif · percobaan berulang · TOTP hilang → jalur pemulihan; semua lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/SkenarioMasukPeran.test.tsx`, `supabase/tes/sesi_dan_perangkat.sql`, `supabase/tes/matriks_izin_6_peran.sql`.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-11/ART-12); uji hanya jalur bahagia → mitigasi: wajib ada uji negatif untuk setiap skenario.
@@ -859,7 +859,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     pekerjaan aslinya ada; kekurangannya ditulis di sini supaya tidak hilang.
   - **Tujuan:** angka di keranjang selalu sama dengan angka resmi sistem.
   - **Ref:** TECH_SPEC §9 ART-3; PRD M6
-  - **File:** `aplikasi/src/layar/kasir/Keranjang.tsx`, `aplikasi/src/lib/uang.ts`
+  - **File:** `aplikasi/src/layar/kasir/Keranjang.tsx`, `aplikasi/src/layar/kasir/Keranjang.test.tsx` (pembantu format uang di `aplikasi/src/lib/format.ts`, penolakan hitung klien tercatat di T-027)
   - **DoD:** penambahan/pengurangan item, ubah jumlah, hapus, catatan per item; total diambil dari `hitung_total()`; tidak ada rumus uang di klien (diperiksa grep + uji).
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3); rumus tersalin ke klien → mitigasi: uji otomatis "klien dilarang menghitung" (mencari pola perhitungan nominal di `/src/layar`).
@@ -868,7 +868,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T3-03 — Pilih meja / jenis pesanan + catatan khusus
   - **Tujuan:** pesanan dicatat sesuai kenyataan (dine-in, bawa pulang, ojol) dengan permintaan khusus.
   - **Ref:** PRD M4 (kriteria selesai)
-  - **File:** `aplikasi/src/layar/kasir/PemilihMeja.tsx`, `aplikasi/src/komponen/CatatanItem.tsx`
+  - **File:** `aplikasi/src/layar/kasir/PemilihMeja.tsx`, `aplikasi/src/layar/kasir/PemilihMeja.test.tsx` (`CatatanItem` terintegrasi langsung di Keranjang & PemilihMeja)
   - **DoD:** pilih meja/kategori pesanan; catatan cepat (tanpa es, kurang pedas, tanpa jeroan) + ketik bebas; catatan tampil mencolok di dapur.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** salah meja → mitigasi: konfirmasi + tampilan nomor meja besar di keranjang.
@@ -895,7 +895,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T3-06 — Pindah meja + status meja
   - **Tujuan:** pelanggan pindah meja tanpa membingungkan dapur/kasir.
   - **Ref:** PRD M4 (kasus tepi)
-  - **File:** `aplikasi/src/layar/kasir/PindahMeja.tsx`, `supabase/migrations/0029_pindah_meja.sql`
+  - **File:** `aplikasi/src/layar/kasir/PemilihMeja.tsx`, `supabase/migrations/0008_meja.sql` (pindah meja dilayani PemilihMeja; skema di migrasi 0008)
   - **DoD:** pindah meja tercatat (dari → ke, oleh siapa); status meja otomatis (kosong/terisi/siap); riwayat tetap.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** salah pindah → mitigasi: konfirmasi + catatan audit.
@@ -904,7 +904,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T3-07 — Penguncian menu habis di kasir
   - **Tujuan:** pelanggan tidak memesan yang sudah habis.
   - **Ref:** PRD M9 (kriteria selesai); TECH_SPEC §4.2 (`stok_pergerakan`, jenis `opname`)
-  - **File:** `aplikasi/src/layar/kasir/Katalog.tsx` (penanda habis), `supabase/migrations/0030_menu_habis.sql`
+  - **File:** `aplikasi/src/layar/kasir/Katalog.tsx` (penanda habis), `supabase/migrations/0035_menu_habis_sumber.sql` (menggantikan nomor rencana `0030_menu_habis.sql`)
   - **DoD:** menandai habis dari kasir & dapur; item habis tidak bisa ditambahkan; pencabutan penanda butuh izin; perubahan tampil di katalog publik.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** penanda lupa dicabut → mitigasi: daftar "menu habis hari ini" di layar kasir + pengingat pagi.
@@ -913,7 +913,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T3-08 — Kirim ke dapur (status pesanan berubah)
   - **Tujuan:** dapur mulai bekerja begitu pesanan dikirim, dan kasir tahu statusnya.
   - **Ref:** PRD M4 & M5; TECH_SPEC §9 ART-4
-  - **File:** `aplikasi/src/layar/kasir/KirimDapur.tsx`, `supabase/migrations/0031_kirim_dapur.sql`
+  - **File:** `aplikasi/src/layar/kasir/LayarKasir.tsx`, `supabase/migrations/0032_status_item_dapur.sql` (alur kirim terintegrasi di LayarKasir; skema di migrasi 0032)
   - **DoD:** status berpindah draf → dikirim lewat jalur sah; item makanan/minuman bertanda tujuan; kasir melihat status (dikirim/dimasak/siap).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4); kiriman ganda → mitigasi: kunci idempoten dari T3-05 dipakai ulang.
@@ -931,7 +931,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T3-10 — Keramahan sentuh & papan ketik (kasir sibuk)
   - **Tujuan:** kasir bekerja cepat walau tanpa mouse.
   - **Ref:** AGENT_OPERATING_GUIDE §3 (a11y)
-  - **File:** `aplikasi/src/gaya/kasir.css`, `aplikasi/src/hook/usePintasan.ts`
+  - **File:** `aplikasi/src/gaya/komponen.css`, `aplikasi/src/layar/kasir/LayarKasir.tsx` (gaya dan tombol pintasan diintegrasikan ke komponen)
   - **DoD:** target sentuh ≥44 px; pintasan (cari menu, jumlah, bayar, kirim); fokus keyboard jelas; uji kontras lulus di kasir.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** pintasan bentrok → mitigasi: daftar pintasan tampil dengan tombol `?`.
@@ -967,8 +967,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T3-14 — Uji alur kasir ujung-ke-ujung (dasar)
   - **Tujuan:** jalur utama kasir terbukti bekerja sebelum masuk ke fase berikutnya.
   - **Ref:** TECH_SPEC §11 (uji); AGENT_OPERATING_GUIDE §5
-  - **File:** `aplikasi/uji/e2e/kasir.spec.ts`
-  - **DoD:** uji otomatis: buka meja → pesan 3 item + catatan → kirim → tampil di dapur (dasar); lulus di CI.
+  - **File:** `aplikasi/src/layar/kasir/AlurKasirE2E.test.tsx` (alur ujung-ke-ujung kasir komponen; peramban Playwright ditunda ke Fase 11 sesuai `T-026`)
+  - **DoD:** uji otomatis: buka meja → pesan 3 item + catatan → kirim → tampil di dapur (dasar); lulus di CI. · **Bukti 2026-09-24:** `aplikasi/src/layar/kasir/AlurKasirE2E.test.tsx` (uji alur menu -> catatan -> kirim dapur -> bayar tunai lunas lulus).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** uji rapuh → mitigasi: pemilih berbasis peran teks bahasa Indonesia (stabil) + tunggu kondisi, bukan waktu.
   - **Verifikasi:** uji dijalankan di CI dan lulus.
@@ -985,8 +985,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T3-16 — Uji beban ringan kasir
   - **Tujuan:** kasir tetap cepat saat jam sibuk.
   - **Ref:** PRD §9 (risiko); TECH_SPEC §11
-  - **File:** `aplikasi/uji/beban/kasir.test.ts`
-  - **DoD:** 50 item dalam satu tagihan & 300 pesanan/hari tetap responsif (< 1 detik per aksi utama); tidak ada kebocoran memori pada sesi 1 jam (uji kasur).
+  - **File:** `aplikasi/src/layar/kasir/BebanKasir.test.ts` (kalkulasi 50 item < 10ms, akumulasi 300 transaksi < 100ms)
+  - **DoD:** 50 item dalam satu tagihan & 300 pesanan/hari tetap responsif (< 1 detik per aksi utama); tidak ada kebocoran memori pada sesi 1 jam (uji kasur). · **Bukti 2026-09-24:** `aplikasi/src/layar/kasir/BebanKasir.test.ts` (2 tes beban performa lulus di Vitest).
   - **Kompleksitas:** sedang (2,5 jam)
   - **Risiko & mitigasi:** perangkat kasir kelas rendah → mitigasi: hindari animasi berat saat maraton pesanan + ukur di perangkat nyata (T11-04).
   - **Verifikasi:** laporan angka waktu dari uji otomatis dicatat di ringkasan fase.
@@ -1173,7 +1173,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T5-05 — Diskon manual butuh izin + PIN di atas batas ⚠️
   - **Tujuan:** kasir bisa memberi diskon kecil, tetapi tidak bisa memberi diskon besar tanpa atasan.
   - **Ref:** PRD M3 (batas maksimal %) & M6; TECH_SPEC §9 ART-2
-  - **File:** `aplikasi/src/layar/kasir/DiskonManual.tsx` + `DiskonManual.test.tsx` ·
+  - **File:** `aplikasi/src/layar/kasir/DiskonManual.tsx`, `aplikasi/src/layar/kasir/DiskonManual.test.tsx` ·
     `supabase/migrations/0041_diskon_pin_atasan.sql` (nomor `0040` sudah terpakai rantai audit) ·
     `supabase/tes/diskon_pin_atasan.sql` · `alat/uji-mutasi-0041.py` ·
     `aplikasi/src/layar/kasir/LayarKasirDiskon.test.tsx` (penjaga anti voucher keras-kode).
@@ -1206,9 +1206,9 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     siapa pun, sehingga laporan pembatalan harian selalu kosong walau kasir membatalkan
     banyak item. Itulah yang ditutup di sini.
   - **Ref:** PRD M6 (aturan bertingkat); TECH_SPEC §9 ART-4
-  - **File:** `aplikasi/src/layar/kasir/VoidItem.tsx`, `VoidItem.test.tsx`,
-    `LayarKasirVoid.test.tsx`, sambungan di `LayarKasir.tsx`;
-    pagar peladen `supabase/migrations/0015_penutup_celah_putaran16.sql`
+  - **File:** `aplikasi/src/layar/kasir/VoidItem.tsx`, `aplikasi/src/layar/kasir/VoidItem.test.tsx`,
+    `aplikasi/src/layar/kasir/LayarKasirVoid.test.tsx`, `aplikasi/src/layar/kasir/LayarKasir.tsx`,
+    `supabase/migrations/0015_penutup_celah_putaran16.sql`
   - **Bukti (2026-09-23):** VoidItem 8 tes + LayarKasirVoid 7 tes LULUS · aplikasi
     62 berkas / 368 tes LULUS · `uji-mutasi-app.mjs` 24/24 MERAH (4 mutasi baru T5-06:
     alasan tidak wajib, penolakan disulap berhasil, hapus tanpa alasan, item lenyap
@@ -1255,7 +1255,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T5-08 — Nomor HP pelanggan opsional (untuk poin/voucher) ⚠️
   - **Tujuan:** kasir bisa menawarkan voucher tanpa memaksa pelanggan memberi data.
   - **Ref:** PRD M6 & M10; TECH_SPEC §9 ART-10; `docs/KEAMANAN.md` §11 (UU PDP 27/2022)
-  - **File:** `aplikasi/src/layar/kasir/DataPelanggan.tsx` (+`DataPelanggan.test.tsx`)
+  - **File:** `aplikasi/src/layar/kasir/DataPelanggan.tsx`, `aplikasi/src/layar/kasir/DataPelanggan.test.tsx`
   - **BATAS YANG SENGAJA DIPEGANG (2026-09-23):** hanya **layar pengumpul**, sesuai kolom
     **File** tugas ini. **Tidak ada tabel, migrasi, atau penyimpanan** yang dibuat — menyimpan
     data pelanggan masih tertahan **T-011** (kebijakan privasi + halaman persetujuan, disetujui
@@ -1278,7 +1278,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T5-09 — Struk digital (cadangan wajib saat printer bermasalah) ⚠️
   - **Tujuan:** pembayaran tetap bisa diserahkan ke pelanggan walau printer mati.
   - **Ref:** TECH_SPEC §13 K3 & §9 ART-7; PRD M6 (kasus tepi)
-  - **File:** `aplikasi/src/komponen/StrukDigital.tsx` (+`StrukDigital.test.tsx`)
+  - **File:** `aplikasi/src/komponen/StrukDigital.tsx`, `aplikasi/src/komponen/StrukDigital.test.tsx`
   - **Mitigasi ART-7 ditepati harfiah:** komponen ini **tidak menggambar ulang struk** —
     ia membungkus `<Struk>` yang sama persis dipakai pratinjau & cetak termal (T5-03),
     sehingga isi digital dan kertas mustahil berbeda. Dijaga dua uji penjaga berbasis
@@ -1395,8 +1395,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     nama menu; (2) huruf beraksen diganti huruf polos, bukan dibuang (kalau dibuang, kolom rupiah
     bergeser); (3) potong kertas selalu didahului umpan baris, kalau tidak baris terakhir struk
     ikut terpotong pisau.
-  - **Rujukan berkas diselaraskan:** `TECH_SPEC` sempat menyebut `lib/printer-escpos.ts`; dipakai
-    nama ROADMAP (`lib/printer/expos.ts`) dan TECH_SPEC dikoreksi supaya tidak ada dua nama.
+  - **Rujukan berkas diselaraskan:** `TECH_SPEC` sempat menyebut `printer-escpos.ts` (nama rencana lama); dipakai
+    nama ROADMAP (`aplikasi/src/lib/printer/expos.ts`) dan TECH_SPEC dikoreksi supaya tidak ada dua nama.
   - **Temuan jujur:** uji mutasi menangkap aturan (1) yang sudah ditulis di komentar tetapi belum
     punya uji — mutasi "potong angka" sempat tetap hijau. Ujinya ditambah; komentar bukan pengaman.
   - **Bukti (2026-09-23):** `expos.test.ts` **29 tes LULUS** · `uji-mutasi-app.mjs` **47/47 MERAH**
@@ -1405,7 +1405,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T6-02 — Sambungan Web Bluetooth (Android/Windows)
   - **Tujuan:** printer termal Bluetooth bisa dipakai dari perangkat kasir.
   - **Ref:** TECH_SPEC §1 & §13 K3
-  - **File:** `aplikasi/src/lib/printer/bluetooth.ts`, `aplikasi/src/layar/pengaturan/PasangPrinter.tsx`
+  - **File:** `aplikasi/src/lib/printer/kirim.ts`, `aplikasi/src/lib/printer/profil.ts`, `aplikasi/src/layar/pengaturan/PasangPrinter.tsx` (menggantikan nama rencana `bluetooth.ts`)
   - **DoD:** pemasangan printer (pilih perangkat, simpan), uji cetak halaman contoh, pesan jelas bila tidak didukung perangkat (mis. iPhone).
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Cetak (ART-7); browser tidak mendukung → mitigasi: deteksi dukungan + arahkan ke cadangan digital.
@@ -1428,7 +1428,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 - [x] T6-03 — Sambungan WebUSB (komputer)
   - **Tujuan:** komputer kasir bisa memakai printer kabel tanpa aplikasi tambahan.
   - **Ref:** TECH_SPEC §1
-  - **File:** `aplikasi/src/lib/printer/usb.ts`
+  - **File:** `aplikasi/src/lib/printer/kirim.ts` (fungsi WebUSB diintegrasikan di kirim.ts; nama rencana `usb.ts` disatukan)
   - **DoD:** pemasangan printer USB, uji cetak, penanganan izin perangkat; pesan jelas bila gagal.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** konflik driver → mitigasi: panduan pemasangan singkat + jalur cadangan digital.
