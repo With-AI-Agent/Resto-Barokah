@@ -20,12 +20,13 @@ import { LayarLaporan } from './layar/laporan/LayarLaporan'
 import { LayarPelayan } from './layar/pelayan/LayarPelayan'
 import { DaftarTransaksi } from './layar/kasir/DaftarTransaksi'
 import { PasangPrinter } from './layar/pengaturan/PasangPrinter'
+import { LayarPelangganPublik } from './layar/pelanggan-publik/LayarPelangganPublik'
 import { klienSupabase } from './lib/supabase'
 import { masukDenganGoogle, kirimTautanMasukEmail } from './lib/auth'
 
 export default function App() {
   const { sesi, sedangMasuk, masuk, keluar } = useSesi()
-  const [modeMasuk, setModeMasuk] = useState<'pegawai' | 'pelanggan'>('pegawai')
+  const [modeMasuk, setModeMasuk] = useState<'pegawai' | 'pelanggan' | 'publik'>('pegawai')
   const [layarAktif, setLayarAktif] = useState<string>('kasir')
   const [shiftAktif, setShiftAktif] = useState<ShiftAktifInfo | null>(null)
   const cabangId = sesi?.cabangAktifId || 'cab-01'
@@ -438,6 +439,15 @@ export default function App() {
         return <LayarPelayan namaPelayan={sesi?.nama ?? 'Pelayan'} />
       case 'printer':
         return <PasangPrinter />
+      case 'pelanggan-publik':
+      case 'katalog':
+        return (
+          <LayarPelangganPublik
+            penyewaId={sesi?.penyewaId || undefined}
+            cabangId={cabangId}
+            onTutup={() => setLayarAktif('kasir')}
+          />
+        )
       default:
         return <LayarContoh />
     }
@@ -446,7 +456,20 @@ export default function App() {
   return (
     <PenyediaBahasa>
       {!sedangMasuk ? (
-        modeMasuk === 'pelanggan' ? (
+        modeMasuk === 'publik' ? (
+          <div>
+            <LayarPelangganPublik onTutup={() => setModeMasuk('pegawai')} />
+            <div className="text-center pb-8" style={{ marginTop: 'var(--s-4)' }}>
+              <button
+                type="button"
+                onClick={() => setModeMasuk('pegawai')}
+                className="text-xs text-neutral-500 hover:text-neutral-800 underline"
+              >
+                ← Kembali ke Masuk Pegawai
+              </button>
+            </div>
+          </div>
+        ) : modeMasuk === 'pelanggan' ? (
           <div>
             <LayarMasukPelanggan
               onMasukGoogle={async () => {
@@ -473,13 +496,28 @@ export default function App() {
                 setLayarAktif(peranBaru === 'dapur' ? 'dapur' : 'kasir')
               }}
             />
-            <div className="text-center pb-8">
+            <div
+              className="text-center pb-8"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                alignItems: 'center',
+              }}
+            >
               <button
                 type="button"
                 onClick={() => setModeMasuk('pelanggan')}
                 className="text-xs text-neutral-500 hover:text-neutral-800 underline"
               >
                 Masuk sebagai Pelanggan (Google / Email) →
+              </button>
+              <button
+                type="button"
+                onClick={() => setModeMasuk('publik')}
+                className="text-xs text-neutral-500 hover:text-neutral-800 underline"
+              >
+                🍽️ Lihat Katalog Menu Publik (Tanpa Masuk) →
               </button>
             </div>
           </div>

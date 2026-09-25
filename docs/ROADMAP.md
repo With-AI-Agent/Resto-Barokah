@@ -1641,14 +1641,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10) & RLS (ART-1); mitigasi: fungsi memakai daftar kolom tegas (bukan `select *`) + uji "tidak ada kolom sensitif".
   - **Verifikasi:** uji SQL: hasil tidak memuat kolom sensitif (diperiksa otomatis).
 
-- [ ] T8-02 — Halaman katalog publik per resto (merek sendiri)
+- [x] T8-02 — Halaman katalog publik per resto (merek sendiri)
   - **Tujuan:** setiap resto punya halaman publik dengan mereknya sendiri.
   - **Ref:** PRD M10 & M2; TECH_SPEC §3 (`/pelanggan-publik`)
   - **File:** `aplikasi/src/layar/pelanggan-publik/Katalog.tsx`
   - **DoD:** nama, logo, warna/tema, banner, tagline, jam buka, kontak/lokasi muncul dari pengaturan; alamat halaman mudah dibagikan (tautan + QR).
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** tampilan berbeda dari prototipe → mitigasi: memakai token desain v3 yang sama + pemeriksa kontras.
-  - **Verifikasi:** uji manual di HP + pemeriksa kontras.
+  - **Verifikasi:** uji manual di HP + pemeriksa kontras. · **Bukti 2026-09-25:** implementasi `aplikasi/src/layar/pelanggan-publik/Katalog.tsx`, `aplikasi/src/layar/pelanggan-publik/LayarPelangganPublik.tsx`, `aplikasi/src/komponen/KomponenQr.tsx`, dan generator QR mandiri tanpa dependensi luar `aplikasi/src/lib/qrcode.ts`; 4 uji unit di `Katalog.test.tsx` + 5 uji unit di `LayarPelangganPublik.test.tsx` + 2 uji unit di `KomponenQr.test.tsx` + 4 uji unit di `qrcode.test.ts` (15 uji unit hijau, angka saat itu 2026-09-25 — perintah: `cd aplikasi && npm test`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `alat/peta-ui.py` hijau bebas tombol liar; rute dan fallback katalog publik tersambung di `aplikasi/src/App.tsx`.
 
 - [ ] T8-03 — Daftar menu + foto + harga + penanda habis
   - **Tujuan:** pelanggan tahu apa yang tersedia, tanpa menanyakan ke pegawai.

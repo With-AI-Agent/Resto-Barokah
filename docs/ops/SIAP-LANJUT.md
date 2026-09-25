@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `45fda7be5bcb6559558fc2ec7d59b4ef4f67cc1d`
+- **Commit keadaan kerja:** `ba565662a233aad5943f6bce647dff98469a6b0e`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36109285155, commit 45fda7be) — tunggu sampai selesai
+- **CI terakhir:** (belum ada run CI untuk commit bcb24a28 — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (4 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (296 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (6 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (298 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,7 +70,21 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — PERSIAPAN AUDIT PUTARAN KEDUA AUD-4 & JAMINAN HANDOFF):**
+**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01 & T8-02 SELESAI, LANJUT T8-03):**
+
+0Z. **FASE 8: T8-02 (Halaman katalog publik per resto merek sendiri) SELESAI & T8-03 SIAP LANJUT.**
+   - Implementasi antarmuka publik selesai penuh:
+     1. Komponen `aplikasi/src/layar/pelanggan-publik/Katalog.tsx`: menampilkan merek resto (nama, logo, tagline), banner hero, jam operasional, kontak & lokasi cabang, penyaringan kategori, pencarian menu real-time, indikator penanda habis jelas, serta modal berbagi tautan dan QR.
+     2. Kontrak Layar `aplikasi/src/layar/pelanggan-publik/LayarPelangganPublik.tsx`: menangani 7 keadaan wajib kontrak UI (memuat, gagal, kosong, berhasil) dan mengintegrasikan RPC `katalog_publik`.
+     3. Generator QR Code mandiri `aplikasi/src/lib/qrcode.ts` & komponen `aplikasi/src/komponen/KomponenQr.tsx`: menghasilkan matriks modul dan SVG tajam tanpa dependensi eksternal pihak ketiga (0 kerentanan keamanan).
+     4. Pengujian Vitest: 4 uji di `Katalog.test.tsx`, 5 uji di `LayarPelangganPublik.test.tsx`, 2 uji di `KomponenQr.test.tsx`, 4 uji di `qrcode.test.ts` (semua 15 uji lulus).
+     5. Pemeriksa UI: `prototipe/uji-kontras.py` 166 lolos 0 gagal, `alat/peta-ui.py` hijau bebas tombol liar, `App.tsx` tersambung dengan navigasi publik dan fallback lokal.
+   - Langkah selanjutnya: T8-03 (Daftar menu + foto + harga + penanda habis, optimasi muat di jaringan seluler < 3s).
+
+0Y. **FASE 8: T8-01 (RPC katalog_publik tanpa data sensitif) SELESAI.**
+   - Migrasi `0062_katalog_publik.sql`: fungsi RPC `public.katalog_publik(p_penyewa_id, p_cabang_id)` memungkinkan pengunjung publik/pelanggan membaca informasi profil resto, jam operasional, kontak cabang, kategori, dan menu beserta ketersediaan per cabang secara terisolasi.
+   - Nol Kebocoran Data Sensitif (ART-10 & ART-1): proyeksi kolom tegas tanpa data kredensial, keuangan, atau audit internal.
+   - Uji SQL & Mutasi: `supabase/tes/katalog_publik.sql` 105/105 lolos · `alat/uji-mutasi-0062.py` 3/3 mutasi kritis terbukti MERAH TAJAM.
 
 0X. **AUDIT MENYELURUH PUTARAN KEDUA (AUD-4) & JAMINAN HANDOFF TOTAL.**
    - Sesuai arahan Lee, pemeriksaan menyeluruh putaran kedua (AUD-4) disiapkan secara jauh lebih dalam, teliti, dan sempurna dengan pembagian spesifik ke 3 agen pemeriksa independen (plus 1 paket master menyeluruh):
@@ -1556,5 +1570,14 @@ Urutan yang disarankan agent, dan alasannya:
    - Suite SQL `supabase/tes/katalog_publik.sql`: 105 berkas uji SQL LULUS 100%.
    - Mutasi `alat/uji-mutasi-0062.py`: 3/3 mutasi kritis terbukti MERAH TAJAM.
    - Tercatat resmi di `docs/DECISIONS_LOG.md` (ART-10 & ART-1) dan `docs/ROADMAP.md` (T8-01 `[x]`).
+
+**FASE 8 T8-02 HALAMAN KATALOG PUBLIK PER RESTO (MEREK SENDIRI) SELESAI (2026-09-25):**
+1. **Implementasi Komponen & Layar Publik:**
+   - `aplikasi/src/layar/pelanggan-publik/Katalog.tsx`: Antarmuka katalog publik mandiri dengan identitas merek resto (logo, banner, nama resto, kontak, jam operasional, badge nomor meja), filter kategori, pencarian menu real-time, lencana status habis, dan dialog QR Code.
+   - `aplikasi/src/layar/pelanggan-publik/LayarPelangganPublik.tsx`: Pengambil data real dari RPC `katalog_publik` dengan penanganan keadaan memuat, keadaan kosong, dan keadaan galat terintegrasi.
+   - `aplikasi/src/komponen/KomponenQr.tsx` & `aplikasi/src/lib/qrcode.ts`: Generator kode QR mandiri berbasis aljabar GF(256) & Reed-Solomon tanpa pustaka pihak ketiga.
+2. **Kualitas & Pemeriksaan Fondasi:**
+   - 15 pengujian unit Vitest baru lulus (total 89 berkas / 692 tes unit 100% lulus).
+   - Tanpa warna mentah (`aplikasi/alat/periksa-struktur.py` LOLOS 100%), kontras tema WCAG 2.1 (166/166 LOLOS), bebas button liar (`alat/peta-ui.py` LOLOS), typecheck, format, lint, dan build bersih.
 3. **Rencana Selanjutnya:**
-   - Melangkah ke `T8-02 — Halaman katalog publik per resto (merek sendiri)`.
+   - Melangkah ke `T8-03 — Daftar menu + foto + harga + penanda habis`.
