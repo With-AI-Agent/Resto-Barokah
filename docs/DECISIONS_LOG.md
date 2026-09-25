@@ -2793,6 +2793,51 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Antarmuka & Uji Unit Frontend: `aplikasi/src/layar/pengaturan/Kampanye.tsx`, `aplikasi/src/layar/pengaturan/Kampanye.test.tsx` (11 uji unit lulus), dan `aplikasi/alat/uji-mutasi-app.mjs` (mutasi terbukti MERAH).
   - Peta UI & Struktur: `aplikasi/alat/periksa-struktur.py` dan `alat/peta-ui.py` lulus 100% tanpa warna mentah dan bebas tombol liar.
 
+## [Voucher & Keamanan / 2026-09-25] Pengaman Anti-Kecurangan 10 Lapis, Pembatasan Klaim, dan Log Percobaan Voucher (T8-12 / ART-5)
+
+- **Area:** Area Berisiko Tinggi ART-5 (Voucher & Keamanan Keuangan) · PRD M10 & TECH_SPEC §9 ART-5
+- **Konteks & Risiko (ART-5):**
+  Kampanye promosi voucher merupakan pintu keluarnya nilai finansial resto dalam bentuk potongan tagihan. Jika tidak dilindungi dengan sistem pengaman berlapis, resto menghadapi risiko kerugian akibat berbagai modus kecurangan:
+  1. *Sybil / Multi-Account Abuse*: satu orang memborong voucher dengan banyak email samaran / variasi Gmail.
+  2. *Branch Quota Draining*: penukaran voucher terkonsentrasi di satu gerai kecil yang menghabiskan stok atau margin cabang tersebut.
+  3. *Under-Minimum Claim*: voucher dipakai untuk transaksi kecil di bawah ketentuan belanja minimum.
+  4. *Uncapped Discount*: voucher persen memotong tanpa batas pada transaksi bernilai besar.
+  5. *Budget Runaway*: total serapan diskon melebihi pagu anggaran promosi yang disiapkan pemilik resto.
+  6. *Double Redemption / Concurrent Race*: satu voucher ditukarkan bersamaan di dua kasir atau meja berbeda.
+  7. *Sequential Code Guessing*: kode voucher ditebak berurutan oleh penyerang luar.
+  8. *Automated Brute-Force Scanning*: bot atau penyerang memindai ribuan kode secara bertubi-tubi hingga menemukan kode yang valid.
+  9. *Disposable / Temporary Email Abuse*: penggunaan alamat email sekali-pakai (tempmail).
+  10. *Gmail Dot & Plus Aliasing*: pendaftaran berkali-kali menggunakan variasi titik dan tanda plus pada akun Google yang sama.
+- **Keputusan 10 Lapis Pengaman Anti-Kecurangan:**
+  1. **Lapis 1 — Satu Voucher Per Identitas Per Kampanye:**
+     Kolom `kuota_per_pelanggan` (bawaan: 1) pada `public.kampanye_voucher`. RPC `public.daftar_voucher` menghitung jumlah voucher aktif milik `pelanggan_id` yang dinormalisasi pada kampanye terkait; klaim berulang ditolak seketika dengan kode `VOUCHER_SUDAH_DIKLAIM`.
+  2. **Lapis 2 — Batas Penukaran Per Outlet Per Hari:**
+     Kolom `kuota_harian_cabang` pada `public.kampanye_voucher`. RPC `public.pakai_voucher` menghitung pemakaian pada tanggal lokal cabang bersangkutan menggunakan `public.tanggal_lokal_cabang()`; jika telah mencapai kuota harian cabang, penukaran ditolak dengan kode `KUOTA_HARIAN_CABANG_HABIS`.
+  3. **Lapis 3 — Wajib Belanja Minimum (`min_belanja`):**
+     RPC `public.cek_voucher` dan `public.pakai_voucher` memeriksa `subtotal >= min_belanja`. Jika belum memenuhi syarat, penukaran ditolak dengan kode `SUBTOTAL_KURANG`.
+  4. **Lapis 4 — Batas Plafon Potongan Maksimal (`maks_potongan`):**
+     Voucher persentase dipotong dan dibatasi secara ketat oleh nilai `maks_potongan` pada `cek_voucher` maupun `pakai_voucher`.
+  5. **Lapis 5 — Anggaran Kampanye Tidak Bisa Dilampaui (`anggaran_maks`):**
+     Pengecekan kumulatif `sum(dt.nilai)` dari `public.diskon_transaksi` untuk seluruh voucher dari kampanye yang sama. Jika total realisasi diskon ditambah estimasi potongan saat ini melampaui `anggaran_maks`, voucher ditolak dengan kode `ANGGARAN_KAMPANYE_HABIS`.
+  6. **Lapis 6 — Kunci Atomik Sekali Pakai & Status Terpakai:**
+     Pernyataan tunggal `UPDATE public.voucher SET status = 'terpakai' ... WHERE kode = ... AND status = 'aktif' RETURNING *` mengunci baris database secara atomik. Baris yang sudah berstatus `'terpakai'` ditolak saat dicoba untuk kedua kalinya dengan kode `VOUCHER_SUDAH_TERPAKAI`.
+  7. **Lapis 7 — Kode Acak Kriptografis Non-Sekuensial:**
+     Pola kode voucher `RB-XXXX-XXXX` dibangkitkan menggunakan `gen_random_bytes()` dan alfabet Crockford Base32 tanpa karakter ambigu (0, O, 1, I), mustahil ditebak secara sekuensial.
+  8. **Lapis 8 — Log Audit Seluruh Percobaan & Rate Limiting Per Perangkat / IP:**
+     Setiap pemanggilan `cek_voucher`, `pakai_voucher`, dan `daftar_voucher` dicatat ke tabel `public.voucher_percobaan` lengkap dengan `perangkat`, `ip_pengakses`, dan `aksi`. Fungsi `public.apakah_perangkat_terblokir()` menghitung frekuensi kegagalan (ambang batas: 5 kegagalan dalam 15 menit). Bila ambang tercapai, seluruh percobaan berikutnya dari perangkat/IP tersebut langsung diblokir dengan kode `TERLALU_BANYAK_PERCOBAAN`.
+  9. **Lapis 9 — Penolakan Domain Email Sekali-Pakai:**
+     Daftar domain `public.domain_email_terlarang` menolak pendaftaran menggunakan email sementara dengan kode `EMAIL_SEKALI_PAKAI`.
+  10. **Lapis 10 — Normalisasi Identitas Gmail:**
+      Fungsi `public.normalisasi_email()` membuang seluruh tanda titik dan memotong tag alias `+` pada domain Gmail/Googlemail sebelum memeriksa keunikan di basis data.
+  11. **Pengawasan & Hak Akses Audit Admin:**
+      RPC `public.ambil_log_percobaan_voucher(p_kampanye_id, p_limit)` memungkinkan admin dan pemilik resto memeriksa rekam jejak percobaan voucher, nama kasir, nama cabang, status hasil, alasan penolakan, serta jejak perangkat/IP penyerang. Kasir biasa ditolak mengakses log ini dengan kode `TIDAK_BERIZIN`.
+- **Bukti:**
+  - Migrasi Basis Data: `supabase/migrations/0067_pengaman_voucher.sql` (skema kolom pengaman, fungsi rate limiting `apakah_perangkat_terblokir`, RPC pengaman voucher, dan RPC audit `ambil_log_percobaan_voucher`).
+  - Berkas Uji SQL: `supabase/tes/pengaman_voucher.sql` menguji kesepuluh lapis pengaman secara komprehensif (110 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0067.py` membuktikan 6/6 mutasi kritis WAJIB MERAH (lapis kuota klaim pelanggan, kuota harian cabang, batas anggaran kampanye, rate limiting perangkat penyerang, anti-tempmail, dan hak akses audit kasir vs admin); runner `--uji-diri` lolos.
+  - Penyelarasan Mutasi 0065: `alat/uji-mutasi-0065.py` diperbarui merujuk ke definisi aktif di migrasi 0067 (5/5 mutasi WAJIB MERAH tetap terbukti tajam).
+  - Keamanan Basis Data: `python3 alat/periksa-keamanan-sql.py` lulus (RLS, search_path, dan izin fungsi terverifikasi aman).
+
 
 
 

@@ -1733,14 +1733,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** aturan salah → mitigasi: validasi + pratinjau ("pelanggan belanja 50rb → potongan maksimal 15rb").
   - **Verifikasi:** uji manual membuat 3 kampanye berbeda + uji SQL validasi. · **Bukti 2026-09-25:** migrasi `supabase/migrations/0066_kampanye_aturan.sql` (trigger validasi aturan kampanye, helper format kalimat pratinjau, RPC simpan_kampanye_voucher, ambil_daftar_kampanye, dan ubah_status_kampanye); berkas uji `supabase/tes/kampanye_aturan.sql` (109 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); skrip uji mutasi `alat/uji-mutasi-0066.py` (6/6 mutasi kritis terbukti MERAH); antarmuka admin `aplikasi/src/layar/pengaturan/Kampanye.tsx` dengan modal buat/edit, validasi interaktif pencegah aturan mustahil, filter status aktif/nonaktif, statistik serapan kuota, dan kotak pratinjau kalimat aturan manusiawi real-time beserta simulasi belanja; 11 uji unit komprehensif di `Kampanye.test.tsx` (11 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm test`); mutasi aplikasi terjaga di `aplikasi/alat/uji-mutasi-app.mjs`.
 
-- [ ] T8-12 — Pengaman anti-kecurangan (10 lapis) + batas klaim + log percobaan ⚠️
+- [x] T8-12 — Pengaman anti-kecurangan (10 lapis) + batas klaim + log percobaan ⚠️
   - **Tujuan:** kampanye tidak bisa diborong satu orang atau satu perangkat.
   - **Ref:** PRD M10 (pengaman 1–10); TECH_SPEC §9 ART-5
-  - **File:** `supabase/migrations/0057_pengaman_voucher.sql`, `supabase/tes/pengaman_voucher.sql`
+  - **File:** `supabase/migrations/0067_pengaman_voucher.sql`, `supabase/tes/pengaman_voucher.sql`, `alat/uji-mutasi-0067.py`
   - **DoD:** satu voucher per identitas per kampanye; batas per outlet per hari; anggaran kampanye tidak bisa dilampaui; semua cek/scan tercatat; batas percobaan per perangkat; uji lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5); mitigasi: batas berlapis di database + laporan anomali.
-  - **Verifikasi:** uji SQL: klaim ke-2 identitas sama → ditolak; lampaui anggaran → ditolak.
+  - **Verifikasi:** uji SQL: klaim ke-2 identitas sama → ditolak; lampaui anggaran → ditolak. · **Bukti 2026-09-25:** migrasi `supabase/migrations/0067_pengaman_voucher.sql` (10 lapis pengaman voucher, kolom kuota_harian_cabang & kuota_per_pelanggan, rate limiting brute-force 5 kegagalan per 15 menit dengan fungsi apakah_perangkat_terblokir, pengamanan cek_voucher, pakai_voucher, daftar_voucher, dan RPC audit admin ambil_log_percobaan_voucher); berkas uji SQL `supabase/tes/pengaman_voucher.sql` (110 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); penilai mutasi `alat/uji-mutasi-0067.py` (6/6 mutasi kritis terbukti MERAH); `alat/uji-mutasi-0065.py` diselaraskan (5/5 mutasi terbukti MERAH); `DECISIONS_LOG.md` diperbarui pada Area Berisiko Tinggi ART-5.
 
 - [ ] T8-13 — Laporan klaim voucher + dasar deteksi anomali
   - **Tujuan:** owner melihat apakah kampanye berjalan wajar atau ada pola aneh.

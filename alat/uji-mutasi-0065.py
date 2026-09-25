@@ -19,7 +19,8 @@ import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MIGRASI = os.path.join(REPO, "supabase", "migrations", "0065_kasir_cek_pakai_voucher.sql")
+# Pagar kasir_voucher di-override oleh migrasi 0067_pengaman_voucher.sql (T8-12)
+MIGRASI = os.path.join(REPO, "supabase", "migrations", "0067_pengaman_voucher.sql")
 BERKAS_UJI = ["supabase/tes/kasir_voucher.sql"]
 
 
@@ -50,8 +51,8 @@ DAFTAR_MUTASI = [
     ),
     (
         "cek voucher mengubah status voucher (merusak jaminan baca-saja)",
-        "insert into public.voucher_percobaan (penyewa_id, kode_dicoba, hasil, kasir_id, cabang_id, waktu)\n  values (v_voucher.penyewa_id, v_kode, 'cek_sah', auth.uid(), p_cabang_id, now());",
-        "update public.voucher set status = 'terpakai' where id = v_voucher.id;\n  insert into public.voucher_percobaan (penyewa_id, kode_dicoba, hasil, kasir_id, cabang_id, waktu)\n  values (v_voucher.penyewa_id, v_kode, 'cek_sah', auth.uid(), p_cabang_id, now());",
+        "insert into public.voucher_percobaan (penyewa_id, kode_dicoba, hasil, alasan, kasir_id, cabang_id, perangkat, ip_pengakses, aksi, waktu)\n  values (v_voucher.penyewa_id, v_kode, 'sukses', 'Cek voucher berhasil.', auth.uid(), p_cabang_id, p_perangkat, p_ip, 'cek', now());",
+        "update public.voucher set status = 'terpakai' where id = v_voucher.id;\n  insert into public.voucher_percobaan (penyewa_id, kode_dicoba, hasil, alasan, kasir_id, cabang_id, perangkat, ip_pengakses, aksi, waktu)\n  values (v_voucher.penyewa_id, v_kode, 'sukses', 'Cek voucher berhasil.', auth.uid(), p_cabang_id, p_perangkat, p_ip, 'cek', now());",
     ),
     (
         "pengecekan larangan tumpuk diskon dimatikan",

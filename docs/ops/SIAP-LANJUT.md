@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `f1d3b6261bce3ff0fa911b89cfd9649500cfe4d3`
+- **Commit keadaan kerja:** `9926f7d0610eefd8cd4f9709d9ce3d7a7b442fb4`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 36148919955, commit f1d3b626)
+- **CI terakhir:** failure (run 36151824486, commit 9926f7d0)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (20 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (21 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,9 +70,22 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01...T8-11 SELESAI, LANJUT T8-12):**
+**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01...T8-12 SELESAI, LANJUT T8-13):**
 
-0ZH. **FASE 8: T8-11 (Pengaturan kampanye voucher oleh admin) SELESAI & T8-12 SIAP LANJUT.**
+0ZI. **FASE 8: T8-12 (Pengaman anti-kecurangan [10 lapis] + batas klaim + log percobaan ⚠️ ART-5) SELESAI & T8-13 SIAP LANJUT.**
+   - Migrasi `supabase/migrations/0067_pengaman_voucher.sql`:
+     1. Kolom `kuota_harian_cabang` dan `kuota_per_pelanggan` pada tabel `public.kampanye_voucher`.
+     2. Kolom `ip_pengakses`, `aksi`, dan indeks rate-limiting `idx_voucher_percobaan_ip_rate` pada `public.voucher_percobaan`.
+     3. Fungsi SQL `public.apakah_perangkat_terblokir(p_penyewa_id, p_perangkat, p_ip)` untuk perlindungan brute-force (ambang 5 kegagalan dalam 15 menit).
+     4. Pembaruan `public.cek_voucher`, `public.pakai_voucher`, dan `public.daftar_voucher` dengan penerapan lengkap 10 lapis pengaman anti-kecurangan (Lapis 1 kuota per pelanggan, Lapis 2 kuota harian cabang, Lapis 3 belanja minimum, Lapis 4 plafon potongan persen, Lapis 5 batas anggaran maksimal kampanye, Lapis 6 kunci atomik sekali pakai, Lapis 7 kode acak kriptografis Crockford Base32, Lapis 8 log audit seluruh scan/cek/pakai voucher dan rate limiting brute-force, Lapis 9 penolakan domain email disposable/tempmail, Lapis 10 normalisasi Gmail titik & plus).
+     5. RPC audit pengawasan `public.ambil_log_percobaan_voucher(p_kampanye_id, p_limit)` eksklusif untuk peran `owner_pusat` dan `admin_cabang`.
+   - Berkas uji `supabase/tes/pengaman_voucher.sql`: 110/110 berkas uji SQL lulus 100%.
+   - Skrip uji mutasi SQL `alat/uji-mutasi-0067.py`: 6/6 mutasi kritis WAJIB MERAH terbukti tajam, dan `--uji-diri` lolos.
+   - Penyelarasan skrip mutasi `alat/uji-mutasi-0065.py`: 5/5 mutasi kritis terbukti MERAH menguji fungsi aktif di migrasi 0067.
+   - Dokumentasi lengkap tercatat di `docs/DECISIONS_LOG.md` (Area Berisiko Tinggi ART-5), `docs/ROADMAP.md` (DoD T8-12 dicentang `[x]`), `PANDUAN_PENGGUNA.md` (110 berkas uji SQL), `PROJECT_STATE.md`, dan `STATUS.md`.
+   - Langkah selanjutnya: T8-13 (Laporan klaim voucher + dasar deteksi anomali: `supabase/migrations/0068_laporan_voucher.sql`, `aplikasi/src/layar/laporan/LaporanVoucher.tsx`).
+
+0ZH. **FASE 8: T8-11 (Pengaturan kampanye voucher oleh admin) SELESAI.**
    - Migrasi `0066_kampanye_aturan.sql` berisi trigger `trg_validasi_aturan_kampanye` (mencegah aturan mustahil: persen > 100%, nominal <= 0, selesai <= mulai, kuota <= 0, anggaran < nominal), helper format kalimat pratinjau ramah awam `format_pratinjau_aturan`, RPC `simpan_kampanye_voucher`, `ambil_daftar_kampanye`, dan `ubah_status_kampanye`.
    - Berkas uji `supabase/tes/kampanye_aturan.sql` (seluruh 109 berkas uji SQL lulus 100%).
    - Uji mutasi `alat/uji-mutasi-0066.py` (6/6 mutasi kritis terbukti MERAH) dan `--uji-diri` lulus tanpa cacat.
@@ -80,7 +93,6 @@ JANGAN merge apa pun tanpa keputusan Lee.
    - 11 uji unit komprehensif di `aplikasi/src/layar/pengaturan/Kampanye.test.tsx` lulus 100%.
    - Mutasi aplikasi terjaga di `aplikasi/alat/uji-mutasi-app.mjs` (80/80 mutasi perilaku terbukti MERAH).
    - Seluruh pemeriksaan struktur, UI, aturan desain, dan multi-bahasa lolos 100%.
-   - Langkah selanjutnya: T8-12 (Pengaman anti-kecurangan [10 lapis] + batas klaim + log percobaan: `supabase/migrations/0067_pengaman_voucher.sql`, `supabase/tes/pengaman_voucher.sql`).
 
 0ZF. **FASE 8: T8-09 (Layar kasir: Cek [baca saja] & Pakai [atomik + PIN] ⚠️) SELESAI.**
    - Implementasi modul kasir cek & pakai voucher secara aman dan atomik:
