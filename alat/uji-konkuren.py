@@ -210,8 +210,8 @@ def uji_f13(uri: str) -> tuple[bool, str]:
     def t1() -> None:
         try:
             c = psycopg.connect(uri)
-            v1 = c.execute("select public.nomor_pesanan_berikutnya(%s, current_date)",
-                           (CABANG_F13,)).fetchone()[0]
+            v1 = c.execute("select public.nomor_pesanan_berikutnya(%s, public.tanggal_lokal_cabang(%s, now()))",
+                           (CABANG_F13, CABANG_F13)).fetchone()[0]
             c.execute("insert into public.pesanan (penyewa_id, cabang_id, nomor, kunci_idempoten)"
                       " values (%s, %s, %s, 'f13-t1')", (PENYEWA_UJI, CABANG_F13, v1))
             hasil["v1"] = v1
@@ -230,8 +230,8 @@ def uji_f13(uri: str) -> tuple[bool, str]:
             c = psycopg.connect(uri)
             c.execute("set statement_timeout = '10s'")  # jaring anti-gantung
             mulai = time.monotonic()
-            v2 = c.execute("select public.nomor_pesanan_berikutnya(%s, current_date)",
-                           (CABANG_F13,)).fetchone()[0]
+            v2 = c.execute("select public.nomor_pesanan_berikutnya(%s, public.tanggal_lokal_cabang(%s, now()))",
+                           (CABANG_F13, CABANG_F13)).fetchone()[0]
             hasil["tunggu"] = time.monotonic() - mulai
             c.execute("insert into public.pesanan (penyewa_id, cabang_id, nomor, kunci_idempoten)"
                       " values (%s, %s, %s, 'f13-t2')", (PENYEWA_UJI, CABANG_F13, v2))
