@@ -1715,7 +1715,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5); mitigasi: RPC atomik T1-20 + PIN + uji "cek tidak mengubah".
   - **Verifikasi:** uji manual 6 kasus (voucher sah, sudah dipakai, kedaluwarsa, minimum belum cukup, salah cabang, kuota habis).
 
-- [ ] T8-10 — Scan kamera + ketik manual
+- [x] T8-10 — Scan kamera + ketik manual
   - **Tujuan:** kasir tidak perlu mengetik panjang, tetapi tetap bisa saat kamera bermasalah.
   - **Ref:** PRD M10 (scan kamera atau ketik manual)
   - **File:** `aplikasi/src/layar/kasir/ScanVoucher.tsx`

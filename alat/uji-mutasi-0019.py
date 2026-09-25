@@ -29,7 +29,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # pemasangan adalah yang TERAKHIR, jadi memutasi salinan lama di 0019 tidak
 # berpengaruh apa pun dan SEMUA mutasi terbaca "pagar tumpul" padahal pagarnya utuh.
 # Setiap kali fungsi ini ditulis ulang lagi, konstanta di bawah WAJIB ikut pindah.
-MIGRASI = os.path.join(REPO, "supabase", "migrations", "0041_diskon_pin_atasan.sql")
+MIGRASI = os.path.join(REPO, "supabase", "migrations", "0065_kasir_cek_pakai_voucher.sql")
 BERKAS_UJI = "supabase/tes/diskon_tumpuk.sql"
 
 

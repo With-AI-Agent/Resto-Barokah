@@ -627,6 +627,25 @@ const MUTASI = [
     ganti: '    setBukaBayarModal(true)',
     uji: 'src/layar/kasir/LayarKasir.test.tsx',
   },
+
+  // ------------------------------------------------- T8-09 & T8-10 voucher & scan
+  {
+    nama: 'VoucherKasir: tombol Cek diam-diam memanggil onPakai (T8-09)',
+    berkas: 'src/layar/kasir/VoucherKasir.tsx',
+    cari: '    setSedangCek(true)\n    try {\n      const res = await onCek({',
+    ganti:
+      '    setSedangCek(true)\n    try {\n      void onPakai({ kode: kodeBersih, pinKasir: "1234" })\n      const res = await onCek({',
+    uji: 'src/layar/kasir/VoucherKasir.test.tsx',
+  },
+  {
+    nama: 'ScanVoucher: masukan manual dihilangkan saat kamera gagal (T8-10)',
+    berkas: 'src/layar/kasir/ScanVoucher.tsx',
+    cari:
+      '      {/* Jalur Cadangan Wajib: Masukan Manual (Selalu Tersedia) */}\n      <div className="scan-voucher__manual" data-testid="scan-voucher-manual">',
+    ganti:
+      '      {/* mutasi: jalur manual disembunyikan saat kamera galat */}\n      {statusKamera === "aktif" && <div className="scan-voucher__manual" data-testid="scan-voucher-manual">',
+    uji: 'src/layar/kasir/ScanVoucher.test.tsx',
+  },
 ]
 
 /**

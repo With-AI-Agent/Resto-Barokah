@@ -2723,6 +2723,21 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Komponen Frontend: `aplikasi/src/layar/kasir/VoucherKasir.tsx` & `aplikasi/src/layar/kasir/VoucherKasir.test.tsx` (8 uji unit lulus 100%).
   - Integrasi Layar Kasir: `aplikasi/src/layar/kasir/LayarKasir.tsx` & `aplikasi/src/layar/kasir/LayarKasirDiskon.test.tsx` (8 uji unit lulus 100%).
 
+### [Voucher & Kamera / 2026-09-25] Pemindaian Barcode/QR Kamera Kasir dan Masukan Manual Wajib Selalu Tersedia (T8-10 / PRD M10)
+- **Area:** Voucher (ART-5) & Kasir POS · PRD M10 ("Kasir bisa scan lewat kamera atau mengetik kode manual")
+- **Keputusan:**
+  1. **Pemindaian Standar Web (BarcodeDetector & MediaDevices):**
+     Menggunakan `navigator.mediaDevices.getUserMedia` dan Web BarcodeDetector API asli tanpa modul eksternal berat. Detektor otomatis mengenali format QR Code, Code 128, Code 39, dan EAN-13, lalu otomatis mengisi kode voucher dan memicu verifikasi baca-saja `cek_voucher`.
+  2. **Jalur Masukan Manual Selalu Tersedia (Cadangan Mutlak):**
+     Komponen masukan teks manual SELALU dirender dan dapat diakses langsung di antarmuka pemindai, tidak pernah disembunyikan walau kamera aktif, galat, ataupun tidak tersedia. Ini menjamin operasional kasir tidak terhenti saat kamera buram, izin ditolak, atau perangkat kasir berupa PC desktop tanpa webcam.
+  3. **Pesan Kejelasan Ramah Awam:**
+     Jika kamera tidak didukung peramban, sedang digunakan aplikasi lain, atau izin akses ditolak kasir/peramban, pesan ditampilkan dalam bahasa Indonesia yang ramah awam tanpa kode galat teknis yang membingungkan.
+  4. **Pembersihan Sumber Daya:**
+     Track video dari `MediaStream` dan `requestAnimationFrame` dibersihkan secara bersih saat komponen unmount untuk mencegah kebocoran memori atau lampu indikator kamera menyala terus-menerus.
+- **Alasan:** Memenuhi PRD M10 dan DoD T8-10 dengan keandalan operasional kasir 100% di berbagai variasi perangkat kasir resto.
+- **File terkait:** `aplikasi/src/layar/kasir/ScanVoucher.tsx`, `aplikasi/src/layar/kasir/ScanVoucher.test.tsx`, `aplikasi/src/layar/kasir/VoucherKasir.tsx`, `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-mutasi-app.mjs`.
+- **Implikasi:** Fitur pemindaian selanjutnya (misalnya pemindaian QR pelanggan atau meja) harus mempertahankan pola fallback manual selalu tersedia dan pembersihan stream saat unmount.
+
 ## [Voucher & Privasi / 2026-09-25] Normalisasi Email Gmail, Anti Email Sekali-Pakai, dan 1 Identitas 1 Voucher (T8-07 / ART-5, ART-10)
 
 - **Area:** Voucher (ART-5) & Privasi Pelanggan (ART-10) · PRD M10 & TECH_SPEC §4.4, §5, §9 ART-5, ART-10

@@ -24,7 +24,9 @@ import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MIGRASI = os.path.join(REPO, "supabase", "migrations", "0041_diskon_pin_atasan.sql")
+# Pagar picu_diskon_batas() dimutakhirkan di 0065 untuk mendukung voucher (T8-09).
+# Definisi yang berlaku saat uji dijalankan adalah migrasi terakhir yang mendefinisikannya.
+MIGRASI = os.path.join(REPO, "supabase", "migrations", "0065_kasir_cek_pakai_voucher.sql")
 # Dua berkas: yang pertama membuktikan jalur T5-05, yang kedua memastikan pagar
 # lama (bukti persetujuan 0016) tidak ikut jebol saat batas dinaikkan.
 BERKAS_UJI = ["supabase/tes/diskon_pin_atasan.sql", "supabase/tes/diskon_setuju.sql"]

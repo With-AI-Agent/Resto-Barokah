@@ -21,6 +21,7 @@ import { Tombol } from '../../komponen/Tombol'
 import { KolomIsian } from '../../komponen/KolomIsian'
 import { Lencana } from '../../komponen/Lencana'
 import { rupiah } from '../../lib/format'
+import { ScanVoucher } from './ScanVoucher'
 
 export interface DataVoucherCek {
   voucher_id: string
@@ -95,13 +96,15 @@ export function VoucherKasir({
   const [hasilCek, setHasilCek] = useState<HasilCekVoucher | null>(null)
   const [pesanLokal, setPesanLokal] = useState<string | null>(null)
   const [statusSuksesPakai, setStatusSuksesPakai] = useState<string | null>(null)
+  const [bukaScan, setBukaScan] = useState(false)
 
   const kodeBersih = kodeInput.trim().toUpperCase()
 
-  const tanganiCek = async () => {
+  const tanganiCekOtomatis = async (kodeTertarget: string) => {
+    const bersih = kodeTertarget.trim().toUpperCase()
     setPesanLokal(null)
     setStatusSuksesPakai(null)
-    if (!kodeBersih) {
+    if (!bersih) {
       setPesanLokal('Masukkan kode voucher terlebih dahulu.')
       return
     }
@@ -109,7 +112,7 @@ export function VoucherKasir({
     setSedangCek(true)
     try {
       const res = await onCek({
-        kode: kodeBersih,
+        kode: bersih,
         subtotal,
         cabangId,
       })
@@ -122,6 +125,10 @@ export function VoucherKasir({
     } finally {
       setSedangCek(false)
     }
+  }
+
+  const tanganiCek = async () => {
+    await tanganiCekOtomatis(kodeBersih)
   }
 
   const tanganiPakai = async () => {
@@ -173,35 +180,57 @@ export function VoucherKasir({
         Subtotal pesanan: <strong>{rupiah(subtotal)}</strong>
       </p>
 
-      {/* Baris Input Kode & Tombol Cek (BACA SAJA) */}
-      <div className="voucher-kasir__baris-cek">
-        <div style={{ flex: 1 }}>
-          <KolomIsian
-            label="Kode voucher"
-            jenis="text"
-            nilai={kodeInput}
-            onUbah={(val) => {
-              setKodeInput(val)
-              setHasilCek(null)
-              setPesanLokal(null)
-              setStatusSuksesPakai(null)
-            }}
-            contoh="Mis. RB-8M4K-9Q2V atau HEMAT20"
-            wajib
-            keterangan="Ketik kode voucher atau pindai barcode pelanggan."
-          />
-        </div>
-        <div style={{ marginBottom: 'var(--s-1)' }}>
-          <Tombol
-            ragam="biasa"
-            onClick={tanganiCek}
-            nonaktif={sedangCek || sedangMemproses}
-            nama="Cek voucher"
-          >
-            {sedangCek ? 'Memeriksa...' : '🔍 Cek Voucher'}
-          </Tombol>
-        </div>
-      </div>
+      {/* Mode Pindai Kamera Barcode/QR */}
+      {bukaScan ? (
+        <ScanVoucher
+          onPindai={async (kode) => {
+            setKodeInput(kode)
+            setBukaScan(false)
+            await tanganiCekOtomatis(kode)
+          }}
+          onBatal={() => setBukaScan(false)}
+        />
+      ) : (
+        <>
+          {/* Baris Input Kode & Tombol Cek (BACA SAJA) + Tombol Scan */}
+          <div className="voucher-kasir__baris-cek">
+            <div style={{ flex: 1 }}>
+              <KolomIsian
+                label="Kode voucher"
+                jenis="text"
+                nilai={kodeInput}
+                onUbah={(val) => {
+                  setKodeInput(val)
+                  setHasilCek(null)
+                  setPesanLokal(null)
+                  setStatusSuksesPakai(null)
+                }}
+                contoh="Mis. RB-8M4K-9Q2V atau HEMAT20"
+                wajib
+                keterangan="Ketik kode voucher atau pindai barcode pelanggan."
+              />
+            </div>
+            <div style={{ display: 'flex', gap: 'var(--s-1)', marginBottom: 'var(--s-1)' }}>
+              <Tombol
+                ragam="biasa"
+                onClick={() => setBukaScan(true)}
+                nonaktif={sedangCek || sedangMemproses}
+                nama="Buka scan kamera"
+              >
+                📷 Pindai
+              </Tombol>
+              <Tombol
+                ragam="biasa"
+                onClick={tanganiCek}
+                nonaktif={sedangCek || sedangMemproses}
+                nama="Cek voucher"
+              >
+                {sedangCek ? 'Memeriksa...' : '🔍 Cek'}
+              </Tombol>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Hasil Cek Baca Saja */}
       {hasilCek && (

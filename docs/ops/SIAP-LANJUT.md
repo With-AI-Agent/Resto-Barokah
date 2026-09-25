@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `e6cbbe6a7cffdac9db1d351eeb94497e97d6e310`
+- **Commit keadaan kerja:** `0e79e4c847e19d509be060be186480d89d224396`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** pending (run 36141046912, commit e6cbbe6a) — tunggu sampai selesai
+- **CI terakhir:** failure (run 36141145333, commit 0e79e4c8)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (18 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (310 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (19 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,9 +70,21 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01...T8-09 SELESAI, LANJUT T8-10):**
+**KEADAAN SESI INI (2026-09-25, `arena/01a0d09b-resto-barokah` — FASE 8: T8-01...T8-10 SELESAI, LANJUT T8-11):**
 
-0ZF. **FASE 8: T8-09 (Layar kasir: Cek [baca saja] & Pakai [atomik + PIN] ⚠️) SELESAI & T8-10 SIAP LANJUT.**
+0ZG. **FASE 8: T8-10 (Scan kamera + ketik manual) SELESAI & T8-11 SIAP LANJUT.**
+   - Pemindaian barcode/QR dari kamera perangkat kasir `aplikasi/src/layar/kasir/ScanVoucher.tsx` menggunakan API standar peramban (BarcodeDetector & MediaDevices).
+   - Jalur masukan manual SELALU TERSEDIA langsung di layar sebagai cadangan mutlak bila kamera bermasalah, buram, tidak fokus, izin ditolak, atau perangkat kasir tanpa webcam.
+   - Pesan kejelasan bila kamera tidak tersedia atau izin akses ditolak disajikan ramah awam dalam bahasa Indonesia tanpa jargon teknis.
+   - Integrasi tombol '📷 Pindai' pada `VoucherKasir.tsx` yang langsung memicu verifikasi baca-saja otomatis saat kode terdeteksi atau dikonfirmasi dari pemindai.
+   - Pembersihan MediaStream track video dan requestAnimationFrame saat unmount.
+   - 9 uji unit komprehensif di `aplikasi/src/layar/kasir/ScanVoucher.test.tsx` lulus 100%.
+   - Mutasi uji `aplikasi/alat/uji-mutasi-app.mjs` ditambah 2 mutasi baru (VoucherKasir & ScanVoucher) → total 79/79 mutasi terbukti MERAH.
+   - Perbaikan jangkar migrasi aktif pada `alat/uji-mutasi-0019.py` dan `alat/uji-mutasi-0041.py` menunjuk migrasi `0065` sehingga seluruh mutasi diskon tetap tajam dan lolos 100%.
+   - Seluruh pemeriksaan struktur, UI, aturan desain, dan multi-bahasa lolos 100%.
+   - Langkah selanjutnya: T8-11 (Pengaturan kampanye voucher oleh admin: `aplikasi/src/layar/pengaturan/Kampanye.tsx`, `supabase/migrations/0066_kampanye_aturan.sql`).
+
+0ZF. **FASE 8: T8-09 (Layar kasir: Cek [baca saja] & Pakai [atomik + PIN] ⚠️) SELESAI.**
    - Implementasi modul kasir cek & pakai voucher secara aman dan atomik:
      1. Migrasi `supabase/migrations/0065_kasir_cek_pakai_voucher.sql`:
         - Pembaruan pemicu `picu_diskon_batas()` yang memvalidasi voucher sungguhan di basis data saat `jenis = 'voucher'`, memastikan voucher sah terdaftar, berstatus `terpakai`, dan terikat ke `pesanan_id`.
