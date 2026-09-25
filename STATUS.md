@@ -1,9 +1,10 @@
 # Status — Aplikasi Resto Barokah
 
-> **AUDIT INDEPENDEN PUTARAN KEDUA (AUD-4) SELESAI: 6 PEMERIKSA DITERIMA & TEMUAN DITUNTASKAN (2026-09-25, sesi arena/01a0d09b).** Lee telah menjalankan 6 pemeriksa independen (masing-masing 2 pemeriksa untuk Keamanan, Antarmuka, dan Logika Bisnis). Seluruh 6 laporan telah ditarik, divalidasi 100% LOLOS KONTRAK, dan seluruh temuannya telah dituntaskan:
+> **AUDIT INDEPENDEN PUTARAN KEDUA (AUD-4) SELESAI & MASUK FASE 8 (2026-09-25, sesi arena/01a0d09b).** Lee telah menjalankan 6 pemeriksa independen (masing-masing 2 pemeriksa untuk Keamanan, Antarmuka, dan Logika Bisnis). Seluruh 6 laporan telah ditarik, divalidasi 100% LOLOS KONTRAK, dan seluruh temuannya telah dituntaskan:
 > 1. Keamanan Staf & Perangkat: Pengetatan `verifikasi_pin_perangkat` (0061) dengan mewajibkan perangkat kasir terdaftar, verifikasi kunci token rahasia perangkat, dan anti-oracle enumerasi email lewat penyeragaman kode `KREDENSIAL_TIDAK_VALID`.
-> 2. Antarmuka Kasir & Navigasi: Penyambungan `LayarLaporan.tsx` ke rute `laporan` di `App.tsx`, pengkabelan `onKasPergerakan`, `onKoreksiModal`, dan `onKirimKeDapur` ke RPC peladen nyata, status koneksi dinamis di footer `Rangka.tsx`, serta perutean langsung peran dapur saat login pegawai.
+> 2. Antarmuka Kasir & Navigasi: Penyambungan `LayarLaporan.tsx`, `DaftarTransaksi.tsx`, `LayarPelayan.tsx`, `PasangPrinter.tsx` ke rute di `App.tsx`, pengkabelan `onKasPergerakan`, `onKoreksiModal`, `onKirimKeDapur`, `onBatalkanItem`, dan `onTerapkanDiskon` ke RPC peladen nyata, status koneksi dinamis di footer `Rangka.tsx`, serta perutean langsung peran dapur saat login pegawai.
 > 3. Logika Bisnis & Pertahanan DB: Validasi persetujuan atasan pada `kas_pergerakan` (0047), isolasi multi-tenant eksplisit pada penutupan pembayaran di `tutup_shift` (0046), serta pemanggilan `hitung_total` sebelum pembayaran.
+> 4. Melangkah ke Fase 8 (Katalog Pelanggan & Voucher M10) atas instruksi Lee: persiapan T8-01 RPC `katalog_publik`.
 > Mekanisme handoff diselaraskan 100%: jika sesi terputus/eror, Lee cukup mengatur base branch ke `arena/01a0d09b-resto-barokah` dan mengirim "baca pro.md" untuk langsung melanjutkan tanpa kehilangan konteks apa pun.
 > Status teknis: 104 berkas SQL LULUS (58 migrasi aktif) · 85 berkas Vitest frontend / 677 tes LULUS · seluruh uji mutasi Fase 7 dan migrasi 0056–0061 (17/17) terbukti merah · seluruh pemeriksa fondasi dan repo LOLOS.
 
