@@ -98,9 +98,10 @@ echo "== keamanan SQL efektif + mutasi T1-30 =="
 (cd "$REPO" && python3 alat/periksa-keamanan-sql.py | tail -4)
 (cd "$REPO" && python3 alat/periksa-keamanan-sql.py --uji-diri | tail -2)
 
-echo "== batas Edge Function verifikasi_pin (berkas asli dijalankan tanpa jaringan) =="
+echo "== batas Edge Function verifikasi_pin & verifikasi_pelanggan (berkas asli dijalankan tanpa jaringan) =="
 # Butuh esbuild dari `npm ci --prefix alat` (dipasang di awal skrip ini).
 (cd "$REPO" && node alat/uji-edge-pin.mjs)
+(cd "$REPO" && node alat/uji-edge-verifikasi-pelanggan.mjs)
 
 (cd "$REPO" && python3 alat/periksa-maraton.py && python3 alat/periksa-maraton.py --uji-diri)
 (cd "$REPO" && python3 alat/periksa-migrasi-beku.py)
