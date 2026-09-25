@@ -2,8 +2,15 @@ import { useState, useMemo } from 'react'
 import { Tombol } from '../../komponen/Tombol'
 import { KomponenQr } from '../../komponen/KomponenQr'
 import { Lapis } from '../../komponen/Lapis'
-import { rupiah } from '../../lib/format'
-import { useBahasa } from '../../bahasa'
+import {
+  Menu,
+  type MenuItemPublik,
+  type KategoriPublik,
+  type VarianPublik,
+  type TambahanPublik,
+} from './Menu'
+
+export type { MenuItemPublik, KategoriPublik, VarianPublik, TambahanPublik }
 
 export interface InfoPenyewaPublik {
   id: string
@@ -29,24 +36,6 @@ export interface PengaturanRestoPublik {
   lokasi?: { alamat?: string; maps_url?: string; kota?: string }
 }
 
-export interface KategoriPublik {
-  id: string
-  nama: string
-  urutan?: number
-}
-
-export interface MenuItemPublik {
-  id: string
-  kategori_id: string
-  nama: string
-  deskripsi?: string
-  harga: number
-  foto_path?: string
-  unggulan?: boolean
-  jenis?: 'makanan' | 'minuman' | 'lainnya'
-  habis?: boolean
-}
-
 export interface KatalogPublikProps {
   penyewa: InfoPenyewaPublik
   cabang: InfoCabangPublik
@@ -70,9 +59,6 @@ export function Katalog({
   onPilihItem,
   onTutup,
 }: KatalogPublikProps) {
-  const { t } = useBahasa()
-  const [kategoriTerpilih, setKategoriTerpilih] = useState<string>('semua')
-  const [kataKunci, setKataKunci] = useState<string>('')
   const [tampilkanQrModal, setTampilkanQrModal] = useState<boolean>(false)
 
   // URL lengkap untuk dibagikan (default peramban atau fallback resmi)
@@ -105,18 +91,6 @@ export function Katalog({
     }
     return 'Setiap Hari · 09.00 - 21.00 WIB'
   }, [pengaturan.jam_buka])
-
-  // Penyaringan menu berdasarkan pencarian & kategori
-  const menuTersaring = useMemo(() => {
-    return menu.filter((item) => {
-      const cocokKategori = kategoriTerpilih === 'semua' || item.kategori_id === kategoriTerpilih
-      const cocokKataKunci =
-        kataKunci.trim() === '' ||
-        item.nama.toLowerCase().includes(kataKunci.toLowerCase()) ||
-        (item.deskripsi && item.deskripsi.toLowerCase().includes(kataKunci.toLowerCase()))
-      return cocokKategori && cocokKataKunci
-    })
-  }, [menu, kategoriTerpilih, kataKunci])
 
   const namaResto = pengaturan.nama_resto || penyewa.nama || 'Resto Barokah'
   const taglineResto = pengaturan.tagline || 'Cita rasa istimewa untuk keluarga dan sahabat'
@@ -334,269 +308,9 @@ export function Katalog({
           </div>
         </section>
 
-        {/* PENCARIAN & SARINGAN */}
-        <section
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--s-3)',
-            marginTop: 'var(--s-1)',
-          }}
-        >
-          <div style={{ display: 'flex', gap: 'var(--s-2)' }}>
-            <input
-              type="search"
-              className="input"
-              value={kataKunci}
-              onChange={(e) => setKataKunci(e.target.value)}
-              placeholder={t('pelanggan.cari_menu') || 'Cari menu lezat...'}
-              aria-label="Cari menu makanan dan minuman"
-              style={{
-                flex: 1,
-                minHeight: '44px',
-                borderRadius: 'var(--radius-pil, 9999px)',
-                paddingLeft: 'var(--s-4)',
-              }}
-              data-testid="input-cari-menu"
-            />
-            {kataKunci && (
-              <Tombol ragam="polos" onClick={() => setKataKunci('')} nama="Hapus pencarian">
-                ✕
-              </Tombol>
-            )}
-          </div>
-
-          {/* Bar Kategori */}
-          {kategori.length > 0 && (
-            <nav
-              className="bar-kategori"
-              aria-label="Pilih Kategori Menu"
-              style={{ padding: '0 0 var(--s-2) 0' }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 'var(--s-2)',
-                  overflowX: 'auto',
-                  width: '100%',
-                  paddingBottom: '4px',
-                }}
-              >
-                <Tombol
-                  ragam={kategoriTerpilih === 'semua' ? 'utama' : 'biasa'}
-                  onClick={() => setKategoriTerpilih('semua')}
-                  nama="Tampilkan semua kategori"
-                >
-                  🍽️ {t('pelanggan.semua_kategori') || 'Semua'}
-                </Tombol>
-                {kategori.map((kat) => {
-                  const terpilih = kategoriTerpilih === kat.id
-                  return (
-                    <Tombol
-                      key={kat.id}
-                      ragam={terpilih ? 'utama' : 'biasa'}
-                      onClick={() => setKategoriTerpilih(kat.id)}
-                      nama={`Kategori ${kat.nama}`}
-                    >
-                      {kat.nama}
-                    </Tombol>
-                  )
-                })}
-              </div>
-            </nav>
-          )}
-        </section>
-
-        {/* DAFTAR MENU GRID */}
-        <section aria-label="Daftar Menu">
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: 'var(--s-3)',
-            }}
-          >
-            <h3 style={{ fontSize: 'var(--t-5)', fontWeight: 700, margin: 0 }}>
-              Daftar Menu ({menuTersaring.length})
-            </h3>
-            {kategoriTerpilih !== 'semua' && (
-              <span className="small muted">
-                Kategori:{' '}
-                {kategori.find((k) => k.id === kategoriTerpilih)?.nama || kategoriTerpilih}
-              </span>
-            )}
-          </div>
-
-          {menuTersaring.length === 0 ? (
-            <div
-              className="kartu"
-              style={{
-                textAlign: 'center',
-                padding: 'var(--s-8) var(--s-4)',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-lg)',
-              }}
-              data-testid="menu-kosong"
-            >
-              <p style={{ fontSize: '36px', margin: 0 }}>🍃</p>
-              <h4 style={{ fontSize: 'var(--t-4)', marginTop: 'var(--s-2)' }}>
-                Tidak Ada Menu yang Sesuai
-              </h4>
-              <p className="small muted">
-                {kataKunci
-                  ? `Tidak ada menu yang cocok dengan kata kunci "${kataKunci}".`
-                  : 'Belum ada menu yang tersedia untuk kategori ini.'}
-              </p>
-              {kataKunci && (
-                <div style={{ marginTop: 'var(--s-3)' }}>
-                  <Tombol ragam="biasa" onClick={() => setKataKunci('')}>
-                    Reset Pencarian
-                  </Tombol>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                gap: 'var(--s-4)',
-              }}
-              data-testid="kisi-menu"
-            >
-              {menuTersaring.map((item) => {
-                const itemHabis = !!item.habis
-                return (
-                  <article
-                    key={item.id}
-                    className="kartu-makan"
-                    style={{
-                      opacity: itemHabis ? 0.65 : 1,
-                      position: 'relative',
-                      display: 'flex',
-                      flexDirection: 'column',
-                    }}
-                    data-testid={`kartu-menu-${item.id}`}
-                  >
-                    <div className="foto" style={{ position: 'relative' }}>
-                      {item.foto_path ? (
-                        <img
-                          src={item.foto_path}
-                          alt={item.nama}
-                          loading="lazy"
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                          }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            display: 'grid',
-                            placeItems: 'center',
-                            background: 'var(--surface-2)',
-                            color: 'var(--text-muted)',
-                            fontSize: '32px',
-                          }}
-                          aria-hidden="true"
-                        >
-                          🍲
-                        </div>
-                      )}
-
-                      {/* Penanda Status: Habis atau Unggulan */}
-                      {itemHabis ? (
-                        <span
-                          className="chip chip-danger"
-                          style={{
-                            position: 'absolute',
-                            top: 'var(--s-2)',
-                            right: 'var(--s-2)',
-                            fontWeight: 800,
-                            boxShadow: 'var(--sh-2)',
-                          }}
-                          data-testid="indikator-habis"
-                        >
-                          HABIS
-                        </span>
-                      ) : item.unggulan ? (
-                        <span
-                          className="chip chip-accent"
-                          style={{
-                            position: 'absolute',
-                            top: 'var(--s-2)',
-                            right: 'var(--s-2)',
-                            fontWeight: 700,
-                            boxShadow: 'var(--sh-1)',
-                          }}
-                        >
-                          ★ Favorit
-                        </span>
-                      ) : null}
-                    </div>
-
-                    <div
-                      className="isi"
-                      style={{
-                        padding: 'var(--s-3)',
-                        flex: '1 0 auto',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                      }}
-                    >
-                      <div>
-                        <span className="nm" style={{ display: 'block', fontWeight: 700 }}>
-                          {item.nama}
-                        </span>
-                        {item.deskripsi && (
-                          <p
-                            className="small muted"
-                            style={{
-                              fontSize: 'var(--t-2)',
-                              marginTop: '2px',
-                              marginBottom: 'var(--s-2)',
-                              lineHeight: 1.3,
-                            }}
-                          >
-                            {item.deskripsi}
-                          </p>
-                        )}
-                      </div>
-
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          marginTop: 'var(--s-2)',
-                        }}
-                      >
-                        <span className="pr num" style={{ fontWeight: 800 }}>
-                          {rupiah(item.harga)}
-                        </span>
-
-                        {onPilihItem && !itemHabis && (
-                          <Tombol
-                            ragam="kecil"
-                            onClick={() => onPilihItem(item)}
-                            nama={`Pilih ${item.nama}`}
-                          >
-                            Pilih
-                          </Tombol>
-                        )}
-                      </div>
-                    </div>
-                  </article>
-                )
-              })}
-            </div>
-          )}
+        {/* DAFTAR MENU PUBLIK DENGAN FOTO, VARIAN, TAMBAHAN, & STATUS HABIS (T8-03) */}
+        <section aria-label="Daftar Menu Resto">
+          <Menu kategori={kategori} menu={menu} onPilihItem={onPilihItem} />
         </section>
 
         {/* 3. KARTU INFORMASI KONTAK & LOKASI RESTO */}

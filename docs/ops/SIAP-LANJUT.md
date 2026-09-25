@@ -10,12 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `ba565662a233aad5943f6bce647dff98469a6b0e`
+- **Commit keadaan kerja:** `bd76852329b5b8ac7c075f2c9edb4d90b9576591`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit bcb24a28 — periksa lagi setelah push)
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (run 36113049037, commit bd768523)
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -1579,5 +1578,17 @@ Urutan yang disarankan agent, dan alasannya:
 2. **Kualitas & Pemeriksaan Fondasi:**
    - 15 pengujian unit Vitest baru lulus (total 89 berkas / 692 tes unit 100% lulus).
    - Tanpa warna mentah (`aplikasi/alat/periksa-struktur.py` LOLOS 100%), kontras tema WCAG 2.1 (166/166 LOLOS), bebas button liar (`alat/peta-ui.py` LOLOS), typecheck, format, lint, dan build bersih.
+
+**FASE 8 T8-03 DAFTAR MENU + FOTO + HARGA + PENANDA HABIS SELESAI (2026-09-25):**
+1. **Implementasi Komponen Menu & Rincian Modal:**
+   - `aplikasi/src/layar/pelanggan-publik/Menu.tsx`: Komponen daftar menu berkategori mandiri yang terintegrasi langsung dengan `Katalog.tsx`.
+   - Mengoptimalkan pemuatan foto dengan `loading="lazy"`, `decoding="async"`, rasio aspek tetap (mencegah CLS), dan placeholder ikon ramah bila gambar belum diunggah.
+   - Format harga rupiah standar dari `lib/format`.
+   - Dukungan varian rasa/ukuran dan opsi tambahan/topping dengan modal rincian `Lapis` yang mengalkulasi estimasi harga secara real-time dan interaktif.
+   - Penanda habis visual dengan overlay penutup redup, lencana bahaya HABIS, keterangan stok habis di cabang bersangkutan, serta tombol sakelar filter untuk menyembunyikan/menampilkan menu habis.
+2. **Kualitas & Pemeriksaan Fondasi:**
+   - 6 pengujian unit Vitest baru di `Menu.test.tsx` (total 90 berkas uji / 698 tes unit lulus 100%).
+   - Tanpa warna mentah (`aplikasi/alat/periksa-struktur.py` LOLOS 100%), kontras tema WCAG 2.1 (166/166 LOLOS), bebas tombol liar (`alat/peta-ui.py` LOLOS), typecheck, format, lint, dan build Vite bersih.
+   - `docs/ROADMAP.md` menandai T8-03 sebagai selesai `[x]`.
 3. **Rencana Selanjutnya:**
-   - Melangkah ke `T8-03 — Daftar menu + foto + harga + penanda habis`.
+   - Melangkah ke `T8-04 — Pencarian & penyaringan menu`.

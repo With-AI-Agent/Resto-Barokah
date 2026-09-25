@@ -1650,14 +1650,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** tampilan berbeda dari prototipe → mitigasi: memakai token desain v3 yang sama + pemeriksa kontras.
   - **Verifikasi:** uji manual di HP + pemeriksa kontras. · **Bukti 2026-09-25:** implementasi `aplikasi/src/layar/pelanggan-publik/Katalog.tsx`, `aplikasi/src/layar/pelanggan-publik/LayarPelangganPublik.tsx`, `aplikasi/src/komponen/KomponenQr.tsx`, dan generator QR mandiri tanpa dependensi luar `aplikasi/src/lib/qrcode.ts`; 4 uji unit di `Katalog.test.tsx` + 5 uji unit di `LayarPelangganPublik.test.tsx` + 2 uji unit di `KomponenQr.test.tsx` + 4 uji unit di `qrcode.test.ts` (15 uji unit hijau, angka saat itu 2026-09-25 — perintah: `cd aplikasi && npm test`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `alat/peta-ui.py` hijau bebas tombol liar; rute dan fallback katalog publik tersambung di `aplikasi/src/App.tsx`.
 
-- [ ] T8-03 — Daftar menu + foto + harga + penanda habis
+- [x] T8-03 — Daftar menu + foto + harga + penanda habis
   - **Tujuan:** pelanggan tahu apa yang tersedia, tanpa menanyakan ke pegawai.
   - **Ref:** PRD M10 (kriteria selesai)
   - **File:** `aplikasi/src/layar/pelanggan-publik/Menu.tsx`
   - **DoD:** kategori, item, varian, tambahan, harga; foto teroptimasi (ukuran kecil); item habis tampil tertutup/tidak tampil; muat < 3 detik di jaringan seluler.
   - **Kompleksitas:** sedang (3,5 jam)
   - **Risiko & mitigasi:** foto besar membebani kuota gratis → mitigasi: unggah otomatis diperkecil + format modern.
-  - **Verifikasi:** uji manual pada HP + ukur ukuran halaman.
+  - **Verifikasi:** uji manual pada HP + ukur ukuran halaman. · **Bukti 2026-09-25:** implementasi `aplikasi/src/layar/pelanggan-publik/Menu.tsx` terintegrasi dengan `Katalog.tsx`; dukungan foto teroptimasi (lazy-loading, decoding async, rasio aspek anti-CLS, fallback ikon placeholder), format rupiah standar, opsi varian rasa/ukuran dan topping tambahan dengan simulasi harga real-time dalam modal `Lapis`; penanda habis visual (overlay redup tertutup, lencana HABIS `Lencana nada="danger"`, keterangan stok habis di cabang ini) serta sakelar filter sembunyikan/tampilkan menu habis; 6 uji unit di `Menu.test.tsx` (6 uji unit hijau, angka saat itu 2026-09-25 — perintah: `cd aplikasi && npm test`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `aplikasi/alat/periksa-struktur.py` lolos tanpa warna mentah; `alat/peta-ui.py` lolos bebas tombol liar.
 
 - [ ] T8-04 — Pencarian & penyaringan menu
   - **Tujuan:** pelanggan menemukan menu cepat.
