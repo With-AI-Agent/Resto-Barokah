@@ -17,6 +17,7 @@ import shutil
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIGRASI_0030 = os.path.join(REPO, "supabase", "migrations", "0030_sesi_dan_persetujuan_perangkat.sql")
+MIGRASI_0059 = os.path.join(REPO, "supabase", "migrations", "0059_catat_percobaan_masuk_tenant.sql")
 BERKAS_TES = os.path.join(REPO, "supabase", "tes", "sesi_dan_perangkat.sql")
 
 def jalankan_uji():
@@ -34,6 +35,10 @@ def uji_mutasi():
     print("UJI MUTASI 0030 (Sesi, Kode Pendaftaran, Persetujuan, & Kunci Masuk)")
     with open(MIGRASI_0030, "r", encoding="utf-8") as f:
         asli_migrasi = f.read()
+    asli_0059 = None
+    if os.path.exists(MIGRASI_0059):
+        with open(MIGRASI_0059, "r", encoding="utf-8") as f:
+            asli_0059 = f.read()
 
     try:
         # Kontrol awal: harus hijau
@@ -83,13 +88,28 @@ def uji_mutasi():
             return 1
         print("  [OK] Mutasi 3: Pelepasan pencabutan sesi TERBUKTI MERAH")
 
+        # Kembalikan 0030 sebelum Mutasi 4
+        with open(MIGRASI_0030, "w", encoding="utf-8") as f:
+            f.write(asli_migrasi)
+
         # Mutasi 4: Pelepasan pembatasan 5x percobaan akun pada periksa_kunci_masuk (T1-26)
+        # JEBAKAN: periksa_kunci_masuk ditulis ulang di 0059_catat_percobaan_masuk_tenant.sql (N F-05),
+        # sehingga mutasi harus mengenai berkas yang berlaku saat runner SQL mengeksekusi migrasi.
         m4 = asli_migrasi.replace(
             "if v_gagal_akun >= 5 then",
             "if false and v_gagal_akun >= 5 then"
         )
         with open(MIGRASI_0030, "w", encoding="utf-8") as f:
             f.write(m4)
+
+        if asli_0059:
+            m4_59 = asli_0059.replace(
+                "if v_gagal_akun >= 5 then",
+                "if false and v_gagal_akun >= 5 then"
+            )
+            with open(MIGRASI_0059, "w", encoding="utf-8") as f:
+                f.write(m4_59)
+
         lulus, out = jalankan_uji()
         if lulus:
             print("  [X] Mutasi 4: Pelepasan pembatasan 5x salah LOLOS (Pagar tumpul!)")
@@ -102,6 +122,9 @@ def uji_mutasi():
     finally:
         with open(MIGRASI_0030, "w", encoding="utf-8") as f:
             f.write(asli_migrasi)
+        if asli_0059:
+            with open(MIGRASI_0059, "w", encoding="utf-8") as f:
+                f.write(asli_0059)
 
 def uji_diri():
     print("UJI DIRI penilai mutasi 0030")
