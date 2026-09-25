@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `23c15fec10d858343e784aa1d3491ece0b10c791`
+- **Commit keadaan kerja:** `45fda7be5bcb6559558fc2ec7d59b4ef4f67cc1d`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36109218756, commit 23c15fec) — tunggu sampai selesai
+- **CI terakhir:** in_progress (run 36109285155, commit 45fda7be) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (3 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (56 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (4 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (296 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1547,5 +1547,14 @@ Urutan yang disarankan agent, dan alasannya:
    - Antarmuka & UX: Menghubungkan `LayarLaporan.tsx` di `App.tsx`, integrasi prop `onKasPergerakan`, `onKoreksiModal`, `onKirimKeDapur`, status koneksi dinamis di `Rangka.tsx`, perutean login dapur langsung.
 3. **Kesiapan Handoff & Lanjut Sesi:**
    - Sesi terhubung penuh dengan `arena/01a0d09b-resto-barokah`. Jika sesi terputus, Lee cukup menunjuk sesi ini dan mengirim "baca pro.md".
-4. **Rencana Selanjutnya:**
-   - Melangkah ke **Fase 8 — Katalog pelanggan & voucher undang-teman (M10)** dimulai dari `T8-01 — RPC katalog_publik (tanpa data sensitif) ⚠️`.
+**FASE 8 T8-01 RPC KATALOG PUBLIK SELESAI (2026-09-25):**
+1. **RPC `public.katalog_publik` (Migrasi `0062_katalog_publik.sql`):**
+   - Mengizinkan peran `anon` (pelanggan publik tanpa login) melihat menu resto berdasarkan `slug`.
+   - Menghormati harga khusus cabang dan penanda menu habis per cabang (`coalesce(menu_cabang.habis, false)`).
+   - Menjamin nol kebocoran data sensitif (tanpa data staf, akun, PIN, omzet, modal kas, pelanggan, atau audit internal).
+2. **Pengujian & Mutasi:**
+   - Suite SQL `supabase/tes/katalog_publik.sql`: 105 berkas uji SQL LULUS 100%.
+   - Mutasi `alat/uji-mutasi-0062.py`: 3/3 mutasi kritis terbukti MERAH TAJAM.
+   - Tercatat resmi di `docs/DECISIONS_LOG.md` (ART-10 & ART-1) dan `docs/ROADMAP.md` (T8-01 `[x]`).
+3. **Rencana Selanjutnya:**
+   - Melangkah ke `T8-02 — Halaman katalog publik per resto (merek sendiri)`.

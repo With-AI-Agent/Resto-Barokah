@@ -2672,6 +2672,27 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Gerbang CI: `alat/periksa-gerbang-ci.py` (122 gerbang LULUS).
   - Frontend Vitest: 84 berkas / 671 tes LULUS (100%).
 
+## [Privasi & RLS / 2026-09-25] RPC Katalog Publik Tanpa Data Sensitif (T8-01 / ART-10, ART-1)
+
+- **Area:** Privasi data (ART-10) & RLS (ART-1) · PRD M10 & TECH_SPEC §5, §9 ART-10
+- **Konteks & Risiko (ART-10, ART-1):**
+  Pelanggan publik yang membuka menu resto dari browser atau scan QR meja tidak memiliki akun staf dan mengakses sistem sebagai peran `anon`. Memberikan akses langsung ke tabel `menu_item`, `cabang`, atau `pengaturan` lewat tabel mentah berisiko membocorkan data sensitif internal kedai (seperti data pegawai, nomor telepon pribadi staf, omzet, modal kas, rahasia konfigurasi, atau pelanggan lain). Di sisi lain, pelanggan membutuhkan informasi yang akurat mengenai resto: nama resto, jam buka, kontak cabang, daftar kategori, item menu, foto, harga cabang yang berlaku, serta status ketersediaan item (menu habis di cabang bersangkutan).
+- **Keputusan:**
+  1. **Pintu Tunggal RPC Publik (`public.katalog_publik`):**
+     - Dibuka untuk peran `anon`, `authenticated`, dan `service_role`.
+     - Fungsi berstatus `SECURITY DEFINER` dengan `search_path` terkunci (`public, pg_temp`) dan `STABLE`.
+     - Menggunakan proyeksi kolom tegas dan eksplisit (dilarang menggunakan `SELECT *`).
+  2. **Isolasi Data Sensitif (Zero-Leakage):**
+     - Hanya mengembalikan objek terstruktur: resto (nama, slug, jam buka, cara pesan, zona waktu, mata uang), daftar cabang aktif publik, kategori aktif, dan item menu aktif (nama, deskripsi, harga, foto, urutan, unggulan, jenis, status habis, varian, tambahan).
+     - Menjamin tidak ada satupun kolom kredensial (email, pin, kata sandi, token), keuangan (omzet, modal, saldo, transaksi), pelanggan lain, maupun jejak audit internal yang disertakan.
+  3. **Penghormatan Harga & Status Habis Cabang:**
+     - Jika parameter cabang (`p_cabang_id`) disediakan, status habis dibaca dari `coalesce(menu_cabang.habis, false)` dan harga dibaca dari `coalesce(menu_cabang.harga, menu_item.harga)`.
+     - Menu habis ditandai secara jujur (`habis: true`), sehingga pelanggan tahu makanan tersebut sedang tidak tersedia sebelum memesan.
+- **Bukti:**
+  - Migrasi: `supabase/migrations/0062_katalog_publik.sql`.
+  - Berkas Uji SQL: `supabase/tes/katalog_publik.sql` (105 berkas uji SQL lulus 100%; uji mencakup asersi otomatis ketiadaan kolom sensitif).
+  - Uji Mutasi: `alat/uji-mutasi-0062.py` (3/3 mutasi kritis TERBUKTI MERAH).
+
 
 
 

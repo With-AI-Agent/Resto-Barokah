@@ -1631,10 +1631,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 8 — Katalog pelanggan & voucher undang-teman (M10) ⚠️ ART-5, ART-10  <!-- T-007 sudah ditutup 2026-09-16: Resend tanpa domain khusus -->
 
-- [ ] T8-01 — RPC katalog_publik (tanpa data sensitif) ⚠️
+- [x] T8-01 — RPC katalog_publik (tanpa data sensitif) ⚠️
   - **Tujuan:** pelanggan bisa melihat menu tanpa pernah menyentuh data internal resto.
   - **Ref:** TECH_SPEC §5 & §9 ART-10; PRD M10
-  - **File:** `supabase/migrations/0054_katalog_publik.sql`, `supabase/tes/katalog_publik.sql`
+  - **File:** `supabase/migrations/0062_katalog_publik.sql`, `supabase/tes/katalog_publik.sql`
+  - **Bukti (2026-09-25):** RPC katalog_publik diimplementasikan pada migrasi `supabase/migrations/0062_katalog_publik.sql` dan diuji pada `supabase/tes/katalog_publik.sql`. Uji membuktikan ketiadaan kebocoran data sensitif (email, PIN, kata sandi, token, omzet, modal kas) untuk peran publik anon. Uji mutasi `alat/uji-mutasi-0062.py` 3/3 kritis terbukti MERAH. Suite SQL 105 berkas LULUS 100%.
   - **DoD:** hanya mengembalikan menu, harga, foto, jam buka, kontak publik; tidak ada data pegawai/pelanggan/keuangan; item habis dikembalikan sebagai tidak tersedia; uji lulus.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10) & RLS (ART-1); mitigasi: fungsi memakai daftar kolom tegas (bukan `select *`) + uji "tidak ada kolom sensitif".

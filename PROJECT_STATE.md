@@ -1,12 +1,11 @@
 # Project State
 
-> **AUDIT INDEPENDEN PUTARAN KEDUA (AUD-4) SELESAI & MASUK FASE 8 (2026-09-25, sesi arena/01a0d09b).** Lee telah menjalankan 6 pemeriksa independen (masing-masing 2 pemeriksa untuk Keamanan, Antarmuka, dan Logika Bisnis). Seluruh 6 laporan telah ditarik, divalidasi 100% LOLOS KONTRAK, dan seluruh temuannya telah dituntaskan:
-> 1. Keamanan Staf & Perangkat: Pengetatan `verifikasi_pin_perangkat` (0061) dengan mewajibkan perangkat kasir terdaftar, verifikasi kunci token rahasia perangkat, dan anti-oracle enumerasi email lewat penyeragaman kode `KREDENSIAL_TIDAK_VALID`.
-> 2. Antarmuka Kasir & Navigasi: Penyambungan `LayarLaporan.tsx`, `DaftarTransaksi.tsx`, `LayarPelayan.tsx`, `PasangPrinter.tsx` ke rute di `App.tsx`, pengkabelan `onKasPergerakan`, `onKoreksiModal`, `onKirimKeDapur`, `onBatalkanItem`, dan `onTerapkanDiskon` ke RPC peladen nyata, status koneksi dinamis di footer `Rangka.tsx`, serta perutean langsung peran dapur saat login pegawai.
-> 3. Logika Bisnis & Pertahanan DB: Validasi persetujuan atasan pada `kas_pergerakan` (0047), isolasi multi-tenant eksplisit pada penutupan pembayaran di `tutup_shift` (0046), serta pemanggilan `hitung_total` sebelum pembayaran.
-> 4. Melangkah ke Fase 8 (Katalog Pelanggan & Voucher M10) atas instruksi Lee: persiapan T8-01 RPC `katalog_publik`.
+> **FASE 8 T8-01 RPC KATALOG PUBLIK SELESAI (2026-09-25, sesi arena/01a0d09b).** Sesuai instruksi Lee, proyek resmi melangkah ke Fase 8 (Katalog Pelanggan & Voucher M10). Tugas pertama T8-01 telah tuntas 100%:
+> 1. Migrasi `0062_katalog_publik.sql`: RPC `katalog_publik(p_slug, p_cabang_id)` memungkinkan peran `anon` (pelanggan publik tanpa login) melihat profil resto, jam buka, kontak cabang, kategori menu, item menu, foto, harga cabang yang berlaku, serta status ketersediaan item (menu habis di cabang bersangkutan).
+> 2. Nol Kebocoran Data Sensitif (ART-10 & ART-1): Menggunakan proyeksi kolom eksplisit (tanpa `SELECT *`), divalidasi bebas dari kolom kredensial (email, PIN, kata sandi, token), keuangan (omzet, modal kas, saldo), pegawai, pelanggan lain, maupun jejak audit internal.
+> 3. Uji & Mutasi: `supabase/tes/katalog_publik.sql` LULUS 105/105 suite SQL · `alat/uji-mutasi-0062.py` 3/3 mutasi kritis terbukti MERAH TAJAM · `docs/DECISIONS_LOG.md` diperbarui · `docs/ROADMAP.md` T8-01 dicentang `[x]`.
 > Mekanisme handoff diselaraskan 100%: jika sesi terputus/eror, Lee cukup mengatur base branch ke `arena/01a0d09b-resto-barokah` dan mengirim "baca pro.md" untuk langsung melanjutkan tanpa kehilangan konteks apa pun.
-> Status teknis: 104 berkas SQL LULUS (58 migrasi aktif) · 85 berkas Vitest frontend / 677 tes LULUS · seluruh uji mutasi Fase 7 dan migrasi 0056–0061 (17/17) terbukti merah · seluruh pemeriksa fondasi dan repo LOLOS.
+> Status teknis: 105 berkas SQL LULUS (59 migrasi aktif) · 85 berkas Vitest frontend / 677 tes LULUS · seluruh uji mutasi Fase 7 & Fase 8 (18/18) terbukti merah · seluruh pemeriksa fondasi dan repo LOLOS.
 
 > **RESOLUSI AUDIT AUD-3 SELESAI: 13/15 TEMUAN DITUTUP RESMI (2026-09-25, sesi arena/01a0d09b, commit 0e477a8).** Seluruh temuan yang dapat diselesaikan pada level aplikasi dan database telah dituntaskan 100% dan terbukti dengan uji SQL, uji Vitest, dan pagar mutasi merah:
 > 1. N F-04: Migrasi `0056_cabang_aktif_saya.sql`, uji `supabase/tes/cabang_aktif_saya.sql`, mutasi `alat/uji-mutasi-0056.py` (2/2 MERAH).
