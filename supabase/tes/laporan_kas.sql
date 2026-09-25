@@ -25,17 +25,19 @@ create temp table if not exists _t_lap_kas (
   cabang_id uuid,
   shift_id uuid,
   metode_tunai_id uuid,
-  metode_qris_id uuid
+  metode_qris_id uuid,
+  tanggal date
 );
 grant all on _t_lap_kas to authenticated;
 
 delete from _t_lap_kas;
 
-insert into _t_lap_kas (cabang_id, metode_tunai_id, metode_qris_id)
+insert into _t_lap_kas (cabang_id, metode_tunai_id, metode_qris_id, tanggal)
 values (
   'a1a1a1a1-0000-0000-0000-000000000001'::uuid,
   (select id from public.metode_bayar where penyewa_id = '11111111-1111-1111-1111-111111111111' and nama = 'Tunai' limit 1),
-  (select id from public.metode_bayar where penyewa_id = '11111111-1111-1111-1111-111111111111' and nama = 'QRIS' limit 1)
+  (select id from public.metode_bayar where penyewa_id = '11111111-1111-1111-1111-111111111111' and nama = 'QRIS' limit 1),
+  public.tanggal_lokal_cabang('a1a1a1a1-0000-0000-0000-000000000001'::uuid, now())
 );
 
 -- ---------------------------------------------------------------------------
@@ -190,14 +192,13 @@ begin
    limit 1;
 
   insert into public.pesanan (
-    id, penyewa_id, cabang_id, shift_id, nomor, tanggal, tipe, status, kunci_idempoten
+    id, penyewa_id, cabang_id, shift_id, nomor, tipe, status, kunci_idempoten
   ) values (
     v_pesanan_id,
     '11111111-1111-1111-1111-111111111111',
     (select cabang_id from _t_lap_kas),
     (select shift_id from _t_lap_kas),
     901,
-    current_date,
     'dinein',
     'draf',
     'kunci-pesanan-lap-02'
@@ -329,13 +330,13 @@ select uji.klaim('90000000-0000-0000-0000-000000000003'); -- Admin Andi
 set local role authenticated;
 
 select uji.sama(
-  (select (public.laporan_harian((select cabang_id from _t_lap_kas), current_date)->>'berhasil')::boolean),
+  (select (public.laporan_harian((select cabang_id from _t_lap_kas), (select tanggal from _t_lap_kas))->>'berhasil')::boolean),
   true,
   'Admin cabang berhasil mengakses laporan_harian cabang binaannya'
 );
 
 select uji.sama(
-  (select (public.laporan_harian((select cabang_id from _t_lap_kas), current_date)->'data'->>'jumlah_shift')::integer >= 1),
+  (select (public.laporan_harian((select cabang_id from _t_lap_kas), (select tanggal from _t_lap_kas))->'data'->>'jumlah_shift')::integer >= 1),
   true,
   'Laporan harian memuat minimal 1 shift pada hari ini'
 );
@@ -345,7 +346,7 @@ select uji.klaim('90000000-0000-0000-0000-000000000002'); -- Bu Oasis
 set local role authenticated;
 
 select uji.sama(
-  (select (public.laporan_harian(null, current_date)->>'berhasil')::boolean),
+  (select (public.laporan_harian(null, (select tanggal from _t_lap_kas))->>'berhasil')::boolean),
   true,
   'Owner pusat berhasil memanggil laporan_harian multi-cabang (cabang_id null)'
 );
@@ -367,7 +368,7 @@ select uji.harap_gagal_sebab(
 );
 
 select uji.harap_gagal_sebab(
-  $$select public.laporan_harian((select cabang_id from _t_lap_kas), current_date)$$,
+  $$select public.laporan_harian((select cabang_id from _t_lap_kas), (select tanggal from _t_lap_kas))$$,
   'Cabang tidak ditemukan',
   'Owner resto lain tidak dapat melihat laporan harian cabang resto berbeda'
 );

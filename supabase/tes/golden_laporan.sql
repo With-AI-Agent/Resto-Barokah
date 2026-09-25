@@ -71,7 +71,7 @@ insert into _golden_konteks values (
   'beef0000-0000-0000-0000-000000000001'::uuid, -- Nasi Goreng (25.000, makanan)
   'beef0000-0000-0000-0000-000000000002'::uuid, -- Es Teh (8.000, minuman)
   'beef0000-0000-0000-0000-000000000003'::uuid, -- Kopi (12.000, minuman)
-  current_date
+  public.tanggal_lokal_cabang('a1a1a1a1-0000-0000-0000-000000000001'::uuid, now())
 );
 
 grant all on table _golden_konteks to authenticated;

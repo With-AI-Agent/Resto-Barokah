@@ -31,9 +31,9 @@ select uji.harap(
 select uji.klaim(null);
 insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten)
 values ('e9000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111',
-        'a1a1a1a1-0000-0000-0000-000000000001', 41, current_date, 'dinein', 'draf', 'kunci-nomor-1');
+        'a1a1a1a1-0000-0000-0000-000000000001', 41, public.tanggal_lokal_cabang('a1a1a1a1-0000-0000-0000-000000000001'::uuid, now()), 'dinein', 'draf', 'kunci-nomor-1');
 select uji.sama(
-  public.nomor_pesanan_berikutnya('a1a1a1a1-0000-0000-0000-000000000001', current_date),
+  public.nomor_pesanan_berikutnya('a1a1a1a1-0000-0000-0000-000000000001', public.tanggal_lokal_cabang('a1a1a1a1-0000-0000-0000-000000000001'::uuid, now())),
   42, 'nomor berikutnya = 42 setelah pesanan bernomor 41 (max + 1 tetap benar)'
 );
 
@@ -53,7 +53,7 @@ reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000007');   -- kasir resto B (penyewa lain)
 set local role authenticated;
 select uji.harap_gagal_sebab(
-  $$select public.nomor_pesanan_berikutnya('a1a1a1a1-0000-0000-0000-000000000001', current_date)$$,
+  $$select public.nomor_pesanan_berikutnya('a1a1a1a1-0000-0000-0000-000000000001', public.tanggal_lokal_cabang('a1a1a1a1-0000-0000-0000-000000000001'::uuid, now()))$$,
   'bukan cabang yang boleh Anda lihat',
   'isolasi lintas resto pada penghitung nomor tetap ditegakkan'
 );

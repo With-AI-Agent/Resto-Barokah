@@ -34,13 +34,12 @@ declare
 begin
   -- Buat pesanan tanpa shift saat wajib_shift = false
   insert into public.pesanan (
-    id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten
+    id, penyewa_id, cabang_id, nomor, tipe, status, kunci_idempoten
   ) values (
     v_pesanan_id,
     '11111111-1111-1111-1111-111111111111',
     'a1a1a1a1-0000-0000-0000-000000000001',
     801,
-    current_date,
     'dinein',
     'draf',
     'kunci-fleksibel-01'
@@ -65,13 +64,12 @@ set local role authenticated;
 select uji.harap_gagal_sebab(
   $$
   insert into public.pesanan (
-    id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten
+    id, penyewa_id, cabang_id, nomor, tipe, status, kunci_idempoten
   ) values (
     gen_random_uuid(),
     '11111111-1111-1111-1111-111111111111',
     'a1a1a1a1-0000-0000-0000-000000000001',
     802,
-    current_date,
     'dinein',
     'draf',
     'kunci-tolak-shift-01'
@@ -143,13 +141,12 @@ begin
      and status = 'terbuka';
 
   insert into public.pesanan (
-    id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten
+    id, penyewa_id, cabang_id, nomor, tipe, status, kunci_idempoten
   ) values (
     v_pesanan_id,
     '11111111-1111-1111-1111-111111111111',
     'a1a1a1a1-0000-0000-0000-000000000001',
     803,
-    current_date,
     'dinein',
     'draf',
     'kunci-pesanan-shift-sah-01'
@@ -220,13 +217,12 @@ $$;
 select uji.harap_gagal_sebab(
   $$
   insert into public.pesanan (
-    id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten
+    id, penyewa_id, cabang_id, nomor, tipe, status, kunci_idempoten
   ) values (
     gen_random_uuid(),
     '11111111-1111-1111-1111-111111111111',
     'a1a1a1a1-0000-0000-0000-000000000001',
     804,
-    current_date,
     'dinein',
     'draf',
     'kunci-tolak-setelah-tutup-01'
@@ -240,14 +236,13 @@ select uji.harap_gagal_sebab(
 select uji.harap_gagal_sebab(
   $$
   insert into public.pesanan (
-    id, penyewa_id, cabang_id, shift_id, nomor, tanggal, tipe, status, kunci_idempoten
+    id, penyewa_id, cabang_id, shift_id, nomor, tipe, status, kunci_idempoten
   ) values (
     gen_random_uuid(),
     '11111111-1111-1111-1111-111111111111',
     'a1a1a1a1-0000-0000-0000-000000000001',
     (select id from public.shift_kas where cabang_id = 'a1a1a1a1-0000-0000-0000-000000000001' and status = 'ditutup' order by ditutup_pada desc limit 1),
     805,
-    current_date,
     'dinein',
     'draf',
     'kunci-tolak-shift-mati-01'
@@ -279,13 +274,12 @@ declare
   v_res_id uuid := gen_random_uuid();
 begin
   insert into public.pesanan (
-    id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten
+    id, penyewa_id, cabang_id, nomor, tipe, status, kunci_idempoten
   ) values (
     v_res_id,
     '11111111-1111-1111-1111-111111111111',
     'a1a1a1a1-0000-0000-0000-000000000001',
     806,
-    current_date,
     'dinein',
     'draf',
     'kunci-cabang-pusat-sah'
@@ -302,13 +296,12 @@ set local role authenticated;
 select uji.harap_gagal_sebab(
   $$
   insert into public.pesanan (
-    id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten
+    id, penyewa_id, cabang_id, nomor, tipe, status, kunci_idempoten
   ) values (
     gen_random_uuid(),
     '11111111-1111-1111-1111-111111111111',
     'a1a1a1a1-0000-0000-0000-000000000002',
     807,
-    current_date,
     'dinein',
     'draf',
     'kunci-cabang-dua-tolak'

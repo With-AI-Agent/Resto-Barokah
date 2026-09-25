@@ -9,7 +9,8 @@ create temp table _t_lap_menu (
   cabang_dua_id uuid,
   shift_id uuid,
   metode_tunai_id uuid,
-  metode_qris_id uuid
+  metode_qris_id uuid,
+  tanggal date
 );
 grant all on _t_lap_menu to authenticated;
 
@@ -17,12 +18,14 @@ insert into _t_lap_menu (
   cabang_id,
   cabang_dua_id,
   metode_tunai_id,
-  metode_qris_id
+  metode_qris_id,
+  tanggal
 ) values (
   'a1a1a1a1-0000-0000-0000-000000000001',
   'a1a1a1a1-0000-0000-0000-000000000002',
   (select id from public.metode_bayar where penyewa_id = '11111111-1111-1111-1111-111111111111' and nama = 'Tunai' limit 1),
-  (select id from public.metode_bayar where penyewa_id = '11111111-1111-1111-1111-111111111111' and nama = 'QRIS' limit 1)
+  (select id from public.metode_bayar where penyewa_id = '11111111-1111-1111-1111-111111111111' and nama = 'QRIS' limit 1),
+  public.tanggal_lokal_cabang('a1a1a1a1-0000-0000-0000-000000000001'::uuid, now())
 );
 
 -- ---------------------------------------------------------------------------
@@ -130,14 +133,13 @@ begin
    limit 1;
 
   insert into public.pesanan (
-    id, penyewa_id, cabang_id, shift_id, nomor, tanggal, tipe, status, kunci_idempoten
+    id, penyewa_id, cabang_id, shift_id, nomor, tipe, status, kunci_idempoten
   ) values (
     v_pesanan_id,
     '11111111-1111-1111-1111-111111111111',
     (select cabang_id from _t_lap_menu),
     (select shift_id from _t_lap_menu),
     960,
-    current_date,
     'dinein',
     'draf',
     'kunci-pesanan-lpm-01'
@@ -185,14 +187,14 @@ set local role authenticated;
 
 -- Verifikasi pemanggilan multi-cabang (semua cabang)
 select uji.sama(
-  (select (public.laporan_menu(null, current_date, current_date)->>'berhasil')::boolean),
+  (select (public.laporan_menu(null, (select tanggal from _t_lap_menu), (select tanggal from _t_lap_menu))->>'berhasil')::boolean),
   true,
   'Owner berhasil memanggil laporan menu multi-cabang'
 );
 
 -- Total porsi minimal 3
 select uji.sama(
-  (select (public.laporan_menu(null, current_date, current_date)->'data'->'ringkasan'->>'total_porsi')::integer >= 3),
+  (select (public.laporan_menu(null, (select tanggal from _t_lap_menu), (select tanggal from _t_lap_menu))->'data'->'ringkasan'->>'total_porsi')::integer >= 3),
   true,
   'Total porsi menu terjual mencakup pesanan uji'
 );
@@ -201,7 +203,7 @@ select uji.sama(
 select uji.sama(
   (select exists (
     select 1
-      from jsonb_array_elements(public.laporan_menu(null, current_date, current_date)->'data'->'peringkat_menu') elem
+      from jsonb_array_elements(public.laporan_menu(null, (select tanggal from _t_lap_menu), (select tanggal from _t_lap_menu))->'data'->'peringkat_menu') elem
      where elem->>'nama_menu' = 'Nasi Goreng Spesial Barokah'
        and (elem->>'qty_terjual')::integer >= 3
   )),
@@ -213,7 +215,7 @@ select uji.sama(
 select uji.sama(
   (select exists (
     select 1
-      from jsonb_array_elements(public.laporan_menu(null, current_date, current_date)->'data'->'diskon_manual') elem
+      from jsonb_array_elements(public.laporan_menu(null, (select tanggal from _t_lap_menu), (select tanggal from _t_lap_menu))->'data'->'diskon_manual') elem
      where elem->>'alasan' = 'Diskon pelanggan setia T7-09'
        and (elem->>'nilai')::integer = 4000
        and elem->>'kasir_nama' is not null
@@ -224,7 +226,7 @@ select uji.sama(
 
 -- Total diskon manual pada ringkasan mencakup 4.000
 select uji.sama(
-  (select (public.laporan_menu(null, current_date, current_date)->'data'->'ringkasan'->>'total_diskon_manual')::integer >= 4000),
+  (select (public.laporan_menu(null, (select tanggal from _t_lap_menu), (select tanggal from _t_lap_menu))->'data'->'ringkasan'->>'total_diskon_manual')::integer >= 4000),
   true,
   'Ringkasan mencatat total diskon manual'
 );
@@ -237,7 +239,7 @@ select uji.sama(
     select 1
       from public.laporan_menu_terlaris
      where cabang_id = (select cabang_id from _t_lap_menu)
-       and tanggal = current_date
+       and tanggal = (select tanggal from _t_lap_menu)
        and nama_menu = 'Nasi Goreng Spesial Barokah'
        and qty_terjual >= 3
   )),

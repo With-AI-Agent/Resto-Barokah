@@ -9,26 +9,26 @@
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir
 set local role authenticated;
 
-select uji.harap_gagal_sebab($$insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten)
+select uji.harap_gagal_sebab($$insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tipe, status, kunci_idempoten)
       values ('00000000-0000-0000-0000-00000000a001','11111111-1111-1111-1111-111111111111',
-              'a1a1a1a1-0000-0000-0000-000000000001', 801, current_date, 'dinein', 'batal', 'status-batal')$$, 'Pesanan baru harus berstatus draf \(diminta batal\); status lain hanya boleh ditetapkan pela', 'pesanan tidak boleh LAHIR berstatus batal (pembatalan wajib berjejak)');
+              'a1a1a1a1-0000-0000-0000-000000000001', 801, 'dinein', 'batal', 'status-batal')$$, 'Pesanan baru harus berstatus draf \(diminta batal\); status lain hanya boleh ditetapkan pela', 'pesanan tidak boleh LAHIR berstatus batal (pembatalan wajib berjejak)');
 
-select uji.harap_gagal_sebab($$insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten)
+select uji.harap_gagal_sebab($$insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tipe, status, kunci_idempoten)
       values ('00000000-0000-0000-0000-00000000a002','11111111-1111-1111-1111-111111111111',
-              'a1a1a1a1-0000-0000-0000-000000000001', 802, current_date, 'dinein', 'lunas', 'status-lunas')$$, 'Pesanan baru harus berstatus draf \(diminta lunas\); status lain hanya boleh ditetapkan pela', 'pesanan tidak boleh LAHIR berstatus lunas (belum ada pembayaran)');
+              'a1a1a1a1-0000-0000-0000-000000000001', 802, 'dinein', 'lunas', 'status-lunas')$$, 'Pesanan baru harus berstatus draf \(diminta lunas\); status lain hanya boleh ditetapkan pela', 'pesanan tidak boleh LAHIR berstatus lunas (belum ada pembayaran)');
 
-select uji.harap_gagal_sebab($$insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, dikirim_ke_dapur_pada, kunci_idempoten)
+select uji.harap_gagal_sebab($$insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tipe, status, dikirim_ke_dapur_pada, kunci_idempoten)
       values ('00000000-0000-0000-0000-00000000a003','11111111-1111-1111-1111-111111111111',
-              'a1a1a1a1-0000-0000-0000-000000000001', 803, current_date, 'dinein', 'draf', now(), 'status-kirim')$$, 'Pesanan baru belum boleh membawa tanda kirim ke dapur', 'pesanan baru tidak boleh membawa tanda kirim ke dapur');
+              'a1a1a1a1-0000-0000-0000-000000000001', 803, 'dinein', 'draf', now(), 'status-kirim')$$, 'Pesanan baru belum boleh membawa tanda kirim ke dapur', 'pesanan baru tidak boleh membawa tanda kirim ke dapur');
 
-select uji.harap_gagal_sebab($$insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, dibatalkan_pada, kunci_idempoten)
+select uji.harap_gagal_sebab($$insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tipe, status, dibatalkan_pada, kunci_idempoten)
       values ('00000000-0000-0000-0000-00000000a004','11111111-1111-1111-1111-111111111111',
-              'a1a1a1a1-0000-0000-0000-000000000001', 804, current_date, 'dinein', 'draf', now(), 'status-batal-pada')$$, 'Tanda pembayaran/pembatalan hanya boleh diisi peladen, bukan saat pesanan dibuat', 'pesanan baru tidak boleh membawa tanda batas/dibatalkan_pada');
+              'a1a1a1a1-0000-0000-0000-000000000001', 804, 'dinein', 'draf', now(), 'status-batal-pada')$$, 'Tanda pembayaran/pembatalan hanya boleh diisi peladen, bukan saat pesanan dibuat', 'pesanan baru tidak boleh membawa tanda batas/dibatalkan_pada');
 
 -- Kontrol: pesanan DRAF biasa tetap boleh dibuat kasir (penjaga tidak menutup jalur sah).
-insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, status, kunci_idempoten)
+insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tipe, status, kunci_idempoten)
 values ('00000000-0000-0000-0000-00000000a005','11111111-1111-1111-1111-111111111111',
-        'a1a1a1a1-0000-0000-0000-000000000001', 805, current_date, 'dinein', 'draf', 'status-draf-sah');
+        'a1a1a1a1-0000-0000-0000-000000000001', 805, 'dinein', 'draf', 'status-draf-sah');
 select uji.sama(
   (select p.status from public.pesanan p where p.id = '00000000-0000-0000-0000-00000000a005'),
   'draf', 'kontrol: kasir tetap bisa membuat pesanan draf biasa'

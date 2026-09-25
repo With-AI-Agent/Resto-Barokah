@@ -17,9 +17,9 @@ select uji.klaim(null);
 -- 2. Kasir Pusat membuat pesanan makan di tempat untuk Meja 1.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tanggal, tipe, meja_id, kunci_idempoten)
+insert into public.pesanan (id, penyewa_id, cabang_id, nomor, tipe, meja_id, kunci_idempoten)
 values ('eeee0000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111',
-        'a1a1a1a1-0000-0000-0000-000000000001', 1, current_date, 'dinein',
+        'a1a1a1a1-0000-0000-0000-000000000001', 1, 'dinein',
         'aaa00000-0000-0000-0000-000000000001', 'keranjang-uji-1');
 
 -- Salinan nama & harga WAJIB diisi saat itu (harga Nasi Goreng di Pusat = 27.000).
@@ -85,12 +85,12 @@ select uji.sama(
 --    (cabang_id, tanggal, nomor) di database.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-insert into public.pesanan (penyewa_id, cabang_id, nomor, tanggal, kunci_idempoten)
-values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 1, current_date, 'keranjang-lain');
+insert into public.pesanan (penyewa_id, cabang_id, nomor, kunci_idempoten)
+values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 1, 'keranjang-lain');
 select uji.sama(
   (select p.nomor from public.pesanan p where p.kunci_idempoten = 'keranjang-lain'),
   (select max(x.nomor) from public.pesanan x
-    where x.cabang_id = 'a1a1a1a1-0000-0000-0000-000000000001' and x.tanggal = current_date),
+    where x.cabang_id = 'a1a1a1a1-0000-0000-0000-000000000001' and x.tanggal = public.tanggal_lokal_cabang('a1a1a1a1-0000-0000-0000-000000000001'::uuid, now())),
   'nomor pesanan dibuat sistem (angka kiriman klien = 1 diabaikan, tersimpan nomor urut peladen)'
 );
 select uji.sama(
@@ -101,12 +101,12 @@ select uji.sama(
 select uji.sama(
   (select count(*) from (
      select p.nomor from public.pesanan p
-      where p.cabang_id = 'a1a1a1a1-0000-0000-0000-000000000001' and p.tanggal = current_date
+      where p.cabang_id = 'a1a1a1a1-0000-0000-0000-000000000001' and p.tanggal = public.tanggal_lokal_cabang('a1a1a1a1-0000-0000-0000-000000000001'::uuid, now())
       group by p.nomor having count(*) > 1) ganda),
   0::bigint,
   'tidak ada nomor ganda di cabang & tanggal yang sama'
 );
-select uji.harap_gagal_sebab($$insert into public.pesanan (penyewa_id, cabang_id, nomor, tanggal, kunci_idempoten) values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 2, current_date, 'keranjang-uji-1')$$, 'violates unique constraint "pesanan_cabang_id_kunci_idempoten_key"', 'kunci idempoten yang sama tidak bisa menyimpan pesanan dua kali');
+select uji.harap_gagal_sebab($$insert into public.pesanan (penyewa_id, cabang_id, nomor, kunci_idempoten) values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 2, 'keranjang-uji-1')$$, 'violates unique constraint "pesanan_cabang_id_kunci_idempoten_key"', 'kunci idempoten yang sama tidak bisa menyimpan pesanan dua kali');
 
 -- 7. Meja cabang lain tidak boleh dipakai; cabang resto lain juga tidak.
 select uji.harap_gagal_sebab($$insert into public.pesanan (penyewa_id, cabang_id, meja_id, kunci_idempoten) values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001', 'aaa00000-0000-0000-0000-000000000003', 'keranjang-salah-meja')$$, 'Meja itu berada di cabang lain — pesanan tidak boleh memakainya', 'meja Cabang Dua tidak boleh dipakai pesanan cabang Pusat');

@@ -11,7 +11,8 @@ create temp table _t_lap_penjualan (
   metode_tunai_id uuid,
   metode_qris_id uuid,
   kategori_makanan uuid,
-  kategori_minuman uuid
+  kategori_minuman uuid,
+  tanggal date
 );
 grant all on _t_lap_penjualan to authenticated;
 
@@ -21,14 +22,16 @@ insert into _t_lap_penjualan (
   metode_tunai_id,
   metode_qris_id,
   kategori_makanan,
-  kategori_minuman
+  kategori_minuman,
+  tanggal
 ) values (
   'a1a1a1a1-0000-0000-0000-000000000001',
   'a1a1a1a1-0000-0000-0000-000000000002',
   (select id from public.metode_bayar where penyewa_id = '11111111-1111-1111-1111-111111111111' and nama = 'Tunai' limit 1),
   (select id from public.metode_bayar where penyewa_id = '11111111-1111-1111-1111-111111111111' and nama = 'QRIS' limit 1),
   'cafe0000-0000-0000-0000-000000000001',
-  'cafe0000-0000-0000-0000-000000000002'
+  'cafe0000-0000-0000-0000-000000000002',
+  public.tanggal_lokal_cabang('a1a1a1a1-0000-0000-0000-000000000001'::uuid, now())
 );
 
 -- ---------------------------------------------------------------------------
@@ -143,14 +146,13 @@ begin
    limit 1;
 
   insert into public.pesanan (
-    id, penyewa_id, cabang_id, shift_id, nomor, tanggal, tipe, status, kunci_idempoten
+    id, penyewa_id, cabang_id, shift_id, nomor, tipe, status, kunci_idempoten
   ) values (
     v_pesanan_id,
     '11111111-1111-1111-1111-111111111111',
     (select cabang_id from _t_lap_penjualan),
     (select shift_id from _t_lap_penjualan),
     955,
-    current_date,
     'dinein',
     'draf',
     'kunci-pesanan-lpj-01'
@@ -192,28 +194,28 @@ set local role authenticated;
 
 -- Verifikasi pemanggilan multi-cabang (semua cabang)
 select uji.sama(
-  (select (public.laporan_penjualan(null, current_date, current_date)->>'berhasil')::boolean),
+  (select (public.laporan_penjualan(null, (select tanggal from _t_lap_penjualan), (select tanggal from _t_lap_penjualan))->>'berhasil')::boolean),
   true,
   'Owner berhasil memanggil laporan penjualan multi-cabang'
 );
 
 -- Total omzet mencakup pesanan uji (minimal 70.000)
 select uji.sama(
-  (select (public.laporan_penjualan(null, current_date, current_date)->'data'->'ringkasan'->>'total_omzet')::integer >= 70000),
+  (select (public.laporan_penjualan(null, (select tanggal from _t_lap_penjualan), (select tanggal from _t_lap_penjualan))->'data'->'ringkasan'->>'total_omzet')::integer >= 70000),
   true,
   'Total omzet pada laporan penjualan mencakup pesanan lunas'
 );
 
 -- Omzet makanan mencakup 54.000
 select uji.sama(
-  (select (public.laporan_penjualan(null, current_date, current_date)->'data'->'jenis_menu'->>'omzet_makanan')::integer >= 54000),
+  (select (public.laporan_penjualan(null, (select tanggal from _t_lap_penjualan), (select tanggal from _t_lap_penjualan))->'data'->'jenis_menu'->>'omzet_makanan')::integer >= 54000),
   true,
   'Omzet jenis makanan mencakup pesanan makanan'
 );
 
 -- Omzet minuman mencakup 16.000
 select uji.sama(
-  (select (public.laporan_penjualan(null, current_date, current_date)->'data'->'jenis_menu'->>'omzet_minuman')::integer >= 16000),
+  (select (public.laporan_penjualan(null, (select tanggal from _t_lap_penjualan), (select tanggal from _t_lap_penjualan))->'data'->'jenis_menu'->>'omzet_minuman')::integer >= 16000),
   true,
   'Omzet jenis minuman mencakup pesanan minuman'
 );
@@ -222,7 +224,7 @@ select uji.sama(
 select uji.sama(
   (select exists (
     select 1
-      from jsonb_array_elements(public.laporan_penjualan(null, current_date, current_date)->'data'->'per_kategori') elem
+      from jsonb_array_elements(public.laporan_penjualan(null, (select tanggal from _t_lap_penjualan), (select tanggal from _t_lap_penjualan))->'data'->'per_kategori') elem
      where (elem->>'total_omzet')::integer >= 54000
   )),
   true,
@@ -233,7 +235,7 @@ select uji.sama(
 select uji.sama(
   (select exists (
     select 1
-      from jsonb_array_elements(public.laporan_penjualan(null, current_date, current_date)->'data'->'per_metode') elem
+      from jsonb_array_elements(public.laporan_penjualan(null, (select tanggal from _t_lap_penjualan), (select tanggal from _t_lap_penjualan))->'data'->'per_metode') elem
      where elem->>'metode_nama' = 'QRIS'
        and (elem->>'total_nominal')::integer >= 70000
   )),
@@ -245,8 +247,8 @@ select uji.sama(
 select uji.sama(
   (select exists (
     select 1
-      from jsonb_array_elements(public.laporan_penjualan(null, current_date, current_date)->'data'->'tren_harian') elem
-     where elem->>'tanggal' = to_char(current_date, 'YYYY-MM-DD')
+      from jsonb_array_elements(public.laporan_penjualan(null, (select tanggal from _t_lap_penjualan), (select tanggal from _t_lap_penjualan))->'data'->'tren_harian') elem
+     where elem->>'tanggal' = to_char((select tanggal from _t_lap_penjualan), 'YYYY-MM-DD')
        and (elem->>'total_omzet')::integer >= 70000
   )),
   true,
@@ -261,7 +263,7 @@ select uji.sama(
     select 1
       from public.laporan_penjualan_harian
      where cabang_id = (select cabang_id from _t_lap_penjualan)
-       and tanggal = current_date
+       and tanggal = (select tanggal from _t_lap_penjualan)
        and total_omzet >= 70000
   )),
   true,

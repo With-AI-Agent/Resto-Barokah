@@ -15,9 +15,9 @@
 -- Kasir membuat pesanan baru (draf) seperti di aplikasi.
 select uji.klaim('90000000-0000-0000-0000-000000000004');
 set local role authenticated;
-insert into public.pesanan (penyewa_id, cabang_id, tanggal, tipe, kunci_idempoten)
+insert into public.pesanan (penyewa_id, cabang_id, tipe, kunci_idempoten)
 values ('11111111-1111-1111-1111-111111111111', 'a1a1a1a1-0000-0000-0000-000000000001',
-        current_date, 'dinein', 'status-pesanan-uji');
+        'dinein', 'status-pesanan-uji');
 select uji.sama(
   (select p.status from public.pesanan p where p.kunci_idempoten = 'status-pesanan-uji'),
   'draf', 'pesanan baru mulai dari draf'
