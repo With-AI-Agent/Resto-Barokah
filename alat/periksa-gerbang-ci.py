@@ -139,6 +139,7 @@ GERBANG_WAJIB = [
     ("papan tugas maraton valid (AL-16)",
      r"python3 alat/periksa-maraton.py"),
     ("uji batas Edge Function verifikasi_pin (berkas asli dijalankan tanpa jaringan)", r"node alat/uji-edge-pin\.mjs"),
+    ("uji batas Edge Function verifikasi_pelanggan (berkas asli dijalankan tanpa jaringan)", r"node alat/uji-edge-verifikasi-pelanggan\.mjs"),
     ("validator sistem", r"python3 _sistem/validate_system.py"),
     ("pemeriksa fungsi PIN", r"python3 alat/periksa-fungsi-pin.py"),
     ("pemeriksa roadmap", r"python3 alat/periksa-roadmap.py"),
