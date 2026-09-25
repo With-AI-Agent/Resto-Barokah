@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `b80ee571ae97982425d267eda4c248330e206ef3`
+- **Commit keadaan kerja:** `bc7ff8e11d6156687fb9ea99c70ee0028eb7453d`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit b80ee571)
+- **CI terakhir:** success (1 run, commit bc7ff8e1)
 - **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (13 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (14 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (306 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1634,5 +1634,23 @@ Urutan yang disarankan agent, dan alasannya:
    - 6 pengujian unit Vitest baru di `Menu.test.tsx` (total 90 berkas uji / 698 tes unit lulus 100%).
    - Tanpa warna mentah (`aplikasi/alat/periksa-struktur.py` LOLOS 100%), kontras tema WCAG 2.1 (166/166 LOLOS), bebas tombol liar (`alat/peta-ui.py` LOLOS), typecheck, format, lint, dan build Vite bersih.
    - `docs/ROADMAP.md` menandai T8-03 sebagai selesai `[x]`.
-3. **Rencana Selanjutnya:**
-   - Melangkah ke `T8-04 — Pencarian & penyaringan menu`.
+**FASE 8 T8-08 TERBITKAN KODE VOUCHER ACAK + BARCODE SELESAI (2026-09-25):**
+1. **Database & RPC (Migrasi `0064_terbit_voucher_acak.sql`):**
+   - Kolom `berlaku_sampai` pada tabel `voucher`.
+   - Generator kode acak `buat_kode_voucher_acak()` non-sekuensial (ruang kemungkinan $\ge 10^{11}$, bebas karakter ambigu 0/O/1/I/L dengan format `RB-XXXX-XXXX`).
+   - Validator pola kode `apakah_format_voucher_acak()`.
+   - Generator pola garis barcode 1D bit `pola_barcode_garis()`.
+   - RPC publik `ambil_kartu_voucher(p_kode)`: aman tanpa kebocoran data pelanggan (email & nomor HP rahasia) dengan auto-evaluasi kedaluwarsa.
+   - Pagar keunikan 1 voucher per identitas per kampanye tetap terjaga di tingkat database.
+2. **Frontend & Kartu Tiket:**
+   - Komponen resmi `aplikasi/src/layar/voucher/KartuVoucher.tsx` (desain tiket voucher, kode monospaced kontras, barcode garis 1D SVG presisi, barcode 2D QR Code, info kedaluwarsa ramah awam, tombol salin clipboard dan cetak).
+   - Helper `aplikasi/src/lib/barcode.ts` dan pengujian `barcode.test.ts`.
+   - Integrasi formulir pendaftaran pelanggan `Daftar.tsx`.
+3. **Pemeriksaan & Mutasi:**
+   - 107 berkas uji SQL LULUS (100%).
+   - Uji mutasi `alat/uji-mutasi-0064.py` terbukti 5/5 MERAH.
+   - Vitest frontend 96 berkas / 742 tes unit LULUS.
+   - Tanpa warna mentah, format prettier, ESLint, dan typecheck tsc bersih.
+4. **Rencana Selanjutnya:**
+   - Melangkah ke `T8-09 — Layar kasir: Cek (baca saja) & Pakai (atomik + PIN) ⚠️`.
+   - Persiapan transisi sesi baru pasca-Fase 8 selesai semua (T8-01...T8-15) sesuai arahan Lee.

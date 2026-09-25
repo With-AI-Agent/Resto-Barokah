@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Kartu } from '../../komponen/Kartu'
 import { Tombol } from '../../komponen/Tombol'
-import { Lencana } from '../../komponen/Lencana'
 import { KolomIsian } from '../../komponen/KolomIsian'
-import { KomponenQr } from '../../komponen/KomponenQr'
+import { KartuVoucher } from './KartuVoucher'
 import { rupiah, tanggalLokal } from '../../lib/format'
 import { normalisasiEmail } from '../../lib/emailNormalisasi'
 
@@ -70,12 +69,14 @@ export function Daftar({
   })()
 
   const buatKodeVoucherAcak = () => {
-    const kar = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-    let acak = ''
-    for (let i = 0; i < 6; i++) {
-      acak += kar.charAt(Math.floor(Math.random() * kar.length))
+    const kar = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'
+    let p1 = ''
+    let p2 = ''
+    for (let i = 0; i < 4; i++) {
+      p1 += kar.charAt(Math.floor(Math.random() * kar.length))
+      p2 += kar.charAt(Math.floor(Math.random() * kar.length))
     }
-    return `BRK-${acak}`
+    return `RB-${p1}-${p2}`
   }
 
   const validasiDasar = () => {
@@ -207,76 +208,27 @@ export function Daftar({
               voucher di bawah ini untuk digunakan saat memesan di resto.
             </p>
 
-            {/* Kartu Fisik Voucher */}
-            <div
-              className="kartu"
-              style={{
-                width: '100%',
-                background: 'var(--surface-2)',
-                border: '2px dashed var(--accent)',
-                borderRadius: 'var(--radius-lg)',
-                padding: 'var(--s-3)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 'var(--s-2)',
-              }}
-              data-testid="kartu-voucher-terbit"
-            >
-              <Lencana nada="accent">Voucher Diskon Resmi</Lencana>
-
-              <div
-                style={{
-                  fontSize: 'var(--t-5)',
-                  fontWeight: 900,
-                  color: 'var(--accent)',
-                  letterSpacing: '2px',
-                  fontFamily: 'var(--font-mono, monospace)',
-                  background: 'var(--surface)',
-                  padding: 'var(--s-2) var(--s-4)',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--border)',
+            {/* Kartu Fisik Voucher Terbit (T8-08) */}
+            <div style={{ width: '100%' }} data-testid="kartu-voucher-terbit">
+              <KartuVoucher
+                voucher={{
+                  kode: voucherHasil.kode,
+                  nama_pelanggan: voucherHasil.nama_pelanggan,
+                  nama_kampanye: kampanye.nama,
+                  nama_resto: kampanye.nama_resto,
+                  nilai: voucherHasil.nilai,
+                  jenis: voucherHasil.jenis,
+                  min_belanja: voucherHasil.min_belanja,
+                  maks_potongan: voucherHasil.maks_potongan,
+                  berlaku_sampai: voucherHasil.berlaku_sampai,
+                  status: 'aktif',
                 }}
-                data-testid="teks-kode-voucher"
-              >
-                {voucherHasil.kode}
-              </div>
-
-              <div
-                style={{
-                  fontSize: 'var(--t-3)',
-                  fontWeight: 800,
-                  color: 'var(--text)',
-                }}
-              >
-                {voucherHasil.jenis === 'nominal'
-                  ? `Potongan ${rupiah(voucherHasil.nilai)}`
-                  : `Diskon ${voucherHasil.nilai}%`}
-              </div>
-
-              <div
-                style={{
-                  fontSize: 'var(--t-1)',
-                  color: 'var(--text-muted)',
-                }}
-              >
-                Min. belanja {rupiah(voucherHasil.min_belanja)} • Berlaku s.d.{' '}
-                {voucherHasil.berlaku_sampai}
-              </div>
-
-              <div style={{ marginTop: 'var(--s-2)', width: '100%' }}>
-                <KomponenQr
-                  url={voucherHasil.kode}
-                  ukuran={150}
-                  judul="Barcode Voucher"
-                  keterangan="Tunjukkan ke kasir saat memesan di kasir"
-                  bisaSalin={false}
-                  bisaUnduh={false}
-                />
-              </div>
+                onLihatMenu={onLihatMenu}
+                onSalin={salinKodeVoucher}
+              />
             </div>
 
-            {/* Tombol Aksi Salin & Lihat Menu */}
+            {/* Tombol Aksi Salin Tambahan & Lihat Menu */}
             <div
               style={{
                 display: 'flex',

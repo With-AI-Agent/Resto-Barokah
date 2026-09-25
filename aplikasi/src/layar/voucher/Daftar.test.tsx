@@ -87,7 +87,9 @@ describe('Komponen Formulir Pendaftaran Voucher (Daftar.tsx — T8-06)', () => {
       expect(mockSukses).toHaveBeenCalledTimes(1)
       expect(screen.getByTestId('klaim-voucher-sukses')).toBeDefined()
       expect(screen.getByTestId('kartu-voucher-terbit')).toBeDefined()
-      expect(screen.getByTestId('teks-kode-voucher').textContent).toMatch(/^BRK-[A-Z0-9]{6}$/)
+      expect(screen.getByTestId('teks-kode-voucher').textContent).toMatch(
+        /^(BRK-[A-Z0-9]{6}|RB-[2-9A-HJ-NP-Z]{4}-[2-9A-HJ-NP-Z]{4})$/,
+      )
       expect(screen.getByText('Potongan Rp20.000')).toBeDefined()
     })
   })

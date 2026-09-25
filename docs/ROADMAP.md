@@ -1697,10 +1697,10 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5) & Privasi (ART-10); mitigasi: daftar domain sekali-pakai + normalisasi + uji kasus.
   - **Verifikasi:** uji fungsi dengan 6 kasus (email asli, sekali-pakai, gmail bertitik, gmail +tag, email kosong, email salah). · **Bukti 2026-09-25:** implementasi utilitas klien `aplikasi/src/lib/emailNormalisasi.ts` dengan 9 uji unit di `emailNormalisasi.test.ts` (9 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm --prefix aplikasi test -- src/lib/emailNormalisasi.test.ts`); Edge Function `supabase/functions/verifikasi_pelanggan/index.ts` dengan runner uji batas VM `alat/uji-edge-verifikasi-pelanggan.mjs` (10 uji batas lulus tanpa jaringan); migrasi `supabase/migrations/0063_anti_email_palsu.sql` membangun tabel `pelanggan`, `kampanye_voucher`, `voucher`, `voucher_percobaan`, RPC `daftar_voucher`, dan RLS InitPlan; berkas uji `supabase/tes/anti_email_palsu.sql` (106 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); penilai mutasi `alat/uji-mutasi-0063.py` (4/4 mutasi kritis terbukti MERAH); `DECISIONS_LOG.md` diperbarui pada Area Voucher (ART-5) & Privasi Pelanggan (ART-10).
 
-- [ ] T8-08 — Terbitkan kode voucher acak + barcode
+- [x] T8-08 — Terbitkan kode voucher acak + barcode
   - **Tujuan:** kode tidak bisa ditebak atau dibuat sendiri oleh orang luar.
   - **Ref:** PRD M10 (kode acak tidak berurutan)
-  - **File:** `supabase/migrations/0055_voucher_terbit.sql`, `aplikasi/src/layar/voucher/KartuVoucher.tsx`
+  - **File:** `supabase/migrations/0064_terbit_voucher_acak.sql`, `aplikasi/src/layar/voucher/KartuVoucher.tsx`
   - **DoD:** kode acak (bukan berurutan), barcode + kode teks, masa berlaku terlihat; satu voucher per identitas per kampanye.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** kode terguess → mitigasi: panjang memadai + pembatasan percobaan (T8-12).
