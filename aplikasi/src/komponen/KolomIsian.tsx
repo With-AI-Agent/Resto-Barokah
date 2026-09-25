@@ -20,7 +20,7 @@ export function KolomIsian({
   label: string
   nilai: string
   onUbah: (nilai: string) => void
-  jenis?: 'text' | 'email' | 'number' | 'password' | 'tel'
+  jenis?: 'text' | 'email' | 'number' | 'password' | 'tel' | 'date'
   keterangan?: string
   galat?: string
   wajib?: boolean

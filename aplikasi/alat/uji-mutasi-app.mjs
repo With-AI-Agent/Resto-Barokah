@@ -640,11 +640,18 @@ const MUTASI = [
   {
     nama: 'ScanVoucher: masukan manual dihilangkan saat kamera gagal (T8-10)',
     berkas: 'src/layar/kasir/ScanVoucher.tsx',
-    cari:
-      '      {/* Jalur Cadangan Wajib: Masukan Manual (Selalu Tersedia) */}\n      <div className="scan-voucher__manual" data-testid="scan-voucher-manual">',
+    cari: '      {/* Jalur Cadangan Wajib: Masukan Manual (Selalu Tersedia) */}\n      <div className="scan-voucher__manual" data-testid="scan-voucher-manual">',
     ganti:
       '      {/* mutasi: jalur manual disembunyikan saat kamera galat */}\n      {statusKamera === "aktif" && <div className="scan-voucher__manual" data-testid="scan-voucher-manual">',
     uji: 'src/layar/kasir/ScanVoucher.test.tsx',
+  },
+  {
+    nama: 'Kampanye: validasi diskon persen > 100% dilepas di formulir (T8-11)',
+    berkas: 'src/layar/pengaturan/Kampanye.tsx',
+    cari: "    if (jenisAturan === 'persen') {\n      const persen = Number(nilaiDiskon)\n      if (persen <= 0 || persen > 100) {",
+    ganti:
+      "    if (jenisAturan === 'persen') {\n      const persen = Number(nilaiDiskon)\n      if (false) {",
+    uji: 'src/layar/pengaturan/Kampanye.test.tsx',
   },
 ]
 

@@ -2763,6 +2763,37 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Berkas Uji SQL: `supabase/tes/anti_email_palsu.sql` (seluruh 106 berkas uji SQL LULUS 100%).
   - Uji Mutasi: `alat/uji-mutasi-0063.py` (4/4 mutasi kritis terbukti MERAH).
 
+## [Pengaturan / 2026-09-25] Pengaturan Kampanye Voucher oleh Admin & Pratinjau Aturan Bahasa Manusia (T8-11)
+
+- **Area:** Pengaturan Admin & Voucher · PRD M10 & TECH_SPEC §4.4, §5
+- **Konteks & Kebutuhan:**
+  Admin resto membutuhkan fleksibilitas penuh untuk mengatur kampanye promo voucher (diskon persen dengan plafon potongan, atau potongan nominal langsung, minimum belanja, kuota voucher, batas anggaran resto, periode masa berlaku, dan cakupan cabang berlaku) tanpa bantuan tim teknis (tanpa koding). Namun, pengaturan mandiri berisiko memicu konfigurasi aturan mustahil/merugikan (seperti diskon > 100%, kuota 0, anggaran lebih kecil dari nilai voucher, atau periode selesai mendahului mulai) serta salah tafsir syarat promo yang rumit bagi pelanggan maupun kasir.
+- **Keputusan:**
+  1. **Validasi Pagar Basis Data (`trg_validasi_aturan_kampanye` & migrasi 0066):**
+     - Mencegah aturan mustahil langsung pada tingkat tabel `public.kampanye_voucher`:
+       * `jenis = 'persen'` wajib `nilai > 0 AND nilai <= 100`.
+       * `jenis = 'nominal'` wajib `nilai > 0` dan atribut `maks_potongan` otomatis di-NULL-kan agar tidak menimbulkan ambigu.
+       * Masa berlaku wajib `selesai > mulai`.
+       * Kuota wajib `> 0`.
+       * Anggaran maksimal jika diisi wajib `>= nilai` voucher.
+       * Pencegahan duplikasi kode kampanye unik per resto (`penyewa_id`).
+  2. **Format Kalimat Aturan Ramah Awam (Pratinjau Bahasa Manusia):**
+     - Dibuat helper ganda pada PostgreSQL (`public.format_pratinjau_aturan`) dan TypeScript (`formatPratinjauAturan` di `Kampanye.tsx`) yang merangkai konfigurasi teknis menjadi kalimat bahasa Indonesia lugas:
+       * Contoh: *"Diskon 20% (maksimal Rp25.000) dengan belanja minimal Rp50.000 di semua cabang. Berlaku hingga 31 Okt 2026. Kuota: 100 voucher."*
+       * Menghadirkan simulasi belanja instan ("Contoh: Pelanggan belanja Rp75.000 mendapatkan potongan Rp15.000, bayar Rp60.000").
+  3. **Antarmuka Admin Responsif & Terkontrol (`Kampanye.tsx`):**
+     - Formulir pembuatan dan penyuntingan kampanye dengan validasi dini sisi klien yang serasi dengan aturan peladen.
+     - Ringkasan statistik serapan (jumlah terbit, jumlah terpakai, sisa kuota, status waktu berjalan/akan datang/berakhir).
+     - Tombol cepat ubah status (aktif/nonaktifkan) kampanye dengan konfirmasi aman.
+     - Otorisasi ketat: hanya peran pemilik (`owner`) dan admin resto yang memiliki izin menyimpan dan mengubah status kampanye melalui RPC `simpan_kampanye_voucher` dan `ubah_status_kampanye`.
+- **Bukti:**
+  - Migrasi Basis Data: `supabase/migrations/0066_kampanye_aturan.sql`.
+  - Berkas Uji SQL: `supabase/tes/kampanye_aturan.sql` (109 berkas uji SQL lulus 100%).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0066.py` (6/6 mutasi kritis terbukti MERAH) dan `--uji-diri` lulus.
+  - Antarmuka & Uji Unit Frontend: `aplikasi/src/layar/pengaturan/Kampanye.tsx`, `aplikasi/src/layar/pengaturan/Kampanye.test.tsx` (11 uji unit lulus), dan `aplikasi/alat/uji-mutasi-app.mjs` (mutasi terbukti MERAH).
+  - Peta UI & Struktur: `aplikasi/alat/periksa-struktur.py` dan `alat/peta-ui.py` lulus 100% tanpa warna mentah dan bebas tombol liar.
+
+
 
 
 

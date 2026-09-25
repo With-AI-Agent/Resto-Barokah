@@ -1724,14 +1724,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** kamera perangkat bermasalah → mitigasi: jalur manual selalu tersedia & sama-sama tercatat.
   - **Verifikasi:** uji manual pindai 3 voucher + 1 masukan manual.
 
-- [ ] T8-11 — Pengaturan kampanye voucher oleh admin
+- [x] T8-11 — Pengaturan kampanye voucher oleh admin
   - **Tujuan:** admin bisa mengatur kampanye sendiri tanpa koding.
   - **Ref:** PRD M10 (aturan diatur admin) & M2
-  - **File:** `aplikasi/src/layar/pengaturan/Kampanye.tsx`, `supabase/migrations/0056_kampanye_aturan.sql`
+  - **File:** `aplikasi/src/layar/pengaturan/Kampanye.tsx`, `supabase/migrations/0066_kampanye_aturan.sql`
   - **DoD:** persen/nominal, minimum belanja, batas potongan, masa berlaku, kuota, anggaran, cabang berlaku; pratinjau aturan dalam bahasa manusia; validasi mencegah aturan mustahil.
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** aturan salah → mitigasi: validasi + pratinjau ("pelanggan belanja 50rb → potongan maksimal 15rb").
-  - **Verifikasi:** uji manual membuat 3 kampanye berbeda + uji SQL validasi.
+  - **Verifikasi:** uji manual membuat 3 kampanye berbeda + uji SQL validasi. · **Bukti 2026-09-25:** migrasi `supabase/migrations/0066_kampanye_aturan.sql` (trigger validasi aturan kampanye, helper format kalimat pratinjau, RPC simpan_kampanye_voucher, ambil_daftar_kampanye, dan ubah_status_kampanye); berkas uji `supabase/tes/kampanye_aturan.sql` (109 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); skrip uji mutasi `alat/uji-mutasi-0066.py` (6/6 mutasi kritis terbukti MERAH); antarmuka admin `aplikasi/src/layar/pengaturan/Kampanye.tsx` dengan modal buat/edit, validasi interaktif pencegah aturan mustahil, filter status aktif/nonaktif, statistik serapan kuota, dan kotak pratinjau kalimat aturan manusiawi real-time beserta simulasi belanja; 11 uji unit komprehensif di `Kampanye.test.tsx` (11 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm test`); mutasi aplikasi terjaga di `aplikasi/alat/uji-mutasi-app.mjs`.
 
 - [ ] T8-12 — Pengaman anti-kecurangan (10 lapis) + batas klaim + log percobaan ⚠️
   - **Tujuan:** kampanye tidak bisa diborong satu orang atau satu perangkat.
