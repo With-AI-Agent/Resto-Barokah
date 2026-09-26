@@ -24,6 +24,10 @@ import {
   type ItemMetodeBayar,
   type DataAturanTip,
 } from './MetodeBayar'
+import {
+  KelolaPegawai,
+  type PegawaiResto,
+} from './KelolaPegawai'
 import { DaftarPerangkat } from './DaftarPerangkat'
 import { PasangPrinter } from './PasangPrinter'
 import { TautanKatalog } from './TautanKatalog'
@@ -37,6 +41,7 @@ export type TabPengaturan =
   | 'menu'
   | 'menu_cabang'
   | 'metode_bayar'
+  | 'pegawai'
   | 'perangkat'
   | 'printer'
   | 'tautan'
@@ -124,6 +129,36 @@ export interface LayarPengaturanProps {
     daftar: Array<{ id: string; urutan: number }>,
   ) => Promise<{ berhasil: boolean; pesan?: string }>
   onSimpanAturanTip?: (data: DataAturanTip) => Promise<{ berhasil: boolean; pesan?: string }>
+  daftarPegawaiAwal?: PegawaiResto[]
+  onTambahPegawai?: (data: {
+    nama: string
+    email: string
+    peran: any
+    cabangId: string
+    pinAwal: string
+  }) => Promise<{ sukses: boolean; pegawaiId?: string; pesan?: string }>
+  onUbahPegawai?: (data: {
+    id: string
+    nama: string
+    email: string
+    peran: any
+    cabangId: string
+  }) => Promise<{ sukses: boolean; pesan?: string }>
+  onUbahStatusPegawai?: (
+    pegawaiId: string,
+    aktif: boolean,
+  ) => Promise<{ sukses: boolean; pesan?: string }>
+  onAturUlangPin?: (
+    pegawaiId: string,
+    pinBaru: string,
+  ) => Promise<{ sukses: boolean; pesan?: string }>
+  onSimpanIzin?: (data: {
+    pegawaiId: string
+    kodeIzin: string
+    boleh: boolean
+    batasNominal?: number | null
+    batasPersen?: number | null
+  }) => Promise<{ sukses: boolean; pesan?: string }>
   hanyaBaca?: boolean
 }
 
@@ -157,6 +192,12 @@ export function LayarPengaturan({
   onHapusMetodeBayar,
   onSimpanUrutanMetodeBayar,
   onSimpanAturanTip,
+  daftarPegawaiAwal,
+  onTambahPegawai,
+  onUbahPegawai,
+  onUbahStatusPegawai,
+  onAturUlangPin,
+  onSimpanIzin,
   hanyaBaca = false,
 }: LayarPengaturanProps) {
   const [tabAktif, setTabAktif] = useState<TabPengaturan>(tabAwal)
@@ -169,6 +210,7 @@ export function LayarPengaturan({
     { id: 'menu', label: 'Kelola Menu', ikon: '🍲' },
     { id: 'menu_cabang', label: 'Menu Per Cabang', ikon: '🏢' },
     { id: 'metode_bayar', label: 'Metode Bayar & Tip', ikon: '💳' },
+    { id: 'pegawai', label: 'Kelola Pegawai', ikon: '👥' },
     { id: 'perangkat', label: 'Perangkat POS', ikon: '📱' },
     { id: 'printer', label: 'Printer Struk', ikon: '🖨️' },
     { id: 'tautan', label: 'Tautan & QR Meja', ikon: '🔗' },
@@ -270,6 +312,17 @@ export function LayarPengaturan({
             onSimpanUrutanMetode={onSimpanUrutanMetodeBayar}
             onSimpanAturanTip={onSimpanAturanTip}
             onKembali={() => setTabAktif('identitas')}
+            hanyaBaca={hanyaBaca}
+          />
+        )}
+        {tabAktif === 'pegawai' && (
+          <KelolaPegawai
+            daftarPegawai={daftarPegawaiAwal}
+            onTambahPegawai={onTambahPegawai}
+            onUbahPegawai={onUbahPegawai}
+            onUbahStatusPegawai={onUbahStatusPegawai}
+            onAturUlangPin={onAturUlangPin}
+            onSimpanIzin={onSimpanIzin}
             hanyaBaca={hanyaBaca}
           />
         )}

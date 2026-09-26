@@ -2861,3 +2861,26 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `supabase/migrations/0072_pengaturan_operasional.sql`, `supabase/tes/pengaturan_operasional.sql`, `alat/uji-mutasi-0072.py`, `aplikasi/src/layar/pengaturan/Operasional.tsx`, `aplikasi/src/layar/pengaturan/Operasional.test.tsx`
 - **Implikasi:** Seluruh fitur kalkulasi keuangan di masa depan wajib mematuhi rantai perhitungan uang ART-3 dan tidak boleh menghitung ulang pajak/service dari pesanan yang sudah berstatus lunas.
 
+### [Fase 9/2026-09-26] Kelola Pegawai: Peran, Izin Berjenjang & Reset PIN (T9-08)
+- **Area:** Role & Permission (ART-2)
+- **Keputusan:**
+  1. Pengelolaan akun staf kedai menggunakan RPC resmi: `public.simpan_pegawai`, `public.set_status_pengguna`, `public.set_izin`, `public.reset_pin_pegawai`, `public.ambil_daftar_pegawai`, dan `public.ambil_izin_pegawai`.
+  2. **Hierarki Keamanan Peran & Hak Akses (ART-2):**
+     - Staf biasa / admin cabang DILARANG mengubah profil, status keaktifan, reset PIN, atau centang izin `owner_pusat`.
+     - Pagar eskalasi hak istimewa (anti-privilege escalation): Hanya `owner_pusat` yang berhak memberikan izin `kelola_pegawai` kepada orang lain.
+     - Proteksi integritas restoran: Peladen menolak penonaktifan satu-satunya owner pusat yang aktif di restoran.
+  3. **Integritas Jejak Audit & Riwayat Transaksi (ART-2):**
+     - Pegawai yang sudah memiliki riwayat transaksi (pesanan, pembayaran, atau shift kasir) DILARANG di-hard delete lewat pemicu fail-closed `picu_pengguna_cegah_hapus`.
+     - Pegawai yang keluar/berhenti kerja dinonaktifkan (`aktif = false` / soft-disable) sehingga seluruh catatan transaksi dan FK pelayan/kasir masa lalu tetap utuh dan jujur.
+  4. **Centang Izin Granular (10 Izin Resmi):**
+     - Mendukung penetapan batas diskon nominal rupiah dan batas persentase diskon per pegawai pada kode izin `beri_diskon`.
+     - Nilai izin disimpan di tabel `public.izin` yang secara otomatis meng-override nilai default peran di `public.izin_peran`.
+  5. **Reset Kredensial PIN Pegawai:**
+     - Reset PIN pegawai dilakukan secara aman oleh atasan berwenang tanpa memerlukan PIN lama staf yang bersangkutan.
+     - PIN baru divalidasi 6 angka dan wajib lolos pemeriksaan pola lemah (`public.pin_lemah`), kemudian di-hash menggunakan algoritma bcrypt (`crypt(..., gen_salt('bf', 10))`).
+  6. **Jejak Audit Kekal:**
+     - Setiap aksi pengelolaan pegawai (`tambah_pegawai`, `ubah_pegawai`, `set_status_pengguna`, `set_izin`, `reset_pin_pegawai`) dicatat di `public.catatan_audit` lengkap dengan rekaman `nilai_lama` dan `nilai_baru`.
+- **File terkait:** `supabase/migrations/0077_kelola_pegawai_izin.sql`, `supabase/tes/kelola_pegawai_izin.sql`, `alat/uji-mutasi-0077.py`, `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`, `aplikasi/src/layar/pengaturan/KelolaPegawai.test.tsx`
+- **Implikasi:** Modul autentikasi dan penugasan peran staf kedai di masa depan wajib selalu mematuhi batas hierarki ART-2, menjaga ketahanan jejak audit, dan tidak boleh menghapus data pengguna ber-riwayat transaksi.
+
+
