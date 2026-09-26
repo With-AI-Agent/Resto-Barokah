@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `370f017b8e544a82101665412c20a5ab92c5f709`
+- **Commit keadaan kerja:** `0d5872e229adb40ec08b6fa7dcc338a71b4c3173`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 36214033830, commit 370f017b)
+- **CI terakhir:** in_progress (run 36217827004, commit 0d5872e2) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (43 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (335 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (45 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (337 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,7 +70,29 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-06 SELESAI):**
+**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-07 SELESAI):**
+
+0ZT. **FASE 9: T9-07 (Metode pembayaran aktif + aturan tip — PRD M2) SELESAI & T9-08 SIAP LANJUT.**
+   - Migrasi `supabase/migrations/0076_metode_bayar_tip.sql`:
+     1. Kolom konfigurasi aturan tip di `public.pengaturan` (`izinkan_tip`, `cara_hitung_tip`, `pilihan_tip_persen`, `pilihan_tip_nominal`).
+     2. Kolom `tip integer not null default 0 check (tip >= 0)` pada tabel `public.pesanan`.
+     3. Kolom `diubah_pada timestamptz not null default now()` pada tabel `public.metode_bayar`.
+     4. Pembaruan fungsi `public.hitung_total(uuid)`: tip sukarela pelanggan ditambahkan ke total akhir pesanan setelah dasar, pajak PB1, service charge, dan pembulatan.
+     5. Pemicu fail-closed `picu_metode_bayar_cegah_hapus`: menolak penghapusan metode bayar yang sudah memiliki riwayat transaksi pembayaran (`public.pembayaran`).
+     6. Pemicu fail-closed `picu_metode_bayar_minimal_satu_aktif`: menolak penonaktifan/penghapusan seluruh metode bayar sehingga minimal satu metode aktif tetap terjaga per restoran.
+     7. 6 RPC resmi: `simpan_metode_bayar` (tambah/edit nama, jenis tunai/non-tunai, aturan nomor referensi, status aktif, urutan), `hapus_metode_bayar`, `simpan_urutan_metode_bayar` (batch reorder), `simpan_aturan_tip` (izinkan tip, cara hitung sukarela/persen/nominal, pilihan opsi cepat), `ambil_pengaturan_pembayaran`, dan `pasang_tip_pesanan`.
+     8. Otorisasi ketat peran (`owner_pusat`, staf pemegang izin `atur_pengaturan`, atau `admin_cabang`) dan jejak audit kekal di `public.catatan_audit`.
+   - Berkas uji SQL `supabase/tes/metode_bayar_tip.sql` (20 kasus uji) & seluruh 120 berkas SQL lulus 100% (`node alat/uji-sql.mjs`).
+   - Penilai mutasi `alat/uji-mutasi-0076.py`: 8/8 mutasi fail-closed tertangkap 100%.
+   - Komponen antarmuka `aplikasi/src/layar/pengaturan/MetodeBayar.tsx` dan integrasi tab di `LayarPengaturan.tsx` teruji unit 100% (10 uji di `MetodeBayar.test.tsx`, 12 uji di `LayarPengaturan.test.tsx`, total Vitest frontend 109 berkas / 890 uji lulus 100%).
+   - Peta UI `docs/PETA_UI.md` dan registri aksi `aplikasi/src/lib/aksi.ts` sinkron 100% (11 layar, 48 aksi).
+   - Pedoman induk `PANDUAN_PENGGUNA.md` sinkron ke 120 berkas uji SQL.
+
+0ZU. **LANGKAH SELANJUTNYA: T9-08 (Kelola pegawai: peran, izin, PIN ⚠️ — PRD M3 & M6 / ART-2).**
+   - Tambah/edit profil pegawai kedai (nama, peran, cabang penugasan).
+   - Atur hak akses spesifik per pegawai sesuai matriks izin 6 peran (10 izin granular).
+   - Reset kredensial PIN pegawai oleh owner pusat / admin cabang.
+   - Penonaktifan pegawai tanpa merusak audit trail transaksi masa lalu (ART-2).
 
 0ZR. **FASE 9: T9-06 (Harga & ketersediaan menu berbeda per cabang — PRD M11) SELESAI & T9-07 SIAP LANJUT.**
    - Migrasi `supabase/migrations/0075_menu_cabang.sql`:
