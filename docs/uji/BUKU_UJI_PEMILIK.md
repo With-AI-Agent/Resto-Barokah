@@ -76,10 +76,13 @@ tetapi **memblokir** dua tugas yang butuh layanan sungguhan: `T0-08` dan `T0-09`
 
 | U-20 | Pengaturan Operasional PB1, Service, & Struk (tugas `T9-03`) | 1) Masuk sebagai Owner → Pengaturan Resto → Tab Operasional 2) Ubah persentase PB1 dan service charge 3) Pilih aturan pembulatan dan ubah teks ucapan struk 4) Periksa kalkulasi struk simulasi langsung 5) Tekan Simpan Pengaturan | Pengaturan tersimpan rapi, simulasi struk live kasir akurat, dan kalkulasi transaksi masa lalu tetap utuh kebal perubahan |  | Fase 9 Operasional |
 
+| U-21 | Daftar Uji Terima Pengaturan Mandiri Pemilik (tugas `T9-12`) | 1) Buka berkas panduan `docs/uji/UJI_TERIMA_PENGATURAN.md` 2) Masuk sebagai Owner ke Pengaturan Resto 3) Jalankan 12 skenario pengujian ramah manusia 4) Cocokkan hasil dengan lembar ceklis 5) Tandai status pengujian | Seluruh 12 skenario pengaturan resto terbukti berjalan mulus dari sudut pandang pemilik kedai tanpa kendala teknis |  | Fase 9 Uji Terima |
+
 ## 3. Log buku ini
 
 | Tanggal | Perubahan | Alasan |
 |---|---|---|
+| 2026-09-26 | Baris **U-21** ditambahkan (Daftar uji terima pengaturan mandiri pemilik bahasa manusia T9-12) | Melengkapi panduan uji mandiri pemilik untuk seluruh fitur Pengaturan Resto & Multi-Cabang Fase 9 (`docs/uji/UJI_TERIMA_PENGATURAN.md`) |
 | 2026-09-26 | Baris **U-13** s/d **U-20** ditambahkan (Fase 7 Shift & Laporan, Fase 8 Katalog & Voucher & Privasi, Fase 9 Pengaturan Resto T9-01 s/d T9-03) | Permintaan Lee memastikan seluruh hal yang perlu diuji mata/tangan manusia dari Fase 1 sampai 9 tercatat lengkap dengan cara, tujuan, dan indikator |
 | 2026-09-22 | Baris **U-09** s/d **U-12** ditambahkan (multi-bahasa T1-40, RTL T1-41, bantuan kontekstual T1-42, naskah jalan T1-35) + skrip penambah baris `alat/tambah-uji.py` | Selesainya fondasi kelengkapan UI Fase 1C yang siap dinilai pemilik di pratinjau |
 | 2026-09-17 | Baris **U-06** (tema & kerapatan) ditambahkan setelah Lee melaporkan tombol kerapatan tampak mati; langkah U-02/U-03 diubah ke jalur chat (Lee tidak perlu terminal); **P-03** (lembar kunci pemilik) ditambahkan | Laporan Lee 2026-09-17 + permintaan lembar kunci |

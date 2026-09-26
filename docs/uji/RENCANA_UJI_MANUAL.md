@@ -199,9 +199,9 @@ dicoba ke dalam pemeriksaan otomatis pernah membuat CI merah berjam-jam.
 
 ---
 
-## Bagian I — Daftar periksa: PENGATURAN RESTO TANPA KODING (Fase 9: T9-01 s/d T9-03)
+## Bagian I — Daftar periksa: PENGATURAN RESTO TANPA KODING (Fase 9: T9-01 s/d T9-12)
 
-> Menguji pengaturan identitas resto, 10 tema warna visual siap pakai, dan pengaturan operasional keuangan.
+> Menguji pengaturan identitas resto, 10 tema warna visual siap pakai, pengaturan operasional keuangan, meja/area, katalog menu, menu per cabang, metode bayar/tip, kelola pegawai & izin, kelola cabang & printer, pendaftaran penyewa baru, pratinjau perubahan & pengaman riwayat, serta daftar uji terima mandiri pemilik.
 
 | ID | Yang dicek | Kenapa penting | Langkah | ✅ Tanda berhasil | ❌ Tanda gagal | Kesiapan | Status |
 |---|---|---|---|---|---|---|---|
@@ -218,6 +218,7 @@ dicoba ke dalam pemeriksaan otomatis pernah membuat CI merah berjam-jam.
 | M-53 | **Isolasi Data Antar Cabang Kedai (T2-01 s/d T2-04)** | Data penjualan dan meja Cabang A tidak boleh bercampur ke Cabang B | 1) Masuk kasir dan pilih Cabang A 2) Periksa daftar pesanan 3) Ganti lokasi ke Cabang B 4) Periksa daftar pesanan | Pesanan dan meja terisolasi rapi sesuai cabang masing-masing | Transaksi cabang lain bercampur atau bocor | 🟢 SIAP | |
 | M-54 | **Hak Akses Menu Pengaturan Terkunci untuk Kasir (T2-05)** | Kasir hanya melayani transaksi dan tidak boleh mengubah setting kedai | 1) Masuk aplikasi menggunakan Akun Kasir 2) Perhatikan menu navigasi utama | Tab/menu "Pengaturan Resto" tidak tampil untuk peran kasir | Kasir bisa membuka formulir pengaturan operasional | 🟢 SIAP | |
 | M-55 | **Pemisahan Tiket Dapur Makanan & Bar Minuman (T4-01 s/d T4-03)** | Koki fokus pada makanan dan barista fokus pada minuman tanpa bercampur | 1) Buat pesanan berisi makanan dan minuman 2) Buka layar Dapur Makanan 3) Buka layar Bar Minuman | Makanan muncul di dapur; minuman muncul di bar | Semua item menumpuk di dapur tanpa filter stasiun | 🟢 SIAP | |
+| M-56 | **Daftar Uji Terima Pengaturan Mandiri Pemilik (T9-12)** | Pemilik kedai memiliki lembar uji terima ramah manusia untuk seluruh fitur pengaturan resto | 1) Buka berkas `docs/uji/UJI_TERIMA_PENGATURAN.md` 2) Jalankan 12 skenario uji terima pengaturan 3) Periksa tanda berhasil tiap skenario 4) Centang lembar ceklis | Seluruh 12 skenario pengaturan resto terbukti berjalan mulus dari sudut pandang pemilik kedai tanpa kendala teknis | Ada skenario yang membingungkan atau gagal | 🟢 SIAP | |
 
 ---
 
