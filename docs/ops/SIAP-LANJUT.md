@@ -10,12 +10,13 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `aa548a19fa03b846a575078efe641dedfe17618c`
+- **Commit keadaan kerja:** `a6746c18e1252fb95b6da4b2a73bd3d519ece588`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit aa548a19)
-- **Ditulis:** 2026-09-25 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
+- **CI terakhir:** running (commit a6746c1)
+- **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
+  adalah induk commit ini)
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
 - **Berkas yang Lee salin ke chat baru:** `PROMPT_SESI_BARU.md` (STATIS — mesin memeriksanya, bukan
@@ -1762,8 +1763,33 @@ Urutan yang disarankan agent, dan alasannya:
    - Roadmap dan angka bukti valid (`python3 alat/periksa-roadmap.py` & `python3 alat/periksa-angka-bukti.py` LOLOS).
    - Seluruh struktur CSS, token, dan paritas CI 100% LOLOS.
 
+**FASE 9 T9-02 TEMA & WARNA MEREK (10 TEMA SIAP PAKAI) SELESAI (2026-09-26):**
+1. **Database & RPC (Migrasi `0071_tema_merek.sql`):**
+   - Kolom `tema` (10 pilihan tema resmi: `terang`, `hangat`, `gelap`, `kontras`, `bara`, `vintage`, `alam`, `tropis`, `pastel`, `etnik`), `warna_merek` (kode heksa aksen kustom), dan `kerapatan` (`nyaman`, `padat`) pada `public.pengaturan`.
+   - RPC `public.simpan_tema(p_tema, p_warna_merek, p_kerapatan, p_versi_lama)`:
+     - Otorisasi ketat: `auth.uid() is not null`, peran `owner_pusat` atau staf pemegang izin `atur_pengaturan`.
+     - Isolasi penyewa: `public.penyewa_saya()`.
+     - Validasi ketat: hanya 10 tema resmi dan 2 kerapatan resmi.
+     - Optimistic locking: menolak versi basi (`P0001`).
+     - Jejak audit kekal di `public.catatan_audit` (`ubah_tema_resto`).
+   - Pembaruan RPC `public.ambil_pengaturan_identitas` & `public.katalog_publik`: menyertakan tema dan warna merek ke respons publik sehingga katalog pelanggan langsung mengadopsi tema resto secara otomatis.
+2. **Pengujian SQL & Mutasi:**
+   - Berkas uji `supabase/tes/pengaturan_tema.sql` membuktikan 12 kasus uji (115 berkas uji SQL LULUS 100% via `node alat/uji-sql.mjs`).
+   - Uji mutasi `alat/uji-mutasi-0071.py` membuktikan 7/7 mutasi fail-closed WAJIB MERAH 100%.
+3. **Komponen Antarmuka & Frontend:**
+   - Komponen `aplikasi/src/layar/pengaturan/Tampilan.tsx`:
+     - Pemilih 10 tema resmi siap pakai dengan swatch palet warna mini berlingkup tema.
+     - Pemilih kerapatan tampilan (`nyaman` untuk katalog/tablet, `padat` untuk kecepatan kasir).
+     - Input kode heksa warna merek dengan validasi otomatis kontras WCAG AA (≥ 4.5:1 untuk teks normal).
+     - Pratinjau langsung responsif: kartu menu, tombol aksi, lencana status, dan ringkasan kepatuhan kontras.
+     - Tombol "Coba di Seluruh Layar" dan "Simpan Tema".
+   - Integrasi tab navigasi di `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`.
+   - Registri aksi `pengaturan.simpan_tema` terhubung dengan RPC `simpan_tema` di `aplikasi/src/lib/aksi.ts` dan tersinkronisasi di `docs/PETA_UI.md`.
+   - 12 uji unit di `Tampilan.test.tsx` dan 7 uji unit di `LayarPengaturan.test.tsx` LULUS 100%.
+   - Seluruh suite Vitest: 104 berkas / 824 uji unit LULUS 100%.
+   - Prettier, ESLint, TypeScript (`tsc -b`), dan build produksi Vite LULUS 100%.
+
 4. **Rencana Selanjutnya:**
-   - Mengerjakan **T8-15 — Pengujian integrasi alur voucher (tuntas Fase 8)** (PRD M10 / TECH_SPEC §8).
-   - Menguji integrasi alur ujung-ke-ujung voucher mulai dari pendaftaran identitas pelanggan -> penerbitan kode acak -> pemeriksaan estimasi diskon oleh kasir (baca-saja) -> pemakaian transaksi atomik dengan verifikasi PIN kasir -> pencatatan diskon pesanan -> laporan rekonsiliasi kampanye dan deteksi anomali.
-   - Menuntaskan seluruh tugas Fase 8 (T8-01 sampai T8-15), sehingga Fase 8 berstatus SELESAI PENUH 100%.
-   - Menyiapkan berkas handoff rapi (`SIAP-LANJUT.md`, `PRO.md`, `lanjut-sesi.py`) untuk persiapan transisi sesi berikutnya sesuai arahan Lee.
+   - Mengerjakan **T9-03 — Pengaturan operasional (pajak PB1, service, pembulatan, cara pesan, header & footer struk)** (PRD M2 & M6; TECH_SPEC §9 ART-3).
+   - Memastikan nilai pajak disalin ke transaksi saat dibuat agar perubahan pengaturan pajak/service tidak mengubah kalkulasi transaksi masa lalu.
+   - Mengembangkan layar `aplikasi/src/layar/pengaturan/Operasional.tsx`, uji SQL, uji mutasi, dan integrasi pengaturan operasional.

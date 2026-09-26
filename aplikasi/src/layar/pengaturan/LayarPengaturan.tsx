@@ -2,27 +2,37 @@
  * LayarPengaturan.tsx — Induk Pengaturan Restoran (PRD M2 / Fase 9)
  *
  * Menggabungkan seluruh modul pengaturan restoran:
- *  1. Identitas & Tampilan Resto (`Identitas`) — T9-01 / PRD M2
- *  2. Pengelolaan Perangkat POS (`DaftarPerangkat`) — T6-04
- *  3. Sambungan & Pengaturan Printer (`PasangPrinter`) — T6-08
- *  4. Tautan Publik & QR Meja (`TautanKatalog`) — T8-03
- *  5. Kampanye Voucher Pelanggan (`Kampanye`) — T8-08
+ *  1. Identitas Resto (`Identitas`) — T9-01 / PRD M2
+ *  2. Tema & Warna Merek (`Tampilan`) — T9-02 / PRD M2
+ *  3. Pengelolaan Perangkat POS (`DaftarPerangkat`) — T6-04
+ *  4. Sambungan & Pengaturan Printer (`PasangPrinter`) — T6-08
+ *  5. Tautan Publik & QR Meja (`TautanKatalog`) — T8-03
+ *  6. Kampanye Voucher Pelanggan (`Kampanye`) — T8-08
  */
 
 import { useState } from 'react'
 import { Tombol } from '../../komponen/Tombol'
 import { Identitas, type DataIdentitas } from './Identitas'
+import { Tampilan, type DataTema } from './Tampilan'
 import { DaftarPerangkat } from './DaftarPerangkat'
 import { PasangPrinter } from './PasangPrinter'
 import { TautanKatalog } from './TautanKatalog'
 import { Kampanye } from './Kampanye'
 
-export type TabPengaturan = 'identitas' | 'perangkat' | 'printer' | 'tautan' | 'kampanye'
+export type TabPengaturan =
+  | 'identitas'
+  | 'tampilan'
+  | 'perangkat'
+  | 'printer'
+  | 'tautan'
+  | 'kampanye'
 
 export interface LayarPengaturanProps {
   tabAwal?: TabPengaturan
   dataIdentitas?: Partial<DataIdentitas>
   onSimpanIdentitas?: (data: DataIdentitas) => Promise<{ berhasil: boolean; pesan?: string }>
+  dataTema?: Partial<DataTema>
+  onSimpanTema?: (data: DataTema) => Promise<{ berhasil: boolean; pesan?: string }>
   hanyaBaca?: boolean
 }
 
@@ -30,12 +40,15 @@ export function LayarPengaturan({
   tabAwal = 'identitas',
   dataIdentitas,
   onSimpanIdentitas,
+  dataTema,
+  onSimpanTema,
   hanyaBaca = false,
 }: LayarPengaturanProps) {
   const [tabAktif, setTabAktif] = useState<TabPengaturan>(tabAwal)
 
   const DAFTAR_TAB: Array<{ id: TabPengaturan; label: string; ikon: string }> = [
-    { id: 'identitas', label: 'Identitas & Tampilan', ikon: '🏪' },
+    { id: 'identitas', label: 'Identitas Resto', ikon: '🏪' },
+    { id: 'tampilan', label: 'Tema & Tampilan', ikon: '🎨' },
     { id: 'perangkat', label: 'Perangkat POS', ikon: '📱' },
     { id: 'printer', label: 'Printer Struk', ikon: '🖨️' },
     { id: 'tautan', label: 'Tautan & QR Meja', ikon: '🔗' },
@@ -77,6 +90,14 @@ export function LayarPengaturan({
       <div className="konten-pengaturan">
         {tabAktif === 'identitas' && (
           <Identitas dataAwal={dataIdentitas} onSimpan={onSimpanIdentitas} hanyaBaca={hanyaBaca} />
+        )}
+        {tabAktif === 'tampilan' && (
+          <Tampilan
+            dataAwal={dataTema}
+            onSimpan={onSimpanTema}
+            onKembali={() => setTabAktif('identitas')}
+            hanyaBaca={hanyaBaca}
+          />
         )}
         {tabAktif === 'perangkat' && <DaftarPerangkat />}
         {tabAktif === 'printer' && <PasangPrinter />}

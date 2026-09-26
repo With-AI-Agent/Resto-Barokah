@@ -15,7 +15,7 @@
   - Aksi Navigasi / UI: 8
 - **Aksi dengan Izin Spesifik:** 18 aksi
 - **Aksi dengan Dialog Konfirmasi:** 12 aksi
-- **Aksi Wajib Jejak Audit:** 15 aksi
+- **Aksi Wajib Jejak Audit:** 16 aksi
 
 ---
 
@@ -90,7 +90,7 @@
 | `pelanggan.filter_kategori` | Pilih Kategori | `pelanggan-publik` | pelanggan, kasir, pelayan, admin_cabang, owner_pusat, pemilik_platform | - | - | `baca` | - | - | `uji_pelanggan_filter_kategori` |
 | `pengaturan.hapus_meja` | Hapus Meja | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | - | `tulis` | Ya | Ya | `uji_pengaturan_hapus_meja` |
 | `pengaturan.simpan_pajak` | Simpan Pajak & Service | `pengaturan` | owner_pusat | `atur_pengaturan` | - | `tulis` | Ya | Ya | `uji_pengaturan_pajak` |
-| `pengaturan.simpan_tema` | Terapkan Tema | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | - | `tulis` | - | - | `uji_pengaturan_tema` |
+| `pengaturan.simpan_tema` | Terapkan Tema | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `simpan_tema` | `tulis` | - | Ya | `uji_pengaturan_tema` |
 | `pengaturan.tambah_meja` | Tambah Meja | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | - | `tulis` | - | Ya | `uji_pengaturan_tambah_meja` |
 | `pengaturan.tambah_pegawai` | Tambah Pegawai | `pengaturan` | owner_pusat, admin_cabang | `kelola_pegawai` | `simpan_pin` | `tulis` | - | Ya | `uji_pengaturan_tambah_pegawai` |
 | `pengaturan.ubah_izin` | Ubah Izin Peran | `pengaturan` | owner_pusat | `kelola_pegawai` | - | `tulis` | Ya | Ya | `uji_pengaturan_ubah_izin` |
