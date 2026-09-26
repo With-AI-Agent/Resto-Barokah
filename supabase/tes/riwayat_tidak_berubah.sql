@@ -53,7 +53,7 @@ insert into _uji_riwayat_konteks (
   (select id from public.metode_bayar where penyewa_id = '11111111-1111-1111-1111-111111111111' and nama = 'QRIS' limit 1),
   'beef0000-0000-0000-0000-000000000001'::uuid, -- Nasi Goreng (27.000 di Cabang Pusat)
   null,
-  current_date
+  public.tanggal_lokal_cabang('a1a1a1a1-0000-0000-0000-000000000001'::uuid)
 );
 
 grant all on table _uji_riwayat_konteks to authenticated;
@@ -103,10 +103,10 @@ begin
 
   -- Buat Pesanan Baru (2x Nasi Goreng @ 27.000 = 54.000)
   insert into public.pesanan (
-    penyewa_id, cabang_id, tipe, status, shift_id, tanggal, kunci_idempoten
+    penyewa_id, cabang_id, tipe, status, shift_id, kunci_idempoten
   ) values (
     '11111111-1111-1111-1111-111111111111', v_cabang, 'dinein', 'draf',
-    v_shift, current_date, 'kunci-pesanan-riwayat-001'
+    v_shift, 'kunci-pesanan-riwayat-001'
   ) returning id into v_pesanan;
 
   update _uji_riwayat_konteks set pesanan_id = v_pesanan;

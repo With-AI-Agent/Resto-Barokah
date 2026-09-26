@@ -12,21 +12,32 @@ import {
   type ItemAntrean,
   type MasukanTambahAntrean,
   type HasilProsesAntrean,
+  type StatistikAntrean,
   ambilSemuaAntrean,
-  hitungAntreanMenunggu,
+  hitungStatistikAntrean,
   tambahKeAntrean,
   hapusItemAntrean,
   prosesAntrean,
   bersihkanAntreanSukses,
   langgananPerubahanAntrean,
+  cobaLagiItem as cobaLagiItemLib,
+  cobaLagiSemuaGagal as cobaLagiSemuaGagalLib,
 } from '../lib/antrean-offline'
 import { klienSupabase } from '../lib/supabase'
 
 export interface GunakanAntreanHasil {
   /** Status koneksi jaringan perangkat (true = terhubung internet). */
   apakahDaring: boolean
-  /** Jumlah pesanan/aksi yang tertahan di antrean lokal (DoD). */
+  /** Jumlah pesanan/aksi yang tertahan di antrean lokal (menunggu/mengirim/gagal). */
   jumlahMenunggu: number
+  /** Jumlah pesanan yang sedang menunggu atau dalam proses pengiriman. */
+  jumlahTertunda: number
+  /** Jumlah pesanan yang gagal terkirim ke peladen. */
+  jumlahGagal: number
+  /** Jumlah pesanan yang berhasil terkirim. */
+  jumlahTerkirim: number
+  /** Rincian statistik seluruh status antrean. */
+  statistik: StatistikAntrean
   /** Seluruh item di antrean lokal. */
   daftarAntrean: ItemAntrean[]
   /** Penanda apakah proses sinkronisasi sedang berjalan. */
@@ -39,6 +50,15 @@ export interface GunakanAntreanHasil {
   sinkronkanAntrean: (
     penanganKustom?: (item: ItemAntrean) => Promise<{ sukses: boolean; pesan?: string }>,
   ) => Promise<HasilProsesAntrean>
+  /** Mencoba ulang satu item gagal secara manual. */
+  cobaLagiItem: (
+    id: string,
+    penanganKustom?: (item: ItemAntrean) => Promise<{ sukses: boolean; pesan?: string }>,
+  ) => Promise<void>
+  /** Mencoba ulang seluruh item yang gagal secara manual. */
+  cobaLagiSemuaGagal: (
+    penanganKustom?: (item: ItemAntrean) => Promise<{ sukses: boolean; pesan?: string }>,
+  ) => Promise<number>
   /** Menghapus item tertentu dari antrean lokal. */
   hapusAntrean: (id: string) => Promise<void>
   /** Memuat ulang daftar antrean dari IndexedDB. */
@@ -51,8 +71,14 @@ export function useAntrean(): GunakanAntreanHasil {
   const [apakahDaring, setApakahDaring] = useState<boolean>(() => {
     return typeof navigator !== 'undefined' ? navigator.onLine : true
   })
-  const [jumlahMenunggu, setJumlahMenunggu] = useState<number>(0)
   const [daftarAntrean, setDaftarAntrean] = useState<ItemAntrean[]>([])
+  const [statistik, setStatistik] = useState<StatistikAntrean>({
+    total: 0,
+    menunggu: 0,
+    mengirim: 0,
+    gagal: 0,
+    sukses: 0,
+  })
   const [sedangSinkronisasi, setSedangSinkronisasi] = useState<boolean>(false)
   const sedangProsesRef = useRef<boolean>(false)
 
@@ -141,9 +167,9 @@ export function useAntrean(): GunakanAntreanHasil {
   const segarkanData = useCallback(async () => {
     try {
       const daftar = await ambilSemuaAntrean()
-      const totalMenunggu = await hitungAntreanMenunggu()
+      const stats = await hitungStatistikAntrean()
       setDaftarAntrean(daftar)
-      setJumlahMenunggu(totalMenunggu)
+      setStatistik(stats)
     } catch {
       // Abaikan
     }
@@ -171,6 +197,34 @@ export function useAntrean(): GunakanAntreanHasil {
       }
     },
     [penanganDefault, segarkanData],
+  )
+
+  const cobaLagiItem = useCallback(
+    async (
+      id: string,
+      penanganKustom?: (item: ItemAntrean) => Promise<{ sukses: boolean; pesan?: string }>,
+    ): Promise<void> => {
+      await cobaLagiItemLib(id)
+      await segarkanData()
+      if (typeof navigator === 'undefined' || navigator.onLine) {
+        void sinkronkanAntrean(penanganKustom)
+      }
+    },
+    [segarkanData, sinkronkanAntrean],
+  )
+
+  const cobaLagiSemuaGagal = useCallback(
+    async (
+      penanganKustom?: (item: ItemAntrean) => Promise<{ sukses: boolean; pesan?: string }>,
+    ): Promise<number> => {
+      const total = await cobaLagiSemuaGagalLib()
+      await segarkanData()
+      if (typeof navigator === 'undefined' || navigator.onLine) {
+        void sinkronkanAntrean(penanganKustom)
+      }
+      return total
+    },
+    [segarkanData, sinkronkanAntrean],
   )
 
   // Pantau status online / offline dari peramban
@@ -229,18 +283,27 @@ export function useAntrean(): GunakanAntreanHasil {
     return dibersihkan
   }, [segarkanData])
 
-  // Penyusunan pesan status jelas dalam bahasa manusia (DoD T10-01)
+  const jumlahTertunda = statistik.menunggu + statistik.mengirim
+  const jumlahGagal = statistik.gagal
+  const jumlahTerkirim = statistik.sukses
+  const jumlahMenunggu = jumlahTertunda + jumlahGagal
+
+  // Penyusunan pesan status jelas dalam bahasa manusia (DoD T10-01 & T10-03)
   let pesanStatus = ''
-  if (!apakahDaring) {
+  if (sedangSinkronisasi) {
+    pesanStatus = 'Mengirim antrean ke peladen...'
+  } else if (!apakahDaring) {
     if (jumlahMenunggu > 0) {
       pesanStatus = `menunggu dikirim ${jumlahMenunggu}`
     } else {
       pesanStatus = 'Mode luring (offline)'
     }
-  } else if (sedangSinkronisasi) {
-    pesanStatus = 'Mengirim antrean ke peladen...'
-  } else if (jumlahMenunggu > 0) {
-    pesanStatus = `menunggu dikirim ${jumlahMenunggu}`
+  } else if (jumlahGagal > 0 && jumlahTertunda > 0) {
+    pesanStatus = `menunggu dikirim ${jumlahTertunda}, ${jumlahGagal} gagal`
+  } else if (jumlahGagal > 0) {
+    pesanStatus = `ada ${jumlahGagal} pesanan gagal dikirim`
+  } else if (jumlahTertunda > 0) {
+    pesanStatus = `menunggu dikirim ${jumlahTertunda}`
   } else {
     pesanStatus = 'Daring (semua pesanan terkirim)'
   }
@@ -248,11 +311,17 @@ export function useAntrean(): GunakanAntreanHasil {
   return {
     apakahDaring,
     jumlahMenunggu,
+    jumlahTertunda,
+    jumlahGagal,
+    jumlahTerkirim,
+    statistik,
     daftarAntrean,
     sedangSinkronisasi,
     pesanStatus,
     tambahAntrean,
     sinkronkanAntrean,
+    cobaLagiItem,
+    cobaLagiSemuaGagal,
     hapusAntrean,
     muatUlang: segarkanData,
     bersihkanSukses,

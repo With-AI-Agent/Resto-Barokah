@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `aed3e5b6ec15f3c6592229cec4b47cea39164da3`
+- **Commit keadaan kerja:** `ec73303ed8bb394953e57410dd62557e27e50586`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 36247861776, commit aed3e5b6)
+- **CI terakhir:** (belum ada run CI untuk commit ec73303e — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (63 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (355 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -93,14 +93,24 @@ JANGAN merge apa pun tanpa keputusan Lee.
    - Pengujian mutasi `alat/uji-mutasi-0080.py` membuktikan 5/5 mutasi fail-closed tertangkap merah secara deterministik.
    - Catatan keputusan arsitektur dicatat resmi di `docs/DECISIONS_LOG.md` (Area: Antrean Offline ART-8).
 
-0ZZ3. **LANGKAH SELANJUTNYA: FASE 10 — T10-03 (Pemulihan kegagalan kirim & pesan status — AGENT_OPERATING_GUIDE §6; PRD M4).**
-   - **Tujuan:** kasir tahu pasti pesanannya terkirim atau belum saat koneksi bermasalah.
-   - **Ref:** AGENT_OPERATING_GUIDE §6; PRD M4 (kasus tepi).
-   - **File:** `aplikasi/src/komponen/StatusAntrean.tsx` (rencana T10-03), `aplikasi/src/komponen/StatusAntrean.test.tsx` (rencana T10-03).
-   - **DoD:** indikator selalu terlihat (terkirim/tertunda/gagal + jumlah); percobaan ulang otomatis & manual; tidak ada pesan "gagal diam-diam".
+0ZZ3. **FASE 10: T10-03 (Pemulihan kegagalan kirim & pesan status — AGENT_OPERATING_GUIDE §6; PRD M4) SELESAI.**
+   - Komponen antarmuka `aplikasi/src/komponen/StatusAntrean.tsx` diimplementasikan dengan indikator tiga status yang selalu terlihat (Terkirim, Tertunda, Gagal + jumlah pesanan).
+   - Dialog rincian antrean berbasis token desain (`Lapis`) yang menampilkan daftar transaksi antrean, waktu dibuat, percobaan pengiriman, dan waktu terakhir dicoba.
+   - Tidak ada pesan "gagal diam-diam": laporan galat jujur dan eksplisit dari peladen dicatat dan ditampilkan langsung pada rincian item gagal.
+   - Percobaan ulang otomatis saat kembali online dan manual per-item maupun massal (`cobaLagiItem`, `cobaLagiSemuaGagal`).
+   - Tombol pembatalan/penghapusan dari antrean berkonfirmasi pengaman agar kasir dapat membatalkan transaksi tanpa terkirim ke peladen.
+   - Mitigasi salah sangka kasir: status dikonfirmasi langsung oleh peladen (bukan tebakan klien) dan terlindungi dari duplikasi oleh kunci idempoten menyeluruh (ART-8).
+   - 8 uji unit di `aplikasi/src/komponen/StatusAntrean.test.tsx` mencakup 3 skenario jaringan (Daring, Luring, Fluktuasi/Gagal Kirim) lulus 100%.
+   - 116 berkas uji Vitest (948 pengujian) dan 125 berkas uji SQL lulus 100%.
+
+0ZZ4. **LANGKAH SELANJUTNYA: FASE 10 — T10-04 (Uji putus-sambung jaringan / anti data dobel — TECH_SPEC §11).**
+   - **Tujuan:** membuktikan ketahanan luring benar-benar bekerja di alur pesanan, pembayaran, dan voucher.
+   - **Ref:** TECH_SPEC §11.
+   - **File:** `aplikasi/uji/e2e/luring.spec.ts` (rencana T10-04).
+   - **DoD:** uji otomatis: kirim pesanan saat luring → pulih → jumlah pesanan tetap 1; uji pembayaran & voucher juga; lulus di CI.
    - **Kompleksitas:** sedang (3 jam).
-   - **Risiko & mitigasi:** kasir mengira gagal padahal terkirim (atau sebaliknya) → mitigasi: status dari peladen, bukan tebakan klien; dialog rincian status antrean dengan tombol coba lagi manual.
-   - **Verifikasi:** uji manual 3 skenario jaringan (online, offline, fluktuatif/gagal kirim).
+   - **Risiko & mitigasi:** uji jaringan tiruan tidak realistis → mitigasi: uji di perangkat nyata juga (T11-04) + catatan hasil.
+   - **Verifikasi:** CI hijau + uji manual di perangkat kasir nyata.
 
 0ZZ3. **FASE 9 TUNTAS PENUH: T9-01 s/d T9-12 SELESAI (12/12 TUGAS LULUS 100%).**
    - T9-01 s/d T9-12 selesai tuntas dengan 124 berkas uji SQL lulus, mutasi fail-closed 100% merah, komponen UI lengkap, Peta UI hijau.

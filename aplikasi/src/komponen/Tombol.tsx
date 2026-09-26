@@ -28,6 +28,7 @@ export type PropsTombol = {
   lebar?: boolean
   /** Nama untuk pembaca layar bila isi tombol hanya ikon. */
   nama?: string
+  'data-testid'?: string
 }
 
 export function Tombol({
@@ -38,10 +39,18 @@ export function Tombol({
   nonaktif = false,
   lebar = false,
   nama,
+  'data-testid': dataTestId,
 }: PropsTombol) {
   const kelas = lebar ? `${KELAS_RAGAM[ragam]} btn-lg` : KELAS_RAGAM[ragam]
   return (
-    <button type={jenis} className={kelas} onClick={onClick} disabled={nonaktif} aria-label={nama}>
+    <button
+      type={jenis}
+      className={kelas}
+      onClick={onClick}
+      disabled={nonaktif}
+      aria-label={nama}
+      data-testid={dataTestId}
+    >
       {children}
     </button>
   )

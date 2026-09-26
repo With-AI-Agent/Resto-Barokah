@@ -20,4 +20,7 @@ export default defineConfig({
     port: 4173,
     allowedHosts: true,
   },
+  test: {
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+  },
 })

@@ -1904,14 +1904,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Antrean Offline (ART-8); mitigasi: uji otomatis "setiap RPC penulisan punya kunci" (daftar diperiksa).
   - **Verifikasi:** uji SQL: 3 RPC dengan kunci sama → satu efek. · **Bukti 2026-09-26 (Otomatis & Kode):** migrasi `supabase/migrations/0080_kunci_idempoten_menyeluruh.sql` memperluas skema dan overload RPC penulisan (`simpan_pesanan`, `bayar_pesanan`, `pakai_voucher`, `buka_shift`, `tutup_shift`, `kas_pergerakan`, `set_stok`, `opname_stok`) dengan dukungan kunci idempoten ART-8; berkas uji SQL `supabase/tes/idempoten.sql` membuktikan 3 pemanggilan berturut-turut dengan kunci sama menghasilkan tepat 1 efek (125/125 uji SQL lulus 100%); skrip auditor cakupan `alat/periksa-idempoten.py` memverifikasi 100% (8/8) RPC penulisan mendukung kunci idempoten; pengujian mutasi `alat/uji-mutasi-0080.py` membuktikan 5/5 mutasi fail-closed tertangkap merah; catatan keputusan arsitektur dicatat di `docs/DECISIONS_LOG.md` (Area: Antrean Offline ART-8).
 
-- [ ] T10-03 — Pemulihan kegagalan kirim & pesan status
+- [x] T10-03 — Pemulihan kegagalan kirim & pesan status
   - **Tujuan:** kasir tahu pasti pesanannya terkirim atau belum.
   - **Ref:** AGENT_OPERATING_GUIDE §6; PRD M4 (kasus tepi)
   - **File:** `aplikasi/src/komponen/StatusAntrean.tsx`
   - **DoD:** indikator selalu terlihat (terkirim/tertunda/gagal + jumlah); percobaan ulang otomatis & manual; tidak ada pesan "gagal diam-diam".
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** kasir mengira gagal padahal terkirim (atau sebaliknya) → mitigasi: status dari peladen, bukan tebakan klien.
-  - **Verifikasi:** uji manual 3 skenario jaringan.
+  - **Verifikasi:** uji manual 3 skenario jaringan. · **Bukti 2026-09-26 (Otomatis & Kode):** komponen antarmuka `aplikasi/src/komponen/StatusAntrean.tsx` diimplementasikan lengkap dengan indikator tiga status yang selalu terlihat (Terkirim, Tertunda, Gagal + jumlah pesanan), dialog rincian antrean berbasis token desain (`Lapis`), percobaan ulang otomatis saat kembali daring via hook `useAntrean.ts`, percobaan ulang manual (per-item maupun massal seluruh item gagal), tombol pembatalan/penghapusan antrean berkonfirmasi pengaman, serta pelaporan pesan galat jujur dari peladen tanpa kegagalan diam-diam; diverifikasi lewat 8 pengujian unit Vitest `aplikasi/src/komponen/StatusAntrean.test.tsx` yang mencakup 3 skenario jaringan (Daring, Luring, Fluktuasi/Gagal Kirim); 116 berkas uji Vitest (948 pengujian) dan 125 berkas uji SQL lulus 100%.
 
 - [ ] T10-04 — Uji putus-sambung jaringan (anti data dobel)
   - **Tujuan:** membuktikan ketahanan luring benar-benar bekerja.

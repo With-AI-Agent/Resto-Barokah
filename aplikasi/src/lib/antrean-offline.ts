@@ -406,6 +406,57 @@ export async function bersihkanAntreanSukses(): Promise<number> {
 }
 
 /**
+ * Statistik status item di antrean lokal.
+ */
+export interface StatistikAntrean {
+  total: number
+  menunggu: number
+  mengirim: number
+  gagal: number
+  sukses: number
+}
+
+/**
+ * Menghitung rincian statistik seluruh item di antrean.
+ */
+export async function hitungStatistikAntrean(): Promise<StatistikAntrean> {
+  const semua = await ambilSemuaAntrean()
+  const stats: StatistikAntrean = {
+    total: semua.length,
+    menunggu: 0,
+    mengirim: 0,
+    gagal: 0,
+    sukses: 0,
+  }
+  for (const item of semua) {
+    if (item.status === 'menunggu') stats.menunggu += 1
+    else if (item.status === 'mengirim') stats.mengirim += 1
+    else if (item.status === 'gagal') stats.gagal += 1
+    else if (item.status === 'sukses') stats.sukses += 1
+  }
+  return stats
+}
+
+/**
+ * Menyetel ulang item gagal agar dicoba kirim kembali ('menunggu').
+ */
+export async function cobaLagiItem(id: string): Promise<void> {
+  await perbaruiStatusItem(id, 'menunggu', null)
+}
+
+/**
+ * Menyetel ulang seluruh item berstatus 'gagal' agar dicoba kirim kembali.
+ */
+export async function cobaLagiSemuaGagal(): Promise<number> {
+  const semua = await ambilSemuaAntrean()
+  const daftarGagal = semua.filter((item) => item.status === 'gagal')
+  for (const item of daftarGagal) {
+    await perbaruiStatusItem(item.id, 'menunggu', null)
+  }
+  return daftarGagal.length
+}
+
+/**
  * Mengosongkan seluruh antrean (misal saat reset darurat atau pergantian shift).
  */
 export async function kosongkanSemuaAntrean(): Promise<void> {
@@ -460,9 +511,8 @@ export async function prosesAntrean(
       const respon = await penangan(item)
       if (respon.sukses) {
         hasil.berhasil += 1
+        // Perbarui status menjadi sukses agar kasir melihat bukti terkonfirmasi peladen (T10-03)
         await perbaruiStatusItem(item.id, 'sukses', null)
-        // Hapus item yang berhasil dikirim agar antrean bersih
-        await hapusItemAntrean(item.id)
       } else {
         hasil.gagal += 1
         await perbaruiStatusItem(item.id, 'gagal', respon.pesan || 'Gagal mengirim')
