@@ -28,6 +28,7 @@ import {
   KelolaPegawai,
   type PegawaiResto,
 } from './KelolaPegawai'
+import { Cabang, type DataCabang, type PrinterCabang } from './Cabang'
 import { DaftarPerangkat } from './DaftarPerangkat'
 import { PasangPrinter } from './PasangPrinter'
 import { TautanKatalog } from './TautanKatalog'
@@ -42,6 +43,7 @@ export type TabPengaturan =
   | 'menu_cabang'
   | 'metode_bayar'
   | 'pegawai'
+  | 'cabang'
   | 'perangkat'
   | 'printer'
   | 'tautan'
@@ -159,6 +161,31 @@ export interface LayarPengaturanProps {
     batasNominal?: number | null
     batasPersen?: number | null
   }) => Promise<{ sukses: boolean; pesan?: string }>
+  daftarKelolaCabangAwal?: DataCabang[]
+  onTambahKelolaCabang?: (data: {
+    nama: string
+    alamat?: string
+    telepon?: string
+    zonaWaktu: string
+    printer?: PrinterCabang
+  }) => Promise<{ sukses: boolean; cabangId?: string; pesan?: string }>
+  onSimpanKelolaCabang?: (data: {
+    id: string
+    nama: string
+    alamat?: string
+    telepon?: string
+    zonaWaktu: string
+    printer?: PrinterCabang
+  }) => Promise<{ sukses: boolean; pesan?: string }>
+  onUbahStatusKelolaCabang?: (
+    cabangId: string,
+    aktif: boolean,
+  ) => Promise<{ sukses: boolean; pesan?: string }>
+  onAturAksesKelolaCabang?: (data: {
+    penggunaId: string
+    cabangId: string
+    aktif: boolean
+  }) => Promise<{ sukses: boolean; pesan?: string }>
   hanyaBaca?: boolean
 }
 
@@ -198,6 +225,11 @@ export function LayarPengaturan({
   onUbahStatusPegawai,
   onAturUlangPin,
   onSimpanIzin,
+  daftarKelolaCabangAwal,
+  onTambahKelolaCabang,
+  onSimpanKelolaCabang,
+  onUbahStatusKelolaCabang,
+  onAturAksesKelolaCabang,
   hanyaBaca = false,
 }: LayarPengaturanProps) {
   const [tabAktif, setTabAktif] = useState<TabPengaturan>(tabAwal)
@@ -208,9 +240,10 @@ export function LayarPengaturan({
     { id: 'operasional', label: 'Operasional & Kasir', ikon: '⚙️' },
     { id: 'meja', label: 'Meja & Area', ikon: '🪑' },
     { id: 'menu', label: 'Kelola Menu', ikon: '🍲' },
-    { id: 'menu_cabang', label: 'Menu Per Cabang', ikon: '🏢' },
+    { id: 'menu_cabang', label: 'Menu Per Cabang', ikon: '📋' },
     { id: 'metode_bayar', label: 'Metode Bayar & Tip', ikon: '💳' },
     { id: 'pegawai', label: 'Kelola Pegawai', ikon: '👥' },
+    { id: 'cabang', label: 'Kelola Cabang', ikon: '🏢' },
     { id: 'perangkat', label: 'Perangkat POS', ikon: '📱' },
     { id: 'printer', label: 'Printer Struk', ikon: '🖨️' },
     { id: 'tautan', label: 'Tautan & QR Meja', ikon: '🔗' },
@@ -323,6 +356,16 @@ export function LayarPengaturan({
             onUbahStatusPegawai={onUbahStatusPegawai}
             onAturUlangPin={onAturUlangPin}
             onSimpanIzin={onSimpanIzin}
+            hanyaBaca={hanyaBaca}
+          />
+        )}
+        {tabAktif === 'cabang' && (
+          <Cabang
+            daftarCabang={daftarKelolaCabangAwal}
+            onTambahCabang={onTambahKelolaCabang}
+            onSimpanCabang={onSimpanKelolaCabang}
+            onUbahStatusCabang={onUbahStatusKelolaCabang}
+            onAturAksesCabang={onAturAksesKelolaCabang}
             hanyaBaca={hanyaBaca}
           />
         )}

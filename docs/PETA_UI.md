@@ -9,13 +9,13 @@
 ## 1. Ringkasan Eksekutif Antarmuka (G1)
 
 - **Total Layar Terdaftar:** 11 layar
-- **Total Aksi Terdaftar:** 50 aksi
-  - Aksi Tulis / Transaksi: 35
+- **Total Aksi Terdaftar:** 54 aksi
+  - Aksi Tulis / Transaksi: 39
   - Aksi Baca / Filter: 7
   - Aksi Navigasi / UI: 8
-- **Aksi dengan Izin Spesifik:** 29 aksi
+- **Aksi dengan Izin Spesifik:** 33 aksi
 - **Aksi dengan Dialog Konfirmasi:** 17 aksi
-- **Aksi Wajib Jejak Audit:** 27 aksi
+- **Aksi Wajib Jejak Audit:** 31 aksi
 
 ---
 
@@ -43,16 +43,16 @@
 |---|---|---|---|
 | `M1` | Pemesanan Kasir Cepat | `kasir` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+5 lainnya) |
 | `M2` | Papan Dapur & Bar Real-Time | `dapur` | `dapur.mulai_masak`, `dapur.selesai_masak`, `dapur.tandai_habis` |
-| `M3` | Manajemen Meja & Status Layanan | `kasir`, `pengaturan` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+22 lainnya) |
+| `M3` | Manajemen Meja & Status Layanan | `kasir`, `pengaturan` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+26 lainnya) |
 | `M4` | Pembayaran Fleksibel & Multi-Metode | `kasir` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+5 lainnya) |
 | `M5` | Laporan Penjualan & Rekonsiliasi Kas | `laporan` | `laporan.cetak_laporan`, `laporan.ekspor_data`, `laporan.filter_tanggal`, `laporan.pilih_cabang` |
-| `M6` | Manajemen Pegawai & Hak Akses Berjenjang | `masuk`, `pengaturan` | `masuk.batal`, `masuk.ganti_pengguna`, `masuk.verifikasi_pin`, `pengaturan.hapus_kategori` (+16 lainnya) |
+| `M6` | Manajemen Pegawai & Hak Akses Berjenjang | `masuk`, `pengaturan` | `masuk.batal`, `masuk.ganti_pengguna`, `masuk.verifikasi_pin`, `pengaturan.atur_akses_cabang` (+20 lainnya) |
 | `M7` | Katalog Menu & Kustomisasi Varian | `kasir`, `pelanggan-publik` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+7 lainnya) |
 | `M8` | Voucher Diskon & Promosi | `kasir`, `voucher` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+8 lainnya) |
-| `M9` | Manajemen Stok Bahan & Peringatan Habis | `dapur`, `pengaturan` | `dapur.mulai_masak`, `dapur.selesai_masak`, `dapur.tandai_habis`, `pengaturan.hapus_kategori` (+16 lainnya) |
+| `M9` | Manajemen Stok Bahan & Peringatan Habis | `dapur`, `pengaturan` | `dapur.mulai_masak`, `dapur.selesai_masak`, `dapur.tandai_habis`, `pengaturan.atur_akses_cabang` (+20 lainnya) |
 | `M10` | Menu Digital Pelanggan (Self-Order QR) | `pelanggan-publik` | `pelanggan.cari_menu`, `pelanggan.filter_kategori` |
-| `M11` | Dukungan Multi-Cabang Terpusat | `laporan`, `pengaturan` | `laporan.cetak_laporan`, `laporan.ekspor_data`, `laporan.filter_tanggal`, `laporan.pilih_cabang` (+17 lainnya) |
-| `M12` | Audit Log & Keamanan Data Transaksi | `masuk`, `kasir`, `pengaturan` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+25 lainnya) |
+| `M11` | Dukungan Multi-Cabang Terpusat | `laporan`, `pengaturan` | `laporan.cetak_laporan`, `laporan.ekspor_data`, `laporan.filter_tanggal`, `laporan.pilih_cabang` (+21 lainnya) |
+| `M12` | Audit Log & Keamanan Data Transaksi | `masuk`, `kasir`, `pengaturan` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+29 lainnya) |
 
 ---
 
@@ -88,6 +88,7 @@
 | `opname.kembali_stok` | Kembali ke Stok | `opname` | owner_pusat, admin_cabang, dapur | - | - | `navigasi` | - | - | `uji_opname_stok` |
 | `pelanggan.cari_menu` | Cari Menu | `pelanggan-publik` | pelanggan, kasir, pelayan, admin_cabang, owner_pusat, pemilik_platform | - | - | `baca` | - | - | `uji_pelanggan_cari_menu` |
 | `pelanggan.filter_kategori` | Pilih Kategori | `pelanggan-publik` | pelanggan, kasir, pelayan, admin_cabang, owner_pusat, pemilik_platform | - | - | `baca` | - | - | `uji_pelanggan_filter_kategori` |
+| `pengaturan.atur_akses_cabang` | Atur Penugasan Staf | `pengaturan` | owner_pusat, admin_cabang | `kelola_pegawai` | `set_akses_cabang` | `tulis` | - | Ya | `uji_pengaturan_atur_akses_cabang` |
 | `pengaturan.hapus_kategori` | Hapus Kategori Menu | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `hapus_kategori_menu` | `tulis` | Ya | Ya | `uji_pengaturan_hapus_kategori` |
 | `pengaturan.hapus_meja` | Hapus Meja | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `hapus_meja` | `tulis` | Ya | Ya | `uji_pengaturan_hapus_meja` |
 | `pengaturan.hapus_menu` | Hapus Menu | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `hapus_menu` | `tulis` | Ya | Ya | `uji_pengaturan_hapus_menu` |
@@ -95,15 +96,18 @@
 | `pengaturan.reset_pin_pegawai` | Reset PIN Pegawai | `pengaturan` | owner_pusat, admin_cabang | `kelola_pegawai` | `reset_pin_pegawai` | `tulis` | Ya | Ya | `uji_pengaturan_reset_pin_pegawai` |
 | `pengaturan.salin_harga_cabang` | Salin Menu Cabang | `pengaturan` | owner_pusat | `atur_pengaturan` | `salin_harga_cabang` | `tulis` | Ya | Ya | `uji_pengaturan_salin_harga_cabang` |
 | `pengaturan.simpan_aturan_tip` | Simpan Aturan Tip | `pengaturan` | owner_pusat | `atur_pengaturan` | `simpan_aturan_tip` | `tulis` | - | Ya | `uji_pengaturan_simpan_aturan_tip` |
+| `pengaturan.simpan_cabang` | Simpan Cabang | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `simpan_cabang` | `tulis` | - | Ya | `uji_pengaturan_simpan_cabang` |
 | `pengaturan.simpan_kategori` | Simpan Kategori Menu | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `simpan_kategori_menu` | `tulis` | - | Ya | `uji_pengaturan_simpan_kategori` |
 | `pengaturan.simpan_menu` | Simpan Menu | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `simpan_menu` | `tulis` | - | Ya | `uji_pengaturan_simpan_menu` |
 | `pengaturan.simpan_menu_cabang` | Simpan Menu Cabang | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `simpan_menu_cabang` | `tulis` | - | Ya | `uji_pengaturan_simpan_menu_cabang` |
 | `pengaturan.simpan_metode_bayar` | Simpan Metode Pembayaran | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `simpan_metode_bayar` | `tulis` | - | Ya | `uji_pengaturan_simpan_metode_bayar` |
 | `pengaturan.simpan_pajak` | Simpan Pajak & Service | `pengaturan` | owner_pusat | `atur_pengaturan` | `simpan_operasional` | `tulis` | Ya | Ya | `uji_pengaturan_pajak`, `uji_pengaturan_operasional` |
 | `pengaturan.simpan_tema` | Terapkan Tema | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `simpan_tema` | `tulis` | - | Ya | `uji_pengaturan_tema` |
+| `pengaturan.tambah_cabang` | Tambah Cabang | `pengaturan` | owner_pusat | `atur_pengaturan` | `tambah_cabang` | `tulis` | - | Ya | `uji_pengaturan_tambah_cabang` |
 | `pengaturan.tambah_meja` | Tambah Meja | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `simpan_meja` | `tulis` | - | Ya | `uji_pengaturan_tambah_meja` |
 | `pengaturan.tambah_pegawai` | Tambah Pegawai | `pengaturan` | owner_pusat, admin_cabang | `kelola_pegawai` | `simpan_pegawai` | `tulis` | - | Ya | `uji_pengaturan_tambah_pegawai` |
 | `pengaturan.ubah_izin` | Ubah Izin Peran | `pengaturan` | owner_pusat | `kelola_pegawai` | `set_izin` | `tulis` | Ya | Ya | `uji_pengaturan_ubah_izin` |
+| `pengaturan.ubah_status_cabang` | Ubah Status Cabang | `pengaturan` | owner_pusat | `atur_pengaturan` | `set_status_cabang` | `tulis` | - | Ya | `uji_pengaturan_ubah_status_cabang` |
 | `pengaturan.ubah_status_pegawai` | Ubah Status Pegawai | `pengaturan` | owner_pusat, admin_cabang | `kelola_pegawai` | `set_status_pengguna` | `tulis` | - | Ya | `uji_pengaturan_ubah_status_pegawai` |
 | `stok.catat_perubahan` | Catat Perubahan Stok | `stok` | owner_pusat, admin_cabang, dapur | `ubah_stok` | `set_stok` | `tulis` | Ya | Ya | `uji_set_stok` |
 | `stok.ke_opname` | Ke Opname | `stok` | owner_pusat, admin_cabang, dapur | - | - | `navigasi` | - | - | `uji_opname_stok` |

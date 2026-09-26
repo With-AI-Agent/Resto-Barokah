@@ -2883,4 +2883,27 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `supabase/migrations/0077_kelola_pegawai_izin.sql`, `supabase/tes/kelola_pegawai_izin.sql`, `alat/uji-mutasi-0077.py`, `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`, `aplikasi/src/layar/pengaturan/KelolaPegawai.test.tsx`
 - **Implikasi:** Modul autentikasi dan penugasan peran staf kedai di masa depan wajib selalu mematuhi batas hierarki ART-2, menjaga ketahanan jejak audit, dan tidak boleh menghapus data pengguna ber-riwayat transaksi.
 
+### [Fase 9/2026-09-26] Kelola Cabang: Tambah, Konfigurasi Printer & Multi-Penugasan Staf (T9-09)
+- **Area:** Multi-Cabang (ART-12) & Perangkat & Pencetakan (ART-7)
+- **Keputusan:**
+  1. Pengelolaan cabang resto diatur oleh 6 RPC resmi: `public.tambah_cabang`, `public.simpan_cabang`, `public.set_status_cabang`, `public.set_akses_cabang`, `public.ambil_daftar_cabang`, dan `public.ambil_akses_cabang_pegawai`.
+  2. **Isolasi Multi-Cabang & Penyewa (ART-1 & ART-12):**
+     - Nama cabang divalidasi unik per penyewa (case-insensitive).
+     - Zona waktu didukung resmi: 'Asia/Jakarta' (WIB), 'Asia/Makassar' (WITA), 'Asia/Jayapura' (WIT).
+     - Cabang lain milik restoran berbeda tidak bocor ke penyewa pemanggil (pemeriksaan `penyewa_id = v_penyewa`).
+  3. **Mitigasi Risiko Integritas Data — Pemicu Fail-Closed Hapus & Status (ART-12):**
+     - Pemicu `picu_cabang_cegah_hapus`: Menolak hard-delete pada cabang yang memiliki riwayat pesanan (`pesanan`), meja (`meja`), atau catatan shift kasir (`shift_kas`).
+     - Soft-disable (`aktif = false`): Cabang yang tutup atau berhenti beroperasi dinonaktifkan sementara tanpa merusak riwayat transaksi masa lalu.
+     - Pemicu `picu_cabang_minimal_satu_aktif`: Mencegah penonaktifan atau penghapusan seluruh cabang dalam satu restoran (fail-closed minimal satu cabang aktif).
+  4. **Konfigurasi Printer Default Cabang (ART-7):**
+     - Kolom `printer_default` (JSONB) menyimpan konfigurasi printer bawaan cabang (`profil_id`, `lebar` [58 atau 80 mm], `nama`).
+     - Validasi ketat di peladen: lebar kertas printer hanya diperbolehkan 58 atau 80 mm.
+  5. **Multi-Penugasan Staf ke Cabang (ART-12):**
+     - RPC `set_akses_cabang` mendukung penugasan staf merangkap di lebih dari satu cabang (multi-cabang) dengan status aktif/nonaktif di `public.pengguna_cabang`.
+     - Validasi silang penyewa mencegah penugasan staf ke cabang milik restoran lain.
+  6. **Jejak Audit Kekal:**
+     - Seluruh aktivitas mutasi cabang (`tambah_cabang`, `ubah_cabang`, `set_status_cabang`, `set_akses_cabang`) dicatat abadi ke `public.catatan_audit` dengan rincian `nilai_lama` dan `nilai_baru`.
+- **File terkait:** `supabase/migrations/0078_kelola_cabang.sql`, `supabase/tes/kelola_cabang.sql`, `alat/uji-mutasi-0078.py`, `aplikasi/src/layar/pengaturan/Cabang.tsx`, `aplikasi/src/layar/pengaturan/Cabang.test.tsx`
+- **Implikasi:** Pengaturan transaksi, perpindahan cabang kasir, dan pencetakan struk wajib selalu mengacu pada konfigurasi cabang aktif terkait tanpa merusak isolasi penyewa.
+
 

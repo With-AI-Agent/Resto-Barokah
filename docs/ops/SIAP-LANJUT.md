@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `4fec5539b931c03a1d2b47ad41ff7c49b50abc52`
+- **Commit keadaan kerja:** `888932477bf8c47c5363369249b81d206bea50fa`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36219858016, commit 4fec5539) — tunggu sampai selesai
+- **CI terakhir:** failure (run 36219946451, commit 88893247)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (47 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (48 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,29 +70,30 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-08 SELESAI):**
+**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-09 SELESAI):**
 
-0ZU. **FASE 9: T9-08 (Kelola pegawai: peran, izin, PIN ⚠️ — PRD M3 & M6 / ART-2) SELESAI & T9-09 SIAP LANJUT.**
-   - Migrasi `supabase/migrations/0077_kelola_pegawai_izin.sql`:
-     1. Pemicu fail-closed `picu_pengguna_cegah_hapus`: menolak hard-delete akun pegawai yang memiliki riwayat transaksi pesanan (`public.pesanan`), pembayaran (`public.pembayaran`), atau shift kasir (`public.shift_kas`) demi melindungi integritas jejak audit finansial ART-2; mewajibkan soft-disable (`aktif = false`).
-     2. RPC `public.set_izin`: pengaturan centang izin granular per pegawai (10 izin resmi sistem) dengan penetapan batas diskon nominal (Rp) dan batas persen (%), otorisasi ketat, hierarki perlindungan owner pusat, dan anti-privilege escalation (hanya owner pusat yang berhak memberikan izin `kelola_pegawai`).
-     3. RPC `public.set_status_pengguna`: pengaktifan/penonaktifan pegawai (soft-disable) dengan perlindungan minimal satu owner pusat aktif tetap terjaga.
-     4. RPC `public.simpan_pegawai`: tambah dan edit profil pegawai resto (nama, email unik, peran resmi, cabang penugasan di `public.pengguna_cabang`, dan PIN awal 6 digit angka).
-     5. RPC `public.reset_pin_pegawai`: reset PIN 6 angka pegawai oleh atasan berwenang tanpa membutuhkan PIN lama staf, hash bcrypt ke `public.kredensial_pin`.
-     6. RPC `public.ambil_daftar_pegawai` dan `public.ambil_izin_pegawai`: pembacaan aman daftar pegawai dan matriks 10 izin resmi sistem.
-     7. Setiap aksi dicatat kekal di `public.catatan_audit` (`tambah_pegawai`, `ubah_pegawai`, `set_status_pengguna`, `set_izin`, `reset_pin_pegawai`).
-   - Berkas uji SQL `supabase/tes/kelola_pegawai_izin.sql` (20 kasus uji) & seluruh 121 berkas SQL lulus 100% (`node alat/uji-sql.mjs`).
-   - Penilai mutasi `alat/uji-mutasi-0077.py`: 10/10 mutasi fail-closed tertangkap 100%.
-   - Catatan keputusan arsitektur `docs/DECISIONS_LOG.md` diperbarui untuk Area Role & Permission (ART-2).
-   - Komponen antarmuka `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx` dan integrasi tab di `LayarPengaturan.tsx` teruji unit 100% (7 uji di `KelolaPegawai.test.tsx`, 13 uji di `LayarPengaturan.test.tsx`, total Vitest frontend 109 berkas / 895 uji lulus 100%).
-   - Peta UI `docs/PETA_UI.md` dan registri aksi `aplikasi/src/lib/aksi.ts` sinkron 100% (11 layar, 50 aksi).
-   - Pedoman induk `PANDUAN_PENGGUNA.md` sinkron ke 121 berkas uji SQL.
+0ZW. **FASE 9: T9-09 (Kelola cabang: tambah, printer, nonaktifkan ⚠️ — PRD M11 / ART-7 & ART-12) SELESAI & T9-10 SIAP LANJUT.**
+   - Migrasi `supabase/migrations/0078_kelola_cabang.sql`:
+     1. Kolom `zona_waktu` ('Asia/Jakarta'/'Asia/Makassar'/'Asia/Jayapura'), `printer_default` (JSONB: profil_id, nama, lebar), dan `diubah_pada` pada `public.cabang`.
+     2. Pemicu fail-closed `picu_cabang_cegah_hapus`: menolak hard-delete cabang yang memiliki riwayat transaksi pesanan (`public.pesanan`), meja (`public.meja`), atau catatan shift kasir (`public.shift_kas`) demi melindungi integritas finansial dan jejak audit ART-1 & ART-12.
+     3. Pemicu fail-closed `picu_cabang_minimal_satu_aktif`: menolak penonaktifan seluruh cabang di satu restoran (minimal satu cabang wajib aktif).
+     4. RPC `public.tambah_cabang`: otorisasi owner_pusat, validasi nama unik se-resto, zona waktu resmi, dan printer bawaan (58mm/80mm).
+     5. RPC `public.simpan_cabang`: pembaruan data cabang dan konfigurasi default printer thermal cabang.
+     6. RPC `public.set_status_cabang`: pengaktifan atau penonaktifan sementara cabang (soft-disable `aktif = false`) tanpa merusak integritas transaksi masa lalu.
+     7. RPC `public.set_akses_cabang`: pengaturan penugasan staf merangkap multi-cabang (ART-12) dengan validasi silang resto.
+     8. RPC `public.ambil_daftar_cabang` dan `public.ambil_akses_cabang_pegawai`: pembacaan aman daftar cabang (statistik meja, pegawai, perangkat) dan status penugasan staf.
+     9. Setiap aksi dicatat kekal di `public.catatan_audit` (`tambah_cabang`, `ubah_cabang`, `set_status_cabang`, `set_akses_cabang`).
+   - Berkas uji SQL `supabase/tes/kelola_cabang.sql` (20 skenario uji) & seluruh 122 berkas SQL lulus 100% (`node alat/uji-sql.mjs`).
+   - Penilai mutasi `alat/uji-mutasi-0078.py`: 10/10 mutasi fail-closed tertangkap 100%.
+   - Catatan keputusan arsitektur `docs/DECISIONS_LOG.md` diperbarui untuk Area Multi-Cabang (ART-12) & Perangkat & Pencetakan (ART-7).
+   - Komponen antarmuka `aplikasi/src/layar/pengaturan/Cabang.tsx` dan integrasi tab `cabang` di `LayarPengaturan.tsx` teruji unit 100% (8 uji di `Cabang.test.tsx`, 14 uji di `LayarPengaturan.test.tsx`, total Vitest frontend 110 berkas / 904 uji lulus 100%).
+   - Peta UI `docs/PETA_UI.md` dan registri aksi `aplikasi/src/lib/aksi.ts` sinkron 100% (11 layar, 54 aksi, 0 tombol liar).
+   - Pedoman induk `PANDUAN_PENGGUNA.md` sinkron ke 122 berkas uji SQL.
 
-0ZV. **LANGKAH SELANJUTNYA: T9-09 (Kelola cabang: tambah, printer, nonaktifkan ⚠️ — PRD M11 / ART-7 & ART-12).**
-   - Tambah cabang baru (nama, alamat, timezone) dan asosiasi data operasional.
-   - Sambungkan konfigurasi printer default per cabang.
-   - Nonaktifkan cabang tanpa merusak riwayat transaksi cabang tersebut.
-   - Batas akses penugasan pegawai antar-cabang (`public.pengguna_cabang`, RPC `set_akses_cabang`).
+0ZX. **LANGKAH SELANJUTNYA: T9-10 (Pemilik Platform: daftar penyewa baru / M1 ⚠️ — PRD M1 / ART-1).**
+   - Membuat penyewa baru + cabang pertama + akun owner via RPC peladen aman.
+   - Mengaktifkan / menonaktifkan penyewa (data tidak dihapus).
+   - Bukti uji isolasi dua penyewa tidak saling melihat (ART-1).
 
 0ZR. **FASE 9: T9-06 (Harga & ketersediaan menu berbeda per cabang — PRD M11) SELESAI & T9-07 SIAP LANJUT.**
    - Migrasi `supabase/migrations/0075_menu_cabang.sql`:

@@ -143,6 +143,15 @@ describe('LayarPengaturan (Induk Pengaturan Restoran — PRD M2 / Fase 9)', () =
     expect(screen.getByTestId('kelola-pegawai')).toBeDefined()
   })
 
+  it('dapat berpindah ke tab Kelola Cabang (T9-09)', () => {
+    render(<LayarPengaturan />)
+
+    const tabCabang = screen.getByRole('button', { name: /buka tab pengaturan kelola cabang/i })
+    fireEvent.click(tabCabang)
+
+    expect(screen.getByText(/Kelola Cabang & Printer Struk/i)).toBeDefined()
+  })
+
   it('meneruskan onSimpanIdentitas ke komponen Identitas', async () => {
     const mockSimpan = vi.fn().mockResolvedValue({ berhasil: true })
     render(<LayarPengaturan onSimpanIdentitas={mockSimpan} />)
