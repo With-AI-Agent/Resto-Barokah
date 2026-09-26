@@ -70,7 +70,44 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-01 SELESAI):**
+**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-04 SELESAI):**
+
+0ZP. **FASE 9: T9-04 (Meja & area + QR per meja — PRD M2 & M4) SELESAI & T9-05 SIAP LANJUT.**
+   - Migrasi `supabase/migrations/0073_pengaturan_meja.sql`:
+     1. Mitigasi penolakan pembuatan pesanan di meja nonaktif (fail-closed dengan kode P0001).
+     2. RPC `public.simpan_meja` (tambah/edit nama/area/aktif dengan validasi keunikan nama per cabang, otorisasi peran owner_pusat / pemegang izin atur_pengaturan, isolasi penyewa).
+     3. RPC `public.ambil_daftar_meja(p_cabang_id)` menyajikan data meja cabang.
+     4. RPC `public.hapus_meja(p_id)` dengan proteksi pencegahan hapus meja yang memiliki riwayat pesanan.
+     5. Pencegahan penonaktifan meja yang memiliki pesanan aktif ('dibuat'/'dimasak'/'disajikan').
+     6. Jejak audit kekal di `public.catatan_audit` (aksi = 'simpan_meja' dan 'hapus_meja').
+   - Berkas uji `supabase/tes/pengaturan_meja.sql` membuktikan 14 kasus uji (117 berkas uji SQL lulus 100%).
+   - Skrip penilai mutasi SQL `alat/uji-mutasi-0073.py` (7/7 mutasi kritis terbukti WAJIB MERAH 100%).
+   - Komponen antarmuka `aplikasi/src/layar/pengaturan/Meja.tsx` (tata letak meja, filter tab area, kartu statistik ringkasan, sakelar aktif/nonaktif cepat, modal stand akrilik kode QR SVG siap cetak & salin tautan).
+   - Integrasi tab navigasi di `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`.
+   - 12 uji unit di `Meja.test.tsx` dan 9 uji unit di `LayarPengaturan.test.tsx` lulus 100% (total 106 berkas Vitest frontend / 850 tes unit lulus).
+   - Registri aksi `aplikasi/src/lib/aksi.ts` dan Peta UI `docs/PETA_UI.md` terverifikasi sinkron (41 aksi).
+   - Langkah selanjutnya: T9-05 (Pengelolaan menu lengkap — kategori, varian, tambahan, foto, urutan).
+
+0ZO. **FASE 9: T9-03 (Pengaturan operasional resto — PRD M2 & M6, ART-3) SELESAI & T9-04 SIAP LANJUT.**
+   - Migrasi `supabase/migrations/0072_pengaturan_operasional.sql`:
+     1. Kolom konfigurasi PB1, service charge, aturan pembulatan, alur cara pesan, jam buka, dan pesan struk.
+     2. RPC `public.simpan_operasional` dengan optimistic locking, isolasi penyewa, otorisasi ketat, dan audit trail kekal.
+     3. RPC `public.ambil_pengaturan_operasional` untuk form konfigurasi kasir & operasional.
+     4. Mitigasi finansial ART-3 terbukti bahwa perubahan tarif tidak mengubah nominal transaksi masa lalu.
+   - Berkas uji `supabase/tes/pengaturan_operasional.sql` membuktikan 15 kasus uji (116 berkas uji SQL lulus 100%).
+   - Skrip penilai mutasi SQL `alat/uji-mutasi-0072.py` (8/8 mutasi kritis terbukti WAJIB MERAH 100%).
+   - Komponen antarmuka `aplikasi/src/layar/pengaturan/Operasional.tsx` dengan kalkulator live ART-3 dan preview struk.
+   - 12 uji unit di `Operasional.test.tsx` dan 8 uji unit di `LayarPengaturan.test.tsx` lulus 100%.
+
+0ZN. **FASE 9: T9-02 (Tema & warna merek — 10 tema siap pakai — PRD M2) SELESAI & T9-03 SIAP LANJUT.**
+   - Migrasi `supabase/migrations/0071_tema_merek.sql`:
+     1. Kolom `tema`, `warna_merek`, dan `kerapatan` pada tabel `public.pengaturan`.
+     2. RPC resmi `public.simpan_tema` dengan validasi 10 tema dan kerapatan, optimistic concurrency locking, isolasi penyewa, otorisasi peran owner_pusat / staf izin atur_pengaturan, dan audit trail.
+     3. Pembaruan RPC `public.ambil_pengaturan_identitas()` dan `public.katalog_publik()`.
+   - Berkas uji `supabase/tes/pengaturan_tema.sql` membuktikan 12 kasus uji (115 berkas uji SQL lulus 100%).
+   - Skrip penilai mutasi SQL `alat/uji-mutasi-0071.py` (7/7 mutasi kritis terbukti WAJIB MERAH).
+   - Komponen antarmuka `aplikasi/src/layar/pengaturan/Tampilan.tsx` (pemilih 10 tema visual v3, kerapatan nyaman/padat, pemilih warna heksa dengan validasi kontras otomatis WCAG AA, pratinjau live komponen).
+   - 12 uji unit di `Tampilan.test.tsx` dan 7 uji unit di `LayarPengaturan.test.tsx` lulus 100%.
 
 0ZM. **FASE 9: T9-01 (Pengaturan identitas & tampilan resto — PRD M2) SELESAI & T9-02 SIAP LANJUT.**
    - Migrasi `supabase/migrations/0070_identitas_resto.sql`:
@@ -1822,7 +1859,34 @@ Urutan yang disarankan agent, dan alasannya:
 - Mengkinikan `docs/uji/RENCANA_UJI_MANUAL.md` dari M-01 s/d M-55 (Bagian G Kasir & Laporan Fase 7, Bagian H Katalog & Voucher & Privasi Fase 8, Bagian I Pengaturan Resto Fase 9, serta sub-skenario validasi detail).
 - Mengkinikan `docs/uji/BUKU_UJI_PEMILIK.md` dengan baris coba U-13 s/d U-20 lengkap dengan langkah sederhana (maksimal 5), tujuan, dan indikator berhasil/gagal yang diverifikasi `alat/periksa-buku-uji.py`.
 
+**FASE 9 T9-04 MEJA & AREA + QR PER MEJA SELESAI (2026-09-26):**
+1. **Database & RPC (Migrasi `0073_pengaturan_meja.sql`):**
+   - Mitigasi pencegahan pesanan baru pada meja nonaktif via trigger fail-closed (`P0001: Meja sedang tidak aktif`).
+   - RPC `public.simpan_meja(p_id, p_cabang_id, p_nama, p_area, p_aktif)`:
+     - Otorisasi peran `owner_pusat` atau pemegang izin `atur_pengaturan`.
+     - Isolasi penyewa melalui `public.penyewa_saya()`.
+     - Validasi nama meja unik per cabang.
+     - Pencegahan penonaktifan meja jika masih memiliki pesanan aktif (`dibuat`, `dimasak`, `disajikan`).
+     - Jejak audit kekal di `public.catatan_audit` (`simpan_meja`) lengkap dengan data meja.
+   - RPC `public.ambil_daftar_meja(p_cabang_id)`: mengambil daftar seluruh meja pada cabang terkait.
+   - RPC `public.hapus_meja(p_id)`:
+     - Pencegahan penghapusan meja yang memiliki riwayat pesanan (menolak fail-closed `P0001`).
+     - Jejak audit kekal di `public.catatan_audit` (`hapus_meja`).
+2. **Pengujian SQL & Mutasi:**
+   - Berkas uji `supabase/tes/pengaturan_meja.sql` membuktikan 14 skenario kasus uji komprehensif (117 berkas uji SQL LULUS 100% via `node alat/uji-sql.mjs`).
+   - Uji mutasi `alat/uji-mutasi-0073.py` membuktikan 7/7 mutasi fail-closed WAJIB MERAH 100%.
+3. **Komponen Antarmuka & Frontend:**
+   - Komponen `aplikasi/src/layar/pengaturan/Meja.tsx`:
+     - Tata kelola meja dan area kedai dengan tab filter area dan ringkasan statistik (total meja, aktif, terisi, kosong).
+     - Tombol sakelar aktif/nonaktif cepat per meja dengan pencegahan penonaktifan meja aktif.
+     - Modal formulir tambah/edit meja dengan pemilihan area dan pembuatan area baru.
+     - Modal kartu stand akrilik kode QR SVG siap cetak (`window.print`) dan salin tautan meja.
+   - Integrasi tab navigasi 'Meja & Area' di `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`.
+   - Registri aksi `pengaturan.tambah_meja` dan `pengaturan.hapus_meja` di `aplikasi/src/lib/aksi.ts` tersinkron dengan `docs/PETA_UI.md`.
+   - 12 uji unit di `Meja.test.tsx` dan 9 uji unit di `LayarPengaturan.test.tsx` LULUS 100%.
+   - Seluruh suite Vitest: 106 berkas / 850 uji unit LULUS 100%.
+   - Prettier, ESLint, TypeScript (`tsc -b`), dan build produksi Vite LULUS 100%.
+
 4. **Rencana Selanjutnya:**
-   - Mengerjakan **T9-04 — Meja & area + QR per meja** (PRD M2 & M4).
-   - Menambah, mengubah, dan menonaktifkan meja & area; nomor meja unik per cabang; unduh kode QR per meja.
-   - Mengembangkan layar `aplikasi/src/layar/pengaturan/Meja.tsx` (akan dibuat di T9-04), uji SQL, uji mutasi, dan integrasi pengaturan meja.
+   - Mengerjakan **T9-05 — Pengelolaan menu lengkap (kategori, varian, tambahan, foto, urutan)** (PRD M2 & M3).
+   - Menambah, mengubah, dan menghapus kategori serta item menu; varian & ekstra/tambahan; foto menu; serta urutan tampil menu tanpa koding.

@@ -16,13 +16,21 @@ import { Tombol } from '../../komponen/Tombol'
 import { Identitas, type DataIdentitas } from './Identitas'
 import { Tampilan, type DataTema } from './Tampilan'
 import { Operasional, type DataOperasional } from './Operasional'
+import { Meja, type ItemMeja } from './Meja'
 import { DaftarPerangkat } from './DaftarPerangkat'
 import { PasangPrinter } from './PasangPrinter'
 import { TautanKatalog } from './TautanKatalog'
 import { Kampanye } from './Kampanye'
 
 export type TabPengaturan =
-  'identitas' | 'tampilan' | 'operasional' | 'perangkat' | 'printer' | 'tautan' | 'kampanye'
+  | 'identitas'
+  | 'tampilan'
+  | 'operasional'
+  | 'meja'
+  | 'perangkat'
+  | 'printer'
+  | 'tautan'
+  | 'kampanye'
 
 export interface LayarPengaturanProps {
   tabAwal?: TabPengaturan
@@ -32,6 +40,16 @@ export interface LayarPengaturanProps {
   onSimpanTema?: (data: DataTema) => Promise<{ berhasil: boolean; pesan?: string }>
   dataOperasional?: Partial<DataOperasional>
   onSimpanOperasional?: (data: DataOperasional) => Promise<{ berhasil: boolean; pesan?: string }>
+  daftarMejaAwal?: ItemMeja[]
+  daftarAreaAwal?: string[]
+  onSimpanMeja?: (data: {
+    id?: string
+    cabang_id: string
+    nama: string
+    area: string
+    aktif: boolean
+  }) => Promise<{ berhasil: boolean; meja?: ItemMeja; pesan?: string }>
+  onHapusMeja?: (mejaId: string) => Promise<{ berhasil: boolean; pesan?: string }>
   hanyaBaca?: boolean
 }
 
@@ -43,6 +61,10 @@ export function LayarPengaturan({
   onSimpanTema,
   dataOperasional,
   onSimpanOperasional,
+  daftarMejaAwal,
+  daftarAreaAwal,
+  onSimpanMeja,
+  onHapusMeja,
   hanyaBaca = false,
 }: LayarPengaturanProps) {
   const [tabAktif, setTabAktif] = useState<TabPengaturan>(tabAwal)
@@ -51,6 +73,7 @@ export function LayarPengaturan({
     { id: 'identitas', label: 'Identitas Resto', ikon: '🏪' },
     { id: 'tampilan', label: 'Tema & Tampilan', ikon: '🎨' },
     { id: 'operasional', label: 'Operasional & Kasir', ikon: '⚙️' },
+    { id: 'meja', label: 'Meja & Area', ikon: '🪑' },
     { id: 'perangkat', label: 'Perangkat POS', ikon: '📱' },
     { id: 'printer', label: 'Printer Struk', ikon: '🖨️' },
     { id: 'tautan', label: 'Tautan & QR Meja', ikon: '🔗' },
@@ -105,6 +128,16 @@ export function LayarPengaturan({
           <Operasional
             dataAwal={dataOperasional}
             onSimpan={onSimpanOperasional}
+            onKembali={() => setTabAktif('identitas')}
+            hanyaBaca={hanyaBaca}
+          />
+        )}
+        {tabAktif === 'meja' && (
+          <Meja
+            daftarMejaAwal={daftarMejaAwal}
+            daftarAreaAwal={daftarAreaAwal}
+            onSimpanMeja={onSimpanMeja}
+            onHapusMeja={onHapusMeja}
             onKembali={() => setTabAktif('identitas')}
             hanyaBaca={hanyaBaca}
           />

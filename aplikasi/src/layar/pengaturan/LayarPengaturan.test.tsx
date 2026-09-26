@@ -16,6 +16,7 @@ describe('LayarPengaturan (Induk Pengaturan Restoran — PRD M2 / Fase 9)', () =
     expect(screen.getByRole('button', { name: /buka tab pengaturan identitas/i })).toBeDefined()
     expect(screen.getByRole('button', { name: /buka tab pengaturan tema/i })).toBeDefined()
     expect(screen.getByRole('button', { name: /buka tab pengaturan operasional/i })).toBeDefined()
+    expect(screen.getByRole('button', { name: /buka tab pengaturan meja/i })).toBeDefined()
     expect(screen.getByRole('button', { name: /buka tab pengaturan perangkat/i })).toBeDefined()
     expect(screen.getByRole('button', { name: /buka tab pengaturan printer/i })).toBeDefined()
     expect(screen.getByRole('button', { name: /buka tab pengaturan tautan/i })).toBeDefined()
@@ -44,6 +45,16 @@ describe('LayarPengaturan (Induk Pengaturan Restoran — PRD M2 / Fase 9)', () =
 
     expect(screen.getByTestId('pengaturan-operasional')).toBeDefined()
     expect(screen.getByText(/Pengaturan Operasional & Kasir/i)).toBeDefined()
+  })
+
+  it('dapat berpindah ke tab Meja & Area (T9-04)', () => {
+    render(<LayarPengaturan />)
+
+    const tabMeja = screen.getByRole('button', { name: /buka tab pengaturan meja/i })
+    fireEvent.click(tabMeja)
+
+    expect(screen.getByTestId('pengaturan-meja')).toBeDefined()
+    expect(screen.getByText(/Pengaturan Meja & Area/i)).toBeDefined()
   })
 
   it('dapat berpindah ke tab Perangkat POS', () => {
