@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `97230dd42b78d4e403c5f441e350907232f29c6f`
+- **Commit keadaan kerja:** `ad266c33f13e8b5bdf3f592414d2dd3a5549ba88`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit 97230dd4 — periksa lagi setelah push)
+- **CI terakhir:** (belum ada run CI untuk commit ad266c33 — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (67 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (69 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -113,14 +113,26 @@ JANGAN merge apa pun tanpa keputusan Lee.
      5. Integrasi reaktif antarmuka kasir (`useAntrean` & `StatusAntrean`) merespons transisi status luring/daring secara seketika dan mendukung retry manual dari dialog.
    - 117 berkas uji Vitest (955 pengujian) dan 125 berkas uji SQL lulus 100%.
 
-0ZZ5. **LANGKAH SELANJUTNYA: FASE 10 — T10-05 (Penyisiran ulang RLS seluruh tabel ⚠️ — TECH_SPEC §9 ART-1; PRD M12).**
-   - **Tujuan:** memastikan tidak ada tabel baru yang lupa dikunci RLS setelah seluruh fitur masuk (Fase 1–9).
-   - **Ref:** TECH_SPEC §9 ART-1; PRD M12.
-   - **File:** `supabase/tes/sisir_rls_akhir.sql` (rencana T10-05).
-   - **DoD:** daftar tabel ↔ policy diperiksa ulang; uji akses silang untuk 6 peran; laporan akhir "0 tabel tanpa policy" dicetak.
+0ZZ5. **FASE 10: T10-05 (Penyisiran ulang RLS seluruh tabel ⚠️ — TECH_SPEC §9 ART-1; PRD M12) SELESAI.**
+   - Berkas uji SQL `supabase/tes/sisir_rls_akhir.sql` membaca katalog PostgreSQL asli (`pg_class`, `pg_namespace`, `pg_policy`) dan membuktikan:
+     1. 45 dari 45 tabel publik mengaktifkan RLS (`relrowsecurity = true`, 0 tabel tanpa RLS).
+     2. 45 dari 45 tabel memiliki kebijakan resmi terpasang (total 84 policy RLS, 0 tabel tanpa policy).
+     3. 28 tabel ber-`penyewa_id` menyaring penyewa via `penyewa_saya()` atau tolak-semua.
+     4. 17 tabel tanpa `penyewa_id` terbukti memiliki rantai jangkar sah dan badan fungsi perantara terverifikasi utuh.
+     5. Uji akses silang matriks 6 peran (`pemilik_platform`, `owner_pusat`, `admin_cabang`, `kasir`, `pelayan`, `dapur`) terbukti 100% fail-closed bebas kebocoran multi-tenant (0 baris resto lawan terlihat).
+     6. Proteksi tabel rahasia server-side (`kredensial_pin`, `kredensial_perangkat`, `kredensial_pemulihan`, `sesi_cabang`) dan kekekalan riwayat audit (`catatan_audit` append-only).
+     7. Skrip auditor dinamis `alat/periksa-sisir-rls.py` lulus 100% dan mutasi ketajaman pagar (`--uji-diri`) 4/4 mutasi tertangkap merah.
+     8. Catatan keputusan dicatat di `docs/DECISIONS_LOG.md` (Area: Keamanan Data & RLS ART-1).
+   - 126 berkas uji SQL lulus 100%. Total 142 dari 200 butir roadmap tuntas.
+
+0ZZ6. **LANGKAH SELANJUTNYA: FASE 10 — T10-06 (Akhiri sesi dari perangkat lain / perangkat hilang ⚠️ — PRD M12 Kasus Tepi).**
+   - **Tujuan:** perangkat pegawai yang hilang tidak menjadi pintu masuk.
+   - **Ref:** PRD M12 (kasus tepi) · RPC resmi: `keluar_semua_perangkat`.
+   - **File:** `aplikasi/src/layar/pengaturan/SesiAktif.tsx`, `supabase/functions/akhiri_sesi/index.ts` (rencana T10-06).
+   - **DoD:** owner melihat daftar sesi aktif (perangkat, waktu, peran) dan bisa mengakhirinya; catatan audit dibuat; uji lulus.
    - **Kompleksitas:** sedang (3 jam).
-   - **Risiko & mitigasi:** ⚠️ wajib update `docs/DECISIONS_LOG.md` — Area: Keamanan Data & RLS (ART-1); tabel baru tanpa policy bisa bocor lintas penyewa → mitigasi: script otomatis yang memeriksa pg_tables vs pg_policy.
-   - **Verifikasi:** script audit RLS keluar 0 tabel terbuka + laporan di `docs/DECISIONS_LOG.md`.
+   - **Risiko & mitigasi:** ⚠️ wajib update `docs/DECISIONS_LOG.md` — Area: Role & Permission (ART-2); mitigasi: hanya owner/admin berizin + audit.
+   - **Verifikasi:** uji unit fungsi akhiri sesi + bukti audit tercatat.
 
 0ZZ3. **FASE 9 TUNTAS PENUH: T9-01 s/d T9-12 SELESAI (12/12 TUGAS LULUS 100%).**
    - T9-01 s/d T9-12 selesai tuntas dengan 124 berkas uji SQL lulus, mutasi fail-closed 100% merah, komponen UI lengkap, Peta UI hijau.
