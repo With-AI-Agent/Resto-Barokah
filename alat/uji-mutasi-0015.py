@@ -67,9 +67,10 @@ MIG14 = "supabase/migrations/0014_penutup_celah_putaran13.sql"
 MIG16 = "supabase/migrations/0016_penutup_celah_pin_putaran18.sql"
 MIG18 = "supabase/migrations/0018_perangkat_terdaftar.sql"
 MIG21 = "supabase/migrations/0021_kunci_diskon.sql"
-# 0025 menulis ulang `hitung_total` sebagai definisi efektif terakhir. Mutasi
-# F-01/F-02 harus mengenai salinan ini, bukan definisi lama di 0015; kalau tidak,
+# 0076 (T9-07) menulis ulang `hitung_total` sebagai definisi efektif terakhir (mendukung tip). Mutasi
+# F-01/F-02 harus mengenai salinan ini, bukan definisi lama di 0015/0025; kalau tidak,
 # uji tetap hijau palsu meskipun pagar yang masih berjalan tidak pernah disentuh.
+MIG76 = "supabase/migrations/0076_metode_bayar_tip.sql"
 MIG25 = "supabase/migrations/0025_isolasi_identitas_null.sql"
 # 0027 menulis ulang policy `izin_pilih` sebagai definisi efektif terakhir. Mutasi
 # F-10 harus mengenai salinan ini agar tidak ditimpa kembali oleh 0027.
@@ -403,8 +404,8 @@ def main() -> int:
 
     # ---------------------------------------------------------- bagian 6 (AUD-3 F-01/F-02)
     # 14) Dasar pajak/service dikembalikan ke subtotal SEBELUM diskon (cacat asli) → MERAH.
-    # 0025 menulis ulang `hitung_total` sebagai definisi efektif terakhir. Semua
-    # mutasi F-01/F-02 di bawah sengaja menyasar 0025; menyentuh blok 0015 yang
+    # 0076 menulis ulang `hitung_total` sebagai definisi efektif terakhir (menambah tip sukarela).
+    # Semua mutasi F-01/F-02 di bawah sengaja menyasar 0076; menyentuh blok 0015/0025 yang
     # sudah ditimpa akan menghasilkan hijau palsu.
     def pajak_dari_subtotal_kotor(t: str) -> str:
         return t.replace(
@@ -420,7 +421,7 @@ def main() -> int:
         )
 
     hasil.append(mutasi("pajak & service dihitung dari subtotal SEBELUM diskon (cacat AUD-3 F-01a)",
-                        pajak_dari_subtotal_kotor, uji=UJI_UANG, berkas_rel=MIG25))
+                        pajak_dari_subtotal_kotor, uji=UJI_UANG, berkas_rel=MIG76))
 
     # 15) Pembulatan diabaikan lagi (cacat asli) → MERAH.
     def abaikan_pembulatan(t: str) -> str:
@@ -431,7 +432,7 @@ def main() -> int:
         )
 
     hasil.append(mutasi("pengaturan pembulatan diabaikan mesin (cacat AUD-3 F-01b)",
-                        abaikan_pembulatan, uji=UJI_UANG, berkas_rel=MIG25))
+                        abaikan_pembulatan, uji=UJI_UANG, berkas_rel=MIG76))
 
     # 16) Penjaga pesanan lunas dilepas (cacat asli F-02) → MERAH.
     def lepas_penjaga_lunas(t: str) -> str:
@@ -442,7 +443,7 @@ def main() -> int:
         )
 
     hasil.append(mutasi("penjaga 'pesanan lunas tidak dihitung ulang' dilepas (cacat AUD-3 F-02)",
-                        lepas_penjaga_lunas, uji=UJI_UANG, berkas_rel=MIG25))
+                        lepas_penjaga_lunas, uji=UJI_UANG, berkas_rel=MIG76))
 
     # 17) Pembulatan dibalik jadi KE ATAS → MERAH (mengunci arah yang diputuskan).
     def bulat_ke_atas(t: str) -> str:
@@ -453,7 +454,7 @@ def main() -> int:
         )
 
     hasil.append(mutasi("arah pembulatan dibalik jadi KE ATAS (keputusan arah diuji)",
-                        bulat_ke_atas, uji=UJI_UANG, berkas_rel=MIG25))
+                        bulat_ke_atas, uji=UJI_UANG, berkas_rel=MIG76))
 
     # ---------------------------------------------------------- bagian 8 (AUD-3 F-03/F-05/F-06)
     # 18) Metode bayar nonaktif boleh dipakai lagi (cacat asli F-03) → MERAH.

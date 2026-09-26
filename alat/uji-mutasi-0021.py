@@ -34,10 +34,10 @@ from klasifikasi_mutasi import HIJAU, MERAH_PAGAR, RUSAK, klasifikasi  # noqa: E
 
 AKAR = pathlib.Path(__file__).resolve().parent.parent
 KERJA = pathlib.Path("/tmp/mutasi-0021-rb")
-# 0025 menulis ulang `hitung_total` sebagai definisi efektif terakhir. Mutasi
-# kunci hitung_total harus mengenai salinan itu; memutasi blok lama di 0015
+# 0076 (T9-07) menulis ulang `hitung_total` sebagai definisi efektif terakhir (mendukung tip). Mutasi
+# kunci hitung_total harus mengenai salinan itu; memutasi blok lama di 0015/0025
 # hanya menghasilkan hijau palsu karena definisinya kemudian tertimpa.
-MIG25 = "supabase/migrations/0025_isolasi_identitas_null.sql"
+MIG76 = "supabase/migrations/0076_metode_bayar_tip.sql"
 MIG21 = "supabase/migrations/0021_kunci_diskon.sql"
 DETEKTOR = "supabase/tes/uang_kunci.sql"
 
@@ -119,9 +119,9 @@ def main() -> int:
         return 1
     print("  OK  kontrol: salinan utuh → uji kunci serialisasi hijau (tanpa positif-palsu)")
 
-    # A) Kunci hitung_total (§6, awalnya 0015; definisi efektif 0025)
+    # A) Kunci hitung_total (§6, awalnya 0015; definisi efektif 0076)
     # dilepas → sifat-1 wajib GAGAL.
-    hasil.append(mutasi("kunci hitung_total dilepas (sifat-1)", MIG25,
+    hasil.append(mutasi("kunci hitung_total dilepas (sifat-1)", MIG76,
                         lepas_kunci("   where p.id = p_pesanan_id\n     for update;",
                                     "   where p.id = p_pesanan_id;"),
                         DETEKTOR))
