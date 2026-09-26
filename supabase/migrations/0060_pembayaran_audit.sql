@@ -108,10 +108,6 @@ begin
 
   v_total := coalesce(v_pesanan.total, 0);
   v_sudah := public.total_dibayar(p_pesanan_id);
-  if v_sudah + p_jumlah > v_total then
-    raise exception 'BY-301: pembayaran % membuat total dibayar % melebihi total pesanan %.',
-      p_jumlah, v_sudah + p_jumlah, v_total;
-  end if;
 
   v_kunci := coalesce(nullif(btrim(p_kunci_idempoten), ''), 'bayar-' || gen_random_uuid()::text);
 
@@ -133,6 +129,11 @@ begin
       'lunas',         v_sudah >= v_total,
       'dobel',         true
     );
+  end if;
+
+  if v_sudah + p_jumlah > v_total then
+    raise exception 'BY-301: pembayaran % membuat total dibayar % melebihi total pesanan %.',
+      p_jumlah, v_sudah + p_jumlah, v_total;
   end if;
 
   -- Pasang penanda sesi transaksi sebelum INSERT agar trigger audit mengenali jalur RPC

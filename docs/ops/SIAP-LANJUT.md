@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `3d49e29c747c924e0b5c838785ad4ddfdf0309a1`
+- **Commit keadaan kerja:** `aed3e5b6ec15f3c6592229cec4b47cea39164da3`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36247487240, commit 3d49e29c) — tunggu sampai selesai
+- **CI terakhir:** failure (run 36247861776, commit aed3e5b6)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (62 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (354 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (63 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (355 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,7 +70,10 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 10 DIMULAI, T10-01 SELESAI 100%):**
+**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 10: T10-01 & T10-02 SELESAI 100%):**
+
+0ZZ0. **CATATAN MUTLAK LEE (§29 REKAM PESAN PEMILIK): PEMERIKSAAN MENDALAM MENYELURUH SETELAH FASE 10 SELESAI.**
+   - Sesuai instruksi Lee pada 2026-09-26, setelah tugas terakhir di Fase 10 (T10-16) selesai tuntas, agent WAJIB BERHENTI dan MENGINGATKAN Lee untuk melakukan mekanisme pemeriksaan mendalam menyeluruh. Dilarang langsung melangkah ke Fase 11 sebelum mekanisme pemeriksaan tersebut disiapkan dan dijalankan bersama Lee.
 
 0ZZ1. **FASE 10: T10-01 (Antrean kirim luring IndexedDB ⚠️ — TECH_SPEC §13 K4 & §9 ART-8; PRD §9) SELESAI.**
    - Modul `aplikasi/src/lib/antrean-offline.ts` mengimplementasikan antrean lokal persisten berbasis IndexedDB (`resto_barokah_offline_db` / `antrean_kirim`) dengan fallback memori aman (zero-crash).
@@ -79,20 +82,25 @@ JANGAN merge apa pun tanpa keputusan Lee.
    - Pemrosesan sekuensial FIFO dan pemulihan antrean yang belum terkirim.
    - Hook `aplikasi/src/hook/useAntrean.ts` memantau status daring/luring (`online`/`offline` listener), menyediakan status transparan dan jujur "menunggu dikirim X" (misal "menunggu dikirim 2"), serta memicu sinkronisasi otomatis saat kembali online.
    - Komponen visual `aplikasi/src/komponen/StatusAntreanOffline.tsx` dan integrasi bilah kasir `LayarKasir.tsx` serta handler pesanan offline di `App.tsx`.
-   - 11 uji unit di `antrean-offline.test.ts`, 5 uji unit di `useAntrean.test.tsx`, dan 4 uji di `StatusAntreanOffline.test.tsx` lulus 100%. Total 112 berkas uji / 920 tes lulus tanpa galat.
+   - 11 uji unit di `antrean-offline.test.ts`, 5 uji unit di `useAntrean.test.tsx`, dan 4 uji di `StatusAntreanOffline.test.tsx` lulus 100%. Total 115 berkas uji / 940 tes lulus tanpa galat.
    - Catatan keputusan arsitektur dicatat resmi di `docs/DECISIONS_LOG.md` (Area: Antrean Offline ART-8).
    - Didaftarkan ke `BUKU_UJI_PEMILIK.md` baris U-22 dan `RENCANA_UJI_MANUAL.md` baris M-57.
 
-0ZZ0. **CATATAN MUTLAK LEE (§29 REKAM PESAN PEMILIK): PEMERIKSAAN MENDALAM MENYELURUH SETELAH FASE 10 SELESAI.**
-   - Sesuai instruksi Lee pada 2026-09-26, setelah tugas terakhir di Fase 10 (T10-16) selesai tuntas, agent WAJIB BERHENTI dan MENGINGATKAN Lee untuk melakukan mekanisme pemeriksaan mendalam menyeluruh. Dilarang langsung melangkah ke Fase 11 sebelum mekanisme pemeriksaan tersebut disiapkan dan dijalankan bersama Lee.
+0ZZ2. **FASE 10: T10-02 (Kunci idempoten menyeluruh di semua penulisan ⚠️ — TECH_SPEC §9 ART-8) SELESAI.**
+   - Migrasi `supabase/migrations/0080_kunci_idempoten_menyeluruh.sql` memperluas skema dan overload RPC penulisan (`simpan_pesanan`, `bayar_pesanan`, `pakai_voucher`, `buka_shift`, `tutup_shift`, `kas_pergerakan`, `set_stok`, `opname_stok`) dengan dukungan kunci idempoten ART-8.
+   - Berkas uji SQL `supabase/tes/idempoten.sql` membuktikan bahwa 3 pemanggilan berturut-turut dengan kunci sama menghasilkan tepat 1 efek (125/125 berkas uji SQL lulus 100% via `node alat/uji-sql.mjs`).
+   - Skrip pemeriksa cakupan otomatis `alat/periksa-idempoten.py` (dengan mode uji diri `--uji-diri`) memverifikasi 100% (8/8) RPC penulisan di basis data mendukung kunci idempoten.
+   - Pengujian mutasi `alat/uji-mutasi-0080.py` membuktikan 5/5 mutasi fail-closed tertangkap merah secara deterministik.
+   - Catatan keputusan arsitektur dicatat resmi di `docs/DECISIONS_LOG.md` (Area: Antrean Offline ART-8).
 
-0ZZ2. **LANGKAH SELANJUTNYA: FASE 10 — T10-02 (Kunci idempoten menyeluruh di semua penulisan ⚠️ — TECH_SPEC §9 ART-8).**
-   - **Tujuan:** satu tindakan tidak pernah tercatat dua kali, dari layar mana pun saat jaringan internet kedai tersendat.
-   - **Ref:** TECH_SPEC §9 ART-8.
-   - **File:** `supabase/migrations/0080_kunci_idempoten_menyeluruh.sql` (rencana T10-02), `supabase/tes/idempoten.sql` (rencana T10-02).
-   - **DoD:** semua RPC penulisan menerima kunci idempoten (pesanan, pembayaran, voucher, shift, stok); uji paralel untuk masing-masing; laporan cakupan 100%.
-   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Antrean Offline (ART-8); mitigasi: uji otomatis "setiap RPC penulisan punya kunci" (daftar diperiksa).
-   - **Verifikasi:** uji SQL: 3 RPC dengan kunci sama → satu efek.
+0ZZ3. **LANGKAH SELANJUTNYA: FASE 10 — T10-03 (Pemulihan kegagalan kirim & pesan status — AGENT_OPERATING_GUIDE §6; PRD M4).**
+   - **Tujuan:** kasir tahu pasti pesanannya terkirim atau belum saat koneksi bermasalah.
+   - **Ref:** AGENT_OPERATING_GUIDE §6; PRD M4 (kasus tepi).
+   - **File:** `aplikasi/src/komponen/StatusAntrean.tsx` (rencana T10-03), `aplikasi/src/komponen/StatusAntrean.test.tsx` (rencana T10-03).
+   - **DoD:** indikator selalu terlihat (terkirim/tertunda/gagal + jumlah); percobaan ulang otomatis & manual; tidak ada pesan "gagal diam-diam".
+   - **Kompleksitas:** sedang (3 jam).
+   - **Risiko & mitigasi:** kasir mengira gagal padahal terkirim (atau sebaliknya) → mitigasi: status dari peladen, bukan tebakan klien; dialog rincian status antrean dengan tombol coba lagi manual.
+   - **Verifikasi:** uji manual 3 skenario jaringan (online, offline, fluktuatif/gagal kirim).
 
 0ZZ3. **FASE 9 TUNTAS PENUH: T9-01 s/d T9-12 SELESAI (12/12 TUGAS LULUS 100%).**
    - T9-01 s/d T9-12 selesai tuntas dengan 124 berkas uji SQL lulus, mutasi fail-closed 100% merah, komponen UI lengkap, Peta UI hijau.

@@ -2968,5 +2968,29 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `aplikasi/src/lib/antrean-offline.ts`, `aplikasi/src/lib/antrean-offline.test.ts`, `aplikasi/src/hook/useAntrean.ts`, `aplikasi/src/hook/useAntrean.test.tsx`, `aplikasi/src/komponen/StatusAntreanOffline.tsx`, `aplikasi/src/komponen/StatusAntreanOffline.test.tsx`, `aplikasi/src/layar/kasir/LayarKasir.tsx`, `aplikasi/src/App.tsx`
 - **Implikasi:** Operasional kasir tetap berjalan lancar saat internet kedai terputus sementara tanpa risiko kehilangan pesanan, tanpa kebocoran data sensitif di perangkat, dan tanpa risiko dobel transaksi di peladen.
 
+### [Fase 10/2026-09-26] Kunci Idempoten Menyeluruh di Semua Penulisan (T10-02 / ART-8)
+- **Area:** Antrean Offline & Dobel Data (TECH_SPEC §9 ART-8 & PRD §9 Risiko)
+- **Keputusan:**
+  1. **Penegakan 100% Kunci Idempoten di Seluruh RPC Penulisan (ART-8):**
+     - Memperluas skema basis data PostgreSQL untuk mendukung pelacakan kunci idempoten di seluruh domain penulisan:
+       - **Pesanan:** RPC `public.simpan_pesanan` dengan kolom `kunci_idempoten` dan unique index parsial pada tabel `public.pesanan`.
+       - **Pembayaran:** RPC `public.bayar_pesanan` memvalidasi kunci idempoten *sebelum* pengecekan limit pembayaran (`v_sudah + p_jumlah > v_total`), sehingga penekanan tombol bayar ganda atau pengiriman ulang antrean offline pada pesanan lunas mengembalikan rekaman pembayaran yang ada secara aman tanpa galat `BY-301`.
+       - **Voucher:** RPC `public.pakai_voucher` mendeteksi penerapan berulang voucher yang sama dan mengembalikan hasil idempoten tanpa menggandakan baris di tabel `public.diskon_transaksi`.
+       - **Buka Shift:** Overload RPC `public.buka_shift(modal, cabang, catatan, kunci_idempoten)` menyimpan `kunci_idempoten` dan index unik pada `public.shift_kas`.
+       - **Tutup Shift:** Overload RPC `public.tutup_shift(fisik, alasan, shift_id, catatan, kunci_idempoten)` menyimpan `kunci_idempoten_tutup` saat shift masih terbuka, mencegah pelanggaran pemicu keamanan `picu_shift_kas_jaga` saat rekonsiliasi ditutup.
+       - **Pergerakan Kas:** RPC `public.kas_pergerakan` dengan kolom `kunci_idempoten` unik di `public.kas_pergerakan`.
+       - **Penyesuaian Stok:** Overload RPC `public.set_stok(bahan, jumlah, alasan, kunci_idempoten)` dengan pencatatan `kunci_idempoten` unik di `public.stok_pergerakan`.
+       - **Opname Stok Fisik:** Overload RPC `public.opname_stok(bahan, fisik, alasan, kunci_idempoten)` dengan pencatatan `kunci_idempoten` unik di `public.stok_pergerakan`.
+  2. **Balasan Idempoten Anggun (Graceful Idempotent Return):**
+     - Setiap pemanggilan ulang dengan kunci yang sama mengembalikan respons sukses idempoten (`kode: IDEMPOTEN` / `BY-200` / `KP-200` dengan flag `idempoten: true` / `dobel: true`) beserta data rekaman yang sudah ada, tanpa membuat baris baru dan tanpa menimbulkan efek samping finansial ganda.
+  3. **Pembuktian Uji SQL Triple-Call (3x Panggilan Berturut-Turut):**
+     - Berkas uji `supabase/tes/idempoten.sql` memvalidasi secara matematis bahwa 3 pemanggilan beruntun untuk masing-masing operasi (pesanan, bayar, voucher, shift buka, shift tutup, kas pergerakan, set stok, opname stok) hanya menghasilkan tepat 1 baris rekaman di basis data dan delta saldo hanya diaplikasikan tepat 1 kali.
+  4. **Pengujian Mutasi Fail-Closed (100% Terbukti Merah):**
+     - Skrip `alat/uji-mutasi-0080.py` menguji 5 mutasi fail-closed: pencabutan proteksi idempoten pada `simpan_pesanan`, `buka_shift`, `tutup_shift`, `set_stok`, dan `opname_stok` terbukti menghasilkan kode keluar galat pada suite pengujian SQL.
+  5. **Auditor Cakupan Otomatis 100%:**
+     - Skrip `alat/periksa-idempoten.py` (dengan mode uji diri `--uji-diri`) memeriksa seluruh signature RPC penulisan di basis data dan memverifikasi 100% cakupan idempoten di seluruh 8 domain penulisan sistem.
+- **File terkait:** `supabase/migrations/0080_kunci_idempoten_menyeluruh.sql`, `supabase/tes/idempoten.sql`, `alat/uji-mutasi-0080.py`, `alat/periksa-idempoten.py`
+- **Implikasi:** Seluruh aksi penulisan data restoran kebal terhadap duplikasi ganda akibat fluktuasi jaringan, antrean offline, atau kesalahan operator.
+
 
 

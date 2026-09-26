@@ -1895,14 +1895,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Antrean Offline (ART-8); mitigasi: kunci idempoten wajib + pesan status jelas.
   - **Verifikasi:** uji manual: matikan jaringan → pesan → nyalakan → pesanan terkirim sekali. · **Bukti 2026-09-26 (Otomatis & Kode):** implementasi `aplikasi/src/lib/antrean-offline.ts` (antrean lokal IndexedDB dengan in-memory fallback, sanitasi rekursif data sensitif PIN/kredensial `bersihkanDataSensitif`, kepemilikan kunci idempoten unik ART-8, pemrosesan sekuensial FIFO), hook `aplikasi/src/hook/useAntrean.ts` (pemantau status daring/luring, pesan jujur "menunggu dikirim X", sinkronisasi otomatis saat kembali online), komponen antarmuka `aplikasi/src/komponen/StatusAntreanOffline.tsx` (banner/lencana status antrean luring), integrasi bilah kasir `LayarKasir.tsx`, serta integrasi fallback penyimpanan di `App.tsx`; 11 uji unit di `antrean-offline.test.ts`, 5 uji unit di `useAntrean.test.tsx`, dan 4 uji di `StatusAntreanOffline.test.tsx` lulus 100%; catatan keputusan arsitektur dicatat di `docs/DECISIONS_LOG.md` (Area: Antrean Offline ART-8).
 
-- [ ] T10-02 — Kunci idempoten menyeluruh di semua penulisan ⚠️
+- [x] T10-02 — Kunci idempoten menyeluruh di semua penulisan ⚠️
   - **Tujuan:** satu tindakan tidak pernah tercatat dua kali, dari layar mana pun.
   - **Ref:** TECH_SPEC §9 ART-8
-  - **File:** `supabase/migrations/0064_idempoten.sql`, `supabase/tes/idempoten.sql`
+  - **File:** `supabase/migrations/0080_kunci_idempoten_menyeluruh.sql`, `supabase/tes/idempoten.sql`
   - **DoD:** semua RPC penulisan menerima kunci idempoten (pesanan, pembayaran, voucher, shift, stok); uji paralel untuk masing-masing; laporan cakupan 100%.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Antrean Offline (ART-8); mitigasi: uji otomatis "setiap RPC penulisan punya kunci" (daftar diperiksa).
-  - **Verifikasi:** uji SQL: 3 RPC dengan kunci sama → satu efek.
+  - **Verifikasi:** uji SQL: 3 RPC dengan kunci sama → satu efek. · **Bukti 2026-09-26 (Otomatis & Kode):** migrasi `supabase/migrations/0080_kunci_idempoten_menyeluruh.sql` memperluas skema dan overload RPC penulisan (`simpan_pesanan`, `bayar_pesanan`, `pakai_voucher`, `buka_shift`, `tutup_shift`, `kas_pergerakan`, `set_stok`, `opname_stok`) dengan dukungan kunci idempoten ART-8; berkas uji SQL `supabase/tes/idempoten.sql` membuktikan 3 pemanggilan berturut-turut dengan kunci sama menghasilkan tepat 1 efek (125/125 uji SQL lulus 100%); skrip auditor cakupan `alat/periksa-idempoten.py` memverifikasi 100% (8/8) RPC penulisan mendukung kunci idempoten; pengujian mutasi `alat/uji-mutasi-0080.py` membuktikan 5/5 mutasi fail-closed tertangkap merah; catatan keputusan arsitektur dicatat di `docs/DECISIONS_LOG.md` (Area: Antrean Offline ART-8).
 
 - [ ] T10-03 — Pemulihan kegagalan kirim & pesan status
   - **Tujuan:** kasir tahu pasti pesanannya terkirim atau belum.
