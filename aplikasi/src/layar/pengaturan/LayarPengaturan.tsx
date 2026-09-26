@@ -18,6 +18,7 @@ import { Tampilan, type DataTema } from './Tampilan'
 import { Operasional, type DataOperasional } from './Operasional'
 import { Meja, type ItemMeja } from './Meja'
 import { Menu, type DataKategori, type DataMenuItem } from './Menu'
+import { MenuCabang, type ItemCabang, type MenuItemPerbandingan } from './MenuCabang'
 import { DaftarPerangkat } from './DaftarPerangkat'
 import { PasangPrinter } from './PasangPrinter'
 import { TautanKatalog } from './TautanKatalog'
@@ -29,6 +30,7 @@ export type TabPengaturan =
   | 'operasional'
   | 'meja'
   | 'menu'
+  | 'menu_cabang'
   | 'perangkat'
   | 'printer'
   | 'tautan'
@@ -75,6 +77,32 @@ export interface LayarPengaturanProps {
     aktif?: boolean
   }) => Promise<{ berhasil: boolean; id?: string; pesan?: string }>
   onHapusMenu?: (id: string) => Promise<{ berhasil: boolean; pesan?: string }>
+  daftarCabangAwal?: ItemCabang[]
+  daftarMenuCabangAwal?: MenuItemPerbandingan[]
+  onSimpanMenuCabang?: (data: {
+    cabang_id: string
+    menu_item_id: string
+    harga: number | null
+    aktif: boolean
+    habis?: boolean
+  }) => Promise<{ berhasil: boolean; pesan?: string }>
+  onSimpanBanyakMenuCabang?: (
+    cabang_id: string,
+    daftar: Array<{
+      menu_item_id: string
+      harga: number | null
+      aktif: boolean
+      habis?: boolean
+    }>,
+  ) => Promise<{ berhasil: boolean; jumlah?: number; pesan?: string }>
+  onSalinHargaCabang?: (
+    cabang_asal_id: string,
+    cabang_tujuan_id: string,
+  ) => Promise<{ berhasil: boolean; jumlah?: number; pesan?: string }>
+  onResetHargaCabang?: (
+    cabang_id: string,
+    menu_item_id?: string,
+  ) => Promise<{ berhasil: boolean; pesan?: string }>
   hanyaBaca?: boolean
 }
 
@@ -96,6 +124,12 @@ export function LayarPengaturan({
   onHapusKategori,
   onSimpanMenu,
   onHapusMenu,
+  daftarCabangAwal,
+  daftarMenuCabangAwal,
+  onSimpanMenuCabang,
+  onSimpanBanyakMenuCabang,
+  onSalinHargaCabang,
+  onResetHargaCabang,
   hanyaBaca = false,
 }: LayarPengaturanProps) {
   const [tabAktif, setTabAktif] = useState<TabPengaturan>(tabAwal)
@@ -106,6 +140,7 @@ export function LayarPengaturan({
     { id: 'operasional', label: 'Operasional & Kasir', ikon: '⚙️' },
     { id: 'meja', label: 'Meja & Area', ikon: '🪑' },
     { id: 'menu', label: 'Kelola Menu', ikon: '🍲' },
+    { id: 'menu_cabang', label: 'Menu Per Cabang', ikon: '🏢' },
     { id: 'perangkat', label: 'Perangkat POS', ikon: '📱' },
     { id: 'printer', label: 'Printer Struk', ikon: '🖨️' },
     { id: 'tautan', label: 'Tautan & QR Meja', ikon: '🔗' },
@@ -182,6 +217,18 @@ export function LayarPengaturan({
             onHapusKategori={onHapusKategori}
             onSimpanMenu={onSimpanMenu}
             onHapusMenu={onHapusMenu}
+            onKembali={() => setTabAktif('identitas')}
+            hanyaBaca={hanyaBaca}
+          />
+        )}
+        {tabAktif === 'menu_cabang' && (
+          <MenuCabang
+            daftarCabangAwal={daftarCabangAwal}
+            daftarMenuAwal={daftarMenuCabangAwal}
+            onSimpanMenuCabang={onSimpanMenuCabang}
+            onSimpanBanyakMenuCabang={onSimpanBanyakMenuCabang}
+            onSalinHargaCabang={onSalinHargaCabang}
+            onResetHargaCabang={onResetHargaCabang}
             onKembali={() => setTabAktif('identitas')}
             hanyaBaca={hanyaBaca}
           />

@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `ef7113cc3507bbf7410ed9e58a874cda1c705077`
+- **Commit keadaan kerja:** `370f017b8e544a82101665412c20a5ab92c5f709`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36213790588, commit ef7113cc) — tunggu sampai selesai
+- **CI terakhir:** failure (run 36214033830, commit 370f017b)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (42 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (334 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (43 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (335 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,14 +70,29 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-05 SELESAI):**
+**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-06 SELESAI):**
 
-0ZQ. **FASE 9: T9-05 (Pengelolaan menu lengkap — kategori, varian, tambahan, foto, urutan — PRD M2 & M3) SELESAI & T9-06 SIAP LANJUT.**
-   - Migrasi `supabase/migrations/0074_pengaturan_menu.sql`:
-     1. Pemicu fail-closed proteksi integritas data pesanan (`picu_menu_item_cegah_hapus` dan `picu_kategori_menu_cegah_hapus`).
-     2. RPC `public.simpan_kategori_menu` (tambah/edit kategori, urutan, tujuan produksi dapur/bar).
-     3. RPC `public.hapus_kategori_menu` (pencegahan hapus kategori yang masih memiliki item menu aktif).
-     4. RPC `public.simpan_menu_lengkap` (tambah/edit nama, kategori, harga, jenis makanan/minuman/lainnya, foto_path, urutan, status unggulan, varian harga, dan opsi topping/tambahan).
+0ZR. **FASE 9: T9-06 (Harga & ketersediaan menu berbeda per cabang — PRD M11) SELESAI & T9-07 SIAP LANJUT.**
+   - Migrasi `supabase/migrations/0075_menu_cabang.sql`:
+     1. Kolom `diubah_pada` pada tabel `public.menu_cabang`.
+     2. Fungsi `public.harga_berlaku(menu_item_id, cabang_id)` fail-closed yang menghormati status aktif per cabang (`mc.aktif`) dan master (`mi.aktif`), serta mengembalikan NULL (ditolak) bila dinonaktifkan.
+     3. RPC `public.simpan_menu_cabang` (tambah/edit harga khusus cabang, status tampil/sembunyi cabang, dan status penanda habis).
+     4. RPC `public.simpan_banyak_menu_cabang` (batch update harga dan ketersediaan menu cabang).
+     5. RPC `public.ambil_perbandingan_menu_cabang` (menghasilkan matriks perbandingan harga pusat vs cabang untuk mitigasi salah cabang).
+     6. RPC `public.salin_harga_cabang` (menyalin konfigurasi menu antar cabang dengan proteksi asal != tujuan).
+     7. RPC `public.reset_harga_cabang` (mengembalikan harga seluruh menu cabang ke harga pusat).
+     8. Jejak audit kekal di `public.catatan_audit`.
+   - Berkas uji SQL `supabase/tes/menu_cabang.sql` (25 kasus uji) & 119 berkas SQL lulus 100% (`node alat/uji-sql.mjs`).
+   - Penilai mutasi `alat/uji-mutasi-0075.py`: 7/7 mutasi fail-closed tertangkap 100%.
+   - Komponen antarmuka `MenuCabang.tsx` dan integrasi tab di `LayarPengaturan.tsx` teruji unit 100% (13 uji di `MenuCabang.test.tsx`, 11 uji di `LayarPengaturan.test.tsx`, total vitest frontend 108 berkas / 879 uji lulus 100%).
+   - Peta UI `docs/PETA_UI.md` dan registri aksi `aplikasi/src/lib/aksi.ts` sinkron 100% (11 layar, 45 aksi).
+   - Pedoman induk `PANDUAN_PENGGUNA.md` sinkron ke 119 berkas uji SQL.
+
+0ZS. **LANGKAH SELANJUTNYA: T9-07 (Kelola Staf & Hak Akses — PRD M2 / PRD 5.2).**
+   - Tambah/edit profil pegawai (nama, peran, cabang penugasan).
+   - Atur hak akses spesifik per pegawai sesuai matriks izin 6 peran (10 izin granular).
+   - Reset kredensial PIN pegawai oleh owner pusat / admin cabang.
+   - Penonaktifan pegawai tanpa merusak audit trail transaksi masa lalu.
      5. RPC `public.hapus_menu_item` (pencegahan hard-delete menu yang pernah dipesan, otomatis dialihkan ke soft-delete fail-closed).
      6. RPC `public.ambil_menu_pengaturan` dan `public.simpan_urutan_menu` untuk pengaturan urutan tampil katalog.
      7. Jejak audit kekal di `public.catatan_audit` (aksi = 'simpan_kategori_menu', 'hapus_kategori_menu', 'simpan_menu', 'hapus_menu', 'simpan_urutan_menu').
