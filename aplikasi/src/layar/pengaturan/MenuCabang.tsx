@@ -716,7 +716,7 @@ export function MenuCabang({
               fontSize: '1.75rem',
               fontWeight: 700,
               marginTop: '0.25rem',
-              color: 'var(--aksen, #0284c7)',
+              color: 'var(--accent)',
             }}
           >
             {statistikCabang.bedaHarga}
@@ -732,7 +732,7 @@ export function MenuCabang({
               fontSize: '1.75rem',
               fontWeight: 700,
               marginTop: '0.25rem',
-              color: 'var(--peringatan, #f59e0b)',
+              color: 'var(--warn)',
             }}
           >
             {statistikCabang.disembunyikan}
@@ -748,7 +748,7 @@ export function MenuCabang({
               fontSize: '1.75rem',
               fontWeight: 700,
               marginTop: '0.25rem',
-              color: 'var(--bahaya, #ef4444)',
+              color: 'var(--danger)',
             }}
           >
             {statistikCabang.habis}
@@ -831,7 +831,7 @@ export function MenuCabang({
                   key={menu.id}
                   style={{
                     backgroundColor: 'var(--latar-kartu)',
-                    border: adaEdit ? '1px solid var(--aksen, #0284c7)' : '1px solid var(--border)',
+                    border: adaEdit ? '1px solid var(--accent)' : '1px solid var(--border)',
                     borderRadius: 'var(--radius, 8px)',
                     padding: '1rem',
                     display: 'flex',
@@ -912,9 +912,9 @@ export function MenuCabang({
                             fontWeight: 600,
                             color:
                               selisih > 0
-                                ? 'var(--sukses, #16a34a)'
+                                ? 'var(--success)'
                                 : selisih < 0
-                                  ? 'var(--bahaya, #ef4444)'
+                                  ? 'var(--danger)'
                                   : 'var(--teks-redup)',
                           }}
                         >
@@ -1032,7 +1032,7 @@ export function MenuCabang({
                           <span
                             style={{
                               fontWeight: st.beda_harga ? 700 : 500,
-                              color: st.beda_harga ? 'var(--aksen, #0284c7)' : 'var(--teks)',
+                              color: st.beda_harga ? 'var(--accent)' : 'var(--teks)',
                             }}
                           >
                             {rupiah(st.harga_efektif)} {st.beda_harga ? '(Khusus)' : '(Pusat)'}

@@ -371,23 +371,23 @@ export function Meja({
 
     const svgKonten = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 580" width="400" height="580">
   <rect width="100%" height="100%" fill="white"/>
-  <rect x="15" y="15" width="370" height="550" rx="16" fill="#fcfcfc" stroke="#e0e0e0" stroke-width="2"/>
-  <circle cx="200" cy="55" r="22" fill="#e8f5e9"/>
-  <text x="200" y="62" font-family="sans-serif" font-size="20" text-anchor="middle" fill="#2e7d32">🍽️</text>
-  <text x="200" y="105" font-family="sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#1b1b1b">${namaResto}</text>
-  <text x="200" y="128" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#757575">Area: ${meja.area || 'Utama'}</text>
-  <rect x="110" y="145" width="180" height="42" rx="8" fill="#e8f5e9" stroke="#c8e6c9" stroke-width="1"/>
-  <text x="200" y="172" font-family="sans-serif" font-size="17" font-weight="bold" text-anchor="middle" fill="#1b5e20">${meja.nama.toUpperCase()}</text>
+  <rect x="15" y="15" width="370" height="550" rx="16" fill="whitesmoke" stroke="gainsboro" stroke-width="2"/>
+  <circle cx="200" cy="55" r="22" fill="honeydew"/>
+  <text x="200" y="62" font-family="sans-serif" font-size="20" text-anchor="middle" fill="forestgreen">🍽️</text>
+  <text x="200" y="105" font-family="sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="black">${namaResto}</text>
+  <text x="200" y="128" font-family="sans-serif" font-size="12" text-anchor="middle" fill="dimgray">Area: ${meja.area || 'Utama'}</text>
+  <rect x="110" y="145" width="180" height="42" rx="8" fill="honeydew" stroke="darkseagreen" stroke-width="1"/>
+  <text x="200" y="172" font-family="sans-serif" font-size="17" font-weight="bold" text-anchor="middle" fill="darkgreen">${meja.nama.toUpperCase()}</text>
   <g transform="translate(100, 205)">
-    <rect x="-10" y="-10" width="220" height="220" rx="12" fill="white" stroke="#e0e0e0" stroke-width="1"/>
+    <rect x="-10" y="-10" width="220" height="220" rx="12" fill="white" stroke="gainsboro" stroke-width="1"/>
     <svg viewBox="0 0 ${total} ${total}" width="200" height="200">
       <rect width="100%" height="100%" fill="white"/>
       <path d="${pathD.trim()}" fill="black"/>
     </svg>
   </g>
-  <text x="200" y="455" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1b1b1b">Pindai untuk Melihat Menu</text>
-  <text x="200" y="478" font-family="sans-serif" font-size="11" text-anchor="middle" fill="#757575">Arahkan kamera ponsel Anda ke kode QR di atas</text>
-  <text x="200" y="525" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#9e9e9e">${urlTarget}</text>
+  <text x="200" y="455" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="black">Pindai untuk Melihat Menu</text>
+  <text x="200" y="478" font-family="sans-serif" font-size="11" text-anchor="middle" fill="dimgray">Arahkan kamera ponsel Anda ke kode QR di atas</text>
+  <text x="200" y="525" font-family="sans-serif" font-size="9" text-anchor="middle" fill="gray">${urlTarget}</text>
 </svg>`
 
     const blob = new Blob([svgKonten], { type: 'image/svg+xml' })
@@ -874,19 +874,32 @@ export function Meja({
               }}
             >
               <div style={{ fontSize: '1.75rem', marginBottom: 'var(--s-1)' }}>🍽️</div>
-              <h4 style={{ margin: 0, fontSize: 'var(--t-3)', fontWeight: 800, color: '#1b1b1b' }}>
+              <h4
+                style={{
+                  margin: 0,
+                  fontSize: 'var(--t-3)',
+                  fontWeight: 800,
+                  color: 'var(--text)',
+                }}
+              >
                 {namaResto}
               </h4>
-              <p style={{ margin: 'var(--s-1) 0', fontSize: 'var(--t-1)', color: '#757575' }}>
+              <p
+                style={{
+                  margin: 'var(--s-1) 0',
+                  fontSize: 'var(--t-1)',
+                  color: 'var(--text-muted)',
+                }}
+              >
                 Area: {mejaTerpilihQr.area || 'Utama'}
               </p>
 
               {/* Lencana Nomor Meja Stand */}
               <div
                 style={{
-                  background: '#e8f5e9',
-                  border: '1px solid #c8e6c9',
-                  color: '#1b5e20',
+                  background: 'var(--success-soft)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--success)',
                   padding: 'var(--s-1) var(--s-3)',
                   borderRadius: 'var(--radius-md)',
                   fontWeight: 800,
@@ -904,7 +917,7 @@ export function Meja({
                   background: 'white',
                   padding: 'var(--s-2)',
                   borderRadius: 'var(--radius-md)',
-                  border: '1px solid #e0e0e0',
+                  border: '1px solid var(--border)',
                   display: 'inline-block',
                   margin: 'var(--s-2) auto',
                 }}
@@ -947,7 +960,7 @@ export function Meja({
                   fontSize: 'var(--t-2)',
                   fontWeight: 700,
                   marginTop: 'var(--s-2)',
-                  color: '#1b1b1b',
+                  color: 'var(--text)',
                 }}
               >
                 Pindai untuk Melihat Menu
@@ -955,7 +968,7 @@ export function Meja({
               <p
                 style={{
                   fontSize: 'var(--t-1)',
-                  color: '#757575',
+                  color: 'var(--text-muted)',
                   margin: 'var(--s-1) 0 0 0',
                 }}
               >

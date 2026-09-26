@@ -2906,4 +2906,26 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `supabase/migrations/0078_kelola_cabang.sql`, `supabase/tes/kelola_cabang.sql`, `alat/uji-mutasi-0078.py`, `aplikasi/src/layar/pengaturan/Cabang.tsx`, `aplikasi/src/layar/pengaturan/Cabang.test.tsx`
 - **Implikasi:** Pengaturan transaksi, perpindahan cabang kasir, dan pencetakan struk wajib selalu mengacu pada konfigurasi cabang aktif terkait tanpa merusak isolasi penyewa.
 
+### [Fase 9/2026-09-26] Pemilik Platform: Pendaftaran Penyewa Baru & Tata Kelola Multi-Tenant (T9-10)
+- **Area:** Multi-Tenant (ART-1) & Role & Permission (ART-2)
+- **Keputusan:**
+  1. Pendaftaran restoran baru dan tata kelola akun penyewa diatur oleh 3 RPC resmi: `public.buat_penyewa`, `public.set_status_penyewa`, dan `public.ambil_daftar_penyewa`.
+  2. **Otorisasi Khusus Pemilik Platform (ART-1 & ART-2):**
+     - Seluruh fungsi pendaftaran penyewa, pengubahan status penyewa, dan pembacaan daftar penyewa lintas platform hanya boleh dieksekusi oleh pengguna dengan peran `pemilik_platform`.
+     - Peran `owner_pusat`, `admin_cabang`, `kasir`, `dapur`, `pelayan`, maupun `anon` ditolak secara tegas (fail-closed) di tingkat peladen PostgreSQL.
+  3. **Pendaftaran Atomik Satu Langkah (Atomic Provisioning):**
+     - RPC `buat_penyewa` membuat catatan resto di `public.penyewa`, cabang pertama di `public.cabang`, akun owner pertama di `public.pengguna`, penugasan cabang di `public.pengguna_cabang`, pengaturan awal di `public.pengaturan`, serta template metode bayar default di `public.metode_bayar` dalam satu transaksi atomik.
+     - Validasi ketat pada pembuatan akun: nama penyewa (1-120 karakter), slug unik alfanumerik huruf kecil dan strip (2-31 karakter), zona waktu resmi (WIB/WITA/WIT/UTC), mata uang 3 huruf kapital, format email owner, serta validasi PIN owner 6 angka dan anti-PIN lemah (`public.pin_lemah`).
+  4. **Proteksi Integritas Data & Larangan Hard Delete (ART-1):**
+     - Pemicu fail-closed peladen `picu_penyewa_cegah_hapus` menolak keras hard delete pada data penyewa yang masih memiliki cabang atau data operasional.
+     - Jalur penonaktifan resto dilakukan via soft-disable (`status = 'nonaktif'`) dengan pencatatan alasan wajib minimal 5 karakter.
+     - Penonaktifan penyewa secara otomatis mencabut (*revoke*) seluruh sesi perangkat aktif di seluruh cabang restoran terkait untuk mencegah akses yang tidak sah.
+  5. **Edge Function & Antarmuka Manajemen Platform:**
+     - Edge Function `supabase/functions/daftar_penyewa/index.ts` memvalidasi masukan awal dan meneruskan token autentikasi pemanggil ke basis data.
+     - Layar antarmuka `aplikasi/src/layar/platform/Penyewa.tsx` menyediakan dashboard statistik, pencarian & penyaringan, modal pendaftaran resto terpandu, serta dialog konfirmasi penonaktifan dengan jaminan keamanan data riwayat transaksi.
+  6. **Jejak Audit Kekal:**
+     - Setiap aktivitas pendaftaran resto (`buat_penyewa`) dan pengubahan status keaktifan penyewa (`set_status_penyewa`) dicatat abadi di `public.catatan_audit`.
+- **File terkait:** `supabase/migrations/0079_daftar_penyewa_m1.sql`, `supabase/tes/daftar_penyewa.sql`, `alat/uji-mutasi-0079.py`, `supabase/functions/daftar_penyewa/index.ts`, `aplikasi/src/layar/platform/Penyewa.tsx`, `aplikasi/src/layar/platform/Penyewa.test.tsx`
+- **Implikasi:** Modul multi-tenant platform menjamin pemisahan data absolut antarklien (RLS fail-closed) dan pendaftaran penyewa baru selalu menghasilkan konfigurasi awal resto yang siap pakai tanpa manipulasi manual.
+
 

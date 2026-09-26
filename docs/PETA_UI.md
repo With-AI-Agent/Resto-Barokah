@@ -8,14 +8,14 @@
 
 ## 1. Ringkasan Eksekutif Antarmuka (G1)
 
-- **Total Layar Terdaftar:** 11 layar
-- **Total Aksi Terdaftar:** 54 aksi
-  - Aksi Tulis / Transaksi: 39
+- **Total Layar Terdaftar:** 12 layar
+- **Total Aksi Terdaftar:** 56 aksi
+  - Aksi Tulis / Transaksi: 41
   - Aksi Baca / Filter: 7
   - Aksi Navigasi / UI: 8
 - **Aksi dengan Izin Spesifik:** 33 aksi
-- **Aksi dengan Dialog Konfirmasi:** 17 aksi
-- **Aksi Wajib Jejak Audit:** 31 aksi
+- **Aksi dengan Dialog Konfirmasi:** 18 aksi
+- **Aksi Wajib Jejak Audit:** 33 aksi
 
 ---
 
@@ -32,6 +32,7 @@
 | `opname` | Opname Stok | `/opname` | `owner_pusat`, `admin_cabang`, `dapur` | Tombol "Ke Opname" di layar Stok | `src/layar/dapur/Opname.test.tsx` | `W-5-02` |
 | `pelanggan-publik` | Katalog Menu Publik | `/menu` | `pelanggan`, `kasir`, `pelayan`, `admin_cabang`, `owner_pusat`, `pemilik_platform` | Tautan publik / QR Meja, Peramban pelanggan | `src/layar/pelanggan-publik/LayarPelangganPublik.test.tsx` | `W-8-02` |
 | `pengaturan` | Pengaturan Resto | `/pengaturan` | `owner_pusat`, `admin_cabang` | Bilah navigasi Pengaturan, Menu Utama | `src/layar/pengaturan/LayarPengaturan.test.tsx` | `W-9-01` |
+| `platform_penyewa` | Kelola Resto Penyewa | `/platform/penyewa` | `pemilik_platform` | Menu Platform, Admin Root | `src/layar/platform/Penyewa.test.tsx` | `W-1-01` |
 | `stok` | Stok Bahan | `/stok` | `owner_pusat`, `admin_cabang`, `dapur` | Menu Utama, Tombol "Ke Opname" di layar Stok | `src/layar/dapur/Stok.test.tsx` | `W-5-01` |
 | `voucher` | Voucher & Diskon | `/voucher` | `owner_pusat`, `admin_cabang`, `kasir` | Panel Pembayaran Kasir, Menu Voucher | `src/layar/voucher/LayarVoucher.test.tsx` | `W-8-01` |
 
@@ -109,6 +110,8 @@
 | `pengaturan.ubah_izin` | Ubah Izin Peran | `pengaturan` | owner_pusat | `kelola_pegawai` | `set_izin` | `tulis` | Ya | Ya | `uji_pengaturan_ubah_izin` |
 | `pengaturan.ubah_status_cabang` | Ubah Status Cabang | `pengaturan` | owner_pusat | `atur_pengaturan` | `set_status_cabang` | `tulis` | - | Ya | `uji_pengaturan_ubah_status_cabang` |
 | `pengaturan.ubah_status_pegawai` | Ubah Status Pegawai | `pengaturan` | owner_pusat, admin_cabang | `kelola_pegawai` | `set_status_pengguna` | `tulis` | - | Ya | `uji_pengaturan_ubah_status_pegawai` |
+| `platform.buat_penyewa` | Daftar Restoran Baru | `platform_penyewa` | pemilik_platform | - | `buat_penyewa` | `tulis` | - | Ya | `daftar_penyewa` |
+| `platform.set_status_penyewa` | Ubah Status Penyewa | `platform_penyewa` | pemilik_platform | - | `set_status_penyewa` | `tulis` | Ya | Ya | `daftar_penyewa` |
 | `stok.catat_perubahan` | Catat Perubahan Stok | `stok` | owner_pusat, admin_cabang, dapur | `ubah_stok` | `set_stok` | `tulis` | Ya | Ya | `uji_set_stok` |
 | `stok.ke_opname` | Ke Opname | `stok` | owner_pusat, admin_cabang, dapur | - | - | `navigasi` | - | - | `uji_opname_stok` |
 | `voucher.batal` | Tutup | `voucher` | owner_pusat, admin_cabang, kasir | - | - | `navigasi` | - | - | `uji_voucher_batal` |

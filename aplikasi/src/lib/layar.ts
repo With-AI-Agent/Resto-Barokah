@@ -384,4 +384,32 @@ export const DAFTAR_LAYAR: Record<string, KontrakLayar> = {
     berkasUji: 'src/layar/dapur/Opname.test.tsx',
     naskahJalan: 'W-5-02',
   },
+  platform_penyewa: {
+    id: 'platform_penyewa',
+    rute: '/platform/penyewa',
+    judul: 'Kelola Resto Penyewa',
+    tujuan:
+      'Pemilik platform mendaftarkan resto baru, membuat cabang dan akun owner pertama, serta menonaktifkan penyewa.',
+    peran: ['pemilik_platform'],
+    masukDari: ['Menu Platform', 'Admin Root'],
+    komponen: 'src/layar/platform/Penyewa.tsx',
+    data: [{ nama: 'Daftar Resto Penyewa', sumber: 'public.penyewa' }],
+    aksi: ['platform.buat_penyewa', 'platform.set_status_penyewa'],
+    keadaan: {
+      kosong: 'Belum ada resto penyewa yang terdaftar.',
+      memuat: 'Memuat daftar resto penyewa...',
+      gagal: 'Gagal memuat atau menyimpan penyewa.',
+      menunggu: 'Mendaftarkan resto baru ke basis data...',
+      tidakPunyaAkses: 'Hanya peran Pemilik Platform yang berhak membuka halaman ini.',
+      dataSebagian: 'Daftar penyewa tersimpan ditampilkan sebagian.',
+      berhasil: 'Penyewa berhasil didaftarkan.',
+    },
+    aturanTampilan: [
+      'Semua data finansial dan cabang terlindungi fail-closed dari hard-delete',
+      'PIN Owner awal diverifikasi 6 digit angka dan bukan PIN lemah',
+      'Penonaktifan penyewa mewajibkan pencatatan alasan minimal 5 karakter',
+    ],
+    berkasUji: 'src/layar/platform/Penyewa.test.tsx',
+    naskahJalan: 'W-1-01',
+  },
 }

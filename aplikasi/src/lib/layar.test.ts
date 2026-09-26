@@ -19,6 +19,7 @@ describe('Registri dan Kontrak Layar (layar.ts)', () => {
   ] as const
 
   const LAYAR_FASE4 = ['bar', 'stok', 'opname'] as const
+  const LAYAR_PLATFORM = ['platform_penyewa'] as const
 
   it('delapan layar G1 tetap terdaftar (tidak boleh hilang)', () => {
     const keys = Object.keys(DAFTAR_LAYAR)
@@ -30,8 +31,13 @@ describe('Registri dan Kontrak Layar (layar.ts)', () => {
     for (const id of LAYAR_FASE4) expect(keys).toContain(id)
   })
 
+  it('layar Platform terdaftar resmi: platform_penyewa (T9-10 / PRD M1)', () => {
+    const keys = Object.keys(DAFTAR_LAYAR)
+    for (const id of LAYAR_PLATFORM) expect(keys).toContain(id)
+  })
+
   it('tidak ada layar tak dikenal yang menyelinap ke registri', () => {
-    const sah: string[] = [...LAYAR_G1_WAJIB, ...LAYAR_FASE4]
+    const sah: string[] = [...LAYAR_G1_WAJIB, ...LAYAR_FASE4, ...LAYAR_PLATFORM]
     for (const id of Object.keys(DAFTAR_LAYAR)) expect(sah).toContain(id)
   })
 
