@@ -6,6 +6,6 @@ export default defineConfig({
     // CSS diolah sungguhan (bukan dibuang) supaya uji bisa MENGUKUR kaskade
     // berkas gaya nyata — lihat src/gaya/kerapatan-css.test.ts.
     css: true,
-    include: ['src/**/*.test.{ts,tsx}', 'alat/**/*.test.{ts,tsx}'],
+    include: ['src/**/*.test.{ts,tsx}', 'alat/**/*.test.{ts,tsx}', 'uji/**/*.{test,spec}.{ts,tsx}'],
   },
 })

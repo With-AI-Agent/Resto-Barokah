@@ -531,6 +531,7 @@ function uraikanJenisAksi(item: ItemAntrean): string {
     return 'Pesanan Baru (Bawa Pulang / Luar Meja)'
   }
   if (item.jenis === 'bayar_pesanan') return 'Pembayaran Transaksi'
+  if (item.jenis === 'pakai_voucher') return 'Pemakaian Voucher'
   if (item.jenis === 'buka_shift') return 'Buka Shift Kasir'
   if (item.jenis === 'tutup_shift') return 'Tutup Shift Kasir'
   if (item.jenis === 'set_stok' || item.jenis === 'opname_stok') return 'Penyesuaian Stok Barang'
@@ -563,6 +564,12 @@ function uraikanMuatanRingkas(item: ItemAntrean): string {
           : item.muatan.bayar
       if (typeof bayar === 'number') {
         return `Nominal pembayaran: Rp ${bayar.toLocaleString('id-ID')}`
+      }
+    }
+    if (item.jenis === 'pakai_voucher') {
+      const kode = item.muatan.kodeVoucher || item.muatan.kode
+      if (typeof kode === 'string') {
+        return `Kode voucher: ${kode}`
       }
     }
   } catch {

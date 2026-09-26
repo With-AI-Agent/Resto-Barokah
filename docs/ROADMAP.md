@@ -1913,11 +1913,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** kasir mengira gagal padahal terkirim (atau sebaliknya) → mitigasi: status dari peladen, bukan tebakan klien.
   - **Verifikasi:** uji manual 3 skenario jaringan. · **Bukti 2026-09-26 (Otomatis & Kode):** komponen antarmuka `aplikasi/src/komponen/StatusAntrean.tsx` diimplementasikan lengkap dengan indikator tiga status yang selalu terlihat (Terkirim, Tertunda, Gagal + jumlah pesanan), dialog rincian antrean berbasis token desain (`Lapis`), percobaan ulang otomatis saat kembali daring via hook `useAntrean.ts`, percobaan ulang manual (per-item maupun massal seluruh item gagal), tombol pembatalan/penghapusan antrean berkonfirmasi pengaman, serta pelaporan pesan galat jujur dari peladen tanpa kegagalan diam-diam; diverifikasi lewat 8 pengujian unit Vitest `aplikasi/src/komponen/StatusAntrean.test.tsx` yang mencakup 3 skenario jaringan (Daring, Luring, Fluktuasi/Gagal Kirim); 116 berkas uji Vitest (948 pengujian) dan 125 berkas uji SQL lulus 100%.
 
-- [ ] T10-04 — Uji putus-sambung jaringan (anti data dobel)
+- [x] T10-04 — Uji putus-sambung jaringan (anti data dobel)
   - **Tujuan:** membuktikan ketahanan luring benar-benar bekerja.
   - **Ref:** TECH_SPEC §11
   - **File:** `aplikasi/uji/e2e/luring.spec.ts`
-  - **DoD:** uji otomatis: kirim pesanan saat luring → pulih → jumlah pesanan tetap 1; uji pembayaran & voucher juga; lulus di CI.
+  - **DoD:** uji otomatis: kirim pesanan saat luring → pulih → jumlah pesanan tetap 1; uji pembayaran & voucher juga; lulus di CI. · **Bukti 2026-09-27:** pengujian otomatis ketahanan luring `aplikasi/uji/e2e/luring.spec.ts` (7 skenario: pesanan luring → pulih tepat 1 di peladen; pembayaran luring idempoten tidak dobel uang; voucher luring idempoten tidak dobel potongan; ketahanan putus-sambung berulang/flapping; integrasi reaktif antarmuka kasir `useAntrean` & `StatusAntrean` lulus 100% di Vitest & CI).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** uji jaringan tiruan tidak realistis → mitigasi: uji di perangkat nyata juga (T11-04) + catatan hasil.
   - **Verifikasi:** CI hijau + uji manual di perangkat kasir nyata.

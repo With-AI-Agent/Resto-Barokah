@@ -158,6 +158,77 @@ export function useAntrean(): GunakanAntreanHasil {
         }
       }
 
+      if (item.jenis === 'bayar_pesanan') {
+        try {
+          const m = item.muatan as {
+            pesananId: string
+            metodeId: string
+            jumlah: number
+            diterima?: number | null
+            referensi?: string | null
+          }
+          const { data, error } = await klien.rpc('bayar_pesanan', {
+            p_pesanan_id: m.pesananId,
+            p_metode_id: m.metodeId,
+            p_jumlah: m.jumlah,
+            p_diterima: m.diterima ?? null,
+            p_referensi: m.referensi ?? null,
+            p_kunci_idempoten: item.kunciIdempoten,
+          })
+
+          if (error) {
+            if (error.message.includes('kunci_idempoten') || error.code === '23505') {
+              return { sukses: true }
+            }
+            return { sukses: false, pesan: error.message }
+          }
+          const res = data as {
+            berhasil?: boolean
+            dobel?: boolean
+            kode?: string
+            pesan?: string
+          } | null
+          if (res && res.berhasil === false) {
+            return { sukses: false, pesan: res.pesan || res.kode || 'Gagal memproses pembayaran' }
+          }
+          return { sukses: true }
+        } catch (e) {
+          const pesan = e instanceof Error ? e.message : String(e)
+          return { sukses: false, pesan }
+        }
+      }
+
+      if (item.jenis === 'pakai_voucher') {
+        try {
+          const m = item.muatan as {
+            pesananId: string
+            kodeVoucher: string
+            pinKasir?: string
+          }
+          const { data, error } = await klien.rpc('pakai_voucher', {
+            p_pesanan_id: m.pesananId,
+            p_kode: m.kodeVoucher,
+            p_pin_kasir: m.pinKasir ?? '',
+            p_kunci_idempoten: item.kunciIdempoten,
+          })
+
+          if (error) {
+            if (error.message.includes('kunci_idempoten') || error.code === '23505') {
+              return { sukses: true }
+            }
+            return { sukses: false, pesan: error.message }
+          }
+          const res = data as { berhasil?: boolean; kode?: string; pesan?: string } | null
+          if (res && !res.berhasil && res.kode !== 'IDEMPOTEN') {
+            return { sukses: false, pesan: res.pesan || res.kode || 'Gagal memakai voucher' }
+          }
+          return { sukses: true }
+        } catch (e) {
+          const pesan = e instanceof Error ? e.message : String(e)
+          return { sukses: false, pesan }
+        }
+      }
+
       // Jenis aksi lainnya dianggap berhasil jika kunci idempoten diterima
       return { sukses: true }
     },

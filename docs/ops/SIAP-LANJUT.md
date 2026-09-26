@@ -103,14 +103,24 @@ JANGAN merge apa pun tanpa keputusan Lee.
    - 8 uji unit di `aplikasi/src/komponen/StatusAntrean.test.tsx` mencakup 3 skenario jaringan (Daring, Luring, Fluktuasi/Gagal Kirim) lulus 100%.
    - 116 berkas uji Vitest (948 pengujian) dan 125 berkas uji SQL lulus 100%.
 
-0ZZ4. **LANGKAH SELANJUTNYA: FASE 10 — T10-04 (Uji putus-sambung jaringan / anti data dobel — TECH_SPEC §11).**
-   - **Tujuan:** membuktikan ketahanan luring benar-benar bekerja di alur pesanan, pembayaran, dan voucher.
-   - **Ref:** TECH_SPEC §11.
-   - **File:** `aplikasi/uji/e2e/luring.spec.ts` (rencana T10-04).
-   - **DoD:** uji otomatis: kirim pesanan saat luring → pulih → jumlah pesanan tetap 1; uji pembayaran & voucher juga; lulus di CI.
+0ZZ4. **FASE 10: T10-04 (Uji putus-sambung jaringan & anti data dobel — TECH_SPEC §11 / ART-8) SELESAI.**
+   - Berkas pengujian otomatis ketahanan luring `aplikasi/uji/e2e/luring.spec.ts` membuktikan ketahanan offline menyeluruh.
+   - 7 skenario pengujian membuktikan:
+     1. Pesanan dikirim saat luring disimpan ke antrean lokal dengan kunci idempoten stabil, lalu saat jaringan pulih terkirim ke peladen dan dijamin tepat 1 transaksi (anti dobel pesanan).
+     2. Pembayaran saat luring/timeout diproses ke peladen via `bayar_pesanan` dengan kunci idempoten stabil, retry idempoten direspons `dobel: true`, dan saldo tercatat tidak berlipat ganda (anti dobel uang).
+     3. Pemakaian voucher saat luring disinkronkan ke RPC `pakai_voucher`, retry menghasilkan kode `IDEMPOTEN`, dan potongan kupon tidak berlipat ganda (anti dobel voucher).
+     4. Jaringan putus-sambung berulang (flapping network) ditangani secara anggun tanpa kegagalan beruntun, serta dilanjutkan mulus saat pulih kedua kali tanpa duplikasi data.
+     5. Integrasi reaktif antarmuka kasir (`useAntrean` & `StatusAntrean`) merespons transisi status luring/daring secara seketika dan mendukung retry manual dari dialog.
+   - 117 berkas uji Vitest (955 pengujian) dan 125 berkas uji SQL lulus 100%.
+
+0ZZ5. **LANGKAH SELANJUTNYA: FASE 10 — T10-05 (Penyisiran ulang RLS seluruh tabel ⚠️ — TECH_SPEC §9 ART-1; PRD M12).**
+   - **Tujuan:** memastikan tidak ada tabel baru yang lupa dikunci RLS setelah seluruh fitur masuk (Fase 1–9).
+   - **Ref:** TECH_SPEC §9 ART-1; PRD M12.
+   - **File:** `supabase/tes/sisir_rls_akhir.sql` (rencana T10-05).
+   - **DoD:** daftar tabel ↔ policy diperiksa ulang; uji akses silang untuk 6 peran; laporan akhir "0 tabel tanpa policy" dicetak.
    - **Kompleksitas:** sedang (3 jam).
-   - **Risiko & mitigasi:** uji jaringan tiruan tidak realistis → mitigasi: uji di perangkat nyata juga (T11-04) + catatan hasil.
-   - **Verifikasi:** CI hijau + uji manual di perangkat kasir nyata.
+   - **Risiko & mitigasi:** ⚠️ wajib update `docs/DECISIONS_LOG.md` — Area: Keamanan Data & RLS (ART-1); tabel baru tanpa policy bisa bocor lintas penyewa → mitigasi: script otomatis yang memeriksa pg_tables vs pg_policy.
+   - **Verifikasi:** script audit RLS keluar 0 tabel terbuka + laporan di `docs/DECISIONS_LOG.md`.
 
 0ZZ3. **FASE 9 TUNTAS PENUH: T9-01 s/d T9-12 SELESAI (12/12 TUGAS LULUS 100%).**
    - T9-01 s/d T9-12 selesai tuntas dengan 124 berkas uji SQL lulus, mutasi fail-closed 100% merah, komponen UI lengkap, Peta UI hijau.
