@@ -1,5 +1,7 @@
 # Project State
 
+> **PENGINGAT PENTING LEE (§29 REKAM PESAN PEMILIK — 2026-09-26):** Setelah seluruh tugas Fase 10 selesai tuntas (T10-01 s/d T10-16), agent WAJIB BERHENTI dan MENGINGATKAN Lee untuk melakukan mekanisme pemeriksaan mendalam menyeluruh sebelum melangkah ke Fase 11. Mekanisme detail akan dijelaskan oleh Lee kemudian.
+
 > **PENGKINIAN DAFTAR UJI MANUAL LEE (2026-09-26, sesi arena/01a0d09b).** Seluruh cakupan fitur dari Fase 1 hingga Fase 9 (T9-01, T9-02, T9-03) kini resmi didaftarkan ke dalam berkas uji manual Lee:
 > 1. `docs/uji/RENCANA_UJI_MANUAL.md`: Diperluas menjadi 57 baris uji (M-01 s/d M-57) mencakup seluruh sub-skenario validasi positif/negatif, pembatasan ukuran berkas, keamanan batas angka PB1/service, isolasi multi-cabang, hak akses peran kasir, rate-limiting voucher, pemisahan KDS dapur/bar, hingga antrean luring IndexedDB.
 > 2. `docs/uji/BUKU_UJI_PEMILIK.md`: Ditambah baris coba U-13 sampai U-22 (total 28 baris, 6 lakukan dan 22 coba) yang dijaga ketat oleh penjaga otomatis `alat/periksa-buku-uji.py` (maksimal 5 langkah per baris, rujukan tugas ROADMAP sah, dan indikator harapan jelas).

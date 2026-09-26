@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `5457970edb30b1ee43e64d8b2bf62f242510dc13`
+- **Commit keadaan kerja:** `3d49e29c747c924e0b5c838785ad4ddfdf0309a1`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36247022222, commit 5457970e) — tunggu sampai selesai
+- **CI terakhir:** in_progress (run 36247487240, commit 3d49e29c) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (61 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (353 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (62 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (354 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -83,15 +83,16 @@ JANGAN merge apa pun tanpa keputusan Lee.
    - Catatan keputusan arsitektur dicatat resmi di `docs/DECISIONS_LOG.md` (Area: Antrean Offline ART-8).
    - Didaftarkan ke `BUKU_UJI_PEMILIK.md` baris U-22 dan `RENCANA_UJI_MANUAL.md` baris M-57.
 
-0ZZ2. **LANGKAH SELANJUTNYA: FASE 10 — T10-02 (Resolusi konflik luring vs daring ⚠️).**
-   - **Tujuan:** atur aturan jelas siapa menang jika data di peladen sudah berubah saat kirim luring tiba (stok, status meja, pembatalan).
-   - **Ref:** TECH_SPEC §13 K4.
-   - **File:** `aplikasi/src/lib/resolusi-konflik.ts` (rencana T10-02), migrasi bila perlu.
-   - **DoD:**
-     1. Aturan terdokumentasi di DECISIONS_LOG.md (server-wins untuk stok/status; append untuk pesanan baru).
-     2. Pengguna diberitahu jika ada konflik (bukan silent overwrite atau silent drop).
-     3. Uji unit skenario konflik lulus 100%.
-     4. Log keputusan dicatat di `docs/DECISIONS_LOG.md`.
+0ZZ0. **CATATAN MUTLAK LEE (§29 REKAM PESAN PEMILIK): PEMERIKSAAN MENDALAM MENYELURUH SETELAH FASE 10 SELESAI.**
+   - Sesuai instruksi Lee pada 2026-09-26, setelah tugas terakhir di Fase 10 (T10-16) selesai tuntas, agent WAJIB BERHENTI dan MENGINGATKAN Lee untuk melakukan mekanisme pemeriksaan mendalam menyeluruh. Dilarang langsung melangkah ke Fase 11 sebelum mekanisme pemeriksaan tersebut disiapkan dan dijalankan bersama Lee.
+
+0ZZ2. **LANGKAH SELANJUTNYA: FASE 10 — T10-02 (Kunci idempoten menyeluruh di semua penulisan ⚠️ — TECH_SPEC §9 ART-8).**
+   - **Tujuan:** satu tindakan tidak pernah tercatat dua kali, dari layar mana pun saat jaringan internet kedai tersendat.
+   - **Ref:** TECH_SPEC §9 ART-8.
+   - **File:** `supabase/migrations/0080_kunci_idempoten_menyeluruh.sql` (rencana T10-02), `supabase/tes/idempoten.sql` (rencana T10-02).
+   - **DoD:** semua RPC penulisan menerima kunci idempoten (pesanan, pembayaran, voucher, shift, stok); uji paralel untuk masing-masing; laporan cakupan 100%.
+   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Antrean Offline (ART-8); mitigasi: uji otomatis "setiap RPC penulisan punya kunci" (daftar diperiksa).
+   - **Verifikasi:** uji SQL: 3 RPC dengan kunci sama → satu efek.
 
 0ZZ3. **FASE 9 TUNTAS PENUH: T9-01 s/d T9-12 SELESAI (12/12 TUGAS LULUS 100%).**
    - T9-01 s/d T9-12 selesai tuntas dengan 124 berkas uji SQL lulus, mutasi fail-closed 100% merah, komponen UI lengkap, Peta UI hijau.

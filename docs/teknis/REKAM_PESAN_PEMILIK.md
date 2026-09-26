@@ -532,6 +532,12 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
 - **[ringkas]** Lee menginstruksikan dua hal penting: (1) Jaminan handoff total bila sesi sewaktu-waktu terputus/eror — Lee cukup mengatur base branch ke `arena/01a0d09b-resto-barokah` dan mengirim chat *"baca pro.md"* untuk melanjutkan tanpa kehilangan konteks apa pun. (2) Mempersiapkan pemeriksaan menyeluruh putaran kedua (AUD-4) yang jauh lebih dalam, teliti, dan sempurna, dibagi ke beberapa agen pemeriksa independen terfokus (Agent A: Keamanan & Sistem/DB, Agent B: UI & Desain Antarmuka, Agent C: Logika Bisnis / POS / Kasir).
 - **Pelaksanaan:** Menyiapkan 4 paket audit independen AUD-4 di `docs/uji/paket-audit/` lengkap dengan format SIAP-TEMPEL dan instruksi eksekusi terisolasi: (i) Master AUD-4 Menyeluruh (409 berkas), (ii) Agent A Keamanan (173 berkas), (iii) Agent B Antarmuka UI/UX (96 berkas), dan (iv) Agent C Bisnis & Kasir POS (191 berkas). Menyegarkan `PRO.md`, `docs/ops/SIAP-LANJUT.md`, `STATUS.md`, dan `PROJECT_STATE.md` agar transisi antar-sesi terjamin mulus dan deterministic.
 
+## §29. Peringatan Penyelesaian Fase 10 & Pemeriksaan Mendalam Menyeluruh (2026-09-26)
+
+- **[verbatim]** “Lanjut. Dan catat dan ingatkan, setelah fase 10 selesai aku mau lakukan pemeriksaan mendalam menyeluruh. Tapi untuk detail nya terkait mekanisme pemeriksaan yang aku inginkan akan aku jelaskan kemudian. Yang penting sekarang catat dulu dan pastikan nanti ingatkan aku”
+- **Pelaksanaan:** Menjadwalkan pengingat mutlak kepada Lee tepat setelah tugas terakhir Fase 10 (T10-16) selesai tuntas dan terverifikasi. Agent WAJIB BERHENTI, dilarang langsung melangkah ke Fase 11 atau fase lainnya tanpa instruksi Lee, dan wajib secara eksplisit mengingatkan Lee bahwa Fase 10 telah selesai dan siap untuk mekanisme pemeriksaan mendalam menyeluruh sesuai arahan detail yang akan diberikan Lee kemudian.
+
+
 
 
 
