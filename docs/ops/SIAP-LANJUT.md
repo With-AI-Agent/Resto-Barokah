@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `3cf234bcb5101b9eb59259f4ddb24b22e3a411e3`
+- **Commit keadaan kerja:** `0bfa01cdd40745a55ddab5d931cf1c5139016098`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36236582816, commit 3cf234bc) — tunggu sampai selesai
+- **CI terakhir:** failure (run 36240610655, commit 0bfa01cd)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (54 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (56 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,27 +70,25 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-10 SELESAI):**
+**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-11 SELESAI):**
 
-0ZY. **FASE 9: T9-10 (Pemilik Platform: daftar penyewa baru / M1 ⚠️ — PRD M1 / ART-1) SELESAI & T9-11 SIAP LANJUT.**
-   - Migrasi `supabase/migrations/0079_daftar_penyewa_m1.sql`:
-     1. Pemicu fail-closed peladen `picu_penyewa_cegah_hapus`: menolak hard-delete pada penyewa yang masih memiliki data cabang atau operasional demi melindungi integritas finansial dan jejak audit ART-1.
-     2. RPC `public.buat_penyewa`: otorisasi eksklusif peran `pemilik_platform`, inisialisasi atomik restoran (data penyewa, cabang utama pertama, akun owner pusat pertama, penugasan cabang pengguna, konfigurasi awal pengaturan resto, dan template metode bayar awal).
-     3. Validasi ketat nama resto (1-120 karakter), slug unik alfanumerik huruf kecil & strip (2-31 karakter), zona waktu resmi, mata uang, format email, dan PIN owner 6 digit anti-lemah (`public.pin_lemah`).
-     4. RPC `public.set_status_penyewa`: otorisasi peran `pemilik_platform`, pengubahan status keaktifan (`aktif`/`nonaktif` soft-disable), validasi alasan wajib minimal 5 karakter saat penonaktifan, pencabutan sesi perangkat aktif saat dinonaktifkan, dan pencatatan jejak audit kekal di `public.catatan_audit`.
-     5. RPC `public.ambil_daftar_penyewa`: pembacaan daftar penyewa lintas platform lengkap dengan jumlah cabang dan identitas owner.
-   - Berkas uji SQL `supabase/tes/daftar_penyewa.sql` (28+ kasus uji): isolasi RLS total dua penyewa (pembuktian dua penyewa tidak saling melihat), penolakan peran non-platform, transaksi atomik rollback bila PIN lemah, dan penolakan hard-delete. Total 123/123 berkas SQL lulus 100% (`node alat/uji-sql.mjs`).
-   - Penilai mutasi `alat/uji-mutasi-0079.py`: 10/10 mutasi fail-closed tertangkap merah 100%.
-   - Edge Function `supabase/functions/daftar_penyewa/index.ts`: penanganan CORS, validasi awal, dan penerusan token otentikasi pemanggil.
-   - Komponen antarmuka `aplikasi/src/layar/platform/Penyewa.tsx`: dashboard statistik, pencarian/filter, modal formulir pendaftaran penyewa baru, dan konfirmasi penonaktifan.
-   - Kontrak layar `aplikasi/src/lib/layar.ts` dan registri aksi `aplikasi/src/lib/aksi.ts` dimutakhirkan (12 layar, 56 aksi, peta UI hijau 100% bebas tombol liar).
-   - 6 uji unit di `Penyewa.test.tsx` dan 6 uji kontrak di `layar.test.ts` lulus 100%.
-   - Pedoman induk `PANDUAN_PENGGUNA.md` disinkronkan ke 123 berkas uji dan lolos `python3 alat/periksa-panduan.py`.
-   - Catatan keputusan arsitektur `docs/DECISIONS_LOG.md` dimutakhirkan untuk Area Multi-Tenant (ART-1) & Role & Permission (ART-2).
+0ZZ. **FASE 9: T9-11 (Pratinjau perubahan & pengaman riwayat — PRD M2 kasus tepi) SELESAI & T9-12 SIAP LANJUT.**
+   - Berkas uji SQL `supabase/tes/riwayat_tidak_berubah.sql` membuktikan secara deterministik bahwa transaksi lunas, struk belanja, dan angka laporan penjualan masa lalu tetap beku dan identik byte-per-byte (selisih = 0) saat identitas resto, tema visual, tarif pajak PB1 (naik ke 12%), service charge (naik ke 10%), aturan pembulatan (500), maupun harga menu katalog (naik >2x lipat) diubah di kemudian hari.
+   - Pemicu peladen `picu_pesanan_tertutup_beku` dan `picu_pesanan_uang_peladen` menolak modifikasi langsung pada transaksi tertutup.
+   - Seluruh 124 berkas uji SQL lulus 100% (`node alat/uji-sql.mjs`).
+   - Fungsi SQL aman dan memenuhi standar search_path/RLS (`python3 alat/periksa-keamanan-sql.py`).
+   - Komponen antarmuka `aplikasi/src/layar/pengaturan/Pratinjau.tsx` mengimplementasikan Diff Viewer berdampingan, Live Receipt Simulator 58mm/80mm interaktif dengan 3 skenario pesanan, komparator selisih tagihan pelanggan, banner jaminan integritas riwayat kekal (immutable past), dialog konfirmasi simpan, dan tombol reset draf.
+   - Aksi `pengaturan.pratinjau_perubahan` terdaftar resmi di `aksi.ts`, `layar.ts`, dan `docs/PETA_UI.md` (12 layar, 57 aksi, peta UI hijau bebas tombol liar).
+   - 8 uji unit di `Pratinjau.test.tsx` dan 15 uji di `LayarPengaturan.test.tsx` lulus 100% (total 112 berkas uji / 920 tes lulus tanpa galat).
+   - Pedoman induk `PANDUAN_PENGGUNA.md` disinkronkan ke 124 berkas uji.
+   - Catatan arsitektur dicatat di `docs/DECISIONS_LOG.md`.
 
-0ZZ. **LANGKAH SELANJUTNYA: T9-11 (Pratinjau perubahan & pengaman riwayat).**
-   - Menampilkan pratinjau dampak perubahan konfigurasi resto sebelum disimpan.
-   - Menjaga data riwayat transaksi lama tidak berubah diam-diam saat parameter operasional/pajak diperbarui.
+0ZZ1. **LANGKAH SELANJUTNYA: T9-12 (Daftar uji terima pengaturan — bahasa manusia).**
+   - Menyiapkan daftar uji terima komprehensif bagi owner dalam bahasa manusia yang ramah non-teknis agar owner dapat menguji sendiri bahwa semua pengaturan bekerja sempurna.
+
+0ZY. **FASE 9: T9-10 (Pemilik Platform: daftar penyewa baru / M1 ⚠️ — PRD M1 / ART-1) SELESAI.**
+   - Migrasi `supabase/migrations/0079_daftar_penyewa_m1.sql`: pemicu cegah hapus penyewa, 3 RPC resmi, isolasi RLS total, 10/10 mutasi merah.
+   - Komponen `Penyewa.tsx`, 6 uji unit lulus.
 
 0ZW. **FASE 9: T9-09 (Kelola cabang: tambah, printer, nonaktifkan ⚠️ — PRD M11 / ART-7 & ART-12) SELESAI.**
    - Migrasi `supabase/migrations/0078_kelola_cabang.sql`: zona waktu, profil printer default, pemicu cegah hapus cabang ber-transaksi, pemicu minimal satu cabang aktif, 6 RPC aman, jejak audit kekal.
