@@ -10,13 +10,13 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `a6746c18e1252fb95b6da4b2a73bd3d519ece588`
+- **Commit keadaan kerja:** `c55ebd8c651d0ea37ad0c1b39e4ee91ea4bef272`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** running (commit a6746c1)
+- **CI terakhir:** failure (run 36204207979, commit c55ebd8c)
+- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
-  adalah induk commit ini)
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
 - **Berkas yang Lee salin ke chat baru:** `PROMPT_SESI_BARU.md` (STATIS — mesin memeriksanya, bukan
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (32 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (324 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (34 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1789,7 +1789,36 @@ Urutan yang disarankan agent, dan alasannya:
    - Seluruh suite Vitest: 104 berkas / 824 uji unit LULUS 100%.
    - Prettier, ESLint, TypeScript (`tsc -b`), dan build produksi Vite LULUS 100%.
 
+**FASE 9 T9-03 PENGATURAN OPERASIONAL (PAJAK, SERVICE, PEMBULATAN, CARA PESAN, STRUK) SELESAI (2026-09-26):**
+1. **Database & RPC (Migrasi `0072_pengaturan_operasional.sql`):**
+   - Kolom `pajak_pb1_persen` (0–100%), `service_persen` (0–100%), `pembulatan` (`none`, `100`, `500`, `1000`), `cara_pesan` (`kasir`, `mandiri`, `meja`, `campur`), `jam_buka`, `header_struk`, `footer_struk`, dan `tumpuk_diskon` pada `public.pengaturan`.
+   - RPC `public.simpan_operasional`:
+     - Otorisasi ketat: `auth.uid() is not null`, peran `owner_pusat` atau pemegang izin `atur_pengaturan`.
+     - Isolasi penyewa: `public.penyewa_saya()`.
+     - Validasi batas ketat server (ART-3): PB1 0–100%, Service 0–100%, pembulatan sah, cara pesan sah, batas panjang string wajar.
+     - Optimistic concurrency locking: menolak versi lama basi (`P0001`).
+     - Jejak audit kekal di `public.catatan_audit` (`ubah_operasional_resto`) lengkap dengan nilai_lama dan nilai_baru.
+   - RPC `public.ambil_pengaturan_operasional`: menyajikan data konfigurasi operasional lengkap bagi staf berwenang.
+   - Mitigasi Finansial Terbukti (ART-3): Nilai nominal pajak dan service charge disalin saat pesanan dibuat (`harga_saat_itu`). Perubahan tarif operasional hanya berlaku ke depan untuk pesanan baru, dan transaksi lama yang sudah lunas tidak berubah nominal uangnya sama sekali.
+2. **Pengujian SQL & Mutasi:**
+   - Berkas uji `supabase/tes/pengaturan_operasional.sql` membuktikan 15 kasus uji komprehensif termasuk bukti perlindungan transaksi lama dan isolasi penyewa (116 berkas uji SQL LULUS 100% via `node alat/uji-sql.mjs`).
+   - Uji mutasi `alat/uji-mutasi-0072.py` membuktikan 8/8 mutasi fail-closed WAJIB MERAH 100%.
+3. **Komponen Antarmuka & Frontend:**
+   - Komponen `aplikasi/src/layar/pengaturan/Operasional.tsx`:
+     - Pengaturan persentase PB1 dan Service Charge dengan tombol cepat tarif umum.
+     - Pemilih 4 aturan pembulatan (`none`, `100`, `500`, `1000`).
+     - Pemilih 4 alur cara pesan (`kasir`, `mandiri`, `meja`, `campur`).
+     - Input jam operasional, header struk, footer struk, dan sakelar tumpuk diskon.
+     - Kalkulator simulasi struk live sesuai rantai hitungan ART-3 (Subtotal -> Diskon -> PB1 -> Service -> Pembulatan -> Total).
+     - Kartu pratinjau struk kasir real-time dan jaminan keamanan finansial.
+   - Integrasi tab navigasi di `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`.
+   - Registri aksi `pengaturan.simpan_pajak` dikaitkan ke RPC `simpan_operasional` di `aplikasi/src/lib/aksi.ts` dan peta UI tersinkron di `docs/PETA_UI.md`.
+   - 12 uji unit di `Operasional.test.tsx` dan 8 uji unit di `LayarPengaturan.test.tsx` LULUS 100%.
+   - Seluruh suite Vitest: 105 berkas / 837 uji unit LULUS 100%.
+   - Uji mutasi frontend `uji-mutasi-app.mjs`: 81 mutasi fail-closed LULUS MERAH 100%.
+   - Prettier, ESLint, TypeScript (`tsc -b`), dan build produksi Vite LULUS 100%.
+
 4. **Rencana Selanjutnya:**
-   - Mengerjakan **T9-03 — Pengaturan operasional (pajak PB1, service, pembulatan, cara pesan, header & footer struk)** (PRD M2 & M6; TECH_SPEC §9 ART-3).
-   - Memastikan nilai pajak disalin ke transaksi saat dibuat agar perubahan pengaturan pajak/service tidak mengubah kalkulasi transaksi masa lalu.
-   - Mengembangkan layar `aplikasi/src/layar/pengaturan/Operasional.tsx`, uji SQL, uji mutasi, dan integrasi pengaturan operasional.
+   - Mengerjakan **T9-04 — Meja & area + QR per meja** (PRD M2 & M4).
+   - Menambah, mengubah, dan menonaktifkan meja & area; nomor meja unik per cabang; unduh kode QR per meja.
+   - Mengembangkan layar `aplikasi/src/layar/pengaturan/Meja.tsx`, uji SQL, uji mutasi, dan integrasi pengaturan meja.

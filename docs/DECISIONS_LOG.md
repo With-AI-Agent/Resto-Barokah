@@ -2849,3 +2849,15 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
   - Berkas Uji SQL: `supabase/tes/privasi.sql` membuktikan 9 kasus kepatuhan privasi UU PDP (113 berkas uji SQL lulus 100%, angka saat itu 2026-09-26 — perintah: `node alat/uji-sql.mjs`).
   - Antarmuka & Pengujian Unit: `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx` dan `KebijakanPrivasi.test.tsx` (6 uji unit hijau, angka saat itu 2026-09-26 — perintah: `npm --prefix aplikasi test -- src/layar/pelanggan-publik/KebijakanPrivasi.test.tsx`).
   - Keamanan Basis Data: `python3 alat/periksa-keamanan-sql.py` lulus (RLS, search_path, dan izin fungsi terverifikasi aman).
+
+### [Fase 9/2026-09-26] Pengaturan Operasional Resto & Perlindungan Riwayat Transaksi (T9-03)
+- **Area:** Kalkulasi Keuangan (ART-3)
+- **Keputusan:**
+  1. Pengaturan operasional resto (`pajak_pb1_persen`, `service_persen`, `pembulatan`, `cara_pesan`, `jam_buka`, `header_struk`, `footer_struk`, `tumpuk_diskon`) dikelola secara mandiri tanpa koding via RPC `public.simpan_operasional` dan dibaca via `public.ambil_pengaturan_operasional`.
+  2. **Validasi Batas Nilai di Server (ART-3):** Tarif PB1 dan Service Charge wajib berada pada rentang 0.00% s/d 100.00%; pembulatan dibatasi pada opsi ('none', '100', '500', '1000'); cara pesan dibatasi pada ('kasir', 'mandiri', 'meja', 'campur').
+  3. **Mitigasi Risiko Finansial — Perlindungan Transaksi Masa Lalu (ART-3):** Nilai pajak dan service charge dihitung dan disalin ke baris transaksi saat pesanan dibuat (`harga_saat_itu`). Perubahan tarif pajak PB1 atau service charge di pengaturan resto hanya berlaku untuk pesanan baru ke depan, dan secara mutlak TIDAK MENGUBAH nilai nominal pajak, service, atau total pada transaksi yang sudah lunas/terbit di masa lalu.
+  4. **Optimistic Concurrency Control:** Simpanan diverifikasi terhadap kolom `versi_pengaturan`; jika stempel waktu lama tidak cocok, peladen menolak tabrakan data dengan kode `P0001` untuk mencegah penimpaan konfigurasi finansial secara diam-diam.
+  5. **Jejak Audit Kekal:** Setiap perubahan konfigurasi operasional dicatat ke `public.catatan_audit` (aksi = `'ubah_operasional_resto'`) memuat rekaman lengkap `nilai_lama` dan `nilai_baru`.
+- **File terkait:** `supabase/migrations/0072_pengaturan_operasional.sql`, `supabase/tes/pengaturan_operasional.sql`, `alat/uji-mutasi-0072.py`, `aplikasi/src/layar/pengaturan/Operasional.tsx`, `aplikasi/src/layar/pengaturan/Operasional.test.tsx`
+- **Implikasi:** Seluruh fitur kalkulasi keuangan di masa depan wajib mematuhi rantai perhitungan uang ART-3 dan tidak boleh menghitung ulang pajak/service dari pesanan yang sudah berstatus lunas.
+

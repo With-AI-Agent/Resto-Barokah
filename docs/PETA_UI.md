@@ -89,7 +89,7 @@
 | `pelanggan.cari_menu` | Cari Menu | `pelanggan-publik` | pelanggan, kasir, pelayan, admin_cabang, owner_pusat, pemilik_platform | - | - | `baca` | - | - | `uji_pelanggan_cari_menu` |
 | `pelanggan.filter_kategori` | Pilih Kategori | `pelanggan-publik` | pelanggan, kasir, pelayan, admin_cabang, owner_pusat, pemilik_platform | - | - | `baca` | - | - | `uji_pelanggan_filter_kategori` |
 | `pengaturan.hapus_meja` | Hapus Meja | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | - | `tulis` | Ya | Ya | `uji_pengaturan_hapus_meja` |
-| `pengaturan.simpan_pajak` | Simpan Pajak & Service | `pengaturan` | owner_pusat | `atur_pengaturan` | - | `tulis` | Ya | Ya | `uji_pengaturan_pajak` |
+| `pengaturan.simpan_pajak` | Simpan Pajak & Service | `pengaturan` | owner_pusat | `atur_pengaturan` | `simpan_operasional` | `tulis` | Ya | Ya | `uji_pengaturan_pajak`, `uji_pengaturan_operasional` |
 | `pengaturan.simpan_tema` | Terapkan Tema | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `simpan_tema` | `tulis` | - | Ya | `uji_pengaturan_tema` |
 | `pengaturan.tambah_meja` | Tambah Meja | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | - | `tulis` | - | Ya | `uji_pengaturan_tambah_meja` |
 | `pengaturan.tambah_pegawai` | Tambah Pegawai | `pengaturan` | owner_pusat, admin_cabang | `kelola_pegawai` | `simpan_pin` | `tulis` | - | Ya | `uji_pengaturan_tambah_pegawai` |
