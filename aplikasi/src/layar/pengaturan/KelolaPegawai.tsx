@@ -331,9 +331,7 @@ export function KelolaPegawai({
         if (hasil.sukses) {
           setPegawaiList((prev) =>
             prev.map((p) =>
-              p.id === pegawaiEdit.id
-                ? { ...p, nama: nama.trim(), email: email.trim(), peran }
-                : p,
+              p.id === pegawaiEdit.id ? { ...p, nama: nama.trim(), email: email.trim(), peran } : p,
             ),
           )
           setModalBuka(false)
@@ -475,12 +473,16 @@ export function KelolaPegawai({
   })
 
   return (
-    <div className="layar-kelola-pegawai space-y-6 max-w-5xl mx-auto p-4" data-testid="kelola-pegawai">
+    <div
+      className="layar-kelola-pegawai space-y-6 max-w-5xl mx-auto p-4"
+      data-testid="kelola-pegawai"
+    >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-neutral-900">Kelola Akun Pegawai</h2>
           <p className="text-sm text-neutral-500">
-            Atur staf kedai, penugasan peran kasir/pelayan/koki, batas izin diskon, dan kredensial PIN (ART-2).
+            Atur staf kedai, penugasan peran kasir/pelayan/koki, batas izin diskon, dan kredensial
+            PIN (ART-2).
           </p>
         </div>
         {!hanyaBaca && (
@@ -555,17 +557,11 @@ export function KelolaPegawai({
                     <td className="py-3.5 text-right space-x-2 whitespace-nowrap">
                       {!hanyaBaca && (
                         <>
-                          <Tombol
-                            ragam="kecil"
-                            onClick={() => bukaModalEdit(pegawai)}
-                          >
+                          <Tombol ragam="kecil" onClick={() => bukaModalEdit(pegawai)}>
                             Edit
                           </Tombol>
 
-                          <Tombol
-                            ragam="kecil"
-                            onClick={() => bukaModalIzin(pegawai)}
-                          >
+                          <Tombol ragam="kecil" onClick={() => bukaModalIzin(pegawai)}>
                             Hak Akses
                           </Tombol>
 
@@ -678,8 +674,8 @@ export function KelolaPegawai({
         >
           <form onSubmit={tanganiSimpanResetPin} className="p-4 space-y-4">
             <p className="text-sm text-neutral-600">
-              Masukkan 6 digit angka PIN baru untuk pegawai <strong>{pegawaiTargetPin.nama}</strong> (
-              {pegawaiTargetPin.email}). PIN baru akan langsung dienkripsi dengan standar bcrypt.
+              Masukkan 6 digit angka PIN baru untuk pegawai <strong>{pegawaiTargetPin.nama}</strong>{' '}
+              ({pegawaiTargetPin.email}). PIN baru akan langsung dienkripsi dengan standar bcrypt.
             </p>
 
             {pesanPin && (
@@ -729,8 +725,8 @@ export function KelolaPegawai({
         >
           <div className="p-4 space-y-4 max-h-[80vh] overflow-y-auto">
             <p className="text-sm text-neutral-600">
-              Konfigurasi 10 izin resmi sistem untuk <strong>{pegawaiTargetIzin.nama}</strong> (Peran:{' '}
-              {pegawaiTargetIzin.peran.toUpperCase()}).
+              Konfigurasi 10 izin resmi sistem untuk <strong>{pegawaiTargetIzin.nama}</strong>{' '}
+              (Peran: {pegawaiTargetIzin.peran.toUpperCase()}).
             </p>
 
             {pesanIzin && (
@@ -754,9 +750,7 @@ export function KelolaPegawai({
                       <div>
                         <div className="font-semibold text-neutral-800 text-sm flex items-center gap-2">
                           <span>{iz.keterangan}</span>
-                          {iz.khusus && (
-                            <Lencana nada="info">Khusus</Lencana>
-                          )}
+                          {iz.khusus && <Lencana nada="info">Khusus</Lencana>}
                         </div>
                         <div className="text-xs text-neutral-500 font-mono mt-0.5">
                           {iz.kode_izin} ({iz.kelompok})
@@ -781,7 +775,9 @@ export function KelolaPegawai({
                           onUbah={(v) =>
                             ubahBatasDiskon(v === '' ? null : Number(v), iz.batas_persen)
                           }
-                          keterangan={iz.batas_nominal ? `Maks: ${rupiah(iz.batas_nominal)}` : 'Tanpa batas'}
+                          keterangan={
+                            iz.batas_nominal ? `Maks: ${rupiah(iz.batas_nominal)}` : 'Tanpa batas'
+                          }
                         />
                         <KolomIsian
                           label="Batas Persentase Diskon (%)"
@@ -808,11 +804,7 @@ export function KelolaPegawai({
               >
                 Batal
               </Tombol>
-              <Tombol
-                ragam="utama"
-                onClick={tanganiSimpanIzin}
-                nonaktif={sedangSimpanIzin}
-              >
+              <Tombol ragam="utama" onClick={tanganiSimpanIzin} nonaktif={sedangSimpanIzin}>
                 {sedangSimpanIzin ? 'Menyimpan Izin...' : 'Simpan Hak Akses'}
               </Tombol>
             </div>

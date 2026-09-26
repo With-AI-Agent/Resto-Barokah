@@ -6,7 +6,14 @@ import { MetodeBayar, type ItemMetodeBayar } from './MetodeBayar'
 const DATA_METODE_UJI: ItemMetodeBayar[] = [
   { id: 'm1', nama: 'Tunai', jenis: 'tunai', butuh_referensi: false, aktif: true, urutan: 1 },
   { id: 'm2', nama: 'QRIS', jenis: 'non_tunai', butuh_referensi: true, aktif: true, urutan: 2 },
-  { id: 'm3', nama: 'Transfer Bank', jenis: 'non_tunai', butuh_referensi: true, aktif: false, urutan: 3 },
+  {
+    id: 'm3',
+    nama: 'Transfer Bank',
+    jenis: 'non_tunai',
+    butuh_referensi: true,
+    aktif: false,
+    urutan: 3,
+  },
 ]
 
 describe('MetodeBayar (Pengaturan Metode Pembayaran & Tip — PRD M2 / T9-07)', () => {
@@ -55,7 +62,14 @@ describe('MetodeBayar (Pengaturan Metode Pembayaran & Tip — PRD M2 / T9-07)', 
   it('menolak menonaktifkan satu-satunya metode pembayaran yang aktif', async () => {
     const satuMetodeAktif: ItemMetodeBayar[] = [
       { id: 'm1', nama: 'Tunai', jenis: 'tunai', butuh_referensi: false, aktif: true, urutan: 1 },
-      { id: 'm2', nama: 'QRIS', jenis: 'non_tunai', butuh_referensi: true, aktif: false, urutan: 2 },
+      {
+        id: 'm2',
+        nama: 'QRIS',
+        jenis: 'non_tunai',
+        butuh_referensi: true,
+        aktif: false,
+        urutan: 2,
+      },
     ]
     const mockSimpan = vi.fn()
     render(<MetodeBayar daftarMetodeAwal={satuMetodeAktif} onSimpanMetode={mockSimpan} />)
@@ -198,7 +212,9 @@ describe('MetodeBayar (Pengaturan Metode Pembayaran & Tip — PRD M2 / T9-07)', 
     fireEvent.change(inputPersen, { target: { value: '5, 10, 20' } })
 
     // Klik simpan aturan tip
-    const tombolSimpanTip = screen.getByRole('button', { name: /simpan seluruh konfigurasi aturan tip/i })
+    const tombolSimpanTip = screen.getByRole('button', {
+      name: /simpan seluruh konfigurasi aturan tip/i,
+    })
     fireEvent.click(tombolSimpanTip)
 
     await waitFor(() => {

@@ -172,12 +172,7 @@ describe('KelolaPegawai (T9-08 / PRD M3 & M6 / ART-2)', () => {
   })
 
   it('dapat memfilter daftar pegawai berdasarkan teks pencarian', () => {
-    render(
-      <KelolaPegawai
-        daftarPegawai={daftarContoh}
-        cabangAktifId="cab-01"
-      />,
-    )
+    render(<KelolaPegawai daftarPegawai={daftarContoh} cabangAktifId="cab-01" />)
 
     const inputCari = screen.getByPlaceholderText(/Cari nama atau email pegawai/i)
     fireEvent.change(inputCari, { target: { value: 'Rudi' } })

@@ -45,12 +45,7 @@ describe('Cabang (T9-09 / PRD M11 / ART-7 & ART-12)', () => {
   ]
 
   it('merender daftar cabang dengan informasi zona waktu, printer default, dan statistik', () => {
-    render(
-      <Cabang
-        daftarCabang={daftarContoh}
-        cabangAktifId="cab-01"
-      />,
-    )
+    render(<Cabang daftarCabang={daftarContoh} cabangAktifId="cab-01" />)
 
     expect(screen.getByText('Cabang Pusat')).toBeDefined()
     expect(screen.getByText('Jl. Riau No. 50, Bandung • Telp: 022-7778888')).toBeDefined()
@@ -63,11 +58,7 @@ describe('Cabang (T9-09 / PRD M11 / ART-7 & ART-12)', () => {
   })
 
   it('dapat menyaring cabang berdasarkan kata kunci pencarian dan tombol filter status', () => {
-    render(
-      <Cabang
-        daftarCabang={daftarContoh}
-      />,
-    )
+    render(<Cabang daftarCabang={daftarContoh} />)
 
     const inputCari = screen.getByPlaceholderText(/Ketik nama cabang atau alamat/i)
     fireEvent.change(inputCari, { target: { value: 'Dago' } })
@@ -87,12 +78,7 @@ describe('Cabang (T9-09 / PRD M11 / ART-7 & ART-12)', () => {
   it('membuka modal tambah cabang dan memproses pembuatan cabang baru', async () => {
     const onTambahMock = vi.fn().mockResolvedValue({ sukses: true, cabangId: 'cab-99' })
 
-    render(
-      <Cabang
-        daftarCabang={daftarContoh}
-        onTambahCabang={onTambahMock}
-      />,
-    )
+    render(<Cabang daftarCabang={daftarContoh} onTambahCabang={onTambahMock} />)
 
     // Klik tombol tambah cabang
     fireEvent.click(screen.getByRole('button', { name: /\+ Tambah Cabang/i }))
@@ -121,12 +107,7 @@ describe('Cabang (T9-09 / PRD M11 / ART-7 & ART-12)', () => {
   it('menolak penambahan cabang jika nama kosong atau nama duplikat', async () => {
     const onTambahMock = vi.fn()
 
-    render(
-      <Cabang
-        daftarCabang={daftarContoh}
-        onTambahCabang={onTambahMock}
-      />,
-    )
+    render(<Cabang daftarCabang={daftarContoh} onTambahCabang={onTambahMock} />)
 
     fireEvent.click(screen.getByRole('button', { name: /\+ Tambah Cabang/i }))
 
@@ -147,12 +128,7 @@ describe('Cabang (T9-09 / PRD M11 / ART-7 & ART-12)', () => {
   it('membuka modal edit cabang dan menyimpan perubahan profil cabang & printer', async () => {
     const onSimpanMock = vi.fn().mockResolvedValue({ sukses: true })
 
-    render(
-      <Cabang
-        daftarCabang={daftarContoh}
-        onSimpanCabang={onSimpanMock}
-      />,
-    )
+    render(<Cabang daftarCabang={daftarContoh} onSimpanCabang={onSimpanMock} />)
 
     const tombolEdit = screen.getAllByRole('button', { name: /Edit Cabang/i })
     fireEvent.click(tombolEdit[0])
@@ -202,12 +178,7 @@ describe('Cabang (T9-09 / PRD M11 / ART-7 & ART-12)', () => {
       },
     ]
 
-    render(
-      <Cabang
-        daftarCabang={daftarSatuAktif}
-        onUbahStatusCabang={onUbahStatusMock}
-      />,
-    )
+    render(<Cabang daftarCabang={daftarSatuAktif} onUbahStatusCabang={onUbahStatusMock} />)
 
     const tombolNonaktifkan = screen.getByRole('button', { name: /^Nonaktifkan/i })
     fireEvent.click(tombolNonaktifkan)
@@ -242,12 +213,7 @@ describe('Cabang (T9-09 / PRD M11 / ART-7 & ART-12)', () => {
       },
     ]
 
-    render(
-      <Cabang
-        daftarCabang={daftarDuaAktif}
-        onUbahStatusCabang={onUbahStatusMock}
-      />,
-    )
+    render(<Cabang daftarCabang={daftarDuaAktif} onUbahStatusCabang={onUbahStatusMock} />)
 
     const tombolNonaktifkan = screen.getAllByRole('button', { name: /^Nonaktifkan/i })
     fireEvent.click(tombolNonaktifkan[1]) // nonaktifkan Cabang Dago
@@ -261,12 +227,7 @@ describe('Cabang (T9-09 / PRD M11 / ART-7 & ART-12)', () => {
   it('membuka modal penugasan staf multi-cabang dan mengatur akses pegawai', async () => {
     const onAturAksesMock = vi.fn().mockResolvedValue({ sukses: true })
 
-    render(
-      <Cabang
-        daftarCabang={daftarContoh}
-        onAturAksesCabang={onAturAksesMock}
-      />,
-    )
+    render(<Cabang daftarCabang={daftarContoh} onAturAksesCabang={onAturAksesMock} />)
 
     const tombolAkses = screen.getAllByRole('button', { name: /Penugasan Staf/i })
     fireEvent.click(tombolAkses[0])

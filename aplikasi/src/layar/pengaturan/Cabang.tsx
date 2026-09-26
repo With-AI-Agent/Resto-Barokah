@@ -119,16 +119,44 @@ const CABANG_DEFAULT: DataCabang[] = [
 ]
 
 const PEGAWAI_DEFAULT: Array<{ id: string; nama: string; peran: string; email?: string }> = [
-  { id: '90000000-0000-0000-0000-000000000002', nama: 'Bu Oasis', peran: 'owner_pusat', email: 'owner@sajian.id' },
-  { id: '90000000-0000-0000-0000-000000000003', nama: 'Pak Andi', peran: 'admin_cabang', email: 'andi@sajian.id' },
-  { id: '90000000-0000-0000-0000-000000000004', nama: 'Rina', peran: 'kasir', email: 'rina@sajian.id' },
-  { id: '90000000-0000-0000-0000-000000000005', nama: 'Dedi', peran: 'pelayan', email: 'dedi@sajian.id' },
-  { id: '90000000-0000-0000-0000-000000000006', nama: 'Budi', peran: 'dapur', email: 'budi@sajian.id' },
+  {
+    id: '90000000-0000-0000-0000-000000000002',
+    nama: 'Bu Oasis',
+    peran: 'owner_pusat',
+    email: 'owner@sajian.id',
+  },
+  {
+    id: '90000000-0000-0000-0000-000000000003',
+    nama: 'Pak Andi',
+    peran: 'admin_cabang',
+    email: 'andi@sajian.id',
+  },
+  {
+    id: '90000000-0000-0000-0000-000000000004',
+    nama: 'Rina',
+    peran: 'kasir',
+    email: 'rina@sajian.id',
+  },
+  {
+    id: '90000000-0000-0000-0000-000000000005',
+    nama: 'Dedi',
+    peran: 'pelayan',
+    email: 'dedi@sajian.id',
+  },
+  {
+    id: '90000000-0000-0000-0000-000000000006',
+    nama: 'Budi',
+    peran: 'dapur',
+    email: 'budi@sajian.id',
+  },
 ]
 
 export const OPSI_ZONA_WAKTU = [
   { nilai: 'Asia/Jakarta', label: 'WIB (Asia/Jakarta) — Jawa, Sumatra, Kalbar, Kalteng' },
-  { nilai: 'Asia/Makassar', label: 'WITA (Asia/Makassar) — Bali, NTB, NTT, Sulsel, Kalsel, Kaltim' },
+  {
+    nilai: 'Asia/Makassar',
+    label: 'WITA (Asia/Makassar) — Bali, NTB, NTT, Sulsel, Kalsel, Kaltim',
+  },
   { nilai: 'Asia/Jayapura', label: 'WIT (Asia/Jayapura) — Maluku, Papua' },
 ]
 
@@ -139,6 +167,12 @@ export const OPSI_PROFIL_PRINTER = [
   { id: 'xprinter-58', nama: 'Xprinter XP-58II / Seri 58mm', lebar: 58 },
   { id: 'goojprt-pt210', nama: 'Goojprt PT-210 Mobile Bluetooth (58mm)', lebar: 58 },
 ]
+
+function ambilPesanGalat(err: unknown, pesanBawaan: string): string {
+  if (err instanceof Error && err.message) return err.message
+  if (typeof err === 'string' && err) return err
+  return pesanBawaan
+}
 
 export function Cabang({
   daftarCabang = CABANG_DEFAULT,
@@ -155,7 +189,9 @@ export function Cabang({
   const [kataKunci, setKataKunci] = useState('')
   const [filterStatus, setFilterStatus] = useState<'semua' | 'aktif' | 'nonaktif'>('semua')
   const [memuat, setMemuat] = useState(false)
-  const [toast, setToast] = useState<{ pesan: string; nada: 'sukses' | 'gagal' | 'info' } | null>(null)
+  const [toast, setToast] = useState<{ pesan: string; nada: 'sukses' | 'gagal' | 'info' } | null>(
+    null,
+  )
 
   // State Modal Tambah
   const [modalTambahBuka, setModalTambahBuka] = useState(false)
@@ -190,11 +226,7 @@ export function Cabang({
       c.nama.toLowerCase().includes(kataKunci.toLowerCase()) ||
       (c.alamat && c.alamat.toLowerCase().includes(kataKunci.toLowerCase()))
     const cocokStatus =
-      filterStatus === 'semua'
-        ? true
-        : filterStatus === 'aktif'
-          ? c.aktif
-          : !c.aktif
+      filterStatus === 'semua' ? true : filterStatus === 'aktif' ? c.aktif : !c.aktif
     return cocokNama && cocokStatus
   })
 
@@ -222,9 +254,7 @@ export function Cabang({
     }
 
     // Cek duplikasi nama lokal
-    const duplikat = cabangList.some(
-      (c) => c.nama.toLowerCase() === namaBersih.toLowerCase(),
-    )
+    const duplikat = cabangList.some((c) => c.nama.toLowerCase() === namaBersih.toLowerCase())
     if (duplikat) {
       setToast({ pesan: `Nama cabang "${namaBersih}" sudah terdaftar.`, nada: 'gagal' })
       return
@@ -269,8 +299,11 @@ export function Cabang({
       setCabangList((prev) => [...prev, cabangBaru])
       setModalTambahBuka(false)
       setToast({ pesan: `Cabang "${namaBersih}" berhasil ditambahkan!`, nada: 'sukses' })
-    } catch (err: any) {
-      setToast({ pesan: err?.message || 'Terjadi kesalahan saat menambah cabang.', nada: 'gagal' })
+    } catch (err: unknown) {
+      setToast({
+        pesan: ambilPesanGalat(err, 'Terjadi kesalahan saat menambah cabang.'),
+        nada: 'gagal',
+      })
     } finally {
       setMemuat(false)
     }
@@ -347,8 +380,8 @@ export function Cabang({
 
       setModalUbahBuka(false)
       setToast({ pesan: `Profil cabang "${namaBersih}" berhasil diperbarui!`, nada: 'sukses' })
-    } catch (err: any) {
-      setToast({ pesan: err?.message || 'Gagal menyimpan perubahan cabang.', nada: 'gagal' })
+    } catch (err: unknown) {
+      setToast({ pesan: ambilPesanGalat(err, 'Gagal menyimpan perubahan cabang.'), nada: 'gagal' })
     } finally {
       setMemuat(false)
     }
@@ -390,8 +423,8 @@ export function Cabang({
         pesan: `Cabang "${cabang.nama}" berhasil ${statusBaru ? 'diaktifkan' : 'dinonaktifkan'}.`,
         nada: 'sukses',
       })
-    } catch (err: any) {
-      setToast({ pesan: err?.message || 'Gagal mengubah status cabang.', nada: 'gagal' })
+    } catch (err: unknown) {
+      setToast({ pesan: ambilPesanGalat(err, 'Gagal mengubah status cabang.'), nada: 'gagal' })
     } finally {
       setMemuat(false)
     }
@@ -418,8 +451,11 @@ export function Cabang({
         }))
         setDaftarAksesPegawai(mock)
       }
-    } catch (err: any) {
-      setToast({ pesan: err?.message || 'Gagal memuat daftar penugasan pegawai.', nada: 'gagal' })
+    } catch (err: unknown) {
+      setToast({
+        pesan: ambilPesanGalat(err, 'Gagal memuat daftar penugasan pegawai.'),
+        nada: 'gagal',
+      })
     } finally {
       setMemuatAkses(false)
     }
@@ -465,8 +501,8 @@ export function Cabang({
         }.`,
         nada: 'sukses',
       })
-    } catch (err: any) {
-      setToast({ pesan: err?.message || 'Gagal mengatur penugasan cabang.', nada: 'gagal' })
+    } catch (err: unknown) {
+      setToast({ pesan: ambilPesanGalat(err, 'Gagal mengatur penugasan cabang.'), nada: 'gagal' })
     }
   }
 
@@ -484,11 +520,7 @@ export function Cabang({
           </p>
         </div>
         {!hanyaBaca && (
-          <Tombol
-            ragam="utama"
-            onClick={tanganiBukaTambah}
-            data-aksi="pengaturan.tambah_cabang"
-          >
+          <Tombol ragam="utama" onClick={tanganiBukaTambah} data-aksi="pengaturan.tambah_cabang">
             + Tambah Cabang
           </Tombol>
         )}
@@ -583,9 +615,7 @@ export function Cabang({
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="text-lg font-bold text-teks-utama">{cabang.nama}</h3>
-                          {adalahAktifSistem && (
-                            <Lencana nada="info">Sesi Aktif</Lencana>
-                          )}
+                          {adalahAktifSistem && <Lencana nada="info">Sesi Aktif</Lencana>}
                         </div>
                         <p className="text-xs text-teks-sekunder mt-0.5">
                           {cabang.alamat || 'Alamat belum diatur'}
@@ -686,11 +716,7 @@ export function Cabang({
         onTutup={() => setModalTambahBuka(false)}
         kaki={
           <div className="flex gap-2 justify-end w-full">
-            <Tombol
-              ragam="polos"
-              onClick={() => setModalTambahBuka(false)}
-              nonaktif={memuat}
-            >
+            <Tombol ragam="polos" onClick={() => setModalTambahBuka(false)} nonaktif={memuat}>
               Batal
             </Tombol>
             <Tombol
@@ -840,11 +866,7 @@ export function Cabang({
         onTutup={() => setModalUbahBuka(false)}
         kaki={
           <div className="flex gap-2 justify-end w-full">
-            <Tombol
-              ragam="polos"
-              onClick={() => setModalUbahBuka(false)}
-              nonaktif={memuat}
-            >
+            <Tombol ragam="polos" onClick={() => setModalUbahBuka(false)} nonaktif={memuat}>
               Batal
             </Tombol>
             <Tombol

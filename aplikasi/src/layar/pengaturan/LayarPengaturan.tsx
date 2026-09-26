@@ -19,15 +19,9 @@ import { Operasional, type DataOperasional } from './Operasional'
 import { Meja, type ItemMeja } from './Meja'
 import { Menu, type DataKategori, type DataMenuItem } from './Menu'
 import { MenuCabang, type ItemCabang, type MenuItemPerbandingan } from './MenuCabang'
-import {
-  MetodeBayar,
-  type ItemMetodeBayar,
-  type DataAturanTip,
-} from './MetodeBayar'
-import {
-  KelolaPegawai,
-  type PegawaiResto,
-} from './KelolaPegawai'
+import { MetodeBayar, type ItemMetodeBayar, type DataAturanTip } from './MetodeBayar'
+import { KelolaPegawai, type PegawaiResto } from './KelolaPegawai'
+import type { PeranPengguna } from '../../lib/auth'
 import { Cabang, type DataCabang, type PrinterCabang } from './Cabang'
 import { DaftarPerangkat } from './DaftarPerangkat'
 import { PasangPrinter } from './PasangPrinter'
@@ -135,7 +129,7 @@ export interface LayarPengaturanProps {
   onTambahPegawai?: (data: {
     nama: string
     email: string
-    peran: any
+    peran: PeranPengguna
     cabangId: string
     pinAwal: string
   }) => Promise<{ sukses: boolean; pegawaiId?: string; pesan?: string }>
@@ -143,7 +137,7 @@ export interface LayarPengaturanProps {
     id: string
     nama: string
     email: string
-    peran: any
+    peran: PeranPengguna
     cabangId: string
   }) => Promise<{ sukses: boolean; pesan?: string }>
   onUbahStatusPegawai?: (

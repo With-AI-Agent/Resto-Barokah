@@ -57,8 +57,22 @@ export interface MetodeBayarProps {
 const METODE_DEFAULT: ItemMetodeBayar[] = [
   { id: 'm1', nama: 'Tunai', jenis: 'tunai', butuh_referensi: false, aktif: true, urutan: 1 },
   { id: 'm2', nama: 'QRIS', jenis: 'non_tunai', butuh_referensi: true, aktif: true, urutan: 2 },
-  { id: 'm3', nama: 'Debit / Kartu', jenis: 'non_tunai', butuh_referensi: true, aktif: true, urutan: 3 },
-  { id: 'm4', nama: 'Transfer Bank', jenis: 'non_tunai', butuh_referensi: true, aktif: true, urutan: 4 },
+  {
+    id: 'm3',
+    nama: 'Debit / Kartu',
+    jenis: 'non_tunai',
+    butuh_referensi: true,
+    aktif: true,
+    urutan: 3,
+  },
+  {
+    id: 'm4',
+    nama: 'Transfer Bank',
+    jenis: 'non_tunai',
+    butuh_referensi: true,
+    aktif: true,
+    urutan: 4,
+  },
 ]
 
 const ATURAN_TIP_DEFAULT: DataAturanTip = {
@@ -462,11 +476,7 @@ export function MetodeBayar({
             </Tombol>
           )}
           {!hanyaBaca && (
-            <Tombol
-              ragam="utama"
-              onClick={bukaModalTambah}
-              nama="Tambah metode pembayaran baru"
-            >
+            <Tombol ragam="utama" onClick={bukaModalTambah} nama="Tambah metode pembayaran baru">
               + Tambah Metode
             </Tombol>
           )}
@@ -492,7 +502,9 @@ export function MetodeBayar({
             }}
           >
             <thead>
-              <tr style={{ borderBottom: '2px solid var(--border)', background: 'var(--surface-2)' }}>
+              <tr
+                style={{ borderBottom: '2px solid var(--border)', background: 'var(--surface-2)' }}
+              >
                 <th style={{ padding: '0.75rem', width: '60px', textAlign: 'center' }}>Urutan</th>
                 <th style={{ padding: '0.75rem' }}>Nama Metode</th>
                 <th style={{ padding: '0.75rem' }}>Jenis</th>
@@ -755,7 +767,13 @@ export function MetodeBayar({
                       contoh="Misal: 5, 10, 15, 20"
                       nonaktif={hanyaBaca}
                     />
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                    <div
+                      style={{
+                        fontSize: '0.75rem',
+                        color: 'var(--text-muted)',
+                        marginTop: '0.25rem',
+                      }}
+                    >
                       Persentase dihitung dari subtotal bersih pesanan (sebelum pajak & service).
                     </div>
                   </div>
@@ -771,7 +789,13 @@ export function MetodeBayar({
                       contoh="Misal: 2000, 5000, 10000, 20000"
                       nonaktif={hanyaBaca}
                     />
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                    <div
+                      style={{
+                        fontSize: '0.75rem',
+                        color: 'var(--text-muted)',
+                        marginTop: '0.25rem',
+                      }}
+                    >
                       Pecahan tombol cepat yang disuguhkan kasir pada saat pembayaran.
                     </div>
                   </div>
@@ -929,8 +953,19 @@ export function MetodeBayar({
             </label>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <Tombol ragam="biasa" onClick={() => setModalMetodeBuka(false)} nama="Batal simpan metode">
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '0.5rem',
+              marginTop: '0.5rem',
+            }}
+          >
+            <Tombol
+              ragam="biasa"
+              onClick={() => setModalMetodeBuka(false)}
+              nama="Batal simpan metode"
+            >
               Batal
             </Tombol>
             <Tombol
@@ -974,8 +1009,19 @@ export function MetodeBayar({
             kasir. Silakan nonaktifkan metode bila tidak ingin digunakan lagi.
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <Tombol ragam="biasa" onClick={() => setModalHapusBuka(false)} nama="Batal hapus metode">
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '0.5rem',
+              marginTop: '0.5rem',
+            }}
+          >
+            <Tombol
+              ragam="biasa"
+              onClick={() => setModalHapusBuka(false)}
+              nama="Batal hapus metode"
+            >
               Batal
             </Tombol>
             <Tombol
