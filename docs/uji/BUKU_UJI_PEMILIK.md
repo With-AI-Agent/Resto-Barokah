@@ -60,10 +60,27 @@ tetapi **memblokir** dua tugas yang butuh layanan sungguhan: `T0-08` dan `T0-09`
 | U-11 | **Bantuan kontekstual '?' di setiap layar** (tugas `T1-42`) | 1) Buka pratinjau aplikasi 2) Tekan tombol tanda tanya (?) di pojok kanan atas layar 3) Baca isi panduan terstruktur 4) Tekan tombol tutup atau tekan Esc | Lembar bantuan terbuka menampilkan ringkasan, maksimal 5 langkah pengoperasian, dan petunjuk kalau macet; lembar bantuan menutup bersih |  |  |
 | U-12 | **Naskah jalan pemilik alur contoh layar** (tugas `T1-35`) | 1) Buka naskah jalan di `docs/uji/NASKAH_JALAN.md` 2) Buka skenario W-0-01 3) Ikuti 4 langkah di pratinjau aplikasi 4) Periksa kesesuaian hasil | Seluruh langkah naskah jalan W-0-01 terlaksana mulus tanpa galat, tombol aksi menaati dialog konfirmasi dan izin |  |  |
 
+| U-13 | Buka & Tutup Kas Shift Kasir (tugas `T7-01`) | 1) Masuk sebagai Kasir 2) Tekan Buka Kas dan isi modal awal 3) Lakukan transaksi 4) Tekan Tutup Kas dan isi uang fisik 5) Konfirmasi selisih kas | Kasir berhasil buka kas dengan modal, status aktif, dan tutup kas mencatat selisih fisik secara akurat |  | Fase 7 Shift Kas |
+
+| U-14 | Laporan Penjualan & Kas Harian (tugas `T7-05`) | 1) Masuk sebagai Owner 2) Buka menu Laporan 3) Pilih Laporan Penjualan 4) Periksa rincian omzet, diskon, dan metode bayar 5) Cocokkan total kas | Laporan penjualan harian menyajikan omzet kotor, potongan diskon, pajak PB1, dan metode bayar cocok dengan transaksi kasir |  | Fase 7 Laporan |
+
+| U-15 | Katalog Menu Publik Pelanggan (tugas `T8-02`) | 1) Buka rute publik katalog resto tanpa login 2) Periksa nama resto, logo, dan jam operasional 3) Telusuri daftar menu dan varian harga 4) Periksa penanda menu habis | Katalog publik memuat profil kedai, harga cabang akurat, foto menu rapi, dan menu habis terkunci tanpa membocorkan data staf |  | Fase 8 Katalog Publik |
+
+| U-16 | Klaim & Pakai Voucher Diskon di Kasir (tugas `T8-09`) | 1) Buka tautan kampanye voucher dan klaim voucher 2) Masuk layar Kasir dan susun pesanan 3) Masukkan kode voucher atau scan kamera 4) Bayar pesanan dan periksa potongan di struk 5) Coba pakai lagi kode voucher yang sama | Voucher memotong tagihan sesuai aturan, struk mencatat diskon, dan percobaan pemakaian kedua langsung ditolak karena sudah hangus |  | Fase 8 Voucher |
+
+| U-17 | Transparansi Privasi UU PDP & Hak Hapus Data (tugas `T8-15`) | 1) Buka tautan Kebijakan Privasi di kaki halaman 2) Baca ringkasan hak subjek data 3) Periksa bagian alur permintaan penghapusan data 4) Coba pendaftaran pelanggan baru | Halaman privasi transparan sesuai UU PDP, dan formulir pendaftaran mewajibkan centang persetujuan sebelum data disimpan |  | Fase 8 Privasi |
+
+| U-18 | Pengaturan Identitas Resto & Logo (tugas `T9-01`) | 1) Masuk sebagai Owner 2) Buka menu Pengaturan Resto → Tab Identitas 3) Ubah nama kedai dan tagline 4) Unggah logo kedai 5) Simpan perubahan dan buka katalog publik | Identitas dan logo resto berhasil tersimpan, langsung muncul di katalog publik dan kop struk kasir tanpa koding |  | Fase 9 Identitas |
+
+| U-19 | Tema Merek 10 Pilihan Visual & Kerapatan (tugas `T9-02`) | 1) Masuk sebagai Owner → Pengaturan Resto → Tab Tema 2) Pilih tema visual yang berbeda (mis. Hangat Kedai atau Bara) 3) Beralih antara mode Nyaman dan Padat 4) Simpan pilihan tema 5) Periksa keterbacaan teks | Tema visual berganti seketika dengan kontras teks tajam (lulus WCAG), dan mode kerapatan padat/nyaman merapikan tata letak |  | Fase 9 Tema Merek |
+
+| U-20 | Pengaturan Operasional PB1, Service, & Struk (tugas `T9-03`) | 1) Masuk sebagai Owner → Pengaturan Resto → Tab Operasional 2) Ubah persentase PB1 dan service charge 3) Pilih aturan pembulatan dan ubah teks ucapan struk 4) Periksa kalkulasi struk simulasi langsung 5) Tekan Simpan Pengaturan | Pengaturan tersimpan rapi, simulasi struk live kasir akurat, dan kalkulasi transaksi masa lalu tetap utuh kebal perubahan |  | Fase 9 Operasional |
+
 ## 3. Log buku ini
 
 | Tanggal | Perubahan | Alasan |
 |---|---|---|
+| 2026-09-26 | Baris **U-13** s/d **U-20** ditambahkan (Fase 7 Shift & Laporan, Fase 8 Katalog & Voucher & Privasi, Fase 9 Pengaturan Resto T9-01 s/d T9-03) | Permintaan Lee memastikan seluruh hal yang perlu diuji mata/tangan manusia dari Fase 1 sampai 9 tercatat lengkap dengan cara, tujuan, dan indikator |
 | 2026-09-22 | Baris **U-09** s/d **U-12** ditambahkan (multi-bahasa T1-40, RTL T1-41, bantuan kontekstual T1-42, naskah jalan T1-35) + skrip penambah baris `alat/tambah-uji.py` | Selesainya fondasi kelengkapan UI Fase 1C yang siap dinilai pemilik di pratinjau |
 | 2026-09-17 | Baris **U-06** (tema & kerapatan) ditambahkan setelah Lee melaporkan tombol kerapatan tampak mati; langkah U-02/U-03 diubah ke jalur chat (Lee tidak perlu terminal); **P-03** (lembar kunci pemilik) ditambahkan | Laporan Lee 2026-09-17 + permintaan lembar kunci |
 | 2026-09-17 | Berkas dibuat + 7 baris pertama (2 "lakukan" · 5 "coba") + penjaga `alat/periksa-buku-uji.py` | Permintaan Lee 2026-09-17: buku uji bertahap berisi apa yang harus dicoba, lengkap dengan panduan bahasa sederhana & tempat mengisi hasilnya; ditampilkan juga di chat. Tugas ROADMAP `T1-43`. |

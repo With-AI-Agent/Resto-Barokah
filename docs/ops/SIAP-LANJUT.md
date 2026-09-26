@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `c55ebd8c651d0ea37ad0c1b39e4ee91ea4bef272`
+- **Commit keadaan kerja:** `bc1120dc0e2bb3509fc001e116f086c31bb0ded6`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 36204207979, commit c55ebd8c)
+- **CI terakhir:** in_progress (run 36209560568, commit bc1120dc) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (34 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (36 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1818,7 +1818,11 @@ Urutan yang disarankan agent, dan alasannya:
    - Uji mutasi frontend `uji-mutasi-app.mjs`: 81 mutasi fail-closed LULUS MERAH 100%.
    - Prettier, ESLint, TypeScript (`tsc -b`), dan build produksi Vite LULUS 100%.
 
+**PENGKINIAN DAFTAR UJI MANUAL LEE (2026-09-26):**
+- Mengkinikan `docs/uji/RENCANA_UJI_MANUAL.md` dari M-01 s/d M-47 (Bagian G Kasir & Laporan Fase 7, Bagian H Katalog & Voucher & Privasi Fase 8, Bagian I Pengaturan Resto Fase 9).
+- Mengkinikan `docs/uji/BUKU_UJI_PEMILIK.md` dengan baris coba U-13 s/d U-20 lengkap dengan langkah sederhana (maksimal 5), tujuan, dan indikator berhasil/gagal yang diverifikasi `alat/periksa-buku-uji.py`.
+
 4. **Rencana Selanjutnya:**
    - Mengerjakan **T9-04 — Meja & area + QR per meja** (PRD M2 & M4).
    - Menambah, mengubah, dan menonaktifkan meja & area; nomor meja unik per cabang; unduh kode QR per meja.
-   - Mengembangkan layar `aplikasi/src/layar/pengaturan/Meja.tsx`, uji SQL, uji mutasi, dan integrasi pengaturan meja.
+   - Mengembangkan layar `aplikasi/src/layar/pengaturan/Meja.tsx` (akan dibuat di T9-04), uji SQL, uji mutasi, dan integrasi pengaturan meja.

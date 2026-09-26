@@ -164,10 +164,87 @@ dicoba ke dalam pemeriksaan otomatis pernah membuat CI merah berjam-jam.
 
 ---
 
-## Bagian G — Riwayat hasil
+## Bagian G — Daftar periksa: KASIR, SHIFT KAS, & LAPORAN (Fase 7: T7-01 s/d T7-12)
+
+> Menguji alur buka kas shift, pencatatan kas masuk/keluar, koreksi modal, tutup kas fisik, dan rekonsiliasi laporan.
+
+| ID | Yang dicek | Kenapa penting | Langkah | ✅ Tanda berhasil | ❌ Tanda gagal | Kesiapan | Status |
+|---|---|---|---|---|---|---|---|
+| M-26 | **Buka Kas Shift Kasir** | Uang modal awal wajib tercatat sebelum kasir bisa melayani transaksi | 1) Buka pratinjau, masuk sebagai kasir 2) Tekan tombol Buka Kas 3) Masukkan nominal modal (mis. Rp100.000) 4) Konfirmasi buka kas | Kas terbuka; kasir siap melayani; modal tercatat di sistem | Buka kas tanpa modal berhasil, atau kasir bisa transaksi sebelum buka kas | 🟢 SIAP | |
+| M-27 | **Kas Masuk & Kas Keluar** | Pengeluaran kecil kedai (es batu, galon, dll) wajib tercatat di laci kas | 1) Di layar kasir, tekan menu Kas Keluar / Masuk 2) Pilih Kas Keluar 3) Isi nominal Rp25.000 dan alasan "Beli es batu" 4) Simpan | Saldo kas berkurang Rp25.000; alasan tercatat di laporan kas | Uang keluar tanpa alasan lolos, atau saldo kas tidak terpotong | 🟢 SIAP | |
+| M-28 | **Koreksi Modal Awal Shift** | Kasir salah hitung uang modal di awal tidak boleh membuat laporan kacau | 1) Di menu kasir, pilih Koreksi Modal 2) Masukkan selisih koreksi (+Rp20.000) dan alasan "Uang receh terselip" 3) Simpan | Modal awal terbarui; alasan koreksi tercatat di riwayat | Modal berubah tanpa alasan atau tanpa jejak | 🟢 SIAP | |
+| M-29 | **Tutup Kas Shift & Selisih Uang** | Uang di laci wajib dihitung fisik saat ganti shift | 1) Di akhir shift, tekan Tutup Kas 2) Masukkan uang fisik hasil hitung 3) Bila ada selisih, sistem meminta alasan wajib 4) Konfirmasi tutup kas | Shift ditutup; ringkasan uang masuk/keluar tampil rapi; selisih tercatat | Kas ditutup tanpa hitung fisik, atau selisih lolos tanpa alasan | 🟢 SIAP | |
+| M-30 | **Laporan Penjualan & Omzet Harian** | Owner wajib tahu pendapatan bersih, pajak, dan metode bayar | 1) Masuk sebagai Owner → menu Laporan 2) Buka Laporan Penjualan 3) Periksa omzet kotor, diskon, pajak PB1, service charge, dan omzet bersih | Rincian per metode bayar (tunai, QRIS, kartu) cocok dengan transaksi nyata | Angka omzet tidak cocok dengan total transaksi | 🟢 SIAP | |
+| M-31 | **Laporan Menu Terlaris** | Mengetahui menu favorit tamu untuk belanja bahan baku | 1) Masuk menu Laporan → Laporan Menu 2) Periksa daftar menu terlaris dan porsi terjual | Menu berperingkat dari yang paling laku; jumlah porsi dan kontribusi omzet jelas | Data porsi salah atau menu teracak | 🟢 SIAP | |
+| M-32 | **Laporan Pembatalan / Void & Kerugian** | Mengawasi kecurangan kasir atau pemborosan bahan dapur | 1) Buka Laporan Pembatalan 2) Periksa daftar pesanan/item yang pernah dibatalkan | Menampilkan siapa yang membatalkan, alasan pembatalan, dan estimasi kerugian bahan | Pembatalan hilang dari laporan | 🟢 SIAP | |
+
+---
+
+## Bagian H — Daftar periksa: KATALOG PELANGGAN, VOUCHER, & PRIVASI (Fase 8: T8-01 s/d T8-15)
+
+> Menguji halaman katalog mandiri pelanggan, sistem voucher promo undang-teman, scan barcode kasir, dan privasi UU PDP.
+
+| ID | Yang dicek | Kenapa penting | Langkah | ✅ Tanda berhasil | ❌ Tanda gagal | Kesiapan | Status |
+|---|---|---|---|---|---|---|---|
+| M-33 | **Katalog Menu Publik Tanpa Login** | Tamu bisa melihat daftar menu dari HP sendiri lewat internet | 1) Buka tautan katalog publik (tanpa login) 2) Periksa nama resto, logo, banner, jam buka, dan kategori menu | Katalog tampil bersih dan cepat; harga cabang akurat; data rahasia staf tidak bocor | Halaman meminta login staf, atau data sensitif terlihat | 🟢 SIAP | |
+| M-34 | **Penanda Menu Habis di Katalog & Kasir** | Tamu tidak memesan menu yang bahannya sudah habis di dapur | 1) Di layar dapur, tandai salah satu menu "Habis" 2) Buka katalog pelanggan dan layar kasir | Menu tersebut bertanda abu-abu "HABIS" dan tombol pesannya terkunci | Menu habis masih bisa dipesan | 🟢 SIAP | |
+| M-35 | **Tautan & Stand QR Meja Akrilik** | Tamu di meja tinggal scan QR untuk membuka menu kedai | 1) Masuk sebagai Owner → Pengaturan → Tautan & QR Meja 2) Pilih Meja 01 3) Tekan Unduh / Pratinjau Stand Akrilik | Gambar kode QR tajam siap cetak ukuran stand meja; saat di-scan membuka menu meja tersebut | Kode QR rusak atau salah membuka nomor meja | 🟢 SIAP | |
+| M-36 | **Pendaftaran & Klaim Voucher Promo** | Menarik pelanggan baru lewat promo undang teman | 1) Buka tautan kampanye voucher 2) Masukkan nama & email 3) Beri centang persetujuan privasi UU PDP 4) Tekan Klaim Voucher | Tiket voucher terbit dengan kode unik resmi (contoh: RB-XXXX-XXXX) dan barcode | Pendaftaran tanpa persetujuan privasi lolos, atau kode voucher kembar | 🟢 SIAP | |
+| M-37 | **Cek Voucher di Kasir (Hanya Baca)** | Kasir memeriksa keabsahan voucher tanpa menghanguskannya | 1) Di layar kasir, masukkan kode voucher tamu 2) Tekan Cek Voucher | Menampilkan nominal potongan dan syarat tanpa mengubah status voucher di database | Voucher langsung hangus sebelum pesanan dibayar | 🟢 SIAP | |
+| M-38 | **Pakai Voucher di Kasir (Sekali Pakai)** | Satu voucher tidak boleh dipakai dua kali oleh orang berbeda | 1) Terapkan voucher sah pada pesanan 2) Selesaikan pembayaran 3) Coba gunakan kode voucher yang sama pada transaksi kedua | Transaksi pertama sukses terpotong; percobaan kedua ditolak "VOUCHER SUDAH TERPAKAI" | Voucher bisa dipakai berulang kali | 🟢 SIAP | |
+| M-39 | **Scan Kamera Barcode Voucher** | Kasir cukup mengarahkan barcode voucher ke kamera tanpa mengetik | 1) Di modal voucher kasir, tekan "📷 Pindai Kamera" 2) Arahkan barcode voucher ke kamera (atau gunakan masukan manual jika tanpa kamera) | Kode voucher langsung terdeteksi otomatis dan diperiksa | Kamera macet tanpa tombol alternatif ketik manual | 🟢 SIAP | |
+| M-40 | **Kelola Aturan Kampanye Voucher oleh Owner** | Owner mengatur kuota, batas belanja, dan diskon sendiri | 1) Masuk sebagai Owner → Pengaturan → Kampanye Voucher 2) Buat kampanye baru (misal: diskon 20%, maks Rp15.000, min belanja Rp30.000) 3) Simpan | Kampanye baru aktif; aturan pratinjau bahasa manusia terbaca jelas | Aturan mustahil (diskon > 100%) lolos | 🟢 SIAP | |
+| M-41 | **Laporan Voucher & Deteksi Anomali** | Mencegah kasir atau pihak luar berbuat curang dengan voucher | 1) Buka menu Laporan → Laporan Voucher 2) Periksa ringkasan serapan kuota, total diskon, dan kotak Peringatan Anomali | Menampilkan bila ada kode dicoba berkali-kali secara mencurigakan (brute force) | Percobaan mencurigakan tidak terdeteksi | 🟢 SIAP | |
+| M-42 | **Transparansi Kebijakan Privasi (UU PDP)** | Hak pelanggan terlindungi dan kepatuhan hukum aman | 1) Buka tautan Kebijakan Privasi di bagian bawah halaman 2) Baca transparansi hak subjek data dan alur penghapusan/anonimisasi data | Menjelaskan bahasa sederhana data apa yang disimpan dan cara meminta penghapusan | Dokumen hukum membingungkan atau tidak ada | 🟢 SIAP | |
+
+---
+
+## Bagian I — Daftar periksa: PENGATURAN RESTO TANPA KODING (Fase 9: T9-01 s/d T9-03)
+
+> Menguji pengaturan identitas resto, 10 tema warna visual siap pakai, dan pengaturan operasional keuangan.
+
+| ID | Yang dicek | Kenapa penting | Langkah | ✅ Tanda berhasil | ❌ Tanda gagal | Kesiapan | Status |
+|---|---|---|---|---|---|---|---|
+| M-43 | **Ubah Identitas Resto (Nama, Tagline, Logo)** | Owner bisa meremajakan merek resto sendiri kapan saja | 1) Masuk sebagai Owner → Pengaturan Resto → Tab Identitas 2) Ubah nama resto dan tagline 3) Unggah logo baru 4) Simpan 5) Buka katalog publik | Nama dan logo langsung terbarui di katalog pelanggan dan kop struk kasir | Logo pecah, nama tidak berubah, atau file > 2 MB lolos | 🟢 SIAP | |
+| M-44 | **Ganti Tema Warna & Kerapatan Tampilan** | Menyesuaikan suasana kedai (misal: Hangat, Vintage, Bara) | 1) Masuk Pengaturan Resto → Tab Tema & Tampilan 2) Pilih tema "Hangat Kedai" atau "Etnik Nusantara" 3) Coba kerapatan "Padat" 4) Simpan | Warna tombol, kartu, dan latar berubah serasi; kontras teks tetap tajam terbaca (lulus WCAG) | Teks tidak terbaca karena warna bertabrakan | 🟢 SIAP | |
+| M-45 | **Pengaturan Pajak PB1 & Service Charge** | Menyesuaikan tarif pajak daerah dan biaya layanan kedai | 1) Masuk Pengaturan Resto → Tab Operasional & Kasir 2) Ubah Pajak PB1 ke 11% dan Service ke 6% 3) Perhatikan struk simulasi di sebelah kanan | Total di struk simulasi langsung terhitung ulang akurat seketika | Angka persentase tidak dihitung atau simulasi macet | 🟢 SIAP | |
+| M-46 | **Aturan Pembulatan & Pesan Struk Kasir** | Struk kasir mencetak ucapan terima kasih dan pembulatan pas | 1) Di Tab Operasional & Kasir, pilih pembulatan "Ke Rp 500" 2) Ketik ucapan header dan footer struk 3) Simpan | Struk kasir membulatkan tagihan ke kelipatan 500 dan mencetak ucapan yang diketik | Pembulatan salah hitung atau ucapan tidak tercetak | 🟢 SIAP | |
+| M-47 | **Transaksi Lama Kebal Perubahan Pajak (ART-3)** | Mengubah pajak hari ini tidak boleh mengubah laporan penjualan bulan lalu | 1) Catat transaksi lunas kemarin 2) Ubah tarif PB1 kedai dari 10% ke 12% 3) Buka kembali transaksi lama di riwayat kasir / laporan | Nominal pajak dan total transaksi lama **TETAP SAMA PERSIS** seperti saat dibuat | Angka transaksi lama ikut berubah sendiri | 🟢 SIAP | |
+
+---
+
+## Bagian J — Yang menunggu Fase 11 (uji peramban otomatis, T-026)
+
+Ini **bukan** tugas Lee — ini catatan supaya tidak ada yang lupa bahwa uji otomatisnya ditunda,
+bukan dibatalkan.
+
+| Alur yang wajib diotomatiskan nanti | Dikerjakan di tugas |
+|---|---|
+| Buka shift kas | T11-01 / T11-11 |
+| Susun pesanan → kirim ke dapur | T11-01 / T11-11 |
+| Dapur menandai selesai | T11-01 / T11-11 |
+| Bayar → cetak struk digital | T11-01 / T11-11 |
+| Pembatalan berjenjang (sebelum & sesudah dapur mulai) | T11-01 / T11-11 |
+| Tutup kas | T11-01 / T11-11 |
+| Voucher | T11-01 / T11-11 |
+| Katalog publik (halaman tamu) | T11-01 / T11-11 |
+| Cetak ulang struk bertanda SALINAN | T11-11 |
+
+**Kenapa ditunda:** peramban Chrome-nya tidak bisa diunduh di ruang kerja agent (sudah dicoba
+2026-09-17 dan 2026-09-23). Artinya saya bisa **menulis** ujinya tetapi tidak bisa
+**menjalankannya** untuk membuktikan ujinya sendiri benar — dan menaruh uji yang tak pernah
+dicoba ke dalam pemeriksaan otomatis pernah membuat CI merah berjam-jam.
+
+**Jaminan tidak terlupa:** butir **T-026** berstatus terbuka di `docs/TERTANGGUH.md`, dan tugas
+**T11-01** serta **T11-11** di `docs/ROADMAP.md` ditandai `❓ T-026`. Penjaga mesin
+`alat/periksa-roadmap.py` **menolak** (CI merah) bila butir terbuka kehilangan tandanya.
+
+---
+
+## Bagian K — Riwayat hasil
 
 Diisi saya setiap kali Lee melaporkan hasil.
 
 | Tanggal | ID | Hasil | Catatan |
 |---|---|---|---|
-| — | — | — | Belum ada laporan; daftar baru dibuat 2026-09-23 |
+| — | — | — | Belum ada laporan; daftar baru dibuat 2026-09-23, diperluas Fase 7–9 pada 2026-09-26 |
