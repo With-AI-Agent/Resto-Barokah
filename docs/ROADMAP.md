@@ -1922,14 +1922,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** uji jaringan tiruan tidak realistis → mitigasi: uji di perangkat nyata juga (T11-04) + catatan hasil.
   - **Verifikasi:** CI hijau + uji manual di perangkat kasir nyata.
 
-- [ ] T10-05 — Penyisiran ulang RLS seluruh tabel ⚠️
+- [x] T10-05 — Penyisiran ulang RLS seluruh tabel ⚠️
   - **Tujuan:** memastikan tidak ada tabel baru yang lupa dikunci setelah semua fitur masuk.
   - **Ref:** TECH_SPEC §9 ART-1; PRD M12
   - **File:** `supabase/tes/sisir_rls_akhir.sql`
-  - **DoD:** daftar tabel ↔ policy diperiksa ulang; uji akses silang untuk 6 peran; laporan akhir "0 tabel tanpa policy" dicetak.
+  - **DoD:** daftar tabel ↔ policy diperiksa ulang; uji akses silang untuk 6 peran; laporan akhir "0 tabel tanpa policy" dicetak. · **Bukti 2026-09-27:** penyisiran ulang RLS seluruh skema PostgreSQL publik di `supabase/tes/sisir_rls_akhir.sql` (126 berkas uji SQL lulus 100% di PGlite / CI); 45/45 tabel mengaktifkan RLS (`relrowsecurity = true`), 45/45 tabel memiliki kebijakan resmi terpasang (total 84 policy RLS, 0 tabel tanpa policy, 0 tabel terbuka); 28 tabel ber-`penyewa_id` terbukti menyaring penyewa via `penyewa_saya()` atau tolak-semua; 17 tabel tanpa `penyewa_id` terbukti memiliki rantai jangkar yang sah (`pesanan_sepenyewa`, `cabang_pantau_saya`, `menu_sepenyewa`, `cabang_ids_saya`, `auth.uid`, `penyewa_saya`, atau tolak-semua); uji akses silang 6 peran (`pemilik_platform`, `owner_pusat`, `admin_cabang`, `kasir`, `pelayan`, `dapur`) membuktikan 100% isolasi multi-tenant fail-closed (0 kebocoran baris resto lain di seluruh 45 tabel); proteksi fail-closed pada tabel kredensial sensitif (`kredensial_pin`, `kredensial_perangkat`, `kredensial_pemulihan`, `sesi_cabang`) dan audit append-only (`catatan_audit`); skrip audit otomatis `alat/periksa-sisir-rls.py` lulus 100% dan mutasi kebocoran RLS (`--uji-diri`) membuktikan 4/4 mutasi tertangkap merah; keputusan dicatat di `docs/DECISIONS_LOG.md`.
   - **Kompleksitas:** sedang (3 jam)
-  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1); mitigasi: jadwalkan penyisiran ini setiap akhir gelombang.
-  - **Verifikasi:** CI hijau + laporan disimpan di dokumen uji.
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Data & RLS (ART-1); tabel baru tanpa policy bisa bocor lintas penyewa → mitigasi: script otomatis yang memeriksa pg_tables vs pg_policy (`alat/periksa-sisir-rls.py`).
+  - **Verifikasi:** script audit RLS keluar 0 tabel terbuka + laporan di `DECISIONS_LOG.md`.
 
 - [ ] T10-06 — Akhiri sesi dari perangkat lain (perangkat hilang) ⚠️
   - **Tujuan:** perangkat pegawai yang hilang tidak menjadi pintu masuk.

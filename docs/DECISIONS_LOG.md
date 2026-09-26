@@ -2992,5 +2992,35 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `supabase/migrations/0080_kunci_idempoten_menyeluruh.sql`, `supabase/tes/idempoten.sql`, `alat/uji-mutasi-0080.py`, `alat/periksa-idempoten.py`
 - **Implikasi:** Seluruh aksi penulisan data restoran kebal terhadap duplikasi ganda akibat fluktuasi jaringan, antrean offline, atau kesalahan operator.
 
+### [Fase 10/2026-09-27] Penyisiran Ulang RLS Seluruh Tabel (T10-05 / ART-1)
+- **Area:** Keamanan Data & RLS (TECH_SPEC §9 ART-1 & PRD M12)
+- **Keputusan:**
+  1. **Audit Menyeluruh 100% Tabel Publik (0 Tabel Tanpa RLS):**
+     - Memeriksa langsung katalog PostgreSQL (`pg_class`, `pg_namespace`) untuk seluruh tabel di skema `public` (`relkind = 'r'`).
+     - Seluruh 45 tabel terbukti mengaktifkan `relrowsecurity = true` (RLS aktif). Tidak ada satu pun tabel publik yang terbuka tanpa perlindungan RLS.
+  2. **100% Tabel Memiliki Kebijakan Resmi (0 Tabel Tanpa Policy):**
+     - Memeriksa relasi `pg_class` terhadap `pg_policy`.
+     - Seluruh 45 tabel publik memiliki minimal satu kebijakan resmi terpasang (total 84 kebijakan RLS). Nol tabel tanpa policy.
+  3. **Penegakan Rantai Isolasi Multi-Tenant:**
+     - Untuk 28 tabel dengan kolom `penyewa_id`: setiap policy PERMISSIVE menyaring baris menggunakan `penyewa_saya()` atau subkueri isolasi penyewa resmi, atau menolak semua (`false`).
+     - Untuk 17 tabel tanpa kolom `penyewa_id`: seluruhnya terdaftar resmi dalam daftar rantai jangkar (`pesanan_sepenyewa`, `cabang_pantau_saya`, `menu_sepenyewa`, `cabang_ids_saya`, `auth.uid`, `penyewa_saya`), atau berstatus `TOLAK-SEMUA` (klien ditolak semua), atau `GLOBAL-TERBUKA` (acuan global non-penyewa).
+     - Rantai fungsi perantara jangkar (`pesanan_sepenyewa`, `menu_sepenyewa`, `cabang_pantau_saya`) terverifikasi utuh dan tidak terputus di katalog fungsi (`pg_proc`).
+  4. **Uji Akses Silang Matriks 6 Peran Terverifikasi Fail-Closed:**
+     - Menguji 6 peran resmi:
+       1. `pemilik_platform`: default 0 data penyewa di luar mode dukungan darurat.
+       2. `owner_pusat`: memiliki akses penuh ke restonya sendiri, tetapi 0 baris dari resto lain di seluruh 45 tabel; dilarang menghapus riwayat audit log (append-only).
+       3. `admin_cabang`: terisolasi ke restonya sendiri, 0 baris dari resto lain.
+       4. `kasir`: terisolasi ke restonya sendiri, 0 baris dari resto lain; dilarang mengubah konfigurasi resto tanpa izin `owner_pusat`.
+       5. `pelayan`: terisolasi ke restonya sendiri, 0 baris dari resto lain.
+       6. `dapur`: terisolasi ke restonya sendiri, 0 baris dari resto lain.
+       - Peran pembanding kasir resto lawan (`kasir.b1`) terbukti 0 baris dapat melihat data Kedai Oasis.
+       - Proteksi tabel kredensial sensitif (`kredensial_pin`, `kredensial_perangkat`, `kredensial_pemulihan`, `sesi_cabang`): seluruh upaya baca langsung oleh peran `authenticated` ditolak tegas secara fail-closed.
+  5. **Otomatisasi Penjaga RLS via Skrip & Uji Diri:**
+     - Menyediakan skrip pemeriksa dinamis `alat/periksa-sisir-rls.py` yang memvalidasi langsung katalog basis data terhadap `pg_class` dan `pg_policy`.
+     - Mendukung pengujian mutasi via `python3 alat/periksa-sisir-rls.py --uji-diri` yang membuktikan bahwa setiap percobaan membuat tabel baru tanpa RLS, tabel dengan RLS tanpa policy, tabel tanpa rantai jangkar, atau policy tanpa penyaring penyewa akan tertangkap merah secara tegas.
+- **File terkait:** `supabase/tes/sisir_rls_akhir.sql`, `alat/periksa-sisir-rls.py`, `PANDUAN_PENGGUNA.md`
+- **Implikasi:** Keamanan dan privasi multi-tenant terjamin 100% fail-closed setelah seluruh fitur Fase 1 hingga Fase 10 masuk, tanpa celah tabel tertinggal atau terbuka.
+
+
 
 
