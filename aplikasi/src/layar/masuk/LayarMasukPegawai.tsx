@@ -217,6 +217,48 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
             </Tombol>
           </form>
 
+          {/* Pilihan Cepat Akun Demo / Uji Coba */}
+          <div
+            style={{
+              marginTop: 'var(--s-3)',
+              padding: 'var(--s-2)',
+              borderRadius: 'var(--radius)',
+              background: 'var(--surface-2, var(--latar-kartu))',
+              border: '1px dashed var(--b-netral, var(--border))',
+              textAlign: 'center',
+            }}
+          >
+            <div className="small muted" style={{ marginBottom: '0.5rem' }}>
+              Pilihan Cepat Masuk Akun:
+            </div>
+            <div
+              style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}
+            >
+              <Tombol
+                ragam="biasa"
+                onClick={() => {
+                  setEmail('owner@resto.test')
+                  setPin('123456')
+                  setErrorRamah(null)
+                }}
+                nama="Isi otomatis akun Owner"
+              >
+                👑 Akun Owner (Ada Menu Pengaturan)
+              </Tombol>
+              <Tombol
+                ragam="biasa"
+                onClick={() => {
+                  setEmail('kasir@resto.test')
+                  setPin('123456')
+                  setErrorRamah(null)
+                }}
+                nama="Isi otomatis akun Kasir"
+              >
+                💳 Akun Kasir
+              </Tombol>
+            </div>
+          </div>
+
           <div
             style={{
               marginTop: 'var(--s-4)',
