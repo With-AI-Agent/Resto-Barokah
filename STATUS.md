@@ -1,7 +1,7 @@
 # Status — Aplikasi Resto Barokah
 
 > **PENGKINIAN DAFTAR UJI MANUAL LEE (2026-09-26, sesi arena/01a0d09b).** Seluruh cakupan fitur dari Fase 1 hingga Fase 9 (T9-01, T9-02, T9-03) kini resmi didaftarkan ke dalam berkas uji manual Lee:
-> 1. `docs/uji/RENCANA_UJI_MANUAL.md`: Diperluas menjadi 47 baris uji (M-01 s/d M-47) mencakup Bagian G (Shift & Laporan Kas Fase 7), Bagian H (Katalog Pelanggan, Voucher, & Privasi Fase 8), dan Bagian I (Identitas, Tema, & Operasional Fase 9).
+> 1. `docs/uji/RENCANA_UJI_MANUAL.md`: Diperluas menjadi 55 baris uji (M-01 s/d M-55) mencakup seluruh sub-skenario validasi positif/negatif, pembatasan ukuran berkas, keamanan batas angka PB1/service, isolasi multi-cabang, hak akses peran kasir, rate-limiting voucher, dan pemisahan KDS dapur/bar.
 > 2. `docs/uji/BUKU_UJI_PEMILIK.md`: Ditambah baris coba U-13 s/d U-20 (total 26 baris, 6 lakukan dan 20 coba) yang dijaga ketat oleh penjaga otomatis `alat/periksa-buku-uji.py` (maksimal 5 langkah per baris, rujukan tugas ROADMAP sah, dan indikator harapan jelas).
 
 > **FASE 9 BERJALAN: T9-01, T9-02, & T9-03 SELESAI (2026-09-26, sesi arena/01a0d09b).** Pengaturan identitas, tampilan, dan operasional resto tuntas 100%:

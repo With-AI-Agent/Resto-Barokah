@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `bc1120dc0e2bb3509fc001e116f086c31bb0ded6`
+- **Commit keadaan kerja:** `46e3637db52719d204d1a30a9b67721e7d324543`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36209560568, commit bc1120dc) — tunggu sampai selesai
+- **CI terakhir:** in_progress (run 36210814141, commit 46e3637d) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (36 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (38 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -1819,7 +1819,7 @@ Urutan yang disarankan agent, dan alasannya:
    - Prettier, ESLint, TypeScript (`tsc -b`), dan build produksi Vite LULUS 100%.
 
 **PENGKINIAN DAFTAR UJI MANUAL LEE (2026-09-26):**
-- Mengkinikan `docs/uji/RENCANA_UJI_MANUAL.md` dari M-01 s/d M-47 (Bagian G Kasir & Laporan Fase 7, Bagian H Katalog & Voucher & Privasi Fase 8, Bagian I Pengaturan Resto Fase 9).
+- Mengkinikan `docs/uji/RENCANA_UJI_MANUAL.md` dari M-01 s/d M-55 (Bagian G Kasir & Laporan Fase 7, Bagian H Katalog & Voucher & Privasi Fase 8, Bagian I Pengaturan Resto Fase 9, serta sub-skenario validasi detail).
 - Mengkinikan `docs/uji/BUKU_UJI_PEMILIK.md` dengan baris coba U-13 s/d U-20 lengkap dengan langkah sederhana (maksimal 5), tujuan, dan indikator berhasil/gagal yang diverifikasi `alat/periksa-buku-uji.py`.
 
 4. **Rencana Selanjutnya:**
