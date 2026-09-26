@@ -33,6 +33,7 @@ import { TutupKas, type HasilTutupKas } from './TutupKas'
 import { KasKeluarMasuk, type KasPergerakanInput, type HasilKasPergerakan } from './KasKeluarMasuk'
 import { KoreksiModal, type KoreksiModalInput, type HasilKoreksiModal } from './KoreksiModal'
 import { PengingatShift } from '../../komponen/PengingatShift'
+import { StatusAntreanOffline } from '../../komponen/StatusAntreanOffline'
 import type { DataStruk } from '../../komponen/Struk'
 import { TARIF_BAWAAN, hitungPerkiraan, type TarifResto } from '../../lib/tarif'
 
@@ -525,6 +526,11 @@ export function LayarKasir({
                   : t('kasir.tipe_ojol')}
             </Tombol>
           </div>
+        </div>
+
+        {/* Status Antrean Kirim Luring (T10-01 / ART-8) */}
+        <div style={{ margin: 'var(--s-2) var(--s-3)' }}>
+          <StatusAntreanOffline />
         </div>
 
         {/* Banner Peringatan Wajib Shift (T7-04) */}

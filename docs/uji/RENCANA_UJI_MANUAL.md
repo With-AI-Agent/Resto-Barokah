@@ -222,7 +222,17 @@ dicoba ke dalam pemeriksaan otomatis pernah membuat CI merah berjam-jam.
 
 ---
 
-## Bagian J — Yang menunggu Fase 11 (uji peramban otomatis, T-026)
+## Bagian J — Daftar periksa: KETAHANAN & KEAMANAN LANJUTAN (Fase 10: T10-01)
+
+> Menguji antrean kirim luring (IndexedDB), ketahanan saat jaringan internet kedai terputus, pesan status jujur "menunggu dikirim X", dan sinkronisasi otomatis saat kembali daring tanpa duplikasi (ART-8).
+
+| ID | Yang dicek | Kenapa penting | Langkah | ✅ Tanda berhasil | ❌ Tanda gagal | Kesiapan | Status |
+|---|---|---|---|---|---|---|---|
+| M-57 | **Antrean Pesanan Luring saat Internet Putus (T10-01)** | Memastikan pesanan kasir tetap tersimpan aman di IndexedDB saat internet padam dan otomatis sinkron saat pulih tanpa duplikasi | 1) Masuk ke layar Kasir 2) Putuskan internet perangkat 3) Susun pesanan dan kirim 4) Periksa status banner "menunggu dikirim 1" 5) Sambungkan kembali internet | Pesanan tersimpan lokal tanpa data sensitif, status antrean jelas, dan otomatis tersinkronisasi satu kali saat online kembali (ART-8) | Pesanan hilang saat jaringan putus atau tercatat dua kali di peladen | 🟢 SIAP | |
+
+---
+
+## Bagian K — Yang menunggu Fase 11 (uji peramban otomatis, T-026)
 
 Ini **bukan** tugas Lee — ini catatan supaya tidak ada yang lupa bahwa uji otomatisnya ditunda,
 bukan dibatalkan.
@@ -250,10 +260,10 @@ dicoba ke dalam pemeriksaan otomatis pernah membuat CI merah berjam-jam.
 
 ---
 
-## Bagian K — Riwayat hasil
+## Bagian L — Riwayat hasil
 
 Diisi saya setiap kali Lee melaporkan hasil.
 
 | Tanggal | ID | Hasil | Catatan |
 |---|---|---|---|
-| — | — | — | Belum ada laporan; daftar baru dibuat 2026-09-23, diperluas Fase 7–9 pada 2026-09-26 |
+| — | — | — | Belum ada laporan; daftar baru dibuat 2026-09-23, diperluas Fase 7–10 pada 2026-09-26 |

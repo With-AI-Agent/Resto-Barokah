@@ -2947,5 +2947,26 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `supabase/tes/riwayat_tidak_berubah.sql`, `aplikasi/src/layar/pengaturan/Pratinjau.tsx`, `aplikasi/src/layar/pengaturan/Pratinjau.test.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.test.tsx`
 - **Implikasi:** Pemilik resto memiliki visibilitas penuh terhadap dampak setiap perubahan pengaturan tagihan sebelum diterapkan, sementara integritas catatan riwayat keuangan masa lalu tetap terkunci permanen.
 
+### [Fase 10/2026-09-26] Antrean Kirim Luring Berbasis IndexedDB & Kunci Idempoten (T10-01)
+- **Area:** Antrean Offline & Dobel Data (TECH_SPEC §9 ART-8 & §13 K4, PRD §9 Risiko)
+- **Keputusan:**
+  1. **Penyimpanan Lokal Menggunakan IndexedDB:**
+     - Modul `aplikasi/src/lib/antrean-offline.ts` menyimpan pesanan dan penulisan saat koneksi kedai terputus ke dalam IndexedDB peramban (`resto_barokah_offline_db` / store `antrean_kirim`).
+     - Menyediakan lapisan cadangan memori aman (*in-memory fallback*) bila IndexedDB tidak tersedia, diblokir oleh kebijakan browser, atau saat pengujian otomatis tanpa melempar kegagalan fatal (*zero-crash*).
+  2. **Kunci Idempoten Wajib (ART-8):**
+     - Setiap item antrean wajib memiliki `kunciIdempoten` unik. Bila tidak disediakan oleh pemanggil, kunci idempoten dihasilkan secara otomatis berbasis stempel waktu dan entropi acak (`pos-offline-...`).
+     - Pencegahan duplikasi lokal: pemanggilan penambahan dengan `kunciIdempoten` yang sama tidak menduplikasi antrean melainkan mengembalikan item yang sudah ada secara idempoten.
+  3. **Penyaringan Data Sensitif Wajib (DoD T10-01):**
+     - Sesuai standar keamanan data dan DoD, data sensitif (seperti PIN pegawai, pin_hash, kata sandi, password, token rahasia, maupun header otorisasi) disaring dan dibuang secara rekursif melalui fungsi `bersihkanDataSensitif()` sebelum disimpan ke penyimpanan lokal.
+     - Perangkat kasir yang offline tidak menyimpan kredensial atau rahasia otentikasi apa pun di dalam IndexedDB.
+  4. **Status Transparan & Jujur ("menunggu dikirim X"):**
+     - Hook `aplikasi/src/hook/useAntrean.ts` dan komponen antarmuka `aplikasi/src/komponen/StatusAntreanOffline.tsx` menyajikan pesan status jujur dan gamblang bagi staf: "menunggu dikirim X" (misal "menunggu dikirim 2").
+     - Sistem secara sadar menolak menampilkan status palsu "berhasil" untuk pesanan yang sebenarnya masih tertahan di antrean luring.
+  5. **Sinkronisasi Otomatis Saat Kembali Daring:**
+     - Sistem mendengarkan event jaringan peramban (`online` dan `offline`). Begitu koneksi internet pulih, antrean diproses secara otomatis satu per satu sesuai urutan pembuatan (FIFO).
+     - Bila terjadi kendala jaringan saat pengiriman, siklus berhenti sementara untuk mencegah banjir kegagalan (*rate-limiting backoff*).
+- **File terkait:** `aplikasi/src/lib/antrean-offline.ts`, `aplikasi/src/lib/antrean-offline.test.ts`, `aplikasi/src/hook/useAntrean.ts`, `aplikasi/src/hook/useAntrean.test.tsx`, `aplikasi/src/komponen/StatusAntreanOffline.tsx`, `aplikasi/src/komponen/StatusAntreanOffline.test.tsx`, `aplikasi/src/layar/kasir/LayarKasir.tsx`, `aplikasi/src/App.tsx`
+- **Implikasi:** Operasional kasir tetap berjalan lancar saat internet kedai terputus sementara tanpa risiko kehilangan pesanan, tanpa kebocoran data sensitif di perangkat, dan tanpa risiko dobel transaksi di peladen.
+
 
 

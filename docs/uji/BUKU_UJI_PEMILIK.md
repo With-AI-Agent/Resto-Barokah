@@ -78,10 +78,13 @@ tetapi **memblokir** dua tugas yang butuh layanan sungguhan: `T0-08` dan `T0-09`
 
 | U-21 | Daftar Uji Terima Pengaturan Mandiri Pemilik (tugas `T9-12`) | 1) Buka berkas panduan `docs/uji/UJI_TERIMA_PENGATURAN.md` 2) Masuk sebagai Owner ke Pengaturan Resto 3) Jalankan 12 skenario pengujian ramah manusia 4) Cocokkan hasil dengan lembar ceklis 5) Tandai status pengujian | Seluruh 12 skenario pengaturan resto terbukti berjalan mulus dari sudut pandang pemilik kedai tanpa kendala teknis |  | Fase 9 Uji Terima |
 
+| U-22 | Antrean Pesanan Luring saat Internet Putus (tugas `T10-01`) | 1) Masuk ke layar Kasir 2) Putuskan koneksi internet perangkat 3) Susun pesanan di keranjang dan tekan Kirim ke Dapur 4) Periksa banner status "menunggu dikirim 1" 5) Sambungkan kembali internet dan amati sinkronisasi | Pesanan tersimpan aman di IndexedDB lokal tanpa data sensitif, status antrean jelas jujur, dan otomatis terkirim sekali saat daring kembali (ART-8) |  | Fase 10 Ketahanan |
+
 ## 3. Log buku ini
 
 | Tanggal | Perubahan | Alasan |
 |---|---|---|
+| 2026-09-26 | Baris **U-22** ditambahkan (Antrean pesanan luring saat internet putus T10-01) | Panduan uji mandiri pemilik saat kasir offline, pembuktian status jelas "menunggu dikirim X", dan sinkronisasi otomatis ART-8 |
 | 2026-09-26 | Baris **U-21** ditambahkan (Daftar uji terima pengaturan mandiri pemilik bahasa manusia T9-12) | Melengkapi panduan uji mandiri pemilik untuk seluruh fitur Pengaturan Resto & Multi-Cabang Fase 9 (`docs/uji/UJI_TERIMA_PENGATURAN.md`) |
 | 2026-09-26 | Baris **U-13** s/d **U-20** ditambahkan (Fase 7 Shift & Laporan, Fase 8 Katalog & Voucher & Privasi, Fase 9 Pengaturan Resto T9-01 s/d T9-03) | Permintaan Lee memastikan seluruh hal yang perlu diuji mata/tangan manusia dari Fase 1 sampai 9 tercatat lengkap dengan cara, tujuan, dan indikator |
 | 2026-09-22 | Baris **U-09** s/d **U-12** ditambahkan (multi-bahasa T1-40, RTL T1-41, bantuan kontekstual T1-42, naskah jalan T1-35) + skrip penambah baris `alat/tambah-uji.py` | Selesainya fondasi kelengkapan UI Fase 1C yang siap dinilai pemilik di pratinjau |

@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `86c5db1e2f669db283a1ac3491cc129093546a34`
+- **Commit keadaan kerja:** `2408b88727d94e320638eaf39bb59dc58b833894`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** failure (run 36243814420, commit 86c5db1e)
+- **CI terakhir:** failure (run 36244863685, commit 2408b887)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (59 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (351 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (60 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (352 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,44 +70,31 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9 SELESAI 100%):**
+**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 10 DIMULAI, T10-01 SELESAI 100%):**
 
-0ZZ2. **FASE 9 TUNTAS PENUH: T9-01 s/d T9-12 SELESAI & MENUJU FASE 10 (Ketahanan & Keamanan Lanjutan M12/K4).**
-   - **T9-12 (Daftar uji terima pengaturan — bahasa manusia) SELESAI:**
-     1. Berkas panduan `docs/uji/UJI_TERIMA_PENGATURAN.md` selesai disusun memuat 12 skenario pengujian ramah manusia (identitas resto, logo/banner, tema 10 pilihan visual & kerapatan, tarif pajak PB1 & service charge, aturan pembulatan & ucapan kaki struk, tambah kategori & menu lengkap varian, sembunyikan menu cabang, harga beda per cabang, tata letak meja & unduh stand kode QR, kelola pegawai & batas diskon & reset PIN, metode bayar aktif & tip sukarela, serta pratinjau perubahan & pembuktian riwayat masa lalu kekal byte-per-byte).
-     2. Setiap skenario dilengkapi penjelasan pentingnya bagi pemilik kedai, peran pelaksana, maksimal 5 langkah praktis, indikator tanda berhasil, dan sinyal peringatan masalah.
-     3. Tabel ringkasan ceklis uji terima pemilik disediakan untuk dokumentasi manual.
-     4. Didaftarkan ke `docs/uji/BUKU_UJI_PEMILIK.md` baris U-21 (lulus verifikasi `alat/periksa-buku-uji.py`).
-     5. Didaftarkan ke `docs/uji/RENCANA_UJI_MANUAL.md` baris M-56.
-   - **Seluruh 12 Tugas Fase 9 Tuntas:**
-     - T9-01 (Identitas & Logo Resto) `[x]`
-     - T9-02 (Tema & Warna Merek 10 Tema) `[x]`
-     - T9-03 (Operasional PB1, Service, Pembulatan, Struk) `[x]`
-     - T9-04 (Meja & Area + Stand QR) `[x]`
-     - T9-05 (Pengelolaan Menu Lengkap & Varian) `[x]`
-     - T9-06 (Harga & Menu Cabang Khusus) `[x]`
-     - T9-07 (Metode Bayar & Aturan Tip) `[x]`
-     - T9-08 (Kelola Pegawai, Izin Diskon, & Reset PIN) `[x]`
-     - T9-09 (Kelola Cabang & Profil Printer Default) `[x]`
-     - T9-10 (Pendaftaran Penyewa Baru & Multi-Tenant M1) `[x]`
-     - T9-11 (Pratinjau Perubahan & Pengaman Riwayat Masa Lalu) `[x]`
-     - T9-12 (Daftar Uji Terima Pengaturan Bahasa Manusia) `[x]`
+0ZZ1. **FASE 10: T10-01 (Antrean kirim luring IndexedDB ⚠️ — TECH_SPEC §13 K4 & §9 ART-8; PRD §9) SELESAI.**
+   - Modul `aplikasi/src/lib/antrean-offline.ts` mengimplementasikan antrean lokal persisten berbasis IndexedDB (`resto_barokah_offline_db` / `antrean_kirim`) dengan fallback memori aman (zero-crash).
+   - Sanitasi otomatis data sensitif (`bersihkanDataSensitif` menghapus rekursif PIN staf, kata sandi, dan kredensial).
+   - Kunci idempoten unik wajib pada setiap item antrean (ART-8) untuk mencegah dobel pencatatan di peladen saat terkirim ulang.
+   - Pemrosesan sekuensial FIFO dan pemulihan antrean yang belum terkirim.
+   - Hook `aplikasi/src/hook/useAntrean.ts` memantau status daring/luring (`online`/`offline` listener), menyediakan status transparan dan jujur "menunggu dikirim X" (misal "menunggu dikirim 2"), serta memicu sinkronisasi otomatis saat kembali online.
+   - Komponen visual `aplikasi/src/komponen/StatusAntreanOffline.tsx` dan integrasi bilah kasir `LayarKasir.tsx` serta handler pesanan offline di `App.tsx`.
+   - 11 uji unit di `antrean-offline.test.ts`, 5 uji unit di `useAntrean.test.tsx`, dan 4 uji di `StatusAntreanOffline.test.tsx` lulus 100%. Total 112 berkas uji / 920 tes lulus tanpa galat.
+   - Catatan keputusan arsitektur dicatat resmi di `docs/DECISIONS_LOG.md` (Area: Antrean Offline ART-8).
+   - Didaftarkan ke `BUKU_UJI_PEMILIK.md` baris U-22 dan `RENCANA_UJI_MANUAL.md` baris M-57.
 
-0ZZ3. **LANGKAH SELANJUTNYA: FASE 10 (Ketahanan & Keamanan Lanjutan M12/K4 ⚠️ ART-8), mulai T10-01.**
-   - **T10-01 — Antrean kirim luring (IndexedDB) ⚠️:**
-     - File: `aplikasi/src/lib/antrean-offline.ts`, `aplikasi/src/hook/useAntrean.ts`
-     - DoD: pesanan tersimpan lokal + dikirim otomatis saat kembali daring; status terlihat jelas ("menunggu dikirim 2"); tidak menyimpan data sensitif; uji lulus.
-     - Risiko & mitigasi: Area: Antrean Offline (ART-8); kunci idempoten wajib + pesan status jelas.
+0ZZ2. **LANGKAH SELANJUTNYA: FASE 10 — T10-02 (Resolusi konflik luring vs daring ⚠️).**
+   - **Tujuan:** atur aturan jelas siapa menang jika data di peladen sudah berubah saat kirim luring tiba (stok, status meja, pembatalan).
+   - **Ref:** TECH_SPEC §13 K4.
+   - **File:** `aplikasi/src/lib/resolusi-konflik.ts`, migrasi bila perlu.
+   - **DoD:**
+     1. Aturan terdokumentasi di DECISIONS_LOG.md (server-wins untuk stok/status; append untuk pesanan baru).
+     2. Pengguna diberitahu jika ada konflik (bukan silent overwrite atau silent drop).
+     3. Uji unit skenario konflik lulus 100%.
+     4. Log keputusan dicatat di `docs/DECISIONS_LOG.md`.
 
-0ZZ. **FASE 9: T9-11 (Pratinjau perubahan & pengaman riwayat — PRD M2 kasus tepi) SELESAI.**
-   - Berkas uji SQL `supabase/tes/riwayat_tidak_berubah.sql` membuktikan transaksi lunas, struk belanja, dan angka laporan penjualan masa lalu tetap beku dan identik byte-per-byte (selisih = 0).
-   - Komponen antarmuka `aplikasi/src/layar/pengaturan/Pratinjau.tsx` (Diff Viewer & Live Receipt Simulator).
-
-0ZY. **FASE 9: T9-10 (Pemilik Platform: daftar penyewa baru / M1 ⚠️ — PRD M1 / ART-1) SELESAI.**
-   - Migrasi `supabase/migrations/0079_daftar_penyewa_m1.sql`: pemicu cegah hapus penyewa, 3 RPC resmi, isolasi RLS total, 10/10 mutasi merah.
-   - Komponen `Penyewa.tsx`, 6 uji unit lulus.
-
-0ZW. **FASE 9: T9-09 (Kelola cabang: tambah, printer, nonaktifkan ⚠️ — PRD M11 / ART-7 & ART-12) SELESAI.**
+0ZZ3. **FASE 9 TUNTAS PENUH: T9-01 s/d T9-12 SELESAI (12/12 TUGAS LULUS 100%).**
+   - T9-01 s/d T9-12 selesai tuntas dengan 124 berkas uji SQL lulus, mutasi fail-closed 100% merah, komponen UI lengkap, Peta UI hijau.
    - Migrasi `supabase/migrations/0078_kelola_cabang.sql`: zona waktu, profil printer default, pemicu cegah hapus cabang ber-transaksi, pemicu minimal satu cabang aktif, 6 RPC aman, jejak audit kekal.
    - Berkas uji SQL `supabase/tes/kelola_cabang.sql` (20 skenario uji) & seluruh 122 berkas SQL lulus 100% (`node alat/uji-sql.mjs`).
    - Penilai mutasi `alat/uji-mutasi-0078.py`: 10/10 mutasi fail-closed tertangkap 100%.

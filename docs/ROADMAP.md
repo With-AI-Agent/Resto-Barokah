@@ -1886,14 +1886,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 10 — Ketahanan & keamanan lanjutan (M12, K4) ⚠️ ART-8
 
-- [ ] T10-01 — Antrean kirim luring (IndexedDB) ⚠️
+- [x] T10-01 — Antrean kirim luring (IndexedDB) ⚠️
   - **Tujuan:** pesanan tidak hilang saat internet kedai putus sebentar.
   - **Ref:** TECH_SPEC §13 K4 & §9 ART-8; PRD §9 risiko
   - **File:** `aplikasi/src/lib/antrean-offline.ts`, `aplikasi/src/hook/useAntrean.ts`
   - **DoD:** pesanan tersimpan lokal + dikirim otomatis saat kembali daring; status terlihat jelas ("menunggu dikirim 2"); tidak menyimpan data sensitif; uji lulus.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Antrean Offline (ART-8); mitigasi: kunci idempoten wajib + pesan status jelas.
-  - **Verifikasi:** uji manual: matikan jaringan → pesan → nyalakan → pesanan terkirim sekali.
+  - **Verifikasi:** uji manual: matikan jaringan → pesan → nyalakan → pesanan terkirim sekali. · **Bukti 2026-09-26 (Otomatis & Kode):** implementasi `aplikasi/src/lib/antrean-offline.ts` (antrean lokal IndexedDB dengan in-memory fallback, sanitasi rekursif data sensitif PIN/kredensial `bersihkanDataSensitif`, kepemilikan kunci idempoten unik ART-8, pemrosesan sekuensial FIFO), hook `aplikasi/src/hook/useAntrean.ts` (pemantau status daring/luring, pesan jujur "menunggu dikirim X", sinkronisasi otomatis saat kembali online), komponen antarmuka `aplikasi/src/komponen/StatusAntreanOffline.tsx` (banner/lencana status antrean luring), integrasi bilah kasir `LayarKasir.tsx`, serta integrasi fallback penyimpanan di `App.tsx`; 11 uji unit di `antrean-offline.test.ts`, 5 uji unit di `useAntrean.test.tsx`, dan 4 uji di `StatusAntreanOffline.test.tsx` lulus 100%; catatan keputusan arsitektur dicatat di `docs/DECISIONS_LOG.md` (Area: Antrean Offline ART-8).
 
 - [ ] T10-02 — Kunci idempoten menyeluruh di semua penulisan ⚠️
   - **Tujuan:** satu tindakan tidak pernah tercatat dua kali, dari layar mana pun.

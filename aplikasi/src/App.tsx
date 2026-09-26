@@ -25,6 +25,7 @@ import { LayarPelangganPublik } from './layar/pelanggan-publik/LayarPelangganPub
 import { Kampanye } from './layar/voucher/Kampanye'
 import { klienSupabase } from './lib/supabase'
 import { masukDenganGoogle, kirimTautanMasukEmail } from './lib/auth'
+import { tambahKeAntrean } from './lib/antrean-offline'
 
 export default function App() {
   const { sesi, sedangMasuk, masuk, keluar } = useSesi()
@@ -77,6 +78,10 @@ export default function App() {
 
               if (klien) {
                 try {
+                  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                    throw new Error('Jaringan luring (offline)')
+                  }
+
                   const idPesanan = masukan.pesananId || crypto.randomUUID()
                   const { error: errPesanan } = await klien.from('pesanan').insert({
                     id: idPesanan,
@@ -116,9 +121,30 @@ export default function App() {
 
                   setPesananAktifId(idPesanan)
                   return { sukses: true, pesananId: idPesanan }
-                } catch (e) {
-                  const msg = e instanceof Error ? e.message : 'Gagal menyimpan pesanan ke peladen.'
-                  return { sukses: false, pesan: msg }
+                } catch {
+                  // Simpan ke antrean luring saat jaringan offline / putus (T10-01 / ART-8)
+                  const idPesanan = masukan.pesananId || crypto.randomUUID()
+                  await tambahKeAntrean({
+                    jenis: 'simpan_pesanan',
+                    kunciIdempoten: `pos-${idPesanan}`,
+                    muatan: {
+                      pesananId: idPesanan,
+                      penyewaId: sesi?.penyewaId,
+                      cabangId,
+                      mejaId: masukan.mejaId ?? null,
+                      tipe: masukan.tipe ?? 'dinein',
+                      shiftId: shiftAktif?.id ?? null,
+                      items: masukan.items,
+                    },
+                    labelRingkas: `Pesanan (${masukan.tipe || 'dinein'}) - ${masukan.items?.length || 0} item`,
+                  })
+                  setPesananAktifId(idPesanan)
+                  return {
+                    sukses: true,
+                    pesananId: idPesanan,
+                    pesan:
+                      'Pesanan tersimpan di antrean luring (akan dikirim saat kembali daring).',
+                  }
                 }
               }
 
