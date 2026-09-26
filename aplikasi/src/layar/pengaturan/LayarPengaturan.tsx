@@ -17,6 +17,7 @@ import { Identitas, type DataIdentitas } from './Identitas'
 import { Tampilan, type DataTema } from './Tampilan'
 import { Operasional, type DataOperasional } from './Operasional'
 import { Meja, type ItemMeja } from './Meja'
+import { Menu, type DataKategori, type DataMenuItem } from './Menu'
 import { DaftarPerangkat } from './DaftarPerangkat'
 import { PasangPrinter } from './PasangPrinter'
 import { TautanKatalog } from './TautanKatalog'
@@ -27,6 +28,7 @@ export type TabPengaturan =
   | 'tampilan'
   | 'operasional'
   | 'meja'
+  | 'menu'
   | 'perangkat'
   | 'printer'
   | 'tautan'
@@ -50,6 +52,29 @@ export interface LayarPengaturanProps {
     aktif: boolean
   }) => Promise<{ berhasil: boolean; meja?: ItemMeja; pesan?: string }>
   onHapusMeja?: (mejaId: string) => Promise<{ berhasil: boolean; pesan?: string }>
+  daftarKategoriAwal?: DataKategori[]
+  daftarMenuAwal?: DataMenuItem[]
+  onSimpanKategori?: (data: {
+    id?: string
+    nama: string
+    urutan?: number
+    tujuan: 'dapur' | 'bar'
+    aktif: boolean
+  }) => Promise<{ berhasil: boolean; id?: string; pesan?: string }>
+  onHapusKategori?: (id: string) => Promise<{ berhasil: boolean; pesan?: string }>
+  onSimpanMenu?: (data: {
+    id?: string
+    kategori_id: string
+    nama: string
+    deskripsi?: string
+    harga: number
+    foto_path?: string
+    urutan?: number
+    unggulan?: boolean
+    jenis: 'makanan' | 'minuman' | 'lainnya'
+    aktif?: boolean
+  }) => Promise<{ berhasil: boolean; id?: string; pesan?: string }>
+  onHapusMenu?: (id: string) => Promise<{ berhasil: boolean; pesan?: string }>
   hanyaBaca?: boolean
 }
 
@@ -65,6 +90,12 @@ export function LayarPengaturan({
   daftarAreaAwal,
   onSimpanMeja,
   onHapusMeja,
+  daftarKategoriAwal,
+  daftarMenuAwal,
+  onSimpanKategori,
+  onHapusKategori,
+  onSimpanMenu,
+  onHapusMenu,
   hanyaBaca = false,
 }: LayarPengaturanProps) {
   const [tabAktif, setTabAktif] = useState<TabPengaturan>(tabAwal)
@@ -74,6 +105,7 @@ export function LayarPengaturan({
     { id: 'tampilan', label: 'Tema & Tampilan', ikon: '🎨' },
     { id: 'operasional', label: 'Operasional & Kasir', ikon: '⚙️' },
     { id: 'meja', label: 'Meja & Area', ikon: '🪑' },
+    { id: 'menu', label: 'Kelola Menu', ikon: '🍲' },
     { id: 'perangkat', label: 'Perangkat POS', ikon: '📱' },
     { id: 'printer', label: 'Printer Struk', ikon: '🖨️' },
     { id: 'tautan', label: 'Tautan & QR Meja', ikon: '🔗' },
@@ -138,6 +170,18 @@ export function LayarPengaturan({
             daftarAreaAwal={daftarAreaAwal}
             onSimpanMeja={onSimpanMeja}
             onHapusMeja={onHapusMeja}
+            onKembali={() => setTabAktif('identitas')}
+            hanyaBaca={hanyaBaca}
+          />
+        )}
+        {tabAktif === 'menu' && (
+          <Menu
+            daftarKategoriAwal={daftarKategoriAwal}
+            daftarMenuAwal={daftarMenuAwal}
+            onSimpanKategori={onSimpanKategori}
+            onHapusKategori={onHapusKategori}
+            onSimpanMenu={onSimpanMenu}
+            onHapusMenu={onHapusMenu}
             onKembali={() => setTabAktif('identitas')}
             hanyaBaca={hanyaBaca}
           />

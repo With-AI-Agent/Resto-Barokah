@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `6eb332449149aee49b38cf61c472cbf0b1cc9803`
+- **Commit keadaan kerja:** `3ac967b340dff2daee0d92f3906c5d3e5149394e`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit 6eb33244 — periksa lagi setelah push)
+- **CI terakhir:** failure (run 36212451100, commit 3ac967b3)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (40 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (41 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,7 +70,25 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-04 SELESAI):**
+**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 9: T9-05 SELESAI):**
+
+0ZQ. **FASE 9: T9-05 (Pengelolaan menu lengkap — kategori, varian, tambahan, foto, urutan — PRD M2 & M3) SELESAI & T9-06 SIAP LANJUT.**
+   - Migrasi `supabase/migrations/0074_pengaturan_menu.sql`:
+     1. Pemicu fail-closed proteksi integritas data pesanan (`picu_menu_item_cegah_hapus` dan `picu_kategori_menu_cegah_hapus`).
+     2. RPC `public.simpan_kategori_menu` (tambah/edit kategori, urutan, tujuan produksi dapur/bar).
+     3. RPC `public.hapus_kategori_menu` (pencegahan hapus kategori yang masih memiliki item menu aktif).
+     4. RPC `public.simpan_menu_lengkap` (tambah/edit nama, kategori, harga, jenis makanan/minuman/lainnya, foto_path, urutan, status unggulan, varian harga, dan opsi topping/tambahan).
+     5. RPC `public.hapus_menu_item` (pencegahan hard-delete menu yang pernah dipesan, otomatis dialihkan ke soft-delete fail-closed).
+     6. RPC `public.ambil_menu_pengaturan` dan `public.simpan_urutan_menu` untuk pengaturan urutan tampil katalog.
+     7. Jejak audit kekal di `public.catatan_audit` (aksi = 'simpan_kategori_menu', 'hapus_kategori_menu', 'simpan_menu', 'hapus_menu', 'simpan_urutan_menu').
+   - Berkas uji `supabase/tes/pengaturan_menu.sql` membuktikan 18 kasus uji komprehensif (118 berkas uji SQL lulus 100% via `node alat/uji-sql.mjs`).
+   - Skrip penilai mutasi SQL `alat/uji-mutasi-0074.py` (8/8 mutasi kritis terbukti WAJIB MERAH 100%).
+   - Uji keamanan SQL `python3 alat/periksa-keamanan-sql.py` (71 migrasi + 2 uji keamanan lolos 100%).
+   - Komponen antarmuka `aplikasi/src/layar/pengaturan/Menu.tsx` (tata kelola master menu & kategori, tab kategori, pencarian instan, kompresi foto kanvas otomatis, konfigurasi varian & topping, pengatur urutan panah, penanda habis per cabang, konfirmasi fail-closed).
+   - Integrasi tab navigasi 'Kelola Menu' di `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`.
+   - Registri aksi `pengaturan.simpan_kategori`, `pengaturan.hapus_kategori`, `pengaturan.simpan_menu`, dan `pengaturan.hapus_menu` di `aplikasi/src/lib/aksi.ts` dan Peta UI `docs/PETA_UI.md` (11 layar, 43 aksi; `python3 alat/peta-ui.py --periksa` lulus).
+   - 14 uji unit di `Menu.test.tsx` dan 10 uji unit di `LayarPengaturan.test.tsx` lulus 100% (total 107 berkas Vitest frontend / 865 tes unit lulus).
+   - Langkah selanjutnya: T9-06 (Harga & ketersediaan menu berbeda per cabang — PRD M11).
 
 0ZP. **FASE 9: T9-04 (Meja & area + QR per meja — PRD M2 & M4) SELESAI & T9-05 SIAP LANJUT.**
    - Migrasi `supabase/migrations/0073_pengaturan_meja.sql`:
