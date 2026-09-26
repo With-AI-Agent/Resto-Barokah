@@ -193,6 +193,7 @@ export const DAFTAR_LAYAR: Record<string, KontrakLayar> = {
       'pengaturan.hapus_meja',
       'pengaturan.tambah_pegawai',
       'pengaturan.ubah_izin',
+      'pengaturan.pratinjau_perubahan',
     ],
     keadaan: {
       kosong: 'Belum ada data konfigurasi tambahan.',

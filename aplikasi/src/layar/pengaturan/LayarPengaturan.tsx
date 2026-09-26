@@ -27,6 +27,7 @@ import { DaftarPerangkat } from './DaftarPerangkat'
 import { PasangPrinter } from './PasangPrinter'
 import { TautanKatalog } from './TautanKatalog'
 import { Kampanye } from './Kampanye'
+import { Pratinjau } from './Pratinjau'
 
 export type TabPengaturan =
   | 'identitas'
@@ -42,6 +43,7 @@ export type TabPengaturan =
   | 'printer'
   | 'tautan'
   | 'kampanye'
+  | 'pratinjau'
 
 export interface LayarPengaturanProps {
   tabAwal?: TabPengaturan
@@ -180,6 +182,12 @@ export interface LayarPengaturanProps {
     cabangId: string
     aktif: boolean
   }) => Promise<{ sukses: boolean; pesan?: string }>
+  dataIdentitasDraf?: Partial<DataIdentitas>
+  dataTemaDraf?: Partial<DataTema>
+  dataOperasionalDraf?: Partial<DataOperasional>
+  onSimpanSemuaPengaturan?: () => Promise<{ berhasil: boolean; pesan?: string }>
+  onResetDrafPengaturan?: () => void
+  onCetakSimulasiStruk?: () => void
   hanyaBaca?: boolean
 }
 
@@ -224,6 +232,12 @@ export function LayarPengaturan({
   onSimpanKelolaCabang,
   onUbahStatusKelolaCabang,
   onAturAksesKelolaCabang,
+  dataIdentitasDraf,
+  dataTemaDraf,
+  dataOperasionalDraf,
+  onSimpanSemuaPengaturan,
+  onResetDrafPengaturan,
+  onCetakSimulasiStruk,
   hanyaBaca = false,
 }: LayarPengaturanProps) {
   const [tabAktif, setTabAktif] = useState<TabPengaturan>(tabAwal)
@@ -242,6 +256,7 @@ export function LayarPengaturan({
     { id: 'printer', label: 'Printer Struk', ikon: '🖨️' },
     { id: 'tautan', label: 'Tautan & QR Meja', ikon: '🔗' },
     { id: 'kampanye', label: 'Kampanye Voucher', ikon: '🎟️' },
+    { id: 'pratinjau', label: 'Pratinjau & Pengaman', ikon: '👁️' },
   ]
 
   return (
@@ -367,6 +382,21 @@ export function LayarPengaturan({
         {tabAktif === 'printer' && <PasangPrinter />}
         {tabAktif === 'tautan' && <TautanKatalog onKembali={() => setTabAktif('identitas')} />}
         {tabAktif === 'kampanye' && <Kampanye onKembali={() => setTabAktif('identitas')} />}
+        {tabAktif === 'pratinjau' && (
+          <Pratinjau
+            dataIdentitasSaatIni={dataIdentitas}
+            dataIdentitasDraf={dataIdentitasDraf}
+            dataTemaSaatIni={dataTema}
+            dataTemaDraf={dataTemaDraf}
+            dataOperasionalSaatIni={dataOperasional}
+            dataOperasionalDraf={dataOperasionalDraf}
+            onSimpanSemua={onSimpanSemuaPengaturan}
+            onResetDraf={onResetDrafPengaturan}
+            onKembali={() => setTabAktif('identitas')}
+            onCetakSimulasi={onCetakSimulasiStruk}
+            hanyaBaca={hanyaBaca}
+          />
+        )}
       </div>
     </div>
   )

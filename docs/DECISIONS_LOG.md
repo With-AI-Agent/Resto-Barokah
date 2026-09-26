@@ -2928,4 +2928,24 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `supabase/migrations/0079_daftar_penyewa_m1.sql`, `supabase/tes/daftar_penyewa.sql`, `alat/uji-mutasi-0079.py`, `supabase/functions/daftar_penyewa/index.ts`, `aplikasi/src/layar/platform/Penyewa.tsx`, `aplikasi/src/layar/platform/Penyewa.test.tsx`
 - **Implikasi:** Modul multi-tenant platform menjamin pemisahan data absolut antarklien (RLS fail-closed) dan pendaftaran penyewa baru selalu menghasilkan konfigurasi awal resto yang siap pakai tanpa manipulasi manual.
 
+### [Fase 9/2026-09-26] Pratinjau Perubahan & Pengaman Riwayat (T9-11 / PRD M2 Kasus Tepi)
+- **Area:** Pengaturan Resto & Integritas Riwayat Transaksi (TECH_SPEC §9 ART-3, PRD M2)
+- **Keputusan:**
+  1. **Pratinjau Perubahan & Live Receipt Simulator (Diff Viewer):**
+     - Sebelum menyimpan modifikasi identitas resto (nama, tagline), tema/warna merek, tarif PB1, service charge, aturan pembulatan, atau teks struk, pengguna (Owner Pusat / Admin Cabang) disajikan antarmuka pratinjau komparatif berdampingan (*Diff Viewer*).
+     - Simulator struk kasir (*Live Receipt Simulator*) menghitung dampak finansial dari usulan aturan baru secara real-time terhadap berbagai skenario transaksi contoh (skenario pesanan reguler, kopi & kudapan, jamuan promo dengan diskon) serta format lebar kertas termal (58mm dan 80mm).
+  2. **Jaminan Kekekalan Data Masa Lalu (Immutable Past Guarantee):**
+     - Sesuai prinsip akuntansi dan kepatuhan hukum, perubahan konfigurasi restoran masa kini TIDAK BOLEH mengubah data transaksi, struk kasir, rincian pembayaran, atau laporan penjualan/kas masa lalu.
+     - Setiap baris pesanan lunas menyimpan harga saat transaksi terjadi (`harga_saat_itu` pada `public.pesanan_item`) dan snapshot kalkulasi (`subtotal`, `pajak`, `service`, `total_diskon`, `total` pada `public.pesanan`).
+     - Pembaruan nama/harga di katalog menu, penonaktifan metode pembayaran, maupun peningkatan tarif pajak/service tidak mengubah baris transaksi yang sudah tersimpan.
+  3. **Proteksi Integritas & Pembuktian Uji SQL Golden Past:**
+     - Dilindungi pemicu fail-closed peladen `public.picu_pesanan_tertutup_beku` dan `public.picu_pesanan_uang_peladen` yang menolak setiap upaya modifikasi langsung pada transaksi berstatus `lunas` atau `batal`.
+     - Dibuktikan secara deterministik dalam berkas uji SQL `supabase/tes/riwayat_tidak_berubah.sql` (124 berkas uji lulus 100%): pemanggilan `public.laporan_penjualan` untuk tanggal masa lalu menghasilkan angka `total_omzet`, `total_pajak`, `total_service`, dan `total_subtotal` yang identik byte-per-byte (selisih = 0) sebelum dan sesudah perubahan pengaturan resto.
+  4. **Antarmuka & Kontrol Aksi Pencegah Kesalahan:**
+     - Komponen antarmuka `aplikasi/src/layar/pengaturan/Pratinjau.tsx` dilengkapi dialog konfirmasi ringkasan dampak sebelum penyimpanan, tombol reset draf, dan tombol cetak uji simulasi.
+     - Aksi `pengaturan.pratinjau_perubahan` terdaftar resmi di `aksi.ts`, `layar.ts`, dan `docs/PETA_UI.md`.
+- **File terkait:** `supabase/tes/riwayat_tidak_berubah.sql`, `aplikasi/src/layar/pengaturan/Pratinjau.tsx`, `aplikasi/src/layar/pengaturan/Pratinjau.test.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.test.tsx`
+- **Implikasi:** Pemilik resto memiliki visibilitas penuh terhadap dampak setiap perubahan pengaturan tagihan sebelum diterapkan, sementara integritas catatan riwayat keuangan masa lalu tetap terkunci permanen.
+
+
 

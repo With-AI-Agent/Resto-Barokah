@@ -695,6 +695,23 @@ export const REGISTRI_AKSI: Record<string, EntriAksi> = {
     uji: ['uji_pengaturan_atur_akses_cabang'],
     sembunyikanBilaTanpaIzin: true,
   },
+  'pengaturan.pratinjau_perubahan': {
+    id: 'pengaturan.pratinjau_perubahan',
+    label: 'Pratinjau & Pengaman Riwayat',
+    layar: 'pengaturan',
+    peran: ['owner_pusat', 'admin_cabang'],
+    izin: 'atur_pengaturan',
+    rpc: 'simpan_pengaturan',
+    jenis: 'tulis',
+    konfirmasi:
+      'Apakah Anda yakin ingin menerapkan seluruh perubahan identitas, tema, dan operasional resto?',
+    pin: false,
+    audit: true,
+    sukses: 'Pengaturan restoran berhasil disimpan dan diterapkan.',
+    gagal: 'Gagal menyimpan konfigurasi pengaturan.',
+    uji: ['uji_pratinjau_pengaturan', 'uji_riwayat_tidak_berubah'],
+    sembunyikanBilaTanpaIzin: true,
+  },
 
   // ----------------------------------------------------------- Layar Voucher
   'voucher.cek_kode': {
