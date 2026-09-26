@@ -45,13 +45,7 @@ describe('Pratinjau (Pratinjau Perubahan & Pengaman Riwayat — T9-11 / PRD M2)'
 
     // Skenario 3: Pembulatan ke bawah dengan selisih
     // 33.000 + 10% (3.300) + 5% (1.650) = 37.950 -> dibulatkan ke 500 = 37.500 (selisih -450)
-    const res3 = hitungTagihanStruk(
-      [{ nama: 'Menu Uji', qty: 1, harga: 33000 }],
-      0,
-      10,
-      5,
-      '500',
-    )
+    const res3 = hitungTagihanStruk([{ nama: 'Menu Uji', qty: 1, harga: 33000 }], 0, 10, 5, '500')
     expect(res3.total).toBe(37500)
     expect(res3.selisihBulat).toBe(-450)
   })

@@ -199,7 +199,10 @@ export function LayarPenyewaPlatform({
     setFormTambah((prev) => ({
       ...prev,
       nama: namaBaru,
-      slug: prev.slug === '' || prev.slug === bersihkanSlug(prev.nama) ? bersihkanSlug(namaBaru) : prev.slug,
+      slug:
+        prev.slug === '' || prev.slug === bersihkanSlug(prev.nama)
+          ? bersihkanSlug(namaBaru)
+          : prev.slug,
     }))
   }
 
@@ -399,23 +402,27 @@ export function LayarPenyewaPlatform({
         }}
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', marginBottom: 'var(--s-1)' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--s-2)',
+              marginBottom: 'var(--s-1)',
+            }}
+          >
             <h1 style={{ fontSize: 'var(--t-5)', fontWeight: 800, margin: 0 }}>
               Kelola Resto Penyewa
             </h1>
             <Lencana nada="accent">Pemilik Platform</Lencana>
           </div>
           <p style={{ margin: 0, color: 'var(--teks-redup)', fontSize: 'var(--t-2)' }}>
-            Mendaftarkan restoran baru, konfigurasi cabang pertama, akun Owner pusat, dan isolasi data total (PRD M1).
+            Mendaftarkan restoran baru, konfigurasi cabang pertama, akun Owner pusat, dan isolasi
+            data total (PRD M1).
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: 'var(--s-2)' }}>
-          <Tombol
-            ragam="utama"
-            onClick={tanganiBukaTambah}
-            data-aksi="platform.buat_penyewa"
-          >
+          <Tombol ragam="utama" onClick={tanganiBukaTambah} data-aksi="platform.buat_penyewa">
             ➕ Tambah Penyewa Baru
           </Tombol>
         </div>
@@ -438,19 +445,44 @@ export function LayarPenyewaPlatform({
         </Kartu>
         <Kartu>
           <div style={{ fontSize: 'var(--t-1)', color: 'var(--teks-redup)' }}>Restoran Aktif</div>
-          <div style={{ fontSize: 'var(--t-5)', fontWeight: 800, color: 'var(--success)', marginTop: 'var(--s-1)' }}>
+          <div
+            style={{
+              fontSize: 'var(--t-5)',
+              fontWeight: 800,
+              color: 'var(--success)',
+              marginTop: 'var(--s-1)',
+            }}
+          >
             {totalAktif}
           </div>
         </Kartu>
         <Kartu>
-          <div style={{ fontSize: 'var(--t-1)', color: 'var(--teks-redup)' }}>Nonaktif (Dibekukan)</div>
-          <div style={{ fontSize: 'var(--t-5)', fontWeight: 800, color: 'var(--warn)', marginTop: 'var(--s-1)' }}>
+          <div style={{ fontSize: 'var(--t-1)', color: 'var(--teks-redup)' }}>
+            Nonaktif (Dibekukan)
+          </div>
+          <div
+            style={{
+              fontSize: 'var(--t-5)',
+              fontWeight: 800,
+              color: 'var(--warn)',
+              marginTop: 'var(--s-1)',
+            }}
+          >
             {totalNonaktif}
           </div>
         </Kartu>
         <Kartu>
-          <div style={{ fontSize: 'var(--t-1)', color: 'var(--teks-redup)' }}>Total Seluruh Cabang</div>
-          <div style={{ fontSize: 'var(--t-5)', fontWeight: 800, color: 'var(--accent)', marginTop: 'var(--s-1)' }}>
+          <div style={{ fontSize: 'var(--t-1)', color: 'var(--teks-redup)' }}>
+            Total Seluruh Cabang
+          </div>
+          <div
+            style={{
+              fontSize: 'var(--t-5)',
+              fontWeight: 800,
+              color: 'var(--accent)',
+              marginTop: 'var(--s-1)',
+            }}
+          >
             {totalCabang}
           </div>
         </Kartu>
@@ -478,7 +510,9 @@ export function LayarPenyewaPlatform({
             </div>
 
             <div style={{ display: 'flex', gap: 'var(--s-2)', alignItems: 'center' }}>
-              <span style={{ fontSize: 'var(--t-1)', color: 'var(--teks-redup)' }}>Filter Status:</span>
+              <span style={{ fontSize: 'var(--t-1)', color: 'var(--teks-redup)' }}>
+                Filter Status:
+              </span>
               <Tombol
                 ragam={filterStatus === 'semua' ? 'utama' : 'biasa'}
                 onClick={() => setFilterStatus('semua')}
@@ -544,8 +578,17 @@ export function LayarPenyewaPlatform({
                     }}
                   >
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', flexWrap: 'wrap' }}>
-                        <h3 style={{ margin: 0, fontSize: 'var(--t-4)', fontWeight: 700 }}>{item.nama}</h3>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--s-2)',
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        <h3 style={{ margin: 0, fontSize: 'var(--t-4)', fontWeight: 700 }}>
+                          {item.nama}
+                        </h3>
                         <Lencana nada={adalahAktif ? 'success' : 'warn'}>
                           {adalahAktif ? 'Aktif' : 'Nonaktif'}
                         </Lencana>
@@ -573,8 +616,12 @@ export function LayarPenyewaPlatform({
                         }}
                       >
                         <div>📍 {item.jumlah_cabang} Cabang</div>
-                        <div>👤 Owner: {item.owner_nama || '-'} ({item.owner_email || '-'})</div>
-                        <div>⏰ {item.zona_waktu} ({item.mata_uang})</div>
+                        <div>
+                          👤 Owner: {item.owner_nama || '-'} ({item.owner_email || '-'})
+                        </div>
+                        <div>
+                          ⏰ {item.zona_waktu} ({item.mata_uang})
+                        </div>
                         {item.kontak_telepon && <div>📞 {item.kontak_telepon}</div>}
                       </div>
                     </div>
@@ -642,7 +689,9 @@ export function LayarPenyewaPlatform({
             </div>
           )}
 
-          <h4 style={{ margin: '0 0 var(--s-1) 0', fontSize: 'var(--t-3)' }}>1. Identitas Restoran</h4>
+          <h4 style={{ margin: '0 0 var(--s-1) 0', fontSize: 'var(--t-3)' }}>
+            1. Identitas Restoran
+          </h4>
           <KolomIsian
             label="Nama Restoran / Penyewa"
             nilai={formTambah.nama}
@@ -696,7 +745,9 @@ export function LayarPenyewaPlatform({
             />
           </div>
 
-          <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: 'var(--s-2) 0' }} />
+          <hr
+            style={{ border: 'none', borderTop: '1px solid var(--border)', margin: 'var(--s-2) 0' }}
+          />
 
           <h4 style={{ margin: '0 0 var(--s-1) 0', fontSize: 'var(--t-3)' }}>2. Cabang Pertama</h4>
           <KolomIsian
@@ -713,9 +764,13 @@ export function LayarPenyewaPlatform({
             contoh="Jl. Merdeka No. 12"
           />
 
-          <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: 'var(--s-2) 0' }} />
+          <hr
+            style={{ border: 'none', borderTop: '1px solid var(--border)', margin: 'var(--s-2) 0' }}
+          />
 
-          <h4 style={{ margin: '0 0 var(--s-1) 0', fontSize: 'var(--t-3)' }}>3. Akun Owner Pertama</h4>
+          <h4 style={{ margin: '0 0 var(--s-1) 0', fontSize: 'var(--t-3)' }}>
+            3. Akun Owner Pertama
+          </h4>
           <KolomIsian
             label="Nama Lengkap Owner"
             nilai={formTambah.owner_nama}
@@ -736,7 +791,9 @@ export function LayarPenyewaPlatform({
               label="PIN Awal Owner (6 Angka)"
               jenis="password"
               nilai={formTambah.owner_pin}
-              onUbah={(p) => setFormTambah((prev) => ({ ...prev, owner_pin: p.replace(/\D/g, '').slice(0, 6) }))}
+              onUbah={(p) =>
+                setFormTambah((prev) => ({ ...prev, owner_pin: p.replace(/\D/g, '').slice(0, 6) }))
+              }
               contoh="mis. 741852"
               keterangan="Wajib 6 digit, bukan pola lemah (mis. 123456)."
               wajib
@@ -777,9 +834,12 @@ export function LayarPenyewaPlatform({
               lineHeight: 1.5,
             }}
           >
-            🛡️ <strong>Keamanan Data Terjamin:</strong> Data transaksi, pesanan kasir, shift kasir, dan riwayat cabang resto ini <strong>tetap tersimpan aman dan tidak akan dihapus</strong>.
+            🛡️ <strong>Keamanan Data Terjamin:</strong> Data transaksi, pesanan kasir, shift kasir,
+            dan riwayat cabang resto ini{' '}
+            <strong>tetap tersimpan aman dan tidak akan dihapus</strong>.
             <br />
-            Penonaktifan akan membekukan akses masuk pegawai dan operasional kasir restoran ini hingga diaktifkan kembali.
+            Penonaktifan akan membekukan akses masuk pegawai dan operasional kasir restoran ini
+            hingga diaktifkan kembali.
           </div>
 
           <KolomIsian

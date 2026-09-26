@@ -203,8 +203,7 @@ export function Pratinjau({
     nada: 'info',
   })
 
-  const skenarioTerpilih =
-    SKENARIO_CONTOH.find((s) => s.id === skenarioId) || SKENARIO_CONTOH[0]
+  const skenarioTerpilih = SKENARIO_CONTOH.find((s) => s.id === skenarioId) || SKENARIO_CONTOH[0]
 
   // Perhitungan Simulasi
   const tagihanLama = hitungTagihanStruk(
@@ -493,8 +492,8 @@ export function Pratinjau({
                 borderRadius: 'var(--radius)',
               }}
             >
-              ✅ <strong>Teruji Otomatis:</strong> Dilindungi pemicu fail-closed basis data dan lolos
-              uji integritas berkas <code>riwayat_tidak_berubah.sql</code>.
+              ✅ <strong>Teruji Otomatis:</strong> Dilindungi pemicu fail-closed basis data dan
+              lolos uji integritas berkas <code>riwayat_tidak_berubah.sql</code>.
             </div>
           </div>
         </div>
@@ -617,11 +616,7 @@ export function Pratinjau({
               80 mm (Standar)
             </Tombol>
             {onCetakSimulasi && (
-              <Tombol
-                ragam="kecil"
-                onClick={onCetakSimulasi}
-                nama="Cetak lembar simulasi ini"
-              >
+              <Tombol ragam="kecil" onClick={onCetakSimulasi} nama="Cetak lembar simulasi ini">
                 🖨️ Cetak Uji
               </Tombol>
             )}
@@ -648,7 +643,9 @@ export function Pratinjau({
             <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>
               Dampak Terhadap Tagihan Pelanggan ({skenarioTerpilih.judul}):
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.2rem' }}>
+            <div
+              style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.2rem' }}
+            >
               <span style={{ fontSize: '0.85rem' }}>
                 Total Lama: <strong>{rupiah(tagihanLama.total)}</strong>
               </span>
@@ -663,9 +660,13 @@ export function Pratinjau({
             {selisihTotal === 0 ? (
               <Lencana nada="netral">Sama Persis (Rp 0)</Lencana>
             ) : selisihTotal > 0 ? (
-              <Lencana nada="accent">+{rupiah(selisihTotal)} (+{persentasePerubahan}%)</Lencana>
+              <Lencana nada="accent">
+                +{rupiah(selisihTotal)} (+{persentasePerubahan}%)
+              </Lencana>
             ) : (
-              <Lencana nada="accent">{rupiah(selisihTotal)} ({persentasePerubahan}%)</Lencana>
+              <Lencana nada="accent">
+                {rupiah(selisihTotal)} ({persentasePerubahan}%)
+              </Lencana>
             )}
           </div>
         </div>
@@ -933,7 +934,9 @@ export function Pratinjau({
                 <span>{rupiah(tagihanBaru.service)}</span>
               </div>
               {tagihanBaru.selisihBulat !== 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}
+                >
                   <span>Pembulatan:</span>
                   <span>
                     {tagihanBaru.selisihBulat < 0 ? '−' : '+'}
@@ -983,7 +986,9 @@ export function Pratinjau({
         judul="Konfirmasi Terapkan Perubahan Pengaturan"
         onTutup={() => setDialogKonfirmasi(false)}
         kaki={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+          <div
+            style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}
+          >
             <Tombol
               ragam="biasa"
               onClick={() => setDialogKonfirmasi(false)}
@@ -1004,7 +1009,10 @@ export function Pratinjau({
         }
       >
         <div data-testid="dialog-konfirmasi-simpan">
-          <p className="muted" style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', lineHeight: 1.4 }}>
+          <p
+            className="muted"
+            style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', lineHeight: 1.4 }}
+          >
             Anda akan menyimpan <strong>{totalBerubah} perubahan pengaturan</strong> ke basis data.
             Perubahan ini akan langsung berlaku pada seluruh transaksi baru berikutnya.
           </p>

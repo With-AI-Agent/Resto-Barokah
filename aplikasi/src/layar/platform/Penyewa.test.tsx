@@ -172,7 +172,9 @@ describe('LayarPenyewaPlatform (T9-10 / PRD M1 / ART-1)', () => {
     expect(onSetStatusMock).not.toHaveBeenCalled()
 
     // Isi alasan valid
-    const inputAlasan = screen.getByPlaceholderText(/mis\. Langganan expired atau permintaan pemilik/i)
+    const inputAlasan = screen.getByPlaceholderText(
+      /mis\. Langganan expired atau permintaan pemilik/i,
+    )
     fireEvent.change(inputAlasan, { target: { value: 'Masa uji coba selesai' } })
 
     fireEvent.click(screen.getByRole('button', { name: /Konfirmasi Nonaktifkan/i }))
