@@ -21,6 +21,9 @@ describe('LayarPengaturan (Induk Pengaturan Restoran — PRD M2 / Fase 9)', () =
     expect(
       screen.getByRole('button', { name: /buka tab pengaturan menu per cabang/i }),
     ).toBeDefined()
+    expect(
+      screen.getByRole('button', { name: /buka tab pengaturan metode bayar & tip/i }),
+    ).toBeDefined()
     expect(screen.getByRole('button', { name: /buka tab pengaturan perangkat/i })).toBeDefined()
     expect(screen.getByRole('button', { name: /buka tab pengaturan printer/i })).toBeDefined()
     expect(screen.getByRole('button', { name: /buka tab pengaturan tautan/i })).toBeDefined()
@@ -81,6 +84,18 @@ describe('LayarPengaturan (Induk Pengaturan Restoran — PRD M2 / Fase 9)', () =
 
     expect(screen.getByTestId('pengaturan-menu-cabang')).toBeDefined()
     expect(screen.getByText(/Harga & Ketersediaan Menu Per Cabang/i)).toBeDefined()
+  })
+
+  it('dapat berpindah ke tab Metode Bayar & Tip (T9-07)', () => {
+    render(<LayarPengaturan />)
+
+    const tabMetode = screen.getByRole('button', {
+      name: /buka tab pengaturan metode bayar & tip/i,
+    })
+    fireEvent.click(tabMetode)
+
+    expect(screen.getByTestId('pengaturan-metode-bayar')).toBeDefined()
+    expect(screen.getByText(/Metode Pembayaran & Aturan Tip/i)).toBeDefined()
   })
 
   it('dapat berpindah ke tab Perangkat POS', () => {
