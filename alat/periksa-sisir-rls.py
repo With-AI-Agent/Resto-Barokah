@@ -130,7 +130,7 @@ def periksa_sisir(cetak: bool = True) -> int:
     ):
         if cetak:
             print("LAPORAN AKHIR: 0 TABEL TANPA POLICY — 0 TABEL TERBUKA")
-            print("HASIL: LOLOS — Seluruh 45 tabel terisolasi 100% secara fail-closed.")
+            print(f"HASIL: LOLOS — Seluruh {total_tabel} tabel terisolasi 100% secara fail-closed.")
         return 0
     else:
         if cetak:

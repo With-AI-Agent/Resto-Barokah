@@ -223,4 +223,20 @@ export const DAFTAR_BANTUAN: Record<string, BantuanLayar> = {
     peranBoleh: ['owner_pusat', 'admin_cabang', 'dapur'],
     aksiTerkait: ['opname.catat_fisik', 'opname.kembali_stok'],
   },
+  platform_penyewa: {
+    idLayar: 'platform_penyewa',
+    judul: 'Panduan Kelola Resto Penyewa',
+    ringkasan:
+      'Pendaftaran restoran penyewa baru, pembuatan akun owner pertama, dan kontrol status aktif/nonaktif penyewa.',
+    langkah: [
+      'Isi nama restoran penyewa, subdomain unik, dan kontak resmi pemilik.',
+      'Tentukan cabang pertama dan buat akun pengguna peran owner_pusat.',
+      'Simpan untuk menerbitkan penyewa baru ke dalam platform.',
+      'Gunakan tombol status untuk menonaktifkan atau mengaktifkan kembali langganan resto.',
+    ],
+    kalauMacet:
+      'Hanya akun berstatus pemilik_platform yang memiliki wewenang mengelola data penyewa.',
+    peranBoleh: ['pemilik_platform'],
+    aksiTerkait: ['platform.buat_penyewa', 'platform.set_status_penyewa'],
+  },
 }

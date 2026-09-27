@@ -1949,11 +1949,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS/Auth, Voucher; mitigasi: temuan berat wajib dibereskan sebelum produksi.
   - **Verifikasi:** dokumen audit bertanda status tiap temuan + uji ulang setelah perbaikan.
 
-- [ ] T10-08 — Denyut harian + pembersih data sementara
+- [x] T10-08 — Denyut harian + pembersih data sementara
   - **Tujuan:** proyek gratis tidak "tidur" dan data sementara tidak menumpuk.
   - **Ref:** TECH_SPEC §1 (pg_cron) & §10 (batas gratis)
-  - **File:** `supabase/migrations/0065_pg_cron.sql`, `alat/denyut.py`
-  - **DoD:** tugas terjadwal harian (denyut) berjalan; pembersih data sementara (mis. percobaan lama) berjalan malam; log hasil terjadwal; uji lulus.
+  - **File:** `supabase/migrations/0082_denyut_harian_pembersih.sql`, `alat/denyut.py`, `alat/eksekusi-denyut.mjs`, `supabase/tes/denyut_pembersih.sql`, `alat/uji-mutasi-0082.py`
+  - **DoD:** tugas terjadwal harian (denyut) berjalan; pembersih data sementara (mis. percobaan lama) berjalan malam; log hasil terjadwal; uji lulus. · **Bukti 2026-09-27:** migrasi `supabase/migrations/0082_denyut_harian_pembersih.sql` menerapkan tabel `log_jadwal`, RPC `denyut_harian()`, `bersihkan_data_sementara()`, dan `ambil_log_jadwal()`; pembersih data sementara menerapkan daftar eksplisit (whitelist) tabel sementara (percobaan PIN, percobaan masuk, voucher percobaan, kode perangkat kadaluwarsa, sesi perangkat usang, log jadwal lama) serta melindungi penuh seluruh tabel inti finansial, pesanan, audit, dan stok; verifikasi pengujian SQL `supabase/tes/denyut_pembersih.sql` lulus 100% (perintah: `node alat/uji-sql.mjs`); verifikasi simulasi 2 hari berjalan via CLI `alat/denyut.py --simulasi-2-hari` membuktikan denyut pagi dan pembersihan malam tercatat dalam log jadwal; 4 uji mutasi fail-closed pada `alat/uji-mutasi-0082.py` terbukti merah saat proteksi dirusak (angka saat itu).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** pembersih menghapus data penting → mitigasi: daftar tabel yang boleh dibersihkan ditulis eksplisit + uji.
   - **Verifikasi:** jalankan manual + periksa log terjadwal 2 hari.
