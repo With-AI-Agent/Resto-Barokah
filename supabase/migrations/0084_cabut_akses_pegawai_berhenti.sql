@@ -563,7 +563,7 @@ begin
   );
 
   -- Jika shift melewati tengah malam, catat jejak audit khusus untuk laporan owner (T7-05)
-  if v_melewati_tengah_malam or v_hasil.melewati_tengah_malam then
+  if v_melewati_tengah_malam then
     insert into public.catatan_audit (
       penyewa_id,
       pelaku_id,

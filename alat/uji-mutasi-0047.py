@@ -22,9 +22,9 @@ import sys
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIGRASI = os.path.join(REPO, "supabase", "migrations", "0047_kas_pergerakan.sql")
 # JEBAKAN "fungsi ditulis ulang" (lihat DECISIONS_LOG [Mutu gerbang/2026-09-23]):
-# `public.tutup_shift` ditulis ulang di 0049_pengingat_shift.sql (T7-05), sehingga
+# `public.tutup_shift` ditulis ulang di 0084_cabut_akses_pegawai_berhenti.sql (T10-12), sehingga
 # mutasi integrasi tutup_shift harus menyasar berkas yang berlaku saat pemasangan.
-MIGRASI_TUTUP = os.path.join(REPO, "supabase", "migrations", "0049_pengingat_shift.sql")
+MIGRASI_TUTUP = os.path.join(REPO, "supabase", "migrations", "0084_cabut_akses_pegawai_berhenti.sql")
 BERKAS_UJI = ["supabase/tes/kas_pergerakan.sql"]
 
 

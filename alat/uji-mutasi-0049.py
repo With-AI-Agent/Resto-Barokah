@@ -21,6 +21,7 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIGRASI = os.path.join(REPO, "supabase", "migrations", "0049_pengingat_shift.sql")
+MIGRASI_TUTUP = os.path.join(REPO, "supabase", "migrations", "0084_cabut_akses_pegawai_berhenti.sql")
 BERKAS_UJI = ["supabase/tes/pengingat_shift.sql"]
 
 
@@ -40,39 +41,49 @@ DAFTAR_MUTASI = [
         "penanda shift melewati tengah malam dimatikan (selalu false)",
         "  if timezone('Asia/Jakarta', now())::date > timezone('Asia/Jakarta', v_shift.dibuka_pada)::date then\n    v_melewati_tengah_malam := true;\n  end if;",
         "  v_melewati_tengah_malam := false;",
+        MIGRASI_TUTUP,
     ),
     (
         "pemicu tanggal berbeda pada shift_kas dinonaktifkan",
         "  if timezone('Asia/Jakarta', coalesce(new.ditutup_pada, now()))::date > timezone('Asia/Jakarta', new.dibuka_pada)::date then\n    new.melewati_tengah_malam := true;\n  end if;",
         "  null;",
+        MIGRASI,
     ),
     (
         "catatan audit shift_melewati_tengah_malam ditiadakan",
         "  if v_melewati_tengah_malam then",
         "  if false and v_melewati_tengah_malam then",
+        MIGRASI_TUTUP,
     ),
     (
         "view laporan_shift_menggantung tidak menyaring status shift terbuka",
         " where s.status = 'terbuka';",
         " where true;",
+        MIGRASI,
     ),
     (
         "view tingkat_peringatan melewati_tengah_malam dicabut",
         "      when (s.melewati_tengah_malam or timezone('Asia/Jakarta', now())::date > timezone('Asia/Jakarta', s.dibuka_pada)::date) then 'melewati_tengah_malam'",
         "      when false then 'melewati_tengah_malam'",
+        MIGRASI,
     ),
     (
         "view penanda melewati_tengah_malam dipalsukan selalu false",
         "    (s.melewati_tengah_malam or timezone('Asia/Jakarta', now())::date > timezone('Asia/Jakarta', s.dibuka_pada)::date) as melewati_tengah_malam,",
         "    false as melewati_tengah_malam,",
+        MIGRASI,
     ),
 ]
 
 
 def uji_mutasi():
     print("UJI MUTASI 0049 (T7-05 — pengingat shift belum ditutup & penanda tengah malam)")
-    with open(MIGRASI, "r", encoding="utf-8") as f:
-        asli = f.read()
+    berkas_asli = {}
+    for item in DAFTAR_MUTASI:
+        b = item[3] if len(item) > 3 else MIGRASI
+        if b not in berkas_asli:
+            with open(b, "r", encoding="utf-8") as f:
+                berkas_asli[b] = f.read()
 
     try:
         lulus, keluaran = jalankan_uji()
@@ -82,14 +93,24 @@ def uji_mutasi():
             return 1
         print("  OK  kontrol: salinan utuh → " + " + ".join(BERKAS_UJI) + " hijau")
 
-        for nomor, (nama, asal, ganti) in enumerate(DAFTAR_MUTASI, start=1):
+        for nomor, item in enumerate(DAFTAR_MUTASI, start=1):
+            nama = item[0]
+            asal = item[1]
+            ganti = item[2]
+            target_berkas = item[3] if len(item) > 3 else MIGRASI
+            asli = berkas_asli[target_berkas]
+
             hasil = asli.replace(asal, ganti)
             if hasil == asli:
                 print(f"  [X] Mutasi {nomor}: teks mutasi TIDAK MENEMPEL pada berkas — periksa jangkar!")
                 return 1
-            with open(MIGRASI, "w", encoding="utf-8") as f:
+            with open(target_berkas, "w", encoding="utf-8") as f:
                 f.write(hasil)
             lulus, keluaran = jalankan_uji()
+            # Kembalikan segera sebelum mutasi berikutnya
+            with open(target_berkas, "w", encoding="utf-8") as f:
+                f.write(asli)
+
             if lulus:
                 print(f"  [X] Mutasi {nomor}: {nama} LOLOS (pagar tumpul!)")
                 print(keluaran[-1500:])
@@ -102,8 +123,9 @@ def uji_mutasi():
         )
         return 0
     finally:
-        with open(MIGRASI, "w", encoding="utf-8") as f:
-            f.write(asli)
+        for b, konten in berkas_asli.items():
+            with open(b, "w", encoding="utf-8") as f:
+                f.write(konten)
 
 
 def uji_diri():
