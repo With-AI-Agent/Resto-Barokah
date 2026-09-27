@@ -163,7 +163,10 @@ export default function App() {
               if (klien) {
                 const { error } = await klien
                   .from('pesanan')
-                  .update({ status: 'antri' })
+                  .update({
+                    status: 'dikirim',
+                    dikirim_ke_dapur_pada: new Date().toISOString(),
+                  })
                   .eq('id', id)
                 if (error) {
                   return { sukses: false, pesan: error.message }

@@ -2532,10 +2532,10 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
      - Setiap perubahan konfigurasi `wajib_shift` dicatat secara kekal di `public.catatan_audit`
        (`entitas = 'pengaturan'`, `kunci_pengaturan = 'wajib_shift'`) dengan rantai hash kriptografis SHA-256.
   2. **Pagar Integritas Transaksi Tingkat Database (Database Gatekeeper):**
-     - Pemicu `picu_pesanan_validasi_shift_terbuka` pada tabel `public.pesanan`: menolak pembuatan pesanan
+     - Pemicu `picu_pesanan_wajib_shift` pada tabel `public.pesanan`: menolak pembuatan pesanan
        baru (`status = 'draf'` atau lainnya) jika pengaturan cabang mengaktifkan `wajib_shift = true` dan
        kasir/pelayan tidak memiliki shift kasir berstatus `'terbuka'` di cabang bersangkutan.
-     - Pemicu `picu_pembayaran_validasi_shift_terbuka` pada tabel `public.pembayaran`: menolak pencatatan
+     - Pemicu `picu_pembayaran_wajib_shift` pada tabel `public.pembayaran`: menolak pencatatan
        pembayaran jika `wajib_shift = true` dan kasir yang bertugas tidak memiliki shift kasir terbuka.
      - RPC `public.bayar_pesanan` diperbarui untuk memvalidasi keberadaan shift kasir aktif pembuat
        transaksi saat `wajib_shift` bernilai aktif, serta mengaitkan pembayaran ke `shift_id` terbuka.

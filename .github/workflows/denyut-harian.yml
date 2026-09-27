@@ -49,4 +49,7 @@ jobs:
         run: python3 alat/denyut.py --uji-diri
 
       - name: Eksekusi denyut harian & pembersih data sementara
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: python3 alat/denyut.py --semua

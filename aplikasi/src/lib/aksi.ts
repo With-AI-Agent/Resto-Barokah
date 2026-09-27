@@ -33,7 +33,7 @@ export const REGISTRI_AKSI: Record<string, EntriAksi> = {
     layar: 'masuk',
     peran: ['pemilik_platform', 'owner_pusat', 'admin_cabang', 'kasir', 'pelayan', 'dapur'],
     izin: null,
-    rpc: 'verifikasi_pin',
+    rpc: 'verifikasi_pin_perangkat',
     jenis: 'tulis',
     konfirmasi: null,
     pin: false,

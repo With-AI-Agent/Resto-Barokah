@@ -14,7 +14,7 @@ Aturan Kerja:
 3. Seluruh temuan wajib dibuktikan dengan perintah eksekusi nyata.
 
 Tugas Pemeriksaan Anda:
-1. Periksa integritas 85 migrasi SQL (`supabase/migrations/`) dan 132 berkas uji database (`supabase/tes/`).
+1. Periksa integritas 82 berkas migrasi SQL (`supabase/migrations/`) dan 132 berkas uji database (`supabase/tes/`).
 2. Periksa bahwa seluruh 47 tabel publik mengaktifkan RLS (`relrowsecurity = true`) dan terisolasi per penyewa (`penyewa_saya()`).
 3. Periksa perlindungan hak akses 6 peran (`pemilik_platform`, `owner_pusat`, `admin_cabang`, `kasir`, `pelayan`, `dapur`).
 4. Periksa penegakan kunci idempoten ART-8 pada seluruh RPC penulisan.

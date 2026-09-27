@@ -142,7 +142,7 @@ harus terbukti) + **kasus tepi** (hal-hal yang biasanya bikin aplikasi gagal di 
   - Buka kas: masukkan **modal awal**.
   - Tutup kas: sistem menghitung uang **seharusnya** (modal + penerimaan tunai − pengeluaran tunai) lalu kasir memasukkan **hasil hitung fisik**.
   - Bila ada selisih → **wajib mengisi alasan**; nilainya tercatat di laporan untuk owner.
-  - Transaksi hanya bisa dilakukan dalam shift yang sudah dibuka.
+  - Aturan shift & transaksi: sistem mendukung penegakan transaksi hanya dalam shift kasir terbuka (melalui setelan `wajib_shift` di pengaturan cabang; bawaan `false`/fleksibel untuk kemudahan adopsi kedai pemula, dan dapat diwajibkan penuh oleh owner resto sesuai SOP kedai via pemicu database).
 - **Kasus tepi:** dua kasir dalam satu shift (satu kas, dicatat siapa yang membuka/menutup) · shift tidak ditutup sampai besok (sistem mengingatkan) · kasir lupa modal awal (bisa dikoreksi dengan izin atasan, tercatat).
 
 ### M8. Laporan harian per shift

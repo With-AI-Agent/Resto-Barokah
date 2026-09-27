@@ -32,7 +32,7 @@ POLA_RAHASIA = [
     ("kunci privat", re.compile("-----BEGIN " + r"[A-Z ]*PRIVATE KEY-----")),
     ("token Supabase (sbp_)", re.compile(r"sbp_" + r"[a-f0-9]{20,}")),
     ("kunci rahasia Supabase baru (sb_secret_)", re.compile(r"\bsb_secret_[A-Za-z0-9_-]{16,}")),
-    ("token OpenAI/Resend (sk-)", re.compile(r"\bsk-" + r"[A-Za-z0-9]{20,}")),
+    ("token OpenAI/Resend (sk- / sk-proj-)", re.compile(r"\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}")),
     ("token Resend (re_)", re.compile(r"\bre_" + r"[A-Za-z0-9]{20,}")),
     ("kunci AWS", re.compile(r"\bAKIA" + r"[0-9A-Z]{16}\b")),
     ("kunci Brevo (xkeysib-)", re.compile(r"\bxkeysib-[a-zA-Z0-9]{64}\b")),
@@ -163,6 +163,15 @@ def uji_diri() -> int:
             kode_google, _ = jalankan_pemeriksa(periksa, tmp_google)
             hasil.append(("mutasi: kunci Google OAuth GOCSPX- disisipkan", kode_google != 0,
                           "ditolak" if kode_google != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 1e: token OpenAI modern sk-proj- sintetis → harus GAGAL
+        with salin_pohon() as tmp_openai:
+            siapkan_git_salinan(tmp_openai)
+            f = tmp_openai / "PANDUAN_PENGGUNA.md"
+            f.write_text(f.read_text(encoding="utf-8") + "\nOpenAI Project Key: " + "sk-proj-" + "aB1_-" * 10 + "\n", encoding="utf-8")
+            kode_openai, _ = jalankan_pemeriksa(periksa, tmp_openai)
+            hasil.append(("mutasi: token OpenAI modern sk-proj- disisipkan", kode_openai != 0,
+                          "ditolak" if kode_openai != 0 else "DILOLOSKAN (tumpul)"))
 
         # Mutasi 2: aturan abaikan dihapus → harus GAGAL
         with salin_pohon() as tmp3:

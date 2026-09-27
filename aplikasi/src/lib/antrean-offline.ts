@@ -288,9 +288,36 @@ export async function ambilSemuaAntrean(): Promise<ItemAntrean[]> {
 }
 
 /**
+ * Memulihkan item antrean yang tersangkut di status 'mengirim' akibat aplikasi/tablet mati mendadak.
+ * Mereset status kembali ke 'menunggu' bila telah melewati ambang waktu (default: 30 detik).
+ */
+export async function pulihkanAntreanMacet(ambangDetik: number = 30): Promise<number> {
+  const semua = await ambilSemuaAntrean()
+  const sekarang = Date.now()
+  let dipulihkan = 0
+
+  for (const item of semua) {
+    if (item.status === 'mengirim') {
+      const waktuCoba = item.terakhirDicoba ? new Date(item.terakhirDicoba).getTime() : 0
+      if (sekarang - waktuCoba >= ambangDetik * 1000) {
+        await perbaruiStatusItem(
+          item.id,
+          'menunggu',
+          'Dipulihkan dari pengiriman macet / mati mendadak',
+        )
+        dipulihkan++
+      }
+    }
+  }
+  return dipulihkan
+}
+
+/**
  * Mengambil daftar antrean yang berstatus 'menunggu' atau 'gagal' (siap dikirim ulang).
+ * Otomatis memulihkan item 'mengirim' yang menganggur/macet akibat perangkat mati mendadak.
  */
 export async function ambilAntreanMenunggu(): Promise<ItemAntrean[]> {
+  await pulihkanAntreanMacet()
   const semua = await ambilSemuaAntrean()
   return semua.filter((i) => i.status === 'menunggu' || i.status === 'gagal')
 }

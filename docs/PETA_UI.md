@@ -28,13 +28,13 @@
 | `dapur` | Pesanan Dapur & Bar | `/dapur` | `owner_pusat`, `admin_cabang`, `kasir`, `dapur` | Bilah navigasi Dapur, Menu Utama | `src/layar/dapur/LayarDapur.test.tsx` | `W-4-01` |
 | `kasir` | Kasir & Transaksi | `/kasir` | `owner_pusat`, `admin_cabang`, `kasir` | Bilah navigasi bawah Kasir, Setelah buka shift | `src/layar/kasir/LayarKasir.test.tsx` | `W-3-01` |
 | `laporan` | Laporan Penjualan & Kas | `/laporan` | `owner_pusat`, `admin_cabang` | Bilah navigasi Laporan, Menu Pengelola | `src/layar/laporan/LayarLaporan.test.tsx` | `W-7-01` |
-| `masuk` | Masuk Pegawai | `/masuk` | `pemilik_platform`, `owner_pusat`, `admin_cabang`, `kasir`, `pelayan`, `dapur` | Awal aplikasi, Keluar sesi, Kunci otomatis | `src/layar/masuk/LayarMasuk.test.tsx` | `W-2-01` |
+| `masuk` | Masuk Pegawai | `/masuk` | `pemilik_platform`, `owner_pusat`, `admin_cabang`, `kasir`, `pelayan`, `dapur` | Awal aplikasi, Keluar sesi, Kunci otomatis | `src/layar/masuk/LayarMasukPegawai.test.tsx` | `W-2-01` |
 | `opname` | Opname Stok | `/opname` | `owner_pusat`, `admin_cabang`, `dapur` | Tombol "Ke Opname" di layar Stok | `src/layar/dapur/Opname.test.tsx` | `W-5-02` |
 | `pelanggan-publik` | Katalog Menu Publik | `/menu` | `pelanggan`, `kasir`, `pelayan`, `admin_cabang`, `owner_pusat`, `pemilik_platform` | Tautan publik / QR Meja, Peramban pelanggan | `src/layar/pelanggan-publik/LayarPelangganPublik.test.tsx` | `W-8-02` |
 | `pengaturan` | Pengaturan Resto | `/pengaturan` | `owner_pusat`, `admin_cabang` | Bilah navigasi Pengaturan, Menu Utama | `src/layar/pengaturan/LayarPengaturan.test.tsx` | `W-9-01` |
 | `platform_penyewa` | Kelola Resto Penyewa | `/platform/penyewa` | `pemilik_platform` | Menu Platform, Admin Root | `src/layar/platform/Penyewa.test.tsx` | `W-1-01` |
 | `stok` | Stok Bahan | `/stok` | `owner_pusat`, `admin_cabang`, `dapur` | Menu Utama, Tombol "Ke Opname" di layar Stok | `src/layar/dapur/Stok.test.tsx` | `W-5-01` |
-| `voucher` | Voucher & Diskon | `/voucher` | `owner_pusat`, `admin_cabang`, `kasir` | Panel Pembayaran Kasir, Menu Voucher | `src/layar/voucher/LayarVoucher.test.tsx` | `W-8-01` |
+| `voucher` | Voucher & Diskon | `/voucher` | `owner_pusat`, `admin_cabang`, `kasir` | Panel Pembayaran Kasir, Menu Voucher | `src/layar/voucher/Daftar.test.tsx` | `W-8-01` |
 
 ---
 
@@ -84,7 +84,7 @@
 | `laporan.pilih_cabang` | Pilih Cabang | `laporan` | owner_pusat, admin_cabang | `lihat_laporan` | - | `baca` | - | - | `uji_laporan_pilih_cabang` |
 | `masuk.batal` | Batal | `masuk` | pemilik_platform, owner_pusat, admin_cabang, kasir, pelayan, dapur | - | - | `navigasi` | - | - | `uji_batal_masuk` |
 | `masuk.ganti_pengguna` | Ganti Pegawai | `masuk` | pemilik_platform, owner_pusat, admin_cabang, kasir, pelayan, dapur | - | - | `navigasi` | - | - | `uji_navigasi_ganti_pegawai` |
-| `masuk.verifikasi_pin` | Masuk | `masuk` | pemilik_platform, owner_pusat, admin_cabang, kasir, pelayan, dapur | - | `verifikasi_pin` | `tulis` | - | - | `uji_masuk_pin_sah`, `uji_masuk_pin_salah` |
+| `masuk.verifikasi_pin` | Masuk | `masuk` | pemilik_platform, owner_pusat, admin_cabang, kasir, pelayan, dapur | - | `verifikasi_pin_perangkat` | `tulis` | - | - | `uji_masuk_pin_sah`, `uji_masuk_pin_salah` |
 | `opname.catat_fisik` | Catat Jumlah Fisik | `opname` | owner_pusat, admin_cabang, dapur | `ubah_stok` | `opname_stok` | `tulis` | Ya | Ya | `uji_opname_stok` |
 | `opname.kembali_stok` | Kembali ke Stok | `opname` | owner_pusat, admin_cabang, dapur | - | - | `navigasi` | - | - | `uji_opname_stok` |
 | `pelanggan.cari_menu` | Cari Menu | `pelanggan-publik` | pelanggan, kasir, pelayan, admin_cabang, owner_pusat, pemilik_platform | - | - | `baca` | - | - | `uji_pelanggan_cari_menu` |

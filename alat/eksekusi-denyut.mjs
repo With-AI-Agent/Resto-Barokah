@@ -16,6 +16,33 @@ const DATA_UJI = join(AKAR, 'alat', 'sql', 'data-uji.sql')
 const args = process.argv.slice(2)
 const aksi = args[0] || '--bantuan'
 
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY
+const gunakanSupabaseRemote = Boolean(
+  supabaseUrl &&
+    supabaseKey &&
+    supabaseUrl.startsWith('http') &&
+    !supabaseUrl.includes('example.com'),
+)
+
+async function panggilRpcSupabase(namaRpc, params = {}) {
+  const url = `${supabaseUrl.replace(/\/+$/, '')}/rest/v1/rpc/${namaRpc}`
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(params),
+  })
+  if (!res.ok) {
+    const teks = await res.text()
+    throw new Error(`Panggilan RPC Supabase ${namaRpc} gagal (${res.status}): ${teks}`)
+  }
+  return await res.json()
+}
+
 const SKEMA_UJI = `
 create role anon nologin;
 create role authenticated nologin;
@@ -111,6 +138,29 @@ async function main() {
       }),
     )
     process.exit(0)
+  }
+
+  // Jika kredensial Supabase remote tersedia dan bukan simulasi lokal, panggil RPC Supabase remote
+  if (gunakanSupabaseRemote && aksi !== '--simulasi-2-hari') {
+    if (aksi === '--denyut') {
+      const data = await panggilRpcSupabase('denyut_harian')
+      console.log(JSON.stringify(data, null, 2))
+      return
+    }
+    if (aksi === '--bersihkan') {
+      const hari = parseInt(args[1] || '30', 10)
+      const data = await panggilRpcSupabase('bersihkan_data_sementara', { p_retensi_hari: hari })
+      console.log(JSON.stringify(data, null, 2))
+      return
+    }
+    if (aksi === '--log') {
+      const limit = parseInt(args[1] || '20', 10)
+      const data = await panggilRpcSupabase('ambil_log_jadwal', { p_limit: limit })
+      console.log(JSON.stringify(data, null, 2))
+      return
+    }
+    console.error(`Perintah tidak dikenal: ${aksi}`)
+    process.exit(1)
   }
 
   const pg = await siapkanDb()

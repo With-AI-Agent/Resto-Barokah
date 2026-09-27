@@ -107,4 +107,42 @@ describe('LayarMasukPegawai (T2-02)', () => {
       expect(onSuksesMock).toHaveBeenCalled()
     })
   })
+
+  it('menangani Backspace, Escape, dan Spasi pada keyboard fisik', async () => {
+    const onMasukMock = vi.fn().mockResolvedValue({ berhasil: true, pesan: 'Sukses' })
+    const onSuksesMock = vi.fn()
+
+    render(
+      <PenyediaBahasa>
+        <LayarMasukPegawai onMasuk={onMasukMock} onMasukSukses={onSuksesMock} />
+      </PenyediaBahasa>,
+    )
+
+    const inputEmail = screen.getByPlaceholderText('nama@resto.test')
+    fireEvent.change(inputEmail, { target: { value: 'admin@resto.test' } })
+    fireEvent.blur(inputEmail)
+
+    // 1. Ketik 3 angka, lalu tekan Escape untuk mereset
+    fireEvent.keyDown(window, { key: '9' })
+    fireEvent.keyDown(window, { key: '8' })
+    fireEvent.keyDown(window, { key: '7' })
+    fireEvent.keyDown(window, { key: 'Escape' })
+
+    // 2. Ketik lagi 2 angka, tekan Backspace (hapus digit terakhir), lalu lanjutkan hingga 6 digit
+    fireEvent.keyDown(window, { key: '1' })
+    fireEvent.keyDown(window, { key: '2' })
+    fireEvent.keyDown(window, { key: 'Backspace' }) // hapus 2, sisa '1'
+
+    ;['2', '3', '4', '5', '6'].forEach((char) => {
+      fireEvent.keyDown(window, { key: char })
+    })
+
+    // 3. Tekan Spasi untuk konfirmasi masuk
+    fireEvent.keyDown(window, { key: ' ' })
+
+    await waitFor(() => {
+      expect(onMasukMock).toHaveBeenCalledWith('admin@resto.test', '123456')
+      expect(onSuksesMock).toHaveBeenCalled()
+    })
+  })
 })

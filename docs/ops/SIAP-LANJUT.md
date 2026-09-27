@@ -2119,7 +2119,7 @@ Urutan yang disarankan agent, dan alasannya:
 4. **Rencana Selanjutnya:**
    - Menyiapkan dan mendampingi pelaksanaan paket pemeriksaan resmi audit independen 3 agen:
      - **Agen 1 (Pemeriksa Basis Data & Keamanan SQL / Multi-Tenant):** Meninjau 85 migrasi SQL, 132 berkas uji SQL, RLS 47 tabel, fungsi RPC, rantai audit, dan fail-closed mutasi.
-     - **Agen 2 (Pemeriksa Frontend & Kepatuhan UI/UX & Peta UI):** Meninjau seluruh layar antarmuka, 850+ pengujian unit Vitest, kepatuhan PETA_UI.md, aksesibilitas kontras WCAG AAA, dan penanganan status kasir offline/online.
+     - **Agen 2 (Pemeriksa Frontend & Kepatuhan UI/UX & Peta UI):** Meninjau seluruh layar antarmuka, 850+ pengujian unit Vitest, kepatuhan PETA_UI.md, aksesibilitas kontras WCAG AA (≥ 4.5:1), dan penanganan status kasir offline/online.
      - **Agen 3 (Pemeriksa Infrastruktur, Ketahanan Sistem & SOP Bencana):** Meninjau alur CI/CD 126 gerbang, skrip pemulihan cadangan PGlite, latihan Buku Insiden 4 skenario darurat, header CSP, pemindai rahasia, dan tinjauan keamanan MFA (T-016).
    - Menunggu arahan dan instruksi lebih lanjut dari Lee terkait pengujian atau eksekusi audit tersebut.
    - Peringatan Khusus Lee (§29 `REKAM_PESAN_PEMILIK.md`): Setelah seluruh Fase 10 selesai (T10-16), agent WAJIB BERHENTI dan MENGINGATKAN Lee untuk pemeriksaan mendalam menyeluruh. Jangan lanjut ke Fase 11 sebelum arahan Lee.

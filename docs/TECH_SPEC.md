@@ -354,7 +354,7 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 - Normalisasi email Gmail (titik & tanda `+`) dan tolak email sekali-pakai.
 
 ### ART-6. Kas & shift
-- Transaksi **hanya** boleh terjadi bila ada shift terbuka di cabang itu.
+- Transaksi **hanya** boleh terjadi bila ada shift terbuka di cabang itu saat setelan `wajib_shift` diaktifkan pada pengaturan cabang (bawaan: `false`/fleksibel untuk kedai kecil, ditegakkan ketat oleh pemicu database `picu_pesanan_wajib_shift` dan `picu_pembayaran_wajib_shift` jika disetel `true` oleh pemilik resto).
 - `uang_seharusnya = modal_awal + penerimaan tunai − pengeluaran tunai` (hitungan peladen).
 - Selisih ≠ 0 **wajib** beralasan (tidak bisa disimpan tanpa alasan).
 - Setelah shift ditutup: **beku** — koreksi berupa baris `kas_pergerakan` baru bertanda koreksi, bukan mengubah angka lama.

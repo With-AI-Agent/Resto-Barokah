@@ -229,8 +229,8 @@ export function useAntrean(): GunakanAntreanHasil {
         }
       }
 
-      // Jenis aksi lainnya dianggap berhasil jika kunci idempoten diterima
-      return { sukses: true }
+      // Jenis aksi lainnya yang belum didukung ditolak secara fail-closed (F-05)
+      return { sukses: false, pesan: `Jenis aksi belum didukung: ${item.jenis}` }
     },
     [],
   )

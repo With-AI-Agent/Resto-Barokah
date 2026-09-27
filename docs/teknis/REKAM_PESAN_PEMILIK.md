@@ -545,8 +545,8 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
   2. **Struktur Pemeriksaan Akbar Menyeluruh (Fase 0 s/d Fase 10):**
      - **Dimensi 1 (Holistik / Auditor Utama):** Menilai sistem dari sudut pandang Lee sebagai pemilik platform SaaS/Vendor multi-tenant (alur pendaftaran resto, isolasi data, pengawasan kuota, keamanan operasional kasir hulu-ke-hilir).
      - **Dimensi 2 (Tiga Spesialis Teknis):**
-       - *Agen Data & Keuangan:* 85 migrasi SQL, 132 berkas tes SQL, 47 tabel RLS, perhitungan uang & PB1 sampai rupiah terkecil.
-       - *Agen Frontend & Lapangan:* Seluruh layar UI, kenyamanan keyboard fisik PIN kasir, ketahanan antrean offline, aksesibilitas kontras WCAG AAA.
+       - *Agen Data & Keuangan:* 82 berkas migrasi SQL (penomoran 0001–0085), 132 berkas tes SQL, 47 tabel RLS, perhitungan uang & PB1 sampai rupiah terkecil.
+       - *Agen Frontend & Lapangan:* Seluruh layar UI, kenyamanan keyboard fisik PIN kasir, ketahanan antrean offline, aksesibilitas kontras WCAG AA (≥ 4.5:1).
        - *Agen Infrastruktur & Bencana:* Kunci rahasia, enkripsi cadangan AES-256, SOP Buku Insiden, alur cron harian denyut anti-tidur.
      - **Dimensi 3 (Pemeriksa Riwayat Fase):** Membedah fase per fase secara berurutan (Fase 0 sampai Fase 10) untuk membuktikan seluruh janji fitur PRD dan TECH_SPEC terpenuhi tanpa utang teknis.
   3. **Penyiapan Paket & Prompt Siap Salin:** Seluruh instrumen audit, lembar periksa, dan naskah prompt siap-salin disiapkan di `docs/uji/` sehingga Lee dapat langsung menyalinnya tanpa kerumitan teknis.

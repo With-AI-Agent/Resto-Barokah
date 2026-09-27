@@ -20,6 +20,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useBahasa } from '../../bahasa'
 import { Tombol } from '../../komponen/Tombol'
 import { Lapis } from '../../komponen/Lapis'
+import { Toast, type NadaToast } from '../../komponen/Toast'
 import { Katalog, type MenuItemData, type VarianItem, type TambahanItem } from './Katalog'
 import { Keranjang, type ItemKeranjang, type RingkasanUang } from './Keranjang'
 import { PemilihMeja, type MejaData, type TipePesanan } from './PemilihMeja'
@@ -236,6 +237,14 @@ export function LayarKasir({
   // Draf pemulihan kasir & tagihan (T10-09)
   const inisialisasiDrafRef = useRef<boolean>(false)
   const [pemberitahuanDraf, setPemberitahuanDraf] = useState<boolean>(false)
+  const [pesanToast, setPesanToast] = useState<{ pesan: string; nada: NadaToast } | null>(null)
+
+  const tampilkanToast = (pesan: string, nada: NadaToast = 'info') => {
+    setPesanToast({ pesan, nada })
+    setTimeout(() => {
+      setPesanToast((prev) => (prev?.pesan === pesan ? null : prev))
+    }, 4000)
+  }
 
   // Muat draf terakhir dari penyimpanan lokal saat layar kasir dibuka
   useEffect(() => {
@@ -436,18 +445,18 @@ export function LayarKasir({
         items: daftarItemKeranjang,
       })
       if (!simpanRes.sukses) {
-        alert(simpanRes.pesan || 'Gagal menyimpan pesanan.')
+        tampilkanToast(simpanRes.pesan || 'Gagal menyimpan pesanan.', 'gagal')
         return
       }
       const pesananId = simpanRes.pesananId || 'ord-current'
       const res = await onKirimKeDapur(pesananId)
       if (res.sukses) {
-        alert('Pesanan berhasil dikirim ke dapur!')
+        tampilkanToast('Pesanan berhasil dikirim ke dapur!', 'sukses')
       } else {
-        alert(res.pesan || 'Gagal mengirim pesanan ke dapur.')
+        tampilkanToast(res.pesan || 'Gagal mengirim pesanan ke dapur.', 'gagal')
       }
     } catch {
-      alert('Gagal mengirim pesanan ke dapur.')
+      tampilkanToast('Gagal mengirim pesanan ke dapur.', 'gagal')
     }
   }
 
@@ -736,7 +745,7 @@ export function LayarKasir({
           <TagihanTerbuka
             daftarTagihan={daftarTagihanAktif}
             onPilihTagihan={(t) => {
-              alert(`Melanjutkan pesanan #${t.nomor} (${t.namaMeja || 'Takeaway'})`)
+              tampilkanToast(`Melanjutkan pesanan #${t.nomor} (${t.namaMeja || 'Takeaway'})`, 'info')
               setBukaOpenBillModal(false)
             }}
             onBuatPesananBaru={() => {
@@ -923,6 +932,12 @@ export function LayarKasir({
             onTutup={() => setItemVoid(null)}
           />
         </Lapis>
+      )}
+
+      {pesanToast && (
+        <div className="fixed bottom-4 right-4 z-50 pointer-events-none">
+          <Toast pesan={pesanToast.pesan} nada={pesanToast.nada} />
+        </div>
       )}
     </div>
   )

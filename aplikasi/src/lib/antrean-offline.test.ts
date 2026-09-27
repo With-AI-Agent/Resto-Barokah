@@ -16,6 +16,7 @@ import {
   kosongkanSemuaAntrean,
   prosesAntrean,
   buatKunciIdempoten,
+  pulihkanAntreanMacet,
   type ItemAntrean,
 } from './antrean-offline'
 
@@ -238,6 +239,27 @@ describe('antrean-offline (T10-01 / ART-8)', () => {
       expect(hasil.gagal).toBe(1)
       // Item kedua belum diproses karena jaringan terdeteksi mati
       expect(await hitungAntreanMenunggu()).toBe(2)
+    })
+
+    it('memulihkan item yang tersangkut di status mengirim akibat mati mendadak', async () => {
+      const item = await tambahKeAntrean({
+        jenis: 'simpan_pesanan',
+        kunciIdempoten: 'kunci-macet-1',
+        muatan: { data: 'penting' },
+      })
+
+      // Simulasikan status 'mengirim' yang sudah macet >30 detik
+      await perbaruiStatusItem(item.id, 'mengirim')
+      const daftarSebelum = await ambilSemuaAntrean()
+      const itemMacet = daftarSebelum.find((i) => i.id === item.id)
+      expect(itemMacet?.status).toBe('mengirim')
+
+      // Panggil pemulihan dengan ambang 0 detik
+      const dipulihkan = await pulihkanAntreanMacet(0)
+      expect(dipulihkan).toBe(1)
+
+      const menunggu = await ambilAntreanMenunggu()
+      expect(menunggu.some((i) => i.id === item.id && i.status === 'menunggu')).toBe(true)
     })
   })
 })

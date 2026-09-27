@@ -12,7 +12,7 @@ Kamu ditugaskan oleh Lee (Pemilik Platform Resto Barokah) sebagai **SPESIALIS BA
 
 ### 2. CAKUPAN PEMERIKSAAN BASIS DATA & KEUANGAN
 1. **Integritas Skema & Migrasi:**
-   - Telaah 85 berkas migrasi (`supabase/migrations/0001_...` s/d `0085_...`).
+   - Telaah 82 berkas migrasi (`supabase/migrations/0001_...` s/d `0085_...`, dengan nomor 0034, 0044, 0055 dilewati konsolidasi).
    - Pastikan migrasi beku 0001–0016 tidak pernah diubah sembarangan (`alat/periksa-migrasi-beku.py`).
 2. **Keamanan RLS 47 Tabel Publik:**
    - Pastikan seluruh 47 tabel publik mengaktifkan RLS (`relrowsecurity = true`).

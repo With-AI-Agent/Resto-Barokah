@@ -46,7 +46,7 @@ export const DAFTAR_LAYAR: Record<string, KontrakLayar> = {
     tujuan: 'Otentikasi staf dan admin resto berbasis PIN dan kredensial perangkat terdaftar.',
     peran: ['pemilik_platform', 'owner_pusat', 'admin_cabang', 'kasir', 'pelayan', 'dapur'],
     masukDari: ['Awal aplikasi', 'Keluar sesi', 'Kunci otomatis'],
-    komponen: 'src/layar/masuk/LayarMasuk.tsx',
+    komponen: 'src/layar/masuk/LayarMasukPegawai.tsx',
     data: [
       { nama: 'Daftar Pegawai Cabang', sumber: 'public.pengguna' },
       { nama: 'Status Perangkat', sumber: 'public.perangkat' },
@@ -66,7 +66,7 @@ export const DAFTAR_LAYAR: Record<string, KontrakLayar> = {
       'PIN disamarkan saat pengetikan',
       'Pemberitahuan percobaan gagal ditampilkan jelas',
     ],
-    berkasUji: 'src/layar/masuk/LayarMasuk.test.tsx',
+    berkasUji: 'src/layar/masuk/LayarMasukPegawai.test.tsx',
     naskahJalan: 'W-2-01',
   },
   kasir: {
@@ -218,7 +218,7 @@ export const DAFTAR_LAYAR: Record<string, KontrakLayar> = {
     tujuan: 'Kasir memeriksa keabsahan kode voucher pelanggan dan mencairkan diskon pada pesanan.',
     peran: ['owner_pusat', 'admin_cabang', 'kasir'],
     masukDari: ['Panel Pembayaran Kasir', 'Menu Voucher'],
-    komponen: 'src/layar/voucher/LayarVoucher.tsx',
+    komponen: 'src/layar/voucher/Daftar.tsx',
     data: [{ nama: 'Data Voucher', sumber: 'public.diskon_transaksi' }],
     aksi: ['voucher.cek_kode', 'voucher.klaim_diskon', 'voucher.batal'],
     keadaan: {
@@ -234,7 +234,7 @@ export const DAFTAR_LAYAR: Record<string, KontrakLayar> = {
       'Mendukung pemindaian kamera QR dan input manual',
       'Menampilkan rincian potongan dengan jelas sebelum disetujui',
     ],
-    berkasUji: 'src/layar/voucher/LayarVoucher.test.tsx',
+    berkasUji: 'src/layar/voucher/Daftar.test.tsx',
     naskahJalan: 'W-8-01',
   },
   'pelanggan-publik': {

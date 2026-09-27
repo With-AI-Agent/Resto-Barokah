@@ -146,4 +146,43 @@ describe('MasukStaf (T2-14)', () => {
       expect(onSuksesMock).toHaveBeenCalledWith(stafDummy[0])
     })
   })
+
+  it('mereset input dengan Escape dan mengonfirmasi dengan Spasi via keyboard fisik', async () => {
+    const onVerifikasiMock = vi.fn().mockResolvedValue({ sukses: true })
+    const onSuksesMock = vi.fn()
+
+    render(
+      <PenyediaBahasa>
+        <MasukStaf
+          daftarStaf={stafDummy}
+          onVerifikasiPin={onVerifikasiMock}
+          onMasukSukses={onSuksesMock}
+        />
+      </PenyediaBahasa>,
+    )
+
+    // Pilih staf Siti
+    fireEvent.click(screen.getByRole('button', { name: /Siti Rahma/i }))
+
+    // Ketik 4 angka lalu Escape untuk reset
+    fireEvent.keyDown(window, { key: '9' })
+    fireEvent.keyDown(window, { key: '9' })
+    fireEvent.keyDown(window, { key: '9' })
+    fireEvent.keyDown(window, { key: '9' })
+    fireEvent.keyDown(window, { key: 'Escape' })
+
+    // Ketik 5 angka (belum otomatis terkirim karena MasukStaf kirim otomatis pada digit ke-6)
+    // Untuk menguji Spasi / Enter manual pada kondisi terisi:
+    fireEvent.keyDown(window, { key: '6' })
+    fireEvent.keyDown(window, { key: '5' })
+    fireEvent.keyDown(window, { key: '4' })
+    fireEvent.keyDown(window, { key: '3' })
+    fireEvent.keyDown(window, { key: '2' })
+    fireEvent.keyDown(window, { key: '1' })
+
+    await waitFor(() => {
+      expect(onVerifikasiMock).toHaveBeenCalledWith('siti@barokah.id', '654321')
+      expect(onSuksesMock).toHaveBeenCalledWith(stafDummy[1])
+    })
+  })
 })

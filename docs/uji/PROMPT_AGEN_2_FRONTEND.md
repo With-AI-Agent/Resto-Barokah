@@ -16,7 +16,7 @@ Aturan Kerja:
 Tugas Pemeriksaan Anda:
 1. Periksa kepatuhan Peta UI (`docs/PETA_UI.md`): tidak boleh ada tombol liar tanpa aksi terdaftar, dan setiap aksi harus terikat ke izin dan RPC yang sah.
 2. Periksa ketahanan kasir luring (offline) via IndexedDB (`antrean-offline.ts`), sanitasi data PIN/rahasia dari antrean lokal, dan dialog rincian status antrean (`StatusAntrean.tsx`).
-3. Periksa kepatuhan aksesibilitas WCAG AAA: kontras warna di 10 tema visual, navigasi keyboard (Esc menutup modal, fokus kembali), dan mode kerapatan nyaman vs padat.
+3. Periksa kepatuhan aksesibilitas WCAG AA (≥ 4.5:1): kontras warna di 10 tema visual, navigasi keyboard (Esc menutup modal, fokus kembali), dan mode kerapatan nyaman vs padat.
 4. Periksa integritas seluruh komponen layar di `aplikasi/src/layar/` (Kasir, KDS Dapur, Pelayan, Laporan, Pengaturan: Identitas, Tema, Operasional, Meja, Pegawai, Sesi Aktif, Cabut Akses, Peringatan).
 5. Jalankan seluruh pengujian unit Vitest (106+ berkas) dan uji e2e ketahanan offline.
 

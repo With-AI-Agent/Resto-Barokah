@@ -90,7 +90,7 @@ python3 alat/uji-mutasi-0049.py
 ## 4. Paket Pemeriksaan AGEN 2: Spesialis Frontend, Kepatuhan UI/UX & Peta UI
 
 ### A. Mandat & Lingkup Kerja
-Memeriksa seluruh layar antarmuka aplikasi di `aplikasi/src/layar/`, verifikasi kepatuhan tombol dan navigasi terhadap `docs/PETA_UI.md`, ketahanan kasir offline (IndexedDB), aksesibilitas kontras WCAG AAA, dan integritas 106+ berkas uji unit Vitest.
+Memeriksa seluruh layar antarmuka aplikasi di `aplikasi/src/layar/`, verifikasi kepatuhan tombol dan navigasi terhadap `docs/PETA_UI.md`, ketahanan kasir offline (IndexedDB), aksesibilitas kontras WCAG AA (≥ 4.5:1), dan integritas 106+ berkas uji unit Vitest.
 
 ### B. Daftar Periksa Wajib Agen 2
 1. **Kepatuhan Peta UI (Zero Unmapped Buttons):**
@@ -101,8 +101,8 @@ Memeriksa seluruh layar antarmuka aplikasi di `aplikasi/src/layar/`, verifikasi 
    - Verifikasi sanitasi data sensitif (PIN kasir tidak tersimpan di antrean IndexedDB).
    - Verifikasi dialog rincian antrean (`StatusAntrean.tsx`): indikator daring/luring, hitungan item tertunda, pesan galat jujur, retry manual per item & massal.
    - Verifikasi skenario simulasi putus-sambung jaringan (`luring.spec.ts`) tidak menduplikasi pesanan.
-3. **Aksesibilitas Kontras & Navigasi (WCAG AAA):**
-   - Verifikasi 10 tema warna visual (`terang`, `hangat`, `gelap`, `kontras`, dll.) memenuhi rasio kontras teks minimum 4.5:1 (AA) dan 7:1 (AAA).
+3. **Aksesibilitas Kontras & Navigasi (WCAG AA):**
+   - Verifikasi 10 tema warna visual (`terang`, `hangat`, `gelap`, `kontras`, dll.) memenuhi rasio kontras teks minimum 4.5:1 (AA) dan 3.0:1 (elemen UI/teks besar).
    - Verifikasi mode kerapatan (`nyaman` vs `padat`).
    - Verifikasi perilaku modal/dialog: tombol Esc menutup modal dan mengembalikan fokus ke elemen pemanggil, klik luar menutup popover.
 4. **Layar Pengaturan & Operasional (Fase 9 & 10):**

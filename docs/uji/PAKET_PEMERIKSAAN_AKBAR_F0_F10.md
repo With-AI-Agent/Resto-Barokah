@@ -14,8 +14,8 @@
 | No | Peran Pemeriksa | Sasaran Utama | Berkas Naskah Prompt Siap Salin |
 |---|---|---|---|
 | 1 | **Auditor Utama (Holistik)** | Alur bisnis SaaS hulu ke hilir, isolasi antar penyewa resto, simulasi skenario nyata dari pendaftaran hingga rekap omzet, keselarasan janji PRD & TECH_SPEC. | `docs/uji/PROMPT_AKBAR_AUDITOR_UTAMA.md` |
-| 2 | **Spesialis Basis Data & Keuangan** | 85 migrasi SQL, 132 berkas uji SQL, RLS 47 tabel, RPC penulisan & idempoten (ART-8), presisi uang/PB1/service charge sampai rupiah terkecil. | `docs/uji/PROMPT_AKBAR_SPESIALIS_DATA.md` |
-| 3 | **Spesialis Frontend & Antarmuka** | Seluruh layar kasir/pelayan/dapur/manajer, pengetikan keyboard fisik PIN kasir, ketahanan antrean offline (IndexedDB), responsivitas di tablet/HP, aksesibilitas kontras WCAG AAA. | `docs/uji/PROMPT_AKBAR_SPESIALIS_FRONTEND.md` |
+| 2 | **Spesialis Basis Data & Keuangan** | 82 berkas migrasi SQL (penomoran 0001–0085), 132 berkas uji SQL, RLS 47 tabel, RPC penulisan & idempoten (ART-8), presisi uang/PB1/service charge sampai rupiah terkecil. | `docs/uji/PROMPT_AKBAR_SPESIALIS_DATA.md` |
+| 3 | **Spesialis Frontend & Antarmuka** | Seluruh layar kasir/pelayan/dapur/manajer, pengetikan keyboard fisik PIN kasir, ketahanan antrean offline (IndexedDB), responsivitas di tablet/HP, aksesibilitas kontras WCAG AA (≥ 4.5:1). | `docs/uji/PROMPT_AKBAR_SPESIALIS_FRONTEND.md` |
 | 4 | **Spesialis Infrastruktur & SOP Bencana** | Kunci rahasia, enkripsi cadangan AES-256, SOP Buku Insiden 4 skenario darurat, kebijakan CSP tanpa unsafe-inline, alur denyut cron harian (02:00 WIB), 126 gerbang CI. | `docs/uji/PROMPT_AKBAR_SPESIALIS_INFRASTRUKTUR.md` |
 | 5 | **Pemeriksa Riwayat Fase (0–10)** | Menelusuri kepatuhan bertahap tiap fase (Fase 0 s/d Fase 10) untuk membuktikan tidak ada utang teknis atau janji yang tertinggal. | `docs/uji/PROMPT_AKBAR_PEMERIKSA_FASE.md` |
 

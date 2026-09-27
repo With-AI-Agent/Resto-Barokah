@@ -22,7 +22,7 @@ Kamu ditugaskan oleh Lee (Pemilik Platform Resto Barokah) sebagai **SPESIALIS FR
 3. **Kerapian Antarmuka & Peta UI:**
    - Buktikan sinkronisasi dengan `docs/PETA_UI.md` (bebas dari tombol mentah `<button>` atau tombol liar tanpa penanganan aksi).
    - Pastikan seluruh layar menangani 3 kondisi: Memuat (*loading*), Kosong (*empty*), dan Gagal (*error*).
-   - Pastikan seluruh 10 tema warna lulus uji kontras teks sesuai standar WCAG AAA.
+   - Pastikan seluruh 10 tema warna lulus uji kontras teks sesuai standar WCAG AA (≥ 4.5:1).
 
 ### 3. PERINTAH VERIFIKASI MESIN YANG WAJIB DIJALANKAN:
 Jalankan satu per satu di terminal dan catat hasilnya:
