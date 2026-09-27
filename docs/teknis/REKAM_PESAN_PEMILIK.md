@@ -537,7 +537,17 @@ diuji di CI sebagai **gerbang ke-50**) · `wrangler.toml` + `npm run deploy` sia
 - **[verbatim]** “Lanjut. Dan catat dan ingatkan, setelah fase 10 selesai aku mau lakukan pemeriksaan mendalam menyeluruh. Tapi untuk detail nya terkait mekanisme pemeriksaan yang aku inginkan akan aku jelaskan kemudian. Yang penting sekarang catat dulu dan pastikan nanti ingatkan aku”
 - **Pelaksanaan:** Menjadwalkan pengingat mutlak kepada Lee tepat setelah tugas terakhir Fase 10 (T10-16) selesai tuntas dan terverifikasi. Agent WAJIB BERHENTI, dilarang langsung melangkah ke Fase 11 atau fase lainnya tanpa instruksi Lee, dan wajib secara eksplisit mengingatkan Lee bahwa Fase 10 telah selesai dan siap untuk mekanisme pemeriksaan mendalam menyeluruh sesuai arahan detail yang akan diberikan Lee kemudian.
 
+## §30. Pemeriksaan Akbar Menyeluruh (Fase 0 s/d 10) & Jaminan Handoff "baca pro.md" (2026-09-27)
 
-
-
+- **[verbatim]** “Setuju, siapkan semuanya. Tapi sebelumnya pastikan dulu kamu udh handoff supaya kalo sesi ini tiba tiba eror aku bisa lanjut di sesi baru dengan hanya cukup mengatur base branch ke sesi ini dan tulis perintah \"baca pro.md\" dan agent sesi baru itu langsung tau apa yang ingin aku lajutkan dan tau semua hal yang perlu dia tau”
+- **Pelaksanaan:**
+  1. **Jaminan Handoff Mutlak:** Memastikan rantai handoff (`PRO.md`, `docs/ops/SIAP-LANJUT.md`, `PROJECT_STATE.md`, `STATUS.md`) tersegarkan secara presisi dan ter-push ke cabang kerja remote `origin/arena/01a0d09b-resto-barokah`. Apabila sewaktu-waktu sesi terputus/eror, Lee cukup membuka sesi baru dengan base branch `arena/01a0d09b-resto-barokah` dan mengetik *"baca pro.md"*, maka agent sesi baru langsung memahami seluruh konteks, posisi pekerjaan, peran Lee sebagai pemilik platform SaaS/Vendor, serta mandat pelaksanaan Pemeriksaan Akbar Menyeluruh (Fase 0–10).
+  2. **Struktur Pemeriksaan Akbar Menyeluruh (Fase 0 s/d Fase 10):**
+     - **Dimensi 1 (Holistik / Auditor Utama):** Menilai sistem dari sudut pandang Lee sebagai pemilik platform SaaS/Vendor multi-tenant (alur pendaftaran resto, isolasi data, pengawasan kuota, keamanan operasional kasir hulu-ke-hilir).
+     - **Dimensi 2 (Tiga Spesialis Teknis):**
+       - *Agen Data & Keuangan:* 85 migrasi SQL, 132 berkas tes SQL, 47 tabel RLS, perhitungan uang & PB1 sampai rupiah terkecil.
+       - *Agen Frontend & Lapangan:* Seluruh layar UI, kenyamanan keyboard fisik PIN kasir, ketahanan antrean offline, aksesibilitas kontras WCAG AAA.
+       - *Agen Infrastruktur & Bencana:* Kunci rahasia, enkripsi cadangan AES-256, SOP Buku Insiden, alur cron harian denyut anti-tidur.
+     - **Dimensi 3 (Pemeriksa Riwayat Fase):** Membedah fase per fase secara berurutan (Fase 0 sampai Fase 10) untuk membuktikan seluruh janji fitur PRD dan TECH_SPEC terpenuhi tanpa utang teknis.
+  3. **Penyiapan Paket & Prompt Siap Salin:** Seluruh instrumen audit, lembar periksa, dan naskah prompt siap-salin disiapkan di `docs/uji/` sehingga Lee dapat langsung menyalinnya tanpa kerumitan teknis.
 
