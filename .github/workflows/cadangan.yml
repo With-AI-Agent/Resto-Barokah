@@ -32,11 +32,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      KUNCI_ENKRIPSI_CADANGAN: ${{ secrets.KUNCI_ENKRIPSI_CADANGAN || 'kunci-cadangan-bencana-resto-barokah-2026-aman' }}
+      KUNCI_ENKRIPSI_CADANGAN: ${{ secrets.KUNCI_ENKRIPSI_CADANGAN }}
       SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
     steps:
       - name: Ambil kode sumber
         uses: actions/checkout@v4
+
+      - name: Pasang postgresql-client untuk pg_dump
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
 
       - name: Pasang Node.js
         uses: actions/setup-node@v5

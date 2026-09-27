@@ -124,8 +124,8 @@ def periksa_isi_headers(path_file: pathlib.Path) -> list[str]:
             errs.append(f"{lbl}: Permissions-Policy tidak mengatur fitur '{fitur}'")
 
     hsts = headers_global.get("Strict-Transport-Security", "")
-    if "max-age" not in hsts or "includeSubDomains" not in hsts:
-        errs.append(f"{lbl}: Strict-Transport-Security tidak memuat max-age & includeSubDomains")
+    if "max-age" not in hsts or "includeSubDomains" not in hsts or "preload" not in hsts:
+        errs.append(f"{lbl}: Strict-Transport-Security wajib memuat max-age, includeSubDomains, dan preload")
 
     # 3. Analisis mendalam Content-Security-Policy
     csp = headers_global.get("Content-Security-Policy", "")
@@ -154,8 +154,25 @@ def periksa_isi_headers(path_file: pathlib.Path) -> list[str]:
         if directives.get("base-uri") != "'self'":
             errs.append(f"{lbl}: CSP base-uri wajib ''self'', bukan '{directives.get('base-uri')}'")
 
-        if "*" in directives.get("script-src", "").split():
+        if directives.get("form-action") != "'self'":
+            errs.append(f"{lbl}: CSP form-action wajib ''self'', bukan '{directives.get('form-action')}'")
+
+        if "upgrade-insecure-requests" not in csp:
+            errs.append(f"{lbl}: CSP wajib memuat directive 'upgrade-insecure-requests'")
+
+        # Periksa script-src: tolak wildcard, unsafe-eval, dan unsafe-inline
+        val_script = directives.get("script-src", "")
+        if "*" in val_script.split():
             errs.append(f"{lbl}: CSP script-src memuat wildcard '*' berbahaya")
+        if "'unsafe-eval'" in val_script:
+            errs.append(f"{lbl}: CSP script-src memuat 'unsafe-eval' yang berbahaya bagi eksekusi skrip")
+        if "'unsafe-inline'" in val_script:
+            errs.append(f"{lbl}: CSP script-src memuat 'unsafe-inline' yang tidak diperlukan oleh SPA")
+
+        # Periksa default-src dan connect-src: tolak wildcard *
+        for d_target in ("default-src", "connect-src"):
+            if "*" in directives.get(d_target, "").split():
+                errs.append(f"{lbl}: CSP {d_target} dibuka lebar dengan wildcard '*' berbahaya")
 
     # 4. Periksa aturan caching aset statis
     if "/assets/*" not in aturan or "Cache-Control" not in aturan["/assets/*"]:
@@ -237,6 +254,30 @@ def uji_diri() -> int:
         target.write_text(m5, encoding="utf-8")
         e5 = periksa_isi_headers(target)
         hasil.append(("mutasi 5: CSP script-src wildcard", len(e5) > 0, "tertangkap" if e5 else "lolos"))
+
+        # Mutasi 6: unsafe-eval disisipkan ke script-src
+        m6 = teks_asli.replace("script-src 'self'", "script-src 'self' 'unsafe-eval'")
+        target.write_text(m6, encoding="utf-8")
+        e6 = periksa_isi_headers(target)
+        hasil.append(("mutasi 6: CSP script-src unsafe-eval ditolak", len(e6) > 0, "tertangkap" if e6 else "lolos"))
+
+        # Mutasi 7: unsafe-inline disisipkan ke script-src
+        m7 = teks_asli.replace("script-src 'self'", "script-src 'self' 'unsafe-inline'")
+        target.write_text(m7, encoding="utf-8")
+        e7 = periksa_isi_headers(target)
+        hasil.append(("mutasi 7: CSP script-src unsafe-inline ditolak", len(e7) > 0, "tertangkap" if e7 else "lolos"))
+
+        # Mutasi 8: connect-src dibuka lebar dengan wildcard *
+        m8 = teks_asli.replace("connect-src 'self'", "connect-src * 'self'")
+        target.write_text(m8, encoding="utf-8")
+        e8 = periksa_isi_headers(target)
+        hasil.append(("mutasi 8: CSP connect-src wildcard ditolak", len(e8) > 0, "tertangkap" if e8 else "lolos"))
+
+        # Mutasi 9: upgrade-insecure-requests dihapus
+        m9 = teks_asli.replace("upgrade-insecure-requests;", "")
+        target.write_text(m9, encoding="utf-8")
+        e9 = periksa_isi_headers(target)
+        hasil.append(("mutasi 9: CSP kehilangan upgrade-insecure-requests ditolak", len(e9) > 0, "tertangkap" if e9 else "lolos"))
 
     print("======================================================================")
     print("UJI DIRI PERIKSA HEADER KEAMANAN (T10-14)")

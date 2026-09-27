@@ -3237,6 +3237,36 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `docs/teknis/TINJAUAN_KEAMANAN_F10.md`, `supabase/tes/mfa.sql`, `docs/TERTANGGUH.md` (T-016), `docs/ROADMAP.md` (T10-16)
 - **Implikasi:** Keputusan autentikasi dan pemulihan akun berkuasa memiliki dasar pertimbangan operasional dan matematis yang kuat; tidak ada ketergantungan fitur berbayar eksternal; tidak ada celah pintu belakang; operasional kedai terjamin aman dengan biaya nol rupiah.
 
+## 2026-09-27 — Perbaikan Audit Independen Fase 10 & Ergonomi Keyboard PIN
+
+- **Pencatat:** Claude
+- **Status:** Diterima & Diterapkan
+- **Area:** Keamanan, UX & Infrastruktur (Audit Independen PR #13 & Instruksi Khusus Lee)
+- **Keputusan:**
+  1. **Dukungan Keyboard Fisik pada Input PIN Staf & Kasir (Permintaan Khusus Lee):**
+     - Komponen `MasukStaf.tsx` dan `LayarMasukPegawai.tsx` dilengkapi event listener `keydown` global yang memproses pengetikan angka fisik `0`–`9`, `Backspace` (hapus digit terakhir), `Escape` (reset PIN), dan `Enter`/`Space` (konfirmasi masuk saat digit = 6).
+     - Menghadirkan efisiensi dan ergonomi tinggi bagi kasir di meja kasir fisik bertombol/keyboard tanpa perlu menyentuh layar.
+     - Melindungi privasi kasir dari intipan mata (*shoulder-surfing*) pelanggan atau orang di sekitar yang memantau gerakan jari di layar sentuh besar.
+     - Dilengkapi teks petunjuk visual di bawah keypad serta tes unit komprehensif pengetikan keyboard di `MasukStaf.test.tsx` dan `LayarMasukPegawai.test.tsx`.
+  2. **Penguatan Keamanan Cadangan & Validasi URL Database (Temuan K-1):**
+     - Menghapus fallback kunci rahasia hardcoded di `.github/workflows/cadangan.yml` dan `alat/cadangan.sh`.
+     - Mengubah fungsi `pastikan_kunci` di `alat/cadangan.sh` untuk menggunakan kunci ephemeral acak via `openssl rand -hex 16` pada alur CI uji pemulihan, dan mewajibkan variabel rahasia (*fail-closed*) saat dijalankan di lingkungan lokal/server riil.
+     - Memperketat `cmd_dump` di `alat/cadangan.sh` agar menolak fallback diam-diam (*silent fallback*) bila mode produksi aktif atau `SUPABASE_DB_URL` dipasang, dan menambahkan instalasi `postgresql-client` pada runner CI.
+  3. **Pembersihan Kebijakan Keamanan Konten (CSP) & Header Web (Temuan K-2):**
+     - Mencabut kata kunci `'unsafe-inline'` dari `script-src` pada `aplikasi/public/_headers` (karena bundel React SPA tidak menggunakan skrip inline).
+     - Memperketat `alat/periksa-header.py` untuk menolak `'unsafe-eval'`, `'unsafe-inline'`, dan wildcard `*` pada direktif `script-src`, `connect-src`, dan `default-src`.
+     - Mewajibkan direktif `upgrade-insecure-requests`, `form-action 'self'`, dan parameter `preload` pada HSTS.
+  4. **Otomasi Denyut Harian Anti-Tidur & Pembersih Data Sementara (T10-08):**
+     - Menambahkan alur kerja GitHub Actions `.github/workflows/denyut-harian.yml` yang berjalan otomatis setiap hari pukul 02:00 WIB (19:00 UTC) untuk menjaga proyek Supabase Free Tier tetap aktif dan membersihkan berkas retensi 30 hari.
+     - Mendaftarkan alur kerja tersebut pada pemeriksa gerbang CI `alat/periksa-gerbang-ci.py`.
+  5. **Penguatan Sanitasi Data Sensitif Antrean Offline (Temuan K-3):**
+     - Memperluas regex pembersihan `POLA_KUNCI_SENSITIF` di `aplikasi/src/lib/antrean-offline.ts` agar menangkap seluruh variasi kunci sensitif rekursif (`pinKasir`, `pinAtasan`, `pin_staf`, `katasandi`, `secret`, `authorization`, dsb.).
+  6. **Penyelarasan Harness Uji Mutasi SQL:**
+     - Menyelaraskan seluruh harness pengujian mutasi (`0062`, `0063`, `0070`, `0073`, `0074`) ke berkas migrasi penimpa final (`0067`, `0071`, `0083`) sehingga 100% mutan tertangkap merah dan tidak ada mutasi yang lolos diam-diam.
+- **File terkait:** `aplikasi/src/layar/masuk/MasukStaf.tsx`, `aplikasi/src/layar/masuk/LayarMasukPegawai.tsx`, `alat/cadangan.sh`, `.github/workflows/cadangan.yml`, `.github/workflows/denyut-harian.yml`, `aplikasi/public/_headers`, `alat/periksa-header.py`, `aplikasi/src/lib/antrean-offline.ts`, `alat/periksa-gerbang-ci.py`
+- **Implikasi:** Seluruh temuan audit PR #13 terselesaikan 100%, ergonomi kasir meningkat, alur CI dan cadangan terproteksi fail-closed, dan integritas multi-tenant tetap 100% terjaga.
+
+
 
 
 

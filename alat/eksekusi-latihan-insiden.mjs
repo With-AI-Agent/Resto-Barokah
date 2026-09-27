@@ -502,7 +502,7 @@ async function ujiDrilInsiden(dbTarget, mutasi = null) {
   }
 
   // =========================================================================
-  // DRIL 4: Rekonsiliasi Ringkasan Harian & Privasi ART-13 & ART-14 (§15 Buku Insiden / T10-13)
+  // DRIL 4: Rekonsiliasi Ringkasan Harian & Privasi ART-13 & ART-14 (§6 & §10 Buku Insiden / T10-13)
   // =========================================================================
   try {
     await dbTarget.exec(`
@@ -700,7 +700,7 @@ async function main() {
 - **Dril Insiden §2 (Perangkat Hilang):** Berhasil dicabut seketika, sesi aktif dimatikan, PIN direset, audit tercatat.
 - **Dril Insiden §4 (Akun Diduga Bocor):** Akun berhasil dinonaktifkan, seluruh sesi perangkat dicabut, PIN diganti.
 - **Dril Insiden §5 (Pegawai Berhenti):** Offboarding cepat berhasil tanpa merusak riwayat transaksi finansial masa lalu.
-- **Dril Insiden §15 (Rekonsiliasi Harian):** Deteksi insiden teragregasi dan privasi pelanggan UU PDP terlindungi.
+- **Dril Insiden §6 & §10 (Rekonsiliasi Harian & Privasi UU PDP):** Deteksi insiden teragregasi dan privasi pelanggan UU PDP terlindungi.
 - **Kesimpulan:** Latihan pemulihan cadangan dan Buku Insiden terbukti siap operasional (*production-ready*).
 `)
   }

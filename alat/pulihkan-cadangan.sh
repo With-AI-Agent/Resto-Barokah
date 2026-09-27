@@ -29,7 +29,7 @@ PENGGUNAAN ALAT PEMULIHAN CADANGAN & LATIHAN BUKU INSIDEN RESTO BAROKAH (T10-15)
         1. Perangkat Kasir Hilang / Dicuri (§2)
         2. Akun Diduga Dibobol / Bocor (§4)
         3. Pegawai Berhenti Mendadak & Serah Terima Shift (§5 / T10-12)
-        4. Rekonsiliasi Ringkasan Harian & Privasi UU PDP (§15 / ART-13 & ART-14)
+        4. Rekonsiliasi Ringkasan Harian & Kepatuhan Privasi UU PDP (§6 & §10 / ART-13 & ART-14)
 
   bash alat/pulihkan-cadangan.sh --uji-diri
       Menjalankan mode uji-diri fail-closed dengan 5 skenario mutasi kerusakan data

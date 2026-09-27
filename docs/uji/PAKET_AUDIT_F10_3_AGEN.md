@@ -115,7 +115,7 @@ Memeriksa seluruh layar antarmuka aplikasi di `aplikasi/src/layar/`, verifikasi 
 python3 alat/peta-ui.py --periksa
 
 # 2. Periksa kesesuaian kontras, kerapatan, dan antarmuka
-python3 aplikasi/alat/periksa-kontras.py
+python3 aplikasi/alat/uji-kontras.py
 python3 aplikasi/alat/periksa-kerapatan.py
 python3 aplikasi/alat/periksa-antarmuka.py
 
@@ -128,7 +128,7 @@ cd aplikasi && npx vitest run uji/e2e/luring.spec.ts
 cd ..
 
 # 5. Uji ketajaman mutasi kode aplikasi
-node alat/uji-mutasi-app.mjs
+node aplikasi/alat/uji-mutasi-app.mjs
 ```
 
 ---

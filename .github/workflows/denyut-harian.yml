@@ -1,0 +1,52 @@
+name: Denyut Harian & Pembersih Data Sementara (T10-08)
+
+# APA INI: alur otomatis denyut harian dan pembersih data sementara (T10-08 — TECH_SPEC §1 & §10 / PRD M12).
+#
+# JADWAL:
+#   - Setiap hari pukul 02:00 WIB (19:00 UTC)
+#   - Pemicu manual: workflow_dispatch
+#
+# TUJUAN:
+#   1. Denyut harian: memicu aktivitas ringan database agar proyek gratis Supabase tidak tertidur (inactivity 7 hari).
+#   2. Pembersih data sementara: membersihkan log, token kadaluwarsa, dan sesi usang dengan retensi 30 hari.
+#   3. Melindungi seluruh tabel operasional inti bisnis (fail-closed whitelist).
+
+on:
+  schedule:
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: denyut-harian
+  cancel-in-progress: false
+
+jobs:
+  denyut-dan-bersihkan:
+    name: Denyut Harian & Pembersihan Terjadwal
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Ambil kode sumber
+        uses: actions/checkout@v4
+
+      - name: Pasang Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22.12.0'
+
+      - name: Pasang Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Pasang pustaka alat
+        run: npm ci --prefix alat
+
+      - name: Uji-diri fail-closed denyut & pembersih
+        run: python3 alat/denyut.py --uji-diri
+
+      - name: Eksekusi denyut harian & pembersih data sementara
+        run: python3 alat/denyut.py --semua

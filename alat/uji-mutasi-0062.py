@@ -17,7 +17,8 @@ import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MIGRASI = os.path.join(REPO, "supabase", "migrations", "0062_katalog_publik.sql")
+# JEBAKAN "fungsi ditulis ulang": katalog_publik ditulis ulang di 0071_tema_merek.sql
+MIGRASI = os.path.join(REPO, "supabase", "migrations", "0071_tema_merek.sql")
 BERKAS_UJI = ["supabase/tes/katalog_publik.sql"]
 
 

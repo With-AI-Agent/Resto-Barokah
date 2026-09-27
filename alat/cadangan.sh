@@ -53,9 +53,16 @@ EOF
 pastikan_kunci() {
   local kunci="${KUNCI_ENKRIPSI_CADANGAN:-}"
   if [ -z "$kunci" ]; then
-    echo "GALAT: Variabel lingkungan KUNCI_ENKRIPSI_CADANGAN belum disetel!" >&2
-    echo "Pasang kunci di GitHub Actions Secrets atau jalankan: export KUNCI_ENKRIPSI_CADANGAN='...'" >&2
-    exit 1
+    if [ "${CI:-}" = "true" ] || [ "${GITHUB_ACTIONS:-}" = "true" ]; then
+      echo "PERINGATAN KEAMANAN: KUNCI_ENKRIPSI_CADANGAN belum disetel di GitHub Secrets!" >&2
+      echo "    Menghasilkan kunci ephemeral acak (sekali pakai) demi keamanan data..." >&2
+      export KUNCI_ENKRIPSI_CADANGAN="$(openssl rand -hex 16)"
+      kunci="$KUNCI_ENKRIPSI_CADANGAN"
+    else
+      echo "GALAT: Variabel lingkungan KUNCI_ENKRIPSI_CADANGAN belum disetel!" >&2
+      echo "Pasang kunci di GitHub Actions Secrets atau jalankan: export KUNCI_ENKRIPSI_CADANGAN='...'" >&2
+      exit 1
+    fi
   fi
   if [ "${#kunci}" -lt 16 ]; then
     echo "GALAT: KUNCI_ENKRIPSI_CADANGAN terlalu pendek (${#kunci} karakter). Minimal 16 karakter demi keamanan data pelanggan!" >&2
@@ -75,13 +82,23 @@ cmd_dump() {
 
   echo "==> [1/3] Membuat dump basis data ke $berkas_sql..."
 
-  # Jika ada koneksi remote Supabase nyata dan pg_dump/supabase CLI tersedia
-  if [ -n "${SUPABASE_DB_URL:-}" ] && command -v pg_dump >/dev/null 2>&1; then
-    echo "    Menggunakan pg_dump remote..."
+  # Mode pencadangan: jika SUPABASE_DB_URL ada, gunakan pg_dump remote ke produksi
+  if [ -n "${SUPABASE_DB_URL:-}" ]; then
+    if ! command -v pg_dump >/dev/null 2>&1; then
+      echo "GALAT: SUPABASE_DB_URL terpasang tetapi pg_dump tidak ditemukan di sistem!" >&2
+      echo "Pasang postgresql-client untuk melakukan pencadangan produksi nyata." >&2
+      exit 1
+    fi
+    echo "    Menggunakan pg_dump remote (Basis data produksi Supabase)..."
     pg_dump "$SUPABASE_DB_URL" --no-owner --no-acl --clean --if-exists > "$berkas_sql"
   else
-    # Menggunakan mesin dump internal PGlite (mencakup 82 migrasi + seluruh data tabel publik)
-    echo "    Menggunakan mesin dump internal Resto Barokah (PGlite engine)..."
+    if [ "${WAJIB_DB_PRODUKSI:-0}" = "1" ]; then
+      echo "GALAT KRITIS: SUPABASE_DB_URL wajib disetel untuk pencadangan produksi nyata!" >&2
+      exit 1
+    fi
+    # Menggunakan mesin dump internal PGlite (mencakup 82 migrasi + data uji)
+    echo "PERINGATAN: SUPABASE_DB_URL tidak disetel. Menggunakan mesin simulasi PGlite..."
+    echo "    (Mencakup 82 migrasi skema resmi + benih uji mandiri)"
     node "$AKAR_PROYEK/alat/eksekusi-cadangan.mjs" --dump "$berkas_sql"
   fi
 
@@ -222,7 +239,8 @@ cmd_uji_pemulihan() {
   local berkas_dekrip_gz="$tmp_dir/hasil-dekrip.sql.gz"
   local berkas_pulih_sql="$tmp_dir/hasil-pulih.sql"
 
-  export KUNCI_ENKRIPSI_CADANGAN="${KUNCI_ENKRIPSI_CADANGAN:-kunci-uji-darurat-restobarokah-2026-aman}"
+  # Kunci acak sekali-pakai (ephemeral) untuk simulasi uji integritas AES-256
+  export KUNCI_ENKRIPSI_CADANGAN="${KUNCI_ENKRIPSI_CADANGAN:-$(openssl rand -hex 16)}"
 
   echo "[Tahap 1/6] Membuat dump SQL dari basis data sumber..."
   node "$AKAR_PROYEK/alat/eksekusi-cadangan.mjs" --dump "$berkas_sql"

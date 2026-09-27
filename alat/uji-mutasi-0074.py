@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 BERKAS_MIGRASI = Path("supabase/migrations/0074_pengaturan_menu.sql")
+BERKAS_MIGRASI_0083 = Path("supabase/migrations/0083_versi_pengaturan_bersamaan.sql")
 BERKAS_TES = "supabase/tes/pengaturan_menu.sql"
 
 MUTASI = [
@@ -22,41 +23,49 @@ MUTASI = [
         "M01: Hapus mitigasi T9-05: tolak hapus menu yang memiliki riwayat pesanan",
         r"if exists \(select 1 from public\.pesanan_item where menu_item_id = old\.id\) then[\s\S]+?end if;",
         "-- [MUTASI M01 DILEMAHKAN: Menu ber-riwayat pesanan bisa dihapus]",
+        BERKAS_MIGRASI,
     ),
     (
         "M02: Hapus pencegahan hapus kategori yang masih memiliki menu item",
         r"if exists \(select 1 from public\.menu_item where kategori_id = old\.id\) then[\s\S]+?end if;",
         "-- [MUTASI M02 DILEMAHKAN: Kategori ber-menu bisa dihapus]",
+        BERKAS_MIGRASI,
     ),
     (
         "M03: Hapus pagar otorisasi peran kelola menu pada simpan_menu",
         r"if coalesce\(public\.peran_saya\(\), ''\) not in \('owner_pusat', 'admin_cabang'\)\s+and not public\.boleh\('atur_pengaturan'\) then[\s\S]+?end if;",
         "-- [MUTASI M03 DILEMAHKAN: Tanpa otorisasi peran simpan_menu]",
+        BERKAS_MIGRASI_0083,
     ),
     (
         "M04: Hapus validasi harga menu tidak boleh negatif",
         r"if p_harga is null or p_harga < 0 then[\s\S]+?end if;",
         "-- [MUTASI M04 DILEMAHKAN: Harga negatif dibiarkan]",
+        BERKAS_MIGRASI_0083,
     ),
     (
         "M05: Hapus validasi nama menu wajib diisi",
         r"if p_nama is null or btrim\(p_nama\) = '' then[\s\S]+?end if;",
         "-- [MUTASI M05 DILEMAHKAN: Nama menu kosong dibiarkan]",
+        BERKAS_MIGRASI_0083,
     ),
     (
         "M06: Hapus validasi keunikan nama menu di kategori yang sama",
         r"if exists \(\s+select 1 from public\.menu_item\s+where penyewa_id = v_penyewa\s+and kategori_id = p_kategori_id\s+and lower\(nama\) = lower\(btrim\(p_nama\)\)\s+\) then[\s\S]+?end if;",
         "-- [MUTASI M06 DILEMAHKAN: Nama menu kembar di kategori sama dibiarkan]",
+        BERKAS_MIGRASI_0083,
     ),
     (
         "M07: Hapus pencatatan audit trail pada simpan_menu",
-        r"insert into public\.catatan_audit \(penyewa_id, pelaku_id, aksi, entitas, entitas_id, nilai_baru\)[\s\S]+?'simpan_menu'[\s\S]+?\);",
+        r"insert into public\.catatan_audit \(penyewa_id, pelaku_id, aksi, entitas, entitas_id, nilai_lama, nilai_baru\)[\s\S]+?'simpan_menu'[\s\S]+?\);",
         "-- [MUTASI M07 DILEMAHKAN: Tanpa audit simpan_menu]",
+        BERKAS_MIGRASI_0083,
     ),
     (
         "M08: Hapus validasi kategori menu milik penyewa yang sama",
         r"if not exists \(\s+select 1 from public\.kategori_menu\s+where id = p_kategori_id and penyewa_id = v_penyewa\s+\) then[\s\S]+?end if;",
         "-- [MUTASI M08 DILEMAHKAN: Kategori beda penyewa dibiarkan]",
+        BERKAS_MIGRASI_0083,
     ),
 ]
 
@@ -95,14 +104,20 @@ def main():
     print(f"[2/2] Menguji {len(MUTASI)} mutasi fail-closed...")
     semua_lolos = True
 
-    for i, (label, pola, pengganti) in enumerate(MUTASI, 1):
-        if not re.search(pola, isi_asli):
-            print(f"  [!] Pola mutasi #{i} '{label}' tidak cocok dengan isi berkas migrasi.")
+    for i, item in enumerate(MUTASI, 1):
+        label = item[0]
+        pola = item[1]
+        pengganti = item[2]
+        target_path = item[3] if len(item) > 3 else BERKAS_MIGRASI
+        teks_target = target_path.read_text(encoding="utf-8")
+
+        if not re.search(pola, teks_target):
+            print(f"  [!] Pola mutasi #{i} '{label}' tidak cocok dengan berkas {target_path}.")
             semua_lolos = False
             continue
 
-        isi_termutasi = re.sub(pola, pengganti, isi_asli, count=1)
-        BERKAS_MIGRASI.write_text(isi_termutasi, encoding="utf-8")
+        isi_termutasi = re.sub(pola, pengganti, teks_target, count=1)
+        target_path.write_text(isi_termutasi, encoding="utf-8")
 
         try:
             kode, log = jalankan_tes()
@@ -113,7 +128,7 @@ def main():
             else:
                 print(f"  ✅ TERTANGKAP: Mutasi #{i} '{label}' terdeteksi merah.")
         finally:
-            BERKAS_MIGRASI.write_text(isi_asli, encoding="utf-8")
+            target_path.write_text(teks_target, encoding="utf-8")
 
     if not semua_lolos:
         print("\nHASIL: Sebagian mutasi tidak tertangkap! Perketat berkas uji.")

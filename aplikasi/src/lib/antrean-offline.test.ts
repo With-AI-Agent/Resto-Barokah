@@ -38,6 +38,8 @@ describe('antrean-offline (T10-01 / ART-8)', () => {
         tipe: 'dinein',
         items: [{ nama: 'Nasi Goreng', harga: 25000 }],
         pin: '123456',
+        pinKasir: '654321',
+        pinAtasan: '112233',
         pin_hash: '$2b$10$abcdef...',
         kata_sandi: 'rahasia123',
         password: 'secretPassword',
@@ -56,8 +58,10 @@ describe('antrean-offline (T10-01 / ART-8)', () => {
       expect(hasilBersih.items).toEqual([{ nama: 'Nasi Goreng', harga: 25000 }])
       expect(hasilBersih.subObjek.catatanAman).toBe('Pedas sedang')
 
-      // Pastikan semua properti sensitif lenyap
+      // Pastikan semua properti sensitif lenyap termasuk variasi kunci camelCase
       expect('pin' in hasilBersih).toBe(false)
+      expect('pinKasir' in hasilBersih).toBe(false)
+      expect('pinAtasan' in hasilBersih).toBe(false)
       expect('pin_hash' in hasilBersih).toBe(false)
       expect('kata_sandi' in hasilBersih).toBe(false)
       expect('password' in hasilBersih).toBe(false)

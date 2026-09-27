@@ -156,6 +156,8 @@ python3 alat/periksa-angka-bukti.py --uji-diri
 python3 alat/review-pr.py --uji-diri)
 (cd "$REPO" && python3 alat/periksa-rahasia.py
 python3 alat/periksa-rahasia.py --uji-diri
+python3 alat/periksa-header.py
+python3 alat/periksa-header.py --uji-diri
 python3 alat/periksa-bersih.py
 python3 alat/periksa-bersih.py --uji-diri
 python3 aplikasi/alat/periksa-kerapatan.py

@@ -264,6 +264,7 @@ ALUR_LAIN: dict[str, dict[str, list[tuple[str, str]]]] = {
     },
     "cadangan.yml": {
         "perintah": [
+            ("pasang postgresql-client", r"sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client"),
             ("pasang pustaka alat", r"npm ci --prefix alat"),
             ("uji pemulihan basis data kosong", r"bash alat/cadangan\.sh uji-pemulihan"),
             ("bukti mutasi fail-closed cadangan & pemulihan", r"python3 alat/uji-mutasi-cadangan\.py"),
@@ -273,6 +274,17 @@ ALUR_LAIN: dict[str, dict[str, list[tuple[str, str]]]] = {
         ],
         "berkas": [
             ("jadwal cron mingguan", r"-\s*cron:\s*'0 19 \* \* 6'"),
+            ("pemicu manual workflow_dispatch", r"^\s*workflow_dispatch:\s*$"),
+        ],
+    },
+    "denyut-harian.yml": {
+        "perintah": [
+            ("pasang pustaka alat", r"npm ci --prefix alat"),
+            ("uji-diri fail-closed denyut & pembersih", r"python3 alat/denyut\.py --uji-diri"),
+            ("eksekusi denyut harian & pembersih data sementara", r"python3 alat/denyut\.py --semua"),
+        ],
+        "berkas": [
+            ("jadwal cron harian", r"-\s*cron:\s*'0 19 \* \* \*'"),
             ("pemicu manual workflow_dispatch", r"^\s*workflow_dispatch:\s*$"),
         ],
     },

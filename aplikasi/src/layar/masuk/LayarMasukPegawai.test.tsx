@@ -77,4 +77,34 @@ describe('LayarMasukPegawai (T2-02)', () => {
       expect(screen.getByText(/\[PIN-401\]/)).toBeDefined()
     })
   })
+
+  it('mengizinkan pengetikan PIN via keyboard fisik dan konfirmasi via Enter', async () => {
+    const onMasukMock = vi.fn().mockResolvedValue({ berhasil: true, pesan: 'Sukses' })
+    const onSuksesMock = vi.fn()
+
+    render(
+      <PenyediaBahasa>
+        <LayarMasukPegawai onMasuk={onMasukMock} onMasukSukses={onSuksesMock} />
+      </PenyediaBahasa>,
+    )
+
+    const inputEmail = screen.getByPlaceholderText('nama@resto.test')
+    fireEvent.change(inputEmail, { target: { value: 'kasir@resto.test' } })
+
+    // Lepaskan fokus dari input email
+    fireEvent.blur(inputEmail)
+
+    // Ketik PIN 6 angka via keyboard fisik: 6, 5, 4, 3, 2, 1
+    ;['6', '5', '4', '3', '2', '1'].forEach((char) => {
+      fireEvent.keyDown(window, { key: char })
+    })
+
+    // Tekan Enter untuk konfirmasi masuk
+    fireEvent.keyDown(window, { key: 'Enter' })
+
+    await waitFor(() => {
+      expect(onMasukMock).toHaveBeenCalledWith('kasir@resto.test', '654321')
+      expect(onSuksesMock).toHaveBeenCalled()
+    })
+  })
 })

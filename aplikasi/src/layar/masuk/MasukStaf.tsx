@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Kartu } from '../../komponen/Kartu'
 import { Lencana } from '../../komponen/Lencana'
 import { Tombol } from '../../komponen/Tombol'
@@ -76,6 +76,43 @@ export function MasukStaf({
     setPin('')
     setPesanGalat(null)
   }
+
+  // Dukungan input keyboard fisik untuk ergonomi & keamanan (0-9, Backspace, Esc, Enter, Spasi)
+  useEffect(() => {
+    const tanganiKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
+      ) {
+        return
+      }
+
+      if (!stafTerpilih) {
+        return
+      }
+
+      if (e.key >= '0' && e.key <= '9') {
+        e.preventDefault()
+        tekanAngka(e.key)
+      } else if (e.key === 'Backspace') {
+        e.preventDefault()
+        hapusAngka()
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        resetPin()
+      } else if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+        e.preventDefault()
+        if (pin.length === 6 && !sedangMemproses) {
+          prosesMasuk(stafTerpilih, pin)
+        }
+      }
+    }
+
+    window.addEventListener('keydown', tanganiKeyDown)
+    return () => window.removeEventListener('keydown', tanganiKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stafTerpilih, pin, sedangMemproses, perangkatTerdaftar])
 
   const prosesMasuk = async (staf: ProfilStafPerangkat, pinInput: string) => {
     if (!perangkatTerdaftar) {
@@ -264,6 +301,10 @@ export function MasukStaf({
                     <line x1="12" y1="9" x2="18" y2="15"></line>
                   </svg>
                 </Tombol>
+              </div>
+
+              <div className="text-xs text-neutral-400 text-center">
+                Bisa diketik langsung via keyboard (0–9, Backspace, Esc, Enter / Spasi)
               </div>
 
               {sedangMemproses && (

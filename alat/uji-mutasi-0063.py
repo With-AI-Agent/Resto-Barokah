@@ -19,6 +19,8 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIGRASI = os.path.join(REPO, "supabase", "migrations", "0063_anti_email_palsu.sql")
+# JEBAKAN "fungsi ditulis ulang": daftar_voucher ditulis ulang di 0067_pengaman_voucher.sql
+MIGRASI_VOUCHER = os.path.join(REPO, "supabase", "migrations", "0067_pengaman_voucher.sql")
 BERKAS_UJI = ["supabase/tes/anti_email_palsu.sql"]
 
 
@@ -41,29 +43,37 @@ DAFTAR_MUTASI = [
         "normalisasi titik Gmail dicabut",
         "v_lokal := replace(v_lokal, '.', '');",
         "-- v_lokal := replace(v_lokal, '.', '');",
+        MIGRASI,
     ),
     (
         "saringan email sekali-pakai dilonggarkan",
         "return v_domain in (",
         "return false and v_domain in (",
+        MIGRASI,
     ),
     (
         "validasi persetujuan privasi UU PDP dicabut pada RPC",
         "if coalesce(p_persetujuan_privasi, false) is not true then",
         "if false and coalesce(p_persetujuan_privasi, false) is not true then",
+        MIGRASI_VOUCHER,
     ),
     (
         "pagar satu voucher per identitas per kampanye dicabut pada RPC",
-        "if v_ada.kode is not null then",
-        "if false and v_ada.kode is not null then",
+        "if v_jumlah_voucher_pelanggan >= coalesce(v_kmp.kuota_per_pelanggan, 1) then",
+        "if false and v_jumlah_voucher_pelanggan >= coalesce(v_kmp.kuota_per_pelanggan, 1) then",
+        MIGRASI_VOUCHER,
     ),
 ]
 
 
 def uji_mutasi():
     print("UJI MUTASI 0063 (T8-07 — Anti Email Palsu & Normalisasi Gmail)")
-    with open(MIGRASI, "r", encoding="utf-8") as f:
-        asli = f.read()
+    berkas_asli = {}
+    for item in DAFTAR_MUTASI:
+        b = item[3] if len(item) > 3 else MIGRASI
+        if b not in berkas_asli:
+            with open(b, "r", encoding="utf-8") as f:
+                berkas_asli[b] = f.read()
 
     try:
         lulus, keluaran = jalankan_uji()
@@ -73,14 +83,24 @@ def uji_mutasi():
             return 1
         print("  OK  kontrol: salinan utuh → " + " + ".join(BERKAS_UJI) + " hijau")
 
-        for nomor, (nama, asal, ganti) in enumerate(DAFTAR_MUTASI, start=1):
+        for nomor, item in enumerate(DAFTAR_MUTASI, start=1):
+            nama = item[0]
+            asal = item[1]
+            ganti = item[2]
+            target_berkas = item[3] if len(item) > 3 else MIGRASI
+            asli = berkas_asli[target_berkas]
+
             hasil = asli.replace(asal, ganti)
             if hasil == asli:
                 print(f"  [X] Mutasi {nomor}: teks mutasi TIDAK MENEMPEL pada berkas — periksa jangkar!")
                 return 1
-            with open(MIGRASI, "w", encoding="utf-8") as f:
+            with open(target_berkas, "w", encoding="utf-8") as f:
                 f.write(hasil)
             lulus, keluaran = jalankan_uji()
+            # Kembalikan segera sebelum mutasi berikutnya
+            with open(target_berkas, "w", encoding="utf-8") as f:
+                f.write(asli)
+
             if lulus:
                 print(f"  [X] Mutasi {nomor}: {nama} LOLOS (pagar tumpul!)")
                 print(keluaran[-1500:])
@@ -93,8 +113,9 @@ def uji_mutasi():
         )
         return 0
     finally:
-        with open(MIGRASI, "w", encoding="utf-8") as f:
-            f.write(asli)
+        for b, konten in berkas_asli.items():
+            with open(b, "w", encoding="utf-8") as f:
+                f.write(konten)
 
 
 def uji_diri():

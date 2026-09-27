@@ -23,12 +23,12 @@ Tugas Pemeriksaan Anda:
 Perintah Kerja Wajib:
 ```bash
 python3 alat/peta-ui.py --periksa
-python3 aplikasi/alat/periksa-kontras.py
+python3 aplikasi/alat/uji-kontras.py
 python3 aplikasi/alat/periksa-kerapatan.py
 python3 aplikasi/alat/periksa-antarmuka.py
 cd aplikasi && npm test -- --run && cd ..
 cd aplikasi && npx vitest run uji/e2e/luring.spec.ts && cd ..
-node alat/uji-mutasi-app.mjs
+node aplikasi/alat/uji-mutasi-app.mjs
 ```
 
 Susun laporan akhir Anda sesuai format di `docs/uji/PAKET_AUDIT_F10_3_AGEN.md` §6 dengan menyertakan bukti keluaran nyata dan status akhir (BERSIH / PERLU PERBAIKAN).

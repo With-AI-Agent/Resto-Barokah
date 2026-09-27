@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 BERKAS_MIGRASI = Path("supabase/migrations/0073_pengaturan_meja.sql")
+BERKAS_MIGRASI_0083 = Path("supabase/migrations/0083_versi_pengaturan_bersamaan.sql")
 BERKAS_TES = "supabase/tes/pengaturan_meja.sql"
 
 MUTASI = [
@@ -22,36 +23,43 @@ MUTASI = [
         "M01: Hapus mitigasi T9-04: tolak pesanan baru di meja nonaktif",
         r"if not v_aktif_meja and \(tg_op = 'INSERT' or new\.meja_id is distinct from old\.meja_id\) then[\s\S]+?end if;",
         "-- [MUTASI M01 DILEMAHKAN: Pesanan di meja nonaktif dibiarkan]",
+        BERKAS_MIGRASI,
     ),
     (
         "M02: Hapus pagar otorisasi peran kelola meja",
         r"if v_peran not in \('owner_pusat', 'admin_cabang'\) and not public\.boleh\('atur_pengaturan'\) then[\s\S]+?end if;",
         "-- [MUTASI M02 DILEMAHKAN: Tanpa otorisasi peran simpan_meja]",
+        BERKAS_MIGRASI_0083,
     ),
     (
         "M03: Hapus validasi keunikan nomor/nama meja di cabang",
-        r"if exists \(\s+select 1 from public\.meja m\s+where m\.cabang_id = p_cabang_id[\s\S]+?\) then[\s\S]+?end if;",
+        r"if exists \(\s+select 1 from public\.meja m\s+where m\.cabang_id = v_cabang_id[\s\S]+?\) then[\s\S]+?end if;",
         "-- [MUTASI M03 DILEMAHKAN: Nama kembar di cabang dibiarkan]",
+        BERKAS_MIGRASI_0083,
     ),
     (
         "M04: Hapus pencegahan nonaktifkan meja dengan pesanan aktif",
         r"if v_pesanan_aktif > 0 then[\s\S]+?end if;",
         "-- [MUTASI M04 DILEMAHKAN: Meja terisi pesanan bisa dinonaktifkan]",
+        BERKAS_MIGRASI_0083,
     ),
     (
         "M05: Hapus pencegahan hapus meja dengan riwayat pesanan di hapus_meja",
         r"if v_pesanan > 0 then[\s\S]+?end if;",
         "-- [MUTASI M05 DILEMAHKAN: Meja ber-riwayat pesanan bisa dihapus]",
+        BERKAS_MIGRASI,
     ),
     (
         "M06: Hapus pencatatan audit trail pada simpan_meja",
         r"insert into public\.catatan_audit \(\s+penyewa_id,\s+pelaku_id,\s+aksi,\s+entitas,\s+entitas_id,\s+nilai_lama,\s+nilai_baru\s+\) values \(\s+v_penyewa_id,\s+v_pengguna_id,\s+v_aksi,\s+'meja',\s+v_meja\.id,\s+v_nilai_lama,\s+v_nilai_baru\s+\);",
         "-- [MUTASI M06 DILEMAHKAN: Tanpa audit simpan_meja]",
+        BERKAS_MIGRASI_0083,
     ),
     (
         "M07: Hapus validasi nama meja wajib diisi",
         r"if length\(v_nama_bersih\) < 1 or length\(v_nama_bersih\) > 50 then[\s\S]+?end if;",
         "-- [MUTASI M07 DILEMAHKAN: Nama meja kosong dibiarkan]",
+        BERKAS_MIGRASI_0083,
     ),
 ]
 
@@ -90,14 +98,20 @@ def main():
     print(f"[2/2] Menguji {len(MUTASI)} mutasi fail-closed...")
     semua_lolos = True
 
-    for i, (label, pola, pengganti) in enumerate(MUTASI, 1):
-        if not re.search(pola, isi_asli):
-            print(f"  [!] Pola mutasi #{i} '{label}' tidak cocok dengan isi berkas migrasi.")
+    for i, item in enumerate(MUTASI, 1):
+        label = item[0]
+        pola = item[1]
+        pengganti = item[2]
+        target_path = item[3] if len(item) > 3 else BERKAS_MIGRASI
+        teks_target = target_path.read_text(encoding="utf-8")
+
+        if not re.search(pola, teks_target):
+            print(f"  [!] Pola mutasi #{i} '{label}' tidak cocok dengan berkas {target_path}.")
             semua_lolos = False
             continue
 
-        isi_termutasi = re.sub(pola, pengganti, isi_asli, count=1)
-        BERKAS_MIGRASI.write_text(isi_termutasi, encoding="utf-8")
+        isi_termutasi = re.sub(pola, pengganti, teks_target, count=1)
+        target_path.write_text(isi_termutasi, encoding="utf-8")
 
         try:
             kode, log = jalankan_tes()
@@ -108,7 +122,7 @@ def main():
             else:
                 print(f"  ✅ TERTANGKAP: Mutasi #{i} '{label}' terdeteksi merah.")
         finally:
-            BERKAS_MIGRASI.write_text(isi_asli, encoding="utf-8")
+            target_path.write_text(teks_target, encoding="utf-8")
 
     if not semua_lolos:
         print("\nHASIL: Sebagian mutasi tidak tertangkap! Perketat berkas uji.")

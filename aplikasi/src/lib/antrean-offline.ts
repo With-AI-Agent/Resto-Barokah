@@ -42,7 +42,7 @@ const VERSI_DB = 1
 
 /** Pola kunci data sensitif yang DILARANG disimpan di IndexedDB (DoD T10-01). */
 const POLA_KUNCI_SENSITIF =
-  /^(pin|pin_lama|pin_baru|pin_hash|kata_sandi|password|secret|kredensial|token_rahasia|authorization)$/i
+  /(pin|password|katasandi|kata_sandi|secret|kredensial|token|authorization)/i
 
 /**
  * Memeriksa apakah suatu objek atau nilai memuat kunci data sensitif.

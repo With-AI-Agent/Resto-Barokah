@@ -109,4 +109,41 @@ describe('MasukStaf (T2-14)', () => {
       expect(onVerifikasiMock).not.toHaveBeenCalled()
     })
   })
+
+  it('mengizinkan pengetikan PIN via keyboard fisik (0-9, Backspace, Esc, Enter)', async () => {
+    const onVerifikasiMock = vi.fn().mockResolvedValue({ sukses: true })
+    const onSuksesMock = vi.fn()
+
+    render(
+      <PenyediaBahasa>
+        <MasukStaf
+          daftarStaf={stafDummy}
+          onVerifikasiPin={onVerifikasiMock}
+          onMasukSukses={onSuksesMock}
+        />
+      </PenyediaBahasa>,
+    )
+
+    // Pilih staf Budi
+    fireEvent.click(screen.getByRole('button', { name: /Budi Santoso/i }))
+
+    // Ketik angka 1, 2, 3 via keyboard
+    fireEvent.keyDown(window, { key: '1' })
+    fireEvent.keyDown(window, { key: '2' })
+    fireEvent.keyDown(window, { key: '3' })
+
+    // Tekan Backspace (hapus angka 3)
+    fireEvent.keyDown(window, { key: 'Backspace' })
+
+    // Ketik angka 3 lagi, lalu 4, 5, 6
+    fireEvent.keyDown(window, { key: '3' })
+    fireEvent.keyDown(window, { key: '4' })
+    fireEvent.keyDown(window, { key: '5' })
+    fireEvent.keyDown(window, { key: '6' })
+
+    await waitFor(() => {
+      expect(onVerifikasiMock).toHaveBeenCalledWith('budi@barokah.id', '123456')
+      expect(onSuksesMock).toHaveBeenCalledWith(stafDummy[0])
+    })
+  })
 })

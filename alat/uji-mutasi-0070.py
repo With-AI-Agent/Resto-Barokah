@@ -14,6 +14,7 @@ import tempfile
 from pathlib import Path
 
 BERKAS_MIGRASI = Path("supabase/migrations/0070_identitas_resto.sql")
+BERKAS_MIGRASI_0071 = Path("supabase/migrations/0071_tema_merek.sql")
 BERKAS_TES = "supabase/tes/pengaturan_identitas.sql"
 
 MUTASI = [
@@ -21,36 +22,43 @@ MUTASI = [
         "M01: Hapus pagar otorisasi peran (owner_pusat / atur_pengaturan)",
         r"if v_peran <> 'owner_pusat' and not public\.boleh\('atur_pengaturan'\) then\s+raise exception [^;]+;\s+end if;",
         "-- [MUTASI M01 DILEMAHKAN: Tanpa cek izin atur_pengaturan]",
+        BERKAS_MIGRASI,
     ),
     (
         "M02: Hapus penjaga kunci konkurensi optimistik (p_versi_lama)",
         r"if v_pengaturan\.versi_pengaturan <> p_versi_lama then\s+raise exception [^;]+;\s+end if;",
         "-- [MUTASI M02 DILEMAHKAN: Tanpa optimistic locking]",
+        BERKAS_MIGRASI,
     ),
     (
         "M03: Hapus pembaruan nama resto di tabel penyewa",
         r"update public\.penyewa\s+set nama = v_nama_bersih\s+where id = v_penyewa_id;",
         "-- [MUTASI M03 DILEMAHKAN: Tidak simpan nama ke penyewa]",
+        BERKAS_MIGRASI,
     ),
     (
         "M04: Hapus pembaruan tagline dan logo di tabel pengaturan",
         r"tagline\s*=\s*coalesce\(p_tagline,\s*tagline\),",
         "tagline = tagline, -- [MUTASI M04 DILEMAHKAN]",
+        BERKAS_MIGRASI,
     ),
     (
         "M05: Hapus pencatatan audit trail (catatan_audit)",
         r"insert into public\.catatan_audit[^;]+;",
         "-- [MUTASI M05 DILEMAHKAN: Tanpa audit trail]",
+        BERKAS_MIGRASI,
     ),
     (
         "M06: Hapus validasi nama resto kosong",
         r"if length\(v_nama_bersih\) < 1 or length\(v_nama_bersih\) > 120 then\s+raise exception [^;]+;\s+end if;",
         "-- [MUTASI M06 DILEMAHKAN: Tanpa validasi panjang nama resto]",
+        BERKAS_MIGRASI,
     ),
     (
         "M07: Hapus tagline dari kembalian katalog_publik",
         r"'tagline',\s*v_penyewa\.tagline,",
         "'tagline', '', -- [MUTASI M07 DILEMAHKAN]",
+        BERKAS_MIGRASI_0071,
     ),
 ]
 
@@ -89,14 +97,20 @@ def main():
     print(f"[2/2] Menguji {len(MUTASI)} mutasi fail-closed...")
     semua_lolos = True
 
-    for i, (label, pola, pengganti) in enumerate(MUTASI, 1):
-        if not re.search(pola, isi_asli):
-            print(f"  [!] Pola mutasi #{i} '{label}' tidak cocok dengan isi berkas migrasi.")
+    for i, item in enumerate(MUTASI, 1):
+        label = item[0]
+        pola = item[1]
+        pengganti = item[2]
+        target_path = item[3] if len(item) > 3 else BERKAS_MIGRASI
+        teks_target = target_path.read_text(encoding="utf-8")
+
+        if not re.search(pola, teks_target):
+            print(f"  [!] Pola mutasi #{i} '{label}' tidak cocok dengan berkas {target_path}.")
             semua_lolos = False
             continue
 
-        isi_termutasi = re.sub(pola, pengganti, isi_asli, count=1)
-        BERKAS_MIGRASI.write_text(isi_termutasi, encoding="utf-8")
+        isi_termutasi = re.sub(pola, pengganti, teks_target, count=1)
+        target_path.write_text(isi_termutasi, encoding="utf-8")
 
         try:
             kode, log = jalankan_tes()
@@ -107,7 +121,7 @@ def main():
             else:
                 print(f"  ✅ TERTANGKAP: Mutasi #{i} '{label}' terdeteksi merah.")
         finally:
-            BERKAS_MIGRASI.write_text(isi_asli, encoding="utf-8")
+            target_path.write_text(teks_target, encoding="utf-8")
 
     if not semua_lolos:
         print("\nHASIL: Sebagian mutasi tidak tertangkap! Perketat berkas uji.")

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Kartu } from '../../komponen/Kartu'
 import { KolomIsian } from '../../komponen/KolomIsian'
 import { LembarBantuan } from '../../komponen/LembarBantuan'
@@ -39,6 +39,44 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
     setPin('')
     setErrorRamah(null)
   }
+
+  // Dukungan input keyboard fisik untuk ergonomi & keamanan (0-9, Backspace, Esc, Enter, Spasi)
+  useEffect(() => {
+    const tanganiKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
+      ) {
+        // Jika sedang fokus di input email dan menekan Enter, coba submit jika PIN sudah 6 digit
+        if (e.key === 'Enter' && pin.length === 6 && !memuat) {
+          e.preventDefault()
+          handleSubmit()
+        }
+        return
+      }
+
+      if (e.key >= '0' && e.key <= '9') {
+        e.preventDefault()
+        handleTekanAngka(e.key)
+      } else if (e.key === 'Backspace') {
+        e.preventDefault()
+        handleHapusAngka()
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        handleResetPin()
+      } else if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+        e.preventDefault()
+        if (pin.length === 6 && !memuat) {
+          handleSubmit()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', tanganiKeyDown)
+    return () => window.removeEventListener('keydown', tanganiKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email, pin, memuat])
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
@@ -172,6 +210,16 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
                 <Tombol ragam="biasa" onClick={handleHapusAngka}>
                   ⌫
                 </Tombol>
+              </div>
+              <div
+                style={{
+                  fontSize: 'var(--t-2)',
+                  color: 'var(--teks-redup)',
+                  textAlign: 'center',
+                  marginBottom: 'var(--s-3)',
+                }}
+              >
+                Bisa diketik langsung via keyboard (0–9, Backspace, Esc, Enter / Spasi)
               </div>
             </div>
 

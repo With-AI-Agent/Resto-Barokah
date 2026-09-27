@@ -567,14 +567,21 @@ end $$;
 -- ----------------------------------------------------------------------------
 do $$
 declare
-  v_count integer;
+  v_count_simpan integer;
+  v_count_total  integer;
 begin
-  select count(*) into v_count
+  select count(*) into v_count_simpan
+    from public.catatan_audit
+   where penyewa_id = '11111111-1111-1111-1111-111111111111'
+     and aksi = 'simpan_menu';
+
+  select count(*) into v_count_total
     from public.catatan_audit
    where penyewa_id = '11111111-1111-1111-1111-111111111111'
      and aksi in ('simpan_kategori_menu', 'hapus_kategori_menu', 'simpan_menu', 'hapus_menu');
 
-  perform uji.sama(v_count >= 5, true, 'Kasus 18: Audit trail mencatat minimal 5 kejadian kelola menu');
+  perform uji.sama(v_count_simpan >= 1, true, 'Kasus 18a: Audit trail aksi simpan_menu tercatat');
+  perform uji.sama(v_count_total >= 5, true, 'Kasus 18b: Audit trail mencatat minimal 5 kejadian kelola menu');
 end $$;
 
 reset role;
