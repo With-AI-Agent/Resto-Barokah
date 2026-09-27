@@ -10,13 +10,13 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `c3a96cbe6bd6d9b81eafda108259a919ccdbdb28`
+- **Commit keadaan kerja:** `67e01ddd430ec3026be1a3ba54c08b83a20e09ae`
 - **PR:** PR #14 (base main)
 PR #13 (base main)
 PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit c3a96cbe — periksa lagi setelah push)
+- **CI terakhir:** in_progress (run 36324007611, commit 67e01ddd) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -31,7 +31,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (114 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (167 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (115 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (168 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -80,15 +80,18 @@ JANGAN merge apa pun tanpa keputusan Lee.
 > 4. `LAPORAN_AKBAR_SPESIALIS_INFRASTRUKTUR.md` (Infrastruktur, SOP Bencana, CSP, Cadangan, Cron)
 > 5. `LAPORAN_AKBAR_PEMERIKSA_FASE.md`, `LAPORAN_AKBAR_PEMERIKSA_FASE__sesi-01a0e266.md`, & `LAPORAN_AKBAR_PEMERIKSA_FASE__sesi-cf2f162.md` (Riwayat Fase 0–10)
 >
-> **KESIMPULAN DARI SELURUH AUDITOR:**
-> - **Brankas Data & Uang (Spesialis Data): 100% SIAP FASE 11 (HIJAU MUTLAK).** RLS 47 tabel kedap, 0 kebocoran antar resto, perhitungan rupiah/PB1/diskon presisi di peladen, 8/8 RPC idempoten.
-> - **Keamanan Inti (Spesialis Infrastruktur):** Kunci rahasia 0 bocor, CSP Cloudflare bersih tanpa unsafe-inline, cadangan AES-256 terbukti empiris, 4/4 dril insiden berjalan sempurna dalam 3,88 detik.
-> - **Temuan K-2 yang Menahan Gerbang Fase 11 (Wajib Diperbaiki):**
->   1. *Antrean Offline saat WiFi nyala tapi internet mati:* di `App.tsx`, kegagalan fetch Supabase mengembalikan `{ error }` biasa (bukan exception), sehingga `onSimpanPesanan` mengembalikan `{ sukses: false }` tanpa memicu `tambahKeAntrean`, dan status `mengirim` di IndexedDB belum direset otomatis saat inisialisasi modul.
->   2. *Payload tombol Kirim ke Dapur di `App.tsx`:* baris 161–173 mengirim status `'antri'`, padahal skema database `0009_pesanan.sql` hanya menerima `'dikirim'` dengan `dikirim_ke_dapur_pada = now()`.
->   3. *Penyelarasan alur pesanan luring:* saat offline, pesanan yang masuk antrean perlu memastikan tiket dapur ikut diperbarui statusnya saat online kembali.
->   4. *Perluasan regex kunci rahasia OpenAI:* tambahkan pola `sk-proj-[a-zA-Z0-9_-]{20,}` di `alat/periksa-rahasia.py`.
->   5. *Penyelarasan standar kontras dokumen:* perjelas di dokumen bahwa standar yang ditegakkan dan diukur adalah WCAG AA (≥ 4.5:1), bukan klaim berlebihan AAA.
+> **TEMUAN AUDIT AKBAR FASE 0–10 SELESAI TUNTAS (2026-09-27):**
+> Sesuai arahan Lee ("Lanjut, bereskan temuannya. Perbaiki semua yang perlu diperbaiki, sekecil apapun itu"), seluruh temuan audit telah diperbaiki dan diverifikasi 100%:
+> 1. Status payload kirim dapur di `App.tsx` diselaraskan ke `'dikirim'` beserta stempel waktu `dikirim_ke_dapur_pada`.
+> 2. Pemulihan antrean macet status `'mengirim'` diimplementasikan di `antrean-offline.ts` (`pulihkanAntreanMacet`) dan lolos uji vitest (12/12 uji lulus).
+> 3. Penanganan galat jaringan (offline) `isNetworkError` ditambahkan di `App.tsx` agar kegagalan koneksi saat WiFi aktif tapi internet mati otomatis dialihkan ke antrean offline.
+> 4. Notifikasi kasir non-blocking: pemanggilan `window.alert()` peramban di `LayarKasir.tsx` diganti komponen `Toast` ramah pengguna.
+> 5. Penolakan fail-closed untuk jenis aksi antrean tak dikenal di `useAntrean.ts` (`F-05`).
+> 6. Uji Backspace, Escape, dan Spasi keyboard fisik di `MasukStaf.test.tsx` dan `LayarMasukPegawai.test.tsx` (`F-07`).
+> 7. Penyelarasan registry layar di `layar.ts`, `aksi.ts`, dan regenerasi `docs/PETA_UI.md` (`F-06`).
+> 8. Pola kunci OpenAI modern `sk-proj-[a-zA-Z0-9_-]{20,}` di `alat/periksa-rahasia.py` dan uji diri mutasi.
+> 9. Dukungan RPC Supabase remote di `alat/eksekusi-denyut.mjs` dan alur kerja `.github/workflows/denyut-harian.yml`.
+> 10. Penyelarasan standar WCAG AA (≥ 4.5:1), aturan fleksibel `wajib_shift`, dan penomoran 82 migrasi SQL di seluruh dokumen pengikat.
 
 **STATUS FASE 10 & PERBAIKAN AUDIT INDEPENDEN SELESAI TUNTAS (2026-09-27):**
 1. **Dukungan Keyboard Fisik pada Input PIN Staf & Kasir (Permintaan Khusus Lee):**
@@ -2115,21 +2118,3 @@ Urutan yang disarankan agent, dan alasannya:
    - 12 uji unit di `Meja.test.tsx` dan 9 uji unit di `LayarPengaturan.test.tsx` LULUS 100%.
    - Seluruh suite Vitest: 106 berkas / 850 uji unit LULUS 100%.
    - Prettier, ESLint, TypeScript (`tsc -b`), dan build produksi Vite LULUS 100%.
-
-## 3. Rencana berikutnya
-
-### A. Tindak Lanjut Pasca Penuntasan Temuan Pemeriksaan Akbar Fase 0–10
-Seluruh temuan dari Pemeriksaan Akbar Menyeluruh Fase 0 s/d 10 (oleh 10 agen paralel / PR #14) telah berhasil diperbaiki dan diverifikasi tuntas:
-1. **Perbaikan Payload & Sinkronisasi Dapur:** Status pesanan di `App.tsx` diselaraskan ke `'dikirim'` beserta timestamp `dikirim_ke_dapur_pada`.
-2. **Pemulihan Antrean Offline Macet:** Fungsi `pulihkanAntreanMacet()` di `antrean-offline.ts` otomatis mereset status item `mengirim` yang tertinggal saat restart aplikasi.
-3. **Penanganan Galat Jaringan (Offline):** Deteksi `isNetworkError` ditambahkan di `App.tsx` agar kegagalan koneksi saat router WiFi aktif namun internet mati otomatis dialihkan ke antrean offline.
-4. **Notifikasi Kasir Non-Blocking:** Pemanggilan `alert()` peramban di `LayarKasir.tsx` diganti dengan komponen notifikasi `Toast` ramah pengguna.
-5. **Fail-Closed Antrean Aksi Tak Dikenal:** Modul `useAntrean.ts` kini menolak aksi tak dikenal secara fail-closed (`sukses: false`).
-6. **Uji Ergonomi Keyboard PIN:** Pengujian Backspace, Escape, dan Spasi keyboard fisik di `MasukStaf.test.tsx` dan `LayarMasukPegawai.test.tsx` lulus 100%.
-7. **Peta UI & Sinkronisasi Registry:** Berkas kontrak `layar.ts` dan `aksi.ts` menunjuk ke berkas komponen nyata (`LayarMasukPegawai.tsx`, `Daftar.tsx`) dan RPC `verifikasi_pin_perangkat`, `docs/PETA_UI.md` hijau.
-8. **Deteksi Token OpenAI Modern:** Skrip `alat/periksa-rahasia.py` kini mendeteksi pola `sk-proj-[a-zA-Z0-9_-]{20,}` dan lulus `--uji-diri`.
-9. **Dukungan RPC Supabase Remote di Skrip Denyut:** Skrip `alat/eksekusi-denyut.mjs` dan alur kerja `.github/workflows/denyut-harian.yml` mendukung panggilan RPC remote bila kredensial Supabase tersedia, dan fallback ke PGlite in-memory bila lokal.
-10. **Penyelarasan Dokumen Spesifikasi:** Seluruh dokumen pengikat (`PRD.md`, `TECH_SPEC.md`, `DECISIONS_LOG.md`, `REKAM_PESAN_PEMILIK.md`, dan instrumen audit) selaras pada standar WCAG AA (≥ 4.5:1), aturan fleksibel `wajib_shift`, dan penomoran 82 berkas migrasi SQL (0001–0085).
-
-### B. Posisi Sesuai Arahan Khusus Lee (§29 REKAM_PESAN_PEMILIK.md)
-Tepat setelah Fase 10 selesai dan temuan audit beres, agent **BERHENTI** dan tidak melanjutkan ke Fase 11 sebelum instruksi dan penjelasan mekanisme pemeriksaan berikutnya dari Lee.
