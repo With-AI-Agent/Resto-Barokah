@@ -1977,11 +1977,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Catatan:** T-012 sudah ditutup 2026-09-16 → cadangan disimpan sebagai **artefak terenkripsi GitHub Actions (repo privat, masa simpan 90 hari)** + pemilik mengunduh salinannya sebulan sekali.
   - **Verifikasi:** jalankan pemulihan dari satu berkas cadangan → jumlah baris tiap tabel sama dengan sumbernya.
 
-- [ ] T10-11 — Perubahan pengaturan bersamaan tidak saling menimpa
+- [x] T10-11 — Perubahan pengaturan bersamaan tidak saling menimpa
   - **Tujuan:** dua orang yang mengubah pengaturan pada saat yang sama tidak membuat perubahan satunya hilang diam-diam.
   - **Ref:** TECH_SPEC §5 (M2 mengembalikan "versi pengaturan (stempel waktu)"); PRD M2 (kasus tepi)
-  - **File:** `supabase/migrations/0066_versi_pengaturan.sql`, `supabase/tes/pengaturan_bersamaan.sql`
-  - **DoD:** `simpan_pengaturan`/`simpan_menu` menolak simpanan yang memakai versi lama dengan pesan jelas ("data sudah diubah orang lain, muat ulang dulu"); perubahan yang ditolak tidak hilang dari layar; tercatat di audit.
+  - **File:** `supabase/migrations/0083_versi_pengaturan_bersamaan.sql`, `supabase/tes/pengaturan_bersamaan.sql`
+  - **DoD:** `simpan_pengaturan`/`simpan_menu` menolak simpanan yang memakai versi lama dengan pesan jelas ("data sudah diubah orang lain, muat ulang dulu"); perubahan yang ditolak tidak hilang dari layar; tercatat di audit. · **Bukti 2026-09-27:** migrasi `supabase/migrations/0083_versi_pengaturan_bersamaan.sql` memperkuat kunci konkurensi optimistik pada `simpan_menu`, `simpan_kategori_menu`, `simpan_meja`, dan menyelaraskan `simpan_pengaturan` serta `simpan_operasional` dengan parameter `p_versi_lama timestamptz`; peladen menolak simpanan versi usang secara fail-closed (P0001: "Data sudah diubah oleh pengguna lain. Silakan muat ulang halaman.") dan mencatat insiden ke `public.catatan_audit` via `catat_konflik_pengaturan`; komponen layar `Menu.tsx`, `Identitas.tsx`, dan `Operasional.tsx` mempertahankan masukan pengguna saat konflik terjadi tanpa menutup form; suite pengujian SQL `supabase/tes/pengaturan_bersamaan.sql` dan suite mutasi fail-closed `alat/uji-mutasi-0083.py` (4/4 mutan mati) membuktikan proteksi bekerja 100% (perintah: `node alat/uji-sql.mjs supabase/tes/pengaturan_bersamaan.sql` dan `python3 alat/uji-mutasi-0083.py`, angka saat itu).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan & pengaturan (ART-3, menyentuh pajak/service); mitigasi: penolakan di peladen, bukan hanya peringatan di layar.
   - **Verifikasi:** uji SQL dua penyimpanan paralel → satu berhasil, satu ditolak dengan kode jelas.

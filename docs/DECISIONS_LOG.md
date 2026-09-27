@@ -3079,6 +3079,30 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `alat/cadangan.sh`, `alat/eksekusi-cadangan.mjs`, `alat/uji-mutasi-cadangan.py`, `.github/workflows/cadangan.yml`, `docs/teknis/PEMULIHAN.md`, `docs/ROADMAP.md` (T10-10)
 - **Implikasi:** Berkas cadangan mentah dilarang masuk Git; kunci enkripsi dilarang dicatat di repositori; jika kunci hilang, cadangan tidak dapat dipulihkan sehingga pemilik platform wajib menjaga kunci di pengelola sandi aman; skrip pemulihan siap dijalankan kapan saja oleh DevOps atau pemilik resto dengan panduan SOP 7 tahap di `docs/teknis/PEMULIHAN.md`.
 
+### [Fase 10/2026-09-27] Kunci Konkurensi Optimistik Peladen Pengaturan, Operasional, & Menu (T10-11 / ART-3)
+- **Area:** Kalkulasi Keuangan & pengaturan (ART-3, TECH_SPEC §5, PRD M2 & M12 Kasus Tepi)
+- **Keputusan:**
+  1. **Penegakan Kunci Konkurensi Optimistik (*Optimistic Locking*) di Peladen (Bukan Sekadar Peringatan Layar):**
+     - Untuk mencegah fenomena *last-write-wins* diam-diam saat dua pengelola (Owner atau Admin Cabang) menyunting pengaturan restoran, tarif pajak PB1/service charge, atau master katalog menu pada waktu bersamaan, peladen mewajibkan parameter stempel waktu versi lama (`p_versi_lama timestamptz`).
+     - Penyimpanan paralel yang menyertakan versi usang (`p_versi_lama <> diubah_pada` atau `versi_pengaturan`) ditolak secara tegas (*fail-closed*) dengan kode galat PostgreSQL `P0001` dan pesan jelas dalam bahasa Indonesia: *"Data sudah diubah oleh pengguna lain. Silakan muat ulang halaman."* (atau untuk menu: *"Data menu sudah diubah oleh pengguna lain. Silakan muat ulang halaman."*).
+  2. **Pencegahan Kerusakan Perhitungan Finansial Masa Lalu (Mitigasi ART-3):**
+     - Sesuai prinsip ART-3, setiap pembaruan tarif pajak PB1 atau service charge pada tabel `public.pengaturan` melalui `simpan_operasional` dilindungi oleh kunci konkurensi stempel waktu mikrodetik (`clock_timestamp()`).
+     - Data transaksi dan struk masa lalu tidak terpengaruh, dan perubahan tarif yang dikirim bersamaan oleh pengelola lain ditolak di peladen sebelum sempat menimpa baris pengaturan.
+  3. **Pencatatan Audit Insiden Tabrakan Versi (`catat_konflik_pengaturan`):**
+     - Selain menolak transaksi basi, sistem menyediakan RPC `public.catat_konflik_pengaturan(entitas, entitas_id, versi_klien, keterangan)` untuk mencatat percobaan penyimpanan bersamaan yang tertolak ke tabel kekal `public.catatan_audit` (aksi = `'konflik_versi_ditolak'`, status = `'ditolak_fail_closed'`).
+  4. **Retensi Masukan Pengguna pada Antarmuka Layar (UI):**
+     - Komponen antarmuka pengguna (`Menu.tsx`, `Identitas.tsx`, `Operasional.tsx`) dirancang sedemikian rupa sehingga saat server menolak penyimpanan karena konflik versi usang:
+       a) Modal dialog tidak otomatis tertutup;
+       b) Seluruh kolom input dan teks yang baru saja diketik oleh pengguna tetap dipertahankan utuh di layar (tidak di-reset atau hilang);
+       c) Muncul kotak peringatan galat berwarna merah yang menerangkan bahwa data di peladen telah diperbarui pengguna lain, memberi kesempatan kepada staf/owner untuk menyalin atau memeriksa selisih data.
+  5. **Pengujian Komprehensif & Uji Mutasi Fail-Closed:**
+     - Berkas uji SQL `supabase/tes/pengaturan_bersamaan.sql` memvalidasi skenario balapan versi pada `simpan_pengaturan`, `simpan_operasional`, `simpan_menu`, `simpan_kategori_menu`, `simpan_meja`, pencatatan audit, serta penolakan akses staf non-otoritas dan anonim.
+     - Suite uji mutasi `alat/uji-mutasi-0083.py` membuktikan 4/4 mutasi pelemahan kunci konkurensi menghasilkan status merah (fail-closed).
+     - Pengujian komponen antarmuka Vitest (`Menu.test.tsx`, `Identitas.test.tsx`, `Operasional.test.tsx`) memverifikasi keutuhan formulir saat konflik terjadi.
+- **File terkait:** `supabase/migrations/0083_versi_pengaturan_bersamaan.sql`, `supabase/tes/pengaturan_bersamaan.sql`, `alat/uji-mutasi-0083.py`, `aplikasi/src/layar/pengaturan/Menu.tsx`, `aplikasi/src/layar/pengaturan/Menu.test.tsx`, `aplikasi/src/layar/pengaturan/Identitas.tsx`, `aplikasi/src/layar/pengaturan/Operasional.tsx`, `docs/ROADMAP.md` (T10-11)
+- **Implikasi:** Operasional kedai aman dari timpaan konfigurasi keuangan atau menu tanpa sengaja; pengelola kedai tidak akan kehilangan ketikan form saat rekan kerja menyunting data yang sama; jejak konflik tercatat transparan di audit log restoran.
+
+
 
 
 

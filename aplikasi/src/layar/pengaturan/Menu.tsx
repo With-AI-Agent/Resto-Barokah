@@ -27,6 +27,7 @@ export interface DataKategori {
   tujuan: 'dapur' | 'bar'
   aktif: boolean
   jumlah_menu?: number
+  diubah_pada?: string
 }
 
 export interface DataVarian {
@@ -58,6 +59,7 @@ export interface DataMenuItem {
   harga_cabang?: number | null
   varian?: DataVarian[]
   tambahan?: DataTambahan[]
+  diubah_pada?: string
 }
 
 export interface MenuProps {
@@ -70,6 +72,7 @@ export interface MenuProps {
     urutan?: number
     tujuan: 'dapur' | 'bar'
     aktif: boolean
+    versi_lama?: string
   }) => Promise<{ berhasil: boolean; id?: string; pesan?: string }>
   onHapusKategori?: (id: string) => Promise<{ berhasil: boolean; pesan?: string }>
   onSimpanMenu?: (data: {
@@ -85,6 +88,7 @@ export interface MenuProps {
     aktif?: boolean
     varian?: DataVarian[]
     tambahan?: DataTambahan[]
+    versi_lama?: string
   }) => Promise<{ berhasil: boolean; id?: string; pesan?: string }>
   onHapusMenu?: (id: string) => Promise<{ berhasil: boolean; pesan?: string }>
   onTandaiHabis?: (menuId: string, habis: boolean) => Promise<{ berhasil: boolean; pesan?: string }>
@@ -194,6 +198,7 @@ export function Menu({
     urutan: number
     tujuan: 'dapur' | 'bar'
     aktif: boolean
+    versi_lama?: string
   }>({ nama: '', urutan: 1, tujuan: 'dapur', aktif: true })
 
   // Dialog / Modal Form Menu
@@ -211,6 +216,7 @@ export function Menu({
     aktif: boolean
     varian: DataVarian[]
     tambahan: DataTambahan[]
+    versi_lama?: string
   }>({
     kategori_id: daftarKategori[0]?.id || '',
     nama: '',
@@ -315,6 +321,7 @@ export function Menu({
       urutan: kat.urutan,
       tujuan: kat.tujuan,
       aktif: kat.aktif,
+      versi_lama: kat.diubah_pada,
     })
     setModalKategoriBuka(true)
     setPesanGalat(null)
@@ -336,6 +343,7 @@ export function Menu({
           urutan: editKategoriData.urutan,
           tujuan: editKategoriData.tujuan,
           aktif: editKategoriData.aktif,
+          versi_lama: editKategoriData.versi_lama,
         })
         if (!res.berhasil) {
           setPesanGalat(res.pesan || 'Gagal menyimpan kategori menu.')
@@ -473,6 +481,7 @@ export function Menu({
       aktif: menu.aktif,
       varian: menu.varian ? [...menu.varian] : [],
       tambahan: menu.tambahan ? [...menu.tambahan] : [],
+      versi_lama: menu.diubah_pada,
     })
     setInputNamaVarian('')
     setInputHargaVarian('0')
@@ -552,6 +561,7 @@ export function Menu({
           aktif: editMenuData.aktif,
           varian: editMenuData.varian,
           tambahan: editMenuData.tambahan,
+          versi_lama: editMenuData.versi_lama,
         })
         if (!res.berhasil) {
           setPesanGalat(res.pesan || 'Gagal menyimpan menu.')

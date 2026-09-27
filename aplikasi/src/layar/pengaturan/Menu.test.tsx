@@ -368,4 +368,133 @@ describe('Layar Pengaturan Menu & Kategori (T9-05 / PRD M2 & M3)', () => {
     expect(screen.queryByRole('button', { name: 'Edit menu Nasi Goreng' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Hapus menu Nasi Goreng' })).toBeNull()
   })
+
+  it('15. Penanganan tabrakan konkurensi (optimistic locking) pada edit menu mempertahankan data form di layar', async () => {
+    const mockSimpanMenu = vi.fn().mockResolvedValue({
+      berhasil: false,
+      pesan: 'Data menu sudah diubah oleh pengguna lain. Silakan muat ulang halaman.',
+    })
+
+    const dataMenuDenganVersi: DataMenuItem[] = [
+      {
+        ...DATA_MENU_UJI[0],
+        diubah_pada: '2026-09-27T10:00:00.000Z',
+      },
+    ]
+
+    render(
+      <Menu
+        daftarKategoriAwal={DATA_KATEGORI_UJI}
+        daftarMenuAwal={dataMenuDenganVersi}
+        onSimpanMenu={mockSimpanMenu}
+      />,
+    )
+
+    // Buka modal edit menu Nasi Goreng
+    const tombolEdit = screen.getByRole('button', { name: 'Edit menu Nasi Goreng' })
+    fireEvent.click(tombolEdit)
+
+    // Modal terbuka
+    expect(screen.getByText('Edit Menu Item')).toBeDefined()
+
+    // Ubah nama menu menjadi 'Nasi Goreng Super Pedas' dan harga menjadi '30000'
+    const inputNama = screen.getByLabelText(/nama menu/i)
+    fireEvent.change(inputNama, { target: { value: 'Nasi Goreng Super Pedas' } })
+
+    const inputHarga = screen.getByLabelText(/harga pokok \(rp\)/i)
+    fireEvent.change(inputHarga, { target: { value: '30000' } })
+
+    // Klik simpan
+    const tombolSimpan = screen.getByRole('button', { name: 'Simpan seluruh data menu' })
+    fireEvent.click(tombolSimpan)
+
+    await waitFor(() => {
+      expect(mockSimpanMenu).toHaveBeenCalledTimes(1)
+    })
+
+    // Pastikan versi_lama terkirim ke handler
+    expect(mockSimpanMenu).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'm-1',
+        nama: 'Nasi Goreng Super Pedas',
+        harga: 30000,
+        versi_lama: '2026-09-27T10:00:00.000Z',
+      }),
+    )
+
+    // Pesan galat penolakan tampil di layar
+    expect(
+      screen.getByText('Data menu sudah diubah oleh pengguna lain. Silakan muat ulang halaman.'),
+    ).toBeDefined()
+
+    // Modal TETAP TERBUKA dan input pengguna TIDAK HILANG
+    expect(screen.getByText('Edit Menu Item')).toBeDefined()
+    expect((screen.getByLabelText(/nama menu/i) as HTMLInputElement).value).toBe(
+      'Nasi Goreng Super Pedas',
+    )
+    expect((screen.getByLabelText(/harga pokok \(rp\)/i) as HTMLInputElement).value).toBe('30000')
+  })
+
+  it('16. Penanganan tabrakan konkurensi (optimistic locking) pada edit kategori mempertahankan data form di layar', async () => {
+    const mockSimpanKategori = vi.fn().mockResolvedValue({
+      berhasil: false,
+      pesan: 'Data kategori menu sudah diubah oleh pengguna lain. Silakan muat ulang halaman.',
+    })
+
+    const dataKategoriDenganVersi: DataKategori[] = [
+      {
+        ...DATA_KATEGORI_UJI[0],
+        diubah_pada: '2026-09-27T10:00:00.000Z',
+      },
+    ]
+
+    render(
+      <Menu
+        daftarKategoriAwal={dataKategoriDenganVersi}
+        daftarMenuAwal={DATA_MENU_UJI}
+        onSimpanKategori={mockSimpanKategori}
+      />,
+    )
+
+    // Buka modal edit kategori Makanan
+    const tombolEditKat = screen.getByRole('button', { name: 'Edit kategori Makanan' })
+    fireEvent.click(tombolEditKat)
+
+    // Modal edit kategori terbuka
+    expect(screen.getByText('Edit Kategori Menu')).toBeDefined()
+
+    // Ubah nama kategori menjadi 'Hidangan Nusantara'
+    const inputNama = screen.getByLabelText(/nama kategori/i)
+    fireEvent.change(inputNama, { target: { value: 'Hidangan Nusantara' } })
+
+    // Klik simpan
+    const tombolSimpan = screen.getByRole('button', { name: 'Simpan data kategori menu' })
+    fireEvent.click(tombolSimpan)
+
+    await waitFor(() => {
+      expect(mockSimpanKategori).toHaveBeenCalledTimes(1)
+    })
+
+    // Pastikan versi_lama terkirim ke handler
+    expect(mockSimpanKategori).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'kat-1',
+        nama: 'Hidangan Nusantara',
+        versi_lama: '2026-09-27T10:00:00.000Z',
+      }),
+    )
+
+    // Pesan galat tampil di layar
+    expect(
+      screen.getByText(
+        'Data kategori menu sudah diubah oleh pengguna lain. Silakan muat ulang halaman.',
+      ),
+    ).toBeDefined()
+
+    // Modal TETAP TERBUKA dan input nama TIDAK HILANG
+    expect(screen.getByText('Edit Kategori Menu')).toBeDefined()
+    expect((screen.getByLabelText(/nama kategori/i) as HTMLInputElement).value).toBe(
+      'Hidangan Nusantara',
+    )
+  })
 })
