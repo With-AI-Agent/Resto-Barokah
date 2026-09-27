@@ -29,6 +29,7 @@ import { TautanKatalog } from './TautanKatalog'
 import { Kampanye } from './Kampanye'
 import { Pratinjau } from './Pratinjau'
 import { SesiAktif, type DataSesiAktif } from './SesiAktif'
+import { StatusPemakaian } from './StatusPemakaian'
 
 export type TabPengaturan =
   | 'identitas'
@@ -46,6 +47,7 @@ export type TabPengaturan =
   | 'tautan'
   | 'kampanye'
   | 'pratinjau'
+  | 'status_pemakaian'
 
 export interface LayarPengaturanProps {
   tabAwal?: TabPengaturan
@@ -279,6 +281,7 @@ export function LayarPengaturan({
     { id: 'tautan', label: 'Tautan & QR Meja', ikon: '🔗' },
     { id: 'kampanye', label: 'Kampanye Voucher', ikon: '🎟️' },
     { id: 'pratinjau', label: 'Pratinjau & Pengaman', ikon: '👁️' },
+    { id: 'status_pemakaian', label: 'Batas & Kuota K6', ikon: '📊' },
   ]
 
   return (
@@ -427,6 +430,9 @@ export function LayarPengaturan({
             onCetakSimulasi={onCetakSimulasiStruk}
             hanyaBaca={hanyaBaca}
           />
+        )}
+        {tabAktif === 'status_pemakaian' && (
+          <StatusPemakaian onKembali={() => setTabAktif('identitas')} />
         )}
       </div>
     </div>

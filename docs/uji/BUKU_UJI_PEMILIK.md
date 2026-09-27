@@ -80,10 +80,13 @@ tetapi **memblokir** dua tugas yang butuh layanan sungguhan: `T0-08` dan `T0-09`
 
 | U-22 | Antrean Pesanan Luring saat Internet Putus (tugas `T10-01`) | 1) Masuk ke layar Kasir 2) Putuskan koneksi internet perangkat 3) Susun pesanan di keranjang dan tekan Kirim ke Dapur 4) Periksa banner status "menunggu dikirim 1" 5) Sambungkan kembali internet dan amati sinkronisasi | Pesanan tersimpan aman di IndexedDB lokal tanpa data sensitif, status antrean jelas jujur, dan otomatis terkirim sekali saat daring kembali (ART-8) |  | Fase 10 Ketahanan |
 
+| U-23 | Daftar Uji Terima Resmi Gelombang 1 (tugas `T11-02`) | 1) Buka berkas `docs/uji/UJI_TERIMA_G1.md` 2) Jalankan 42 skenario uji terima kasir, dapur, kas, voucher, laporan, pengaturan, dan ketahanan luring 3) Periksa tanda berhasil tiap skenario 4) Tulis kendala di tabel catatan masalah bila ada 5) Bubuhkan tanda tangan di lembar persetujuan akhir | Seluruh 42 skenario operasional dan ketahanan kedai terbukti berjalan lancar dari kacamata pemilik tanpa kendala teknis |  | Fase 11 Uji Terima G1 |
+
 ## 3. Log buku ini
 
 | Tanggal | Perubahan | Alasan |
 |---|---|---|
+| 2026-09-27 | Baris **U-23** ditambahkan (Daftar uji terima resmi Gelombang 1 bahasa manusia T11-02) | Panduan uji terima menyeluruh 42 skenario siap jalan oleh Lee sebelum pemakaian harian di kedai (`docs/uji/UJI_TERIMA_G1.md`) |
 | 2026-09-26 | Baris **U-22** ditambahkan (Antrean pesanan luring saat internet putus T10-01) | Panduan uji mandiri pemilik saat kasir offline, pembuktian status jelas "menunggu dikirim X", dan sinkronisasi otomatis ART-8 |
 | 2026-09-26 | Baris **U-21** ditambahkan (Daftar uji terima pengaturan mandiri pemilik bahasa manusia T9-12) | Melengkapi panduan uji mandiri pemilik untuk seluruh fitur Pengaturan Resto & Multi-Cabang Fase 9 (`docs/uji/UJI_TERIMA_PENGATURAN.md`) |
 | 2026-09-26 | Baris **U-13** s/d **U-20** ditambahkan (Fase 7 Shift & Laporan, Fase 8 Katalog & Voucher & Privasi, Fase 9 Pengaturan Resto T9-01 s/d T9-03) | Permintaan Lee memastikan seluruh hal yang perlu diuji mata/tangan manusia dari Fase 1 sampai 9 tercatat lengkap dengan cara, tujuan, dan indikator |

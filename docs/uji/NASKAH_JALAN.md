@@ -263,3 +263,104 @@
   - Tidak ada tombol staf (tidak ada tombol kasir, pengaturan, atau laporan).
 - **Harus TIDAK terjadi:**
   - Pelanggan diminta PIN atau dapat mengakses data keuangan resto.
+
+---
+
+## 3. Naskah Uji Keamanan Lapangan (Uji Terima Pemilik — T11-12 / docs/KEAMANAN.md §14)
+
+---
+
+### `W-SEC-01` · Pendaftaran Perangkat Baru & Otorisasi Pemilik
+- **Layar:** `pengaturan` (Tab Perangkat POS)
+- **Peran:** `owner_pusat`, `admin_cabang`
+- **Tujuan:** Membuktikan perangkat asing tidak bisa mengakses POS sebelum disetujui resmi.
+- **Langkah-langkah:**
+  1. Buka aplikasi di tablet baru yang belum terdaftar.
+  2. Amati kode pendaftaran 6 huruf (misal: `TG-8821`).
+  3. Buka HP Owner/Admin di menu Pengaturan > Perangkat POS.
+  4. Masukkan kode pendaftaran, beri nama "Kasir Tablet Depan", lalu tekan "Setujui Perangkat".
+- **Hasil yang HARUS muncul:**
+  - Tablet baru seketika berganti dari layar pendaftaran menjadi layar masuk kasir resmi.
+  - Perangkat tercatat di tabel `perangkat` dengan status aktif.
+- **Harus TIDAK terjadi:**
+  - Tablet baru bisa langsung masuk kasir tanpa persetujuan kode dari pemilik/admin.
+
+---
+
+### `W-SEC-02` · Pencabutan Perangkat Seketika (Simulasi Tablet Kasir Hilang)
+- **Layar:** `pengaturan` (Tab Sesi & Perangkat)
+- **Peran:** `owner_pusat`, `admin_cabang`
+- **Tujuan:** Membuktikan perangkat yang hilang atau dicuri dapat seketika dilumpuhkan dari jarak jauh.
+- **Langkah-langkah:**
+  1. Biarkan tablet kasir sedang membuka layar kasir aktif.
+  2. Dari HP Owner, buka Pengaturan > Sesi Aktif / Perangkat.
+  3. Pilih tablet kasir tersebut, lalu tekan tombol merah "Tandai Hilang & Cabut Akses".
+  4. Coba sentuh menu apa pun di tablet kasir yang dicabut.
+- **Hasil yang HARUS muncul:**
+  - Tablet kasir seketika terpental keluar ke layar masuk atau layar "Perangkat Dicabut / Tidak Dikenal".
+  - Sesi perangkat ditandai `dicabut` di basis data.
+- **Harus TIDAK terjadi:**
+  - Tablet yang telah dicabut masih bisa menyelesaikan transaksi atau melihat data omzet.
+
+---
+
+### `W-SEC-03` · Kunci Otomatis Percobaan PIN Salah 5 Kali (Anti-Bruteforce)
+- **Layar:** `masuk` (`/masuk`)
+- **Peran:** Kasir
+- **Tujuan:** Mencegah pencurian akun kasir lewat tebak-tebakan PIN berulang.
+- **Langkah-langkah:**
+  1. Di layar kasir, pilih akun kasir.
+  2. Masukkan PIN yang salah 5 kali berturut-turut.
+- **Hasil yang HARUS muncul:**
+  - Setelah salah ke-5, tombol masuk nonaktif dan muncul banner merah: *"Akun terkunci sementara selama 5 menit karena salah PIN 5 kali"*.
+  - Percobaan ke-6 langsung ditolak tanpa diproses ke peladen.
+- **Harus TIDAK terjadi:**
+  - Kasir bisa mencoba PIN ke-6, ke-7, dst. secara terus-menerus tanpa jeda kunci.
+
+---
+
+### `W-SEC-04` · Kunci Otomatis Inaktivitas (Auto-Lock Idle) & Jam Operasional
+- **Layar:** Seluruh layar operasional (`kasir`, `dapur`)
+- **Peran:** Semua staf
+- **Tujuan:** Mencegah orang asing menyentuh kasir saat kasir ditinggal pergi sebentar.
+- **Langkah-langkah:**
+  1. Biarkan tablet kasir terbuka tanpa sentuhan selama interval waktu inaktivitas (atau tekan tombol "Kunci Kasir Sekarang").
+  2. Amati reaksi layar.
+- **Hasil yang HARUS muncul:**
+  - Layar kasir otomatis terkunci dan kembali meminta input PIN pegawai yang bersangkutan.
+  - Sesi kas sebelumnya tetap tersimpan utuh di keranjang setelah PIN dimasukkan kembali.
+- **Harus TIDAK terjadi:**
+  - Keranjang belanja terhapus atau data penjualan hilang saat layar terkunci.
+
+---
+
+### `W-SEC-05` · Otentikasi Ganda (TOTP / Google Authenticator) untuk Pemilik
+- **Layar:** `masuk` (Portal Pengelola / Owner)
+- **Peran:** `owner_pusat`, `admin_cabang`, `pemilik_platform`
+- **Tujuan:** Menjamin akun berkuasa tinggi terlindungi kata sandi + kode OTP 6 digit.
+- **Langkah-langkah:**
+  1. Buka layar masuk pengelola.
+  2. Masukkan email dan kata sandi pemilik yang benar.
+  3. Aplikasi menampilkan formulir permintaan kode 6 digit Google Authenticator / TOTP.
+  4. Masukkan kode 6 digit dari aplikasi autentikator di ponsel.
+- **Hasil yang HARUS muncul:**
+  - Berhasil masuk ke dashboard pemilik.
+- **Harus TIDAK terjadi:**
+  - Pemilik bisa masuk hanya dengan kata sandi tanpa memasukkan kode TOTP.
+
+---
+
+### `W-SEC-06` · Mode Dukungan Terbatas (Support Mode) dengan Jejak Audit
+- **Layar:** Portal Pengelola
+- **Peran:** `pemilik_platform` (Lee) / Tim Dukungan
+- **Tujuan:** Vendor platform dapat membantu kendala teknis tanpa melihat data pribadi pelanggan.
+- **Langkah-langkah:**
+  1. Owner resto memberikan izin akses mode dukungan sementara (maksimal 2 jam).
+  2. Tim dukungan masuk ke cabang resto terkait untuk memeriksa konfigurasi menu.
+  3. Periksa tabel `catatan_audit`.
+- **Hasil yang HARUS muncul:**
+  - Seluruh tindakan dukungan tercatat dengan label `mode_dukungan = true` pada catatan audit.
+  - Data kontak pribadi pelanggan tetap tersamarkan (masking).
+- **Harus TIDAK terjadi:**
+  - Tim dukungan memiliki akses permanen tanpa izin owner atau jejak audit hilang.
+
