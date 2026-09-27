@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, afterEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
-import { Katalog } from './Katalog'
+import { Katalog, sanitasiUrlAman } from './Katalog'
 import { PenyediaBahasa } from '../../bahasa'
 
 const DUMMY_PENYEWA = {
@@ -172,5 +172,43 @@ describe('Halaman Katalog Publik Per Resto (Katalog.tsx — T8-02)', () => {
     const lencanaHabis = screen.getByTestId('indikator-habis')
     expect(lencanaHabis).toBeDefined()
     expect(lencanaHabis.textContent).toBe('HABIS')
+  })
+
+  it('menyaring URL berbahaya (XSS javascript:) pada tautan peta lokasi', () => {
+    // Uji fungsi sanitasi langsung
+    expect(sanitasiUrlAman('https://maps.google.com/?q=Bandung')).toBe(
+      'https://maps.google.com/?q=Bandung',
+    )
+    expect(sanitasiUrlAman('http://maps.google.com/?q=Bandung')).toBe(
+      'http://maps.google.com/?q=Bandung',
+    )
+    expect(sanitasiUrlAman('javascript:alert(1)')).toBeNull()
+    expect(sanitasiUrlAman('data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==')).toBeNull()
+    expect(sanitasiUrlAman('/internal/path')).toBeNull()
+    expect(sanitasiUrlAman('')).toBeNull()
+    expect(sanitasiUrlAman(undefined)).toBeNull()
+
+    // Uji komponen: tautan berbahaya tidak boleh dirender
+    const pengaturanJahat = {
+      ...DUMMY_PENGATURAN,
+      lokasi: {
+        ...DUMMY_PENGATURAN.lokasi,
+        maps_url: 'javascript:alert(document.cookie)',
+      },
+    }
+
+    render(
+      <PenyediaBahasa>
+        <Katalog
+          penyewa={DUMMY_PENYEWA}
+          cabang={DUMMY_CABANG}
+          pengaturan={pengaturanJahat}
+          kategori={DUMMY_KATEGORI}
+          menu={DUMMY_MENU}
+        />
+      </PenyediaBahasa>,
+    )
+
+    expect(screen.queryByText(/Lihat di Google Maps/i)).toBeNull()
   })
 })

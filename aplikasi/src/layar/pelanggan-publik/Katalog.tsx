@@ -36,6 +36,15 @@ export interface PengaturanRestoPublik {
   lokasi?: { alamat?: string; maps_url?: string; kota?: string }
 }
 
+export function sanitasiUrlAman(url?: string | null): string | null {
+  if (!url) return null
+  const bersin = url.trim()
+  if (/^https?:\/\//i.test(bersin)) {
+    return bersin
+  }
+  return null
+}
+
 export interface KatalogPublikProps {
   penyewa: InfoPenyewaPublik
   cabang: InfoCabangPublik
@@ -343,9 +352,9 @@ export function Katalog({
               <p className="small muted" style={{ margin: 0 }}>
                 {alamatResto}
               </p>
-              {pengaturan.lokasi?.maps_url && (
+              {sanitasiUrlAman(pengaturan.lokasi?.maps_url) && (
                 <a
-                  href={pengaturan.lokasi.maps_url}
+                  href={sanitasiUrlAman(pengaturan.lokasi?.maps_url)!}
                   target="_blank"
                   rel="noreferrer noopener"
                   style={{

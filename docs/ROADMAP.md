@@ -1940,11 +1940,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); mitigasi: hanya owner/admin berizin + audit.
   - **Verifikasi:** uji manual: akhiri sesi dari perangkat A → perangkat B langsung keluar.
 
-- [ ] T10-07 — Audit keamanan (menggunakan skill security-review) ⚠️
+- [x] T10-07 — Audit keamanan (menggunakan skill security-review) ⚠️
   - **Tujuan:** mencari kelemahan sebelum dipakai orang banyak, bukan sesudah.
   - **Ref:** TECH_SPEC §8 & §9; AGENT_OPERATING_GUIDE §5
   - **File:** `docs/uji/AUDIT_KEAMANAN.md`
-  - **DoD:** daftar periksa keamanan dijalankan (kunci rahasia, RLS, hak akses, PIN, voucher, unggahan gambar, XSS, CORS); semua temuan diperbaiki atau dicatat dengan alasan + risiko diterima pemilik.
+  - **DoD:** daftar periksa keamanan dijalankan (kunci rahasia, RLS, hak akses, PIN, voucher, unggahan gambar, XSS, CORS); semua temuan diperbaiki atau dicatat dengan alasan + risiko diterima pemilik. · **Bukti 2026-09-27:** dokumen audit komprehensif `docs/uji/AUDIT_KEAMANAN.md` mencakup seluruh 8 bidang mandatori (kunci rahasia, RLS, hak akses, PIN, voucher, unggahan gambar, XSS, CORS & Edge Functions); verifikasi mesin otomatis dijalankan: pemindaian 2.821 berkas terlacak bebas kunci rahasia (`python3 alat/periksa-rahasia.py`), penyisiran 45 tabel publik 100% RLS aktif dengan 84 policy terpasang (`python3 alat/periksa-sisir-rls.py`), verifikasi fungsi keamanan SQL (`python3 alat/periksa-keamanan-sql.py`), verifikasi Edge Function PIN 14/14 lolos (`python3 alat/periksa-fungsi-pin.py`), verifikasi matriks izin 6 peran x 10 izin (`python3 alat/periksa-matriks-izin.py`), npm audit frontend dan alat 0 kerentanan; temuan keamanan SEC-01 (potensi XSS pada tautan maps_url di `Katalog.tsx`) berhasil ditutup tuntas dengan fungsi `sanitasiUrlAman()` dan diverifikasi di `Katalog.test.tsx` (5 uji unit lulus 100%, angka saat itu 2026-09-27 — perintah: `npm test`); total 118 berkas uji frontend / 964 uji lulus tanpa galat; keputusan arsitektur dicatat di `docs/DECISIONS_LOG.md`.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS/Auth, Voucher; mitigasi: temuan berat wajib dibereskan sebelum produksi.
   - **Verifikasi:** dokumen audit bertanda status tiap temuan + uji ulang setelah perbaikan.

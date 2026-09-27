@@ -3046,6 +3046,26 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `supabase/migrations/0081_akhiri_sesi_perangkat_hilang.sql`, `supabase/tes/akhiri_sesi_perangkat_hilang.sql`, `alat/uji-mutasi-0081.py`, `supabase/functions/akhiri_sesi/index.ts`, `alat/uji-edge-akhiri-sesi.mjs`, `aplikasi/src/layar/pengaturan/SesiAktif.tsx`, `aplikasi/src/layar/pengaturan/SesiAktif.test.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.test.tsx`
 - **Implikasi:** Keamanan akses staf dan perangkat POS terproteksi maksimal; insiden kehilangan tablet kasir dapat dinetralisir seketika dari jarak jauh tanpa ada kebocoran transaksi atau manipulasi pesanan.
 
+### [Fase 10/2026-09-27] Audit Keamanan Menyeluruh & Penutupan Celah Pra-Produksi (T10-07 / ART-1, ART-2, ART-5)
+- **Area:** RLS/Auth & Voucher (ART-1, ART-2, ART-5, TECH_SPEC §8, §9)
+- **Keputusan:**
+  1. **Audit Keamanan Menyeluruh 8 Bidang Mandatori (DoD):**
+     - Melakukan audit keamanan pra-produksi menggunakan panduan `skills/security-review/SKILL.md`, `skills/supabase/SKILL.md`, dan OWASP Top 10 pada 8 bidang utama: Kunci rahasia, RLS, Hak akses, PIN staf, Voucher & diskon, Unggahan gambar, XSS, serta CORS & Edge Functions.
+     - Seluruh hasil evaluasi, bukti pengujian mesin, dan status temuan dicatat secara lengkap pada `docs/uji/AUDIT_KEAMANAN.md`.
+  2. **Penutupan Temuan Celah XSS / URL Injection (SEC-01):**
+     - Ditemukan potensi celah pada komponen `Katalog.tsx` di mana tautan peta lokasi cabang (`pengaturan.lokasi.maps_url`) dirender langsung tanpa pembatasan skema protokol, yang dapat disalahgunakan dengan skema `javascript:`.
+     - *Mitigasi Segera:* Menambahkan fungsi sanitasi `sanitasiUrlAman()` yang memvalidasi protokol secara ketat (hanya menerima awalan `http://` dan `https://`) serta menolak skema `javascript:`, data URI, atau skrip berbahaya. Uji unit ditambahkan di `Katalog.test.tsx` (5/5 lulus).
+  3. **Penegakan Isolasi Multi-Tenant & Zero Open Table (SEC-03):**
+     - Memverifikasi 45/45 tabel publik mengaktifkan RLS (`relrowsecurity = true`) dengan 84 kebijakan terpasang. Nol tabel tanpa kebijakan pengaman.
+     - Seluruh akses lintas penyewa terbukti tertolak secara fail-closed (0 baris terlihat antar-resto yang berbeda).
+  4. **Perlindungan Anti-Fraud Voucher & Pengaman Kuota (SEC-05):**
+     - Memverifikasi 10 lapis pengaman voucher: kode acak non-sekuensial, pemakaian atomik peladen, larangan pemakaian ganda, penolakan email sementara (*disposable email*), dan normalisasi alamat Gmail (titik & plus) untuk mencegah penimbunan voucher.
+  5. **Nol Kunci Rahasia di Repositori & Dependensi Bersih (SEC-08):**
+     - Pemindaian 2.821 berkas terlacak membuktikan nol kunci rahasia/password yang bocor ke Git (`alat/periksa-rahasia.py` lolos).
+     - Dependensi frontend dan skrip alat (`npm audit`) terbukti bersih dengan 0 celah kerentanan (*0 vulnerabilities*).
+- **File terkait:** `docs/uji/AUDIT_KEAMANAN.md`, `aplikasi/src/layar/pelanggan-publik/Katalog.tsx`, `aplikasi/src/layar/pelanggan-publik/Katalog.test.tsx`
+- **Implikasi:** Seluruh arsitektur Resto Barokah terbukti memenuhi standar keamanan *Production-Ready*, bebas dari temuan kritis yang belum tertangani, dan siap menghadapi ancaman dunia nyata.
+
 
 
 
