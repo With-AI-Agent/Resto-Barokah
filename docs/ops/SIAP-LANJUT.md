@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `db354f4b8971b15fad9f774baf11c06fb1a64528`
+- **Commit keadaan kerja:** `5d26ebb7e18b93834e0a23793a9a1a587ac492e9`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit db354f4b — periksa lagi setelah push)
+- **CI terakhir:** (belum ada run CI untuk commit 5d26ebb7 — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (86 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (88 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,37 +70,39 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**FASE 10 T10-13 RINGKASAN PERINGATAN HARIAN KE OWNER SELESAI (2026-09-27):**
-1. **Database & RPC (Migrasi `0085_ringkasan_harian.sql`):**
-   - Tabel `public.ringkasan_harian` terisolasi RLS per penyewa (`penyewa_id`) dengan kolom: `tanggal`, `omzet`, `total_transaksi`, `total_void`, `total_diskon`, `total_selisih_kas`, `percobaan_masuk_gagal`, `pergantian_perangkat`, `pemakaian_pemulihan`, `rantai_audit_putus`, `status_email`, `rincian` (JSONB bebas data pribadi pelanggan), `dibuat_pada`.
-   - Kolom baru pada `public.pengaturan`: `email_notifikasi_owner`, `kirim_email_ringkasan`, `waktu_kirim_ringkasan`.
-   - RPC atomik `public.hasilkan_ringkasan_harian(p_penyewa_id, p_tanggal)`:
-     - Menghitung agregasi transaksi omzet, total transaksi lunas, void pesanan, diskon transaksi/item, selisih kas shift, login gagal, perangkat dicabut/hilang, dan pemakaian kredensial pemulihan.
-     - Verifikasi integritas rantai audit kriptografis ART-13: mendeteksi baris audit dengan `prev_hash` terputus atau rusak.
-     - Menjamin privasi pelanggan ART-14: tidak menyertakan data pribadi (nama, HP, email pelanggan), hanya menyajikan angka metrik dan nama pegawai/perangkat.
-     - Mencatat jejak audit kekal di `public.catatan_audit`.
-   - RPC `public.ambil_ringkasan_harian(p_tanggal, p_cabang_id)`: mengembalikan data ringkasan harian untuk tampilan layar laporan bagi Owner dan staf berizin `lihat_laporan`.
-   - RPC `public.simpan_pengaturan_peringatan(p_email, p_kirim_email, p_waktu_kirim)`: menyimpan preferensi email owner.
-   - RPC `public.set_status_email_ringkasan(p_ringkasan_id, p_status, p_alasan)`: mencatat status keberhasilan kirim email dari Edge Function.
-2. **Pengujian SQL & Mutasi Fail-Closed:**
-   - Berkas uji `supabase/tes/ringkasan.sql` memvalidasi 10 skenario komprehensif: otorisasi, hitungan omzet & void & diskon & selisih kas, login gagal, pergantian perangkat, privasi ART-14, deteksi rantai audit putus ART-13, idempotensi, dan RLS tenant.
-   - 131 berkas uji SQL LULUS 100% (131 LULUS · 0 GAGAL) via `node alat/uji-sql.mjs`.
-   - Suite uji mutasi `alat/uji-mutasi-0085.py` membuktikan 4/4 mutan fail-closed WAJIB MATI 100%.
-   - Edge Function `supabase/functions/ringkasan_harian/index.ts` dan runner batas `alat/uji-edge-ringkasan-harian.mjs` (10/10 skenario batas lulus).
-3. **Komponen Antarmuka & Frontend:**
-   - Komponen layar `aplikasi/src/layar/laporan/Peringatan.tsx` dan integrasi tab di `LayarLaporan.tsx`.
-   - Kartu metrik omzet & operasional, kartu peringatan keamanan (login gagal, pergantian perangkat, pemulihan, selisih kas, void), banner status integritas audit trail, banner pengiriman email, serta form pengaturan email notifikasi owner.
-   - 9 uji unit di `Peringatan.test.tsx` dan pembaruan `LayarLaporan.test.tsx` (total 86/86 uji unit modul laporan lulus 100%).
-   - Dukungan i18n 4 bahasa (`id`, `en`, `ar`, `zh`) untuk `tab_peringatan`.
+**FASE 10 T10-14 PEMERIKSA RAHASIA, DEPENDENSI & HEADER KEAMANAN HALAMAN SELESAI (2026-09-27):**
+1. **Pemeriksa Rahasia (`alat/periksa-rahasia.py`):**
+   - Pola deteksi token/rahasia diperluas: Supabase Service Role / Anon / JWT, OpenAI API Key, Resend API Key, Brevo API Key (`xkeysib-`), Google OAuth Client Secret, GitHub Personal Access Token (`ghp_` / `gho_` / `github_pat_`), dan AWS Secret Access Key.
+   - 7 skenario uji-diri fail-closed (`--uji-diri`) lolos 100%.
+2. **Audit Dependensi (`npm audit`):**
+   - Audit `npm audit --audit-level=low` dijalankan pada repositori `aplikasi` dan `alat` menghasilkan 0 kerentanan (zero vulnerability tolerance).
+3. **Header Keamanan Web Cloudflare (`aplikasi/public/_headers`):**
+   - Diterapkan header keamanan HTTP peramban berstandar industri:
+     - `Content-Security-Policy`: `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'`
+     - `X-Frame-Options`: `DENY` (anti clickjacking)
+     - `X-Content-Type-Options`: `nosniff` (anti MIME sniffing)
+     - `Referrer-Policy`: `strict-origin-when-cross-origin`
+     - `Permissions-Policy`: `camera=(), microphone=(), geolocation=(), payment=()`
+     - `Strict-Transport-Security`: `max-age=31536000; includeSubDomains; preload`
+     - Caching statis optimal untuk aset hash Vite (`Cache-Control: public, max-age=31536000, immutable`).
+4. **Verifikasi Otomatis & Gerbang CI:**
+   - Skrip validator `alat/periksa-header.py` dibuat dengan mode `--uji-diri` (5 mutasi fail-closed tertangkap).
+   - Terdaftar di `GERBANG_WAJIB` dan pengujian mutasi `alat/periksa-gerbang-ci.py` (126 gerbang CI lolos 100%).
+   - Alur kerja `.github/workflows/cadangan.yml` diperbaiki dengan `node-version: '22.12.0'`.
+   - Unit test Vitest `aplikasi/src/lib/keamanan-header.test.ts` membuktikan integritas berkas header (5/5 tes lulus).
+   - Seluruh 123 berkas pengujian frontend Vitest (1011 tes) lulus 100%.
+   - Uji kontras, struktur DOM, arah RTL/LTR, bahasa, dan kerapatan UI tetap hijau penuh setelah penerapan CSP.
+   - Catatan keputusan dicatat resmi di `docs/DECISIONS_LOG.md` (Area: Kunci & Penerapan).
 
-4. **Rencana Selanjutnya:**
+5. **Rencana Selanjutnya:**
    - Menyelesaikan tugas Fase 10 berikutnya:
-     - **T10-14 — Pemeriksa rahasia, dependensi & header keamanan halaman ⚠️** (TECH_SPEC §6 & §8).
-       - Tujuan: mencegah kebocoran rahasia di repositori, paket npm rentan, dan header web rentan.
-     - **T10-15 — Latihan pemulihan cadangan & uji Buku Insiden** (TECH_SPEC §8 & §11).
-       - Tujuan: membuktikan SOP pemulihan bencana dan buku insiden berjalan lancar.
+     - **T10-15 — Latihan pemulihan cadangan & uji Buku Insiden ⚠️** (TECH_SPEC §8 & §11; docs/KEAMANAN.md §16).
+       - Tujuan: cadangan terbukti bisa dipulihkan, dan langkah darurat bisa diikuti orang lain tanpa bertanya.
+       - File: `.github/workflows/cadangan.yml`, `docs/teknis/BUKU_INSIDEN.md`, `alat/uji-pemulihan.sh` (rencana T10-15).
+       - DoD: simulasi restore mingguan di CI terbukti jalan & hijau; Buku Insiden memuat langkah yang diuji: token bocor, DB down, data rusak, perangkat kasir hilang; setiap skenario punya waktu target tanggap & orang yang bertanggung jawab.
+       - Mitigasi: ⚠️ wajib update `DECISIONS_LOG.md` — Area: Pemulihan Bencana; insiden panik bikin salah langkah → mitigasi: perintah di buku insiden berformat copy-paste siap pakai tanpa parameter misterius.
      - **T10-16 — Tinjauan kode pemulihan MFA & kata sandi bocor (T-016)**.
-       - Tujuan: menyelesaikan butir tinjauan kode pemulihan kredensial dan kata sandi.
+       - Tujuan: audit peninjau independen & butir tertangguh MFA.
    - Peringatan Khusus Lee (§29 `REKAM_PESAN_PEMILIK.md`): Setelah seluruh Fase 10 selesai tuntas (T10-16), agent WAJIB BERHENTI dan MENGINGATKAN Lee untuk pemeriksaan mendalam menyeluruh. Dilarang melangkah ke Fase 11 sebelum arahan Lee.
 
 0ZZ1. **FASE 10: T10-01 (Antrean kirim luring IndexedDB ⚠️ — TECH_SPEC §13 K4 & §9 ART-8; PRD §9) SELESAI.**
