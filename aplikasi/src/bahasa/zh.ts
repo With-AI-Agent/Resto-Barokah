@@ -191,6 +191,7 @@ export const zh: KamusBahasa = {
     rincian_shift: '班次详情',
     tab_penjualan: '销售',
     tab_kas: '现金与班次',
+    tab_peringatan: '每日警报',
     omzet_kategori: '各类别营业额',
     tren_harian: '每日销售趋势',
     rentang_tanggal: '日期范围',

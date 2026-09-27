@@ -3132,6 +3132,31 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `supabase/migrations/0084_cabut_akses_pegawai_berhenti.sql`, `supabase/tes/cabut_akses.sql`, `alat/uji-mutasi-0084.py`, `aplikasi/src/layar/pengaturan/CabutAkses.tsx`, `aplikasi/src/layar/pengaturan/CabutAkses.test.tsx`, `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`, `aplikasi/src/layar/pengaturan/KelolaPegawai.test.tsx`, `docs/ROADMAP.md` (T10-12)
 - **Implikasi:** Kedai aman seketika saat pegawai keluar tanpa risiko mantan staf menyalahgunakan akses; uang fisik di kasir dihitung nyata saat serah terima oleh atasan tanpa data fiktif; seluruh data audit dan pembukuan historis kedai terlindungi 100%.
 
+### [Fase 10/2026-09-27] Ringkasan Peringatan Harian ke Owner: Email & Layar Aplikasi (T10-13 / M12 / ART-13 / ART-14)
+- **Area:** Jejak Audit (ART-13) · Privasi Pelanggan (ART-14) · Ketahanan & Keamanan Lanjutan (PRD M12; TECH_SPEC §5.1 & §9; docs/KEAMANAN.md §9)
+- **Keputusan:**
+  1. **Skema Database & Agregasi Terpadu (`public.ringkasan_harian` & `public.hasilkan_ringkasan_harian`):**
+     - Tabel `public.ringkasan_harian` dirancang untuk mengonsolidasi rekapitulasi harian operasional & keamanan: omzet bersih, transaksi lunas, void/pembatalan (jumlah & nominal rugi), diskon (jumlah & total rupiah), selisih kas kasir (jumlah & total nilai selisih), percobaan masuk gagal, perubahan/pendaftaran perangkat, penggunaan jalur pemulihan darurat, keutuhan rantai audit kriptografis hash, dan rincian anomali.
+     - Unique constraint `(penyewa_id, tanggal)` menjamin keunikan 1 rekap harian per resto secara idempoten.
+     - RLS ketat (ART-1): Hanya peran berizin `lihat_laporan` yang dapat melihat ringkasan restonya sendiri (`penyewa_id = penyewa_saya()`). Isolasi multi-tenant terbukti fail-closed saat diuji dengan pengguna resto lain.
+  2. **Jaminan Privasi Pelanggan (ART-14 / UU PDP):**
+     - Seluruh data ringkasan harian dan array rincian anomali (`rincian_peringatan`) secara ketat bebas dari data pribadi pelanggan (nomor HP, telepon, email konsumen, alamat pengiriman tidak pernah dimuat).
+     - Rincian anomali hanya memuat nama pegawai internal kedai, waktu kejadian, nominal/selisih rupiah, dan alasan tindakan operasional.
+  3. **Pemeriksaan Keutuhan Rantai Audit Otomatis (ART-13):**
+     - RPC `hasilkan_ringkasan_harian` secara bawaan memverifikasi integritas rantai audit berantai hash SHA-256 via `public.verifikasi_rantai_audit(v_penyewa_id)`.
+     - Jika ditemukan baris audit yang putus atau hash yang dimodifikasi, sistem menandai `rantai_audit_valid = false` dan menampilkan pesan galat spesifik pada laporan ringkasan.
+  4. **Edge Function Notifikasi Email (`supabase/functions/ringkasan_harian/index.ts`):**
+     - Dibangun untuk mendukung penjadwalan berkala (cron harian) maupun pemanggilan manual berotorisasi.
+     - Menyusun email teks & HTML yang bersih, jelas, bebas data pelanggan, mengintegrasikan pengiriman ke layanan penyedia email (Resend/SMTP), dan memperbarui status pengiriman email (`tertunda`, `terkirim`, `gagal`) via RPC `public.set_status_email_ringkasan`.
+     - Teruji secara fail-closed pada 10 pengujian batas tanpa jaringan di `alat/uji-edge-ringkasan-harian.mjs`.
+  5. **Antarmuka Pemantauan Pemilik (`Peringatan.tsx` & `LayarLaporan.tsx`):**
+     - Komponen `Peringatan.tsx` terintegrasi sebagai tab resmi "⚠️ Peringatan Harian" di dalam `LayarLaporan.tsx`.
+     - Menyediakan: kartu status integritas audit dengan lencana visual (Valid / Terputus), 6 kartu indikator anomali cepat, konfigurasi & pengiriman notifikasi email harian, filter interaktif kategori anomali pada tabel rincian kejadian, serta pemilih tanggal yang fleksibel.
+     - Suite uji Vitest (`Peringatan.test.tsx` & `LayarLaporan.test.tsx`) memverifikasi 16 skenario pengujian unit & integrasi dengan kelulusan 100%.
+- **File terkait:** `supabase/migrations/0085_ringkasan_harian.sql`, `supabase/tes/ringkasan.sql`, `alat/uji-mutasi-0085.py`, `supabase/functions/ringkasan_harian/index.ts`, `alat/uji-edge-ringkasan-harian.mjs`, `aplikasi/src/layar/laporan/Peringatan.tsx`, `aplikasi/src/layar/laporan/Peringatan.test.tsx`, `aplikasi/src/layar/laporan/LayarLaporan.tsx`, `aplikasi/src/layar/laporan/LayarLaporan.test.tsx`, `docs/ROADMAP.md` (T10-13)
+- **Implikasi:** Pemilik resto dapat memantau setiap kejanggalan kasir, diskon, void, maupun potensi pembobolan tanpa harus berada di lokasi kedai; privasi pelanggan terlindungi 100% sesuai regulasi UU PDP; integritas sistem audit restoran terpantau setiap hari.
+
+
 
 
 

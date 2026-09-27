@@ -196,6 +196,7 @@ export const ar: KamusBahasa = {
     rincian_shift: 'تفاصيل الوردية',
     tab_penjualan: 'المبيعات',
     tab_kas: 'النقد والورديات',
+    tab_peringatan: 'التنبيهات اليومية',
     omzet_kategori: 'الإيرادات حسب الفئة',
     tren_harian: 'اتجاه المبيعات اليومية',
     rentang_tanggal: 'نطاق التاريخ',

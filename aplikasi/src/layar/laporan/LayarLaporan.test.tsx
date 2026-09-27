@@ -231,4 +231,40 @@ describe('LayarLaporan', () => {
     expect(screen.getByText('Rp160.000')).toBeDefined()
     expect(screen.getByText('66.7%')).toBeDefined()
   })
+
+  it('dapat berpindah ke tab Peringatan Harian dan menampilkan dasbor peringatan', () => {
+    render(
+      <LayarLaporan
+        dataPenjualan={DATA_PENJUALAN_MOCK}
+        dataPeringatan={{
+          id: 'ringkas-mock-01',
+          tanggal: '2026-09-25',
+          omzet: 172500,
+          transaksi_count: 2,
+          void_count: 1,
+          void_nominal: 35000,
+          diskon_count: 2,
+          diskon_nominal: 15000,
+          selisih_kas_count: 1,
+          selisih_kas_nominal: 20000,
+          percobaan_gagal_count: 2,
+          perubahan_perangkat_count: 1,
+          pemulihan_count: 0,
+          rantai_audit_valid: true,
+          rantai_audit_pesan: 'Audit valid.',
+          status_email: 'tertunda',
+          rincian_peringatan: [],
+        }}
+      />,
+    )
+
+    const tombolTabPeringatan = screen.getByRole('button', { name: /peringatan harian/i })
+    fireEvent.click(tombolTabPeringatan)
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: /ringkasan peringatan harian pemilik/i }),
+    ).toBeDefined()
+    expect(screen.getByText('Rp172.500')).toBeDefined()
+    expect(screen.getByText('VALID & UTUH')).toBeDefined()
+  })
 })

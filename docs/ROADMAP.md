@@ -1998,14 +1998,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ---
 
-- [ ] T10-13 — Ringkasan peringatan harian ke owner (email) ⚠️
+- [x] T10-13 — Ringkasan peringatan harian ke owner (email) ⚠️
   - **Tujuan:** hal aneh (void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat) terlihat tanpa owner membuka aplikasi.
   - **Ref:** TECH_SPEC §5.1 & §9 ART-13; docs/KEAMANAN.md §9
-  - **File:** `supabase/functions/ringkasan_harian/index.ts`, `supabase/migrations/0066_ringkasan_harian.sql`, `aplikasi/src/layar/laporan/Peringatan.tsx`, `supabase/tes/ringkasan.sql`
+  - **File:** `supabase/functions/ringkasan_harian/index.ts`, `supabase/migrations/0085_ringkasan_harian.sql`, `aplikasi/src/layar/laporan/Peringatan.tsx`, `supabase/tes/ringkasan.sql`
   - **DoD:** laporan ringkas 1×/hari (pg_cron) dikirim **via email owner DAN dapat dilihat di layar Peringatan dalam aplikasi** (keputusan pemilik 2026-09-17), memuat omzet, transaksi, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat, pemakaian jalur pemulihan; **tanpa** data pribadi pelanggan; rantai audit diperiksa dan dilaporkan bila putus; uji SQL lulus.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Jejak Audit (ART-13) & Data Pelanggan (ART-14); email bocor/tersalah kirim → mitigasi: hanya angka + nama pegawai, tanpa kontak pelanggan; penerima dapat diatur owner.
-  - **Verifikasi:** uji SQL + kirim percobaan ke email pemilik pada tahap uji terima.
+  - **Verifikasi:** uji SQL `supabase/tes/ringkasan.sql` lulus 100% (131 berkas lolos); uji mutasi fail-closed `alat/uji-mutasi-0085.py` 4/4 mutan terbunuh; uji batas Edge Function di `alat/uji-edge-ringkasan-harian.mjs` (10 skenario lolos); uji Vitest `Peringatan.test.tsx` dan `LayarLaporan.test.tsx` lulus 100%; keputusan dicatat di `docs/DECISIONS_LOG.md`.
 
 - [ ] T10-14 — Pemeriksa rahasia, dependensi & header keamanan halaman ⚠️
   - **Tujuan:** kunci rahasia tidak bocor dan aplikasi tidak dibuka dengan pengaturan peramban yang longgar.

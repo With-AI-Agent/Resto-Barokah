@@ -13,17 +13,20 @@ import { LaporanMenu, type DataLaporanMenu } from './LaporanMenu'
 import { LaporanKas, type DataLaporanHarian, type DataLaporanShiftDetail } from './LaporanKas'
 import { LaporanVoucher, type DataLaporanVoucher } from './LaporanVoucher'
 import { DaftarPembatalan, type BarisPembatalan } from './DaftarPembatalan'
+import { Peringatan, type DataRingkasanPeringatan } from './Peringatan'
 import { FormatLaporan } from './FormatLaporan'
 import { Tombol } from '../../komponen/Tombol'
 import { useBahasa } from '../../bahasa'
 
-export type TabLaporan = 'penjualan' | 'menu' | 'kas' | 'voucher' | 'pembatalan' | 'cetak'
+export type TabLaporan =
+  'penjualan' | 'menu' | 'kas' | 'voucher' | 'pembatalan' | 'peringatan' | 'cetak'
 
 export interface LayarLaporanProps {
   dataPenjualan?: DataLaporanPenjualan | null
   dataMenu?: DataLaporanMenu | null
   dataHarian?: DataLaporanHarian | null
   dataVoucher?: DataLaporanVoucher | null
+  dataPeringatan?: DataRingkasanPeringatan | null
   shiftTerpilihDetail?: DataLaporanShiftDetail | null
   daftarCabang?: Array<{ id: string; nama: string }>
   cabangAktifId?: string | null
@@ -42,6 +45,10 @@ export interface LayarLaporanProps {
   onGantiUrutanMenu?: (urutan: 'nilai' | 'jumlah') => void
   onPilihShift?: (shiftId: string) => void
   onTutupRincianShift?: () => void
+  onPilihTanggalPeringatan?: (tgl: string) => void
+  onHasilkanRingkasanPeringatan?: (tgl: string) => Promise<void> | void
+  onKirimEmailPeringatan?: (ringkasanId: string) => Promise<void> | void
+  onSimpanPengaturanPeringatan?: (aktif: boolean, email: string) => Promise<void> | void
   onMuatUlang?: () => void
 }
 
@@ -50,6 +57,7 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
   dataMenu,
   dataHarian,
   dataVoucher,
+  dataPeringatan,
   shiftTerpilihDetail,
   daftarCabang = [],
   cabangAktifId = null,
@@ -68,6 +76,10 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
   onGantiUrutanMenu,
   onPilihShift,
   onTutupRincianShift,
+  onPilihTanggalPeringatan,
+  onHasilkanRingkasanPeringatan,
+  onKirimEmailPeringatan,
+  onSimpanPengaturanPeringatan,
   onMuatUlang,
 }) => {
   const { t } = useBahasa()
@@ -129,6 +141,12 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
           onClick={() => setTabAktif('pembatalan')}
         >
           ❌ {t('laporan.total_pembatalan')} ({barisBatal.length})
+        </Tombol>
+        <Tombol
+          ragam={tabAktif === 'peringatan' ? 'utama' : 'polos'}
+          onClick={() => setTabAktif('peringatan')}
+        >
+          ⚠️ {t('laporan.tab_peringatan')}
         </Tombol>
         <Tombol
           ragam={tabAktif === 'cetak' ? 'utama' : 'polos'}
@@ -216,6 +234,19 @@ export const LayarLaporan: React.FC<LayarLaporanProps> = ({
                 ? `Cabang: ${dataPenjualan.cabang.nama}`
                 : undefined
           }
+        />
+      )}
+
+      {tabAktif === 'peringatan' && (
+        <Peringatan
+          data={dataPeringatan}
+          sedangMemuat={sedangMemuat}
+          pesanGagal={pesanGagal}
+          onPilihTanggal={onPilihTanggalPeringatan}
+          onHasilkanRingkasan={onHasilkanRingkasanPeringatan}
+          onKirimEmailManual={onKirimEmailPeringatan}
+          onSimpanPengaturanNotifikasi={onSimpanPengaturanPeringatan}
+          onMuatUlang={onMuatUlang}
         />
       )}
 

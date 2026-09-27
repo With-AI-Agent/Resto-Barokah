@@ -195,6 +195,7 @@ export const id = {
     rincian_shift: 'Rincian Shift',
     tab_penjualan: 'Penjualan',
     tab_kas: 'Kas & Shift',
+    tab_peringatan: 'Peringatan Harian',
     omzet_kategori: 'Omzet per Kategori',
     tren_harian: 'Tren Penjualan Harian',
     rentang_tanggal: 'Rentang Tanggal',

@@ -197,6 +197,7 @@ export const en: KamusBahasa = {
     rincian_shift: 'Shift Details',
     tab_penjualan: 'Sales',
     tab_kas: 'Cash & Shift',
+    tab_peringatan: 'Daily Alerts',
     omzet_kategori: 'Revenue by Category',
     tren_harian: 'Daily Sales Trend',
     rentang_tanggal: 'Date Range',
