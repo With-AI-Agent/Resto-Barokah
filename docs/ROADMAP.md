@@ -1986,11 +1986,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan & pengaturan (ART-3, menyentuh pajak/service); mitigasi: penolakan di peladen, bukan hanya peringatan di layar.
   - **Verifikasi:** uji SQL dua penyimpanan paralel → satu berhasil, satu ditolak dengan kode jelas.
 
-- [ ] T10-12 — Pegawai berhenti: cabut akses cepat & serah terima
+- [x] T10-12 — Pegawai berhenti: cabut akses cepat & serah terima
   - **Tujuan:** pegawai yang keluar tidak bisa lagi membuka data kedai, tanpa merusak riwayat transaksinya.
   - **Ref:** PRD M3 & M12; TECH_SPEC §9 ART-2
   - **File:** `aplikasi/src/layar/pengaturan/CabutAkses.tsx`, `supabase/tes/cabut_akses.sql`
-  - **DoD:** satu tombol "pegawai berhenti" → akun nonaktif + semua sesi perangkat diakhiri (T10-06) + PIN dimatikan + shift terbuka miliknya ditandai untuk ditutup atasan; nama & riwayat transaksinya TETAP ada di laporan lama.
+  - **DoD:** satu tombol "pegawai berhenti" → akun nonaktif + semua sesi perangkat diakhiri (T10-06) + PIN dimatikan + shift terbuka miliknya ditandai untuk ditutup atasan; nama & riwayat transaksinya TETAP ada di laporan lama. · **Bukti 2026-09-27:** migrasi `supabase/migrations/0084_cabut_akses_pegawai_berhenti.sql` menambahkan RPC atomik `public.pegawai_berhenti` yang secara fail-closed menonaktifkan akun (`aktif = false` di `pengguna` dan `pengguna_cabang`), mencabut seluruh sesi perangkat aktif (`sesi_perangkat` & `sesi_cabang`), menghapus PIN (`kredensial_pin`), menandai shift kasir terbuka untuk ditutup atasan (`perlu_tutup_atasan = true` dengan catatan serah terima), serta mencatat jejak audit kekal di `public.catatan_audit`; RPC `public.ambil_shift_perlu_tutup` dan penyelarasan `public.tutup_shift` memungkinkan Admin Cabang / Owner Pusat menutup shift serah terima (T-013); nama dan riwayat transaksi masa lalu pegawai tetap utuh di laporan penjualan & shift; komponen layar `CabutAkses.tsx` dan `KelolaPegawai.tsx` menyediakan antarmuka modal serah terima dengan konfirmasi ketik 'CABUT'; seluruh pengujian SQL `supabase/tes/cabut_akses.sql` dan suite mutasi fail-closed `alat/uji-mutasi-0084.py` (4/4 mutan mati) lulus 100% (perintah: `node alat/uji-sql.mjs supabase/tes/cabut_akses.sql` dan `python3 alat/uji-mutasi-0084.py`, angka saat itu).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); menghapus akun akan merusak laporan → mitigasi: nonaktif, bukan hapus (Aturan Bisnis 11).
   - **Catatan:** T-013 sudah ditutup 2026-09-16 → penutup shift = **Admin Cabang**; bila yang berhenti Admin Cabang → **Owner Pusat**.

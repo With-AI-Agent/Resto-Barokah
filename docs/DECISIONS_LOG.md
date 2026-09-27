@@ -3102,6 +3102,36 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `supabase/migrations/0083_versi_pengaturan_bersamaan.sql`, `supabase/tes/pengaturan_bersamaan.sql`, `alat/uji-mutasi-0083.py`, `aplikasi/src/layar/pengaturan/Menu.tsx`, `aplikasi/src/layar/pengaturan/Menu.test.tsx`, `aplikasi/src/layar/pengaturan/Identitas.tsx`, `aplikasi/src/layar/pengaturan/Operasional.tsx`, `docs/ROADMAP.md` (T10-11)
 - **Implikasi:** Operasional kedai aman dari timpaan konfigurasi keuangan atau menu tanpa sengaja; pengelola kedai tidak akan kehilangan ketikan form saat rekan kerja menyunting data yang sama; jejak konflik tercatat transparan di audit log restoran.
 
+### [Fase 10/2026-09-27] Pegawai Berhenti: Cabut Akses Cepat & Serah Terima Kasir (T10-12 / ART-2)
+- **Area:** Role & Permission (ART-2) · Integritas Jejak Audit & Finansial (Aturan Bisnis 11 / PRD M3 & M12 / TECH_SPEC §9 ART-2 / T-013)
+- **Keputusan:**
+  1. **Satu Tombol / RPC Pencabutan Akses Atomik (`public.pegawai_berhenti`):**
+     - Ketika pegawai mengundurkan diri (resign) atau diberhentikan, pengelola resto (Owner Pusat atau Admin Cabang berizin `kelola_pegawai`) mengeksekusi satu fungsi resmi `public.pegawai_berhenti(p_pengguna_id, p_alasan, p_catatan_serah_terima)`.
+     - Fungsi ini secara atomik menjalankan:
+       a) **Soft-disable akun:** Menyetel `aktif = false` pada `public.pengguna` dan `public.pengguna_cabang`. Akun tidak pernah dihapus secara fisik (hard-delete) demi kepatuhan Aturan Bisnis 11 dan ART-2.
+       b) **Pencabutan seluruh sesi aktif:** Mengubah status seluruh sesi perangkat aktif menjadi `'dicabut'` (`sesi_perangkat`) dan menghapus sesi cabang aktif (`sesi_cabang`). Fungsi `public.sesi_masih_aktif()` seketika menolak permintaan berikutnya dan identitas (`penyewa_saya`, `peran_saya`, `cabang_saya`) otomatis gugur menjadi NULL (RLS deny-by-default).
+       c) **Pemusnahan Kredensial PIN:** Menghapus rekaman baris pegawai di `public.kredensial_pin` sehingga PIN masuk 6 angka tidak lagi tersimpan di database. Upaya verifikasi PIN perangkat (`verifikasi_pin_perangkat`) langsung tertolak dengan kode `KREDENSIAL_TIDAK_VALID`.
+       d) **Penanganan Shift Kasir Menggantung:** Memeriksa apakah pegawai memiliki shift kasir yang masih berstatus `'terbuka'`. Jika ada, sistem TIDAK menutupnya secara fiktif melainkan menandainya dengan `perlu_tutup_atasan = true` dan merekam catatan serah terima. Kas fisik di laci wajib dihitung riil saat serah terima oleh atasan (Admin Cabang atau Owner Pusat).
+       e) **Perekaman Jejak Audit Kekal:** Mencatat baris audit ke `public.catatan_audit` dengan aksi `'pegawai_berhenti'`, mencakup nama, email, peran lama, alasan pemberhentian, jumlah sesi yang diputus, status penghapusan PIN, dan ID shift terbuka bila ada.
+  2. **Pagar Hierarki & Keberlanjutan Restoran:**
+     - Admin cabang dilarang memberhentikan Owner Pusat (hanya sesama Owner Pusat yang berwenang).
+     - Restoran dilarang menonaktifkan satu-satunya Owner Pusat aktif (restoran wajib memiliki minimal 1 Owner Pusat aktif).
+     - Staf dilarang mencabut akses akunnya sendiri melalui alur pegawai berhenti (pencegahan kecelakaan operasional).
+     - Staf biasa (kasir, pelayan, dapur) ditolak fail-closed bila mencoba memanggil RPC ini.
+  3. **Penutupan Shift Serah Terima oleh Atasan (T-013):**
+     - Sesuai arahan keputusan T-013: Penutup shift kasir yang berhenti adalah Admin Cabang; bila yang berhenti Admin Cabang maka penutupnya adalah Owner Pusat.
+     - Disediakan RPC `public.ambil_shift_perlu_tutup(p_cabang_id)` untuk memantau shift kasir menggantung.
+     - Fungsi `public.tutup_shift` diperbarui untuk mengenali `ditutup_oleh_atasan = true` (ketika `auth.uid() <> dibuka_oleh`), membersihkan penanda `perlu_tutup_atasan`, dan merekam jejak serah terima ke `catatan_audit`.
+  4. **Jaminan Integritas Finansial & Laporan Masa Lalu (Mitigasi ART-2):**
+     - Karena akun pegawai hanya dinonaktifkan (bukan dihapus), seluruh relasi foreign key pada `pesanan.kasir_id`, `pembayaran.kasir_id`, `shift_kas.dibuka_oleh`, dan `catatan_audit.pelaku_id` tetap utuh.
+     - Laporan penjualan, laporan kas harian (`laporan_kas_shift`, `laporan_shift`, `laporan_harian`), dan struk pembayaran masa lalu tetap menampilkan nama pegawai yang bersangkutan secara transparan.
+     - Pemicu keamanan `picu_pengguna_cegah_hapus` (dari migrasi 0077) tetap aktif memblokir upaya penghapusan fisik baris pegawai yang ber-riwayat transaksi secara fail-closed.
+  5. **Antarmuka Serah Terima Pengguna (UI):**
+     - Komponen `CabutAkses.tsx` menyediakan modal konfirmasi interaktif dengan ringkasan profil pegawai, rincian 5 langkah proteksi otomatis, isian alasan & catatan serah terima (kunci laci kas/alat/modal), serta konfirmasi ketik wajib kata `"CABUT"` untuk mencegah salah klik.
+     - Diintegrasikan ke dalam layar `KelolaPegawai.tsx` dengan tombol merah `"Pegawai Berhenti"` pada setiap baris staf aktif.
+- **File terkait:** `supabase/migrations/0084_cabut_akses_pegawai_berhenti.sql`, `supabase/tes/cabut_akses.sql`, `alat/uji-mutasi-0084.py`, `aplikasi/src/layar/pengaturan/CabutAkses.tsx`, `aplikasi/src/layar/pengaturan/CabutAkses.test.tsx`, `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`, `aplikasi/src/layar/pengaturan/KelolaPegawai.test.tsx`, `docs/ROADMAP.md` (T10-12)
+- **Implikasi:** Kedai aman seketika saat pegawai keluar tanpa risiko mantan staf menyalahgunakan akses; uang fisik di kasir dihitung nyata saat serah terima oleh atasan tanpa data fiktif; seluruh data audit dan pembukuan historis kedai terlindungi 100%.
+
 
 
 

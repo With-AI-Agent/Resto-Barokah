@@ -91,7 +91,42 @@ describe('KelolaPegawai (T9-08 / PRD M3 & M6 / ART-2)', () => {
     })
   })
 
-  it('mengubah status aktif/nonaktif pegawai saat tombol diklik (soft-disable ART-2)', async () => {
+  it('membuka modal Pegawai Berhenti dan memproses pencabutan akses serah terima (T10-12)', async () => {
+    const onPegawaiBerhentiMock = vi.fn().mockResolvedValue({ sukses: true })
+
+    render(
+      <KelolaPegawai
+        daftarPegawai={daftarContoh}
+        cabangAktifId="cab-01"
+        onTambahPegawai={vi.fn()}
+        onPegawaiBerhenti={onPegawaiBerhentiMock}
+        onAturUlangPin={vi.fn()}
+      />,
+    )
+
+    // Klik tombol Pegawai Berhenti untuk Budi Santoso (kasir aktif)
+    const tombolBerhenti = screen.getByRole('button', { name: /Pegawai Berhenti/i })
+    fireEvent.click(tombolBerhenti)
+
+    expect(screen.getByText(/Cabut Akses: Budi Santoso/i)).toBeDefined()
+
+    // Ketik CABUT dan submit
+    const inputKonfirmasi = screen.getByLabelText(/Ketik kata 'CABUT' untuk konfirmasi/i)
+    fireEvent.change(inputKonfirmasi, { target: { value: 'CABUT' } })
+
+    const tombolSubmit = screen.getByRole('button', { name: /Cabut Akses Sekarang/i })
+    fireEvent.click(tombolSubmit)
+
+    await waitFor(() => {
+      expect(onPegawaiBerhentiMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pegawaiId: 'usr-01',
+        }),
+      )
+    })
+  })
+
+  it('mengaktifkan kembali pegawai nonaktif saat tombol Aktifkan diklik', async () => {
     const onUbahStatusMock = vi.fn().mockResolvedValue({ sukses: true })
 
     render(
@@ -104,12 +139,12 @@ describe('KelolaPegawai (T9-08 / PRD M3 & M6 / ART-2)', () => {
       />,
     )
 
-    // Klik tombol Nonaktifkan untuk Budi Santoso
-    const tombolNonaktif = screen.getByRole('button', { name: /Nonaktifkan/i })
-    fireEvent.click(tombolNonaktif)
+    // Klik tombol Aktifkan untuk Rudi Tabuti (dapur nonaktif)
+    const tombolAktifkan = screen.getByRole('button', { name: /Aktifkan/i })
+    fireEvent.click(tombolAktifkan)
 
     await waitFor(() => {
-      expect(onUbahStatusMock).toHaveBeenCalledWith('usr-01', false)
+      expect(onUbahStatusMock).toHaveBeenCalledWith('usr-02', true)
     })
   })
 

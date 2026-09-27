@@ -15,6 +15,7 @@ import { Tombol } from '../../komponen/Tombol'
 import { KolomIsian } from '../../komponen/KolomIsian'
 import { Lencana } from '../../komponen/Lencana'
 import { Lapis } from '../../komponen/Lapis'
+import { CabutAkses } from './CabutAkses'
 import { rupiah } from '../../lib/format'
 import type { PeranPengguna } from '../../lib/auth'
 
@@ -62,6 +63,11 @@ export interface KelolaPegawaiProps {
     pegawaiId: string,
     aktif: boolean,
   ) => Promise<{ sukses: boolean; pesan?: string }>
+  onPegawaiBerhenti?: (data: {
+    pegawaiId: string
+    alasan: string
+    catatanSerahTerima: string
+  }) => Promise<{ sukses: boolean; pesan?: string }>
   onAturUlangPin?: (
     pegawaiId: string,
     pinBaru: string,
@@ -199,6 +205,7 @@ export function KelolaPegawai({
   onTambahPegawai = async () => ({ sukses: true }),
   onUbahPegawai = async () => ({ sukses: true }),
   onUbahStatusPegawai = async () => ({ sukses: true }),
+  onPegawaiBerhenti = async () => ({ sukses: true }),
   onAturUlangPin = async () => ({ sukses: true }),
   onSimpanIzin = async () => ({ sukses: true }),
 }: KelolaPegawaiProps) {
@@ -229,6 +236,10 @@ export function KelolaPegawai({
   const [matriksIzin, setMatriksIzin] = useState<IzinItem[]>(DAFTAR_IZIN_RESMI)
   const [sedangSimpanIzin, setSedangSimpanIzin] = useState(false)
   const [pesanIzin, setPesanIzin] = useState<string | null>(null)
+
+  // Modal Cabut Akses Pegawai Berhenti (T10-12)
+  const [modalCabutBuka, setModalCabutBuka] = useState(false)
+  const [pegawaiTargetCabut, setPegawaiTargetCabut] = useState<PegawaiResto | null>(null)
 
   // Buka Modal Tambah Baru
   const bukaModalTambah = () => {
@@ -386,6 +397,26 @@ export function KelolaPegawai({
     } catch {
       alert('Kendala jaringan saat mengubah status keaktifan.')
     }
+  }
+
+  // Buka Modal Cabut Akses Pegawai Berhenti (T10-12)
+  const bukaModalCabutAkses = (pegawai: PegawaiResto) => {
+    setPegawaiTargetCabut(pegawai)
+    setModalCabutBuka(true)
+  }
+
+  const tanganiKonfirmasiCabutAkses = async (data: {
+    pegawaiId: string
+    alasan: string
+    catatanSerahTerima: string
+  }) => {
+    const hasil = await onPegawaiBerhenti(data)
+    if (hasil.sukses) {
+      setPegawaiList((prev) =>
+        prev.map((p) => (p.id === data.pegawaiId ? { ...p, aktif: false } : p)),
+      )
+    }
+    return hasil
   }
 
   // Simpan Reset PIN
@@ -577,12 +608,15 @@ export function KelolaPegawai({
                             Reset PIN
                           </Tombol>
 
-                          <Tombol
-                            ragam={pegawai.aktif ? 'bahaya' : 'utama'}
-                            onClick={() => tanganiToggleStatus(pegawai)}
-                          >
-                            {pegawai.aktif ? 'Nonaktifkan' : 'Aktifkan'}
-                          </Tombol>
+                          {pegawai.aktif ? (
+                            <Tombol ragam="bahaya" onClick={() => bukaModalCabutAkses(pegawai)}>
+                              Pegawai Berhenti
+                            </Tombol>
+                          ) : (
+                            <Tombol ragam="utama" onClick={() => tanganiToggleStatus(pegawai)}>
+                              Aktifkan
+                            </Tombol>
+                          )}
                         </>
                       )}
                     </td>
@@ -811,6 +845,14 @@ export function KelolaPegawai({
           </div>
         </Lapis>
       )}
+
+      {/* Modal Cabut Akses Pegawai Berhenti & Serah Terima (T10-12) */}
+      <CabutAkses
+        buka={modalCabutBuka}
+        pegawai={pegawaiTargetCabut}
+        onTutup={() => setModalCabutBuka(false)}
+        onKonfirmasi={tanganiKonfirmasiCabutAkses}
+      />
     </div>
   )
 }
