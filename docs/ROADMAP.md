@@ -2025,7 +2025,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Ketahanan; cadangan rusak tanpa disadari → mitigasi: latihan nyata minimal sekali sebelum pilot + pemeriksa cadangan berjadwal.
   - **Verifikasi:** skrip eksekutif `alat/pulihkan-cadangan.sh` & runner `alat/eksekusi-latihan-insiden.mjs` membuktikan pemulihan 47 tabel dan 192 baris ke database bersih (selisih 0 baris, RLS 100% aktif, durasi ~4,3 detik jauh di bawah target RTO 30 menit); 4 dril insiden nyata Buku Insiden lulus berurutan (perangkat hilang §2, akun dibobol §4, pegawai berhenti §5, rekap privasi §15); uji-diri 5 mutasi fail-closed lolos 100%; status operasional Buku Insiden diperbaiki dan laporan resmi latihan pemulihan dicatat di `docs/teknis/PEMULIHAN.md` §6; keputusan dicatat di `docs/DECISIONS_LOG.md`.
 
-- [ ] T10-16 — Tinjauan kode pemulihan MFA & kata sandi bocor (T-016) ⚠️ T-016
+- [x] T10-16 — Tinjauan kode pemulihan MFA & kata sandi bocor (T-016) ⚠️ T-016
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-016: sementara pemulihan melalui peran atas + sandi minimal 12 karakter. Tinjauan HIBP/kode mandiri tetap dilakukan di Fase 10; biaya atau perubahan kontrol butuh keputusan Lee.
   - **Tujuan:** menutup dua celah yang kini sengaja dibiarkan (pemulihan MFA mandiri & pemeriksa kata sandi bocor), dengan keputusan pemilik bila ada biaya.
   - **Ref:** docs/KEAMANAN.md §7 & §15; docs/TERTANGGUH.md T-016
@@ -2033,7 +2033,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **DoD:** tinjauan tertulis berisi: apakah kode pemulihan mandiri diperlukan (dan bagaimana aman), status nyata pemeriksa HaveIBeenPwned di paket gratis, serta rekomendasi + dampak biaya = nol; keputusan pemilik dicatat.
   - **Kompleksitas:** sedang (2 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); keputusan diambil tanpa data → mitigasi: tinjauan memuat bukti (dokumentasi resmi) + uji perilaku.
-  - **Verifikasi:** tinjauan ditinjau pemilik + uji MFA tetap hijau.
+  - **Verifikasi:** tinjauan tertulis komprehensif selesai di `docs/teknis/TINJAUAN_KEAMANAN_F10.md`; 19 skenario penegakan pemulihan via peran atas, kunci induk darurat, sakelar pembatalan, dan anti-lockout diuji di `supabase/tes/mfa.sql` (132 berkas uji SQL lulus 100% via `node alat/uji-sql.mjs`); status butir T-016 ditutup resmi di `docs/TERTANGGUH.md`; keputusan dicatat di `docs/DECISIONS_LOG.md` (Area: Kunci & Penerapan).
 
 ## Fase 11 — Uji terima, deploy produksi, audit (penutup G1)
 

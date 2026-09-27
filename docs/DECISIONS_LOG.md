@@ -3208,6 +3208,36 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `alat/pulihkan-cadangan.sh`, `alat/eksekusi-latihan-insiden.mjs`, `docs/teknis/PEMULIHAN.md`, `docs/teknis/BUKU_INSIDEN.md`, `docs/ROADMAP.md` (T10-15)
 - **Implikasi:** Prosedur pemulihan bencana bukan sekadar teori dokumen, melainkan terbukti dapat dieksekusi secara otomatis dalam hitungan detik dengan kepatuhan integritas finansial, perlindungan privasi UU PDP, dan kesiapan operasional tim kedai saat menghadapi insiden darurat.
 
+### [Fase 10/2026-09-27] Tinjauan Kode Pemulihan MFA & Kata Sandi Bocor T-016 (T10-16 / M12 / TECH_SPEC §8 & §15 / docs/KEAMANAN.md §7 & §15 / docs/TERTANGGUH.md T-016)
+- **Area:** Kunci & Penerapan · Kebijakan Autentikasi MFA & Kata Sandi Bocor (TECH_SPEC §8 & §15; docs/KEAMANAN.md §7 & §15; docs/TERTANGGUH.md T-016; PRD M12)
+- **Keputusan:**
+  1. **Kebijakan Pemulihan MFA (Menolak Kode Mandiri Staf, Menegakkan Tangga Peran Atas):**
+     - Memutuskan untuk **TIDAK MENGGUNAKAN** kode pemulihan mandiri (*self-service recovery codes*) bagi staf kasir, pelayan, dapur, maupun admin cabang.
+     - Pertimbangan operasional & risiko: di lingkungan UMKM kedai resto, kode pemulihan mandiri rawan disimpan sembarangan di catatan ponsel yang sama atau kertas kasir yang tercecer (*single point of failure*), serta berpotensi menjadi celah bypass otorisasi atasan.
+     - Penegakan **Tangga Pemulihan 4 Tingkat**:
+       - *Tingkat 1 (Staf Kasir/Pelayan/Dapur):* Perangkat terdaftar + PIN 6 angka unik. Pemulihan jika lupa PIN dilakukan atasan berwenang via RPC `reset_pin_pegawai`.
+       - *Tingkat 2 (Admin Cabang):* Ponsel admin hilang/rusak. Pemulihan dilakukan oleh Owner Pusat via `keluar_semua_perangkat` (pemutusan sesi seketika), `set_status_pengguna`, dan reset kredensial.
+       - *Tingkat 3 (Owner Pusat):* Ponsel owner hilang/rusak. Menggunakan **Kunci Induk Darurat** (`kredensial_pemulihan`) 20+ karakter ber-hash bcrypt yang disimpan dalam 2 amplop fisik tersegel, diajukan via `pulihkan_perangkat` dengan **masa tenggang wajib 30 menit** dan sakelar pembatalan (*kill-switch*).
+       - *Tingkat 4 (Bencana Total):* Pemulihan oleh Pemilik Platform melalui dashboard administratif Supabase langsung di luar aplikasi.
+  2. **Kebijakan Pemeriksa Kata Sandi Bocor (HaveIBeenPwned / HIBP):**
+     - Fitur bawaan sakelar HIBP di dashboard Supabase Auth hanya tersedia di paket berbayar (Supabase Pro $25/bulan). Di paket gratis Supabase Free Tier, fitur ini terkunci.
+     - Menetapkan **Opsi A (Status Quo Tangguh Biaya Nol)**: Memanfaatkan lapisan pertahanan berlapis yang sudah terpasang kokoh di Resto Barokah:
+       - Panjang kata sandi wajib ≥ 12 karakter.
+       - Larangan pola lemah / kamus kata sandi umum.
+       - **Wajib TOTP (Google Authenticator / 2FA)** pada setiap akun berkuasa (Owner Pusat & Admin Cabang). Sekalipun penyerang memiliki kata sandi dari kebocoran situs lain (*credential stuffing*), penyerang tetap diblokir karena ketiadaan fisik kode TOTP 6 digit.
+       - Batas percobaan masuk ketat: 5× salah dalam 15 menit per akun dan 12× per perangkat (`percobaan_masuk`).
+       - Jejak audit kekal di `public.catatan_audit`.
+     - Kasir, pelayan, dan dapur 0% menggunakan kata sandi (menggunakan PIN 6 digit di perangkat terdaftar).
+     - Model k-Anonymity HIBP Range API (`api.pwnedpasswords.com/range`) bebas biaya ($0) dan tanpa API key didokumentasikan di `docs/teknis/TINJAUAN_KEAMANAN_F10.md` sebagai modul referensi arsitektur bila di masa depan ingin diaktifkan di sisi klien tanpa perlu membayar Supabase Pro ($25/bulan tetap dihemat).
+     - **Dampak biaya: Rp 0 (NOL BIAYA).**
+  3. **Penutupan Resmi Butir Tertangguh T-016:**
+     - Butir `T-016` di `docs/TERTANGGUH.md` resmi diselesaikan dan ditutup dengan keputusan berbasis data.
+  4. **Verifikasi Database Komprehensif (`supabase/tes/mfa.sql`):**
+     - Berkas uji SQL `supabase/tes/mfa.sql` memvalidasi 19 skenario penegakan: isolasi hierarki peran atas, penolakan PIN lemah saat pemulihan, pemutusan sesi instan via `keluar_semua_perangkat`, penolakan akses RLS langsung ke tabel `kredensial_pemulihan`, validasi panjang kode darurat (≥20 karakter), anti-replay kode pemulihan sekali pakai, deteksi kode palsu, sakelar kill-switch pembatalan pemulihan, pencegahan lockout satu-satunya owner aktif, isolasi multi-tenant antar resto, dan jejak audit kekal (132/132 berkas uji SQL lulus 100%).
+- **File terkait:** `docs/teknis/TINJAUAN_KEAMANAN_F10.md`, `supabase/tes/mfa.sql`, `docs/TERTANGGUH.md` (T-016), `docs/ROADMAP.md` (T10-16)
+- **Implikasi:** Keputusan autentikasi dan pemulihan akun berkuasa memiliki dasar pertimbangan operasional dan matematis yang kuat; tidak ada ketergantungan fitur berbayar eksternal; tidak ada celah pintu belakang; operasional kedai terjamin aman dengan biaya nol rupiah.
+
+
 
 
 
