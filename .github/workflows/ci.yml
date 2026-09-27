@@ -242,6 +242,9 @@ jobs:
       - name: Uji batas Edge Function verifikasi_pelanggan (berkas asli dijalankan tanpa jaringan)
         run: node alat/uji-edge-verifikasi-pelanggan.mjs
 
+      - name: Uji batas Edge Function akhiri_sesi (berkas asli dijalankan tanpa jaringan)
+        run: node alat/uji-edge-akhiri-sesi.mjs
+
       - name: Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras
         run: |
           python3 _sistem/validate_system.py

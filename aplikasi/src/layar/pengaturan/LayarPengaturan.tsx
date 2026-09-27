@@ -28,6 +28,7 @@ import { PasangPrinter } from './PasangPrinter'
 import { TautanKatalog } from './TautanKatalog'
 import { Kampanye } from './Kampanye'
 import { Pratinjau } from './Pratinjau'
+import { SesiAktif, type DataSesiAktif } from './SesiAktif'
 
 export type TabPengaturan =
   | 'identitas'
@@ -40,6 +41,7 @@ export type TabPengaturan =
   | 'pegawai'
   | 'cabang'
   | 'perangkat'
+  | 'sesi'
   | 'printer'
   | 'tautan'
   | 'kampanye'
@@ -158,6 +160,20 @@ export interface LayarPengaturanProps {
     batasPersen?: number | null
   }) => Promise<{ sukses: boolean; pesan?: string }>
   daftarKelolaCabangAwal?: DataCabang[]
+  daftarSesiAwal?: DataSesiAktif[]
+  onMuatSesi?: () => Promise<DataSesiAktif[]>
+  onAkhiriSesi?: (
+    sessionId: string,
+    alasan: string,
+  ) => Promise<{ berhasil: boolean; pesan?: string }>
+  onKeluarSemuaPerangkat?: (
+    penggunaId: string,
+    alasan: string,
+  ) => Promise<{ berhasil: boolean; pesan?: string }>
+  onTandaiPerangkatHilang?: (
+    perangkatId: string,
+    alasan: string,
+  ) => Promise<{ berhasil: boolean; pesan?: string }>
   onTambahKelolaCabang?: (data: {
     nama: string
     alamat?: string
@@ -228,6 +244,11 @@ export function LayarPengaturan({
   onAturUlangPin,
   onSimpanIzin,
   daftarKelolaCabangAwal,
+  daftarSesiAwal,
+  onMuatSesi,
+  onAkhiriSesi,
+  onKeluarSemuaPerangkat,
+  onTandaiPerangkatHilang,
   onTambahKelolaCabang,
   onSimpanKelolaCabang,
   onUbahStatusKelolaCabang,
@@ -253,6 +274,7 @@ export function LayarPengaturan({
     { id: 'pegawai', label: 'Kelola Pegawai', ikon: '👥' },
     { id: 'cabang', label: 'Kelola Cabang', ikon: '🏢' },
     { id: 'perangkat', label: 'Perangkat POS', ikon: '📱' },
+    { id: 'sesi', label: 'Sesi Aktif', ikon: '🔐' },
     { id: 'printer', label: 'Printer Struk', ikon: '🖨️' },
     { id: 'tautan', label: 'Tautan & QR Meja', ikon: '🔗' },
     { id: 'kampanye', label: 'Kampanye Voucher', ikon: '🎟️' },
@@ -379,6 +401,15 @@ export function LayarPengaturan({
           />
         )}
         {tabAktif === 'perangkat' && <DaftarPerangkat />}
+        {tabAktif === 'sesi' && (
+          <SesiAktif
+            daftarSesiAwal={daftarSesiAwal}
+            onMuatSesi={onMuatSesi}
+            onAkhiriSesi={onAkhiriSesi}
+            onKeluarSemuaPerangkat={onKeluarSemuaPerangkat}
+            onTandaiPerangkatHilang={onTandaiPerangkatHilang}
+          />
+        )}
         {tabAktif === 'printer' && <PasangPrinter />}
         {tabAktif === 'tautan' && <TautanKatalog onKembali={() => setTabAktif('identitas')} />}
         {tabAktif === 'kampanye' && <Kampanye onKembali={() => setTabAktif('identitas')} />}

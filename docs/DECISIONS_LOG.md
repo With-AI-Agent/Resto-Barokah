@@ -3021,6 +3021,31 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `supabase/tes/sisir_rls_akhir.sql`, `alat/periksa-sisir-rls.py`, `PANDUAN_PENGGUNA.md`
 - **Implikasi:** Keamanan dan privasi multi-tenant terjamin 100% fail-closed setelah seluruh fitur Fase 1 hingga Fase 10 masuk, tanpa celah tabel tertinggal atau terbuka.
 
+### [Fase 10/2026-09-27] Akhiri Sesi dari Perangkat Lain & Penanganan Perangkat Hilang (T10-06 / ART-2)
+- **Area:** Role & Permission (ART-2) & Jejak Audit (ART-6/ART-7) & Penegakan Sesi Database (docs/KEAMANAN.md §4 & §7)
+- **Keputusan:**
+  1. **Pencegahan Penyusupan dari Perangkat Hilang/Dicuri:**
+     - Jika sebuah perangkat (tablet kasir atau HP staf) hilang, tertinggal, atau dicuri, Owner atau pengelola berizin `kelola_pegawai` dapat memutuskan sesinya seketika dari perangkat lain melalui layar Pengaturan.
+     - Melalui RPC `public.tandai_perangkat_hilang(p_perangkat_id, p_alasan)`, basis data mengubah status perangkat menjadi `hilang`, menonaktifkannya (`aktif = false`), dan seketika mencabut seluruh sesi aktif yang berjalan di perangkat tersebut (`status = 'dicabut'`).
+     - Mengingat fungsi identitas inti (`penyewa_saya()`, `peran_saya()`) mengintegrasikan `public.sesi_masih_aktif()`, maka pada detik berikutnya perangkat yang hilang melakukan permintaan, database langsung mengembalikan `penyewa_saya() = NULL` dan seluruh RLS menolak akses seketika tanpa menunggu token akses JWT kedaluwarsa.
+  2. **Pencatatan Jejak Audit Kekal:**
+     - Seluruh aksi pemutusan sesi tunggal (`akhiri_sesi`), pengakhiran sesi massal per akun (`keluar_semua_perangkat`), maupun penandaan perangkat hilang (`tandai_perangkat_hilang`) mencatat baris riwayat ke tabel `public.catatan_audit` secara permanen, mencakup identitas pelaku, target pengguna/perangkat, jumlah sesi yang diputus, serta alasan tindakan untuk keperluan audit forensik restoran.
+  3. **Penegakan Otorisasi Ketat pada RPC Basis Data:**
+     - `public.daftar_sesi()` mengembalikan data sesi aktif dan riwayat lengkap (staf, peran, perangkat, jenis, cabang, waktu mulai, batas kedaluwarsa, status). Pengelola berizin `kelola_pegawai` dapat memantau seluruh sesi staf di cabangnya/restonya, sementara pegawai biasa hanya dapat melihat sesinya sendiri. Nol kebocoran data sesi antar penyewa (isolasi multi-tenant terjaga 100%).
+     - `public.keluar_semua_perangkat(p_pengguna_id, p_alasan)` memutus seluruh sesi aktif pengguna target dan hanya boleh dijalankan untuk akun sendiri atau oleh staf berizin `kelola_pegawai`.
+     - `public.akhiri_sesi(p_session_id, p_alasan)` memutus sesi tertentu milik sendiri atau bawahan.
+  4. **Antarmuka Pengguna Pengelolaan Sesi (`SesiAktif.tsx`):**
+     - Menyediakan antarmuka visual responsif di tab Pengaturan Resto yang menampilkan metrik sesi aktif, pencarian instan, filter peran (Kasir, Pelayan, Dapur, Admin), dan daftar sesi.
+     - Setiap baris memiliki tombol aksi "Akhiri Sesi", "Keluarkan Semua", dan "Tandai Hilang" yang memunculkan dialog konfirmasi (`Lapis`) dengan isian alasan audit wajib dan pesan peringatan visual yang tegas.
+  5. **Endpoint Edge Function `akhiri_sesi`:**
+     - Menerima permintaan POST HTTP dengan token autentikasi pemanggil, memvalidasi format input (UUID, session_id), dan meneruskannya ke RPC basis data yang relevan dengan pembatasan CORS resmi tanpa membocorkan kunci rahasia.
+  6. **Pengujian Fail-Closed & Uji Mutasi:**
+     - Pengujian SQL `supabase/tes/akhiri_sesi_perangkat_hilang.sql` memvalidasi seluruh alur otorisasi, pencatatan audit, dan penolakan akses instan.
+     - Skrip `alat/uji-mutasi-0081.py` membuktikan 4/4 mutasi kebocoran izin atau audit menghasilkan status merah (fail-closed).
+     - Pengujian Edge Function `alat/uji-edge-akhiri-sesi.mjs` membuktikan 12/12 batas input dan rute handler valid tanpa jaringan.
+- **File terkait:** `supabase/migrations/0081_akhiri_sesi_perangkat_hilang.sql`, `supabase/tes/akhiri_sesi_perangkat_hilang.sql`, `alat/uji-mutasi-0081.py`, `supabase/functions/akhiri_sesi/index.ts`, `alat/uji-edge-akhiri-sesi.mjs`, `aplikasi/src/layar/pengaturan/SesiAktif.tsx`, `aplikasi/src/layar/pengaturan/SesiAktif.test.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.test.tsx`
+- **Implikasi:** Keamanan akses staf dan perangkat POS terproteksi maksimal; insiden kehilangan tablet kasir dapat dinetralisir seketika dari jarak jauh tanpa ada kebocoran transaksi atau manipulasi pesanan.
+
 
 
 
