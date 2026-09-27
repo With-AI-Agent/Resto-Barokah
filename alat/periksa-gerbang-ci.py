@@ -267,6 +267,8 @@ ALUR_LAIN: dict[str, dict[str, list[tuple[str, str]]]] = {
             ("pasang pustaka alat", r"npm ci --prefix alat"),
             ("uji pemulihan basis data kosong", r"bash alat/cadangan\.sh uji-pemulihan"),
             ("bukti mutasi fail-closed cadangan & pemulihan", r"python3 alat/uji-mutasi-cadangan\.py"),
+            ("latihan pemulihan & uji Buku Insiden", r"bash alat/pulihkan-cadangan\.sh"),
+            ("uji-diri fail-closed latihan insiden", r"bash alat/pulihkan-cadangan\.sh --uji-diri"),
             ("buat cadangan terenkripsi AES-256", r"bash alat/cadangan\.sh dump-dan-enkripsi cadangan"),
         ],
         "berkas": [

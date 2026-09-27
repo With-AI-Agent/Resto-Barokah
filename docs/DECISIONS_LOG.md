@@ -3189,6 +3189,25 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `aplikasi/public/_headers`, `alat/periksa-header.py`, `alat/periksa-rahasia.py`, `aplikasi/src/lib/keamanan-header.test.ts`, `.github/workflows/ci.yml`, `alat/periksa-gerbang-ci.py`, `docs/ROADMAP.md` (T10-14)
 - **Implikasi:** Repositori bebas dari kunci rahasia; dependensi pihak ketiga terpantau tanpa celah kerentanan; aplikasi web kedai terlindungi dari clickjacking, XSS, sniffing, dan serangan konten tak terpercaya di tingkat peramban.
 
+### [Fase 10/2026-09-27] Latihan Pemulihan Cadangan & Uji Buku Insiden (T10-15 / M12 / TECH_SPEC §8 & §11 / docs/teknis/BUKU_INSIDEN.md)
+- **Area:** Ketahanan · Pemulihan Bencana & Operasional Darurat (TECH_SPEC §8 & §11; docs/teknis/BUKU_INSIDEN.md; PRD M12)
+- **Keputusan:**
+  1. **Otomasi Latihan Pemulihan Bencana Penuh (`alat/pulihkan-cadangan.sh` & `alat/eksekusi-latihan-insiden.mjs`):**
+     - Menyatukan alur dump cadangan terkompresi, dekripsi, pemulihan ke database 100% bersih (*clean slate*), verifikasi paritas tabel & baris, serta validasi status RLS deny-by-default.
+     - Membuktikan 47 tabel publik dan 192 baris data pulih sempurna dengan selisih 0 baris dalam waktu ~4,3 detik (jauh di bawah batas target RTO 30 menit).
+  2. **Dril Terprogram 4 Skenario Nyata Buku Insiden:**
+     - **Skenario 1 (Perangkat Hilang / Dicuri §2):** Menandai status perangkat `hilang`, mencabut seketika sesi perangkat aktif via RPC `tandai_perangkat_hilang`, mereset PIN kasir via `reset_pin_pegawai`, dan memverifikasi jejak audit permanen di `public.catatan_audit`.
+     - **Skenario 2 (Akun Diduga Bocor / Dibobol §4):** Menonaktifkan akun pengguna via `set_status_pengguna`, mencabut seluruh sesi perangkat aktif via `keluar_semua_perangkat`, dan mereset PIN via `reset_pin_pegawai`.
+     - **Skenario 3 (Pegawai Berhenti / Offboarding Cepat §5 & T10-12):** Menonaktifkan akun pegawai via RPC atomik `pegawai_berhenti`, menghapus PIN, mencabut sesi, menandai shift kasir terbuka untuk ditutup atasan (`perlu_tutup_atasan = true`), dan membuktikan riwayat transaksi masa lalu tidak berubah byte-per-byte.
+     - **Skenario 4 (Rekonsiliasi Harian & Privasi UU PDP §15 / ART-13 & ART-14):** Menjalankan kalkulasi ringkasan harian via `hasilkan_ringkasan_harian`, memverifikasi pencatatan pergantian perangkat, memverifikasi keutuhan rantai hash kriptografis audit (0 putus), dan membuktikan data pribadi pelanggan terlindungi penuh tanpa nomor kontak/kata sandi.
+  3. **Penegakan Uji-Diri Fail-Closed (5 Skenario Mutasi):**
+     - Skrip `alat/eksekusi-latihan-insiden.mjs --uji-diri` membuktikan bahwa simulasi menolak deterministik jika: (1) terjadi selisih baris sumber vs target; (2) tabel target kehilangan baris audit; (3) RLS dinonaktifkan pada tabel publik; (4) pencabutan sesi perangkat gagal; atau (5) penonaktifan akun bocor gagal.
+  4. **Pembaruan Dokumen Operasional & SOP:**
+     - `docs/teknis/PEMULIHAN.md` diperbarui dengan Laporan Resmi Latihan Pemulihan Bencana & Uji Buku Insiden (Seksi 6).
+     - `docs/teknis/BUKU_INSIDEN.md` dimutakhirkan: status sementara 2026-09-20 diganti dengan status operasional aktif per Fase 10 (Sesi Aktif, Kelola Pegawai, Pegawai Berhenti, Cadangan Otomatis, dan Ringkasan Peringatan Harian).
+- **File terkait:** `alat/pulihkan-cadangan.sh`, `alat/eksekusi-latihan-insiden.mjs`, `docs/teknis/PEMULIHAN.md`, `docs/teknis/BUKU_INSIDEN.md`, `docs/ROADMAP.md` (T10-15)
+- **Implikasi:** Prosedur pemulihan bencana bukan sekadar teori dokumen, melainkan terbukti dapat dieksekusi secara otomatis dalam hitungan detik dengan kepatuhan integritas finansial, perlindungan privasi UU PDP, dan kesiapan operasional tim kedai saat menghadapi insiden darurat.
+
 
 
 

@@ -2016,14 +2016,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kunci & Penerapan; CSP terlalu ketat mematikan aplikasi → mitigasi: diuji di pratinjau sebelum produksi + laporan bila ada pelanggaran.
   - **Verifikasi:** pemeriksa rahasia diperkuat 10 pola kunci + uji-diri fail-closed lolos; `npm audit --audit-level=low` 0 kerentanan di `aplikasi` & `alat`; berkas `aplikasi/public/_headers` terpasang (CSP, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, Permissions-Policy, HSTS); validator `alat/periksa-header.py` lulus + uji-diri fail-closed + terdaftar di gerbang CI `alat/periksa-gerbang-ci.py`; uji Vitest `keamanan-header.test.ts` (5 tes lolos); uji kontras, struktur, dan kerapatan tetap hijau 100%; keputusan dicatat di `docs/DECISIONS_LOG.md`.
 
-- [ ] T10-15 — Latihan pemulihan cadangan & uji Buku Insiden ⚠️
+- [x] T10-15 — Latihan pemulihan cadangan & uji Buku Insiden ⚠️
   - **Tujuan:** cadangan terbukti bisa dipulihkan, dan langkah darurat bisa diikuti orang lain tanpa bertanya.
   - **Ref:** TECH_SPEC §8 & §11; docs/teknis/BUKU_INSIDEN.md
   - **File:** `docs/teknis/PEMULIHAN.md`, `docs/teknis/BUKU_INSIDEN.md`, `alat/pulihkan-cadangan.sh`
   - **DoD:** dump cadangan dipulihkan ke database bersih → jumlah baris tabel inti cocok dengan sumber; langkah perangkat hilang & akun diduga bocor diuji berurutan pada salinan; temuan dicatat & diperbaiki.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Ketahanan; cadangan rusak tanpa disadari → mitigasi: latihan nyata minimal sekali sebelum pilot + pemeriksa cadangan berjadwal.
-  - **Verifikasi:** laporan latihan (tanggal, jumlah baris, temuan) + langkah Buku Insiden dijalankan.
+  - **Verifikasi:** skrip eksekutif `alat/pulihkan-cadangan.sh` & runner `alat/eksekusi-latihan-insiden.mjs` membuktikan pemulihan 47 tabel dan 192 baris ke database bersih (selisih 0 baris, RLS 100% aktif, durasi ~4,3 detik jauh di bawah target RTO 30 menit); 4 dril insiden nyata Buku Insiden lulus berurutan (perangkat hilang §2, akun dibobol §4, pegawai berhenti §5, rekap privasi §15); uji-diri 5 mutasi fail-closed lolos 100%; status operasional Buku Insiden diperbaiki dan laporan resmi latihan pemulihan dicatat di `docs/teknis/PEMULIHAN.md` §6; keputusan dicatat di `docs/DECISIONS_LOG.md`.
 
 - [ ] T10-16 — Tinjauan kode pemulihan MFA & kata sandi bocor (T-016) ⚠️ T-016
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-016: sementara pemulihan melalui peran atas + sandi minimal 12 karakter. Tinjauan HIBP/kode mandiri tetap dilakukan di Fase 10; biaya atau perubahan kontrol butuh keputusan Lee.

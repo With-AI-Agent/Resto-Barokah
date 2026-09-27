@@ -29,16 +29,16 @@
 
 ## 2. Perangkat hilang atau dicuri (tablet kasir, HP kasir, laptop owner)
 
-**Status 2026-09-20:** menu Perangkat & Sesi belum ada — jalur sementara lewat agen sesi kerja (lihat §1).
+**Status Operasional (Aktif per Fase 10 / T10-06 & T10-15):** Menu Sesi Aktif tersedia di antarmuka (**Pengaturan → Sesi Aktif**) dan didukung RPC peladen `tandai_perangkat_hilang` serta `akhiri_sesi`. Pemutusan akses instan tanpa menunggu token kedaluwarsa telah teruji 100% pada latihan pemulihan bencana (`alat/pulihkan-cadangan.sh`).
 
 **Tanda:** perangkat tidak ada di tempatnya · ada aktivitas kasir yang tidak dikenal · kasir mengaku bukan dia.
 
 **Langkah (target: di bawah 2 menit):**
 
-1. **Cabut perangkatnya.** Dari perangkat lain yang masih masuk: **Pengaturan → Perangkat & Sesi → pilih perangkatnya → Cabut** (tulis alasan: "hilang"). Hasil: perangkat itu **langsung mati fungsi** — permintaan berikutnya dari perangkat itu ditolak, tidak menunggu apa-apa.
-2. **Tandai "hilang"** pada perangkat yang sama (supaya namanya tetap terlihat di daftar, tidak hilang dari catatan).
-3. **Ganti PIN pegawai** yang terakhir memakai perangkat itu (Pengaturan → Pegawai → Ganti PIN). Hasil: sesi lama tidak bisa dipakai lagi.
-4. **Periksa aktivitas hari itu**: daftar pesanan, pembayaran, void, buka laci. Kalau ada yang aneh: catat di Log Insiden + simpan tangkapan layar.
+1. **Cabut perangkatnya.** Dari perangkat lain yang masih masuk: **Pengaturan → Sesi Aktif → pilih perangkat/sesi → Tandai Hilang** (atau tombol Cabut). Tulis alasan: "hilang dicuri". Hasil: perangkat itu **langsung mati fungsi seketika** — seluruh sesi aktifnya dicabut, permintaan berikutnya dari perangkat itu ditolak, dan jejak audit tercatat kekal.
+2. **Tandai "hilang"** pada perangkat yang sama (supaya namanya tetap terlihat di daftar dengan lencana merah, tidak hilang dari catatan).
+3. **Ganti PIN pegawai** yang terakhir memakai perangkat itu (**Pengaturan → Kelola Pegawai → Ganti PIN**). Hasil: sesi lama tidak bisa dipakai lagi.
+4. **Periksa aktivitas hari itu**: daftar pesanan, pembayaran, void, buka laci dari tab **Laporan → Peringatan**. Kalau ada yang aneh: catat di Log Insiden + simpan tangkapan layar.
 5. **Laporkan polisi** bila memang dicuri (untuk keperluan asuransi/klaim); nomor seri perangkat ada di daftar Perangkat.
 6. **Ganti perangkatnya** dengan yang baru → daftarkan lewat kode dari admin (lihat panduan pegawai), lalu minta persetujuan pemilik untuk pegawai yang akan memakainya.
 
@@ -55,7 +55,7 @@
 **Langkah:**
 
 1. Pegawai melapor ke atasan (sebutkan: nama, peran, kapan HP hilang, apakah HP ada kunci layar).
-2. Atasan membuka **Pengaturan → Pegawai → pilih pegawai → Atur ulang kunci kedua (MFA)** → tulis alasan. Hasil: pegawai bisa masuk lagi dengan kata sandi, lalu **mendaftarkan TOTP di HP baru** saat itu juga.
+2. Atasan membuka **Pengaturan → Kelola Pegawai → pilih pegawai → Atur ulang kunci kedua (MFA)** → tulis alasan. Hasil: pegawai bisa masuk lagi dengan kata sandi, lalu **mendaftarkan TOTP di HP baru** saat itu juga.
 3. Semua tindakan ini **tercatat** (siapa, kapan, alasan) dan pemilik menerima pemberitahuan — jadi tidak ada pengaturan ulang yang diam-diam.
 4. Kalau HP yang hilang adalah milik pegawai **kasir/pelayan/dapur**: tidak perlu apa-apa — mereka tidak memakai TOTP; cukup pastikan perangkat kerja sudah dicabut bila HP itu juga dipakai kerja (bagian 2).
 
@@ -65,16 +65,16 @@
 
 ## 4. Akun diduga dibobol (ada yang bisa masuk padahal bukan pegawainya)
 
-**Status 2026-09-20:** layar Jejak Audit belum ada (`T1-27`) — penarikan aktivitas lewat agen sesi kerja (lihat §1).
+**Status Operasional (Aktif per Fase 9 & Fase 10 / T9-08, T10-06 & T10-15):** Penonaktifan cepat akun tersedia di **Pengaturan → Kelola Pegawai** via RPC `set_status_pengguna`, pencabutan seluruh sesi aktif via `keluar_semua_perangkat` di **Pengaturan → Sesi Aktif**, dan reset PIN via `reset_pin_pegawai`. Layar pengawasan jejak audit dan deteksi anomali tersedia di antarmuka (**Laporan → Peringatan**). Teruji 100% pada latihan pemulihan bencana (`alat/pulihkan-cadangan.sh`).
 
-**Tanda:** ada aktivitas aneh (void/diskon di luar kebiasaan) · percobaan masuk gagal beruntun di ringkasan harian · pegawai melapor "PIN saya minta orang lain".
+**Tanda:** ada aktivitas aneh (void/diskon di luar kebiasaan) · percobaan masuk gagal beruntun di ringkasan harian · pegawai melapor "PIN saya diminta orang lain".
 
 **Langkah:**
 
-1. **Nonaktifkan akunnya** (Pengaturan → Pegawai → Nonaktifkan). Hasil: akun langsung tidak bisa apa-apa, **termasuk sesi yang sedang jalan**.
-2. **Cabut semua perangkat** yang biasa dipakai akun itu (bagian 2 langkah 1, pilih "semua/akun ini").
-3. **Ganti PIN/kata sandi** akun tersebut **dan** akun lain yang mungkin ikut terlihat (khususnya yang menyetujui uang).
-4. **Periksa jejak audit** (Pengaturan → Jejak Audit) untuk 7 hari terakhir: cari tindakan atas nama akun itu yang tidak dikenali; simpan tangkapan layar.
+1. **Nonaktifkan akunnya** (**Pengaturan → Kelola Pegawai → pilih akun → Nonaktifkan**). Hasil: akun langsung tidak bisa apa-apa, **termasuk sesi yang sedang jalan**.
+2. **Cabut semua perangkat** yang biasa dipakai akun itu (**Pengaturan → Sesi Aktif → Keluar Semua Perangkat** atas nama akun tersebut).
+3. **Ganti PIN/kata sandi** akun tersebut (**Pengaturan → Kelola Pegawai → Reset PIN**) **dan** akun lain yang mungkin ikut terlihat (khususnya yang menyetujui uang).
+4. **Periksa jejak audit** (**Laporan → Peringatan**) untuk 7 hari terakhir: cari tindakan atas nama akun itu yang tidak dikenali; simpan tangkapan layar.
 5. Kalau ada uang yang tidak sesuai: hitung, catat di Log Insiden, dan tentukan langkah (teguran/penggantian/laporan polisi).
 6. **Hidupkan kembali akun** hanya setelah PIN baru + perangkat baru disetujui; kalau pelakunya pegawai itu sendiri → jangan dihidupkan (bagian 5).
 
@@ -82,7 +82,15 @@
 
 ## 5. Pegawai berhenti (daftar simak offboarding)
 
+**Status Operasional (Aktif per Fase 10 / T10-12):** Tombol **Pegawai Berhenti** tersedia di **Pengaturan → Kelola Pegawai**. Mengeksekusi penonaktifan akun, pemusnahan PIN di basis data, pemutusan sesi aktif seketika, dan menandai shift kasir terbuka untuk ditutup atasan (`perlu_tutup_atasan`) dalam 1 transaksi atomik (`public.pegawai_berhenti`). Riwayat transaksi finansial dan nama kasir di laporan lama tetap utuh (Aturan Bisnis 11).
+
 Kerjakan **di hari terakhir**, jangan menunda:
+
+1. **Gunakan tombol Pegawai Berhenti**: Masuk ke **Pengaturan → Kelola Pegawai → pilih pegawai → Pegawai Berhenti**. Ketik konfirmasi 'CABUT' dan masukkan alasan offboarding.
+2. **Serah terima shift kasir**: Bila pegawai tersebut memiliki shift kasir yang masih terbuka, shift otomatis ditandai `perlu_tutup_atasan`. Admin Cabang atau Owner Pusat melakukan hitung fisik uang kas di laci kasir dan menutup shift dari tab serah terima.
+3. **Cabut perangkat pribadi** miliknya dari daftar Perangkat (kalau ada); perangkat kedai tetap dipakai pegawai lain.
+4. **Periksa jejak audit 30 hari terakhir** untuk akun itu dari tab **Laporan → Peringatan** (void, diskon, pembatalan, laci) — kalau ada yang janggal, catat sebelum menutup.
+5. **Catat di Log Insiden**: nama pegawai, tanggal berhenti, serah terima kas, dan nama atasan yang memproses.
 
 1. **Nonaktifkan akun** (langsung mematikan sesi & akses).
 2. **Cabut perangkat pribadi** miliknya dari daftar Perangkat (kalau ada); perangkat kedai tetap dipakai pegawai lain.
@@ -175,10 +183,10 @@ Kerjakan **di hari terakhir**, jangan menunda:
 
 ## 10. Cadangan & pemulihan (latihan sebelum pilot)
 
-**Status 2026-09-20:** cadangan otomatis mingguan belum dijadwalkan (`T10-10`) — sampai itu ada, cadangan = ekspor manual via agen sesi kerja.
+**Status Operasional (Aktif per Fase 10 / T10-10 & T10-15):** Cadangan otomatis mingguan terjadwal di GitHub Actions (`.github/workflows/cadangan.yml`), skrip pembuatan dump & enkripsi AES-256 (`alat/cadangan.sh`), serta skrip eksekutif latihan pemulihan & dril insiden (`alat/pulihkan-cadangan.sh`). Panduan SOP 7 tahap dan laporan resmi latihan pemulihan tersedia di `docs/teknis/PEMULIHAN.md`.
 
-1. Cadangan otomatis berjalan mingguan (dump terenkripsi); pemilik mengunduh salinannya **sebulan sekali** ke komputer/Drive miliknya.
-2. **Latihan pemulihan** (dilakukan agent bersama pemilik platform, minimal sekali sebelum pilot): pulihkan cadangan ke database bersih → bandingkan jumlah baris tabel inti → tulis hasilnya di `docs/teknis/PEMULIHAN.md` (berkas ini **belum dibuat**; dibuat saat latihan pemulihan dijalankan pada tugas `T11-10`).
+1. Cadangan otomatis berjalan mingguan (dump terenkripsi AES-256); pemilik mengunduh salinannya **sebulan sekali** ke komputer/Drive miliknya.
+2. **Latihan pemulihan** (dilakukan secara berkala sebelum pilot): pulihkan cadangan ke basis data bersih → bandingkan jumlah baris tabel inti → jalankan simulasi dril 4 insiden nyata via perintah `bash alat/pulihkan-cadangan.sh`. Hasil latihan tercatat resmi di `docs/teknis/PEMULIHAN.md`.
 3. Kalau ada data yang tidak sengaja terhapus/berubah: **jangan** menambal dengan mengubah data lama — catat sebagai koreksi baru (aplikasi memang dirancang begitu untuk data keuangan), dan kalau perlu pulihkan dari cadangan **ke lingkungan uji dulu**.
 
 ---

@@ -57,6 +57,12 @@ jobs:
       - name: Bukti mutasi fail-closed cadangan & pemulihan
         run: python3 alat/uji-mutasi-cadangan.py
 
+      - name: Latihan pemulihan & uji Buku Insiden (T10-15)
+        run: bash alat/pulihkan-cadangan.sh
+
+      - name: Uji-diri fail-closed latihan insiden (T10-15)
+        run: bash alat/pulihkan-cadangan.sh --uji-diri
+
       - name: Buat cadangan terenkripsi AES-256
         run: bash alat/cadangan.sh dump-dan-enkripsi cadangan
 
