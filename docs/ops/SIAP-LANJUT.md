@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `72e43878bca145c7e03edf1dc615d35b71b87450`
+- **Commit keadaan kerja:** `f7a34990c7569be50c11bd199b04d78529c0bd09`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36303875148, commit 72e43878) — tunggu sampai selesai
+- **CI terakhir:** (belum ada run CI untuk commit f7a34990 — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (97 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (99 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -2095,14 +2095,9 @@ Urutan yang disarankan agent, dan alasannya:
    - Prettier, ESLint, TypeScript (`tsc -b`), dan build produksi Vite LULUS 100%.
 
 4. **Rencana Selanjutnya:**
-   - Menyelesaikan tugas Fase 10 berikutnya:
-     - **T10-12 — Pegawai berhenti: cabut akses cepat & serah terima** (PRD M3 & M12; TECH_SPEC §9 ART-2).
-       - Tujuan: pegawai yang keluar tidak bisa lagi membuka data kedai, tanpa merusak riwayat transaksinya.
-       - File: `aplikasi/src/layar/pengaturan/CabutAkses.tsx` (rencana T10-12, atau integrasi di `KelolaPegawai.tsx`), `supabase/tes/cabut_akses.sql` (rencana T10-12), migrasi terkait.
-       - DoD: satu tombol "pegawai berhenti" → akun nonaktif + semua sesi perangkat diakhiri + PIN dimatikan + shift terbuka miliknya ditandai untuk ditutup atasan; nama & riwayat transaksinya TETAP ada di laporan lama.
-       - Mitigasi: nonaktif, bukan hapus akun (Aturan Bisnis 11).
-     - **T10-13 — Ringkasan peringatan harian ke owner (email & layar aplikasi)** (TECH_SPEC §5.1 & §9 ART-13).
-     - **T10-14 — Pemeriksa rahasia, dependensi & header keamanan halaman** (TECH_SPEC §6 & §8).
-     - **T10-15 — Latihan pemulihan cadangan & uji Buku Insiden** (TECH_SPEC §8 & §11).
-     - **T10-16 — Tinjauan kode pemulihan MFA & kata sandi bocor (T-016)**.
+   - Menyiapkan dan mendampingi pelaksanaan paket pemeriksaan resmi audit independen 3 agen:
+     - **Agen 1 (Pemeriksa Basis Data & Keamanan SQL / Multi-Tenant):** Meninjau 85 migrasi SQL, 132 berkas uji SQL, RLS 47 tabel, fungsi RPC, rantai audit, dan fail-closed mutasi.
+     - **Agen 2 (Pemeriksa Frontend & Kepatuhan UI/UX & Peta UI):** Meninjau seluruh layar antarmuka, 850+ pengujian unit Vitest, kepatuhan PETA_UI.md, aksesibilitas kontras WCAG AAA, dan penanganan status kasir offline/online.
+     - **Agen 3 (Pemeriksa Infrastruktur, Ketahanan Sistem & SOP Bencana):** Meninjau alur CI/CD 126 gerbang, skrip pemulihan cadangan PGlite, latihan Buku Insiden 4 skenario darurat, header CSP, pemindai rahasia, dan tinjauan keamanan MFA (T-016).
+   - Menunggu arahan dan instruksi lebih lanjut dari Lee terkait pengujian atau eksekusi audit tersebut.
    - Peringatan Khusus Lee (§29 `REKAM_PESAN_PEMILIK.md`): Setelah seluruh Fase 10 selesai (T10-16), agent WAJIB BERHENTI dan MENGINGATKAN Lee untuk pemeriksaan mendalam menyeluruh. Jangan lanjut ke Fase 11 sebelum arahan Lee.
