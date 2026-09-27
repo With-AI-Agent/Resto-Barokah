@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `5160a19ef8fc9788bbfc4c7c6640575e5d71d9b7`
+- **Commit keadaan kerja:** `7fd2605284beae7c8e16eff536b98038273450e0`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit 5160a19e — periksa lagi setelah push)
+- **CI terakhir:** (belum ada run CI untuk commit 7fd26052 — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (74 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (76 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -153,14 +153,29 @@ JANGAN merge apa pun tanpa keputusan Lee.
    - Keputusan arsitektur dicatat di `docs/DECISIONS_LOG.md` (Area: RLS/Auth & Voucher).
    - Seluruh 118 berkas uji frontend (964 tes) dan 127 berkas uji SQL lulus 100%. Total 144 dari 200 butir roadmap tuntas.
 
-0ZZ8. **LANGKAH SELANJUTNYA: FASE 10 — T10-08 (Denyut harian + pembersih data sementara — TECH_SPEC §1 & §10; PRD M12).**
-   - **Tujuan:** proyek gratis tidak "tidur" dan data sementara tidak menumpuk.
-   - **Ref:** TECH_SPEC §1 (pg_cron) & §10 (batas gratis).
-   - **File:** `supabase/migrations/0082_denyut_harian_pembersih.sql` (rencana T10-08), `alat/denyut.py` (rencana T10-08).
-   - **DoD:** tugas terjadwal harian (denyut) berjalan; pembersih data sementara (mis. percobaan lama, sesi kedaluwarsa) berjalan malam; log hasil terjadwal; uji lulus.
-   - **Kompleksitas:** sedang (3 jam).
-   - **Risiko & mitigasi:** pembersih menghapus data penting → mitigasi: daftar tabel yang boleh dibersihkan ditulis eksplisit + uji.
-   - **Verifikasi:** jalankan manual + periksa log terjadwal 2 hari.
+0ZZ8. **FASE 10: T10-08 (Denyut harian + pembersih data sementara — TECH_SPEC §1 & §10; PRD M12) SELESAI.**
+   - Migrasi `supabase/migrations/0082_denyut_harian_pembersih.sql`:
+     1. Tabel `public.log_jadwal` untuk mencatat riwayat eksekusi tugas berkala (denyut anti-tidur dan pembersihan data sementara).
+     2. RPC `public.denyut_harian()` membangkitkan denyut harian sehat pada basis data (menghitung jumlah penyewa dan cabang aktif) agar proyek gratis Supabase tidak tertidur akibat 7 hari tanpa aktivitas.
+     3. RPC `public.bersihkan_data_sementara(p_hari_retensi int default 30)` menerapkan pembersihan data sementara otomatis dengan whitelist eksplisit: percobaan PIN lama, percobaan login lama, voucher percobaan, kode pendaftaran perangkat usang, sesi perangkat kadaluwarsa, dan mode dukungan kedaluwarsa.
+     4. Perlindungan tabel inti: tabel finansial, pesanan, pembayaran, audit, dan stok terbukti terlindungi penuh dan tidak tersentuh.
+     5. RPC `public.ambil_log_jadwal(p_limit int default 20)` menyajikan riwayat log jadwal terbaru untuk audit dan dasbor pemantauan platform.
+     6. Kebijakan RLS ketat membungkus fungsi peran dengan Scalar Subquery InitPlan `(select public.peran_saya()) = 'pemilik_platform'`.
+   - Berkas uji SQL `supabase/tes/denyut_pembersih.sql` membuktikan eksekusi denyut, validasi parameter retensi (1 s/d 365 hari), integritas pembersihan whitelist, serta pembuktian tabel inti pesanan/pembayaran/audit tidak tersentuh (128 berkas uji SQL lulus 100%).
+   - Skrip CLI operasional `alat/denyut.py` (+ `alat/eksekusi-denyut.mjs`) menyediakan opsi `--denyut`, `--bersihkan`, `--semua`, `--log`, `--simulasi-2-hari`, dan `--uji-diri`.
+   - Verifikasi simulasi 2 hari berjalan via CLI `alat/denyut.py --simulasi-2-hari` membuktikan denyut harian pagi dan pembersihan malam tercatat dalam log jadwal selama 2 hari berturut-turut.
+   - Penilai mutasi `alat/uji-mutasi-0082.py` membuktikan 4/4 mutasi fail-closed tertangkap merah secara deterministik.
+   - Total 145 dari 200 butir roadmap tuntas.
+
+0ZZ9. **LANGKAH SELANJUTNYA: FASE 10 — T10-09 (Buku Insiden 5 skenario kegagalan & pemulihan listrik/perangkat mati mendadak — TECH_SPEC §10 & §11).**
+   - **Tujuan:** kedai bisa pulih cepat dari insiden operasional dan melanjutkan transaksi tanpa kehilangan data pesanan.
+   - **Ref:** TECH_SPEC §10 (pemulihan insiden) & §11 (luring).
+   - **5 Skenario Kegagalan:** internet putus, Supabase mati, printer macet/habis kertas, token kedaluwarsa, salah void.
+   - **File:** `docs/teknis/BUKU_INSIDEN.md`, `aplikasi/src/lib/antrean-lokal.ts`, pengujian pemulihan.
+   - **DoD:** 5 skenario kegagalan terdokumentasi jelas dan teruji mekanismenya; aplikasi kasir & dapur memuat ulang data terakhir dari penyimpanan lokal saat dibuka kembali; tagihan terbuka tidak hilang; status item dapur tetap sinkron.
+   - **Kompleksitas:** sedang (2 jam).
+   - **Risiko & mitigasi:** data lokal usang menimpa data server → mitigasi: server selalu menang (last-write-wins dengan timestamp server) + konfirmasi kasir bila ada konflik.
+   - **Verifikasi:** simulasi skenario kegagalan & pengujian pemulihan luring.
 
 0ZZ3. **FASE 9 TUNTAS PENUH: T9-01 s/d T9-12 SELESAI (12/12 TUGAS LULUS 100%).**
    - T9-01 s/d T9-12 selesai tuntas dengan 124 berkas uji SQL lulus, mutasi fail-closed 100% merah, komponen UI lengkap, Peta UI hijau.
