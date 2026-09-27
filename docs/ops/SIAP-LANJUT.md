@@ -10,12 +10,13 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `391d71b049a3fb86fc684576080eb125f856de63`
-- **PR:** PR #13 (base main)
+- **Commit keadaan kerja:** `46335103f2c5dde63b49908ef3a3e515e1dcdad8`
+- **PR:** PR #14 (base main)
+PR #13 (base main)
 PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36312085325, commit 391d71b0) — tunggu sampai selesai
+- **CI terakhir:** in_progress (run 36322617649, commit 46335103) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -30,7 +31,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (110 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (112 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (165 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -71,19 +72,23 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**MANDAT RESMI LEE: PERSIAPAN PEMERIKSAAN AKBAR MENYELURUH (FASE 0 s/d FASE 10) & JAMINAN HANDOFF:**
-> Bila sesi ini terputus dan Lee membuka sesi baru dengan base branch `arena/01a0d09b-resto-barokah` serta mengetik **"baca pro.md"**, agent sesi baru WAJIB langsung mengetahui bahwa:
-> 1. Seluruh 153 tugas dari Fase 0 hingga Fase 10 telah SELESAI TUNTAS 100%.
-> 2. Seluruh temuan audit PR #13 (K-1 s/d K-4) dan fitur keyboard PIN kasir permintaan Lee telah diterapkan dan diuji hijau 100%.
-> 3. Lee memutuskan untuk **MENAHAN FASE 11** dan menjalankan **Pemeriksaan Akbar Menyeluruh (Fase 0 s/d 10)** terlebih dahulu secara mendalam dan teliti.
-> 4. Paket pemeriksaan dan 5 naskah prompt siap-salin telah disiapkan lengkap di `docs/uji/`:
->    - `docs/uji/PAKET_PEMERIKSAAN_AKBAR_F0_F10.md` (Dokumen Panduan Induk)
->    - `docs/uji/PROMPT_AKBAR_AUDITOR_UTAMA.md` (Prompt Auditor Utama / Holistik SaaS)
->    - `docs/uji/PROMPT_AKBAR_SPESIALIS_DATA.md` (Prompt Spesialis Basis Data & Keuangan)
->    - `docs/uji/PROMPT_AKBAR_SPESIALIS_FRONTEND.md` (Prompt Spesialis Frontend & Kasir Lapangan)
->    - `docs/uji/PROMPT_AKBAR_SPESIALIS_INFRASTRUKTUR.md` (Prompt Spesialis Keamanan & SOP Bencana)
->    - `docs/uji/PROMPT_AKBAR_PEMERIKSA_FASE.md` (Prompt Pemeriksa Riwayat Fase 0–10)
-> 5. Tugas sesi yang berjalan atau sesi baru berikutnya adalah: **Mendampingi Lee mengeksekusi pemeriksaan besar-besaran ini atau menerima laporan dari para agen pemeriksa independen**, bukan langsung meloncat ke Fase 11.
+**STATUS PENERIMAAN LAPORAN PEMERIKSAAN AKBAR (10 AGEN INDEPENDEN / 5 PERAN):**
+> 10 Agen independen yang dikerahkan Lee telah menyelesaikan audit mendalam dan menerbitkan 9 berkas laporan resmi di `docs/uji/audit/`:
+> 1. `LAPORAN_AKBAR_AUDITOR_UTAMA.md` (Holistik SaaS Multi-Tenant & Bisnis Lee)
+> 2. `LAPORAN_AKBAR_SPESIALIS_DATA.md` & `LAPORAN_AKBAR_SPESIALIS_DATA__01a0e267.md` (Basis Data & Keuangan)
+> 3. `LAPORAN_AKBAR_SPESIALIS_FRONTEND.md` & `LAPORAN_AKBAR_SPESIALIS_FRONTEND_tambahan.md` (Frontend, Keyboard PIN, & Antrean Offline)
+> 4. `LAPORAN_AKBAR_SPESIALIS_INFRASTRUKTUR.md` (Infrastruktur, SOP Bencana, CSP, Cadangan, Cron)
+> 5. `LAPORAN_AKBAR_PEMERIKSA_FASE.md`, `LAPORAN_AKBAR_PEMERIKSA_FASE__sesi-01a0e266.md`, & `LAPORAN_AKBAR_PEMERIKSA_FASE__sesi-cf2f162.md` (Riwayat Fase 0–10)
+>
+> **KESIMPULAN DARI SELURUH AUDITOR:**
+> - **Brankas Data & Uang (Spesialis Data): 100% SIAP FASE 11 (HIJAU MUTLAK).** RLS 47 tabel kedap, 0 kebocoran antar resto, perhitungan rupiah/PB1/diskon presisi di peladen, 8/8 RPC idempoten.
+> - **Keamanan Inti (Spesialis Infrastruktur):** Kunci rahasia 0 bocor, CSP Cloudflare bersih tanpa unsafe-inline, cadangan AES-256 terbukti empiris, 4/4 dril insiden berjalan sempurna dalam 3,88 detik.
+> - **Temuan K-2 yang Menahan Gerbang Fase 11 (Wajib Diperbaiki):**
+>   1. *Antrean Offline saat WiFi nyala tapi internet mati:* di `App.tsx`, kegagalan fetch Supabase mengembalikan `{ error }` biasa (bukan exception), sehingga `onSimpanPesanan` mengembalikan `{ sukses: false }` tanpa memicu `tambahKeAntrean`, dan status `mengirim` di IndexedDB belum direset otomatis saat inisialisasi modul.
+>   2. *Payload tombol Kirim ke Dapur di `App.tsx`:* baris 161–173 mengirim status `'antri'`, padahal skema database `0009_pesanan.sql` hanya menerima `'dikirim'` dengan `dikirim_ke_dapur_pada = now()`.
+>   3. *Penyelarasan alur pesanan luring:* saat offline, pesanan yang masuk antrean perlu memastikan tiket dapur ikut diperbarui statusnya saat online kembali.
+>   4. *Perluasan regex kunci rahasia OpenAI:* tambahkan pola `sk-proj-[a-zA-Z0-9_-]{20,}` di `alat/periksa-rahasia.py`.
+>   5. *Penyelarasan standar kontras dokumen:* perjelas di dokumen bahwa standar yang ditegakkan dan diukur adalah WCAG AA (≥ 4.5:1), bukan klaim berlebihan AAA.
 
 **STATUS FASE 10 & PERBAIKAN AUDIT INDEPENDEN SELESAI TUNTAS (2026-09-27):**
 1. **Dukungan Keyboard Fisik pada Input PIN Staf & Kasir (Permintaan Khusus Lee):**
