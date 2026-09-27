@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `69a5d3fb87342a6a1621c95742ff5f98b2222040`
+- **Commit keadaan kerja:** `7b43bba16c15eb7927f12e37a37d411b3d732a9a`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit 69a5d3fb — periksa lagi setelah push)
+- **CI terakhir:** (belum ada run CI untuk commit 7b43bba — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -179,12 +179,23 @@ JANGAN merge apa pun tanpa keputusan Lee.
    - 81 mutasi aplikasi pada `aplikasi/alat/uji-mutasi-app.mjs` terbukti lolos/merah 100%.
    - Total 146 dari 200 butir roadmap tuntas.
 
-0ZZ10. **LANGKAH SELANJUTNYA: FASE 10 — T10-10 (Cadangan mingguan otomatis + uji pemulihan terjadwal — TECH_SPEC §10).**
-   - **Tujuan:** data kedai aman dari bencana kehilangan data fatal dengan backup terjadwal terenkripsi dan verifikasi pemulihan nyata.
-   - **Ref:** TECH_SPEC §10 (cadangan data, RTO < 1 jam, RPO < 24 jam).
-   - **DoD:** skrip dump otomatis mingguan (pg_dump / supabase db dump) terenkripsi, skrip uji pemulihan terjadwal yang memverifikasi integritas dump, panduan pemulihan bencana terdokumentasi di docs/ops/, dan pengujian pembuktian pemulihan.
+0ZZ10. **FASE 10: T10-10 (Cadangan mingguan otomatis + uji pemulihan terjadwal — TECH_SPEC §8 & §10; PRD M12) SELESAI.**
+   - Alur otomatis mingguan di `.github/workflows/cadangan.yml` (cron Minggu 02:00 WIB + pemicu manual `workflow_dispatch`) dengan retensi artefak 90 hari.
+   - Enkripsi simetris OpenSSL AES-256-CBC PBKDF2 (100.000 iterasi) dengan kunci rahasia aman dari lingkungan (`KUNCI_ENKRIPSI_CADANGAN`) minimal 16 karakter.
+   - Seluruh salinan plaintext mentah (`.sql` dan `.sql.gz`) otomatis segera dimusnahkan seketika setelah enkripsi selesai demi kepatuhan privasi data pelanggan (ART-10).
+   - Integritas data diverifikasi ganda menggunakan berkas checksum SHA-256 (`.sha256`) sebelum dan sesudah dekripsi.
+   - Skrip orkestrasi CLI mandiri `alat/cadangan.sh` dan mesin dump PGlite `alat/eksekusi-cadangan.mjs` membuktikan pemulihan ke basis data 100% kosong (*clean slate*) dengan paritas data 100% (46 tabel, 192 baris, seluruh 46 tabel mengaktifkan RLS deny-by-default, konsistensi integritas relasi foreign key utuh).
+   - Prosedur Operasi Standar (SOP) bencana 7 tahap bernomor tersaji lengkap di `docs/teknis/PEMULIHAN.md` (RTO < 30 menit, RPO < 24 jam).
+   - Uji mutasi pengaman fail-closed 7 skenario di `alat/uji-mutasi-cadangan.py` lulus 100% (semua skenario kegagalan: tanpa kunci, kunci pendek, kunci salah, ciphertext korup, SQL cacat, dan kehilangan tabel penting tertangkap merah secara deterministik).
+   - Alur `cadangan.yml` resmi didaftarkan dan diawasi dua arah oleh pemeriksa gerbang CI `alat/periksa-gerbang-ci.py`.
+   - Total butir roadmap tuntas: 147 dari 200 butir.
+
+0ZZ11. **LANGKAH SELANJUTNYA: FASE 10 — T10-11 (Perubahan pengaturan bersamaan ditolak di peladen — TECH_SPEC §5; PRD M12).**
+   - **Tujuan:** pengaturan vital resto (PB1, service charge, aturan pembulatan, batas diskon) tidak tertimpa tanpa sengaja bila dua admin/owner menyunting bersamaan (mencegah *last-write-wins* yang merusak akuntansi).
+   - **Ref:** TECH_SPEC §5 (RPC `simpan_pengaturan` menerima versi); PRD M12; `docs/DECISIONS_LOG.md`.
+   - **DoD:** versi pengaturan (`diubah_pada` atau versi integer) dikirim dari klien dan diverifikasi atomik di peladen; versi basi ditolak dengan pesan galat jujur bahasa Indonesia tanpa menimpa data; komponen UI pengaturan menangani konflik tanpa membuang isian pengguna; berkas uji SQL konkurensi membuktikan penolakan.
    - **Kompleksitas:** sedang (2 jam).
-   - **Risiko & mitigasi:** dump korup tanpa diketahui → uji pemulihan berkala wajib memulihkan dump ke database terisolasi dan memvalidasi keutuhan tabel dan relasi.
+   - **Peringatan Khusus Lee:** Tepat setelah Fase 10 tuntas (T10-16), agent WAJIB BERHENTI dan meminta instruksi pemeriksaan mendalam kepada Lee (§29 `REKAM_PESAN_PEMILIK.md`).
 
 0ZZ3. **FASE 9 TUNTAS PENUH: T9-01 s/d T9-12 SELESAI (12/12 TUGAS LULUS 100%).**
    - T9-01 s/d T9-12 selesai tuntas dengan 124 berkas uji SQL lulus, mutasi fail-closed 100% merah, komponen UI lengkap, Peta UI hijau.
