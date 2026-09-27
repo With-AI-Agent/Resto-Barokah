@@ -10,7 +10,7 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `7b43bba16c15eb7927f12e37a37d411b3d732a9a`
+- **Commit keadaan kerja:** `2270932cd5fde9b7b5189e4be563df1fe2ef4433`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
@@ -2053,5 +2053,14 @@ Urutan yang disarankan agent, dan alasannya:
    - Prettier, ESLint, TypeScript (`tsc -b`), dan build produksi Vite LULUS 100%.
 
 4. **Rencana Selanjutnya:**
-   - Mengerjakan **T9-05 — Pengelolaan menu lengkap (kategori, varian, tambahan, foto, urutan)** (PRD M2 & M3).
-   - Menambah, mengubah, dan menghapus kategori serta item menu; varian & ekstra/tambahan; foto menu; serta urutan tampil menu tanpa koding.
+   - Menyelesaikan tugas Fase 10 berikutnya:
+     - **T10-12 — Pegawai berhenti: cabut akses cepat & serah terima** (PRD M3 & M12; TECH_SPEC §9 ART-2).
+       - Tujuan: pegawai yang keluar tidak bisa lagi membuka data kedai, tanpa merusak riwayat transaksinya.
+       - File: `aplikasi/src/layar/pengaturan/CabutAkses.tsx` (rencana T10-12, atau integrasi di `KelolaPegawai.tsx`), `supabase/tes/cabut_akses.sql` (rencana T10-12), migrasi terkait.
+       - DoD: satu tombol "pegawai berhenti" → akun nonaktif + semua sesi perangkat diakhiri + PIN dimatikan + shift terbuka miliknya ditandai untuk ditutup atasan; nama & riwayat transaksinya TETAP ada di laporan lama.
+       - Mitigasi: nonaktif, bukan hapus akun (Aturan Bisnis 11).
+     - **T10-13 — Ringkasan peringatan harian ke owner (email & layar aplikasi)** (TECH_SPEC §5.1 & §9 ART-13).
+     - **T10-14 — Pemeriksa rahasia, dependensi & header keamanan halaman** (TECH_SPEC §6 & §8).
+     - **T10-15 — Latihan pemulihan cadangan & uji Buku Insiden** (TECH_SPEC §8 & §11).
+     - **T10-16 — Tinjauan kode pemulihan MFA & kata sandi bocor (T-016)**.
+   - Peringatan Khusus Lee (§29 `REKAM_PESAN_PEMILIK.md`): Setelah seluruh Fase 10 selesai (T10-16), agent WAJIB BERHENTI dan MENGINGATKAN Lee untuk pemeriksaan mendalam menyeluruh. Jangan lanjut ke Fase 11 sebelum arahan Lee.
