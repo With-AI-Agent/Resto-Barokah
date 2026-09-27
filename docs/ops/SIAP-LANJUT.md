@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `7fd2605284beae7c8e16eff536b98038273450e0`
+- **Commit keadaan kerja:** `69a5d3fb87342a6a1621c95742ff5f98b2222040`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit 7fd26052 — periksa lagi setelah push)
+- **CI terakhir:** (belum ada run CI untuk commit 69a5d3fb — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (76 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (78 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -167,15 +167,24 @@ JANGAN merge apa pun tanpa keputusan Lee.
    - Penilai mutasi `alat/uji-mutasi-0082.py` membuktikan 4/4 mutasi fail-closed tertangkap merah secara deterministik.
    - Total 145 dari 200 butir roadmap tuntas.
 
-0ZZ9. **LANGKAH SELANJUTNYA: FASE 10 — T10-09 (Buku Insiden 5 skenario kegagalan & pemulihan listrik/perangkat mati mendadak — TECH_SPEC §10 & §11).**
-   - **Tujuan:** kedai bisa pulih cepat dari insiden operasional dan melanjutkan transaksi tanpa kehilangan data pesanan.
-   - **Ref:** TECH_SPEC §10 (pemulihan insiden) & §11 (luring).
-   - **5 Skenario Kegagalan:** internet putus, Supabase mati, printer macet/habis kertas, token kedaluwarsa, salah void.
-   - **File:** `docs/teknis/BUKU_INSIDEN.md`, `aplikasi/src/lib/antrean-lokal.ts`, pengujian pemulihan.
-   - **DoD:** 5 skenario kegagalan terdokumentasi jelas dan teruji mekanismenya; aplikasi kasir & dapur memuat ulang data terakhir dari penyimpanan lokal saat dibuka kembali; tagihan terbuka tidak hilang; status item dapur tetap sinkron.
+0ZZ9. **FASE 10: T10-09 (Buku Insiden 5 skenario kegagalan & pemulihan listrik/perangkat mati mendadak — TECH_SPEC §10 & §11) SELESAI.**
+   - Dokumen SOP 1 halaman untuk staf kedai tersaji di `docs/ops/PEMULIHAN_LISTRIK.md`.
+   - Buku panduan insiden `docs/teknis/BUKU_INSIDEN.md` diperbarui mencakup 5 skenario kegagalan operasional kedai (§7 Internet putus, §8 Supabase tertidur, §9 Printer macet/habis kertas, §12 Token/sesi kedaluwarsa, §13 Salah void, §14 Pemulihan listrik/perangkat mati mendadak, §15 Log insiden).
+   - Implementasi penyimpanan draf kasir otomatis (`simpanDrafKasir`, `muatDrafKasir`, `hapusDrafKasir`) dan tagihan terbuka lokal (`simpanTagihanTerbukaLokal`, `muatTagihanTerbukaLokal`) di `aplikasi/src/lib/antrean-lokal.ts` serta fasad `aplikasi/src/lib/pemulihan-sesi.ts`.
+   - Integrasi auto-save draf keranjang & tagihan terbuka lokal di `aplikasi/src/layar/kasir/LayarKasir.tsx`.
+   - Rekonsiliasi berprinsip server-wins (`rekonsiliasiEntitas`, `rekonsiliasiDaftarPesanan`) menjamin data lokal usang tidak menimpa data server.
+   - 15 uji unit di `aplikasi/src/lib/antrean-lokal.test.ts` dan 4 uji di `aplikasi/src/lib/pemulihan-sesi.test.ts` lulus 100%.
+   - 7 skenario pengujian ketahanan listrik mati mendadak di `aplikasi/uji/e2e/mati-mendadak.spec.ts` lulus 100%.
+   - Isolasi localStorage diperbaiki di seluruh uji kasir (`LayarKasirBayar.test.tsx`, `LayarKasirDiskon.test.tsx`, `LayarKasirVoid.test.tsx`), seluruh 45 berkas pengujian kasir/lib lulus hijau (434/434 uji lulus).
+   - 81 mutasi aplikasi pada `aplikasi/alat/uji-mutasi-app.mjs` terbukti lolos/merah 100%.
+   - Total 146 dari 200 butir roadmap tuntas.
+
+0ZZ10. **LANGKAH SELANJUTNYA: FASE 10 — T10-10 (Cadangan mingguan otomatis + uji pemulihan terjadwal — TECH_SPEC §10).**
+   - **Tujuan:** data kedai aman dari bencana kehilangan data fatal dengan backup terjadwal terenkripsi dan verifikasi pemulihan nyata.
+   - **Ref:** TECH_SPEC §10 (cadangan data, RTO < 1 jam, RPO < 24 jam).
+   - **DoD:** skrip dump otomatis mingguan (pg_dump / supabase db dump) terenkripsi, skrip uji pemulihan terjadwal yang memverifikasi integritas dump, panduan pemulihan bencana terdokumentasi di docs/ops/, dan pengujian pembuktian pemulihan.
    - **Kompleksitas:** sedang (2 jam).
-   - **Risiko & mitigasi:** data lokal usang menimpa data server → mitigasi: server selalu menang (last-write-wins dengan timestamp server) + konfirmasi kasir bila ada konflik.
-   - **Verifikasi:** simulasi skenario kegagalan & pengujian pemulihan luring.
+   - **Risiko & mitigasi:** dump korup tanpa diketahui → uji pemulihan berkala wajib memulihkan dump ke database terisolasi dan memvalidasi keutuhan tabel dan relasi.
 
 0ZZ3. **FASE 9 TUNTAS PENUH: T9-01 s/d T9-12 SELESAI (12/12 TUGAS LULUS 100%).**
    - T9-01 s/d T9-12 selesai tuntas dengan 124 berkas uji SQL lulus, mutasi fail-closed 100% merah, komponen UI lengkap, Peta UI hijau.
