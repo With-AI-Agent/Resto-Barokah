@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `2270932cd5fde9b7b5189e4be563df1fe2ef4433`
+- **Commit keadaan kerja:** `d1ae7e75264e614098fbd3ea711eebed1a017092`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit 7b43bba — periksa lagi setelah push)
+- **CI terakhir:** (belum ada run CI untuk commit d1ae7e75 — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (78 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (84 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,10 +70,43 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**KEADAAN SESI INI (2026-09-26, `arena/01a0d09b-resto-barokah` — FASE 10: T10-01 & T10-02 SELESAI 100%):**
+**FASE 10 T10-12 PEGAWAI BERHENTI: CABUT AKSES CEPAT & SERAH TERIMA SELESAI (2026-09-27):**
+1. **Database & RPC (Migrasi `0084_cabut_akses_pegawai_berhenti.sql`):**
+   - Kolom baru pada `public.shift_kas`:
+     - `perlu_tutup_atasan boolean not null default false`
+     - `catatan_serah_terima text`
+     - `ditutup_oleh_atasan boolean not null default false`
+   - RPC atomik `public.pegawai_berhenti(p_pengguna_id, p_alasan, p_catatan_serah_terima)`:
+     - Soft-disable akun: `aktif = false` pada `public.pengguna` dan `public.pengguna_cabang` (mematuhi Aturan Bisnis 11 & ART-2 tanpa menghapus baris).
+     - Pencabutan seketika seluruh sesi perangkat aktif (`status = 'dicabut'` di `sesi_perangkat`) dan penghapusan sesi cabang (`sesi_cabang`).
+     - Pemusnahan kredensial PIN di `public.kredensial_pin` sehingga PIN masuk 6 angka tidak lagi tersimpan. Upaya login berikutnya langsung tertolak fail-closed.
+     - Penanganan shift kasir menggantung: bila pegawai memiliki shift kasir berstatus `'terbuka'`, shift ditandai `perlu_tutup_atasan = true` beserta catatan serah terima agar kas fisik dihitung riil oleh atasan.
+     - Perekaman jejak audit kekal di `public.catatan_audit` dengan aksi `'pegawai_berhenti'`.
+     - Pagar hierarki & keberlanjutan resto: staf biasa dilarang mencabut akses; Admin Cabang dilarang memberhentikan Owner Pusat; dilarang memberhentikan satu-satunya Owner Pusat aktif; dilarang mencabut akses diri sendiri via alur ini.
+   - RPC `public.ambil_shift_perlu_tutup(p_cabang_id)`: mengembalikan daftar shift kasir menggantung yang wajib ditutup atasan saat serah terima.
+   - Penyelarasan RPC `public.tutup_shift`: mengenali `ditutup_oleh_atasan = true` dan membersihkan penanda `perlu_tutup_atasan`.
+2. **Pengujian SQL & Mutasi Fail-Closed:**
+   - Berkas uji `supabase/tes/cabut_akses.sql` memvalidasi 8 skenario komprehensif: otorisasi, transaksi kasir masa lalu, soft-disable akun, pemutusan sesi perangkat & cabang, pemusnahan PIN, penandaan shift terbuka, penutupan shift oleh Admin Cabang (T-013), keutuhan laporan penjualan/kas lama, serta pencegahan hard-delete oleh pemicu `picu_pengguna_cegah_hapus`.
+   - 130 berkas uji SQL LULUS 100% (130 LULUS · 0 GAGAL) via `node alat/uji-sql.mjs`.
+   - Suite uji mutasi `alat/uji-mutasi-0084.py` membuktikan 4/4 mutan fail-closed WAJIB MATI 100%.
+3. **Komponen Antarmuka & Frontend:**
+   - Komponen modal `aplikasi/src/layar/pengaturan/CabutAkses.tsx` dengan ringkasan pegawai, checklist 5 langkah pengamanan otomatis, isian alasan & catatan serah terima, serta konfirmasi ketik 'CABUT'.
+   - Integrasi tombol "Pegawai Berhenti" pada baris staf aktif di `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`.
+   - 4 uji unit di `CabutAkses.test.tsx` dan 8 uji unit di `KelolaPegawai.test.tsx` LULUS 100%.
+   - Seluruh 18 berkas uji unit di `src/layar/pengaturan/` LULUS 100% (178 uji unit lolos).
+   - Prettier, ESLint, TypeScript (`tsc -b`), dan seluruh pemeriksa repositori LULUS 100%.
 
-0ZZ0. **CATATAN MUTLAK LEE (§29 REKAM PESAN PEMILIK): PEMERIKSAAN MENDALAM MENYELURUH SETELAH FASE 10 SELESAI.**
-   - Sesuai instruksi Lee pada 2026-09-26, setelah tugas terakhir di Fase 10 (T10-16) selesai tuntas, agent WAJIB BERHENTI dan MENGINGATKAN Lee untuk melakukan mekanisme pemeriksaan mendalam menyeluruh. Dilarang langsung melangkah ke Fase 11 sebelum mekanisme pemeriksaan tersebut disiapkan dan dijalankan bersama Lee.
+4. **Rencana Selanjutnya:**
+   - Menyelesaikan tugas Fase 10 berikutnya:
+     - **T10-13 — Ringkasan peringatan harian ke owner (email) ⚠️** (PRD M12; TECH_SPEC §5.1 & §9 ART-13; docs/KEAMANAN.md §9).
+       - Tujuan: hal aneh (void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat) terlihat tanpa owner membuka aplikasi.
+       - File: `supabase/functions/ringkasan_harian/index.ts` (rencana T10-13), `supabase/migrations/0085_ringkasan_harian.sql` (rencana T10-13), `aplikasi/src/layar/laporan/Peringatan.tsx` (rencana T10-13), `supabase/tes/ringkasan.sql` (rencana T10-13).
+       - DoD: laporan ringkas 1×/hari (pg_cron) dikirim via email owner DAN dapat dilihat di layar Peringatan dalam aplikasi, memuat omzet, transaksi, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat, pemakaian jalur pemulihan; tanpa data pribadi pelanggan; rantai audit diperiksa dan dilaporkan bila putus; uji SQL lulus.
+       - Risiko & mitigasi: ⚠️ wajib update `DECISIONS_LOG.md` — Area: Jejak Audit (ART-13) & Data Pelanggan (ART-14); email bocor/tersalah kirim → mitigasi: hanya angka + nama pegawai, tanpa kontak pelanggan; penerima dapat diatur owner.
+     - **T10-14 — Pemeriksa rahasia, dependensi & header keamanan halaman ⚠️** (TECH_SPEC §6 & §8).
+     - **T10-15 — Latihan pemulihan cadangan & uji Buku Insiden** (TECH_SPEC §8 & §11).
+     - **T10-16 — Tinjauan kode pemulihan MFA & kata sandi bocor (T-016)**.
+   - Peringatan Khusus Lee (§29 `REKAM_PESAN_PEMILIK.md`): Setelah seluruh Fase 10 selesai tuntas (T10-16), agent WAJIB BERHENTI dan MENGINGATKAN Lee untuk pemeriksaan mendalam menyeluruh. Dilarang melangkah ke Fase 11 sebelum arahan Lee.
 
 0ZZ1. **FASE 10: T10-01 (Antrean kirim luring IndexedDB ⚠️ — TECH_SPEC §13 K4 & §9 ART-8; PRD §9) SELESAI.**
    - Modul `aplikasi/src/lib/antrean-offline.ts` mengimplementasikan antrean lokal persisten berbasis IndexedDB (`resto_barokah_offline_db` / `antrean_kirim`) dengan fallback memori aman (zero-crash).
