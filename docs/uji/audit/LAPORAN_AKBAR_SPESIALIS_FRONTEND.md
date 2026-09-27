@@ -9,6 +9,11 @@
 | **Mode kerja** | **HANYA-BACA** — tidak ada berkas di `aplikasi/src/` maupun CSS yang diubah. Laporan ini satu-satunya berkas yang dibuat auditor. Uji adversarial dijalankan di **salinan terpisah `/tmp/audit-kasir`** (bukan di repo). |
 | **Verdict** | **MEMERLUKAN PERBAIKAN sebelum Fase 11** — 0 temuan K-1, **2 temuan K-2 TERVERIFIKASI**, 6 temuan K-3, 5 temuan K-4. Fungsional inti kasir sehat; dua K-2 menyangkut janji yang tertulis tapi belum terpenuhi. |
 
+> **Tambahan 2026-09-27:** putaran audit kedua pada peran yang sama menemukan 3 temuan yang belum ada di sini
+> (jalur tiket dapur tidak dipulihkan setelah pesanan luring, layar pelayan melaporkan sukses kirim tanpa pengiriman —
+> dibuktikan dengan menjalankan layarnya, dan duplikat `23505` yang dapat menandai sukses tanpa item). Lihat
+> `docs/uji/audit/LAPORAN_AKBAR_SPESIALIS_FRONTEND_tambahan.md`. Verdict dan temuan pada berkas ini tidak diubah.
+
 > Catatan format: laporan ini mengikuti format khusus peran Akbar (PAKET §3 + PROMPT SPESIALIS FRONTEND §4), bukan kontrak §6 paket AUD-2/AUD-3, karena mandat ini datang dari paket Akbar, bukan dari paket audit berset SHA.
 
 ---
