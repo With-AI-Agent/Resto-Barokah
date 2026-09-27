@@ -22,7 +22,10 @@ import { LayarKasir } from './LayarKasir'
 import { PenyediaBahasa } from '../../bahasa'
 import isiLayarKasir from './LayarKasir.tsx?raw'
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  localStorage.clear()
+})
 
 /** Komentar dibuang dulu — penjaga `?raw` gampang tertipu teks di dalam komentar. */
 const isiTanpaKomentar = isiLayarKasir.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')

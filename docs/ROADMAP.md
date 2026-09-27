@@ -1958,11 +1958,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pembersih menghapus data penting → mitigasi: daftar tabel yang boleh dibersihkan ditulis eksplisit + uji.
   - **Verifikasi:** jalankan manual + periksa log terjadwal 2 hari.
 
-- [ ] T10-09 — Pemulihan setelah listrik/perangkat mati mendadak (kasir & dapur)
+- [x] T10-09 — Pemulihan setelah listrik/perangkat mati mendadak (kasir & dapur)
   - **Tujuan:** kedai bisa lanjut jualan setelah listrik padam tanpa kehilangan pesanan yang sedang berjalan.
   - **Ref:** PRD §9 risiko; TECH_SPEC §9 ART-8; PRD M4 & M7
   - **File:** `aplikasi/src/lib/pemulihan-sesi.ts`, `aplikasi/uji/e2e/mati-mendadak.spec.ts`, `docs/ops/PEMULIHAN_LISTRIK.md`
-  - **DoD:** keranjang yang belum terkirim tersimpan lokal dan ditawarkan kembali saat aplikasi dibuka ulang; shift yang masih terbuka dikenali dan dilanjutkan (bukan shift baru); pesanan yang sudah masuk dapur tetap tampil; langkah pemulihan ditulis 1 halaman bahasa manusia untuk pegawai.
+  - **DoD:** keranjang yang belum terkirim tersimpan lokal dan ditawarkan kembali saat aplikasi dibuka ulang; shift yang masih terbuka dikenali dan dilanjutkan (bukan shift baru); pesanan yang sudah masuk dapur tetap tampil; langkah pemulihan ditulis 1 halaman bahasa manusia untuk pegawai. · **Bukti 2026-09-27:** modul `aplikasi/src/lib/antrean-lokal.ts` dan `aplikasi/src/lib/pemulihan-sesi.ts` menerapkan penyimpanan draf keranjang kasir (`simpanDrafKasir`, `muatDrafKasir`), cadangan tagihan terbuka (`simpanTagihanTerbukaLokal`, `muatTagihanTerbukaLokal`), dan aturan rekonsiliasi server-wins (`rekonsiliasiEntitas`, `rekonsiliasiDaftarPesanan`); `LayarKasir.tsx` otomatis menyimpan dan memulihkan draf keranjang dengan banner pemulihan jujur serta mengosongkan draf saat lunas; kelanjutan shift aktif dideteksi tanpa memaksa shift baru; panduan operasional 1 halaman bahasa manusia disusun pada `docs/ops/PEMULIHAN_LISTRIK.md` dan 5 skenario kegagalan terdokumentasi lengkap di `docs/teknis/BUKU_INSIDEN.md`; seluruh pengujian Vitest pemulihan lulus (perintah: `npm test` atau `vitest run mati-mendadak.spec.ts antrean-lokal.test.ts LayarKasir.test.tsx` dengan 39 uji lulus, angka saat itu).
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** pemulihan menggandakan pesanan → mitigasi: kunci idempoten (T10-02) dipakai juga untuk pemulihan; uji "buka ulang 3x" hanya menghasilkan satu pesanan.
   - **Verifikasi:** uji e2e mematikan tab/aplikasi di tengah pesanan → data utuh, tidak dobel.

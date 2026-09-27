@@ -22,6 +22,7 @@ import { PenyediaBahasa } from '../../bahasa'
 
 afterEach(() => {
   cleanup()
+  localStorage.clear()
 })
 
 /** Metode dari peladen: sengaja BUKAN tunai/qris/kartu, supaya ketahuan bila

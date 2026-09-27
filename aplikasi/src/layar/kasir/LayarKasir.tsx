@@ -16,14 +16,14 @@
  *
  * Berkas ini tetap kontainer UI murni: tidak ada jaringan di dalamnya.
  */
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useBahasa } from '../../bahasa'
 import { Tombol } from '../../komponen/Tombol'
 import { Lapis } from '../../komponen/Lapis'
 import { Katalog, type MenuItemData, type VarianItem, type TambahanItem } from './Katalog'
 import { Keranjang, type ItemKeranjang, type RingkasanUang } from './Keranjang'
 import { PemilihMeja, type MejaData, type TipePesanan } from './PemilihMeja'
-import { TagihanTerbuka } from './TagihanTerbuka'
+import { TagihanTerbuka, type ItemTagihanTerbuka } from './TagihanTerbuka'
 import { Bayar, type BarisTagihan, type HasilBayar, type MetodeBayar, type Tagihan } from './Bayar'
 import { DiskonManual, type BatasDiskon, type HasilDiskon } from './DiskonManual'
 import { VoucherKasir, type HasilCekVoucher, type HasilPakaiVoucher } from './VoucherKasir'
@@ -36,6 +36,13 @@ import { PengingatShift } from '../../komponen/PengingatShift'
 import { StatusAntrean } from '../../komponen/StatusAntrean'
 import type { DataStruk } from '../../komponen/Struk'
 import { TARIF_BAWAAN, hitungPerkiraan, type TarifResto } from '../../lib/tarif'
+import {
+  muatDrafKasir,
+  simpanDrafKasir,
+  hapusDrafKasir,
+  muatTagihanTerbukaLokal,
+  simpanTagihanTerbukaLokal,
+} from '../../lib/antrean-lokal'
 
 export interface LayarKasirProps {
   cabangId?: string
@@ -149,6 +156,9 @@ export interface LayarKasirProps {
 
   // ------------------------------------------------- T7-06 koreksi modal awal shift
   onKoreksiModal?: (masukan: KoreksiModalInput) => Promise<HasilKoreksiModal>
+
+  // ------------------------------------------------- T10-09 pemulihan draf & tagihan terbuka
+  daftarTagihanTerbuka?: ItemTagihanTerbuka[]
 }
 
 export function LayarKasir({
@@ -184,6 +194,7 @@ export function LayarKasir({
   onTutupShift,
   onKasPergerakan,
   onKoreksiModal,
+  daftarTagihanTerbuka,
 }: LayarKasirProps) {
   const { t } = useBahasa()
   // Keranjang State
@@ -221,6 +232,52 @@ export function LayarKasir({
    * batas, alasan wajib, cap resto, dan jejak pelaku + penyetuju.
    */
   const [diskonAktif, setDiskonAktif] = useState<number>(0)
+
+  // Draf pemulihan kasir & tagihan (T10-09)
+  const inisialisasiDrafRef = useRef<boolean>(false)
+  const [pemberitahuanDraf, setPemberitahuanDraf] = useState<boolean>(false)
+
+  // Muat draf terakhir dari penyimpanan lokal saat layar kasir dibuka
+  useEffect(() => {
+    if (inisialisasiDrafRef.current) return
+    inisialisasiDrafRef.current = true
+
+    const draf = muatDrafKasir<ItemKeranjang>(cabangId)
+    if (draf && draf.daftarItemKeranjang && draf.daftarItemKeranjang.length > 0) {
+      setDaftarItemKeranjang(draf.daftarItemKeranjang)
+      if (draf.tipePesanan) setTipePesanan(draf.tipePesanan as TipePesanan)
+      if (draf.mejaAktif) setMejaAktif(draf.mejaAktif as MejaData)
+      if (typeof draf.diskonAktif === 'number') setDiskonAktif(draf.diskonAktif)
+      if (draf.catatanPesananUmum) setCatatanPesananUmum(draf.catatanPesananUmum)
+      setPemberitahuanDraf(true)
+    }
+  }, [cabangId])
+
+  // Simpan otomatis draf keranjang ke penyimpanan lokal setiap perubahan
+  useEffect(() => {
+    if (!inisialisasiDrafRef.current) return
+    if (daftarItemKeranjang.length > 0) {
+      simpanDrafKasir(cabangId, {
+        daftarItemKeranjang,
+        tipePesanan,
+        mejaAktif,
+        diskonAktif,
+        catatanPesananUmum,
+      })
+    } else {
+      hapusDrafKasir(cabangId)
+    }
+  }, [cabangId, daftarItemKeranjang, tipePesanan, mejaAktif, diskonAktif, catatanPesananUmum])
+
+  // Simpan tagihan terbuka ke cadangan lokal bila ada pasokan dari peladen (T10-09)
+  useEffect(() => {
+    if (daftarTagihanTerbuka && daftarTagihanTerbuka.length > 0) {
+      simpanTagihanTerbukaLokal(cabangId, daftarTagihanTerbuka)
+    }
+  }, [cabangId, daftarTagihanTerbuka])
+
+  const daftarTagihanAktif =
+    daftarTagihanTerbuka ?? muatTagihanTerbukaLokal<ItemTagihanTerbuka>(cabangId) ?? undefined
 
   /**
    * Angka ringkasan keranjang — PERKIRAAN untuk mata kasir selagi pesanan
@@ -422,9 +479,9 @@ export function LayarKasir({
     namaResto: namaCabang,
     namaMeja: tipePesanan === 'dinein' ? mejaAktif.nama : null,
     item: daftarItemKeranjang.map((baris) => ({
-      nama: baris.menuItem.nama,
+      nama: baris.menuItem?.nama ?? 'Item Menu',
       qty: baris.qty,
-      hargaSatuan: Math.round(baris.subtotal / baris.qty),
+      hargaSatuan: Math.round(baris.subtotal / (baris.qty || 1)),
       subtotal: baris.subtotal,
       catatan: baris.catatan,
     })),
@@ -444,6 +501,8 @@ export function LayarKasir({
       setDaftarItemKeranjang([])
       setDiskonAktif(0)
       setBukaBayarModal(false)
+      hapusDrafKasir(cabangId)
+      setPemberitahuanDraf(false)
     }
     onSelesaiBayar?.()
   }
@@ -532,6 +591,54 @@ export function LayarKasir({
         <div style={{ margin: 'var(--s-2) var(--s-3)' }}>
           <StatusAntrean selaluTampil={true} />
         </div>
+
+        {/* Banner Pemulihan Draf Setelah Listrik/Perangkat Mati (T10-09) */}
+        {pemberitahuanDraf && daftarItemKeranjang.length > 0 && (
+          <div
+            role="status"
+            data-testid="banner-pemulihan-draf"
+            className="kotak-peringatan"
+            style={{
+              margin: 'var(--s-2) var(--s-3)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 'var(--s-2)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
+              <span>⚡</span>
+              <span>
+                <strong>Pesanan dipulihkan:</strong> Draf transaksi sebelum perangkat terhenti
+                dimuat kembali ({daftarItemKeranjang.length} item).
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: 'var(--s-2)' }}>
+              <Tombol
+                jenis="button"
+                ragam="biasa"
+                onClick={() => {
+                  setDaftarItemKeranjang([])
+                  setDiskonAktif(0)
+                  hapusDrafKasir(cabangId)
+                  setPemberitahuanDraf(false)
+                }}
+                data-testid="btn-buang-draf-pulih"
+              >
+                Buang Draf
+              </Tombol>
+              <Tombol
+                jenis="button"
+                ragam="utama"
+                onClick={() => setPemberitahuanDraf(false)}
+                data-testid="btn-lanjut-draf-pulih"
+              >
+                Lanjutkan
+              </Tombol>
+            </div>
+          </div>
+        )}
 
         {/* Banner Peringatan Wajib Shift (T7-04) */}
         {wajibShift && !shiftAktif && (
@@ -627,6 +734,7 @@ export function LayarKasir({
           judul="Daftar Tagihan Terbuka"
         >
           <TagihanTerbuka
+            daftarTagihan={daftarTagihanAktif}
             onPilihTagihan={(t) => {
               alert(`Melanjutkan pesanan #${t.nomor} (${t.namaMeja || 'Takeaway'})`)
               setBukaOpenBillModal(false)
@@ -634,6 +742,8 @@ export function LayarKasir({
             onBuatPesananBaru={() => {
               setDaftarItemKeranjang([])
               setDiskonAktif(0)
+              hapusDrafKasir(cabangId)
+              setPemberitahuanDraf(false)
               setBukaOpenBillModal(false)
             }}
           />

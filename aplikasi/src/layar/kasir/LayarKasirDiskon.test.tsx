@@ -22,6 +22,7 @@ import isiLayarKasir from './LayarKasir.tsx?raw'
 
 afterEach(() => {
   cleanup()
+  localStorage.clear()
 })
 
 const BATAS_KASIR = { boleh: true, batasNominal: 25000, batasPersen: 5 }

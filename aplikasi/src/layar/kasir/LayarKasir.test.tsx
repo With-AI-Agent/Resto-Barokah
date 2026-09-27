@@ -1,12 +1,18 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
 import { LayarKasir } from './LayarKasir'
 import { PenyediaBahasa } from '../../bahasa'
+import { simpanDrafKasir, muatDrafKasir } from '../../lib/antrean-lokal'
 
 describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   afterEach(() => {
     cleanup()
+    localStorage.clear()
   })
 
   it('merender layout POS lengkap: katalog menu dan keranjang kosong di awal', () => {
@@ -354,6 +360,148 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
         disetujuiOleh: 'owner-01',
         pinAtasan: '738294',
       })
+    })
+  })
+
+  it('memulihkan draf pesanan dari penyimpanan lokal saat aplikasi dibuka kembali (T10-09)', async () => {
+    // Simulasikan draf tersimpan di penyimpanan lokal sebelum kasir membuka aplikasi
+    simpanDrafKasir('cab-01', {
+      daftarItemKeranjang: [
+        {
+          id: 'item-pulih-1',
+          menuItem: {
+            id: 'menu-ayam',
+            nama: 'Ayam Goreng Lengkuas',
+            harga: 25000,
+            kategoriId: 'kat-01',
+            aktif: true,
+          },
+          qty: 2,
+          subtotal: 50000,
+        },
+      ],
+      tipePesanan: 'dinein',
+      diskonAktif: 0,
+      catatanPesananUmum: 'Draf dipulihkan dari sebelum mati lampu',
+    })
+
+    render(
+      <PenyediaBahasa>
+        <LayarKasir cabangId="cab-01" />
+      </PenyediaBahasa>,
+    )
+
+    // Banner pemulihan draf harus tampil
+    await waitFor(() => {
+      expect(screen.getByTestId('banner-pemulihan-draf')).toBeDefined()
+    })
+    expect(
+      screen.getByText(/Draf transaksi sebelum perangkat terhenti dimuat kembali/i),
+    ).toBeDefined()
+
+    // Item draf harus ada di keranjang
+    expect(screen.getByText('Ayam Goreng Lengkuas')).toBeDefined()
+  })
+
+  it('menekan tombol Buang Draf pada banner pemulihan menghapus draf dan mengosongkan keranjang (T10-09)', async () => {
+    simpanDrafKasir('cab-01', {
+      daftarItemKeranjang: [
+        {
+          id: 'item-pulih-2',
+          menuItem: {
+            id: 'menu-jeruk',
+            nama: 'Es Jeruk Nipis',
+            harga: 8000,
+            kategoriId: 'kat-minuman',
+            aktif: true,
+          },
+          qty: 1,
+          subtotal: 8000,
+        },
+      ],
+      tipePesanan: 'dinein',
+    })
+
+    render(
+      <PenyediaBahasa>
+        <LayarKasir cabangId="cab-01" />
+      </PenyediaBahasa>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('banner-pemulihan-draf')).toBeDefined()
+    })
+
+    const tombolBuang = screen.getByTestId('btn-buang-draf-pulih')
+    fireEvent.click(tombolBuang)
+
+    // Banner hilang dan keranjang kembali kosong
+    await waitFor(() => {
+      expect(screen.queryByTestId('banner-pemulihan-draf')).toBeNull()
+    })
+    expect(screen.getByText(/Keranjang Masih Kosong/i)).toBeDefined()
+    expect(muatDrafKasir('cab-01')).toBeNull()
+  })
+
+  it('menyelesaikan pembayaran tagihan lunas menghapus draf dari penyimpanan lokal (T10-09)', async () => {
+    // Simulasikan keranjang berisi draf dan pembayaran berhasil lunas
+    simpanDrafKasir('cab-01', {
+      daftarItemKeranjang: [
+        {
+          id: 'item-pulih-1',
+          menuItem: {
+            id: 'menu-ayam',
+            nama: 'Ayam Goreng Lengkuas',
+            harga: 25000,
+            kategoriId: 'kat-01',
+            aktif: true,
+          },
+          qty: 1,
+          subtotal: 25000,
+        },
+      ],
+      tipePesanan: 'dinein',
+    })
+
+    const onSelesaiBayarMock = vi.fn()
+
+    render(
+      <PenyediaBahasa>
+        <LayarKasir
+          cabangId="cab-01"
+          keadaanBayar="berhasil"
+          metodeBayar={[
+            { id: 'm-tunai', nama: 'Tunai', jenis: 'tunai', butuhReferensi: false, urutan: 1 },
+          ]}
+          terakhirBayar={{
+            jumlah: 25000,
+            kembalian: 0,
+            totalDibayar: 25000,
+            totalPesanan: 25000,
+            lunas: true,
+            dobel: false,
+            sisa: 0,
+          }}
+          onSelesaiBayar={onSelesaiBayarMock}
+        />
+      </PenyediaBahasa>,
+    )
+
+    // Draf awal terisi di local storage
+    expect(muatDrafKasir('cab-01')).not.toBeNull()
+
+    // Buka dialog pembayaran yang sudah lunas
+    const tombolBayar = screen.getByRole('button', { name: /Bayar Pesanan/i })
+    fireEvent.click(tombolBayar)
+
+    // Tombol Selesai muncul di kartu pembayaran lunas
+    const tombolSelesai = screen.getByRole('button', { name: 'Selesai' })
+    fireEvent.click(tombolSelesai)
+
+    // Keranjang dikosongkan dan draf di local storage terhapus
+    await waitFor(() => {
+      expect(muatDrafKasir('cab-01')).toBeNull()
+      expect(onSelesaiBayarMock).toHaveBeenCalled()
     })
   })
 })
