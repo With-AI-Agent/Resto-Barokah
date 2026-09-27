@@ -10,13 +10,13 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `ed06e41e91b279442a2b6ae5d7f54b7c15a1584b`
+- **Commit keadaan kerja:** `710e994ff35be79041ee89c0dcad5783c3117477`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36279704422, commit ed06e41e) — tunggu sampai selesai
+- **CI terakhir:** (belum ada run CI untuk commit 710e994f — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
-- **Ditulis:** 2026-09-26 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
+- **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
 - **Berkas yang Lee salin ke chat baru:** `PROMPT_SESI_BARU.md` (STATIS — mesin memeriksanya, bukan
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (70 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (72 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -125,14 +125,28 @@ JANGAN merge apa pun tanpa keputusan Lee.
      8. Catatan keputusan dicatat di `docs/DECISIONS_LOG.md` (Area: Keamanan Data & RLS ART-1).
    - 126 berkas uji SQL lulus 100%. Total 142 dari 200 butir roadmap tuntas.
 
-0ZZ6. **LANGKAH SELANJUTNYA: FASE 10 — T10-06 (Akhiri sesi dari perangkat lain / perangkat hilang ⚠️ — PRD M12 Kasus Tepi).**
-   - **Tujuan:** perangkat pegawai yang hilang tidak menjadi pintu masuk.
-   - **Ref:** PRD M12 (kasus tepi) · RPC resmi: `keluar_semua_perangkat`.
-   - **File:** `aplikasi/src/layar/pengaturan/SesiAktif.tsx`, `supabase/functions/akhiri_sesi/index.ts` (rencana T10-06).
-   - **DoD:** owner melihat daftar sesi aktif (perangkat, waktu, peran) dan bisa mengakhirinya; catatan audit dibuat; uji lulus.
-   - **Kompleksitas:** sedang (3 jam).
-   - **Risiko & mitigasi:** ⚠️ wajib update `docs/DECISIONS_LOG.md` — Area: Role & Permission (ART-2); mitigasi: hanya owner/admin berizin + audit.
-   - **Verifikasi:** uji unit fungsi akhiri sesi + bukti audit tercatat.
+0ZZ6. **FASE 10: T10-06 (Akhiri sesi dari perangkat lain / perangkat hilang ⚠️ — PRD M12 Kasus Tepi) SELESAI.**
+   - Migrasi `supabase/migrations/0081_akhiri_sesi_perangkat_hilang.sql`:
+     1. Kolom `diakhiri_pada`, `alasan_berakhir`, dan `perangkat_hilang` pada tabel `public.sesi_cabang`.
+     2. RPC `public.daftar_sesi` menyajikan daftar sesi aktif, info perangkat, IP, waktu masuk, aktivitas terakhir, peran pengguna, dan cabang. Otorisasi ketat: owner melihat semua sesi cabang resto, kasir/staf hanya melihat sesi miliknya sendiri. Sesi kedaluwarsa disaring.
+     3. RPC `public.keluar_semua_perangkat` mengakhiri semua sesi aktif pengguna (atau semua sesi cabang jika owner/admin).
+     4. RPC `public.akhiri_sesi` mengakhiri 1 sesi tertentu dengan pencatatan alasan berakhir.
+     5. RPC `public.tandai_perangkat_hilang` menandai perangkat hilang, mencabut kredensial di `public.kredensial_perangkat`, dan mencabut seluruh sesi terkait seketika.
+     6. Seluruh aksi pemutusan sesi dan penandaan perangkat hilang dicatat kekal di `public.catatan_audit`.
+   - Berkas uji SQL `supabase/tes/akhiri_sesi_perangkat_hilang.sql` (14 skenario uji) lulus 100% (total 127 berkas uji SQL lulus via `node alat/uji-sql.mjs`).
+   - Penilai mutasi `alat/uji-mutasi-0081.py` membuktikan 4/4 mutasi fail-closed tertangkap merah secara deterministik.
+   - Edge Function `supabase/functions/akhiri_sesi/index.ts` terverifikasi 12 uji batas di `alat/uji-edge-akhiri-sesi.mjs` dan terdaftar di `.github/workflows/ci.yml` serta `GERBANG_WAJIB` di `alat/periksa-gerbang-ci.py`.
+   - Komponen antarmuka `aplikasi/src/layar/pengaturan/SesiAktif.tsx` terintegrasi di `LayarPengaturan.tsx` menyediakan daftar sesi aktif, aksi akhiri sesi per perangkat, keluar semua perangkat, dan penanda perangkat hilang berkonfirmasi pengaman (7 uji unit di `SesiAktif.test.tsx` dan 16 uji di `LayarPengaturan.test.tsx` lulus 100%).
+   - Total 118 berkas uji frontend (963 tes unit) lulus 100%. Total 143 dari 200 butir roadmap tuntas.
+
+0ZZ7. **LANGKAH SELANJUTNYA: FASE 10 — T10-07 (Audit keamanan menggunakan skill security-review ⚠️ — TECH_SPEC §8 & §9; AGENT_OPERATING_GUIDE §5).**
+   - **Tujuan:** mencari kelemahan sebelum dipakai orang banyak, bukan sesudah.
+   - **Ref:** TECH_SPEC §8 & §9; AGENT_OPERATING_GUIDE §5.
+   - **File:** `docs/uji/AUDIT_KEAMANAN.md` (rencana T10-07).
+   - **DoD:** daftar periksa keamanan dijalankan (kunci rahasia, RLS, hak akses, PIN, voucher, unggahan gambar, XSS, CORS); semua temuan diperbaiki atau dicatat dengan alasan + risiko diterima pemilik.
+   - **Kompleksitas:** besar (5 jam).
+   - **Risiko & mitigasi:** ⚠️ wajib update `docs/DECISIONS_LOG.md` — Area: RLS/Auth, Voucher; mitigasi: temuan berat wajib dibereskan sebelum produksi.
+   - **Verifikasi:** dokumen audit bertanda status tiap temuan + uji ulang setelah perbaikan.
 
 0ZZ3. **FASE 9 TUNTAS PENUH: T9-01 s/d T9-12 SELESAI (12/12 TUGAS LULUS 100%).**
    - T9-01 s/d T9-12 selesai tuntas dengan 124 berkas uji SQL lulus, mutasi fail-closed 100% merah, komponen UI lengkap, Peta UI hijau.
