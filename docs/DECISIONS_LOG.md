@@ -64,7 +64,7 @@ Format:
 - **Area:** Data pelanggan & privasi (ART-10) + ketahanan data
 - **Keputusan:** cadangan `pg_dump` mingguan otomatis + uji pemulihan dijadikan tugas tersendiri **T10-10** di Fase 10, bukan hanya satu baris DoD di T11-10 (tugas penutup). Berkas cadangan wajib terenkripsi, disimpan di luar basis data, masa simpan dibatasi, dan **tidak pernah masuk repo**.
 - **Alasan:** paket gratis Supabase tidak menyediakan cadangan otomatis (`TECH_SPEC.md` §8 butir 9). Sebelumnya satu-satunya penjaga adalah DoD tugas terakhir G1 — artinya sepanjang Fase 0–10 data kedai nyata tidak punya cadangan sama sekali, padahal pilot sudah bisa jalan sebelum F11 selesai.
-- **File terkait:** `docs/ROADMAP.md` (T10-10, T11-10), `docs/TECH_SPEC.md` §8, `alat/cadangan.sh` (dibuat nanti), `docs/teknis/PEMULIHAN.md` (dibuat nanti)
+- **File terkait:** `docs/ROADMAP.md` (T10-10, T11-10), `docs/TECH_SPEC.md` §8, `alat/cadangan.sh`, `docs/teknis/PEMULIHAN.md`, `.github/workflows/cadangan.yml`
 - **Implikasi:** berkas cadangan berisi data pelanggan → tunduk pada kebijakan privasi (T-011). Dilarang menaruh berkas cadangan atau kuncinya di Git. Pernyataan "siap pakai harian" (T11-10) tidak boleh ditandatangani sebelum pemulihan benar-benar pernah diuji.
 
 ### [Review independen/2026-09-16] Perubahan pengaturan bersamaan wajib ditolak di peladen (T10-11)
@@ -3065,6 +3065,20 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
      - Dependensi frontend dan skrip alat (`npm audit`) terbukti bersih dengan 0 celah kerentanan (*0 vulnerabilities*).
 - **File terkait:** `docs/uji/AUDIT_KEAMANAN.md`, `aplikasi/src/layar/pelanggan-publik/Katalog.tsx`, `aplikasi/src/layar/pelanggan-publik/Katalog.test.tsx`
 - **Implikasi:** Seluruh arsitektur Resto Barokah terbukti memenuhi standar keamanan *Production-Ready*, bebas dari temuan kritis yang belum tertangani, dan siap menghadapi ancaman dunia nyata.
+
+### [Fase 10/2026-09-27] Enkripsi Simetris AES-256-CBC PBKDF2 & Verifikasi Paritas Pemulihan Bencana (T10-10)
+- **Area:** Data pelanggan & privasi (ART-10) · Ketahanan & Keamanan Lanjutan (TECH_SPEC §8 & §10)
+- **Keputusan:**
+  1. Seluruh dump basis data cadangan mingguan dikompresi gzip dan dienkripsi simetris menggunakan OpenSSL AES-256-CBC dengan PBKDF2 100.000 iterasi (`-pbkdf2 -iter 100000`).
+  2. Kunci enkripsi dibaca dari variabel lingkungan aman (`KUNCI_ENKRIPSI_CADANGAN`) dengan syarat panjang minimal 16 karakter (ditolak fail-closed bila kosong atau < 16 karakter).
+  3. Seluruh salinan plaintext mentah (`.sql` dan `.sql.gz`) wajib segera dihapus dari lingkungan komputasi runner seketika setelah enkripsi selesai untuk menegakkan privasi data (ART-10).
+  4. Integritas dijamin oleh berkas checksum SHA-256 terpisah (`.sha256`) yang diverifikasi sebelum proses dekripsi.
+  5. Mekanisme pemulihan diuji secara deterministik ke basis data baru yang 100% kosong (*clean slate*) dengan verifikasi paritas penuh 46 tabel publik, konsistensi relasional (*foreign key*), dan validasi RLS *deny-by-default* pada seluruh tabel.
+  6. Alur otomatis cadangan mingguan ditanam pada GitHub Actions `.github/workflows/cadangan.yml` (cron Minggu 02:00 WIB + pemicu manual `workflow_dispatch`) dengan retensi artefak 90 hari.
+- **Alasan:** Paket gratis Supabase tidak memiliki cadangan bawaan; data kedai memuat data transaksi, keuangan, dan nomor kontak pelanggan yang dilindungi ART-10; pencegahan kebocoran data di repositori publik/privat maupun lingkungan CI/CD; pembuktian bahwa cadangan benar-benar bisa dipulihkan bila terjadi musibah fatal.
+- **File terkait:** `alat/cadangan.sh`, `alat/eksekusi-cadangan.mjs`, `alat/uji-mutasi-cadangan.py`, `.github/workflows/cadangan.yml`, `docs/teknis/PEMULIHAN.md`, `docs/ROADMAP.md` (T10-10)
+- **Implikasi:** Berkas cadangan mentah dilarang masuk Git; kunci enkripsi dilarang dicatat di repositori; jika kunci hilang, cadangan tidak dapat dipulihkan sehingga pemilik platform wajib menjaga kunci di pengelola sandi aman; skrip pemulihan siap dijalankan kapan saja oleh DevOps atau pemilik resto dengan panduan SOP 7 tahap di `docs/teknis/PEMULIHAN.md`.
+
 
 
 

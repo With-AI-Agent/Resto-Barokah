@@ -31,3 +31,8 @@ Thumbs.db
 
 # Draf/cadangan pengiriman laporan terisolasi; bukan sumber aplikasi
 .laporan-lokal/
+
+# Cadangan lokal terenkripsi / sementara (T10-10)
+cadangan/
+.temp/
+supabase/.temp/

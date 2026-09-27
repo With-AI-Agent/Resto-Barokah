@@ -1967,11 +1967,11 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** pemulihan menggandakan pesanan → mitigasi: kunci idempoten (T10-02) dipakai juga untuk pemulihan; uji "buka ulang 3x" hanya menghasilkan satu pesanan.
   - **Verifikasi:** uji e2e mematikan tab/aplikasi di tengah pesanan → data utuh, tidak dobel.
 
-- [ ] T10-10 — Cadangan mingguan otomatis + uji pemulihan terjadwal
+- [x] T10-10 — Cadangan mingguan otomatis + uji pemulihan terjadwal
   - **Tujuan:** data kedai tidak hilang selamanya kalau terjadi kesalahan besar (paket gratis tidak punya cadangan otomatis).
   - **Ref:** TECH_SPEC §8 butir 9 (cadangan) & §10; PRD M12
   - **File:** `alat/cadangan.sh`, `docs/teknis/PEMULIHAN.md`, `.github/workflows/cadangan.yml`
-  - **DoD:** `pg_dump` mingguan berjalan otomatis (GitHub Actions gratis) dan hasilnya tersimpan terenkripsi di luar basis data; `docs/teknis/PEMULIHAN.md` memuat langkah pulih bernomor; **pemulihan diuji ke basis data kosong minimal sekali** dan hasilnya dicatat; tidak ada rahasia di dalam repo.
+  - **DoD:** `pg_dump` mingguan berjalan otomatis (GitHub Actions gratis) dan hasilnya tersimpan terenkripsi di luar basis data; `docs/teknis/PEMULIHAN.md` memuat langkah pulih bernomor; **pemulihan diuji ke basis data kosong minimal sekali** dan hasilnya dicatat; tidak ada rahasia di dalam repo. · **Bukti 2026-09-27:** alur otomatis mingguan didefinisikan pada `.github/workflows/cadangan.yml` (cron Minggu 02:00 WIB + workflow_dispatch) dengan enkripsi AES-256-CBC PBKDF2 (100.000 iterasi) dan retensi 90 hari; skrip orkestrasi `alat/cadangan.sh` dan mesin PGlite `alat/eksekusi-cadangan.mjs` menguji siklus pemulihan ke basis data kosong dengan 100% paritas data (46 tabel terverifikasi, 192 baris, RLS aktif pada seluruh 46 tabel, integritas foreign key utuh, angka saat itu); panduan pemulihan bencana 7 tahap terdokumentasi di `docs/teknis/PEMULIHAN.md`; bukti mutasi fail-closed 7 skenario pada `alat/uji-mutasi-cadangan.py` lulus 100% (perintah: `bash alat/cadangan.sh uji-pemulihan` dan `python3 alat/uji-mutasi-cadangan.py`, angka saat itu).
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Data pelanggan & privasi (ART-10); berkas cadangan berisi data pelanggan → mitigasi: enkripsi + akses terbatas + masa simpan dibatasi.
   - **Catatan:** T-012 sudah ditutup 2026-09-16 → cadangan disimpan sebagai **artefak terenkripsi GitHub Actions (repo privat, masa simpan 90 hari)** + pemilik mengunduh salinannya sebulan sekali.

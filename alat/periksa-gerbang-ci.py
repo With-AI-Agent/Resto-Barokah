@@ -260,6 +260,18 @@ ALUR_LAIN: dict[str, dict[str, list[tuple[str, str]]]] = {
              r"^\s*- 'aplikasi/SEBAR-HALAMAN'\s*$"),
         ],
     },
+    "cadangan.yml": {
+        "perintah": [
+            ("pasang pustaka alat", r"npm ci --prefix alat"),
+            ("uji pemulihan basis data kosong", r"bash alat/cadangan\.sh uji-pemulihan"),
+            ("bukti mutasi fail-closed cadangan & pemulihan", r"python3 alat/uji-mutasi-cadangan\.py"),
+            ("buat cadangan terenkripsi AES-256", r"bash alat/cadangan\.sh dump-dan-enkripsi cadangan"),
+        ],
+        "berkas": [
+            ("jadwal cron mingguan", r"-\s*cron:\s*'0 19 \* \* 6'"),
+            ("pemicu manual workflow_dispatch", r"^\s*workflow_dispatch:\s*$"),
+        ],
+    },
 }
 
 # Alur yang WAJIB ADA. Kalau seseorang menghapus berkasnya, penyebaran jadi tidak mungkin —
