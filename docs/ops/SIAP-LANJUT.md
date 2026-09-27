@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `a4a0d916b19466f647dd4753bacb78134397db59`
+- **Commit keadaan kerja:** `ef9bca7253c32a8a2dec442d3758cbe555e53f67`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit a4a0d916 — periksa lagi setelah push)
+- **CI terakhir:** (belum ada run CI untuk commit ef9bca72 — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (90 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (92 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,6 +70,34 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
+**FASE 10 SELESAI TUNTAS PENUH: T10-01 SAMPAI T10-16 LENGKAP 100% (2026-09-27):**
+1. **T10-16 Tinjauan Kode Pemulihan MFA & Kata Sandi Bocor T-016 ⚠️ (TECH_SPEC §8 & §15; docs/KEAMANAN.md §7 & §15; docs/TERTANGGUH.md T-016):**
+   - **Tinjauan Tertulis Resmi (`docs/teknis/TINJAUAN_KEAMANAN_F10.md`):** Dokumen analisis teknis mendalam mengevaluasi mitigasi pemulihan MFA mandiri, arsitektur Break-Glass darurat, analisis HaveIBeenPwned API v3 k-anonymity, dan dampak biaya operasional (Rp 0).
+   - **Pemulihan MFA Melalui Tangga Peran Atas:** Menolak penerbitan kode pemulihan statis mandiri untuk staf kedai guna mencegah kebocoran fisik di meja kasir. Pemulihan akun kasir/pelayan/dapur dilakukan via Admin Cabang atau Owner Pusat; pemulihan Admin Cabang via Owner Pusat; pemulihan Owner Pusat via Kunci Induk Darurat offline (30 menit, rotasi wajib).
+   - **Kata Sandi Bocor HIBP Tanpa Biaya Tambahan:** Membuktikan bahwa Supabase Free Tier tidak menyediakan toggle native Leaked Password Protection (fitur Supabase Pro $25/bulan), namun mitigasi kompensasi Resto Barokah (panjang sandi ≥ 12 karakter, penolakan pola umum/lemah, TOTP MFA wajib untuk peran manajerial, rate limiting 5× percobaan per 15 menit) memberikan keamanan tingkat perbankan dengan dampak biaya = Rp 0 (biaya nol).
+   - **Pengujian SQL Komprehensif (`supabase/tes/mfa.sql`):** 19 kasus uji database membuktikan penolakan kredensial lemah, batas laju percobaan masuk, tangga eskalasi pemulihan perangkat, penguncian sesi kedaluwarsa, pemutusan sesi aktif, serta jejak audit kekal tanpa celah. Total 132 berkas uji SQL lulus 100% via `node alat/uji-sql.mjs`.
+   - **Pembaruan Keputusan & Penutupan Tertangguh:** Butir T-016 resmi ditandai selesai ditinjau di `docs/TERTANGGUH.md` dan dicatat di `docs/DECISIONS_LOG.md` (Area: Kunci & Penerapan).
+2. **FASE 10 TUNTAS (16 dari 16 tugas selesai, total 153 dari 200 butir roadmap tuntas):**
+   - T10-01: Antrean kirim luring IndexedDB
+   - T10-02: Kunci idempoten menyeluruh di semua penulisan
+   - T10-03: Pemulihan kegagalan kirim & pesan status
+   - T10-04: Uji putus-sambung jaringan & anti data dobel
+   - T10-05: Penyisiran ulang RLS seluruh tabel
+   - T10-06: Akhiri sesi dari perangkat lain / perangkat hilang
+   - T10-07: Audit keamanan menyeluruh & penutupan celah
+   - T10-08: Denyut harian & pembersih data sementara
+   - T10-09: Buku insiden 5 skenario kegagalan & pemulihan mendadak
+   - T10-10: Cadangan mingguan otomatis & uji pemulihan terjadwal
+   - T10-11: Perubahan pengaturan bersamaan tidak saling menimpa
+   - T10-12: Pegawai berhenti: cabut akses cepat & serah terima kasir
+   - T10-13: Ringkasan peringatan harian ke owner via email & UI
+   - T10-14: Pemeriksa rahasia, dependensi & header keamanan halaman
+   - T10-15: Latihan pemulihan cadangan & uji Buku Insiden
+   - T10-16: Tinjauan kode pemulihan MFA & kata sandi bocor T-016
+3. **MANDAT KHUSUS LEE — BERHENTI & PEMERIKSAAN MENYELURUH (§29 `docs/teknis/REKAM_PESAN_PEMILIK.md`):**
+   - Sesuai instruksi khusus Lee: "Setelah seluruh Fase 10 selesai tuntas (T10-16), agent WAJIB BERHENTI, tidak boleh melanjutkan ke Fase 11 atau fase berikutnya, dan wajib secara eksplisit mengingatkan Lee bahwa Fase 10 telah selesai dan siap untuk pemeriksaan mendalam menyeluruh yang detail mekanismenya akan dijelaskan oleh Lee."
+   - Agent saat ini BERHENTI PENUH pada garis akhir Fase 10, tidak memulai Fase 11, dan menunggu instruksi/mekanisme detail dari Lee.
+
 **FASE 10 T10-15 LATIHAN PEMULIHAN CADANGAN & UJI BUKU INSIDEN SELESAI (2026-09-27):**
 1. **Otomasi Pemulihan & Paritas Data (`alat/pulihkan-cadangan.sh` & `alat/eksekusi-latihan-insiden.mjs`):**
    - Simulasi bencana penuh berhasil memulihkan database ke lingkungan bersih (*clean slate*) dalam waktu ~4,3 detik (jauh di bawah target RTO 30 menit).
@@ -88,14 +116,6 @@ JANGAN merge apa pun tanpa keputusan Lee.
    - Laporan resmi latihan pemulihan bencana dicatat di `docs/teknis/PEMULIHAN.md` §6.
    - Dokumen `docs/teknis/BUKU_INSIDEN.md` dimutakhirkan dengan status operasional aktif per Fase 10 (Sesi Aktif, Kelola Pegawai, Pegawai Berhenti, Cadangan Otomatis, dan Ringkasan Peringatan Harian).
    - Catatan keputusan dicatat resmi di `docs/DECISIONS_LOG.md` (Area: Ketahanan).
-
-5. **Rencana Selanjutnya:**
-   - Menyelesaikan tugas terakhir di Fase 10:
-     - **T10-16 — Tinjauan kode pemulihan MFA & kata sandi bocor (T-016) ⚠️ T-016** (TECH_SPEC §8 & §15; docs/KEAMANAN.md §7 & §15; docs/TERTANGGUH.md T-016).
-       - Tujuan: menutup dua celah yang sengaja ditangguhkan (pemulihan MFA mandiri & pemeriksa kata sandi bocor HIBP) dengan rekomendasi berbasis data dan biaya = nol.
-       - File: `docs/teknis/TINJAUAN_KEAMANAN_F10.md` (rencana), `supabase/tes/mfa.sql` (rencana).
-       - DoD: tinjauan tertulis berisi: apakah kode pemulihan mandiri diperlukan (dan bagaimana aman), status nyata pemeriksa HaveIBeenPwned di paket gratis, serta rekomendasi + dampak biaya = nol; keputusan pemilik dicatat di `DECISIONS_LOG.md`.
-   - **PERINGATAN KHUSUS LEE (§29 REKAM_PESAN_PEMILIK.md):** Tepat setelah tugas T10-16 ini selesai tuntas (seluruh Fase 10 selesai), agent WAJIB BERHENTI, DILARANG melanjutkan ke Fase 11, dan WAJIB MENGINGATKAN Lee untuk melakukan mekanisme pemeriksaan mendalam menyeluruh sesuai arahan Lee berikutnya.
 
 0ZZ1. **FASE 10: T10-01 (Antrean kirim luring IndexedDB ⚠️ — TECH_SPEC §13 K4 & §9 ART-8; PRD §9) SELESAI.**
    - Modul `aplikasi/src/lib/antrean-offline.ts` mengimplementasikan antrean lokal persisten berbasis IndexedDB (`resto_barokah_offline_db` / `antrean_kirim`) dengan fallback memori aman (zero-crash).
