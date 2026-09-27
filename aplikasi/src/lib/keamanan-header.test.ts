@@ -28,7 +28,9 @@ describe('Header Keamanan & Content-Security-Policy (T10-14 / TECH_SPEC §6 & §
 
   it('Content-Security-Policy membatasi sumber script, style, font, connect, dan anti-clickjacking', () => {
     const isi = fs.readFileSync(jalurHeaders, 'utf-8')
-    const barisCsp = isi.split('\n').find((b) => b.trim().startsWith('Content-Security-Policy:'))
+    const barisCsp = isi
+      .split('\n')
+      .find((b: string) => b.trim().startsWith('Content-Security-Policy:'))
     expect(barisCsp).toBeDefined()
 
     const csp = barisCsp || ''
