@@ -180,6 +180,8 @@ GERBANG_WAJIB = [
     ("uji-diri pemeriksa antarmuka", r"python3 aplikasi/alat/periksa-antarmuka.py --uji-diri"),
     ("pemeriksa rahasia & lembar kunci", r"python3 alat/periksa-rahasia.py"),
     ("uji-diri pemeriksa rahasia", r"python3 alat/periksa-rahasia.py --uji-diri"),
+    ("pemeriksa header keamanan halaman", r"python3 alat/periksa-header\.py"),
+    ("uji-diri pemeriksa header keamanan", r"python3 alat/periksa-header\.py --uji-diri"),
     ("pemeriksa pohon bersih", r"python3 alat/periksa-bersih.py"),
     ("pemeriksa gerbang CI", r"python3 alat/periksa-gerbang-ci.py"),
     ("uji-diri pemeriksa gerbang CI", r"python3 alat/periksa-gerbang-ci.py --uji-diri"),
@@ -525,6 +527,8 @@ def uji_diri() -> int:
         # syarat `if: false` (perintahnya tetap ada, jadi pemeriksa lama buta). Keduanya WAJIB ditolak.
         mutasi("langkah pemeriksa rahasia dihapus (PR-10 bukti G1)",
                lambda t: t.replace("          python3 alat/periksa-rahasia.py\n", "", 1))
+        mutasi("langkah pemeriksa header keamanan dihapus",
+               lambda t: t.replace("          python3 alat/periksa-header.py\n", "", 1))
         mutasi("langkah uji SQL dimatikan dengan `if: false` (PR-10 bukti G2)",
                lambda t: t.replace("      - name: Uji SQL penuh", "      - name: Uji SQL penuh\n        if: false", 1))
         mutasi("perintah tak dikenal disisipkan ke daftar langkah",

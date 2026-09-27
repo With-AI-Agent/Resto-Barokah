@@ -135,7 +135,7 @@ export const Peringatan: React.FC<PeringatanProps> = ({
           flexWrap: 'wrap',
           gap: '12px',
           padding: '16px',
-          backgroundColor: 'var(--latar-kartu, #ffffff)',
+          backgroundColor: 'var(--latar-kartu)',
           borderRadius: '8px',
           border: '1px solid var(--border)',
         }}
@@ -191,10 +191,10 @@ export const Peringatan: React.FC<PeringatanProps> = ({
           role="alert"
           style={{
             padding: '12px 16px',
-            backgroundColor: 'var(--latar-bahaya-muda, #fee2e2)',
-            color: 'var(--teks-bahaya, #991b1b)',
+            backgroundColor: 'var(--latar-bahaya-muda)',
+            color: 'var(--teks-bahaya)',
             borderRadius: '6px',
-            border: '1px solid var(--border-bahaya, #fca5a5)',
+            border: '1px solid var(--border-bahaya)',
             fontSize: '14px',
           }}
         >
@@ -207,10 +207,10 @@ export const Peringatan: React.FC<PeringatanProps> = ({
           role="status"
           style={{
             padding: '10px 14px',
-            backgroundColor: 'var(--latar-sukses-muda, #ecfdf5)',
-            color: 'var(--teks-sukses, #065f46)',
+            backgroundColor: 'var(--latar-sukses-muda)',
+            color: 'var(--teks-sukses)',
             borderRadius: '6px',
-            border: '1px solid var(--border-sukses, #6ee7b7)',
+            border: '1px solid var(--border-sukses)',
             fontSize: '13px',
             display: 'flex',
             justifyContent: 'space-between',
@@ -240,10 +240,10 @@ export const Peringatan: React.FC<PeringatanProps> = ({
             style={{
               padding: '14px 18px',
               borderRadius: '8px',
-              border: `1px solid ${data.rantai_audit_valid ? 'var(--border-sukses, #6ee7b7)' : 'var(--border-bahaya, #fca5a5)'}`,
+              border: `1px solid ${data.rantai_audit_valid ? 'var(--border-sukses)' : 'var(--border-bahaya)'}`,
               backgroundColor: data.rantai_audit_valid
-                ? 'var(--latar-sukses-muda, #ecfdf5)'
-                : 'var(--latar-bahaya-muda, #fef2f2)',
+                ? 'var(--latar-sukses-muda)'
+                : 'var(--latar-bahaya-muda)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -285,7 +285,7 @@ export const Peringatan: React.FC<PeringatanProps> = ({
               style={{
                 padding: '14px',
                 borderRadius: '8px',
-                backgroundColor: 'var(--latar-kartu, #ffffff)',
+                backgroundColor: 'var(--latar-kartu)',
                 border: '1px solid var(--border)',
               }}
             >
@@ -305,8 +305,8 @@ export const Peringatan: React.FC<PeringatanProps> = ({
               style={{
                 padding: '14px',
                 borderRadius: '8px',
-                backgroundColor: 'var(--latar-kartu, #ffffff)',
-                border: `1px solid ${data.void_count > 0 ? 'var(--border-bahaya, #fca5a5)' : 'var(--border)'}`,
+                backgroundColor: 'var(--latar-kartu)',
+                border: `1px solid ${data.void_count > 0 ? 'var(--border-bahaya)' : 'var(--border)'}`,
               }}
             >
               <div style={{ fontSize: '12px', color: 'var(--teks-sekunder)', marginBottom: '4px' }}>
@@ -316,7 +316,7 @@ export const Peringatan: React.FC<PeringatanProps> = ({
                 style={{
                   fontSize: '20px',
                   fontWeight: 700,
-                  color: data.void_count > 0 ? 'var(--teks-bahaya, #dc2626)' : 'var(--teks)',
+                  color: data.void_count > 0 ? 'var(--teks-bahaya)' : 'var(--teks)',
                 }}
               >
                 {data.void_count} pesanan
@@ -331,7 +331,7 @@ export const Peringatan: React.FC<PeringatanProps> = ({
               style={{
                 padding: '14px',
                 borderRadius: '8px',
-                backgroundColor: 'var(--latar-kartu, #ffffff)',
+                backgroundColor: 'var(--latar-kartu)',
                 border: '1px solid var(--border)',
               }}
             >
@@ -351,8 +351,8 @@ export const Peringatan: React.FC<PeringatanProps> = ({
               style={{
                 padding: '14px',
                 borderRadius: '8px',
-                backgroundColor: 'var(--latar-kartu, #ffffff)',
-                border: `1px solid ${data.selisih_kas_count > 0 ? 'var(--border-bahaya, #fca5a5)' : 'var(--border)'}`,
+                backgroundColor: 'var(--latar-kartu)',
+                border: `1px solid ${data.selisih_kas_count > 0 ? 'var(--border-bahaya)' : 'var(--border)'}`,
               }}
             >
               <div style={{ fontSize: '12px', color: 'var(--teks-sekunder)', marginBottom: '4px' }}>
@@ -362,7 +362,7 @@ export const Peringatan: React.FC<PeringatanProps> = ({
                 style={{
                   fontSize: '20px',
                   fontWeight: 700,
-                  color: data.selisih_kas_count > 0 ? 'var(--teks-bahaya, #dc2626)' : 'var(--teks)',
+                  color: data.selisih_kas_count > 0 ? 'var(--teks-bahaya)' : 'var(--teks)',
                 }}
               >
                 {data.selisih_kas_count} kejadian
@@ -377,8 +377,8 @@ export const Peringatan: React.FC<PeringatanProps> = ({
               style={{
                 padding: '14px',
                 borderRadius: '8px',
-                backgroundColor: 'var(--latar-kartu, #ffffff)',
-                border: `1px solid ${data.percobaan_gagal_count > 0 ? 'var(--border-peringatan, #fcd34d)' : 'var(--border)'}`,
+                backgroundColor: 'var(--latar-kartu)',
+                border: `1px solid ${data.percobaan_gagal_count > 0 ? 'var(--border-peringatan)' : 'var(--border)'}`,
               }}
             >
               <div style={{ fontSize: '12px', color: 'var(--teks-sekunder)', marginBottom: '4px' }}>
@@ -397,7 +397,7 @@ export const Peringatan: React.FC<PeringatanProps> = ({
               style={{
                 padding: '14px',
                 borderRadius: '8px',
-                backgroundColor: 'var(--latar-kartu, #ffffff)',
+                backgroundColor: 'var(--latar-kartu)',
                 border: '1px solid var(--border)',
               }}
             >
@@ -418,7 +418,7 @@ export const Peringatan: React.FC<PeringatanProps> = ({
             style={{
               padding: '16px',
               borderRadius: '8px',
-              backgroundColor: 'var(--latar-kartu, #ffffff)',
+              backgroundColor: 'var(--latar-kartu)',
               border: '1px solid var(--border)',
               display: 'flex',
               flexDirection: 'column',
@@ -515,7 +515,7 @@ export const Peringatan: React.FC<PeringatanProps> = ({
             style={{
               padding: '16px',
               borderRadius: '8px',
-              backgroundColor: 'var(--latar-kartu, #ffffff)',
+              backgroundColor: 'var(--latar-kartu)',
               border: '1px solid var(--border)',
             }}
           >

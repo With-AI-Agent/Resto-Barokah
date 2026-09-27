@@ -35,6 +35,9 @@ POLA_RAHASIA = [
     ("token OpenAI/Resend (sk-)", re.compile(r"\bsk-" + r"[A-Za-z0-9]{20,}")),
     ("token Resend (re_)", re.compile(r"\bre_" + r"[A-Za-z0-9]{20,}")),
     ("kunci AWS", re.compile(r"\bAKIA" + r"[0-9A-Z]{16}\b")),
+    ("kunci Brevo (xkeysib-)", re.compile(r"\bxkeysib-[a-zA-Z0-9]{64}\b")),
+    ("kunci rahasia Google OAuth (GOCSPX-)", re.compile(r"\bGOCSPX-[A-Za-z0-9_-]{28}\b")),
+    ("token akses GitHub (ghp_)", re.compile(r"\bgh[pousr]_[A-Za-z0-9]{36,}\b")),
 ]
 BERKAS_RAHASIA_POLA = ("*.local.md", "*.local", ".env", ".env.*")
 FORMULIR = "docs/ops/DAFTAR_KUNCI_PEMILIK.template.md"  # ikut Git; berkas kerja terisinya tidak
@@ -142,6 +145,24 @@ def uji_diri() -> int:
             kode_secret, _ = jalankan_pemeriksa(periksa, tmp_secret)
             hasil.append(("mutasi: format kunci Supabase baru sb_secret_ disisipkan", kode_secret != 0,
                           "ditolak" if kode_secret != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 1c: kunci Brevo sintetis → harus GAGAL
+        with salin_pohon() as tmp_brevo:
+            siapkan_git_salinan(tmp_brevo)
+            f = tmp_brevo / "PANDUAN_PENGGUNA.md"
+            f.write_text(f.read_text(encoding="utf-8") + "\nKunci Brevo: " + "xkeysib-" + "a" * 64 + "\n", encoding="utf-8")
+            kode_brevo, _ = jalankan_pemeriksa(periksa, tmp_brevo)
+            hasil.append(("mutasi: kunci Brevo xkeysib- disisipkan", kode_brevo != 0,
+                          "ditolak" if kode_brevo != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi 1d: kunci Google OAuth sintetis → harus GAGAL
+        with salin_pohon() as tmp_google:
+            siapkan_git_salinan(tmp_google)
+            f = tmp_google / "PANDUAN_PENGGUNA.md"
+            f.write_text(f.read_text(encoding="utf-8") + "\nGoogle Secret: " + "GOCSPX-" + "A" * 28 + "\n", encoding="utf-8")
+            kode_google, _ = jalankan_pemeriksa(periksa, tmp_google)
+            hasil.append(("mutasi: kunci Google OAuth GOCSPX- disisipkan", kode_google != 0,
+                          "ditolak" if kode_google != 0 else "DILOLOSKAN (tumpul)"))
 
         # Mutasi 2: aturan abaikan dihapus → harus GAGAL
         with salin_pohon() as tmp3:

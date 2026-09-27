@@ -3156,6 +3156,39 @@ dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."
 - **File terkait:** `supabase/migrations/0085_ringkasan_harian.sql`, `supabase/tes/ringkasan.sql`, `alat/uji-mutasi-0085.py`, `supabase/functions/ringkasan_harian/index.ts`, `alat/uji-edge-ringkasan-harian.mjs`, `aplikasi/src/layar/laporan/Peringatan.tsx`, `aplikasi/src/layar/laporan/Peringatan.test.tsx`, `aplikasi/src/layar/laporan/LayarLaporan.tsx`, `aplikasi/src/layar/laporan/LayarLaporan.test.tsx`, `docs/ROADMAP.md` (T10-13)
 - **Implikasi:** Pemilik resto dapat memantau setiap kejanggalan kasir, diskon, void, maupun potensi pembobolan tanpa harus berada di lokasi kedai; privasi pelanggan terlindungi 100% sesuai regulasi UU PDP; integritas sistem audit restoran terpantau setiap hari.
 
+### [Fase 10/2026-09-27] Pemeriksa Rahasia, Dependensi & Header Keamanan Halaman (T10-14 / M12 / TECH_SPEC §6 & §8 / docs/KEAMANAN.md §16)
+- **Area:** Kunci & Penerapan · Keamanan Halaman Web & Dependensi (TECH_SPEC §6 & §8; docs/KEAMANAN.md §16; PRD M12)
+- **Keputusan:**
+  1. **Konfigurasi Header Keamanan Halaman Cloudflare (`aplikasi/public/_headers`):**
+     - Berkas `_headers` diletakkan di `aplikasi/public/_headers` sehingga Vite otomatis menyalinnya ke `dist/_headers` pada saat `npm run build` dan langsung diterapkan oleh Cloudflare Static Assets.
+     - Menyematkan header keamanan standar:
+       - `X-Frame-Options: DENY` (anti-clickjacking menyeluruh).
+       - `X-Content-Type-Options: nosniff` (mencegah MIME type confusion).
+       - `Referrer-Policy: strict-origin-when-cross-origin` (melindungi privasi URL antar origin).
+       - `Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()` (hanya membuka API kamera untuk scan voucher kasir, menutup mikrofon dan fitur berisiko lainnya).
+       - `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` (penegakan HTTPS 1 tahun).
+       - `X-XSS-Protection: 0` (menonaktifkan filter XSS peramban kuno yang cacat).
+       - Cache-Control immutable untuk `/assets/*` (`public, max-age=31536000, immutable`).
+  2. **Content-Security-Policy (CSP) Seimbang & Anti-Mati:**
+     - Menghindari CSP terlalu ketat yang dapat mematikan fitur aplikasi kedai:
+       - `default-src 'self'`
+       - `script-src 'self' 'unsafe-inline'` (mendukung bundle Vite tanpa membuka domain eksternal; wildcard dilarang).
+       - `style-src 'self' 'unsafe-inline'` (mendukung 10 tema dinamis kedai dan CSS token).
+       - `img-src 'self' data: blob: https:` (mendukung SVG QR barcode, blob kanvas, dan Supabase storage).
+       - `font-src 'self' data:` (mendukung font lokal WOFF2).
+       - `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.workers.dev https://api.resend.com` (REST & WebSocket Realtime Supabase, Workers backend, email API).
+       - `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `upgrade-insecure-requests`.
+  3. **Penguatan Pola Pemeriksa Rahasia (`alat/periksa-rahasia.py`):**
+     - Ditambahkan pola deteksi: Brevo API (`xkeysib-`), Google OAuth Client Secret (`GOCSPX-`), GitHub Token (`ghp_`), dan Supabase secret (`sb_secret_`).
+     - Lulus uji mandiri 7 skenario fail-closed di `python3 alat/periksa-rahasia.py --uji-diri`.
+  4. **Pemeriksa Khusus Header Keamanan (`alat/periksa-header.py`):**
+     - Skrip pemeriksa otomatis yang menguji keabsahan struktur header, memeriksa 10 directive CSP wajib, melarang wildcard script/object, dan memvalidasi `public/_headers` serta `dist/_headers`.
+     - Terintegrasi ke `.github/workflows/ci.yml` dan dijaga oleh `alat/periksa-gerbang-ci.py`.
+  5. **Pengujian Dependensi (npm audit):**
+     - Audit dilakukan di `aplikasi` dan `alat` dengan level `--audit-level=low`, terbukti 0 kerentanan (`found 0 vulnerabilities`).
+- **File terkait:** `aplikasi/public/_headers`, `alat/periksa-header.py`, `alat/periksa-rahasia.py`, `aplikasi/src/lib/keamanan-header.test.ts`, `.github/workflows/ci.yml`, `alat/periksa-gerbang-ci.py`, `docs/ROADMAP.md` (T10-14)
+- **Implikasi:** Repositori bebas dari kunci rahasia; dependensi pihak ketiga terpantau tanpa celah kerentanan; aplikasi web kedai terlindungi dari clickjacking, XSS, sniffing, dan serangan konten tak terpercaya di tingkat peramban.
+
 
 
 

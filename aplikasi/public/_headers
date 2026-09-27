@@ -1,0 +1,28 @@
+# Header Keamanan Cloudflare Pages / Static Assets (T10-14 — PRD M12; TECH_SPEC §6 & §8; docs/KEAMANAN.md §16)
+# Berkas ini disalin Vite ke dist/_headers saat build dan diterapkan oleh Cloudflare.
+
+/*
+  # Cegah peramban menampilkan halaman di dalam iframe situs lain (Anti-Clickjacking)
+  X-Frame-Options: DENY
+
+  # Cegah peramban menebak (sniffing) tipe konten di luar header Content-Type
+  X-Content-Type-Options: nosniff
+
+  # Lindungi privasi perujuk: kirim origin penuh hanya ke asal yang sama, origin saja ke HTTPS lain
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Batasi akses API peramban sensitif (kamera diizinkan untuk scan voucher kasir)
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
+
+  # Matikan audit XSS bawaan peramban kuno yang justru membuka celah keamanan
+  X-XSS-Protection: 0
+
+  # Paksa peramban selalu memakai HTTPS selama 1 tahun ke depan
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+  # Content Security Policy (CSP): batasi sumber kode, gaya, gambar, dan koneksi jaringan
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.workers.dev https://api.resend.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;
+
+# Optimasi cache untuk aset statis hasil kompilasi Vite yang memiliki hash berkas
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

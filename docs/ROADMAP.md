@@ -2007,14 +2007,14 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Jejak Audit (ART-13) & Data Pelanggan (ART-14); email bocor/tersalah kirim → mitigasi: hanya angka + nama pegawai, tanpa kontak pelanggan; penerima dapat diatur owner.
   - **Verifikasi:** uji SQL `supabase/tes/ringkasan.sql` lulus 100% (131 berkas lolos); uji mutasi fail-closed `alat/uji-mutasi-0085.py` 4/4 mutan terbunuh; uji batas Edge Function di `alat/uji-edge-ringkasan-harian.mjs` (10 skenario lolos); uji Vitest `Peringatan.test.tsx` dan `LayarLaporan.test.tsx` lulus 100%; keputusan dicatat di `docs/DECISIONS_LOG.md`.
 
-- [ ] T10-14 — Pemeriksa rahasia, dependensi & header keamanan halaman ⚠️
+- [x] T10-14 — Pemeriksa rahasia, dependensi & header keamanan halaman ⚠️
   - **Tujuan:** kunci rahasia tidak bocor dan aplikasi tidak dibuka dengan pengaturan peramban yang longgar.
   - **Ref:** TECH_SPEC §6 & §8; docs/KEAMANAN.md §16
   - **File:** `alat/periksa-rahasia.py`, `aplikasi/public/_headers`, `.github/workflows/ci.yml`
   - **DoD:** pemeriksa menolak berkas rahasia & pola kunci di repo; `npm audit` dijalankan; header keamanan (CSP, `X-Frame-Options`, `Referrer-Policy`) terpasang di Cloudflare; kontras & struktur halaman tetap hijau setelah CSP.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kunci & Penerapan; CSP terlalu ketat mematikan aplikasi → mitigasi: diuji di pratinjau sebelum produksi + laporan bila ada pelanggaran.
-  - **Verifikasi:** pemeriksa + `npm audit` + halaman pratinjau berjalan tanpa galat CSP.
+  - **Verifikasi:** pemeriksa rahasia diperkuat 10 pola kunci + uji-diri fail-closed lolos; `npm audit --audit-level=low` 0 kerentanan di `aplikasi` & `alat`; berkas `aplikasi/public/_headers` terpasang (CSP, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, Permissions-Policy, HSTS); validator `alat/periksa-header.py` lulus + uji-diri fail-closed + terdaftar di gerbang CI `alat/periksa-gerbang-ci.py`; uji Vitest `keamanan-header.test.ts` (5 tes lolos); uji kontras, struktur, dan kerapatan tetap hijau 100%; keputusan dicatat di `docs/DECISIONS_LOG.md`.
 
 - [ ] T10-15 — Latihan pemulihan cadangan & uji Buku Insiden ⚠️
   - **Tujuan:** cadangan terbukti bisa dipulihkan, dan langkah darurat bisa diikuti orang lain tanpa bertanya.

@@ -286,6 +286,8 @@ jobs:
           python3 aplikasi/alat/periksa-antarmuka.py --uji-diri
           python3 alat/periksa-rahasia.py
           python3 alat/periksa-rahasia.py --uji-diri
+          python3 alat/periksa-header.py
+          python3 alat/periksa-header.py --uji-diri
           python3 alat/periksa-bersih.py
           python3 alat/periksa-gerbang-ci.py
           python3 alat/periksa-kunci-kalibrasi.py
