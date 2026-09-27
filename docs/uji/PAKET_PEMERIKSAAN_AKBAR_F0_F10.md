@@ -33,7 +33,7 @@ Pemeriksaan dinyatakan **LULUS MUTLAK** bila:
 ## 3. Format Pelaporan untuk Agen Pemeriksa
 
 Setiap agen yang ditugaskan wajib melaporkan hasilnya dalam berkas markdown di folder `docs/uji/audit/` dengan format:
-`docs/uji/audit/LAPORAN_AKBAR_<KODE_PERAN>_<TANGGAL>.md`
+`docs/uji/audit/LAPORAN_AKBAR_<KODE_PERAN>_<TANGGAL>.md` (akan dibuat saat pelaporan)
 
 Isi laporan wajib memuat:
 1. **Ringkasan Eksekutif (Bahasa Manusia):** Penjelasan singkat tanpa jargon tentang apa yang ditemukan.

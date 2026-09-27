@@ -32,7 +32,7 @@ PERINTAH PEMERIKSAAN YANG WAJIB DIJALANKAN DI TERMINAL:
 
 FORMAT LAPORAN:
 Tulis laporan hasil pemeriksaanmu ke berkas:
-`docs/uji/audit/LAPORAN_AKBAR_PEMERIKSA_FASE.md`
+`docs/uji/audit/LAPORAN_AKBAR_PEMERIKSA_FASE.md` (akan dibuat saat pelaporan)
 Gunakan bahasa Indonesia yang jelas, sopan, dan langsung pada intinya. Panggil pemilik dengan nama Lee (bukan Bapak).
 Sajikan evaluasi ringkas status tiap fase (Fase 0 s/d 10) beserta bukti pemenuhannya.
 ```
