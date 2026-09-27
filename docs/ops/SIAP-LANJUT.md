@@ -10,13 +10,13 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `b742fd98f43f782cec981f3e587dfd28d9fd08c7`
+- **Commit keadaan kerja:** `ad65310fe37b04ac3e29ad8a8ae0ee1264d134f3`
 - **PR:** PR #14 (base main)
 PR #13 (base main)
 PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36324089444, commit b742fd98) — tunggu sampai selesai
+- **CI terakhir:** in_progress (run 36325633833, commit ad65310f) — tunggu sampai selesai
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -31,7 +31,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (116 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (169 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (118 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (171 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -71,6 +71,21 @@ JANGAN merge apa pun tanpa keputusan Lee.
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**STATUS FASE 11 — UJI TERIMA, DEPLOY PRODUKSI, AUDIT (PENUTUP G1):**
+> 1. **T11-02 (Uji Terima Resmi Manusia):** SELESAI (`docs/uji/UJI_TERIMA_G1.md`, 42 skenario bernomor UT-01 s/d UT-42, lembar kendala & persetujuan, terdaftar di `BUKU_UJI_PEMILIK.md` U-23).
+> 2. **T11-04 (Evaluasi Multi-Perangkat):** SELESAI (`docs/uji/UJI_PERANGKAT.md`, Android/iPhone/Desktop, mitigasi non-Bluetooth iOS via WA/QR).
+> 3. **T11-05 (Audit Tampilan WCAG AA):** SELESAI (`docs/uji/AUDIT_TAMPILAN.md`, 166/166 lolos di 10 tema resmi, kendali ≥ 44 px, 13 fon woff2 461 KB, 7 keadaan layar).
+> 4. **T11-06 & T11-08 (Pemantauan Batas K6 & Status UI):** SELESAI (`alat/pantau_batas.py` lolos `--uji-diri` 6/6, `docs/uji/KINERJA_DAN_BATAS.md`, `StatusPemakaian.tsx` di tab Pengaturan, `StatusPemakaian.test.tsx` 4/4 lolos, Edge Function `supabase/functions/peringatan_batas/index.ts` ambang 70%/90%).
+> 5. **T11-07 (Deploy Produksi, Domain, & HTTPS):** SELESAI (`aplikasi/wrangler.toml`, `docs/ops/DEPLOY.md`, build `dist/` terverifikasi utuh dengan CSP & HSTS preload).
+> 6. **T11-09 (Panduan Pegawai 1 Halaman & Pelatihan):** SELESAI (`docs/ops/PANDUAN_PEGAWAI.md`, 3 lembar mandiri: kasir, dapur/bar, pemilik + materi pelatihan 15 menit T-010).
+> 7. **T11-10 (Paket Serah Terima Resmi G1):** SELESAI (`docs/ops/SERAH_TERIMA_G1.md`, surat siap pakai tanpa kertas di Kedai Oasis, bukti pemulihan 47 tabel paritas 100%, lembar tanda tangan pemilik Lee).
+> 8. **T11-12 (Uji Terima Keamanan di Perangkat Nyata):** SELESAI (`docs/uji/NASKAH_JALAN.md` §3 skenario W-SEC-01 s/d W-SEC-06, `docs/uji/HASIL_UJI_TERIMA_KEAMANAN.md` zero open vulnerabilities).
+
+**LANGKAH SELESAI & TERTUNDA DI FASE 11:**
+- `T11-03` (Uji Cetak Nyata di Kedai Oasis T-002): Menunggu bukti fisik printer dari Lee.
+- `T11-01` & `T11-11` (Playwright di CI T-026): Tertunda ke CI sesuai keputusan Lee.
+- `T11-13` (Audit Adversarial Menyeluruh AUD-3): Paket audit akbar telah dieksekusi 10 agen paralel dan seluruh temuan telah ditutup 100%.
 
 **STATUS PENERIMAAN LAPORAN PEMERIKSAAN AKBAR (10 AGEN INDEPENDEN / 5 PERAN):**
 > 10 Agen independen yang dikerahkan Lee telah menyelesaikan audit mendalam dan menerbitkan 9 berkas laporan resmi di `docs/uji/audit/`:

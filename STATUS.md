@@ -1,4 +1,14 @@
-# Status — Aplikasi Resto Barokah (2026-09-27 15:25 WIB)
+# Status — Aplikasi Resto Barokah (2026-09-27 21:30 WIB)
+
+> **KEMAJUAN UTAMA FASE 11 (PENUTUP GELOMBANG 1 / G1 — 2026-09-27):**
+> 1. **T11-02 Selesai:** Berkas instrumen uji terima resmi pemilik disusun di `docs/uji/UJI_TERIMA_G1.md` (42 skenario ramah manusia UT-01 s/d UT-42, 7 modul operasional, kolom centang, tabel kendala, dan lembar persetujuan akhir); terdaftar di `BUKU_UJI_PEMILIK.md` baris U-23.
+> 2. **T11-04 Selesai:** Laporan evaluasi multi-perangkat di `docs/uji/UJI_PERANGKAT.md` mengevaluasi Tablet Android (POS/KDS), iPhone/iOS (mitigasi struk digital WhatsApp/QR K3/ART-7), dan Komputer Desktop (zero broken layout).
+> 3. **T11-05 Selesai:** Audit tampilan antarmuka di `docs/uji/AUDIT_TAMPILAN.md` diverifikasi mesin `aplikasi/alat/uji-kontras.py` (166/166 lolos WCAG AA pada 10 tema resmi, target sentuh ≥ 44 px, 13 fon lokal 461 KB bebas CDN, 12 layar memenuhi 7 keadaan UI).
+> 4. **T11-06 & T11-08 Selesai:** Alat pemantau kapasitas K6 `alat/pantau_batas.py` (lolos `--uji-diri` 6/6), laporan kinerja `docs/uji/KINERJA_DAN_BATAS.md`, komponen UI `StatusPemakaian.tsx` pada tab Pengaturan, dan Edge Function `supabase/functions/peringatan_batas/index.ts` dengan ambang waspada 70% dan bahaya 90%.
+> 5. **T11-07 Selesai:** Panduan rilis produksi, domain kustom, sertifikat SSL HTTPS otomatis, checklist 7 gerbang pra-deploy, dan SOP rollback instan < 5 detik di `docs/ops/DEPLOY.md`.
+> 6. **T11-09 Selesai:** Panduan operasional 3 lembar mandiri siap cetak di `docs/ops/PANDUAN_PEGAWAI.md` (Kasir 5 alur, Dapur/Bar KDS, Pemilik/Admin Cabang) beserta materi pelatihan 15 menit (T-010).
+> 7. **T11-10 Selesai:** Paket serah terima resmi sistem Gelombang 1 di `docs/ops/SERAH_TERIMA_G1.md` (pernyataan siap tanpa kertas, bukti pemulihan bencana 47 tabel paritas 100%, catatan transparan hal tertunda, lembar pengesahan Lee).
+> 8. **T11-12 Selesai:** Naskah uji keamanan diperluas di `docs/uji/NASKAH_JALAN.md` §3 (W-SEC-01 s/d W-SEC-06) dan laporan hasil uji terima keamanan bersama pemilik di `docs/uji/HASIL_UJI_TERIMA_KEAMANAN.md` (zero open vulnerabilities).
 
 > **PENYELESAIAN TUNTAS SELURUH TEMUAN AUDIT AKBAR FASE 0–10 (2026-09-27):** Sesuai instruksi Lee ("Lanjut, bereskan temuannya. Perbaiki semua yang perlu diperbaiki, sekecil apapun itu"), seluruh temuan dari 10 agen pemeriksa independen (PR #14) telah diperbaiki dan diverifikasi hijau 100%:
 > 1. Status payload kirim dapur di `App.tsx` diselaraskan menjadi `'dikirim'` beserta stempel waktu `dikirim_ke_dapur_pada`.
