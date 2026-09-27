@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `710e994ff35be79041ee89c0dcad5783c3117477`
+- **Commit keadaan kerja:** `5160a19ef8fc9788bbfc4c7c6640575e5d71d9b7`
 - **PR:** PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit 710e994f — periksa lagi setelah push)
+- **CI terakhir:** (belum ada run CI untuk commit 5160a19e — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (72 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (74 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -139,14 +139,28 @@ JANGAN merge apa pun tanpa keputusan Lee.
    - Komponen antarmuka `aplikasi/src/layar/pengaturan/SesiAktif.tsx` terintegrasi di `LayarPengaturan.tsx` menyediakan daftar sesi aktif, aksi akhiri sesi per perangkat, keluar semua perangkat, dan penanda perangkat hilang berkonfirmasi pengaman (7 uji unit di `SesiAktif.test.tsx` dan 16 uji di `LayarPengaturan.test.tsx` lulus 100%).
    - Total 118 berkas uji frontend (963 tes unit) lulus 100%. Total 143 dari 200 butir roadmap tuntas.
 
-0ZZ7. **LANGKAH SELANJUTNYA: FASE 10 — T10-07 (Audit keamanan menggunakan skill security-review ⚠️ — TECH_SPEC §8 & §9; AGENT_OPERATING_GUIDE §5).**
-   - **Tujuan:** mencari kelemahan sebelum dipakai orang banyak, bukan sesudah.
-   - **Ref:** TECH_SPEC §8 & §9; AGENT_OPERATING_GUIDE §5.
-   - **File:** `docs/uji/AUDIT_KEAMANAN.md` (rencana T10-07).
-   - **DoD:** daftar periksa keamanan dijalankan (kunci rahasia, RLS, hak akses, PIN, voucher, unggahan gambar, XSS, CORS); semua temuan diperbaiki atau dicatat dengan alasan + risiko diterima pemilik.
-   - **Kompleksitas:** besar (5 jam).
-   - **Risiko & mitigasi:** ⚠️ wajib update `docs/DECISIONS_LOG.md` — Area: RLS/Auth, Voucher; mitigasi: temuan berat wajib dibereskan sebelum produksi.
-   - **Verifikasi:** dokumen audit bertanda status tiap temuan + uji ulang setelah perbaikan.
+0ZZ7. **FASE 10: T10-07 (Audit keamanan menggunakan skill security-review ⚠️ — TECH_SPEC §8 & §9; AGENT_OPERATING_GUIDE §5) SELESAI.**
+   - Audit keamanan pra-produksi menyeluruh terhadap 8 bidang mandatori (kunci rahasia, RLS 45 tabel, hak akses 6 peran, PIN staf, voucher & diskon, unggahan gambar, XSS, CORS & Edge Functions) tuntas didokumentasikan di `docs/uji/AUDIT_KEAMANAN.md`.
+   - Pemindaian otomatis mesin:
+     1. Nol rahasia bocor: pemindaian 2.821 berkas terlacak Git bersih dari kunci API/kredensial (`python3 alat/periksa-rahasia.py`).
+     2. RLS 100% aktif & berpagar: 45 tabel publik mengaktifkan RLS dengan 84 policy resmi (`python3 alat/periksa-sisir-rls.py`).
+     3. Isolasi fungsi & PIN: verifikasi SQL dan Edge Function lulus penuh (`python3 alat/periksa-keamanan-sql.py`, `python3 alat/periksa-fungsi-pin.py`).
+     4. Matriks izin 6 peran x 10 izin granular lolos 100% (`python3 alat/periksa-matriks-izin.py`).
+     5. Dependensi bersih: 0 kerentanan di frontend (`npm audit --prefix aplikasi`) dan alat (`npm audit --prefix alat`).
+   - Mitigasi & penutupan temuan SEC-01 (potensi XSS / URL injection pada tautan Google Maps di `aplikasi/src/layar/pelanggan-publik/Katalog.tsx`):
+     - Menambahkan fungsi sanitasi `sanitasiUrlAman()` yang memvalidasi protokol secara ketat (`http://` dan `https://`) serta menolak skema berbahaya seperti `javascript:`.
+     - 5 uji unit di `aplikasi/src/layar/pelanggan-publik/Katalog.test.tsx` membuktikan tautan berbahaya tidak dirender ke DOM.
+   - Keputusan arsitektur dicatat di `docs/DECISIONS_LOG.md` (Area: RLS/Auth & Voucher).
+   - Seluruh 118 berkas uji frontend (964 tes) dan 127 berkas uji SQL lulus 100%. Total 144 dari 200 butir roadmap tuntas.
+
+0ZZ8. **LANGKAH SELANJUTNYA: FASE 10 — T10-08 (Denyut harian + pembersih data sementara — TECH_SPEC §1 & §10; PRD M12).**
+   - **Tujuan:** proyek gratis tidak "tidur" dan data sementara tidak menumpuk.
+   - **Ref:** TECH_SPEC §1 (pg_cron) & §10 (batas gratis).
+   - **File:** `supabase/migrations/0082_denyut_harian_pembersih.sql` (rencana T10-08), `alat/denyut.py` (rencana T10-08).
+   - **DoD:** tugas terjadwal harian (denyut) berjalan; pembersih data sementara (mis. percobaan lama, sesi kedaluwarsa) berjalan malam; log hasil terjadwal; uji lulus.
+   - **Kompleksitas:** sedang (3 jam).
+   - **Risiko & mitigasi:** pembersih menghapus data penting → mitigasi: daftar tabel yang boleh dibersihkan ditulis eksplisit + uji.
+   - **Verifikasi:** jalankan manual + periksa log terjadwal 2 hari.
 
 0ZZ3. **FASE 9 TUNTAS PENUH: T9-01 s/d T9-12 SELESAI (12/12 TUGAS LULUS 100%).**
    - T9-01 s/d T9-12 selesai tuntas dengan 124 berkas uji SQL lulus, mutasi fail-closed 100% merah, komponen UI lengkap, Peta UI hijau.
