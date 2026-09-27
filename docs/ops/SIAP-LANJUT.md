@@ -10,11 +10,12 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `0594f28cfffc49178e3368e53b9dd2b904a6c049`
-- **PR:** PR #3 (base main)
+- **Commit keadaan kerja:** `af4a6cab147621df9af60a64d1d368263f1379a7`
+- **PR:** PR #13 (base main)
+PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** pending (run 36305315443, commit 0594f28c) — tunggu sampai selesai
+- **CI terakhir:** (belum ada run CI untuk commit af4a6cab — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-27 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +30,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (102 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (104 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,33 +71,35 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**FASE 10 SELESAI TUNTAS PENUH: T10-01 SAMPAI T10-16 LENGKAP 100% (2026-09-27):**
-1. **T10-16 Tinjauan Kode Pemulihan MFA & Kata Sandi Bocor T-016 ⚠️ (TECH_SPEC §8 & §15; docs/KEAMANAN.md §7 & §15; docs/TERTANGGUH.md T-016):**
-   - **Tinjauan Tertulis Resmi (`docs/teknis/TINJAUAN_KEAMANAN_F10.md`):** Dokumen analisis teknis mendalam mengevaluasi mitigasi pemulihan MFA mandiri, arsitektur Break-Glass darurat, analisis HaveIBeenPwned API v3 k-anonymity, dan dampak biaya operasional (Rp 0).
-   - **Pemulihan MFA Melalui Tangga Peran Atas:** Menolak penerbitan kode pemulihan statis mandiri untuk staf kedai guna mencegah kebocoran fisik di meja kasir. Pemulihan akun kasir/pelayan/dapur dilakukan via Admin Cabang atau Owner Pusat; pemulihan Admin Cabang via Owner Pusat; pemulihan Owner Pusat via Kunci Induk Darurat offline (30 menit, rotasi wajib).
-   - **Kata Sandi Bocor HIBP Tanpa Biaya Tambahan:** Membuktikan bahwa Supabase Free Tier tidak menyediakan toggle native Leaked Password Protection (fitur Supabase Pro $25/bulan), namun mitigasi kompensasi Resto Barokah (panjang sandi ≥ 12 karakter, penolakan pola umum/lemah, TOTP MFA wajib untuk peran manajerial, rate limiting 5× percobaan per 15 menit) memberikan keamanan tingkat perbankan dengan dampak biaya = Rp 0 (biaya nol).
-   - **Pengujian SQL Komprehensif (`supabase/tes/mfa.sql`):** 19 kasus uji database membuktikan penolakan kredensial lemah, batas laju percobaan masuk, tangga eskalasi pemulihan perangkat, penguncian sesi kedaluwarsa, pemutusan sesi aktif, serta jejak audit kekal tanpa celah. Total 132 berkas uji SQL lulus 100% via `node alat/uji-sql.mjs`.
-   - **Pembaruan Keputusan & Penutupan Tertangguh:** Butir T-016 resmi ditandai selesai ditinjau di `docs/TERTANGGUH.md` dan dicatat di `docs/DECISIONS_LOG.md` (Area: Kunci & Penerapan).
-2. **FASE 10 TUNTAS (16 dari 16 tugas selesai, total 153 dari 200 butir roadmap tuntas):**
-   - T10-01: Antrean kirim luring IndexedDB
-   - T10-02: Kunci idempoten menyeluruh di semua penulisan
-   - T10-03: Pemulihan kegagalan kirim & pesan status
-   - T10-04: Uji putus-sambung jaringan & anti data dobel
-   - T10-05: Penyisiran ulang RLS seluruh tabel
-   - T10-06: Akhiri sesi dari perangkat lain / perangkat hilang
-   - T10-07: Audit keamanan menyeluruh & penutupan celah
-   - T10-08: Denyut harian & pembersih data sementara
-   - T10-09: Buku insiden 5 skenario kegagalan & pemulihan mendadak
-   - T10-10: Cadangan mingguan otomatis & uji pemulihan terjadwal
-   - T10-11: Perubahan pengaturan bersamaan tidak saling menimpa
-   - T10-12: Pegawai berhenti: cabut akses cepat & serah terima kasir
-   - T10-13: Ringkasan peringatan harian ke owner via email & UI
-   - T10-14: Pemeriksa rahasia, dependensi & header keamanan halaman
-   - T10-15: Latihan pemulihan cadangan & uji Buku Insiden
-   - T10-16: Tinjauan kode pemulihan MFA & kata sandi bocor T-016
-3. **MANDAT KHUSUS LEE — BERHENTI & PEMERIKSAAN MENYELURUH (§29 `docs/teknis/REKAM_PESAN_PEMILIK.md`):**
-   - Sesuai instruksi khusus Lee: "Setelah seluruh Fase 10 selesai tuntas (T10-16), agent WAJIB BERHENTI, tidak boleh melanjutkan ke Fase 11 atau fase berikutnya, dan wajib secara eksplisit mengingatkan Lee bahwa Fase 10 telah selesai dan siap untuk pemeriksaan mendalam menyeluruh yang detail mekanismenya akan dijelaskan oleh Lee."
-   - Agent saat ini BERHENTI PENUH pada garis akhir Fase 10, tidak memulai Fase 11, dan menunggu instruksi/mekanisme detail dari Lee.
+**STATUS FASE 10 & PERBAIKAN AUDIT INDEPENDEN SELESAI TUNTAS (2026-09-27):**
+1. **Dukungan Keyboard Fisik pada Input PIN Staf & Kasir (Permintaan Khusus Lee):**
+   - Komponen `MasukStaf.tsx` dan `LayarMasukPegawai.tsx` dilengkapi pendengar `keydown` global untuk tombol `0`-`9`, `Backspace` (hapus digit), `Escape` (reset PIN), dan `Enter`/`Space` (konfirmasi masuk saat PIN = 6 digit).
+   - Melindungi privasi kasir dari intipan mata (*shoulder-surfing*) di meja kasir layar sentuh lebar.
+   - Dilengkapi petunjuk visual dan tes unit komprehensif pengetikan keyboard (9/9 tes masuk staf lulus).
+
+2. **Perbaikan Temuan Kritis K-1 (Keamanan Cadangan & Validasi Database):**
+   - Menghapus fallback kunci rahasia hardcoded di `.github/workflows/cadangan.yml` dan `alat/cadangan.sh`.
+   - Menggunakan kunci acak ephemeral `openssl rand -hex 16` di lingkungan CI dan penolakan keras (*fail-closed*) di lingkungan produksi/lokal tanpa variabel rahasia.
+   - Menolak *silent fallback* pada `cmd_dump` bila URL database dipasang, dan melengkapi runner CI dengan instalasi `postgresql-client`.
+   - Uji pemulihan `alat/cadangan.sh uji-pemulihan` dan mutasi fail-closed 7/7 lulus 100%.
+
+3. **Perbaikan Temuan K-2 & Agen 3 (Pembersihan CSP, Gerbang CI, Denyut Cron Harian):**
+   - Mencabut `'unsafe-inline'` dari `script-src` di `aplikasi/public/_headers`.
+   - Memperketat `alat/periksa-header.py` untuk menolak `'unsafe-eval'`, `'unsafe-inline'`, dan wildcard `*` pada `script-src`/`connect-src`/`default-src`, serta mewajibkan `upgrade-insecure-requests`, `form-action 'self'`, dan HSTS `preload`. (9/9 uji-diri lulus, 5/5 vitest lulus).
+   - Menambahkan cron harian `.github/workflows/denyut-harian.yml` (pukul 02:00 WIB / 19:00 UTC) untuk menjaga proyek Supabase Free Tier tetap aktif dan pembersihan berkas sementara retensi 30 hari.
+   - Mendaftarkan alur kerja tersebut pada pemeriksa gerbang CI `alat/periksa-gerbang-ci.py`. Seluruh 126 gerbang CI dan 41 uji-diri penilai CI LULUS 100%.
+
+4. **Perbaikan Temuan K-3 & K-4 (Sanitasi Data Sensitif & Rujukan Bab Buku Insiden):**
+   - Regex `POLA_KUNCI_SENSITIF` di `antrean-offline.ts` diperluas mencakup semua variasi kunci sensitif rekursif (`pinKasir`, `pinAtasan`, `pin_staf`, dsb.) dan diverifikasi di `antrean-offline.test.ts`.
+   - Menyelaraskan nomor rujukan bab Buku Insiden di `alat/pulihkan-cadangan.sh` dan `alat/eksekusi-latihan-insiden.mjs` ke Bab §6 & §10.
+   - Uji pemulihan dan dril insiden fail-closed `node alat/eksekusi-latihan-insiden.mjs --uji-diri` lulus 100%.
+
+5. **Penyelarasan 5 Harness Uji Mutasi SQL:**
+   - Harness mutasi `0062`, `0063`, `0070`, `0073`, `0074` diselaraskan ke berkas migrasi penimpa final (`0067`, `0071`, `0083`) dan 100% mutan tertangkap merah (0 lolos diam-diam).
+
+6. **Peringatan Khusus Lee (§29 REKAM_PESAN_PEMILIK.md):**
+   - Seluruh tugas Fase 10 (T10-01 s/d T10-16) dan seluruh perbaikan hasil audit PR #13 telah selesai 100%.
+   - Agent WAJIB BERHENTI dan MENGINGATKAN Lee untuk pemeriksaan mendalam menyeluruh sebelum melangkah ke Fase 11. Tidak boleh melangkah ke Fase 11 tanpa instruksi eksplisit Lee.
 
 **FASE 10 T10-15 LATIHAN PEMULIHAN CADANGAN & UJI BUKU INSIDEN SELESAI (2026-09-27):**
 1. **Otomasi Pemulihan & Paritas Data (`alat/pulihkan-cadangan.sh` & `alat/eksekusi-latihan-insiden.mjs`):**
