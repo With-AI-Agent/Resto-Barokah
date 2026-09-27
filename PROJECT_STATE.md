@@ -1,6 +1,16 @@
-# Project State — Resto Barokah (Sesi arena/01a0d09b · 2026-09-27 13:35 WIB)
+# Project State — Resto Barokah (Sesi arena/01a0d09b · 2026-09-27 15:20 WIB)
 
-> **PENERIMAAN LAPORAN AUDIT AKBAR (2026-09-27):** Seluruh 10 agen pemeriksa independen yang dikerahkan Lee telah menyelesaikan tugasnya dan menerbitkan 9 laporan resmi di `docs/uji/audit/`. Lapis basis data dan keuangan dinyatakan SIAP 100% untuk Fase 11 (0 K-1, 0 K-2). Auditor Utama, Frontend, dan Fase menemukan temuan K-2 yang valid pada integrasi aplikasi (antrean offline saat WiFi router hidup tapi internet mati, payload status kirim dapur di App.tsx yang masih 'antri' vs skema 'dikirim', dan penanganan reset status mengirim di IndexedDB).
+> **PENYELESAIAN TUNTAS SELURUH TEMUAN AUDIT AKBAR FASE 0–10 (2026-09-27):** Sesuai instruksi Lee ("Lanjut, bereskan temuannya. Perbaiki semua yang perlu diperbaiki, sekecil apapun itu"), seluruh temuan dari 10 agen pemeriksa independen (PR #14) telah diperbaiki dan diverifikasi hijau 100%:
+> 1. Status payload kirim dapur di `App.tsx` diselaraskan menjadi `'dikirim'` beserta stempel waktu `dikirim_ke_dapur_pada`.
+> 2. Pemulihan antrean macet berstatus `mengirim` diimplementasikan lewat `pulihkanAntreanMacet()` di `antrean-offline.ts` dan diuji unit (12/12 tes lolos).
+> 3. Penanganan galat jaringan (offline) `isNetworkError` ditambahkan di `App.tsx` agar kegagalan koneksi saat WiFi aktif tapi internet mati otomatis dialihkan ke IndexedDB.
+> 4. Komponen notifikasi `Toast` menggantikan pemanggilan `window.alert()` peramban di `LayarKasir.tsx`.
+> 5. Penolakan fail-closed untuk jenis aksi antrean tak dikenal di `useAntrean.ts` (`F-05`).
+> 6. Uji Backspace, Escape, dan Spasi keyboard fisik di `MasukStaf.test.tsx` dan `LayarMasukPegawai.test.tsx` (`F-07`).
+> 7. Penyelarasan registry layar di `layar.ts`, `aksi.ts`, dan regenerasi `docs/PETA_UI.md` (`F-06`).
+> 8. Pola kunci OpenAI modern `sk-proj-[a-zA-Z0-9_-]{20,}` di `alat/periksa-rahasia.py` dan uji diri mutasi.
+> 9. Dukungan RPC Supabase remote di `alat/eksekusi-denyut.mjs` dan alur kerja `.github/workflows/denyut-harian.yml`.
+> 10. Penyelarasan standar WCAG AA (≥ 4.5:1), aturan fleksibel `wajib_shift`, dan penomoran 82 migrasi SQL di seluruh dokumen pengikat.
 
 > **PENGINGAT PENTING LEE (§30 REKAM PESAN PEMILIK — 2026-09-27):** Lee telah memutuskan untuk **MENAHAN FASE 11** dan menjalankan **Pemeriksaan Akbar Menyeluruh (Fase 0 s/d 10)** terlebih dahulu secara teliti dan mendalam sebelum uji pilot kedai nyata. Paket instrumen pemeriksaan akbar dan 5 prompt mandiri siap-salin telah disiapkan di `docs/uji/PAKET_PEMERIKSAAN_AKBAR_F0_F10.md`. Bila sesi ini terputus, Lee cukup membuka sesi baru dengan base branch `arena/01a0d09b-resto-barokah` dan mengetik *"baca pro.md"*, maka agent sesi baru langsung memahami konteks proyek dan siap mendampingi eksekusi pemeriksaan akbar.
 
