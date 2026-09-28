@@ -5,7 +5,8 @@ CABANG PERENCANA: arena/01a0e747-resto-barokah
 > BERKAS INI STATIS — simpan sekali, pakai terus. Lee hanya mengisi TIGA baris di atas:
 > `PERAN` = PEMERIKSA · MENYELURUH · HAKIM · PEMBANGUN; `POTONGAN` = ID dari PAPAN (mis. F-03) atau kosong;
 > `CABANG PERENCANA` = cabang sesi Perencana/Integrator PMB (tempat papan & buku besar yang paling mutakhir).
-> Sisa berkas ini jangan diubah. Kontrak lengkap: `docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md` (disetujui Lee 2026-09-28).
+> Biasanya Lee tidak menempel berkas ini langsung, melainkan prompt singkat dari `docs/uji/pemeriksaan/PROMPT_SINGKAT.md`
+> yang menyuruh agent membaca `PRO.md` lalu berkas ini. Sisa berkas ini jangan diubah. Kontrak lengkap: `docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md` (disetujui Lee 2026-09-28).
 
 ## 0. Siapa kamu
 
