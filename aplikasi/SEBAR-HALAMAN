@@ -1,3 +1,3 @@
 # PENANDA DEPLOY CLOUDFLARE
-Dipicu atas instruksi Lee pada 2026-09-28 untuk merilis frontend produksi ke Cloudflare Workers + Static Assets.
+Dipicu ulang setelah pembaruan token Cloudflare oleh Lee pada 2026-09-28.
 Target: resto-barokah.fatrizmubarok.workers.dev

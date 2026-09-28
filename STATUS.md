@@ -1,7 +1,7 @@
-# Status — Aplikasi Resto Barokah (2026-09-28 04:15 WIB)
+# Status — Aplikasi Resto Barokah (2026-09-28 04:25 WIB)
 
 > **KEMAJUAN UTAMA FASE 11 (PENUTUP GELOMBANG 1 / G1 — 2026-09-28):**
-> 1. **Pemicuan Deploy Produksi & Migrasi Database:** Atas persetujuan Lee ("Lanjut deploy ke Cloudflare dan migrasi Supabase"), berkas penanda `aplikasi/SEBAR-HALAMAN` dan `supabase/SEBAR-SKEMA` dipasang untuk memicu workflow `.github/workflows/sebar-halaman.yml` dan `sebar-skema.yml`.
+> 1. **Pemicuan Deploy Produksi Cloudflare & Verifikasi Supabase:** Lee memverifikasi database Supabase berstatus aktif & sehat (Healthy, Southeast Asia t3.nano, CPU 2%, RAM 52%) dan memperbarui `CLOUDFLARE_API_TOKEN` di GitHub Repository Secrets. Berkas penanda `aplikasi/SEBAR-HALAMAN` dan `supabase/SEBAR-SKEMA` dipicu ulang.
 > 2. **T11-02 Selesai:** Berkas instrumen uji terima resmi pemilik disusun di `docs/uji/UJI_TERIMA_G1.md` (42 skenario ramah manusia UT-01 s/d UT-42, 7 modul operasional, kolom centang, tabel kendala, dan lembar persetujuan akhir); terdaftar di `BUKU_UJI_PEMILIK.md` baris U-23.
 > 3. **T11-04 Selesai:** Laporan evaluasi multi-perangkat di `docs/uji/UJI_PERANGKAT.md` mengevaluasi Tablet Android (POS/KDS), iPhone/iOS (mitigasi struk digital WhatsApp/QR K3/ART-7), dan Komputer Desktop (zero broken layout).
 > 4. **T11-05 Selesai:** Audit tampilan antarmuka di `docs/uji/AUDIT_TAMPILAN.md` diverifikasi mesin `aplikasi/alat/uji-kontras.py` (166/166 lolos WCAG AA pada 10 tema resmi, target sentuh ≥ 44 px, 13 fon lokal 461 KB bebas CDN, 12 layar memenuhi 7 keadaan UI).
