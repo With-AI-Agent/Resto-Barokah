@@ -25,6 +25,26 @@
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
+-- BAGIAN 0 — Penyelaras pgcrypto: pastikan crypt & gen_salt dapat diakses
+-- di skema public bila pgcrypto terpasang di skema extensions (pola Supabase).
+-- ---------------------------------------------------------------------------
+do $$
+begin
+  if exists (select 1 from pg_namespace where nspname = 'extensions') then
+    if not exists (
+      select 1 from pg_proc p
+      join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname = 'public' and p.proname = 'crypt'
+    ) then
+      execute 'create or replace function public.crypt(text, text) returns text language sql stable as $f$ select extensions.crypt($1, $2) $f$';
+      execute 'create or replace function public.gen_salt(text, integer) returns text language sql stable as $f$ select extensions.gen_salt($1, $2) $f$';
+      execute 'create or replace function public.gen_salt(text) returns text language sql stable as $f$ select extensions.gen_salt($1) $f$';
+    end if;
+  end if;
+end
+$$;
+
+-- ---------------------------------------------------------------------------
 -- BAGIAN 1 — tabel perangkat + kredensialnya (pola kredensial_pin 0006)
 -- ---------------------------------------------------------------------------
 create table if not exists public.perangkat (
