@@ -1,4 +1,4 @@
-# Status — Aplikasi Resto Barokah (2026-09-28 04:00 WIB)
+# Status — Aplikasi Resto Barokah (2026-09-28 04:05 WIB)
 
 > **KEMAJUAN UTAMA FASE 11 (PENUTUP GELOMBANG 1 / G1 — 2026-09-28):**
 > 1. **T11-02 Selesai:** Berkas instrumen uji terima resmi pemilik disusun di `docs/uji/UJI_TERIMA_G1.md` (42 skenario ramah manusia UT-01 s/d UT-42, 7 modul operasional, kolom centang, tabel kendala, dan lembar persetujuan akhir); terdaftar di `BUKU_UJI_PEMILIK.md` baris U-23.
