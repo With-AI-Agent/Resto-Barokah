@@ -281,7 +281,7 @@ docs/uji/pemeriksaan/
 ```
 
 **Siklus status temuan (dijaga mesin):** `BARU → TERVERIFIKASI | PALSU | PERLU-INFO → DIPERBAIKI → DITUTUP`
-(+ `DITANGGUHKAN` hanya oleh keputusan Lee, dengan rujukan `docs/TERTANGGUH.md`). Transisi di luar ini
+(+ `DITANGGUHKAN` hanya oleh keputusan Lee, dengan rujukan `docs/TERTANGGUH.md`). Tambahan dari uji coba 2026-09-28: `DUPLIKAT` (Hakim; kembar dari temuan lain yang lebih dulu, dinilai lewat induknya — tidak dihitung palsu). Transisi di luar ini
 ditolak pemeriksa mesin.
 
 **Penjaga mesin baru (rencana):** `alat/periksa-pemeriksaan.py` — memeriksa: ID unik & berurutan;
@@ -321,6 +321,8 @@ menggantikannya, supaya `alat/periksa-temuan-audit.py` tetap berlaku.
   diperiksa ÷ janji di Matriks), **waktu per potongan**.
 - Pemeriksa yang tingkat deteksinya rendah **bukan dihukum** — potongannya diulang oleh pemeriksa lain
   (itulah gunanya ukuran).
+- **Ulangan independen** (dua sesi memeriksa potongan yang sama tanpa saling tahu) memberi ukuran kesepakatan antar-pemeriksa
+  gratis; Perencana boleh menyengajakannya untuk ±1 dari 5 potongan. Kartunya `K-<ID>.2.md`, temuan kembar → `DUPLIKAT` oleh Hakim.
 
 ---
 
@@ -397,4 +399,12 @@ menggantikannya, supaya `alat/periksa-temuan-audit.py` tetap berlaku.
    baru Tahap 1 dimulai.
 
 **Status 2026-09-28:** butir 1–5 selesai (commit sesi arena/01a0e747; papan nyata 17 potongan Tahap 1 + 46 kerangka Tahap 2–8;
-penjaga dan penyusun matriks terdaftar di CI dengan `--uji-diri`). Butir 6 menunggu Lee membuka sesi pemeriksa pertama (F-01).
+penjaga dan penyusun matriks terdaftar di CI dengan `--uji-diri`). Butir 6 **selesai 2026-09-28**: Lee membuka **dua** sesi dengan prompt F-01 yang sama (arena/01a0e807 & arena/01a0e806) → keduanya
+mengikuti alur utuh tanpa bantuan (klaim → periksa → kartu → Buku Besar → asumsi → penjaga LOLOS → push; hanya menulis di `PMB-1/`),
+masing-masing ±65 menit, 3 temuan K-3 (18 tautan riset) vs 1 K-3 + 3 K-4 (11 tautan; termasuk 1 temuan luar cakupan di kode
+`0072` — validasi pajak sampai 100 % tanpa pagar batas legal 10 %). **Kesamaan tema** (tanpa sumber di DISCOVERY · dasar hukum PB1/PBJT ·
+Web Bluetooth tidak ada di iOS · tabel harga) dengan **tingkat K yang berbeda** — persis kelas ketidaksepakatan yang harus dinormalkan
+Hakim. Perbaikan mekanisme yang lahir: (1) kartu ulangan independen `kartu/K-<ID>.<n>.md` didukung penjaga; (2) status `DUPLIKAT`
+untuk temuan kembar; (3) klaim di papan tidak terlihat lintas cabang → **Perencana menunjuk potongan berbeda per sesi** dalam prompt
+singkat (ulangan independen tetap boleh bila disengaja, sebagai pembanding kalibrasi alami); (4) kolom "Model" tidak bisa diisi agent
+(antarmuka tidak menampilkannya) → Lee yang mencatat model di chat bila ingin. **Tahap 1 dibuka.**

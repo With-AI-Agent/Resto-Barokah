@@ -64,6 +64,7 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
    Artefak = jalur repo yang ada (`berkas:baris`), Bukti = perintah → hasil nyata. Temuan luar cakupan ikut dicatat (potongan asal = potonganmu).
 3. Asumsi → baris `PMB1-A-00n` di `PMB-1/ASUMSI.md`.
 4. `python3 alat/periksa-pemeriksaan.py` → harus **LOLOS** (format, ID, artefak ada, status sah). Kalau merah, perbaiki catatanmu — bukan aturannya.
+   Lalu `python3 alat/periksa-bersih.py` → harus **LOLOS** juga (penjaga dokumen seluruh repo di pohon bersih; ±10 detik) — ini yang dijalankan CI.
 5. PAPAN: status potongan → `SELESAI` (HAKIM: → `DIHAKIMI` bila tidak ada lagi temuan `BARU` dari potongan itu).
 6. Commit (`pmb: <ID> selesai — <n> temuan`) + push cabangmu. Jangan menyentuh berkas di luar `docs/uji/pemeriksaan/PMB-1/`
    (kecuali PEMBANGUN). Jangan mengubah trio handoff proyek (`docs/ops/SIAP-LANJUT.md`, `PROJECT_STATE.md`, `STATUS.md`) — itu urusan Perencana.
@@ -75,7 +76,8 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
 
 - **HAKIM** — objekmu = baris Buku Besar berstatus `BARU` dari potongan yang kamu ambil. Untuk tiap temuan: **reproduksi buktinya hari ini**,
   nilai tingkat K, putuskan `TERVERIFIKASI` / `PALSU` (alasan tertulis) / `PERLU-INFO` (apa yang kurang), isi kolom Hakim (`arena/<id>` + `H-<ID>`).
-  Kamu **bukan** sesi yang menemukan dan **bukan** pembangun. Periksa juga kartu K-nya: klaim yang tidak dicoba dibantah = catatan di H-kartu.
+  Bila potongan punya ulangan independen (`kartu/K-<ID>.2.md`), bandingkan keduanya: temuan kembar → status `DUPLIKAT` pada yang lebih
+  muda (kolom Hakim menyebut ID induk), tingkat K disamakan dengan alasan. Kamu **bukan** sesi yang menemukan dan **bukan** pembangun. Periksa juga kartu K-nya: klaim yang tidak dicoba dibantah = catatan di H-kartu.
   Untuk temuan `DIPERBAIKI`: baca commit perbaikan, jalankan ulang uji → `DITUTUP` atau kembali `TERVERIFIKASI` dengan alasan.
 - **PEMBANGUN** — hanya temuan `TERVERIFIKASI`; perbaiki di kode/dokumen, tulis uji yang membuktikan cacatnya bisa MERAH, isi kolom Perbaikan
   (sha commit), status → `DIPERBAIKI`. Jangan pernah menutup temuanmu sendiri. Perbaikan dilakukan **per tahap** (K-1 boleh segera).

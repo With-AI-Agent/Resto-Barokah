@@ -10,8 +10,9 @@
 > baseline · L4 kejujuran uji/bukti · L5 pengalaman pengguna & aksesibilitas · L6 operasional/pemulihan (rincian lensa:
 > `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §4 dan rancangan §8). Ukuran menuruti P1 (±200–400 baris kode / 8–12 halaman dokumen).
 >
-> **Tahap yang sedang berjalan: 0 (menyiapkan mekanisme).** Tahap 1 dibuka setelah uji coba satu potongan (F-01) selesai
-> dan mekanismenya diperbaiki dari pengalaman itu.
+> **Tahap yang sedang berjalan: 1 (Fondasi).** Dibuka 2026-09-28 setelah uji coba F-01 oleh dua sesi independen (arena/01a0e807 & 01a0e806)
+> dan perbaikan mekanisme (kartu ulangan `K-<ID>.<n>.md`, status `DUPLIKAT`, potongan ditunjuk Lee per sesi). Ulangan independen
+> potongan yang sama **diperbolehkan** dan berguna sebagai pembanding, tetapi bukan pengganti Hakim.
 
 ## Tahap 1 — Fondasi (gerbang KERAS → tag `fondasi-baseline-<tanggal>`)
 

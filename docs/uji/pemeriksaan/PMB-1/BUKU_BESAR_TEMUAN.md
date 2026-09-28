@@ -6,6 +6,8 @@
 >
 > **Siklus status:** `BARU → TERVERIFIKASI | PALSU | PERLU-INFO` (Hakim) `→ DIPERBAIKI` (Pembangun, wajib commit) `→ DITUTUP` (Hakim
 > memverifikasi ulang). `DITANGGUHKAN` hanya oleh keputusan Lee dengan rujukan `T-0xx` di `docs/TERTANGGUH.md`.
+> `DUPLIKAT` (Hakim) = kembar dari temuan lain yang lebih dulu (mis. dari ulangan independen potongan yang sama) — kolom Hakim menyebut ID induknya;
+> temuan kembar **tidak dihitung** temuan palsu, dan penilaian dilakukan lewat induknya.
 > **Tingkat:** K-1 uang hilang / data bocor lintas penyewa / akses tanpa hak / produksi terbuka · K-2 fungsi inti salah atau janji
 > baseline dilanggar · K-3 mutu (keandalan, keterpeliharaan, aksesibilitas, dokumen menyesatkan) · K-4 kosmetik / konsistensi.
 > **Bukti:** perintah yang dijalankan → hasil nyata (bukan "seharusnya"), boleh merujuk kartu `kartu/K-<ID>.md` untuk rincian.

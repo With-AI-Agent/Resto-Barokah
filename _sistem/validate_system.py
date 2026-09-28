@@ -371,7 +371,10 @@ def check_no_dangling_internal_refs(errs):
                     continue
                 if tok in rencana or (tok.endswith("/") and any(a.startswith(tok) for a in rencana)):
                     continue
-                target = SYS_DIR / tok.rstrip("/")
+                # `berkas:baris` / `berkas:12-15,40` (format artefak PMB & alat/artefak.py): yang dijanjikan ada
+                # adalah BERKAS-nya; akhiran nomor baris dilepas sebelum dicek.
+                tok_berkas = re.sub(r":\d+(?:-\d+)?(?:,\d+(?:-\d+)?)*$", "", tok)
+                target = SYS_DIR / tok_berkas.rstrip("/")
                 ada = target.is_dir() if tok.endswith("/") else target.exists()
                 if not ada:
                     errs.append(

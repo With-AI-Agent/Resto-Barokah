@@ -11,7 +11,7 @@ Yang diperiksa (folder docs/uji/pemeriksaan/PMB-1/):
  1. PAPAN.md      — ID unik & berpola; status sah; DIKLAIM/SELESAI/DIHAKIMI punya sesi+tanggal; SELESAI punya kartu K;
                     DIHAKIMI punya kartu H dan tidak menyisakan temuan BARU; kartu tidak yatim; kartu lengkap bagiannya.
                     Ulangan independen potongan yang sama disimpan sebagai kartu/K-<ID>.<n>.md (n = 2, 3, …).
- 2. BUKU_BESAR_TEMUAN.md — ID PMB1-F-nnn berurutan tanpa lompatan; tingkat K-1..K-4; potongan ada di papan; artefak ADA
+ 2. BUKU_BESAR_TEMUAN.md — ID PMB1-F-nnn berurutan tanpa lompatan; DUPLIKAT (Hakim) wajib menunjuk temuan induk yang lebih dulu; tingkat K-1..K-4; potongan ada di papan; artefak ADA
                     (atau `(luar repo)`); bukti & baseline terisi; status sah; syarat per status (Hakim, commit, verifikasi,
                     rujukan T-0xx untuk DITANGGUHKAN); terhadap commit sebelumnya: tidak ada temuan yang hilang dan
                     transisi status mengikuti siklus.
@@ -41,11 +41,12 @@ from bantu_uji_diri import AKAR, jalankan_pemeriksa, laporkan, salin_pohon  # no
 
 PUTARAN = "docs/uji/pemeriksaan/PMB-1"
 STATUS_POTONGAN = {"RENCANA", "BELUM", "DIKLAIM", "SELESAI", "DIHAKIMI"}
-STATUS_TEMUAN = {"BARU", "TERVERIFIKASI", "PALSU", "PERLU-INFO", "DIPERBAIKI", "DITUTUP", "DITANGGUHKAN"}
+STATUS_TEMUAN = {"BARU", "TERVERIFIKASI", "PALSU", "PERLU-INFO", "DIPERBAIKI", "DITUTUP", "DITANGGUHKAN", "DUPLIKAT"}
 TERBUKA = {"BARU", "TERVERIFIKASI", "PERLU-INFO", "DIPERBAIKI"}
 TRANSISI = {
-    "BARU": {"TERVERIFIKASI", "PALSU", "PERLU-INFO", "DITANGGUHKAN"},
-    "PERLU-INFO": {"TERVERIFIKASI", "PALSU", "DITANGGUHKAN"},
+    "BARU": {"TERVERIFIKASI", "PALSU", "PERLU-INFO", "DITANGGUHKAN", "DUPLIKAT"},
+    "PERLU-INFO": {"TERVERIFIKASI", "PALSU", "DITANGGUHKAN", "DUPLIKAT"},
+    "DUPLIKAT": set(),                     # kembar dari temuan lain (ulangan independen) — dinilai lewat temuan induknya
     "TERVERIFIKASI": {"DIPERBAIKI", "DITANGGUHKAN"},
     "DIPERBAIKI": {"DITUTUP", "TERVERIFIKASI"},
     "DITUTUP": {"TERVERIFIKASI"},          # kambuh → dibuka lagi oleh Hakim
@@ -168,12 +169,16 @@ def baca_buku_besar(akar: pathlib.Path, potongan: dict[str, dict], errs: list[st
             errs.append(f"BUKU BESAR {fid}: bukti harus 'perintah → hasil' (panjang ≥ 20, memuat '→')")
         if status not in STATUS_TEMUAN:
             errs.append(f"BUKU BESAR {fid}: status '{status}' tidak sah")
-        if status in {"TERVERIFIKASI", "PALSU", "PERLU-INFO", "DITUTUP"} and hakim in {"", "—"}:
+        if status in {"TERVERIFIKASI", "PALSU", "PERLU-INFO", "DITUTUP", "DUPLIKAT"} and hakim in {"", "—"}:
             errs.append(f"BUKU BESAR {fid}: status {status} wajib mengisi kolom Hakim (sesi + kartu H)")
         if status in {"DIPERBAIKI", "DITUTUP"} and not RE_SHA.search(perbaikan):
             errs.append(f"BUKU BESAR {fid}: status {status} wajib menyebut sha commit perbaikan")
         if status == "DITUTUP" and tutup in {"", "—"}:
             errs.append(f"BUKU BESAR {fid}: status DITUTUP wajib mengisi 'Verifikasi tutup'")
+        if status == "DUPLIKAT":
+            induk = [r for r in re.findall(r"PMB1-F-\d{3}", " ".join((hakim, tutup))) if r != fid]
+            if not induk or induk[0] not in temuan:
+                errs.append(f"BUKU BESAR {fid}: DUPLIKAT wajib menyebut ID temuan induk yang sudah ada (lebih dulu) di kolom Hakim/Verifikasi tutup")
         if status == "DITANGGUHKAN":
             m = re.search(r"\bT-0\d\d\b", " ".join((hakim, perbaikan, tutup, bukti)))
             if not m or m.group(0) not in tertangguh:
@@ -336,6 +341,8 @@ def uji_diri() -> int:
          lambda t: (t / PUTARAN / "kartu" / "K-F-01.md").write_text("# kartu kosong\n", encoding="utf-8"))
     coba("matriks basi ditolak",
          lambda t: (t / "docs/ROADMAP.md").write_text((t / "docs/ROADMAP.md").read_text(encoding="utf-8").replace("- [ ] T11-02 —", "- [x] T11-02 —", 1), encoding="utf-8"))
+    coba("DUPLIKAT tanpa temuan induk ditolak",
+         lambda t: (t / bb).write_text((t / bb).read_text(encoding="utf-8").replace("| BARU | — | — | — |", "| DUPLIKAT | arena/x H-F-01 | — | — |", 1), encoding="utf-8"))
     coba("asumsi DIBANTAH tanpa temuan ditolak",
          lambda t: (t / PUTARAN / "ASUMSI.md").write_text((t / PUTARAN / "ASUMSI.md").read_text(encoding="utf-8").replace("PMB1-F-001, 2026-09-28", "temuan menyusul", 1), encoding="utf-8"))
     return laporkan("periksa-pemeriksaan", hasil)
