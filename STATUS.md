@@ -1,4 +1,4 @@
-# Status — Aplikasi Resto Barokah (2026-09-28 04:45 WIB)
+# Status — Aplikasi Resto Barokah (2026-09-28 04:50 WIB)
 
 > **KEMAJUAN UTAMA FASE 11 (PENUTUP GELOMBANG 1 / G1 — 2026-09-28):**
 > 1. **Perbaikan Resolusi pgcrypto di Supabase Nyata (Migrasi 0018):** Berdasarkan bukti log run `#36378304266` dari Lee, migrasi `0018_perangkat_terdaftar.sql` terhenti karena `crypt` berada di skema `extensions` pada Supabase nyata sedangkan fungsi mengunci `search_path = public, pg_temp`. Penyelaras pgcrypto ditambahkan di Bagian 0 migrasi 0018 agar fungsi `crypt` dan `gen_salt` dapat diakses di skema `public`. 132 uji SQL lokal dan audit keamanan SQL tetap 100% lolos.
