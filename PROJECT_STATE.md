@@ -1,6 +1,6 @@
-# Project State — Resto Barokah (Sesi arena/01a0d09b · 2026-09-27 21:30 WIB)
+# Project State — Resto Barokah (Sesi arena/01a0d09b · 2026-09-28 04:00 WIB)
 
-> **KEMAJUAN UTAMA FASE 11 (PENUTUP GELOMBANG 1 / G1 — 2026-09-27):**
+> **KEMAJUAN UTAMA FASE 11 (PENUTUP GELOMBANG 1 / G1 — 2026-09-28):**
 > 1. **T11-02 Selesai:** Berkas instrumen uji terima resmi pemilik disusun di `docs/uji/UJI_TERIMA_G1.md` (42 skenario ramah manusia UT-01 s/d UT-42, 7 modul operasional, kolom centang, tabel kendala, dan lembar persetujuan akhir); terdaftar di `BUKU_UJI_PEMILIK.md` baris U-23.
 > 2. **T11-04 Selesai:** Laporan evaluasi multi-perangkat di `docs/uji/UJI_PERANGKAT.md` mengevaluasi Tablet Android (POS/KDS), iPhone/iOS (mitigasi struk digital WhatsApp/QR K3/ART-7), dan Komputer Desktop (zero broken layout).
 > 3. **T11-05 Selesai:** Audit tampilan antarmuka di `docs/uji/AUDIT_TAMPILAN.md` diverifikasi mesin `aplikasi/alat/uji-kontras.py` (166/166 lolos WCAG AA pada 10 tema resmi, target sentuh ≥ 44 px, 13 fon lokal 461 KB bebas CDN, 12 layar memenuhi 7 keadaan UI).
@@ -9,6 +9,7 @@
 > 6. **T11-09 Selesai:** Panduan operasional 3 lembar mandiri siap cetak di `docs/ops/PANDUAN_PEGAWAI.md` (Kasir 5 alur, Dapur/Bar KDS, Pemilik/Admin Cabang) beserta materi pelatihan 15 menit (T-010).
 > 7. **T11-10 Selesai:** Paket serah terima resmi sistem Gelombang 1 di `docs/ops/SERAH_TERIMA_G1.md` (pernyataan siap tanpa kertas, bukti pemulihan bencana 47 tabel paritas 100%, catatan transparan hal tertunda, lembar pengesahan Lee).
 > 8. **T11-12 Selesai:** Naskah uji keamanan diperluas di `docs/uji/NASKAH_JALAN.md` §3 (W-SEC-01 s/d W-SEC-06) dan laporan hasil uji terima keamanan bersama pemilik di `docs/uji/HASIL_UJI_TERIMA_KEAMANAN.md` (zero open vulnerabilities).
+> 9. **Kerapian Format Prettier:** Seluruh berkas aplikasi terformat rapi sesuai aturan Prettier (CI format:check 100% lolos).
 
 > **PENYELESAIAN TUNTAS SELURUH TEMUAN AUDIT AKBAR FASE 0–10 (2026-09-27):** Sesuai instruksi Lee ("Lanjut, bereskan temuannya. Perbaiki semua yang perlu diperbaiki, sekecil apapun itu"), seluruh temuan dari 10 agen pemeriksa independen (PR #14) telah diperbaiki dan diverifikasi hijau 100%:
 > 1. Status payload kirim dapur di `App.tsx` diselaraskan menjadi `'dikirim'` beserta stempel waktu `dikirim_ke_dapur_pada`.
