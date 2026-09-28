@@ -7,16 +7,14 @@
 
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
-- **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
-- **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
-- **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `c3c50a8def84d9424dfc84812abda216e7f2849f`
-- **PR:** PR #15 (base main)
-PR #14 (base main)
+- **Cabang yang dilanjutkan:** `arena/01a0e747-resto-barokah`
+- **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
+- **Ditulis oleh sesi:** `arena/01a0e747-resto-barokah`
+- **Commit keadaan kerja:** `141d40f04b5397afa557ef4407c9493582b0a494`
+- **PR:** PR #14 (base main)
 PR #13 (base main)
-PR #3 (base main)
-PR #2 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36396709886, commit c3c50a8d) — tunggu sampai selesai
+PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
+- **CI terakhir:** (belum ada run CI untuk commit 141d40f0 — periksa lagi setelah push)
 - **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
 - **Ditulis:** 2026-09-28 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -31,7 +29,7 @@ PR #2 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (140 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (432 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (142 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (434 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -45,12 +43,12 @@ Sesi baru di platform ini mulai dari `main`, sedangkan pekerjaan ada di cabang s
 Jalankan (tanpa memindahkan cabang sesimu):
 
 ```
-git fetch origin arena/01a0d09b-resto-barokah:refs/remotes/origin/kerja-terakhir
+git fetch origin arena/01a0e747-resto-barokah:refs/remotes/origin/kerja-terakhir
 git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py      # cetak KARTU SESI, lalu LAPORKAN ke Lee
 ```
 
-Cabang `arena/01a0d09b-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
+Cabang `arena/01a0e747-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
 LAIN: saat membuka chat baru, ia menulis pilihannya di baris pertama `PROMPT_SESI_BARU.md` — dan baris
 itu yang **MENANG** bila berbeda dengan handoff ini. Laporkan bedanya, lalu rapikan catatan handoff
 dengan `python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang>`. Sesi yang belum pernah di-push
@@ -67,10 +65,16 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 **Base branch bila Lee membuka sesi baru lagi di Arena:** pilih cabang yang disebut di §1
-(`arena/01a0d09b-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
+(`arena/01a0e747-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PEMBUKAAN SESI `arena/01a0e747` (2026-09-28, ±16:10 WIB) — ORIENTASI PRO.md, BELUM ADA PEKERJAAN BARU:**
+> 1. **PR #15 sudah di-merge Lee ke `main`** (merge commit `141d40f0`, 2026-09-28 15:59 WIB; ujung cabang `arena/01a0d09b` = `477cf360`, CI-nya **success** run `#36396868493`). Catatan "CI in_progress run 36396709886" di handoff lama merujuk commit `c3c50a8d` yang runnya **cancelled** karena tertimpa push berikutnya — bukan CI merah. CI `main` untuk `141d40f0` (run `#36400724879`) masih berjalan saat sesi dibuka.
+> 2. Sesi ini bercabang dari `main` **yang sudah memuat seluruh pekerjaan 01a0d09b** — `--susul` menjawab **SUDAH** (tidak ada yang perlu disusul). Sesi 01a0d09b otomatis berstatus *terserap*, BUKAN ditinggalkan.
+> 3. **Kejadian teknis:** checkout awal Arena berupa *shallow clone* (kedalaman 1) sehingga `--susul` pertama keliru berkata "punya commit sendiri"; dibereskan dengan `git fetch --unshallow origin` (hanya melengkapi riwayat, tidak mengubah apa pun). Sesi baru berikutnya: bila `--susul` BERHENTI padahal cabang jelas sudah di-merge, periksa `git rev-parse --is-shallow-repository` dulu.
+> 4. Handoff disegarkan ke sesi ini (`--siapkan --lanjut-dari arena/01a0e747-resto-barokah`) hanya supaya pemeriksa LOLOS; **arah kerja berikutnya menunggu jawaban Lee atas "Mau apa di sesi ini?"**. Butir tertangguh tetap 2 (T-026, T-028). PR terbuka: #14, #13, #3 (laporan audit sesi lain) — jangan merge tanpa keputusan Lee.
 
 **STATUS TERKINI SESI 2026-09-28 (PENUNTASAN DEPLOY PRODUKSI & LOGIN OWNER SUKSES):**
 > 1. **Perbaikan Tuntas Kendala Login [AK-601]:** Migrasi `0087_perbaiki_search_path_kripto_dan_rpc.sql` berhasil diterapkan di Supabase Cloud (run `#36393774425`). Kolom `dibuat_pada` telah diperbaiki, penanganan benturan nama perangkat aktif terpasang, dan fungsi kriptografi `crypt`/`gen_salt` stabil di skema `public`.
