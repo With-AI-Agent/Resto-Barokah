@@ -10,13 +10,13 @@
 - **Cabang yang dilanjutkan:** `arena/01a0d09b-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0d09b-resto-barokah`
-- **Commit keadaan kerja:** `e8c38cdd87d4f187d6915661e121a39a3941a24a`
+- **Commit keadaan kerja:** `33aa066e28edfe2196b0dd6ceff9390a5a66e036`
 - **PR:** PR #14 (base main)
 PR #13 (base main)
 PR #3 (base main)
 PR #2 (base main)
 PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run) TAPI failure (run 36380286271, commit e8c38cdd)
+- **CI terakhir:** success (1 run, commit 33aa066e)
 - **Ditulis:** 2026-09-28 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -30,7 +30,7 @@ PR #1 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (131 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (423 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (137 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (429 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,6 +70,12 @@ JANGAN merge apa pun tanpa keputusan Lee.
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**STATUS TERKINI SESI 2026-09-28 (PENUNTASAN DEPLOY PRODUKSI & LOGIN OWNER SUKSES):**
+> 1. **Perbaikan Tuntas Kendala Login [AK-601]:** Migrasi `0087_perbaiki_search_path_kripto_dan_rpc.sql` berhasil diterapkan di Supabase Cloud (run `#36393774425`). Kolom `dibuat_pada` telah diperbaiki, penanganan benturan nama perangkat aktif terpasang, dan fungsi kriptografi `crypt`/`gen_salt` stabil di skema `public`.
+> 2. **Pembaruan Halaman Produksi Cloudflare:** Alur GitHub Actions *Naikkan Halaman ke Cloudflare* run `#36393774418` berhasil mengunggah aplikasi termutakhir ke <https://resto-barokah.fatrizmubarok.workers.dev> (HTTP 200).
+> 3. **Verifikasi Sukses Pemilik:** Lee telah berhasil masuk ke aplikasi produksi sebagai Owner Pusat menggunakan PIN `123456` dan keyboard fisik langsung.
+> 4. **Kesiapan Pindah Sesi / Merge ke Main:** Pekerjaan Gelombang 1 (Fase 0 s/d Fase 10 + serah terima Fase 11) telah tuntas, stabil, dan hijau di CI (run `#36394004268`). Sesi siap ditutup atau dimerge ke `main`.
 
 **STATUS FASE 11 — UJI TERIMA, DEPLOY PRODUKSI, AUDIT (PENUTUP G1):**
 > 1. **T11-02 (Uji Terima Resmi Manusia):** SELESAI (`docs/uji/UJI_TERIMA_G1.md`, 42 skenario bernomor UT-01 s/d UT-42, lembar kendala & persetujuan, terdaftar di `BUKU_UJI_PEMILIK.md` U-23).
