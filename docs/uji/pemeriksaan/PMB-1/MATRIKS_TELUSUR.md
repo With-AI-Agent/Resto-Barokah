@@ -87,12 +87,12 @@ Kolom "Potongan fase" diisi saat papan Tahap 2 dirinci (setelah baseline dikunci
 | PRD M4 | F-02 | P-3-00 | M-03 | — |
 | PRD M5 | F-02 | P-4-00 | M-04 | — |
 | PRD M6 | F-02 | P-5-00 | X-01, M-03 | — |
-| PRD M7 | F-03 | P-7-00 | X-01, M-03 | — |
-| PRD M8 | F-03 | P-7-00 | X-01, M-08 | — |
-| PRD M9 | F-03 | P-4-00 | M-04 | — |
-| PRD M10 | F-03 | P-8-00 | X-05, M-05 | — |
-| PRD M11 | F-03 | P-9-00 | X-02, M-02 | — |
-| PRD M12 | F-03 | P-10-00 | X-02, X-04, M-06 | — |
+| PRD M7 | F-03 | P-7-00 | X-01, M-03 | F-03: A-014 terbuka (dua kasir/satu kas) |
+| PRD M8 | F-03 | P-7-00 | X-01, M-08 | F-03: PMB1-F-013 (cetak masih disebut fase 2) |
+| PRD M9 | F-03 | P-4-00 | M-04 | F-03: tidak ada temuan baru di teks M9 |
+| PRD M10 | F-03 | P-8-00 | X-05, M-05 | F-03: PMB1-F-009 K-1, PMB1-F-010 K-2, PMB1-F-012, PMB1-F-013 |
+| PRD M11 | F-03 | P-9-00 | X-02, M-02 | F-03: PMB1-F-011 (izin per cabang vs skema) |
+| PRD M12 | F-03 | P-10-00 | X-02, X-04, M-06 | F-03: sesi/PDP angka cocok A-016; gerbang T-011 di PMB1-F-012 |
 | ART-1 … ART-15 | F-05 | ditentukan per ART saat Tahap 2 dirinci | X-01 … X-07 | — |
 | TECH_SPEC §0 | F-04 (ringkasan untuk pemilik: harus cocok dengan §1–§13) | — | — | — |
 | TECH_SPEC §1 … §13 | F-04 (§1–§5), F-05 (§6–§13) | — | — | — |
