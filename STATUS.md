@@ -1,4 +1,4 @@
-# Status — Aplikasi Resto Barokah (2026-09-28 08:00 WIB)
+# Status — Aplikasi Resto Barokah (2026-09-28 08:15 WIB)
 
 > **KEMAJUAN UTAMA FASE 11 (PENUTUP GELOMBANG 1 / G1 — 2026-09-28):**
 > 1. **Penyelesaian Tuntas Galat Login Produksi & Verifikasi Sukses Lee:** Kendala `[AK-601] Kendala Tidak Dikenal` yang dialami Lee telah diinvestigasi tuntas: penyebabnya adalah ketidaksesuaian nama kolom `created_at` (seharusnya `dibuat_pada`) pada fungsi RPC `verifikasi_pin_perangkat` yang memicu Postgres runtime error 42703. Diperbaiki lewat migrasi `0087_perbaiki_search_path_kripto_dan_rpc.sql` lengkap dengan pencegahan tabrakan nama perangkat, wrapper kriptografi pgcrypto, serta pemutakhiran kamus `pesan.ts` dan SW v2 (`sw.js`). Alur otomatis Supabase (`run #36393774425`) dan Cloudflare (`run #36393774418`) sukses 100%, dan Lee telah memverifikasi berhasil masuk ke dasbor pemilik di <https://resto-barokah.fatrizmubarok.workers.dev>.
