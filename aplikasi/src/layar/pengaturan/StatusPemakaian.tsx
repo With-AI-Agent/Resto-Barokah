@@ -69,7 +69,10 @@ const DATA_BAWAAN: DataStatusPemakaian = {
   denyutHarianHari: 1,
 }
 
-function hitungRasio(pemakaian: number, batas: number): {
+function hitungRasio(
+  pemakaian: number,
+  batas: number,
+): {
   persen: number
   status: 'aman' | 'waspada' | 'bahaya'
   nada: NadaLencana
@@ -101,19 +104,26 @@ export function StatusPemakaian({ dataAwal, onSegarkan, onKembali }: StatusPemak
     }
   }
 
-  const items = [
-    data.basisData,
-    data.penyimpananFoto,
-    data.laluLintas,
-    data.email,
-  ]
+  const items = [data.basisData, data.penyimpananFoto, data.laluLintas, data.email]
 
   const adaWaspada = items.some((i) => hitungRasio(i.pemakaian, i.batas).status === 'waspada')
   const adaBahaya = items.some((i) => hitungRasio(i.pemakaian, i.batas).status === 'bahaya')
 
   return (
-    <div className="status-pemakaian" style={{ padding: '1rem', maxWidth: '900px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+    <div
+      className="status-pemakaian"
+      style={{ padding: '1rem', maxWidth: '900px', margin: '0 auto' }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}
+      >
         <div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
             Status Batas Gratis & Kapasitas (K6)
@@ -135,19 +145,40 @@ export function StatusPemakaian({ dataAwal, onSegarkan, onKembali }: StatusPemak
       </div>
 
       {pesan && (
-        <div style={{ padding: '0.75rem', background: 'var(--kartu-lembut)', border: '1px solid var(--border)', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.875rem' }}>
+        <div
+          style={{
+            padding: '0.75rem',
+            background: 'var(--kartu-lembut)',
+            border: '1px solid var(--border)',
+            borderRadius: '8px',
+            marginBottom: '1rem',
+            fontSize: '0.875rem',
+          }}
+        >
           {pesan}
         </div>
       )}
 
       {/* Ringkasan Keseluruhan */}
       <Kartu kelas="mb-4">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '1rem',
+          }}
+        >
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span style={{ fontWeight: 600 }}>Status Biaya Saat Ini:</span>
               <Lencana nada={adaBahaya ? 'danger' : adaWaspada ? 'warn' : 'success'}>
-                {adaBahaya ? 'PERINGATAN DARURAT (≥ 90%)' : adaWaspada ? 'WASPADA (≥ 70%)' : 'AMAN (BIAYA RP 0)'}
+                {adaBahaya
+                  ? 'PERINGATAN DARURAT (≥ 90%)'
+                  : adaWaspada
+                    ? 'WASPADA (≥ 70%)'
+                    : 'AMAN (BIAYA RP 0)'}
               </Lencana>
             </div>
             <p style={{ fontSize: '0.75rem', color: 'var(--teks-redup)', marginTop: '0.25rem' }}>
@@ -155,7 +186,9 @@ export function StatusPemakaian({ dataAwal, onSegarkan, onKembali }: StatusPemak
             </p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--teks-redup)' }}>Denyut Anti-Tidur:</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--teks-redup)' }}>
+              Denyut Anti-Tidur:
+            </span>
             <p style={{ fontSize: '0.875rem', fontWeight: 500, margin: 0, color: 'var(--sukses)' }}>
               Hari ke-{data.denyutHarianHari} (Batas 7 hari) 🟢
             </p>
@@ -164,29 +197,48 @@ export function StatusPemakaian({ dataAwal, onSegarkan, onKembali }: StatusPemak
       </Kartu>
 
       {/* Daftar 4 Metrik */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '1rem',
+          marginBottom: '1.5rem',
+        }}
+      >
         {items.map((item, idx) => {
           const { persen, nada, status } = hitungRasio(item.pemakaian, item.batas)
           const warnaBar =
             status === 'bahaya'
               ? 'var(--bahaya, #ef4444)'
               : status === 'waspada'
-              ? 'var(--peringatan, #f59e0b)'
-              : 'var(--sukses, #10b981)'
+                ? 'var(--peringatan, #f59e0b)'
+                : 'var(--sukses, #10b981)'
 
           return (
             <Kartu key={idx}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                <h3 style={{ fontSize: '0.875rem', fontWeight: 600, margin: 0 }}>
-                  {item.judul}
-                </h3>
-                <Lencana nada={nada}>
-                  {persen}%
-                </Lencana>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: '0.75rem',
+                }}
+              >
+                <h3 style={{ fontSize: '0.875rem', fontWeight: 600, margin: 0 }}>{item.judul}</h3>
+                <Lencana nada={nada}>{persen}%</Lencana>
               </div>
 
               {/* Progress Bar */}
-              <div style={{ width: '100%', background: 'var(--border)', height: '10px', borderRadius: '9999px', overflow: 'hidden', marginBottom: '0.5rem' }}>
+              <div
+                style={{
+                  width: '100%',
+                  background: 'var(--border)',
+                  height: '10px',
+                  borderRadius: '9999px',
+                  overflow: 'hidden',
+                  marginBottom: '0.5rem',
+                }}
+              >
                 <div
                   style={{
                     height: '10px',
@@ -198,7 +250,15 @@ export function StatusPemakaian({ dataAwal, onSegarkan, onKembali }: StatusPemak
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--teks-redup)', marginBottom: '0.25rem' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  fontSize: '0.75rem',
+                  color: 'var(--teks-redup)',
+                  marginBottom: '0.25rem',
+                }}
+              >
                 <span>
                   Pemakaian: {item.pemakaian} {item.satuan}
                 </span>
@@ -207,7 +267,16 @@ export function StatusPemakaian({ dataAwal, onSegarkan, onKembali }: StatusPemak
                 </span>
               </div>
 
-              <p style={{ fontSize: '0.75rem', color: 'var(--teks-redup)', fontStyle: 'italic', margin: 0 }}>{item.keterangan}</p>
+              <p
+                style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--teks-redup)',
+                  fontStyle: 'italic',
+                  margin: 0,
+                }}
+              >
+                {item.keterangan}
+              </p>
             </Kartu>
           )
         })}
@@ -218,15 +287,27 @@ export function StatusPemakaian({ dataAwal, onSegarkan, onKembali }: StatusPemak
         <h4 style={{ fontWeight: 'bold', margin: '0 0 0.5rem 0', fontSize: '0.875rem' }}>
           Pedoman Ambang Peringatan Pemilik (Lee):
         </h4>
-        <ul style={{ paddingLeft: '1.25rem', margin: 0, fontSize: '0.75rem', lineHeight: '1.5', color: 'var(--teks-redup)' }}>
+        <ul
+          style={{
+            paddingLeft: '1.25rem',
+            margin: 0,
+            fontSize: '0.75rem',
+            lineHeight: '1.5',
+            color: 'var(--teks-redup)',
+          }}
+        >
           <li>
-            <strong>Ambang 70% (Waspada):</strong> Sistem mengirim email dini ke pemilik. Belum ada biaya, tetapi kedai dianjurkan merapikan foto/arsip log.
+            <strong>Ambang 70% (Waspada):</strong> Sistem mengirim email dini ke pemilik. Belum ada
+            biaya, tetapi kedai dianjurkan merapikan foto/arsip log.
           </li>
           <li>
-            <strong>Ambang 90% (Bahaya):</strong> Email darurat dikirim. Pertimbangkan peningkatan ke paket Supabase Pro ($25/bln) yang dapat disubsidi dari pemasukan langganan SaaS resto.
+            <strong>Ambang 90% (Bahaya):</strong> Email darurat dikirim. Pertimbangkan peningkatan
+            ke paket Supabase Pro ($25/bln) yang dapat disubsidi dari pemasukan langganan SaaS
+            resto.
           </li>
           <li>
-            <strong>Denyut Harian:</strong> Berjalan otomatis setiap pukul 02:00 WIB via alur kerja CI agar proyek tidak pernah tertidur tanpa aktivitas.
+            <strong>Denyut Harian:</strong> Berjalan otomatis setiap pukul 02:00 WIB via alur kerja
+            CI agar proyek tidak pernah tertidur tanpa aktivitas.
           </li>
         </ul>
       </Kartu>

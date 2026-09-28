@@ -745,7 +745,10 @@ export function LayarKasir({
           <TagihanTerbuka
             daftarTagihan={daftarTagihanAktif}
             onPilihTagihan={(t) => {
-              tampilkanToast(`Melanjutkan pesanan #${t.nomor} (${t.namaMeja || 'Takeaway'})`, 'info')
+              tampilkanToast(
+                `Melanjutkan pesanan #${t.nomor} (${t.namaMeja || 'Takeaway'})`,
+                'info',
+              )
               setBukaOpenBillModal(false)
             }}
             onBuatPesananBaru={() => {
