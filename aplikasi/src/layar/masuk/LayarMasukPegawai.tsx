@@ -122,16 +122,24 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
     <div
       className="isi-tengah"
       style={{
-        minHeight: '80vh',
+        width: '100%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 'var(--s-4)',
+        padding: '0 var(--s-3)',
       }}
     >
       <div style={{ maxWidth: '440px', width: '100%' }}>
         <Kartu judul="Masuk Pegawai">
-          <p className="small muted" style={{ marginTop: 0, marginBottom: 'var(--s-3)' }}>
+          <p
+            className="small muted"
+            style={{
+              marginTop: 0,
+              marginBottom: 'var(--s-4)',
+              color: 'var(--text-muted)',
+              fontSize: 'var(--t-3)',
+            }}
+          >
             Gunakan email & PIN 6 angka untuk mulai bertugas
           </p>
           <form onSubmit={handleSubmit}>
@@ -147,13 +155,14 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
               wajib
             />
 
-            <div style={{ marginTop: 'var(--s-3)' }}>
+            <div style={{ marginTop: 'var(--s-4)' }}>
               <label
                 style={{
                   display: 'block',
-                  fontSize: 'var(--t-4)',
+                  fontSize: 'var(--t-3)',
                   fontWeight: 600,
-                  marginBottom: 'var(--s-1)',
+                  marginBottom: 'var(--s-2)',
+                  color: 'var(--text)',
                 }}
               >
                 PIN Keamanan (6 Digit)
@@ -166,25 +175,36 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
                   marginBottom: 'var(--s-3)',
                 }}
               >
-                {[0, 1, 2, 3, 4, 5].map((idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      width: '44px',
-                      height: '48px',
-                      borderRadius: 'var(--sudut-sedang)',
-                      border: '2px solid var(--b-netral)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 'var(--t-7)',
-                      fontWeight: 'bold',
-                      background: pin[idx] ? 'var(--latar-kartu-abu)' : 'transparent',
-                    }}
-                  >
-                    {pin[idx] ? '●' : ''}
-                  </div>
-                ))}
+                {[0, 1, 2, 3, 4, 5].map((idx) => {
+                  const terisi = Boolean(pin[idx])
+                  const adalahPosisiSekarang = pin.length === idx
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        width: '46px',
+                        height: '52px',
+                        borderRadius: 'var(--radius)',
+                        border: adalahPosisiSekarang
+                          ? '2px solid var(--primary)'
+                          : terisi
+                            ? '2px solid var(--border-kuat, var(--border))'
+                            : '2px solid var(--border)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 'var(--t-7)',
+                        fontWeight: 'bold',
+                        color: 'var(--primary)',
+                        background: terisi ? 'var(--surface-2)' : 'transparent',
+                        transition: 'all 0.15s ease',
+                        boxShadow: adalahPosisiSekarang ? '0 0 0 3px var(--accent-soft)' : 'none',
+                      }}
+                    >
+                      {terisi ? '●' : ''}
+                    </div>
+                  )
+                })}
               </div>
 
               {/* Keypad Angka Responsif */}
@@ -198,43 +218,59 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
               >
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((num) => (
                   <Tombol key={num} ragam="biasa" onClick={() => handleTekanAngka(num)}>
-                    {num}
+                    <span style={{ fontSize: 'var(--t-5)', fontWeight: 600 }}>{num}</span>
                   </Tombol>
                 ))}
-                <Tombol ragam="biasa" onClick={handleResetPin}>
-                  C
+                <Tombol ragam="biasa" onClick={handleResetPin} nama="Hapus semua angka PIN">
+                  <span style={{ fontSize: 'var(--t-4)', fontWeight: 600 }}>C</span>
                 </Tombol>
                 <Tombol ragam="biasa" onClick={() => handleTekanAngka('0')}>
-                  0
+                  <span style={{ fontSize: 'var(--t-5)', fontWeight: 600 }}>0</span>
                 </Tombol>
-                <Tombol ragam="biasa" onClick={handleHapusAngka}>
-                  ⌫
+                <Tombol ragam="biasa" onClick={handleHapusAngka} nama="Hapus satu angka PIN">
+                  <span style={{ fontSize: 'var(--t-4)', fontWeight: 600 }}>⌫</span>
                 </Tombol>
               </div>
               <div
                 style={{
                   fontSize: 'var(--t-2)',
-                  color: 'var(--teks-redup)',
+                  color: 'var(--text-muted)',
                   textAlign: 'center',
                   marginBottom: 'var(--s-3)',
+                  padding: 'var(--s-1) var(--s-2)',
+                  background: 'var(--surface-2)',
+                  borderRadius: 'var(--radius-pil)',
+                  border: '1px solid var(--border)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 'var(--s-1)',
+                  width: '100%',
                 }}
               >
-                Bisa diketik langsung via keyboard (0–9, Backspace, Esc, Enter / Spasi)
+                <span>⌨️</span>
+                <span>Bisa diketik langsung via keyboard (0–9, Backspace, Esc, Enter / Spasi)</span>
               </div>
             </div>
 
             {errorRamah && (
               <div
+                role="alert"
                 style={{
                   padding: 'var(--s-3)',
                   borderRadius: 'var(--radius)',
                   background: 'var(--surface-2)',
-                  borderLeft: '4px solid var(--peringatan)',
-                  marginBottom: 'var(--s-3)',
+                  border: '1px solid var(--danger)',
+                  borderLeft: '5px solid var(--danger)',
+                  marginBottom: 'var(--s-4)',
                 }}
               >
                 <div
-                  style={{ fontWeight: 'bold', color: 'var(--teks-utama)', fontSize: 'var(--t-4)' }}
+                  style={{
+                    fontWeight: 700,
+                    color: 'var(--danger)',
+                    fontSize: 'var(--t-4)',
+                  }}
                 >
                   [{errorRamah.kode}] {errorRamah.judul}
                 </div>
@@ -242,13 +278,19 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
                   style={{
                     fontSize: 'var(--t-3)',
                     marginTop: 'var(--s-1)',
-                    color: 'var(--teks-redup)',
+                    color: 'var(--text)',
+                    lineHeight: 1.4,
                   }}
                 >
                   {errorRamah.pesan}
                 </div>
                 <div
-                  style={{ fontSize: 'var(--t-2)', marginTop: 'var(--s-1)', fontStyle: 'italic' }}
+                  style={{
+                    fontSize: 'var(--t-2)',
+                    marginTop: 'var(--s-2)',
+                    color: 'var(--text-muted)',
+                    fontWeight: 500,
+                  }}
                 >
                   👉 {errorRamah.tindakan}
                 </div>
@@ -268,19 +310,36 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
           {/* Pilihan Cepat Akun Demo / Uji Coba */}
           <div
             style={{
-              marginTop: 'var(--s-3)',
-              padding: 'var(--s-2)',
+              marginTop: 'var(--s-4)',
+              padding: 'var(--s-3)',
               borderRadius: 'var(--radius)',
-              background: 'var(--surface-2, var(--latar-kartu))',
-              border: '1px dashed var(--b-netral, var(--border))',
+              background: 'var(--surface-2)',
+              border: '1px solid var(--border)',
               textAlign: 'center',
             }}
           >
-            <div className="small muted" style={{ marginBottom: '0.5rem' }}>
-              Pilihan Cepat Masuk Akun:
+            <div
+              style={{
+                fontSize: 'var(--t-2)',
+                fontWeight: 600,
+                color: 'var(--text-muted)',
+                marginBottom: 'var(--s-2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 'var(--s-1)',
+              }}
+            >
+              <span>⚡</span>
+              <span>Pilihan Cepat Masuk Akun Demo (PIN: 123456):</span>
             </div>
             <div
-              style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}
+              style={{
+                display: 'flex',
+                gap: 'var(--s-2)',
+                justifyContent: 'center',
+                flexWrap: 'wrap',
+              }}
             >
               <Tombol
                 ragam="biasa"
@@ -291,7 +350,7 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
                 }}
                 nama="Isi otomatis akun Owner"
               >
-                👑 Akun Owner (Ada Menu Pengaturan)
+                👑 Owner (Lee)
               </Tombol>
               <Tombol
                 ragam="biasa"
@@ -302,7 +361,18 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
                 }}
                 nama="Isi otomatis akun Kasir"
               >
-                💳 Akun Kasir
+                💳 Kasir
+              </Tombol>
+              <Tombol
+                ragam="biasa"
+                onClick={() => {
+                  setEmail('dapur@resto.test')
+                  setPin('123456')
+                  setErrorRamah(null)
+                }}
+                nama="Isi otomatis akun Dapur"
+              >
+                🍳 Dapur
               </Tombol>
             </div>
           </div>
@@ -314,7 +384,7 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
               justifyContent: 'space-between',
               alignItems: 'center',
               fontSize: 'var(--t-2)',
-              color: 'var(--teks-redup)',
+              color: 'var(--text-muted)',
             }}
           >
             <span>Perangkat: {perangkat.nama}</span>

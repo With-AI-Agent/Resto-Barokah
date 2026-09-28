@@ -4,6 +4,9 @@ import type { KamusBahasa } from './id'
  * English Translation Dictionary (en)
  */
 export const en: KamusBahasa = {
+  app: {
+    nama: 'Resto Barokah',
+  },
   umum: {
     aplikasi: 'Sajian',
     selamat_datang: 'Welcome',

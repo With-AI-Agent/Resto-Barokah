@@ -499,72 +499,126 @@ export default function App() {
   return (
     <PenyediaBahasa>
       {!sedangMasuk ? (
-        modeMasuk === 'publik' ? (
-          <div>
-            <LayarPelangganPublik onTutup={() => setModeMasuk('pegawai')} />
-            <div className="text-center pb-8" style={{ marginTop: 'var(--s-4)' }}>
-              <button
-                type="button"
-                onClick={() => setModeMasuk('pegawai')}
-                className="text-xs text-neutral-500 hover:text-neutral-800 underline"
-              >
-                ← Kembali ke Masuk Pegawai
-              </button>
-            </div>
-          </div>
-        ) : modeMasuk === 'pelanggan' ? (
-          <div>
-            <LayarMasukPelanggan
-              onMasukGoogle={async () => {
-                await masukDenganGoogle()
-              }}
-              onKirimTautanEmail={kirimTautanMasukEmail}
-            />
-            <div className="text-center pb-8">
-              <button
-                type="button"
-                onClick={() => setModeMasuk('pegawai')}
-                className="text-xs text-neutral-500 hover:text-neutral-800 underline"
-              >
-                ← Kembali ke Masuk Pegawai (PIN)
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <LayarMasukPegawai
-              onMasuk={async (email, pin) => masuk(email, pin)}
-              onMasukSukses={(sesiMasuk) => {
-                const peranBaru = sesiMasuk?.peran || sesi?.peran
-                setLayarAktif(peranBaru === 'dapur' ? 'dapur' : 'kasir')
-              }}
-            />
+        <div
+          style={{
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 'var(--s-6) var(--s-3)',
+            background: 'radial-gradient(ellipse at 50% 15%, var(--surface-2) 0%, var(--bg) 100%)',
+          }}
+        >
+          {/* Header Identitas & Merek Aplikasi */}
+          <div
+            style={{
+              textAlign: 'center',
+              marginBottom: 'var(--s-4)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 'var(--s-2)',
+            }}
+          >
             <div
-              className="text-center pb-8"
               style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: 'var(--radius)',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--sh-2)',
                 display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
                 alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '28px',
               }}
             >
+              🍽️
+            </div>
+            <div>
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: 'var(--t-7)',
+                  fontFamily: 'var(--font-display)',
+                  letterSpacing: '0.02em',
+                  fontWeight: 800,
+                  color: 'var(--text)',
+                }}
+              >
+                RESTO BAROKAH
+              </h1>
+              <p
+                style={{
+                  margin: 'var(--s-1) 0 0 0',
+                  fontSize: 'var(--t-3)',
+                  color: 'var(--text-muted)',
+                }}
+              >
+                Sistem Operasional Kasir POS & Layanan Kuliner
+              </p>
+            </div>
+          </div>
+
+          {/* Segmented Control untuk Navigasi Antar Mode */}
+          <div style={{ marginBottom: 'var(--s-5)' }}>
+            <div className="segmen" role="tablist">
               <button
                 type="button"
-                onClick={() => setModeMasuk('pelanggan')}
-                className="text-xs text-neutral-500 hover:text-neutral-800 underline"
+                role="tab"
+                aria-selected={modeMasuk === 'pegawai'}
+                aria-pressed={modeMasuk === 'pegawai'}
+                onClick={() => setModeMasuk('pegawai')}
               >
-                Masuk sebagai Pelanggan (Google / Email) →
+                🧑‍🍳 Masuk Pegawai (PIN)
               </button>
               <button
                 type="button"
-                onClick={() => setModeMasuk('publik')}
-                className="text-xs text-neutral-500 hover:text-neutral-800 underline"
+                role="tab"
+                aria-selected={modeMasuk === 'pelanggan'}
+                aria-pressed={modeMasuk === 'pelanggan'}
+                onClick={() => setModeMasuk('pelanggan')}
               >
-                🍽️ Lihat Katalog Menu Publik (Tanpa Masuk) →
+                👤 Masuk Pelanggan
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={modeMasuk === 'publik'}
+                aria-pressed={modeMasuk === 'publik'}
+                onClick={() => setModeMasuk('publik')}
+              >
+                📖 Menu Digital Publik
               </button>
             </div>
           </div>
-        )
+
+          {/* Area Konten Layar Terpilih */}
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+            {modeMasuk === 'publik' ? (
+              <div style={{ width: '100%', maxWidth: '960px' }}>
+                <LayarPelangganPublik onTutup={() => setModeMasuk('pegawai')} />
+              </div>
+            ) : modeMasuk === 'pelanggan' ? (
+              <LayarMasukPelanggan
+                onMasukGoogle={async () => {
+                  await masukDenganGoogle()
+                }}
+                onKirimTautanEmail={kirimTautanMasukEmail}
+              />
+            ) : (
+              <LayarMasukPegawai
+                onMasuk={async (email, pin) => masuk(email, pin)}
+                onMasukSukses={(sesiMasuk) => {
+                  const peranBaru = sesiMasuk?.peran || sesi?.peran
+                  setLayarAktif(peranBaru === 'dapur' ? 'dapur' : 'kasir')
+                }}
+              />
+            )}
+          </div>
+        </div>
       ) : (
         <Rangka sesi={sesi} layarAktif={layarAktif} onPilihLayar={setLayarAktif} onKeluar={keluar}>
           {renderKonten()}

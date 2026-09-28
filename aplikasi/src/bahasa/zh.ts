@@ -4,6 +4,9 @@ import type { KamusBahasa } from './id'
  * 简体中文翻译字典 (zh)
  */
 export const zh: KamusBahasa = {
+  app: {
+    nama: 'Resto Barokah',
+  },
   umum: {
     aplikasi: 'Sajian',
     selamat_datang: '欢迎光临',

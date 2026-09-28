@@ -68,20 +68,55 @@ export function LayarMasukPelanggan({
     }
   }
 
+  const namaApp = t('app.nama') || t('umum.aplikasi') || 'Resto Barokah'
+
   return (
-    <div className="layar-masuk-pelanggan max-w-md mx-auto p-4 min-h-[70vh] flex flex-col justify-center">
-      <Kartu judul={t('app.nama') || 'Resto Barokah'}>
-        <div className="text-center mb-6">
-          <h3 className="text-xl font-bold text-neutral-800">Masuk / Daftar Pelanggan</h3>
-          <p className="text-xs text-neutral-500 mt-1">
-            Dapatkan voucher diskon, promo ulang tahun, dan simpan riwayat pesanan favorit Anda.
+    <div
+      className="layar-masuk-pelanggan"
+      style={{
+        maxWidth: '440px',
+        width: '100%',
+        margin: '0 auto',
+        padding: '0 var(--s-3)',
+      }}
+    >
+      <Kartu judul={namaApp}>
+        <div style={{ textAlign: 'center', marginBottom: 'var(--s-5)' }}>
+          <h2
+            style={{
+              fontSize: 'var(--t-6)',
+              fontWeight: 700,
+              margin: '0 0 var(--s-2) 0',
+              color: 'var(--text)',
+            }}
+          >
+            Masuk / Daftar Pelanggan
+          </h2>
+          <p
+            style={{
+              fontSize: 'var(--t-3)',
+              color: 'var(--text-muted)',
+              margin: 0,
+              lineHeight: 1.5,
+            }}
+          >
+            Dapatkan voucher diskon khusus, promo ulang tahun, dan simpan riwayat pesanan favorit Anda.
           </p>
         </div>
 
         {pesanGalat && (
           <div
             role="alert"
-            className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800 mb-4"
+            style={{
+              padding: 'var(--s-3)',
+              borderRadius: 'var(--radius)',
+              background: 'var(--surface-2)',
+              border: '1px solid var(--danger)',
+              borderLeft: '4px solid var(--danger)',
+              color: 'var(--text)',
+              fontSize: 'var(--t-3)',
+              marginBottom: 'var(--s-4)',
+            }}
           >
             {pesanGalat}
           </div>
@@ -90,33 +125,72 @@ export function LayarMasukPelanggan({
         {pesanSukses && (
           <div
             role="status"
-            className="p-3 bg-emerald-50 border border-emerald-200 rounded text-sm text-emerald-800 mb-4"
+            style={{
+              padding: 'var(--s-3)',
+              borderRadius: 'var(--radius)',
+              background: 'var(--surface-2)',
+              border: '1px solid var(--success)',
+              borderLeft: '4px solid var(--success)',
+              color: 'var(--text)',
+              fontSize: 'var(--t-3)',
+              marginBottom: 'var(--s-4)',
+            }}
           >
             {pesanSukses}
           </div>
         )}
 
-        <div className="space-y-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-4)' }}>
           {/* Tombol Masuk Google Utama */}
           <Tombol ragam="biasa" lebar onClick={tanganiGoogle} nonaktif={sedangGoogle}>
-            <span className="flex items-center justify-center gap-3">
-              {/* Logo Google = aset merek (public/logo-google.svg); warna mereknya tetap
-                  dan sengaja tidak ditulis di kode supaya semua warna kode mengikuti tema. */}
-              <img src="/logo-google.svg" alt="" className="w-5 h-5" />
-              <span>{sedangGoogle ? 'Menghubungkan...' : 'Lanjut dengan Akun Google'}</span>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 'var(--s-3)',
+                width: '100%',
+              }}
+            >
+              <img
+                src="/logo-google.svg"
+                alt=""
+                style={{ width: '20px', height: '20px', flexShrink: 0 }}
+              />
+              <span style={{ fontWeight: 600 }}>
+                {sedangGoogle ? 'Menghubungkan...' : 'Lanjut dengan Akun Google'}
+              </span>
             </span>
           </Tombol>
 
-          <div className="flex items-center my-4">
-            <div className="flex-grow border-t border-neutral-200"></div>
-            <span className="flex-shrink mx-3 text-xs text-neutral-400 uppercase tracking-wider">
+          {/* Garis Pemisah Antara Google & Email */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              margin: 'var(--s-2) 0',
+            }}
+          >
+            <div style={{ flex: 1, borderTop: '1px solid var(--border)' }} />
+            <span
+              style={{
+                padding: '0 var(--s-3)',
+                fontSize: 'var(--t-2)',
+                color: 'var(--text-muted)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
               atau gunakan email
             </span>
-            <div className="flex-grow border-t border-neutral-200"></div>
+            <div style={{ flex: 1, borderTop: '1px solid var(--border)' }} />
           </div>
 
           {/* Form Magic Link Email */}
-          <form onSubmit={tanganiKirimEmail} className="space-y-4">
+          <form
+            onSubmit={tanganiKirimEmail}
+            style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-4)' }}
+          >
             <KolomIsian
               label="Alamat Email Anda"
               jenis="email"
@@ -127,27 +201,57 @@ export function LayarMasukPelanggan({
               wajib
             />
 
-            <Tombol ragam="biasa" jenis="submit" lebar nonaktif={sedangKirimEmail || !email.trim()}>
+            <Tombol
+              ragam="utama"
+              jenis="submit"
+              lebar
+              nonaktif={sedangKirimEmail || !email.trim()}
+            >
               {sedangKirimEmail ? 'Mengirim...' : 'Kirim Tautan Masuk ke Email'}
             </Tombol>
           </form>
 
           {/* Persetujuan Privasi (Sesuai UU PDP & T1-40) */}
-          <div className="pt-3 border-t border-neutral-100 flex items-start gap-2">
+          <div
+            style={{
+              paddingTop: 'var(--s-3)',
+              borderTop: '1px solid var(--border)',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 'var(--s-2)',
+            }}
+          >
             <input
               type="checkbox"
               id="persetujuan-privasi"
               checked={setujuPrivasi}
               onChange={(e) => setSetujuPrivasi(e.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-neutral-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+              style={{
+                marginTop: '3px',
+                width: '18px',
+                height: '18px',
+                cursor: 'pointer',
+                accentColor: 'var(--primary)',
+              }}
             />
             <label
               htmlFor="persetujuan-privasi"
-              className="text-xs text-neutral-600 cursor-pointer"
+              style={{
+                fontSize: 'var(--t-2)',
+                color: 'var(--text-muted)',
+                lineHeight: 1.4,
+                cursor: 'pointer',
+              }}
             >
               Saya menyetujui data saya (nama & email) digunakan hanya untuk layanan resto sesuai{' '}
               <Tombol ragam="polos" onClick={onBukaKebijakanPrivasi}>
-                <span className="text-emerald-700 underline font-medium">
+                <span
+                  style={{
+                    color: 'var(--primary)',
+                    textDecoration: 'underline',
+                    fontWeight: 600,
+                  }}
+                >
                   Kebijakan Privasi Resto
                 </span>
               </Tombol>

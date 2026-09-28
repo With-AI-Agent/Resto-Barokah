@@ -4,6 +4,9 @@ import type { KamusBahasa } from './id'
  * قاموس اللغة العربية (ar) — Arabic Translation Dictionary
  */
 export const ar: KamusBahasa = {
+  app: {
+    nama: 'Resto Barokah',
+  },
   umum: {
     aplikasi: 'Sajian',
     selamat_datang: 'مرحباً بكم',

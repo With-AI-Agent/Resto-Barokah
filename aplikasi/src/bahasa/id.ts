@@ -2,6 +2,9 @@
  * Kamus Bahasa Indonesia (id) — Sumber Kebenaran Teks UI
  */
 export const id = {
+  app: {
+    nama: 'Resto Barokah',
+  },
   umum: {
     aplikasi: 'Sajian',
     selamat_datang: 'Selamat Datang',
