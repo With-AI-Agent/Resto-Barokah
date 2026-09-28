@@ -20,7 +20,7 @@
 |---|---|---|---|---|---|---|---|---|
 | F-01 | 1 | DISCOVERY — masalah, pengguna, batasan dunia nyata; asumsi tentang kedai, pajak, perangkat | `docs/DISCOVERY.md` | L3 L5 L6 | 310 baris | SELESAI | arena/01a0e807-resto-barokah (K-F-01) + arena/01a0e806-resto-barokah (ulangan independen, K-F-01.2) | 2026-09-28 |
 | F-02 | 1 | PRD bagian 1 — tujuan, pengguna, janji M1–M6 + aturan bisnis di dalamnya | `docs/PRD.md` baris 1–138 | L2 L3 L5 | ±140 baris | BELUM | — | — |
-| F-03 | 1 | PRD bagian 2 — janji M7–M12, non-goals, kasus tepi, metrik | `docs/PRD.md` baris 139–323 | L1 L2 L3 | ±185 baris | DIKLAIM | arena/01a0e839-resto-barokah | 2026-09-28 |
+| F-03 | 1 | PRD bagian 2 — janji M7–M12, non-goals, kasus tepi, metrik | `docs/PRD.md` baris 139–323 | L1 L2 L3 | ±185 baris | DIKLAIM | arena/01a0e839-resto-barokah (agent ke-1, klaim 13:35 UTC) + arena/01a0e839-resto-barokah (agent ke-2 di cabang yang sama, ulangan independen K-F-03.2 — dikerahkan sengaja oleh Lee) | 2026-09-28 |
 | F-04 | 1 | TECH_SPEC bagian 1 — stack, arsitektur, struktur folder, skema data, kontrak API | `docs/TECH_SPEC.md` §0–§5 (baris 1–266) | L1 L2 L3 | ±265 baris | BELUM | — | — |
 | F-05 | 1 | TECH_SPEC bagian 2 — env, integrasi, keamanan ringkas, ART-1…15, batas gratis, DoD, keputusan | `docs/TECH_SPEC.md` §6–§13 (baris 267–475) | L1 L3 L4 L6 | ±210 baris | BELUM | — | — |
 | F-06 | 1 | KEAMANAN — prinsip, ancaman, identitas, perangkat, PIN, sesi, otorisasi, uang, audit, PDP, matriks uji | `docs/KEAMANAN.md` | L1 L2 L3 | 232 baris | BELUM | — | — |
