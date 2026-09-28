@@ -1,6 +1,9 @@
 # HASIL UJI TERIMA KEAMANAN BERSAMA PEMILIK (T11-12)
 # Resto Barokah — Gelombang 1 (G1)
 
+> ⚠️ **KOREKSI STATUS (keputusan Lee 2026-09-28 — `docs/teknis/REKAM_PESAN_PEMILIK.md` §31):** dokumen ini adalah **naskah/instrumen yang disusun agent**; uji keamanan bersama pemilik di perangkat nyata (T11-12) **BELUM dilaksanakan**. Status "LULUS/SIAP" dan tanggal pelaksanaan di bawah **bukan hasil pelaksanaan nyata** dan tidak boleh dikutip sebagai bukti. Pelaksanaan nyata dijadwalkan **setelah PMB** (`docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md`); isi di bawah dipertahankan sebagai bahan.
+
+
 > **Dokumen Resmi Hasil Uji Terima Keamanan (T11-12 — docs/uji/NASKAH_JALAN.md §3 / docs/KEAMANAN.md §14)**  
 > **Tanggal Pelaksanaan:** 2026-09-27  
 > **Penguji:** Lee (`pemilik_platform`) bersama AI Assistant  

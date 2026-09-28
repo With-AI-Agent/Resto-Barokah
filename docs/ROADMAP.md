@@ -2037,6 +2037,12 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 11 — Uji terima, deploy produksi, audit (penutup G1)
 
+> **STATUS FASE 11 (keputusan Lee 2026-09-28 — `docs/teknis/REKAM_PESAN_PEMILIK.md` §31): BELUM DIKERJAKAN, kecuali T11-07 (deploy Cloudflare).**
+> Fase 11 = *finishing* (uji terima pemilik, uji nyata perangkat/printer, pelatihan, serah terima, Playwright, audit penutup).
+> Urutan resmi: **PMB — Pemeriksaan Mendalam Bertahap** (`docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md`) **dulu → baru Fase 11 → pilot.**
+> PMB menggantikan T11-13 sebagai audit penutup dan menjadi wadah uji nyata T11-03/04/12 di tahap lapangan; status tugas tetap dicatat di sini.
+> Tugas yang sempat ditandai `[x]` oleh sesi 01a0d09b (instrumen/kode disiapkan, tetapi DoD yang menuntut pelaksanaan nyata belum terjadi) dikembalikan ke `[ ]` dengan baris "Koreksi status".
+
 - [ ] T11-01 — Playwright: 7 alur wajib + voucher & katalog ❓ T-026
   - **Tujuan:** semua alur inti terbukti berjalan otomatis, bukan hanya "katanya".
   - **Ref:** TECH_SPEC §11 (uji ujung-ke-ujung); AGENT_OPERATING_GUIDE §5
@@ -2046,7 +2052,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** uji rapuh → mitigasi: pemilih stabil (teks peran bahasa Indonesia) + tunggu kondisi.
   - **Verifikasi:** CI hijau + laporan hasil dengan waktu tiap alur.
 
-- [x] T11-02 — Daftar uji terima bahasa manusia (dijalankan pemilik)
+- [ ] T11-02 — Daftar uji terima bahasa manusia (dijalankan pemilik)
+  - **Koreksi status (keputusan Lee 2026-09-28, REKAM_PESAN_PEMILIK §31):** instrumen `docs/uji/UJI_TERIMA_G1.md` (42 skenario) SUDAH disusun; **pelaksanaan oleh pemilik sampai semua langkah tercentang BELUM terjadi**. Dikerjakan ulang secara nyata **setelah PMB** (pemeriksaan mendalam bertahap). Baris "Bukti 2026-09-27" di bawah = catatan apa yang sudah disusun, bukan bukti selesai.
   - **Tujuan:** pemilik/pegawai bisa membuktikan sendiri aplikasi benar sebelum dipakai harian.
   - **Ref:** AGENT_OPERATING_GUIDE §5
   - **File:** `docs/uji/UJI_TERIMA_G1.md`
@@ -2069,7 +2076,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Cetak (ART-7); mitigasi: jalur cadangan digital tetap wajib.
   - **Verifikasi:** foto struk & tiket nyata + lembar hasil bertanda tangan. · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima.
 
-- [x] T11-04 — Uji perangkat kedua (iPhone/Android lain) T-003
+- [ ] T11-04 — Uji perangkat kedua (iPhone/Android lain) T-003
+  - **Koreksi status (keputusan Lee 2026-09-28, REKAM_PESAN_PEMILIK §31):** `docs/uji/UJI_PERANGKAT.md` berisi evaluasi/matriks buatan agent; **uji nyata di perangkat kedua (iPhone/Android lain) beserta tangkapan layar BELUM dilakukan**. Dikerjakan ulang secara nyata **setelah PMB** (pemeriksaan mendalam bertahap). Baris "Bukti 2026-09-27" di bawah = catatan apa yang sudah disusun, bukan bukti selesai.
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-003: sasaran awal Android/Windows disetujui; daftar perangkat final dikonfirmasi sebelum Fase 11, dan uji nyata tetap wajib.
   - **Tujuan:** memastikan aplikasi benar-benar "jalan di perangkat apa pun" seperti syarat pemilik.
   - **Ref:** PRD §6 (batasan pemilik: perangkat apa pun); TECH_SPEC §12
@@ -2079,7 +2087,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** perangkat tidak tersedia → mitigasi: uji emulator + minta pemilik menyediakan; jangan menunda tanpa catatan.
   - **Verifikasi:** lembar hasil uji per perangkat + tangkapan layar. · **Bukti 2026-09-27 (Uji Kompatibilitas Multi-Perangkat Lengkap):** matriks pengujian mendalam dicatat di `docs/uji/UJI_PERANGKAT.md` mengevaluasi 3 kelas perangkat nyata (Tablet Android Samsung/Xiaomi untuk kasir & KDS dapur, Ponsel iPhone/iOS untuk pelayan & pelanggan tamu, serta Laptop/Komputer Desktop untuk dashboard pemilik); seluruh 12 layar terbukti tidak ada tata letak rusak (*zero broken layout*); dicatat mitigasi resmi iPhone ketiadaan Web Bluetooth dialihkan ke jalur struk digital WhatsApp & QR nota (K3 / ART-7); sinkronisasi antrean offline IndexedDB teruji stabil.
 
-- [x] T11-05 — Audit tampilan: kontras, a11y, responsif, keadaan layar
+- [ ] T11-05 — Audit tampilan: kontras, a11y, responsif, keadaan layar
+  - **Koreksi status (keputusan Lee 2026-09-28, REKAM_PESAN_PEMILIK §31):** pemeriksa mesin kontras (`aplikasi/alat/uji-kontras.py`) dan laporan ada; **pemeriksaan manusia a11y/responsif 3 ukuran layar & keadaan layar belum dilakukan** — akan diperiksa ulang di PMB. Dikerjakan ulang secara nyata **setelah PMB** (pemeriksaan mendalam bertahap). Baris "Bukti 2026-09-27" di bawah = catatan apa yang sudah disusun, bukan bukti selesai.
   - **Tujuan:** tampilan tetap enak dipakai kasir sibuk dan ramah semua orang.
   - **Ref:** AGENT_OPERATING_GUIDE §3 (a11y); TECH_SPEC §11
   - **File:** `aplikasi/alat/uji-kontras.py`, `docs/uji/AUDIT_TAMPILAN.md`
@@ -2088,7 +2097,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** sebagian layar terlewat → mitigasi: daftar layar diperiksa satu-satu + pemeriksa otomatis.
   - **Verifikasi:** laporan audit + pemeriksa otomatis di CI. · **Bukti 2026-09-27 (Audit Tampilan Lolos 100%):** laporan audit lengkap didokumentasikan di `docs/uji/AUDIT_TAMPILAN.md`; diverifikasi mesin `aplikasi/alat/uji-kontras.py` (166/166 lolos 100% pada 10 tema resmi, rasio kontras WCAG AA ≥ 4.5:1 untuk teks dan ≥ 3.0:1 untuk elemen UI, target sentuh kendali ≥ 44 px, cincin fokus `:focus-visible`, `prefers-reduced-motion`, tangga tipografi/spasi, dan 13 keluarga fon woff2 lokal tanpa dependensi internet seberat 461 KB); diuji kerapatan tampilan nyaman vs padat pada `aplikasi/src/gaya/kerapatan-css.test.ts` (11/11 lolos); 12 layar memenuhi 7 penanganan keadaan (Memuat, Kosong, Gagal, dll.) divalidasi oleh `alat/peta-ui.py`.
 
-- [x] T11-06 — Uji kinerja & pemantauan batas gratis (K6)
+- [ ] T11-06 — Uji kinerja & pemantauan batas gratis (K6)
+  - **Koreksi status (keputusan Lee 2026-09-28, REKAM_PESAN_PEMILIK §31):** alat `alat/pantau_batas.py` ada (mode simulasi); **angka NYATA produksi belum dicatat** dan peringatan belum diuji di lingkungan nyata. Dikerjakan ulang secara nyata **setelah PMB** (pemeriksaan mendalam bertahap). Baris "Bukti 2026-09-27" di bawah = catatan apa yang sudah disusun, bukan bukti selesai.
   - **Tujuan:** tetap nyaman dipakai dan tetap di dalam batas biaya nol.
   - **Ref:** TECH_SPEC §10 (batas gratis) & §13 K6
   - **File:** `alat/pantau_batas.py`, `docs/uji/KINERJA_DAN_BATAS.md`
@@ -2106,7 +2116,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** salah konfigurasi produksi → mitigasi: daftar periksa sebelum deploy + uji 5 menit sesudah deploy.
   - **Verifikasi:** buka dari HP di luar jaringan kantor + daftar periksa tercentang. · **Bukti 2026-09-27 (Panduan & Konfigurasi Deploy Produksi Lengkap):** berkas panduan deploy resmi `docs/ops/DEPLOY.md` selesai disusun memuat pemisahan lingkungan bersih, checklist pra-deploy 7 gerbang, langkah instalasi Supabase Cloud (Region Singapore T-014) & Cloudflare Workers/Assets (`aplikasi/wrangler.toml`), konfigurasi domain kustom HTTPS, uji cepat 5 menit pasca-deploy, dan SOP rollback instan < 5 detik; manifest PWA `aplikasi/public/manifest.webmanifest` valid; hasil bangun produksi `dist/` terverifikasi utuh dengan header keamanan CSP/HSTS.
 
-- [x] T11-08 — Peringatan pemakaian 70%/90% + halaman status
+- [ ] T11-08 — Peringatan pemakaian 70%/90% + halaman status
+  - **Koreksi status (keputusan Lee 2026-09-28, REKAM_PESAN_PEMILIK §31):** komponen `StatusPemakaian.tsx` + Edge Function ada; **peringatan 70%/90% belum dibuktikan terkirim di lingkungan nyata**. Dikerjakan ulang secara nyata **setelah PMB** (pemeriksaan mendalam bertahap). Baris "Bukti 2026-09-27" di bawah = catatan apa yang sudah disusun, bukan bukti selesai.
   - **Tujuan:** keputusan biaya tidak pernah mendadak (janji K6).
   - **Ref:** TECH_SPEC §13 K6 & §10
   - **File:** `aplikasi/src/layar/pengaturan/StatusPemakaian.tsx`, `supabase/functions/peringatan_batas/index.ts`
@@ -2115,7 +2126,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** angka batas berubah dari pihak penyedia → mitigasi: angka disimpan sebagai pengaturan yang bisa diperbarui + tautan ke dokumentasi.
   - **Verifikasi:** uji dengan angka tiruan (70%, 90%) → peringatan muncul. · **Bukti 2026-09-27 (Halaman Status & Peringatan Otomatis K6):** komponen UI `aplikasi/src/layar/pengaturan/StatusPemakaian.tsx` selesai dibuat dan terpasang pada tab navigasi `LayarPengaturan.tsx` dengan progress bar visual 3 tingkat (Hijau <70%, Kuning 70-89% Waspada, Merah ≥90% Bahaya) serta catatan waktu periksa terakhir; Edge Function `supabase/functions/peringatan_batas/index.ts` menangani evaluasi ambang dan pemicu email peringatan ke pemilik platform; diuji unit di `aplikasi/src/layar/pengaturan/StatusPemakaian.test.tsx` (4/4 lolos).
 
-- [x] T11-09 — Panduan pegawai (1 halaman) + pelatihan
+- [ ] T11-09 — Panduan pegawai (1 halaman) + pelatihan
+  - **Koreksi status (keputusan Lee 2026-09-28, REKAM_PESAN_PEMILIK §31):** panduan `docs/ops/PANDUAN_PEGAWAI.md` ada; **pelatihan & uji "1 pegawai memakai aplikasi hanya dengan panduan" BELUM dilakukan**. Dikerjakan ulang secara nyata **setelah PMB** (pemeriksaan mendalam bertahap). Baris "Bukti 2026-09-27" di bawah = catatan apa yang sudah disusun, bukan bukti selesai.
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-010: panduan boleh dibuat agent; pelatihan, penunjukan admin, dan uji terima nyata wajib dikoordinasikan sebelum Fase 11.
   - **Tujuan:** pegawai baru bisa memakai sistem dalam 15 menit.
   - **Ref:** PRD §3 (metrik sukses: tanpa balik ke kertas)
@@ -2125,7 +2137,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** panduan tidak dibaca → mitigasi: ditempel di dekat kasir & dapur + versi ringkas 6 langkah.
   - **Verifikasi:** 1 pegawai mencoba memakai aplikasi hanya dengan panduan (tanpa dibantu) → berhasil. · **Bukti 2026-09-27 (Panduan Operasional & Pelatihan 15 Menit):** berkas operasional 3 lembar praktis selesai disusun di `docs/ops/PANDUAN_PEGAWAI.md`: Lembar 1 Panduan Kasir (5 alur utama: buka kas, pesan, kirim dapur, bayar tunai/QRIS, tutup kas + solusi mandiri masalah internet/void/struk), Lembar 2 Panduan Staf Dapur & Bar (alur warna KDS, tombol habis 86), Lembar 3 Panduan Pemilik & Admin Cabang (laporan omzet, persetujuan tablet baru & void); dilengkapi panduan materi pelatihan 15 menit dan penunjukan admin cabang (T-010).
 
-- [x] T11-10 — Serah terima G1: cadangan, pemulihan, dan pernyataan siap
+- [ ] T11-10 — Serah terima G1: cadangan, pemulihan, dan pernyataan siap
+  - **Koreksi status (keputusan Lee 2026-09-28, REKAM_PESAN_PEMILIK §31):** dokumen `docs/ops/SERAH_TERIMA_G1.md` ada sebagai NASKAH; **daftar uji terima belum tercentang, persetujuan/tanda tangan pemilik BELUM ada** — serah terima belum terjadi. Dikerjakan ulang secara nyata **setelah PMB** (pemeriksaan mendalam bertahap). Baris "Bukti 2026-09-27" di bawah = catatan apa yang sudah disusun, bukan bukti selesai.
   - **Tujuan:** bukti bahwa G1 benar-benar bisa dipakai harian tanpa kertas.
   - **Ref:** PRD §3 (metrik sukses); TECH_SPEC §10
   - **File:** `docs/ops/SERAH_TERIMA_G1.md`, `alat/pulihkan-cadangan.sh`, `docs/teknis/PEMULIHAN.md`
@@ -2145,7 +2158,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** Chromium **tidak bisa diunduh di ruang kerja agent** (sudah dicoba 2026-09-17) sehingga uji ini hanya jalan di CI → mitigasi: jaring lokal tetap uji komponen + uji SQL; bila CI juga gagal, dilaporkan jujur dan diganti (bukan diklaim hijau).
   - **Verifikasi:** CI hijau + artefak tangkapan layar tiap alur + satu uji mutasi (matikan satu aksi → alur GAGAL).
 
-- [x] T11-12 — Uji terima keamanan bersama pemilik (naskah W + perangkat nyata)
+- [ ] T11-12 — Uji terima keamanan bersama pemilik (naskah W + perangkat nyata)
+  - **Koreksi status (keputusan Lee 2026-09-28, REKAM_PESAN_PEMILIK §31):** naskah W-SEC-01…06 ada; **pelaksanaan bersama pemilik di perangkat nyata BELUM terjadi** — status "LULUS 100%" di `docs/uji/HASIL_UJI_TERIMA_KEAMANAN.md` bukan hasil pelaksanaan (diberi spanduk koreksi). Dikerjakan ulang secara nyata **setelah PMB** (pemeriksaan mendalam bertahap). Baris "Bukti 2026-09-27" di bawah = catatan apa yang sudah disusun, bukan bukti selesai.
   - **Tujuan:** pemilik sendiri membuktikan perangkat hilang, PIN salah, dan pencabutan bekerja di perangkat yang sebenarnya.
   - **Ref:** docs/uji/NASKAH_JALAN.md; docs/KEAMANAN.md §14
   - **File:** `docs/uji/NASKAH_JALAN.md`, `docs/uji/HASIL_UJI_TERIMA_KEAMANAN.md`
@@ -2155,6 +2169,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Verifikasi:** naskah bertanda tangan pemilik (setuju/cacat) + daftar cacat ditutup. · **Bukti 2026-09-27 (Uji Keamanan Nyata Bersama Pemilik Lolos 100%):** naskah jalan resmi diperluas di `docs/uji/NASKAH_JALAN.md` §3 memuat 6 skenario keamanan W-SEC-01 s/d W-SEC-06; laporan hasil uji terima dicatat lengkap di `docs/uji/HASIL_UJI_TERIMA_KEAMANAN.md` membuktikan pendaftaran perangkat terotorisasi, pencabutan seketika <1 detik (simulasi tablet kasir dicuri), penguncian otomatis akun setelah salah PIN 5 kali, kunci otomatis idle inaktivitas, 2FA TOTP pemilik, dan mode dukungan dengan jejak audit dan masking data pelanggan (UU PDP); seluruh temuan minor diperbaiki dan ditutup (zero open vulnerabilities).
 
 - [ ] T11-13 — Audit adversarial menyeluruh (AUD-3) + kalibrasi cacat tanaman sebelum pilot ⚠️
+  - **Catatan 2026-09-28:** dipenuhi lewat **PMB** (`docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md`) — lebih luas & lebih dalam dari satu AUD-3; DoD di bawah tetap berlaku sebagai syarat minimum penutupnya.
   - **Tujuan:** pembuktian terakhir sebelum Kedai Oasis memakai sistem: seluruh janji (PRD → kode → uji) diperiksa sesi independen dengan enam lensa, termasuk serangan nyata (perangkat hilang, PIN ditebak, penyewa lain mengintip, uang dikarang).
   - **Ref:** `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §2 (AUD-3), §7; `docs/PANDUAN_PEMILIK.md` §3
   - **File:** `docs/uji/paket-audit/AUD-3-<tanggal>.md`, `docs/uji/audit/LAPORAN_AUD-3_<tanggal>_pilot.md`, `docs/uji/AUDIT_RIWAYAT.md`

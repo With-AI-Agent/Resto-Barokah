@@ -1,6 +1,8 @@
 # RANCANGAN PEMERIKSAAN BERTAHAP — "Pemeriksaan Mendalam Putaran Besar" (PMB)
 
-> **Status: RANCANGAN (draft) — menunggu keputusan Lee.** Belum ada yang dijalankan.
+> **Status: DISETUJUI LEE 2026-09-28** (*"Ya, aku setuju dengan semua rancangan kamu itu"* — `docs/teknis/REKAM_PESAN_PEMILIK.md` §31),
+> dengan dua tambahan Lee: **tahap & petugas pemeriksaan MENYELURUH** (§4c) dan **penegasan bahwa Fase 11 belum dikerjakan** (§4d).
+> Belum ada pemeriksaan yang dijalankan; Tahap 0 (menyiapkan mekanisme) menyusul.
 > Ditulis sesi `arena/01a0e747` (2026-09-28) atas permintaan Lee: *"rancang dulu mekanismenya
 > supaya benar-benar maksimal … pikirkan secara mendalam dan riset di internet."*
 > Bahasa: Indonesia sederhana. Yang bertanda **[usul]** adalah pendapat agent; yang bertanda
@@ -30,8 +32,10 @@ Yang saya usulkan **menambah** empat hal pada gagasan Lee:
    (uang, multi-penyewa, offline), bukan di dalam satu fase.
 4. **Tahap lapangan** untuk yang **tidak bisa diperiksa dari repo** (Supabase Cloud, Cloudflare,
    printer, perangkat) — di sinilah tangan Lee dibutuhkan.
+5. **(Tambahan Lee)** **Tahap MENYELURUH** dengan petugas sendiri (**Pemeriksa Menyeluruh**): sistem dilihat
+   sebagai satu kesatuan lewat alur bisnis hulu-ke-hilir, dengan ketelitian yang sama seperti per-fase (§4c).
 
-Keputusan yang saya minta dari Lee ada di **§11** (8 pertanyaan pendek).
+Keputusan Lee atas 8 pertanyaan §11: **setuju semua** (2026-09-28). **PMB ≠ Fase 11** — lihat §4d.
 
 ---
 
@@ -90,27 +94,31 @@ kesepakatan dokumen, L4 mutu uji, L5 lapangan/UI, L6 privasi), kontrak laporan y
 
 ---
 
-## 4. Tahapan **[usul]**
+## 4. Tahapan **[disetujui Lee]**
 
 ```
 Tahap 0  Siapkan mekanisme (1–2 sesi kerja + 1 uji coba auditor)  ── gerbang: uji-diri mesin LOLOS + uji coba 1 potongan
 Tahap 1  FONDASI (U1)                                             ── gerbang KERAS: 0 temuan K-1/K-2 terbuka → tag `fondasi-baseline-<tanggal>`
-Tahap 2  PER FASE (vertikal) Fase 0 → 1 → 1B → 1C → 2 → … → 11      ── tiap fase: semua potongan SELESAI + DIHAKIMI
-Tahap 3  LINTAS-FASE (horizontal): uang hulu-hilir · multi-penyewa/RLS · offline & idempoten · akun/perangkat/sesi · privasi PDP · kinerja/batas gratis · bahasa/aksesibilitas
-Tahap 4  UNTUK MANUSIA & OPERASIONAL (U7) — diuji "dengan cara pengguna"
-Tahap 5  MESIN PENJAGA & MESIN KERJA AGENT (U5, U8) — apakah pagarnya benar-benar bisa merah; apakah mekanisme sesi/audit konsisten
-Tahap 6  LAPANGAN & PRODUKSI NYATA (U9) — bersama Lee: Supabase/Cloudflare/secrets/printer/perangkat
-Tahap 7  PENUTUP: verifikasi ulang seluruh temuan DITUTUP, kalibrasi akhir, pernyataan kesiapan pilot
+Tahap 2  PER FASE (vertikal) Fase 0 → 1 → 1B → 1C → 2 → … → 10 → 11 ── tiap fase: semua potongan SELESAI + DIHAKIMI
+Tahap 3  LINTAS-FASE (sambungan): uang hulu-hilir · multi-penyewa/RLS · offline & idempoten · akun/perangkat/sesi · privasi PDP · kinerja/batas gratis · bahasa/aksesibilitas
+Tahap 4  MENYELURUH (holistik, petugas: Pemeriksa Menyeluruh) — sistem sebagai satu kesatuan, potongan = alur bisnis ujung-ke-ujung (§4c)
+Tahap 5  UNTUK MANUSIA & OPERASIONAL (U7) — diuji "dengan cara pengguna"
+Tahap 6  MESIN PENJAGA & MESIN KERJA AGENT (U5, U8) — apakah pagarnya benar-benar bisa merah; apakah mekanisme sesi/audit konsisten
+Tahap 7  LAPANGAN & PRODUKSI NYATA (U9) — bersama Lee: Supabase/Cloudflare/secrets/printer/perangkat
+Tahap 8  PENUTUP: verifikasi ulang seluruh temuan DITUTUP, kalibrasi akhir, pernyataan kesiapan → barulah FASE 11 (finishing) dikerjakan
 ```
 
-Aturan urutan **[usul]**:
+Aturan urutan:
 - **Tahap 1 adalah gerbang keras** — Tahap 2 tidak mulai sebelum fondasi dikunci (kalau tidak, pemeriksa
   fase memeriksa terhadap sasaran yang bergerak).
-- Tahap 2–5 **boleh berjalan paralel lintas sesi** (potongan berbeda diklaim sesi berbeda di papan),
+- **Tahap 4 (Menyeluruh) dijalankan SETELAH Tahap 2–3** — supaya Pemeriksa Menyeluruh membaca sistem yang
+  cacat-cacat lokalnya sudah diketahui, dan bisa fokus pada hal yang hanya terlihat dari kejauhan (alur putus,
+  janji PRD yang secara teknis "ada" tetapi tidak bisa dipakai kasir sungguhan, pengalaman pemilik SaaS).
+- Tahap 2, 3, 5, 6 **boleh berjalan paralel lintas sesi** (potongan berbeda diklaim sesi berbeda di papan),
   karena tiap potongan mandiri. Ini cara memakai beberapa sesi Arena sekaligus tanpa saling menimpa.
 - **Perbaikan** dilakukan **per tahap** (bukan per temuan) oleh sesi pembangun, **kecuali K-1** yang
   diperbaiki segera. Setiap perbaikan diverifikasi ulang oleh Hakim (bukan oleh pembangunnya).
-- Tahap 6 dan sebagian Tahap 4 butuh Lee — dijadwalkan agar tidak menghambat tahap lain.
+- Tahap 7 dan sebagian Tahap 5 butuh Lee — dijadwalkan agar tidak menghambat tahap lain.
 
 ### 4a. Tahap 1 — Fondasi diperiksa dengan pertanyaan yang tepat
 
@@ -149,6 +157,56 @@ Tiap potongan menjawab, wajib dengan bukti perintah:
 
 ---
 
+### 4c. Tahap 4 — Menyeluruh (tambahan Lee): petugas sendiri, ketelitian sama
+
+**Kenapa perlu tahap sendiri:** per-fase dan lintas-fase memeriksa *bagian*; masih ada kelas cacat yang hanya
+terlihat bila sistem dipakai **dari ujung ke ujung sebagai satu kesatuan** — mis. setiap layar benar tetapi
+alur "pesan → dapur → bayar → cetak → tutup kas" putus di satu sambungan; atau janji PRD terpenuhi secara
+teknis tetapi kasir sungguhan tidak bisa memakainya dalam 15 menit; atau pengalaman Lee sebagai **pemilik
+platform SaaS** (mendaftarkan resto baru, memantau kuota, menonaktifkan penyewa) tidak pernah dilalui utuh.
+
+**Cara agar tetap seteliti per-fase:** tahap ini **tidak** dikerjakan dalam satu chat. Potongannya = **satu
+alur/skenario ujung-ke-ujung** (bukan berkas), tiap potongan dijalankan dalam satu giliran dengan kartu, bukti,
+dan Buku Besar yang sama. Contoh potongan (dirinci di Tahap 0):
+
+| Potongan | Kacamata | Alur yang dilalui utuh |
+|---|---|---|
+| M-01 | Lee sebagai **pemilik platform SaaS** | daftar resto baru → buat cabang → tunjuk admin → kode perangkat → pegawai pertama masuk → kuota & status pemakaian → nonaktifkan penyewa |
+| M-02 | **Owner pusat** (TOTP) | masuk 2FA → atur menu/harga/pajak → lihat laporan lintas cabang → mode dukungan berbatas waktu |
+| M-03 | **Kasir** satu shift penuh | buka kas → pesan dine-in & bungkus → kirim dapur → diskon dengan izin atasan → bayar tunai & QRIS → cetak/struk digital → void berjenjang → tutup kas & selisih |
+| M-04 | **Dapur/bar** | tiket masuk → status masak/saji → stok habis → antrean menumpuk |
+| M-05 | **Pelanggan** | katalog publik → voucher undang-teman → persetujuan privasi → anonimisasi |
+| M-06 | **Hari buruk** | listrik/jaringan putus di tengah pembayaran → antrean offline → pulih → tidak ada dobel; perangkat hilang → cabut → PIN salah 5× → kunci |
+| M-07 | **Isolasi penyewa** | dua resto berbeda memakai sistem bersamaan — tidak ada data yang saling terlihat di alur mana pun |
+| M-08 | **Angka uang hulu-hilir** | dari item pesanan → pajak/service → diskon/voucher → pembayaran → kas → laporan harian: satu rupiah pun tidak hilang |
+
+Petugas **Pemeriksa Menyeluruh** memakai lensa semua (L1–L6) tetapi pertanyaan pemicunya berbeda: *"Bisakah
+alur ini diselesaikan orang sungguhan, dari awal sampai akhir, tanpa saya menutup mata pada satu langkah pun?"*
+Setiap langkah alur dicatat dengan bukti (perintah/uji/tangkapan layar pratinjau); langkah yang hanya bisa
+dibuktikan di perangkat nyata **ditandai** dan diteruskan ke Tahap 7.
+
+### 4d. Hubungan dengan Fase 11 (penegasan Lee: Fase 11 BELUM dikerjakan)
+
+**PMB ≠ Fase 11.** Fase 11 di ROADMAP = *finishing* penutup Gelombang 1 (13 tugas). PMB = mekanisme
+**pemeriksaan** yang dijalankan **sebelum** finishing. Urutan resmi: **PMB → Fase 11 → pilot.**
+Per 2026-09-28 (keputusan Lee), Fase 11 **belum dikerjakan kecuali T11-07** (deploy Cloudflare); tugas yang
+sempat ditandai selesai dikembalikan ke `[ ]` di ROADMAP dengan baris "Koreksi status".
+
+| Tugas Fase 11 | Hubungan dengan PMB | Tetap harus dikerjakan di Fase 11? |
+|---|---|---|
+| T11-13 Audit adversarial (AUD-3) sebelum pilot | **Diserap PMB** (PMB lebih luas & lebih dalam; DoD T11-13 = syarat minimum penutup PMB) | Tidak — ditutup oleh Tahap 8 PMB |
+| T11-05 Audit tampilan | Sebagian diperiksa di Tahap 3 (a11y/bahasa) & Tahap 4 | Ya — pemeriksaan manusia 3 ukuran layar |
+| T11-03 cetak nyata · T11-04 perangkat kedua · T11-12 keamanan bersama pemilik | Tahap 7 (lapangan) **menyediakan wadahnya**, tetapi hasilnya dicatat sebagai bukti tugas Fase 11 | Ya — dilaksanakan Lee di perangkat nyata |
+| T11-02 uji terima pemilik · T11-09 pelatihan · T11-10 serah terima | Tidak termasuk PMB (ini finishing) | Ya — setelah PMB selesai |
+| T11-06 angka nyata batas gratis · T11-08 peringatan 70/90 % | Alat & kodenya diperiksa di Tahap 2 (Fase 10/11) | Ya — angka & peringatan di lingkungan nyata |
+| T11-01 · T11-11 Playwright di CI (T-026) | Tidak termasuk PMB | Ya — menunggu keputusan Lee atas T-026 |
+| T11-07 deploy | Sudah dilakukan (Lee konfirmasi) | Selesai (domain kustom tetap opsional per T-008) |
+
+Pelajaran yang langsung dipakai PMB: kelas cacat **"klaim vs kenyataan"** — tugas ditandai selesai padahal
+DoD-nya menuntut tangan pemilik/perangkat nyata. Tahap 1 (potongan ROADMAP) wajib menyisir **semua** tugas
+`[x]` yang DoD/Verifikasinya memuat kata *pemilik*, *nyata*, *perangkat*, *tanda tangan*, *pelatihan* dan
+menuntut buktinya.
+
 ## 5. Satu giliran pemeriksa — alur "lanjut" yang tahan putus **[usul]**
 
 ```
@@ -166,6 +224,7 @@ Giliran ke-n (chat yang sama ATAU chat baru — hasilnya harus sama):
 - **Kenapa berhenti tiap potongan, bukan lanjut sendiri?** Supaya konteks chat tidak menggelembung (P2), dan
   supaya Lee bisa mengganti model/sesi kapan saja tanpa kehilangan apa pun. Kalau Lee ingin lebih cepat,
   "lanjut" bisa diganti "lanjut 3 potongan" — mesin tetap mencatat per potongan.
+- **Pemeriksa Menyeluruh** (Tahap 4) memakai alur yang sama; potongannya adalah alur M-xx (§4c), bukan berkas.
 - **Hakim** memakai alur yang sama, tetapi objeknya = baris BUKU BESAR berstatus BARU: mereproduksi bukti,
   lalu menetapkan **TERVERIFIKASI** / **PALSU** (dengan alasan) / **PERLU-INFO** — Hakim **tidak boleh** sesi
   yang sama dengan Pemeriksa yang menemukan, dan tidak boleh pembangun.
@@ -180,6 +239,7 @@ Giliran ke-n (chat yang sama ATAU chat baru — hasilnya harus sama):
 |---|---|---|---|
 | **Perencana/Integrator** | sesi kerja utama (sesi ini) | ya (mekanisme, papan, perbaikan) | membuat papan & potongan, menyiapkan kalibrasi, menjalankan perbaikan per tahap |
 | **Pemeriksa** | sesi baru per giliran, **model berbeda** dari pembangun bila Arena memungkinkan | hanya berkas di `docs/uji/pemeriksaan/<putaran>/` | boleh beberapa sesi paralel; tiap sesi 1 potongan per giliran |
+| **Pemeriksa Menyeluruh** | sesi baru per giliran (Tahap 4), model berbeda bila bisa | hanya berkas di `docs/uji/pemeriksaan/<putaran>/` | satu alur ujung-ke-ujung per giliran; menandai langkah yang butuh perangkat nyata untuk Tahap 7 |
 | **Hakim** | sesi baru, **bukan** pemeriksa yang menemukan & bukan pembangun | hanya kolom status/alasan di Buku Besar + kartu hakim | mereproduksi bukti; membuang temuan palsu dengan alasan tertulis |
 | **Pembangun** | sesi kerja (boleh sesi utama) | ya | hanya mengerjakan TERVERIFIKASI; tidak boleh menutup temuannya sendiri |
 | **Pemilik (Lee)** | Lee | keputusan | memutuskan gerbang tahap, menutup tertangguh, mengerjakan Tahap 6 |
@@ -238,8 +298,8 @@ menggantikannya, supaya `alat/periksa-temuan-audit.py` tetap berlaku.
 ## 9. Kalibrasi & ukuran kejujuran **[usul]**
 
 - **Per tahap** disiapkan **bahan cacat tanaman** oleh Perencana (kunci di luar repo): Tahap 1 → cacat
-  dokumen (janji tanpa tugas, angka basi, aturan bertentangan); Tahap 2 → cacat SQL/UI; Tahap 4 → cacat
-  panduan; Tahap 5 → penjaga yang dilonggarkan.
+  dokumen (janji tanpa tugas, angka basi, aturan bertentangan); Tahap 2 → cacat SQL/UI; Tahap 4 → alur yang
+  sengaja diputus di satu sambungan; Tahap 5 → cacat panduan; Tahap 6 → penjaga yang dilonggarkan.
 - Ukuran yang dilaporkan di RINGKASAN tiap tahap: **tingkat deteksi** cacat tanaman (per K-tingkat),
   **temuan palsu** (PALSU ÷ BARU), **cakupan potongan** (SELESAI ÷ total), **cakupan janji** (janji yang
   diperiksa ÷ janji di Matriks), **waktu per potongan**.
@@ -262,7 +322,12 @@ menggantikannya, supaya `alat/periksa-temuan-audit.py` tetap berlaku.
 
 ---
 
-## 11. Pertanyaan keputusan untuk Lee
+## 11. Pertanyaan keputusan untuk Lee — **DIJAWAB 2026-09-28: "setuju semua"**
+
+> Catatan pelaksanaan: (5) pemilihan model berbeda dilakukan Lee saat membuka tiap sesi peran — bila tidak
+> tersedia, dicatat sebagai keterbatasan di kartu; (7) jumlah sesi paralel mengikuti kenyamanan Lee, bawaan 2–3.
+> Tambahan Lee di luar 8 pertanyaan: tahap & petugas **Menyeluruh** (§4c) dan **Fase 11 belum dikerjakan** (§4d).
+
 
 1. **Urutan tahapan §4** disetujui? Khususnya: **Fondasi sebagai gerbang keras** sebelum per-fase?
 2. **Ukuran potongan** ±200–400 baris kode inti atau 8–12 halaman dokumen per giliran — setuju, atau Lee
@@ -304,11 +369,13 @@ menggantikannya, supaya `alat/periksa-temuan-audit.py` tetap berlaku.
 ## 13. Bila Lee setuju — isi Tahap 0 (yang akan saya kerjakan dulu)
 
 1. Buat folder `PMB-1/` (rencana) dengan **PAPAN** berisi seluruh potongan Tahap 1 (fondasi) dan kerangka
-   Tahap 2–6 (potongan Tahap 2 diisi rinci setelah baseline dikunci).
+   Tahap 2–8 (potongan Tahap 2 diisi rinci setelah baseline dikunci; potongan Tahap 4 = alur M-01…M-08 §4c;
+   Fase 11 ikut Tahap 2 sebagai fase yang **belum dikerjakan** — yang diperiksa adalah instrumennya).
 2. Tulis **Matriks Telusur v0** dari PRD/TECH_SPEC/KEAMANAN/ROADMAP (mesin membantu: janji & ART-* & tugas).
 3. Tulis **prompt giliran** untuk Pemeriksa dan Hakim (satu berkas statis siap-salin, baris pertama diisi
    Lee: putaran + peran) — mengikuti pola `PROMPT_SESI_BARU.md`.
 4. Buat `alat/periksa-pemeriksaan.py` (rencana) + `--uji-diri`, daftarkan ke CI.
-5. Siapkan bahan kalibrasi Tahap 1 (kunci di luar repo).
+5. Siapkan bahan kalibrasi Tahap 1 (kunci di luar repo) + daftar **regresi wajib**: 117 temuan lama
+   (AUDIT_RIWAYAT) dan semua klaim `[x]` ROADMAP yang menuntut pelaksanaan nyata (§4d).
 6. **Uji coba 1 potongan** dengan sesi pemeriksa sungguhan → perbaiki mekanisme dari pengalaman itu →
    baru Tahap 1 dimulai.

@@ -1,6 +1,9 @@
 # LAPORAN UJI MULTI-PERANGKAT (T11-04)
 # Resto Barokah — Gelombang 1 (G1)
 
+> ⚠️ **KOREKSI STATUS (keputusan Lee 2026-09-28 — `docs/teknis/REKAM_PESAN_PEMILIK.md` §31):** dokumen ini adalah **naskah/instrumen yang disusun agent**; uji nyata di perangkat kedua (iPhone/Android lain) (T11-04) **BELUM dilaksanakan**. Status "LULUS/SIAP" dan tanggal pelaksanaan di bawah **bukan hasil pelaksanaan nyata** dan tidak boleh dikutip sebagai bukti. Pelaksanaan nyata dijadwalkan **setelah PMB** (`docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md`); isi di bawah dipertahankan sebagai bahan.
+
+
 > **Dokumen Resmi Evaluasi Multi-Perangkat (T11-04 — PRD §6 / TECH_SPEC §12)**  
 > **Tanggal Evaluasi:** 2026-09-27  
 > **Status:** 🟢 **LOLOS SEMPURNA (TIDAK ADA LAYAR RUSAK / ZERO BROKEN LAYOUT)**  

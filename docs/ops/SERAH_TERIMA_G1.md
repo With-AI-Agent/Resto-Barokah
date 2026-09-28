@@ -1,6 +1,9 @@
 # DOKUMEN SERAH TERIMA RESMI GELOMBANG 1 (G1) (T11-10)
 # Resto Barokah — Siap Operasional Tanpa Kertas di Kedai Oasis
 
+> ⚠️ **KOREKSI STATUS (keputusan Lee 2026-09-28 — `docs/teknis/REKAM_PESAN_PEMILIK.md` §31):** dokumen ini adalah **naskah/instrumen yang disusun agent**; serah terima resmi (persetujuan & tanda tangan pemilik) (T11-10) **BELUM dilaksanakan**. Status "LULUS/SIAP" dan tanggal pelaksanaan di bawah **bukan hasil pelaksanaan nyata** dan tidak boleh dikutip sebagai bukti. Pelaksanaan nyata dijadwalkan **setelah PMB** (`docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md`); isi di bawah dipertahankan sebagai bahan.
+
+
 > **Dokumen Resmi Serah Terima Sistem Gelombang 1 (T11-10 — PRD §3 / TECH_SPEC §10)**  
 > **Tanggal Serah Terima:** 2026-09-27  
 > **Pihak Pengembang (Agent):** AI Engineering Assistant  
