@@ -1,10 +1,15 @@
-# Skills — Sistem Building Aplikasi (maksimal — 56 dirs, 26M)
+# Skills — Sistem Building Aplikasi (maksimal — 57 dirs, 26M)
 
 Folder ini berisi **skill/plugin vendor-local** untuk Building Aplikasi. Semantik *install* di lmarena = vendor script disimpan di repo (bukan `npm -g`), persist antar sesi, terikat repo. **WAJIB dipakai tiap aksi secara ADAPTIF** — lihat `AGENT_SYSTEM.md` § Kewajiban Penggunaan Skill (pilih skill sesuai kebutuhan task, tidak kaku).
 
 ## Ringkasan terpasang (2026-09-16 — REINSTALL MAKSIMAL via npx — semua 10 publik fresh HEAD)
 
-**Total terukur 2026-09-16:** `du -sh skills` = **26M**, **56 direktori**, 1.802 berkas.
+**Total terukur 2026-09-17:** `du -sh skills` = **26M**, **57 direktori**, 1.803 berkas.
+
+> **+1 direktori (2026-09-17):** `desain-antarmuka/` — ilmu desain yang **dipelajari dari internet** lalu
+> **disimpan sebagai kemampuan** (permintaan pemilik: *"jangan hanya disimpan, tapi juga harus digunakan"*).
+> Isinya tiga pelajaran yang sudah dipakai memperbaiki tiga cacat nyata; dijaga
+> `aplikasi/alat/periksa-antarmuka.py` dan wajib dibaca di fase DESAIN (`alat/mulai-sesi.py`).
 
 Dua jenis angka **sengaja tidak dikutip** di berkas ini (pelajaran C-04 Katalog Cacat: bukti volatil, ditegaskan reviewer PR #63 putaran 1):
 1. **Persentase "hemat X%"** — turunan tanpa pembanding yang stabil.
@@ -140,7 +145,7 @@ Cara pilih adaptif: Deploy? → `cloudflare+wrangler` jika user bilang Cloudflar
 `npx skills update` atau `npx skills add <owner/repo> --skill <nama>` (contoh: `npx skills add cloudflare/skills --skill cloudflare`, `npx skills add supabase/agent-skills --skill supabase`). Registry: `skills.sh` + `officialskills.sh`. Google butuh OAuth `python scripts/auth.py login` dulu. `find-skills` (8K) tetap ada untuk discover skill baru publik kapanpun (lihat `AGENT_SYSTEM.md` § ADAPTIF). 
 > **REINSTALL 2026-09-16 (maksimal konsisten):** 10 skill Input-Pengguna yang sebelumnya selective (zip) **sudah diganti install ulang via `npx` fresh HEAD** — hash IDENTIK dengan `npx skills add` (bukti audit 1-1 + npx update 24 skills). Hasil: `ios-agent` 252K→9.9M (full docs 8.1M), `ui-ux-pro-max` family full 9.8M (ui-ux 3.6M + ui-styling 5.8M + design 348K + design-system 260K + brand 140K + banner 16K + slides 36K), `frontend-designer` + `frontend-designer-lite` (24K+8K), `tsbs-benchmark` 60K (claude+codex), `ai-agent-skills` 256K 17 sub-skills fresh, `excalidraw` 57K & `alibaba` 85K identik. Total `skills/` 8.1M→**26M** (naik 18M untuk maksimal tanpa prune, masih ratusan MB aman — konsisten dengan `cloudflare` 1.5M & `vercel` yang memang full via npx). 2 hub besar (`agent-skills` 248 skills 25M, `hub` 797 skills 71M) tetap **katalog 8K** (tidak diinstall full 1000 skills — fetch on-demand via `npx skills add --skill <nama>` bila butuh, sama seperti praktik npx katalog).
 
-Agent **punya dan bisa pakai** `npx skills find/add` + **56 direktori** lokal kapanpun tanpa npx.
+Agent **punya dan bisa pakai** `npx skills find/add` + **57 direktori** lokal kapanpun tanpa npx.
 
 ## Cara pakai (WAJIB ADAPTIF — lihat AGENT_SYSTEM.md § Kewajiban + Prinsip Adaptif)
 
@@ -162,7 +167,7 @@ Semua via **CLI `npx skills add --copy -y --agent "*"` + copy vendor-local** (pe
 
 ## Registrasi
 
-Terdaftar di `SYSTEM_MANIFEST.md` Dependency + Log Keputusan — **total terukur 2026-09-16: `du -sh` 26M / 56 direktori / 1.802 berkas** (total byte eksak tidak dikutip — lihat § Ringkasan terpasang). Riwayat: 2.1M (15 Sep, selective 3 skill) → 2.9M (Vercel 10 inti) → 6.0M/31 group (semua sisa) → 8.1M/52 dirs (Cloudflare/Supabase/Google) → **26M/56 dirs** (reinstall penuh via `npx`, 2026-09-16).
+Terdaftar di `SYSTEM_MANIFEST.md` Dependency + Log Keputusan — **total terukur 2026-09-17: `du -sh` 26M / 57 direktori / 1.803 berkas** (total byte eksak tidak dikutip — lihat § Ringkasan terpasang). Riwayat: 2.1M (15 Sep, selective 3 skill) → 2.9M (Vercel 10 inti) → 6.0M/31 group (semua sisa) → 8.1M/52 dirs (Cloudflare/Supabase/Google) → **26M/56 dirs** (reinstall penuh via `npx`, 2026-09-16).
 
 ## Integritas vendor & catatan update (audit run klinik ke-2, 2026-09-16)
 

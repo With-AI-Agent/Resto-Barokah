@@ -1,0 +1,59 @@
+# ============================================================================
+# Konfigurasi Supabase CLI (tugas ROADMAP T0-08).
+#
+# Kenapa berkas ini ada: perintah resmi Supabase (`supabase link`, `supabase db push`)
+# **menolak berjalan** tanpa `supabase/config.toml` yang sah — jadi berkas ini wajib
+# ada supaya penyebaran skema ke proyek nyata bisa dijalankan mesin (lihat
+# `.github/workflows/sebar-skema.yml`).
+#
+# Sengaja RAMPING dan TANPA nilai `env(...)`: konfigurasi hasil `supabase init`
+# memuat baris seperti `openai_api_key = "env(OPENAI_API_KEY)"` yang membuat CLI
+# menolak berjalan di CI bila variabel lingkungannya tidak ada. Yang tidak dipakai
+# tidak ditulis. Bentuk ringkas ini sudah diuji dengan CLI 2.117.0 (`db push --dry-run`
+# menerima berkas ini; yang tersisa hanya pesan "belum ditautkan ke proyek").
+#
+# `project_id` di bawah adalah nama kerja lokal (bukan nomor proyek nyata). Nomor proyek
+# nyata tidak dirahasiakan dan tercatat di `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`;
+# ia diberikan ke perintah lewat argumen `--project-ref`, bukan disimpan di sini.
+# ============================================================================
+
+project_id = "resto-barokah"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.migrations]
+enabled = true
+schema_paths = []
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1"
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["https://127.0.0.1:3000"]
+jwt_expiry = 3600
+enable_signup = true
+enable_anonymous_sign_ins = false
+minimum_password_length = 8
+password_requirements = ""
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"

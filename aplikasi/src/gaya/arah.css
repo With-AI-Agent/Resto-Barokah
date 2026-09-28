@@ -1,0 +1,95 @@
+/* ==========================================================================
+   ARAH TEKS & TATA LETAK MULTI-BAHASA (RTL / LTR) (T1-41)
+   --------------------------------------------------------------------------
+   Mendukung tata letak dua arah (LTR untuk id/en/zh dan RTL untuk ar)
+   dengan menggunakan sifat CSS logis (inline-start / inline-end)
+   serta penyesuaian visual untuk huruf Mandarin & Arab.
+   ========================================================================== */
+
+:root {
+  --font-mandarin:
+    'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', 'Hiragino Sans GB', system-ui, sans-serif;
+  --font-arab:
+    'Geeza Pro', 'Arabic Typesetting', 'Amiri', 'Tahoma', 'Noto Sans Arabic', system-ui, sans-serif;
+}
+
+[lang='zh'] {
+  font-family: var(--font-mandarin);
+}
+
+[lang='ar'] {
+  font-family: var(--font-arab);
+  direction: rtl;
+  text-align: right;
+}
+
+[dir='rtl'] {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir='ltr'] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Penyesuaian ikon & arah logis */
+[dir='rtl'] .ikon-arah {
+  transform: scaleX(-1);
+}
+
+/* Penjajaran teks dan flex */
+[dir='rtl'] .teks-awal {
+  text-align: right;
+}
+
+[dir='rtl'] .teks-akhir {
+  text-align: left;
+}
+
+[dir='ltr'] .teks-awal {
+  text-align: left;
+}
+
+[dir='ltr'] .teks-akhir {
+  text-align: right;
+}
+
+/* Margin dan padding logis */
+.m-awal {
+  margin-inline-start: var(--s-3);
+}
+
+.m-akhir {
+  margin-inline-end: var(--s-3);
+}
+
+.p-awal {
+  padding-inline-start: var(--s-3);
+}
+
+.p-akhir {
+  padding-inline-end: var(--s-3);
+}
+
+/* Tabel tata letak RTL */
+[dir='rtl'] table {
+  text-align: right;
+}
+
+[dir='rtl'] th,
+[dir='rtl'] td {
+  text-align: right;
+}
+
+[dir='rtl'] .angka-rata-kanan {
+  text-align: left;
+  direction: ltr;
+}
+
+/* Angka dan mata uang tetap berarah LTR agar format Rp 50.000 tidak terbalik */
+.angka-nominal {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}

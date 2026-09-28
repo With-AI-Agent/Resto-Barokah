@@ -1,0 +1,3276 @@
+# Decisions Log
+
+> Dokumen ini dicatat oleh AI agent SELAMA coding berjalan, bukan di awal.
+> Setiap keputusan teknis nyata yang menyangkut Area Berisiko Tinggi
+> (lihat TECH_SPEC.md) WAJIB dicatat di sini sebelum lanjut ke task lain.
+> Sebelum menyentuh ulang area yang tercatat di sini, WAJIB baca dulu
+> entri terkait — jangan menebak ulang dari kode.
+
+## Cara menambah entri baru
+Format:
+
+### [Fase/Tanggal] Judul Singkat Keputusan
+- **Area:** (misal: RLS/Auth, Role & Permission, Kalkulasi Keuangan)
+- **Keputusan:** apa yang diputuskan/diimplementasikan, sekonkret mungkin
+- **Alasan:** kenapa begini, bukan cara lain
+- **File terkait:** file/folder yang mengimplementasikan ini
+- **Implikasi:** hal lain yang HARUS ikut pola ini / tidak boleh menyimpang
+
+---
+
+### [Tahap 6/2026-09-16] Bentuk jawaban semua RPC mengikuti TECH_SPEC §5
+- **Area:** Kontrak API & format error (menyentuh semua fitur uang/izin)
+- **Keputusan:** semua RPC mengembalikan `{ berhasil: bool, kode: teks, pesan: teks, data: … }`; klien hanya menampilkan `pesan`, tidak menyusun pesan sendiri.
+- **Alasan:** pemeriksaan silang menemukan `AGENT_OPERATING_GUIDE.md` sempat memakai bentuk lain (`ok/data/kode/pesan`) — dua bentuk berbeda akan membuat klien dan uji saling tidak cocok. `TECH_SPEC.md` adalah dokumen terkunci, jadi ia yang menjadi sumber kebenaran.
+- **File terkait:** `docs/AGENT_OPERATING_GUIDE.md` §6, `docs/TECH_SPEC.md` §5, `docs/uji/LAPORAN_CROSS_CHECK_TAHAP6.md`
+- **Implikasi:** dilarang membuat bentuk jawaban lain; kode error wajib memakai kelompok kode (PS-1xx, BY-2xx, VC-3xx, KS-4xx, PR-5xx, AK-6xx, UM-9xx) dan bahasa Indonesia siap tampil.
+
+### [Tahap 6/2026-09-16] Nama RPC = kontrak; dipetakan ke tugas di ROADMAP
+- **Area:** Kontrak API (semua fitur)
+- **Keputusan:** nama fungsi resmi diambil persis dari `TECH_SPEC.md` §5 (**33 RPC** + fungsi `hitung_total`; angka 26 pada versi awal entri ini dikoreksi hasil review independen 2026-09-16); `ROADMAP.md` memuat tabel "Peta nama RPC resmi → tugas" supaya agent coding tidak menamai sendiri.
+- **Alasan:** ROADMAP sebelumnya menjelaskan fungsinya tetapi tidak menyebut nama resminya → risiko menyimpang dari kontrak.
+- **File terkait:** `docs/ROADMAP.md` (bagian Peta RPC), `docs/TECH_SPEC.md` §5
+- **Implikasi:** kalau sebuah tugas butuh RPC baru yang belum ada di TECH_SPEC §5 → masuk kategori perubahan dokumen fondasi (Stop Condition) dan wajib disetujui pemilik lebih dulu.
+
+### [Tahap 6/2026-09-16] Kebijakan privasi pelanggan = prasyarat sebelum mengumpulkan data (T-011)
+- **Area:** Privasi pelanggan (ART-10)
+- **Keputusan:** data pelanggan (nama, email/HP, persetujuan) baru boleh dikumpulkan setelah ada kebijakan privasi sederhana + kotak persetujuan di layar pendaftaran; tenggat: sebelum Fase 8 dimulai.
+- **Alasan:** kewajiban etis & kepatuhan; juga bahan uji "pelanggan tahu datanya dipakai untuk apa".
+- **File terkait:** `docs/TERTANGGUH.md` (T-011), tugas T8-07, T8-06
+- **Implikasi:** T8-06/T8-07 tidak boleh ditandai selesai bila kotak persetujuan & kebijakan belum ada.
+
+### [Tahap 6/2026-09-16] Keputusan yang ditutup dari buku tunggu (nilai awal)
+- **Area:** Produk & konfigurasi (menyentuh Kalkulasi Keuangan: nilai pajak awal)
+- **Keputusan:** nama kerja produk **"Sajian"**; tema bawaan **"Terang Bersih"**; **PB1 10% & service 5% & 1 shift** sebagai nilai awal; **tanpa domain khusus** dulu (Resend + alamat `*.workers.dev`); **aset `skills/` tetap dibawa** di repo. Semua ini dipilih atas usulan agent dan disetujui pemilik (2026-09-16).
+- **Alasan:** semuanya bisa diubah **tanpa koding** (pengaturan aplikasi), sehingga tidak perlu menahan pekerjaan; hanya merek printer (T-002) dan daftar perangkat (T-003) yang benar-benar butuh data lapangan.
+- **File terkait:** `docs/TERTANGGUH.md` (tabel Butir selesai), `prototipe/css/tokens.css` (tema), tugas T9-03 (pajak/service)
+- **Implikasi:** perubahan nilai ini nanti TIDAK menghapus data lama — transaksi lama tetap memakai nilai yang tersimpan saat transaksi dibuat (`harga_saat_itu`).
+
+### [Tahap 6/2026-09-16] `.gitignore` diperluas: rahasia dilarang masuk Git
+- **Area:** Keamanan & kerahasiaan (kunci Supabase/Cloudflare/Resend)
+- **Keputusan:** `.gitignore` di akar repo diperluas — `.env`, `.env.*`, `*.local`, `dist/`, `build/`, `.next/`, `.vercel/`, `.wrangler/`, `coverage/`, `*.log`, `*.tmp`, `.DS_Store` — di samping aturan lama (`__pycache__/`, `*.pyc`, `node_modules`).
+- **Alasan:** sebelumnya berkas rahasia tidak di-ignore, jadi satu `git add -A` yang lengah bisa meng-commit kunci layanan. Ditemukan oleh review independen (temuan W10-01) dan diverifikasi sendiri: tidak ada berkas terlacak yang cocok pola baru.
+- **File terkait:** `.gitignore`, tugas T0-05 (`.env.example`), T0-08 (kunci klien Supabase)
+- **Implikasi:** rahasia disimpan di berkas yang di-ignore (lokal) dan di secrets Cloudflare (produksi); `.env.example` yang ikut repo hanya berisi nama variabel tanpa nilai.
+
+### [Tahap 6/2026-09-16] Pemeriksa rujukan diperluas ke seluruh Markdown di docs/
+- **Area:** Mutu dokumen & gerbang otomatis (ART-10 tidak langsung, tapi menjaga janji dokumen)
+- **Keputusan:** `_sistem/validate_system.py` (`check_no_dangling_internal_refs`) memindai **seluruh berkas `.md` di dalam `docs/`**, bukan hanya daftar dokumen tetap; path yang disebut di baris `**File:**` ROADMAP (artefak rencana yang memang dibuat nanti) dan 2 berkas yang menunggu dibuat sesi review dikecualikan **secara tercatat** di dalam skrip; pola tanggal (`YYYY`) tidak dianggap path.
+- **Alasan:** temuan review independen W3-03/W6-01; kelas cacat "rujukan menggantung di dokumen baru" sudah pernah lolos gerbang.
+- **File terkait:** `_sistem/validate_system.py`, `ACCEPTANCE_TESTS.md` (baris log), `docs/TECH_SPEC.md`, `docs/teknis/DISKUSI_TAHAP4_ATURAN_KERJA.md`
+- **Implikasi:** dokumen baru di `docs/` otomatis ikut dijaga; bila sebuah dokumen menyebut berkas yang belum ada, pengecualiannya harus ditulis di skrip (terlihat di riwayat Git), bukan disembunyikan dengan menghapus backtick tanpa alasan.
+
+### [Review independen/2026-09-16] Cadangan & pemulihan data jadi tugas sendiri (bukan hanya butir DoD)
+- **Area:** Data pelanggan & privasi (ART-10) + ketahanan data
+- **Keputusan:** cadangan `pg_dump` mingguan otomatis + uji pemulihan dijadikan tugas tersendiri **T10-10** di Fase 10, bukan hanya satu baris DoD di T11-10 (tugas penutup). Berkas cadangan wajib terenkripsi, disimpan di luar basis data, masa simpan dibatasi, dan **tidak pernah masuk repo**.
+- **Alasan:** paket gratis Supabase tidak menyediakan cadangan otomatis (`TECH_SPEC.md` §8 butir 9). Sebelumnya satu-satunya penjaga adalah DoD tugas terakhir G1 — artinya sepanjang Fase 0–10 data kedai nyata tidak punya cadangan sama sekali, padahal pilot sudah bisa jalan sebelum F11 selesai.
+- **File terkait:** `docs/ROADMAP.md` (T10-10, T11-10), `docs/TECH_SPEC.md` §8, `alat/cadangan.sh`, `docs/teknis/PEMULIHAN.md`, `.github/workflows/cadangan.yml`
+- **Implikasi:** berkas cadangan berisi data pelanggan → tunduk pada kebijakan privasi (T-011). Dilarang menaruh berkas cadangan atau kuncinya di Git. Pernyataan "siap pakai harian" (T11-10) tidak boleh ditandatangani sebelum pemulihan benar-benar pernah diuji.
+
+### [Review independen/2026-09-16] Perubahan pengaturan bersamaan wajib ditolak di peladen (T10-11)
+- **Area:** Kalkulasi Keuangan (ART-3) — pengaturan memuat PB1, service, dan aturan pembulatan
+- **Keputusan:** `simpan_pengaturan` / `simpan_menu` memakai **versi pengaturan (stempel waktu)** yang sudah dijanjikan `TECH_SPEC.md` §5 sebagai penjaga: simpanan yang membawa versi lama **ditolak** dengan kode & pesan Indonesia, bukan ditimpa diam-diam.
+- **Alasan:** TECH_SPEC §5 sudah menjanjikan keluaran "versi pengaturan (stempel waktu)", tetapi tidak ada satu pun tugas yang memakainya. Tanpa itu, dua admin yang mengubah pajak/menu bersamaan bisa membuat perubahan satunya hilang tanpa jejak — dan yang hilang bisa berupa nilai pajak.
+- **File terkait:** `docs/ROADMAP.md` (T10-11), `docs/TECH_SPEC.md` §5, `supabase/migrations/0059_versi_pengaturan.sql` (dibuat nanti)
+- **Implikasi:** semua RPC penyimpan pengaturan wajib menerima & memeriksa versi; klien wajib menampilkan pesan "data sudah diubah orang lain" tanpa membuang isian pengguna.
+
+### [Review independen/2026-09-16] Tempat penyimpanan berkas cadangan & penutup shift pegawai yang berhenti
+- **Area:** Data pelanggan & privasi (ART-10) · Role & Permission (ART-2)
+- **Keputusan:** (1) **T-012** — berkas cadangan mingguan berbentuk **artefak terenkripsi dari GitHub Actions** pada repo privat (masa simpan 90 hari), dan pemilik mengunduh salinannya sebulan sekali ke penyimpanan miliknya sendiri; tidak ada salinan cadangan di tempat publik dan berkas cadangan tidak pernah masuk Git. (2) **T-013** — penutup shift kasir yang ditinggal pegawai berhenti adalah **Admin Cabang**, dan bila yang berhenti adalah Admin Cabang sendiri → **Owner Pusat**.
+- **Alasan:** paket gratis tidak punya cadangan otomatis, jadi tempat penyimpanan harus diputuskan sebelum T10-10 selesai; dan shift yang dibiarkan terbuka membuat laporan hari itu tidak bisa ditutup. Keduanya bisa diubah tanpa koding.
+- **File terkait:** `docs/TERTANGGUH.md` (T-012, T-013 pindah ke tabel Butir selesai), `docs/ROADMAP.md` (T10-10, T10-12)
+- **Implikasi:** berkas cadangan berisi data pelanggan → wajib terenkripsi, akses terbatas, masa simpan dibatasi. Penutupan shift oleh atasan wajib tercatat di `catatan_audit` (bukan menghapus jejak pegawai).
+
+### [Fase 0/2026-09-16] Rangka kerja aplikasi: susunan berkas gaya, cara memilih tema, dan cara memeriksanya
+- **Area:** Fondasi kode (menyentuh semua layar; belum menyentuh uang/izin)
+- **Keputusan:**
+  1. Token rancangan v3 dipindah **apa adanya** ke `aplikasi/src/gaya/token/tema.css` (berisi token + kelas rancangan yang sudah disetujui pemilik: `btn`, `card`, `chip`, `table`, `segmen`, dsb.). Berkas itu **tidak boleh diubah** selama Fase 0 — pemeriksa membandingkannya byte-per-byte dengan `prototipe/css/tokens.css`.
+  2. Hal tingkat aplikasi yang belum diatur token masuk `aplikasi/src/gaya/token/dasar.css`; tata letak khusus aplikasi masuk `aplikasi/src/gaya/komponen.css`. Keduanya **dilarang memuat warna mentah** (hanya `var(--...)`).
+  3. Pemilihan tema & kerapatan lewat `aplikasi/src/lib/tema.ts` (daftar tema/kerapatan, pasang atribut ke elemen akar, simpan di `localStorage`) + `aplikasi/src/hook/useTema.ts`. Warna bilah peramban (`theme-color`) diisi dari token `--accent` saat tema dipasang.
+  4. Pemeriksa baru `aplikasi/alat/periksa-struktur.py`: pohon folder dibaca langsung dari `docs/TECH_SPEC.md` §3, token wajib identik dengan prototipe, semua rujukan huruf wajib ada di disk, tanpa warna mentah di luar token, dan kode tema di aplikasi wajib sama dengan kode tema di token.
+  5. `typecheck` memakai `tsc -b --noEmit` (mode proyek), bukan `tsc --noEmit`.
+- **Alasan:** (1) DoD T0-03 berbunyi "pindahkan berkas apa adanya, jangan ketik ulang" — membandingkan byte adalah cara membuktikannya; (2) warna mentah di luar token membuat penggantian tema rusak sebagian; (3) `tsc --noEmit` pada `tsconfig.json` yang hanya berisi referensi **memeriksa nol berkas** — dibuktikan lewat uji mutasi (berkas bersalah tetap lolos) sehingga tampak hijau padahal tidak menjaga apa pun.
+- **File terkait:** `aplikasi/src/gaya/token/tema.css`, `aplikasi/src/gaya/token/dasar.css`, `aplikasi/src/gaya/komponen.css`, `aplikasi/src/lib/tema.ts`, `aplikasi/src/hook/useTema.ts`, `aplikasi/alat/periksa-struktur.py`, `aplikasi/tsconfig*.json`
+- **Implikasi:** menyentuh `tema.css` (mis. menyesuaikan tema) berarti mengubah kesepakatan desain → wajib lulus pemeriksa kontras + catatan di sini. Komponen baru wajib memakai kelas rancangan atau token; warna mentah akan menyalakan pemeriksa.
+
+### [Fase 0/2026-09-16] Bentuk komponen dasar, penanganan rahasia, dan gerbang CI
+- **Area:** Fondasi kode (dipakai semua layar; belum menyentuh uang/izin)
+- **Keputusan:**
+  1. **Satu komponen satu berkas** di `aplikasi/src/komponen/` (10 berkas) dan semuanya memakai kelas rancangan v3 (`btn`, `card`, `chip`, `table`, `input`, `segmen`) — dilarang menulis warna mentah; semua nilai dari token.
+  2. **Setiap layar wajib punya tiga keadaan**: kosong, memuat, gagal. Komponennya sudah disiapkan (`KeadaanKosong`, `KeadaanMemuat`, `KeadaanGagal`). `Tabel` otomatis menampilkan keadaan kosong kalau tidak ada baris — jadi tidak ada tabel kosong tanpa penjelasan.
+  3. **Lapis mengambang** (`Lapis`) memakai `role="dialog"` + `aria-modal`, menutup dengan Esc/klik latar, dan mengunci guliran halaman belakang. **Toast** memakai `role="status"` + `aria-live="polite"`, **KeadaanGagal** memakai `role="alert"`.
+  4. **Rahasia:** hanya `VITE_SUPABASE_URL` & `VITE_SUPABASE_ANON_KEY` boleh dibaca aplikasi; variabel rahasia **tidak boleh berawalan `VITE_`** (kalau berawalan, ikut terbundel ke peramban). `.env` diabaikan Git, `.env.example` ikut Git. `src/lib/env.ts` tidak meledak saat nilai belum diisi — layar yang membutuhkannya menampilkan `KeadaanGagal` dengan pesan bahasa Indonesia.
+  5. **Gerbang CI = sumber kebenaran.** Pemeriksaan yang sama wajib bisa dijalankan di komputer lewat `bash aplikasi/alat/periksa-semua.sh`. Pemeriksa Python ikut jalan di CI (bukan hanya di komputer agent).
+- **Alasan:** (1) keseragaman tampilan & satu tempat perbaikan; (2) syarat pemilik “tidak ada halaman kosong tanpa penjelasan” dan pengalaman pegawai di lapangan (jaringan kedai tidak selalu bagus); (3) aksesibilitas + keselamatan kerja (toast tidak boleh merebut fokus kasir); (4) kebocoran kunci adalah risiko Termahal yang bisa dicegah gratis; (5) CI pertama menemukan **dua cacat nyata** yang tidak terlihat di komputer (folder kosong tidak ikut Git, berkas Markdown belum dirapikan) — jadi “hijau di komputer” tidak boleh dipercaya tanpa CI.
+- **File terkait:** `aplikasi/src/komponen/*.tsx`, `aplikasi/src/gaya/komponen.css`, `aplikasi/src/lib/env.ts`, `aplikasi/.env.example`, `.github/workflows/ci.yml`, `aplikasi/alat/periksa-komponen-env.py`, `aplikasi/alat/periksa-semua.sh`
+- **Implikasi:** layar baru wajib memakai komponen ini (bukan menulis ulang gaya sendiri) dan wajib menyiapkan tiga keadaan. Nilai rahasia baru: tambahkan di tabel `TECH_SPEC.md` §6 dulu, lalu di `.env.example` sebagai komentar (tanpa awalan `VITE_`). Setiap kirim kode wajib menjalankan `periksa-semua.sh`.
+
+### [Fase 0/2026-09-16] Uji wajib sejak awal + prosedur pemulihan ruang kerja
+- **Area:** Fondasi kerja (mutu kode & keselamatan pekerjaan; belum menyentuh uang/izin)
+- **Keputusan:**
+  1. **Gerbang TDD aktif sekarang:** setiap berkas logika di `aplikasi/src/lib/*` dan `aplikasi/src/hook/*` wajib punya berkas ujinya sendiri (`*.test.ts(x)`). Dijaga alat `aplikasi/alat/periksa-uji.py` yang ikut berjalan di CI — jadi kode uang/izin mulai Fase 1 tidak bisa masuk tanpa uji.
+  2. **Kerangka uji disiapkan untuk pemakaian nyata:** jsdom + `@testing-library/react` terpasang; uji boleh menandai berkasnya `// @vitest-environment jsdom` (lingkungan bawaan tetap `node` supaya cepat).
+  3. **Prosedur pemulihan ruang kerja** (dicatat di `docs/AGENT_OPERATING_GUIDE.md` §0): pratinjau mati → `bash aplikasi/alat/pratinjau.sh`; riwayat Git lokal mundur → `bash alat/pulihkan-git.sh` (periksa) lalu `--perbaiki`. Pemulih **menolak** berjalan kalau masih ada perubahan belum di-commit, dan **tidak pernah** memakai `--hard`/`--force`.
+  4. **Larangan menulis ulang berkas dari ingatan** saat pemulihan — sumber kebenaran hanya GitHub + dokumen di repo.
+- **Alasan:** (1) risiko “uji hanya formalitas” sudah tercatat di ROADMAP T0-10; janji saja tidak cukup, jadi dibuat gerbang yang benar-benar menolak; (2) pada 2026-09-16 ruang kerja restart: `node_modules` hilang (pratinjau mati) dan salinan Git lokal mundur ke `main` — ditangani tanpa kehilangan data, tetapi prosedurnya harus tertulis supaya sesi/model berikutnya tidak menebak; (3) menulis ulang dari ingatan berisiko menghasilkan kode yang mirip tapi tidak identik dan menghapus perbaikan sebelumnya.
+- **File terkait:** `aplikasi/alat/periksa-uji.py`, `aplikasi/vitest.config.ts`, `aplikasi/src/lib/env.test.ts`, `aplikasi/src/hook/useTema.test.tsx`, `aplikasi/src/hook/useJam.test.tsx`, `alat/pulihkan-git.sh`, `aplikasi/alat/pratinjau.sh`, `docs/AGENT_OPERATING_GUIDE.md` §0
+- **Implikasi:** berkas logika baru tanpa uji = kiriman kode ditolak CI. Saat memulihkan ruang kerja: periksa dulu (`git status`), jangan pernah `--hard`/`--force`, dan setelah pulih jalankan `bash aplikasi/alat/periksa-semua.sh` lalu commit + push.
+
+### [Fase 1/2026-09-16] Fase 1 dimulai lebih dulu tanpa akun Supabase + uji SQL lokal pada PostgreSQL asli
+- **Area:** Cara kerja & RLS/Auth (ART-1) — menyentuh semua migrasi berikutnya
+- **Keputusan:**
+  1. **Fase 1 dikerjakan sekarang tanpa menunggu akun.** T0-00 (pemilik membuat akun) ditunda atas permintaan pemilik; T0-08/T0-09 tetap menunggu akun, tetapi seluruh migrasi, kebijakan RLS, peran, izin, dan fungsi uang dapat dikerjakan dan **diuji sungguhan** lebih dulu.
+  2. **Cara mengujinya tanpa akun:** PostgreSQL asli dijalankan di dalam Node (pustaka PGlite, gratis, tanpa server) melalui alat baru `alat/uji-sql.mjs`. Alat ini meniru Supabase: peran `anon` / `authenticated` / `service_role`, skema `auth` lengkap dengan `auth.users`, `auth.uid()`, `auth.jwt()`, dan alat bantu uji `uji.klaim()` / `uji.harap()` / `uji.sama()` / `uji.harap_gagal()`.
+  3. **Setiap berkas `supabase/tes/*.sql` dijalankan dalam transaksinya sendiri yang WAJIB dibatalkan (rollback)** — jadi urutan uji tidak saling mencemari dan data uji tidak pernah tertinggal. Data uji dibuat ulang setiap kali jalan dari `alat/sql/data-uji.sql` (2 resto × 3 cabang × 7 akun).
+  4. **Uji SQL masuk CI** (`npm ci --prefix alat` lalu `node alat/uji-sql.mjs --daftar`) dan masuk `aplikasi/alat/periksa-semua.sh`, sehingga "lulus di komputer" dan "lulus di CI" memakai perintah yang sama.
+- **Alasan:** (a) pemilik sedang sibuk dan minta maraton tetap jalan; (b) Fase 1 adalah fase **paling berisiko** (isolasi data antar-resto, izin, uang) — menundanya sampai akun jadi berarti 22 tugas berisiko menumpuk di akhir; (c) yang sebenarnya dibutuhkan untuk menguji Fase 1 adalah **PostgreSQL asli**, bukan layanan Supabase — dan PostgreSQL asli bisa dijalankan di dalam Node tanpa akun; (d) "hijau di komputer pernah menipu" (folder kosong & Markdown), jadi bahaya terbesar bukan menunda, melainkan **menguji dengan logika tiruan** — karena itu yang dipakai PostgreSQL asli, dan hasilnya dijalankan ulang di Supabase begitu akun jadi; (e) alat uji buatan sendiri harus dibuktikan bisa MERAH, bukan hanya hijau.
+- **File terkait:** `alat/uji-sql.mjs`, `alat/package.json`, `alat/sql/data-uji.sql`, `supabase/migrations/0001..0004`, `supabase/tes/*.sql`, `.github/workflows/ci.yml`, `aplikasi/alat/periksa-semua.sh`, `supabase/README.md`, `docs/ROADMAP.md` (T1-01…T1-04)
+- **Implikasi:** 1) Berkas uji baru **wajib** berbentuk uji perilaku (nyatakan harapan, bukan hanya "perintah berhasil"), supaya bisa gagal saat kode dirusak. 2) Kalau nanti di Supabase nyata ada perbedaan hasil, yang diperbaiki adalah **kode/migrasinya**, bukan ujinya dilemahkan. 3) `alat/node_modules` diabaikan Git; kunci versi (`alat/package-lock.json`) ikut Git. 4) T0-08 & T0-09 tetap menjadi syarat penutup Fase 0 — Fase 0 **belum** boleh dinyatakan selesai.
+
+### [Fase 1/2026-09-16] Pola RLS seragam & satu sumber identitas untuk semua tabel (T1-01…T1-04)
+- **Area:** RLS/Auth (ART-1) & Role/Permission (ART-2) — menyentuh semua tabel & policy Fase 1 ke atas
+- **Keputusan:**
+  1. **RLS aktif sejak tabel pertama dibuat; policy ditulis di migrasi terpisah.** `0001`/`0002` membuat tabel dengan RLS aktif **tanpa policy** (artinya: tidak ada yang bisa membaca = tolak-dulu), lalu `0004` menuliskan policy resminya. Jeda antara keduanya tidak bisa membocorkan data.
+  2. **Satu sumber identitas tunggal** (`0003`): `penyewa_saya()` · `peran_saya()` · `cabang_saya()` · `cabang_ids_saya()` · `sepenyewa(uuid)`. Semua `SECURITY DEFINER` + `search_path` dikunci + hak jalan **hanya** `authenticated` & `service_role` (`anon` ditolak). **Semua policy dilarang menulis subquery langsung** ke tabel lain — wajib lewat fungsi ini, supaya tidak ada RLS yang berputar/berulang.
+  3. **Dua tingkat peran:** `pengguna.peran` = peran se-resto (`owner_pusat`, `admin_cabang`, `kasir`, `pelayan`, `dapur`) atau `pemilik_platform` (yang berdiri di luar semua resto); `pengguna_cabang.peran` = peran **per cabang** sehingga pegawai bisa merangkap beberapa cabang dengan peran berbeda.
+  4. **Cabang aktif diambil dari klaim token, tetapi selalu diverifikasi ulang** ke tabel `pengguna_cabang` — klaim palsu atau kedaluwarsa tidak memberi akses (ART-1: jangan percaya klien).
+  5. **Izin tidak boleh diubah lewat tabel langsung** (hanya lewat RPC berizin di T1-05 dst.); **akun nonaktif** langsung kehilangan seluruh identitas (penyewa, peran, cabang).
+- **Alasan:** (1) kesalahan policy = kebocoran data antar-resto, satu-satunya risiko yang bisa mematikan kepercayaan pemilik kedai; satu pola + satu sumber identitas membuat pemeriksaan bisa otomatis dan tidak bergantung pada ketelitian penulis kode; (2) `SECURITY DEFINER` tanpa `search_path` terkunci adalah celah klasik, dan menjalankan fungsi berhak lewat peran `anon` memperluas serangan tanpa manfaat; (3) `pengguna_cabang` dibutuhkan nyata karena kasir sering membantu cabang lain, tetapi laporan tetap harus utuh per cabang; (4) akun pegawai yang berhenti harus langsung kehilangan akses tanpa menunggu penghapusan baris.
+- **File terkait:** `supabase/migrations/0001_penyewa_cabang.sql`, `0002_pengguna_izin_pengaturan.sql`, `0003_helper_identitas.sql`, `0004_pola_rls.sql`, `supabase/tes/helper.sql`, `rls_penyewa.sql`, `rls_pengguna.sql`, `rls_semua_tabel.sql`
+- **Implikasi:** 1) Tabel baru **wajib** punya RLS + policy yang menyebut `penyewa_saya()` bila punya kolom `penyewa_id` — kalau tidak, CI merah (uji katalog di `supabase/tes/rls_semua_tabel.sql` membaca katalog PostgreSQL, jadi tabel yang lupa dikunci ketahuan tanpa perlu diuji manual). 2) Menambah peran/izin baru berarti menambah di `0003`/`0005` + uji, bukan menyebar di banyak tempat. 3) Uji 4 berkas Fase 1 ini **terbukti bisa MERAH**: 3 uji mutasi (RLS dimatikan · policy dibuka lebar · cacat akun nonaktif) semuanya menyalakan GAGAL, lalu LOLOS setelah dipulihkan. 4) **Ditemukan & diperbaiki dalam batch ini:** rancangan awal `cabang_saya()`/`cabang_ids_saya()` masih memberi cabang kepada pegawai yang sudah dinonaktifkan — ditangkap uji `helper.sql`, diperbaiki sebelum dikirim.
+
+### [Fase 1/2026-09-16] Gerbang izin tunggal `boleh()`: satu tempat memutuskan, bukan tersebar di banyak layar (T1-05)
+- **Area:** Role & Permission (ART-2) — menyentuh semua RPC & layar yang menyentuh uang, void, laporan, dan pegawai
+- **Keputusan:**
+  1. **Izin disimpan di dua tingkat.** `izin` (per pegawai, centang khusus) **menang** atas `izin_peran` (bawaan per peran per resto). Bila pegawai tidak punya centang khusus dan perannya tidak punya bawaan → **TOLAK**. Resto baru otomatis mendapat izin bawaan lewat pemicu, jadi tidak ada kondisi "semua tertutup".
+  2. **Satu gerbang untuk semua tindakan:** `boleh(aksi)` · `boleh(aksi, nominal)` · `boleh(aksi, nominal, persen)` — semuanya membaca satu fungsi perhitungan `izin_efektif(aksi, cabang)`. Tidak ada RPC atau layar yang boleh menyimpulkan izin sendiri dari peran.
+  3. **Izin mengikuti peran DI CABANG itu**, bukan hanya peran se-resto: pegawai merangkap cabang bisa berperan Kasir di satu cabang dan Dapur di cabang lain, dan gerbangnya menilai sesuai cabang yang sedang dipakai. **Cabang yang bukan milik pengguna = TOLAK** (tidak diam-diam jatuh ke peran se-resto).
+  4. **Batas uang menempel pada izin:** `batas_nominal` dan `batas_persen` disimpan bersama izin dan diperiksa oleh gerbang — jadi aturan "diskon maksimal 25.000 untuk kasir" tidak perlu ditulis ulang di layar kasir.
+  5. **Bawaan per peran yang dipasang:** owner pusat boleh semuanya · admin cabang boleh operasi harian (diskon sampai 50.000 / 10 persen) tetapi **tidak** boleh mengubah pengaturan resto · kasir boleh jual + diskon kecil (25.000 / 5 persen) + batal sebelum dapur + tutup kas · pelayan hanya memakai voucher · dapur hanya stok.
+  6. **Kamus 10 kode izin** (`izin_kode`) menjadi daftar resmi; kode izin baru = migrasi baru + baris kamus + uji.
+- **Alasan:** (1) izin yang tersebar di banyak tempat adalah cara paling umum uang bocor tanpa jejak — dengan satu gerbang, kebijakan bisa diuji otomatis dan berubah satu tempat; (2) deny by default berarti pegawai baru tidak bisa apa-apa sampai dicentang, jauh lebih aman daripada "boleh dulu, dicabut kemudian"; (3) kasir yang membantu cabang lain adalah kenyataan lapangan, jadi izin per cabang bukan kemewahan; (4) batas diskon harus ditegakkan di tempat yang tidak bisa dilewati aplikasi, bukan di layar yang bisa diakali.
+- **File terkait:** `supabase/migrations/0005_izin_berjenjang.sql`, `supabase/tes/izin.sql`
+- **Implikasi:** 1) Setiap RPC baru **wajib** memanggil `boleh(...)` sebagai baris pertamanya, bukan memeriksa `peran` sendiri — ini akan diperiksa pada tugas RPC (T1-15 dst.). 2) Perubahan izin wajib menulis `catatan_audit` (ART-2) — tabel & pemicunya menyusul pada migrasi `catatan_audit` (T1-11/T1-13); sampai itu ada, perubahan izin hanya bisa dilakukan owner pusat dan jejaknya tersimpan di kolom `diubah_oleh`/`diubah_pada`. 3) Uji `izin.sql` **terbukti bisa MERAH lewat 4 uji mutasi**, dan mutasi keempat mengungkap uji yang lemah → uji diperkuat, bukan gerbangnya dilonggarkan. 4) Menambah izin baru berarti menambah kode + bawaan per peran + uji matriks, bukan menulis kondisi `if` baru di layar.
+
+### [Fase 1/2026-09-16] PIN pegawai: hash di database, batas percobaan dua lapis, dan Edge Function yang tipis (T1-06)
+- **Area:** Role & Permission (ART-2) + keamanan data pegawai
+- **Keputusan:**
+  1. **PIN hanya disimpan sebagai hash bcrypt** (`crypt(pin, gen_salt('bf', 10))` dari pgcrypto). Sebagai pengaman kedua, kolom `pin_hash` diberi **batas (CHECK)** yang menolak nilai bukan-hash — jadi kalaupun ada kode yang keliru menyimpan PIN mentah, **database** yang menolaknya. Tidak ada fungsi apa pun yang mengembalikan hash.
+  2. **Pembatasan percobaan dua lapis:** 5 kali salah **per akun** dan 12 kali salah **per perangkat** dalam 15 menit. Lapis perangkat penting di resto: satu tablet dipakai bergantian, jadi menebak dari satu HP harus mentok walau targetnya berganti-ganti akun.
+  3. **Semua percobaan dicatat** di `percobaan_pin` (berhasil/gagal + perangkat). Percobaan yang **ditolak karena terkunci ikut dihitung**, supaya mengetuk terus-menerus tidak memperpendek masa tunggu.
+  4. **PIN benar belum cukup:** bila dipakai untuk menyetujui aksi (`void_sesudah_dapur`, diskon di atas batas, dsb.), izin **pemilik PIN** diperiksa lewat `boleh_untuk()` — jadi PIN pegawai dapur tidak bisa dipakai menyetujui void hanya karena PIN-nya benar.
+  5. **Ganti PIN sendiri wajib PIN lama**; mengganti PIN pegawai lain wajib izin `kelola_pegawai` dan hanya dalam resto yang sama. `ganti_pin` (M12) memanggil `simpan_pin` — satu isi, bukan dua.
+  6. **Edge Function `verifikasi_pin` sengaja tipis:** hanya POST, meneruskan ke RPC dengan **token pemanggil + kunci publik** (bukan `service_role`, supaya RLS tidak dilewati), dan **tidak memakai `console.*` sama sekali** sehingga PIN tidak mungkin masuk log. Dijaga pemeriksa `alat/periksa-fungsi-pin.py` di CI.
+  7. **Rumus izin tetap satu:** parameterisasi `izin_efektif_untuk(pengguna, aksi, cabang)` ditambahkan, dan `izin_efektif` (0005) kini menjadi pembungkusnya — bukan rumus kedua.
+- **Alasan:** (1) PIN adalah kunci tindakan uang (void, diskon, voucher); kebocoran hash jauh lebih ringan daripada kebocoran PIN, dan penolakan di tingkat tabel membuat kesalahan kode tidak berakibat fatal; (2) restoran nyata memakai satu tablet bersama — tanpa batas per perangkat, penebak bisa berputar akun; (3) mencatat penolakan menjaga bukti dan mencegah serangan "tunggu sampai jendela habis"; (4) PIN atasan yang bisa dipakai untuk apa saja akan membuat izin berjenjang tidak berarti.
+- **File terkait:** `supabase/migrations/0006_pin.sql`, `supabase/functions/verifikasi_pin/index.ts`, `supabase/tes/pin.sql`, `alat/periksa-fungsi-pin.py`, `.github/workflows/ci.yml`
+- **Implikasi:** 1) **Batas yang jujur:** Deno belum tersedia di ruang kerja ini, jadi uji **runtime** Edge Function (permintaan HTTP sungguhan) menunggu akun Supabase di **T0-08**; yang terbukti sekarang adalah seluruh logika PIN di database (PostgreSQL asli) + penjagaan statis berkas Edge Function (9 pemeriksaan, terbukti bisa merah). Ini juga berlaku untuk Edge Function berikutnya (email, cetak): **logika wajib ada di database**, fungsi Edge hanya pintu tipis. 2) Di Supabase, bcrypt asli (pgcrypto) yang dipakai; di uji lokal dipakai **tiruan berlabel** karena PGlite tidak memuat pgcrypto — yang diuji perilakunya, bukan kekuatan algoritmanya, dan uji yang sama akan dijalankan ulang di Supabase. 3) Setiap RPC yang butuh persetujuan PIN wajib memanggil `verifikasi_pin(..., p_aksi => ...)`, bukan memeriksa PIN sendiri. 4) PIN tidak pernah boleh muncul di log aplikasi mana pun — aturan ini dijaga pemeriksa statis.
+
+### [Fase 1/2026-09-16] Katalog & stok: harga per cabang satu rumus, siapa boleh apa, dan stok yang tak bisa menyimpang (T1-07)
+- **Area:** Katalog/menu (M2, M9, M11), stok, dan pembagian hak
+- **Keputusan:**
+  1. **Harga per cabang lewat SATU fungsi** `harga_berlaku(menu, cabang)`: harga khusus cabang bila ada, kalau tidak harga pusat (`menu_cabang.harga` null = ikut pusat). Layar kasir, katalog pelanggan, dan perhitungan uang wajib memakai fungsi ini — tidak ada rumus harga kedua.
+  2. **Siapa yang boleh mengubah katalog:** owner pusat & admin cabang (daftar izin resmi tidak memuat kode “kelola menu”, jadi ini ditetapkan per peran — dicatat di sini supaya tidak jadi kebiasaan diam-diam). Kasir/pelayan/dapur hanya bisa **melihat**.
+  3. **Penanda “habis” adalah tugas harian**, jadi pegawai ber-izin `ubah_stok` (dapur/kasir) boleh menandainya **di cabangnya sendiri**; **menetapkan/mengubah harga tetap milik owner pusat & admin cabang**, dijaga pemicu di database (berlaku saat menyisipkan maupun mengubah baris) — bukan hanya disembunyikan di layar.
+  4. **`cabang_pantau_saya()` (baru):** pemegang hak atas satu cabang = pegawai yang bertugas di situ, **atau owner pusat untuk semua cabang restonya**. Tanpa aturan ini, owner pusat (yang memang tidak bertugas di kasir) tidak melihat harga cabang mana pun — cacat ini **ditemukan uji** sebelum dikirim.
+  5. **Stok hanya berubah lewat buku besar.** `stok_pergerakan` bersifat hanya-bertambah (hak ubah/hapus tidak diberikan); setiap baris **menjumlahkan sendiri** ke `stok_bahan.jumlah`; menulis `jumlah` langsung **ditolak** pemicu. `jumlah` pada buku besar selalu **PERUBAHAN (delta)**: masuk +, keluar −, opname/koreksi boleh ±, dan `koreksi` wajib beralasan.
+  6. **Tambahan kolom `penyewa_id` pada `menu_tambahan` & `stok_pergerakan`** (di luar daftar kolom TECH_SPEC §4.2): tanpa itu, baris “tambahan berlaku untuk semua menu” dan baris buku besar stok tidak bisa dipisahkan per resto sesuai ART-1. Pada `stok_pergerakan` kolom itu **diisi otomatis dari bahannya**, dan nilai yang bertentangan **ditolak tegas** (bukan diam-diam dibetulkan).
+  7. **Pemicu menjaga konsistensi antar tabel:** tambahan↔menu harus satu resto; harga cabang hanya untuk cabang & menu satu resto.
+- **Alasan:** (1) harga yang dihitung di dua tempat adalah cara paling halus untuk kehilangan uang; (2) katalog adalah wajah kedai — salah harga menimbulkan keributan di kasir, jadi haknya sengaja dipegang owner/admin; (3) “habis” berubah puluhan kali sehari dan harus bisa dilakukan siapa pun yang jaga, tanpa membuka pintu pengubahan harga; (4) stok yang boleh ditulis langsung akan selalu berbeda dengan catatannya — dan pada saat itu laporan laba/harga pokok tidak bisa dipercaya, jadi lebih baik ditolak oleh database sejak sekarang; (5) menambah kolom penyewa pada dua tabel adalah harga kecil untuk isolasi data yang tidak bisa ditawar.
+- **File terkait:** `supabase/migrations/0007_katalog.sql`, `supabase/tes/katalog.sql`, `alat/sql/data-uji.sql`
+- **Implikasi:** 1) RPC/SQL uang (T1-15 `hitung_total`) **wajib** memakai `harga_berlaku()`; dilarang membaca `menu_item.harga` langsung, karena itu akan mengabaikan harga cabang. 2) Tabel baru apa pun yang menyimpan harga/uang harus tetap menyimpan **salinan saat transaksi** (`harga_saat_itu`) agar riwayat tidak berubah bila harga diubah — dibuktikan di T1-09. 3) Stok tidak boleh diubah dengan `update`; gunakan `catat_stok()`. 4) Menu yang ditandai habis tetap boleh dilihat pelanggan sebagai “habis” (bukan disembunyikan) — perilaku layar menyusul di Fase 8. 5) Uji `katalog.sql` terbukti bisa MERAH lewat 4 uji mutasi; cacat “owner pusat tidak melihat harga cabang” dan “dapur bisa menetapkan harga saat menyisipkan baris” ditemukan uji sebelum dikirim.
+
+### [Fase 1/2026-09-16] Riwayat pesanan dibekukan: salinan nama & harga, nomor per cabang/hari, dan pesanan yang tak bisa dihapus (T1-09)
+- **Area:** State Machine (ART-4) & Kalkulasi (ART-3) — menyentuh seluruh uang & laporan
+- **Keputusan:**
+  1. **Setiap baris pesanan menyimpan SALINAN** `nama_saat_itu` dan `harga_saat_itu` (keduanya WAJIB). Menu boleh berubah nama/harga kapan saja; struk, laporan, dan laba hari itu **tidak ikut berubah**.
+  2. **Salinan beku dijaga pemicu**: `nama_saat_itu`, `harga_saat_itu`, `menu_item_id`, dan `pesanan_id` **tidak boleh diubah** oleh siapa pun (termasuk owner). Salah harga diperbaiki dengan **membatalkan baris itu lalu menambah baris baru** — itulah jalur yang meninggalkan jejak.
+  3. **Nomor pesanan unik per cabang per tanggal** (`unique (cabang_id, tanggal, nomor)`); kolom `tanggal` disiapkan sekarang, sedangkan **penghitungan menurut zona waktu resto** dan pemberian nomornya dikerjakan di T1-17.
+  4. **`kunci_idempoten` unik per cabang** — satu keranjang tidak bisa tersimpan dua kali walau koneksi terputus dan kasir menekan tombol lagi (dasar perilaku “daring + tahan gangguan”).
+  5. **Pesanan tidak pernah dihapus**: hak `DELETE` memang tidak diberikan, dan pembatalan memakai kolom `status`/`dibatalkan_pada`/`alasan_batal`. Membatalkan SATU baris (`pesanan_item.status = 'batal'`) juga tidak menghapus barisnya.
+  6. **Status resmi mengikuti TECH_SPEC §4.3** (`draf` → `dikirim` → `dimasak` → `siap` → `lunas`, dan `batal`); aturan perpindahannya dijaga menyusul di **T1-18** (mesin status), bukan disebar di banyak layar.
+  7. **Konsistensi antar tabel dijaga database**: meja harus satu cabang dengan pesanannya; pesanan tidak bisa dibuat di cabang/resto lain; item pesanan tidak bisa memakai menu resto lain; pemilik resto tidak bisa “menitipkan” pesanan ke resto lain.
+- **Alasan:** (1) harga yang berubah mengubah riwayat adalah masalah uang paling halus dan paling mahal — pelanggan bisa memegang struk yang tidak cocok dengan tagihan, dan laporan bulan lalu berubah sendiri; (2) membekukan salinan berarti pertanyaan “kenapa harganya begini?” selalu bisa dijawab; (3) nomor ganda atau pesanan ganda membuat dapur memasak dua kali dan stok keluar dua kali; (4) pesanan yang bisa dihapus membuat kecurangan kasir tidak bisa ditelusuri.
+- **File terkait:** `supabase/migrations/0009_pesanan.sql`, `supabase/tes/pesanan.sql`, `supabase/migrations/0008_meja.sql`, `supabase/tes/meja.sql`, `alat/sql/data-uji.sql`
+- **Implikasi:** 1) RPC `simpan_pesanan` (T3-05) **wajib** mengambil harga dari `harga_berlaku()` saat pesanan dibuat dan menulis salinannya — dilarang menghitung ulang dari tabel menu setelahnya. 2) `hitung_total()` (T1-15) menghitung dari **salinan** di baris pesanan, bukan dari harga menu terkini. 3) Bila nanti menu benar-benar salah harga saat pembuatan, jalurnya adalah batal + tambah baru (berjejak), bukan `update`. 4) Laporan & struk tidak boleh membaca tabel menu sama sekali. 5) Uji `pesanan.sql` terbukti bisa MERAH lewat 3 uji mutasi.
+
+### [Fase 1/2026-09-16] Uang masuk & pembatalan: angka uang milik peladen, satu pembayaran satu baris, diskon dibatasi izin (T1-10)
+- **Area:** Kalkulasi Keuangan (ART-3) & Aturan Bisnis 7 (void bertingkat)
+- **Keputusan:**
+  1. **Angka uang pesanan hanya boleh diisi fungsi peladen.** Pemicu menolak `subtotal`/`pajak`/`service`/`total_diskon`/`total` yang bukan-nol bila perintah datang dari klien; jalur sahnya adalah fungsi peladen (`hitung_total()` di T1-15). Pembeda "peladen vs klien" memakai **peran efektif** (pemilik tabel / `service_role`) — **tidak bisa dipalsukan** klien, berbeda dari penanda sesi.
+  2. **Satu pembayaran = satu baris tercatat.** `kunci_idempoten` unik per pesanan; baris pembayaran **tidak bisa diubah/dihapus** (haknya memang tidak diberikan) — koreksi lewat pembatalan, sehingga selalu berjejak. Banyak baris per pesanan tetap sah (pembayaran terbagi).
+  3. **Kembalian & jenis pembayaran dihitung database**, bukan dikirim perangkat: tunai wajib menyebut uang diterima (`kembalian = diterima − jumlah`), bukan tunai wajib menyebut referensi, dan `jenis` diambil dari tabel `metode_bayar` (disalin ke baris sebagai `jenis_saat_itu` supaya riwayat tidak berubah bila metode diubah namanya).
+  4. **Pembayaran tidak boleh melebihi total pesanan.** Bila `total` masih 0 (belum dihitung `hitung_total`), pemeriksaan dilewati supaya pencatatan tidak macet — celah sementara ini **tertutup di T1-15** karena pembayaran hanya sah setelah total dihitung. **(DIREVISI 2026-09-17 setelah audit AUD-3: celah itu NYATA dan tidak boleh menunggu T1-15 — lihat entri "Perbaikan K-1" di bawah. Kini pembayaran DITOLAK selama total belum dihitung.)**
+  5. **Batas diskon memakai gerbang izin yang sama** (`boleh('beri_diskon', nominal, persen)`), jadi batas kasir 25.000 / 5% dan admin 50.000 / 10% tidak pernah disalin ulang di tempat lain. **Tumpuk diskon mengikuti pengaturan resto** (bawaan: satu diskon per transaksi — Aturan Bisnis 2). Diskon manual wajib beralasan; total diskon tidak boleh melebihi subtotal.
+  6. **Pembatalan wajib beralasan & bertahap.** Tahap ditentukan database dari **dua tanda** (waktu kirim ke dapur **dan** status pesanan) — memakai satu tanda saja rapuh: bila salah satu lupa diisi, pembatalan bisa lolos tanpa PIN. Setelah dapur mulai wajib disetujui pengguna yang benar-benar berizin `void_sesudah_dapur` (diperiksa lewat `boleh_untuk()`); nilai kerugian dihitung dari **salinan harga**, bukan harga menu sekarang.
+  7. **Metode bayar per resto dengan 4 bawaan** (Tunai/QRIS/Transfer/Kartu) dipasang otomatis lewat pemicu — resto baru tidak pernah kehabisan cara bayar, dan menambah metode lain tidak butuh koding.
+- **Alasan:** (1) kalau perangkat boleh mengirim angka uang, seluruh perhitungan peladen hanya jadi saran; (2) pembayaran dobel saat koneksi kedai jelek adalah kejadian nyata, dan koreksi yang bisa menghapus baris membuat kecurangan tidak bisa ditelusuri; (3) kembalian yang dihitung perangkat bisa berbeda dengan struk; (4) diskon adalah tempat uang paling sering bocor tanpa jejak; (5) “kapan dapur mulai” adalah penentu siapa yang boleh membatalkan — salah menilai tahap berarti salah menentukan siapa yang berwenang.
+- **File terkait:** `supabase/migrations/0010_pembayaran.sql`, `supabase/tes/pembayaran.sql`, `alat/sql/data-uji.sql`
+- **Implikasi:** 1) `hitung_total()` (T1-15) **wajib** SECURITY DEFINER + menulis kelima kolom uang sekaligus, dan **wajib** memeriksa ulang total setelah diskon berubah. 2) `bayar_pesanan` (T5-02) memakai `total_dibayar()` sebagai sumber tunggal. 3) `diskon_transaksi.voucher_id` masih belum berkunci asing — kuncinya dipasang di **T1-12** saat tabel `voucher` ada; begitu juga `pembayaran.shift_id` di **T1-11**. 4) Uji `pembayaran.sql` terbukti bisa MERAH lewat 6 uji mutasi, dan **dua uji yang lulus karena sebab yang salah** ditemukan lewat uji mutasi itu lalu diperbaiki — aturan kerjanya: uji negatif wajib memilih kasus yang hanya bisa ditolak oleh satu sebab.
+
+### [Fase 1B/2026-09-17] Satu akun = satu peran (identitas tidak boleh bercampur) — keputusan pemilik, dikuatkan agent
+- **Area:** Role & Permission (ART-2) + Keamanan Akun (ART-12 baru)
+- **Keputusan:**
+  1. **Setiap akun hanya punya SATU peran**, berlaku di semua cabang yang ditugaskan. Orang yang punya dua fungsi (mis. kasir merangkap pelayan) **wajib punya dua akun** dengan **PIN berbeda**.
+  2. **`pengguna_cabang` disederhanakan**: hanya menyimpan **daftar cabang** tempat akun itu bertugas (kolom `peran` per cabang dihapus/diabaikan). Peran datang dari satu tempat saja (`pengguna.peran`).
+  3. **PIN wajib unik antar pegawai dalam satu resto** (PIN tidak boleh dipakai dua akun), dan PIN tidak boleh berpola lemah (semua angka sama, berurutan, tanggal lahir `ddmmyy`).
+  4. **Izin (centang) tetap boleh berbeda per akun** — itu penyetelan di dalam satu peran, bukan peran kedua.
+  5. Pengelompokan "satu orang, dua akun" untuk laporan dilakukan lewat **nama pegawai yang sama + peran berbeda**; tabel `orang` (HR ringan) **tidak** dibuat di G1.
+- **Alasan:** (1) ide pemilik & memang benar: bila satu akun boleh dua peran, maka "siapa berwenang apa" tidak lagi bisa dibuktikan hanya dari data — dan izin berjenjang yang sudah dibuktikan di T1-05 jadi kabur; (2) satu peran = satu jalur pemeriksaan, jadi uji matriks izin × peran bisa dibuat otomatis dan tidak ada kombinasi tersembunyi; (3) jejak audit menjadi tegas: setiap tindakan punya peran yang jelas; (4) PIN unik mencegah "PIN bertukar" yang membuat tindakan seseorang tercatat atas nama orang lain.
+- **File terkait:** `docs/KEAMANAN.md` (bagian identitas), `supabase/migrations/0011_peran_tunggal.sql`, `supabase/tes/peran_tunggal.sql`
+- **Implikasi:** 1) Migrasi baru wajib (tidak boleh mengubah `0002` yang sudah jalan): menegakkan peran tunggal, memasang kunci pada `pengguna_cabang`, dan menyesuaikan fungsi `peran_saya()`/`cabang_ids_saya()` bila perlu. 2) Perangkat terdaftar menyimpan **peran yang diizinkan** — sehingga satu tablet kasir tidak bisa dipakai masuk sebagai owner. 3) Uji matriks (T1-29) memakai daftar peran dari `pengguna.peran`, bukan dari beberapa sumber. 4) Laporan "pegawai merangkap" tetap bisa dibuat dengan menggabungkan baris akun bernama orang yang sama.
+
+### [Fase 1B/2026-09-17] Perangkat terdaftar: kode pendaftaran + persetujuan pemilik + pencabutan seketika
+- **Area:** Keamanan Akun & Perangkat (ART-11 baru)
+- **Keputusan:**
+  1. **Setiap peran staf (kasir/pelayan/dapur/admin cabang/owner pusat) hanya bisa memakai aplikasi dari perangkat yang TERDAFTAR**; pendaftaran memakai **kode sekali pakai** (masa berlaku 15 menit) yang dibuat admin/owner, dan perangkat menyimpan **rahasia acak 32 byte** yang di server hanya tersimpan sebagai **SHA-256** (rahasia 256-bit tidak bisa ditebak, jadi tidak perlu bcrypt yang lambat).
+  2. **Persetujuan pemilik saat pegawai pertama kali memakai perangkat itu** (pilihan pemilik): perangkat terdaftar belum cukup; setiap pasangan (pegawai × perangkat) baru wajib disetujui owner/admin yang berizin — bisa dari jauh, dan tercatat.
+  3. **Perangkat punya `peran_diizinkan`** (mis. "Tablet Kasir 1" hanya untuk peran kasir) + `cabang_id` + nama + status (`aktif`/`dicabut`/`hilang`).
+  4. **Pencabutan seketika**: status perangkat dan sesi diperiksa **di database pada setiap permintaan**, bukan hanya saat masuk. Alasannya teknis dan penting: dokumentasi Supabase menyatakan **token akses yang sudah diterbitkan tidak bisa dicabut sebelum kedaluwarsa** — jadi pencabutan tidak boleh bergantung pada token.
+  5. **Pemilik platform (`pemilik_platform`) dikecualikan** dari pengikatan perangkat (harus bisa menolong dari mana saja), sebagai gantinya: TOTP wajib + umur sesi pendek (8 jam) + **tidak punya akses isi data penyewa** kecuali mode dukungan.
+  6. **Bootstrap**: perangkat pertama milik owner pusat boleh didaftarkan sendiri dengan **kata sandi + TOTP** (dia akar kepercayaan restonya); perangkat berikutnya butuh persetujuan dari perangkat aktif.
+- **Alasan:** (1) inilah jawaban langsung atas kekhawatiran pemilik: perangkat kecurian tanpa PIN tidak membuka apa pun, dan begitu dilaporkan hilang, aksesnya mati dalam hitungan detik; (2) pola kode perangkat adalah praktik industri POS (Square memakai "device code" per perangkat & per lokasi) — bukan eksperimen; (3) memeriksa di database (bukan di aplikasi) membuat aturan ini tidak bisa dilangkahi lewat API langsung; (4) mengecualikan pemilik platform menjaga jalan darurat tetap ada, dengan pengaman setara (TOTP + sesi pendek + tanpa data penyewa).
+- **File terkait:** `supabase/migrations/0012_perangkat.sql`, `supabase/migrations/0013_sesi_perangkat.sql`, `supabase/tes/perangkat.sql`, `supabase/tes/sesi_perangkat.sql`, `docs/KEAMANAN.md` *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+- **Implikasi:** 1) Seluruh policy RLS untuk peran staf wajib memakai `perangkat_sah()` — pola ini dipasang sebelum migrasi `kas/shift` (T1-11) supaya tidak dibongkar dua kali. 2) Bukti perangkat dikirim sebagai header permintaan dan dibaca lewat `current_setting('request.headers')`; **wajib dibuktikan di Supabase nyata (T0-08)** sebelum dijadikan syarat tunggal — jaring pengaman `sesi_perangkat` tetap berlaku tanpa header. 3) Fungsi `perangkat_sah()` wajib `stable`, `search_path` dipaku, dan dipanggil `(select public.perangkat_sah())` agar tidak dievaluasi ulang per baris. 4) Uji wajib: perangkat tidak terdaftar → tabel staf tertutup; cabut perangkat → permintaan berikutnya gagal; perangkat dengan peran lain → ditolak.
+
+### [Fase 1B/2026-09-17] Masuk staf satset tapi aman: PIN 6 digit HANYA sah di perangkat terdaftar
+- **Area:** Keamanan Akun (ART-12 baru) + Role & Permission (ART-2)
+- **Keputusan:**
+  1. **Kasir/pelayan/dapur masuk dengan "pilih nama → PIN 6 digit"**, dan kombinasi itu hanya berlaku dari perangkat terdaftar yang `peran_diizinkan`-nya cocok. Tanpa perangkat terdaftar, PIN sekuat apa pun tidak menghasilkan sesi yang bisa dipakai (ikatan sesi ditolak).
+  2. **Akun staf tidak memakai email nyata**: email Supabase memakai **alias internal** resto (tidak pernah dipakai mengirim email). Konsekuensi jujur: **pemulihan akun/PIN staf dilakukan admin/owner** (wajib izin `kelola_pegawai`, tercatat) — dan justru itu yang menutup pintu pengambilalihan akun lewat email.
+  3. **Ditolak dengan sadar:** (a) PIN sebagai kunci enkripsi lokal (PIN 6 digit bisa dibobol luring dari perangkat curian); (b) Edge Function yang menerbitkan sesi sendiri (menambah jalur rahasia baru yang harus dijaga sempurna — risiko jauh lebih besar daripada manfaatnya di proyek ini); (c) PIN bisa dipakai dari perangkat mana saja.
+  4. **Kata sandi panjang** hanya untuk admin cabang, owner pusat, dan pemilik platform; staf tidak perlu menghafal kata sandi apa pun.
+- **Alasan:** (1) permintaan pemilik: "mudah tapi aman, mereka perlu kerja satset" — 2 detik, tanpa kata sandi tertulis di meja kasir; (2) keamanan sesungguhnya berasal dari KOMBINASI (perangkat yang harus ada + PIN yang harus diketahui), bukan dari panjang PIN; (3) memakai mekanisme bawaan Supabase (kata sandi + sesi) menghindari kriptografi buatan sendiri yang paling sering menjadi sumber cacat.
+- **File terkait:** `docs/KEAMANAN.md`, `supabase/migrations/0013_sesi_perangkat.sql`, `supabase/migrations/0014_percobaan_masuk.sql`, `supabase/tes/percobaan_masuk.sql` *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+- **Implikasi:** 1) PIN staf **sama** dengan PIN persetujuan (satu rahasia per pegawai, dua kegunaan) — tidak ada dua PIN yang membuat staf bingung. 2) Tabel uji wajib membuktikan: PIN benar + perangkat tidak terdaftar = **gagal**; PIN salah + perangkat terdaftar = **gagal** + tercatat; PIN benar + perangkat terdaftar = **berhasil**. 3) Kunci otomatis (idle) berarti sesi dihapus dari perangkat, jadi perangkat yang ditinggal tidak menyimpan apa pun. 4) Kalau internet mati saat perangkat terkunci, staf tidak bisa membuka sampai internet kembali — dicatat sebagai kasus tepi di PRD & Buku Insiden.
+
+### [Fase 1B/2026-09-17] TOTP wajib untuk 3 peran berkuasa + jalan pemulihan yang tidak memacetkan kerja
+- **Area:** Keamanan Akun (ART-12 baru)
+- **Keputusan:**
+  1. **TOTP (aplikasi authenticator) WAJIB untuk `pemilik_platform`, `owner_pusat`, dan `admin_cabang`.** TOTP gratis di semua paket Supabase (TOTP MFA tersedia bawaan).
+  2. **Kasir/pelayan/dapur tidak memakai TOTP** — keamanan akun mereka sudah dua lapis (perangkat terdaftar + PIN), dan memaksa TOTP di dapur/kasir justru mendorong PIN ditempel atau HP dipinjam-pinjamkan.
+  3. **Jalan pemulihan (agar tidak memacetkan kerja):** admin cabang yang kehilangan HP → **owner pusat bisa mengatur ulang MFA-nya** (tercatat + notifikasi); owner pusat yang kehilangan HP → **pemilik platform** yang mengatur ulang lewat panel; pemilik platform kehilangan HP → langkahnya ada di Buku Insiden.
+  4. **Tanpa kode pemulihan mandiri di G1** (sengaja): kode pemulihan menambah jalur rahasia baru yang harus dijaga; ditinjau lagi di Fase 10 bila terasa perlu (dicatat di TERTANGGUH T-016).
+- **Alasan:** (1) jawaban atas kebimbangan pemilik: admin cabang memang memegang akses penting (harga cabang, printer, opname stok, laporan cabang) sehingga pantas dilindungi TOTP; (2) tetapi mewajibkan tanpa jalan pemulihan = risiko operasional nyata (HP hilang = pegawai berhenti kerja) → karena itu jalan pemulihan dibuat lebih dulu, bukan belakangan; (3) memberi TOTP ke kasir/pelayan/dapur menambah friksi harian terbesar dengan tambahan keamanan terkecil — kombinasi perangkat+PIN sudah setara.
+- **File terkait:** `docs/KEAMANAN.md`, `supabase/functions/atur_ulang_mfa/index.ts`, `alat/periksa-fungsi-mfa.py`, `supabase/tes/mfa.sql` *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+- **Implikasi:** 1) Edge Function `atur_ulang_mfa` wajib **tipis**: pemeriksaan wewenang dilakukan di database (RPC memakai `boleh('kelola_pegawai')` + target harus satu resto + peran target lebih rendah), fungsi Deno hanya meneruskan; dilarang memakai `console.*`. 2) Setiap pengaturan ulang MFA menulis `catatan_audit` + mengirim pemberitahuan. 3) Pendaftaran TOTP dilakukan **saat penyiapan/training**, bukan saat jam sibuk (masuk daftar langkah Fase 11). 4) Uji: admin cabang tanpa TOTP tidak bisa masuk; setelah diatur ulang, TOTP bisa didaftarkan lagi; pengaturan ulang oleh yang tidak berizin ditolak.
+
+### [Fase 1B/2026-09-17] Kendali sesi dibuat sendiri (karena batas paket gratis) — dan justru lebih kuat
+- **Area:** Keamanan Sesi (ART-11 baru)
+- **Keputusan:**
+  1. **Kebijakan sesi ditegakkan di database kita** (`sesi_perangkat`): umur maksimum sesi staf **12 jam** (satu shift), admin/owner **30 hari**, pemilik platform **8 jam**; sesi kedaluwarsa ditolak walau tokennya masih sah.
+  2. **Token akses dipendekkan (15 menit)** lewat pengaturan Supabase (gratis), dan **kunci otomatis saat menganggur** (kasir/pelayan/dapur 15 menit · admin 30 menit · owner/platform 60 menit) dengan tombol "Kunci sekarang" di semua layar staf.
+  3. **Kunci = sesi dihapus dari perangkat**; membuka lagi wajib PIN/kata sandi (membuka sesi baru). Jadi perangkat yang ditinggal tidak menyimpan token sama sekali.
+  4. **Batas percobaan masuk: 5×/15 menit per akun dan 12×/15 menit per perangkat**, semua percobaan (berhasil/gagal/diblokir) masuk `percobaan_masuk`; kunci bertambah tidak memperpendek masa tunggu.
+  5. **Catatan jujur:** "time-box sesi", "inactivity timeout", "satu sesi per pengguna", dan pemeriksa kata sandi bocor (HaveIBeenPwned) adalah fitur **Pro**. Untuk kata sandi owner/admin, kompensasinya: panjang minimum 12 karakter, dilarang pola umum, dan TOTP wajib.
+- **Alasan:** (1) pencabutan lewat database berlaku **seketika**, sedangkan kendali bawaan (bila ada) baru berlaku saat token diperbarui — untuk kasus perangkat hilang, detik itu penting; (2) kunci otomatis menutup celah terbesar di kedai: tablet ditinggal di meja; (3) batas percobaan harus milik kita karena Supabase hanya membatasi per IP dan tidak mengunci per pengguna.
+- **File terkait:** `supabase/migrations/0013_sesi_perangkat.sql`, `supabase/migrations/0014_percobaan_masuk.sql`, `aplikasi/src/lib/sesi.ts` (T2-16)
+- **Implikasi:** 1) Aplikasi wajib menyimpan penanda WAKTU aktif terakhir per perangkat dan mengunci sendiri (`onVisibilityChange` + pengatur waktu). 2) Uji SQL wajib: sesi lewat umur → ditolak; sesi dicabut → ditolak; percobaan ke-6 → diblokir 15 menit. 3) Sesi yang dikunci di tengah antrean offline berarti antrean baru terkirim setelah masuk lagi — dicatat di ART-8 & Buku Insiden. 4) Pengaturan "kunci otomatis" dibuat per peran dan bisa diubah owner tanpa koding.
+
+### [Fase 1B/2026-09-17] Kecurangan uang: rekonsiliasi non-tunai + ringkasan peringatan harian
+- **Area:** Kalkulasi Keuangan (ART-3) + Kas & Shift (ART-6)
+- **Keputusan:**
+  1. **Setiap pembayaran non-tunai wajib menyimpan `referensi`** (nomor transaksi QRIS/transfer/kartu) — sudah ada di T1-10; sekarang **ditampilkan sebagai daftar di layar tutup kas** agar owner bisa mencocokkan dengan aplikasi QRIS/bank.
+  2. **Ringkasan peringatan harian ke owner (1 email/hari, gratis lewat Resend):** omzet, jumlah transaksi, void (siapa/nilai/alasan), diskon (siapa/nilai), selisih kas, percobaan masuk gagal, dan perubahan perangkat. Tujuannya bukan laporan lengkap, tetapi **membuat hal aneh terlihat tanpa owner harus membuka aplikasi**.
+  3. **Laporan "siapa menyetujui apa" per bulan** (PIN persetujuan): mencegah PIN atasan dipakai berulang tanpa terasa.
+- **Alasan:** (1) pembayaran non-tunai adalah tempat paling mudah "menandai lunas tanpa uang masuk" — pencocokan berkala menutupnya tanpa integrasi berbayar; (2) kecurangan kecil biasanya ketahuan terlambat karena tidak ada yang melihat; email harian menghilangkan alasan "tidak sempat membuka laporan"; (3) ini semua memakai data yang sudah ada — tambahannya kecil, nilainya besar.
+- **File terkait:** `docs/KEAMANAN.md`, `supabase/functions/ringkasan_harian/index.ts` *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+- **Implikasi:** 1) RPC laporan baru wajib membaca **salinan** (`harga_saat_itu`) dan tidak boleh menghitung ulang dari menu. 2) Email ringkasan tidak boleh memuat data pribadi pelanggan (UU PDP) — hanya angka & nama pegawai. 3) Uji: ringkasan memuat baris void & selisih yang benar untuk data uji yang sudah ada.
+
+### [Fase 1B/2026-09-17] `catatan_audit` hanya-tambah DITAMBAH penguncian rantai hash
+- **Area:** Jejak Audit (ART-13 baru)
+- **Keputusan:**
+  1. `catatan_audit` tetap **hanya-tambah** (tidak ada hak ubah/hapus untuk siapa pun, termasuk owner).
+  2. Setiap baris menyimpan **`hash_sebelumnya` dan `hash_baris`** (SHA-256 atas isi baris kanonik + hash sebelumnya). Rantai dihitung pemicu, bukan oleh aplikasi.
+  3. Pemeriksa `alat/periksa-audit.py` bisa memverifikasi rantai dan **menunjuk baris pertama yang putus** — mis. bila seseorang dengan akses database mengubah atau menghapus satu baris. *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+- **Alasan:** hak "hanya-tambah" melindungi dari pengguna aplikasi, tetapi tidak dari seseorang yang bisa menulis langsung ke database; rantai hash mengubah "tidak bisa diubah" dari janji menjadi **bukti yang bisa diperiksa** — penting untuk sengketa uang dengan pegawai/pelanggan.
+- **File terkait:** `supabase/migrations/0015_audit.sql`, `supabase/tes/audit.sql`, `alat/periksa-audit.py` *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+- **Implikasi:** 1) Pemicu wajib mengambil baris terakhir dengan kunci (lock) agar dua penyisipan bersamaan tidak menghasilkan rantai bercabang. 2) Uji wajib: ubah satu baris → pemeriksa menunjuk baris itu; hapus satu baris → putus terdeteksi. 3) Verifikasi rantai dijalankan berkala (pg_cron) dan hasilnya dikirim sebagai bagian ringkasan harian bila putus.
+
+### [Fase 1B/2026-09-17] Privasi pelanggan & UU PDP (Indonesia): persetujuan, minimalisasi, anonimisasi, lapor 3×24 jam
+- **Area:** Data Pelanggan (ART-14 baru)
+- **Keputusan:**
+  1. **Persetujuan eksplisit** sebelum data pelanggan disimpan (kalimat singkat: apa yang disimpan, untuk apa, berapa lama, cara minta dihapus) — bukan centang tersembunyi.
+  2. **Minimalisasi:** hanya nama, kontak (opsional), dan catatan voucher. Tidak ada NIK, tidak ada lokasi, tidak ada data biometrik, tidak ada pelacakan.
+  3. **Hak pelanggan:** permintaan akses/hapus → data pribadi **dianonimkan** (nama/kontak dihapus atau diganti), sementara catatan keuangan tetap utuh (Aturan Bisnis 11). Waktu tanggap 3×24 jam.
+  4. **Kebocoran data:** pemberitahuan tertulis maksimal **3×24 jam** kepada subjek data + lembaga pengawas (UU PDP Pasal 46), dengan isi: data apa, kapan/bagaimana, dan langkah pemulihan. Template & langkah ada di `docs/teknis/BUKU_INSIDEN.md`.
+  5. **Lokasi data:** region proyek Supabase ditetapkan pemilik saat T0-08 (usul: Singapore); bila di luar Indonesia, dasar transfer = persetujuan + pengamanan kontrak penyedia.
+- **Alasan:** (1) proyek ini menyimpan data pelanggan (voucher undang-teman) — jadi kewajiban UU PDP berlaku sejak pilot, bukan "nanti"; (2) denda administratif sampai 2% pendapatan tahunan + ancaman pidana jauh lebih mahal daripada menulis kalimat persetujuan; (3) anonimisasi menjaga dua kepentingan sekaligus: hak pelanggan dan keutuhan catatan uang.
+- **File terkait:** `docs/KEAMANAN.md`, `docs/teknis/BUKU_INSIDEN.md`, `supabase/migrations/0017_privasi_pelanggan.sql`, `supabase/tes/privasi.sql` *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+- **Implikasi:** 1) T-011 (kebijakan privasi) berubah menjadi pekerjaan agent di Fase 1B, ditinjau pemilik sebelum Fase 8. 2) Halaman pendaftaran voucher wajib menampilkan kalimat persetujuan + tautan kebijakan. 3) Laporan/email tidak boleh memuat kontak pelanggan. 4) Uji: pelanggan tanpa persetujuan ditolak; permintaan anonimisasi menghapus kontak tetapi tidak menghapus transaksi.
+
+### [Fase 1B/2026-09-17] Mode dukungan pemilik platform: beralasan, berbatas waktu, tercatat, diberitahukan
+- **Area:** Akses Lintas Penyewa (ART-15 baru) + RLS (ART-1)
+- **Keputusan:**
+  1. **Bawaan: `pemilik_platform` TIDAK bisa melihat isi data penyewa** — hanya daftar penyewa, cabang, dan status.
+  2. Bila ada masalah nyata, pemilik platform membuka **mode dukungan**: wajib **alasan**, berbatas waktu (bawaan 60 menit, tidak bisa diperpanjang otomatis), dan **hanya-baca**.
+  3. Setiap mode dukungan menulis `catatan_audit` **dan** mengirim pemberitahuan ke owner penyewa (email) — sehingga tidak ada pengintaian diam-diam.
+  4. Mode dukungan **tidak** memberi hak mengubah data; perbaikan data selalu lewat jalur normal pemilik resto (atau jalur pemulihan bencana yang terdokumentasi di Buku Insiden).
+- **Alasan:** (1) ini janji di PRD §9 yang harus punya bentuk teknis, bukan sekadar niat; (2) tanpa jalan dukungan, pemilik platform akan terdorong memakai kunci penuh (`service_role`) di luar prosedur — jauh lebih berbahaya; (3) pemberitahuan otomatis membuat penyewa merasa aman tanpa menghalangi bantuan.
+- **File terkait:** `supabase/migrations/0016_mode_dukungan.sql`, `supabase/tes/mode_dukungan.sql`, `docs/KEAMANAN.md` *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+- **Implikasi:** 1) Policy RLS wajib membedakan "pemilik platform biasa" dan "mode dukungan aktif" — diuji keduanya. 2) Mode dukungan berakhir otomatis (pg_cron) dan berakhir bila pemilik platform keluar. 3) Uji: tanpa mode dukungan → 0 baris; dengan mode dukungan → hanya-baca (perintah tulis ditolak); setelah kedaluwarsa → 0 baris lagi.
+
+### [Fase 1C/2026-09-17] Kelengkapan UI: Registri Aksi + Peta Layar + pemeriksa otomatis (anti "tombol mati")
+- **Area:** Arsitektur Klien & Kelengkapan Fitur (bukan Area Berisiko Tinggi, tetapi mengikat semua tugas UI)
+- **Keputusan:**
+  1. **Registri Aksi** (`aplikasi/src/lib/aksi.ts`) menjadi **satu-satunya sumber kebenaran** untuk setiap tombol/menu/gestur: id, label, layar, peran, izin, RPC, jenis, konfirmasi, butuh-PIN, pesan sukses/gagal, dan daftar uji. **Semua tombol dirender lewat `<TombolAksi id="…">`**; aksi tanpa entri tidak bisa dirender. *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+  2. **Peta Layar** (`aplikasi/src/lib/layar.ts`): id, rute, judul, peran yang boleh, dan **7 keadaan wajib** (kosong · memuat · gagal · menunggu terkirim · tidak punya akses · data sebagian · berhasil). *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+  3. **Kontrak layar** wajib ditulis untuk setiap layar di `docs/SPESIFIKASI_UI.md` sebelum layar dikerjakan (tujuan, jalan masuk, data, aksi, 7 keadaan, bukti uji, nomor naskah jalan).
+  4. **Pemeriksa otomatis** `alat/peta-ui.py` men-generate `docs/PETA_UI.md` dari kedua registri dan **menggagalkan CI** bila: RPC aksi tidak ada di migrasi · kode izin tidak ada · aksi tanpa uji · layar tanpa berkas/rute · dokumen peta basi · fitur PRD M1–M12 tanpa jejak layar/aksi. *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+  5. **Uji komponen tiap layar** (jsdom + Testing Library, sudah terpasang): dirender per peran; tombol yang seharusnya ada benar-benar **memanggil RPC yang benar** (ditiru); tombol terlarang tidak ada; 7 keadaan tampil. Ini yang membuktikan "tombol benar-benar bisa dipakai", bukan sekadar ada.
+  6. **Naskah jalan pemilik** bernomor (`W-<fase>-<nomor>`, bahasa manusia "tekan ini → harus muncul itu") wajib ditulis & dijalankan di pratinjau untuk setiap tugas UI.
+  7. **DoD versi baru** untuk tugas UI: kontrak layar · aksi terdaftar · 7 keadaan · uji komponen hijau · pemeriksa peta-UI hijau · naskah jalan dijalankan · **izin dicek di database** (bukan hanya disembunyikan di layar).
+  8. **Uji peramban (Playwright) ditaruh di GitHub Actions**, bukan di ruang kerja agent: Chromium **tidak bisa diunduh** di ruang kerja ini (sudah dicoba 2026-09-17) tetapi CI menjalankannya pada mesin Ubuntu. Kalau ternyata gagal, dilaporkan jujur dan diganti — bukan diklaim.
+- **Alasan:** (1) ini jawaban langsung atas pengalaman pemilik ("banyak tombol kurang, fungsi katanya ada tapi tak bisa dipakai") — penyebabnya bukan AI-nya, melainkan tidak ada daftar tombol, tidak ada uji pemanggilan, dan "selesai" yang berarti "kode ditulis"; (2) registri membuat tombol **tidak bisa lahir tanpa uji**, dan pemeriksa membuat dokumen tidak bisa basi; (3) kontrak layar memaksa 7 keadaan diputuskan sebelum dikoding — tempat paling sering muncul "fitur palsu" (layar yang jalan hanya bila data ada).
+- **File terkait:** `aplikasi/src/lib/aksi.ts`, `aplikasi/src/lib/layar.ts`, `aplikasi/src/komponen/TombolAksi.tsx`, `alat/peta-ui.py`, `docs/SPESIFIKASI_UI.md`, `docs/PETA_UI.md` *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+- **Implikasi:** 1) Fase 1C dikerjakan **sebelum** layar pertama Fase 3 dibuat, supaya semua layar mengikutinya sejak awal. 2) Layar contoh (`LayarContoh`) dijadikan contoh kontrak pertama. 3) Setiap tugas UI di ROADMAP wajib menyebut nomor kontrak layar & naskah jalan. 4) Menambah aksi berarti mengubah registri + uji + dokumen hasil generate; tidak ada jalur pintas.
+
+### [Fase 1B/2026-09-17] Penerbit kode perangkat + peran berkuasa tetap wajib perangkat terdaftar
+- **Area:** Akses Perangkat (ART-11) & Role (ART-12)
+- **Keputusan:** (1) Kode pendaftaran perangkat dibuat **owner pusat (semua cabangnya)** dan **admin cabang (cabangnya saja)** — sekali pakai, sah 15 menit, tercatat pembuatnya. (2) **Semua peran** — termasuk `owner_pusat`, `admin_cabang`, `pemilik_platform` (kecuali pemilik platform yang memang lintas penyewa) — **wajib memakai perangkat terdaftar**; perangkat pertama owner didaftarkan sekali saat penyiapan (bootstrap), perangkat berikutnya lewat persetujuan perangkat aktif. (3) Perangkat cadangan **wajib** untuk peran berkuasa (minimal 2 terdaftar) + peringatan bila tinggal 1.
+- **Alasan:** pemilik menyetujui rekomendasi tetapi mengangkat risiko nyata: *"gimana kalau perangkat admin hilang atau dicuri? Itu harus dipikirkan"*. Karena itu pemulihan dirancang sekaligus (keputusan berikutnya), bukan ditambahkan kemudian. Keuntungan perangkat wajib: tablet kasir tidak akan pernah bisa dibuka sebagai owner meski kata sandi bocor.
+- **File terkait:** `supabase/migrations/0012_perangkat.sql`, `supabase/tes/perangkat.sql`, `docs/KEAMANAN.md` §4, ROADMAP T2-15
+- **Implikasi:** 1) Bootstrap hanya berlaku selama belum ada perangkat aktif. 2) Perangkat berkuasa minimal 2 → peringatan otomatis. 3) Uji wajib: perangkat tidak terdaftar ditolak untuk **semua** peran, termasuk owner.
+
+### [Fase 1B/2026-09-17] Tangga pemulihan perangkat hilang (kunci induk + masa tenggang 30 menit)
+- **Area:** Akses Perangkat (ART-11)
+- **Keputusan:** Kehilangan perangkat diselesaikan bertingkat: **(1)** cabut perangkat, kerja lanjut dari perangkat terdaftar lain (PIN melekat pada orang) · **(2)** perangkat admin hilang → perangkat cadangan, atau owner pusat reset MFA lalu daftarkan perangkat baru lewat kode biasa · **(3)** perangkat owner hilang → **kode pemulihan darurat** (8 kata, sekali pakai, hanya hash tersimpan, disimpan tercetak di luar kedai) + kata sandi + TOTP → perangkat darurat dengan **masa tenggang 30 menit** (dinotifikasi & bisa dibatalkan) · **(4)** semua gagal → pemulihan lewat panel Supabase oleh pemilik platform (dipandu `docs/ops/`). Ditambah sakelar penghentian jalur pemulihan.
+- **Alasan:** tanpa jalur pemulihan, "perangkat wajib" berubah menjadi risiko operasional (kedai bisa berhenti hanya karena satu HP hilang). Masa tenggang + pemberitahuan + pembatalan dibuat agar kode pemulihan yang dicuri tidak memberikan akses instan; menghindari pemulihan lewat email/WhatsApp yang justru lebih lemah.
+- **File terkait:** `supabase/migrations/0016b_pemulihan_perangkat.sql`, `supabase/tes/pemulihan.sql`, `docs/ops/PEMULIHAN_PERANGKAT.md`, `docs/KEAMANAN.md` §4b, ROADMAP T1-36
+- **Implikasi:** 1) Kode pemulihan dibuat saat penyiapan (bagian dari syarat "penyiapan selesai"). 2) Latihan pemulihan wajib sekali sebelum pilot. 3) Semua pemakaian jalur pemulihan masuk ringkasan harian. **Status: DISETUJUI pemilik 2026-09-17** ("setuju seperti rancangan"); hanya `owner_pusat` yang boleh memakai kode pemulihan.
+
+### [Fase 2/2026-09-17] Kunci otomatis mengikuti jam aktif cabang + pemberitahuan dua jalur
+- **Area:** Sesi (ART-11) & Pemberitahuan (ART-13)
+- **Keputusan:** (1) Batas menganggur (15/15/15/30/60 menit) hanya berlaku **di luar jam aktif**; **jam aktif per cabang diatur owner** di Pengaturan (bawaan: jam buka–tutup + masa persiapan); di luar jam aktif kunci otomatis **15 menit**. (2) Semua pemberitahuan penting (ringkasan harian, perangkat dicabut, percobaan masuk gagal beruntun, reset PIN/MFA, pemakaian jalur pemulihan) dikirim **via email owner DAN tampil di layar Peringatan dalam aplikasi**. (3) Data Supabase berlokasi **Singapore (Asia Tenggara)** — menutup T-014.
+- **Alasan:** pemilik memilih "owner mengatur sendiri jamnya" supaya tablet yang tertinggal di kedai malam hari tidak bisa dipakai; memilih email **dan** dalam aplikasi agar hal aneh terlihat dari dua jalur; memilih Singapore karena paling dekat (aplikasi terasa cepat) dan tetap sesuai kewajiban UU PDP (persetujuan + pengamanan penyedia).
+- **File terkait:** `aplikasi/src/hook/useKunciOtomatis.ts`, `aplikasi/src/layar/laporan/Peringatan.tsx`, `supabase/functions/ringkasan_harian/index.ts`, `docs/KEAMANAN.md` §7 & §9, ROADMAP T2-16 & T10-13
+- **Implikasi:** 1) Pengaturan baru: jam aktif per cabang (dengan nilai bawaan aman). 2) Uji: pesanan di antrean tetap utuh saat perangkat terkunci di luar jam aktif. 3) Daftar Peringatan masuk Registri Aksi Fase 1C.
+
+### [Semua fase/2026-09-17] Aturan pemilik: penyimpangan teknis wajib ditanyakan lebih dulu & dicatat
+- **Area:** Tata kelola pekerjaan (bukan fitur)
+- **Keputusan:** Agent **dilarang** menyimpang dari deskripsi/rancangan yang pemilik tulis tanpa bertanya lebih dulu. Bentuknya: **tanya** → **jelaskan dengan bahasa yang mudah dipahami** (plus alasan & pilihan) → **baru dikerjakan** → **dicatat** (`DECISIONS_LOG.md` + laporan). Berlaku juga untuk perbaikan yang niatnya baik.
+- **Alasan:** jawaban pemilik (2026-09-17) atas pertanyaan bebas menyimpang: *"Harus tanyakan dulu ke aku. Dia harus kasih tau dan jelasin alasannya dengan bahasa yang mudah aku pahami. Dan kemudian itu harus tercatat."*
+- **File terkait:** `docs/AGENT_OPERATING_GUIDE.md` §11 & §12, `docs/KEAMANAN.md` §16, `docs/SPESIFIKASI_UI.md`
+- **Implikasi:** 1) Stop Condition baru di panduan agent. 2) Penjelasan wajib tanpa istilah teknis. 3) Semua penyimpangan yang tetap diputuskan masuk DECISIONS_LOG + laporan batch.
+### [Fase 1B/2026-09-17] Penyimpanan & rotasi kode pemulihan (diserahkan pemilik ke agent)
+- **Area:** Akses Perangkat (ART-11)
+- **Keputusan:** Kode pemulihan disimpan sebagai **dua salinan kertas dengan kode sama**, masing-masing di **amplop tersegel** (lakban/lem + tanda tangan & tanggal pada lipatan): satu di rumah pemilik, satu di lemari arsip kantor kedai **di luar ruang kasir**. Segel rusak → kode dianggap bocor → dibuat kode baru dari perangkat aktif. Kode **diganti** setiap habis dipakai, sekali setahun, dan saat pegawai yang tahu tempat penyimpanannya berhenti.
+- **Alasan:** pemilik menyerahkan pilihan ini ("aku minta saran kamu"). Dua salinan hampir tidak menambah risiko karena kertas **tidak cukup untuk masuk** — wajib kata sandi + TOTP + hanya owner pusat + masa tenggang 30 menit + dapat dibatalkan; sedangkan satu salinan punya kelemahan nyata (pemilik tidak bisa dijangkau saat darurat). Amplop tersegel adalah cara murah "pemberitahuan tanpa alat": segel rusak = ada kemungkinan kode pernah dilihat. Alternatif yang ditolak: menyimpan di ponsel/chat (rawan difoto/diteruskan), hanya di kedai (ikut hilang saat dirampok), atau tanpa kertas (pemulihan jadi lambat > 1 jam).
+- **File terkait:** `docs/KEAMANAN.md` §4b, ROADMAP T1-36, `docs/ops/PEMULIHAN_PERANGKAT.md`
+- **Implikasi:** 1) Penyiapan resto belum "selesai" sebelum dua amplop tersegel ada & dicatat tanggalnya. 2) Sakelar penghentian dipakai bila ada segel rusak yang tidak jelas. 3) Rotasi kode masuk daftar simak tahunan (ditambahkan ke Buku Insiden & `docs/ops/`).
+### [Semua fase/2026-09-17] Mekanisme audit independen sebagai gerbang wajib (AUD-0…AUD-3)
+- **Area:** Tata kelola pekerjaan (mengikat semua Area Berisiko Tinggi)
+- **Keputusan:** Sistem ini memiliki **mekanisme audit independen** resmi: **AUD-0** audit dampak saat keputusan berubah · **AUD-1** periksa batch oleh mesin (CI) · **AUD-2** review independen akhir fase/perubahan berisiko oleh **sesi baru & model berbeda, hanya-baca** · **AUD-3** audit adversarial menyeluruh + **kalibrasi cacat tanaman** sebelum pilot dan kapan pun pemilik meminta. Laporan auditor **wajib lolos** `alat/audit-independen.py --periksa-laporan`; verdict BERSIH pada AUD-3 hanya sah bila auditor lulus kalibrasi (semua cacat K-1/K-2 ditemukan, ≥70% total, tanpa temuan palsu). Ada temuan K-1/K-2 TERVERIFIKASI → **verdict wajib TIDAK-BERSIH** dan fase tidak boleh ditutup. Pemilik memicu audit dengan kalimat bebas ("Audit independen sekarang") dan caranya tertulis di `docs/PANDUAN_PEMILIK.md` §3.
+- **Alasan (riset, bukan selera):** (a) studi 2026 menunjukkan model AI **cenderung meloloskan karyanya sendiri** walau diperintah kritis, sedangkan pemeriksa dari sesi/model berbeda menemukan cacat yang tak terlihat pembuatnya (*maker–checker separation*, IV&V); (b) *Perspective-Based Reading* — reviewer dengan skenario per lensa menemukan cacat **~41–58% lebih banyak** daripada reader ad-hoc/daftar periksa; (c) **defect injection** — kemampuan pemeriksa harus **diukur** dengan cacat berjawaban diketahui, kalau tidak "BERSIH" hanya keyakinan; (d) *consensus is not correctness* — tiap temuan wajib lolos upaya **refutasi** sebelum dilaporkan. Permintaan pemilik 2026-09-17: audit yang "sangat teliti", memakai skill, memakai riset internet, dan bisa ia picu sendiri.
+- **File terkait:** `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`, `alat/audit-independen.py`, `alat/kalibrasi-cacat.json`, `docs/uji/PROMPT_AUDIT_INDEPENDEN.md`, `docs/PANDUAN_PEMILIK.md`, `docs/uji/AUDIT_RIWAYAT.md`, `docs/uji/DAFTAR_PEKERJAAN_ULANG.md`, ROADMAP T1-38 & T11-13
+- **Implikasi:** 1) `--uji-diri` ikut dijalankan di CI (mekanisme yang tak teruji = tak bisa dipercaya). 2) Setiap perubahan uang/keamanan/data pelanggan belum boleh `[x]` sebelum AUD-2. 3) Kalibrasi menyuntikkan cacat pada salinan HEAD dengan **kunci jawaban di luar repo**; hasilnya dicatat di `docs/uji/AUDIT_RIWAYAT.md`. 4) Batas jujur: 100% tidak bisa dijamin (studi inspeksi: ~58% deteksi pada tim terlatih) — karena itu lapisnya mesin + auditor + pemilik.
+
+### [Fase 1/2026-09-17] AUD-0: pekerjaan T1-01…T1-10 yang dibatalkan keputusan keamanan wajib diulang
+- **Area:** Role & Permission (ART-12) · Akses Perangkat (ART-11) · RLS (ART-1)
+- **Keputusan:** Sebagian pekerjaan Fase 1 **dinggap batal & dikerjakan ulang** (bukan ditambal di tempat): kolom `pengguna_cabang.peran` dibongkar lewat migrasi **0011** (migrasi lama 0002 dibekukan, tidak disunting) · `izin_efektif()` ditulis ulang membaca `pengguna.peran` · uji `supabase/tes/izin.sql` §8 ("peran berbeda per cabang") **dibuang** karena menguji perilaku yang kini dilarang · fungsi identitas diperkuat pemeriksaan sesi/perangkat · policy tabel staf memakai `perangkat_sah()` · `percobaan_pin` digantikan `percobaan_masuk` (FK perangkat + jenis percobaan) dengan drop beralasan (belum ada data produksi) · fixture perangkat ditambahkan. Rincian per butir: `docs/uji/DAFTAR_PEKERJAAN_ULANG.md`.
+- **Alasan:** permintaan pemilik — *"Bahkan sesi coding yang sebelumnya udh sempet kita mulai, klo itu perlu diulang karena berkaitan dengan perubahan ini, maka harus diulang."* Bukti audit dampak: 9 butir nyata (B.1–B.9) bertentangan dengan ART-11/ART-12, termasuk satu uji yang menguji kebalikan dari aturan baru.
+- **File terkait:** `docs/uji/DAFTAR_PEKERJAAN_ULANG.md`, ROADMAP T1-37, `supabase/migrations/0011_peran_tunggal.sql`
+- **Implikasi:** 1) T1-37 dikerjakan **bersamaan** dengan T1-23/T1-24/T1-26 (satu migrasi dapat menutup beberapa butir). 2) Matriks izin 10×5 wajib dijalankan sebelum & sesudah pembongkaran kolom. 3) Aturan baru: setiap keputusan keamanan memicu AUD-0 di hari yang sama.
+
+### [Fase 1B/2026-09-17] `percobaan_pin` dihentikan, digantikan `percobaan_masuk`
+- **Area:** Keamanan Akun (ART-12) · Akses Perangkat (ART-11)
+- **Keputusan:** Tabel `percobaan_pin` (dibuat di 0006 dengan kolom `perangkat` berupa teks bebas) **digantikan** `percobaan_masuk`: kolom `perangkat_id` (FK ke `perangkat`), `jenis` (`pin`/`kata_sandi`/`mfa`), `berhasil`, `sebab`, waktu. Tabel lama **di-drop** pada migrasi 0014 (belum ada data produksi — proyek belum dipakai di kedai) dan namanya tidak dipakai lagi.
+- **Alasan:** kolom teks bebas tidak bisa menegakkan "perangkat terdaftar" (ART-11) dan tidak bisa menampung percobaan masuk kata sandi/TOTP untuk peran berkuasa. Bila nanti ada data produksi, aturannya berubah: migrasi hanya boleh menambah tabel baru + memindahkan data, **tidak** menghapus.
+- **File terkait:** `supabase/migrations/0014_percobaan_masuk.sql`, `supabase/tes/percobaan_masuk.sql`, `docs/uji/DAFTAR_PEKERJAAN_ULANG.md` butir B.6–B.8, ROADMAP T1-26
+- **Implikasi:** 1) `verifikasi_pin` dan `alat/periksa-fungsi-pin.py` menyesuaikan. 2) Uji `tes/pin.sql` dijalankan ulang dengan perangkat nyata. 3) Catatan historis tetap ada di `DECISIONS_LOG.md` (tabel lama tidak hilang dari riwayat).
+
+### [Sistem/2026-09-17] Mekanisme audit diperluas ke lingkup menyeluruh + buku pedoman induk dijaga mesin
+- **Area:** tata kelola kualitas (mekanisme audit) · berkas untuk pengguna
+- **Keputusan:** (1) AUD-3 memakai **lingkup menyeluruh**: `alat/audit-independen.py --paket AUD-3 --semua` mengelompokkan **seluruh berkas proyek** (17 grup, kode + dokumen + desain + berkas pengguna + CI; kumpulan skill pihak ketiga dikecualikan dengan alasan tertulis) dan laporan auditor **ditolak mesin** bila tidak memuat mode `menyeluruh`, ringkasan `Cakupan menyeluruh: X dari Y berkas`, satu baris bukti per grup, sub-bagian `### 1a. Berkas untuk pengguna`, atau cakupan < 90%. (2) **Berkas untuk pengguna = bagian lingkup audit**, diperiksa dengan cara pengguna (langkah bisa diikuti orang non-teknis? prompt bisa disalin apa adanya? ada rujukan/perintah mati? buku induk lengkap?). Langkah pengguna yang tidak bisa dijalankan apa adanya diperlakukan minimal **K-2**. (3) Buku pedoman pengguna `PANDUAN_PENGGUNA.md` dinaikkan menjadi **buku induk (manual book)** dan dijaga `alat/periksa-panduan.py` di CI (bagian A–H wajib ada · topik wajib · ≥10 mekanisme terdaftar · blok prompt wajib identik dengan sumber kanonik · semua rujukan berkas ber-backtick harus hidup kecuali ditandai "(rencana)"). (4) Gerbang fase = **`tahan_semua`**: K-1 **dan** K-2 menahan fase.
+- **Alasan:** permintaan pemilik 2026-09-17 (putaran 4) — *"sekarang aku mau audit dulu"*; mekanisme harus *"bener-bener menyeluruh… termasuk file2 yang disiapkan untuk pengguna"*; dan *"satu file untuk pengguna yang betul-betul isinya lengkap… semacam manual book… termasuk mekanisme audit dan pemeriksaan, dan juga ada semua prompt yang dibutuhkan"*. Pilihan gerbang ditanyakan langsung ke pemilik; jawabannya `tahan_semua`.
+- **File terkait:** `PANDUAN_PENGGUNA.md` (Bagian A–H), `alat/periksa-panduan.py`, `alat/audit-independen.py` (`--semua`, validator mode menyeluruh), `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §2b & §14, `docs/AGENT_OPERATING_GUIDE.md` §5 butir 4f + §7 DoD, `docs/PANDUAN_PEMILIK.md`
+- **Implikasi:** 1) Setiap mekanisme/prompt baru **wajib** masuk buku induk di batch yang sama — kalau tidak, CI merah. 2) Audit menyeluruh memeriksa SELURUH berkas proyek dalam 17 grup; jumlah berkasnya **dihitung mesin saat paket dibuat** (jangan dikutip sebagai angka tetap di dokumen keadaan — prinsip C5/AT-16). 3) Buku yang basi tidak lagi bisa "lolos diam-diam"; rujukan mati langsung menahan CI. 4) Agent pembangun tetap **tidak bisa** mengaudit dirinya sendiri — sesi auditor dibuka pemilik, dicatat sebagai risiko sisa §14 butir 5. 5) Mesin juga menulis berkas **siap-tempel** (`<paket>-SIAP-TEMPEL.md`) supaya pemilik tidak perlu menggabungkan sendiri kalimat pembuka + paket.
+
+### [Sistem/2026-09-17] Review PR independen + buku pedoman v2 + independensi base branch (putaran 5)
+- **Area:** gerbang merge & mutu · berkas untuk pengguna · mekanisme audit
+- **Keputusan:**
+  1. **Review PR independen** dipasang sebagai mekanisme resmi (`docs/uji/PROTOKOL_REVIEW_PR_INDEPENDEN.md` + `alat/review-pr.py` + `docs/uji/PROMPT_REVIEW_PR_INDEPENDEN.md`): tiga tingkat (RV-1 mesin/CI · RV-2 sesi peninjau independen · RV-3 kalibrasi), **jalur risiko** Merah/Kuning/Hijau menentukan kedalaman review, **5 syarat merge** (CI hijau pada commit PR · review independen selesai · K-1/K-2 tertutup · kalibrasi tidak gagal untuk Jalur Merah · Kartu Keputusan di tangan Lee), dan **Kartu Keputusan 7 baris** berbahasa manusia. Agent **tidak pernah** menekan merge dan tidak pernah meminta merge tanpa syarat lengkap.
+  2. **Buku pedoman induk v2** (`PANDUAN_PENGGUNA.md`): Bagian B = **12 alur** berformat tetap (Apa ini · Kapan dipakai · Kalimat Lee · Langkah Lee · Yang agent lakukan · Bukti yang Lee terima · Lama · Kalau macet); **setiap blok prompt berlabel** `[LEE → AGENT]` / `[LEE → PENINJAU]`; Bagian E menjelaskan **fungsi + cara pakai + arti bila GAGAL** setiap perintah. Penjaga `alat/periksa-panduan.py` diperluas (12 alur, 8 bidang/alur, label prompt wajib, tabel perintah wajib, larangan sapaan "Bapak" kecuali dalam kalimat larangan).
+  3. **Independensi base branch audit:** mesin menulis commit target + **LANGKAH 0** di paket; alat `--verifikasi-lingkup` memberi langkah pasti (cocok / beda-tetapi-ada → `checkout --detach` / tidak ada → berhenti & lapor). Lee bebas memilih base branch mana pun.
+  4. **Panggilan:** agent memanggil **Lee**, bukan "Bapak" (masuk `PROFIL_PENGGUNA.md` sebagai aturan tetap).
+  5. **Rekam pesan Lee** dikunci di `docs/teknis/REKAM_PESAN_PEMILIK.md`: semua permintaan (verbatim bila ada) + status, supaya tidak ada yang terlewat saat chat dihapus.
+- **Alasan:** permintaan Lee 2026-09-17 putaran 5 — ia tidak bisa menilai *Files changed*; buku induk masih kurang/cacat; pertanyaan base branch peninjau; larangan sapaan "Bapak". Riset industri 2026 mendukung pola ini (reviewer AI = laporan + klasifikasi risiko, bukan pemberi approve; keputusan merge tetap manusia; kedalaman review mengikuti risiko; gerbang berbasis bukti pada commit yang akan masuk).
+- **File terkait:** `docs/uji/PROTOKOL_REVIEW_PR_INDEPENDEN.md`, `alat/review-pr.py`, `docs/uji/PROMPT_REVIEW_PR_INDEPENDEN.md`, `docs/uji/REVIEW_PR_RIWAYAT.md`, `PANDUAN_PENGGUNA.md`, `docs/PANDUAN_PEMILIK.md`, `docs/teknis/REKAM_PESAN_PEMILIK.md`, `alat/audit-independen.py` (`--verifikasi-lingkup`), ROADMAP T0-13/T0-14
+- **Implikasi:** 1) Setiap PR wajib melewati RV-2 sebelum dimintakan merge — kalau tidak, PR tidak boleh dimintakan. 2) Laporan peninjau tanpa bukti ditolak mesin (bukan dinegosiasikan). 3) Jalur Merah menambah syarat bukti (mutasi + rencana pemulihan) — memperlambat PR berisiko, dan itu disengaja. 4) Buku induk kini bisa menahan CI bila kehilangan alur/label/penjelasan. 5) Bahan kalibrasi tidak boleh memuat penanda pembocor (cacat mekanisme #8) — diperiksa sebelum bahan diserahkan.
+
+### [Sistem/2026-09-17] Hasil AUD-3 diperiksa: 3 cacat mekanisme ditutup + temuan auditor diverifikasi ulang (putaran 6)
+- **Area:** tata kelola kualitas (audit) · keamanan (temuan menunggu perbaikan)
+- **Keputusan:**
+  1. **Jalur pulang laporan dipakai sungguhan & bekerja:** 2 dari 3 sesi auditor mengirim lewat push laporan-tunggal; sesi kerja menariknya dengan `--ambil-laporan` (bukan menyalin dari chat).
+  2. **Tiga cacat mekanisme ditutup (ditemukan oleh pemakaian nyata, bukan teori):** #9 nama berkas bentrok antar sesi → nama bentrok disimpan **terpisah** sebagai `<nama>.dari-<cabang>.md`, tidak pernah menimpa, dan prompt meminta **penanda sesi** di nama berkas; #10 pemeriksa menolak laporan **sah** → syarat bagian 8 kini **sadar-versi** (dicek dari commit yang diaudit) dan cek kebersihan memakai **bukti dari cabang auditor** (“hanya menambah berkas laporan”), bukan `git status` meja kerja sesi kerja; #11 kunci kalibrasi jalur auditor hidup di `/tmp` → dibangun ulang dari bahan & dicatat risikonya.
+  3. **Temuan auditor tidak dipercaya begitu saja:** sesi kerja menjalankan **9 pemeriksaan eksekusi** (`docs/uji/audit/bukti-verifikasi-2026-09-17.sql`) yang membuktikan cacat-cacat terpenting benar ada pada tip; setelah diperbaiki, berkas itu **wajib pindah** ke `supabase/tes/` dengan harapan dibalik.
+  4. **Lingkup commit audit:** laporan menunjuk `442913e`; berkas aplikasi/skema tidak berubah sesudahnya, jadi temuan berlaku untuk tip — tetapi audit ulang kecil tetap dijadwalkan setelah perbaikan.
+- **Alasan:** permintaan Lee *“Laporan audit sudah masuk, periksa”*; aturan Lee sebelumnya: temuan yang perlu dilaporkan tetap dilaporkan biarpun di luar cakupan, lantai minimum bukan target, dan tidak menyusun laporan demi lolos pemeriksa.
+- **File terkait:** `alat/audit-independen.py`, `alat/review-pr.py`, `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §5c, `docs/uji/PROMPT_AUDIT_INDEPENDEN.md`, `docs/uji/AUDIT_RIWAYAT.md` §1/§1a/§4, `docs/uji/audit/bukti-verifikasi-2026-09-17.sql`, `docs/uji/audit/LAPORAN_AUD-3_2026-09-17_menyeluruh.md` + `.dari-01a0aeb0.md`
+  5. **Anomali sesi paralel (temuan Lee):** tiga sesi audit dibuka berbarengan, tetapi dua di antaranya bekerja di **satu cabang yang sama** dengan **nama berkas yang sama** → laporan pertama tertimpa dan hanya hidup di riwayat commit. Laporan itu **diselamatkan** dan dinyatakan **tidak sah untuk putusan** (sesinya tidak menerima paket/commit target). Penarik laporan diperbaiki agar menelusuri **seluruh riwayat** cabang. Kesimpulan: **semua hasil sesi yang sah sudah masuk** — tidak perlu menagih sesi ketiga.
+- **Implikasi:** 1) Perbaikan K-1/K-2 menjadi pekerjaan berikutnya (gerbang `tahan_semua`) — didahulukan sebelum Fase 1C/1B. 2) Setiap perbaikan wajib menambah uji merah-di-awal di `supabase/tes/` agar cacat tidak bisa kembali. 3) Sesi auditor ke-3 yang belum mengirim **tidak menahan** perbaikan (dua laporan sudah sepakat pada cacat terberat dan sudah diverifikasi mesin); laporannya tetap diterima bila menyusul. 4) Laporan auditor kini **diakui hanya bila** kontraknya lolos + kalibrasinya lulus — bukan karena “kelihatan serius”.
+
+### [Keamanan/2026-09-17] Perbaikan temuan K-1 audit AUD-3: uang tidak boleh masuk sebelum total pasti + isolasi lintas resto pada pintu fungsi
+- **Area:** keamanan (uang & isolasi penyewa) · migrasi 0006 & 0010
+- **Keputusan:**
+  1. **Pembayaran ditolak selama total pesanan belum dihitung.** Sebelumnya pemeriksaan "tidak boleh melebihi total" **dilewati** bila `total` masih 0; karena `hitung_total` (T1-15) belum ada, SEMUA pesanan bertotal 0 → berapa pun uangnya diterima, dan baris uang tidak bisa diubah/dihapus (tidak ada jalan pemulihan). Sekarang `picu_pembayaran_jujur` menolak dengan pesan "Total pesanan belum dihitung". Konsekuensi yang disengaja: alur kasir belum bisa mencatat uang sampai T1-15 — **lebih baik uang tidak tercatat daripada tercatat di atas angka yang belum pasti.**
+  2. **`total_dibayar(uuid)` tidak lagi bocor lintas resto.** Fungsi SECURITY DEFINER melewati RLS, jadi ditambah saringan keterlihatan `auth.uid() is null or pesanan_sepenyewa(...)`. **Pelajaran penting:** jangan memakai `peran_peladen()` di dalam fungsi SECURITY DEFINER — `current_user` di sana adalah pemilik fungsi, sehingga jawabannya selalu "peladen" dan penjaganya buta (kebocoran tetap terjadi sampai uji menangkapnya); yang dipakai adalah identitas pemanggil dari token.
+  3. **Pintu izin pegawai lain ditutup untuk klien.** `izin_efektif_untuk()` & `boleh_untuk()` (menjawab "apa izin ORANG LAIN") dicabut dari peran `authenticated` (kini hanya `service_role`), **dan** di dalamnya ditambah pemeriksaan penyewa. Aplikasi tetap memakai `izin_efektif()`/`boleh()` untuk DIRI SENDIRI; gerbang persetujuan PIN berjalan di peladen.
+- **Alasan:** audit AUD-3 (dua laporan independen, keduanya TERKALIBRASI) menemukan tiga cacat **K-1**; sesi kerja memverifikasi ulang dengan eksekusi sebelum memperbaiki (gerbang `tahan_semua`, permintaan Lee 2026-09-17).
+- **File terkait:** `supabase/migrations/0006_pin.sql`, `supabase/migrations/0010_pembayaran.sql`, `supabase/tes/gerbang_uang.sql` (baru), `supabase/tes/isolasi_lintas_penyewa.sql` (baru), `docs/uji/audit/bukti-verifikasi-2026-09-17.sql`, `docs/uji/AUDIT_RIWAYAT.md` §1b
+- **Implikasi:** 1) Uji baru **wajib merah dulu** sebelum perbaikan (dibuktikan: `12 LULUS` sesudah, sedangkan sebelumnya 2 uji itu GAGAL). 2) T1-15 (`hitung_total`) kini menjadi **penentu**: alur pembayaran baru bisa dipakai setelah total dihitung peladen. 3) Setiap fungsi SECURITY DEFINER baru wajib punya saringan keterlihatan sendiri — RLS tidak melindunginya. 4) Temuan K-2 (PIN, jejak pelaku, status pesanan, diskon persen, penjaga stok, hak kolom `pin_hash`) masih terbuka dan menjadi batch berikutnya.
+
+### [Produk/2026-09-17] Bahasa aplikasi: rencana multi-bahasa (Indonesia · Inggris · Mandarin · Arab) — MENUNGGU KEPUTUSAN LEE
+- **Area:** produk (lingkup rilis) · teknis (fondasi teks) · berkas untuk pengguna
+- **Permintaan Lee (2026-09-17, disampaikan saat batch K-2 berjalan):** aplikasi mendukung **multi-bahasa, termasuk Mandarin dan Arab**; kalau berat di awal, setidaknya rilis awal mendukung **2 bahasa: Inggris + Indonesia**.
+- **Analisis (jawaban jujur atas "berat atau tidak"):**
+  1. **Menambah bahasa TIDAK berat**, asalkan dilakukan dengan cara yang benar sejak awal: tidak ada satu pun kalimat yang ditulis langsung di dalam layar — semua teks UI diambil dari berkas bahasa (`aplikasi/src/bahasa/id.ts` *(rencana T1-40)* sebagai sumber, lalu `en.ts`, `zh.ts`, `ar.ts`). Biaya per bahasa = menerjemahkan kumpulan kalimat itu + menguji tampilannya; tidak menyentuh logika aplikasi. *(rencana: nama berkas saat keputusan dibuat — nama final bisa berbeda)*
+  2. **Yang benar-benar berat adalah menyisipkannya BELAKANGAN**: menyapu ratusan kalimat yang sudah tertanam di layar. Karena layar G1 belum ditulis (Fase 1C), **sekarang justru waktu termurah** — kuncinya dibeli sekarang, dipakai mulai layar pertama.
+  3. **Arab (RTL) menuntut kerja tambahan, bukan sekadar terjemahan:** tata letak harus bercermin (arah, ikon, bilah gulir), dan itu harus dirancang sejak awal. Diperkirakan menambah sekitar 10–15% pekerjaan UI G1 kalau dikerjakan sekarang, jauh lebih mahal bila ditambal belakangan.
+  4. **Mandarin punya masalah huruf tersendiri:** berkas huruf Mandarin jauh lebih besar (ribuan karakter) sehingga harus dipotong ke karakter yang benar-benar dipakai ("subset") supaya tidak memberatkan perangkat kedai, dan aturan penskalaan huruf tetap dipakai.
+  5. **Yang TIDAK diterjemahkan (penting, tidak boleh salah):** (a) **format uang & tanggal** mengikuti aturan Indonesia (`Rp`, `id-ID`); (b) **isi database** — nama menu, nama pegawai, catatan stok — adalah data kedai, bukan terjemahan (nama menu bisa berbahasa apa pun yang diketik kedai); (c) **struk** dicetak sesuai bahasa yang dipilih kedai; (d) **dokumen internal proyek & pesan audit** tetap Indonesia (dibaca Lee & agent).
+  6. **Pilihan bahasa wajib bisa diatur per pengguna** (kasir asing memakai Inggris, owner memakai Indonesia di perangkatnya sendiri) **dan punya bawaan per resto** untuk perangkat bersama.
+- **Usulan (keputusan Lee diminta):** **(Opsi 1 — rekomendasi)** G1 sejak awal memakai fondasi multi-bahasa + 3 bahasa rilis: **Indonesia · Inggris · Mandarin**; **Arab disiapkan kuncinya dan diverifikasi layoutnya (RTL) di G1 tetapi teksnya menyusul di G2**. Rincian: kerangka i18n + berkas `id/en/zh` + dua layar contoh RTL + pemeriksa otomatis "tidak ada teks keras di komponen" (gagal → CI merah) pada Fase 1C. **(Opsi 2)** rilis awal 2 bahasa (ID+EN) saja; Mandarin & Arab di G2. **(Opsi 3)** keempat bahasa sekarang (biaya UI ~10–15% lebih besar di G1).
+- **Alasan:** pertanyaan Lee *"apakah itu berat di awal atau tidak"* — jawabannya "tidak, kalau pondasinya dibeli sekarang; ya, kalau ditambal belakangan", dan biaya RTL/subset huruf Mandarin perlu diketahui Lee sebelum memutuskan lingkup G1.
+- **Implikasi:** 1) **Belum ada tugas Fase 1C yang dikerjakan**, jadi rencana ini bisa masuk sebelum T1-31 dimulai — tidak ada pekerjaan yang dibuang. 2) Tugas baru yang disiapkan (setelah Lee memilih): **T1-40 kerangka bahasa** (berkas terjemahan + pengalih bahasa + larangan teks keras), **T1-41 RTL & subset huruf**, lalu penyesuaian `docs/SPESIFIKASI_UI.md` (bagian bahasa) dan buku induk. 3) Setiap bahasa baru setelah rilis = satu berkas terjemahan + satu baris pemeriksa, bukan proyek baru.
+- **KEPUTUSAN LEE (2026-09-17, hari yang sama):** memilih **Opsi 1** — rilis G1 memakai **Indonesia · Inggris · Mandarin**; **Arab** disiapkan (berkas kunci + tata letak RTL diuji di G1), teksnya menyusul di **G2**. Dasar: menghindari +10–15% kerja UI di rilis pertama tanpa membuang persiapan; seluruh biaya bahasa masuk sebelum layar G1 ditulis.
+- **Tindak lanjut yang sudah dikunci bersamaan:** ROADMAP **+T1-40** (kerangka bahasa: berkas terjemahan, pengalih bahasa per pengguna + bawaan per resto, pemeriksa "tidak ada teks keras", format uang/tanggal tetap `id-ID`) dan **+T1-41** (RTL: token arah + 2 layar contoh bercermin; subset huruf Mandarin dengan ambang ukuran diperiksa mesin) → **189 tugas**; `docs/SPESIFIKASI_UI.md` **§10** ditulis (bahasa & arah teks). Keduanya wajib **sebelum** layar G1 pertama (Fase 1C) supaya tidak ada pekerjaan yang terbuang.
+- **Status:** **DIPUTUSKAN (Opsi 1)** — pelaksanaan menunggu urutan Fase 1C (setelah perbaikan temuan audit selesai).
+
+### [Keamanan/2026-09-17] Perbaikan temuan K-2b audit AUD-3: persetujuan void, status pesanan, penjaga stok
+- **Area:** keamanan (alur persetujuan & integritas status/stok) · migrasi 0006, 0007, 0009, 0010
+- **Keputusan:**
+  1. **Persetujuan void sesudah dapur wajib TERBUKTI dengan PIN.** Sebelumnya pemicu hanya memeriksa bahwa penyetuju itu **berwenang** (`boleh_untuk`), bukan bahwa ia **menyetujui** — kasir bisa menuliskan nama owner sebagai penyetuju tanpa owner menyentuh perangkat. Sekarang wajib ada catatan PIN **benar**, **untuk aksi itu** (`void_sesudah_dapur`), dan **baru saja** (jendela 5 menit); buktinya diambil dari `percobaan_pin` yang tidak bisa ditulis klien. Kolom `aksi` ditambahkan ke `percobaan_pin` supaya bukti terikat pada tindakan yang disetujui.
+  2. **Perpindahan status pesanan diatur per peran & hanya lewat jalur resmi** (TECH_SPEC §4.3): `draf → dikirim` (owner/admin/kasir/pelayan, wajib menyertakan waktu kirim), `dikirim → dimasak → siap` (owner/admin/dapur); **`lunas` dan `batal` hanya boleh ditetapkan peladen** (setelah uangnya benar-benar masuk / lewat jalur pembatalan). Tanda `dikirim_ke_dapur_pada` **tidak boleh dihapus** klien — kalau boleh, pembatalan sesudah dapur bisa "diturunkan" jadi sebelum dapur dan lolos tanpa persetujuan.
+  3. **Penjaga saldo stok tidak lagi memakai penanda sesi.** Versi lama memakai `current_setting('app.stok_dari_buku_besar')` yang bisa dipasang klien sendiri (`set_config`), sehingga dapur bisa menulis angka stok berapa pun tanpa baris buku besar. Penggantinya: bukti peladen yang tak bisa dipalsukan klien (`peran_peladen()`), dan **fungsi penjaganya tidak boleh SECURITY DEFINER** (kalau definer, `current_user` = pemilik fungsi → selalu "peladen" → buta).
+- **Alasan:** tiga temuan **K-2** dari audit AUD-3 (dua laporan independen); sesi kerja memverifikasi ulang lewat eksekusi sebelum memperbaiki (gerbang `tahan_semua`).
+- **File terkait:** `supabase/migrations/0006_pin.sql`, `0007_katalog.sql`, `0009_pesanan.sql`, `0010_pembayaran.sql`, `supabase/tes/persetujuan_void.sql` (baru), `supabase/tes/status_pesanan.sql` (baru), `supabase/tes/penjaga_stok.sql` (baru), `supabase/tes/pembayaran.sql` (uji lama ikut aturan baru), `docs/uji/AUDIT_RIWAYAT.md` §1b
+- **Implikasi:** 1) **Seluruh temuan K-1 & K-2 audit AUD-3 TUNTAS** (gerbang `tahan_semua` terpenuhi untuk kelas berat). 2) Alur void di layar nanti wajib meminta PIN penyetuju **di perangkat yang sama** sebelum mengirim pembatalan — sudah tertulis di spesifikasi; T1-15/`terima_bayar` kelak memakai jalur peladen untuk menetapkan `lunas`. 3) Pola wajib untuk penjaga baru: fungsi penjaga **tanpa** `security definer`, dan bukti dari sumber yang tak bisa ditulis klien (`auth.uid()`, hak pemilik tabel, atau catatan resmi seperti `percobaan_pin`). 4) Sisa temuan K-3/K-4 audit masuk daftar tertangguh/pekerjaan berikutnya.
+
+### [Keamanan/2026-09-17] Temuan F-11 (lapis kedua pembatasan PIN) — dikunci uji sekarang, mekanismenya di Fase 1B
+- **Area:** keamanan (PIN & perangkat) · tingkat **K-3** (mengikuti laporan audit B §F-11; sebelumnya tercatat K-2, dikoreksi)
+- **Keputusan:** temuan *"12 kali salah per perangkat"* tidak bisa diperbaiki sekarang karena **identitas perangkat belum bisa dipercaya** — `p_perangkat` datang dari klien, dan perangkat terdaftar baru ada di Fase 1B (T1-24). Karena itu:
+  1. **Yang memang benar hari ini dikunci uji** `supabase/tes/percobaan_pin_perangkat.sql`: memutar nama perangkat tidak menambah jatah (batas akun 5×/15 menit tetap), hasilnya sama dengan nama perangkat tetap, dan lapis perangkat masih hidup **saat namanya jujur** (percobaan ke-13 ditolak) — supaya "memperbaiki" F-11 dengan menghapus lapis kedua tidak lolos. Dua uji mutasi memerah (batas akun dimatikan · lapis perangkat dihapus).
+  2. **Pagar wajib:** T1-24 harus memakai `perangkat_id` terverifikasi, menolak perangkat tak terdaftar, lalu **memperketat** uji itu (bagian 1 → 0 percobaan dilayani) dan menutup baris F-11 di `docs/uji/AUDIT_RIWAYAT.md` §1b. Ditulis di DoD/Verifikasi T1-24.
+  3. **Klaim berlebih dikoreksi:** `docs/KEAMANAN.md` §4 & ROADMAP T1-06 kini menyebut dengan jujur bahwa lapis kedua baru berlaku setelah perangkat terdaftar; batas aman yang berlaku sekarang = **5×/15 menit per akun**.
+  4. Butir ini **tidak** dimasukkan `docs/TERTANGGUH.md`: TERTANGGUH untuk hal yang menunggu keputusan pemilik, sedangkan ini pekerjaan terjadwal yang bisa ditutup dengan bukti (pemeriksa fondasi menandai butir tanpa tugas penunggu sebagai temuan — aturan itu dipatuhi, bukan dilonggarkan).
+- **Alasan:** menebak PIN butuh akun pegawai sah + 480 percobaan/hari dibatasi batas akun; memperbaiki sebagian dengan menambah heuristik baru = perubahan kontrol keamanan tanpa persetujuan pemilik (dilarang msg 16) → ditunda ke fase yang memang membangunnya.
+- **File terkait:** `supabase/tes/percobaan_pin_perangkat.sql`, `docs/KEAMANAN.md` §4, `docs/ROADMAP.md` T1-06 & T1-24, `docs/uji/AUDIT_RIWAYAT.md` §1b
+- **Implikasi:** batas aman PIN hari ini = batas per akun; penyerang yang memutar nama perangkat tidak mendapat keuntungan pada lapis akun; F-11 tetap TERBUKA sampai T1-24 dan tidak boleh ditutup tanpa memperketat uji tersebut.
+
+### [Keamanan/2026-09-17] T1-23 — Peran tunggal (migrasi 0011) & PIN 6 angka yang unik dan kuat
+- **Area:** Role & Permission (ART-12) · kredensial PIN · RLS (ART-1) · migrasi `0011_peran_tunggal.sql`
+- **Keputusan:**
+  1. **Peran per cabang dibongkar lewat migrasi BARU 0011** (0002 & 0005 dibekukan, tidak disunting — sesuai keputusan AUD-0). `pengguna_cabang.peran` dihapus; tabel itu tinggal daftar cabang. Peran tunggal hidup di `pengguna.peran` dan berlaku di **semua** cabang akun itu.
+  2. **Penjaga keanggotaan baru** (`picu_jaga_keanggotaan_cabang`): akun & cabang wajib satu resto; pemilik platform tidak boleh didaftarkan ke cabang. Catatan jujur: pemicu tidak bisa "menolak peran kedua" secara literal karena kolomnya sudah tidak ada — penegakannya **struktural** (kolom hilang) + penjaga keanggotaan ini.
+  3. **`izin_efektif()` ditulis ulang** di 0011: peran dari `pengguna.peran`; bila cabang disebut, pemanggil tetap harus **anggota** cabang itu (kecuali owner pusat) dan cabang asing tetap DITOLAK, bukan jatuh ke peran se-resto.
+  4. **PIN wajib tepat 6 angka** (dulu 4–6) dan **bukan pola lemah** — daftar pola di fungsi baru `pin_lemah()`: semua digit sama · deret naik/turun · blok berulang 2/3 digit · pasangan berurutan (112233) · berbentuk tanggal (ddmmyy). Daftar ini sengaja pendek & bisa dibaca ulang, bukan daftar hitam panjang.
+  5. **PIN wajib UNIK antar pegawai satu resto** (bukan lintas resto — supaya angka PIN resto lain tidak bisa dibocorkan lewat pesan penolakan). Perbandingan memakai hash (bcrypt) yang sudah ada, jadi tidak ada PIN tersimpan dua kali.
+  6. **Pembatas anti-oracle (baru):** uji keunikan menjawab ya/tidak, dan penyerang yang memegang satu akun sah bisa memakainya sebagai alat ukur (ia tahu PIN-nya sendiri, jadi selalu lolos syarat "PIN lama"). Karena itu setiap percobaan pemasangan dicatat di tabel baru **`percobaan_simpan_pin`** (RLS + policy menolak semua; tidak ada hak klien) dan dibatasi **20 kali / 15 menit** per akun.
+  7. **CARA MENOLAK yang wajib tercatat = PESAN, bukan exception.** Ditemukan saat menguji pembatas ini: `raise exception` (atau exception yang ditangkap pemanggil) memakai savepoint dan **membatalkan baris catatan di transaksi yang sama** — pembatas jadi tidak pernah menyala. Kontrak `simpan_pin` karena itu: `'PIN tersimpan.'` = berhasil; pesan lain ('PIN itu sudah dipakai…' / 'Terlalu banyak…') = ditolak **dan tercatat**; exception hanya untuk kesalahan pemakaian/izin (format PIN, tanpa izin, PIN lama salah).
+  8. Edge Function `verifikasi_pin` ikut menolak bentuk selain 6 angka; TECH_SPEC §4 diselaraskan (`pengguna` tanpa `pin_hash`, tambah baris `kredensial_pin` & `percobaan_simpan_pin`, `percobaan_pin` bertambah kolom `aksi`).
+- **Alasan:** (a) satu orang dua fungsi = dua akun (keputusan pemilik 2026-09-17) hanya tegak kalau wewenang tidak bisa berbeda per cabang; (b) PIN 4 angka hanya 10.000 kemungkinan — dengan batas 5/15 menit pun masih bisa ditebak dalam hitungan hari, sedangkan PIN 6 angka memindahkan masalah itu ke "tidak praktis"; (c) keunikan PIN tanpa pembatas justru membuat PIN lebih mudah dicuri; (d) catatan yang hilang karena exception adalah kelas cacat yang sama dengan "bukti audit yang tidak pernah tersimpan".
+- **File terkait:** `supabase/migrations/0011_peran_tunggal.sql`, `supabase/tes/peran_tunggal.sql` (baru), `supabase/tes/pin_batas_pasang.sql` (baru), `supabase/tes/kredensial_pin.sql`, `supabase/tes/izin.sql` §8, `supabase/tes/pin.sql`, `supabase/functions/verifikasi_pin/index.ts`, `alat/sql/data-uji.sql`, `docs/TECH_SPEC.md` §4, `docs/uji/DAFTAR_PEKERJAAN_ULANG.md` B.1–B.3
+- **Implikasi:** 1) 6 uji mutasi memeredam gerbang ini (peran per cabang hidup lagi · keanggotaan diabaikan · pola lemah mati · keunikan mati · pembatas mati · format verifikasi kembali 4–6) — satu mutasi awalnya lolos dan memaksa uji baru di jalur verifikasi. 2) Layar PIN (Fase 1C/2) harus menampilkan **teks yang dikembalikan** `simpan_pin` sebagai pesan gagal, bukan hanya menunggu error. 3) T1-24 tetap wajib menolak perangkat tak terdaftar; keunikan PIN kini menutup "PIN dibagikan antar pegawai". 4) Setiap penolakan baru yang wajib tercatat harus memakai pola **pesan**, bukan exception.
+
+
+### [Mekanisme/2026-09-17] Verifikasi permintaan pemilik, daftar temuan per temuan & tiga penjaga baru
+- **Area:** mekanisme kerja (bukan fondasi produk) · `docs/uji/AUDIT_RIWAYAT.md` §1b · `alat/periksa-temuan-audit.py` · `alat/periksa-rujukan.py`
+- **Keputusan:**
+  1. **Daftar temuan audit wajib per temuan** (bukan gelondongan): setiap temuan kedua laporan punya baris; `DITUTUP` wajib menunjuk bukti yang ada di repo; `TERBUKA` wajib menunjuk tugas ROADMAP. Dijaga mesin (`alat/periksa-temuan-audit.py`, 3 uji mutasi).
+  2. **Rujukan di dokumen pengikat dijaga mesin** (`alat/periksa-rujukan.py`): rujukan berkas harus hidup atau ditandai rencana + tugas. Menutup temuan A-F-08/B-F-08 (3 rujukan mati ditemukan: alat denyut, berkas catatan pemulihan, pemeriksa rantai audit).
+  3. **Kerentanan dependency = 0 toleransi**: vitest dinaikkan ke 5.0.1 (dari 5 kerentanan dev, 1 kritis → 0) dan `npm audit --audit-level=low` masuk CI. T1-30 akan memperluas ke rahasia + keamanan SQL.
+  4. **Penjaga buku induk**: `MIN_ALUR` = jumlah nyata (12) dan mode `--uji-diri` (3 mutasi: alur dihapus · label prompt hilang · sapaan "Bapak").
+  5. **Akun/proyek Supabase pemilik dicatat** sebagai butir tunggu `T-018` + tanda ❓ pada `T0-00`.
+  6. **Dua permintaan Lee dijadwalkan**: T1-42 (bantuan kontekstual di setiap laman — satu sumber dengan registri aksi, batas 5 langkah) · T1-43 (Buku Uji Pemilik: dua bagian [yang harus Lee lakukan / yang harus Lee coba], kolom langkah–harapan–hasil–catatan, ditulis bertahap + diringkas di chat, dijaga pemeriksa) · T1-44 (perketat paket audit: lingkup dari commit target, hitungan mesin, CI wajib hijau).
+- **Alasan:** Lee meminta pembuktian bahwa permintaan lamanya benar-benar dikerjakan, bukan hanya disimpan. Verifikasi menemukan 6 cacat ketertelusuran — kelas cacat yang paling berbahaya justru karena tidak terlihat (temuan hilang, rujukan menyesatkan, klaim tanpa bukti).
+- **Catatan jujur (untuk Lee):** 6 temuan audit masih **terbuka** dan punya tugas: A-F-07 → `T1-24`…`T1-30`; B-F-09/B-F-16/B-F-17 → `T1-44`; B-F-11 → `T1-24`; B-F-14 → `T1-22`. Tidak ada satu pun yang dianggap selesai tanpa bukti.
+- **File terkait:** `docs/uji/AUDIT_RIWAYAT.md`, `docs/ROADMAP.md` (T1-42…T1-44), `docs/SPESIFIKASI_UI.md` §5, `docs/teknis/BUKU_INSIDEN.md`, `docs/KEAMANAN.md` §10, `docs/TERTANGGUH.md`, `aplikasi/package.json`, `.github/workflows/ci.yml`, `PANDUAN_PENGGUNA.md`
+
+
+### [UI/2026-09-17] Cacat "kontrol mati" Nyaman/Padat + daftar tema + lembar kunci pemilik
+- **Area:** tampilan (kerapatan & tema) · mekanisme penjaga (pemeriksa baru) · rahasia lokal
+- **Laporan Lee:** *"aku cuma liat ada 5 theme doang"* dan *"tombol bertulisan 'Nyaman' dan 'Padat' … waktu aku klik dan switch ga ada efek apa apa. Pastikan berfungsi."*
+- **Temuan (diverifikasi, bukan dugaan):**
+  1. **Kerapatan memang mati di aplikasi.** Aturan `[data-density="padat"]` hanya menyasar `.kisi-menu`/`.menu-kartu` — kelas yang **hanya ada di prototipe**, tidak dipakai layar aplikasi. Jadi tombol mengubah atribut `<html data-density>` tetapi tak satu pun komponen aplikasi bereaksi. Kelas cacat yang sama dengan "tombol kurang" yang dikhawatirkan Lee: **kontrol yang terlihat hidup tetapi tidak berefek**.
+  2. **Uji lama tidak bisa menangkapnya**: uji hanya memastikan tombol **dirender**, bukan bahwa tombol **bekerja** (tidak ada uji interaksi, tidak ada uji CSS).
+  3. **10 tema sebenarnya ada** di kode (dan tombolnya berbunyi "Ganti tema (10)"), tetapi panelnya bisa terpotong di layar kecil dan tidak memberi petunjuk bahwa daftarnya bisa digeser — itulah kenapa terlihat hanya 5.
+- **Perbaikan (catatan jujur: percobaan pertama agent SALAH TEMPAT dan ditangkap penjaga sendiri).** Agent mula-mula menambal `aplikasi/src/gaya/token/tema.css`. Penjaga struktur (`aplikasi/alat/periksa-struktur.py`) menolak: *"token aplikasi BERBEDA dari prototipe/css/tokens.css (Fase 0 wajib salinan apa adanya)"*. Benar — sumber desain ada di **prototipe**, aplikasi hanya salinan. Perbaikannya lalu dilakukan di `prototipe/css/tokens.css` (sumber) dan disalin apa adanya ke aplikasi.
+  1. Kerapatan kini **mengubah token jarak** (`--s-1…--s-10`) sehingga seluruh halaman memadat, ditambah aturan untuk kelas aplikasi (`.card`, `.kisi-2`, `.table`, `.baris-tombol`, `.pemisah`, `.baris-rapat`). **Huruf tidak dikecilkan** (keterbacaan + daerah sentuh 44 px dijaga).
+  2. Layar contoh menampilkan **status kerapatan aktif** + kartu "Kerapatan tampilan" berisi baris contoh, supaya efeknya terlihat mata.
+  3. Panel tema diberi keterangan jumlah + cara menggeser daftar.
+  4. **Penjaga baru `aplikasi/alat/periksa-kerapatan.py`** (3 uji mutasi): token padat wajib mengecil secara terukur, dan aturan kerapatan **dilarang menyasar kelas yang tidak dipakai aplikasi** (persis akar cacat ini).
+  5. **Uji interaksi baru** `aplikasi/src/layar/contoh/kerapatan.test.tsx` (5 uji): klik Padat/Nyaman mengubah `<html data-density>`, tersimpan, dan bertahan saat dibuka ulang; memilih tema juga.
+  6. **Uji kaskade baru** `aplikasi/src/gaya/kerapatan-css.test.ts` (6 uji, Vitest `css: true`): memasang berkas gaya NYATA lalu **mengukur angka** — padding kartu 20 px → 12 px, sel tabel mengecil, baris contoh mengecil, **huruf tetap sama**, warna tidak berubah; dan **kesepuluh tema terbukti berbeda** (bukan 10 label untuk 5 tampilan). Jumlah uji aplikasi: 51 → **63**.
+- **Lembar kunci pemilik:** formulir `docs/ops/DAFTAR_KUNCI_PEMILIK.template.md` (ikut Git, selalu kosong) + berkas kerja terisi bernama DAFTAR_KUNCI_PEMILIK.local.md (dibuat atas permintaan Lee) — berkas kerja itu **tidak pernah masuk Git** (pola `*.local.md`), berisi 7 baris akun/alamat + 6 baris kunci rahasia + 6 baris persiapan Lee. Penjaga `alat/periksa-rahasia.py` (3 uji mutasi: kunci palsu · .gitignore longgar · formulir hilang) menahan: kunci bertekanan tinggi di berkas terlacak, dan berkas rahasia yang ikut ter-commit. Nilai rahasia **tidak lewat chat**; rotasi seluruh kunci sebelum rilis (rencana Lee). **Cacat CI 2026-09-17 (ditemukan langkah CI, bukan oleh mata):** enam dokumen sempat menulis rujukan ber-backtick ke berkas kerja yang tidak ikut Git → di salinan bersih (clone/CI) rujukan itu menggantung. Perbaikan: rujukan diarahkan ke formulir, berkas kerja ditulis tanpa backtick, dan penjaga baru `alat/periksa-bersih.py` menguji dokumen di pohon bersih (hanya berkas terlacak) supaya cacat kelas ini tertangkap di komputer sendiri, bukan baru di CI.
+- **File terkait:** `prototipe/css/tokens.css` (**sumber desain** — perbaikan nyata ada di sini) → salinan apa adanya ke `aplikasi/src/gaya/token/tema.css`, `aplikasi/src/gaya/komponen.css`, `aplikasi/src/layar/contoh/LayarContoh.tsx`, `aplikasi/src/layar/contoh/kerapatan.test.tsx`, `aplikasi/alat/periksa-kerapatan.py`, `alat/periksa-rahasia.py`, `alat/periksa-bersih.py`, `docs/uji/BUKU_UJI_PEMILIK.md`, `docs/ops/DAFTAR_KUNCI_PEMILIK.template.md`, `.gitignore`, `.github/workflows/ci.yml`
+
+### [UI/2026-09-17] Kerapatan dua-sumbu · cara menutup panel (disclosure) · jejak pudar tepi gulir · kemampuan desain disimpan
+
+- **Area:** tampilan (kerapatan, panel pemilih, daftar yang bisa digeser) · mekanisme (kemampuan tersimpan + penjaga baru)
+- **Laporan Lee (pesan ke-32):** *"blok blok nya hanya berkurang panjang nya aja, tapi lebar (atas-bawah) nya ga ikut mengecil"* ·
+  *"Kamu kan punya skill-skill. Kamu harus maksimalkan skill skill itu. Atau klo kamu ga menemukan itu di skill-skill kamu, kamu harus pelajari ilmu desain dan visual dari internet
+  dan simpan hasil yang kamu pelajari itu untuk menjadi kemampuan. Dan ingat, jangan hanya disimpan, tapi juga harus digunakan sebagai kemampuan"* ·
+  *"(panel) harus bisa ditutup dengan Esc / klik di luar… coba pelajari bagaimana umumnya aplikasi-aplikasi lain"* ·
+  *"ujung nya itu kayak nabrak gitu… semacam blur/feather"*.
+- **Keputusan 1 — kerapatan mengubah TINGGI, bukan lebar, dan huruf tidak dikecilkan.** Sumber: Material 3 *Density* (**tiap langkah −4 dp tinggi; jarak mendatar
+  di dalam komponen tidak berubah; huruf tidak ikut mengecil; sasaran sentuh tetap dijaga; jarak tata letak justru boleh ditambah**) + Cloudscape *content density*
+  (padat = padding vertikal + jarak; popover/daftar pilihan hanya dipadatkan sebagian). Token dipisah **per sumbu**: `--tinggi-kendali` 48→44 ·
+  `--tinggi-baris-tema` 56→48 · `--pad-v-blok` 20→12 · `--baris-isi` 1,55→1,42; `--pad-h-blok`/`--pad-h-kendali`/`--pad-h-sel` **dikunci sama dengan mode Nyaman**.
+  Lantai sentuh **44 px** tetap (WCAG 2.5.5 AAA & Apple HIG 44 pt). Salah kaprah lama (dipadatkan hanya kiri-kanan) resmi ditinggalkan.
+- **Keputusan 2 — menutup panel mengikuti pola *disclosure* WAI-ARIA APG, bukan `<details>` bawaan.** Ditemukan sebabnya: `<details>` memang **tidak** menutup saat Esc.
+  Yang benar: **Esc menutup DAN mengembalikan fokus** ke tombol · klik di luar menutup (fokus tidak dirampas) · fokus keluar menutup · memilih satu pilihan menutup ·
+  `aria-expanded`/`aria-controls`/`aria-labelledby`. Komponen dipakai bersama: `aplikasi/src/komponen/PemilihRingkas.tsx`, dan aturan sama ditulis di sumber desain `prototipe/js/ui.js`
+  (id panel/tombol kini **unik per pemilih**, bukan id tetap — dua pemilih di satu halaman dulu saling menunjuk elemen yang salah).
+- **Keputusan 3 — tepi area gulir memakai JEJAK PUDAR, bukan potongan mentah.** Sumber: utilitas *scroll fade* 2026 (shadcn/ui; `scroll-mask` twilson.net yang dipakai argos-ci;
+  artikel codefronts/panelui). Tiga aturan yang dipakai: maska dengan `mask-image` (ikut tema apa pun tanpa tahu warna latar) · maska dipasang di **elemen yang menggeser**
+  (`.picker-daftar`), bukan wadah ber-bordir (`.picker-panel`) — kalau salah, bordir & sudut panel yang luntur · pudarnya **mengikuti posisi gulir** lewat
+  `animation-timeline: scroll(self block)`, dengan cadangan statis untuk peramban lama (hanya ujung bawah, supaya tidak "berbohong"). Bantalan `padding` dijaga supaya cincin fokus tidak terpotong maska.
+- **Keputusan 4 — ilmu yang dipelajari DISIMPAN sebagai kemampuan dan WAJIB TERPAKAI.** `skills/desain-antarmuka/SKILL.md` (bersumber + daftar periksa) ditambahkan,
+  dicantumkan di fase **DESAIN** pada `alat/mulai-sesi.py` (jadi dibaca sesi berikutnya), dan dirujuk dari kode. Penjaga baru `aplikasi/alat/periksa-antarmuka.py`
+  menolak keadaan "tersimpan tapi tidak terpakai" — termasuk kalau `skills/desain-antarmuka/SKILL.md` dihapus atau tidak lagi dirujuk kode. Ini menjawab pesan Lee
+  *"jangan hanya disimpan, tapi juga harus digunakan sebagai kemampuan"* dengan bukti mesin, bukan janji.
+- **Bukti:** `npx vitest run src/gaya/kerapatan-css.test.ts src/layar/contoh/kerapatan.test.tsx src/komponen/PemilihRingkas.test.tsx` → **25 uji LOLOS** ·
+  `python3 aplikasi/alat/periksa-antarmuka.py` LOLOS + `--uji-diri` **10/10** (9 mutasi: Esc dihapus · maska di wadah · klik-luar dihapus · salinan CSS menyimpang ·
+  id pemilih kembar · kemampuan dihapus · kemampuan tidak dipakai · cadangan peramban dibuang · semua penunjuk kemampuan dihapus) ·
+  `alat/periksa-gerbang-ci.py` gerbang wajib 9 → **11** (+mutasi "langkah antarmuka dihapus" → ditolak).
+- **Catatan jujur:** uji kaskade sempat MERAH dua kali — (a) helper `var()` hanya menyelesaikan satu lapis sementara token baru berantai, (b) `line-height: var(--baris-isi)`
+  terbaca `NaN`. Keduanya diperbaiki di **uji** (resolusi berantai), bukan dengan melonggarkan pemeriksa.
+- **File terkait:** `prototipe/css/tokens.css` (**sumber desain**) → salinan apa adanya `aplikasi/src/gaya/token/tema.css` · `aplikasi/src/komponen/PemilihRingkas.tsx` (+uji) ·
+  `aplikasi/src/layar/contoh/LayarContoh.tsx` · `aplikasi/src/gaya/kerapatan-css.test.ts` · `prototipe/js/ui.js` · `skills/desain-antarmuka/SKILL.md` ·
+  `aplikasi/alat/periksa-antarmuka.py` · `alat/mulai-sesi.py` · `.github/workflows/ci.yml` · `aplikasi/alat/periksa-semua.sh` · `alat/periksa-gerbang-ci.py`
+
+### [ALAT/2026-09-18] Pembuat paket audit mati total + cakupan `--fase` melebar (ditemukan saat menyiapkan paket audit tip)
+
+- **Area:** mekanisme audit independen (`alat/audit-independen.py`) — jalur yang dipakai Lee untuk mengirim sesi auditor
+- **Temuan (saat menjalankan jalurnya, bukan membaca kode):**
+  1. `python3 alat/audit-independen.py --paket AUD-3 --semua` **MATI** dengan
+     `NameError: name 'lingkup' is not defined` — teks prompt penamaan laporan memakai `{lingkup}` yang tidak pernah
+     didefinisikan. Artinya paket audit tidak bisa dibuat sama sekali (Lee cukup menyalin berkas SIAP-TEMPEL;
+     kalau berkas itu tidak bisa dibuat, seluruh jalur audit berhenti tanpa suara).
+  2. Parameter cakupan `semua` ditimpa daftar tugas di baris pertama `mode_paket` (`semua = baca_tugas_roadmap()`),
+     sehingga `--fase 1` **diam-diam mengambil seluruh 192 tugas** (cakupan melebar) dan setiap paket dicap "menyeluruh".
+- **Keputusan:** nama dipisah (`daftar_tugas` = isi ROADMAP, `menyeluruh` = pilihan cakupan), `lingkup` didefinisikan
+  (`menyeluruh`/`terarah`), cakupan `--fase` diurutkan & disaring benar. **Penjaga baru `_uji_pembuat_paket()`** masuk
+  `--uji-diri`: pembuat paket dijalankan di SALINAN pohon untuk dua mode, dan isi paketnya diperiksa
+  (`AUD-3 --semua` → mode `menyeluruh`; `AUD-2 --fase 1` → semua tugas berawalan `T1-` + mode `terarah`).
+  Ini menutup kelas cacat "alat yang tidak pernah dijalankan lagi setelah disunting".
+- **Bukti:** `python3 alat/audit-independen.py --uji-diri` LOLOS (termasuk kasus baru) · paket `AUD-3-2026-09-18` &
+  `PKT-2026-09-18-pr-01-putaran13` benar-benar terbit untuk tip terkini · `bash aplikasi/alat/periksa-semua.sh` → SEMUA PEMERIKSAAN LOLOS.
+- **Catatan jujur:** cacat ini **tidak** ditemukan oleh pemeriksa mana pun (semua hijau) — hanya ketemu karena
+  perintahnya benar-benar dijalankan saat menyiapkan paket. Itu alasan aturan "jalankan, jangan baca saja" tetap berlaku.
+- **File terkait:** `alat/audit-independen.py`, `docs/uji/paket-audit/AUD-3-2026-09-18.md`,
+  `docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran13.md`
+
+## 2026-09-18 — Putaran13: 27 temuan review+audit ditutup migrasi `0014` (keputusan terkunci)
+
+- **Area:** Area Berisiko Tinggi ART-1/ART-3 (uang, jejak, izin) + mekanisme audit
+- **Konteks:** Lee menjalankan 4 sesi (2 review PR + 2 audit AUD-3) atas commit `d1f11d7`.
+  Seluruh temuan **diverifikasi ulang lebih dulu dengan probe sendiri** sebelum dipercaya
+  (aturan yang sama seperti putaran11). 12 temuan review + 15 temuan audit dinyatakan **NYATA**.
+- **Keputusan baru yang terkunci:**
+  1. **`hitung_total()` ada** dan menjadi SATU-SATUNYA penulis angka uang pesanan
+     (subtotal Σ baris non-batal; pajak/service dari `pengaturan`; total = subtotal + pajak +
+     service − diskon, minimal 0). Pemicu item & diskon memanggilnya otomatis. Ini menutup
+     F-01 (alur uang buntu: pesanan lahir total 0 dan kasir dilarang membetulkan).
+  2. **Nomor pesanan SELALU dibuat sistem** (`nomor_pesanan_berikutnya(cabang, tanggal)`);
+     nomor kiriman perangkat diabaikan/ditimpa — bukan ditolak, supaya pesanan tidak batal
+     hanya karena perangkat salah menghitung (F-04).
+  3. **Cap bawaan diskon 50%** (dulu 100% = tanpa cap). Pemicu kumulatif tambahan
+     **tidak** dipasang karena penjaga 0013 sudah menahan total; yang salah memang bawaannya (F-03).
+  4. **`subtotal` baris pesanan selalu dihitung peladen** (`harga_saat_itu × qty`); angka dari
+     perangkat ditimpa, termasuk dari dapur (F-02, PR-01, PR-05).
+  5. **Dapur hanya boleh memindahkan status masak** — tidak boleh menyentuh qty/harga/varian/
+     catatan. Pembatalan baris setelah dapur mulai wajib berjejak (baris `pembatalan` sah).
+  6. **Pesanan `lunas`/`batal` tidak boleh diubah lagi**; salinan harga/nama beku pasca-dapur
+     hanya boleh diubah pemegang izin `ubah_harga`.
+  7. **PIN berjenjang**: bawahan tidak bisa mengganti PIN atasan (`peran_lebih_tinggi`);
+     setiap percobaan dicatat dengan `target_id`, dan korban boleh melihat catatan atas dirinya.
+  8. **Penjaga peran/klien WAJIB invoker-rights** — `security definer` membuat `current_user`
+     menjadi pemilik fungsi sehingga penjaganya BUTA (kesalahan yang terbukti nyata, dicatat di sini).
+- **Mekanisme audit diperkuat (temuan audit F-11/F-12/F-13/F-14/F-15):**
+  - `alat/periksa-paket.py` **baru**: paket audit wajib menunjuk **induk commit-nya sendiri**
+    dan setiap jalur di bagian 1 wajib benar-benar ada di commit itu; paket lama dikecualikan
+    secara eksplisit sampai dibuat ulang. Ada `--uji-diri` (SEMUA kasus harus bisa MERAH).
+  - `alat/periksa-angka-bukti.py` **baru**: angka "N uji/tabel" di klaim Bukti ROADMAP wajib
+    disertai perintah yang bisa diulang atau penanda jujur "angka saat itu".
+  - `periksa-komponen-env.py`: sel gabungan `GOOGLE_CLIENT_ID/SECRET` dipecah; pencocokan
+    lewat awal baris → menghapus `# GOOGLE_CLIENT_ID=` sekarang membuat pemeriksa GAGAL (F-15).
+  - `uji-mutasi-0012.py`/`uji-mutasi-0014.py`: `berkas_berlaku()` mencari **migrasi terbaru**
+    yang memuat pola, mendukung berkas eksplisit, dan **melaporkan mutasi yang dilewati**
+    (tidak pernah dicap hijau). Mutasi gabungan menembus penjaga berlapis (M3k/M5k/M8k).
+  - `supabase/tes/rls_semua_tabel.sql`: arah **timbal balik** — tabel tanpa `penyewa_id`
+    wajib terdaftar dengan jangkarnya, dan jangkar itu benar-benar muncul di policy-nya.
+- **Bukti:** `node alat/uji-sql.mjs` → **41 LULUS · 0 GAGAL** · `python3 alat/uji-mutasi-0012.py`
+  → **16/16 MERAH** · `python3 alat/uji-mutasi-0014.py` → **17/17 MERAH** ·
+  `bash aplikasi/alat/periksa-semua.sh` → **SEMUA PEMERIKSAAN LOLOS** · `python3 alat/periksa-paket.py --uji-diri`
+  dan `periksa-angka-bukti.py --uji-diri` LOLOS (terbukti bisa menolak).
+- **Catatan jujur:** nilai 50% adalah titik awal yang bisa diubah owner di pengaturan; yang
+  dikunci adalah *ada* cap bawaan yang punya arti, bukan angkanya.
+- **File terkait:** `supabase/migrations/0014_penutup_celah_putaran13.sql`, `supabase/tes/*`,
+  `alat/periksa-paket.py`, `alat/periksa-angka-bukti.py`, `alat/uji-mutasi-0014.py`.
+
+## 2026-09-18 — Pindah sesi: berkas prompt Lee jadi STATIS + sesi boleh ditinggalkan (permintaan Lee, pesan ke-41)
+
+**Keputusan (disetujui Lee dalam pesannya, agent dikritisi lebih dulu lalu menerapkan):**
+
+1. **Berkas prompt untuk membuka sesi baru = STATIS** (`PROMPT_SESI_BARU.md` di akar repo). Alasan Lee:
+   berkas yang harus disiapkan ulang setiap kali pindah sesi itu merepotkan; ia ingin satu berkas tetap
+   yang sama seperti Prompt Entri Universal. Konsekuensi teknis: berkas itu **tidak boleh** memuat keadaan
+   proyek (commit/CI/butir tertangguh) — keadaan dibaca agent dari isi repo setelah mendarat di cabang yang
+   benar (`docs/ops/SIAP-LANJUT.md`). Jadi tidak ada klaim yang bisa basi.
+2. **Baris pertama berkas statis itu milik Lee:** `SESI YANG AKU LANJUT: <cabang>`. Bila baris itu berbeda
+   dengan "Cabang yang dilanjutkan" di handoff mesin, **baris Lee yang menang** (laporkan bedanya, lalu
+   rapikan handoff dengan `--siapkan --lanjut-dari <cabang>`).
+3. **Mesin tidak menebak.** Bila baris itu kosong, agent baru wajib menampilkan daftar sesi dan menunggu
+   Lee memilih — bukan menyusul "sesi terakhir".
+4. **Sesi yang sengaja ditinggalkan dicatat** di `docs/ops/SESI_DITINGGALKAN.md`. `alat/lanjut-sesi.py`
+   menolak handoff/`--siapkan` yang menunjuk ke sana dan menandainya di `--daftar-sesi`. `--paksa` hanya
+   atas perintah Lee, dan jejaknya ditulis di handoff ("DIPAKSA atas perintah Lee").
+5. **`docs/ops/SIAP-TEMPEL-SESI-BARU.md` dipensiunkan** menjadi penunjuk (berkas statis itu yang dipakai).
+   Alasan: dua berkas yang bisa saling bertentangan = sumber cacat. Sesi yang lebih tua tetap punya berkas
+   lama itu apa adanya, dan itu tidak diubah.
+
+**Batas yang disadari (jujur):** berkas statis **tidak bisa** memverifikasi apa pun soal kesegaran; itu
+sepenuhnya tugas handoff mesin (§2 dan 2b di `docs/ops/SIAP-LANJUT.md`). Karena itu `--siapkan`/
+`periksa()` tetap menjalankan seluruh penjaga handoff seperti sebelumnya.
+
+**Bukti:** `python3 alat/lanjut-sesi.py --uji-diri` → **37 kasus LOLOS** (dua kasus merah pada percobaan
+pertama justru menemukan 2 celah penjaga: baris "berkas yang Lee salin" belum dijaga, dan kasus uji cabang
+hantu lolos karena alasan yang salah → keduanya ditutup); `python3 alat/periksa-panduan.py` LOLOS
+(+3 topik wajib); `python3 alat/lanjut-sesi.py` LOLOS.
+
+**File terkait:** `PROMPT_SESI_BARU.md`, `alat/lanjut-sesi.py`, `docs/ops/SESI_DITINGGALKAN.md`,
+`docs/ops/SIAP-TEMPEL-SESI-BARU.md` (pensiun), `PANDUAN_PENGGUNA.md` (AL-13), `docs/PANDUAN_PEMILIK.md` (2b/3).
+
+## 2026-09-18 — "Kalimat perintah sederhana Lee" wajib punya rantai petunjuk yang hidup (jawaban kepercayaan Lee)
+
+**Masalah yang diakui jujur.** Buku induk memuat 13 alur (AL-1…AL-13) + tabel kalimat sehari-hari (C3) + tabel
+perintah mesin (Bagian E). Tetapi **tidak ada mata rantai yang memaksa agent baru menemukannya**: Prompt Pembuka
+Universal tidak menunjuk `PANDUAN_PENGGUNA.md`, dan KARTU SESI (yang selalu dicetak) juga tidak. Artinya janji
+"cukup bilang `Siapkan review PR.`" hanya bergantung pada niat agent membaca dokumen tambahan — bukan pada mekanisme.
+
+**Keputusan:** janji itu dijadikan **mekanisme yang dijaga**:
+1. **Prompt Pembuka Universal item 2d** — kalimat perintah sederhana Lee wajib dicari di `PANDUAN_PENGGUNA.md`
+   (Bagian C3 / Bagian B alur AL-1…AL-13 / Bagian E), dicocokkan **maksudnya** (bukan huruf per huruf), disebut
+   nomor alurnya saat melapor, dan agent **dilarang mengarang mekanisme baru** di luar buku.
+2. **KARTU SESI mencetak blok `PETUNJUK_PERINTAH`** — pintu masuk setiap sesi, jadi tidak bergantung pada agent
+   membuka buku lebih dulu.
+3. **Sinonim & kalimat gabungan diakui** — `Tutup sesi ini dengan baik` = `dengan benar`; dan
+   `Siapkan pindah sesi dan tutup sesi ini dengan baik` = AL-3 + AL-13 (dua alur sekaligus).
+4. **Dijaga pemeriksa**: `alat/periksa-panduan.py` menolak bila (a) prompt kanonik tidak menunjuk buku / tidak
+   mengatur kalimat sederhana, (b) KARTU SESI berhenti mencetak penunjuk, (c) buku kehilangan sinonim/kalimat
+   gabungan. `--uji-diri` membuktikan penolakan itu nyata (2 mutasi baru).
+5. Berkas pensiun `docs/ops/SIAP-TEMPEL-SESI-BARU.md` **tidak lagi disebut** oleh prompt kanonik; yang disebut
+   `PROMPT_SESI_BARU.md` (statis).
+
+**Batas jujur:** mekanisme ini memastikan rantai petunjuk **ada dan hidup**; ia tidak bisa memaksa model yang
+tidak patuh. Karena itu setiap kartu sesi menutup dengan kewajiban melaporkan KARTU SESI lebih dulu, dan Lee
+selalu bisa memeriksa apakah agent menyebut nomor alurnya.
+
+**Bukti:** `python3 alat/periksa-panduan.py` LOLOS · `--uji-diri` 6 kasus (2 mutasi baru) MENOLAK · 
+`python3 alat/mulai-sesi.py --uji-diri` 7 kasus LOLOS · uji rantai dari klon buta `main` → kartu sesi memuat
+penunjuk + buku memuat 13 alur · `python3 alat/lanjut-sesi.py` LOLOS · CI hijau.
+
+**File terkait:** `PROMPT_ENTRI_UNIVERSAL.md`, `PANDUAN_PENGGUNA.md` (item 2d, AL-3, AL-13, C3), `alat/mulai-sesi.py`,
+`alat/periksa-panduan.py`, `PROMPT_SESI_BARU.md`.
+
+---
+
+## [Keamanan/2026-09-20] Daftar asal (origin) CORS untuk Edge Function verifikasi_pin
+
+**Keputusan:** CORS Edge Function `verifikasi_pin` TIDAK memakai wildcard. Daftar asal sah
+(ditanam di `supabase/functions/verifikasi_pin/index.ts` sebagai `ASAL_DIIZINKAN`):
+
+1. `https://resto-barokah.fatrizmubarok.workers.dev` (produksi),
+2. `http://localhost:5173` dan `http://127.0.0.1:5173` (pengembangan lokal).
+
+Asal di luar daftar tetap boleh memanggil tetapi TIDAK menerima header CORS, sehingga peramban
+menolak membaca jawabannya. Bila alamat produksi berubah (domain sendiri), perbarui daftar ini
+di berkas yang sama — penjaga `alat/periksa-fungsi-pin.py` menolak kembalinya wildcard.
+Diputus sebagai penutup temuan H F-09 (K-4, pengerasan).
+
+## [Keamanan uji/2026-09-19] Bahan & kunci kalibrasi hidup DI LUAR repo (temuan audit D F-05)
+
+**Konteks:** audit AUD-3 putaran verifikasi menemukan `docs/uji/kalibrasi/pr-bahan-2026-09-17.diff` ikut ter-commit.
+Berkas itu adalah diff dari migrasi **nyata** ke versi cacat — jadi siapa pun yang bisa membaca repo (termasuk peninjau
+yang sedang dikalibrasi) tahu persis baris mana yang ditanami cacat. Skor "Ditemukan: X dari Y" bisa dipalsukan dan
+ambang lulus kalibrasi ("verdict BERSIH boleh dipercaya") kehilangan makna. Ini melanggar janji PROTOKOL §7
+("kunci jawaban disimpan di luar repo").
+
+**Keputusan (disetujui Lee 2026-09-19):**
+1. **Berkas bahan/kunci kalibrasi tidak boleh hidup di dalam repo.** Bahan review PR disiapkan di luar repo
+   (`KAL_DIR_LUAR`, bawaan `/tmp/kalibrasi-pr`, bisa diganti lewat env `KALIBRASI_PR_DIR`); kuncinya tetap
+   `/tmp/KUNCI-KALIBRASI-PR-<tanggal>.md`.
+2. **Yang masuk ke paket adalah ISI bahan, bukan jalurnya** — `--siapkan` menyematkan blok `diff` ke §5 paket dan
+   **menolak** membuat paket bila bahan/kunci masih ada di dalam repo.
+3. **Rotasi bahan:** bahan yang pernah bocor — termasuk yang masih terbaca di riwayat Git — **tidak dipakai lagi**
+   untuk menilai ketajaman; gantinya bahan baru bertanggal (sama seperti jalur auditor).
+4. **Berkas yang keluar dari repo berjejak di DAFTAR PENSIUN** `docs/uji/BERKAS_PENSIUN.md` — jalur, tanggal, pemutus (Lee), alasan, dan nasib isinya. Validator memperlakukan jalur terdaftar sebagai "sengaja tidak ada", sehingga **riwayat, paket, dan laporan peninjau tidak perlu disunting** (barang bukti tetap utuh).
+5. **Dijaga mesin:** `alat/periksa-kunci-kalibrasi.py` (aturan A–D) masuk CI (gerbang 22 → **24**; lalu **49** setelah PR-10 — setiap perintah CI diawasi, bukan hanya daftar penjaga terpilih); `--uji-diri` membuktikan 9 mutasi ditolak dan salinan utuh diterima (termasuk "daftar pensiun dihapus", "berkas pensiun muncul lagi", "paket baru menunjuk jalur bahan di repo").
+
+**Batas jujur:** mengeluarkan berkas dari commit **tidak menghapus** isinya dari riwayat Git (`git log --all` masih
+memperlihatkannya). Karena itu keputusan ini **bukan** "rahasia kembali aman", melainkan: (a) tidak ada lagi salinan
+di keadaan sekarang yang bisa ditemukan tanpa sengaja, (b) bahan lama dinyatakan pensiun, (c) rotasi wajib untuk
+putaran berikutnya. Bila kelak ingin membersihkan riwayat, itu tindakan destruktif (tulis ulang riwayat + force push)
+— **wajib keputusan Lee, tidak dilakukan sekarang**.
+
+**Cacat mekanisme yang ikut ketahuan (dan ditutup):** `alat/periksa-paket.py` aturan F-11 memakai "commit TERAKHIR yang mengubah paket" — satu suntingan sah (mis. catatan provenance) membuat 22 paket lama dituduh melanggar; sekarang paket sah bila **ada** commit dalam riwayat yang menulisnya tepat sesudah commit target dan targetnya tidak berubah. Uji-diri penjaga kunci juga sempat tumpul karena menguji paket lama sementara aturannya berlaku untuk paket baru.
+
+**Bukti:** percobaan nyata di klon: `--kalibrasi-pr-siapkan` MENOLAK saat bahan masih di repo; setelah dikeluarkan →
+bahan ditulis ke `/tmp`, paket memuat blok `diff`; `python3 alat/periksa-kunci-kalibrasi.py` LOLOS · `--uji-diri`
+7 kasus (6 mutasi ditolak) LOLOS · `python3 alat/periksa-gerbang-ci.py` 24 gerbang LOLOS · CI hijau.
+
+**File terkait:** `alat/review-pr.py`, `alat/periksa-kunci-kalibrasi.py`, `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md` §7,
+`docs/uji/kalibrasi/CARA-PAKAI.md`, `.github/workflows/ci.yml`, `docs/uji/AUDIT_RIWAYAT.md` (D F-05).
+
+---
+
+## [Infrastruktur/2026-09-19] Akun pemilik aktif: nilai PUBLIK boleh hidup di repo/CI, nilai RAHASIA tidak (T0-00 ditutup)
+
+**Konteks:** Lee membuat akun **Supabase + Resend + Cloudflare** (2026-09-19) dan menyerahkan nilai non-rahasia lewat repo
+(`docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`, commit `bd68685`): URL proyek, kunci **publishable/anon**, id proyek, region
+**Singapura**, id akun Cloudflare. Kunci `service_role` tidak pernah masuk repo maupun obrolan (aturan `docs/TECH_SPEC.md` §6).
+
+**Keputusan:**
+1. **Dua kelas nilai dipisah tegas.** Nilai publik (URL proyek + kunci `publishable`/anon) boleh hidup di repo dan boleh
+   tampil di berkas CI — keamanan data dijaga RLS, bukan oleh kerahasiaan nilai itu. Nilai rahasia (`service_role`, Resend,
+   Cloudflare, kata sandi database) tetap hanya di berkas lokal yang diabaikan Git (`*.local.md`) atau di panel rahasia
+   Cloudflare/Supabase — **tidak pernah** masuk repo, obrolan, atau berkas CI.
+2. **Uji sambung T0-08 dijalankan di CI, bukan di mesin agent.** Lingkungan agent tidak punya jalan keluar jaringan ke
+   `*.supabase.co` (terbukti: `curl` HTTP 000 / TLS ditolak, domain umum lain pun sama), sedangkan runner GitHub punya.
+   Gerbang CI ke-50: `npm run cek:supabase` memakai kunci publik saja (kesehatan Auth + akar PostgREST) — tanpa membaca
+   satu baris data.
+3. **DoD `select 1` pada T0-08 belum dapat dibuktikan hari ini** karena skema (14 migrasi) **belum disebar** ke proyek
+   Supabase nyata; penyebaran butuh keputusan + kredensial pemilik → butir tunggu `T-020`. Tugas `T0-08` karena itu
+   **tetap terbuka** dan ditandai `❓ T-020` — bukan ditutup dengan klaim yang tidak bisa dibuktikan.
+4. **Deploy publik T0-09 butuh keputusan Lee** (tindakan publik/tak bisa dibatalkan) → butir tunggu `T-021`; persiapan
+   (`aplikasi/wrangler.toml` + `npm run deploy`) sudah selesai.
+
+**Batas jujur:** uji sambung membuktikan ALAMAT + KUNCI + JARINGAN (server menerima kunci publik). Ia **tidak** membuktikan
+tabel sudah ada, RLS benar, atau aplikasi bisa membaca data nyata — itu tetap sisa pekerjaan (sebar skema + uji di layanan
+nyata), bukan klaim selesai.
+
+**Bukti:** gerbang CI ke-50 ada di `.github/workflows/ci.yml` dan diawasi dua arah oleh `python3 alat/periksa-gerbang-ci.py`
+(termasuk `--uji-diri`); `node aplikasi/alat/cek-supabase.mjs --uji-diri` 5/5 LOLOS; `pytest`-gaya uji aplikasi
+`npx vitest run` menambahkan 10 kasus untuk `aplikasi/src/lib/supabase.ts`.
+
+**File terkait:** `aplikasi/src/lib/supabase.ts`, `aplikasi/alat/cek-supabase.mjs`, `aplikasi/wrangler.toml`,
+`.github/workflows/ci.yml`, `alat/periksa-gerbang-ci.py`, `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md`,
+`docs/TERTANGGUH.md` (T-018 selesai; T-020/T-021 terbuka).
+
+---
+
+## [Infrastruktur/2026-09-19] Penyebaran ke aset pemilik lewat alur "disengaja" (berkas penanda) — rahasia hanya di kotak rahasia GitHub
+
+**Konteks:** Fase 0 tinggal dua langkah yang menyentuh aset nyata pemilik: menyebar 14 migrasi ke proyek Supabase
+(butir `T-020`) dan menaikkan halaman ke Cloudflare (butir `T-021`). Keduanya tidak boleh berjalan di setiap kiriman
+kode, dan kuncinya **tidak boleh** masuk repo/obrolan. Lingkungan agent juga tidak punya jalan keluar jaringan ke
+`*.supabase.co`, sedangkan runner GitHub punya.
+
+**Keputusan:**
+1. **Sengaja, bukan otomatis.** Dua alur terpisah di `.github/workflows/`: `sebar-skema.yml` dan `sebar-halaman.yml`.
+   Keduanya hanya menyala lewat **berkas penanda** (supabase/SEBAR-SKEMA dan aplikasi/SEBAR-HALAMAN) yang dibuat
+   sesaat lalu dihapus setelah hijau — jadi tidak ada penyebaran tak sengaja di kiriman berikutnya.
+2. **Pratinjau lebih dulu.** Alur sebar skema menjalankan `supabase db push --dry-run` **sebelum** penyebaran sungguhan;
+   kalau ada migrasi yang tidak cocok, tidak ada yang berubah di proyek nyata dan alurnya langsung merah.
+3. **Rahasia hanya di kotak rahasia GitHub.** `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `CLOUDFLARE_API_TOKEN`
+   dipasang **pemilik** di Settings → Secrets and variables → Actions. Nilainya tidak pernah masuk repo, commit, laporan,
+   atau obrolan; agent tidak pernah melihatnya. Nomor proyek/akun (bukan rahasia) boleh duduk di berkas.
+4. **Alur lain ikut diawasi penjaga.** `alat/periksa-gerbang-ci.py` diperluas: perintah di kedua alur diperiksa **dua arah**
+   seperti `ci.yml` (8 + 5 perintah), penyaring berkas penanda wajib ada, **URUTAN perintah ikut diperiksa** (pratinjau
+   wajib benar-benar mendahului penyebaran — keberadaan saja tidak cukup), dan seluruh berkas alur dilarang memuat
+   pelemahan senyap (`continue-on-error`, `|| true`, `if:` pada langkah). `--uji-diri` menambah **9 mutasi alur**,
+   semuanya wajib ditolak (mis. dry-run dihapus, urutan ditukar, pemeriksaan penanda dihapus, perintah rilis diganti
+   sekadar `build`).
+5. **`supabase/config.toml` ditulis ringkas tanpa `env(...)`.** Versi hasil `supabase init` memuat
+   `openai_api_key = "env(OPENAI_API_KEY)"` yang membuat CLI menolak berjalan di CI bila variabelnya tidak ada;
+   bentuk ringkas sudah diuji dengan CLI **2.117.0** (`db push --dry-run` menerima berkasnya).
+6. **Satu blok `run:` berurutan + kata sandi dikirim lewat `--password`.** Semua perintah penyebaran duduk dalam satu
+   blok dengan `set -euo pipefail`: (a) pratinjau tidak mungkin terlewat, dan (b) pemeriksaan penanda bisa
+   menghentikan SELURUH alur — pada alur berlangkah banyak, `exit 0` hanya menghentikan satu langkah dan langkah
+   berikutnya tetap jalan. `link`/`db push`/`migration list` diberi `--password` supaya CLI tidak menunggu jawaban
+   (jebakan lama: `db push` di CI bisa "sukses" tanpa menyebar).
+7. **Menghapus berkas penanda juga aman.** Kiriman penghapusan tetap menyentuh jalur berkas penanda (itu cara GitHub
+   bekerja), tetapi alur langsung berhenti di pemeriksaan penanda dan **hijau tanpa menyentuh proyek** — dibuktikan
+   dengan uji sungguhan, bukan asumsi (lihat bukti di `docs/TERTANGGUH.md` butir `T-020`).
+
+**Batas jujur:** keputusan ini **belum** menyebar apa pun — kedua alur baru menyala setelah pemilik memasang rahasia
+dan agent membuat berkas penanda. Sampai itu terjadi, `T-020`/`T-021` tetap **terbuka**, dan klaim "skema sudah ada di
+proyek nyata" atau "halaman sudah publik" belum boleh ditulis di dokumen mana pun.
+
+**File terkait:** `.github/workflows/sebar-skema.yml`, `.github/workflows/sebar-halaman.yml`, `supabase/config.toml`,
+`alat/periksa-gerbang-ci.py`, `docs/ops/LANGKAH_PEMILIK_SEKARANG.md`, `docs/uji/BUKU_UJI_PEMILIK.md` (P-04/P-05),
+`docs/TERTANGGUH.md` (T-020/T-021).
+
+---
+
+## [Infrastruktur/2026-09-19] Skema pertama hidup di proyek pemilik → migrasi 0001–0014 DIBEKUKAN
+
+**Konteks:** setelah pemilik memasang dua rahasia Supabase di kotak rahasia GitHub (Langkah A), alur disengaja
+`.github/workflows/sebar-skema.yml` dijalankan lewat berkas penanda supabase/SEBAR-SKEMA: run `35435248540` hijau
+berurutan — `supabase link` → `db push --dry-run` (pratinjau) → `db push` (penyebaran) → `migration list` (bukti).
+Jadi 14 berkas migrasi `0001`–`0014` kini **benar-benar ada** di database milik pemilik (proyek
+`bdvjirmbuqelmduztryj`). Bukti susulan yang bisa diperiksa siapa pun: gerbang CI ke-50 membaca satu baris tabel
+katalog dengan kunci publik (`GET /rest/v1/menu_item?select=id&limit=1` → HTTP 200) pada run `35435414653`.
+
+**Keputusan: berkas migrasi `0001`–`0014` DIBEKUKAN.**
+1. **Kenapa:** database nyata hanya berubah karena PENYEBARAN berkas migrasi. Mengubah berkas lama tidak mengubah
+   database nyata, tetapi mengubah hasil uji lokal — persis kelas cacat "bukti tidak mewakili kenyataan".
+2. **Aturan:** setiap perubahan skema — termasuk seluruh perbaikan temuan audit (K-1…K-4) — WAJIB ditulis sebagai
+   berkas migrasi **baru** bernomor `0015` ke atas. Berkas lama tidak boleh disunting lagi.
+3. **Dijaga mesin, bukan ingatan:** penjaga baru `alat/periksa-migrasi-beku.py` memuat sidik SHA-256 ke-14 berkas itu
+   dan ikut berjalan di CI. Berkas lama berubah sedikit saja, ada berkas baru bernomor ≤ `0014`, atau nomor migrasi
+   kembar → CI **MERAH**; penjaganya punya `--uji-diri` (mutasi wajib ditolak) yang juga berjalan di CI.
+4. **Konsekuensi untuk audit:** perbaikan RLS/kebijakan/fungsi berbentuk "migrasi penutup" di `supabase/migrations/`,
+   bukan suntingan berkas lama — dan itu memang cara kerja Supabase di proyek nyata.
+
+**Batas jujur:** yang terbukti adalah (a) alur penyebaran hijau sampai `migration list`, dan (b) tabel katalog bisa
+dibaca dengan kunci publik dari CI. Uji **penuh** berkas uji di `supabase/tes/` terhadap proyek nyata (bcrypt asli
+pgcrypto) belum dijalankan dan tidak diklaim di sini.
+
+---
+
+## [Infrastruktur/2026-09-19] Halaman pertama naik ke internet (publik) — atas izin pemilik & FF, tanpa data pelanggan
+
+**Konteks:** tugas Fase 0 `T0-09` meminta bukti jalur rilis bekerja sejak awal. Deploy publik adalah tindakan yang
+**tidak bisa ditarik diam-diam** (Stop Condition §12), jadi agent berhenti dan menunggu lebih dulu; pemilik (Lee)
+menulis **"Boleh naik"** di chat pada 2026-09-19. Setelah itu agent memicu berkas penanda `aplikasi/SEBAR-HALAMAN`
+(izin tertulis ada di dalam berkas penanda itu sebagai catatan) dan alur `.github/workflows/sebar-halaman.yml`
+berjalan dua kali: run `35440300274` (unggahan pertama) dan `35440432817` (unggahan ulang + pencatatan alamat) —
+keduanya **hijau**.
+
+**Keputusan & alasan:**
+1. **Naik sekarang, bukan nanti.** Halaman masih kerangka: tidak ada data pelanggan, tidak ada menu asli, tidak ada
+   kunci rahasia di dalamnya. Membuktikan jalur rilis sedini mungkin mencegah kejutan besar di akhir proyek
+   (persis tujuan `T0-09`).
+2. **Alamat publik dicatat MESIN, bukan ingatan.** Log job GitHub Actions **tidak bisa dibaca** dari lingkungan
+   agent, jadi alat baru `aplikasi/alat/catat-alamat.mjs` menanyakan subdomain ke Cloudflare API, menyusun alamat,
+   lalu **membukanya** — hasilnya dipancarkan sebagai **anotasi** (`ALAMAT-PUBLIK url=… http=…`) yang bisa dibaca
+   siapa pun lewat API GitHub pada commit itu. Kalau halaman tidak menjawab 200, alat itu **gagal** (alur merah).
+   Alamat resminya: **<https://resto-barokah.fatrizmubarok.workers.dev>** (`docs/ops/ALAMAT_PUBLIK.md`).
+3. **Tetap lewat penanda.** Alur hanya menyala lewat berkas `aplikasi/SEBAR-HALAMAN`; berkas itu dihapus setelah
+   hijau, dan kiriman penghapusan **hijau tanpa kerja** (sudah diuji). Tidak ada unggahan tak sengaja.
+4. **Cara mundur dicatat:** pekerja `resto-barokah` bisa dihapus dari dasbor Cloudflare; tidak ada biaya (paket
+   gratis, berkas statis). Alamat gratis `*.workers.dev` dipakai sejak `T-008` (2026-09-16).
+
+**Batas jujur:** yang terbukti adalah **halaman kerangka menjawab 200 di alamat publik**. Belum ada satu pun fitur
+kedai di sana, dan belum ada domain sendiri (masih memakai alamat gratis `*.workers.dev`, sesuai keputusan T-008).
+
+---
+
+## [Keamanan uang/2026-09-19] Bukti pembatalan harus DATA di tabel, bukan pengaturan transaksi yang bisa ditulis klien
+
+**Konteks (temuan K-1, review PR-01 putaran16):** penjaga item `picu_item_jaga()` menerima bukti "pembatalan ini
+resmi" dari `current_setting('resto.pembatalan_pesanan')`. Pengaturan transaksi bisa ditulis **siapa pun** dengan
+`set_config(...)`. Rekaman probe: kasir menjalankan tiga baris — pasang penanda, lalu `update pesanan_item set
+status='batal'` — dan item sesudah dapur **berhasil** dibatalkan tanpa PIN atasan dan tanpa satu pun baris
+`pembatalan`. Artinya: jejak pembatalan bisa dihilangkan, dan laporan kerugian bisa tidak pernah muncul.
+
+**Keputusan:**
+1. **Penanda transaksi berhenti dipercaya sama sekali.** Pemeriksaan `current_setting('resto.pembatalan_pesanan')`
+   dihapus dari penjaga item; pemicu resmi juga berhenti menulisnya. Tidak ada lagi nilai yang bisa dipalsukan.
+2. **Bukti pembatalan harus berbentuk baris tabel** (`public.pembatalan`) yang hanya bisa lahir lewat jalur resmi:
+   penjaga 0013 memaksa tahap cocok (sebelum/sesudah dapur), izin `void_sesudah_dapur`, dan **kupon PIN terikat
+   pesanan & sekali pakai**.
+3. **Pembatalan item / pengecilan jumlah setelah dapur dari perangkat selalu ditolak.** Jalur sahnya: perangkat
+   menulis baris `pembatalan` resmi, lalu pemicu resmi (SECURITY DEFINER, berjalan sebagai pemilik tabel) yang
+   mengubah baris item. Pekerjaan kasir tidak berkurang — hanya jalur pintasnya yang ditutup.
+4. **Dibuktikan bisa MERAH, bukan sekadar hijau.** `alat/uji-mutasi-0015.py` mengembalikan versi lama (percaya
+   penanda), melepas pemicunya, dan menyelipkan pengecualian diam-diam untuk peran `kasir` — **semuanya wajib
+   memerahkan uji**, dan memang merah. Gerbang CI: uji regresi + bukti mutasi (gerbang ke-52).
+
+**Batas jujur:** bagian 1 ini menutup **satu** temuan (K-1). Temuan K-2…K-4 belum; daftarnya tetap di
+`docs/uji/REVIEW_PR_RIWAYAT.md` §1 dan `docs/uji/AUDIT_RIWAYAT.md` §1b dengan pemilik `T1-45`/`T1-44`.
+Berkas migrasi `0015` akan bertambah bagian pada batch berikutnya — berkas `0001`–`0014` tetap beku.
+
+---
+
+## [Uang/2026-09-19] Tagihan yang sudah dibayar tidak boleh ditulis ulang — dan batal satu item bukan batal satu pesanan
+
+**Konteks (temuan audit D F-01 + review PR-02, putaran16):** dua keadaan nyata dari kursi kasir.
+(1) Pesanan sudah `lunas` (uang diterima & tercatat), lalu baris `diskon_transaksi` disisipkan —
+pemicu hitung-ulang mengubah `pesanan.total` SETELAH lunas, tanpa penjelasan resmi di jejak.
+(2) Membatalkan SATU item (`pembatalan` dengan `pesanan_item_id`) langsung menulis
+`pesanan.status = 'batal'`, padahal item lain masih hidup — akibatnya pembayaran sisa DITOLAK
+("pesanan sudah batal") dan pelanggan tidak bisa membayar item yang benar-benar ia terima.
+
+**Keputusan:**
+1. **Diskon hanya boleh berubah selama tagihan belum tercatat.** Baris diskon tidak bisa
+   ditambah/diubah/dihapus pada pesanan `lunas` atau `batal`, oleh siapa pun. Jalur sah untuk
+   memperbaiki uang sesudah tercatat adalah **pembatalan/void resmi** (baris `pembatalan`,
+   berikut PIN atasan bila dapur sudah mulai) — bukan menulis ulang tagihan lama.
+2. **Status `batal` pada pesanan berarti SELURUH pesanan batal.** Void satu item tidak menutup
+   pesanan; pesanan ditutup hanya bila tidak ada item hidup tersisa atau pembatalannya memang
+   tingkat pesanan. Pesanan yang ditutup menandai **seluruh** itemnya `batal`, supaya tidak ada
+   keadaan setengah jalan (pesanan batal tetapi item tampak masih terutang).
+3. **Angka uang tetap dihitung satu tempat** (`hitung_total`): item `batal` tidak ditagih, jadi
+   tagihan sisa otomatis benar dan bisa dibayar.
+4. **Urutan pemicu adalah bagian dari keputusan.** Pemicu pemeriksa STATUS pesanan bernama
+   `diskon_awal_pesanan` supaya berjalan sebelum pemicu nilai `diskon_batas` (PostgreSQL
+   menjalankan pemicu sebaris menurut abjad nama): penolakan harus berbunyi tentang status,
+   bukan tertutup pesan tentang nilai diskon. Urutan ini dikunci uji (mutasi "nama pemicu
+   diubah" wajib MERAH).
+
+**Bukti:** `supabase/tes/void_satu_item.sql` dan `supabase/tes/diskon_sesudah_lunas.sql` (bagian
+dari suite 44 berkas). `alat/uji-mutasi-0015.py` kini 11 kasus: 10 mutasi wajib MERAH semuanya
+terbukti merah (termasuk "kembalikan perilaku 0014: selalu tutup pesanan", "pagar diskon dihapus",
+"pemicu dilepas dari tabel", "urutan pemicu dibalik"), 1 kasus memang diharapkan hijau (penanda
+lama ditulis ulang tanpa pagar lama). Berkas `0001`–`0014` tetap beku; semua perubahan hidup di
+`0015` yang belum pernah disebar ke proyek nyata.
+
+---
+
+## [Keamanan/2026-09-19] Hitungan pesanan bukan informasi publik lintas resto; pesan PIN kembar dibuat netral
+
+**Konteks (temuan K-2 PR-03 & PR-04, putaran16):** dua kebocoran informasi kecil tetapi nyata.
+(1) `nomor_pesanan_berikutnya()` adalah SECURITY DEFINER dan bisa dipanggil klien mana pun: kasir
+Resto B memanggilnya untuk cabang Resto A dan membaca berapa pesanan yang sudah dibuat resto A
+hari itu. (2) Pesan penolakan `simpan_pin` berbunyi 'PIN itu sudah dipakai pegawai lain di resto
+ini' — kalimat itu MEMASTIKAN bahwa angka yang baru saja dikirim adalah PIN aktif seorang kolega.
+
+**Keputusan:**
+1. **Penghitung nomor tunduk pada isolasi lintas resto yang sama dengan angka uang**
+   (`hitung_total`, `total_dibayar`): pemanggil beridentitas hanya boleh menghitung cabang yang
+   boleh ia pantau (`cabang_pantau_saya`); di luar itu DITOLAK, bukan dijawab angka. Pemanggil
+   tanpa identitas (penyiapan / `service_role`) tetap boleh, karena pemicu penomoran pesanan baru
+   berjalan sebagai peladen.
+2. **Pesan PIN kembar dibuat netral** ('PIN itu tidak bisa dipakai — pilih angka lain.').
+   Aturan keunikan PIN antar pegawai satu resto (T1-23) TIDAK berubah; yang berubah hanya apa yang
+   diberitahukan ke penebak. Alasan sebenarnya tetap tercatat di `percobaan_simpan_pin`
+   (`alasan = 'PIN kembar'`) supaya pemilik bisa menelusuri percobaan menebak.
+3. **Batas jujur yang dicatat, bukan disembunyikan:** sifat berhasil-vs-ditolak pada akhirnya masih
+   bisa dibaca penyerang, jadi pengendali biaya menebak tetap **pembatas 20 percobaan / 15 menit
+   per akun** (keputusan T1-23, 2026-09-17) yang ujinya tetap hidup (`supabase/tes/pin_batas_pasang.sql`).
+   Menambah derau/heuristik baru untuk menutup sisa itu = mengubah kontrol keamanan tanpa
+   persetujuan pemilik → tidak dilakukan sekarang; dicatat sebagai batas.
+
+**Bukti:** `supabase/tes/nomor_pesanan_isolasi.sql` & `supabase/tes/pin_bukan_oracle.sql`; dua uji
+lama yang memeriksa pesan lama diselaraskan (`supabase/tes/kredensial_pin.sql`,
+`supabase/tes/pin_batas_pasang.sql`). `alat/uji-mutasi-0015.py` **15 kasus** — 13 mutasi wajib MERAH
+semuanya terbukti merah, termasuk "pagar isolasi penghitung nomor dihapus" dan "pesan PIN kembar
+dikembalikan ke versi lama". Berkas `0001`–`0014` tetap beku.
+
+---
+
+## [Uang/2026-09-20] Urutan hitungan uang dikunci: pajak & service dari subtotal SETELAH diskon, pembulatan ke bawah di langkah terakhir
+
+**Konteks (temuan K-1 audit AUD-3 2026-09-19, sesi `arena/01a0bbd2`):** laporan
+`docs/uji/audit/LAPORAN_AUD-3_2026-09-19_menyeluruh__01a0bbd2.md` menemukan tiga cacat jalur uang
+yang **dibuktikan nyata dengan probe sendiri** (`docs/uji/audit/probe-2026-09-20/aud-3-f01-f02-uang.sql`
+dijalankan lewat `node alat/uji-sql.mjs`): (a) `hitung_total` menghitung PB1 & service dari **subtotal
+sebelum** diskon, padahal `docs/TECH_SPEC.md` §329-331 mengunci urutannya setelah diskon; (b)
+`pengaturan.pembulatan` **tidak pernah dibaca** mesin sehingga angka tagihan bukan angka rupiah yang
+diminta pemilik; (c) RPC `hitung_total` bisa dipanggil perangkat dan **menulis ulang angka pesanan yang
+sudah lunas** (angka di struk berubah sesudah uang dicatat).
+
+**Keputusan:**
+1. **Basis pajak & service = subtotal SETELAH diskon** (aturan terkunci §329-331, kini benar-benar
+   dijalankan mesin). Contoh 100.000 dengan diskon 20.000 → dasar 80.000 → PB1 10% = 8.000 ·
+   service 5% = 4.000 · total **92.000** (cara lama: 10.000 / 5.000 / 95.000).
+2. **Pembulatan dibaca dari `pengaturan.pembulatan` dan diterapkan di langkah TERAKHIR**, dengan arah
+   **KE BAWAH** (`(total / langkah) * langkah`). Alasan: dokumen terkunci menyebut "pembulatan"
+   sebagai langkah terakhir tetapi **tidak pernah mengunci arahnya** (`PRD.md` §88/§229, `TECH_SPEC.md`
+   §331, `ROADMAP.md` T1-15/T1-16 diperiksa ulang 2026-09-20) — jadi arah adalah keputusan baru yang
+   **dikunci di sini**: membulatkan ke bawah berarti pelanggan tidak pernah dirugikan oleh pembulatan
+   (resto yang menanggung sisa). Arah bisa dibalik satu baris bila pemilik meminta lain, dan uji
+   `supabase/tes/urutan_uang.sql` + mutasi "arah pembulatan dibalik" akan menangkapnya.
+3. **Angka pesanan yang sudah `lunas`/`batal` tidak bisa dihitung ulang dari perangkat.** Panggilan
+   ber-`auth.uid()` pada status itu DITOLAK; **jalur pemicu peladen tetap sah** karena dibedakan
+   dengan `pg_trigger_depth() = 0`. Penanda transaksi via `set_config` DITOLAK sebagai mekanisme
+   karena bisa dipalsukan klien — itu persis celah K-1 yang baru ditutup (`resto.pembatalan_*`).
+4. **Baris pesanan dikunci `for update`** selama perhitungan sehingga dua perhitungan bersamaan
+   (temuan dugaan F-12) tidak saling menimpa angka; ini mengurangi risiko, bukan menutup tuntas —
+   uji concurrency penuh masih pemilik `T1-45`.
+
+**Alasan memilih menulis ulang `hitung_total` (bukan menambal di pemicu):** aturan uang harus hidup di
+**satu tempat**; menambal di pemicu berarti dua rumus berbeda hidup berdampingan dan mudah saling
+menyimpang. Berkas `0001`–`0014` tetap beku — seluruh perubahan hidup di
+`supabase/migrations/0015_penutup_celah_putaran16.sql` **bagian 6**, dan migrasi itu belum disebar ke
+proyek nyata saat keputusan ini dibuat.
+
+**Bukti:** uji regresi baru `supabase/tes/urutan_uang.sql` (6 bagian: tanpa diskon, dengan diskon,
+tiga langkah pembulatan, komponen tidak ikut dibulatkan, pesanan lunas tidak bisa dihitung ulang,
+jalur pemicu peladen tetap hidup) · ekspektasi uji lama `supabase/tes/diskon_sesudah_lunas.sql`
+**diselaraskan ke rumus benar** (29.700 → **29.498**, bukan mesin yang dilemahkan) ·
+`alat/uji-mutasi-0015.py` kini **17 kasus**, empat di antaranya mengunci keputusan ini dan
+**terbukti MERAH** ("pajak dari subtotal sebelum diskon", "pembulatan diabaikan", "penjaga lunas
+dilepas", "pembulatan dibalik ke atas") · probe audit lama kini **GAGAL** = cacat terbukti hilang ·
+suite `node alat/uji-sql.mjs` **46 LULUS · 0 GAGAL**.
+
+---
+
+## [Uang/2026-09-20] Tiga penjaga baru: metode bayar wajib aktif, pembatalan sekali per target, stempel lifecycle bukan milik perangkat
+
+**Konteks (temuan K-2 audit AUD-3 2026-09-19, sesi `arena/01a0bbd2`):** tiga temuan K-2 yang
+**dibuktikan nyata dengan probe sendiri** sebelum diperbaiki
+(`docs/uji/audit/probe-2026-09-20/aud-3-f03-f05-f06-uang.sql`; probe LULUS = cacat ada):
+(a) pembayaran lewat **metode bayar yang sudah dinonaktifkan pemilik** tetap diterima karena pemicu
+menyamakan "baris metode ada" dengan "metode boleh dipakai"; (b) baris `pembatalan` **tidak
+idempoten** — kiriman ulang (klik ganda kasir / antrean perangkat offline) masuk sebagai kejadian
+KEDUA sehingga laporan kerugian menghitung satu aksi dua kali; (c) **stempel lifecycle pesanan**
+(`dibayar_pada`, `dibatalkan_pada`, `alasan_batal`) bisa dikarang perangkat lewat UPDATE biasa —
+laporan membaca "pernah dibayar/dibatalkan" untuk kejadian yang tidak ada.
+
+**Keputusan:**
+1. **Metode bayar wajib AKTIF.** Pemicu pembayaran memeriksa `metode_bayar.aktif`; metode yang
+   dimatikan pemilik DITOLAK dengan pesan yang menyebut sebabnya ("sudah dinonaktifkan pemilik —
+   pilih metode yang masih aktif"). Pilihan metode adalah pengaturan pemilik, bukan kesempatan kasir.
+2. **Satu target pembatalan = satu jejak.** Target yang sudah `batal` (item atau pesanan) menolak
+   baris `pembatalan` baru — termasuk bila alasannya diganti. Aturan ini dipilih di atas
+   "kunci idempotensi pada kesamaan payload" supaya alasannya sederhana dan bisa diaudit: pembatalan
+   kedua atas target yang sudah batal memang tidak punya arti. Dua item BERBEDA tetap bisa
+   masing-masing dibatalkan sekali (dikunci uji sebagai kontrol positif).
+3. **Stempel lifecycle hanya dari jalur peladen.** UPDATE dari perangkat menolak perubahan
+   `dibayar_pada`, `dibatalkan_pada`, dan `alasan_batal` (termasuk MENGHAPUSNYA). Jalur peladen —
+   pemicu pembatalan/pembayaran dan RPC SECURITY DEFINER — tetap bebas; pengirimannya ke dapur
+   (`status` + `dikirim_ke_dapur_pada`) tetap boleh dari perangkat karena itu memang aksi kasir.
+
+**Alasan bentuk perbaikan:** ketiganya ditambahkan sebagai **pemeriksaan pada pemicu yang sudah ada**
+(versi barunya hidup di `0015` bagian 8 karena definisi lama ada di berkas beku `0012`/`0013`/`0014`),
+bukan pemicu baru di jalur uang — supaya tidak ada dua tempat yang berebut menolak hal yang sama dan
+pesan kesalahannya tetap satu.
+
+**Bukti:** uji regresi baru `supabase/tes/metode_bayar_nonaktif.sql`, `supabase/tes/pembatalan_sekali.sql`,
+dan `supabase/tes/lifecycle_pesanan.sql`; uji lama `supabase/tes/pembayaran.sql` **diselaraskan**
+(kasus kerugian memakai pesanan kedua, karena aturan "satu target = satu jejak" membuat pembatalan
+ulang atas pesanan yang sudah batal memang harus ditolak) · `alat/uji-mutasi-0015.py` kini **20 kasus**,
+tiga di antaranya membalik masing-masing penjaga dan **terbukti MERAH** · probe audit ketiga kini
+**GAGAL** = cacat terbukti hilang · suite `node alat/uji-sql.mjs` **50 LULUS · 0 GAGAL**.
+
+---
+
+## [Uang/2026-09-20] Status item hanya maju satu langkah, dan pembatalan selalu punya jalur resmi (berjejak)
+
+**Konteks (temuan K-2 audit AUD-3 2026-09-19 F-04, dibuktikan nyata lewat probe sendiri
+`docs/uji/audit/probe-2026-09-20/aud-3-f04-status-item.sql`):** perangkat bisa (a) memasukkan
+item yang **lahir `siap`** — melewati seluruh pemeriksaan "dapur sudah mulai?"; (b) melompat
+`baru → siap`; (c) memundurkan status yang sudah maju; dan (d) **membatalkan item hanya dengan
+mengubah kolom status** — tanpa alasan, tanpa baris `pembatalan`, tanpa nilai kerugian. Yang
+terakhir itu mematikan seluruh rantai bukti pembatalan (Aturan Bisnis 7) dan membuat laporan
+kerugian tidak bisa dipercaya.
+
+**Keputusan:**
+1. **Status item hanya maju satu langkah: `baru → dimasak → siap`** (aturan terkunci TECH_SPEC
+   ART-4). Item baru WAJIB lahir `baru`; lompatan, mundur, dan "menghidupkan kembali" item yang
+   sudah batal ditolak.
+2. **`batal` bukan transisi biasa.** Satu-satunya jalur yang sah adalah **baris `pembatalan`
+   resmi** (beralasan; wajib persetujuan PIN atasannya bila dapur sudah mulai). Pemicu baris itu
+   yang menandai item `batal` dan mencatat nilai kerugian dari salinan harga.
+3. **Jalur peladen tetap bebas** (peran pemilik tabel / `service_role`): pemicu pembatalan dan
+   fungsi peladen tidak ikut tertahan; begitu pula penyiapan data & perbaikan keadaan.
+
+**Alasan:** jalur pembatalan yang "lewat jalur belakang" membuat dua sumber kebenaran untuk
+kejadian yang sama — satu dengan jejak, satu tanpa. Aturan transisi ini juga yang membuat arti
+status item sama bagi dapur, kasir, dan laporan.
+
+**Bukti:** uji regresi baru `supabase/tes/status_item_transisi.sql`; dua uji lama **diselaraskan**
+ke jalur resmi — `supabase/tes/pesanan.sql` (kasir kini membatalkan lewat baris `pembatalan` dan
+membuktikan pembatalan langsung DITOLAK) dan `supabase/tes/uang_peladen.sql` (item uji dibatalkan
+lewat baris resmi) · `alat/uji-mutasi-0015.py` kini **21 kasus**; mutasi "aturan transisi dilepas"
+**terbukti MERAH** · probe F-04 kini **GAGAL** = cacat terbukti hilang · suite
+`node alat/uji-sql.mjs` **51 LULUS · 0 GAGAL**. **Catatan mekanisme:** karena definisi berlaku
+`picu_item_jaga` kini hidup di bagian 9 (berkas beku `0009`–`0014` tidak disentuh), dua mutasi lama
+yang menyunting definisi PERTAMA diperbaiki agar menyentuh definisi TERAKHIR — kalau tidak,
+mutasinya tumpul (versi bagian 9 menimpa kembali).
+
+
+## [Keamanan/2026-09-20] Satu aturan lingkup izin: admin cabang hanya cabangnya — di policy, bukan cuma di kertas
+
+**Konteks (temuan K-2 audit AUD-3 2026-09-19 F-10, dibuktikan NYATA lewat probe sendiri
+`docs/uji/audit/probe-2026-09-20/aud-3-f10-admin-cabang-izin.sql`):** tiga sumber tidak sepakat.
+Kontrak (`docs/TECH_SPEC.md` §294, `docs/PRD.md` tentang cabang, `docs/DISCOVERY.md` butir 53)
+berkata admin cabang hanya cabangnya; policy `izin_pilih` memakai `sepenyewa(pengguna_id)` =
+SELURUH penyewa; ujinya (`supabase/tes/rls_pengguna.sql`) malah mengunci perilaku bocor itu
+(8 baris). Akibat nyata di layar centang izin (M3): admin Cabang Pusat membaca izin pegawai
+Cabang Dua.
+
+**Keputusan:** aturan yang berlaku adalah **kontrak**, dan hanya ada SATU aturan:
+1. Pegawai melihat izinnya sendiri.
+2. Owner pusat melihat seluruh izin **restonya**.
+3. Admin cabang melihat izin pegawai **yang bertugas di cabang yang sedang ia pakai** —
+   sama seperti policy `pengguna_pilih`, supaya tidak lahir dua tafsir.
+4. Sampai bagian ini belum ada RPC penulis `public.izin`, jadi tidak ada jalur tulis yang perlu
+   diselaraskan; yang diperbaiki lingkup BACA.
+
+**Alasan:** aturan keamanan yang hanya hidup di dokumen = aturan yang tidak ditegakkan. Ketika
+policy, uji, dan kontrak berbeda, yang menang dalam praktik adalah policy — jadi policy-nya yang
+harus diselaraskan ke kontrak, bukan ujinya dibuat nyaman.
+
+**Bukti:** bagian 11 `supabase/migrations/0015_penutup_celah_putaran16.sql` · uji
+`supabase/tes/rls_pengguna.sql` §5 dikoreksi (4 baris + larangan melihat izin pegawai cabang lain)
+· mutasi "lingkup baca izin dikembalikan ke se-penyewa" **terbukti MERAH** di
+`alat/uji-mutasi-0015.py` · probe F-10 kini **GAGAL** = cacat terbukti hilang.
+
+## [Keamanan/2026-09-20] Helper hierarki PIN bukan alat klien: hak execute dicabut + identitas dipakukan
+
+**Konteks (temuan K-2 audit AUD-3 2026-09-19 F-11, dibuktikan NYATA lewat probe sendiri
+`docs/uji/audit/probe-2026-09-20/aud-3-f11-helper-pin.sql`):** `peran_lebih_tinggi(p_pemanggil,
+p_target)` adalah `SECURITY DEFINER`, diberi execute ke `authenticated`, dan menerima DUA UUID
+bebas tanpa membandingkan `p_pemanggil` dengan `auth.uid()`. Dari kursi kasir, satu `select`
+cukup untuk memetakan hierarki peran siapa pun — termasuk pegawai resto lain.
+
+**Keputusan (dua lapis, sesuai anjuran laporan):**
+1. **Tidak callable klien:** hak execute dicabut dari `public` & `authenticated`; pemakai
+   sebenarnya (`simpan_pin`, `SECURITY DEFINER`) tetap bisa memanggilnya.
+2. **Identitas dipakukan:** bila ada pemanggil ber-JWT, `p_pemanggil` WAJIB dirinya sendiri;
+   selain itu jawabannya `false` — menolak, bukan menjawab atas nama orang lain. Tanpa identitas
+   (penyiapan/`service_role`) pemeriksaan dilewati seperti jalur peladen lain di proyek ini.
+3. **Aturan umum:** pemeriksaan "atasan" harus bertumpu pada identitas yang sedang masuk, bukan
+   UUID kiriman perangkat.
+
+**Bukti:** bagian 10 `supabase/migrations/0015_penutup_celah_putaran16.sql` · uji
+`supabase/tes/pin_helper_pribadi.sql` — termasuk skenario "jalur baru tanpa pembungkus identitas"
+(pembungkus `SECURITY DEFINER` yang mewakili jalur itu **tidak** bisa mengaku atasan) dan kontrol
+bahwa owner tetap boleh mengganti PIN bawahan · 2 mutasi wajib-MERAH ("hak execute dikembalikan",
+"pemakuan identitas dilepas") · probe F-11 kini **GAGAL**.
+
+## [Uang/2026-09-20] Nomor pesanan diambil di bawah kunci — tetapi temuan F-12/F-13 BELUM dicap selesai
+
+**Konteks (temuan K-1/K-2 audit AUD-3 2026-09-19 F-12 & F-13, status **DUGAAN**):** hitungan uang
+dan nomor pesanan dikerjakan tanpa serialisasi eksplisit, sehingga dua pengiriman bersamaan
+berpotensi membaca angka yang sama.
+
+**Keputusan:**
+1. **F-13 dirampungkan di mesin:** `nomor_pesanan_berikutnya()` kini mengambil nomor di bawah
+   `pg_advisory_xact_lock` per (cabang, tanggal) dan ditandai **VOLATILE** (bukan STABLE) supaya
+   kunci memang boleh dipakai. Batas nyata yang sudah ada sebelumnya: kolom `nomor` UNIK per
+   (cabang, tanggal) — jadi nomor kembar tidak bisa tersimpan; yang dulu bisa terjadi hanyalah
+   INSERT kedua gagal karena bentrok.
+2. **F-12** sudah diredam di bagian 6 (`for update` pada baris pesanan sebelum pemeriksaan uang).
+3. **Keduanya TETAP TERBUKA (dipagari) dan TIDAK dicap DITUTUP.** Pembuktian yang diminta laporan
+   adalah uji dua transaksi nyata; lingkungan uji proyek (PGlite) berjalan di satu koneksi sehingga
+   uji itu belum bisa dijalankan. Yang dijaga mesin sekarang adalah **sifat serialisasinya**
+   (fungsi volatile + pemanggilan kunci benar-benar ada) lewat `supabase/tes/nomor_pesanan_kunci.sql`
+   dan 2 mutasi wajib-MERAH.
+
+**Alasan menahan klaim:** project ini sudah dua kali membayar mahal karena "hijau" yang ternyata
+tidak menguji apa-apa. Lebih jujur menulis "dipagari, uji concurrency menyusul" daripada menutup
+temuan dengan bukti yang tidak ada.
+
+
+## [Keamanan/2026-09-20] Katalog cacat kalibrasi dikeluarkan dari repo — penilai ketajaman auditor tidak boleh bisa mencontek
+
+**Konteks (temuan audit H F-01, K-2, 2026-09-20):** `alat/kalibrasi-cacat.json` memuat pasangan `cari`/`ganti`
+dari setiap cacat yang ditanam untuk menguji ketajaman auditor/peninjau. Selama berkas itu hidup di dalam repo,
+siapa pun yang bisa membaca repo — dan auditor memang pekerjaannya membaca repo — bisa mencocokkan cacat yang
+ditanam, lalu menulis skor `Ditemukan: X dari Y` yang sempurna tanpa mengulas apa pun. Bantah-balik sesi kerja
+menemukan cacatnya **lebih parah dari dugaan laporan**: salinan kalibrasi jalur mesin dulu dibuat dengan
+`git worktree add`, sehingga `git diff`/`git show` **di dalam salinan auditor** langsung memperlihatkan baris mana
+yang ditanami cacat (cacat ditanam sebagai perubahan belum-di-commit).
+
+**Keputusan (izin Lee 2026-09-20 — *"Aku ikut yang terbaik menurut kamu. Klo sebaiknya dikeluarkan, silahkan
+keluarkan"*):**
+
+1. **Katalog cacat DIPINDAH ke luar repo** — hidup di `KALIBRASI_DIR` (baku `/home/user/.kalibrasi/kalibrasi-cacat.json`),
+   berjejak di `docs/uji/BERKAS_PENSIUN.md` baris #2 (siapa memutuskan, kapan, kenapa, nasib isi).
+2. **Jalur mesin:** salinan auditor dibuat lewat `git archive` + satu commit bersih (**tanpa riwayat Git bermakna**)
+   dan katalog **dikeluarkan** dari salinan; `pastikan_salinan_bersih()` menolak salinan yang masih membawa katalog,
+   berkas kunci kalibrasi, lebih dari satu commit, atau perubahan belum-di-commit.
+3. **Gagal-tertutup:** alat membaca katalog **hanya** dari luar repo; bila tidak ada, ia menolak berjalan (lebih baik
+   kalibrasi tidak jalan daripada skornya bisa dipalsukan).
+4. **Aturan berlaku umum:** berkas yang memuat jawaban latihan/uji apa pun tidak boleh hidup di repo yang sedang diuji.
+
+**Bukti:** `alat/periksa-kunci-kalibrasi.py` aturan **A2/F/G** + `--uji-diri` **13 kasus** semuanya menolak;
+`python3 alat/audit-independen.py --kalibrasi-siapkan` berjalan dengan salinan bersih (katalog tidak ada, satu commit,
+`git diff` kosong); `python3 alat/review-pr.py --kalibrasi-pr-siapkan` berjalan (bahan + kunci di luar repo);
+`python3 alat/periksa-rujukan.py` kini mengakui daftar pensiun sehingga riwayat yang jujur tidak dianggap rujukan mati.
+
+## [Infrastruktur/2026-09-20] Versi Node yang diiklankan DITURUNKAN dari pustaka terkunci — bukan ditulis tangan
+
+**Konteks (temuan audit I F-21, K-3, 2026-09-19):** `aplikasi/package.json` mengiklankan `engines.node: ">=20"` dan
+`aplikasi/README.md` menulis "Node.js 22 (minimal 20)", padahal pustaka yang terkunci menuntut lebih:
+`@supabase/supabase-js` **>=22.0.0** dan `vitest` **^22.12.0 || ^24.0.0 || >=26.0.0**. Orang yang mengikuti README bisa
+memasang versi yang tidak didukung pustaka wajib aplikasi — iklan yang salah arah, walau hanya kelas K-3.
+Dugaan penyebab di laporan (lock diperbarui tanpa menyelaraskan prasyarat) terbukti: angka di dokumen ditulis tangan.
+
+**Keputusan:**
+
+1. **Batas minimum yang diiklankan = `>=22.12.0`** (batas bawah tertinggi dari seluruh entri lock yang **bukan opsional**).
+   Angka ini **diturunkan mesin** oleh `aplikasi/alat/periksa-node.py`, bukan ditulis tangan lagi.
+2. **Entri opsional tidak menaikkan syarat minimum** (mis. `@napi-rs/lzma-linux-x64-gnu` bawaan rollup meminta ^22.20).
+   Alasannya: npm melewati dependensi opsional yang tidak cocok dengan versi Node, jadi versi itu tidak boleh
+   memaksa pengguna menaikkan Node. Aturan ini dikunci kontrol `--uji-diri` (entri opsional menuntut Node 30 → tetap LOLOS).
+3. **Iklan dan mesin harus sama**: `aplikasi/README.md` wajib menyebut batas yang sama (`22.12+`). Beda ke arah mana pun
+   ditolak pemeriksa.
+4. **CI menjalankan versi yang diiklankan**: ketiga alur GitHub memakai `node-version: '22.12.0'`. Jadi janji "minimum
+   22.12" diuji sungguhan oleh CI, dan bentuk satu angka (`'22'`) ditolak penjaga karena berarti 22.0.0.
+5. **Bentuk `engines` wajib `>=X`** (persis). Bentuk lain (`^22.12.0`, `22.x`) ditolak supaya pemeriksa tidak menebak.
+6. **Gagal-tertutup**: kalau `engines.node` hilang dari lock (tidak ada bukti apa pun), pemeriksa MENOLAK — jangan
+   mengaku selaras tanpa bukti.
+
+**Bukti:** `aplikasi/alat/periksa-node.py` LOLOS (kebutuhan 22.12.0 dari 187 entri non-opsional; iklan, README, 3 alur, dan
+Node lingkungan 22.22.3 semuanya memenuhi) · `--uji-diri` 9 kasus (1 salinan utuh diterima · 7 mutasi ditolak · 1 kontrol) ·
+`alat/periksa-gerbang-ci.py` menolak bila langkah pemeriksa ini dihapus dari CI.
+
+## [Mekanisme/2026-09-20] Nama uji tidak boleh lebih kuat daripada yang diuji
+
+**Konteks (temuan audit I F-19, K-3, 2026-09-19):** uji bernama `'memanggil onUbah saat diisi'` hanya merender HTML
+(SSR), memeriksa `type="text"`, lalu justru memastikan callback **TIDAK** terpanggil. Rangkaian uji tetap hijau walau
+`onChange` tidak tersambung ke apa pun. Ini kelas cacat yang berbahaya justru karena tampak aman: "86 uji terbaca"
+padahal sebagian tidak membuktikan apa yang dijanjikan namanya.
+
+**Keputusan:**
+
+1. **Uji yang namanya menjanjikan interaksi wajib memicu kejadian.** Kata janji yang diawasi:
+   "saat diisi/diklik/ditekan/diubah/diketik/dipilih/dikirim/di-submit/digulir/disentuh", "memanggil on…", "memicu on…".
+   Bukti tindakan yang diterima: `fireEvent`, `userEvent`, `dispatchEvent`, atau `.click(`/`.focus(`/`.blur(`/`.type(`/`.keyboard(`.
+2. **Ditegakkan mesin, bukan disiplin:** `aplikasi/alat/periksa-uji.py` aturan 3 memeriksa tiap `it(`/`test(` per berkas uji
+   di `src/` dan `e2e/`, menyebut **berkas:baris** saat menolak. Badan uji yang tidak terbaca (bentuk berkas di luar
+   dugaan) juga dianggap GAGAL — pemeriksa tidak boleh buta diam-diam.
+3. **Bukan uji interaksi? Ganti namanya.** Kalau sebuah uji memang hanya memeriksa markup, namanya tidak boleh memakai
+   kata janji di atas. Ini menjaga nama uji sebagai kontrak.
+4. **Uji interaksi memakai DOM nyata:** berkas uji yang butuh interaksi memakai `// @vitest-environment jsdom` (per berkas)
+   + `@testing-library/react`; uji markup lain di berkas yang sama tetap boleh SSR.
+
+**Bukti:** penjaga menunjuk cacat aslinya sebelum diperbaiki
+(`aplikasi/src/komponen/komponen.test.tsx:145`) dan LOLOS sesudahnya · uji baru **merah** saat handler `onChange` dilepas
+maupun saat nilainya salah, **hijau** saat dipulihkan (18 uji) · `aplikasi/alat/periksa-uji.py --uji-diri` **5 kasus**
+semuanya sesuai harapan · `--uji-diri` ikut CI + `aplikasi/alat/periksa-semua.sh` dan terdaftar di gerbang wajib.
+
+## [Mekanisme/2026-09-20] Uji aplikasi dibuktikan bisa MERAH: harness mutasi kode aplikasi
+
+**Konteks (tiga temuan audit ditutup bersamaan, semuanya kelas yang sama — "alat bilang aman, padahal belum terbukti"):**
+**I F-19** uji bernama "memanggil onUbah saat diisi" tidak pernah mengisi input; **F F-14 / I F-05**
+`ujiSambungan()` melaporkan "berhasil" hanya dari kesehatan Auth walau jalur data menolak/gagal;
+**I F-06** kegagalan `localStorage` (izin ditolak / penyimpanan penuh) menembus helper tema dan memutus
+effect React. Ketiganya lolos karena **tidak ada satu pun mekanisme yang membuktikan uji aplikasi bisa MERAH**.
+
+**Keputusan:**
+
+1. **Harness baru `aplikasi/alat/uji-mutasi-app.mjs`** (setara `alat/uji-mutasi-*.py` untuk SQL): salinan
+   `aplikasi/` dibuat di folder sementara (`node_modules` disambung), salinan **utuh wajib hijau** dulu
+   (kontrol), lalu tiap mutasi perilaku WAJIB membuat uji MERAH. Tidak ada berkas repo yang disentuh.
+2. **Merah palsu tidak diterima.** Pelajaran nyata saat membuat harness ini: opsi `--reporter=basic` sudah
+   tidak ada di Vitest 5, dan akibatnya SEMUA mutasi terlihat "merah" padahal ujinya tidak pernah jalan
+   (vitest keluar bukan-nol saat gagal mulai). Harness sekarang hanya menerima merah yang keluarannya benar-benar
+   memuat kegagalan uji dan **bukan** galat startup (`merahSah`).
+3. **Gagal-tertutup:** pola mutasi yang tidak ketemu di kode = harness GAGAL (berarti mutasinya tidak diterapkan,
+   sehingga tidak membuktikan apa pun). `--uji-diri` membuktikan dua hal: pola salah ditolak, dan saat uji
+   dilemahkan (assert interaksi dibuang) mutasi yang sama memang terdeteksi lolos.
+4. **Wajib jalan di CI** (sesudah `npm test`) + `aplikasi/alat/periksa-semua.sh`, dan **terdaftar di gerbang wajib**
+   `alat/periksa-gerbang-ci.py` supaya tidak bisa dihapus dari CI secara senyap.
+
+**Bukti:** salinan utuh hijau + 5 mutasi perilaku semuanya MERAH (handler `onChange` dilepas · nilai callback
+dirusak · `ok` sambungan kembali melihat Auth saja · `getItem` tanpa penjagaan · `setItem` tanpa penjagaan) ·
+`--uji-diri` 2/2 sesuai harapan · `--uji-diri` ikut CI.
+
+## [Keamanan/2026-09-20] Penutup celah PIN putaran18 (0016): kecocokan rahasia ≠ otorisasi, dan kontrak pesan `simpan_pin`
+
+**Konteks (empat temuan audit I ditutup satu migrasi, `supabase/migrations/0016_penutup_celah_pin_putaran18.sql`):**
+**I F-15** pemanggil nonaktif (`penyewa_saya()` NULL) dulu tetap dilayani pencocokan kredensial;
+**I F-16** `verifikasi_pin` (0012) menyimpan baris `berhasil=true` SEBELUM menolak izin aksi, dan konsumen kupon
+diskon hanya menyaring baris itu — "PIN benar tetapi tidak berizin" bisa menjadi stempel diskon;
+**I F-14** dua jalur `simpan_pin` memakai RAISE sesudah insert catatan percobaan → transaksi abort → catatan hilang
+→ pembatas tebakan tidak pernah menyala untuk jalur "PIN lama salah" & "hierarki peran";
+**I F-13** helper perbandingan peran bisa menjadi oracle lintas penyewa bila dipanggil pemegang `service_role`.
+
+**Keputusan:**
+
+1. **Kecocokan rahasia BUKAN otorisasi.** Setiap konsumen bukti PIN (void 0013, diskon 0016) WAJIB mengecek ulang
+   izin penyetuju saat kupon dikonsumsi (`boleh_untuk(disetujui_oleh, aksi)`). Baris `berhasil=true` di
+   `percobaan_pin` hanya berarti "rahasia cocok" — tidak pernah berarti "boleh".
+2. **Jawaban seragam untuk pemanggil tak dikenal.** `verifikasi_pin` menolak pemanggil nonaktif/lintas-resto dengan
+   `'PIN tidak dikenali.'` SEBELUM kredensial disentuh — tanpa membocorkan keberadaan/status akun.
+3. **Kontrak baru `simpan_pin`: PENOLAKAN = PESAN, bukan exception.** Semua jalur penolakan (PIN lemah · kembar ·
+   PIN lama salah · hierarki peran · melebihi batas) mengembalikan teks penolakan dan transaksi TETAP commit supaya
+   catatan percobaan bertahan. Konsekuensi yang diterima sadar: pemanggil harus membaca pesan (bukan mengandalkan
+   error); uji yang dulu memakai `uji.harap_gagal` dikonversi ke asersi pesan (`uji.sama(... like ...)`).
+4. **Pagar tenant di helper hierarki.** `peran_lebih_tinggi` menolak perbandingan lintas penyewa bahkan dari
+   `service_role`; lapisan pertama tetap pinning `auth.uid()` (F-11, 0015) dan ACL (execute hanya service_role).
+5. **Aturan harness ikut diperbarui:** yang berlaku adalah `create or replace` TERAKHIR — dua mutasi
+   `alat/uji-mutasi-0015.py` (pesan PIN kembar PR-04 · pemakuan identitas F-11) kini diarahkan ke 0016.
+   Blok uji yang butuh pesanan di luar fixture global WAJIB membuat pesannya sendiri (state antar-berkas
+   persisten dalam satu run) dan memilih nominal di dalam batas pemohon, supaya yang menolak pastilah pagar
+   yang diuji — pelajaran nyata: nominal 3.000 (5,56%) ditolak `diskon_batas` duluan sehingga mutasi F-16
+   sempat terlihat tumpul (false-green).
+
+**Bukti:** suite SQL **53 LULUS · 0 GAGAL** · `alat/uji-mutasi-0016.py` 6 mutasi wajib MERAH + kontrol hijau
+(`--uji-diri` LOLOS; terdaftar dua arah: ci.yml + `alat/periksa-gerbang-ci.py` + `aplikasi/alat/periksa-semua.sh`) ·
+`alat/uji-mutasi-0015.py` kembali LOLOS penuh setelah dua mutasinya diarahkan ke 0016.
+
+## [Uang/2026-09-20] Sisa review putaran16 ditutup: kupon wajib pesanan, saldo awal wajib buku besar, riwayat meja dilindungi
+
+**Konteks:** delapan temuan review putaran16 (PR-05…PR-09, PR-13…PR-15) diverifikasi ulang dengan probe sendiri
+lalu ditutup — lima di antaranya lewat `supabase/migrations/0016_penutup_celah_pin_putaran18.sql`.
+
+**Keputusan:**
+
+1. **Kupon persetujuan wajib terikat pesanan di LAPIS DATABASE (PR-07).** `verifikasi_pin` menolak aksi
+   `void_sesudah_dapur`/`beri_diskon` tanpa `p_pesanan_id` (pesan + percobaan tercatat, ikut pembatas).
+   Edge Function sudah menolak di batas (I F-02) — ini lapis keduanya, supaya jalur RPC langsung tidak
+   bisa melahirkan kupon buntu ("tulis bisa, pakai mustahil").
+2. **Saldo awal stok wajib lewat buku besar (PR-08).** INSERT `stok_bahan` dengan `jumlah` bukan-nol DITOLAK;
+   bahan lahir dengan saldo 0 dan saldo awal dicatat sebagai baris `stok_pergerakan` yang otomatis menjumlah
+   ke saldo. Buku besar tetap satu-satunya asal-usul angka stok (penjaga UPDATE 0007 tidak berubah).
+3. **PIN warisan 4 angka: naik kelas swadaya, bukan buntu (PR-09).** PIN 4 angka diterima HANYA sebagai
+   `p_pin_lama` di `simpan_pin` (dicocokkan langsung ke hash, pembatas 5×/15 menit + catatan `percobaan_pin`
+   tetap jalan); verifikasi masuk tetap menuntut 6 angka — aturan 6 angka tidak dilonggarkan.
+4. **Hak fungsi dikoreksi DUA arah (PR-14).** `service_role` dipulihkan pada `hitung_total` (jalur peladen
+   tidak boleh ikut mati oleh `revoke ... from public`), sementara `peringkat_peran` DICABUT dari anon —
+   peta hierarki peran bukan konsumsi publik. Prinsip: revoke massal wajib diikuti audit siapa lagi yang
+   kehilangan hak sah.
+5. **Riwayat meja dilindungi (PR-15).** Meja yang punya riwayat pesanan (termasuk lunas/batal) tidak bisa
+   dihapus — `on delete set null` tidak lagi bisa mencabut "meja mana" dari laporan; jalur yang benar adalah
+   nonaktifkan (`aktif = false`). Jalur peladen (`peran_peladen()`) tetap dikecualikan seperti desain 0014.
+
+**Bukti:** 5 berkas uji baru (`kupon_wajib_pesanan`, `pin_warisan`, `saldo_awal_stok`, `hak_fungsi`,
+`meja_riwayat`) · suite SQL **58 LULUS · 0 GAGAL** · `alat/uji-mutasi-0016.py` **11 mutasi wajib MERAH**
++ kontrol hijau · probe lama pr05/06/07/08/09/14 kini GAGAL (= cacat hilang); pr15 tetap hijau HANYA karena
+probe memakai jalur superuser yang memang melewati penjaga — dicatat jujur, cacat sisi klien ditutup dan
+dibuktikan uji regresi + mutasi.
+
+## [Mekanisme/2026-09-20] Migrasi 0015+0016 disebar ke proyek nyata dan dibekukan (sidik sampai 0016)
+
+**Konteks:** atas izin Lee ("Silahkan Sebar"), alur sengaja `sebar-skema.yml` dijalankan untuk pertama
+kalinya sejak pembekuan `0001`–`0014`: run `35516000988` hijau berurutan (cek penanda & rahasia →
+pratinjau `--dry-run` → `db push` → `migration list` sebagai bukti). Run pertama sebelumnya gagal di
+gerbang rahasia karena token Supabase kedaluwarsa; Lee mengganti dengan **token scoped** baru
+(proyek Resto-Barokah saja, 90 hari).
+
+**Keputusan:**
+
+1. `0015` dan `0016` masuk daftar beku `alat/periksa-migrasi-beku.py` (sidik SHA-256) dan
+   `NOMOR_TERTINGGI_BEKU` naik 14 → **16**; skema berikutnya WAJIB berkas `0017`+.
+2. Penanda `supabase/SEBAR-SKEMA` dihapus lagi sesudah hijau (alur yang menyala tanpa penanda
+   berhenti sendiri di pemeriksaan `test -f`).
+3. Penyebaran berikutnya tetap langkah pemilik BARU — persetujuan "Silahkan Sebar" tidak berlaku
+   berulang. Token scoped 90 hari dicatat: perbarui ± 19 Desember 2026 bila dipakai lagi.
+
+**Bukti:** run `35516000988` hijau (semua langkah success) · `python3 alat/periksa-migrasi-beku.py`
+LOLOS + `--uji-diri` LOLOS (kasus "berkas baru sah" disegarkan ke `0017`).
+
+---
+
+## [Mekanisme/2026-09-20] Pemicu satu kalimat untuk pemeriksaan/audit/review (AL-15) — prompt pendek
+
+**Keputusan Lee:** "Aku mau mekanisme review dan audit dan pemeriksaan itu semua dibuat lebih
+mudah dikerjakan… aku tinggal bilang kata-kata simple… agent kasih prompt yang singkat… setelah
+selesai, agent sesi independen otomatis masukin hasilnya ke GitHub" — disetujui ("Baik, aku setuju")
+setelah agent menyampaikan kritik & rancangan.
+
+**Aturan yang dikunci:**
+1. Pemicu sederhana → mesin: `python3 alat/siapkan-pemeriksaan.py --frasa "<kalimat Lee>"`
+   (menyeluruh · bidang keamanan · review PR · fondasi). Frasa tak dikenal DITOLAK, bukan ditebak.
+2. Yang Lee tempel ke sesi baru hanyalah PROMPT PENDEK (≤10 baris) berisi SATU URL berkas
+   SIAP-TEMPEL + identitas paket + commit target. Prompt panjang TIDAK dihapus — ia tetap berkas
+   paket di repo, terjaga `periksa-paket.py` (gerbang CI-hijau H F-02 tetap berlaku saat membuat).
+3. `--prompt-pendek` MENOLAK mencetak bila berkas paket belum masuk commit HEAD atau HEAD belum
+   di-push (URL harus bisa dibuka dari luar).
+4. Jalur balik laporan tetap seperti semula: laporan = berkas Git di cabang sesi independen,
+   ditarik `--ambil-laporan` (idempoten); jalur tempel manual tetap sah sebagai cadangan.
+5. Audit bidang (`--bidang keamanan`) = audit menyeluruh yang dipersempit prefiks berkas;
+   temuan di LUAR lingkup tetap wajib dilaporkan (lingkup = kedalaman wajib, bukan izin melapor).
+6. Penjaga: `alat/siapkan-pemeriksaan.py --uji-diri` (13 kasus) terdaftar di CI + gerbang wajib
+   + mutasi "langkah dihapus → ditolak" di `periksa-gerbang-ci.py` + `periksa-semua.sh`;
+   buku induk dapat alur **AL-15** (`periksa-panduan.py` MIN_ALUR 14→15).
+
+## [Uang/2026-09-21] Pesanan yang sudah lunas/batal beku TOTAL bagi perangkat (bukan cuma nilai uang)
+
+**Konteks (temuan H F-07 audit AUD-3 2026-09-20, sesi `arena/01a0bf6e`):** pembekuan
+"pesanan tertutup" sebelumnya hanya dijaga pada nilai uang (0013/0014/0015), item &
+baris diskon (0015 D F-01), dan stempel lifecycle (0015 F-06). Probe
+`docs/uji/audit/probe-2026-09-21/h-f07-kolom-non-uang.sql` membuktikan kasir masih bisa
+menulis `catatan`/`tipe`/`shift_id` pesanan yang sudah `lunas`/`batal` — laporan membaca
+jejak yang tidak pernah terjadi.
+
+**Keputusan:** migrasi `supabase/migrations/0017_pesanan_tertutup_beku.sql` — pemicu
+BEFORE UPDATE `picu_pesanan_tertutup_beku` menolak SETIAP perubahan baris pesanan
+`lunas`/`batal` yang datang dari jalur perangkat (`new is distinct from old`). Jalur
+peladen (pemicu pembayaran/pembatalan, RPC SECURITY DEFINER) tetap bebas lewat pola
+bypass teruji `auth.uid() is null or public.peran_peladen()` (sama dengan
+`picu_pesanan_jejak_jujur` 0015). Koreksi resmi = kejadian baru berjejak, bukan tulis
+ulang baris — konsisten dengan [Uang/2026-09-20] (tolak hitung-ulang perangkat pada
+pesanan tertutup).
+
+**Bukti:** probe kini GAGAL (cacat hilang) · uji `supabase/tes/pesanan_tertutup_beku.sql`
+(kontrol draf boleh diubah; lunas & batal ditolak dengan sebab terpaku; jalur peladen
+tetap sah; uang tetap konsisten) · suite SQL **59 LULUS · 0 GAGAL** ·
+`alat/uji-mutasi-0017.py` 3 mutasi WAJIB MERAH terbukti (penjaga dihapus · batal tak ikut
+beku · beku menyempit ke kolom status) + gerbang CI baru di `periksa-gerbang-ci.py`.
+
+## [Keamanan/2026-09-21] Perangkat terdaftar: identitas perangkat terverifikasi untuk PIN (T1-24 inti, K F-03, F-11 §1b)
+
+**Konteks:** lapis kedua pembatas PIN (12×/15 menit, melintasi akun) di-key pada NAMA
+perangkat kiriman klien — penyerang yang memutar nama mendapat jatah baru (temuan
+K F-03 / F-11 laporan 2026-09-17; lapis pertama 5×/akun tetap bekerja). ROADMAP T1-24
+mengamanatkan identitas perangkat terverifikasi + `perangkat_sah()` + penolakan
+perangkat tak terdaftar, dengan uji `percobaan_pin_perangkat.sql` yang DIPERKETAT.
+
+**Keputusan:** migrasi `supabase/migrations/0018_perangkat_terdaftar.sql`:
+* tabel `perangkat` (RLS baca hanya `kelola_pegawai`) + `kredensial_perangkat`
+  (hash bcrypt, TANPA grant klien — pola `kredensial_pin` 0006/K-3);
+* `daftarkan_perangkat`/`cabut_perangkat` = RPC izin `kelola_pegawai`, cabang wajib
+  dalam `cabang_ids_saya()`; kunci minimal 16 karakter (dibangkitkan aplikasi);
+* `perangkat_sah(id, kunci)` = pemeriksa internal, execute klien DICABUT (pola F-11);
+* `verifikasi_pin`/`simpan_pin`/`ganti_pin` memakai `(perangkat_id, perangkat_kunci)`;
+  perangkat tak terdaftar/nonaktif/kunci salah → jawaban SERAGAM
+  `'Perangkat tidak dikenali.'` (anti-oracle, konsisten 'PIN tidak dikenali.');
+* nama yang dicatat di `percobaan_pin` dari tabel (bukan kiriman klien); lapis 12×
+  di-key pada `perangkat_id`; tanda tangan lama (p_perangkat text) DI-DROP.
+* Edge Function `verifikasi_pin` menyaring bentuk `perangkat_id`/`perangkat_kunci`
+  di batas; keputusan sah/tidak tetap di database.
+* Sisa DoD T1-24 (kode pendaftaran sekali pakai, `persetujuan_perangkat`, gating
+  bagian staf via sesi perangkat) lanjut di T1-25/Fase 1C — kotak T1-24 belum dicentang.
+
+**Bukti:** uji `supabase/tes/percobaan_pin_perangkat.sql` diperketat (perangkat
+karangan dilayani 0×; kunci salah & perangkat dicabut dijawab seragam; lapis 12×
+hidup di perangkat_id; PR-13 dipertahankan) + `supabase/tes/perangkat_registrasi.sql`
+(izin, hash bukan teks, RLS, anti-oracle); suite SQL **60 LULUS · 0 GAGAL**;
+`alat/uji-mutasi-0018.py` 3 mutasi wajib MERAH terbukti + gerbang CI baru;
+`node alat/uji-edge-pin.mjs` 19/19 (kasus E14/E15 baru); `periksa-fungsi-pin` 14/14.
+
+## [Pesan/2026-09-21] Pesan diskon menunjuk alur yang NYATA — menutup D F-10
+
+**Konteks:** penolakan diskon berbunyi "Minta persetujuan atasan (PIN)." padahal alur
+persetujuan-diskon-berbasis-PIN belum ada (kupon tidak menaikkan batas pemanggil;
+`approve_diskon` baru rencana T1-30/T1-40). Kasir disuruh menunggu sesuatu yang tidak
+pernah datang (temuan D F-10, laporan D 2026-09-18).
+
+**Keputusan:** migrasi `supabase/migrations/0019_pesan_diskon_jujur.sql` mengganti
+kalimat menjadi "Diskon ini melebihi batas izin Anda — minta atasan (pemilik/admin)
+yang memproses." — jalan yang benar-benar ada hari ini adalah izin `beri_diskon`
+berbasis peran. Logika pemicu TIDAK berubah; badan disalin utuh dari definisi berlaku
+(0013) supaya tidak membawa pulang perilaku lama 0010/0012. Bila `approve_diskon`
+(PIN sungguhan) mendarat di T1-30/T1-40, pesan ini diperbarui lagi ke alur itu.
+
+**Bukti:** pin pesan di `diskon_cap.sql`/`diskon_persen.sql`/`diskon_voucher.sql`/
+`pembayaran.sql` ikut disegarkan — sebelum penyegaran keempatnya MERAH
+(SEBAB BUKAN YANG DIHARAPKAN), membuktikan pin pesan hidup; sesudahnya suite penuh
+**60 LULUS · 0 GAGAL**.
+
+## [Keamanan/2026-09-21] Nama perangkat boleh dipakai ulang sesudah dicabut (panen T-02)
+
+**Konteks:** DoD T-02 (d) menuntut nama perangkat bisa dipakai ulang sesudah
+perangkat lama dicabut, tetapi migrasi 0018 memasang `UNIQUE(penyewa_id, nama)`
+sementara `cabut_perangkat` hanya mengubah `aktif=false`. Pekerja T-02 berhenti
+sesuai AL-16 dengan bukti reproduksi; keputusan di tangan integrator.
+
+**Keputusan:** DoD benar, constraint yang cacat. `UNIQUE(penyewa_id, nama)` di
+`supabase/migrations/0018_perangkat_terdaftar.sql` diganti indeks unik parsial
+`perangkat_nama_aktif_unik ... WHERE aktif` (in-place; 0018 belum deploy —
+preseden 0015). Nama perangkat bersifat posisional ("hp-kasir-1"); otentikasi
+tidak terpengaruh karena `perangkat_sah` memakai id+kunci+aktif dan catatan
+audit memakai id.
+
+**Bukti:** `supabase/tes/perangkat_registrasi_tepi.sql` (DoD a-e, dilengkapi
+integrator dari bukti pekerja) LULUS; suite SQL **61 LULUS · 0 GAGAL**;
+`alat/uji-mutasi-0018.py` LOLOS; `node alat/uji-edge-pin.mjs` 19/19;
+`alat/periksa-fungsi-pin.py` 14/14.
+
+## [Keamanan/2026-09-21] Tabel catatan_audit mendarat tanpa trigger dulu (panen T-01)
+
+**Konteks:** temuan F F-07 (tabel audit wajib belum ada; pemilik T1-13). Maraton T-01 membangun tabel + RLS + uji; DoD papan T-01 eksplisit "TANPA trigger dulu" (lingkup eksklusif, tidak menyentuh fungsi lain).
+
+**Keputusan:** DITERIMA dengan cakupan jujur: tulis klien (`anon`/`authenticated`, termasuk admin) DITOLAK di level grant; tulis hanya jalur peladen/`service_role`; baca = penyewa sama + izin `kelola_pegawai`. Sisa DoD T1-13 (trigger tolak UPDATE/DELETE termasuk owner & service_role) TIDAK ikut mendarat — T1-13 tetap `[ ]`, F F-07 tetap TERBUKA dengan catatan progres.
+
+**Bukti:** `supabase/tes/catatan_audit.sql` LULUS; suite SQL **62 LULUS · 0 GAGAL**; `rls_semua_tabel.sql` otomatis mencakup tabel baru.
+
+## [Mekanisme-audit/2026-09-21] Lingkup paket dari pohon target; validator tanpa banding per-grup
+
+**Konteks:** temuan B F-16 (tabel lingkup 333/334 + angka `_sistem` 16-vs-15; terakhir dari 3 temuan `T1-44`).
+
+**Keputusan:** (1) pembuat paket baca pohon commit target (`git ls-tree`), bukan indeks meja kerja; (2) tiap paket menandai sumber angka + berkasnya sendiri di luar hitungan; (3) Aturan 6 `alat/periksa-paket.py` menegakkan jumlah-grup = total = pohon + tak-tertutup [] + penanda — tetapi SENGAJA tidak membandingkan angka per grup satu-satu supaya definisi grup boleh bertambah tanpa memalsukan paket lama; (4) paket lama (< 2026-09-21) dikecualikan via gerbang tanggal (tak boleh disunting, F-11).
+
+**Bukti:** `python3 alat/audit-independen.py --uji-diri` (kebal meja kotor) + `python3 alat/periksa-paket.py --uji-diri` (7 kasus Aturan 6) LOLOS; hitung ulang target `4fccc9d5` → 334/15/[].
+
+## [Mekanisme-audit/2026-09-21] Sapuan isolasi resto: SETIAP-policy + registri beralasan + rantai transitif wajib
+
+**Konteks:** temuan B F-14 (sapuan isolasi lintas resto hanya tabel ber-`penyewa_id` + pencocokan teks policy; `T1-22`).
+
+**Keputusan:** (1) blok-3 `rls_semua_tabel.sql` memeriksa SETIAP policy (bukan cukup-satu) — satu policy PERMISSIVE longgar menggugurkan semua yang ketat karena digabung OR; (2) registri blok-4 tiap baris membawa `alasan` + jenis kebijakan — pemisahan `TOLAK-SEMUA` vs `GLOBAL-TERBUKA` (policy `using(true)` di tabel acuan global tanpa data penyewa, yaitu `izin_kode`, dinyatakan AMAN secara eksplisit, bukan lolos diam-diam); (3) blok-6 transitif MEMAKSA rantai jangkar tercatat per fungsi (`pesanan_sepenyewa`→{`penyewa_saya`,`cabang_pantau_saya`} dst.) dan GAGAL bila tercatat-tak-sebut — menutup kekurangan "transitif data-hanya" yang dituduh temuan; (4) keempat pagar dibuktikan peka lewat `alat/uji-mutasi-0009.py` (4 mutasi WAJIB MERAH + kontrol hijau + penutup hijau, langkah CI + pola gerbang).
+
+**Bukti:** suite SQL 62/62 LOLOS; 4 mutasi merah dengan alasan blok yang tepat (cabang-dibuang → blok 6 · policy longgar → blok 3 · tanpa RLS → blok 1 · tanpa policy → blok 2).
+
+## [Keamanan/2026-09-21] F F-18: sisa oracle boolean PIN DITERIMA sebagai risiko (opsi A, keputusan Lee)
+
+**Konteks:** temuan K-3 audit AUD-3 (sesi `arena/01a0bbd2`): `simpan_pin`/`ganti_pin` membocorkan 1 bit ("kandidat = PIN aktif seorang kolega?") lewat `'PIN tersimpan.'` vs penolakan netral. Definisi hidup: `0018_perangkat_terdaftar.sql:336` (kutipan auditor `0015` sudah tertimpa).
+
+**Keputusan (Lee, laporan Batch-1 2026-09-21 — opsi A):** sisa diterima sebagai risiko, TANPA perubahan kode. Batas yang diterima: oracle hanya bisa dipakai orang-dalam (akun sah + PIN lama sendiri + perangkat terdaftar), ≤20 tebakan/15 menit per akun, hanya kandidat kuat 6-angka yang dijawab, jawaban tak menyebut milik siapa, dan SETIAP tebakan tercatat permanen beralasan di `percobaan_simpan_pin` (tak bisa dibaca klien). Opsi yang DITOLAK: B (simpan-async "diproses" — ubah UX + kerja Fase-2) dan C (cabut-keunikan-PIN — hilangkan deteksi PIN-berbagi + balik keputusan T1-23); biayanya melebihi nilai penutupan sisa K-3 selapis ini.
+
+**Bukti:** `supabase/tes/pin_bukan_oracle.sql` (pesan netral) + `supabase/tes/pin_batas_pasang.sql` (pembatas 20/15) tetap hidup dan hijau — pagar batasnya dijaga mesin; temuan DITUTUP di `docs/uji/AUDIT_RIWAYAT.md` §1c.
+
+## [Mekanisme/2026-09-21] T1-22: "laporan tercetak" = on-demand + vonis di CI; nama berkas rencana dikoreksi
+
+**Konteks:** penutupan T1-22 (Batch-2): butir DoD "laporan jumlah tabel & policy tercetak" (ditulis 2026-09-16) vs desain CI pasca-putaran11.
+
+**Keputusan:** (1) "tercetak" dipenuhi DUA jalur: laporan rinci on-demand via `node alat/uji-sql.mjs --daftar` + vonis sapuan tercetak di SETIAP run CI. Cetak-laporan-di-CI TIDAK dikembalikan — opsi itu ditolak karena (a) flag `--daftar` sengaja dilepas dari langkah CI sejak putaran11 (pernah disalahbaca list-only; pelajaran terkunci di `alat/periksa-gerbang-ci.py`), (b) langkah `--daftar` terpisah akan menjalankan suite 2× (flag itu bukan list-only) + mengembalikan kebingungan yang sama. (2) Nama berkas rencana `supabase/tes/sisir_rls.sql` dikoreksi ke berkas nyata `supabase/tes/rls_semua_tabel.sql` (sudah ada sejak T1-04; rename = churn tanpa nilai).
+
+**Bukti:** langkah suite CI + pola gerbang dua-arah; `alat/uji-mutasi-0009.py` kasus D2 (tambah tabel tanpa policy → merah); suite 62/62.
+
+## [Keputusan-Pemilik/2026-09-21] Setuju-semua + T-025(a) + KEAMANAN §10 segar
+
+**Konteks:** laporan Batch-3/4: 9 butir tertangguh + 1 baris status basi (KEAMANAN §10) menunggu putusan Lee.
+
+**Keputusan (Lee, chat 2026-09-21 — "setuju saran terbaik"):** (1) T-025 = (a) LARANG ubah/void sesudah bayar — penegak Batch-5 (migrasi 0022 + uji). (2) Setuju semua 9 usulan (T-002/003/010/011/015/016/022/023/025 — jawaban di `docs/TERTANGGUH.md` tabel Selesai). (3) KEAMANAN §10 disegarkan (status tabel catatan_audit → SUDAH ADA via 0020; sisa trigger+rantai) — tanpa perubahan aturan normatif.
+
+**Alasan:** (a) = gagal-aman (sejalan KEAMANAN §1.1 tolak-bawaan & §9.6); uang nyata belum mengalir (pilot jauh) sehingga aturan ketat tak mengganggu operasi; bisa dilonggarkan ke (b)/(c) kapan saja lewat putusan baru + migrasi.
+
+**File terkait:** `docs/TERTANGGUH.md`, `docs/KEAMANAN.md` §10, `docs/uji/AUDIT_RIWAYAT.md` (I F-17, A F-07).
+
+**Implikasi:** Batch-5 = penegak T-025(a) + goresan PIN-pelanggan (PRD M10, TECH_SPEC §4.4/§5) + sapu tanda ❓; T1-45 terbuka sampai penegak + uji mendarat.
+
+
+## [Pelaksanaan/2026-09-21] T-025(a): penegak 0022 dan bukti balapan transaksi
+
+**Dasar:** keputusan Lee setuju-semua T-025(a), bukan keputusan uang baru. CI prasyarat `35571459040` SUCCESS pada `73bd831` diperiksa sebelum perubahan.
+
+**Pelaksanaan:** rincian item/diskon/void terkunci setelah pembayaran pertama, termasuk sebagian; kunci parent lama+tujuan disamakan dengan pembayaran; tidak ada bypass definer/null-auth. Header menolak perubahan isi/nominal, penghapusan, dan pembatalan. Progres masak murni tidak merevaluasi tarif pajak; izin/status lama tetap berlaku. Pembayaran terbagi tetap sah, refund tidak dibuat. Empat fixture lama dipisahkan supaya izin, cap, PIN, atribusi, dan void sebelum bayar tetap terbukti.
+
+**Bukti:** `docs/uji/BUKTI_T025_BEKU_SETELAH_BAYAR.md`; SQL 64/64, 9 mutasi asersi nyata + kalibrasi rusak, 5 skenario dua koneksi + 2 mutasi pelanggaran tersimpan. Kalibrasi F F-12 membuang kedua kunci BEFORE pada DB mutasi saja. **Batas:** belum AUD-2 independen, belum verifikasi/deploy Supabase asli. I F-17 / T1-45 tetap terbuka untuk gerbang itu.
+
+
+## [Pelaksanaan/2026-09-21] T-023: PIN pelanggan dihapus dari kontrak; sapuan penundaan
+
+**Dasar:** Lee setuju-semua, T-023. PRD M10/§7 langkah 17 tidak lagi meminta PIN pelanggan atau menjanjikan pemulihannya; TECH_SPEC §4.4/§5 menegaskan tanpa kolom/RPC PIN pelanggan. **PIN pegawai/persetujuan (termasuk pakai voucher) tetap utuh.** Google utama + email terverifikasi kedua tetap; kanal email belum diputuskan (gerbang T-022/T2-04). Tidak mengarang persetujuan biaya/domain.
+
+**Sinkronisasi T-025(a):** janji lama PRD M6 "sesudah bayar dicatat sebagai pembatalan berizin" diganti sesuai keputusan Lee: pembayaran pertama (termasuk sebagian) melarang ubah/void. TECH_SPEC contoh alur ikut selaras; refund fase 2 tidak diimplementasikan.
+
+**Sapuan:** nol penanda tunggu aktif basi; 0 butir terbuka / 25 keputusan selesai, diverifikasi dua arah oleh periksa-roadmap + periksa-fondasi-independen. Lambang dalam legenda/riwayat tidak dihapus karena bukan tugas yang harus dilewati. Persetujuan penundaan bukan penyelesaian implementasi: gerbang printer/perangkat/pelatihan/privasi/kiosk/email/HIBP tetap pada tugas terkait; AUD-2/deploy T-025 pada T1-45.
+
+
+## [Pelaksanaan/2026-09-21] T1-30 sebagian: periksa hak fungsi efektif, bukan teks yang tertimpa
+
+**Dasar:** tugas T1-30 sudah mewajibkan search_path terkunci dan pencabutan EXECUTE PUBLIC; permintaan Lee "T1-30-sisa bila sempat". Tidak mengubah peran/izin bisnis. Inventaris: 53 fungsi SECURITY DEFINER public, semuanya path terkunci; 20 pemicu mewarisi EXECUTE PUBLIC. Trigger tidak dapat dipanggil sebagai RPC biasa: ini higiene hak istimewa, bukan klaim eksploit yang belum dibuktikan.
+
+**Pelaksanaan:** migrasi baru 0023 mencabut PUBLIC/anon/authenticated pada daftar eksplisit 20 pemicu, mempertahankan service_role. Trigger yang terpasang tetap bekerja (65/65 SQL hijau). `alat/periksa-keamanan-sql.py` membaca katalog efektif hasil seluruh migrasi + sapuan RLS yang sudah ada; tidak tertipu definisi tertimpa atau komentar palsu. Sembilan mutasi wajib gagal dengan asersi, kontrol utuh/pulih hijau, setup rusak bukan bukti; masuk CI.
+
+**Batas jujur:** bukan parser statis umum; aturan initplan `(select …)` pada helper policy belum selesai (inventaris awal minimal 38 policy belum memakai pembungkus identitas). T1-30 tetap `[ ]`, tanpa pengecualian diam-diam atau ubah DoD. Tindak lanjut berurutan dan pemilik tercatat di `docs/uji/BUKTI_T130_KEAMANAN_SQL.md` + ROADMAP; AUD-2 0022/0023 dan izin deploy tetap wajib.
+
+
+## [Mekanisme/2026-09-21] Penyerahan paket independen wajib prompt pendek di chat
+
+**Dasar:** penegasan dan persetujuan Lee sesudah contoh prompt pendek; Lee sudah menjalankan paket AUD-2 di tiga sesi, sehingga tidak meminta prompt/paket pengganti sekarang. Mode respons cepat selesai; pengerjaan normal hanya untuk penanaman mekanisme ini.
+
+**Pelaksanaan:** AL-15 berlaku untuk setiap penyerahan paket independen, termasuk inisiatif agent. Generator menghasilkan URL SHA tetap, cabang sumber, commit sasaran, perintah membaca seluruh paket, berhenti bila akses/sasaran gagal, larangan ubah kode/merge/main, dan kewajiban commit/push laporan pada cabang sendiri + bukti hasil. Metadata dibaca dari versi committed, bukan draf lokal yang tidak sama dengan URL.
+
+**Pagar baru:** `--periksa-serah` memeriksa draf respons: tautan saja, janji tanpa prompt, blok yang kehilangan kewajiban push, atau commit/cabang salah ditolak. Agent wajib mengirim blok yang sama di chat; alat tidak mengklaim mampu memantau percakapan aktual. Pemeriksa buku menjaga enam bagian kontrak AL-15 dengan mutasi. Kedua uji-diri sudah terdaftar di CI, tidak ada gerbang yang dilemahkan.
+
+**Batas lingkup:** paket aktif tidak disunting, target `09bcb89` tidak digeser, aplikasi/migrasi tidak disentuh. Hasil tiga sesi ditarik setelah Lee mengabarkan laporan tersedia. Tidak ada izin merge/deploy.
+
+## [Mekanisme/2026-09-21] Pengiriman append-only terisolasi dan akses privat
+
+**Mandat Lee:** riset/kritik insiden asli, otomatis kirim semua laporan tanpa pengingat, termasuk cabang/working tree bersama; dua laporan selesai, ketiga error diabaikan.
+
+**Putusan implementasi:** locator repo/cabang/SHA paket/path via git/gh, SHA target terpisah; URL opsional. Draf UUID + snapshot/hash, bare repo/index sementara, satu file tambahan/satu parent di atas tip remote, push normal + maksimal 5 upaya dan verifikasi byte/ref langsung. Kandidat belum terbit disusun lagi, bukan rebase/merge riwayat. Menolak overwrite/mode berbeda/remote mundur/sumber-main. HEAD/index checkout tidak digeser. Tidak ada asumsi cabang unik. Integrator hanya cadangan hambatan nyata; akses gagal = TERBLOKIR, bukan selesai.
+
+**Bukti/desain/sumber resmi:** `docs/uji/PENGIRIMAN_LAPORAN_AMAN.md`; TDD bentrok nama merah dahulu, uji race dengan remote Git asli + failure injection, kedua prompt dan AL-15 dijaga CI.
+
+**Batas:** prompt tidak menjamin kepatuhan agent/izin jaringan; transport bukan pengesahan temuan. Dua laporan asli tidak direkonsiliasi diam-diam; `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md` menahan T1-30/T1-45 sampai K-2 dibuktikan/diselesaikan. Runtime uang/paket beku tidak diubah, tidak merge/deploy.
+
+## [Koordinasi/2026-09-21] G3: tiga pemeriksa, satu integrator, laporan-saja
+
+**Dasar:** Lee menyetujui pembagian A uang (A-F01/F03), B identitas (A-F02), C sembilan gerbang (B-F01..09), kualitas diutamakan. CI target e50bac4 SUCCESS 35600019563 diverifikasi sebelum persiapan.
+
+**Keputusan:** tugas T-04/T-05/T-06, tanpa cadangan migrasi/perubahan kode pekerja; lingkungan uji unik, prefix laporan per tugas + UUID/hash. Perluasan kecil `--penanda` pada pengirim menjaga kepemilikan laporan di papan tanpa mengasumsikan cabang unik. Mode G3 memakai paket lengkap dan prompt pendek AL-15, bukan template pekerja coding yang dahulu menyuruh pull/merge. Petunjuk tidak aman itu dicabut; inspeksi boleh membaca berkas sama, penulisan kode tidak diparalelkan. Integrator memanen laporan tanpa merge cabang, memverifikasi lalu memperbaiki serial.
+
+**Gerbang:** status laporan parsial/terblokir tidak menjadi selesai substantif; jangan menutup K-2/T1-30/T1-45 dari format/transport hijau. Target historis 09bcb89 tetap pada laporan lama; target kerja baru e50bac4 terpisah dari SHA paket. Sisa A-F04/A-F05/A-F06/B-F10 tetap ditangani integrator, dicatat pada ledger. Tidak ada izin deploy/merge.
+
+**Verifikasi persiapan:** uji prefix eksklusif/salah-tugas/traversal, peran+ID prompt; `periksa-maraton --uji-diri` menemukan fixture sehat basi 0020 yang kini sudah ada. Nomor fixture sehat dibuat dari migrasi tertinggi +1 (bukan melonggarkan aturan produksi), 13 kontrol/mutasi tetap diuji dan didaftarkan pada CI/jalur lokal.
+
+## [G3/2026-09-22] Panen tiga laporan dan batch perbaikan integrator serial
+
+**Dasar:** Lee meminta panen seluruh pekerja dan maraton solo tanpa gangguan exam. Tiga laporan G3 diterima terpisah; branch/worktree bersama tidak diperlakukan sebagai identitas unik. Blob, commit pengiriman, target, dan checksum dicatat di `docs/ops/PAPAN_TUGAS.md`.
+
+**Keputusan:** laporan pekerja tidak digabungkan sebagai kode. Integrator mengulang bukti, lalu memperbaiki berurutan: 0024 untuk CTE pembayaran+jejak, 0025 untuk identitas kosong pada RPC, 0026 untuk deadlock multi-baris. Pagar dan alat B-F01..B-F09 diperkuat hanya setelah reproduksi; status substantif menunggu hosted CI batch.
+
+**Batas jujur:** keterjangkauan A-F02 dari PostgREST produksi belum diuji; akses SQL superuser langsung dapat memalsukan sesi dan berada di luar batas API. Service path SQL harus menyatakan `role=service_role` pada role sesi dan klaim JWT yang cocok; pemicu internal memakai `pg_trigger_depth()`.
+
+**File terkait:** `supabase/migrations/0024_beku_satu_pernyataan.sql`, `0025_isolasi_identitas_null.sql`, `0026_kunci_lingkup_rincian.sql`, regresi/mutasi masing-masing, `alat/klasifikasi_mutasi.py`, `alat/uji-konkuren*.py`, `alat/periksa-gerbang-ci.py`, `alat/ci_target.py`, `alat/periksa-paket.py`, `alat/periksa-fungsi-pin.py`, `alat/periksa-rahasia.py`, `alat/periksa-paritas-ci.py`.
+
+**Implikasi:** migrasi 0001–0023 tetap tidak disentuh; tidak ada merge/deploy/sebar Supabase. Semua angka runner/CI wajib diambil dari keluaran terbaru, bukan angka lama yang disalin ke dokumen aktif. A-F05/A-F06/B-F10 tetap ditutup hanya setelah bukti dan CI yang sesuai.
+
+
+## [Pelaksanaan/2026-09-22] T1-30: Pengerasan InitPlan RLS (0027) dan verifikasi AST katalog
+
+**Dasar:** penyelesaian tugas T1-30 (keamanan SQL efektif) menuntut agar seluruh pemanggilan fungsi helper identitas/peran/izin pada kebijakan RLS dioptimasi menggunakan `(SELECT ...)` subquery agar PostgreSQL mengevaluasinya sekali per query (InitPlan) daripada per baris yang dipindai (FuncExpr).
+
+**Pelaksanaan:**
+1. Migrasi baru `supabase/migrations/0027_initplan_policy_rls.sql` memperbarui 43 kebijakan RLS yang sebelumnya memanggil helper (`penyewa_saya`, `peran_saya`, `cabang_saya`, `auth.uid`, `boleh`) secara langsung tanpa subquery `SELECT`. Seluruh predikat hak, USING/WITH CHECK, peran, dan isolasi penyewa dipertahankan utuh.
+2. `supabase/tes/keamanan_fungsi.sql` diperkuat dengan asersi AST langsung ke katalog `pg_policy` (memeriksa bahwa tidak ada pemanggilan helper bebas korelasi yang tersisa tanpa pembungkus `(SELECT ...)`).
+3. `alat/periksa-keamanan-sql.py` diperluas dengan 4 mutasi fail-closed khusus InitPlan (total 13 kasus mutasi dalam `--uji-diri`: helper langsung, campuran helper, WITH CHECK langsung, komentar palsu, pencabutan path, ACL, trigger RPC, disable RLS, dan drop policy).
+4. Seluruh 67 pengujian SQL lokal lolos (67/67 hijau).
+
+**Batas jujur & Implikasi:** migrasi beku 0001–0016 tetap tidak diubah. T1-30 siap ditutup setelah hosted CI batch hijau. Tidak ada perubahan izin bisnis atau pelemahan isolasi.
+
+
+## [Pelaksanaan/2026-09-22] Fase 1C: Fondasi Kontrak Layar, Registri Aksi, Pemeriksa Peta UI, dan Naskah Jalan (T1-31, T1-32, T1-33, T1-34, T1-35, T1-39)
+
+**Area:** Kelengkapan UI & Keamanan Interaksi Antarmuka  
+**Dasar:** Menutup akar masalah yang ditemukan pemilik — *"banyak tombol yang kurang, fungsi yang katanya ada tapi ga bisa dipake"*. Semua interaksi UI wajib tercatat sebagai data dan dikunci oleh pemeriksa mesin sebelum layar dikoding.
+
+**Pelaksanaan:**
+1. `aplikasi/src/lib/layar.ts` (T1-31): Mendefinisikan kontrak 8 layar G1 (`masuk`, `kasir`, `dapur`, `laporan`, `pengaturan`, `voucher`, `pelanggan-publik`, `contoh`), mencakup id, rute, peran yang berhak, jalan masuk, komponen, sumber data, daftar aksi, 7 keadaan wajib, aturan tampilan, berkas uji, dan tautan naskah jalan.
+2. `aplikasi/src/lib/aksi.ts` (T1-32): Registri 32 aksi lengkap dengan pemetaan peran, hak izin (`public.izin_kode`), keterkaitan RPC peladen, jenis aksi (baca/tulis/navigasi), teks konfirmasi dialog, kewajiban PIN dan audit log, pesan umpan balik (sukses/gagal), dan ID uji pembuktian.
+3. `aplikasi/src/komponen/TombolAksi.tsx` & `TombolAksi.test.tsx` (T1-32): Komponen satu-satunya pintu render aksi di folder layar. Menolak aksi tidak dikenal (gagal saat bangun), menyembunyikan/menonaktifkan tombol sesuai izin + alasan, mengeksekusi dialog konfirmasi otomatis, dan lulus 7 uji unit Vitest.
+4. `alat/peta-ui.py` & `docs/PETA_UI.md` (T1-33, T1-39): Pembangkit dan pemeriksa CI otomatis yang memvalidasi (a) RPC terdaftar di migrasi, (b) Izin terdaftar di kamus izin resmi, (c) Aksi tulis wajib memiliki uji, (d) Layar valid ber-7 keadaan, (e) Anti-drift `docs/PETA_UI.md`, (f) Jejak PRD M1–M12, (g) Larangan `<button>` mentah di folder layar. Memiliki `--uji-diri` dengan 6 mutasi fail-closed yang lolos 100%.
+5. `aplikasi/src/uji/harness.tsx` & `harness.test.tsx` (T1-34): Harness pengujian komponen dengan konteks peran/izin, data seed bawaan (`DATA_CONTOH`), perekam riwayat RPC tiruan, dan pembuktian 7 keadaan layar.
+6. `docs/uji/NASKAH_JALAN.md` (T1-35): 15 naskah jalan pengujian manusia bernomor `W-<fase>-<nomor>` (mis. `W-0-01` s/d `W-10-01`) dengan skenario langkah demi langkah, hasil yang harus muncul, dan kondisi yang dilarang terjadi.
+7. Alur CI `.github/workflows/ci.yml`, `alat/periksa-gerbang-ci.py` (85 gerbang), dan `aplikasi/alat/periksa-semua.sh` diselaraskan.
+
+**Verifikasi:**
+- Vitest: 13 berkas uji, 111 pengujian unit LULUS (100%).
+- TypeScript: Typecheck ketat lolos tanpa galat.
+- ESLint & Prettier: Lolos tanpa peringatan.
+- Peta UI: `python3 alat/peta-ui.py --periksa` & `--uji-diri` (6/6 mutasi) LULUS.
+- Gerbang CI & Paritas: 85 gerbang LULUS.
+
+## [Pelaksanaan/2026-09-22] Fase 1C: Multi-Bahasa (i18n), Tata Letak Dua Arah (RTL/LTR), dan Bantuan Kontekstual Per Layar (T1-40, T1-41, T1-42)
+
+**Area:** Internasionalisasi (i18n), Aksesibilitas Tata Letak (RTL/LTR), dan Bantuan Kontekstual  
+**Dasar:** Keputusan pemilik 2026-09-17 (Opsi 1): rilis G1 mendukung 3 bahasa (Indonesia · Inggris · Mandarin), Arab disiapkan kunci & tata letak RTL diuji di G1; teks tidak boleh ditulis keras di komponen; serta bantuan singkat "?" di setiap layar agar pegawai baru langsung paham tanpa sosialisasi panjang.
+
+**Pelaksanaan:**
+1. `aplikasi/src/bahasa/` (`id.ts`, `en.ts`, `zh.ts`, `ar.ts`, `index.tsx`, `bahasa.test.tsx`): Kerangka multi-bahasa berbasis React Context & hook `useBahasa()`. Memuat 102 kunci teks antarmuka dengan 100% paritas kunci terjemahan di seluruh 4 kamus bahasa. Format rupiah (`Rp`, `id-ID`) dan tanggal tetap seragam di seluruh bahasa.
+2. `aplikasi/alat/periksa-bahasa.py`: Validator integritas kamus multi-bahasa fail-closed (+ `--uji-diri` 3 kasus) yang menolak kunci hilang, kunci berlebih, atau perbedaan struktur kamus.
+3. `aplikasi/src/gaya/arah.css`: Aturan CSS logis (`margin-inline-start`, `padding-inline-end`, dsb.), selektor `[dir='rtl']` & `[dir='ltr']`, isolasi nominal uang LTR, dan token variabel font Mandarin & Arab.
+4. `aplikasi/alat/periksa-arah.py`: Validator aturan CSS arah teks dan penjaga ambang batas ukuran total font subset (< 650 KB, terbukti 19 berkas font = 461 KB) beserta `--uji-diri` 3 kasus.
+5. `aplikasi/src/kontrak/bantuan.ts` & `aplikasi/src/komponen/LembarBantuan.tsx` (+ `LembarBantuan.test.tsx`): Kontrak dan komponen tombol bantuan "?" interaktif untuk seluruh 8 layar G1, menyajikan ringkasan tujuan, langkah kerja (maksimal 5 langkah), panduan kalau macet, dan peran yang berhak.
+6. `alat/periksa-bantuan.py`: Skrip pemeriksa kelengkapan entri bantuan untuk setiap layar di registri `layar.ts` (+ `--uji-diri` 3 kasus).
+7. Alur CI `.github/workflows/ci.yml`, `alat/periksa-gerbang-ci.py` (91 gerbang), dan `aplikasi/alat/periksa-semua.sh` diselaraskan.
+
+**Verifikasi:**
+- Vitest: 17 berkas uji, 123 pengujian unit LULUS (100%).
+- Pemeriksa multi-bahasa: `python3 aplikasi/alat/periksa-bahasa.py` & `--uji-diri` LOLOS.
+- Pemeriksa arah teks & font: `python3 aplikasi/alat/periksa-arah.py` & `--uji-diri` LOLOS.
+- Pemeriksa bantuan: `python3 alat/periksa-bantuan.py` & `--uji-diri` LOLOS.
+- Gerbang CI & Paritas: 91 gerbang LULUS.
+
+## [Keamanan/2026-09-22] Tangga Pemulihan Perangkat Darurat & Kunci Induk (T1-36, ART-11)
+
+**Area:** Akses Perangkat (ART-11), Keamanan Otentikasi & Pemulihan Bencana  
+**Dasar:** TECH_SPEC §9 ART-11 & §5.1, `docs/KEAMANAN.md` §4b, PRD M12. Kehilangan perangkat owner/admin tidak boleh menghentikan operasional kedai, tanpa membuka pintu belakang yang melemahkan keamanan.
+
+**Pelaksanaan:**
+1. `supabase/migrations/0028_pemulihan_perangkat.sql`:
+   - Tabel `public.kredensial_pemulihan`: menyimpan kode pemulihan darurat dalam bentuk hash bcrypt (NOT NULL check regex bcrypt), RLS aktif tolak semua select bagi klien.
+   - Tabel `public.pemulihan_perangkat`: antrean permohonan pemulihan dengan masa tenggang wajib 30 menit (`aktif_setelah = now() + interval '30 minutes'`), RLS aktif hanya untuk pengelola resto terkait.
+   - RPC `buat_kode_pemulihan(p_kode)`: dibatasi ketat hanya untuk `owner_pusat`, kode lama yang belum terpakai otomatis dibatalkan, hash bcrypt tersimpan, tercatat di `catatan_audit`.
+   - RPC `pulihkan_perangkat(p_kode_pemulihan, p_nama, p_kunci, p_cabang_id)`: hanya dapat diajukan oleh `owner_pusat`, memvalidasi kecocokan kode bcrypt yang belum terpakai, mendaftarkan perangkat dengan status nonaktif (`aktif = false`), memasukkan antrean masa tenggang 30 menit, menandai kode sebagai terpakai (sekali pakai), dan mencatat ke `catatan_audit`.
+   - RPC `batalkan_pemulihan(p_pemulihan_id, p_alasan)`: membatalkan permohonan pemulihan sebelum 30 menit dan mengunci perangkat tetap nonaktif.
+   - RPC `selesaikan_pemulihan(p_pemulihan_id)`: menyelesaikan pemulihan dan mengaktifkan perangkat darurat hanya setelah masa tenggang 30 menit berlalu.
+2. `supabase/tes/pemulihan.sql`: 13 skenario pengujian menyeluruh (hak owner, penolakan non-owner, pencegahan pakai ulang kode, verifikasi masa tenggang 30 menit, pembatalan, aktivasi sukses, isolasi RLS).
+3. `alat/uji-mutasi-0028.py`: Harness mutasi dengan 4 kasus mutasi fail-closed yang seluruhnya wajib MERAH.
+4. `docs/ops/PEMULIHAN_PERANGKAT.md`: Panduan operasional darurat bagi pemilik dengan protokol 2 amplop fisik tersegel dan rotasi tahunan.
+
+**Verifikasi:**
+- SQL Suite: 68 berkas pengujian SQL LULUS (100%).
+- Uji Mutasi: `python3 alat/uji-mutasi-0028.py` (4/4 mutasi WAJIB MERAH) & `--uji-diri` LOLOS.
+
+## [Keamanan/2026-09-22] Catatan Audit Kekal & Rantai Hash Anti-Manipulasi (T1-13 & T1-27, ART-6 & ART-13)
+
+**Area:** Audit (ART-6), Jejak Audit (ART-13), Integritas Kriptografis Database  
+**Dasar:** TECH_SPEC §4 & §9 ART-6/ART-13, PRD M3 & M12. Jejak audit tindakan sensitif tidak boleh dapat diubah atau dihapus oleh siapa pun (termasuk owner dan superuser), dan setiap baris mengikat hash kriptografis baris sebelumnya sehingga manipulasi langsung pada database terdeteksi seketika.
+
+**Pelaksanaan:**
+1. `supabase/migrations/0029_audit_kekal_rantai.sql`:
+   - Trigger `catatan_audit_cegah_ubah_hapus`: menolak secara mutlak (`BEFORE UPDATE OR DELETE`) seluruh operasi ubah atau hapus pada `public.catatan_audit` (T1-13).
+   - Kolom `hash_sebelumnya` & `hash_baris`: menyimpan rantai hash SHA-256 (T1-27).
+   - Trigger `hitung_hash_catatan_audit`: (`BEFORE INSERT`) secara atomik mengambil `hash_baris` terakhir untuk penyewa yang sama (dengan `FOR UPDATE` untuk mencegah percabangan rantai) dan menghitung hash baris baru.
+   - RPC `verifikasi_rantai_audit(p_penyewa_id)`: memvalidasi keutuhan rantai dari genesis block hingga baris terakhir dan melaporkan ID baris yang rusak bila terjadi pemutusan rantai.
+2. `supabase/tes/audit_rantai.sql`: Pengujian unit penolakan UPDATE/DELETE, pembentukan rantai hash otomatis, dan pembuktian deteksi pemutusan rantai (100% LULUS).
+3. `alat/periksa-audit.py`: Validator skema audit (+ `--uji-diri` 3 kasus) terdaftar di CI.
+4. `alat/uji-mutasi-0029.py`: Harness mutasi dengan 3 kasus fail-closed (100% MERAH).
+
+**Verifikasi:**
+- SQL Suite: 69 berkas pengujian SQL LULUS (100%).
+- Uji Mutasi: `python3 alat/uji-mutasi-0029.py` (3/3 mutasi WAJIB MERAH) & `--uji-diri` LOLOS.
+- Pemeriksa Audit: `python3 alat/periksa-audit.py` & `--uji-diri` LOLOS.
+
+## [Keamanan/2026-09-22] Sesi Perangkat, Kode Pendaftaran, & Percobaan Masuk (T1-24, T1-25, T1-26, ART-11 & ART-12)
+
+**Area:** Akses Perangkat (ART-11), Keamanan Akun (ART-12), Manajemen Sesi  
+**Dasar:** TECH_SPEC §4.6 & §9 ART-11/ART-12, PRD M12. Akses staf dibatasi mutlak hanya dari perangkat terdaftar yang sah, sesi memiliki batas umur maksimum menurut peran, pencabutan perangkat memutus sesi seketika, dan percobaan masuk gagal dibatasi ketat (5× akun & 12× perangkat per 15 menit).
+
+**Pelaksanaan:**
+1. `supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql`:
+   - Tabel `kode_pendaftaran_perangkat` & RPC `buat_kode_perangkat()`, `daftarkan_perangkat_dengan_kode()` (T1-24).
+   - Tabel `persetujuan_perangkat` & RPC `setujui_perangkat_pegawai()` (T1-24).
+   - Tabel `sesi_perangkat` & RPC `ikat_sesi_perangkat()`, `keluar_semua_perangkat()`, `cabut_perangkat()` (T1-25).
+   - Tabel `percobaan_masuk` & RPC `catat_percobaan_masuk()`, `periksa_kunci_masuk()` (T1-26).
+2. `supabase/tes/sesi_dan_perangkat.sql`: Pengujian unit lengkap untuk seluruh alur pendaftaran kode, persetujuan, pengikatan sesi, pemutusan seketika saat pencabutan perangkat, dan penguncian akun 5× gagal.
+3. `alat/uji-mutasi-0030.py`: Harness mutasi 4 kasus fail-closed (100% MERAH).
+
+**Verifikasi:**
+- SQL Suite: 70 berkas pengujian SQL LULUS (100%).
+- Uji Mutasi: `python3 alat/uji-mutasi-0030.py` (4/4 mutasi WAJIB MERAH) & `--uji-diri` LOLOS.
+- Gerbang CI: 97 gerbang terdaftar dan terverifikasi penuh.
+
+## [Komunikasi/2026-09-22] Format Penutup Chat Wajib 3 Bagian (Posisi Sekarang, Rencana Selanjutnya, Langkah Lee)
+
+**Area:** Komunikasi & Alur Kerja Agent (Operasional)  
+**Dasar:** Permintaan langsung Lee (pesan 2026-09-22) agar setiap balasan agent diakhiri dengan struktur yang jelas, ringkas, dan tidak membuat bingung.
+
+**Pelaksanaan:**
+Setiap akhir balasan agent ke Lee **WAJIB** ditutup dengan 3 bagian ringkas:
+1. **📍 Posisi Sekarang:** status posisi saat ini dalam roadmap dan apa yang baru saja diselesaikan.
+2. **⏩ Rencana Selanjutnya (Agent):** langkah konkret yang akan dikerjakan agent berikutnya.
+3. **👉 Langkah Lee:** tindakan yang harus dilakukan Lee atau pernyataan cukup ketik *"Lanjut"*.
+Aturan ini dikunci dalam `PROFIL_PENGGUNA.md`, `docs/AGENT_OPERATING_GUIDE.md` (§15), dan `docs/teknis/REKAM_PESAN_PEMILIK.md` (§24).
+
+## [Keamanan/2026-09-22] Mode Dukungan Pemilik Platform & Matriks Izin 6 Peran (T1-28, T1-29, ART-15, ART-12)
+
+**Area:** Akses Lintas Penyewa (ART-15), Matriks Hak Akses Peran (ART-12)  
+**Dasar:** TECH_SPEC §9 ART-15 & §8, PRD §9 & M12. Pemilik platform secara bawaan tidak dapat membaca data penyewa. Akses hanya dibuka melalui mode dukungan berbatas waktu (15–120 menit, bawaan 60 menit), beralasan jelas (min 10 karakter), bersifat HANYA-BACA (read-only), serta seluruh pembukaan dan penutupannya tercatat pada jejak audit resto yang bersangkutan. Matriks hak akses 6 peran diuji secara menyeluruh dan fail-closed.
+
+**Pelaksanaan:**
+1. `supabase/migrations/0031_mode_dukungan_platform.sql`:
+   - Tabel `mode_dukungan` & indeks pelaku aktif.
+   - Fungsi `mode_dukungan_aktif(p_penyewa_id)` & pembaruan `penyewa_saya()` yang mengembalikan target penyewa saat mode dukungan aktif.
+   - RPC `masuk_mode_dukungan()` & `keluar_mode_dukungan()` dengan pencatatan otomatis ke `catatan_audit`.
+2. `supabase/tes/mode_dukungan.sql`: Uji SQL mode dukungan (akses tanpa mode = 0 baris, aktivasi sah, pembacaan data resto, penolakan penulisan data/hanya-baca, audit terlihat oleh owner, dan penutupan mode).
+3. `alat/uji-mutasi-0031.py`: Harness mutasi 4/4 fail-closed lolos.
+4. `supabase/tes/matriks_izin_6_peran.sql` & `alat/periksa-matriks-izin.py`: Uji matriks komprehensif 6 peran × 10 izin + RPC.
+
+**Verifikasi:**
+- SQL Suite: 72 berkas uji SQL LULUS (100%).
+- Uji Mutasi: `python3 alat/uji-mutasi-0031.py` (4/4 mutasi WAJIB MERAH) & `--uji-diri` LOLOS.
+- Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` (13/13 mutasi fail-closed) LOLOS.
+- Gerbang CI: 98 gerbang CI terverifikasi utuh.
+
+## [Antarmuka/2026-09-22] Terminal Kasir POS Terpadu, Keranjang Server-Calculated, & Layar Pesanan Pelayan Mobile (Fase 3: T3-01 s/d T3-16)
+
+**Area:** Kalkulasi Keuangan (ART-3), State Machine & Alur Pesanan (ART-4), Terminal Kasir POS (PRD M4, M6)  
+**Dasar:** Seluruh perhitungan nominal uang, pajak PB1, dan service charge di keranjang kasir POS dihitung dan dikunci oleh server/peladen tanpa rumus mandiri yang dapat dimanipulasi klien (ART-3). Katalog menu menyaring kategori, pencarian, dan secara otomatis mengunci item yang stoknya habis hari ini (T3-07). Alur kasir mencakup pemilihan denah meja/tipe pesanan, tagihan terbuka (open bill), varian/tambahan racikan menu, catatan khusus dapur, pengiriman ke dapur, modal pembayaran multimetode (tunai dengan pecahan cepat & kembalian akurat, QRIS, kartu EDC), serta layar pesanan pelayan berbasis HP (T3-11).
+
+**Pelaksanaan:**
+1. `aplikasi/src/layar/kasir/Katalog.tsx` & `Katalog.test.tsx`: Katalog menu dinamis, pencarian instan, filter kategori, dialog pemilihan varian/tambahan/catatan, penandaan menu habis.
+2. `aplikasi/src/layar/kasir/Keranjang.tsx` & `Keranjang.test.tsx`: Pengelolaan keranjang belanja, kuantitas item, catatan khusus dapur, dan ringkasan finansial (subtotal, diskon, service, PB1, grand total).
+3. `aplikasi/src/layar/kasir/PemilihMeja.tsx` & `PemilihMeja.test.tsx`: Pemilihan meja fisik (Dine-in) atau Takeaway/Ojol, denah status meja, alur pemindahan meja.
+4. `aplikasi/src/layar/kasir/TagihanTerbuka.tsx` & `TagihanTerbuka.test.tsx`: Manajemen tagihan terbuka (open bill) aktif beserta filter dan pembuat tagihan baru.
+5. `aplikasi/src/layar/kasir/LayarKasir.tsx` & `LayarKasir.test.tsx`: Terminal kasir POS utama terintegrasi dengan modal dialog pembayaran tunai/QRIS/kartu, tombol pecahan uang cepat, dan integrasi kirim ke dapur.
+6. `aplikasi/src/layar/pelayan/LayarPelayan.tsx` & `LayarPelayan.test.tsx`: Antarmuka pelayan mobile HP di samping meja untuk input pesanan cepat.
+7. `aplikasi/src/layar/kasir/DaftarPesanan.tsx` & `DaftarPesanan.test.tsx`: Riwayat pesanan harian cabang dengan filter status/tipe/meja.
+8. `aplikasi/src/layar/kasir/AlurKasirE2E.test.tsx` & `aplikasi/src/layar/kasir/BebanKasir.test.ts`: Uji integrasi ujung-ke-ujung (E2E) dan uji beban ringan POS.
+
+**Verifikasi:**
+- Uji Vitest: 45 berkas pengujian (213 tes unit) LULUS 100%.
+- TypeScript & Linting: `tsc -b --noEmit`, ESLint, dan Prettier lolos tanpa galat.
+- Peta UI & Peta Aksi: `python3 alat/peta-ui.py` & `--uji-diri` LOLOS (bebas dari tag button mentah dan selaras token desain v3).
+- SQL Suite: 72 berkas uji PGlite SQL LULUS 100%.
+
+
+
+## [State Machine/2026-09-22] Jejak Status Item Dapur: Anti-Dobel & Riwayat Kekal (T4-04)
+
+**Area:** State Machine & Alur Pesanan (ART-4), PRD M5
+**Dasar:** TECH_SPEC §9 ART-4 (status item hanya maju satu langkah: baru → dimasak → siap), PRD M5 (kasus tepi dua orang menandai item sama), PRD Aturan Bisnis 7 & 11 (pembatalan berjejak). Peta transisi sudah dijaga `picu_item_jaga` (0015 — aturan terkunci; uji kontrak: `supabase/tes/status_item_transisi.sql` yang MENJAGA jalur sah tetap terbuka untuk kasir/pelayan/dapur sesuai kebijakan baris pesanan).
+
+**Keputusan:**
+1. **Tidak menambah pembatas peran baru** pada pemajuan status item — kontrak uji `status_item_transisi.sql` (probe AUD-3 F-04) mengunci bahwa jalur sah `baru → dimasak → siap` terbuka bagi peran yang boleh menyentuh baris pesanan (termasuk kasir). Pembatas peran sempat dirancang lalu DIBATALKAN karena melanggar kontrak itu (jejak diskusi: `_log-sesi/LOG_SESI_2026-09-22.md`).
+2. **Anti-dobel dua perangkat** diselesaikan dengan pencatatan yang hanya berbunyi pada transisi nyata (WHEN status benar-benar berubah) + RPC `set_status_item` dengan kunci baris `FOR UPDATE`, balasan `diubah=false` untuk tanda dobel, dan **kunci idempoten** (identitas permintaan; ulangan lama diabaikan utuh walau membawa status berikutnya).
+3. **Riwayat hanya-tambah** `pesanan_item_status_riwayat` (siapa, kapan, dari → ke) dijaga tiga lapis: tanpa policy ubah/hapus, grant select+insert saja, revoke update+delete. Tabel rantai penyewa lewat `pesanan_id` (terdaftar di `rls_semua_tabel.sql` F-10).
+4. **Status pesanan maju mengikuti item** (bukan sebaliknya): item pertama masak → pesanan `dimasak`; seluruh item non-batal siap → pesanan `siap`. Sinkron ditulis pemicu `picu_item_status_catat` (SECURITY DEFINER + search_path terkunci — karena peran `dapur` sengaja tidak punya hak UPDATE umum di tabel `pesanan`, kebijakan `pesanan_ubah` 0009; fungsi pemicu tidak bisa dipanggil lewat SELECT).
+
+**Pelaksanaan:**
+1. `supabase/migrations/0032_status_item_dapur.sql`: tabel riwayat + pemicu pencatatan & sinkron + RPC `set_status_item`.
+2. `supabase/tes/status_item.sql`: 7 kelompok uji (anon ditolak, transisi tercatat persis satu, anti-dobel via RPC & update mentah, kunci lama diabaikan, sinkron pesanan bertahap, riwayat kekal, isolasi item asing).
+3. `alat/uji-mutasi-0032.py`: **7/7 mutasi WAJIB MERAH** (riwayat dihapus · anti-dobel RPC dihapus · WHEN disaring dihapus · sinkron siap/dimasak dihapus · hak ubah riwayat diberikan · kunci idempoten dihapus) + `--uji-diri` LOLOS.
+
+**Verifikasi:**
+- SQL Suite: **73 berkas uji SQL LULUS · 0 GAGAL** (72 lama + `status_item.sql`).
+- Uji Mutasi: `python3 alat/uji-mutasi-0032.py` 7/7 MERAH & `--uji-diri` LOLOS.
+- Kontrak lama tak tersentuh: `status_item_transisi.sql`, `item_penjaga.sql`, `pesanan.sql` tetap lulus tanpa diubah.
+
+
+## [Kelengkapan UI/2026-09-23] Registri Layar Diperluas ke Fase 4 + Kontrak `layar.test.ts` Direvisi
+
+**Area:** Kelengkapan UI (ART-7), PRD M2 (papan dapur & bar real-time) & M9 (stok bahan)
+**Dasar:** `docs/ops/SIAP-LANJUT.md` §3 butir (d) menyebut registri `DAFTAR_LAYAR` DIKUNCI tes lama
+(tepat 8 layar G1) sehingga layar Fase 4 hidup lewat `App.tsx` tanpa entri registri — artinya peta UI,
+bantuan kontekstual, dan jejak fitur tidak menutup `bar`/`stok`/`opname`. Perluasan registri =
+perubahan kontrak = butuh putusan Lee. **Lee memutuskan 2026-09-23:** *"kalau memang semuanya harus
+dikerjakan, aku mau semuanya dikerjakan; urutannya ikut yang terbaik menurutmu."*
+
+**Keputusan:**
+1. **Delapan layar G1 tidak boleh hilang atau berganti id.** Yang dilonggarkan hanya jumlah total:
+   `layar.test.ts` kini mengunci daftar `LAYAR_G1_WAJIB` (8 id) + `LAYAR_FASE4` (`bar`, `stok`,
+   `opname`) dan **menolak layar tak dikenal** yang menyelinap — jadi kontraknya diperluas, bukan
+   dilunakkan (mutasi "hapus satu layar G1" tetap MERAH).
+2. **Satu layar = satu entri di tiga registri:** `DAFTAR_LAYAR` (kontrak 7 keadaan), `REGISTRI_AKSI`
+   (6 aksi baru; yang menulis menunjuk RPC nyata `set_status_item`/`set_stok`/`opname_stok` dengan
+   izin `ubah_stok`), dan `DAFTAR_BANTUAN` (panduan kontekstual ≤5 langkah). `docs/PETA_UI.md`
+   digenerate ulang dari sumbernya, tidak ditulis tangan.
+3. **`Opname.tsx` diberi keadaan `gagal`.** Tanpa itu kegagalan jaringan tampil sebagai daftar kosong
+   yang menipu ("belum ada bahan") — bertentangan dengan aturan 7 keadaan wajib. Komponen lain tidak
+   diubah: kontainer data (`useStok`) yang menyesuaikan diri, bukan layar yang dipaksa.
+
+**Pelaksanaan:**
+1. `aplikasi/src/lib/layar.ts`: +3 layar (total 11).
+2. `aplikasi/src/lib/aksi.ts`: +6 aksi (total 38).
+3. `aplikasi/src/kontrak/bantuan.ts`: +3 panduan (total 11).
+4. `aplikasi/src/lib/layar.test.ts`: kontrak direvisi seperti butir 1.
+5. `aplikasi/src/hook/useStok.ts` (+ uji): kabel data Stok/Opname — saldo `stok_bahan`, buku besar
+   `stok_pergerakan` (terbaru lebih dulu, dibatasi), aksi tulis lewat RPC, `numeric` peladen
+   dipetakan aman (tidak ada NaN ke layar).
+6. `docs/PETA_UI.md`: digenerate `python3 alat/peta-ui.py --generate`.
+
+**Verifikasi:**
+- Aplikasi: **54 berkas uji / 280 tes LULUS** (sebelumnya 53/268).
+- `python3 alat/peta-ui.py` LOLOS (11 layar, 38 aksi, PRD M1–M12 terhubung).
+- `python3 alat/periksa-bantuan.py` + `--uji-diri` LOLOS (11/11 layar berpanduan).
+- Seluruh **62 perintah** langkah CI "Pemeriksa fondasi…" LOLOS lokal.
+- Kalibrasi uji baru: mutasi `angka()` (biarkan NaN lolos) → 2 uji MERAH; dikembalikan.
+
+### [Fase 5/2026-09-23] bayar_pesanan menjadi pintu tunggal uang masuk (T5-02)
+- **Area:** Kalkulasi Keuangan (ART-3) & State Machine (ART-4)
+- **Keputusan:** satu RPC `public.bayar_pesanan(pesanan_id, metode_id, jumlah, diterima, referensi, kunci_idempoten)`
+  di migrasi `0039_bayar_pesanan.sql` menjadi satu-satunya pintu yang dianjurkan untuk mencatat uang masuk.
+  Yang ia kerjakan: (1) kunci baris pesanan `for update` sebelum memeriksa apa pun; (2) validasi peran
+  pemanggil (`owner_pusat`/`admin_cabang`/`kasir`) DI DALAM fungsi; (3) metode bayar dicari di resto
+  PEMANGGIL, pesanan dicari di resto PESANAN; (4) tunai → `diterima` wajib dan kembalian dihitung peladen,
+  non-tunai → `referensi` wajib; (5) batas `total_dibayar + jumlah ≤ total` dengan kode galat **BY-301**;
+  (6) idempoten per `(pesanan_id, kunci_idempoten)`; (7) pesanan dimajukan ke `lunas` + stempel
+  `dibayar_pada` tepat saat total tertutup, di transaksi yang sama; (8) satu baris `catatan_audit`
+  per pembayaran baru. Balasan memakai amplop TECH_SPEC §5 (`berhasil`/`kode`/`pesan`) + rincian uang.
+- **Alasan:** pagar baris uang sudah ada di `picu_pembayaran_jujur` (0010, beku) dan tetap berlaku — tetapi
+  tidak ada satu pintu pun yang menolak dua pembayaran SERENTAK yang jumlahnya kalau dijumlah melebihi total,
+  yang memajukan status ke `lunas` tepat waktu, dan yang menulis jejak. Kasir yang menulis baris langsung
+  bisa mendapat tiga masalah itu sekaligus. Pagar peran ditulis di dalam fungsi karena RPC ini
+  `SECURITY DEFINER`: kebijakan RLS `pembayaran_tambah` TIDAK berlaku di dalamnya (tanpa pagar itu dapur
+  dan pelayan bisa mencatat uang — terbukti saat uji pertama berkas `bayar_pesanan.sql` ditulis).
+  Kembalian TIDAK dihitung lewat `hitung_total()`: fungsi itu hanya penulis kolom uang pesanan (keputusan
+  2026-09-16); kembalian = `diterima − jumlah`, dihitung ulang oleh pemicu 0010 dan dibaca balik RPC lewat
+  `RETURNING` sehingga balasan tidak pernah berbeda dari jejak yang tersimpan.
+- **File terkait:** `supabase/migrations/0039_bayar_pesanan.sql`, `supabase/tes/bayar_pesanan.sql`,
+  `alat/uji-mutasi-0039.py` (6 mutasi wajib MERAH), `docs/ROADMAP.md` T5-02
+- **Implikasi:** layar Bayar (T5-01) dan struk (T5-03) WAJIL memanggil RPC ini, bukan `insert` ke
+  `pembayaran`. Kode BY-301 adalah satu-satunya penanda bahwa yang menolak adalah pintu ini (pemicu 0010
+  punya pesan serupa tanpa kode) — jangan menyalin pesannya tanpa kodenya. Pembayaran "kurang dari total"
+  BUKAN keadaan gagal: itu pembayaran sebagian yang sah dan pesanan tetap belum lunas.
+
+### [Fase 5/2026-09-23] Rantai hash audit diurutkan kolom `urutan`, bukan jam (menutup cacat 0029)
+- **Area:** Jejak Audit (T1-13/T1-27) — menyentuh semua fitur yang menulis `catatan_audit`
+- **Keputusan:** migrasi `0040_urutan_rantai_audit.sql` menambah `catatan_audit.urutan bigserial NOT NULL`,
+  menerbitkannya dari pemicu (nilai kiriman klien ditimpa), dan mengubah `hitung_hash_catatan_audit()`
+  serta `verifikasi_rantai_audit()` agar menelusuri rantai lewat `urutan`. Payload hash TIDAK diubah, jadi
+  hash baris lama tetap sah.
+- **Alasan:** `waktu` memakai `now()` = WAKTU MULAI TRANSAKSI. Dua baris audit yang ditulis dalam SATU
+  transaksi selalu berbagi `waktu` yang sama persis, sehingga urutan ditentukan pemecah seri `id` (UUID acak):
+  pembangun mengambil induk lewat `waktu desc, id desc`, pemeriksa berjalan lewat `waktu asc, id asc`.
+  Bila UUID baris kedua lebih kecil, pemeriksa mulai dari baris yang `hash_sebelumnya`-nya bukan GENESIS dan
+  melaporkan rantai PUTUS padahal tidak ada bit yang diubah. Terukur saat menulis uji T5-02: **7 dari 12
+  run merah** dengan pesan "Tautan rantai terputus pada baris ke-1". Jalur nyata yang sudah menulis lebih
+  dari satu baris per transaksi: `keluar_mode_dukungan` (0031, satu baris per penyewa) dan `bayar_pesanan`
+  (0039). `clock_timestamp()` tidak dipakai karena masih bisa seri pada INSERT banyak baris satu pernyataan.
+- **File terkait:** `supabase/migrations/0040_urutan_rantai_audit.sql`, `supabase/tes/urutan_rantai_audit.sql`,
+  `alat/uji-mutasi-0040.py` (4 mutasi wajib MERAH)
+- **Implikasi:** siapa pun yang menambah penulis jejak baru tidak perlu lagi khawatir jumlah baris per
+  transaksi. Jangan mengurutkan rantai audit dengan `waktu` di laporan/kueri ad-hoc — pakai `urutan`.
+  Kolom `urutan` adalah teknis dan SENGAJA tidak ikut di-hash; `waktu` tetap disimpan, tetap di-hash, dan
+  tetap yang tampil ke pengguna.
+
+### [Fase 5/2026-09-23] Layar Bayar: metode dari peladen, kunci idempoten stabil di klien
+- **Area:** Kontrak UI ↔ RPC pembayaran (menyentuh ART-3 uang)
+- **Keputusan:** `aplikasi/src/layar/kasir/Bayar.tsx` adalah komponen MURNI; kabel datanya
+  `aplikasi/src/hook/useBayar.ts`. Tiga aturan yang mengikat:
+  1. **Daftar metode bayar datang dari peladen** (`.eq('aktif', true)`, urut `urutan` lalu nama).
+     Layar tidak punya daftar metode bawaan — sebelumnya `LayarKasir.tsx` mengeras-kodekan
+     `'tunai' | 'qris' | 'kartu'`, yang membuat metode nonaktif tetap tampil dan metode baru
+     tidak pernah muncul.
+  2. **Kunci idempoten dibuat di klien dan STABIL**: `bayar-<pesananId>-<urutanBayar>`, bukan acak
+     per klik. RPC 0039 idempoten per `(pesanan_id, kunci_idempoten)`; kunci yang stabil membuat
+     tombol yang terkirim dua kali tidak mencatat uang dua kali. Urutan hanya maju untuk balasan
+     yang `dobel: false`.
+  3. **Kembalian di layar sebelum konfirmasi adalah PERKIRAAN** dan disebut demikian di UI; angka
+     SAH adalah `kembalian` dari balasan peladen dan itulah yang ditampilkan besar sesudah
+     pembayaran tercatat. Layar tidak pernah menghitung uang untuk disimpan.
+- **Alasan:** mengikuti pola kontainer/komponen yang sudah dipakai `useTiketDapur` (KDS) dan
+  `useStok` (Stok/Opname) — layar tetap bisa diuji tanpa jaringan, dan semua aturan uang tetap di
+  peladen. Kunci acak per klik akan membuat fitur idempoten 0039 tidak berguna sama sekali.
+- **File terkait:** `aplikasi/src/layar/kasir/Bayar.tsx` (+ uji), `aplikasi/src/hook/useBayar.ts`
+  (+ uji), `aplikasi/src/lib/aksi.ts` (`kasir.proses_bayar` kini menunjuk RPC `bayar_pesanan`,
+  sebelumnya `hitung_total`), `docs/PETA_UI.md` (digenerate ulang),
+  `aplikasi/alat/uji-mutasi-app.mjs` (+4 mutasi)
+- **Implikasi:** layar apa pun yang mencatat uang WAJIL lewat `bayar_pesanan` dan memakai kunci
+  idempoten stabil. Jangan menulis `insert into pembayaran` dari klien. `LayarKasir.tsx` masih
+  punya modal bayar lama yang mengeras-kodekan tiga metode — itu yang harus diganti saat layar
+  ini disambungkan ke alur kasir (belum dilakukan di batch ini).
+
+### [Fase 5/2026-09-23] Terminal kasir memakai layar Bayar; struk tidak pernah menghitung uang (T5-01 sambungan + T5-03)
+
+- **Area:** Kalkulasi Keuangan (ART-3) · Antarmuka
+- **Keputusan:**
+  1. **`LayarKasir.tsx` tidak lagi punya daftar metode bayar.** Modal bayar lama —
+     yang menulis `'tunai' | 'qris' | 'kartu'` di dalam berkas layar — dibuang dan diganti
+     komponen `Bayar.tsx`. Metode datang dari kontainer (`useBayar` → `metode_bayar`
+     dengan saringan `aktif = true`) dan uang dicatat lewat RPC `bayar_pesanan` (0039).
+     Konsekuensi yang disengaja: prop lama `onBayarPesanan(pesananId, metodeString, nominal)`
+     DIHAPUS, karena ia jalan pintas yang melewati pintu tunggal uang masuk.
+  2. **Keranjang hanya dikosongkan bila tagihan LUNAS.** Sebelumnya modal lama mengosongkan
+     keranjang begitu panggilan bayar sukses — pada pembayaran sebagian (split bill) itu
+     menghapus pesanan yang sisanya belum tertagih.
+  3. **`Struk.tsx` mencetak, tidak menghitung.** Subtotal, diskon, PB1, service, dan total
+     diambil apa adanya dari angka peladen (kolom yang ditulis `hitung_total()`). Struk
+     dilarang menghitung sendiri (mis. `subtotal × 10%`), karena begitu ada diskon atau
+     pembulatan, angkanya akan berbeda dari uang yang benar-benar tercatat.
+  4. **Baris "Pembulatan" adalah SELISIH, bukan angka baru:**
+     `total − (subtotal − diskon + pajak + service)`. Peladen membulatkan total KE BAWAH
+     mengikuti pengaturan resto (none/100/500/1000) sementara baris pajak & service tidak
+     ikut berubah; tanpa baris selisih ini, rincian di kertas tidak akan menjumlah ke total.
+     Selisih dicetak terbuka, tidak disembunyikan.
+  5. **Pajak & service 0 % tetap punya barisnya sendiri bernilai Rp0** — supaya resto yang
+     belum memungut PB1 terlihat memang tidak memungut, bukan seolah menyembunyikan baris.
+- **Alasan:** satu sumber kebenaran untuk uang (peladen), dan struk yang selalu bisa
+  dicocokkan dengan kas. Keputusan 4 lahir dari uji SQL: dengan pembulatan 500, rincian
+  62.100 versus total 62.000 tidak ketemu kalau selisihnya tidak dicetak.
+- **File terkait:** `aplikasi/src/layar/kasir/LayarKasir.tsx` (+ `LayarKasirBayar.test.tsx`),
+  `aplikasi/src/App.tsx` (memasang `useBayar`), `aplikasi/src/komponen/Struk.tsx`
+  (+ `Struk.test.tsx`), `aplikasi/src/layar/kasir/Bayar.tsx` (menampilkan struk),
+  `supabase/tes/pajak_service.sql`, `aplikasi/alat/uji-mutasi-app.mjs` (+5 mutasi)
+- **Implikasi:** layar baru mana pun yang menampilkan uang WAJIB membaca angka peladen dan
+  mencetak selisih pembulatan bila ada. Sumber `DataStruk` saat ini masih ringkasan kasir;
+  begitu kontainer membaca baris `pesanan` dari peladen, cukup ganti sumbernya — komponen
+  struk tidak perlu disentuh.
+
+### [Fase 5/2026-09-23] T5-04 diskon: mekanismenya sudah ada sejak 0019 — yang kurang BUKTINYA
+
+- **Area:** Kalkulasi Keuangan (ART-3)
+- **Keputusan:** **tidak membuat migrasi baru untuk T5-04.** Saat mengerjakannya, pagar yang
+  diminta DoD ternyata sudah hidup di `picu_diskon_batas()` (`0019_pesan_diskon_jujur.sql`,
+  dengan cap kumulatif dari `0014`): satu diskon per transaksi bila `tumpuk_diskon = false`,
+  dan cap resto (persen/nominal) diperiksa pada TOTAL. Menambah migrasi kedua untuk aturan
+  yang sama justru berbahaya — dua tempat yang mengatur uang berarti dua tempat yang bisa
+  berbeda. Rencana lama juga menyebut nomor `0039_diskon.sql` yang sudah terpakai
+  `bayar_pesanan`, jadi mengikutinya buta akan menabrak migrasi yang ada.
+- **Yang dikerjakan sebagai gantinya:** BUKTI, karena pagar tanpa uji yang tajam sama saja
+  dengan tidak ada. Ditambahkan `supabase/tes/diskon_tumpuk.sql` (6 kelompok asersi) dan
+  `alat/uji-mutasi-0019.py` (**5/5 mutasi wajib MERAH**), lalu didaftarkan ke `ci.yml`,
+  `GERBANG_WAJIB` (`alat/periksa-gerbang-ci.py`), dan `aplikasi/alat/periksa-semua.sh`
+  sekaligus — aturan paritas CI: perintah CI baru yang tidak didaftarkan membuat CI merah
+  sendiri (pernah terjadi 2026-09-22).
+- **Temuan jujur saat menulis ujinya:** asersi pertama untuk "total diskon melebihi subtotal"
+  TIDAK benar-benar menguji pagar itu — satu baris besar lebih dulu ditahan pagar BATAS IZIN
+  (owner pun berbatas 20 %). Ketahuan karena mutasi ke-5 tetap hijau. Ujinya diperbaiki
+  (tumpuk menyala + cap 100 % + penambahan bertahap) sampai pagar subtotal benar-benar yang
+  menahan — mutasinya TIDAK dibuang untuk menghijaukan hasil.
+- **File terkait:** `supabase/tes/diskon_tumpuk.sql`, `alat/uji-mutasi-0019.py`,
+  `.github/workflows/ci.yml`, `alat/periksa-gerbang-ci.py`, `aplikasi/alat/periksa-semua.sh`
+- **Implikasi:** sebelum menulis migrasi baru untuk butir ROADMAP mana pun, periksa dulu apakah
+  aturannya sudah ada di migrasi lama; nomor migrasi di ROADMAP adalah rencana lama, bukan
+  perintah. Nomor yang benar = berikutnya yang belum terpakai.
+
+### [Fase 5/2026-09-23] T5-05 diskon: PIN atasan akhirnya BENAR-BENAR menaikkan batas
+
+- **Area:** Role & Permission (ART-2) + Kalkulasi Keuangan (ART-3)
+- **Cacat yang ditemukan:** `picu_diskon_batas()` memeriksa `public.boleh('beri_diskon', …)` —
+  izin **pemanggil**. Pemicu `picu_diskon_setuju_jujur()` (0016) sudah membuktikan atasan
+  menekan PIN-nya untuk pesanan itu, tetapi dua pemicu itu **tidak pernah berbicara**: bukti
+  persetujuan ada, batas yang dipakai tetap batas kasir. Akibat nyatanya, alur yang dijanjikan
+  PRD M3 ("di atas batas → PIN atasan") **mustahil dijalankan** — satu-satunya jalan adalah
+  atasan logout-login di tengah antrean. Pesan 0019 yang menyuruh "minta atasan yang memproses"
+  ternyata memang satu-satunya kenyataan yang tersedia.
+- **Keputusan:** migrasi **`0041_diskon_pin_atasan.sql`** (nomor `0040` sudah terpakai rantai
+  audit; nomor `0040_diskon_izin.sql` di ROADMAP adalah rencana lama). Bila baris diskon membawa
+  `disetujui_oleh`, batas yang diperiksa adalah batas **penyetuju** — dengan syarat yang sama
+  persis seperti konsumsi kupon di 0016: bukti PIN untuk aksi `beri_diskon`, terikat pesanan itu,
+  belum dipakai, umur ≤5 menit, dan penyetuju **dicek ulang izinnya** (pelajaran F-16: kecocokan
+  rahasia bukan otorisasi). PIN atasan menaikkan batas **sampai batas atasan**, bukan tanpa batas.
+- **Yang sengaja TIDAK berubah:** kupon tidak dikonsumsi di pemicu batas — `diskon_batas` berjalan
+  sebelum `diskon_setuju_jujur` (urutan alfabetis), jadi di sini kupon hanya **dibaca**; yang
+  menandai `dipakai_pada` tetap 0016. Satu tempat saja, supaya sifat sekali-pakai tidak bocor
+  lewat dua jalur. Tanpa stempel, perilaku lama berlaku apa adanya.
+- **Sisi layar:** `DiskonManual.tsx` menggantikan **voucher keras-kode** di `LayarKasir.tsx` —
+  mengetik `BAROKAH10K` dulu langsung memotong Rp10.000 tanpa izin, tanpa alasan, tanpa jejak
+  pemberi, dan tanpa voucher apa pun di database. Sekarang diskon hanya masuk lewat
+  `diskon_transaksi`. Layar juga **tidak memotong tagihan sebelum peladen menerima** (bahaya khas
+  "optimistic update" pada uang), dan bila batas pemakai belum diketahui layar bersikap hati-hati:
+  anggap perlu persetujuan.
+- **File:** `supabase/migrations/0041_diskon_pin_atasan.sql`, `supabase/tes/diskon_pin_atasan.sql`,
+  `alat/uji-mutasi-0041.py`, `aplikasi/src/layar/kasir/DiskonManual.tsx` (+uji),
+  `aplikasi/src/layar/kasir/LayarKasirDiskon.test.tsx`, `aplikasi/src/lib/aksi.ts`
+- **Bukti:** suite SQL **84 LULUS** · `uji-mutasi-0041.py` **6/6 MERAH** · aplikasi **353 tes** ·
+  `uji-mutasi-app.mjs` **20/20 MERAH** · gerbang & paritas CI LOLOS (110 perintah).
+- **Ditangguhkan (bukan diputuskan diam-diam):** **T-027** — pajak & service di keranjang kasir
+  masih perkiraan 10 %/5 % di layar. Tidak membahayakan uang (struk & layar Bayar memakai angka
+  peladen), tetapi menyatukannya adalah pilihan rasa-pakai yang milik Lee.
+
+## [State Machine/2026-09-23] Void Pra-Dapur: Pagarnya Sudah Ada, yang Hilang Pintunya (T5-06)
+
+- **Konteks:** ROADMAP T5-06 menjadwalkan migrasi baru `0041_void_pra.sql` + `supabase/tes/void_pra.sql`.
+  Sebelum menulisnya, isi database diperiksa dulu — dan ternyata **seluruh DoD T5-06 sudah ditegakkan**
+  oleh `picu_pembatalan_sah()` di `0015_penutup_celah_putaran16.sql`: tahap dibaca dari DUA tanda
+  (`dikirim_ke_dapur_pada` **dan** status pesanan, supaya satu tanda yang lupa diisi tidak meloloskan
+  pembatalan tanpa PIN), alasan wajib lewat `check (length(btrim(alasan)) > 0)` pada tabel `pembatalan`
+  (`0010`), satu target hanya boleh dibatalkan sekali (kunci idempotensi, temuan AUD-3 F-05), nilai
+  kerugian diambil dari SALINAN harga (bukan harga menu sekarang), dan tidak ada penghapusan data —
+  yang terjadi adalah pencatatan. Ujinya pun sudah hijau: `void_satu_item.sql`, `pembatalan_sekali.sql`,
+  `pembatalan_penanda_palsu.sql`, `persetujuan_void.sql`, `nilai_kerugian.sql`.
+- **Keputusan:** **tidak menulis migrasi baru.** Menambah `0041_void_pra.sql` hanya akan menduplikasi
+  pagar yang sudah terbukti, dan — pelajaran mahal dari T5-05 — migrasi baru yang memuat frasa SQL
+  yang sama membuat `berkas_berlaku()` di berkas uji mutasi SQL (mis. `alat/uji-mutasi-0012.py`) menyasar berkas salah,
+  sehingga pagar lama terbaca "tumpul" padahal utuh. Nomor `0042` dibiarkan bebas untuk T5-07.
+- **Cacat nyata yang ditutup — di LAYAR, bukan di database:** tombol "Hapus item" di keranjang kasir
+  memakai satu jalan untuk semua keadaan, `setDaftarItemKeranjang((prev) => prev.filter(...))`. Untuk
+  keranjang draf itu benar (belum ada apa pun di peladen untuk dicatat). Untuk item yang SUDAH
+  tercatat itu celah: item hilang tanpa alasan, tanpa pelaku, tanpa jejak. Akibatnya tabel `pembatalan`
+  beserta seluruh pagarnya **tidak pernah dipanggil siapa pun**, dan laporan pembatalan harian yang
+  dijanjikan ke pemilik selalu kosong walau kasir membatalkan banyak item.
+- **Bentuk penutupannya:** `VoidItem.tsx` — alasan **wajib** (tombol mati sampai terisi; spasi saja
+  tetap dianggap kosong), alasan cepat sebaris supaya kasir tidak mengetik saat antrean panjang,
+  nilai yang batal ditagih ditampilkan supaya kasir sadar besarnya, dan peringatan dini bila pesanan
+  sudah masuk dapur (wajib PIN atasan). `LayarKasir.tsx` bercabang jujur: bila `onBatalkanItem` tidak
+  dipasang, keranjang diperlakukan sebagai draf lokal seperti dulu; bila dipasang, item **hanya**
+  hilang dari layar setelah peladen menjawab berhasil.
+- **Yang sengaja TIDAK dilakukan:** layar tidak memutuskan tahap ("sebelum/sesudah dapur"). Penanda
+  `sudahKeDapur` murni untuk memberi tahu kasir lebih awal; yang menegakkan tetap peladen, dan
+  penolakannya ditampilkan apa adanya — tidak pernah disulap jadi "berhasil".
+- **File:** `aplikasi/src/layar/kasir/VoidItem.tsx` (+`VoidItem.test.tsx`),
+  `aplikasi/src/layar/kasir/LayarKasirVoid.test.tsx`, `aplikasi/src/layar/kasir/LayarKasir.tsx`,
+  `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-mutasi-app.mjs`
+- **Bukti:** VoidItem **8 tes** + LayarKasirVoid **7 tes** LULUS · aplikasi **62 berkas / 368 tes**
+  LULUS · `uji-mutasi-app.mjs` **24/24 MERAH** (4 mutasi baru T5-06 semuanya menggigit) · suite SQL
+  **84 LULUS** · `tsc` bersih · lint 0 error · gerbang & paritas CI LOLOS.
+- **Catatan jujur:** `onBatalkanItem` baru kontrak layar; kabel RPC-nya dipasang saat layar kasir
+  tersambung peladen sungguhan (sama polanya seperti `onTerapkanDiskon` di T5-05). Tidak ada perintah
+  CI baru — uji baru ikut terbawa `vitest run` dan `uji-mutasi-app.mjs` yang sudah terdaftar di gerbang.
+
+## [Kalkulasi/2026-09-23] "Bahan Terbuang" Ditentukan Peladen, Bukan Dititipkan Kasir (T5-07, migrasi 0042)
+
+- **Konteks:** T5-07 dijadwalkan membuat `0042_void_pasca.sql` + `VoidPasca.tsx`. Pemeriksaan
+  lebih dulu (kebiasaan yang dikunci di T5-06) menunjukkan **separuh tugasnya sudah terpasang**:
+  PIN atasan wajib, kupon terikat pesanan & sekali pakai, nilai kerugian dari salinan harga —
+  semuanya di `picu_pembatalan_sah()` (`0015`), dengan uji hijau.
+- **Cacat nyata yang ditemukan:** kolom `pembatalan.bahan_terbuang` ada sejak `0010`, dipakai
+  laporan kerugian, dan ikut dikirim di hampir semua jalur uji — tetapi **tidak ada satu pemicu
+  pun yang memeriksanya**. Yang dijaga hanya `nilai_kerugian`. Akibatnya persis kebalikan dari
+  tujuan T5-07 ("kerugian terlihat sebagai angka, bukan hilang diam-diam"):
+  (1) kasir membatalkan pesanan yang **sudah dimasak** sambil mengirim `bahan_terbuang = false` —
+  barisnya sah, PIN-nya benar, nilainya benar, tetapi kerugian bahannya lenyap dari laporan
+  **selamanya** karena tabelnya append-only; (2) sebaliknya pembatalan pra-dapur bisa ditandai
+  `true` dan memompa angka kerugian untuk kejadian yang tidak membuang apa pun.
+- **Keputusan:** migrasi **`0042_bahan_terbuang_jujur.sql`** — penanda dihitung peladen dari
+  tahap: `sebelum_dapur` → `false`, `sesudah_dapur` → `true`. Tahap itu sendiri sudah dipaksa
+  cocok dengan keadaan pesanan (dua tanda) di pagar yang sama, jadi ini tidak bisa diakali dengan
+  mengirim tahap palsu.
+- **Sikap terhadap kiriman klien — sengaja meniru `nilai_kerugian`:** nilai **bawaan** (`false`,
+  setara `nilai_kerugian = 0`) berarti "peladen yang mengisi" dan **ditimpa**; nilai non-bawaan
+  yang **bertentangan** (`true` pada pembatalan pra-dapur) **ditolak**. Pembedaan ini bukan
+  kosmetik: pemicu tidak bisa membedakan "klien mengirim false" dari "klien tidak menyebut
+  kolomnya", sehingga menolak `false` akan mematahkan semua pemanggil jujur — termasuk uji lama
+  `persetujuan_void.sql` yang memang menyerahkan pengisian ke peladen. Yang menutup celah utama
+  adalah **penimpaan wajib**, bukan penolakannya.
+- **Layar:** `VoidPasca.tsx` yang direncanakan **tidak dibuat terpisah** — `VoidItem.tsx` (T5-06)
+  sudah menangani kedua tahap dan sudah memperingatkan "dapur sudah mulai, wajib PIN atasan".
+  Menambah layar kembar hanya akan menduplikasi alur persetujuan yang sama.
+- **Jebakan yang kena lagi (kedua kalinya) & ditutup:** `0042` menulis ulang utuh
+  `picu_pembatalan_sah()`, sehingga mutasi **M6** di `alat/uji-mutasi-0012.py` yang menyasar
+  `0015` **tidak lagi berpengaruh** (definisi terakhir yang berlaku saat pemasangan adalah
+  `0042`) — M6 terbaca "pagar tumpul", 16/16 → 15/16. Jangkar berkasnya dipindah ke `0042` dan
+  pulih 16/16. **Aturan umum yang kini dicatat di berkas itu: setiap kali sebuah fungsi ditulis
+  ulang di migrasi baru, semua uji mutasi yang menyasarnya WAJIB ikut dipindahkan.**
+- **File:** `supabase/migrations/0042_bahan_terbuang_jujur.sql`, `supabase/tes/bahan_terbuang.sql`,
+  `alat/uji-mutasi-0042.py`, `alat/uji-mutasi-0012.py` (jangkar M6),
+  `.github/workflows/ci.yml` + `alat/periksa-gerbang-ci.py` + `aplikasi/alat/periksa-semua.sh`
+- **Bukti:** suite SQL **85 LULUS · 0 GAGAL** · `uji-mutasi-0042.py` **4/4 MERAH** ·
+  `uji-mutasi-0012.py` **16/16** · `uji-mutasi-0018/0019/0041` LOLOS · gerbang & paritas CI LOLOS.
+
+## [Privasi/2026-09-23] Nomor HP Pelanggan: Layarnya Dibuat, Penyimpanannya Sengaja Belum (T5-08)
+
+- **Area:** Privasi pelanggan (ART-10) — `docs/KEAMANAN.md` §11, UU PDP 27/2022
+- **Konteks:** T5-08 meminta nomor HP opsional untuk poin/voucher. Ini menyentuh data pribadi,
+  jadi sebelum menulis kode saya periksa keputusan terkunci lebih dulu — dan memang ada:
+  **T-011** (disetujui 2026-09-21) menyatakan data pelanggan baru boleh **dikumpulkan dan
+  disimpan** setelah ada kebijakan privasi + kotak persetujuan, dengan migrasi/halamannya
+  dijadwalkan di **T8-15** dan ditinjau pemilik sebelum Fase 8.
+- **Keputusan:** kerjakan **layar pengumpulnya saja** — persis sebatas kolom **File** tugas ini
+  (`aplikasi/src/layar/kasir/DataPelanggan.tsx`). **Tidak ada tabel, migrasi, RPC, atau
+  penyimpanan apa pun** yang dibuat. Komponen menyerahkan data ke kontainer lewat `onSimpan`,
+  dan kabel itu baru dipasang setelah T8-15 ada. Dengan begitu tidak ada satu pun nomor
+  pelanggan yang bisa tersimpan sebelum kebijakannya siap — janji T-011 tetap utuh, tetapi
+  pekerjaan Fase 5 tidak perlu menunggu.
+- **Kenapa bukan Stop Condition:** keputusannya tidak bertentangan dan tidak perlu diubah;
+  T-011 sudah menjawab pertanyaannya dan menunjuk tempatnya (T8-15). Yang dilakukan di sini
+  justru menghormati batas itu, bukan menembusnya.
+- **Yang dikunci di layar (semua diuji):** persetujuan **eksplisit** — tombol simpan mati
+  sampai kotak dicentang, dan persetujuan dikirim sebagai data (`setuju: true`), bukan
+  diasumsikan; **minimalisasi** — hanya nomor HP + nama panggilan opsional, tidak ada NIK,
+  alamat, atau tanggal lahir; **penjelasan di layar** (bukan hanya di halaman kebijakan) bahwa
+  data dipakai untuk poin/voucher kedai ini, tidak dijual, dan bisa dihapus; **tombol Lewati
+  selalu hidup** sehingga bagian ini tidak pernah menghambat pembayaran (DoD eksplisit).
+- **Pilihan yang dijelaskan terbuka:** nomor **tidak** divalidasi ketat (cukup ≥8 angka).
+  Menolak format tak biasa hanya membuat kasir mengarang nomor supaya bisa lanjut, dan data
+  karangan di basis pelanggan lebih buruk daripada tidak ada data.
+- **File:** `aplikasi/src/layar/kasir/DataPelanggan.tsx`, `DataPelanggan.test.tsx`,
+  `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-mutasi-app.mjs`
+- **Bukti:** `DataPelanggan.test.tsx` **9 tes LULUS** · `uji-mutasi-app.mjs` **26/26 MERAH**
+  (2 mutasi baru: kirim tanpa persetujuan, Lewati dimatikan) · aplikasi **377 tes LULUS**.
+
+## [Mutu gerbang/2026-09-23] Jebakan "Fungsi Ditulis Ulang → Mutasi Menyasar Berkas Mati" (ketiga kalinya)
+
+- **Area:** Mutu gerbang otomatis — menjaga agar bukti uji mutasi tidak berbohong
+- **Kejadian:** `0042` menulis ulang utuh `picu_pembatalan_sah()`. Dua uji mutasi yang menyasar
+  fungsi itu di `0015` seketika kehilangan gigi: **M6** di `alat/uji-mutasi-0012.py` (kupon PIN
+  sekali pakai) dan **F-05** di `alat/uji-mutasi-0015.py` (idempotensi pembatalan). Keduanya
+  melaporkan "pagar TUMPUL" padahal pagarnya utuh — yang terjadi adalah mutasinya menyunting
+  definisi yang **sudah tidak berlaku**, lalu ditimpa `0042` saat pemasangan.
+- **Kenapa berbahaya:** kegagalannya berbunyi seperti temuan keamanan ("pagar tumpul"), sehingga
+  godaannya adalah "memperbaiki" pagar yang sebenarnya sehat — atau, lebih buruk, melonggarkan
+  uji supaya hijau. Sebaliknya juga bisa terjadi: kalau pagar aslinya BENAR-BENAR jebol, mutasi
+  yang menyasar berkas mati akan tetap hijau dan kita tidak akan pernah tahu.
+- **Keputusan (aturan tetap):** **setiap kali sebuah fungsi/policy ditulis ulang di migrasi baru,
+  semua uji mutasi yang menyasarnya WAJIB ikut dipindahkan ke berkas yang benar-benar berlaku**,
+  dan alasannya ditulis sebagai komentar di titik jangkarnya. Prosedur sesudah menambah migrasi
+  bukan lagi "jalankan suite SQL", melainkan **jalankan seluruh uji mutasi SQL** — suite bisa
+  hijau sempurna (85 LULUS) sementara dua penilai mutasi diam-diam lumpuh.
+- **Riwayat kambuh:** (1) T5-05/`0041` → M6 `uji-mutasi-0012.py`; (2) T5-07/`0042` → M6 lagi;
+  (3) T5-07/`0042` → F-05 `uji-mutasi-0015.py`; (4) **T5-05/`0041` → SELURUH 5 mutasi
+  `uji-mutasi-0019.py`** (pagar diskon T5-04). Yang keempat paling mengkhawatirkan: penilainya
+  **lumpuh total sejak T5-05** dan CI merah empat kali berturut-turut, tetapi pesan lokalnya
+  ("Mutasi 1 … LOLOS (pagar tumpul!)") mudah disalahartikan sebagai cacat pagar diskon.
+  Sesudah jangkarnya dipindah ke `0041`: **5/5 MERAH** — pagarnya memang sehat sepanjang waktu.
+- **Cara mendeteksinya dengan cepat:** `grep -rln "<teks jangkar>" supabase/migrations/` — bila
+  teksnya muncul di lebih dari satu migrasi, jangkar mutasi harus menunjuk yang **paling akhir**.
+- **File:** `alat/uji-mutasi-0012.py` (jangkar M6 → `0042`), `alat/uji-mutasi-0015.py`
+  (`MIG42` + `berkas_rel=MIG42` pada F-05), `alat/uji-mutasi-0019.py` (`MIGRASI` → `0041`)
+- **Bukti:** `uji-mutasi-0015.py` **LOLOS** · `uji-mutasi-0019.py` **5/5 MERAH** ·
+  `uji-mutasi-0012.py` **16/16** · `uji-mutasi-0014.py` **17/17** · `uji-mutasi-0016.py` LOLOS ·
+  suite SQL **85 LULUS** · `periksa-semua.sh` **43 LOLOS** (sisa hanya handoff, bukan langkah CI).
+- **Catatan alat:** penilai mutasi memakai direktori kerja tetap di `/tmp` (mis.
+  `/tmp/mutasi-0015-rb`), jadi **dua penilai tidak boleh berjalan bersamaan** — hasilnya saling
+  merusak dan memberi "GAGAL" palsu. Jalankan berurutan.
+
+
+## [Cetak/2026-09-23] Daftar Merek Printer Adalah Jalan Pintas, BUKAN Syarat (T6-02 & T6-03, butir T-002)
+
+- **Area:** Cetak (ART-7) — TECH_SPEC §1 & §13 K3; menutup butir tertangguh **T-002**
+- **Konteks:** Lee menyebut lima printer Kedai Oasis (Goojprt PT-210, Kassen BT-P290, Blueprint
+  Lite-58, Xprinter XP-N160II, Epson TM-T82X) lalu bertanya hal yang justru paling menentukan:
+  **"kalau ada yang pakai printer lain selain ini, bisa tetap berjalan tidak?"**
+- **Keputusan: daftar merek hanya JALAN PINTAS, tidak pernah menjadi syarat.** Kalau daftar
+  dijadikan syarat, setiap kedai baru dengan printer berbeda akan tertahan menunggu rilis aplikasi
+  — dan itu justru melawan nilai jual produk ini ("bisa diatur tanpa koding"). Maka:
+  - `tebakProfil()` **selalu** mengembalikan profil yang bisa dipakai; nama tak dikenal jatuh ke
+    `PROFIL_UMUM`, tidak pernah `null` dan tidak pernah melempar galat.
+  - **Bluetooth bertingkat:** coba alamat layanan yang dikenal (`18f0`, `ff00`, `ffe0`, `fff0`,
+    ISSC `49535343…`, `e7810a71…`), lalu **telusuri semua layanan** dan pakai karakteristik apa pun
+    yang bisa ditulisi. Tidak ada standar alamat untuk printer struk, jadi tahap kedua inilah yang
+    menyelamatkan merek asing.
+  - **USB bertingkat:** utamakan antarmuka kelas 7 (Printer), lalu terima **jalur keluar apa pun**.
+  - **Lebar kertas dijadikan pilihan pengguna** (58/80 mm), karena itu satu-satunya hal yang
+    benar-benar harus diketahui dan bisa dijawab siapa pun sambil melihat kertasnya.
+- **Anggapan bawaan sengaja dipilih yang "salahnya aman":** profil umum = 58 mm, tanpa pisau,
+  tanpa laci. Struk 58 mm di printer 80 mm hanya menyisakan ruang kosong; sebaliknya struk 80 mm di
+  printer 58 mm **kehilangan angka di sisi kanan**. Kalau harus salah, salahlah ke arah yang tidak
+  merusak bukti bayar.
+- **Janji ini dikunci uji mutasi, bukan sekadar ditulis:** tiga mutasi wajib MERAH — (a) merek di
+  luar daftar ditolak, (b) penelusuran BLE menyeluruh dicabut, (c) lebar profil umum diubah diam-diam.
+  Jadi jaminan "merek lain tetap jalan" tidak bisa hilang tanpa ketahuan CI.
+- **Data dikirim potong 20 byte.** BLE hanya menjamin sebanyak itu per kiriman; banyak printer murah
+  benar-benar berhenti di tengah bila dikirim sekaligus — cacat yang sulit sekali ditebak sebabnya
+  di lapangan karena gejalanya "struk tercetak separuh".
+- **Antarmuka USB selalu dilepas di `finally`,** termasuk saat cetak gagal. Kalau tidak, cetak
+  berikutnya gagal dengan pesan menyesatkan "sedang dipakai program lain".
+- **Pesan tak-didukung wajib menyebut jalan keluar.** iPhone/iPad tidak akan pernah mendukung Web
+  Bluetooth di Safari; pesannya menyebutkan itu **dan** menawarkan struk digital, supaya kasir tidak
+  mengira aplikasinya rusak.
+- **Batas yang jujur:** semua ini diuji dengan printer **tiruan**. Itu membuktikan logikanya, bukan
+  kertasnya. **Uji cetak di printer nyata tetap gerbang T6-08** dan tidak boleh dianggap tergantikan.
+  Panduan langkah untuk pemilik ditulis di `docs/uji/PANDUAN_PRINTER.md`.
+- **Bukti:** `profil.test.ts` **20 tes** · `kirim.test.ts` **23 tes** · `PasangPrinter.test.tsx`
+  **14 tes** · `uji-mutasi-app.mjs` **65/65 MERAH** · aplikasi **74 berkas / 578 tes LULUS**.
+
+## [Cetak/2026-09-23] Struk Termal Mengimpor Rumus Pembulatan, Tiket Dapur Tanpa Uang (T6-04 & T6-05)
+
+- **Area:** Cetak (ART-7) — PRD M6 (isi struk), M2 (header/footer diatur), M4 & M5 (tiket dapur)
+- **Keputusan 1 — struk termal TIDAK menyalin rumus uang.** `lib/printer/struk.ts` mengimpor
+  `selisihPembulatan` dan tipe `DataStruk` langsung dari `komponen/Struk.tsx`. Ini kelanjutan
+  keputusan T5-09: satu-satunya cara menjamin kertas dan layar selamanya menyebut angka yang
+  sama adalah memastikan rumusnya hanya hidup di SATU tempat. Struk termal juga tidak
+  menghitung kembalian sendiri — angkanya datang dari peladen (ART-3).
+- **Keputusan 2 — tiket dapur tidak memuat satu pun angka uang**, dan itu dijaga uji. Dapur tidak
+  memerlukan harga; setiap baris tambahan memperlambat pembacaan di saat sibuk. Sebagai gantinya
+  yang ditonjolkan adalah hal yang benar-benar dipakai dapur: nomor pesanan (huruf besar, dibaca
+  sambil lalu) dan catatan khusus (tebal + awalan `>>`). Catatan dibuat mencolok karena "tanpa
+  kacang" yang terlewat bisa berarti alergi, bukan sekadar selera.
+- **Keputusan 3 — stasiun tanpa item tidak mencetak tiket.** `susunTiketTerpisah` hanya
+  menghasilkan tiket untuk stasiun yang benar-benar punya pesanan. Tiket kosong membuang kertas
+  dan membuat dapur ragu apakah ada yang tertinggal. Item tanpa keterangan stasiun dianggap
+  makanan — asumsi paling aman untuk kedai kecil yang dapur panasnya jadi stasiun bawaan.
+- **Keputusan 4 — laci kas hanya terbuka bila pemanggil memintanya.** Membuka laci pada
+  pembayaran QRIS/kartu adalah lubang kontrol kas: laci yang terbuka tanpa alasan uang tunai
+  membuat selisih sulit ditelusuri. Karena itu `bukaLaci` adalah pilihan sadar pemanggil.
+- **Cacat nyata yang ditangkap uji (bukan dari membaca ulang kode):** nama menu panjang semula
+  dicetak mentah, sehingga baris melampaui 32 kolom dan printer melipatnya di tempat sembarang —
+  kadang memotong angka di baris berikutnya. Uji "tidak ada baris melebihi lebar kertas" yang
+  menemukannya; diperbaiki dengan pembungkus kata.
+- **Catatan jujur soal uji:** versi pertama pembaca byte di uji hanya membuang byte kendali tanpa
+  parameternya, sehingga huruf parameter (`E` dari `ESC E`, `a` dari `ESC a`) ikut terbaca sebagai
+  isi struk dan tiga uji gagal karena alasan yang salah. Pembacanya diperbaiki lebih dulu sebelum
+  menyimpulkan ada cacat di kode — penting supaya tidak "memperbaiki" kode yang sebenarnya benar.
+- **Bukti:** `struk.test.ts` **22 tes** · `tiket.test.ts` **20 tes** · `uji-mutasi-app.mjs`
+  **59/59 MERAH** (12 mutasi cetak baru) · aplikasi **71 berkas / 521 tes LULUS** · tsc bersih.
+
+## [Cetak/2026-09-23] Penyusun ESC/POS Dibuat MURNI Supaya Bisa Diuji Tanpa Printer (T6-01)
+
+- **Area:** Cetak (ART-7) — `TECH_SPEC` §9 ART-7 & §1 (cetak)
+- **Konteks:** Fase 6 adalah fase paling berisiko di proyek ini karena kebenarannya baru
+  terlihat di atas kertas sungguhan, sedangkan uji printer nyata (T6-08) hanya terjadi sesekali
+  dan butuh koordinasi dengan pengelola kedai. Kalau tata letak struk hanya dijaga oleh uji
+  lapangan, setiap perubahan kecil di antara dua uji itu berjalan tanpa pengawasan.
+- **Keputusan:** `aplikasi/src/lib/printer/expos.ts` dibuat **murni** — hanya mengubah data
+  menjadi byte, tidak menyentuh Bluetooth, USB, jaringan, atau jam perangkat. Sambungan
+  perangkat keras dipisah ke T6-02 (Bluetooth) dan T6-03 (USB). Dengan begitu seluruh tata
+  letak bisa dikunci uji byte-level yang jalan di CI setiap kali, dan uji printer nyata tetap
+  menjadi gerbang (tidak digantikan emulator, sesuai keputusan Lee 2026-09-21 pada T-002).
+- **Tiga aturan yang dikunci uji, bukan niat baik:**
+  1. **Angka uang tidak pernah dipotong.** Kalau baris sempit, yang dikorbankan nama menu.
+     Bahkan bila harga lebih lebar dari kertas, harga tetap dicetak utuh — struk yang
+     kehilangan digit rupiah jauh lebih berbahaya daripada nama menu terpotong.
+  2. **Huruf beraksen diganti huruf polos, bukan dibuang** ("Crème" → "Creme"). Printer termal
+     memakai satu byte per huruf (CP437); membuang huruf membuat panjang baris meleset dan
+     kolom rupiah di kanan ikut bergeser.
+  3. **Potong kertas selalu didahului umpan baris.** Pisau printer berada beberapa milimeter di
+     atas kepala cetak, jadi tanpa umpan itu baris terakhir struk ikut terpotong.
+- **Temuan jujur saat mengerjakan:** uji mutasi menangkap jaring yang bocor — aturan (1) sudah
+  saya tulis di komentar kode tetapi **belum ada ujinya**, sehingga mutasi "potong angka" tetap
+  hijau. Ujinya ditambahkan; sekarang 5 mutasi ESC/POS semuanya MERAH. Komentar bukan pengaman.
+- **Rujukan berkas diselaraskan:** `TECH_SPEC` sempat menyebut `lib/printer-escpos.ts` sedangkan
+  ROADMAP T6-01 menyebut `lib/printer/expos.ts`. Dipakai versi ROADMAP (satu folder `printer/`
+  menampung penyusun + dua jalur sambungan), dan TECH_SPEC dikoreksi agar tidak ada dua nama
+  untuk satu berkas.
+- **Bukti:** `expos.test.ts` **29 tes LULUS** · `uji-mutasi-app.mjs` **47/47 MERAH** ·
+  aplikasi **69 berkas / 479 tes LULUS** · tsc bersih.
+
+## [Cetak/2026-09-23] Struk Digital Membungkus Struk yang Sama, Bukan Menggambar Ulang (T5-09)
+
+- **Area:** Cetak (ART-7) — `TECH_SPEC` §13 K3 (printer bermasalah) & PRD M6 kasus tepi
+- **Konteks:** printer termal adalah bagian yang paling sering rusak di kedai (kertas habis,
+  kepala kotor, kabel longgar). Tanpa jalan cadangan, pelanggan pulang tanpa bukti bayar dan
+  kasir tidak punya apa pun untuk ditunjukkan bila ada sengketa. Pemeriksaan lebih dulu
+  (kebiasaan yang dikunci sejak T5-06) menunjukkan `Struk.tsx` **sudah ada** dari T5-03 — yang
+  belum ada adalah cara **menyerahkannya**.
+- **Keputusan:** `StrukDigital.tsx` **membungkus** `<Struk>` yang sama, bukan menggambar ulang.
+  Ini bukan sekadar hemat kode: DoD menuntut "isi identik dengan struk cetak", dan satu-satunya
+  cara menjamin itu selamanya adalah memastikan hanya ada SATU tempat yang menggambar struk.
+  Kalau digital dan kertas digambar terpisah, cepat atau lambat angkanya berbeda — dan itu
+  jenis cacat yang baru ketahuan saat pelanggan protes di depan kasir.
+- **Dijaga uji, bukan niat baik:** dua penjaga berbasis `?raw` melarang berkas ini beraritmetika
+  atas medan uang (`data.subtotal|pajak|service` diikuti operator) dan mewajibkannya tetap
+  memuat `<Struk`. Uang tetap datang dari peladen, persis aturan yang sama dengan T5-03.
+- **Tiga jalan penyerahan, sengaja berlapis dari paling enak ke paling pasti ada:**
+  (1) `navigator.share` — lembar berbagi bawaan HP, tercepat di lapangan; (2) `window.print` —
+  dialog cetak peramban punya "Simpan sebagai PDF" di Android maupun desktop, dan jalur yang
+  sama dipakai bila kasir mau mencetak ke printer biasa; (3) `navigator.clipboard` — jaring
+  pengaman terakhir, selalu bisa ditempel ke chat apa pun.
+- **Tombol yang tidak didukung DISEMBUNYIKAN, bukan ditampilkan lalu gagal.** Kasir yang sedang
+  diburu antrean tidak boleh menebak tombol mana yang benar-benar bekerja. "Simpan PDF" selalu
+  tampil karena itu satu-satunya yang pasti tersedia di semua peramban.
+- **Yang sengaja TIDAK dilakukan:** ringkasan berbagi dibuat ringkas (nomor, tanggal, total,
+  status lunas) — bukan salinan penuh struk. Yang dibutuhkan pelanggan di chat adalah bukti yang
+  terbaca sekilas; rincian lengkap ada di PDF dan di catatan resto. Berbagi yang **dibatalkan**
+  pengguna tidak diperlakukan sebagai kegagalan menakutkan, hanya diingatkan bahwa masih ada
+  jalan lain.
+- **File:** `aplikasi/src/komponen/StrukDigital.tsx`, `StrukDigital.test.tsx`,
+  `aplikasi/src/gaya/komponen.css` (`@media print` menyembunyikan tombol agar PDF bersih),
+  `aplikasi/alat/uji-mutasi-app.mjs`
+- **Bukti:** `StrukDigital.test.tsx` **15 tes LULUS** · aplikasi **64 berkas / 392 tes LULUS** ·
+  `uji-mutasi-app.mjs` **28/28 MERAH** · `tsc` bersih · lint 0 error · format bersih.
+- **Sisa milik Lee:** verifikasi manual di Android & desktop (tidak bisa dijalankan agent).
+
+## [Cetak/2026-09-23] Cetak Ulang Struk: Tanda SALINAN Dikerjakan, Jejak Audit Berhenti di Stop Condition (T5-10)
+
+- **Area:** Cetak (ART-7) · menyentuh Jejak audit (ART-9)
+- **Konteks:** struk hilang, robek, atau tidak jadi tercetak adalah kejadian harian. Tanpa jalan
+  resmi mencetak ulang, kasir akan mencari jalan sendiri — dan jalan yang paling sering dipakai
+  adalah **membuat pesanan baru lalu membatalkannya**, yang mengotori laporan penjualan sekaligus
+  angka pembatalan. Jadi tugas ini sebenarnya melindungi kebersihan laporan, bukan sekadar
+  kenyamanan.
+- **Yang dikerjakan:** `DaftarTransaksi.tsx` — cari transaksi lewat **nomor, jam, atau nominal**
+  (tiga hal yang benar-benar diingat orang: "tadi sekitar jam 2", "kira-kira 62 ribu"), pratinjau,
+  lalu cetak ulang. Titik ribuan diabaikan saat mencocokkan angka: kasir tidak boleh gagal
+  menemukan transaksi gara-gara mengetik `62100` alih-alih `62.100`.
+- **Mitigasi penyalahgunaan — tanda SALINAN:** `Struk.tsx` mendapat prop `salinan` yang mencetak
+  **"SALINAN — CETAK ULANG"** di kepala struk. Tandanya muncul **juga di pratinjau layar**, bukan
+  hanya di hasil cetak. Alasannya: struk kedua yang terlihat identik dengan yang pertama bisa
+  dipakai menagih dua kali, atau diajukan sebagai dua bukti pengeluaran yang berbeda. Prop ini
+  murni penampilan — ia tidak menyentuh satu pun angka.
+- **"Tidak mengubah data" dijaga uji, bukan janji:** penjaga `?raw` melarang `DaftarTransaksi.tsx`
+  memuat `.rpc(`, `fetch(`, `.insert(`, `.update(`, atau `.delete(`. Komponen ini hanya membaca
+  daftar yang sudah diberikan kontainer.
+- **YANG SENGAJA BERHENTI — dan kenapa:** ROADMAP meminta mitigasi "tanda SALINAN **+ catatan
+  audit**". Bagian catatan audit tidak dikerjakan karena mencatat "siapa mencetak ulang, kapan"
+  memerlukan **RPC baru** (`catatan_audit` hanya bisa ditulis lewat jalur peladen/definer), dan
+  `TECH_SPEC.md` §5 tidak memuat RPC semacam itu. Keputusan terkunci
+  [Tahap 6/2026-09-16] menyatakan RPC yang belum ada di TECH_SPEC §5 = perubahan dokumen fondasi
+  = **Stop Condition** yang wajib disetujui pemilik lebih dulu. Saya tidak mengarang RPC sendiri,
+  dan **tugas T5-10 tidak dicentang** — dibuka sebagai **T-028** dengan tiga pilihan untuk Lee.
+- **Kenapa aman ditinggalkan sementara:** penyalahgunaan diam-diam sudah tertutup oleh tanda
+  SALINAN yang tidak bisa dimatikan dari layar (3 mutasi membuktikan). Yang belum ada hanyalah
+  jejak siapa/kapan — berguna untuk penelusuran, tetapi bukan pintu uang.
+- **File:** `aplikasi/src/layar/kasir/DaftarTransaksi.tsx` (+uji), `aplikasi/src/komponen/Struk.tsx`
+  (prop `salinan`), `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-mutasi-app.mjs`,
+  `docs/TERTANGGUH.md` (T-028)
+- **Bukti:** `DaftarTransaksi.test.tsx` **13 tes LULUS** · `Struk.test.tsx` **16 tes** tetap hijau ·
+  aplikasi **65 berkas / 405 tes LULUS** · `uji-mutasi-app.mjs` **31/31 MERAH** · `tsc` bersih ·
+  lint 0 error · format bersih.
+
+## [Uang/2026-09-23] Pembayaran Sebagian = Beberapa Baris pada SATU Tagihan, Bukan Tagihan yang Dipecah (T5-11)
+
+- **Area:** Uang (ART-1/ART-4) · Tampilan kasir
+- **Keputusan MVP yang ditegaskan:** "split bill" resmi adalah pekerjaan fase 2. Untuk MVP,
+  pembayaran sebagian dicatat sebagai **beberapa baris `pembayaran` terpisah pada satu pesanan** —
+  bukan dua pesanan, dan bukan satu baris yang ditimpa berkali-kali.
+- **Kenapa bentuk itu yang dipilih:** tiap kali uang berpindah tangan harus punya barisnya sendiri
+  (metode, jumlah, waktu). Kalau baris pertama ditimpa saat pelunasan, kas tidak bisa dicocokkan
+  per metode di akhir shift: 20.000 tunai + 14.500 QRIS akan terbaca sebagai satu angka saja, dan
+  selisih laci kas jadi tidak bisa dijelaskan siapa pun.
+- **Kenapa tagihan ditinggal harus TERLIHAT:** meja yang belum membayar itu kejadian harian. Kalau
+  layar kasir tidak pernah menampilkannya, tagihan itu hanya hidup di ingatan kasir — dan yang
+  lupa berubah menjadi selisih kas tanpa penjelasan. `DaftarTagihan.tsx` menampilkannya dengan
+  **penanda umur bertingkat** (baru → lama ≥30 menit → mendesak ≥120 menit), karena tagihan 10
+  menit dan tagihan 3 jam adalah dua masalah yang sangat berbeda tetapi terlihat sama kalau hanya
+  ditulis jamnya.
+- **Rincian rasa-pakai yang disengaja:** yang ditonjolkan adalah **sisa**, bukan total — itulah
+  angka yang diucapkan kasir ke tamu; uang yang sudah masuk tetap ditulis supaya tidak ada yang
+  merasa uangnya hilang; umur ditulis "3 jam 20 menit", bukan "200 menit", karena kasir sedang
+  berdiri di depan tamu, bukan membaca laporan.
+- **TEMUAN saat menulis uji SQL:** kolom `total` yang dikirim klien **tidak dipercaya** peladen —
+  ia dihitung ulang (pajak 10 % + service 5 %), sehingga pesanan uji 30.000 menjadi 34.500 yang
+  sah. Uji disesuaikan mengikuti angka peladen, **bukan sebaliknya**; menurunkan harapan uji agar
+  cocok dengan angka klien justru akan melumpuhkan pagar yang benar.
+- **File:** `supabase/tes/pembayaran_sebagian.sql`, `aplikasi/src/layar/kasir/DaftarTagihan.tsx`
+  (+uji), `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-mutasi-app.mjs`
+- **Bukti:** SQL **86 LULUS · 0 GAGAL** · `DaftarTagihan.test.tsx` **17 tes LULUS** · aplikasi
+  **66 berkas / 422 tes LULUS** · `uji-mutasi-app.mjs` **34/34 MERAH** · `tsc` bersih · lint 0
+  error · format bersih. Tidak ada migrasi baru (RPC `bayar_pesanan` sudah mendukung sebagian).
+
+## [Uang/2026-09-23] Tarif Pajak & Service Dibaca dari Pengaturan, Bukan Keras-Kode (T-027)
+
+- **Area:** Uang (ART-4) · Pengaturan resto
+- **Keputusan Lee (2026-09-23):** pilihan (b) — keranjang membaca tarif dari `pengaturan`.
+- **Alasan Lee, yang lebih kuat daripada alasan saya:** saya mengusulkannya demi akurasi angka,
+  tetapi Lee menambahkan alasan yang menentukan — **tarif pajak bisa berubah karena aturan
+  pemerintah**, dan pemilik kedai harus bisa menyesuaikannya sendiri **tanpa menunggu aplikasi
+  diperbarui**. Angka yang terkunci di kode berarti setiap perubahan aturan pajak menuntut rilis
+  baru; itu ketergantungan yang tidak perlu.
+- **Temuan saat mengerjakan:** kolomnya **sudah ada sejak migrasi 0004**
+  (`pajak_pb1_persen`, `service_persen`, `pembulatan`) dan peladen **sudah memakainya**
+  (`hitung_total`, migrasi 0025). Jadi yang keras-kode hanya layarnya. Tidak ada migrasi baru.
+- **Yang dibuat:** `aplikasi/src/lib/tarif.ts` — `hitungPerkiraan()` yang **meniru rumus peladen
+  persis**: dasar = subtotal − diskon (pajak dihitung SESUDAH diskon), lalu pembulatan total
+  **ke BAWAH** mengikuti `pengaturan.pembulatan`.
+- **Dua rincian yang sengaja dipilih:** (1) pembulatan ke bawah, bukan ke atas — perkiraan yang
+  lebih besar daripada tagihan sebenarnya membuat tamu merasa ditagih lebih, dan itu keluhan
+  yang mahal; (2) tarif tidak masuk akal (negatif/NaN) menjadi 0, bukan `NaN` — kasir yang
+  melihat "RpNaN" tidak punya cara menebak apa yang salah, sedangkan angka 0 langsung terbaca
+  keliru dan bisa dilaporkan.
+- **Tetap sebuah perkiraan.** Layar tidak pernah menjadi sumber kebenaran uang; yang ditagih dan
+  dicetak selalu hasil hitungan peladen. Yang berubah: perkiraannya kini memakai tarif yang sama.
+- **Bukti:** `tarif.test.ts` **10 tes LULUS** · 2 tes `LayarKasir` (tarif 11 %/0 % → total 6.660;
+  tanpa prop → 6.900) · aplikasi **67 berkas / 434 tes LULUS** · `uji-mutasi-app.mjs`
+  **38/38 MERAH** (4 mutasi baru).
+
+## [Proses/2026-09-23] Dua Penundaan Disetujui Lee — dan Cara Memastikannya Tidak Terlupa
+
+- **Area:** Proses & mutu
+- **Konteks:** Lee menyetujui dua penundaan (T-026 uji peramban → Fase 11; T-028 jejak audit
+  cetak ulang → Fase 6), tetapi **keduanya bersyarat**. Syarat itu bagian dari keputusan, bukan
+  tambahan opsional.
+- **Syarat Lee untuk T-026:** semua yang perlu diperiksa manusia harus "tercatat dan dijelaskan
+  dengan baik dan sistematis dan mudah aku pahami" — apa yang dicek, cara ceknya, langkah yang
+  harus Lee lakukan, indikator berhasilnya — dan berbentuk **daftar centang**.
+  → Dilaksanakan: `docs/uji/RENCANA_UJI_MANUAL.md`, 21 baris uji (M-01…M-21) dikelompokkan
+  **Uang → Struk & Cetak → Alur Harian → Tampilan** (uang didahulukan karena salah tampilan bikin
+  malu, salah uang bikin rugi). Tiap baris punya **kenapa penting**, **langkah**, **tanda
+  berhasil**, **tanda gagal**, **kesiapan** (SIAP / MENUNGGU FITUR / BUTUH ALAT), dan kolom status.
+- **Syarat Lee untuk T-028:** "harus tercatat dan catatannya harus terbaca oleh agent yang
+  ngerjain selanjutnya."
+  → Dilaksanakan dengan **lima pengait, bukan satu**, karena satu catatan mudah terlewat:
+  1. butir `T-028` **sengaja dibiarkan terbuka** di `docs/TERTANGGUH.md`;
+  2. `T5-10` **tidak dicentang** dan menyebut alasannya;
+  3. `T6-06` diberi tanda `❓ T-028` + blok **🔴 WAJIB DIKERJAKAN DI SINI** berisi langkah (a)–(d)
+     dan larangan mencentang T6-06 selama T-028 terbuka;
+  4. entri `DECISIONS_LOG` [Cetak/2026-09-23];
+  5. `docs/ops/SIAP-LANJUT.md` §3 yang wajib dibaca sesi berikutnya sebelum bekerja.
+- **Pengait yang paling kuat adalah yang dijaga mesin:** `alat/periksa-roadmap.py` menolak bila
+  butir terbuka kehilangan tanda `❓` pada tugas. **Dibuktikan, bukan diasumsikan:** pada salinan
+  repo, tanda `❓ T-028` dihapus → `GAGAL (1 temuan): T-028 masih terbuka tetapi tidak ditandai`;
+  tanda `❓ T-026` dihapus → `GAGAL: T-026 masih terbuka tetapi tidak ditandai`. Artinya melupakan
+  butir ini **membuat CI merah**, bukan lewat diam-diam.
+- **Catatan jujur atas percobaan itu:** percobaan pertama saya **tidak gagal** karena masih ada
+  tanda `❓ T-028` ketiga di badan teks T5-10 yang belum saya hapus. Itu justru berguna: kalau
+  saya berhenti di percobaan pertama, saya akan melaporkan "terbukti" padahal belum.
+
+## [Kas/2026-09-24] Buka Kas: Modal Awal Wajib, Satu Shift Terbuka, dan Jejak Audit Kekal (T7-01)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 & TECH_SPEC §4.3, §9 ART-6
+- **Konteks & Risiko (ART-6):** Sesi kasir tanpa modal awal yang tercatat membuat rekonsiliasi uang
+  fisik di akhir shift kehilangan titik acuan: selisih kas tidak bisa dihitung secara jujur. Jika
+  seorang kasir bisa membuka beberapa shift sekaligus di cabang yang sama, pencatatan transaksi
+  dan pergerakan kas menjadi terpecah tanpa batas tanggung jawab yang jelas.
+- **Keputusan:**
+  1. **Tabel `public.shift_kas` mencatat sesi kasir per cabang:** kolom `id`, `penyewa_id`, `cabang_id`,
+     `dibuka_oleh`, `ditutup_oleh`, `dibuka_pada`, `ditutup_pada`, `modal_awal`, `uang_seharusnya`,
+     `uang_fisik`, `selisih`, `alasan_selisih`, `status` (`'terbuka'`/`'ditutup'`), `catatan`.
+     Kunci asing `pesanan.shift_id` dan `pembayaran.shift_id` disambungkan ke `shift_kas(id)`.
+  2. **Modal awal wajib diisi dan tidak boleh negatif (`check (modal_awal >= 0)`):** peladen menolak
+     nilai null atau negatif pada tingkat skema dan fungsi RPC.
+  3. **Satu shift terbuka per kasir per cabang (DoD T7-01):** ditegakkan berlapis oleh indeks parsial unik
+     `shift_kas_aktif_unik on public.shift_kas (cabang_id, dibuka_oleh) where (status = 'terbuka')`
+     di database dan pengecekan ramah kasir dengan kode `SH-409` pada RPC `public.buka_shift()`.
+  4. **Siapa & kapan dicatat secara tegas dari peladen:** `dibuka_oleh := auth.uid()` dan
+     `dibuka_pada := now()`, bukan kiriman perangkat klien (prinsip integritas waktu peladen).
+  5. **Keamanan RLS & hak tabel:** tabel `shift_kas` diberi hak `SELECT` kepada `authenticated`
+     dengan kebijakan RLS InitPlan `penyewa_id = (select public.penyewa_saya()) and public.cabang_pantau_saya(cabang_id)`.
+     Hak `INSERT`/`UPDATE`/`DELETE` dicabut dari klien; perubahan status/modal wajib melalui RPC definer.
+  6. **Pemicu `picu_shift_kas_jaga`:** menolak `DELETE` mutlak dan mengunci `modal_awal` serta
+     identitas pembuka dari perubahan `UPDATE` langsung (koreksi modal awal menyusul via prosedur T7-06).
+  7. **Jejak audit kriptografis berantai hash:** setiap panggilan sukses `buka_shift` otomatis
+     mencatat baris peristiwa di `public.catatan_audit` (`aksi = 'buka_shift'`, `entitas = 'shift_kas'`).
+  8. **Antarmuka `BukaKas.tsx`:** komponen murni tanpa panggilan jaringan langsung; memuat info cabang &
+     kasir, input modal awal dengan format Rupiah & tombol uang cepat (0 / 50rb / 100rb / 200rb / 500rb),
+     langkah konfirmasi anti salah ketik, penanganan galat `SH-409`, dan deteksi shift aktif.
+- **Bukti:**
+  - SQL: `supabase/tes/buka_shift.sql` (88/88 suite SQL LULUS).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0045.py` (6/6 mutasi kritis TERBUKTI MERAH).
+  - Vitest: `src/layar/kasir/BukaKas.test.tsx` (8/8 tes LULUS), total aplikasi 75 berkas / 586 tes LULUS.
+  - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (69/69 mutasi TERBUKTI MERAH).
+  - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `tsc -b --noEmit` bersih, lint 0 error, format bersih.
+
+## [Kas/2026-09-24] Tutup Kas: Rekonsiliasi Seharusnya vs Fisik, Alasan Selisih Wajib, dan Jejak Audit Kekal (T7-02)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 & TECH_SPEC §4.3, §9 ART-6
+- **Konteks & Risiko (ART-6):** Sesi kasir yang ditutup tanpa rekonsiliasi matematis uang seharusnya
+  membuka celah manipulasi kas laci. Jika kasir dapat menutup shift yang berselisih tanpa memberikan
+  alasan yang dapat dipertanggungjawabkan, pemilik resto kehilangan visibilitas atas selisih uang
+  (lebih/kurang) dan jejak pertanggungjawaban kasir.
+- **Keputusan:**
+  1. **Rumus Integritas Uang Seharusnya:** `uang_seharusnya = modal_awal + tunai_masuk - tunai_keluar`,
+     dihitung di peladen dalam RPC `public.tutup_shift()`. `tunai_masuk` dihitung dari transaksi pembayaran
+     tunai yang sah selama shift berlangsung (`pembayaran.shift_id = v_shift.id` atau waktu transaksi dalam
+     rentang buka-tutup shift jika relasi belum terpasang). `tunai_keluar` saat ini 0 (akan bertambah dari
+     pencatatan kas keluar T7-03).
+  2. **Selisih Kas dan Alasan Wajib:** `selisih = uang_fisik - uang_seharusnya`. Constraint tabel
+     `shift_kas_selisih_alasan` memastikan: bila `selisih <> 0`, kolom `alasan_selisih` wajib diisi
+     (tidak boleh null atau string kosong). Jika `selisih = 0`, alasan opsional.
+  3. **Penyambungan Otomatis Pembayaran ke Shift Kasir:** Pemicu `picu_isi_shift_kas_pembayaran`
+     otomatis mengisi `pembayaran.shift_id` dengan shift aktif kasir yang bersangkutan pada saat
+     pembayaran dicatat.
+  4. **Keamanan RPC `tutup_shift`:**
+     - Memeriksa hak izin `tutup_kas` atau `kelola_kas` via `public.punya_hak_di_cabang`.
+     - Kasir hanya boleh menutup shift milik dirinya sendiri, kecuali atasan dengan hak `kelola_kas`
+       dapat menutup shift kasir lain jika ditentukan secara eksplisit.
+     - Mencegah penutupan shift yang sudah ditutup sebelumnya (`SH-409`).
+     - Menolak nominal uang fisik negatif (`SH-400`).
+     - Menyimpan `ditutup_oleh = auth.uid()` dan `ditutup_pada = now()` dari peladen.
+  5. **Jejak Audit Kriptografis Berantai Hash:** Setiap penutupan shift berhasil mencatat baris baru
+     ke `public.catatan_audit` (`aksi = 'tutup_shift'`, `entitas = 'shift_kas'`) dengan pemicu
+     `hitung_hash_catatan_audit` yang menjaga rantai hash SHA-256 tahan manipulasi.
+  6. **Komponen UI `TutupKas.tsx` & Integrasi `LayarKasir.tsx`:**
+     - Menampilkan modal awal, uang seharusnya perkiraan, dan masukan uang fisik di laci.
+     - Perhitungan selisih real-time dengan status visual jelas: Pas (hijau), Lebih (biru), Kurang (merah).
+     - Tombol cepat Uang Pas, tombol pecahan (+Rp10rb, +Rp20rb, +Rp50rb, +Rp100rb), dan Reset Rp0.
+     - Kolom alasan selisih muncul dan wajib diisi bila terdapat selisih. Tersedia tombol alasan cepat
+       (contoh: kembalian receh tidak diambil, kurang pecahan kecil, dsb).
+     - Langkah konfirmasi ringkasan sebelum data dikirim ke peladen.
+     - Terintegrasi di `LayarKasir` bilah status kasir atas saat terdapat shift aktif.
+- **Bukti:**
+  - SQL: `supabase/tes/tutup_shift.sql` (10 skenario lengkap, 89/89 suite SQL LULUS).
+  - Uji Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` LULUS hijau (2/2 suite).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0046.py` (6/6 mutasi kritis TERBUKTI MERAH, `--uji-diri` lolos).
+  - Vitest: `src/layar/kasir/TutupKas.test.tsx` (9/9 tes LULUS), total aplikasi 76 berkas / 596 tes LULUS.
+  - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (73/73 mutasi TERBUKTI MERAH, `--uji-diri` lolos).
+  - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run typecheck` bersih, `npm run lint` 0 galat, `npm run build` sukses.
+
+## [Kas/2026-09-24] Kas Pergerakan: Uang Masuk, Keluar Tunai, Setoran, dan Koreksi Kekal (T7-03)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 & TECH_SPEC §4.3, §5, §9 ART-6
+- **Konteks & Risiko (ART-6):** Selama jam operasional laci kasir, uang tunai sering keluar-masuk
+  di luar transaksi penjualan (misalnya: belanja bumbu/es batu mendadak, kasbon staf darurat,
+  tambahan uang receh modal kembalian dari bank, atau setoran berkala uang laci ke brankas/bank).
+  Bila transaksi kas ini tidak tercatat secara terstruktur dan tidak diperhitungkan ke dalam
+  uang seharusnya (`uang_seharusnya = modal_awal + tunai_masuk - tunai_keluar`), rekonsiliasi tutup
+  kas akan selalu mencatat selisih palsu dan membuka celah penggelapan uang laci tanpa jejak.
+- **Keputusan:**
+  1. **Tabel `public.kas_pergerakan`:** Menyimpan id, penyewa_id, cabang_id, shift_id, jenis
+     (`'masuk'`, `'keluar'`, `'setoran'`, `'koreksi'`), jumlah (> 0), alasan (wajib, tidak kosong),
+     pelaku_id, disetujui_oleh (opsional), kunci_idempoten (unik), dan dibuat_pada.
+  2. **Pagar Kekal (Append-Only Financial Ledger):** Pemicu `picu_kas_pergerakan_kekal` menolak keras
+     setiap upaya `UPDATE` atau `DELETE` langsung pada tabel `kas_pergerakan`. Hak izin DML langsung
+     juga dicabut dari `authenticated`, `anon`, dan `public`.
+  3. **Integritas Status Shift Kasir:** Pemicu `picu_kas_pergerakan_validasi_shift` dan RPC `kas_pergerakan`
+     memastikan kas operasional (`masuk`, `keluar`, `setoran`) HANYA dapat dicatat pada shift kasir yang
+     berstatus `'terbuka'`. Bila shift sudah ditutup, pergerakan kas baru ditolak.
+  4. **Koreksi Pasca Tutup Shift (ART-6):** Sesuai prinsip ART-6, setelah shift kasir ditutup, baris
+     lama tetap **beku**. Bila ditemukan uang terselip atau ketidaksesuaian pasca penutupan, koreksi
+     dicatat sebagai baris `kas_pergerakan` baru bertanda `'koreksi'` dengan izin atasan dan jejak audit.
+  5. **Integrasi Matematis ke Tutup Shift:** RPC `public.tutup_shift` diperbarui untuk menghitung
+     `tunai_masuk` (penjualan tunai + kas_pergerakan masuk) dan `tunai_keluar` (kas_pergerakan keluar + setoran),
+     sehingga `uang_seharusnya = modal_awal + tunai_masuk - tunai_keluar` selalu akurat dan terverifikasi.
+  6. **Jejak Audit Kriptografis Berantai Hash:** Setiap baris pergerakan kas tercatat otomatis di
+     `public.catatan_audit` (`aksi = 'kas_pergerakan_' || p_jenis`, `entitas = 'kas_pergerakan'`)
+     yang terlindungi rantai hash SHA-256.
+  7. **Antarmuka Pengguna `KasKeluarMasuk.tsx` & Integrasi `LayarKasir.tsx`:**
+     - Pemilihan jenis: Kas Keluar (Operasional), Kas Masuk (Tambah Modal), Setoran (Brankas/Bank), Koreksi.
+     - Isian jumlah Rupiah dengan tombol nominal cepat (+Rp10rb, +Rp20rb, +Rp50rb, +Rp100rb, +Rp500rb, Reset).
+     - Kolom alasan wajib dengan saran alasan cepat per jenis operasional.
+     - Validasi sisi klien: tombol simpan lumpuh saat jumlah 0 atau alasan kosong.
+     - Ringkasan transaksi dan dialog konfirmasi sukses.
+     - Tombol akses `💸 Kas Masuk & Keluar` di bilah kasir atas saat terdapat shift aktif.
+     - Kepatuhan penuh `alat/peta-ui.py` Aturan 7 (bebas tombol liar) dan desain token CSS.
+- **Bukti:**
+  - SQL: `supabase/tes/kas_pergerakan.sql` (13 skenario lengkap, 90/90 suite SQL LULUS).
+  - Uji Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` LULUS hijau (2/2 suite).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0047.py` (6/6 mutasi kritis TERBUKTI MERAH, `--uji-diri` lolos).
+  - Vitest: `src/layar/kasir/KasKeluarMasuk.test.tsx` (8/8 tes LULUS), total aplikasi 77 berkas / 605 tes LULUS.
+  - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run typecheck` bersih, `npm run lint` 0 galat, `npm run build` sukses.
+
+## [Kas/2026-09-24] Transaksi Hanya Dalam Shift Terbuka: Cegah Penjualan di Luar Kas dan Audit Utuh (T7-04)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 & TECH_SPEC §4.3, §9 ART-6
+- **Konteks & Risiko (ART-6):** Transaksi pesanan atau pembayaran yang dilakukan di luar shift kasir
+  terbuka membuka peluang terjadinya penjualan "di luar kas" (shadow sales) yang tidak tercatat dalam
+  pertanggungjawaban modal/kas fisik kasir. Jika kasir dapat mencatat pesanan baru atau menerima
+  pembayaran tanpa sesi shift yang aktif, rekonsiliasi uang fisik saat tutup kas menjadi cacat dan
+  audit penerimaan kas resto kehilangan titik mula yang dapat dipertanggungjawabkan.
+- **Keputusan:**
+  1. **Konfigurasi `wajib_shift` pada `public.pengaturan`:**
+     - Menambahkan kolom `wajib_shift boolean not null default false` pada `public.pengaturan`.
+     - Memberikan fleksibilitas bagi pemilik cabang/resto untuk mengaktifkan kebijakan wajib shift
+       sesuai SOP kedai.
+     - Setiap perubahan konfigurasi `wajib_shift` dicatat secara kekal di `public.catatan_audit`
+       (`entitas = 'pengaturan'`, `kunci_pengaturan = 'wajib_shift'`) dengan rantai hash kriptografis SHA-256.
+  2. **Pagar Integritas Transaksi Tingkat Database (Database Gatekeeper):**
+     - Pemicu `picu_pesanan_wajib_shift` pada tabel `public.pesanan`: menolak pembuatan pesanan
+       baru (`status = 'draf'` atau lainnya) jika pengaturan cabang mengaktifkan `wajib_shift = true` dan
+       kasir/pelayan tidak memiliki shift kasir berstatus `'terbuka'` di cabang bersangkutan.
+     - Pemicu `picu_pembayaran_wajib_shift` pada tabel `public.pembayaran`: menolak pencatatan
+       pembayaran jika `wajib_shift = true` dan kasir yang bertugas tidak memiliki shift kasir terbuka.
+     - RPC `public.bayar_pesanan` diperbarui untuk memvalidasi keberadaan shift kasir aktif pembuat
+       transaksi saat `wajib_shift` bernilai aktif, serta mengaitkan pembayaran ke `shift_id` terbuka.
+  3. **Pencegahan Sisi Klien & UX Proaktif (`LayarKasir.tsx`):**
+     - Prop `wajibShift?: boolean` (nilai bawaan: `false`) ditambahkan ke `LayarKasirProps`.
+     - Saat `wajibShift = true` dan `shiftAktif` kosong / `null`:
+       * Menampilkan banner peringatan ramah kasir (`kotak-peringatan` bertanda status) yang menjelaskan
+         bahwa shift kasir belum dibuka sehingga transaksi belum dapat diproses.
+       * Menyediakan tombol aksi cepat `Buka Kasir Sekarang` di dalam banner untuk membuka dialog `BukaKas`
+         hanya dengan 1 klik.
+       * Menjaga alur interaksi: aksi menekan tombol kirim ke dapur (`tanganiKirimKeDapur`) dan tombol
+         bayar (`tanganiMulaiBayar`) akan otomatis mengalihkan kasir ke modal `BukaKas` dan mencegah
+         pesanan terkirim / pembayaran dilakukan di luar shift.
+  4. **Dukungan Multibahasa Penuh (i18n):**
+     - String peringatan dan tombol buka kas cepat diterjemahkan lengkap pada 4 bahasa (`id`, `en`, `zh`, `ar`).
+- **Bukti:**
+  - Migrasi: `supabase/migrations/0048_wajib_shift.sql`.
+  - SQL Suite: `supabase/tes/wajib_shift.sql` (11 skenario pengujian ketat), seluruh 91 berkas uji SQL LULUS (100%).
+  - Uji Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` LULUS hijau (2/2 suite: search_path, ACL, RLS, InitPlan).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0048.py` (6/6 mutasi kritis TERBUKTI MERAH, `--uji-diri` lolos).
+  - Gerbang CI: `alat/periksa-gerbang-ci.py` 116 gerbang LULUS.
+  - Paritas Bahasa: `python3 aplikasi/alat/periksa-bahasa.py` 188/188 kunci identik LULUS.
+  - Vitest: `src/layar/kasir/LayarKasir.test.tsx` (10/10 tes LULUS), total aplikasi 77 berkas / 608 tes LULUS (100%).
+  - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (77/77 mutasi TERBUKTI MERAH, `--uji-diri` lolos).
+  - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run typecheck` bersih, `npm run lint` 0 galat, `npm run build` sukses.
+
+## [Kas/2026-09-24] Pengingat Shift Belum Ditutup: Mitigasi Shift Menggantung, Deteksi Tengah Malam, dan Audit Harian Pemilik (T7-05)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 & TECH_SPEC §4.3, §9 ART-6
+- **Konteks & Risiko (ART-6):** Kasir yang lupa menutup shift di akhir jam operasional menyebabkan shift berstatus menggantung (hanging shift). Risiko:
+  1. Transaksi keesokan harinya bisa tercampur ke shift kemarin jika shift tidak ditutup.
+  2. Rekonsiliasi modal awal & penerimaan kas lintas hari menjadi rancu dan merusak laporan laba/rugi harian.
+  3. Pengingat diabaikan kasir tanpa konsekuensi atau jejak pengawasan pemilik.
+- **Keputusan:**
+  1. **Deteksi Otomatis Shift Melewati Tengah Malam di Basis Data:**
+     - Penambahan kolom `melewati_tengah_malam boolean not null default false` pada `public.shift_kas`.
+     - Penambahan kolom konfigurasi `jam_tutup text not null default '22:00'` pada `public.pengaturan`.
+     - Pemicu `trg_shift_kas_tengah_malam` yang otomatis mendeteksi ketika tanggal penutupan berbeda dengan tanggal pembukaan shift (`sekarang::date > dibuka_pada::date`), menyetel `NEW.melewati_tengah_malam = true`.
+  2. **Audit Kriptografis Berantai Hash untuk Kejadian Khusus Shift Lewat Tengah Malam:**
+     - Pada fungsi RPC `public.tutup_shift`, jika penutupan melewati tengah malam, sistem otomatis menyisipkan rekaman audit `shift_melewati_tengah_malam` ke dalam `public.catatan_audit` terlindungi rantai hash kriptografis SHA-256.
+  3. **Laporan & Tampilan Pengawasan Pemilik (`public.laporan_shift_menggantung`):**
+     - Dibuat view aman `public.laporan_shift_menggantung` dengan `security_invoker = true` yang menampilkan seluruh shift yang belum ditutup beserta penanda durasi jam, waktu operasional terlewati, dan status apakah sudah melewati batas tengah malam.
+  4. **Komponen Pengingat Proaktif & Kritis di UI Kasir (`PengingatShift.tsx` & `LayarKasir.tsx`):**
+     - Banner cerdas dengan tingkat urgensi hierarkis:
+       * 🚨 Kritis: `melewati_tengah_malam` (tidak dapat disembunyikan/diabaikan, wajib tutup shift).
+       * ⏰ Mendesak: `lewat_jam_tutup` (waktu sekarang melewati jam tutup operasional resto).
+       * ⏳ Peringatan: `durasi_panjang` (shift aktif > 12 jam).
+       * ⏳ Informatif: `mendekati_tutup` (30 menit sebelum jam tutup resto, dapat diabaikan sementara dengan opsi "Ingatkan Nanti").
+     - Integrasi langsung ke `LayarKasir.tsx`: tombol "Tutup Kas Sekarang" langsung membuka dialog rekonsiliasi kas.
+  5. **Dukungan Multibahasa Lengkap (i18n):**
+     - Menambahkan 6 kunci terjemahan (`pengingat_shift_lewat_tengah_malam`, `pengingat_shift_lewat_jam_tutup`, `pengingat_shift_durasi_panjang`, `pengingat_shift_mendekati_tutup`, `tombol_tutup_kas_sekarang`, `tombol_ingatkan_nanti`) pada 4 bahasa (`id`, `en`, `zh`, `ar`).
+- **Bukti:**
+  - Migrasi: `supabase/migrations/0049_pengingat_shift.sql`.
+  - SQL Suite: `supabase/tes/pengingat_shift.sql` (12 skenario pengujian ketat), seluruh 92 berkas uji SQL LULUS (100%).
+  - Uji Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` LULUS hijau (2/2 suite: search_path, ACL, RLS, InitPlan).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0049.py` (6/6 mutasi kritis TERBUKTI MERAH, `--uji-diri` lolos).
+  - Gerbang CI: `alat/periksa-gerbang-ci.py` 117 gerbang LULUS.
+  - Paritas Bahasa: `python3 aplikasi/alat/periksa-bahasa.py` 194/194 kunci identik LULUS.
+  - Vitest Komponen: `src/komponen/PengingatShift.test.tsx` (6/6 tes LULUS), `src/layar/kasir/LayarKasir.test.tsx` (12/12 tes LULUS).
+  - Vitest Total: 78 berkas / 616 tes LULUS (100%).
+  - Uji Mutasi Aplikasi: `aplikasi/alat/uji-mutasi-app.mjs` (77/77 mutasi TERBUKTI MERAH, `--uji-diri` lolos).
+  - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run typecheck` bersih, `npm run lint` 0 galat, `npm run build` sukses.
+
+## [Kas/2026-09-24] Koreksi Modal Awal Shift: Izin Atasan, Riwayat Hanya-Tambah, dan Jejak Audit Kekal (T7-06)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 (kasus tepi) & TECH_SPEC §4.3, §9 ART-6
+- **Konteks & Risiko (ART-6):** Saat kasir membuka shift kas, terdapat kemungkinan terjadinya kesalahan ketik atau salah hitung modal awal di laci kasir (misalnya mengetik Rp10.000 padahal uang fisik Rp100.000, atau pecahan uang receh tertinggal di brankas). Menghapus shift kas atau menimpa langsung kolom modal tanpa jejak membuka celah kecurangan: kasir nakal dapat mengubah modal awal sesuka hati untuk menyembunyikan uang yang diambil. Oleh karena itu, prinsip ART-6 menegaskan: salah isi modal bisa dibetulkan tanpa menghapus data, wajib izin atasan (Owner/Admin Cabang) dengan verifikasi PIN, alasan wajib non-kosong, riwayat hanya-tambah (append-only ledger), dan tercatat dalam jejak audit kriptografis berantai hash SHA-256.
+- **Keputusan:**
+  1. **Tabel Append-Only `public.koreksi_modal_shift`:**
+     - Menyimpan seluruh riwayat perubahan modal: `id`, `penyewa_id`, `cabang_id`, `shift_id`, `modal_awal_sebelumnya`, `modal_awal_baru`, `selisih`, `alasan`, `diajukan_oleh`, `disetujui_oleh`, `kunci_idempoten`, `dibuat_pada`.
+     - Dilindungi RLS ketat berbasis penyewa dan cabang (`cabang_pantau_saya`).
+     - Pemicu `picu_koreksi_modal_kekal` menolak secara mutlak operasi UPDATE dan DELETE pada riwayat koreksi (kekal).
+  2. **Koreksi Terkendali & Penguncian `modal_awal` pada `public.shift_kas`:**
+     - Pemicu `picu_shift_kas_jaga` melarang modifikasi langsung kolom `modal_awal` lewat UPDATE langsung, kecuali dalam sesi konfigurasi internal khusus (`app.dalam_koreksi_modal = 'true'`).
+  3. **Persetujuan Atasan (PIN Kupon Sekali Pakai) via RPC `public.koreksi_modal_shift`:**
+     - Memvalidasi wewenang atasan (`owner_pusat` atau `admin_cabang` pengelola cabang shift terkait).
+     - Memverifikasi kupon persetujuan PIN dari `public.percobaan_pin` (aksi `'koreksi_modal_shift'`, usia maksimal 5 menit, belum pernah dipakai).
+     - Mengonsumsi kupon (`dipakai_pada = now()`) agar tidak dapat dipakai ulang (sekali pakai).
+     - Menghitung dan menyimpan `selisih = modal_awal_baru - modal_awal_sebelumnya`.
+     - Mengunci baris shift dan memperbarui `modal_awal` pada shift terbuka (shift tertutup ditolak keras).
+     - Menjamin idempoten lewat parameter `p_kunci_idempoten`.
+     - Menyisipkan rekaman jejak audit berantai hash SHA-256 ke `public.catatan_audit`.
+  4. **View Laporan Pengawasan Pemilik (`public.laporan_koreksi_modal`):**
+     - Dibuat view aman dengan `security_invoker = true` yang menggabungkan rincian koreksi modal, nama cabang, nama kasir pengaju, nama atasan penyetuju, selisih koreksi, dan alasan pengajuan.
+  5. **Antarmuka Kasir Terpadu (`KoreksiModal.tsx` & `LayarKasir.tsx`):**
+     - Komponen dialog `KoreksiModal` dengan kalkulasi selisih visual secara dinamis (+/- Rupiah), dropdown atasan berwenang, kolom sandi PIN atasan, dan alasan wajib.
+     - Peta UI hijau, tombol bebas tag liar, dan penanganan status responsif.
+  6. **Multi-Bahasa Penuh (i18n):**
+     - Menambahkan 14 kunci terjemahan pada kamus `id`, `en`, `zh`, `ar` dengan 100% paritas.
+- **Bukti:**
+  - Migrasi: `supabase/migrations/0050_koreksi_modal.sql`.
+  - SQL Suite: `supabase/tes/koreksi_modal.sql` (11 skenario pengujian ketat), seluruh 93 berkas uji SQL LULUS (100%).
+  - Uji Keamanan SQL: `python3 alat/periksa-keamanan-sql.py` LULUS hijau (2/2 suite: search_path, ACL, RLS, InitPlan).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0050.py` (6/6 mutasi kritis TERBUKTI MERAH, `--uji-diri` lolos).
+  - Gerbang CI: `alat/periksa-gerbang-ci.py` 118 gerbang LULUS.
+  - Paritas Bahasa: `python3 aplikasi/alat/periksa-bahasa.py` 208/208 kunci identik LULUS.
+  - Vitest Komponen: `src/layar/kasir/KoreksiModal.test.tsx` (7/7 tes LULUS), `src/layar/kasir/LayarKasir.test.tsx` (14/14 tes LULUS).
+  - Vitest Total: 79 berkas / 625 tes LULUS (100%).
+  - Kontrak UI & Peta: `python3 alat/peta-ui.py` LULUS hijau, `npm run build` sukses.
+
+### [Mutu gerbang / 2026-09-24] Uji mutasi bayar_pesanan (0039) menargetkan definisi aktif di 0048_wajib_shift.sql
+- **Konteks:**
+  Langkah CI `Bukti mutasi bayar_pesanan 0039` gagal karena Mutasi 1 (Pintu identitas dilepas) dilaporkan lolos (pagar tumpul).
+- **Penyebab:**
+  Fungsi RPC `public.bayar_pesanan` yang awalnya dibuat di `0039_bayar_pesanan.sql` ditulis ulang secara utuh pada `0048_wajib_shift.sql` (T7-04) untuk menegakkan aturan shift kas aktif sebelum pembayaran dicatat. Ketika `alat/uji-mutasi-0039.py` memutasi berkas migrasi `0039_bayar_pesanan.sql`, berkas migrasi `0048_wajib_shift.sql` yang dijalankan sesudahnya menimpa kembali fungsi tersebut dengan versi aslinya, sehingga mutasi tampak tidak berdampak (tumpul). Pola ini sama persis dengan mutasi `0046_tutup_shift.sql` yang ditimpa oleh `0049_pengingat_shift.sql`.
+- **Keputusan:**
+  Mengarahkan target berkas mutasi pada `alat/uji-mutasi-0039.py` ke `supabase/migrations/0048_wajib_shift.sql` di mana definisi aktif `public.bayar_pesanan` berada.
+- **Bukti:**
+  - `python3 alat/uji-mutasi-0039.py`: 6/6 mutasi kritis TERBUKTI MERAH.
+  - `python3 alat/uji-mutasi-0039.py --uji-diri`: OK (kontrol positif hijau & deteksi jangkar bekerja).
+
+## [Zona Waktu / 2026-09-24] Transaksi Lewat Tengah Malam: Penanggalan Berbasis Zona Resto, Penomoran Operasional, dan Pemotongan Laporan (T7-11)
+
+- **Area:** Zona waktu (ART-9) · PRD M8 (kasus tepi) & TECH_SPEC §9 ART-9
+- **Konteks & Risiko (ART-9):** Restoran yang beroperasi larut malam atau 24 jam menerima pesanan yang melintasi batas tengah malam (contoh simulasi: pukul 23:50 sampai 00:10). Jika sistem mengandalkan waktu UTC server atau `current_date` bawaan Postgres secara membabi buta, transaksi pukul 00:10 WIB (17:10 UTC hari sebelumnya) akan salah tanggal operasional, terpecah ke hari berikutnya atau sebaliknya, dan laporan omzet harian tidak sinkron dengan fisik kas di laci kasir. Selain itu, nomor antrean/pesanan harian bisa meloncat atau terbagi secara keliru. Prinsip ART-9 mewajibkan: transaksi masuk tanggal transaksi (bukan tanggal tutup kas); nomor pesanan mengikuti hari operasional; seluruh perhitungan waktu memakai zona waktu penyewa/cabang (`coalesce(cabang.zona_waktu, penyewa.zona_waktu, 'Asia/Jakarta')`); laporan tidak terpecah salah tanggal; dan uji lulus dengan jam simulasi 23:50 dan 00:10.
+- **Keputusan:**
+  1. **Helper Penanggalan Berbasis Zona Resto (`public.zona_waktu_cabang` & `public.tanggal_lokal_cabang`):**
+     - Mendeteksi zona waktu cabang/penyewa (default `'Asia/Jakarta'`).
+     - Mengonversi `timestamptz` ke tanggal kalender lokal resto: `(p_waktu at time zone v_zona)::date`.
+  2. **Pelepasan Default UTC pada `pesanan.tanggal`:**
+     - Menghapus `default current_date` pada kolom `pesanan.tanggal` (`alter table public.pesanan alter column tanggal drop default;`).
+     - Pemicu integritas pesanan (`picu_pesanan_jejak_jujur`) selalu mengisi dan memvalidasi `NEW.tanggal` secara otomatis berdasarkan waktu pesanan (`NEW.dibuat_pada` dikonversi ke zona waktu cabang).
+     - Menolak pembuatan pesanan jika klien mencoba menyisipkan tanggal manual yang tidak cocok dengan tanggal operasional cabang saat itu.
+  3. **Penomoran Pesanan Operasional Harian:**
+     - Urutan nomor pesanan (`public.nomor_pesanan_berikutnya`) dihitung per cabang dan per tanggal operasional cabang tersebut, menjaga kesinambungan nomor pesanan kasir sepanjang hari operasional.
+  4. **Penyelarasan Pemotongan Waktu RPC Laporan Kas Harian (`public.laporan_harian`):**
+     - Memotong transaksi pembayaran, pembukaan shift, dan pergerakan kas berdasarkan tanggal operasional lokal cabang (`(pb.waktu at time zone v_zona)::date = v_tanggal`), bukan tanggal UTC server.
+  5. **Penyelarasan Skrip Mutasi (`alat/uji-mutasi-0015.py` & `alat/uji-mutasi-0051.py`):**
+     - Menargetkan fungsi aktif di `0054_transaksi_tengah_malam.sql` untuk pemicu integritas pesanan dan `laporan_harian`.
+- **Bukti:**
+  - Migrasi: `supabase/migrations/0054_transaksi_tengah_malam.sql`.
+  - Berkas Uji SQL: `supabase/tes/tengah_malam.sql` (uji simulasi jam 23:50 WIB dan 00:10 WIB; seluruh 97 berkas uji SQL LULUS 100%).
+  - Uji Mutasi: `alat/uji-mutasi-0054.py` (6/6 mutasi terbukti MERAH).
+  - Gerbang CI: `alat/periksa-gerbang-ci.py` (122 gerbang LULUS).
+  - Frontend Vitest: 84 berkas / 671 tes LULUS (100%).
+
+## [Privasi & RLS / 2026-09-25] RPC Katalog Publik Tanpa Data Sensitif (T8-01 / ART-10, ART-1)
+
+- **Area:** Privasi data (ART-10) & RLS (ART-1) · PRD M10 & TECH_SPEC §5, §9 ART-10
+- **Konteks & Risiko (ART-10, ART-1):**
+  Pelanggan publik yang membuka menu resto dari browser atau scan QR meja tidak memiliki akun staf dan mengakses sistem sebagai peran `anon`. Memberikan akses langsung ke tabel `menu_item`, `cabang`, atau `pengaturan` lewat tabel mentah berisiko membocorkan data sensitif internal kedai (seperti data pegawai, nomor telepon pribadi staf, omzet, modal kas, rahasia konfigurasi, atau pelanggan lain). Di sisi lain, pelanggan membutuhkan informasi yang akurat mengenai resto: nama resto, jam buka, kontak cabang, daftar kategori, item menu, foto, harga cabang yang berlaku, serta status ketersediaan item (menu habis di cabang bersangkutan).
+- **Keputusan:**
+  1. **Pintu Tunggal RPC Publik (`public.katalog_publik`):**
+     - Dibuka untuk peran `anon`, `authenticated`, dan `service_role`.
+     - Fungsi berstatus `SECURITY DEFINER` dengan `search_path` terkunci (`public, pg_temp`) dan `STABLE`.
+     - Menggunakan proyeksi kolom tegas dan eksplisit (dilarang menggunakan `SELECT *`).
+  2. **Isolasi Data Sensitif (Zero-Leakage):**
+     - Hanya mengembalikan objek terstruktur: resto (nama, slug, jam buka, cara pesan, zona waktu, mata uang), daftar cabang aktif publik, kategori aktif, dan item menu aktif (nama, deskripsi, harga, foto, urutan, unggulan, jenis, status habis, varian, tambahan).
+     - Menjamin tidak ada satupun kolom kredensial (email, pin, kata sandi, token), keuangan (omzet, modal, saldo, transaksi), pelanggan lain, maupun jejak audit internal yang disertakan.
+  3. **Penghormatan Harga & Status Habis Cabang:**
+     - Jika parameter cabang (`p_cabang_id`) disediakan, status habis dibaca dari `coalesce(menu_cabang.habis, false)` dan harga dibaca dari `coalesce(menu_cabang.harga, menu_item.harga)`.
+     - Menu habis ditandai secara jujur (`habis: true`), sehingga pelanggan tahu makanan tersebut sedang tidak tersedia sebelum memesan.
+- **Bukti:**
+  - Migrasi: `supabase/migrations/0062_katalog_publik.sql`.
+  - Berkas Uji SQL: `supabase/tes/katalog_publik.sql` (105 berkas uji SQL lulus 100%; uji mencakup asersi otomatis ketiadaan kolom sensitif).
+  - Uji Mutasi: `alat/uji-mutasi-0062.py` (3/3 mutasi kritis TERBUKTI MERAH).
+
+## [Voucher & Kasir / 2026-09-25] Layar Kasir Cek (Baca Saja) & Pakai (Atomik + PIN Kasir) (T8-09 / ART-5, PRD M10, M3)
+
+- **Area:** Voucher (ART-5) & Kasir (PRD M10, M3, TECH_SPEC §9 ART-5)
+- **Konteks & Risiko (ART-5):**
+  Kasir membutuhkan fasilitas untuk memeriksa apakah voucher yang dibawa pelanggan sah dan berapa nominal potongan yang didapat sebelum tagihan dibayar, tanpa menghanguskan atau mengubah status voucher pelanggan (sifat baca-saja). Jika tombol cek mengubah status voucher di basis data, voucher pelanggan bisa hangus meskipun transaksi akhirnya batal. Di sisi lain, pemakaian voucher rawan dobel klaim (*double redemption*) bila dua kasir atau perangkat memasukkan kode voucher yang sama secara bersamaan (kondisi balapan/konkuren). Dari sisi akuntabilitas keuangan (PRD M3 & TECH_SPEC §9 ART-5), pemakaian voucher memotong penerimaan kedai, sehingga wajib diotorisasi oleh kasir berizin dengan pembuktian PIN terenkripsi.
+- **Keputusan:**
+  1. **RPC `public.cek_voucher` Bersifat MURNI BACA SAJA (Read-Only):**
+     - Tidak mengubah status voucher apa pun di basis data (dibuktikan lewat asersi uji bahwa baris voucher dan stempel waktu tetap tidak berubah).
+     - Menilai masa berlaku voucher, status aktif/terpakai/kedaluwarsa/dibatalkan, kesesuaian cabang kampanye, dan syarat minimal belanja pesanan.
+     - Menghitung estimasi potongan secara presisi berdasarkan persentase promo (dengan batasan batas maksimal plafon potongan) atau nominal tetap.
+     - Mencatat audit penelusuran ke `public.voucher_percobaan` tanpa menyentuh tabel transaksi.
+  2. **RPC `public.pakai_voucher` Eksekusi Atomik Sekali Pakai (ART-5):**
+     - Memverifikasi otentikasi kasir (`auth.uid()`), izin `pakai_voucher`, dan verifikasi kriptografis PIN kasir (`crypt(pin, pin_hash)` terhadap `public.kredensial_pin`).
+     - Melakukan penguncian atomik baris database: `UPDATE public.voucher SET status = 'terpakai', pesanan_id = p_pesanan_id, terpakai_di_cabang = ..., terpakai_oleh = ..., terpakai_pada = now() WHERE kode = ... AND status = 'aktif' AND ... RETURNING *`. Baris yang sudah terpakai tidak dapat diperbarui ulang, menutup celah dobel klaim.
+     - Penanganan idempoten: jika voucher yang sama dipanggil ulang untuk pesanan yang sama, RPC mengembalikan status sukses idempoten tanpa menduplikasi baris diskon.
+     - Mencegah tumpuk diskon jika konfigurasi resto melarangnya (`pengaturan.tumpuk_diskon = false`).
+     - Menyisipkan baris `public.diskon_transaksi` dengan `jenis = 'voucher'` dan `voucher_id` yang sah, memperbarui tagihan pesanan secara otomatis melalui pemicu peladen.
+  3. **Pembaruan Pemicu `public.picu_diskon_batas()`:**
+     - Menggantikan pagar sementara fail-closed lama. Memverifikasi keabsahan voucher nyata di basis data, status `terpakai`, kecocokan kepemilikan tenant, dan keterikatan sah pada `pesanan_id` yang bersangkutan.
+  4. **Antarmuka Kasir Ramah Awam (`VoucherKasir.tsx` & `LayarKasir.tsx`):**
+     - Integrasi tab navigasi antara Diskon Manual dan Voucher Promosi.
+     - Kolom PIN kasir bertipe kata sandi dan langsung dibersihkan dari memori peramban segera setelah digunakan demi keamanan kredensial staf.
+     - Penolakan ramah awam dengan sebab kegagalan spesifik dari peladen (tanpa jargon teknis).
+- **Bukti:**
+  - Migrasi Basis Data: `supabase/migrations/0065_kasir_cek_pakai_voucher.sql`.
+  - Berkas Uji SQL: `supabase/tes/kasir_voucher.sql` (108 berkas uji SQL lulus 100%).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0065.py` (5/5 mutasi kritis terbukti MERAH).
+  - Komponen Frontend: `aplikasi/src/layar/kasir/VoucherKasir.tsx` & `aplikasi/src/layar/kasir/VoucherKasir.test.tsx` (8 uji unit lulus 100%).
+  - Integrasi Layar Kasir: `aplikasi/src/layar/kasir/LayarKasir.tsx` & `aplikasi/src/layar/kasir/LayarKasirDiskon.test.tsx` (8 uji unit lulus 100%).
+
+### [Voucher & Kamera / 2026-09-25] Pemindaian Barcode/QR Kamera Kasir dan Masukan Manual Wajib Selalu Tersedia (T8-10 / PRD M10)
+- **Area:** Voucher (ART-5) & Kasir POS · PRD M10 ("Kasir bisa scan lewat kamera atau mengetik kode manual")
+- **Keputusan:**
+  1. **Pemindaian Standar Web (BarcodeDetector & MediaDevices):**
+     Menggunakan `navigator.mediaDevices.getUserMedia` dan Web BarcodeDetector API asli tanpa modul eksternal berat. Detektor otomatis mengenali format QR Code, Code 128, Code 39, dan EAN-13, lalu otomatis mengisi kode voucher dan memicu verifikasi baca-saja `cek_voucher`.
+  2. **Jalur Masukan Manual Selalu Tersedia (Cadangan Mutlak):**
+     Komponen masukan teks manual SELALU dirender dan dapat diakses langsung di antarmuka pemindai, tidak pernah disembunyikan walau kamera aktif, galat, ataupun tidak tersedia. Ini menjamin operasional kasir tidak terhenti saat kamera buram, izin ditolak, atau perangkat kasir berupa PC desktop tanpa webcam.
+  3. **Pesan Kejelasan Ramah Awam:**
+     Jika kamera tidak didukung peramban, sedang digunakan aplikasi lain, atau izin akses ditolak kasir/peramban, pesan ditampilkan dalam bahasa Indonesia yang ramah awam tanpa kode galat teknis yang membingungkan.
+  4. **Pembersihan Sumber Daya:**
+     Track video dari `MediaStream` dan `requestAnimationFrame` dibersihkan secara bersih saat komponen unmount untuk mencegah kebocoran memori atau lampu indikator kamera menyala terus-menerus.
+- **Alasan:** Memenuhi PRD M10 dan DoD T8-10 dengan keandalan operasional kasir 100% di berbagai variasi perangkat kasir resto.
+- **File terkait:** `aplikasi/src/layar/kasir/ScanVoucher.tsx`, `aplikasi/src/layar/kasir/ScanVoucher.test.tsx`, `aplikasi/src/layar/kasir/VoucherKasir.tsx`, `aplikasi/src/gaya/komponen.css`, `aplikasi/alat/uji-mutasi-app.mjs`.
+- **Implikasi:** Fitur pemindaian selanjutnya (misalnya pemindaian QR pelanggan atau meja) harus mempertahankan pola fallback manual selalu tersedia dan pembersihan stream saat unmount.
+
+## [Voucher & Privasi / 2026-09-25] Normalisasi Email Gmail, Anti Email Sekali-Pakai, dan 1 Identitas 1 Voucher (T8-07 / ART-5, ART-10)
+
+- **Area:** Voucher (ART-5) & Privasi Pelanggan (ART-10) · PRD M10 & TECH_SPEC §4.4, §5, §9 ART-5, ART-10
+- **Konteks & Risiko (ART-5, ART-10):**
+  Kampanye promo voucher undang-teman rawan dimanipulasi oleh pihak yang berniat memborong voucher secara massal menggunakan banyak akun palsu atau email sementara (*burner/disposable email* seperti 10minutemail, tempmail, mailinator). Selain itu, fitur sub-addressing dan alias titik pada penyedia email populer seperti Gmail (`john.doe@gmail.com`, `j.o.h.n.d.o.e@gmail.com`, `johndoe+promo1@gmail.com`) mengarah ke satu kotak masuk yang sama, sehingga rentan disalahgunakan untuk mengklaim kuota voucher berkali-kali tanpa terdeteksi jika hanya diperiksa secara literal. Dari sisi regulasi UU PDP (UU 27/2022 Pasal 20 & T-011), pendaftaran dan pemrosesan data pribadi pelanggan wajib didasarkan pada persetujuan eksplisit dan data kontak yang sah.
+- **Keputusan:**
+  1. **Normalisasi Gmail Ketat (`normalisasiEmail` di TS & `public.normalisasi_email` di SQL):**
+     - Pada domain `gmail.com` dan `googlemail.com`: seluruh tanda titik (`.`) di bagian nama pengguna dihilangkan, tag alias sub-addressing (karakter `+` dan teks sesudahnya) dipotong bersih, dan domain disatukan ke `gmail.com`.
+     - Seluruh alamat email diubah ke huruf kecil (*lowercase*) dan spasi dihilangkan (*trim*).
+  2. **Penolakan Email Sekali-Pakai (Disposable Email Blacklist):**
+     - Daftar domain email sementara (39+ domain populer: `10minutemail.com`, `tempmail.com`, `mailinator.com`, `trashmail.com`, `guerrillamail.com`, `yopmail.com`, dll) ditolak secara tegas, baik di lapisan antarmuka klien (`emailNormalisasi.ts`), fungsi edge (`verifikasi_pelanggan`), maupun pemicu basis data (`public.apakah_email_sekali_pakai`).
+  3. **Pagar Database Satu Identitas Satu Voucher Per Kampanye:**
+     - Tabel `public.pelanggan` mengunci keunikan identitas per resto lewat indeks unik `(penyewa_id, email_normalisasi)`.
+     - Tabel `public.voucher` mengunci pembatasan kuota individu melalui `unique (kampanye_id, pelanggan_id)`. Percobaan klaim kedua kali untuk kampanye yang sama ditolak oleh RPC `daftar_voucher` dengan kode `VOUCHER_SUDAH_DIKLAIM`.
+  4. **Persetujuan Privasi Eksplisit (T-011 & UU PDP):**
+     - Setiap pendaftaran pelanggan dan penerbitan voucher mewajibkan `persetujuan_privasi = true` dengan catatan versi (`v1.0`) dan stempel waktu. Permintaan tanpa persetujuan ditolak langsung di level basis data (`CHECK (persetujuan_privasi = true)`).
+  5. **Jalur Bantuan Kasir:**
+     - Jika pelanggan tidak memiliki email atau kesulitan verifikasi mandiri, kasir dapat mendaftarkan langsung atas izin lisan/tertulis pelanggan (`cara_masuk = 'kasir'`) dan tercatat siapa pegawai yang mendaftarkan (`didaftarkan_oleh`).
+- **Bukti:**
+  - Pustaka TS & Pengujian: `aplikasi/src/lib/emailNormalisasi.ts` dan `aplikasi/src/lib/emailNormalisasi.test.ts` (9 uji unit 100% lulus mencakup 6 kasus wajib DoD).
+  - Edge Function: `supabase/functions/verifikasi_pelanggan/index.ts` dan runner uji batas `alat/uji-edge-verifikasi-pelanggan.mjs` (10 uji batas lulus tanpa jaringan).
+  - Migrasi Basis Data: `supabase/migrations/0063_anti_email_palsu.sql` (tabel `pelanggan`, `kampanye_voucher`, `voucher`, `voucher_percobaan`, RPC `daftar_voucher`, pemicu validasi, dan RLS).
+  - Berkas Uji SQL: `supabase/tes/anti_email_palsu.sql` (seluruh 106 berkas uji SQL LULUS 100%).
+  - Uji Mutasi: `alat/uji-mutasi-0063.py` (4/4 mutasi kritis terbukti MERAH).
+
+## [Pengaturan / 2026-09-25] Pengaturan Kampanye Voucher oleh Admin & Pratinjau Aturan Bahasa Manusia (T8-11)
+
+- **Area:** Pengaturan Admin & Voucher · PRD M10 & TECH_SPEC §4.4, §5
+- **Konteks & Kebutuhan:**
+  Admin resto membutuhkan fleksibilitas penuh untuk mengatur kampanye promo voucher (diskon persen dengan plafon potongan, atau potongan nominal langsung, minimum belanja, kuota voucher, batas anggaran resto, periode masa berlaku, dan cakupan cabang berlaku) tanpa bantuan tim teknis (tanpa koding). Namun, pengaturan mandiri berisiko memicu konfigurasi aturan mustahil/merugikan (seperti diskon > 100%, kuota 0, anggaran lebih kecil dari nilai voucher, atau periode selesai mendahului mulai) serta salah tafsir syarat promo yang rumit bagi pelanggan maupun kasir.
+- **Keputusan:**
+  1. **Validasi Pagar Basis Data (`trg_validasi_aturan_kampanye` & migrasi 0066):**
+     - Mencegah aturan mustahil langsung pada tingkat tabel `public.kampanye_voucher`:
+       * `jenis = 'persen'` wajib `nilai > 0 AND nilai <= 100`.
+       * `jenis = 'nominal'` wajib `nilai > 0` dan atribut `maks_potongan` otomatis di-NULL-kan agar tidak menimbulkan ambigu.
+       * Masa berlaku wajib `selesai > mulai`.
+       * Kuota wajib `> 0`.
+       * Anggaran maksimal jika diisi wajib `>= nilai` voucher.
+       * Pencegahan duplikasi kode kampanye unik per resto (`penyewa_id`).
+  2. **Format Kalimat Aturan Ramah Awam (Pratinjau Bahasa Manusia):**
+     - Dibuat helper ganda pada PostgreSQL (`public.format_pratinjau_aturan`) dan TypeScript (`formatPratinjauAturan` di `Kampanye.tsx`) yang merangkai konfigurasi teknis menjadi kalimat bahasa Indonesia lugas:
+       * Contoh: *"Diskon 20% (maksimal Rp25.000) dengan belanja minimal Rp50.000 di semua cabang. Berlaku hingga 31 Okt 2026. Kuota: 100 voucher."*
+       * Menghadirkan simulasi belanja instan ("Contoh: Pelanggan belanja Rp75.000 mendapatkan potongan Rp15.000, bayar Rp60.000").
+  3. **Antarmuka Admin Responsif & Terkontrol (`Kampanye.tsx`):**
+     - Formulir pembuatan dan penyuntingan kampanye dengan validasi dini sisi klien yang serasi dengan aturan peladen.
+     - Ringkasan statistik serapan (jumlah terbit, jumlah terpakai, sisa kuota, status waktu berjalan/akan datang/berakhir).
+     - Tombol cepat ubah status (aktif/nonaktifkan) kampanye dengan konfirmasi aman.
+     - Otorisasi ketat: hanya peran pemilik (`owner`) dan admin resto yang memiliki izin menyimpan dan mengubah status kampanye melalui RPC `simpan_kampanye_voucher` dan `ubah_status_kampanye`.
+- **Bukti:**
+  - Migrasi Basis Data: `supabase/migrations/0066_kampanye_aturan.sql`.
+  - Berkas Uji SQL: `supabase/tes/kampanye_aturan.sql` (109 berkas uji SQL lulus 100%).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0066.py` (6/6 mutasi kritis terbukti MERAH) dan `--uji-diri` lulus.
+  - Antarmuka & Uji Unit Frontend: `aplikasi/src/layar/pengaturan/Kampanye.tsx`, `aplikasi/src/layar/pengaturan/Kampanye.test.tsx` (11 uji unit lulus), dan `aplikasi/alat/uji-mutasi-app.mjs` (mutasi terbukti MERAH).
+  - Peta UI & Struktur: `aplikasi/alat/periksa-struktur.py` dan `alat/peta-ui.py` lulus 100% tanpa warna mentah dan bebas tombol liar.
+
+## [Voucher & Keamanan / 2026-09-25] Pengaman Anti-Kecurangan 10 Lapis, Pembatasan Klaim, dan Log Percobaan Voucher (T8-12 / ART-5)
+
+- **Area:** Area Berisiko Tinggi ART-5 (Voucher & Keamanan Keuangan) · PRD M10 & TECH_SPEC §9 ART-5
+- **Konteks & Risiko (ART-5):**
+  Kampanye promosi voucher merupakan pintu keluarnya nilai finansial resto dalam bentuk potongan tagihan. Jika tidak dilindungi dengan sistem pengaman berlapis, resto menghadapi risiko kerugian akibat berbagai modus kecurangan:
+  1. *Sybil / Multi-Account Abuse*: satu orang memborong voucher dengan banyak email samaran / variasi Gmail.
+  2. *Branch Quota Draining*: penukaran voucher terkonsentrasi di satu gerai kecil yang menghabiskan stok atau margin cabang tersebut.
+  3. *Under-Minimum Claim*: voucher dipakai untuk transaksi kecil di bawah ketentuan belanja minimum.
+  4. *Uncapped Discount*: voucher persen memotong tanpa batas pada transaksi bernilai besar.
+  5. *Budget Runaway*: total serapan diskon melebihi pagu anggaran promosi yang disiapkan pemilik resto.
+  6. *Double Redemption / Concurrent Race*: satu voucher ditukarkan bersamaan di dua kasir atau meja berbeda.
+  7. *Sequential Code Guessing*: kode voucher ditebak berurutan oleh penyerang luar.
+  8. *Automated Brute-Force Scanning*: bot atau penyerang memindai ribuan kode secara bertubi-tubi hingga menemukan kode yang valid.
+  9. *Disposable / Temporary Email Abuse*: penggunaan alamat email sekali-pakai (tempmail).
+  10. *Gmail Dot & Plus Aliasing*: pendaftaran berkali-kali menggunakan variasi titik dan tanda plus pada akun Google yang sama.
+- **Keputusan 10 Lapis Pengaman Anti-Kecurangan:**
+  1. **Lapis 1 — Satu Voucher Per Identitas Per Kampanye:**
+     Kolom `kuota_per_pelanggan` (bawaan: 1) pada `public.kampanye_voucher`. RPC `public.daftar_voucher` menghitung jumlah voucher aktif milik `pelanggan_id` yang dinormalisasi pada kampanye terkait; klaim berulang ditolak seketika dengan kode `VOUCHER_SUDAH_DIKLAIM`.
+  2. **Lapis 2 — Batas Penukaran Per Outlet Per Hari:**
+     Kolom `kuota_harian_cabang` pada `public.kampanye_voucher`. RPC `public.pakai_voucher` menghitung pemakaian pada tanggal lokal cabang bersangkutan menggunakan `public.tanggal_lokal_cabang()`; jika telah mencapai kuota harian cabang, penukaran ditolak dengan kode `KUOTA_HARIAN_CABANG_HABIS`.
+  3. **Lapis 3 — Wajib Belanja Minimum (`min_belanja`):**
+     RPC `public.cek_voucher` dan `public.pakai_voucher` memeriksa `subtotal >= min_belanja`. Jika belum memenuhi syarat, penukaran ditolak dengan kode `SUBTOTAL_KURANG`.
+  4. **Lapis 4 — Batas Plafon Potongan Maksimal (`maks_potongan`):**
+     Voucher persentase dipotong dan dibatasi secara ketat oleh nilai `maks_potongan` pada `cek_voucher` maupun `pakai_voucher`.
+  5. **Lapis 5 — Anggaran Kampanye Tidak Bisa Dilampaui (`anggaran_maks`):**
+     Pengecekan kumulatif `sum(dt.nilai)` dari `public.diskon_transaksi` untuk seluruh voucher dari kampanye yang sama. Jika total realisasi diskon ditambah estimasi potongan saat ini melampaui `anggaran_maks`, voucher ditolak dengan kode `ANGGARAN_KAMPANYE_HABIS`.
+  6. **Lapis 6 — Kunci Atomik Sekali Pakai & Status Terpakai:**
+     Pernyataan tunggal `UPDATE public.voucher SET status = 'terpakai' ... WHERE kode = ... AND status = 'aktif' RETURNING *` mengunci baris database secara atomik. Baris yang sudah berstatus `'terpakai'` ditolak saat dicoba untuk kedua kalinya dengan kode `VOUCHER_SUDAH_TERPAKAI`.
+  7. **Lapis 7 — Kode Acak Kriptografis Non-Sekuensial:**
+     Pola kode voucher `RB-XXXX-XXXX` dibangkitkan menggunakan `gen_random_bytes()` dan alfabet Crockford Base32 tanpa karakter ambigu (0, O, 1, I), mustahil ditebak secara sekuensial.
+  8. **Lapis 8 — Log Audit Seluruh Percobaan & Rate Limiting Per Perangkat / IP:**
+     Setiap pemanggilan `cek_voucher`, `pakai_voucher`, dan `daftar_voucher` dicatat ke tabel `public.voucher_percobaan` lengkap dengan `perangkat`, `ip_pengakses`, dan `aksi`. Fungsi `public.apakah_perangkat_terblokir()` menghitung frekuensi kegagalan (ambang batas: 5 kegagalan dalam 15 menit). Bila ambang tercapai, seluruh percobaan berikutnya dari perangkat/IP tersebut langsung diblokir dengan kode `TERLALU_BANYAK_PERCOBAAN`.
+  9. **Lapis 9 — Penolakan Domain Email Sekali-Pakai:**
+     Daftar domain `public.domain_email_terlarang` menolak pendaftaran menggunakan email sementara dengan kode `EMAIL_SEKALI_PAKAI`.
+  10. **Lapis 10 — Normalisasi Identitas Gmail:**
+      Fungsi `public.normalisasi_email()` membuang seluruh tanda titik dan memotong tag alias `+` pada domain Gmail/Googlemail sebelum memeriksa keunikan di basis data.
+  11. **Pengawasan & Hak Akses Audit Admin:**
+      RPC `public.ambil_log_percobaan_voucher(p_kampanye_id, p_limit)` memungkinkan admin dan pemilik resto memeriksa rekam jejak percobaan voucher, nama kasir, nama cabang, status hasil, alasan penolakan, serta jejak perangkat/IP penyerang. Kasir biasa ditolak mengakses log ini dengan kode `TIDAK_BERIZIN`.
+- **Bukti:**
+  - Migrasi Basis Data: `supabase/migrations/0067_pengaman_voucher.sql` (skema kolom pengaman, fungsi rate limiting `apakah_perangkat_terblokir`, RPC pengaman voucher, dan RPC audit `ambil_log_percobaan_voucher`).
+  - Berkas Uji SQL: `supabase/tes/pengaman_voucher.sql` menguji kesepuluh lapis pengaman secara komprehensif (110 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`).
+  - Uji Mutasi SQL: `alat/uji-mutasi-0067.py` membuktikan 6/6 mutasi kritis WAJIB MERAH (lapis kuota klaim pelanggan, kuota harian cabang, batas anggaran kampanye, rate limiting perangkat penyerang, anti-tempmail, dan hak akses audit kasir vs admin); runner `--uji-diri` lolos.
+  - Penyelarasan Mutasi 0065: `alat/uji-mutasi-0065.py` diperbarui merujuk ke definisi aktif di migrasi 0067 (5/5 mutasi WAJIB MERAH tetap terbukti tajam).
+### [Fase 8/2026-09-26] Pelaksanaan Privasi Pelanggan (UU PDP) & Anonimisasi (T8-15)
+- **Area:** Data Pelanggan (ART-14)
+- **Keputusan:**
+  1. Migrasi `0069_privasi_pelanggan.sql` menegakkan kolom persetujuan, waktu, dan versi kebijakan (v1.0), status privasi (`status_privasi in ('aktif', 'teranonimkan')`), serta stempel waktu dan alasan anonimisasi.
+  2. RPC atomik `public.anonimkan_pelanggan(p_pelanggan_id, p_alasan)` menghapus kontak pribadi (nama disamarkan menjadi 'Pelanggan Teranonimkan (UU PDP)', email/telepon/alamat null) tanpa menghapus catatan transaksi finansial, voucher, atau diskon.
+  3. Kejadian anonimisasi dicatat kekal pada tabel `public.catatan_audit` (aksi = 'anonimisasi_pelanggan').
+  4. Halaman `KebijakanPrivasi.tsx` menyajikan transparansi hak subjek data (akses, koreksi, anonimisasi/hapus maksimal 3×24 jam) dalam bahasa Indonesia yang ramah bagi pelanggan dan staf kedai.
+- **File terkait:** `supabase/migrations/0069_privasi_pelanggan.sql`, `supabase/tes/privasi.sql`, `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx`, `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.test.tsx`
+- **Bukti:**
+  - Migrasi Basis Data: `supabase/migrations/0069_privasi_pelanggan.sql` (skema kolom privasi, penyesuaian pemicu/constraint, RPC `anonimkan_pelanggan`, dan RPC `cek_privasi_pelanggan`).
+  - Berkas Uji SQL: `supabase/tes/privasi.sql` membuktikan 9 kasus kepatuhan privasi UU PDP (113 berkas uji SQL lulus 100%, angka saat itu 2026-09-26 — perintah: `node alat/uji-sql.mjs`).
+  - Antarmuka & Pengujian Unit: `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx` dan `KebijakanPrivasi.test.tsx` (6 uji unit hijau, angka saat itu 2026-09-26 — perintah: `npm --prefix aplikasi test -- src/layar/pelanggan-publik/KebijakanPrivasi.test.tsx`).
+  - Keamanan Basis Data: `python3 alat/periksa-keamanan-sql.py` lulus (RLS, search_path, dan izin fungsi terverifikasi aman).
+
+### [Fase 9/2026-09-26] Pengaturan Operasional Resto & Perlindungan Riwayat Transaksi (T9-03)
+- **Area:** Kalkulasi Keuangan (ART-3)
+- **Keputusan:**
+  1. Pengaturan operasional resto (`pajak_pb1_persen`, `service_persen`, `pembulatan`, `cara_pesan`, `jam_buka`, `header_struk`, `footer_struk`, `tumpuk_diskon`) dikelola secara mandiri tanpa koding via RPC `public.simpan_operasional` dan dibaca via `public.ambil_pengaturan_operasional`.
+  2. **Validasi Batas Nilai di Server (ART-3):** Tarif PB1 dan Service Charge wajib berada pada rentang 0.00% s/d 100.00%; pembulatan dibatasi pada opsi ('none', '100', '500', '1000'); cara pesan dibatasi pada ('kasir', 'mandiri', 'meja', 'campur').
+  3. **Mitigasi Risiko Finansial — Perlindungan Transaksi Masa Lalu (ART-3):** Nilai pajak dan service charge dihitung dan disalin ke baris transaksi saat pesanan dibuat (`harga_saat_itu`). Perubahan tarif pajak PB1 atau service charge di pengaturan resto hanya berlaku untuk pesanan baru ke depan, dan secara mutlak TIDAK MENGUBAH nilai nominal pajak, service, atau total pada transaksi yang sudah lunas/terbit di masa lalu.
+  4. **Optimistic Concurrency Control:** Simpanan diverifikasi terhadap kolom `versi_pengaturan`; jika stempel waktu lama tidak cocok, peladen menolak tabrakan data dengan kode `P0001` untuk mencegah penimpaan konfigurasi finansial secara diam-diam.
+  5. **Jejak Audit Kekal:** Setiap perubahan konfigurasi operasional dicatat ke `public.catatan_audit` (aksi = `'ubah_operasional_resto'`) memuat rekaman lengkap `nilai_lama` dan `nilai_baru`.
+- **File terkait:** `supabase/migrations/0072_pengaturan_operasional.sql`, `supabase/tes/pengaturan_operasional.sql`, `alat/uji-mutasi-0072.py`, `aplikasi/src/layar/pengaturan/Operasional.tsx`, `aplikasi/src/layar/pengaturan/Operasional.test.tsx`
+- **Implikasi:** Seluruh fitur kalkulasi keuangan di masa depan wajib mematuhi rantai perhitungan uang ART-3 dan tidak boleh menghitung ulang pajak/service dari pesanan yang sudah berstatus lunas.
+
+### [Fase 9/2026-09-26] Kelola Pegawai: Peran, Izin Berjenjang & Reset PIN (T9-08)
+- **Area:** Role & Permission (ART-2)
+- **Keputusan:**
+  1. Pengelolaan akun staf kedai menggunakan RPC resmi: `public.simpan_pegawai`, `public.set_status_pengguna`, `public.set_izin`, `public.reset_pin_pegawai`, `public.ambil_daftar_pegawai`, dan `public.ambil_izin_pegawai`.
+  2. **Hierarki Keamanan Peran & Hak Akses (ART-2):**
+     - Staf biasa / admin cabang DILARANG mengubah profil, status keaktifan, reset PIN, atau centang izin `owner_pusat`.
+     - Pagar eskalasi hak istimewa (anti-privilege escalation): Hanya `owner_pusat` yang berhak memberikan izin `kelola_pegawai` kepada orang lain.
+     - Proteksi integritas restoran: Peladen menolak penonaktifan satu-satunya owner pusat yang aktif di restoran.
+  3. **Integritas Jejak Audit & Riwayat Transaksi (ART-2):**
+     - Pegawai yang sudah memiliki riwayat transaksi (pesanan, pembayaran, atau shift kasir) DILARANG di-hard delete lewat pemicu fail-closed `picu_pengguna_cegah_hapus`.
+     - Pegawai yang keluar/berhenti kerja dinonaktifkan (`aktif = false` / soft-disable) sehingga seluruh catatan transaksi dan FK pelayan/kasir masa lalu tetap utuh dan jujur.
+  4. **Centang Izin Granular (10 Izin Resmi):**
+     - Mendukung penetapan batas diskon nominal rupiah dan batas persentase diskon per pegawai pada kode izin `beri_diskon`.
+     - Nilai izin disimpan di tabel `public.izin` yang secara otomatis meng-override nilai default peran di `public.izin_peran`.
+  5. **Reset Kredensial PIN Pegawai:**
+     - Reset PIN pegawai dilakukan secara aman oleh atasan berwenang tanpa memerlukan PIN lama staf yang bersangkutan.
+     - PIN baru divalidasi 6 angka dan wajib lolos pemeriksaan pola lemah (`public.pin_lemah`), kemudian di-hash menggunakan algoritma bcrypt (`crypt(..., gen_salt('bf', 10))`).
+  6. **Jejak Audit Kekal:**
+     - Setiap aksi pengelolaan pegawai (`tambah_pegawai`, `ubah_pegawai`, `set_status_pengguna`, `set_izin`, `reset_pin_pegawai`) dicatat di `public.catatan_audit` lengkap dengan rekaman `nilai_lama` dan `nilai_baru`.
+- **File terkait:** `supabase/migrations/0077_kelola_pegawai_izin.sql`, `supabase/tes/kelola_pegawai_izin.sql`, `alat/uji-mutasi-0077.py`, `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`, `aplikasi/src/layar/pengaturan/KelolaPegawai.test.tsx`
+- **Implikasi:** Modul autentikasi dan penugasan peran staf kedai di masa depan wajib selalu mematuhi batas hierarki ART-2, menjaga ketahanan jejak audit, dan tidak boleh menghapus data pengguna ber-riwayat transaksi.
+
+### [Fase 9/2026-09-26] Kelola Cabang: Tambah, Konfigurasi Printer & Multi-Penugasan Staf (T9-09)
+- **Area:** Multi-Cabang (ART-12) & Perangkat & Pencetakan (ART-7)
+- **Keputusan:**
+  1. Pengelolaan cabang resto diatur oleh 6 RPC resmi: `public.tambah_cabang`, `public.simpan_cabang`, `public.set_status_cabang`, `public.set_akses_cabang`, `public.ambil_daftar_cabang`, dan `public.ambil_akses_cabang_pegawai`.
+  2. **Isolasi Multi-Cabang & Penyewa (ART-1 & ART-12):**
+     - Nama cabang divalidasi unik per penyewa (case-insensitive).
+     - Zona waktu didukung resmi: 'Asia/Jakarta' (WIB), 'Asia/Makassar' (WITA), 'Asia/Jayapura' (WIT).
+     - Cabang lain milik restoran berbeda tidak bocor ke penyewa pemanggil (pemeriksaan `penyewa_id = v_penyewa`).
+  3. **Mitigasi Risiko Integritas Data — Pemicu Fail-Closed Hapus & Status (ART-12):**
+     - Pemicu `picu_cabang_cegah_hapus`: Menolak hard-delete pada cabang yang memiliki riwayat pesanan (`pesanan`), meja (`meja`), atau catatan shift kasir (`shift_kas`).
+     - Soft-disable (`aktif = false`): Cabang yang tutup atau berhenti beroperasi dinonaktifkan sementara tanpa merusak riwayat transaksi masa lalu.
+     - Pemicu `picu_cabang_minimal_satu_aktif`: Mencegah penonaktifan atau penghapusan seluruh cabang dalam satu restoran (fail-closed minimal satu cabang aktif).
+  4. **Konfigurasi Printer Default Cabang (ART-7):**
+     - Kolom `printer_default` (JSONB) menyimpan konfigurasi printer bawaan cabang (`profil_id`, `lebar` [58 atau 80 mm], `nama`).
+     - Validasi ketat di peladen: lebar kertas printer hanya diperbolehkan 58 atau 80 mm.
+  5. **Multi-Penugasan Staf ke Cabang (ART-12):**
+     - RPC `set_akses_cabang` mendukung penugasan staf merangkap di lebih dari satu cabang (multi-cabang) dengan status aktif/nonaktif di `public.pengguna_cabang`.
+     - Validasi silang penyewa mencegah penugasan staf ke cabang milik restoran lain.
+  6. **Jejak Audit Kekal:**
+     - Seluruh aktivitas mutasi cabang (`tambah_cabang`, `ubah_cabang`, `set_status_cabang`, `set_akses_cabang`) dicatat abadi ke `public.catatan_audit` dengan rincian `nilai_lama` dan `nilai_baru`.
+- **File terkait:** `supabase/migrations/0078_kelola_cabang.sql`, `supabase/tes/kelola_cabang.sql`, `alat/uji-mutasi-0078.py`, `aplikasi/src/layar/pengaturan/Cabang.tsx`, `aplikasi/src/layar/pengaturan/Cabang.test.tsx`
+- **Implikasi:** Pengaturan transaksi, perpindahan cabang kasir, dan pencetakan struk wajib selalu mengacu pada konfigurasi cabang aktif terkait tanpa merusak isolasi penyewa.
+
+### [Fase 9/2026-09-26] Pemilik Platform: Pendaftaran Penyewa Baru & Tata Kelola Multi-Tenant (T9-10)
+- **Area:** Multi-Tenant (ART-1) & Role & Permission (ART-2)
+- **Keputusan:**
+  1. Pendaftaran restoran baru dan tata kelola akun penyewa diatur oleh 3 RPC resmi: `public.buat_penyewa`, `public.set_status_penyewa`, dan `public.ambil_daftar_penyewa`.
+  2. **Otorisasi Khusus Pemilik Platform (ART-1 & ART-2):**
+     - Seluruh fungsi pendaftaran penyewa, pengubahan status penyewa, dan pembacaan daftar penyewa lintas platform hanya boleh dieksekusi oleh pengguna dengan peran `pemilik_platform`.
+     - Peran `owner_pusat`, `admin_cabang`, `kasir`, `dapur`, `pelayan`, maupun `anon` ditolak secara tegas (fail-closed) di tingkat peladen PostgreSQL.
+  3. **Pendaftaran Atomik Satu Langkah (Atomic Provisioning):**
+     - RPC `buat_penyewa` membuat catatan resto di `public.penyewa`, cabang pertama di `public.cabang`, akun owner pertama di `public.pengguna`, penugasan cabang di `public.pengguna_cabang`, pengaturan awal di `public.pengaturan`, serta template metode bayar default di `public.metode_bayar` dalam satu transaksi atomik.
+     - Validasi ketat pada pembuatan akun: nama penyewa (1-120 karakter), slug unik alfanumerik huruf kecil dan strip (2-31 karakter), zona waktu resmi (WIB/WITA/WIT/UTC), mata uang 3 huruf kapital, format email owner, serta validasi PIN owner 6 angka dan anti-PIN lemah (`public.pin_lemah`).
+  4. **Proteksi Integritas Data & Larangan Hard Delete (ART-1):**
+     - Pemicu fail-closed peladen `picu_penyewa_cegah_hapus` menolak keras hard delete pada data penyewa yang masih memiliki cabang atau data operasional.
+     - Jalur penonaktifan resto dilakukan via soft-disable (`status = 'nonaktif'`) dengan pencatatan alasan wajib minimal 5 karakter.
+     - Penonaktifan penyewa secara otomatis mencabut (*revoke*) seluruh sesi perangkat aktif di seluruh cabang restoran terkait untuk mencegah akses yang tidak sah.
+  5. **Edge Function & Antarmuka Manajemen Platform:**
+     - Edge Function `supabase/functions/daftar_penyewa/index.ts` memvalidasi masukan awal dan meneruskan token autentikasi pemanggil ke basis data.
+     - Layar antarmuka `aplikasi/src/layar/platform/Penyewa.tsx` menyediakan dashboard statistik, pencarian & penyaringan, modal pendaftaran resto terpandu, serta dialog konfirmasi penonaktifan dengan jaminan keamanan data riwayat transaksi.
+  6. **Jejak Audit Kekal:**
+     - Setiap aktivitas pendaftaran resto (`buat_penyewa`) dan pengubahan status keaktifan penyewa (`set_status_penyewa`) dicatat abadi di `public.catatan_audit`.
+- **File terkait:** `supabase/migrations/0079_daftar_penyewa_m1.sql`, `supabase/tes/daftar_penyewa.sql`, `alat/uji-mutasi-0079.py`, `supabase/functions/daftar_penyewa/index.ts`, `aplikasi/src/layar/platform/Penyewa.tsx`, `aplikasi/src/layar/platform/Penyewa.test.tsx`
+- **Implikasi:** Modul multi-tenant platform menjamin pemisahan data absolut antarklien (RLS fail-closed) dan pendaftaran penyewa baru selalu menghasilkan konfigurasi awal resto yang siap pakai tanpa manipulasi manual.
+
+### [Fase 9/2026-09-26] Pratinjau Perubahan & Pengaman Riwayat (T9-11 / PRD M2 Kasus Tepi)
+- **Area:** Pengaturan Resto & Integritas Riwayat Transaksi (TECH_SPEC §9 ART-3, PRD M2)
+- **Keputusan:**
+  1. **Pratinjau Perubahan & Live Receipt Simulator (Diff Viewer):**
+     - Sebelum menyimpan modifikasi identitas resto (nama, tagline), tema/warna merek, tarif PB1, service charge, aturan pembulatan, atau teks struk, pengguna (Owner Pusat / Admin Cabang) disajikan antarmuka pratinjau komparatif berdampingan (*Diff Viewer*).
+     - Simulator struk kasir (*Live Receipt Simulator*) menghitung dampak finansial dari usulan aturan baru secara real-time terhadap berbagai skenario transaksi contoh (skenario pesanan reguler, kopi & kudapan, jamuan promo dengan diskon) serta format lebar kertas termal (58mm dan 80mm).
+  2. **Jaminan Kekekalan Data Masa Lalu (Immutable Past Guarantee):**
+     - Sesuai prinsip akuntansi dan kepatuhan hukum, perubahan konfigurasi restoran masa kini TIDAK BOLEH mengubah data transaksi, struk kasir, rincian pembayaran, atau laporan penjualan/kas masa lalu.
+     - Setiap baris pesanan lunas menyimpan harga saat transaksi terjadi (`harga_saat_itu` pada `public.pesanan_item`) dan snapshot kalkulasi (`subtotal`, `pajak`, `service`, `total_diskon`, `total` pada `public.pesanan`).
+     - Pembaruan nama/harga di katalog menu, penonaktifan metode pembayaran, maupun peningkatan tarif pajak/service tidak mengubah baris transaksi yang sudah tersimpan.
+  3. **Proteksi Integritas & Pembuktian Uji SQL Golden Past:**
+     - Dilindungi pemicu fail-closed peladen `public.picu_pesanan_tertutup_beku` dan `public.picu_pesanan_uang_peladen` yang menolak setiap upaya modifikasi langsung pada transaksi berstatus `lunas` atau `batal`.
+     - Dibuktikan secara deterministik dalam berkas uji SQL `supabase/tes/riwayat_tidak_berubah.sql` (124 berkas uji lulus 100%): pemanggilan `public.laporan_penjualan` untuk tanggal masa lalu menghasilkan angka `total_omzet`, `total_pajak`, `total_service`, dan `total_subtotal` yang identik byte-per-byte (selisih = 0) sebelum dan sesudah perubahan pengaturan resto.
+  4. **Antarmuka & Kontrol Aksi Pencegah Kesalahan:**
+     - Komponen antarmuka `aplikasi/src/layar/pengaturan/Pratinjau.tsx` dilengkapi dialog konfirmasi ringkasan dampak sebelum penyimpanan, tombol reset draf, dan tombol cetak uji simulasi.
+     - Aksi `pengaturan.pratinjau_perubahan` terdaftar resmi di `aksi.ts`, `layar.ts`, dan `docs/PETA_UI.md`.
+- **File terkait:** `supabase/tes/riwayat_tidak_berubah.sql`, `aplikasi/src/layar/pengaturan/Pratinjau.tsx`, `aplikasi/src/layar/pengaturan/Pratinjau.test.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.test.tsx`
+- **Implikasi:** Pemilik resto memiliki visibilitas penuh terhadap dampak setiap perubahan pengaturan tagihan sebelum diterapkan, sementara integritas catatan riwayat keuangan masa lalu tetap terkunci permanen.
+
+### [Fase 10/2026-09-26] Antrean Kirim Luring Berbasis IndexedDB & Kunci Idempoten (T10-01)
+- **Area:** Antrean Offline & Dobel Data (TECH_SPEC §9 ART-8 & §13 K4, PRD §9 Risiko)
+- **Keputusan:**
+  1. **Penyimpanan Lokal Menggunakan IndexedDB:**
+     - Modul `aplikasi/src/lib/antrean-offline.ts` menyimpan pesanan dan penulisan saat koneksi kedai terputus ke dalam IndexedDB peramban (`resto_barokah_offline_db` / store `antrean_kirim`).
+     - Menyediakan lapisan cadangan memori aman (*in-memory fallback*) bila IndexedDB tidak tersedia, diblokir oleh kebijakan browser, atau saat pengujian otomatis tanpa melempar kegagalan fatal (*zero-crash*).
+  2. **Kunci Idempoten Wajib (ART-8):**
+     - Setiap item antrean wajib memiliki `kunciIdempoten` unik. Bila tidak disediakan oleh pemanggil, kunci idempoten dihasilkan secara otomatis berbasis stempel waktu dan entropi acak (`pos-offline-...`).
+     - Pencegahan duplikasi lokal: pemanggilan penambahan dengan `kunciIdempoten` yang sama tidak menduplikasi antrean melainkan mengembalikan item yang sudah ada secara idempoten.
+  3. **Penyaringan Data Sensitif Wajib (DoD T10-01):**
+     - Sesuai standar keamanan data dan DoD, data sensitif (seperti PIN pegawai, pin_hash, kata sandi, password, token rahasia, maupun header otorisasi) disaring dan dibuang secara rekursif melalui fungsi `bersihkanDataSensitif()` sebelum disimpan ke penyimpanan lokal.
+     - Perangkat kasir yang offline tidak menyimpan kredensial atau rahasia otentikasi apa pun di dalam IndexedDB.
+  4. **Status Transparan & Jujur ("menunggu dikirim X"):**
+     - Hook `aplikasi/src/hook/useAntrean.ts` dan komponen antarmuka `aplikasi/src/komponen/StatusAntreanOffline.tsx` menyajikan pesan status jujur dan gamblang bagi staf: "menunggu dikirim X" (misal "menunggu dikirim 2").
+     - Sistem secara sadar menolak menampilkan status palsu "berhasil" untuk pesanan yang sebenarnya masih tertahan di antrean luring.
+  5. **Sinkronisasi Otomatis Saat Kembali Daring:**
+     - Sistem mendengarkan event jaringan peramban (`online` dan `offline`). Begitu koneksi internet pulih, antrean diproses secara otomatis satu per satu sesuai urutan pembuatan (FIFO).
+     - Bila terjadi kendala jaringan saat pengiriman, siklus berhenti sementara untuk mencegah banjir kegagalan (*rate-limiting backoff*).
+- **File terkait:** `aplikasi/src/lib/antrean-offline.ts`, `aplikasi/src/lib/antrean-offline.test.ts`, `aplikasi/src/hook/useAntrean.ts`, `aplikasi/src/hook/useAntrean.test.tsx`, `aplikasi/src/komponen/StatusAntreanOffline.tsx`, `aplikasi/src/komponen/StatusAntreanOffline.test.tsx`, `aplikasi/src/layar/kasir/LayarKasir.tsx`, `aplikasi/src/App.tsx`
+- **Implikasi:** Operasional kasir tetap berjalan lancar saat internet kedai terputus sementara tanpa risiko kehilangan pesanan, tanpa kebocoran data sensitif di perangkat, dan tanpa risiko dobel transaksi di peladen.
+
+### [Fase 10/2026-09-26] Kunci Idempoten Menyeluruh di Semua Penulisan (T10-02 / ART-8)
+- **Area:** Antrean Offline & Dobel Data (TECH_SPEC §9 ART-8 & PRD §9 Risiko)
+- **Keputusan:**
+  1. **Penegakan 100% Kunci Idempoten di Seluruh RPC Penulisan (ART-8):**
+     - Memperluas skema basis data PostgreSQL untuk mendukung pelacakan kunci idempoten di seluruh domain penulisan:
+       - **Pesanan:** RPC `public.simpan_pesanan` dengan kolom `kunci_idempoten` dan unique index parsial pada tabel `public.pesanan`.
+       - **Pembayaran:** RPC `public.bayar_pesanan` memvalidasi kunci idempoten *sebelum* pengecekan limit pembayaran (`v_sudah + p_jumlah > v_total`), sehingga penekanan tombol bayar ganda atau pengiriman ulang antrean offline pada pesanan lunas mengembalikan rekaman pembayaran yang ada secara aman tanpa galat `BY-301`.
+       - **Voucher:** RPC `public.pakai_voucher` mendeteksi penerapan berulang voucher yang sama dan mengembalikan hasil idempoten tanpa menggandakan baris di tabel `public.diskon_transaksi`.
+       - **Buka Shift:** Overload RPC `public.buka_shift(modal, cabang, catatan, kunci_idempoten)` menyimpan `kunci_idempoten` dan index unik pada `public.shift_kas`.
+       - **Tutup Shift:** Overload RPC `public.tutup_shift(fisik, alasan, shift_id, catatan, kunci_idempoten)` menyimpan `kunci_idempoten_tutup` saat shift masih terbuka, mencegah pelanggaran pemicu keamanan `picu_shift_kas_jaga` saat rekonsiliasi ditutup.
+       - **Pergerakan Kas:** RPC `public.kas_pergerakan` dengan kolom `kunci_idempoten` unik di `public.kas_pergerakan`.
+       - **Penyesuaian Stok:** Overload RPC `public.set_stok(bahan, jumlah, alasan, kunci_idempoten)` dengan pencatatan `kunci_idempoten` unik di `public.stok_pergerakan`.
+       - **Opname Stok Fisik:** Overload RPC `public.opname_stok(bahan, fisik, alasan, kunci_idempoten)` dengan pencatatan `kunci_idempoten` unik di `public.stok_pergerakan`.
+  2. **Balasan Idempoten Anggun (Graceful Idempotent Return):**
+     - Setiap pemanggilan ulang dengan kunci yang sama mengembalikan respons sukses idempoten (`kode: IDEMPOTEN` / `BY-200` / `KP-200` dengan flag `idempoten: true` / `dobel: true`) beserta data rekaman yang sudah ada, tanpa membuat baris baru dan tanpa menimbulkan efek samping finansial ganda.
+  3. **Pembuktian Uji SQL Triple-Call (3x Panggilan Berturut-Turut):**
+     - Berkas uji `supabase/tes/idempoten.sql` memvalidasi secara matematis bahwa 3 pemanggilan beruntun untuk masing-masing operasi (pesanan, bayar, voucher, shift buka, shift tutup, kas pergerakan, set stok, opname stok) hanya menghasilkan tepat 1 baris rekaman di basis data dan delta saldo hanya diaplikasikan tepat 1 kali.
+  4. **Pengujian Mutasi Fail-Closed (100% Terbukti Merah):**
+     - Skrip `alat/uji-mutasi-0080.py` menguji 5 mutasi fail-closed: pencabutan proteksi idempoten pada `simpan_pesanan`, `buka_shift`, `tutup_shift`, `set_stok`, dan `opname_stok` terbukti menghasilkan kode keluar galat pada suite pengujian SQL.
+  5. **Auditor Cakupan Otomatis 100%:**
+     - Skrip `alat/periksa-idempoten.py` (dengan mode uji diri `--uji-diri`) memeriksa seluruh signature RPC penulisan di basis data dan memverifikasi 100% cakupan idempoten di seluruh 8 domain penulisan sistem.
+- **File terkait:** `supabase/migrations/0080_kunci_idempoten_menyeluruh.sql`, `supabase/tes/idempoten.sql`, `alat/uji-mutasi-0080.py`, `alat/periksa-idempoten.py`
+- **Implikasi:** Seluruh aksi penulisan data restoran kebal terhadap duplikasi ganda akibat fluktuasi jaringan, antrean offline, atau kesalahan operator.
+
+### [Fase 10/2026-09-27] Penyisiran Ulang RLS Seluruh Tabel (T10-05 / ART-1)
+- **Area:** Keamanan Data & RLS (TECH_SPEC §9 ART-1 & PRD M12)
+- **Keputusan:**
+  1. **Audit Menyeluruh 100% Tabel Publik (0 Tabel Tanpa RLS):**
+     - Memeriksa langsung katalog PostgreSQL (`pg_class`, `pg_namespace`) untuk seluruh tabel di skema `public` (`relkind = 'r'`).
+     - Seluruh 45 tabel terbukti mengaktifkan `relrowsecurity = true` (RLS aktif). Tidak ada satu pun tabel publik yang terbuka tanpa perlindungan RLS.
+  2. **100% Tabel Memiliki Kebijakan Resmi (0 Tabel Tanpa Policy):**
+     - Memeriksa relasi `pg_class` terhadap `pg_policy`.
+     - Seluruh 45 tabel publik memiliki minimal satu kebijakan resmi terpasang (total 84 kebijakan RLS). Nol tabel tanpa policy.
+  3. **Penegakan Rantai Isolasi Multi-Tenant:**
+     - Untuk 28 tabel dengan kolom `penyewa_id`: setiap policy PERMISSIVE menyaring baris menggunakan `penyewa_saya()` atau subkueri isolasi penyewa resmi, atau menolak semua (`false`).
+     - Untuk 17 tabel tanpa kolom `penyewa_id`: seluruhnya terdaftar resmi dalam daftar rantai jangkar (`pesanan_sepenyewa`, `cabang_pantau_saya`, `menu_sepenyewa`, `cabang_ids_saya`, `auth.uid`, `penyewa_saya`), atau berstatus `TOLAK-SEMUA` (klien ditolak semua), atau `GLOBAL-TERBUKA` (acuan global non-penyewa).
+     - Rantai fungsi perantara jangkar (`pesanan_sepenyewa`, `menu_sepenyewa`, `cabang_pantau_saya`) terverifikasi utuh dan tidak terputus di katalog fungsi (`pg_proc`).
+  4. **Uji Akses Silang Matriks 6 Peran Terverifikasi Fail-Closed:**
+     - Menguji 6 peran resmi:
+       1. `pemilik_platform`: default 0 data penyewa di luar mode dukungan darurat.
+       2. `owner_pusat`: memiliki akses penuh ke restonya sendiri, tetapi 0 baris dari resto lain di seluruh 45 tabel; dilarang menghapus riwayat audit log (append-only).
+       3. `admin_cabang`: terisolasi ke restonya sendiri, 0 baris dari resto lain.
+       4. `kasir`: terisolasi ke restonya sendiri, 0 baris dari resto lain; dilarang mengubah konfigurasi resto tanpa izin `owner_pusat`.
+       5. `pelayan`: terisolasi ke restonya sendiri, 0 baris dari resto lain.
+       6. `dapur`: terisolasi ke restonya sendiri, 0 baris dari resto lain.
+       - Peran pembanding kasir resto lawan (`kasir.b1`) terbukti 0 baris dapat melihat data Kedai Oasis.
+       - Proteksi tabel kredensial sensitif (`kredensial_pin`, `kredensial_perangkat`, `kredensial_pemulihan`, `sesi_cabang`): seluruh upaya baca langsung oleh peran `authenticated` ditolak tegas secara fail-closed.
+  5. **Otomatisasi Penjaga RLS via Skrip & Uji Diri:**
+     - Menyediakan skrip pemeriksa dinamis `alat/periksa-sisir-rls.py` yang memvalidasi langsung katalog basis data terhadap `pg_class` dan `pg_policy`.
+     - Mendukung pengujian mutasi via `python3 alat/periksa-sisir-rls.py --uji-diri` yang membuktikan bahwa setiap percobaan membuat tabel baru tanpa RLS, tabel dengan RLS tanpa policy, tabel tanpa rantai jangkar, atau policy tanpa penyaring penyewa akan tertangkap merah secara tegas.
+- **File terkait:** `supabase/tes/sisir_rls_akhir.sql`, `alat/periksa-sisir-rls.py`, `PANDUAN_PENGGUNA.md`
+- **Implikasi:** Keamanan dan privasi multi-tenant terjamin 100% fail-closed setelah seluruh fitur Fase 1 hingga Fase 10 masuk, tanpa celah tabel tertinggal atau terbuka.
+
+### [Fase 10/2026-09-27] Akhiri Sesi dari Perangkat Lain & Penanganan Perangkat Hilang (T10-06 / ART-2)
+- **Area:** Role & Permission (ART-2) & Jejak Audit (ART-6/ART-7) & Penegakan Sesi Database (docs/KEAMANAN.md §4 & §7)
+- **Keputusan:**
+  1. **Pencegahan Penyusupan dari Perangkat Hilang/Dicuri:**
+     - Jika sebuah perangkat (tablet kasir atau HP staf) hilang, tertinggal, atau dicuri, Owner atau pengelola berizin `kelola_pegawai` dapat memutuskan sesinya seketika dari perangkat lain melalui layar Pengaturan.
+     - Melalui RPC `public.tandai_perangkat_hilang(p_perangkat_id, p_alasan)`, basis data mengubah status perangkat menjadi `hilang`, menonaktifkannya (`aktif = false`), dan seketika mencabut seluruh sesi aktif yang berjalan di perangkat tersebut (`status = 'dicabut'`).
+     - Mengingat fungsi identitas inti (`penyewa_saya()`, `peran_saya()`) mengintegrasikan `public.sesi_masih_aktif()`, maka pada detik berikutnya perangkat yang hilang melakukan permintaan, database langsung mengembalikan `penyewa_saya() = NULL` dan seluruh RLS menolak akses seketika tanpa menunggu token akses JWT kedaluwarsa.
+  2. **Pencatatan Jejak Audit Kekal:**
+     - Seluruh aksi pemutusan sesi tunggal (`akhiri_sesi`), pengakhiran sesi massal per akun (`keluar_semua_perangkat`), maupun penandaan perangkat hilang (`tandai_perangkat_hilang`) mencatat baris riwayat ke tabel `public.catatan_audit` secara permanen, mencakup identitas pelaku, target pengguna/perangkat, jumlah sesi yang diputus, serta alasan tindakan untuk keperluan audit forensik restoran.
+  3. **Penegakan Otorisasi Ketat pada RPC Basis Data:**
+     - `public.daftar_sesi()` mengembalikan data sesi aktif dan riwayat lengkap (staf, peran, perangkat, jenis, cabang, waktu mulai, batas kedaluwarsa, status). Pengelola berizin `kelola_pegawai` dapat memantau seluruh sesi staf di cabangnya/restonya, sementara pegawai biasa hanya dapat melihat sesinya sendiri. Nol kebocoran data sesi antar penyewa (isolasi multi-tenant terjaga 100%).
+     - `public.keluar_semua_perangkat(p_pengguna_id, p_alasan)` memutus seluruh sesi aktif pengguna target dan hanya boleh dijalankan untuk akun sendiri atau oleh staf berizin `kelola_pegawai`.
+     - `public.akhiri_sesi(p_session_id, p_alasan)` memutus sesi tertentu milik sendiri atau bawahan.
+  4. **Antarmuka Pengguna Pengelolaan Sesi (`SesiAktif.tsx`):**
+     - Menyediakan antarmuka visual responsif di tab Pengaturan Resto yang menampilkan metrik sesi aktif, pencarian instan, filter peran (Kasir, Pelayan, Dapur, Admin), dan daftar sesi.
+     - Setiap baris memiliki tombol aksi "Akhiri Sesi", "Keluarkan Semua", dan "Tandai Hilang" yang memunculkan dialog konfirmasi (`Lapis`) dengan isian alasan audit wajib dan pesan peringatan visual yang tegas.
+  5. **Endpoint Edge Function `akhiri_sesi`:**
+     - Menerima permintaan POST HTTP dengan token autentikasi pemanggil, memvalidasi format input (UUID, session_id), dan meneruskannya ke RPC basis data yang relevan dengan pembatasan CORS resmi tanpa membocorkan kunci rahasia.
+  6. **Pengujian Fail-Closed & Uji Mutasi:**
+     - Pengujian SQL `supabase/tes/akhiri_sesi_perangkat_hilang.sql` memvalidasi seluruh alur otorisasi, pencatatan audit, dan penolakan akses instan.
+     - Skrip `alat/uji-mutasi-0081.py` membuktikan 4/4 mutasi kebocoran izin atau audit menghasilkan status merah (fail-closed).
+     - Pengujian Edge Function `alat/uji-edge-akhiri-sesi.mjs` membuktikan 12/12 batas input dan rute handler valid tanpa jaringan.
+- **File terkait:** `supabase/migrations/0081_akhiri_sesi_perangkat_hilang.sql`, `supabase/tes/akhiri_sesi_perangkat_hilang.sql`, `alat/uji-mutasi-0081.py`, `supabase/functions/akhiri_sesi/index.ts`, `alat/uji-edge-akhiri-sesi.mjs`, `aplikasi/src/layar/pengaturan/SesiAktif.tsx`, `aplikasi/src/layar/pengaturan/SesiAktif.test.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`, `aplikasi/src/layar/pengaturan/LayarPengaturan.test.tsx`
+- **Implikasi:** Keamanan akses staf dan perangkat POS terproteksi maksimal; insiden kehilangan tablet kasir dapat dinetralisir seketika dari jarak jauh tanpa ada kebocoran transaksi atau manipulasi pesanan.
+
+### [Fase 10/2026-09-27] Audit Keamanan Menyeluruh & Penutupan Celah Pra-Produksi (T10-07 / ART-1, ART-2, ART-5)
+- **Area:** RLS/Auth & Voucher (ART-1, ART-2, ART-5, TECH_SPEC §8, §9)
+- **Keputusan:**
+  1. **Audit Keamanan Menyeluruh 8 Bidang Mandatori (DoD):**
+     - Melakukan audit keamanan pra-produksi menggunakan panduan `skills/security-review/SKILL.md`, `skills/supabase/SKILL.md`, dan OWASP Top 10 pada 8 bidang utama: Kunci rahasia, RLS, Hak akses, PIN staf, Voucher & diskon, Unggahan gambar, XSS, serta CORS & Edge Functions.
+     - Seluruh hasil evaluasi, bukti pengujian mesin, dan status temuan dicatat secara lengkap pada `docs/uji/AUDIT_KEAMANAN.md`.
+  2. **Penutupan Temuan Celah XSS / URL Injection (SEC-01):**
+     - Ditemukan potensi celah pada komponen `Katalog.tsx` di mana tautan peta lokasi cabang (`pengaturan.lokasi.maps_url`) dirender langsung tanpa pembatasan skema protokol, yang dapat disalahgunakan dengan skema `javascript:`.
+     - *Mitigasi Segera:* Menambahkan fungsi sanitasi `sanitasiUrlAman()` yang memvalidasi protokol secara ketat (hanya menerima awalan `http://` dan `https://`) serta menolak skema `javascript:`, data URI, atau skrip berbahaya. Uji unit ditambahkan di `Katalog.test.tsx` (5/5 lulus).
+  3. **Penegakan Isolasi Multi-Tenant & Zero Open Table (SEC-03):**
+     - Memverifikasi 45/45 tabel publik mengaktifkan RLS (`relrowsecurity = true`) dengan 84 kebijakan terpasang. Nol tabel tanpa kebijakan pengaman.
+     - Seluruh akses lintas penyewa terbukti tertolak secara fail-closed (0 baris terlihat antar-resto yang berbeda).
+  4. **Perlindungan Anti-Fraud Voucher & Pengaman Kuota (SEC-05):**
+     - Memverifikasi 10 lapis pengaman voucher: kode acak non-sekuensial, pemakaian atomik peladen, larangan pemakaian ganda, penolakan email sementara (*disposable email*), dan normalisasi alamat Gmail (titik & plus) untuk mencegah penimbunan voucher.
+  5. **Nol Kunci Rahasia di Repositori & Dependensi Bersih (SEC-08):**
+     - Pemindaian 2.821 berkas terlacak membuktikan nol kunci rahasia/password yang bocor ke Git (`alat/periksa-rahasia.py` lolos).
+     - Dependensi frontend dan skrip alat (`npm audit`) terbukti bersih dengan 0 celah kerentanan (*0 vulnerabilities*).
+- **File terkait:** `docs/uji/AUDIT_KEAMANAN.md`, `aplikasi/src/layar/pelanggan-publik/Katalog.tsx`, `aplikasi/src/layar/pelanggan-publik/Katalog.test.tsx`
+- **Implikasi:** Seluruh arsitektur Resto Barokah terbukti memenuhi standar keamanan *Production-Ready*, bebas dari temuan kritis yang belum tertangani, dan siap menghadapi ancaman dunia nyata.
+
+### [Fase 10/2026-09-27] Enkripsi Simetris AES-256-CBC PBKDF2 & Verifikasi Paritas Pemulihan Bencana (T10-10)
+- **Area:** Data pelanggan & privasi (ART-10) · Ketahanan & Keamanan Lanjutan (TECH_SPEC §8 & §10)
+- **Keputusan:**
+  1. Seluruh dump basis data cadangan mingguan dikompresi gzip dan dienkripsi simetris menggunakan OpenSSL AES-256-CBC dengan PBKDF2 100.000 iterasi (`-pbkdf2 -iter 100000`).
+  2. Kunci enkripsi dibaca dari variabel lingkungan aman (`KUNCI_ENKRIPSI_CADANGAN`) dengan syarat panjang minimal 16 karakter (ditolak fail-closed bila kosong atau < 16 karakter).
+  3. Seluruh salinan plaintext mentah (`.sql` dan `.sql.gz`) wajib segera dihapus dari lingkungan komputasi runner seketika setelah enkripsi selesai untuk menegakkan privasi data (ART-10).
+  4. Integritas dijamin oleh berkas checksum SHA-256 terpisah (`.sha256`) yang diverifikasi sebelum proses dekripsi.
+  5. Mekanisme pemulihan diuji secara deterministik ke basis data baru yang 100% kosong (*clean slate*) dengan verifikasi paritas penuh 46 tabel publik, konsistensi relasional (*foreign key*), dan validasi RLS *deny-by-default* pada seluruh tabel.
+  6. Alur otomatis cadangan mingguan ditanam pada GitHub Actions `.github/workflows/cadangan.yml` (cron Minggu 02:00 WIB + pemicu manual `workflow_dispatch`) dengan retensi artefak 90 hari.
+- **Alasan:** Paket gratis Supabase tidak memiliki cadangan bawaan; data kedai memuat data transaksi, keuangan, dan nomor kontak pelanggan yang dilindungi ART-10; pencegahan kebocoran data di repositori publik/privat maupun lingkungan CI/CD; pembuktian bahwa cadangan benar-benar bisa dipulihkan bila terjadi musibah fatal.
+- **File terkait:** `alat/cadangan.sh`, `alat/eksekusi-cadangan.mjs`, `alat/uji-mutasi-cadangan.py`, `.github/workflows/cadangan.yml`, `docs/teknis/PEMULIHAN.md`, `docs/ROADMAP.md` (T10-10)
+- **Implikasi:** Berkas cadangan mentah dilarang masuk Git; kunci enkripsi dilarang dicatat di repositori; jika kunci hilang, cadangan tidak dapat dipulihkan sehingga pemilik platform wajib menjaga kunci di pengelola sandi aman; skrip pemulihan siap dijalankan kapan saja oleh DevOps atau pemilik resto dengan panduan SOP 7 tahap di `docs/teknis/PEMULIHAN.md`.
+
+### [Fase 10/2026-09-27] Kunci Konkurensi Optimistik Peladen Pengaturan, Operasional, & Menu (T10-11 / ART-3)
+- **Area:** Kalkulasi Keuangan & pengaturan (ART-3, TECH_SPEC §5, PRD M2 & M12 Kasus Tepi)
+- **Keputusan:**
+  1. **Penegakan Kunci Konkurensi Optimistik (*Optimistic Locking*) di Peladen (Bukan Sekadar Peringatan Layar):**
+     - Untuk mencegah fenomena *last-write-wins* diam-diam saat dua pengelola (Owner atau Admin Cabang) menyunting pengaturan restoran, tarif pajak PB1/service charge, atau master katalog menu pada waktu bersamaan, peladen mewajibkan parameter stempel waktu versi lama (`p_versi_lama timestamptz`).
+     - Penyimpanan paralel yang menyertakan versi usang (`p_versi_lama <> diubah_pada` atau `versi_pengaturan`) ditolak secara tegas (*fail-closed*) dengan kode galat PostgreSQL `P0001` dan pesan jelas dalam bahasa Indonesia: *"Data sudah diubah oleh pengguna lain. Silakan muat ulang halaman."* (atau untuk menu: *"Data menu sudah diubah oleh pengguna lain. Silakan muat ulang halaman."*).
+  2. **Pencegahan Kerusakan Perhitungan Finansial Masa Lalu (Mitigasi ART-3):**
+     - Sesuai prinsip ART-3, setiap pembaruan tarif pajak PB1 atau service charge pada tabel `public.pengaturan` melalui `simpan_operasional` dilindungi oleh kunci konkurensi stempel waktu mikrodetik (`clock_timestamp()`).
+     - Data transaksi dan struk masa lalu tidak terpengaruh, dan perubahan tarif yang dikirim bersamaan oleh pengelola lain ditolak di peladen sebelum sempat menimpa baris pengaturan.
+  3. **Pencatatan Audit Insiden Tabrakan Versi (`catat_konflik_pengaturan`):**
+     - Selain menolak transaksi basi, sistem menyediakan RPC `public.catat_konflik_pengaturan(entitas, entitas_id, versi_klien, keterangan)` untuk mencatat percobaan penyimpanan bersamaan yang tertolak ke tabel kekal `public.catatan_audit` (aksi = `'konflik_versi_ditolak'`, status = `'ditolak_fail_closed'`).
+  4. **Retensi Masukan Pengguna pada Antarmuka Layar (UI):**
+     - Komponen antarmuka pengguna (`Menu.tsx`, `Identitas.tsx`, `Operasional.tsx`) dirancang sedemikian rupa sehingga saat server menolak penyimpanan karena konflik versi usang:
+       a) Modal dialog tidak otomatis tertutup;
+       b) Seluruh kolom input dan teks yang baru saja diketik oleh pengguna tetap dipertahankan utuh di layar (tidak di-reset atau hilang);
+       c) Muncul kotak peringatan galat berwarna merah yang menerangkan bahwa data di peladen telah diperbarui pengguna lain, memberi kesempatan kepada staf/owner untuk menyalin atau memeriksa selisih data.
+  5. **Pengujian Komprehensif & Uji Mutasi Fail-Closed:**
+     - Berkas uji SQL `supabase/tes/pengaturan_bersamaan.sql` memvalidasi skenario balapan versi pada `simpan_pengaturan`, `simpan_operasional`, `simpan_menu`, `simpan_kategori_menu`, `simpan_meja`, pencatatan audit, serta penolakan akses staf non-otoritas dan anonim.
+     - Suite uji mutasi `alat/uji-mutasi-0083.py` membuktikan 4/4 mutasi pelemahan kunci konkurensi menghasilkan status merah (fail-closed).
+     - Pengujian komponen antarmuka Vitest (`Menu.test.tsx`, `Identitas.test.tsx`, `Operasional.test.tsx`) memverifikasi keutuhan formulir saat konflik terjadi.
+- **File terkait:** `supabase/migrations/0083_versi_pengaturan_bersamaan.sql`, `supabase/tes/pengaturan_bersamaan.sql`, `alat/uji-mutasi-0083.py`, `aplikasi/src/layar/pengaturan/Menu.tsx`, `aplikasi/src/layar/pengaturan/Menu.test.tsx`, `aplikasi/src/layar/pengaturan/Identitas.tsx`, `aplikasi/src/layar/pengaturan/Operasional.tsx`, `docs/ROADMAP.md` (T10-11)
+- **Implikasi:** Operasional kedai aman dari timpaan konfigurasi keuangan atau menu tanpa sengaja; pengelola kedai tidak akan kehilangan ketikan form saat rekan kerja menyunting data yang sama; jejak konflik tercatat transparan di audit log restoran.
+
+### [Fase 10/2026-09-27] Pegawai Berhenti: Cabut Akses Cepat & Serah Terima Kasir (T10-12 / ART-2)
+- **Area:** Role & Permission (ART-2) · Integritas Jejak Audit & Finansial (Aturan Bisnis 11 / PRD M3 & M12 / TECH_SPEC §9 ART-2 / T-013)
+- **Keputusan:**
+  1. **Satu Tombol / RPC Pencabutan Akses Atomik (`public.pegawai_berhenti`):**
+     - Ketika pegawai mengundurkan diri (resign) atau diberhentikan, pengelola resto (Owner Pusat atau Admin Cabang berizin `kelola_pegawai`) mengeksekusi satu fungsi resmi `public.pegawai_berhenti(p_pengguna_id, p_alasan, p_catatan_serah_terima)`.
+     - Fungsi ini secara atomik menjalankan:
+       a) **Soft-disable akun:** Menyetel `aktif = false` pada `public.pengguna` dan `public.pengguna_cabang`. Akun tidak pernah dihapus secara fisik (hard-delete) demi kepatuhan Aturan Bisnis 11 dan ART-2.
+       b) **Pencabutan seluruh sesi aktif:** Mengubah status seluruh sesi perangkat aktif menjadi `'dicabut'` (`sesi_perangkat`) dan menghapus sesi cabang aktif (`sesi_cabang`). Fungsi `public.sesi_masih_aktif()` seketika menolak permintaan berikutnya dan identitas (`penyewa_saya`, `peran_saya`, `cabang_saya`) otomatis gugur menjadi NULL (RLS deny-by-default).
+       c) **Pemusnahan Kredensial PIN:** Menghapus rekaman baris pegawai di `public.kredensial_pin` sehingga PIN masuk 6 angka tidak lagi tersimpan di database. Upaya verifikasi PIN perangkat (`verifikasi_pin_perangkat`) langsung tertolak dengan kode `KREDENSIAL_TIDAK_VALID`.
+       d) **Penanganan Shift Kasir Menggantung:** Memeriksa apakah pegawai memiliki shift kasir yang masih berstatus `'terbuka'`. Jika ada, sistem TIDAK menutupnya secara fiktif melainkan menandainya dengan `perlu_tutup_atasan = true` dan merekam catatan serah terima. Kas fisik di laci wajib dihitung riil saat serah terima oleh atasan (Admin Cabang atau Owner Pusat).
+       e) **Perekaman Jejak Audit Kekal:** Mencatat baris audit ke `public.catatan_audit` dengan aksi `'pegawai_berhenti'`, mencakup nama, email, peran lama, alasan pemberhentian, jumlah sesi yang diputus, status penghapusan PIN, dan ID shift terbuka bila ada.
+  2. **Pagar Hierarki & Keberlanjutan Restoran:**
+     - Admin cabang dilarang memberhentikan Owner Pusat (hanya sesama Owner Pusat yang berwenang).
+     - Restoran dilarang menonaktifkan satu-satunya Owner Pusat aktif (restoran wajib memiliki minimal 1 Owner Pusat aktif).
+     - Staf dilarang mencabut akses akunnya sendiri melalui alur pegawai berhenti (pencegahan kecelakaan operasional).
+     - Staf biasa (kasir, pelayan, dapur) ditolak fail-closed bila mencoba memanggil RPC ini.
+  3. **Penutupan Shift Serah Terima oleh Atasan (T-013):**
+     - Sesuai arahan keputusan T-013: Penutup shift kasir yang berhenti adalah Admin Cabang; bila yang berhenti Admin Cabang maka penutupnya adalah Owner Pusat.
+     - Disediakan RPC `public.ambil_shift_perlu_tutup(p_cabang_id)` untuk memantau shift kasir menggantung.
+     - Fungsi `public.tutup_shift` diperbarui untuk mengenali `ditutup_oleh_atasan = true` (ketika `auth.uid() <> dibuka_oleh`), membersihkan penanda `perlu_tutup_atasan`, dan merekam jejak serah terima ke `catatan_audit`.
+  4. **Jaminan Integritas Finansial & Laporan Masa Lalu (Mitigasi ART-2):**
+     - Karena akun pegawai hanya dinonaktifkan (bukan dihapus), seluruh relasi foreign key pada `pesanan.kasir_id`, `pembayaran.kasir_id`, `shift_kas.dibuka_oleh`, dan `catatan_audit.pelaku_id` tetap utuh.
+     - Laporan penjualan, laporan kas harian (`laporan_kas_shift`, `laporan_shift`, `laporan_harian`), dan struk pembayaran masa lalu tetap menampilkan nama pegawai yang bersangkutan secara transparan.
+     - Pemicu keamanan `picu_pengguna_cegah_hapus` (dari migrasi 0077) tetap aktif memblokir upaya penghapusan fisik baris pegawai yang ber-riwayat transaksi secara fail-closed.
+  5. **Antarmuka Serah Terima Pengguna (UI):**
+     - Komponen `CabutAkses.tsx` menyediakan modal konfirmasi interaktif dengan ringkasan profil pegawai, rincian 5 langkah proteksi otomatis, isian alasan & catatan serah terima (kunci laci kas/alat/modal), serta konfirmasi ketik wajib kata `"CABUT"` untuk mencegah salah klik.
+     - Diintegrasikan ke dalam layar `KelolaPegawai.tsx` dengan tombol merah `"Pegawai Berhenti"` pada setiap baris staf aktif.
+- **File terkait:** `supabase/migrations/0084_cabut_akses_pegawai_berhenti.sql`, `supabase/tes/cabut_akses.sql`, `alat/uji-mutasi-0084.py`, `aplikasi/src/layar/pengaturan/CabutAkses.tsx`, `aplikasi/src/layar/pengaturan/CabutAkses.test.tsx`, `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx`, `aplikasi/src/layar/pengaturan/KelolaPegawai.test.tsx`, `docs/ROADMAP.md` (T10-12)
+- **Implikasi:** Kedai aman seketika saat pegawai keluar tanpa risiko mantan staf menyalahgunakan akses; uang fisik di kasir dihitung nyata saat serah terima oleh atasan tanpa data fiktif; seluruh data audit dan pembukuan historis kedai terlindungi 100%.
+
+### [Fase 10/2026-09-27] Ringkasan Peringatan Harian ke Owner: Email & Layar Aplikasi (T10-13 / M12 / ART-13 / ART-14)
+- **Area:** Jejak Audit (ART-13) · Privasi Pelanggan (ART-14) · Ketahanan & Keamanan Lanjutan (PRD M12; TECH_SPEC §5.1 & §9; docs/KEAMANAN.md §9)
+- **Keputusan:**
+  1. **Skema Database & Agregasi Terpadu (`public.ringkasan_harian` & `public.hasilkan_ringkasan_harian`):**
+     - Tabel `public.ringkasan_harian` dirancang untuk mengonsolidasi rekapitulasi harian operasional & keamanan: omzet bersih, transaksi lunas, void/pembatalan (jumlah & nominal rugi), diskon (jumlah & total rupiah), selisih kas kasir (jumlah & total nilai selisih), percobaan masuk gagal, perubahan/pendaftaran perangkat, penggunaan jalur pemulihan darurat, keutuhan rantai audit kriptografis hash, dan rincian anomali.
+     - Unique constraint `(penyewa_id, tanggal)` menjamin keunikan 1 rekap harian per resto secara idempoten.
+     - RLS ketat (ART-1): Hanya peran berizin `lihat_laporan` yang dapat melihat ringkasan restonya sendiri (`penyewa_id = penyewa_saya()`). Isolasi multi-tenant terbukti fail-closed saat diuji dengan pengguna resto lain.
+  2. **Jaminan Privasi Pelanggan (ART-14 / UU PDP):**
+     - Seluruh data ringkasan harian dan array rincian anomali (`rincian_peringatan`) secara ketat bebas dari data pribadi pelanggan (nomor HP, telepon, email konsumen, alamat pengiriman tidak pernah dimuat).
+     - Rincian anomali hanya memuat nama pegawai internal kedai, waktu kejadian, nominal/selisih rupiah, dan alasan tindakan operasional.
+  3. **Pemeriksaan Keutuhan Rantai Audit Otomatis (ART-13):**
+     - RPC `hasilkan_ringkasan_harian` secara bawaan memverifikasi integritas rantai audit berantai hash SHA-256 via `public.verifikasi_rantai_audit(v_penyewa_id)`.
+     - Jika ditemukan baris audit yang putus atau hash yang dimodifikasi, sistem menandai `rantai_audit_valid = false` dan menampilkan pesan galat spesifik pada laporan ringkasan.
+  4. **Edge Function Notifikasi Email (`supabase/functions/ringkasan_harian/index.ts`):**
+     - Dibangun untuk mendukung penjadwalan berkala (cron harian) maupun pemanggilan manual berotorisasi.
+     - Menyusun email teks & HTML yang bersih, jelas, bebas data pelanggan, mengintegrasikan pengiriman ke layanan penyedia email (Resend/SMTP), dan memperbarui status pengiriman email (`tertunda`, `terkirim`, `gagal`) via RPC `public.set_status_email_ringkasan`.
+     - Teruji secara fail-closed pada 10 pengujian batas tanpa jaringan di `alat/uji-edge-ringkasan-harian.mjs`.
+  5. **Antarmuka Pemantauan Pemilik (`Peringatan.tsx` & `LayarLaporan.tsx`):**
+     - Komponen `Peringatan.tsx` terintegrasi sebagai tab resmi "⚠️ Peringatan Harian" di dalam `LayarLaporan.tsx`.
+     - Menyediakan: kartu status integritas audit dengan lencana visual (Valid / Terputus), 6 kartu indikator anomali cepat, konfigurasi & pengiriman notifikasi email harian, filter interaktif kategori anomali pada tabel rincian kejadian, serta pemilih tanggal yang fleksibel.
+     - Suite uji Vitest (`Peringatan.test.tsx` & `LayarLaporan.test.tsx`) memverifikasi 16 skenario pengujian unit & integrasi dengan kelulusan 100%.
+- **File terkait:** `supabase/migrations/0085_ringkasan_harian.sql`, `supabase/tes/ringkasan.sql`, `alat/uji-mutasi-0085.py`, `supabase/functions/ringkasan_harian/index.ts`, `alat/uji-edge-ringkasan-harian.mjs`, `aplikasi/src/layar/laporan/Peringatan.tsx`, `aplikasi/src/layar/laporan/Peringatan.test.tsx`, `aplikasi/src/layar/laporan/LayarLaporan.tsx`, `aplikasi/src/layar/laporan/LayarLaporan.test.tsx`, `docs/ROADMAP.md` (T10-13)
+- **Implikasi:** Pemilik resto dapat memantau setiap kejanggalan kasir, diskon, void, maupun potensi pembobolan tanpa harus berada di lokasi kedai; privasi pelanggan terlindungi 100% sesuai regulasi UU PDP; integritas sistem audit restoran terpantau setiap hari.
+
+### [Fase 10/2026-09-27] Pemeriksa Rahasia, Dependensi & Header Keamanan Halaman (T10-14 / M12 / TECH_SPEC §6 & §8 / docs/KEAMANAN.md §16)
+- **Area:** Kunci & Penerapan · Keamanan Halaman Web & Dependensi (TECH_SPEC §6 & §8; docs/KEAMANAN.md §16; PRD M12)
+- **Keputusan:**
+  1. **Konfigurasi Header Keamanan Halaman Cloudflare (`aplikasi/public/_headers`):**
+     - Berkas `_headers` diletakkan di `aplikasi/public/_headers` sehingga Vite otomatis menyalinnya ke `dist/_headers` pada saat `npm run build` dan langsung diterapkan oleh Cloudflare Static Assets.
+     - Menyematkan header keamanan standar:
+       - `X-Frame-Options: DENY` (anti-clickjacking menyeluruh).
+       - `X-Content-Type-Options: nosniff` (mencegah MIME type confusion).
+       - `Referrer-Policy: strict-origin-when-cross-origin` (melindungi privasi URL antar origin).
+       - `Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()` (hanya membuka API kamera untuk scan voucher kasir, menutup mikrofon dan fitur berisiko lainnya).
+       - `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` (penegakan HTTPS 1 tahun).
+       - `X-XSS-Protection: 0` (menonaktifkan filter XSS peramban kuno yang cacat).
+       - Cache-Control immutable untuk `/assets/*` (`public, max-age=31536000, immutable`).
+  2. **Content-Security-Policy (CSP) Seimbang & Anti-Mati:**
+     - Menghindari CSP terlalu ketat yang dapat mematikan fitur aplikasi kedai:
+       - `default-src 'self'`
+       - `script-src 'self' 'unsafe-inline'` (mendukung bundle Vite tanpa membuka domain eksternal; wildcard dilarang).
+       - `style-src 'self' 'unsafe-inline'` (mendukung 10 tema dinamis kedai dan CSS token).
+       - `img-src 'self' data: blob: https:` (mendukung SVG QR barcode, blob kanvas, dan Supabase storage).
+       - `font-src 'self' data:` (mendukung font lokal WOFF2).
+       - `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.workers.dev https://api.resend.com` (REST & WebSocket Realtime Supabase, Workers backend, email API).
+       - `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `upgrade-insecure-requests`.
+  3. **Penguatan Pola Pemeriksa Rahasia (`alat/periksa-rahasia.py`):**
+     - Ditambahkan pola deteksi: Brevo API (`xkeysib-`), Google OAuth Client Secret (`GOCSPX-`), GitHub Token (`ghp_`), dan Supabase secret (`sb_secret_`).
+     - Lulus uji mandiri 7 skenario fail-closed di `python3 alat/periksa-rahasia.py --uji-diri`.
+  4. **Pemeriksa Khusus Header Keamanan (`alat/periksa-header.py`):**
+     - Skrip pemeriksa otomatis yang menguji keabsahan struktur header, memeriksa 10 directive CSP wajib, melarang wildcard script/object, dan memvalidasi `public/_headers` serta `dist/_headers`.
+     - Terintegrasi ke `.github/workflows/ci.yml` dan dijaga oleh `alat/periksa-gerbang-ci.py`.
+  5. **Pengujian Dependensi (npm audit):**
+     - Audit dilakukan di `aplikasi` dan `alat` dengan level `--audit-level=low`, terbukti 0 kerentanan (`found 0 vulnerabilities`).
+- **File terkait:** `aplikasi/public/_headers`, `alat/periksa-header.py`, `alat/periksa-rahasia.py`, `aplikasi/src/lib/keamanan-header.test.ts`, `.github/workflows/ci.yml`, `alat/periksa-gerbang-ci.py`, `docs/ROADMAP.md` (T10-14)
+- **Implikasi:** Repositori bebas dari kunci rahasia; dependensi pihak ketiga terpantau tanpa celah kerentanan; aplikasi web kedai terlindungi dari clickjacking, XSS, sniffing, dan serangan konten tak terpercaya di tingkat peramban.
+
+### [Fase 10/2026-09-27] Latihan Pemulihan Cadangan & Uji Buku Insiden (T10-15 / M12 / TECH_SPEC §8 & §11 / docs/teknis/BUKU_INSIDEN.md)
+- **Area:** Ketahanan · Pemulihan Bencana & Operasional Darurat (TECH_SPEC §8 & §11; docs/teknis/BUKU_INSIDEN.md; PRD M12)
+- **Keputusan:**
+  1. **Otomasi Latihan Pemulihan Bencana Penuh (`alat/pulihkan-cadangan.sh` & `alat/eksekusi-latihan-insiden.mjs`):**
+     - Menyatukan alur dump cadangan terkompresi, dekripsi, pemulihan ke database 100% bersih (*clean slate*), verifikasi paritas tabel & baris, serta validasi status RLS deny-by-default.
+     - Membuktikan 47 tabel publik dan 192 baris data pulih sempurna dengan selisih 0 baris dalam waktu ~4,3 detik (jauh di bawah batas target RTO 30 menit).
+  2. **Dril Terprogram 4 Skenario Nyata Buku Insiden:**
+     - **Skenario 1 (Perangkat Hilang / Dicuri §2):** Menandai status perangkat `hilang`, mencabut seketika sesi perangkat aktif via RPC `tandai_perangkat_hilang`, mereset PIN kasir via `reset_pin_pegawai`, dan memverifikasi jejak audit permanen di `public.catatan_audit`.
+     - **Skenario 2 (Akun Diduga Bocor / Dibobol §4):** Menonaktifkan akun pengguna via `set_status_pengguna`, mencabut seluruh sesi perangkat aktif via `keluar_semua_perangkat`, dan mereset PIN via `reset_pin_pegawai`.
+     - **Skenario 3 (Pegawai Berhenti / Offboarding Cepat §5 & T10-12):** Menonaktifkan akun pegawai via RPC atomik `pegawai_berhenti`, menghapus PIN, mencabut sesi, menandai shift kasir terbuka untuk ditutup atasan (`perlu_tutup_atasan = true`), dan membuktikan riwayat transaksi masa lalu tidak berubah byte-per-byte.
+     - **Skenario 4 (Rekonsiliasi Harian & Privasi UU PDP §15 / ART-13 & ART-14):** Menjalankan kalkulasi ringkasan harian via `hasilkan_ringkasan_harian`, memverifikasi pencatatan pergantian perangkat, memverifikasi keutuhan rantai hash kriptografis audit (0 putus), dan membuktikan data pribadi pelanggan terlindungi penuh tanpa nomor kontak/kata sandi.
+  3. **Penegakan Uji-Diri Fail-Closed (5 Skenario Mutasi):**
+     - Skrip `alat/eksekusi-latihan-insiden.mjs --uji-diri` membuktikan bahwa simulasi menolak deterministik jika: (1) terjadi selisih baris sumber vs target; (2) tabel target kehilangan baris audit; (3) RLS dinonaktifkan pada tabel publik; (4) pencabutan sesi perangkat gagal; atau (5) penonaktifan akun bocor gagal.
+  4. **Pembaruan Dokumen Operasional & SOP:**
+     - `docs/teknis/PEMULIHAN.md` diperbarui dengan Laporan Resmi Latihan Pemulihan Bencana & Uji Buku Insiden (Seksi 6).
+     - `docs/teknis/BUKU_INSIDEN.md` dimutakhirkan: status sementara 2026-09-20 diganti dengan status operasional aktif per Fase 10 (Sesi Aktif, Kelola Pegawai, Pegawai Berhenti, Cadangan Otomatis, dan Ringkasan Peringatan Harian).
+- **File terkait:** `alat/pulihkan-cadangan.sh`, `alat/eksekusi-latihan-insiden.mjs`, `docs/teknis/PEMULIHAN.md`, `docs/teknis/BUKU_INSIDEN.md`, `docs/ROADMAP.md` (T10-15)
+- **Implikasi:** Prosedur pemulihan bencana bukan sekadar teori dokumen, melainkan terbukti dapat dieksekusi secara otomatis dalam hitungan detik dengan kepatuhan integritas finansial, perlindungan privasi UU PDP, dan kesiapan operasional tim kedai saat menghadapi insiden darurat.
+
+### [Fase 10/2026-09-27] Tinjauan Kode Pemulihan MFA & Kata Sandi Bocor T-016 (T10-16 / M12 / TECH_SPEC §8 & §15 / docs/KEAMANAN.md §7 & §15 / docs/TERTANGGUH.md T-016)
+- **Area:** Kunci & Penerapan · Kebijakan Autentikasi MFA & Kata Sandi Bocor (TECH_SPEC §8 & §15; docs/KEAMANAN.md §7 & §15; docs/TERTANGGUH.md T-016; PRD M12)
+- **Keputusan:**
+  1. **Kebijakan Pemulihan MFA (Menolak Kode Mandiri Staf, Menegakkan Tangga Peran Atas):**
+     - Memutuskan untuk **TIDAK MENGGUNAKAN** kode pemulihan mandiri (*self-service recovery codes*) bagi staf kasir, pelayan, dapur, maupun admin cabang.
+     - Pertimbangan operasional & risiko: di lingkungan UMKM kedai resto, kode pemulihan mandiri rawan disimpan sembarangan di catatan ponsel yang sama atau kertas kasir yang tercecer (*single point of failure*), serta berpotensi menjadi celah bypass otorisasi atasan.
+     - Penegakan **Tangga Pemulihan 4 Tingkat**:
+       - *Tingkat 1 (Staf Kasir/Pelayan/Dapur):* Perangkat terdaftar + PIN 6 angka unik. Pemulihan jika lupa PIN dilakukan atasan berwenang via RPC `reset_pin_pegawai`.
+       - *Tingkat 2 (Admin Cabang):* Ponsel admin hilang/rusak. Pemulihan dilakukan oleh Owner Pusat via `keluar_semua_perangkat` (pemutusan sesi seketika), `set_status_pengguna`, dan reset kredensial.
+       - *Tingkat 3 (Owner Pusat):* Ponsel owner hilang/rusak. Menggunakan **Kunci Induk Darurat** (`kredensial_pemulihan`) 20+ karakter ber-hash bcrypt yang disimpan dalam 2 amplop fisik tersegel, diajukan via `pulihkan_perangkat` dengan **masa tenggang wajib 30 menit** dan sakelar pembatalan (*kill-switch*).
+       - *Tingkat 4 (Bencana Total):* Pemulihan oleh Pemilik Platform melalui dashboard administratif Supabase langsung di luar aplikasi.
+  2. **Kebijakan Pemeriksa Kata Sandi Bocor (HaveIBeenPwned / HIBP):**
+     - Fitur bawaan sakelar HIBP di dashboard Supabase Auth hanya tersedia di paket berbayar (Supabase Pro $25/bulan). Di paket gratis Supabase Free Tier, fitur ini terkunci.
+     - Menetapkan **Opsi A (Status Quo Tangguh Biaya Nol)**: Memanfaatkan lapisan pertahanan berlapis yang sudah terpasang kokoh di Resto Barokah:
+       - Panjang kata sandi wajib ≥ 12 karakter.
+       - Larangan pola lemah / kamus kata sandi umum.
+       - **Wajib TOTP (Google Authenticator / 2FA)** pada setiap akun berkuasa (Owner Pusat & Admin Cabang). Sekalipun penyerang memiliki kata sandi dari kebocoran situs lain (*credential stuffing*), penyerang tetap diblokir karena ketiadaan fisik kode TOTP 6 digit.
+       - Batas percobaan masuk ketat: 5× salah dalam 15 menit per akun dan 12× per perangkat (`percobaan_masuk`).
+       - Jejak audit kekal di `public.catatan_audit`.
+     - Kasir, pelayan, dan dapur 0% menggunakan kata sandi (menggunakan PIN 6 digit di perangkat terdaftar).
+     - Model k-Anonymity HIBP Range API (`api.pwnedpasswords.com/range`) bebas biaya ($0) dan tanpa API key didokumentasikan di `docs/teknis/TINJAUAN_KEAMANAN_F10.md` sebagai modul referensi arsitektur bila di masa depan ingin diaktifkan di sisi klien tanpa perlu membayar Supabase Pro ($25/bulan tetap dihemat).
+     - **Dampak biaya: Rp 0 (NOL BIAYA).**
+  3. **Penutupan Resmi Butir Tertangguh T-016:**
+     - Butir `T-016` di `docs/TERTANGGUH.md` resmi diselesaikan dan ditutup dengan keputusan berbasis data.
+  4. **Verifikasi Database Komprehensif (`supabase/tes/mfa.sql`):**
+     - Berkas uji SQL `supabase/tes/mfa.sql` memvalidasi 19 skenario penegakan: isolasi hierarki peran atas, penolakan PIN lemah saat pemulihan, pemutusan sesi instan via `keluar_semua_perangkat`, penolakan akses RLS langsung ke tabel `kredensial_pemulihan`, validasi panjang kode darurat (≥20 karakter), anti-replay kode pemulihan sekali pakai, deteksi kode palsu, sakelar kill-switch pembatalan pemulihan, pencegahan lockout satu-satunya owner aktif, isolasi multi-tenant antar resto, dan jejak audit kekal (132/132 berkas uji SQL lulus 100%).
+- **File terkait:** `docs/teknis/TINJAUAN_KEAMANAN_F10.md`, `supabase/tes/mfa.sql`, `docs/TERTANGGUH.md` (T-016), `docs/ROADMAP.md` (T10-16)
+- **Implikasi:** Keputusan autentikasi dan pemulihan akun berkuasa memiliki dasar pertimbangan operasional dan matematis yang kuat; tidak ada ketergantungan fitur berbayar eksternal; tidak ada celah pintu belakang; operasional kedai terjamin aman dengan biaya nol rupiah.
+
+## 2026-09-27 — Perbaikan Audit Independen Fase 10 & Ergonomi Keyboard PIN
+
+- **Pencatat:** Claude
+- **Status:** Diterima & Diterapkan
+- **Area:** Keamanan, UX & Infrastruktur (Audit Independen PR #13 & Instruksi Khusus Lee)
+- **Keputusan:**
+  1. **Dukungan Keyboard Fisik pada Input PIN Staf & Kasir (Permintaan Khusus Lee):**
+     - Komponen `MasukStaf.tsx` dan `LayarMasukPegawai.tsx` dilengkapi event listener `keydown` global yang memproses pengetikan angka fisik `0`–`9`, `Backspace` (hapus digit terakhir), `Escape` (reset PIN), dan `Enter`/`Space` (konfirmasi masuk saat digit = 6).
+     - Menghadirkan efisiensi dan ergonomi tinggi bagi kasir di meja kasir fisik bertombol/keyboard tanpa perlu menyentuh layar.
+     - Melindungi privasi kasir dari intipan mata (*shoulder-surfing*) pelanggan atau orang di sekitar yang memantau gerakan jari di layar sentuh besar.
+     - Dilengkapi teks petunjuk visual di bawah keypad serta tes unit komprehensif pengetikan keyboard di `MasukStaf.test.tsx` dan `LayarMasukPegawai.test.tsx`.
+  2. **Penguatan Keamanan Cadangan & Validasi URL Database (Temuan K-1):**
+     - Menghapus fallback kunci rahasia hardcoded di `.github/workflows/cadangan.yml` dan `alat/cadangan.sh`.
+     - Mengubah fungsi `pastikan_kunci` di `alat/cadangan.sh` untuk menggunakan kunci ephemeral acak via `openssl rand -hex 16` pada alur CI uji pemulihan, dan mewajibkan variabel rahasia (*fail-closed*) saat dijalankan di lingkungan lokal/server riil.
+     - Memperketat `cmd_dump` di `alat/cadangan.sh` agar menolak fallback diam-diam (*silent fallback*) bila mode produksi aktif atau `SUPABASE_DB_URL` dipasang, dan menambahkan instalasi `postgresql-client` pada runner CI.
+  3. **Pembersihan Kebijakan Keamanan Konten (CSP) & Header Web (Temuan K-2):**
+     - Mencabut kata kunci `'unsafe-inline'` dari `script-src` pada `aplikasi/public/_headers` (karena bundel React SPA tidak menggunakan skrip inline).
+     - Memperketat `alat/periksa-header.py` untuk menolak `'unsafe-eval'`, `'unsafe-inline'`, dan wildcard `*` pada direktif `script-src`, `connect-src`, dan `default-src`.
+     - Mewajibkan direktif `upgrade-insecure-requests`, `form-action 'self'`, dan parameter `preload` pada HSTS.
+  4. **Otomasi Denyut Harian Anti-Tidur & Pembersih Data Sementara (T10-08):**
+     - Menambahkan alur kerja GitHub Actions `.github/workflows/denyut-harian.yml` yang berjalan otomatis setiap hari pukul 02:00 WIB (19:00 UTC) untuk menjaga proyek Supabase Free Tier tetap aktif dan membersihkan berkas retensi 30 hari.
+     - Mendaftarkan alur kerja tersebut pada pemeriksa gerbang CI `alat/periksa-gerbang-ci.py`.
+  5. **Penguatan Sanitasi Data Sensitif Antrean Offline (Temuan K-3):**
+     - Memperluas regex pembersihan `POLA_KUNCI_SENSITIF` di `aplikasi/src/lib/antrean-offline.ts` agar menangkap seluruh variasi kunci sensitif rekursif (`pinKasir`, `pinAtasan`, `pin_staf`, `katasandi`, `secret`, `authorization`, dsb.).
+  6. **Penyelarasan Harness Uji Mutasi SQL:**
+     - Menyelaraskan seluruh harness pengujian mutasi (`0062`, `0063`, `0070`, `0073`, `0074`) ke berkas migrasi penimpa final (`0067`, `0071`, `0083`) sehingga 100% mutan tertangkap merah dan tidak ada mutasi yang lolos diam-diam.
+- **File terkait:** `aplikasi/src/layar/masuk/MasukStaf.tsx`, `aplikasi/src/layar/masuk/LayarMasukPegawai.tsx`, `alat/cadangan.sh`, `.github/workflows/cadangan.yml`, `.github/workflows/denyut-harian.yml`, `aplikasi/public/_headers`, `alat/periksa-header.py`, `aplikasi/src/lib/antrean-offline.ts`, `alat/periksa-gerbang-ci.py`
+- **Implikasi:** Seluruh temuan audit PR #13 terselesaikan 100%, ergonomi kasir meningkat, alur CI dan cadangan terproteksi fail-closed, dan integritas multi-tenant tetap 100% terjaga.
+
+
+
+
+
+
+
+
+

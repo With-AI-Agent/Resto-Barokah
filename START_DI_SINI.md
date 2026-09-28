@@ -15,6 +15,27 @@
 
 Sisanya baca SESUAI jenis sesi di bawah — jangan baca seluruh folder sekaligus.
 
+## Memasang & menjalankan alat uji (sekali pasang per salinan baru)
+
+Urutan yang benar (temuan audit F-14: `npm ci` di akar saja TIDAK memasang pustaka SQL):
+
+```bash
+npm ci --prefix alat        # pustaka uji SQL (PGlite) — wajib sebelum `node alat/uji-sql.mjs`
+npm ci --prefix aplikasi    # pustaka aplikasi (vitest, eslint, tsc)
+node alat/uji-sql.mjs       # uji database (migrasi + RLS, PostgreSQL nyata di dalam Node)
+cd aplikasi && npm test     # uji unit aplikasi
+```
+
+Dua pembungkus berikut memasang pustaka sendiri kalau belum ada, jadi cukup dijalankan:
+
+```bash
+bash aplikasi/alat/periksa-semua.sh   # seluruh pemeriksa (aplikasi + repo)
+bash alat/uji-database.sh             # uji database + laporan
+```
+
+Kalau muncul `ERR_MODULE_NOT_FOUND` untuk `@electric-sql/pglite`, artinya langkah
+`npm ci --prefix alat` belum dijalankan — bukan kode yang rusak.
+
 ## Jenis Sesi 1 — Fondasi Tahap 1-6
 
 1. Baca `AGENT_SYSTEM.md` bagian Tahap yang sesuai (misal Tahap 3 = Tech Spec).

@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="terang" data-density="nyaman">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 Tema — Contoh Tampilan</title>
+<link rel="stylesheet" href="css/tokens.css">
+</head>
+<body>
+
+<div class="demo-bar">
+  <span><strong>CONTOH TAMPILAN</strong> &middot; Kedai Oasis &middot; 10 tema, tinggal tekan (data contoh)</span>
+  <span class="center small"><a href="index.html">beranda</a> &middot; <a href="01-laporan.html">laporan</a> &middot; <a href="02-kasir.html">kasir</a> &middot; <a href="03-katalog.html">katalog</a></span>
+</div>
+
+<div class="bilah-atas">
+  <div class="wrap between wrap-row" style="padding:14px 0">
+    <div>
+      <span class="aksen">Cukup tekan, tidak perlu ubah kode</span>
+      <h1 style="font-size:var(--t-8)">10 Tema</h1>
+      <p class="small muted">Semua tema di bawah ini hidup: tekan <strong>Pakai tema ini</strong> dan seluruh contoh ikut berubah.</p>
+    </div>
+    <div class="row wrap-row" style="align-items:center">
+      <div class="segmen" role="group" aria-label="Kerapatan tampilan">
+        <button type="button" data-set-rapat="padat">Padat</button>
+        <button type="button" data-set-rapat="nyaman">Nyaman</button>
+      </div>
+      <span data-pemilih-tema></span>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <section class="bagian">
+    <div class="judul-bagian">
+      <div>
+        <span class="label">Cara ganti tema</span>
+        <h2>3 langkah, selesai</h2>
+      </div>
+      <span class="small muted">Pilihan tema tersimpan di perangkat itu (di aplikasi asli tersimpan di pengaturan resto)</span>
+    </div>
+    <div class="kpi-3">
+      <div class="card naik">
+        <span class="nomer">1</span>
+        <h3 style="font-size:var(--t-6)">Tekan tombol Tema</h3>
+        <p class="small muted">Ada di kanan atas setiap halaman. Muncul daftar 10 tema dengan contoh warnanya.</p>
+      </div>
+      <div class="card naik">
+        <span class="nomer">2</span>
+        <h3 style="font-size:var(--t-6)">Pilih yang paling cocok</h3>
+        <p class="small muted">Warna, huruf, bayangan, dan bentuk sudut ikut berubah seketika — tidak ada yang perlu diatur lagi.</p>
+      </div>
+      <div class="card naik">
+        <span class="nomer">3</span>
+        <h3 style="font-size:var(--t-6)">Simpan sendiri</h3>
+        <p class="small muted">Pilihan langsung tersimpan. Buka lagi besok, temanya masih sama.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bagian">
+    <div class="judul-bagian">
+      <div>
+        <span class="aksen">Sepuluh suasana, satu aplikasi</span>
+        <h2>Semua tema berdampingan</h2>
+      </div>
+      <span class="small muted">Contoh di bawah = tampilan halaman pelanggan di HP</span>
+    </div>
+
+    <div class="galeri">
+      <article class="tema-kartu naik" data-theme="terang" id="tema-terang">
+        <div class="kelapa">
+          <div>
+            <span class="label">01 &middot; data-theme="terang"</span>
+            <h3 style="font-size:var(--t-6);margin:2px 0 0">Terang Bersih</h3>
+            <p class="small muted" style="margin:2px 0 0">Untuk siang hari, paling aman & paling jelas</p>
+          </div>
+          <div class="sw-3" aria-hidden="true">
+            <i style="background:var(--bg)"></i><i style="background:var(--surface)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i>
+          </div>
+        </div>
+
+        <div class="isi">
+          <div class="mini-telepon">
+            <div class="hero">
+              <img src="aset/hero-warung.jpg" alt="">
+              <span class="selubung"></span>
+              <div class="isi">
+                <span class="chip chip-kaca">Buka sekarang</span>
+                <h4 class="display">Makan enak, tak perlu nunggu lama.</h4>
+                <div class="bawah">
+                  <span class="btn btn-primary btn-sm">Pesan</span>
+                  <span class="small" style="color:rgba(255,255,255,.85)">★ 4,8</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="geser" style="padding:0 10px 12px">
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/nasi-goreng.jpg" alt=""><span class="lencana">Terlaris</span></div>
+                <div class="isi">
+                  <span class="nm">Nasi Goreng Spesial</span>
+                  <div class="between"><span class="pr num">Rp 25.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/es-teh.jpg" alt=""></div>
+                <div class="isi">
+                  <span class="nm">Es Teh Manis</span>
+                  <div class="between"><span class="pr num">Rp 6.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="row" style="padding:0 12px 10px;gap:6px;flex-wrap:wrap">
+              <span class="chip chip-accent">Promo</span>
+              <span class="chip chip-success"><i class="dot"></i>Buka</span>
+              <span class="chip chip-warn">Stok terbatas</span>
+            </div>
+            <div class="row" style="padding:0 12px 14px;gap:8px">
+              <span class="btn btn-sm" style="flex:1;justify-content:center">Detail</span>
+              <span class="btn btn-sm btn-primary" style="flex:1;justify-content:center">Tambah</span>
+            </div>
+          </div>
+
+          <div class="palet" aria-label="Warna tema Terang Bersih">
+            <div style="background:var(--bg)"><span data-hex="--bg"></span></div>
+            <div style="background:var(--surface)"><span data-hex="--surface"></span></div>
+            <div style="background:var(--surface-2)"><span data-hex="--surface-2"></span></div>
+            <div style="background:var(--accent)"><span data-hex="--accent"></span></div>
+            <div style="background:var(--text)"><span data-hex="--text"></span></div>
+          </div>
+
+          <p class="small muted" style="margin:0">
+            <strong>Aksen hijau daun, kartu putih bersih, sudut 14 px.</strong> Huruf judul <em>Outfit</em>, huruf isi <em>Work Sans</em> —
+            semua huruf ikut tersimpan di aplikasi, jadi tetap tampil sama walau internet mati.
+          </p>
+        </div>
+
+        <div class="catatan">
+          <div class="between wrap-row" style="gap:var(--s-3)">
+            <span class="small">Sudah diperiksa: 13 pasang warna per tema, kontras ≥ 4,5 : 1</span>
+            <button class="btn btn-primary btn-sm" type="button" data-set-tema="terang" data-ke-atas>Pakai tema ini</button>
+          </div>
+        </div>
+      </article>
+      <article class="tema-kartu naik" data-theme="hangat" id="tema-hangat">
+        <div class="kelapa">
+          <div>
+            <span class="label">02 &middot; data-theme="hangat"</span>
+            <h3 style="font-size:var(--t-6);margin:2px 0 0">Hangat Kedai</h3>
+            <p class="small muted" style="margin:2px 0 0">Hangat seperti kedai kayu, enak dibaca lama</p>
+          </div>
+          <div class="sw-3" aria-hidden="true">
+            <i style="background:var(--bg)"></i><i style="background:var(--surface)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i>
+          </div>
+        </div>
+
+        <div class="isi">
+          <div class="mini-telepon">
+            <div class="hero">
+              <img src="aset/interior.jpg" alt="">
+              <span class="selubung"></span>
+              <div class="isi">
+                <span class="chip chip-kaca">Buka · 09.00–21.00</span>
+                <h4 class="display">Rasa rumah, setiap hari.</h4>
+                <div class="bawah">
+                  <span class="btn btn-primary btn-sm">Pesan</span>
+                  <span class="small" style="color:rgba(255,255,255,.85)">★ 4,8</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="geser" style="padding:0 10px 12px">
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/mie-ayam.jpg" alt=""><span class="lencana">Terlaris</span></div>
+                <div class="isi">
+                  <span class="nm">Mie Ayam Bakso</span>
+                  <div class="between"><span class="pr num">Rp 20.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/kopi-susu.jpg" alt=""></div>
+                <div class="isi">
+                  <span class="nm">Kopi Susu Gula Aren</span>
+                  <div class="between"><span class="pr num">Rp 18.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="row" style="padding:0 12px 10px;gap:6px;flex-wrap:wrap">
+              <span class="chip chip-accent">Promo</span>
+              <span class="chip chip-success"><i class="dot"></i>Buka</span>
+              <span class="chip chip-warn">Stok terbatas</span>
+            </div>
+            <div class="row" style="padding:0 12px 14px;gap:8px">
+              <span class="btn btn-sm" style="flex:1;justify-content:center">Detail</span>
+              <span class="btn btn-sm btn-primary" style="flex:1;justify-content:center">Tambah</span>
+            </div>
+          </div>
+
+          <div class="palet" aria-label="Warna tema Hangat Kedai">
+            <div style="background:var(--bg)"><span data-hex="--bg"></span></div>
+            <div style="background:var(--surface)"><span data-hex="--surface"></span></div>
+            <div style="background:var(--surface-2)"><span data-hex="--surface-2"></span></div>
+            <div style="background:var(--accent)"><span data-hex="--accent"></span></div>
+            <div style="background:var(--text)"><span data-hex="--text"></span></div>
+          </div>
+
+          <p class="small muted" style="margin:0">
+            <strong>Kertas krem, huruf serif hangat, sudut 18 px.</strong> Huruf judul <em>Lora</em>, huruf isi <em>Work Sans</em> —
+            semua huruf ikut tersimpan di aplikasi, jadi tetap tampil sama walau internet mati.
+          </p>
+        </div>
+
+        <div class="catatan">
+          <div class="between wrap-row" style="gap:var(--s-3)">
+            <span class="small">Sudah diperiksa: 13 pasang warna per tema, kontras ≥ 4,5 : 1</span>
+            <button class="btn btn-primary btn-sm" type="button" data-set-tema="hangat" data-ke-atas>Pakai tema ini</button>
+          </div>
+        </div>
+      </article>
+      <article class="tema-kartu naik" data-theme="gelap" id="tema-gelap">
+        <div class="kelapa">
+          <div>
+            <span class="label">03 &middot; data-theme="gelap"</span>
+            <h3 style="font-size:var(--t-6);margin:2px 0 0">Gelap Dapur</h3>
+            <p class="small muted" style="margin:2px 0 0">Nyaman untuk shift malam, hemat mata</p>
+          </div>
+          <div class="sw-3" aria-hidden="true">
+            <i style="background:var(--bg)"></i><i style="background:var(--surface)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i>
+          </div>
+        </div>
+
+        <div class="isi">
+          <div class="mini-telepon">
+            <div class="hero">
+              <img src="aset/ayam-geprek.jpg" alt="">
+              <span class="selubung"></span>
+              <div class="isi">
+                <span class="chip chip-kaca">Buka sampai 23.00</span>
+                <h4 class="display">Dapur tetap hidup malam ini.</h4>
+                <div class="bawah">
+                  <span class="btn btn-primary btn-sm">Pesan</span>
+                  <span class="small" style="color:rgba(255,255,255,.85)">★ 4,8</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="geser" style="padding:0 10px 12px">
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/sate.jpg" alt=""><span class="lencana">Terlaris</span></div>
+                <div class="isi">
+                  <span class="nm">Sate Ayam Madura</span>
+                  <div class="between"><span class="pr num">Rp 28.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/es-kelapa.jpg" alt=""></div>
+                <div class="isi">
+                  <span class="nm">Es Kelapa Muda</span>
+                  <div class="between"><span class="pr num">Rp 12.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="row" style="padding:0 12px 10px;gap:6px;flex-wrap:wrap">
+              <span class="chip chip-accent">Promo</span>
+              <span class="chip chip-success"><i class="dot"></i>Buka</span>
+              <span class="chip chip-warn">Stok terbatas</span>
+            </div>
+            <div class="row" style="padding:0 12px 14px;gap:8px">
+              <span class="btn btn-sm" style="flex:1;justify-content:center">Detail</span>
+              <span class="btn btn-sm btn-primary" style="flex:1;justify-content:center">Tambah</span>
+            </div>
+          </div>
+
+          <div class="palet" aria-label="Warna tema Gelap Dapur">
+            <div style="background:var(--bg)"><span data-hex="--bg"></span></div>
+            <div style="background:var(--surface)"><span data-hex="--surface"></span></div>
+            <div style="background:var(--surface-2)"><span data-hex="--surface-2"></span></div>
+            <div style="background:var(--accent)"><span data-hex="--accent"></span></div>
+            <div style="background:var(--text)"><span data-hex="--text"></span></div>
+          </div>
+
+          <p class="small muted" style="margin:0">
+            <strong>Latar arang, aksen kuning, cahaya lembut (glow).</strong> Huruf judul <em>Outfit</em>, huruf isi <em>Work Sans</em> —
+            semua huruf ikut tersimpan di aplikasi, jadi tetap tampil sama walau internet mati.
+          </p>
+        </div>
+
+        <div class="catatan">
+          <div class="between wrap-row" style="gap:var(--s-3)">
+            <span class="small">Sudah diperiksa: 13 pasang warna per tema, kontras ≥ 4,5 : 1</span>
+            <button class="btn btn-primary btn-sm" type="button" data-set-tema="gelap" data-ke-atas>Pakai tema ini</button>
+          </div>
+        </div>
+      </article>
+      <article class="tema-kartu naik" data-theme="kontras" id="tema-kontras">
+        <div class="kelapa">
+          <div>
+            <span class="label">04 &middot; data-theme="kontras"</span>
+            <h3 style="font-size:var(--t-6);margin:2px 0 0">Kontras Tinggi</h3>
+            <p class="small muted" style="margin:2px 0 0">Untuk yang matanya sudah tua atau layar kena matahari</p>
+          </div>
+          <div class="sw-3" aria-hidden="true">
+            <i style="background:var(--bg)"></i><i style="background:var(--surface)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i>
+          </div>
+        </div>
+
+        <div class="isi">
+          <div class="mini-telepon">
+            <div class="hero">
+              <img src="aset/sate.jpg" alt="">
+              <span class="selubung"></span>
+              <div class="isi">
+                <span class="chip chip-kaca">TANPA BAYANGAN</span>
+                <h4 class="display">Cepat, jelas, tanpa ragu.</h4>
+                <div class="bawah">
+                  <span class="btn btn-primary btn-sm">Pesan</span>
+                  <span class="small" style="color:rgba(255,255,255,.85)">★ 4,8</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="geser" style="padding:0 10px 12px">
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/nasi-goreng.jpg" alt=""><span class="lencana">Terlaris</span></div>
+                <div class="isi">
+                  <span class="nm">Nasi Goreng Spesial</span>
+                  <div class="between"><span class="pr num">Rp 25.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/es-teh.jpg" alt=""></div>
+                <div class="isi">
+                  <span class="nm">Es Teh Manis</span>
+                  <div class="between"><span class="pr num">Rp 6.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="row" style="padding:0 12px 10px;gap:6px;flex-wrap:wrap">
+              <span class="chip chip-accent">Promo</span>
+              <span class="chip chip-success"><i class="dot"></i>Buka</span>
+              <span class="chip chip-warn">Stok terbatas</span>
+            </div>
+            <div class="row" style="padding:0 12px 14px;gap:8px">
+              <span class="btn btn-sm" style="flex:1;justify-content:center">Detail</span>
+              <span class="btn btn-sm btn-primary" style="flex:1;justify-content:center">Tambah</span>
+            </div>
+          </div>
+
+          <div class="palet" aria-label="Warna tema Kontras Tinggi">
+            <div style="background:var(--bg)"><span data-hex="--bg"></span></div>
+            <div style="background:var(--surface)"><span data-hex="--surface"></span></div>
+            <div style="background:var(--surface-2)"><span data-hex="--surface-2"></span></div>
+            <div style="background:var(--accent)"><span data-hex="--accent"></span></div>
+            <div style="background:var(--text)"><span data-hex="--text"></span></div>
+          </div>
+
+          <p class="small muted" style="margin:0">
+            <strong>Hitam-putih murni, garis 2 px, sudut 4 px, tanpa blur.</strong> Huruf judul <em>huruf sistem</em>, huruf isi <em>huruf sistem</em> —
+            semua huruf ikut tersimpan di aplikasi, jadi tetap tampil sama walau internet mati.
+          </p>
+        </div>
+
+        <div class="catatan">
+          <div class="between wrap-row" style="gap:var(--s-3)">
+            <span class="small">Sudah diperiksa: 13 pasang warna per tema, kontras ≥ 4,5 : 1</span>
+            <button class="btn btn-primary btn-sm" type="button" data-set-tema="kontras" data-ke-atas>Pakai tema ini</button>
+          </div>
+        </div>
+      </article>
+      <article class="tema-kartu naik" data-theme="bara" id="tema-bara">
+        <div class="kelapa">
+          <div>
+            <span class="label">05 &middot; data-theme="bara"</span>
+            <h3 style="font-size:var(--t-6);margin:2px 0 0">Bara Panggang</h3>
+            <p class="small muted" style="margin:2px 0 0">Seperti poster grill — meniru gambar kirimanmu</p>
+          </div>
+          <div class="sw-3" aria-hidden="true">
+            <i style="background:var(--bg)"></i><i style="background:var(--surface)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i>
+          </div>
+        </div>
+
+        <div class="isi">
+          <div class="mini-telepon">
+            <div class="hero">
+              <img src="aset/banner-kedai.jpg" alt="">
+              <span class="selubung"></span>
+              <div class="isi">
+                <span class="chip chip-kaca">BARU · PANGGANG</span>
+                <h4 class="display">BARA PANGGANG SEPANJANG MALAM</h4>
+                <div class="bawah">
+                  <span class="btn btn-primary btn-sm">Pesan</span>
+                  <span class="small" style="color:rgba(255,255,255,.85)">★ 4,8</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="geser" style="padding:0 10px 12px">
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/ayam-geprek.jpg" alt=""><span class="lencana">Terlaris</span></div>
+                <div class="isi">
+                  <span class="nm">Ayam Geprek Bakar</span>
+                  <div class="between"><span class="pr num">Rp 22.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/pisang-goreng.jpg" alt=""></div>
+                <div class="isi">
+                  <span class="nm">Pisang Goreng (3 pcs)</span>
+                  <div class="between"><span class="pr num">Rp 12.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="row" style="padding:0 12px 10px;gap:6px;flex-wrap:wrap">
+              <span class="chip chip-accent">Promo</span>
+              <span class="chip chip-success"><i class="dot"></i>Buka</span>
+              <span class="chip chip-warn">Stok terbatas</span>
+            </div>
+            <div class="row" style="padding:0 12px 14px;gap:8px">
+              <span class="btn btn-sm" style="flex:1;justify-content:center">Detail</span>
+              <span class="btn btn-sm btn-primary" style="flex:1;justify-content:center">Tambah</span>
+            </div>
+          </div>
+
+          <div class="palet" aria-label="Warna tema Bara Panggang">
+            <div style="background:var(--bg)"><span data-hex="--bg"></span></div>
+            <div style="background:var(--surface)"><span data-hex="--surface"></span></div>
+            <div style="background:var(--surface-2)"><span data-hex="--surface-2"></span></div>
+            <div style="background:var(--accent)"><span data-hex="--accent"></span></div>
+            <div style="background:var(--text)"><span data-hex="--text"></span></div>
+          </div>
+
+          <p class="small muted" style="margin:0">
+            <strong>Huruf kapital raksasa, arang + emas, sudut 16 px.</strong> Huruf judul <em>Big Shoulders</em>, huruf isi <em>Instrument Sans</em> —
+            semua huruf ikut tersimpan di aplikasi, jadi tetap tampil sama walau internet mati.
+          </p>
+        </div>
+
+        <div class="catatan">
+          <div class="between wrap-row" style="gap:var(--s-3)">
+            <span class="small">Sudah diperiksa: 13 pasang warna per tema, kontras ≥ 4,5 : 1</span>
+            <button class="btn btn-primary btn-sm" type="button" data-set-tema="bara" data-ke-atas>Pakai tema ini</button>
+          </div>
+        </div>
+      </article>
+      <article class="tema-kartu naik" data-theme="vintage" id="tema-vintage">
+        <div class="kelapa">
+          <div>
+            <span class="label">06 &middot; data-theme="vintage"</span>
+            <h3 style="font-size:var(--t-6);margin:2px 0 0">Vintage Klasik</h3>
+            <p class="small muted" style="margin:2px 0 0">Rasa warung zaman dulu, kertas tua</p>
+          </div>
+          <div class="sw-3" aria-hidden="true">
+            <i style="background:var(--bg)"></i><i style="background:var(--surface)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i>
+          </div>
+        </div>
+
+        <div class="isi">
+          <div class="mini-telepon">
+            <div class="hero">
+              <img src="aset/kopi-susu.jpg" alt="">
+              <span class="selubung"></span>
+              <div class="isi">
+                <span class="chip chip-kaca">RESEP SEJAK 1998</span>
+                <h4 class="display">Sejak 1998, resep keluarga.</h4>
+                <div class="bawah">
+                  <span class="btn btn-primary btn-sm">Pesan</span>
+                  <span class="small" style="color:rgba(255,255,255,.85)">★ 4,8</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="geser" style="padding:0 10px 12px">
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/mie-ayam.jpg" alt=""><span class="lencana">Terlaris</span></div>
+                <div class="isi">
+                  <span class="nm">Mie Ayam Bakso</span>
+                  <div class="between"><span class="pr num">Rp 20.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/pisang-goreng.jpg" alt=""></div>
+                <div class="isi">
+                  <span class="nm">Pisang Goreng (3 pcs)</span>
+                  <div class="between"><span class="pr num">Rp 12.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="row" style="padding:0 12px 10px;gap:6px;flex-wrap:wrap">
+              <span class="chip chip-accent">Promo</span>
+              <span class="chip chip-success"><i class="dot"></i>Buka</span>
+              <span class="chip chip-warn">Stok terbatas</span>
+            </div>
+            <div class="row" style="padding:0 12px 14px;gap:8px">
+              <span class="btn btn-sm" style="flex:1;justify-content:center">Detail</span>
+              <span class="btn btn-sm btn-primary" style="flex:1;justify-content:center">Tambah</span>
+            </div>
+          </div>
+
+          <div class="palet" aria-label="Warna tema Vintage Klasik">
+            <div style="background:var(--bg)"><span data-hex="--bg"></span></div>
+            <div style="background:var(--surface)"><span data-hex="--surface"></span></div>
+            <div style="background:var(--surface-2)"><span data-hex="--surface-2"></span></div>
+            <div style="background:var(--accent)"><span data-hex="--accent"></span></div>
+            <div style="background:var(--text)"><span data-hex="--text"></span></div>
+          </div>
+
+          <p class="small muted" style="margin:0">
+            <strong>Kertas tua berbintik, marun, sudut 7 px.</strong> Huruf judul <em>Arsenal SC</em>, huruf isi <em>Crimson Pro</em> —
+            semua huruf ikut tersimpan di aplikasi, jadi tetap tampil sama walau internet mati.
+          </p>
+        </div>
+
+        <div class="catatan">
+          <div class="between wrap-row" style="gap:var(--s-3)">
+            <span class="small">Sudah diperiksa: 13 pasang warna per tema, kontras ≥ 4,5 : 1</span>
+            <button class="btn btn-primary btn-sm" type="button" data-set-tema="vintage" data-ke-atas>Pakai tema ini</button>
+          </div>
+        </div>
+      </article>
+      <article class="tema-kartu naik" data-theme="alam" id="tema-alam">
+        <div class="kelapa">
+          <div>
+            <span class="label">07 &middot; data-theme="alam"</span>
+            <h3 style="font-size:var(--t-6);margin:2px 0 0">Alam Hijau</h3>
+            <p class="small muted" style="margin:2px 0 0">Sejuk, daun, tenang — enak untuk kafe taman</p>
+          </div>
+          <div class="sw-3" aria-hidden="true">
+            <i style="background:var(--bg)"></i><i style="background:var(--surface)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i>
+          </div>
+        </div>
+
+        <div class="isi">
+          <div class="mini-telepon">
+            <div class="hero">
+              <img src="aset/salad.jpg" alt="">
+              <span class="selubung"></span>
+              <div class="isi">
+                <span class="chip chip-kaca">SAYUR SEGAR</span>
+                <h4 class="display">Segar dari kebun kami.</h4>
+                <div class="bawah">
+                  <span class="btn btn-primary btn-sm">Pesan</span>
+                  <span class="small" style="color:rgba(255,255,255,.85)">★ 4,8</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="geser" style="padding:0 10px 12px">
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/nasi-goreng.jpg" alt=""><span class="lencana">Terlaris</span></div>
+                <div class="isi">
+                  <span class="nm">Gado-gado Segar</span>
+                  <div class="between"><span class="pr num">Rp 20.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/es-kelapa.jpg" alt=""></div>
+                <div class="isi">
+                  <span class="nm">Es Kelapa Muda</span>
+                  <div class="between"><span class="pr num">Rp 12.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="row" style="padding:0 12px 10px;gap:6px;flex-wrap:wrap">
+              <span class="chip chip-accent">Promo</span>
+              <span class="chip chip-success"><i class="dot"></i>Buka</span>
+              <span class="chip chip-warn">Stok terbatas</span>
+            </div>
+            <div class="row" style="padding:0 12px 14px;gap:8px">
+              <span class="btn btn-sm" style="flex:1;justify-content:center">Detail</span>
+              <span class="btn btn-sm btn-primary" style="flex:1;justify-content:center">Tambah</span>
+            </div>
+          </div>
+
+          <div class="palet" aria-label="Warna tema Alam Hijau">
+            <div style="background:var(--bg)"><span data-hex="--bg"></span></div>
+            <div style="background:var(--surface)"><span data-hex="--surface"></span></div>
+            <div style="background:var(--surface-2)"><span data-hex="--surface-2"></span></div>
+            <div style="background:var(--accent)"><span data-hex="--accent"></span></div>
+            <div style="background:var(--text)"><span data-hex="--text"></span></div>
+          </div>
+
+          <p class="small muted" style="margin:0">
+            <strong>Latar embun, pola daun samar, sudut 22 px.</strong> Huruf judul <em>Gloock</em>, huruf isi <em>Work Sans</em> —
+            semua huruf ikut tersimpan di aplikasi, jadi tetap tampil sama walau internet mati.
+          </p>
+        </div>
+
+        <div class="catatan">
+          <div class="between wrap-row" style="gap:var(--s-3)">
+            <span class="small">Sudah diperiksa: 13 pasang warna per tema, kontras ≥ 4,5 : 1</span>
+            <button class="btn btn-primary btn-sm" type="button" data-set-tema="alam" data-ke-atas>Pakai tema ini</button>
+          </div>
+        </div>
+      </article>
+      <article class="tema-kartu naik" data-theme="tropis" id="tema-tropis">
+        <div class="kelapa">
+          <div>
+            <span class="label">08 &middot; data-theme="tropis"</span>
+            <h3 style="font-size:var(--t-6);margin:2px 0 0">Tropis Segar</h3>
+            <p class="small muted" style="margin:2px 0 0">Ceria, pantai, cocok untuk es & minuman</p>
+          </div>
+          <div class="sw-3" aria-hidden="true">
+            <i style="background:var(--bg)"></i><i style="background:var(--surface)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i>
+          </div>
+        </div>
+
+        <div class="isi">
+          <div class="mini-telepon">
+            <div class="hero">
+              <img src="aset/es-kelapa.jpg" alt="">
+              <span class="selubung"></span>
+              <div class="isi">
+                <span class="chip chip-kaca">DINGIN & SEGAR</span>
+                <h4 class="display">Dingin, manis, menyegarkan.</h4>
+                <div class="bawah">
+                  <span class="btn btn-primary btn-sm">Pesan</span>
+                  <span class="small" style="color:rgba(255,255,255,.85)">★ 4,8</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="geser" style="padding:0 10px 12px">
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/es-teh.jpg" alt=""><span class="lencana">Terlaris</span></div>
+                <div class="isi">
+                  <span class="nm">Es Kelapa Muda</span>
+                  <div class="between"><span class="pr num">Rp 12.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/sate.jpg" alt=""></div>
+                <div class="isi">
+                  <span class="nm">Es Teh Manis</span>
+                  <div class="between"><span class="pr num">Rp 6.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="row" style="padding:0 12px 10px;gap:6px;flex-wrap:wrap">
+              <span class="chip chip-accent">Promo</span>
+              <span class="chip chip-success"><i class="dot"></i>Buka</span>
+              <span class="chip chip-warn">Stok terbatas</span>
+            </div>
+            <div class="row" style="padding:0 12px 14px;gap:8px">
+              <span class="btn btn-sm" style="flex:1;justify-content:center">Detail</span>
+              <span class="btn btn-sm btn-primary" style="flex:1;justify-content:center">Tambah</span>
+            </div>
+          </div>
+
+          <div class="palet" aria-label="Warna tema Tropis Segar">
+            <div style="background:var(--bg)"><span data-hex="--bg"></span></div>
+            <div style="background:var(--surface)"><span data-hex="--surface"></span></div>
+            <div style="background:var(--surface-2)"><span data-hex="--surface-2"></span></div>
+            <div style="background:var(--accent)"><span data-hex="--accent"></span></div>
+            <div style="background:var(--text)"><span data-hex="--text"></span></div>
+          </div>
+
+          <p class="small muted" style="margin:0">
+            <strong>Biru laut, pola gelombang, sudut 16 px.</strong> Huruf judul <em>Outfit</em>, huruf isi <em>Work Sans</em> —
+            semua huruf ikut tersimpan di aplikasi, jadi tetap tampil sama walau internet mati.
+          </p>
+        </div>
+
+        <div class="catatan">
+          <div class="between wrap-row" style="gap:var(--s-3)">
+            <span class="small">Sudah diperiksa: 13 pasang warna per tema, kontras ≥ 4,5 : 1</span>
+            <button class="btn btn-primary btn-sm" type="button" data-set-tema="tropis" data-ke-atas>Pakai tema ini</button>
+          </div>
+        </div>
+      </article>
+      <article class="tema-kartu naik" data-theme="pastel" id="tema-pastel">
+        <div class="kelapa">
+          <div>
+            <span class="label">09 &middot; data-theme="pastel"</span>
+            <h3 style="font-size:var(--t-6);margin:2px 0 0">Pastel Manis</h3>
+            <p class="small muted" style="margin:2px 0 0">Lembut & ramah anak — cocok kue dan dessert</p>
+          </div>
+          <div class="sw-3" aria-hidden="true">
+            <i style="background:var(--bg)"></i><i style="background:var(--surface)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i>
+          </div>
+        </div>
+
+        <div class="isi">
+          <div class="mini-telepon">
+            <div class="hero">
+              <img src="aset/dessert.jpg" alt="">
+              <span class="selubung"></span>
+              <div class="isi">
+                <span class="chip chip-kaca">BARU DIPANGGANG</span>
+                <h4 class="display">Manis untuk hari manis.</h4>
+                <div class="bawah">
+                  <span class="btn btn-primary btn-sm">Pesan</span>
+                  <span class="small" style="color:rgba(255,255,255,.85)">★ 4,8</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="geser" style="padding:0 10px 12px">
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/pisang-goreng.jpg" alt=""><span class="lencana">Terlaris</span></div>
+                <div class="isi">
+                  <span class="nm">Kue Coklat Potong</span>
+                  <div class="between"><span class="pr num">Rp 32.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/es-teh.jpg" alt=""></div>
+                <div class="isi">
+                  <span class="nm">Pisang Goreng (3 pcs)</span>
+                  <div class="between"><span class="pr num">Rp 12.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="row" style="padding:0 12px 10px;gap:6px;flex-wrap:wrap">
+              <span class="chip chip-accent">Promo</span>
+              <span class="chip chip-success"><i class="dot"></i>Buka</span>
+              <span class="chip chip-warn">Stok terbatas</span>
+            </div>
+            <div class="row" style="padding:0 12px 14px;gap:8px">
+              <span class="btn btn-sm" style="flex:1;justify-content:center">Detail</span>
+              <span class="btn btn-sm btn-primary" style="flex:1;justify-content:center">Tambah</span>
+            </div>
+          </div>
+
+          <div class="palet" aria-label="Warna tema Pastel Manis">
+            <div style="background:var(--bg)"><span data-hex="--bg"></span></div>
+            <div style="background:var(--surface)"><span data-hex="--surface"></span></div>
+            <div style="background:var(--surface-2)"><span data-hex="--surface-2"></span></div>
+            <div style="background:var(--accent)"><span data-hex="--accent"></span></div>
+            <div style="background:var(--text)"><span data-hex="--text"></span></div>
+          </div>
+
+          <p class="small muted" style="margin:0">
+            <strong>Merah muda, bayangan ganda (offset), sudut 22 px.</strong> Huruf judul <em>Bricolage Grotesque</em>, huruf isi <em>Outfit</em> —
+            semua huruf ikut tersimpan di aplikasi, jadi tetap tampil sama walau internet mati.
+          </p>
+        </div>
+
+        <div class="catatan">
+          <div class="between wrap-row" style="gap:var(--s-3)">
+            <span class="small">Sudah diperiksa: 13 pasang warna per tema, kontras ≥ 4,5 : 1</span>
+            <button class="btn btn-primary btn-sm" type="button" data-set-tema="pastel" data-ke-atas>Pakai tema ini</button>
+          </div>
+        </div>
+      </article>
+      <article class="tema-kartu naik" data-theme="etnik" id="tema-etnik">
+        <div class="kelapa">
+          <div>
+            <span class="label">10 &middot; data-theme="etnik"</span>
+            <h3 style="font-size:var(--t-6);margin:2px 0 0">Etnik Nusantara</h3>
+            <p class="small muted" style="margin:2px 0 0">Batik & tanah liat, kuat untuk rumah makan daerah</p>
+          </div>
+          <div class="sw-3" aria-hidden="true">
+            <i style="background:var(--bg)"></i><i style="background:var(--surface)"></i><i style="background:var(--accent)"></i><i style="background:var(--text)"></i>
+          </div>
+        </div>
+
+        <div class="isi">
+          <div class="mini-telepon">
+            <div class="hero">
+              <img src="aset/hero-warung.jpg" alt="">
+              <span class="selubung"></span>
+              <div class="isi">
+                <span class="chip chip-kaca">MASAKAN NUSANTARA</span>
+                <h4 class="display">Rasa nusantara, satu meja.</h4>
+                <div class="bawah">
+                  <span class="btn btn-primary btn-sm">Pesan</span>
+                  <span class="small" style="color:rgba(255,255,255,.85)">★ 4,8</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="geser" style="padding:0 10px 12px">
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/sate.jpg" alt=""><span class="lencana">Terlaris</span></div>
+                <div class="isi">
+                  <span class="nm">Sate Ayam Madura</span>
+                  <div class="between"><span class="pr num">Rp 28.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+              <article class="kartu-makan">
+                <div class="foto"><img src="aset/kopi-susu.jpg" alt=""></div>
+                <div class="isi">
+                  <span class="nm">Kopi Susu Gula Aren</span>
+                  <div class="between"><span class="pr num">Rp 18.000</span><span class="tombol-tambah" style="width:32px;height:32px;font-size:18px" aria-hidden="true">+</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="row" style="padding:0 12px 10px;gap:6px;flex-wrap:wrap">
+              <span class="chip chip-accent">Promo</span>
+              <span class="chip chip-success"><i class="dot"></i>Buka</span>
+              <span class="chip chip-warn">Stok terbatas</span>
+            </div>
+            <div class="row" style="padding:0 12px 14px;gap:8px">
+              <span class="btn btn-sm" style="flex:1;justify-content:center">Detail</span>
+              <span class="btn btn-sm btn-primary" style="flex:1;justify-content:center">Tambah</span>
+            </div>
+          </div>
+
+          <div class="palet" aria-label="Warna tema Etnik Nusantara">
+            <div style="background:var(--bg)"><span data-hex="--bg"></span></div>
+            <div style="background:var(--surface)"><span data-hex="--surface"></span></div>
+            <div style="background:var(--surface-2)"><span data-hex="--surface-2"></span></div>
+            <div style="background:var(--accent)"><span data-hex="--accent"></span></div>
+            <div style="background:var(--text)"><span data-hex="--text"></span></div>
+          </div>
+
+          <p class="small muted" style="margin:0">
+            <strong>Terakota, pola batik samar, sudut 12 px.</strong> Huruf judul <em>Young Serif</em>, huruf isi <em>Work Sans</em> —
+            semua huruf ikut tersimpan di aplikasi, jadi tetap tampil sama walau internet mati.
+          </p>
+        </div>
+
+        <div class="catatan">
+          <div class="between wrap-row" style="gap:var(--s-3)">
+            <span class="small">Sudah diperiksa: 13 pasang warna per tema, kontras ≥ 4,5 : 1</span>
+            <button class="btn btn-primary btn-sm" type="button" data-set-tema="etnik" data-ke-atas>Pakai tema ini</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="bagian card lega naik">
+    <div class="card-head">
+      <div>
+        <span class="label">Tentang huruf</span>
+        <h2 style="font-size:var(--t-7)">13 huruf, semuanya boleh dipakai gratis</h2>
+      </div>
+      <span class="chip chip-accent">tersimpan di dalam aplikasi</span>
+    </div>
+    <p class="small muted" style="max-width:78ch">
+      Huruf diambil dari kumpulan skill desain yang kamu pasang, semuanya berlisensi terbuka (SIL Open Font License)
+      sehingga aman dipakai untuk usaha. Berkasnya ikut tersimpan di aplikasi (bukan diambil dari internet),
+      jadi tampilan tetap sama walau koneksi lambat atau putus.
+    </p>
+    <div class="row wrap-row" style="gap:var(--s-4);align-items:stretch">
+      <div class="card grow" style="min-width:260px">
+        <span class="label">Judul — tebal, berani</span>
+        <div class="display" style="font-size:var(--t-8);line-height:1.05;margin-top:6px">Nasi Goreng</div>
+        <p class="small muted" style="margin:6px 0 0">Outfit &middot; Lora &middot; Big Shoulders &middot; Arsenal SC &middot; Gloock &middot; Young Serif &middot; Bricolage Grotesque &middot; National Park</p>
+      </div>
+      <div class="card grow" style="min-width:260px">
+        <span class="label">Isi bacaan — enak dibaca lama</span>
+        <div style="font-size:var(--t-6);line-height:1.6;margin-top:6px">Rasa rumahan, harga bersahabat, porsi jujur.</div>
+        <p class="small muted" style="margin:6px 0 0">Work Sans &middot; Instrument Sans &middot; Crimson Pro &middot; Outfit</p>
+      </div>
+      <div class="card grow" style="min-width:260px">
+        <span class="label">Angka &amp; struk — tidak salah baca</span>
+        <div class="mono" style="font-size:var(--t-7);margin-top:6px">Rp 1.250.000</div>
+        <p class="small muted" style="margin:6px 0 0">Mono — dipakai khusus untuk uang, jam, dan nomor struk supaya angka 0 dan 8 tidak tertukar.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bagian">
+    <div class="judul-bagian">
+      <div>
+        <span class="aksen">Yang sengaja kami jaga</span>
+        <h2>Catatan jujur</h2>
+      </div>
+    </div>
+    <div class="kpi-3">
+      <div class="card">
+        <span class="label">Keterbacaan</span>
+        <p class="small muted">Setiap tema diuji otomatis: 13 pasang warna (teks di atas latar, tombol, label, peringatan) harus lolos kontras minimal 4,5 : 1. Tema yang gagal tidak boleh masuk daftar.</p>
+      </div>
+      <div class="card">
+        <span class="label">Kenyamanan sentuh</span>
+        <p class="small muted">Semua tombol minimal 44 px dan ada reaksi saat ditekan. Pengguna yang mengaktifkan “kurangi gerakan” di HP-nya tetap dapat tampilan tanpa animasi.</p>
+      </div>
+      <div class="card">
+        <span class="label">Cakupan</span>
+        <p class="small muted">Tema hanya mengubah tampilan — aturan bisnis (pajak, service, void, voucher) tidak ikut berubah. Semua angka di halaman ini contoh.</p>
+      </div>
+    </div>
+    <p class="small muted center mt-24">Sudah puas? <a href="index.html">kembali ke beranda contoh</a> &middot; atau lihat <a href="01-laporan.html">laporan</a>, <a href="02-kasir.html">kasir</a>, dan <a href="03-katalog.html">katalog pelanggan</a>.</p>
+  </section>
+</main>
+
+<script src="js/ui.js"></script>
+<script>
+/* Isi label warna (hex) di setiap kartu tema, dibaca dari warna aslinya.
+   Kalau JS mati, labelnya cuma kosong — kotak warnanya tetap tampil. */
+(function () {
+  function keHex(v) {
+    v = (v || '').trim();
+    var m = v.match(/^rgba?\(([^)]+)\)$/);
+    if (!m) return v.toUpperCase();
+    var p = m[1].split(',').map(function (x) { return parseFloat(x); });
+    return '#' + p.slice(0, 3).map(function (n) {
+      var s = Math.round(n).toString(16).toUpperCase();
+      return s.length < 2 ? '0' + s : s;
+    }).join('');
+  }
+  document.querySelectorAll('.tema-kartu').forEach(function (kartu) {
+    var cs = getComputedStyle(kartu);
+    kartu.querySelectorAll('[data-hex]').forEach(function (el) {
+      el.textContent = keHex(cs.getPropertyValue(el.getAttribute('data-hex')));
+    });
+  });
+})();
+</script>
+</body>
+</html>

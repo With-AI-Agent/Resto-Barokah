@@ -1,0 +1,54 @@
+/* ==========================================================================
+   DASAR APLIKASI (bukan token tema — token ada di ./tema.css)
+   --------------------------------------------------------------------------
+   Isi: hal-hal tingkat aplikasi yang belum diatur berkas tema, tetap memakai
+   variabel token. Tidak boleh ada warna mentah di sini (diperiksa otomatis
+   oleh aplikasi/alat/periksa-struktur.py).
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --latar-utama: var(--bg);
+  --teks-utama: var(--text);
+  --latar-kartu: var(--surface);
+  --latar-kartu-abu: var(--surface-2);
+  --b-netral: var(--border);
+  --warna-aksen: var(--accent);
+  --teks-redup: var(--text-muted);
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font: inherit;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+/* gambar tidak pernah membuat halaman melompat saat dimuat */
+img {
+  height: auto;
+}
+
+/* bilah gulir ramping mengikuti tema */
+* {
+  scrollbar-color: var(--border-kuat) transparent;
+}
+
+@media print {
+  body {
+    background: var(--surface);
+  }
+}

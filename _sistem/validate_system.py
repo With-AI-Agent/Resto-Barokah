@@ -298,11 +298,68 @@ DOK_SCAN_RUJUKAN = DOK_AKTIF + ("ACCEPTANCE_TEST_LOG.md", "PANDUAN_PEMAKAIAN.md"
                                 "_sistem/templates/AGENT_OPERATING_GUIDE.md")
 # Token yang jelas bukan path (pola/placeholder/perintah), bukan janji satu berkas ada.
 TOKEN_BUKAN_PATH = ("*", "<", ">", "{", "}", "|", "$", "=", "%", "..")
+# Pola tanggal di nama berkas (mis. _log-sesi/LOG_SESI_YYYY-MM-DD.md) = pola, bukan janji berkas ada.
+POLA_BUKAN_PATH_TAMBAHAN = ("YYYY",)
+# Berkas yang SENGAJA belum ada karena baru akan dibuat sesi berikutnya — tercatat di sini, bukan
+# kelalaian. Ditinjau dari review independen 2026-09-16 (temuan W3-03/W6-01): pindai dulu hanya
+# dokumen tetap sehingga dokumen baru di docs/ bisa lolos; sekarang SELURUH docs/**/*.md ikut dipindai.
+BERKAS_RENCANA = ("docs/uji/LAPORAN_REVIEW_INDEPENDEN.md", "alat/periksa-fondasi-independen.py")
+
+# Berkas yang SENGAJA dikeluarkan dari repo (mis. kunci jawaban kalibrasi, izin Lee 2026-09-19).
+# Rujukan lama ke berkas seperti itu di riwayat/paket/laporan = provenance, bukan janji berkas ada.
+# Daftarnya satu tempat: docs/uji/BERKAS_PENSIUN.md (dijaga alat/periksa-kunci-kalibrasi.py).
+BERKAS_PENSIUN_REGISTRI = "docs/uji/BERKAS_PENSIUN.md"
+
+
+def _path_pensiun() -> set[str]:
+    """Jalur ber-backtick yang terdaftar di daftar pensiun."""
+    out: set[str] = set()
+    p = SYS_DIR / BERKAS_PENSIUN_REGISTRI
+    if not p.is_file():
+        return out
+    for baris in p.read_text(encoding="utf-8").splitlines():
+        if not baris.strip().startswith("|"):
+            continue
+        for tok in re.findall(r"`([^`\s]+)`", baris):
+            out.add(tok)
+    return out
+
+
+def _dokumen_scan():
+    """Dokumen tetap + SELURUH Markdown di docs/ (urut, tanpa duplikat)."""
+    rel = list(DOK_SCAN_RUJUKAN)
+    for p in sorted((SYS_DIR / "docs").rglob("*.md")):
+        rel.append(str(p.relative_to(SYS_DIR)))
+    return list(dict.fromkeys(rel))
+
+
+def _path_rencana_dari_roadmap():
+    """Path di baris `**File:**` ROADMAP = artefak yang memang BARU DIBUAT nanti (rencana), bukan rujukan menggantung."""
+    out = set()
+    p = SYS_DIR / "docs/ROADMAP.md"
+    if p.is_file():
+        for baris in p.read_text(encoding="utf-8").splitlines():
+            if "**File:**" in baris:
+                out.update(re.findall(r"`([^`\s]+)`", baris))
+    return out
 
 
 def check_no_dangling_internal_refs(errs):
     """Rujukan ber-backtick berprefix internal wajib ADA di dalam folder (scan AT-08, versi gerbang)."""
-    for rel in DOK_SCAN_RUJUKAN:
+    rencana = _path_rencana_dari_roadmap() | set(BERKAS_RENCANA) | _path_pensiun()
+    for rel in _dokumen_scan():
+        # Bahan kalibrasi cacat tanaman (docs/uji/kalibrasi/bahan-*/) SENGAJA berisi rujukan
+        # menggantung & cacat lain: itu materi uji ketajaman auditor, bukan dokumen aktif.
+        # Dikecualikan secara sempit (hanya folder itu) supaya penjaga tetap kuat di tempat lain.
+        jalur = str(rel).replace("\\", "/")
+        if jalur.startswith("docs/uji/kalibrasi/bahan-"):
+            continue
+        # Laporan auditor/peninjau = BARANG BUKTI: isinya tidak boleh kami sunting (mengubahnya sama
+        # dengan memalsukan bukti). Mereka justru MENGUTIP rujukan mati sebagai temuan — jadi penjaga
+        # rujukan tidak berlaku di sini, alasannya sama dengan bahan kalibrasi. Dikecualikan sempit:
+        # hanya berkas LAPORAN_* di folder audit/review-pr, bukan seluruh folder.
+        if jalur.startswith(("docs/uji/audit/LAPORAN_", "docs/uji/review-pr/LAPORAN_")):
+            continue
         p = SYS_DIR / rel
         if not p.is_file():
             continue
@@ -310,7 +367,9 @@ def check_no_dangling_internal_refs(errs):
             for tok in re.findall(r"`([^`\s]+)`", baris):
                 if not tok.startswith(PREFIX_INTERNAL):
                     continue
-                if any(c in tok for c in TOKEN_BUKAN_PATH):
+                if any(c in tok for c in TOKEN_BUKAN_PATH + POLA_BUKAN_PATH_TAMBAHAN):
+                    continue
+                if tok in rencana or (tok.endswith("/") and any(a.startswith(tok) for a in rencana)):
                     continue
                 target = SYS_DIR / tok.rstrip("/")
                 ada = target.is_dir() if tok.endswith("/") else target.exists()

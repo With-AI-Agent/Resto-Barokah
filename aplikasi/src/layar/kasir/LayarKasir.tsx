@@ -1,0 +1,947 @@
+/**
+ * LayarKasir — terminal POS kasir (Fase 3) yang kini memakai layar Bayar (T5-01).
+ *
+ * **Perubahan penting (2026-09-23):** modal pembayaran lama dibuang. Dulu berkas
+ * ini mengeras-kodekan tiga metode ('tunai' | 'qris' | 'kartu'), sehingga metode
+ * yang dinonaktifkan pemilik tetap tampil dan metode baru mustahil muncul tanpa
+ * koding. Sekarang:
+ *  - daftar metode datang dari kontainer (`useBayar` → tabel `metode_bayar`,
+ *    hanya `aktif = true`) dan diteruskan apa adanya ke `Bayar.tsx`;
+ *  - uang dicatat lewat `onBayar`, yang di produksi dipasang ke RPC
+ *    `bayar_pesanan` (migrasi 0039) — pintu tunggal uang masuk, idempoten;
+ *  - kembalian yang ditampilkan sesudah pembayaran adalah ANGKA PELADEN, bukan
+ *    hasil kurang-kurangan di layar;
+ *  - keranjang HANYA dikosongkan setelah tagihan benar-benar lunas dan kasir
+ *    menekan Selesai (pembayaran sebagian tidak boleh menghapus pesanan).
+ *
+ * Berkas ini tetap kontainer UI murni: tidak ada jaringan di dalamnya.
+ */
+import { useState, useEffect, useRef } from 'react'
+import { useBahasa } from '../../bahasa'
+import { Tombol } from '../../komponen/Tombol'
+import { Lapis } from '../../komponen/Lapis'
+import { Toast, type NadaToast } from '../../komponen/Toast'
+import { Katalog, type MenuItemData, type VarianItem, type TambahanItem } from './Katalog'
+import { Keranjang, type ItemKeranjang, type RingkasanUang } from './Keranjang'
+import { PemilihMeja, type MejaData, type TipePesanan } from './PemilihMeja'
+import { TagihanTerbuka, type ItemTagihanTerbuka } from './TagihanTerbuka'
+import { Bayar, type BarisTagihan, type HasilBayar, type MetodeBayar, type Tagihan } from './Bayar'
+import { DiskonManual, type BatasDiskon, type HasilDiskon } from './DiskonManual'
+import { VoucherKasir, type HasilCekVoucher, type HasilPakaiVoucher } from './VoucherKasir'
+import { VoidItem, type HasilVoid } from './VoidItem'
+import { BukaKas, type ShiftAktifInfo } from './BukaKas'
+import { TutupKas, type HasilTutupKas } from './TutupKas'
+import { KasKeluarMasuk, type KasPergerakanInput, type HasilKasPergerakan } from './KasKeluarMasuk'
+import { KoreksiModal, type KoreksiModalInput, type HasilKoreksiModal } from './KoreksiModal'
+import { PengingatShift } from '../../komponen/PengingatShift'
+import { StatusAntrean } from '../../komponen/StatusAntrean'
+import type { DataStruk } from '../../komponen/Struk'
+import { TARIF_BAWAAN, hitungPerkiraan, type TarifResto } from '../../lib/tarif'
+import {
+  muatDrafKasir,
+  simpanDrafKasir,
+  hapusDrafKasir,
+  muatTagihanTerbukaLokal,
+  simpanTagihanTerbukaLokal,
+} from '../../lib/antrean-lokal'
+
+export interface LayarKasirProps {
+  cabangId?: string
+  namaCabang?: string
+  onSimpanPesanan?: (
+    pesananData: unknown,
+  ) => Promise<{ sukses: boolean; pesananId?: string; pesan?: string }>
+  onKirimKeDapur?: (pesananId: string) => Promise<{ sukses: boolean; pesan?: string }>
+  /** Id tagihan yang sedang dibayar; kontainer yang menentukannya. */
+  pesananId?: string
+  nomorTagihan?: number
+  /** Metode bayar AKTIF dari peladen. Layar tidak punya daftar bawaan. */
+  metodeBayar?: MetodeBayar[]
+  keadaanBayar?: 'memuat' | 'gagal' | 'siap' | 'mengirim' | 'berhasil'
+  pesanBayar?: string | null
+  /** Hasil pembayaran SAH dari peladen (RPC `bayar_pesanan`). */
+  terakhirBayar?: BarisTagihan | null
+  /** Pintu tunggal pencatatan uang — dipasang ke `useBayar().bayar`. */
+  onBayar?: (masukan: {
+    metodeId: string
+    jumlah: number
+    diterima?: number | null
+    referensi?: string | null
+  }) => Promise<HasilBayar | null> | void
+  /** Kasir menutup struk: kontainer mengembalikan keadaan ke `siap`. */
+  onSelesaiBayar?: () => void
+  onCobaBayar?: () => void
+
+  // ------------------------------------------------------------ T5-05 diskon
+  /**
+   * Batas diskon pemakai yang sedang masuk, dari `izin_efektif('beri_diskon')`.
+   * `null` = belum diketahui; layar lalu bersikap hati-hati (minta persetujuan).
+   */
+  batasDiskon?: BatasDiskon | null
+  /** Atasan yang bisa dimintai persetujuan PIN di layar ini. */
+  daftarAtasan?: { id: string; nama: string }[]
+  /** Verifikasi PIN atasan untuk pesanan ini (RPC `verifikasi_pin`). */
+  onMintaPersetujuanDiskon?: (masukan: {
+    atasanId: string
+    pin: string
+  }) => Promise<HasilDiskon | null> | void
+  /** Mencatat diskon (insert `diskon_transaksi`; pagar di migrasi 0041). */
+  onTerapkanDiskon?: (masukan: {
+    nilai: number
+    alasan: string
+    disetujuiOleh: string | null
+  }) => Promise<HasilDiskon | null> | void
+
+  // ------------------------------------------------------------ T8-09 voucher
+  /**
+   * Cek status & estimasi potongan voucher (baca-saja, RPC `cek_voucher`).
+   */
+  onCekVoucher?: (masukan: {
+    kode: string
+    subtotal: number
+    cabangId?: string
+  }) => Promise<HasilCekVoucher | null> | void
+  /**
+   * Pemakaian atomik voucher dengan PIN kasir (RPC `pakai_voucher`).
+   */
+  onPakaiVoucher?: (masukan: {
+    kode: string
+    pinKasir: string
+    pesananId?: string
+  }) => Promise<HasilPakaiVoucher | null> | void
+
+  // ------------------------------------------------------- T5-06 void pra-dapur
+  /**
+   * Mencatat pembatalan item yang SUDAH tersimpan di peladen (insert baris
+   * `pembatalan`; pagar di `picu_pembatalan_sah`, migrasi 0015). Bila prop ini
+   * tidak dipasang, layar menganggap keranjang masih draf lokal dan tombol hapus
+   * bekerja seperti biasa — draf yang belum pernah dikirim memang tidak punya
+   * apa-apa untuk dicatat.
+   */
+  onBatalkanItem?: (masukan: { itemId: string; alasan: string }) => Promise<HasilVoid | null> | void
+  /** Apakah pesanan ini sudah dikirim ke dapur (penanda untuk kasir). */
+  sudahKeDapur?: boolean
+
+  // ------------------------------------------------- T-027 tarif dari pengaturan
+  /**
+   * Tarif pajak & service resto dari `public.pengaturan`. Bila belum termuat,
+   * layar memakai `TARIF_BAWAAN` (10 %/5 %, sama dengan nilai bawaan kolomnya)
+   * supaya keranjang tidak pernah menampilkan tarif yang tidak ada di mana pun.
+   */
+  tarif?: TarifResto
+
+  // ------------------------------------------------- T7-01 shift kas & modal awal
+  wajibShift?: boolean
+  shiftAktif?: ShiftAktifInfo | null
+  namaKasir?: string
+  onBukaShift?: (masukan: {
+    modalAwal: number
+    catatan?: string
+  }) => Promise<{ sukses: boolean; shiftId?: string; pesan?: string } | void> | void
+
+  // ------------------------------------------------- T7-02 tutup shift & rekonsiliasi
+  uangSeharusnyaPerkiraan?: number
+  onTutupShift?: (masukan: {
+    uangFisik: number
+    alasanSelisih?: string
+    catatan?: string
+    shiftId?: string
+  }) => Promise<HasilTutupKas>
+
+  // ------------------------------------------------- T7-03 kas pergerakan (masuk/keluar/setoran)
+  onKasPergerakan?: (data: KasPergerakanInput) => Promise<HasilKasPergerakan> | HasilKasPergerakan
+
+  // ------------------------------------------------- T7-05 pengingat shift belum ditutup
+  jamTutup?: string
+  waktuSekarangPengingat?: Date
+
+  // ------------------------------------------------- T7-06 koreksi modal awal shift
+  onKoreksiModal?: (masukan: KoreksiModalInput) => Promise<HasilKoreksiModal>
+
+  // ------------------------------------------------- T10-09 pemulihan draf & tagihan terbuka
+  daftarTagihanTerbuka?: ItemTagihanTerbuka[]
+}
+
+export function LayarKasir({
+  cabangId = 'cab-01',
+  namaCabang = 'Cabang Utama',
+  onSimpanPesanan = async () => ({ sukses: true, pesananId: 'ord-new' }),
+  onKirimKeDapur = async () => ({ sukses: true }),
+  pesananId = 'ord-current',
+  nomorTagihan = 1,
+  metodeBayar = [],
+  keadaanBayar = 'siap',
+  pesanBayar = null,
+  terakhirBayar = null,
+  onBayar,
+  onSelesaiBayar,
+  onCobaBayar,
+  batasDiskon = null,
+  daftarAtasan = [],
+  onMintaPersetujuanDiskon,
+  onTerapkanDiskon,
+  onCekVoucher,
+  onPakaiVoucher,
+  onBatalkanItem,
+  sudahKeDapur = false,
+  tarif = TARIF_BAWAAN,
+  wajibShift = false,
+  shiftAktif = null,
+  namaKasir = 'Kasir Bertugas',
+  jamTutup = '22:00',
+  waktuSekarangPengingat,
+  onBukaShift,
+  uangSeharusnyaPerkiraan,
+  onTutupShift,
+  onKasPergerakan,
+  onKoreksiModal,
+  daftarTagihanTerbuka,
+}: LayarKasirProps) {
+  const { t } = useBahasa()
+  // Keranjang State
+  const [daftarItemKeranjang, setDaftarItemKeranjang] = useState<ItemKeranjang[]>([])
+  const [tipePesanan, setTipePesanan] = useState<TipePesanan>('dinein')
+  const [mejaAktif, setMejaAktif] = useState<MejaData>({
+    id: 'meja-01',
+    nama: 'Meja 01',
+    status: 'kosong',
+    aktif: true,
+  })
+  const [catatanPesananUmum, setCatatanPesananUmum] = useState<string>('')
+
+  // UI Modal State
+  const [bukaMejaModal, setBukaMejaModal] = useState(false)
+  const [bukaOpenBillModal, setBukaOpenBillModal] = useState(false)
+  const [bukaBayarModal, setBukaBayarModal] = useState(false)
+  const [bukaDiskonModal, setBukaDiskonModal] = useState(false)
+  const [tabDiskon, setTabDiskon] = useState<'manual' | 'voucher'>('manual')
+  const [bukaShiftModal, setBukaShiftModal] = useState(false)
+  const [bukaTutupKasModal, setBukaTutupKasModal] = useState(false)
+  const [bukaKasPergerakanModal, setBukaKasPergerakanModal] = useState(false)
+  const [bukaKoreksiModal, setBukaKoreksiModal] = useState(false)
+  /** Id item yang sedang dimintai alasan pembatalan (T5-06); null = tidak ada. */
+  const [itemVoid, setItemVoid] = useState<string | null>(null)
+
+  /**
+   * Diskon yang SUDAH tercatat di peladen untuk tagihan ini (T5-05).
+   *
+   * Dulu di sini ada voucher keras-kode: mengetik "BAROKAH10K" langsung memotong
+   * Rp10.000 tanpa pagar izin, tanpa alasan, tanpa jejak siapa yang memberi, dan
+   * tanpa voucher apa pun di database. Itu dibuang. Sekarang diskon hanya masuk
+   * lewat `onTerapkanDiskon` → tabel `diskon_transaksi`, yang dijaga pemicu
+   * `picu_diskon_batas` (migrasi 0041): batas izin, PIN atasan bila di atas
+   * batas, alasan wajib, cap resto, dan jejak pelaku + penyetuju.
+   */
+  const [diskonAktif, setDiskonAktif] = useState<number>(0)
+
+  // Draf pemulihan kasir & tagihan (T10-09)
+  const inisialisasiDrafRef = useRef<boolean>(false)
+  const [pemberitahuanDraf, setPemberitahuanDraf] = useState<boolean>(false)
+  const [pesanToast, setPesanToast] = useState<{ pesan: string; nada: NadaToast } | null>(null)
+
+  const tampilkanToast = (pesan: string, nada: NadaToast = 'info') => {
+    setPesanToast({ pesan, nada })
+    setTimeout(() => {
+      setPesanToast((prev) => (prev?.pesan === pesan ? null : prev))
+    }, 4000)
+  }
+
+  // Muat draf terakhir dari penyimpanan lokal saat layar kasir dibuka
+  useEffect(() => {
+    if (inisialisasiDrafRef.current) return
+    inisialisasiDrafRef.current = true
+
+    const draf = muatDrafKasir<ItemKeranjang>(cabangId)
+    if (draf && draf.daftarItemKeranjang && draf.daftarItemKeranjang.length > 0) {
+      setDaftarItemKeranjang(draf.daftarItemKeranjang)
+      if (draf.tipePesanan) setTipePesanan(draf.tipePesanan as TipePesanan)
+      if (draf.mejaAktif) setMejaAktif(draf.mejaAktif as MejaData)
+      if (typeof draf.diskonAktif === 'number') setDiskonAktif(draf.diskonAktif)
+      if (draf.catatanPesananUmum) setCatatanPesananUmum(draf.catatanPesananUmum)
+      setPemberitahuanDraf(true)
+    }
+  }, [cabangId])
+
+  // Simpan otomatis draf keranjang ke penyimpanan lokal setiap perubahan
+  useEffect(() => {
+    if (!inisialisasiDrafRef.current) return
+    if (daftarItemKeranjang.length > 0) {
+      simpanDrafKasir(cabangId, {
+        daftarItemKeranjang,
+        tipePesanan,
+        mejaAktif,
+        diskonAktif,
+        catatanPesananUmum,
+      })
+    } else {
+      hapusDrafKasir(cabangId)
+    }
+  }, [cabangId, daftarItemKeranjang, tipePesanan, mejaAktif, diskonAktif, catatanPesananUmum])
+
+  // Simpan tagihan terbuka ke cadangan lokal bila ada pasokan dari peladen (T10-09)
+  useEffect(() => {
+    if (daftarTagihanTerbuka && daftarTagihanTerbuka.length > 0) {
+      simpanTagihanTerbukaLokal(cabangId, daftarTagihanTerbuka)
+    }
+  }, [cabangId, daftarTagihanTerbuka])
+
+  const daftarTagihanAktif =
+    daftarTagihanTerbuka ?? muatTagihanTerbukaLokal<ItemTagihanTerbuka>(cabangId) ?? undefined
+
+  /**
+   * Angka ringkasan keranjang — PERKIRAAN untuk mata kasir selagi pesanan
+   * disusun. Angka yang SAH selalu datang dari peladen (`hitung_total`) dan
+   * itulah yang dipakai layar Bayar serta dicetak di struk; layar tidak pernah
+   * menjadi sumber kebenaran uang.
+   *
+   * T-027: tarifnya kini dibaca dari PENGATURAN RESTO (prop `tarif`), bukan
+   * 10 %/5 % yang dulu ditulis langsung di kode. Dua alasannya: (1) kedai yang
+   * memakai tarif lain tidak lagi melihat angka keranjang meleset dari yang
+   * akhirnya ditagih, dan (2) kalau tarif pajak berubah karena aturan
+   * pemerintah, pemilik bisa menyesuaikannya sendiri lewat pengaturan tanpa
+   * menunggu aplikasi diperbarui. Rumusnya meniru peladen persis — lihat
+   * `lib/tarif.ts`.
+   */
+  const subtotal = daftarItemKeranjang.reduce((sum, item) => sum + item.subtotal, 0)
+  const ringkasanUang: RingkasanUang = hitungPerkiraan(subtotal, diskonAktif, tarif)
+  const { total } = ringkasanUang
+
+  // Tambah item dari katalog ke keranjang
+  const tanganiTambahKeKeranjang = (
+    item: MenuItemData,
+    varian?: VarianItem,
+    tambahan?: TambahanItem[],
+    catatan?: string,
+  ) => {
+    const tambahanHargaVarian = varian ? varian.tambahanHarga : 0
+    const tambahanHargaTopping = tambahan ? tambahan.reduce((s, t) => s + t.harga, 0) : 0
+    const hargaSatuan = item.harga + tambahanHargaVarian + tambahanHargaTopping
+
+    setDaftarItemKeranjang((prev) => {
+      // Cari apakah item dengan opsi sama persis sudah ada di keranjang
+      const varianNama = varian ? varian.nama : ''
+      const tambahanIds = tambahan
+        ? tambahan
+            .map((t) => t.id)
+            .sort()
+            .join(',')
+        : ''
+      const catatanTeks = catatan || ''
+
+      const existingIndex = prev.findIndex((p) => {
+        const pVarian = p.varian ? p.varian.nama : ''
+        const pTambahan = p.tambahan
+          ? p.tambahan
+              .map((t) => t.id)
+              .sort()
+              .join(',')
+          : ''
+        const pCatatan = p.catatan || ''
+        return (
+          p.menuItem.id === item.id &&
+          pVarian === varianNama &&
+          pTambahan === tambahanIds &&
+          pCatatan === catatanTeks
+        )
+      })
+
+      if (existingIndex >= 0) {
+        const baru = [...prev]
+        const target = baru[existingIndex]
+        const qtyBaru = target.qty + 1
+        baru[existingIndex] = {
+          ...target,
+          qty: qtyBaru,
+          subtotal: qtyBaru * hargaSatuan,
+        }
+        return baru
+      }
+
+      const itemBaru: ItemKeranjang = {
+        id: `cart-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        menuItem: item,
+        varian,
+        tambahan,
+        catatan,
+        qty: 1,
+        subtotal: hargaSatuan,
+      }
+      return [...prev, itemBaru]
+    })
+  }
+
+  const tanganiTambahQty = (id: string) => {
+    setDaftarItemKeranjang((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          const hargaSatuan = item.subtotal / item.qty
+          const qtyBaru = item.qty + 1
+          return { ...item, qty: qtyBaru, subtotal: qtyBaru * hargaSatuan }
+        }
+        return item
+      }),
+    )
+  }
+
+  const tanganiKurangQty = (id: string) => {
+    setDaftarItemKeranjang(
+      (prev) =>
+        prev
+          .map((item) => {
+            if (item.id === id) {
+              const hargaSatuan = item.subtotal / item.qty
+              const qtyBaru = item.qty - 1
+              if (qtyBaru <= 0) return null
+              return { ...item, qty: qtyBaru, subtotal: qtyBaru * hargaSatuan }
+            }
+            return item
+          })
+          .filter(Boolean) as ItemKeranjang[],
+    )
+  }
+
+  /**
+   * Menghapus item (T5-06). Dua jalur yang SENGAJA dibedakan:
+   *
+   *  - **Draf lokal** (`onBatalkanItem` tidak dipasang): item belum pernah sampai
+   *    peladen, jadi tidak ada apa pun untuk dicatat — buang saja dari daftar.
+   *  - **Sudah tercatat** (`onBatalkanItem` dipasang): item hanya boleh hilang
+   *    lewat baris `pembatalan` yang beralasan. Layar membuka dialog alasan dan
+   *    TIDAK membuang item sampai peladen menerima — kalau tidak, item lenyap
+   *    dari mata kasir padahal masih hidup (dan masih ditagih) di database.
+   */
+  const tanganiHapusItem = (id: string) => {
+    if (!onBatalkanItem) {
+      setDaftarItemKeranjang((prev) => prev.filter((i) => i.id !== id))
+      return
+    }
+    setItemVoid(id)
+  }
+
+  const tanganiBatalkanItem = async (masukan: { alasan: string }): Promise<HasilVoid | null> => {
+    if (!itemVoid) return null
+    const hasil = (await onBatalkanItem?.({ itemId: itemVoid, alasan: masukan.alasan })) ?? null
+    if (hasil?.berhasil) {
+      setDaftarItemKeranjang((prev) => prev.filter((i) => i.id !== itemVoid))
+      setItemVoid(null)
+    }
+    return hasil
+  }
+
+  const tanganiUbahCatatan = (id: string, catatan: string) => {
+    setDaftarItemKeranjang((prev) => prev.map((i) => (i.id === id ? { ...i, catatan } : i)))
+  }
+
+  const tanganiKirimKeDapur = async () => {
+    if (daftarItemKeranjang.length === 0) return
+    if (wajibShift && !shiftAktif) {
+      setBukaShiftModal(true)
+      return
+    }
+    try {
+      const simpanRes = await onSimpanPesanan({
+        mejaId: mejaAktif.id,
+        tipe: tipePesanan,
+        items: daftarItemKeranjang,
+      })
+      if (!simpanRes.sukses) {
+        tampilkanToast(simpanRes.pesan || 'Gagal menyimpan pesanan.', 'gagal')
+        return
+      }
+      const pesananId = simpanRes.pesananId || 'ord-current'
+      const res = await onKirimKeDapur(pesananId)
+      if (res.sukses) {
+        tampilkanToast('Pesanan berhasil dikirim ke dapur!', 'sukses')
+      } else {
+        tampilkanToast(res.pesan || 'Gagal mengirim pesanan ke dapur.', 'gagal')
+      }
+    } catch {
+      tampilkanToast('Gagal mengirim pesanan ke dapur.', 'gagal')
+    }
+  }
+
+  const tanganiMulaiBayar = () => {
+    if (wajibShift && !shiftAktif) {
+      setBukaShiftModal(true)
+      return
+    }
+    setBukaBayarModal(true)
+  }
+
+  /** Tagihan yang diserahkan ke layar Bayar; totalnya dari ringkasan kasir. */
+  const tagihanAktif: Tagihan = {
+    id: pesananId,
+    nomor: nomorTagihan,
+    total,
+    sudahDibayar: terakhirBayar ? terakhirBayar.totalDibayar : 0,
+  }
+
+  /**
+   * Rincian struk (T5-03). Komponen `Struk` tidak menghitung apa pun: ia hanya
+   * mencetak angka yang diberikan. Di sini angkanya masih dari ringkasan kasir;
+   * begitu kontainer membaca baris `pesanan` dari peladen, cukup ganti sumbernya
+   * tanpa menyentuh komponen struk.
+   */
+  const dataStruk: DataStruk = {
+    nomor: nomorTagihan,
+    tanggal: new Date().toISOString(),
+    namaResto: namaCabang,
+    namaMeja: tipePesanan === 'dinein' ? mejaAktif.nama : null,
+    item: daftarItemKeranjang.map((baris) => ({
+      nama: baris.menuItem?.nama ?? 'Item Menu',
+      qty: baris.qty,
+      hargaSatuan: Math.round(baris.subtotal / (baris.qty || 1)),
+      subtotal: baris.subtotal,
+      catatan: baris.catatan,
+    })),
+    subtotal: ringkasanUang.subtotal,
+    totalDiskon: ringkasanUang.totalDiskon,
+    pajak: ringkasanUang.pajak,
+    service: ringkasanUang.service,
+    total: ringkasanUang.total,
+  }
+
+  /**
+   * Kasir menutup struk. Keranjang HANYA dikosongkan bila tagihan sudah lunas —
+   * pembayaran sebagian harus menyisakan pesanan supaya sisanya bisa ditagih.
+   */
+  const tanganiSelesaiBayar = () => {
+    if (terakhirBayar?.lunas) {
+      setDaftarItemKeranjang([])
+      setDiskonAktif(0)
+      setBukaBayarModal(false)
+      hapusDrafKasir(cabangId)
+      setPemberitahuanDraf(false)
+    }
+    onSelesaiBayar?.()
+  }
+
+  /**
+   * Diskon dicatat peladen dulu, baru layar ikut berubah. Urutannya sengaja:
+   * kalau peladen menolak (di atas batas, cap resto, tagihan sudah lunas), layar
+   * TIDAK boleh terlanjur menampilkan potongan yang tidak pernah tercatat.
+   */
+  const tanganiTerapkanDiskon = async (masukan: {
+    nilai: number
+    alasan: string
+    disetujuiOleh: string | null
+  }): Promise<HasilDiskon | null> => {
+    const hasil = (await onTerapkanDiskon?.(masukan)) ?? null
+    if (hasil?.berhasil) {
+      setDiskonAktif((sebelumnya) => sebelumnya + masukan.nilai)
+      setBukaDiskonModal(false)
+    }
+    return hasil
+  }
+
+  const tanganiPakaiVoucher = async (masukan: {
+    kode: string
+    pinKasir: string
+    pesananId?: string
+  }): Promise<HasilPakaiVoucher | null> => {
+    const hasil = (await onPakaiVoucher?.(masukan)) ?? null
+    if (hasil?.berhasil && hasil.data) {
+      setDiskonAktif((sebelumnya) => sebelumnya + (hasil.data?.nilai_potongan ?? 0))
+    }
+    return hasil
+  }
+
+  const tanganiSelesaiPakaiVoucher = () => {
+    setBukaDiskonModal(false)
+  }
+
+  return (
+    <div className="pos-wadah">
+      {/* Kolom Kiri: Header Kasir & Katalog Menu */}
+      <div className="pos-kiri">
+        {/* Bilah Status Kasir Atas */}
+        <div className="bilah-kasir-atas">
+          <div className="bilah-kasir-atas__info">
+            <div className="bilah-kasir-atas__judul">Kasir POS — {namaCabang}</div>
+            <div className="bilah-kasir-atas__sub">Cabang ID: {cabangId}</div>
+          </div>
+
+          <div className="bilah-kasir-atas__aksi">
+            {shiftAktif ? (
+              <>
+                <Tombol ragam="biasa" onClick={() => setBukaKoreksiModal(true)}>
+                  ✏️ {t('kasir.koreksi_modal')}
+                </Tombol>
+                <Tombol ragam="biasa" onClick={() => setBukaKasPergerakanModal(true)}>
+                  💸 {t('kasir.kas_pergerakan')}
+                </Tombol>
+                <Tombol ragam="bahaya" onClick={() => setBukaTutupKasModal(true)}>
+                  🔴 {t('kasir.tutup_shift')}
+                </Tombol>
+                <Tombol ragam="biasa" onClick={() => setBukaShiftModal(true)}>
+                  🟢 {t('kasir.shift_aktif')}
+                </Tombol>
+              </>
+            ) : (
+              <Tombol ragam="utama" onClick={() => setBukaShiftModal(true)}>
+                🟡 {t('kasir.buka_shift')}
+              </Tombol>
+            )}
+            <Tombol ragam="biasa" onClick={() => setBukaOpenBillModal(true)}>
+              📋 {t('kasir.tagihan_terbuka')}
+            </Tombol>
+            <Tombol ragam="biasa" onClick={() => setBukaMejaModal(true)}>
+              🍽️{' '}
+              {tipePesanan === 'dinein'
+                ? mejaAktif.nama
+                : tipePesanan === 'takeaway'
+                  ? t('kasir.tipe_takeaway')
+                  : t('kasir.tipe_ojol')}
+            </Tombol>
+          </div>
+        </div>
+
+        {/* Status Antrean Kirim Luring & Pemulihan Gagal (T10-01, T10-03 / ART-8) */}
+        <div style={{ margin: 'var(--s-2) var(--s-3)' }}>
+          <StatusAntrean selaluTampil={true} />
+        </div>
+
+        {/* Banner Pemulihan Draf Setelah Listrik/Perangkat Mati (T10-09) */}
+        {pemberitahuanDraf && daftarItemKeranjang.length > 0 && (
+          <div
+            role="status"
+            data-testid="banner-pemulihan-draf"
+            className="kotak-peringatan"
+            style={{
+              margin: 'var(--s-2) var(--s-3)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 'var(--s-2)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
+              <span>⚡</span>
+              <span>
+                <strong>Pesanan dipulihkan:</strong> Draf transaksi sebelum perangkat terhenti
+                dimuat kembali ({daftarItemKeranjang.length} item).
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: 'var(--s-2)' }}>
+              <Tombol
+                jenis="button"
+                ragam="biasa"
+                onClick={() => {
+                  setDaftarItemKeranjang([])
+                  setDiskonAktif(0)
+                  hapusDrafKasir(cabangId)
+                  setPemberitahuanDraf(false)
+                }}
+                data-testid="btn-buang-draf-pulih"
+              >
+                Buang Draf
+              </Tombol>
+              <Tombol
+                jenis="button"
+                ragam="utama"
+                onClick={() => setPemberitahuanDraf(false)}
+                data-testid="btn-lanjut-draf-pulih"
+              >
+                Lanjutkan
+              </Tombol>
+            </div>
+          </div>
+        )}
+
+        {/* Banner Peringatan Wajib Shift (T7-04) */}
+        {wajibShift && !shiftAktif && (
+          <div
+            role="status"
+            data-testid="banner-wajib-shift"
+            className="kotak-peringatan"
+            style={{
+              margin: 'var(--s-2) var(--s-3)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 'var(--s-2)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
+              <span>⚠️</span>
+              <span>{t('kasir.peringatan_belum_buka_kas')}</span>
+            </div>
+            <Tombol
+              jenis="button"
+              ragam="utama"
+              onClick={() => setBukaShiftModal(true)}
+              data-testid="btn-buka-kas-cepat"
+            >
+              🔓 {t('kasir.tombol_buka_kas_cepat')}
+            </Tombol>
+          </div>
+        )}
+
+        {/* Pengingat Shift Belum Ditutup (T7-05) */}
+        {shiftAktif && (
+          <div style={{ margin: 'var(--s-2) var(--s-3)' }}>
+            <PengingatShift
+              shiftAktif={shiftAktif}
+              jamTutup={jamTutup}
+              waktuSekarang={waktuSekarangPengingat}
+              onTutupKas={() => setBukaTutupKasModal(true)}
+            />
+          </div>
+        )}
+
+        {/* Katalog Menu Component */}
+        <Katalog onTambahKeKeranjang={tanganiTambahKeKeranjang} />
+      </div>
+
+      {/* Kolom Kanan: Keranjang Pesanan & Ringkasan Pembayaran */}
+      <div className="pos-kanan">
+        <Keranjang
+          daftarItem={daftarItemKeranjang}
+          ringkasan={ringkasanUang}
+          namaMeja={mejaAktif.nama}
+          tipePesanan={tipePesanan}
+          onTambahQty={tanganiTambahQty}
+          onKurangQty={tanganiKurangQty}
+          onHapusItem={tanganiHapusItem}
+          onUbahCatatan={tanganiUbahCatatan}
+          onKirimKeDapur={tanganiKirimKeDapur}
+          onProsesBayar={tanganiMulaiBayar}
+          onBukaPemilihMeja={() => setBukaMejaModal(true)}
+          onBukaVoucher={() => setBukaDiskonModal(true)}
+        />
+      </div>
+
+      {/* Modal Pemilih Meja & Tipe */}
+      {bukaMejaModal && (
+        <Lapis
+          buka={true}
+          onTutup={() => setBukaMejaModal(false)}
+          judul={t('kasir.pilih_meja_judul')}
+        >
+          <PemilihMeja
+            mejaTerpilihId={mejaAktif.id}
+            tipePesanan={tipePesanan}
+            catatanPesanan={catatanPesananUmum}
+            onPilihTipe={setTipePesanan}
+            onPilihMeja={(m) => {
+              setMejaAktif(m)
+              setBukaMejaModal(false)
+            }}
+            onSimpanCatatanPesanan={setCatatanPesananUmum}
+            onTutup={() => setBukaMejaModal(false)}
+          />
+        </Lapis>
+      )}
+
+      {/* Modal Tagihan Terbuka (Open Bill) */}
+      {bukaOpenBillModal && (
+        <Lapis
+          buka={true}
+          onTutup={() => setBukaOpenBillModal(false)}
+          judul="Daftar Tagihan Terbuka"
+        >
+          <TagihanTerbuka
+            daftarTagihan={daftarTagihanAktif}
+            onPilihTagihan={(t) => {
+              tampilkanToast(
+                `Melanjutkan pesanan #${t.nomor} (${t.namaMeja || 'Takeaway'})`,
+                'info',
+              )
+              setBukaOpenBillModal(false)
+            }}
+            onBuatPesananBaru={() => {
+              setDaftarItemKeranjang([])
+              setDiskonAktif(0)
+              hapusDrafKasir(cabangId)
+              setPemberitahuanDraf(false)
+              setBukaOpenBillModal(false)
+            }}
+          />
+        </Lapis>
+      )}
+
+      {/* Layar Bayar (T5-01) — metode & pencatatan uang milik `Bayar.tsx`.
+          Layar kasir tidak lagi punya daftar metode sendiri. */}
+      {bukaBayarModal && (
+        <Lapis
+          buka={true}
+          onTutup={() => setBukaBayarModal(false)}
+          judul="Pembayaran Transaksi Kasir"
+        >
+          <Bayar
+            tagihan={tagihanAktif}
+            metode={metodeBayar}
+            keadaan={keadaanBayar}
+            pesan={pesanBayar}
+            terakhir={terakhirBayar}
+            struk={dataStruk}
+            onBayar={onBayar}
+            onCoba={onCobaBayar}
+            onLanjut={tanganiSelesaiBayar}
+            onBatal={() => setBukaBayarModal(false)}
+          />
+        </Lapis>
+      )}
+
+      {/* Diskon manual (T5-05) & Voucher Promosi (T8-09) */}
+      {bukaDiskonModal && (
+        <Lapis
+          buka={true}
+          onTutup={() => setBukaDiskonModal(false)}
+          judul={tabDiskon === 'voucher' ? 'Cek & Pakai Voucher' : 'Beri Diskon Manual'}
+        >
+          <div
+            style={{
+              display: 'flex',
+              gap: 'var(--s-2)',
+              marginBottom: 'var(--s-3)',
+              borderBottom: '1px solid var(--garis)',
+              paddingBottom: 'var(--s-2)',
+            }}
+          >
+            <Tombol
+              ragam={tabDiskon === 'manual' ? 'utama' : 'biasa'}
+              onClick={() => setTabDiskon('manual')}
+              nama="Tab Diskon Manual"
+            >
+              🏷️ Diskon Manual
+            </Tombol>
+            <Tombol
+              ragam={tabDiskon === 'voucher' ? 'utama' : 'biasa'}
+              onClick={() => setTabDiskon('voucher')}
+              nama="Tab Voucher Promo"
+            >
+              🎟️ Voucher Promosi
+            </Tombol>
+          </div>
+
+          {tabDiskon === 'manual' ? (
+            <DiskonManual
+              subtotal={subtotal}
+              batas={batasDiskon}
+              daftarAtasan={daftarAtasan}
+              onMintaPersetujuan={onMintaPersetujuanDiskon}
+              onTerapkan={tanganiTerapkanDiskon}
+              onBatal={() => setBukaDiskonModal(false)}
+            />
+          ) : (
+            <VoucherKasir
+              subtotal={subtotal}
+              pesananId={pesananId}
+              cabangId={cabangId}
+              onCek={onCekVoucher ?? (() => {})}
+              onPakai={tanganiPakaiVoucher}
+              onBatal={() => setBukaDiskonModal(false)}
+              onSelesai={tanganiSelesaiPakaiVoucher}
+            />
+          )}
+        </Lapis>
+      )}
+
+      {/* Modal Buka Kas / Shift Kasir (T7-01) */}
+      {bukaShiftModal && (
+        <Lapis
+          buka={true}
+          onTutup={() => setBukaShiftModal(false)}
+          judul="Shift Kasir & Modal Awal"
+        >
+          <BukaKas
+            cabangId={cabangId}
+            namaCabang={namaCabang}
+            namaKasir={namaKasir}
+            shiftAktif={shiftAktif}
+            onBukaShift={onBukaShift}
+            onLanjut={() => setBukaShiftModal(false)}
+            onBatal={() => setBukaShiftModal(false)}
+          />
+        </Lapis>
+      )}
+
+      {/* Modal Tutup Kas / Rekonsiliasi Kasir (T7-02) */}
+      {bukaTutupKasModal && shiftAktif && (
+        <Lapis
+          buka={true}
+          onTutup={() => setBukaTutupKasModal(false)}
+          judul="Tutup Shift & Rekonsiliasi Kas"
+        >
+          <TutupKas
+            shiftId={shiftAktif.id}
+            cabangId={cabangId}
+            namaCabang={namaCabang}
+            namaKasir={namaKasir}
+            modalAwal={shiftAktif.modalAwal}
+            uangSeharusnyaPerkiraan={uangSeharusnyaPerkiraan}
+            dibukaPada={shiftAktif.dibukaPada}
+            onTutupShift={onTutupShift}
+            onSelesai={() => setBukaTutupKasModal(false)}
+            onBatal={() => setBukaTutupKasModal(false)}
+          />
+        </Lapis>
+      )}
+
+      {/* Modal Kas Keluar Masuk / Pergerakan Kas (T7-03) */}
+      {bukaKasPergerakanModal && shiftAktif && (
+        <Lapis
+          buka={true}
+          onTutup={() => setBukaKasPergerakanModal(false)}
+          judul="Kas Masuk & Keluar"
+        >
+          <KasKeluarMasuk
+            shiftId={shiftAktif.id}
+            cabangId={cabangId}
+            namaCabang={namaCabang}
+            namaKasir={namaKasir}
+            onSimpan={onKasPergerakan || (async () => ({ sukses: true }))}
+            onTutup={() => setBukaKasPergerakanModal(false)}
+            onBatal={() => setBukaKasPergerakanModal(false)}
+          />
+        </Lapis>
+      )}
+
+      {/* Modal Koreksi Modal Awal Shift (T7-06) */}
+      {bukaKoreksiModal && shiftAktif && (
+        <Lapis
+          buka={true}
+          onTutup={() => setBukaKoreksiModal(false)}
+          judul={t('kasir.koreksi_modal_judul')}
+        >
+          <KoreksiModal
+            shiftId={shiftAktif.id}
+            modalAwalSaatIni={shiftAktif.modalAwal ?? 0}
+            daftarAtasan={daftarAtasan}
+            onSimpanKoreksi={async (input) => {
+              if (onKoreksiModal) {
+                return await onKoreksiModal(input)
+              }
+              return { sukses: true, pesan: t('kasir.sukses_koreksi_modal') }
+            }}
+            onTutup={() => setBukaKoreksiModal(false)}
+            onBatal={() => setBukaKoreksiModal(false)}
+          />
+        </Lapis>
+      )}
+
+      {itemVoid && (
+        <Lapis buka={true} onTutup={() => setItemVoid(null)} judul="Batalkan Item">
+          <VoidItem
+            namaTarget={
+              daftarItemKeranjang.find((i) => i.id === itemVoid)?.menuItem.nama ?? 'Item pesanan'
+            }
+            nilai={daftarItemKeranjang.find((i) => i.id === itemVoid)?.subtotal ?? 0}
+            sudahKeDapur={sudahKeDapur}
+            onBatalkan={tanganiBatalkanItem}
+            onTutup={() => setItemVoid(null)}
+          />
+        </Lapis>
+      )}
+
+      {pesanToast && (
+        <div className="fixed bottom-4 right-4 z-50 pointer-events-none">
+          <Toast pesan={pesanToast.pesan} nada={pesanToast.nada} />
+        </div>
+      )}
+    </div>
+  )
+}

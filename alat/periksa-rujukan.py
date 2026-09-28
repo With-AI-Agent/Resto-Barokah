@@ -1,0 +1,242 @@
+#!/usr/bin/env python3
+"""periksa-rujukan.py — penjaga RUJUKAN HIDUP di dokumen yang MENGIKAT.
+
+Kenapa ada: temuan audit A-F-08 / B-F-08 — `docs/teknis/BUKU_INSIDEN.md` (dokumen yang dibaca
+saat keadaan darurat) menyuruh memakai alat `alat/denyut.py` yang **tidak ada**. Rujukan mati
+di dokumen pengikut seperti itu bukan cacat kosmetik: saat panik, orang mengikuti langkahnya.
+
+Buku induk (`PANDUAN_PENGGUNA.md`) sudah dijaga `alat/periksa-panduan.py`. Pemeriksa ini
+menutup berkas pengikat lainnya:
+
+  docs/teknis/BUKU_INSIDEN.md · docs/KEAMANAN.md · docs/PANDUAN_PEMILIK.md
+  docs/ops/SIAP_AKUN_PEMILIK.md · docs/teknis/REKAM_PESAN_PEMILIK.md
+  docs/uji/DAFTAR_PEKERJAAN_ULANG.md · docs/uji/AUDIT_RIWAYAT.md · docs/uji/REVIEW_PR_RIWAYAT.md
+  docs/TERTANGGUH.md · PROFIL_PENGGUNA.md · ACCEPTANCE_TESTS.md
+
+Aturan: setiap rujukan berkas harus benar-benar ada, KECUALI barisnya menandai bahwa berkas itu
+memang belum ada (mengandung `(rencana)`, `belum ada`, `belum dibuat`, `akan dibuat`, `menyusul`,
+`dijadwalkan`, atau id tugas seperti `T1-33`). Rujukan yang dilewati dicetak sebagai catatan —
+supaya "ditandai rencana" tetap terlihat, bukan tersembunyi.
+
+Mode `--uji-diri`: salin repo ke folder sementara, hidupkan rujukan mati, pastikan MENOLAK.
+"""
+from __future__ import annotations
+
+import pathlib
+import re
+import sys
+
+from bantu_uji_diri import AKAR, jalankan_pemeriksa, laporkan, salin_pohon
+
+BERKAS_PENGIKAT = (
+    "docs/teknis/BUKU_INSIDEN.md",
+    "docs/KEAMANAN.md",
+    "docs/PANDUAN_PEMILIK.md",
+    "docs/ops/SIAP_AKUN_PEMILIK.md",
+    "docs/teknis/REKAM_PESAN_PEMILIK.md",
+    "docs/uji/DAFTAR_PEKERJAAN_ULANG.md",
+    "docs/uji/AUDIT_RIWAYAT.md",
+    "docs/uji/REVIEW_PR_RIWAYAT.md",
+    "docs/TERTANGGUH.md",
+    "PROFIL_PENGGUNA.md",
+    "ACCEPTANCE_TESTS.md",
+)
+
+# URUTAN EKSTENSI PENTING: yang lebih panjang lebih dulu (`tsx` sebelum `ts`, `json` sebelum
+# `js`). Cacat nyata 2026-09-17: `ts` lebih dulu -> rujukan `…/PemilihRingkas.tsx` terbaca
+# sebagai `…/PemilihRingkas.ts` (berkas yang tidak ada) sehingga dokumen yang benar dianggap
+# punya rujukan mati. Dijaga mutasi "berkas .tsx yang dirujuk dihapus" di uji-diri.
+POLA_JALUR = re.compile(r"(?:alat|docs|supabase|aplikasi|skills|_sistem|_log-sesi|prototipe|\.github)/[\w./-]+\.(?:tsx|markdown|mjs|json|ya?ml|sql|html|md|py|sh|ts)")
+POLA_HARAPAN = re.compile(r"\(rencana|belum ada|belum dibuat|akan dibuat|menyusul|dijadwalkan|T\d+-\d+", re.I)
+
+
+def rujukan_dalam(teks: str) -> list[tuple[int, str, str]]:
+    """Kembalikan (nomor baris, jalur, baris) untuk setiap rujukan berkas."""
+    hasil: list[tuple[int, str, str]] = []
+    for no, baris in enumerate(teks.splitlines(), 1):
+        kandidat = set(POLA_JALUR.findall(baris))
+        for m in re.finditer(r"`([^`\n]+)`", baris):
+            t = m.group(1).strip()
+            if POLA_JALUR.fullmatch(t):
+                kandidat.add(t)
+        for t in sorted(kandidat):
+            hasil.append((no, t.rstrip(".,;:)"), baris))
+    return hasil
+
+
+REGISTRI_PENSIUN = "docs/uji/BERKAS_PENSIUN.md"
+
+
+def jalur_pensiun(akar: pathlib.Path) -> set[str]:
+    """Jalur ber-backtick yang terdaftar di daftar pensiun (`docs/uji/BERKAS_PENSIUN.md`).
+
+    Kenapa perlu (2026-09-20, audit H F-01): berkas yang SENGAJA dikeluarkan dari repo (mis.
+    katalog cacat kalibrasi = kunci jawaban) masih wajar disebut di riwayat/laporan sebagai
+    provenance. Tanpa aturan ini, rujukan jujur itu terbaca "rujukan mati" dan riwayat yang benar
+    justru dianggap cacat. Daftar pensiun wajib memuat siapa memutuskan, kapan, dan kenapa
+    (dijaga `alat/periksa-kunci-kalibrasi.py` aturan D1).
+    """
+    berkas = akar / REGISTRI_PENSIUN
+    if not berkas.is_file():
+        return set()
+    hasil: set[str] = set()
+    for baris in berkas.read_text(encoding="utf-8").splitlines():
+        b = baris.strip()
+        if not b.startswith("|"):
+            continue
+        kolom = [k.strip() for k in b.strip("|").split("|")]
+        if len(kolom) < 2 or set(kolom[0]) <= set("-: "):
+            continue
+        for m in re.finditer(r"`([^`]+)`", kolom[1]):
+            hasil.add(m.group(1).strip())
+    return hasil
+
+
+# Perluasan J F-02 (audit 2026-09-20): SEMUA `.md` terlacak ikut diperiksa, bukan hanya 11
+# berkas pengikat — kelas "rujukan mati di dokumen status" (H F-08, I F-09, J F-01) tertutup.
+# Pengecualian = folder yang isinya memang menyebut jalur masa depan/laporan apa adanya.
+FOLDER_DIKECUALIKAN = (
+    "skills/",                # vendor pihak ketiga
+    "docs/uji/audit/",        # laporan auditor — menyebut bukti & jalur apa adanya
+    "docs/uji/review-pr/",    # laporan & paket review
+    "docs/uji/paket-audit/",  # paket mesin (memuat bagian "direncanakan" sengaja)
+    "docs/uji/kalibrasi/",    # bahan cacat tanaman
+    "_log-sesi/",             # log naratif harian
+    "_salinan-meta/",         # arsip provenance
+    "node_modules/",
+    "_sistem/templates/",     # template sistem pembangun (contoh jalur generik 001_users.sql)
+    "alat/contoh-laporan/",   # fixture uji-diri pemeriksa laporan (SENGAJA memuat rujukan mati)
+    "alat/contoh-laporan-review/",
+    "docs/uji/LAPORAN_",      # laporan historis (menyebut katalog/berkas apa adanya)
+    "docs/uji/CATATAN_",      # catatan sesi historis
+    "docs/uji/PROTOKOL_",     # protokol: memuat contoh pola berkas (00X_…, YYYY-…)
+    "ACCEPTANCE_TEST_LOG.md", # log uji-terima historis
+    "_sistem/",               # arsip sistem pembangun (audit vendor, template)
+    # Dokumen PERENCANAAN/SPESIFIKASI: isinya memang menunjuk berkas yang BELUM ada (itu
+    # fungsinya). ROADMAP dijaga `alat/periksa-roadmap.py`; TECH_SPEC/SPESIFIKASI_UI dijaga
+    # mesin paket (F-12: jalur rencana dipisah dari bukti). Menuntut penanda per rujukan di
+    # dokumen ini = ribuan penanda tanpa nilai.
+    "docs/ROADMAP.md",
+    "docs/TECH_SPEC.md",
+    "docs/SPESIFIKASI_UI.md",
+    "docs/teknis/USULAN_",
+    "docs/teknis/DISKUSI_",
+)
+
+# Jalur yang jelas-jelas TEMPLATE/contoh (bukan rujukan nyata) — tidak diperiksa.
+POLA_TEMPLATE = re.compile(r"00X_|001_users|YYYY|<[^>]+>|XXX")
+
+
+def daftar_md(akar: pathlib.Path) -> list[str]:
+    """Semua .md terlacak Git di luar folder dikecualikan (J F-02)."""
+    import subprocess
+    r = subprocess.run(["git", "ls-files", "*.md"], cwd=akar, capture_output=True, text=True)
+    if r.returncode == 0 and r.stdout.strip():
+        berkas = r.stdout.splitlines()
+    else:  # salinan tanpa .git (uji-diri) — susuri pohon langsung
+        berkas = [str(f.relative_to(akar)) for f in sorted(akar.rglob("*.md"))]
+    return [b for b in berkas if not b.startswith(FOLDER_DIKECUALIKAN)]
+
+
+def periksa(akar: pathlib.Path) -> int:
+    errs: list[str] = []
+    catatan: list[str] = []
+    pensiun = jalur_pensiun(akar)
+    total = 0
+    for rel in BERKAS_PENGIKAT:
+        if not (akar / rel).is_file():
+            errs.append(f"berkas pengikat hilang: {rel}")
+    daftar = daftar_md(akar)
+    for rel in daftar:
+        berkas = akar / rel
+        if not berkas.is_file():
+            continue
+        teks = berkas.read_text(encoding="utf-8")
+        for no, jalur, baris in rujukan_dalam(teks):
+            if POLA_TEMPLATE.search(jalur):
+                continue
+            total += 1
+            if (akar / jalur).exists() or (berkas.parent / jalur).exists():
+                # jalur relatif terhadap folder dokumen sendiri juga sah (I F-20)
+                continue
+            if POLA_HARAPAN.search(baris):
+                catatan.append(f"{rel}:{no} rujukan ditandai rencana → {jalur}")
+                continue
+            if jalur in pensiun:
+                catatan.append(f"{rel}:{no} rujukan ke berkas yang SENGAJA dipensiun → {jalur}")
+                continue
+            errs.append(f"{rel}:{no} menunjuk berkas yang TIDAK ADA: {jalur}")
+    print(f"PERIKSA RUJUKAN — {len(daftar)} dokumen diperiksa (semua .md di luar folder riwayat/laporan) "
+          f"· {total} rujukan · {len(pensiun)} berkas dipensiun diakui")
+    for c in catatan:
+        print(f"  [catatan] {c}")
+    if errs:
+        print(f"\nHASIL: GAGAL — {len(errs)} rujukan mati")
+        for e in errs:
+            print(f"  [X] {e}")
+        return 1
+    print("\nHASIL: LOLOS — semua rujukan di dokumen pengikat hidup (yang belum ada ditandai jelas).")
+    return 0
+
+
+def uji_diri() -> int:
+    hasil = []
+    with salin_pohon() as tmp:
+        kode, keluar = jalankan_pemeriksa(periksa, tmp)
+        hasil.append(("salinan utuh", kode == 0, f"kode {kode}"))
+        if kode != 0:
+            print(keluar[:1500])
+
+        # Mutasi: rujukan mati baru di dokumen darurat → harus GAGAL
+        with salin_pohon() as tmp2:
+            berkas = tmp2 / "docs/teknis/BUKU_INSIDEN.md"
+            isi = berkas.read_text(encoding="utf-8")
+            berkas.write_text(isi + "\n7. Jalankan `alat/alat-yang-belum-ada.py` untuk memulihkan.\n", encoding="utf-8")
+            kode2, keluar2 = jalankan_pemeriksa(periksa, tmp2)
+            hasil.append(("mutasi: rujukan mati disisipkan di Buku Insiden", kode2 != 0,
+                          "ditolak" if kode2 != 0 else "DILOLOSKAN (tumpul)"))
+
+        # Mutasi: rujukan ke berkas yang SENGAJA dipensiun (daftar pensiun) → harus LULUS.
+        # Kalau aturan ini hilang, riwayat yang jujur (menyebut berkas pensiun) jadi "cacat".
+        with salin_pohon() as tmpp:
+            daftar = tmpp / REGISTRI_PENSIUN
+            isi_daftar = daftar.read_text(encoding="utf-8")
+            baris_baru = "| 99 | `tools/berkas-pensiun-uji.txt` | 2026-09-20 | uji-diri | mencoba aturan pensiun | di luar repo |\n"
+            daftar.write_text(isi_daftar.replace("\n**Aturan pemakaian daftar ini:**",
+                                                 "\n" + baris_baru + "\n**Aturan pemakaian daftar ini:**"),
+                              encoding="utf-8")
+            berkas = tmpp / "docs/teknis/BUKU_INSIDEN.md"
+            berkas.write_text(berkas.read_text(encoding="utf-8")
+                              + "\n7. Berkas lama: `tools/berkas-pensiun-uji.txt` (dipensiun).\n",
+                              encoding="utf-8")
+            kode_p, _ = jalankan_pemeriksa(periksa, tmpp)
+            hasil.append(("mutasi: rujukan ke berkas yang dipensiun DITERIMA", kode_p == 0,
+                          "diterima" if kode_p == 0 else "ditolak (aturan pensiun tidak bekerja)"))
+
+        # Mutasi: rujukan mati diberi penanda rencana → harus LULUS (aturan penanda bekerja)
+        with salin_pohon() as tmp3:
+            berkas = tmp3 / "docs/teknis/BUKU_INSIDEN.md"
+            isi = berkas.read_text(encoding="utf-8")
+            berkas.write_text(isi + "\n7. Jalankan `alat/alat-yang-belum-ada.py` (rencana, dibuat di T1-30).\n", encoding="utf-8")
+            kode3, _ = jalankan_pemeriksa(periksa, tmp3)
+            hasil.append(("mutasi: rujukan mati DITANDAI rencana", kode3 == 0,
+                          "diterima" if kode3 == 0 else "ditolak (penanda rencana tidak bekerja)"))
+        # Mutasi: berkas `.tsx` yang DIRUJUK di dokumen pengikat dihapus → harus GAGAL.
+        # Mutasi ini menjaga jebakan ekstensi di POLA_JALUR (dulu `.tsx` terbaca `.ts`
+        # sehingga mutasi seperti ini DILOLOSKAN).
+        with salin_pohon() as tmp4:
+            berkas = tmp4 / "docs/uji/REVIEW_PR_RIWAYAT.md"
+            isi = berkas.read_text(encoding="utf-8")
+            berkas.write_text(isi + "\n9. Bukti: `aplikasi/src/komponen/PemilihRingkas.tsx` (uji antarmuka).\n", encoding="utf-8")
+            (tmp4 / "aplikasi/src/komponen/PemilihRingkas.tsx").unlink()
+            kode4, _ = jalankan_pemeriksa(periksa, tmp4)
+            hasil.append(("mutasi: berkas .tsx yang dirujuk DIHAPUS", kode4 != 0,
+                          "ditolak" if kode4 != 0 else "DILOLOSKAN (rujukan .tsx tak terbaca)"))
+
+    return laporkan("periksa-rujukan", hasil)
+
+
+if __name__ == "__main__":
+    if "--uji-diri" in sys.argv:
+        sys.exit(uji_diri())
+    sys.exit(periksa(AKAR))

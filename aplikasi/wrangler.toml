@@ -1,0 +1,24 @@
+# Pengaturan deploy Cloudflare Workers + Static Assets (tugas ROADMAP T0-09).
+#
+# Kenapa Workers + Static Assets (dan bukan layanan lain): TECH_SPEC §1 memilih Cloudflare karena
+# punya jalur gratis, HTTPS otomatis, dan alamat sementara `*.workers.dev` — cukup untuk membuktikan
+# jalur deploy bekerja sejak awal, bukan mendadak di akhir proyek.
+#
+# Halaman yang dikirim masih KOSONG (kerangka). Aplikasi React dibangun `npm run build` → `dist/`,
+# lalu Wrangler mengunggah isi `dist/` sebagai aset statis.
+#
+# Cara pakai (di folder aplikasi/):
+#   1) sekali saja:  npx --yes wrangler@4 login      (buka peramban, pakai akun Cloudflare pemilik)
+#   2) tiap kali rilis:  npm run deploy
+#
+# Catatan: berkas ini TIDAK memuat kunci apa pun. Token Cloudflare (bila dipakai) hidup di berkas
+# kerja `docs/ops/DAFTAR_KUNCI_PEMILIK.local.md` (diabaikan Git) atau di lingkungan CI, tidak di sini.
+
+name = "resto-barokah"
+compatibility_date = "2026-09-19"
+workers_dev = true
+
+[assets]
+directory = "./dist"
+# Aplikasi satu-halaman (React Router): semua jalur yang tidak ada berkasnya dikembalikan ke index.html.
+not_found_handling = "single-page-application"

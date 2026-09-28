@@ -1,0 +1,79 @@
+name: Cadangan Mingguan & Uji Pemulihan Bencana (T10-10)
+
+# APA INI: alur otomatis cadangan mingguan dan uji pemulihan bencana Resto Barokah
+# (TECH_SPEC §8 & §10 / PRD M12).
+#
+# JADWAL:
+#   - Setiap hari Minggu pukul 02:00 WIB (19:00 UTC hari Sabtu)
+#   - Pemicu manual: workflow_dispatch (dapat dijalankan pemilik kapan pun)
+#
+# KEAMANAN DATA (ART-10):
+#   - Seluruh dump dikompresi gzip dan DIENKRIPSI menggunakan AES-256-CBC + PBKDF2
+#     (100.000 iterasi) sebelum diunggah ke penyimpanan artefak.
+#   - Salinan mentah (plaintext .sql) langsung dihapus seketika setelah enkripsi.
+#   - Kunci enkripsi dibaca dari GitHub Secret: KUNCI_ENKRIPSI_CADANGAN.
+#   - Integritas diproteksi dengan checksum SHA-256.
+
+on:
+  schedule:
+    - cron: '0 19 * * 6'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cadangan-basis-data
+  cancel-in-progress: false
+
+jobs:
+  uji-dan-cadangkan:
+    name: Uji Pemulihan & Buat Cadangan Terenkripsi
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KUNCI_ENKRIPSI_CADANGAN: ${{ secrets.KUNCI_ENKRIPSI_CADANGAN }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - name: Ambil kode sumber
+        uses: actions/checkout@v4
+
+      - name: Pasang postgresql-client untuk pg_dump
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+
+      - name: Pasang Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22.12.0'
+
+      - name: Pasang Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Pasang pustaka alat
+        run: npm ci --prefix alat
+
+      - name: Uji pemulihan basis data kosong
+        run: bash alat/cadangan.sh uji-pemulihan
+
+      - name: Bukti mutasi fail-closed cadangan & pemulihan
+        run: python3 alat/uji-mutasi-cadangan.py
+
+      - name: Latihan pemulihan & uji Buku Insiden (T10-15)
+        run: bash alat/pulihkan-cadangan.sh
+
+      - name: Uji-diri fail-closed latihan insiden (T10-15)
+        run: bash alat/pulihkan-cadangan.sh --uji-diri
+
+      - name: Buat cadangan terenkripsi AES-256
+        run: bash alat/cadangan.sh dump-dan-enkripsi cadangan
+
+      - name: Unggah artefak cadangan terenkripsi
+        uses: actions/upload-artifact@v4
+        with:
+          name: cadangan-resto-barokah
+          path: |
+            cadangan/*.enc
+            cadangan/*.sha256
+          retention-days: 90

@@ -1,0 +1,195 @@
+# Rencana Desain & UI — Resto Barokah
+
+> **Status: DRAF DISKUSI** — dibahas bersama pemilik 2026-09-16 (sesi Desain & UI, sisipan sebelum Tahap 3).
+> Permintaan pemilik yang menjadi dasar: *(a)* minta sesi desain & UI, *(b)* minta **beberapa tema yang bisa diubah hanya dengan memilih**,
+> *(c)* minta contoh gambar untuk dibahas bersama, *(d)* aplikasi dipakai di **HP, tablet, dan laptop/PC**.
+>
+> **Referensi pendukung:** `docs/desain/referensi/` (13 gambar hasil pencarian agent) ·
+> `docs/desain/referensi/pemilik/` (**34 gambar kiriman pemilik**, kode `P01`–`P34`) ·
+> papan visual: `docs/desain/papan-referensi.jpg` dan `docs/desain/papan-referensi-pemilik.jpg` ·
+> penilaian lengkap: `docs/desain/PENILAIAN_REFERENSI.md`.
+
+## 1. Aturan desain yang WAJIB dipatuhi (dari panduan resmi yang dibaca agent)
+Sumber: `skills/web-design-guidelines` (Vercel, fetch berkas panduan terbaru), `skills/frontend-designer`, `skills/design-system`, `skills/ui-ux-pro-max`.
+
+| # | Aturan | Angka/kriteria |
+|---|---|---|
+| 1 | Kontras teks minimal | 4,5:1 (wajib lolos di **setiap tema**) |
+| 2 | Ukuran area sentuh minimal | 44×44 px (penting: kasir & pelayan pakai jari di HP) |
+| 3 | Ukuran huruf dasar | 16 px, jarak baris 1,5 |
+| 4 | Prioritas pertama | Dapat diakses (kontras, keyboard, label) |
+| 5 | Ikon | Ikon vektor/SVG, **bukan emoji**, tombol ikon wajib punya label |
+| 6 | Umpan balik | Setiap aksi harus terlihat hasilnya (memuat/berhasil/gagal) — bukan diam-diam |
+| 7 | Gerak/animasi | Halus, cepat, dan **menghormati pengaturan "kurangi gerak"** pengguna |
+| 8 | Responsif | Mobile-first (HP dulu) → melebar otomatis ke tablet & laptop |
+| 9 | Warna | Wajib lewat **token** (bukan kode warna keras di tiap tempat) — inilah yang membuat ganti tema mungkin |
+
+## 2. Pola desain yang diambil dari contoh (dan yang ditolak)
+Kode `P…` = gambar kiriman pemilik (`docs/desain/referensi/pemilik/`); angka `01`–`13` = pencarian agent.
+
+| Pola | Dari contoh | Dipakai untuk | Alasan |
+|---|---|---|---|
+| **POS: tab kategori + kisi menu + panel keranjang menempel di kanan** (ringkasan Sub Total → Pajak → Diskon → **Total** + tombol bayar besar) | **P04, P17, P32**, P02 | **Layar kasir (tablet & laptop)** | Tiga contoh independen memakai pola yang sama — inilah cara kasir bekerja: sekali lihat, semua terbaca |
+| **POS desktop gelap + tab pesanan (Dine In / To Go / Delivery)** | **P17** | Layar kasir desktop & antrean pesanan | Cocok untuk resto dengan beberapa jenis pesanan sekaligus (Kedai Oasis: alur campur) |
+| **POS tablet: tab kategori besar + kartu menu berharga rapat** | **P32** | Layar kasir tablet (mode sentuh) | Jari menekan lebih mudah; banyak item terlihat sekaligus |
+| **Papan pesanan dengan chip status berwarna** (Paid / On Progress / Unpaid) | **P31**, 03, 05 | **Dapur (KDS)** + papan pemantauan pesanan | Status terbaca sekilas, tanpa membaca kalimat |
+| **Kartu pesanan berwarna + tombol aksi besar** | 05, P31 | Layar dapur | Cepat dibaca dari jauh, tombol besar tidak salah tekan |
+| **Laporan/dashboard: kartu angka besar + tabel + grafik sederhana** | **P26, P31** | Laporan harian, dashboard pemilik & pemilik platform | Ringkas, langsung menjawab "hari ini bagaimana?" |
+| **Keranjang menempel di kanan + kolom kode promo** | P02, P05, P23, P31 | Layar kasir & halaman pelanggan | Pintu masuk alami untuk **voucher undang-teman** |
+| **Kartu menu: foto + nama + harga + tombol tambah melingkar besar** | P02, P08, P14, P15, P16, P18 | Katalog pelanggan & "mode katalog" | Sudah terbukti nyaman dipakai di HP |
+| **Label di kartu** (Best Seller / Chef's Pick / Populer) | P03, P16 | Menu unggulan, promo, dan penanda **habis** | Pembeli cepat tahu mana yang direkomendasikan |
+| **Kategori ikon bulat** mendatar | P03, P14, P15, P24 | HP (pelayan & pelanggan) | Mudah dijangkau jempol, menghemat ruang |
+| **Bilah bawah dengan tombol tengah menonjol** | P03, P14, P16, P21 | Layar HP (pelayan & kasir mobile) | Aksi utama selalu terlihat |
+| **Pilihan varian (ukuran / porsi / berat)** | P22, P23, P25 | Detail menu (panas/es, ukuran, porsi) | Kebutuhan nyata menu kedai |
+| **Perkiraan waktu siap pesanan** | P28 | Daftar & detail pesanan | Murah dibuat, sangat membantu pelanggan |
+| **Satu susunan, dua mode (terang/gelap) berdampingan** | **P12**, P25 vs P27, P03 vs P16 | Dasar **sistem tema** | Membuktikan tema bisa diganti tanpa mengubah susunan |
+| ~~Poster & infografis~~ | P06, P07, 06, 07 | **Ditolak** sebagai desain layar | Bukan antarmuka yang bisa dipakai (berguna hanya untuk warna/identitas) |
+| ~~Kolase promosi~~ | P09 | **Ditolak** | Materi pemasaran, bukan rancangan layar |
+
+## 3. Rancangan sistem tema (menjawab permintaan "beberapa tema tinggal dipilih")
+**10 tema** (pemilik resto cukup memilih, tanpa koding) — permintaan pemilik 2026-09-16: *"aku mau ada beberapa tema, misalnya seperti gambar yang aku upload ini, terus ada juga tema vintage, ada juga tema nature, dan sebagainya"*.
+Warna & huruf diambil dari arah gaya di basis data skill `ui-ux-pro-max` bila ada padanannya, dan disusun sendiri bila tidak (disebut apa adanya).
+
+| # | Tema | Kesan | Rujukan / arah gaya | Huruf (dari `skills/ui-styling/canvas-fonts`) |
+|---|---|---|---|---|
+| 1 | **Terang Bersih** *(bawaan)* | Bersih & terang, paling mudah dibaca kasir ramai | kiriman pemilik P16/P08 | Outfit + WorkSans |
+| 2 | **Hangat Kedai** | Krem & coklat, ramah (cafe/kedai) | P15 Brew & Bliss, P22 | Lora (serif) + WorkSans |
+| 3 | **Gelap Dapur** | Gelap, untuk dapur (silau/panas) & malam | P17 Jaegar Resto, P03, P31 | Outfit + WorkSans |
+| 4 | **Kontras Tinggi** | Hitam-putih, garis tebal, aksesibilitas | — | huruf sistem |
+| 5 | **Bara Panggang** | Hitam pekat + emas, judul HURUF BESAR tinggi, tombol bulat | **gambar yang pemilik kirim (P16 Grill & Co.)** | BigShoulders + InstrumentSans |
+| 6 | **Vintage Klasik** | Kertas tua bertekstur, marun/mustard, bingkai garis ganda | arah gaya `vintage-analog-retro-film` | ArsenalSC (kapital kecil) + CrimsonPro |
+| 7 | **Alam Hijau** | Hijau daun, membulat lembut, hiasan daun samar | arah gaya `organic-biophilic` | NationalPark + WorkSans |
+| 8 | **Tropis Segar** | Teal laut, ceria, hiasan ombak | disusun sendiri (tidak ada padanan) | Outfit + WorkSans |
+| 9 | **Pastel Manis** | Pastel lembut, bentuk tebal "tanah liat" (clay) | arah gaya `claymorphism` | Bricolage + Outfit |
+| 10 | **Etnik Nusantara** | Ivory, terakota, hiasan motif batik | disusun sendiri (tidak ada padanan) | YoungSerif + WorkSans |
+
+**Yang berubah antar tema:** warna (token), huruf judul & isi, bentuk sudut, ketebalan garis, bayangan, dan hiasan latar.
+**Yang TIDAK berubah:** susunan layar, ukuran sentuh, alur kerja, dan seluruh fungsi — inilah jaminan "ganti tema tidak merusak apa pun".
+**Menambah tema baru:** ±30 baris nilai warna + huruf, tanpa menyentuh susunan layar (sudah dibuktikan: dari 4 tema menjadi 10 tema dalam satu langkah).
+
+**Tambahan: 2 tingkat kepadatan tampilan (dipilih per perangkat, tanpa koding)** — hasil pelajaran dari kiriman pemilik:
+- **Mode Kasir (padat & cepat):** tanpa foto besar; fokus nama menu, harga, dan tombol. Muat banyak item sekaligus → kasir cepat melayani antrean. *Rujukan: P04, P17, P32.*
+- **Mode Katalog (menawan):** kartu besar dengan foto, label, dan tombol melingkar → untuk halaman pelanggan, papan menu, dan tampilan promo. *Rujukan: P02, P08, P14, P15, P16.*
+Setiap kombinasi tema × kepadatan tetap wajib lolos uji kontras & ukuran sentuh.
+
+**Dapat diatur per-resto tanpa koding:** pilihan tema · warna aksen (dari palet terkurasi ±8 warna yang sudah dijamin kontras) · logo · banner · gambar latar halaman pelanggan · nama resto · tagline.
+
+**Bisa berbeda per perangkat/peran** (contoh: kasir memakai Terang Bersih, dapur memakai Gelap Dapur). Bukti dari kiriman pemilik: P12 (satu aplikasi, dua mode) dan P25 vs P27.
+
+**Jaminan tema:**
+- Ganti tema **tidak mengubah susunan layar maupun fungsi** — hanya warna, bentuk, dan kesan.
+- Setiap tema wajib **lolos uji kontras**; tema yang gagal tidak dirilis (prinsip "tidak ada yang cacat").
+- Halaman pelanggan (katalog & voucher) memakai tema resto tersebut → pelanggan melihat merek restonya, bukan merek platform.
+
+**Pelajaran lokal dari kiriman pemilik:** P21 memakai format **Rupiah (Rp 70.000)** dan P30 memuat menu Indonesia (Mie Ayam, Nasi Uduk, Ayam Geprek, Nasi Goreng Special) → format harga, istilah, dan contoh menu aplikasi kita memakai asumsi pasar Indonesia.
+
+## 4. Layar yang akan dirancang untuk MVP (urutan pengerjaan)
+1. Masuk & pilih peran (PIN)
+2. **Kasir** — menu + keranjang + bayar *(pola P04/P17/P32)*
+3. **Dapur (KDS)** — papan pesanan berkolom *(pola chip status P31)*
+4. **Pelayan** — meja & catat pesanan (HP) *(pola bilah bawah P03/P14/P16)*
+5. **Tutup kas + laporan harian** *(pola P26/P31)*
+6. **Pengaturan resto** (identitas, tema, pajak, meja, menu, pegawai)
+7. **Katalog pelanggan + pendaftaran voucher + tukar voucher di kasir** *(pola P08/P14/P15/P16 + kolom kode promo P02/P05/P23)*
+8. Daftar penyewa (Pemilik Platform)
+
+## 5. Langkah berikutnya
+1. **Contoh tampilan sudah jadi & bisa diklik** (folder `prototipe/`) — pemilik memeriksa, lalu menyetujui atau meminta perubahan.
+2. Setelah disetujui: pola layar & tema bawaan dikunci di dokumen ini, lalu masuk **Tahap 3 (Tech Spec)** dengan desain sebagai acuan.
+
+## 6. Hasil uji aturan wajib (contoh tampilan, 2026-09-16)
+| Aturan | Hasil |
+|---|---|
+| Kontras ≥ 4,5:1 (teks) & ≥ 3:1 (elemen) | **130 dari 130 pemeriksaan LOLOS** di **10 tema** (alat: `prototipe/uji-kontras.py`) |
+| Area sentuh ≥ 44 px | Tombol, tab, tombol +/−, tombol tambah (dibuat 40 px visual + jarak aman) |
+| Huruf dasar 16 px, jarak baris 1,5 | Terpasang di `prototipe/css/tokens.css` |
+| Ikon SVG, bukan emoji | Semua ikon sebaris SVG |
+| Umpan balik tiap aksi | Tombol +/−, "Cek voucher", pemilih metode bayar, jendela mengambang, dan pesan berhasil (toast) menjawab langsung |
+| Tidak ada objek bertumpuk/terpotong | Diperiksa dengan papan mockup (lihat §7) + `prototipe/alat/periksa-halaman.py` (**135/135 lolos**: aset ada, id jendela mengambang cocok, tag seimbang, token terdefinisi) |
+
+
+## 7. Standar kehalusan (ronde 3 — menanggapi catatan pemilik 2026-09-16)
+Pemilik menilai hasil ronde 2 **belum cukup bagus** dan meminta semua aspek desain dimaksimalkan:
+*"font nya, layout nya, penjarakan antar objek nya, shadow nya, glow nya, transisi nya, mode laman mengambang nya, blur nya, dan semua yang berkaitan dengan desain"*.
+Delapan hal itu dijadikan **standar wajib** dan sudah dipasang di `prototipe/css/tokens.css` (lapis komponen):
+
+| # | Aspek (kata pemilik) | Yang dipasang | Angka |
+|---|---|---|---|
+| 1 | **Font** | Dua peran huruf: huruf *display* (judul & angka besar) + huruf isi (nyaman dibaca). Tiap tema punya pasangannya sendiri | 13 berkas woff2 lokal (311 KB), dasar 16 px, baris 1,5 |
+| 2 | **Layout** | Skala jarak tunggal dipakai semua halaman; kartu angka, kisi menu, keranjang kanan, papan pesanan | kelipatan 4 · 8 · 12 · 16 · 20 · 24 · 32 px |
+| 3 | **Penjarakan antar objek** | Tiap blok punya jarak eksplisit (bukan jarak bawaan peramban): kartu ↔ kartu, judul ↔ isi, tombol ↔ tepi | 16 px antar kartu, 12 px dalam kartu, 20 px tepi halaman |
+| 4 | **Shadow** | **Bayangan berlapis 2 tingkat** (dekat tajam + jauh lembut) pada setiap kartu, tombol, dan bilah | contoh: `0 1px 2px` + `0 10px 28px` |
+| 5 | **Glow** | Cahaya aksen lembut pada tombol utama, ikon kategori aktif, dan bilah keranjang — bukan pada teks | 18–28 px blur, kekuatan aksen 25–45% |
+| 6 | **Transisi** | Semua perubahan halus & konsisten; kursor yang lewat membuat kartu terangkat 2 px; tombol menekan 0,98 | 180–260 ms, `cubic-bezier(.22,.61,.36,1)` |
+| 7 | **Mode laman mengambang** | Jendela konfirmasi (bayar, batal berjenjang, tutup kas) tampil di tengah sebagai lapisan mengambang + pesan berhasil di kanan bawah; bisa ditutup dengan tombol Esc | masuk 240 ms, latar gelap 45% |
+| 8 | **Blur (kaca)** | Bilah atas, bilah keranjang, panel pemilih tema, dan lapisan mengambang memakai kaca (buram + tembus pandang) | `backdrop-filter: blur(8–20px) saturate(150%)` |
+
+Aturan pengaman yang tetap dijaga: **kontras 130/130 lolos**, area sentuh ≥44 px, halaman tetap terbaca bila peramban belum mendukung `color-mix` atau `backdrop-filter`
+(disediakan warna cadangan), dan **animasi otomatis mati** bila pengguna memilih "kurangi gerak".
+
+**Cara memeriksa sendiri tanpa membuka browser (bukti mandiri):**
+1. `node prototipe/alat/mockup.js` → 5 papan gambar di `docs/desain/mockup/` (katalog Bara Panggang & Terang Bersih, hangat, kasir terang, kasir gelap).
+   Papan digambar dari **kode tema yang sama** + foto & huruf asli, jadi gambar bukti tidak bisa berbeda dari halaman.
+2. `python3 prototipe/uji-kontras.py` → 130/130 lolos di 10 tema.
+3. `python3 prototipe/alat/periksa-halaman.py` → 135/135 lolos (aset, id lapisan, tag seimbang, token).
+
+**Perbaikan cacat yang ditemukan lewat papan gambar (bukan diklaim, tapi dibereskan):**
+layar HP terpotong di bawah · tombol bulat `+` menabrak nama/harga di kartu POS · baris **Total** melewati tepi panel keranjang ·
+nama menu panjang terpotong tanpa elipsis · kotak pilihan tema menutupi catatan · label hero bertumpuk dengan judul besar. Semua sudah diperbaiki sebelum halaman dikirim.
+
+## 8. Ronde 3 lanjutan — v3 "KERAJINAN" (penyempurnaan menyeluruh, 2026-09-16)
+
+Sesudah pemilik menilai hasil ronde 2 belum cukup rapih, ronde 3 dikerjakan **dua tahap**. Tahap 1 memasang 8 standar kehalusan + 5 papan bukti. Tahap 2 (v3) menulis ulang seluruh sistem desain dan 5 halaman, karena masih ada yang bisa dinaikkan.
+
+**Yang berubah di v3:**
+
+| Aspek | Ronde 2 / ronde 3 tahap 1 | v3 "KERAJINAN" |
+|---|---|---|
+| Huruf | 1 pasang huruf berulang; judul & angka belum dibedakan tegas | 3 peran huruf: **judul** (display), **isi** (bacaan), **angka/struk** (Mono); 13 keluarga lokal, 504 KB |
+| Jarak | angka jarak campur | **tangga jarak 4→72 px** dipakai seragam (jarak eksplisit antar objek) |
+| Ukuran huruf | beberapa ukuran ad hoc | **tangga huruf 11→72 px** (8 ukuran + 2 judul besar) |
+| Bayangan | 1 bayangan datar | **4 tingkat** bayangan **berlapis & berwarna** sesuai tema (tema Kontras sengaja rata + garis tegas) |
+| Glow | belum ada | glow aksen per tema (tombol utama, kategori aktif, tombol tengah bilah bawah) |
+| Kaca/blur | belum ada | `--blur` 16 px & `--blur-kuat` 26 px untuk bilah atas, panel mengambang, bilah keranjang |
+| Lapis mengambang | konfirmasi berupa kartu biasa | `.lapis/.kotak` di tengah (bayar, batal berjenjang, tutup kas) + `.bilah-melayang` + `.toast` |
+| Pola latar | rata | pola halus per tema (bintik, daun, ombak, batik) — boleh "none" |
+| Halaman tema | galeri teks + kotak warna | tiap tema = **HP mini hidup** + palet heksa **dibaca dari warna asli** + tombol "Pakai tema ini" |
+
+**Alat yang menjaga janji "tidak ada yang cacat":**
+
+- `prototipe/uji-kontras.py` — **166 pemeriksaan**: 130 warna (13 pasangan × 10 tema) + 36 aturan desain (kelengkapan token tiap tema, tangga jarak/huruf, area sentuh ≥ 44 px, cincin fokus, mode kurangi gerak, bayangan berlapis, huruf benar-benar tersimpan). Hasil terakhir: **0 gagal**.
+- `prototipe/alat/periksa-halaman.py` — **183 pemeriksaan** halaman (aset ada, id lapis mengambang cocok, kaitan JS ada, tag seimbang, 10 tema tersedia, token terdefinisi). Hasil terakhir: **183/183 lolos**.
+- `prototipe/alat/mockup.js` + `gambar.js` — menggambar 5 papan bukti dari **warna `tokens.css` + huruf TTF asli**; papan wajib digambar ulang setiap kali token berubah supaya tidak berbohong.
+- `prototipe/buat-palet.py` — gambar palet juga membaca warna **dan nama huruf** dari kode.
+- `prototipe/buat-galeri-tema.py` — 10 kartu tema dibuat dari satu daftar, jadi tidak ada kartu yang kelewat.
+
+**Batas yang diakui:** tangkapan layar browser tidak bisa dipasang di lingkungan kerja ini; papan bukti adalah gambar yang dibuat alat sendiri (wujud gaya, bukan tangkapan layar). Halaman aslinya diperiksa langsung dengan membuka server pratinjau.
+
+## Log Keputusan
+| Tanggal | Keputusan | Alasan |
+|---|---|---|
+| 2026-09-16 | Aturan desain mengikuti panduan resmi yang tersedia (kontras 4,5:1, sentuh 44px, huruf 16px, tema lewat token warna) | Tema bisa diganti tanpa merusak keterbacaan — inilah syarat pemilik "beberapa tema tinggal dipilih" |
+| 2026-09-16 | Contoh gambar dipakai sebagai **inspirasi**, desain produk dibuat sendiri (orisinil) | Menghormati karya orang lain + tetap bebas biaya |
+| 2026-09-16 | Kiriman gambar pemilik dinilai: **dipakai sebagai rujukan utama bahasa visual** (kartu menu, keranjang samping, chip status, bilah bawah) | Kualitas paling konsisten dari semua contoh; sekaligus membuktikan tema terang & gelap bisa satu susunan |
+| 2026-09-16 | Ditambah **2 tingkat kepadatan** (Mode Kasir / Mode Katalog) | Foto besar bagus untuk pelanggan, tapi memperlambat kasir saat antre |
+| 2026-09-16 | Foto besar, banner promo, dan animasi dekoratif **tidak dipakai di layar kerja** (kasir/dapur) | Menjaga kecepatan & fokus pegawai — prinsip "layar kerja untuk kerja" |
+| 2026-09-16 | **34 gambar kiriman pemilik masuk repo** (`docs/desain/referensi/pemilik/`, kode P01–P34) via `Referensi.zip` | Gambar kini bisa dipakai ulang di sesi mana pun; zip dihapus setelah isinya terbukti lengkap |
+| 2026-09-16 | Pola kasir dikunci mengikuti **P04/P17/P32** (tab kategori + kisi menu + panel keranjang kanan + ringkasan biaya bertingkat) | Tiga contoh bebas memakai pola sama = pola teruji, bukan selera agent |
+| 2026-09-16 | Format harga & istilah memakai asumsi **Indonesia** (Rupiah, nama menu lokal) — rujukan P21 & P30 | Aplikasi akan dipakai di Kedai Oasis (Indonesia); contohnya pun sudah lokal |
+| 2026-09-16 | Poster (P06, P07) & kolase promosi (P09) **ditolak sebagai desain layar** | Bukan antarmuka; hanya berguna untuk warna/identitas |
+| 2026-09-16 | Pemilik: **"Lanjut"** → rekomendasi agent disetujui: pola kasir P04/P17/P32 · tema bawaan **Terang Bersih** · tema boleh beda per perangkat · lanjut ke 3 contoh tampilan | Pemilik mempercayakan pilihan terbaik; bukti pola sudah kuat (3 contoh bebas, pola sama) |
+| 2026-09-16 | Contoh tampilan dibuat sebagai **halaman web asli yang bisa diklik** (bukan gambar) di `prototipe/` | Browser headless tidak bisa dipasang di lingkungan ini (unduhan diblokir) → halaman asli justru lebih berguna: pemilik bisa mencoba ganti tema & mode kasir sendiri, dan berkasnya menjadi fondasi sistem desain tahap pengembangan |
+| 2026-09-16 | Foto menu di katalog memakai **foto contoh buatan** dan disebut terang-terangan | Menjaga kejujuran (bukan foto Kedai Oasis) sekaligus menunjukkan tempat foto asli yang akan diisi lewat Pengaturan tanpa koding |
+| 2026-09-16 | Pemilik minta tema diperbanyak ("ada theme vintage, nature, dan sebagainya") + mengirim gambar "Grill & Co." | Kebutuhan nyata tiap resto berbeda; tema = merek resto, jadi pilihan wajib banyak |
+| 2026-09-16 | Tema ditambah dari **4 → 10** (tambah Bara Panggang, Vintage Klasik, Alam Hijau, Tropis Segar, Pastel Manis, Etnik Nusantara) | Memenuhi permintaan pemilik; 2 tema punya padanan arah gaya di basis data skill, 2 disusun sendiri (disebut apa adanya) |
+| 2026-09-16 | **Tema "Bara Panggang" dibuat khusus meniru gambar kiriman pemilik** (hitam + emas, judul HURUF BESAR, tombol bulat) | Pemilik menunjukkan contoh itu secara langsung; hurufnya memakai BigShoulders (tebal-tinggi) supaya mendekati kesannya |
+| 2026-09-16 | **13 huruf dari skill** (`skills/ui-styling/canvas-fonts`, lisensi OFL) dirampingkan ke woff2 (**1,4 MB → 311 KB**) dan disimpan lokal | Aplikasi tetap rapi tanpa internet — penting karena resto bisa punya jaringan lemah; lisensi terbuka jadi aman dipakai |
+| 2026-09-16 | Ditambahkan alat bantu: `uji-kontras.py` (uji semua tema) dan `buat-palet.py` (gambar palet dari kode) | Aturan "setiap tema wajib lolos kontras" jadi bisa **diperiksa mesin**, bukan diklaim; gambar palet selalu sama dengan kode |
+| 2026-09-16 | Pemilik menilai hasil ronde 2 **belum cukup bagus** ("malah yang sebelumnya lebih rapih") dan meminta 8 aspek dimaksimalkan | Ukuran keindahan ditentukan pemilik, bukan agent — hasil ronde 2 terlalu sibuk: terlalu banyak kartu catatan di halaman, jarak tidak seragam, dan tidak ada lapisan mengambang/blur |
+| 2026-09-16 | **Standar kehalusan 8 aspek** (§7) dijadikan aturan wajib di `tokens.css` | Menjawab kata-per-kata catatan pemilik: font, layout, penjarakan, shadow, glow, transisi, mode laman mengambang, blur |
+| 2026-09-16 | Halaman contoh **ditulis ulang** dengan lapis komponen baru (kartu, tombol, chip, tab, kisi menu, keranjang kaca, jendela mengambang) | Memasang kehalusan lewat satu lapis komponen = semua halaman ikut rapi sekaligus, bukan tempelan per halaman |
+| 2026-09-16 | **Bayangan berlapis + glow + kaca** dipakai sebagai bahasa visual utama (mengikuti P16/P32 dan pola aplikasi modern) | Inilah yang membuat tampilan terasa "hidup" dan mahal tanpa menambah gambar atau pustaka luar (tetap nol biaya) |
+| 2026-09-16 | Ditambahkan **papan bukti gambar** (`docs/desain/mockup/`, 5 papan) yang digambar dari kode tema yang sama | Pemeriksaan mandiri tanpa browser: agent bisa melihat sendiri cacat tumpang-tindih sebelum pemilik menemukannya |
+| 2026-09-16 | Ditambahkan alat `prototipe/alat/periksa-halaman.py` (135/135) | Menangkap kerusakan yang tidak terlihat mata pemilik (aset hilang, id jendela salah, tag tidak seimbang) |
+| 2026-09-16 | 6 cacat tumpang-tindih dibersihkan **sebelum** halaman dikirim | Prinsip "tidak ada yang cacat": cacat lebih murah dihapus di meja gambar daripada ditemukan pemilik |
+| 2026-09-16 | Tema tetap **10 pilihan** (tidak dikurangi, tidak ditambah di ronde ini) | Permintaan ronde 3 adalah memperhalus, bukan menambah tema; menambah pilihan saat kualitas sedang dikejar justru memperbesar risiko |

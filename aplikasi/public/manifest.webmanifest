@@ -1,0 +1,19 @@
+{
+  "name": "Resto Barokah - Sistem Kasir & Resto",
+  "short_name": "Sajian",
+  "description": "Aplikasi kasir mandiri, dapur, laporan, dan pemesanan restoran.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#059669",
+  "orientation": "any",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
