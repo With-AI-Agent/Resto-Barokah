@@ -10,6 +10,7 @@ yang tidak ada, ID dobel. Mesin ini menolak semua itu.
 Yang diperiksa (folder docs/uji/pemeriksaan/PMB-1/):
  1. PAPAN.md      — ID unik & berpola; status sah; DIKLAIM/SELESAI/DIHAKIMI punya sesi+tanggal; SELESAI punya kartu K;
                     DIHAKIMI punya kartu H dan tidak menyisakan temuan BARU; kartu tidak yatim; kartu lengkap bagiannya.
+                    Ulangan independen potongan yang sama disimpan sebagai kartu/K-<ID>.<n>.md (n = 2, 3, …).
  2. BUKU_BESAR_TEMUAN.md — ID PMB1-F-nnn berurutan tanpa lompatan; tingkat K-1..K-4; potongan ada di papan; artefak ADA
                     (atau `(luar repo)`); bukti & baseline terisi; status sah; syarat per status (Hakim, commit, verifikasi,
                     rujukan T-0xx untuk DITANGGUHKAN); terhadap commit sebelumnya: tidak ada temuan yang hilang dan
@@ -111,10 +112,11 @@ def periksa_kartu(akar: pathlib.Path, potongan: dict[str, dict], errs: list[str]
     for k in sorted(folder.glob("*.md")):
         if k.name.startswith("TEMPLAT_"):
             continue
-        m = re.match(r"^([KH])-(.+)\.md$", k.name)
+        # Ulangan independen potongan yang sama (rancangan §9: potongan boleh diulang pemeriksa lain) → K-<ID>.2.md, K-<ID>.3.md …
+        m = re.match(r"^([KH])-(.+?)(?:\.(\d+))?\.md$", k.name)
         if not m:
-            errs.append(f"kartu/{k.name}: nama harus K-<ID>.md atau H-<ID>.md"); continue
-        jenis, pid = m.groups()
+            errs.append(f"kartu/{k.name}: nama harus K-<ID>.md, H-<ID>.md, atau K-<ID>.<n>.md untuk ulangan"); continue
+        jenis, pid, _ulangan = m.groups()
         if pid not in potongan:
             errs.append(f"kartu/{k.name}: potongan {pid} tidak ada di PAPAN (kartu yatim)"); continue
         isi = k.read_text(encoding="utf-8")
