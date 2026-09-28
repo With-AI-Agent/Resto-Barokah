@@ -18,7 +18,6 @@ create or replace function public.format_rupiah(p_nilai numeric)
 returns text
 language plpgsql
 immutable
-leakproof
 set search_path = public, pg_temp
 as $$
 begin

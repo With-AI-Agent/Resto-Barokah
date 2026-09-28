@@ -30,7 +30,6 @@ returns text
 language plpgsql
 immutable
 parallel safe
-leakproof
 as $$
 declare
   v_email text;
@@ -78,7 +77,6 @@ returns boolean
 language plpgsql
 immutable
 parallel safe
-leakproof
 as $$
 declare
   v_domain text;
