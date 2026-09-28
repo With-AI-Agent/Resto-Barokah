@@ -64,7 +64,8 @@ export const KAMUS_PESAN: Record<string, PesanRamah> = {
   AKUN_TERKUNCI: {
     kode: 'PIN-429',
     judul: 'Akun Terkunci Sementara',
-    pesan: 'Terlalu banyak percobaan PIN salah. Sistem mengunci akses selama 15 menit demi keamanan.',
+    pesan:
+      'Terlalu banyak percobaan PIN salah. Sistem mengunci akses selama 15 menit demi keamanan.',
     tindakan: 'Tunggu 15 menit sebelum mencoba kembali, atau hubungi Owner untuk bantuan.',
   },
   PIN_TERKUNCI: {

@@ -100,7 +100,8 @@ export function LayarMasukPelanggan({
               lineHeight: 1.5,
             }}
           >
-            Dapatkan voucher diskon khusus, promo ulang tahun, dan simpan riwayat pesanan favorit Anda.
+            Dapatkan voucher diskon khusus, promo ulang tahun, dan simpan riwayat pesanan favorit
+            Anda.
           </p>
         </div>
 
@@ -201,12 +202,7 @@ export function LayarMasukPelanggan({
               wajib
             />
 
-            <Tombol
-              ragam="utama"
-              jenis="submit"
-              lebar
-              nonaktif={sedangKirimEmail || !email.trim()}
-            >
+            <Tombol ragam="utama" jenis="submit" lebar nonaktif={sedangKirimEmail || !email.trim()}>
               {sedangKirimEmail ? 'Mengirim...' : 'Kirim Tautan Masuk ke Email'}
             </Tombol>
           </form>
