@@ -2,7 +2,9 @@
 
 > **Status: DISETUJUI LEE 2026-09-28** (*"Ya, aku setuju dengan semua rancangan kamu itu"* — `docs/teknis/REKAM_PESAN_PEMILIK.md` §31),
 > dengan dua tambahan Lee: **tahap & petugas pemeriksaan MENYELURUH** (§4c) dan **penegasan bahwa Fase 11 belum dikerjakan** (§4d).
-> Belum ada pemeriksaan yang dijalankan; Tahap 0 (menyiapkan mekanisme) menyusul.
+> **Tahap 0 disiapkan 2026-09-28** (papan 63 potongan, buku besar, matriks v0, regresi wajib, asumsi, kartu templat, prompt giliran,
+> kalibrasi Tahap 1, penjaga `alat/periksa-pemeriksaan.py` di CI). Gerbang Tahap 0 yang tersisa: **uji coba satu potongan (F-01) oleh sesi
+> pemeriksa sungguhan** → mekanisme diperbaiki dari pengalaman itu → Tahap 1 dibuka. Belum ada pemeriksaan resmi yang dijalankan.
 > Ditulis sesi `arena/01a0e747` (2026-09-28) atas permintaan Lee: *"rancang dulu mekanismenya
 > supaya benar-benar maksimal … pikirkan secara mendalam dan riset di internet."*
 > Bahasa: Indonesia sederhana. Yang bertanda **[usul]** adalah pendapat agent; yang bertanda
@@ -228,6 +230,10 @@ Giliran ke-n (chat yang sama ATAU chat baru — hasilnya harus sama):
  8. PAPAN: potongan → SELESAI; commit+push; BERHENTI dan tulis:  "Potongan K-.. selesai. Langkah Lee: ketik `lanjut`."
 ```
 
+- **Lintas cabang:** setiap sesi Arena terikat cabangnya sendiri, jadi sesi giliran push ke cabangnya dan **Perencana menggabungkan**
+  (perintah Lee `integrasikan <cabang>` → `git fetch` + `git merge --no-ff`, hanya berkas `PMB-1/` yang diharapkan berubah; tabrakan
+  diselesaikan dengan mempertahankan semua baris). Klaim di PAPAN baru terlihat sesi lain setelah digabung — karena itu Lee sebaiknya
+  **menunjuk potongan** di baris `POTONGAN` prompt bila membuka beberapa sesi sekaligus.
 - **Kenapa berhenti tiap potongan, bukan lanjut sendiri?** Supaya konteks chat tidak menggelembung (P2), dan
   supaya Lee bisa mengganti model/sesi kapan saja tanpa kehilangan apa pun. Kalau Lee ingin lebih cepat,
   "lanjut" bisa diganti "lanjut 3 potongan" — mesin tetap mencatat per potongan.
@@ -261,13 +267,16 @@ cakupan wajib ditulis, dilarang membaca kunci kalibrasi).
 ```
 docs/uji/pemeriksaan/
   RANCANGAN_PEMERIKSAAN_BERTAHAP.md       ← berkas ini (rancangan yang disetujui Lee = kontrak)
-  PMB-1/                                   ← satu putaran besar (rencana)
+  PROMPT_GILIRAN.md                        ← naskah statis siap-salin untuk sesi giliran (PERAN · POTONGAN · CABANG PERENCANA di 3 baris pertama)
+  PMB-1/                                   ← satu putaran besar (README.md = peta folder)
     PAPAN.md                ← papan potongan: ID · tahap · lingkup berkas · lensa wajib · ukuran · status (BELUM/DIKLAIM/SELESAI/DIHAKIMI) · sesi · tanggal
     BUKU_BESAR_TEMUAN.md    ← SATU baris per temuan, ID stabil PMB1-F-001…; kolom: tingkat K-1..K-4 · potongan · artefak:baris · janji/aturan baseline yang dilanggar · ciri mutu · bukti (perintah→hasil) · status · hakim · perbaikan (commit) · verifikasi tutup
     MATRIKS_TELUSUR.md      ← janji (PRD M*, aturan bisnis, TECH_SPEC ART-*, KEAMANAN §) → tugas ROADMAP → berkas implementasi → uji → potongan yang memeriksa → hasil
     ASUMSI.md               ← daftar asumsi: kalimat asumsi · sumber (dokumen/fase) · status (dibuktikan/dibantah/terbuka) · riset/bukti · dampak bila salah
+    REGRESI_WAJIB.md        ← 117 temuan lama + (otomatis) klaim `[x]` ROADMAP yang DoD-nya menuntut pelaksanaan nyata
     kartu/K-<ID>.md         ← satu kartu per potongan (pemeriksa) dan H-<ID>.md (hakim)
-    kalibrasi/              ← bahan cacat tanaman per tahap (kunci jawaban TETAP di luar repo)
+    kalibrasi/              ← bahan cacat tanaman per tahap; kunci jawaban TERENKRIPSI (`KUNCI-TAHAP-<n>.enc`, sandi hanya di tangan Lee)
+                              + sidik jari `.sha256` — penyesuaian dari protokol §7 karena PMB berjalan lintas banyak sesi (lihat kalibrasi/README.md)
     RINGKASAN_TAHAP-<n>.md  ← dibuat mesin dari Buku Besar saat gerbang tahap
 ```
 
@@ -386,3 +395,6 @@ menggantikannya, supaya `alat/periksa-temuan-audit.py` tetap berlaku.
    (AUDIT_RIWAYAT) dan semua klaim `[x]` ROADMAP yang menuntut pelaksanaan nyata (§4d).
 6. **Uji coba 1 potongan** dengan sesi pemeriksa sungguhan → perbaiki mekanisme dari pengalaman itu →
    baru Tahap 1 dimulai.
+
+**Status 2026-09-28:** butir 1–5 selesai (commit sesi arena/01a0e747; papan nyata 17 potongan Tahap 1 + 46 kerangka Tahap 2–8;
+penjaga dan penyusun matriks terdaftar di CI dengan `--uji-diri`). Butir 6 menunggu Lee membuka sesi pemeriksa pertama (F-01).
