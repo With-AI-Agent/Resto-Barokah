@@ -39,6 +39,8 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: 2b55bd03207235e421de6ec18837b654
+      VITE_SUPABASE_URL: https://bdvjirmbuqelmduztryj.supabase.co
+      VITE_SUPABASE_ANON_KEY: sb_publishable_b1TMUnIFZAJjmA59X8_WFA_z7SyMXwM
     steps:
       - name: Ambil kode
         uses: actions/checkout@v5
