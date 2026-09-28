@@ -43,6 +43,30 @@ export const KAMUS_PESAN: Record<string, PesanRamah> = {
     tindakan:
       'Coba masukkan kembali dengan teliti. Hindari kesalahan berulang agar akun tidak terkunci.',
   },
+  KREDENSIAL_TIDAK_VALID: {
+    kode: 'PIN-401',
+    judul: 'Kredensial Tidak Sesuai',
+    pesan: 'Email atau 6 angka PIN yang dimasukkan tidak cocok.',
+    tindakan: 'Periksa kembali penulisan email dan 6 angka PIN Anda.',
+  },
+  FORMAT_PIN_SALAH: {
+    kode: 'PIN-400',
+    judul: 'Format PIN Salah',
+    pesan: 'PIN harus berupa tepat 6 digit angka.',
+    tindakan: 'Masukkan 6 angka PIN Anda dengan benar.',
+  },
+  INPUT_TIDAK_LENGKAP: {
+    kode: 'INP-400',
+    judul: 'Data Tidak Lengkap',
+    pesan: 'Email dan PIN wajib diisi untuk masuk ke sistem.',
+    tindakan: 'Lengkapi seluruh kolom isian yang diminta.',
+  },
+  AKUN_TERKUNCI: {
+    kode: 'PIN-429',
+    judul: 'Akun Terkunci Sementara',
+    pesan: 'Terlalu banyak percobaan PIN salah. Sistem mengunci akses selama 15 menit demi keamanan.',
+    tindakan: 'Tunggu 15 menit sebelum mencoba kembali, atau hubungi Owner untuk bantuan.',
+  },
   PIN_TERKUNCI: {
     kode: 'PIN-429',
     judul: 'Akses Terkunci Sementara',
@@ -58,11 +82,35 @@ export const KAMUS_PESAN: Record<string, PesanRamah> = {
   },
 
   // Perangkat & Sesi
+  PERANGKAT_WAJIB: {
+    kode: 'PRG-400',
+    judul: 'Perangkat Belum Diinisialisasi',
+    pesan: 'Pengenal perangkat belum tersedia di peramban ini.',
+    tindakan: 'Muat ulang halaman agar sistem menyiapkan identitas perangkat kasir Anda.',
+  },
   PERANGKAT_BELUM_TERDAFTAR: {
     kode: 'PRG-404',
     judul: 'Perangkat Belum Terdaftar',
     pesan: 'HP atau tablet ini belum didaftarkan sebagai perangkat resmi kasir/resto.',
     tindakan: 'Minta kode pendaftaran perangkat dari Owner/Admin resto Anda.',
+  },
+  PERANGKAT_TIDAK_SAH: {
+    kode: 'PRG-403',
+    judul: 'Akses Perangkat Dicabut',
+    pesan: 'Perangkat ini tidak terdaftar atau telah dinonaktifkan oleh pemilik restoran.',
+    tindakan: 'Hubungi pengelola resto untuk mengaktifkan kembali perangkat ini.',
+  },
+  PERAN_TIDAK_DIIZINKAN: {
+    kode: 'AK-403',
+    judul: 'Peran Tidak Diizinkan',
+    pesan: 'Peran akun Anda tidak diizinkan masuk dari perangkat ini.',
+    tindakan: 'Gunakan perangkat yang sesuai dengan peran Anda atau hubungi Owner.',
+  },
+  RESTO_TIDAK_COCOK: {
+    kode: 'AK-403',
+    judul: 'Restoran Tidak Sesuai',
+    pesan: 'Perangkat ini tidak terdaftar pada restoran akun Anda.',
+    tindakan: 'Pastikan Anda mengakses tautan resto yang benar.',
   },
   PERANGKAT_DICABUT: {
     kode: 'PRG-403',
@@ -139,6 +187,14 @@ export function formatPesanError(error: unknown, fallbackKode = 'AK-601'): Pesan
     const pesanObj = String(obj.pesan || obj.message || '')
     for (const [key, ramah] of Object.entries(KAMUS_PESAN)) {
       if (pesanObj.includes(key)) return ramah
+    }
+    if (pesanObj && pesanObj !== '[object Object]') {
+      return {
+        kode: kodeKey || fallbackKode,
+        judul: 'Kendala Sistem',
+        pesan: pesanObj,
+        tindakan: 'Silakan coba kembali atau hubungi bantuan teknis jika kendala berlanjut.',
+      }
     }
   }
 

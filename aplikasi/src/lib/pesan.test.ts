@@ -32,6 +32,23 @@ describe('formatPesanError & KAMUS_PESAN (T2-08)', () => {
     expect(hasil.judul).toBe('Sesi Selesai')
   })
 
+  it('menerjemahkan KREDENSIAL_TIDAK_VALID dan PERANGKAT_WAJIB dengan tepat', () => {
+    const kredensial = formatPesanError('KREDENSIAL_TIDAK_VALID')
+    expect(kredensial.kode).toBe('PIN-401')
+    expect(kredensial.judul).toBe('Kredensial Tidak Sesuai')
+
+    const prgWajib = formatPesanError({ kode: 'PERANGKAT_WAJIB', pesan: 'Wajib perangkat' })
+    expect(prgWajib.kode).toBe('PRG-400')
+    expect(prgWajib.judul).toBe('Perangkat Belum Diinisialisasi')
+  })
+
+  it('menggunakan pesan eksplisit dari server bila kode tidak ada di kamus', () => {
+    const resTeknis = { code: '42703', message: 'column "created_at" does not exist' }
+    const hasil = formatPesanError(resTeknis)
+    expect(hasil.judul).toBe('Kendala Sistem')
+    expect(hasil.pesan).toBe('column "created_at" does not exist')
+  })
+
   it('menggunakan fallback ketika pesan tidak dikenal atau null', () => {
     const hasilNull = formatPesanError(null)
     expect(hasilNull.kode).toBe('AK-601')

@@ -181,10 +181,11 @@ export async function masukDenganPin(
     })
 
     if (error) {
+      console.error('RPC verifikasi_pin_perangkat error:', error)
       return {
         berhasil: false,
         kode: error.code || 'ERR_RPC',
-        pesan: error.message || 'Gagal memverifikasi PIN.',
+        pesan: error.message || error.details || error.hint || 'Gagal memverifikasi PIN.',
       }
     }
 

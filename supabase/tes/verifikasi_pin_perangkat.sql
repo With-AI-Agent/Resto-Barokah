@@ -121,3 +121,49 @@ select uji.sama(
   '11111111-1111-1111-1111-111111111111'::uuid,
   'Data penyewa_id sesuai Resto Oasis'
 );
+
+-- 7. Login dari perangkat baru (belum terdaftar) oleh Owner -> Auto-provisioning berhasil (T11-01, ART-13)
+reset role;
+select uji.klaim('90000000-0000-0000-0000-000000000002');
+select public.simpan_pin(
+  '839201',
+  null,
+  '90000000-0000-0000-0000-000000000002',
+  'de000000-0000-0000-0000-000000000001',
+  'kunci-uji-hp-owner-0123456789'
+);
+
+select uji.klaim(null);
+set local role anon;
+
+drop table if exists temp_hasil_login_baru;
+create temporary table temp_hasil_login_baru as
+select public.verifikasi_pin_perangkat(
+  'owner.a@contoh.test',
+  '839201',
+  'fe000000-0000-0000-0000-000000000099',
+  'Browser Baru Owner'
+) as res;
+
+select uji.sama(
+  ((select res from temp_hasil_login_baru)->>'berhasil')::boolean,
+  true,
+  'Login Owner dari perangkat baru berhasil dengan auto-provisioning'
+);
+
+-- 8. Login dari perangkat baru kedua oleh Owner -> Tidak tabrakan nama unik
+drop table if exists temp_hasil_login_baru2;
+create temporary table temp_hasil_login_baru2 as
+select public.verifikasi_pin_perangkat(
+  'owner.a@contoh.test',
+  '839201',
+  'fe000000-0000-0000-0000-000000000098',
+  'Browser Baru Owner'
+) as res;
+
+select uji.sama(
+  ((select res from temp_hasil_login_baru2)->>'berhasil')::boolean,
+  true,
+  'Login Owner dari perangkat baru kedua berhasil tanpa konflik nama'
+);
+

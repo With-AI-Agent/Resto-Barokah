@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sajian-pwa-v1'
+const CACHE_NAME = 'sajian-pwa-v2'
 const BERKAS_STATIS = [
   '/',
   '/index.html',

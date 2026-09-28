@@ -26,3 +26,8 @@
 # Optimasi cache untuk aset statis hasil kompilasi Vite yang memiliki hash berkas
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Hindari cache peramban pada service worker agar pembaruan cepat aktif
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
