@@ -200,7 +200,14 @@ sempat ditandai selesai dikembalikan ke `[ ]` di ROADMAP dengan baris "Koreksi s
 | T11-02 uji terima pemilik · T11-09 pelatihan · T11-10 serah terima | Tidak termasuk PMB (ini finishing) | Ya — setelah PMB selesai |
 | T11-06 angka nyata batas gratis · T11-08 peringatan 70/90 % | Alat & kodenya diperiksa di Tahap 2 (Fase 10/11) | Ya — angka & peringatan di lingkungan nyata |
 | T11-01 · T11-11 Playwright di CI (T-026) | Tidak termasuk PMB | Ya — menunggu keputusan Lee atas T-026 |
-| T11-07 deploy | Sudah dilakukan (Lee konfirmasi) | Selesai (domain kustom tetap opsional per T-008) |
+| T11-07 deploy | **Sebagian**: jalur deploy nyata (commit `b3e00686`, versi pra-PMB); Tahap 7 memeriksa produksi vs repo (termasuk DoD "data uji tidak ada di produksi") | Ya — deploy final setelah PMB; domain kustom tetap opsional per T-008 |
+
+**Temuan pra-registrasi (ditemukan saat memverifikasi klaim deploy, sebelum Buku Besar ada — dipindahkan ke Buku Besar di Tahap 0):**
+`PMB1-F-001` · BARU · kandidat K-1 · migrasi `0086` Bagian 2 menanam akun percontohan `@resto.test` ber-PIN bawaan **hanya di produksi**
+(dilewati saat uji lokal → tidak pernah tertangkap uji SQL), sementara `verifikasi_pin_perangkat` mendaftarkan perangkat baru sendiri dan repo
+GitHub publik. Bukti: `git show 8bba597c --stat`; run `sebar-skema.yml` 2026-09-28 07:49 UTC hijau. Bertentangan dengan DoD T11-07.
+Keputusan mitigasi produksi = Lee (REKAM §31 butir 6). Pelajaran mekanisme: blok "hanya di produksi" adalah **titik buta uji lokal** → Tahap 1
+wajib memeriksa setiap `if not exists (... nspname = 'uji')` / cabang khusus produksi.
 
 Pelajaran yang langsung dipakai PMB: kelas cacat **"klaim vs kenyataan"** — tugas ditandai selesai padahal
 DoD-nya menuntut tangan pemilik/perangkat nyata. Tahap 1 (potongan ROADMAP) wajib menyisir **semua** tugas

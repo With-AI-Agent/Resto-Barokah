@@ -10,12 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0e747-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0e747-resto-barokah`
-- **Commit keadaan kerja:** `59462d4d149b8e9135cb502fe8066e650bc1284b`
+- **Commit keadaan kerja:** `04ad3084b7a1648763b718485d3f8fd514a65f64`
 - **PR:** PR #14 (base main)
 PR #13 (base main)
 PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36405068753, commit 59462d4d) — tunggu sampai selesai
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
+- **CI terakhir:** success (1 run, commit 04ad3084)
 - **Ditulis:** 2026-09-28 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -29,7 +28,7 @@ PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (145 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (437 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (146 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (438 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -75,7 +74,7 @@ JANGAN merge apa pun tanpa keputusan Lee.
 > 2. Sesi ini bercabang dari `main` **yang sudah memuat seluruh pekerjaan 01a0d09b** — `--susul` menjawab **SUDAH** (tidak ada yang perlu disusul). Sesi 01a0d09b otomatis berstatus *terserap*, BUKAN ditinggalkan.
 > 3. **Kejadian teknis:** checkout awal Arena berupa *shallow clone* (kedalaman 1) sehingga `--susul` pertama keliru berkata "punya commit sendiri"; dibereskan dengan `git fetch --unshallow origin` (hanya melengkapi riwayat, tidak mengubah apa pun). Sesi baru berikutnya: bila `--susul` BERHENTI padahal cabang jelas sudah di-merge, periksa `git rev-parse --is-shallow-repository` dulu.
 > 4. Handoff disegarkan ke sesi ini (`--siapkan --lanjut-dari arena/01a0e747-resto-barokah`) hanya supaya pemeriksa LOLOS; **arah kerja berikutnya menunggu jawaban Lee atas "Mau apa di sesi ini?"**.
-> 5. **Arahan Lee (2026-09-28 sore): rancang dulu mekanisme "Pemeriksaan Mendalam" bertahap** (fondasi dulu → per fase → dst., auditor bekerja per potongan lewat beberapa giliran "lanjut", pencatatan sistematis lintas sesi). Rancangan + riset ditulis di `docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md` (status RANCANGAN; 8 pertanyaan keputusan di §11). **Lee menyetujui seluruh rancangan (2026-09-28 sore, REKAM §31)** + 2 tambahan: tahap & petugas MENYELURUH (§4c) dan **FASE 11 BELUM DIKERJAKAN kecuali T11-07** (§4d; ROADMAP dikoreksi: 8 tugas kembali `[ ]`, 3 dokumen diberi spanduk koreksi). Urutan resmi: **PMB → Fase 11 → pilot**. Langkah berikutnya: **Tahap 0 PMB** (papan, matriks telusur v0, prompt giliran Pemeriksa/Hakim/Menyeluruh, `alat/periksa-pemeriksaan.py` (rencana), kalibrasi Tahap 1, uji coba 1 potongan) — mulai setelah Lee mengonfirmasi jawaban soal Fase 11. Butir tertangguh tetap 2 (T-026, T-028). PR terbuka: #14, #13, #3 (laporan audit sesi lain) — jangan merge tanpa keputusan Lee.
+> 5. **Arahan Lee (2026-09-28 sore): rancang dulu mekanisme "Pemeriksaan Mendalam" bertahap** (fondasi dulu → per fase → dst., auditor bekerja per potongan lewat beberapa giliran "lanjut", pencatatan sistematis lintas sesi). Rancangan + riset ditulis di `docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md` (status RANCANGAN; 8 pertanyaan keputusan di §11). **Lee menyetujui seluruh rancangan (2026-09-28 sore, REKAM §31)** + 2 tambahan: tahap & petugas MENYELURUH (§4c) dan **FASE 11 BELUM DIKERJAKAN kecuali T11-07** (§4d; ROADMAP dikoreksi: 8 tugas kembali `[ ]`, 3 dokumen diberi spanduk koreksi). Lee menegaskan ulang (tidak ingat pasti): hanya deploy Cloudflare, itupun versi Fase 10 — bukti repo: T11-07 = **SEBAGIAN** (deploy `b3e00686` pra-PMB; ROADMAP kini 146/193). **⚠️ Temuan pra-registrasi `PMB1-F-001` (kandidat K-1, BARU, menunggu keputusan Lee):** migrasi `0086` menanam akun `@resto.test` ber-PIN bawaan khusus di produksi + RPC login mendaftarkan perangkat sendiri + repo publik → jangan disentuh tanpa izin Lee; rincian REKAM §31 butir 6 & rancangan §4d. Urutan resmi: **PMB → Fase 11 → pilot**. Langkah berikutnya: **Tahap 0 PMB** (papan, matriks telusur v0, prompt giliran Pemeriksa/Hakim/Menyeluruh, `alat/periksa-pemeriksaan.py` (rencana), kalibrasi Tahap 1, uji coba 1 potongan) — mulai setelah Lee mengonfirmasi jawaban soal Fase 11. Butir tertangguh tetap 2 (T-026, T-028). PR terbuka: #14, #13, #3 (laporan audit sesi lain) — jangan merge tanpa keputusan Lee.
 
 **STATUS TERKINI SESI 2026-09-28 (PENUNTASAN DEPLOY PRODUKSI & LOGIN OWNER SUKSES):**
 > 1. **Perbaikan Tuntas Kendala Login [AK-601]:** Migrasi `0087_perbaiki_search_path_kripto_dan_rpc.sql` berhasil diterapkan di Supabase Cloud (run `#36393774425`). Kolom `dibuat_pada` telah diperbaiki, penanganan benturan nama perangkat aktif terpasang, dan fungsi kriptografi `crypt`/`gen_salt` stabil di skema `public`.

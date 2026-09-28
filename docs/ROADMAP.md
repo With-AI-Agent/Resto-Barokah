@@ -2037,7 +2037,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 11 — Uji terima, deploy produksi, audit (penutup G1)
 
-> **STATUS FASE 11 (keputusan Lee 2026-09-28 — `docs/teknis/REKAM_PESAN_PEMILIK.md` §31): BELUM DIKERJAKAN, kecuali T11-07 (deploy Cloudflare).**
+> **STATUS FASE 11 (keputusan Lee 2026-09-28 — `docs/teknis/REKAM_PESAN_PEMILIK.md` §31): BELUM DIKERJAKAN.** Satu-satunya yang sudah nyata = jalur deploy Cloudflare/Supabase (T11-07), itupun **sebagian**: versi pra-PMB (commit `b3e00686`), bukan versi final, dan DoD "data uji tidak ada di produksi" belum terpenuhi.
 > Fase 11 = *finishing* (uji terima pemilik, uji nyata perangkat/printer, pelatihan, serah terima, Playwright, audit penutup).
 > Urutan resmi: **PMB — Pemeriksaan Mendalam Bertahap** (`docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md`) **dulu → baru Fase 11 → pilot.**
 > PMB menggantikan T11-13 sebagai audit penutup dan menjadi wadah uji nyata T11-03/04/12 di tahap lapangan; status tugas tetap dicatat di sini.
@@ -2107,7 +2107,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** batas terlampaui tanpa terasa → mitigasi: peringatan otomatis 70%/90% + laporan bulanan.
   - **Verifikasi:** jalankan pemantau → laporan angka + perintah peringatan diuji. · **Bukti 2026-09-27 (Pemantauan K6 Terpasang & Bebas Biaya):** skrip pemantau `alat/pantau_batas.py` selesai dibuat mendukung mode konsol, `--format json`, `--simulasi-oasis`, dan `--uji-diri` (6/6 skenario lolos fail-closed); laporan komprehensif dicatat di `docs/uji/KINERJA_DAN_BATAS.md` membuktikan konsumsi Kedai Oasis bulan 1 (DB ±2,8 MB, Foto ±0,33 MB WebP, Egress ±380 MB/bln, Email ±60/bln) berada aman di bawah batas gratis (<9% dari kuota); benchmark latensi kasir lokal IndexedDB 18 ms dan eksekusi pembayaran 120-180 ms.
 
-- [x] T11-07 — Deploy produksi + domain + HTTPS  <!-- T-008 sudah ditutup 2026-09-16: mulai dengan alamat gratis *.workers.dev -->
+- [ ] T11-07 — Deploy produksi + domain + HTTPS  <!-- T-008 sudah ditutup 2026-09-16: mulai dengan alamat gratis *.workers.dev -->
+  - **Koreksi status — SEBAGIAN (keputusan Lee 2026-09-28, REKAM_PESAN_PEMILIK §31 butir 5–6):** jalur deploy nyata dan hijau (`sebar-halaman.yml` + `sebar-skema.yml`; deploy terakhir commit `b3e00686`, 2026-09-28 07:49 UTC = kode pra-PMB, **bukan versi final**). Yang **belum**: (a) deploy final setelah PMB + Fase 11; (b) DoD **"data uji tidak ada di produksi" TIDAK terpenuhi** — migrasi `0086` menanam akun percontohan `@resto.test` ber-PIN bawaan khusus di produksi (temuan pra-registrasi PMB1-F-001, menunggu keputusan Lee); (c) verifikasi "buka dari HP di luar jaringan kantor + daftar periksa tercentang" oleh Lee belum terbukti. Baris "Bukti 2026-09-27" di bawah = panduan yang disusun, bukan bukti selesai.
   - **Tujuan:** aplikasi bisa dipakai harian oleh pegawai Kedai Oasis.
   - **Ref:** TECH_SPEC §1 & §7; PRD M12
   - **File:** `aplikasi/wrangler.toml`, `docs/ops/DEPLOY.md`

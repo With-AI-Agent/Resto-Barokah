@@ -7,6 +7,11 @@
 > **Protokol:** HTTPS Wajib (HSTS Preload + Zero Insecure Content)  
 > **Jalur Deploy Awal (T-008):** `https://resto-barokah.fatrizmubarok.workers.dev` (atau custom domain resto).
 
+> **⚠️ KOREKSI STATUS (keputusan Lee 2026-09-28, `docs/teknis/REKAM_PESAN_PEMILIK.md` §31):** label "SIAP RILIS" di atas **tidak berlaku**. Fakta per 2026-09-28:
+> deploy yang ada = commit `b3e00686` (versi pra-PMB, bukan final); klaim "**BERSIH 100% (Tanpa Data Uji)**" pada tabel §1 **bertentangan** dengan migrasi
+> `supabase/migrations/0086_data_awal_dan_autentikasi_perangkat.sql` Bagian 2 yang menanam akun percontohan `@resto.test` ber-PIN bawaan **khusus di produksi**
+> (temuan pra-registrasi PMB1-F-001, menunggu keputusan Lee). Deploy final dilakukan di Fase 11 **setelah** PMB. Dokumen ini tetap berlaku sebagai **panduan prosedur**.
+
 ---
 
 ## 1. Pemisahan Lingkungan Bersih (Clean Environment Separation)
