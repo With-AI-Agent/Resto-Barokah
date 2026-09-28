@@ -209,10 +209,10 @@ export function StatusPemakaian({ dataAwal, onSegarkan, onKembali }: StatusPemak
           const { persen, nada, status } = hitungRasio(item.pemakaian, item.batas)
           const warnaBar =
             status === 'bahaya'
-              ? 'var(--bahaya, #ef4444)'
+              ? 'var(--danger)'
               : status === 'waspada'
-                ? 'var(--peringatan, #f59e0b)'
-                : 'var(--sukses, #10b981)'
+                ? 'var(--warn)'
+                : 'var(--success)'
 
           return (
             <Kartu key={idx}>
