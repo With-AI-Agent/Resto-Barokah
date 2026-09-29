@@ -7,11 +7,12 @@ Menggabungkan cabang giliran PMB ke cabang Perencana **baris demi baris** (bukan
   • baris yang diubah dua pihak berbeda (mis. dua hakim untuk potongan yang sama) TIDAK diputuskan mesin —
     dilaporkan sebagai SENGKETA untuk diselesaikan Perencana dengan aturan tertulis (README PMB-1 / rancangan §5).
 
-Pakai:  python3 alat/pmb-integrasi.py origin/arena/<id>-resto-barokah [--tanpa-commit] [--laporan <berkas.json>]
+Pakai:  python3 alat/pmb-integrasi.py origin/arena/<id>-resto-barokah [--tanpa-commit] [--laporan <berkas.json>] [--abaikan-luar-pmb]
 Alur:   git merge --no-ff --no-commit <cabang>  →  tulis ulang berkas PMB-1 hasil gabungan baris  →  git add  →
         penjaga (periksa-pemeriksaan.py)  →  commit bila tanpa sengketa & penjaga LOLOS; bila ada sengketa: merge dibiarkan
         terbuka (MERGE_HEAD ada), laporan JSON ditulis, keluar kode 2 — Perencana menyelesaikan lalu commit sendiri.
 Batas:  hanya berkas di docs/uji/pemeriksaan/PMB-1/ yang boleh berubah di cabang giliran; berkas lain → berhenti (kode 3).
+        --abaikan-luar-pmb: perubahan luar PMB-1 dibuang (versi HEAD dipertahankan) dan dicatat sebagai pelanggaran kontrak.
 Catatan: belum punya --uji-diri; divalidasi pada empat cabang nyata 2026-09-29 (ea8f, ea91, ea90 dengan 22 sengketa, ea92 dengan
         39 temuan +2 / 17 asumsi +4) — setiap langkah diikuti `periksa-pemeriksaan.py` LOLOS. Aturan sengketa: PMB-1/README.md.
 """
@@ -86,6 +87,8 @@ class Integrasi:
         self.base = git("merge-base", "HEAD", cabang).strip()
         self.sengketa: list[dict] = []
         self.catatan: list[str] = []
+        self.abaikan_luar: bool = False
+        self.luar: list[str] = []
         self.peta: dict[str, str] = {}
 
     # ---------- penomoran ulang ----------
@@ -138,7 +141,12 @@ class Integrasi:
                     if r_head[fid] == r_base[fid]:
                         b = self.renum(r_cab[fid])                     # hanya cabang yang mengubah → ambil
                     elif r_head[fid] != self.renum(r_cab[fid]):
-                        self.sengketa.append({"berkas": path, "id": fid, "head": r_head[fid], "cabang": self.renum(r_cab[fid]), "base": r_base[fid]})
+                        ganda = self.penutup_ganda(r_head[fid], self.renum(r_cab[fid]), r_base[fid])
+                        if ganda is not None:
+                            b = ganda                                   # aturan README: penutup ganda → keduanya di kolom tutup
+                            self.catatan.append(f"{fid}: penutup ganda (HEAD & cabang sama-sama DITUTUP) — kedua penutup dicatat di kolom tutup")
+                        else:
+                            self.sengketa.append({"berkas": path, "id": fid, "head": r_head[fid], "cabang": self.renum(r_cab[fid]), "base": r_base[fid]})
             hasil_baris.append(b)
         # tambahan: baris baru cabang, dinomori ulang, sesuai urutan cabang
         for fid, b in r_cab.items():
@@ -149,6 +157,21 @@ class Integrasi:
         if non_tabel(cab) != non_tabel(base):
             self.catatan.append(f"{path}: cabang mengubah teks di luar baris tabel — TIDAK diambil (periksa manual bila perlu)")
         return "\n".join(hasil_baris) + "\n"
+
+    @staticmethod
+    def penutup_ganda(head: str, cab: str, base: str) -> str | None:
+        """Dua sesi berbeda sama-sama menutup temuan yang sama (README PMB-1: penutup ganda → keduanya di kolom tutup).
+        Syarat: cabang hanya mengubah kolom status (→ DITUTUP) dan kolom tutup dari base; HEAD juga DITUTUP. Hasil = baris HEAD
+        dengan penutup cabang ditambahkan. Selain itu → tetap sengketa."""
+        sel = lambda s: [x.strip() for x in s.strip().strip("|").split("|")]  # noqa: E731
+        h, c, b = sel(head), sel(cab), sel(base)
+        if not (len(h) == len(c) == len(b) == 11):
+            return None
+        beda_cab = [i for i in range(11) if c[i] != b[i]]
+        if set(beda_cab) - {7, 10} or c[7] != "DITUTUP" or h[7] != "DITUTUP" or not c[10] or c[10] in {"—", h[10]}:
+            return None
+        h[10] = f"{h[10]} ‖ PENUTUP KEDUA (sesi lain, integrasi): {c[10]}"
+        return "| " + " | ".join(h) + " |"
 
     def gabung_papan(self) -> str | None:
         head, base, cab = show("HEAD", PAPAN), show(self.base, PAPAN), show(self.cabang, PAPAN)
@@ -175,8 +198,13 @@ class Integrasi:
         hasil: dict[str, str] = {}
         berubah = git("diff", "--name-only", self.base, self.cabang).split()
         luar = [p for p in berubah if not p.startswith(PMB)]
+        if luar and not self.abaikan_luar:
+            raise SystemExit(f"cabang menyentuh berkas di luar PMB-1 (pelanggaran kontrak giliran): {luar} — hentikan, lapor Lee; "
+                             "bila Lee/Perencana memutuskan perubahan luar itu dibuang, ulangi dengan --abaikan-luar-pmb")
         if luar:
-            raise SystemExit(f"cabang menyentuh berkas di luar PMB-1 (pelanggaran kontrak giliran): {luar} — hentikan, lapor Lee")
+            self.luar = luar
+            self.catatan.append(f"cabang menyentuh {len(luar)} berkas di luar PMB-1 (pelanggaran kontrak giliran) — DIBUANG, "
+                                f"versi HEAD dipertahankan: {', '.join(luar)}")
         for path in berubah:
             if path in (LEDGER, ASUMSI, PAPAN):
                 continue
@@ -236,6 +264,13 @@ class Integrasi:
         for path in git("diff", "--name-only", "--diff-filter=U").split():
             if path not in tulis:
                 subprocess.run(["git", "checkout", "HEAD", "--", path], cwd=AKAR, capture_output=True)
+        # berkas luar PMB-1 yang sengaja dibuang (--abaikan-luar-pmb): kembalikan ke HEAD, atau hapus bila HEAD tidak memilikinya
+        for path in self.luar:
+            if show_bytes("HEAD", path) is None:
+                subprocess.run(["git", "rm", "-q", "--cached", "--", path], cwd=AKAR, capture_output=True)
+                (AKAR / path).unlink(missing_ok=True)
+            else:
+                subprocess.run(["git", "checkout", "HEAD", "--", path], cwd=AKAR, check=True, capture_output=True)
         subprocess.run(["git", "add", "-A", "--", PMB], cwd=AKAR, check=True)
         print(f"INTEGRASI {self.cabang} (base {self.base[:7]})")
         for c in self.catatan:
@@ -269,7 +304,9 @@ def main(argv: list[str]) -> int:
     laporan = None
     if "--laporan" in argv:
         laporan = pathlib.Path(argv[argv.index("--laporan") + 1])
-    return Integrasi(argv[0]).jalankan(commit="--tanpa-commit" not in argv, laporan=laporan)
+    integrasi = Integrasi(argv[0])
+    integrasi.abaikan_luar = "--abaikan-luar-pmb" in argv
+    return integrasi.jalankan(commit="--tanpa-commit" not in argv, laporan=laporan)
 
 
 if __name__ == "__main__":

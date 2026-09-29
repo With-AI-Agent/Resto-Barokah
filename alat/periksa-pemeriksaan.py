@@ -11,7 +11,7 @@ Yang diperiksa (folder docs/uji/pemeriksaan/PMB-1/):
  1. PAPAN.md      — ID unik & berpola; status sah; DIKLAIM/SELESAI/DIHAKIMI punya sesi+tanggal; SELESAI punya kartu K;
                     DIHAKIMI punya kartu H dan tidak menyisakan temuan BARU; kartu tidak yatim; kartu lengkap bagiannya.
                     Ulangan independen potongan yang sama disimpan sebagai kartu/K-<ID>.<n>.md (n = 2, 3, …).
- 2. BUKU_BESAR_TEMUAN.md — ID PMB1-F-nnn berurutan tanpa lompatan; nomor baris artefak tidak melebihi panjang berkas; DUPLIKAT (Hakim) wajib menunjuk temuan induk yang lebih dulu; tingkat K-1..K-4; potongan ada di papan; artefak ADA
+ 2. BUKU_BESAR_TEMUAN.md — ID PMB1-F-nnn berurutan tanpa lompatan; nomor baris artefak tidak melebihi panjang berkas; status berputusan menyebut kartu H yang ada; DUPLIKAT (Hakim) wajib menunjuk temuan induk yang lebih dulu; tingkat K-1..K-4; potongan ada di papan; artefak ADA
                     (atau `(luar repo)`); bukti & baseline terisi; status sah; syarat per status (Hakim, commit, verifikasi,
                     rujukan T-0xx untuk DITANGGUHKAN); terhadap commit sebelumnya: tidak ada temuan yang hilang dan
                     transisi status mengikuti siklus.
@@ -42,6 +42,7 @@ from bantu_uji_diri import AKAR, jalankan_pemeriksa, laporkan, salin_pohon  # no
 PUTARAN = "docs/uji/pemeriksaan/PMB-1"
 STATUS_POTONGAN = {"RENCANA", "BELUM", "DIKLAIM", "SELESAI", "DIHAKIMI"}
 STATUS_TEMUAN = {"BARU", "TERVERIFIKASI", "PALSU", "PERLU-INFO", "DIPERBAIKI", "DITUTUP", "DITANGGUHKAN", "DUPLIKAT"}
+RE_KARTU_H = re.compile(r"\bH-[A-Z]-[0-9A-Z]{1,3}(?:-\d{2})?(?:\.\d+)?\b")  # H-F-07, H-F-07.2, H-P-10-00, H-P-1B-00
 TERBUKA = {"BARU", "TERVERIFIKASI", "PERLU-INFO", "DIPERBAIKI"}
 TRANSISI = {
     "BARU": {"TERVERIFIKASI", "PALSU", "PERLU-INFO", "DITANGGUHKAN", "DUPLIKAT"},
@@ -163,6 +164,7 @@ def baca_buku_besar(akar: pathlib.Path, potongan: dict[str, dict], errs: list[st
     if not p.is_file():
         errs.append("BUKU_BESAR_TEMUAN.md tidak ada"); return {}
     temuan: dict[str, dict] = {}
+    kartu_h = {q.name[:-3] for q in (akar / PUTARAN / "kartu").glob("H-*.md")}
     tertangguh = (akar / "docs/TERTANGGUH.md").read_text(encoding="utf-8") if (akar / "docs/TERTANGGUH.md").is_file() else ""
     urut = 0
     for n, sel in _baris_tabel(p.read_text(encoding="utf-8"), RE_ID_TEMUAN):
@@ -191,6 +193,12 @@ def baca_buku_besar(akar: pathlib.Path, potongan: dict[str, dict], errs: list[st
             errs.append(f"BUKU BESAR {fid}: status '{status}' tidak sah")
         if status in {"TERVERIFIKASI", "PALSU", "PERLU-INFO", "DITUTUP", "DUPLIKAT"} and hakim in {"", "—"}:
             errs.append(f"BUKU BESAR {fid}: status {status} wajib mengisi kolom Hakim (sesi + kartu H)")
+        if status in {"TERVERIFIKASI", "PALSU", "PERLU-INFO", "DITUTUP", "DUPLIKAT"} and hakim not in {"", "—"}:
+            # PMB1-F-136: kolom Hakim yang terisi saja tidak cukup — kartu hakim yang disebut harus benar-benar ada di kartu/
+            rujukan_h = set(RE_KARTU_H.findall(f"{hakim} {tutup}"))
+            if not (rujukan_h & kartu_h):
+                errs.append(f"BUKU BESAR {fid}: status {status} wajib menyebut kartu hakim yang ADA di kartu/ (H-<potongan>[.n].md) "
+                            f"di kolom Hakim/Tutup — disebut: {sorted(rujukan_h) or 'tidak ada'}")
         if status in {"DIPERBAIKI", "DITUTUP"} and not RE_SHA.search(perbaikan):
             errs.append(f"BUKU BESAR {fid}: status {status} wajib menyebut sha commit perbaikan")
         if status == "DITUTUP" and tutup in {"", "—"}:
@@ -408,6 +416,10 @@ def uji_diri() -> int:
     coba("DITUTUP tanpa hakim/commit ditolak", lambda t: tambah_temuan(t, "DITUTUP"))
     coba("artefak yang tidak ada ditolak", lambda t: tambah_temuan(t, "BARU", artefak="`supabase/migrations/9999_tidak_ada.sql:1`"))
     coba("artefak dengan nomor baris di luar berkas ditolak", lambda t: tambah_temuan(t, "BARU", artefak="`docs/PRD.md:99999`"))
+    coba("TERVERIFIKASI dengan kartu hakim yang tidak ada ditolak (PMB1-F-136)",
+         lambda t: tambah_temuan(t, "TERVERIFIKASI", hakim="arena/bukan-hakim H-TIDAK-ADA — bukan hakim sebenarnya"))
+    coba("TERVERIFIKASI oleh pemeriksa sendiri (kartu K, bukan H) ditolak",
+         lambda t: tambah_temuan(t, "TERVERIFIKASI", hakim="arena/uji K-F-01 §4 — direproduksi sendiri"))
     coba("ID temuan melompat ditolak", lambda t: ubah_sel_temuan(t, "PMB1-F-001", 0, "PMB1-F-000"))
     coba("potongan temuan yang tidak ada di papan ditolak", lambda t: tambah_temuan(t, "BARU", pot="F-99"))
     coba("temuan pertama dihapus ditolak (urutan ID putus)", lambda t: (t / bb).write_text(

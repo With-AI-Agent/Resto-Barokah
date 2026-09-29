@@ -21,6 +21,12 @@ di PAPAN/Buku Besar dengan **mempertahankan semua baris** (ID temuan yang bertab
 lalu menjalankan penjaga dan push. Sejak 2026-09-29 penggabungan memakai **`python3 alat/pmb-integrasi.py origin/<cabang>`**
 (gabungan **baris demi baris**: ID baru dinomori ulang melanjutkan ID tertinggi, rujukan di kartu/bukti ikut digeser, kartu untuk potongan yang
 sudah punya kartu disimpan sebagai `.2`/`.3`, baris yang diubah dua pihak dilaporkan sebagai SENGKETA dan **tidak** diputuskan mesin).
+Dua kekecualian mesin yang **deterministik** (putaran 5, 2026-09-29): (a) **penutup ganda** — dua sesi sama-sama menutup temuan yang sama
+(hanya kolom status→DITUTUP & tutup yang berubah) → baris HEAD dipertahankan dan penutup kedua ditambahkan ke kolom tutup dengan penanda
+`‖ PENUTUP KEDUA`; (b) `--abaikan-luar-pmb` — bila cabang giliran menyentuh berkas di luar `PMB-1/` (pelanggaran kontrak, mis. handoff),
+Perencana boleh membuang perubahan luar itu (versi HEAD dipertahankan) dan pelanggarannya tercatat di pesan commit integrasi.
+Catatan hakim di luar kartu (mis. `BERKAS-INTEGRASI-F-08.md`, `REKONSILIASI-F-08.md` dari hakim F-08) bersifat **informatif**; yang
+kanonik tetap PAPAN, Buku Besar, ASUMSI, dan kartu `K-`/`H-`. Naskah giliran berikutnya: catatan seperti itu ditaruh di `kartu/` atau `bukti/`.
 
 **Aturan sengketa (dua hakim independen untuk potongan yang sama, diterapkan Perencana saat integrasi — pertama kali F-03, 2026-09-29):**
 hakim yang selesai lebih dulu = Hakim 1 (`H-<ID>.md`), yang lain = Hakim 2 (`H-<ID>.2.md`); kedua putusan dicatat di kolom Hakim.
