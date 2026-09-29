@@ -80,12 +80,20 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
 > **Perintah dalam bukti harus benar-benar dijalankan** dan keluarannya ditempel apa adanya: nama berkas di dalam perintah disalin dari
 > `ls`/`git ls-files`, bukan diketik dari ingatan — perintah yang menyebut berkas yang tidak ada (mis. `grep … 0030_sistem_pin.sql` → "cocok")
 > adalah bukti dikarang walau klaimnya kebetulan benar (pelajaran PMB1-F-202). Hakim: `ls` setiap path yang muncul di perintah bukti kartu K.
+> **Jaminan Tuntas (keputusan Lee 2026-09-29, `docs/uji/pemeriksaan/USULAN_JAMINAN_TUNTAS.md`):** "selesai" bukan kata, melainkan bukti.
+> (K4) Baris `DIPERBAIKI`/`DITUTUP` wajib menyebut di kolom Perbaikan/Tutup **≥1 berkas uji/penjaga yang ADA di repo** (`*.test.ts`, `supabase/tes/*.sql`,
+> `alat/periksa-*.py`) — penjaga menolak nama karangan; perbaikan dokumen murni menulis `tanpa uji mesin: <alasan>` (ditolak bila commit-nya menyentuh kode).
+> (K3) Centang `[x]` di `docs/ROADMAP.md` hanya sah dengan baris `- **Bukti:**` yang menunjuk uji/penjaga yang ada atau baris Buku Uji `U-nn` yang Lee isi `OK`;
+> `python3 alat/periksa-roadmap.py` menolak selainnya. **Pembangun tidak pernah menulis `[x]`** — yang mencentang adalah Hakim/Perencana sesudah bukti.
+> Centang lama bertanda `⏳ BUKTI-BELUM` (daftar beku `PMB-1/BUKTI_BELUM_BASELINE.txt`) diputuskan satu per satu oleh sensus klaim Tahap 2 (§5).
 
 1. Salin `PMB-1/kartu/TEMPLAT_K.md` → `PMB-1/kartu/K-<ID>.md` (HAKIM: `TEMPLAT_H.md` → `H-<ID>.md`). Isi **semua** bagian.
 2. Tiap temuan → **satu baris baru** di `PMB-1/BUKU_BESAR_TEMUAN.md`, ID berikutnya berurutan (`PMB1-F-00n`), status `BARU`, kolom
    Artefak = jalur repo yang ada (`berkas:baris`), Bukti = perintah → hasil nyata. Temuan luar cakupan ikut dicatat (potongan asal = potonganmu).
 3. Asumsi → baris `PMB1-A-00n` di `PMB-1/ASUMSI.md`.
-4. `python3 alat/periksa-pemeriksaan.py` → harus **LOLOS** (format, ID, artefak ada, status sah). Kalau merah, perbaiki catatanmu — bukan aturannya.
+4. `python3 alat/susun-daftar-tunggu-lee.py` (menyusun ulang `PMB-1/DAFTAR_TUNGGU_LEE.md` — kunci K2; berkas ini dibuat mesin, jangan diedit
+   tangan), lalu `python3 alat/periksa-pemeriksaan.py` → harus **LOLOS** (format, ID, artefak ada, status sah, daftar tunggu mutakhir).
+   Kalau merah, perbaiki catatanmu — bukan aturannya.
    Lalu `python3 alat/periksa-bersih.py` → harus **LOLOS** juga (penjaga dokumen seluruh repo di pohon bersih; ±10 detik) — ini yang dijalankan CI.
 5. PAPAN: status potongan → `SELESAI` (HAKIM: → `DIHAKIMI` bila tidak ada lagi temuan `BARU` dari potongan itu).
 6. Commit (`pmb: <ID> selesai — <n> temuan`) + push cabangmu. Jangan menyentuh berkas di luar `docs/uji/pemeriksaan/PMB-1/`
@@ -126,13 +134,23 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
   `python3 alat/uji-mutasi-0014.py`, `bash aplikasi/alat/periksa-semua.sh`, `python3 alat/periksa-pemeriksaan.py`, `python3 alat/periksa-bersih.py`.
   **Larangan Pembangun:** tidak menyentuh produksi (deploy/migrasi produksi & Dashboard = milik Lee; kamu hanya menyiapkan berkas + uji lokal);
   tidak mengubah PIN/akun percontohan (keputusan Lee REKAM §31 butir 9) — `PMB1-F-001` **dilewati** sampai Lee memutuskan; perbaikan
-  **tidak boleh membuat Lee tidak bisa masuk** dengan cara yang ia pakai sekarang (email + PIN akun percontohan dari peramban) — bila perbaikan
-  yang benar memang mengubah cara masuk/pendaftaran perangkat (klaster F-036/F-063/F-052), **jangan dieksekusi**: tulis opsi + dampaknya di
-  kartu B, kolom Perbaikan diisi `MENUNGGU KEPUTUSAN LEE: <ringkas>` dengan status tetap `TERVERIFIKASI`, lanjut ke temuan lain. Temuan yang
-  butuh Dashboard/produksi/operator (`(luar repo)`) → `BUTUH LEE/OPERATOR: <apa>` di kolom Perbaikan, status tetap. **Temuan berjenis "tugas
-  ROADMAP diklaim `[x]` padahal fiturnya belum dibangun"** (contoh F-09: T3-01 katalog dari basis data, T3-06 RPC `pindah_meja`, T3-11 layar
-  pelayan, T6-02…T6-05 rantai cetak) **bukan perbaikan satu titik melainkan pembangunan fitur** — sampai Lee memutuskan (pertanyaan putaran 9:
-  bangun sekarang di dalam PMB, atau jujurkan `[x]`→`[ ]` dulu dan bangun sesudah PMB), tulis `MENUNGGU KEPUTUSAN LEE:` dan jangan membangunnya.
+  **tidak boleh membuat Lee tidak bisa masuk** dengan cara yang ia pakai sekarang (email + PIN akun percontohan dari peramban).
+  **Klaster cara masuk (F-001/F-036/F-063/F-052/F-117/F-127) — KEPUTUSAN LEE 2026-09-29 = B (REKAM §31 butir 21):** siapkan perbaikannya
+  **di kode + uji lokal saja** — migrasi baru yang menutup pendaftaran perangkat mandiri/menambah pengesahan, kode klien di balik saklar
+  (variabel lingkungan/flag) yang **mati secara bawaan** — sehingga produksi dan cara masuk Lee **tidak berubah sedikit pun** sampai Lee
+  memerintahkan pemasangan. Di kartu B tulis persis apa yang berubah saat saklar dinyalakan dan langkah Lee untuk memasangnya; kolom Perbaikan
+  = sha + uji + kalimat "disiapkan, belum dipasang (saklar mati)", status `DIPERBAIKI`. **Jangan** menjalankan migrasi ke produksi, jangan
+  mengubah PIN/akun percontohan. Temuan yang butuh Dashboard/produksi/operator (`(luar repo)`) → `BUTUH LEE/OPERATOR: <apa>` di kolom
+  Perbaikan, status tetap. **Temuan berjenis "tugas ROADMAP diklaim `[x]` padahal fiturnya belum dibangun"** (contoh F-09: T3-01, T3-06,
+  T3-11, T6-02…T6-05) — **KEPUTUSAN LEE 2026-09-29 = B+ (jujurkan dulu, bangun sesudah PMB):** jangan membangun fiturnya; kerjakan sebagai
+  **PEMBANGUN dokumen**: (1) di `docs/ROADMAP.md` ubah `- [x]` → `- [ ]` untuk tugas itu; (2) tambah baris pertama di bloknya
+  `  - **Dibuka kembali:** PMB1-F-nnn (YYYY-MM-DD) — bukti wajib: <nama berkas uji yang harus ada / U-nn Buku Uji>`; (3) hapus baris
+  `- **Bukti:** ⏳ BUKTI-BELUM …` dari blok itu dan hapus ID tugasnya dari `PMB-1/BUKTI_BELUM_BASELINE.txt` (daftar hanya boleh menyusut);
+  (4) tulis ulang DoD/Verifikasi menjadi terukur (nama uji, bukan "uji manual"); rancangan/draf yang sudah ada (mis. cabang `01a0ec99` untuk
+  F-130/F-131) disebut sebagai "bahan awal" di baris Verifikasi, **tidak** dimerge; (5) `python3 alat/periksa-roadmap.py`,
+  `python3 alat/susun-matriks-telusur.py`, `python3 alat/susun-daftar-tunggu-lee.py` — tugas itu harus muncul di bagian C daftar tunggu;
+  (6) Buku Besar → `DIPERBAIKI` (sha + `tanpa uji mesin: perbaikan dokumen ROADMAP`, karena commit-nya hanya menyentuh dokumen). Hakim
+  menutup dengan memeriksa ROADMAP kini jujur dan tugasnya tercatat di `DAFTAR_TUNGGU_LEE.md` bagian C.
   Temuan potongan `F-17`
   (bahan kalibrasi) **tidak dibangun** — sudah dinilai & DITUTUP Perencana 2026-09-29 (`PMB-1/kalibrasi/HASIL-TAHAP-1.md`). Pembangun boleh
   menyentuh kode/dokumen proyek (pengecualian §6) tetapi **tidak** menyentuh: trio handoff (`docs/ops/SIAP-LANJUT.md`, `PROJECT_STATE.md`,
@@ -142,9 +160,19 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
   riwayat, penjaga + `periksa-bersih.py` harus LOLOS). Jalankan Pembangun **satu potongan pada satu waktu** (bukan paralel) — nomor migrasi dan
   berkas yang sama mudah bentrok.
 - **PEMERIKSA MENYELURUH** — sama dengan PEMERIKSA, potongan = alur M-xx (rancangan §4c).
+- **PEMERIKSA Tahap 2 (potongan `P-<fase>-xx`) — wajib SENSUS KLAIM (kunci K5):** selain §3, kartu K-mu wajib punya bagian
+  `## Sensus klaim` berisi tabel **semua** tugas `[x]` fase itu (ambil daftarnya: `grep -n '^- \[x\] T<fase>-' docs/ROADMAP.md`), satu baris per
+  tugas: `| T<fase>-nn | bukti yang ada (berkas uji/penjaga, dijalankan hari ini: LULUS/GAGAL) | DoD terpenuhi? | putusan: BUKTI-SAH / DIBUKA-KEMBALI |`.
+  Putusan BUKTI-SAH → kamu mengganti baris `⏳ BUKTI-BELUM` tugas itu dengan `- **Bukti:** <berkas uji yang ada>` dan menghapus ID-nya dari
+  `PMB-1/BUKTI_BELUM_BASELINE.txt` (pengecualian §6: kedua berkas itu boleh disentuh pemeriksa Tahap 2, tanpa mengubah kotak centang). Putusan
+  DIBUKA-KEMBALI → temuan `BARU` di Buku Besar (jenis "diklaim selesai, belum terbukti") — pembukaannya dikerjakan Pembangun dokumen sesudah
+  Hakim. Gerbang tahap 2 (`--gerbang 2`) menolak bila masih ada `⏳ BUKTI-BELUM` pada fase yang potongannya ada, atau ada tugas `[x]` yang tidak
+  tercatat di bagian Sensus klaim. Cakupan 100 % klaim, bukan sampel.
 
 ## 6. Yang tidak boleh
 
 Menandai potongan SELESAI tanpa kartu · menulis "aman/bersih" tanpa serangan tercatat · menghapus/mengubah baris temuan orang lain (kecuali
 kolom Status/Hakim/Perbaikan sesuai peranmu) · memperbaiki kode saat berperan PEMERIKSA/HAKIM · membaca kunci kalibrasi · mengarang bukti ·
-melangkah ke potongan berikutnya tanpa `lanjut` dari Lee.
+melangkah ke potongan berikutnya tanpa `lanjut` dari Lee · menulis `[x]` di ROADMAP tanpa baris Bukti yang lolos `periksa-roadmap.py` (Pembangun:
+tidak pernah) · mengedit `PMB-1/DAFTAR_TUNGGU_LEE.md` dengan tangan (dibuat mesin) · menambah ID ke `PMB-1/BUKTI_BELUM_BASELINE.txt` (hanya boleh
+menyusut; pemeriksa Tahap 2 & Pembangun dokumen boleh menghapus ID + menyentuh baris `Bukti:`/`Dibuka kembali:` ROADMAP — itu pengecualian §4 butir 6).

@@ -35,3 +35,10 @@ regresi mekanisme lama: potongan "bersih" tanpa serangan tercatat dianggap belum
 
 ## 9. Temuan luar cakupan
 [Wajib ditulis bila melihat sesuatu di luar lingkup — dicatat juga di Buku Besar; jangan dibiarkan hilang.]
+
+## Sensus klaim (WAJIB untuk potongan Tahap 2 `P-<fase>-xx`; hapus bagian ini untuk potongan lain)
+[Semua tugas `[x]` fase ini, satu baris per tugas — cakupan 100 %, bukan sampel. Gerbang tahap 2 menolak tugas `[x]` yang tidak tercatat di sini.]
+
+| Tugas | Bukti yang ada (berkas uji/penjaga; dijalankan hari ini: LULUS/GAGAL) | DoD terpenuhi? | Putusan (BUKTI-SAH / DIBUKA-KEMBALI → PMB1-F-nnn) |
+|---|---|---|---|
+| T<fase>-01 | … | … | … |

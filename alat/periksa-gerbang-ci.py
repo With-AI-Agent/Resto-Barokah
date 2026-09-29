@@ -164,6 +164,8 @@ GERBANG_WAJIB = [
     ("uji-diri pemeriksa PMB", r"python3 alat/periksa-pemeriksaan.py --uji-diri"),
     ("matriks telusur PMB mutakhir", r"python3 alat/susun-matriks-telusur.py --periksa"),
     ("uji-diri penyusun matriks telusur PMB", r"python3 alat/susun-matriks-telusur.py --uji-diri"),
+    ("daftar tunggu Lee mutakhir (K2 Jaminan Tuntas)", r"python3 alat/susun-daftar-tunggu-lee.py --periksa"),
+    ("uji-diri penyusun daftar tunggu Lee", r"python3 alat/susun-daftar-tunggu-lee.py --uji-diri"),
     ("uji-diri penambah buku uji (T1-43)", r"python3 alat/tambah-uji\.py --uji-diri"),
     ("pemeriksa peta UI (T1-33/T1-39)", r"python3 alat/peta-ui\.py"),
     ("uji-diri pemeriksa peta UI (T1-33/T1-39)", r"python3 alat/peta-ui\.py --uji-diri"),

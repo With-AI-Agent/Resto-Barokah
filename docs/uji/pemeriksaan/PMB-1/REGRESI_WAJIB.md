@@ -16,39 +16,39 @@ _Disusun mesin oleh `python3 alat/susun-matriks-telusur.py`: **35** tugas `[x]` 
 
 | Tugas | Fase | Baris ROADMAP | Kata pemicu di DoD/Verifikasi | Potongan penyisir |
 |---|---|---|---|---|
-| T0-00 | 0 | 45 | dashboard, Lee, pemilik | F-08 |
-| T0-01 | 0 | 54 | nyata | F-08 |
-| T0-04 | 0 | 81 | pemilik | F-08 |
-| T0-07 | 0 | 108 | nyata | F-08 |
-| T0-09 | 0 | 128 | di luar jaringan | F-08 |
-| T0-10 | 0 | 140 | nyata | F-08 |
-| T0-11 | 0 | 151 | nyata | F-08 |
-| T0-14 | 0 | 178 | LEE, Lee | F-08 |
-| T1-03 | 1 | 207 | nyata, pemilik | F-08 |
-| T1-05 | 1 | 225 | pemilik | F-08 |
-| T1-06 | 1 | 234 | HP | F-08 |
-| T1-10 | 1 | 270 | nyata, pemilik | F-08 |
-| T1-25 | 1B | 422 | pemilik | F-08 |
-| T1-28 | 1B | 450 | pemilik | F-08 |
-| T1-36 | 1B | 479 | pemilik | F-08 |
-| T1-31 | 1C | 515 | Lee | F-08 |
-| T1-35 | 1C | 551 | pemilik | F-08 |
-| T1-39 | 1C | 562 | Lee | F-08 |
-| T1-43 | 1C | 598 | Lee, pemilik | F-08 |
-| T2-14 | 2 | 785 | pemilik | F-09 |
-| T2-15 | 2 | 794 | pemilik | F-09 |
-| T3-11 | 3 | 940 | HP | F-09 |
-| T7-10 | 7 | 1602 | pemilik, tanda tangan | F-10 |
-| T8-02 | 8 | 1644 | HP | F-10 |
-| T8-03 | 8 | 1653 | HP | F-10 |
-| T8-05 | 8 | 1671 | HP | F-10 |
-| T8-06 | 8 | 1680 | HP | F-10 |
-| T8-15 | 8 | 1765 | pemilik | F-10 |
-| T9-10 | 9 | 1858 | dashboard, pemilik | F-10 |
-| T9-12 | 9 | 1876 | Lee, pemilik | F-10 |
-| T10-04 | 10 | 1916 | nyata | F-10 |
-| T10-07 | 10 | 1943 | pemilik | F-10 |
-| T10-13 | 10 | 2001 | pemilik | F-10 |
-| T10-15 | 10 | 2019 | nyata | F-10 |
-| T10-16 | 10 | 2028 | nyata, pemilik | F-10 |
+| T0-00 | 0 | 51 | dashboard, Lee, pemilik | F-08 |
+| T0-01 | 0 | 61 | nyata | F-08 |
+| T0-04 | 0 | 91 | pemilik | F-08 |
+| T0-07 | 0 | 121 | nyata | F-08 |
+| T0-09 | 0 | 143 | di luar jaringan | F-08 |
+| T0-10 | 0 | 156 | nyata | F-08 |
+| T0-11 | 0 | 168 | nyata | F-08 |
+| T0-14 | 0 | 197 | LEE, Lee | F-08 |
+| T1-03 | 1 | 229 | nyata, pemilik | F-08 |
+| T1-05 | 1 | 249 | pemilik | F-08 |
+| T1-06 | 1 | 259 | HP | F-08 |
+| T1-10 | 1 | 299 | nyata, pemilik | F-08 |
+| T1-25 | 1B | 455 | pemilik | F-08 |
+| T1-28 | 1B | 486 | pemilik | F-08 |
+| T1-36 | 1B | 518 | pemilik | F-08 |
+| T1-31 | 1C | 555 | Lee | F-08 |
+| T1-35 | 1C | 595 | pemilik | F-08 |
+| T1-39 | 1C | 607 | Lee | F-08 |
+| T1-43 | 1C | 647 | Lee, pemilik | F-08 |
+| T2-14 | 2 | 847 | pemilik | F-09 |
+| T2-15 | 2 | 857 | pemilik | F-09 |
+| T3-11 | 3 | 1016 | HP | F-09 |
+| T7-10 | 7 | 1708 | pemilik, tanda tangan | F-10 |
+| T8-02 | 8 | 1754 | HP | F-10 |
+| T8-03 | 8 | 1764 | HP | F-10 |
+| T8-05 | 8 | 1784 | HP | F-10 |
+| T8-06 | 8 | 1794 | HP | F-10 |
+| T8-15 | 8 | 1888 | pemilik | F-10 |
+| T9-10 | 9 | 1991 | dashboard, pemilik | F-10 |
+| T9-12 | 9 | 2011 | Lee, pemilik | F-10 |
+| T10-04 | 10 | 2055 | nyata | F-10 |
+| T10-07 | 10 | 2085 | pemilik | F-10 |
+| T10-13 | 10 | 2149 | pemilik | F-10 |
+| T10-15 | 10 | 2169 | nyata | F-10 |
+| T10-16 | 10 | 2179 | nyata, pemilik | F-10 |
 <!-- OTOMATIS:SELESAI -->

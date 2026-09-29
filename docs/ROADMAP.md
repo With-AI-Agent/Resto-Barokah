@@ -9,6 +9,12 @@
 >
 > **Setiap tugas WAJIB punya 7 atribut:** Tujuan · Ref · File · DoD · Kompleksitas · Risiko & mitigasi · Verifikasi.
 > Diperiksa otomatis oleh `python3 alat/periksa-roadmap.py` (wajib PASS sebelum menandai tugas selesai).
+> **Atribut ke-8 untuk tugas bercentang `[x]` — Bukti (aturan K3 Jaminan Tuntas, keputusan Lee 2026-09-29):** centang hanya sah bila ada baris
+> `- **Bukti:**` yang menunjuk berkas uji/penjaga **yang ada di repo** (uji komponen `*.test.ts`, uji SQL `supabase/tes/`, penjaga `alat/periksa-*`) **atau**
+> baris Buku Uji Pemilik `U-nn` yang kolom Hasil-nya **sudah diisi Lee `OK`**. Yang mengerjakan tidak menulis centang sendiri: Pembangun → DIPERBAIKI, Hakim/Perencana → `[x]`.
+> Centang lama (sebelum aturan) memakai penanda transisi `⏳ BUKTI-BELUM` dan terdaftar di `docs/uji/pemeriksaan/PMB-1/BUKTI_BELUM_BASELINE.txt` (daftar beku, hanya
+> boleh menyusut) sampai sensus klaim Tahap 2 PMB memutuskan satu per satu. Tugas yang ternyata belum dibangun dikembalikan ke `[ ]` dengan baris
+> `- **Dibuka kembali:** PMB1-F-nnn (tanggal) — bukti wajib: <uji / U-nn>`; semua tugas terbuka semacam itu tercetak otomatis di `docs/uji/pemeriksaan/PMB-1/DAFTAR_TUNGGU_LEE.md`.
 >
 > Rujukan: `docs/PRD.md` (M1–M12) · `docs/TECH_SPEC.md` (dikunci, ART-1…ART-10) · `docs/AGENT_OPERATING_GUIDE.md`
 > Lambang: ⚠️ = menyentuh Area Berisiko Tinggi (wajib tulis `docs/DECISIONS_LOG.md`) · ❓ = menunggu jawaban pemilik
@@ -50,6 +56,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (30 menit dipandu)
   - **Risiko & mitigasi:** kunci rahasia bocor lewat chat atau repo → mitigasi: panduan hanya mengizinkan nilai `anon` ditempel, `.env*` diabaikan Git (T0-05), kunci `service_role` disimpan di secrets Cloudflare.
   - **Verifikasi:** pemilik bisa membuka dashboard kedua layanan; agent menyimpan nilai dari pemilik di berkas rahasia lokal (tidak di-commit) dan `git check-ignore` membuktikan berkas itu diabaikan. · **Bukti 2026-09-19:** pemilik (Lee) membuat akun **Supabase + Resend + Cloudflare**; nilai non-rahasia (URL proyek, kunci publik, id proyek, region **Singapore**, id akun Cloudflare) diserahkan lewat berkas `docs/ops/DAFTAR_KUNCI_PEMILIK_NONSECRET.md` (commit `bd68685`); kunci `service_role` tidak pernah masuk repo maupun obrolan; butir tunggu `T-018` ditutup.
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T0-01 — Repo aplikasi React + TypeScript + Vite + struktur folder
   - **Tujuan:** aplikasi bisa dijalankan lokal sejak commit pertama dan strukturnya sama dengan rancangan.
@@ -59,6 +66,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (1 jam)
   - **Risiko & mitigasi:** salah struktur → mitigasi: salin persis struktur `TECH_SPEC.md` §3, jangan improvisasi nama folder.
   - **Verifikasi:** `npm run dev` + buka URL dev; `git status` bersih setelah commit. · **Bukti 2026-09-16:** `npm run dev` melayani halaman (HTTP 200), `main.tsx`, `tema.css`, dan berkas huruf (font/woff2); 7 folder layar + `supabase/{migrations,functions,tes}` ada; berkas huruf **19 berkas** `.woff2` di aplikasi (angka terhitung 2026-09-17; perintah yang bisa diulang: `find aplikasi/src/gaya/aset -name '*.woff2' | wc -l` (huruf ada di `aset/font/`) → 19; prototipe memakai 19 berkas huruf yang sama di `prototipe/aset/font/`). **Riwayat klaim:** angka "31 berkas" dicabut (tidak bisa direproduksi, temuan audit B-F-13); angka "57" juga **dicabut** karena perintah yang dikutip waktu itu (`find aplikasi -name '*.woff2' | wc -l`) menghasilkan 38 — ia menghitung salinan hasil bangun (`dist/`) dan tidak menyebut lingkupnya. Sekarang angkanya dijaga otomatis oleh `aplikasi/alat/periksa-struktur.py` (angka di dokumen ini harus sama dengan hitungan nyata) — klaim lama "31 berkas huruf pindah" **dicabut** karena tidak bisa direproduksi (temuan audit B-F-13); favicon dipakai format SVG (bukan ICO) karena tidak butuh alat pengubah gambar dan tetap tajam di semua ukuran; pemeriksa `aplikasi/alat/periksa-struktur.py` memeriksa pohon folder langsung dari `TECH_SPEC.md` §3.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/alat/periksa-struktur.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T0-02 — Aturan kode otomatis (ESLint + Prettier + TypeScript ketat)
   - **Tujuan:** kode asal-asalan ditolak otomatis sebelum masuk repo.
@@ -68,6 +76,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (1 jam)
   - **Risiko & mitigasi:** aturan terlalu galak bikin lambat → mitigasi: mulai dari preset standar React+TS, tambah aturan hanya bila terbukti perlu.
   - **Verifikasi:** tiga perintah di atas keluar dengan kode 0. · **Bukti 2026-09-16:** ESLint 9.39 (typescript-eslint 8.70) + Prettier 3.9 + TypeScript 5.7 ketat (`strict`, `noUnusedLocals`, `noUnusedParameters`); gerbang dibuktikan menyala lewat uji mutasi — berkas dengan `any` ditolak lint, berkas dengan salah tipe ditolak `tsc -b --noEmit`, berkas belum diformat ditolak `format:check`; sesudah dibersihkan ketiganya hijau.
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T0-03 — Token desain v3 dipindah ke aplikasi (10 tema)
   - **Tujuan:** tampilan aplikasi memakai bahasa desain yang sudah disetujui pemilik, bukan karangan baru.
@@ -77,6 +86,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** token tercecer saat diubah manual → mitigasi: pindahkan berkas apa adanya, jangan ketik ulang.
   - **Verifikasi:** `prototipe/uji-kontras.py` versi aplikasi dijalankan (dibuat di T0-04) + inspeksi 3 tema secara visual. · **Bukti 2026-09-16:** `tema.css` identik byte-per-byte dengan `prototipe/css/tokens.css` (diperiksa otomatis), 19 berkas huruf tersalin dan semua rujukan `url()` di dalamnya ada di disk; 10 kode tema di `aplikasi/src/lib/tema.ts` sama persis dengan kode tema di token (diperiksa otomatis); warna `theme-color` peramban diambil dari token `--accent`, bukan ditulis di `index.html`; **76 uji unit hijau** (format uang/tanggal/jam, tema & kerapatan, render layar contoh; angka saat itu 2026-09-18 — perintah: `cd aplikasi && npm test`).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `prototipe/uji-kontras.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T0-04 — Komponen dasar + keadaan kosong/memuat/gagal + uji kontras aplikasi
   - **Tujuan:** semua layar memakai komponen yang sama dan tidak pernah menampilkan halaman kosong tanpa penjelasan.
@@ -86,6 +96,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** komponen tidak konsisten → mitigasi: satu komponen satu berkas + token wajib + uji kontras otomatis.
   - **Verifikasi:** `python3 aplikasi/alat/uji-kontras.py` lulus + tangkapan layar 1 halaman contoh. · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima. · **Bukti otomatis 2026-09-16:** `uji-kontras.py` versi aplikasi **166 lolos · 0 gagal** (130 pemeriksaan warna 10 tema + 36 aturan desain, termasuk tinggi sentuh ≥44 px); 10 komponen ada dan diperiksa `aplikasi/alat/periksa-komponen-env.py`; **76 uji hijau dalam 10 berkas** (angka saat itu 2026-09-18; perintah yang bisa diulang: `cd aplikasi && npm test`); layar contoh `aplikasi/src/layar/contoh/LayarContoh.tsx` memperagakan semua komponen & ketiga keadaan halaman. **Bukti visual (pemilik) 2026-09-16:** pemilik membuka pratinjau aplikasi lalu menyatakan **“Lanjut”** — tampilan tema (10), kerapatan (nyaman/padat), lapis mengambang, dan ketiga keadaan halaman dinilai pantas. Dengan bukti otomatis + bukti visual itu, tugas ini ditandai `[x]`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/alat/uji-kontras.py`, `aplikasi/alat/periksa-komponen-env.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T0-05 — Berkas rahasia & variabel lingkungan
   - **Tujuan:** kunci rahasia tidak pernah ikut ke git maupun ke perangkat pengguna.
@@ -95,6 +106,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (1 jam)
   - **Risiko & mitigasi:** kebocoran kunci rahasia → mitigasi: pemeriksa pola kunci di CI + tinjauan manual setiap commit yang menyentuh env.
   - **Verifikasi:** `git check-ignore -v aplikasi/.env` (diabaikan) + `grep -r "service_role" aplikasi/src` tidak menemukan apa pun. · **Bukti 2026-09-16:** `.env.example` memuat **semua 8 nama variabel** dari TECH_SPEC §6 (diperiksa otomatis dari dokumen, bukan dari daftar manual), hanya `VITE_SUPABASE_URL` & `VITE_SUPABASE_ANON_KEY` yang aktif (dua-duanya aman publik), variabel rahasia sengaja tidak berawalan `VITE_` dan hanya dikomentari; `git check-ignore` membuktikan `.env` diabaikan dan `.env.example` ikut Git; tidak ada kata `service_role` di dalam `aplikasi/src`; 10 pemeriksaan `python3 aplikasi/alat/periksa-komponen-env.py` hijau.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/alat/periksa-komponen-env.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T0-06 — README aplikasi (cara menjalankan & peta folder)
   - **Tujuan:** agent sesi berikutnya (model apa pun) bisa menjalankan proyek tanpa menebak.
@@ -104,6 +116,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (1 jam)
   - **Risiko & mitigasi:** README basi → mitigasi: diperbarui bila perintah berubah (dicatat di DoD tugas terkait).
   - **Verifikasi:** ikuti README dari nol di folder sementara → berhasil. · **Bukti 2026-09-16:** folder `aplikasi/` disalin ke tempat bersih (tanpa `node_modules`/`dist`), lalu `npm ci` → Prettier → ESLint → TypeScript → **76 uji** (angka saat itu 2026-09-18; perintah: `cd aplikasi && npm test`) → build: **semuanya hijau** mengikuti langkah di README; README memuat prasyarat, cara menjalankan, peta folder, daftar perintah, aturan rahasia, daftar pemeriksa, dan bagian “sebelum mengirim kode”.
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T0-07 — CI dasar (lint + tipe + uji unit)
   - **Tujuan:** setiap push diperiksa otomatis; tidak ada kode rusak yang lolos.
@@ -113,6 +126,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (1 jam)
   - **Risiko & mitigasi:** CI lambat/berbiaya → mitigasi: hanya GitHub Actions gratis untuk repo publik, tanpa langkah berbayar.
   - **Verifikasi:** status CI hijau pada push pertama; sengaja membuat lint gagal di uji coba → CI merah. · **Bukti 2026-09-16:** CI menyala di setiap push & pull request; gerbangnya benar-benar bekerja — (a) run 35121292973 **MERAH di langkah ESLint** saat sengaja dipasang variabel tidak terpakai (kode ujinya lalu dihapus), (b) run 35120922393 merah karena folder layar kosong tidak ikut Git, (c) run 35121062046 merah karena satu berkas Markdown belum dirapikan, dan (d) run **35121525551 hijau penuh** (npm ci → Prettier → ESLint → TypeScript → Vitest → build → 5 pemeriksa Python). Artinya: dua cacat nyata tertangkap CI, bukan cuma “hijau karena kebetulan”. Semua ini memakai jatah gratis GitHub Actions (repo privat 2.000 menit/bulan).
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T0-08 — Proyek Supabase dibuat + klien aman tersambung
   - **Tujuan:** aplikasi bisa membaca data dari Supabase dengan kunci publik saja.
@@ -124,6 +138,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Catatan jeda:** kalau pembangunan berhenti lebih dari 7 hari (libur/menunggu jawaban), proyek gratis bisa "tertidur" → buka panel Supabase, tekan **Restore/Unpause** sebelum melanjutkan; penyebab paling umum "koneksi gagal" di sesi berikutnya.
   - **Verifikasi:** buka aplikasi di dev → tampilkan hasil `select 1` di console/halaman uji — **sejak 2026-09-19 dijalankan otomatis di CI**: gerbang ke-50 (`npm run cek:supabase`) menguji alamat + kunci + **baca tabel katalog** dari runner GitHub, jadi siapa pun bisa memeriksa ulang.
   - **Progres 2026-09-19:** klien aman + alat uji sambung selesai — `aplikasi/src/lib/supabase.ts` (hanya dua nilai publik, tidak meledak bila pengaturan kosong) + `aplikasi/src/lib/supabase.test.ts` (10 kasus) + `aplikasi/alat/cek-supabase.mjs` (+`--uji-diri` 5 kasus). **Gerbang CI ke-50** menjalankan `npm run cek:supabase` di runner GitHub karena lingkungan agent tidak punya jalan keluar jaringan ke `*.supabase.co` (terbukti: HTTP 000/TLS ditolak). **Sisa DoD:** uji baca data (`select 1`) belum bisa — tabel belum ada di proyek nyata sebab **skema belum disebar** → butir tunggu `T-020`. **Siap dijalankan (2026-09-19):** `supabase/config.toml` (wajib bagi CLI Supabase — bentuk ringkas tanpa `env(...)`, sudah diuji dengan CLI 2.117.0) · alur `.github/workflows/sebar-skema.yml` yang **sengaja dipicu berkas penanda** supabase/SEBAR-SKEMA dan menjalankan **pratinjau `--dry-run` lebih dulu** · panduan pemilik `docs/ops/LANGKAH_PEMILIK_SEKARANG.md` (2 rahasia GitHub, tanpa perintah). Penjaga `alat/periksa-gerbang-ci.py` ikut mengawasi alur di luar `ci.yml` (8 perintah alur ini, dua arah, **urutan diperiksa**) dan `--uji-diri` menolak 9 mutasi alur (termasuk urutan ditukar & pemeriksaan penanda dihapus). **Bukti jalur berfungsi (2026-09-19):** penanda terpasang → alur menyala lalu berhenti di gerbang rahasia (run `35433200326`); penanda dihapus → hijau tanpa kerja (run `35433237658`). **Bukti live 2026-09-19:** langkah itu benar-benar **hijau** di CI — run `35432334878` (langkah ke-11 "Cek sambungan Supabase (kunci publik saja — tugas T0-08)" = success; pranala https://github.com/With-AI-Agent/Resto-Barokah/actions/runs/35432334878). Artinya proyek Supabase nyata menjawab dan menerima kunci publik **dari aplikasi**, tanpa satu pun kunci rahasia. **Bukti 2026-09-19 (skema hidup):** 14 migrasi disebar ke proyek nyata lewat alur disengaja `.github/workflows/sebar-skema.yml` — run `35435248540` **hijau berurutan** (`link` → `db push --dry-run` → `db push` → `migration list`), dan agent tidak pernah melihat kredensial. **Uji baca data** (setara `select 1`) juga hijau di gerbang CI ke-50: run `35435414653` langkah ke-11 success — `GET /rest/v1/menu_item?select=id&limit=1` menjawab **HTTP 200** dengan kunci publik saja. Karena database nyata sudah memuat `0001`–`0014`, berkas itu **dibekukan**: perubahan skema berikutnya WAJIB berkas baru `0015` ke atas (dijaga `alat/periksa-migrasi-beku.py`).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/lib/supabase.test.ts`, `alat/periksa-gerbang-ci.py`, `alat/periksa-migrasi-beku.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T0-09 — Deploy halaman kosong ke Cloudflare Workers + Static Assets  <!-- T-008 sudah ditutup 2026-09-16: pakai alamat gratis *.workers.dev -->
   - **Tujuan:** membuktikan jalur deploy bekerja sejak awal (bukan mendadak di akhir).
@@ -136,6 +151,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     sejak 2026-09-19**: alur unggah memeriksa alamatnya sendiri dan mencatat hasilnya sebagai anotasi (`node
     aplikasi/alat/catat-alamat.mjs`), jadi "hijau" berarti halaman benar-benar menjawab 200.
   - **Progres 2026-09-19 (SELESAI):** **halaman sudah naik & publik atas izin Lee ("Boleh naik")** — alamat <https://resto-barokah.fatrizmubarok.workers.dev>, bukti: run `35440300274` & `35440432817` hijau, pemeriksaan otomatis HTTP 200 (anotasi pada commit `705ed0f`), dicatat di `docs/ops/ALAMAT_PUBLIK.md`. Persiapan sebelumnya — `aplikasi/wrangler.toml` (Workers + Static Assets, alamat gratis `*.workers.dev`, halaman satu-api `single-page-application`) dan satu perintah rilis `npm run deploy` (bangun lalu unggah). Yang **belum**: menjalankannya, karena deploy publik = tindakan tak bisa dibatalkan → butir tunggu `T-021` (keputusan Lee). **Siap dijalankan (2026-09-19):** alur `.github/workflows/sebar-halaman.yml` (dipicu berkas penanda aplikasi/SEBAR-HALAMAN, memakai rahasia GitHub `CLOUDFLARE_API_TOKEN` + nomor akun Cloudflare yang bukan rahasia) + panduan pemilik `docs/ops/LANGKAH_PEMILIK_SEKARANG.md`. **Bukti jalur berfungsi (2026-09-19):** penanda terpasang → alur menyala lalu berhenti di gerbang rahasia (run `35433200375`); penanda dihapus → hijau tanpa kerja (run `35433237656`).
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T0-10 — Vitest + uji contoh + skrip pemeriksa roadmap
   - **Tujuan:** kerangka uji siap sebelum kode uang/keamanan ditulis (TDD sejak awal).
@@ -145,6 +161,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (1,5 jam)
   - **Risiko & mitigasi:** uji hanya formalitas → mitigasi: uji wajib untuk setiap fungsi uang/izin mulai Fase 1 — **dijaga alat**: `aplikasi/alat/periksa-uji.py` menolak kiriman kode kalau ada berkas logika di `src/lib` atau `src/hook` yang tidak punya berkas ujinya sendiri.
   - **Verifikasi:** `npm test` hijau + `python3 alat/periksa-roadmap.py` hijau. · **Bukti 2026-09-16:** **76 uji hijau dalam 10 berkas** (angka saat itu 2026-09-18; perintah: `cd aplikasi && npm test`; jumlah berkas uji bertambah bersama fase berikutnya) (uang/tanggal/jam · tema & kerapatan · pembacaan pengaturan · jam berdenyut · pemilih tema dengan jsdom · 17 uji komponen · layar contoh); kerangka siap untuk kode uang/izin — jsdom + @testing-library/react terpasang supaya hook bisa diuji seperti pemakaian nyata; pemeriksa baru `aplikasi/alat/periksa-uji.py` (6 OK · 0 GAGAL) menolak berkas logika tanpa uji (dibuktikan lewat uji mutasi); pemeriksa itu ikut jalan di CI; `alat/periksa-roadmap.py` LOLOS.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/lib/format.test.ts`, `aplikasi/src/lib/tema.test.ts`, `aplikasi/src/lib/env.test.ts` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ---
 
@@ -156,6 +173,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (2,5 jam)
   - **Risiko & mitigasi:** buku dibangun dengan menyalin potongan berkas lama → risiko isi ganda/berbeda; mitigasi: blok prompt **diambil langsung dari sumber kanonik** saat pembangunan + pemeriksa identitas; rujukan basi → pemeriksa rujukan hidup (terbukti menangkap 1 rujukan nyata: `ROADMAP.md` → `docs/ROADMAP.md`).
   - **Verifikasi:** `python3 alat/periksa-panduan.py` LOLOS (angka baris/mekanisme/rujukan dikeluarkan pemeriksa saat dijalankan — jangan dikutip sebagai angka tetap) · `python3 _sistem/validate_system.py` PASS · pemeriksa-panduan muncul di CI & periksa-semua · contoh penolakan nyata tercatat di `docs/uji/AUDIT_RIWAYAT.md` §4 butir 5–6.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `alat/periksa-panduan.py`, `aplikasi/alat/periksa-semua.sh`, `_sistem/validate_system.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [ ] T0-12 — Audit independen menyeluruh (AUD-3) atas keadaan sekarang + tindak lanjut temuan ⚠️ (paket peninjau sudah disegarkan 2026-09-19; tinggal pemilik menjalankan sesi auditor)
   - **Tujuan:** sebelum pekerjaan ulang (T1-37) dan sebelum melanjutkan Fase 1, **seluruh keadaan sekarang diperiksa sesi auditor independen** dengan lingkup menyeluruh (semua berkas proyek, termasuk berkas untuk pengguna) — sesuai urutan yang diputuskan pemilik: **audit lebih dulu**.
@@ -174,6 +192,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: gerbang merge & mutu; risiko reviewer "ramah"/hijau palsu → mitigasi: laporan wajib bukti perintah + kalibrasi + verdict dipaksa `TIDAK-BERSIH` bila ada K-1/K-2 TERVERIFIKASI; risiko PR besar campur-risiko → aturan pemisahan jalur.
   - **Verifikasi:** `python3 alat/review-pr.py --uji-diri` LOLOS · `--siapkan` menghasilkan paket + SIAP-TEMPEL (diuji pada repo ini) · `--kesiapan` melaporkan SIAP/BELUM dengan benar · prosedur tercatat di `PANDUAN_PENGGUNA.md` (AL-6) & `docs/PANDUAN_PEMILIK.md`.
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T0-14 — Buku pedoman induk v2 (berbasis alur + prompt berlabel + penjelasan perintah)
   - **Tujuan:** memperbaiki keluhan Lee bahwa buku masih kurang & cacat: banyak *cara* tidak dijelaskan, prompt tanpa panduan langkah, tabel perintah tanpa penjelasan fungsi, dan ada prompt yang kata-katanya untuk pengguna tetapi disajikan sebagai perintah.
@@ -183,6 +202,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md`; risiko buku menjadi terlalu panjang dan justru sulit dipakai → mitigasi: §0 tabel "mau melakukan apa → alur mana", tiap alur berformat sama, dan ringkasan terpisah di `docs/PANDUAN_PEMILIK.md`.
   - **Verifikasi:** `python3 alat/periksa-panduan.py` LOLOS (12 alur · 4 blok prompt berlabel · 18 perintah berpenjelasan) · penjaga baru ini **terbukti menolak** saat bidang alur atau label prompt dihapus (uji coba dijalankan sebelum commit).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `alat/periksa-panduan.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ## Fase 1 — Database, keamanan & uang (⚠️ Area Berisiko Tinggi — dikerjakan paling awal)
 
@@ -194,6 +214,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS/Auth (ART-1); salah policy → kebocoran data antar-resto → mitigasi: satu pola policy untuk semua tabel + uji dua penyewa.
   - **Verifikasi:** `supabase test` (uji SQL) + pemeriksaan manual dengan dua akun berbeda. · **Bukti 2026-09-16:** migrasi `0001` diterapkan pada PostgreSQL asli lalu diuji `supabase/tes/rls_penyewa.sql` — pengunjung belum masuk melihat **0 baris** penyewa & cabang, kasir resto A hanya melihat **1 penyewa & 2 cabangnya**, kasir resto B **tidak melihat satu baris pun** milik resto A; perintah ubah cabang dari resto lain **tidak mengubah apa pun** (RLS menyaring, bukan melempar error — dibuktikan dengan membaca ulang nama cabang dari akun owner). RLS sudah aktif sejak tabel pertama ada, policy-nya sengaja ditulis di `0004` (tolak-dulu).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/rls_penyewa.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-02 — Migrasi 0002: pengguna, pengguna_cabang, izin, pengaturan ⚠️
   - **Tujuan:** pegawai punya peran & cabang, dan pengaturan per resto tersimpan rapi.
@@ -203,6 +224,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); salah model cabang → laporan salah → mitigasi: uji pegawai di dua cabang sejak awal.
   - **Verifikasi:** uji SQL: pegawai cabang 1 tidak bisa melihat data cabang 2. · **Bukti 2026-09-16:** `supabase/tes/rls_pengguna.sql` — kasir hanya melihat **baris dirinya sendiri**, admin cabang Pusat melihat **3 pegawai** cabangnya (bukan yang hanya bertugas di Cabang Dua), owner pusat melihat **seluruh pegawai restonya** dan **0 pegawai resto lain**; izin hanya terlihat oleh yang berhak (kasir **2 baris miliknya**, admin **seluruh izin restonya**, resto lain **0**) dan kasir **ditolak** saat mengubah izin lewat tabel; pengaturan hanya bisa diubah owner pusat — perintah ubah dari resto lain **tidak mengubah nilai apa pun**. Pegawai merangkap dua cabang didukung (`pengguna_cabang` kunci primer gabungan).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/rls_pengguna.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-03 — Fungsi bantu identitas: penyewa_id(), cabang_ids(), peran() ⚠️
   - **Tujuan:** semua policy memakai satu sumber identitas yang sama (tidak ada logika ganda).
@@ -212,6 +234,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS/Auth (ART-1); fungsi bocor hak → mitigasi: `SECURITY DEFINER` hanya bila perlu + uji peran terbatas.
   - **Verifikasi:** uji SQL memanggil ketiga fungsi sebagai anon, pelayan, admin cabang, owner. · **Bukti 2026-09-16:** `supabase/migrations/0003_helper_identitas.sql` + `supabase/tes/helper.sql` — diuji untuk **7 akun** (pemilik platform, owner pusat, admin cabang, kasir, pelayan merangkap dua cabang, dapur, kasir resto lain): pemilik platform tidak punya penyewa/cabang, owner pusat punya penyewa tanpa cabang, pelayan mengembalikan **2 cabang**, akun tanpa cabang mengembalikan **null/kosong** (bukan error). Fungsi juga diuji **negatif**: sebelum masuk (anon) **ditolak** karena hak jalannya hanya untuk `authenticated` & `service_role`; klaim cabang palsu milik resto lain **ditolak** (diverifikasi ulang ke `pengguna_cabang`); akun nonaktif kehilangan seluruh identitas. Uji ini menangkap **satu cacat nyata** pada rancangan awal (`cabang_saya()`/`cabang_ids_saya()` masih memberi cabang ke akun nonaktif) yang langsung diperbaiki.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/helper.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-04 — Pola RLS seragam + uji isolasi menyeluruh ⚠️
   - **Tujuan:** satu pola seragam supaya tidak ada tabel yang lupa dikunci.
@@ -221,6 +244,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1); tabel baru lupa dikunci → mitigasi: uji otomatis "tanpa policy = gagal" dijalankan di CI.
   - **Verifikasi:** `supabase test` + laporan daftar tabel & policy dicetak ke log CI. · **Bukti 2026-09-16:** `supabase/migrations/0004_pola_rls.sql` + `supabase/tes/rls_semua_tabel.sql`. Uji ini **membaca katalog PostgreSQL**, tidak menyebut nama tabel satu per satu — jadi tabel baru di fase mana pun otomatis diperiksa (RLS aktif · punya policy · yang punya `penyewa_id` wajib menyebut `penyewa_saya()`), plus pemindaian pembocoran baris antar-resto. Daftar saat ini: **6 tabel, semuanya RLS aktif & ber-policy** (penyewa 1 · cabang 3 · pengguna 1 · pengguna_cabang 1 · izin 1 · pengaturan 2). Gerbang ini dijalankan di CI dengan `--daftar` sehingga daftar tabel & policy **tercetak di log setiap kiriman kode**. Dibuktikan bisa MERAH lewat **3 uji mutasi**: RLS dimatikan → GAGAL · policy dibuka lebar → GAGAL · cacat akun nonaktif dikembalikan → GAGAL; setelah dipulihkan → LOLOS.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/rls_semua_tabel.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-05 — Peran & izin berjenjang (centang owner) + fungsi boleh() ⚠️
   - **Tujuan:** tindakan di luar izin tidak bisa dilakukan, bahkan lewat API langsung.
@@ -230,6 +254,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); izin tercecer di banyak tempat → mitigasi: SATU fungsi `boleh()` sebagai gerbang tunggal.
   - **Verifikasi:** uji SQL menolak 7 tindakan sensitif untuk peran yang tidak berizin. · **Bukti 2026-09-16:** `supabase/migrations/0005_izin_berjenjang.sql` + `supabase/tes/izin.sql`. Kamus resmi **10 kode izin** (`izin_kode`) dan **izin bawaan per peran** (`izin_peran`, 50 baris per resto, dipasang otomatis untuk resto baru lewat pemicu). Gerbang tunggal **`boleh(aksi)` / `boleh(aksi, nominal)` / `boleh(aksi, nominal, persen)`** di atas `izin_efektif()`: centang khusus pegawai (`izin`) menang atas bawaan peran, dan bila tidak ada keduanya → **TOLAK**. Matriks 10 izin diuji untuk kasir, admin cabang, dapur, pelayan, dan owner pusat; **13+ tindakan sensitif terbukti ditolak** (kasir 6 · dapur 3 · pelayan 3 · admin 1) dan yang berizin terbukti boleh. Diuji juga: batas diskon (25.000/5 persen kasir · 50.000/10 persen admin) termasuk tepat-di-batas vs lewat-batas, izin **berbeda per cabang** untuk pegawai merangkap (peran dapur di satu cabang, kasir di tingkat akun), **cabang asing ditolak** (tidak diam-diam jatuh ke peran se-resto), aksi tak dikenal ditolak, akun nonaktif & pemilik platform tidak boleh apa pun, kasir tidak bisa mengubah tabel izin, dan resto lain tidak melihat izin peran resto ini. **Gerbang dibuktikan bisa MERAH lewat 4 uji mutasi** (angka saat itu: dijalankan manual pada 2026-09-16; harness mutasi otomatis baru ada untuk pagar 0012 ke atas — lihat `python3 alat/uji-mutasi-0012.py`) — tolak-demi-bawaan dirusak · centang khusus diabaikan · batas diskon diabaikan · cabang asing diterima: semuanya GAGAL, LOLOS setelah dipulihkan. Mutasi ke-4 awalnya **lolos** sehingga mengungkap uji yang lemah (cabang asing diuji dengan tindakan yang memang sudah terlarang di tingkat akun) → uji diperkuat memakai tindakan yang boleh di akun tetapi tidak di cabang itu, dan mutasi yang sama langsung tertangkap.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/izin.sql`, `alat/uji-mutasi-0012.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-06 — PIN pegawai: hash + pembatasan percobaan ⚠️
   - **Tujuan:** PIN tidak bisa dibaca dari database dan tidak bisa ditebak dengan percobaan berulang.
@@ -239,6 +264,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); brute force → mitigasi: pembatasan per pengguna + per perangkat + catatan audit.
   - **Verifikasi:** uji SQL + uji fungsi: 6 percobaan salah berurutan → ditolak dengan pesan jelas. · **Bukti 2026-09-16:** `supabase/migrations/0006_pin.sql`, `supabase/functions/verifikasi_pin/index.ts`, `supabase/tes/pin.sql`, `alat/periksa-fungsi-pin.py`. PIN disimpan **hanya sebagai hash** (`crypt(pin, gen_salt('bf', 10))`) dan database **menolak sendiri** nilai yang bukan berbentuk hash lewat batas (CHECK) — dibuktikan uji: perintah menyimpan `123456` ke kolom `pin_hash` **GAGAL**. Pembatasan percobaan: **5 kali salah per akun** dan **12 kali salah per perangkat** dalam 15 menit; uji menempuh lima kali salah berurutan (sisa percobaan tercatat 4→0) lalu **percobaan keenam DITOLAK walau PIN-nya benar**, dengan pesan berbahasa Indonesia yang menyebut “terkunci sementara”; pindah HP **tidak** menembus batas per akun; 12 kali salah dari satu HP (dibagi 3 akun, masing-masing di bawah batas) **mengunci HP itu** tanpa mengunci akun lain. Pemulihan setelah tunggu diuji dengan memundurkan waktu percobaan → PIN benar diterima lagi. Semua percobaan (berhasil maupun gagal, termasuk yang ditolak karena terkunci) **tercatat** di `percobaan_pin` beserta perangkat, dengan RLS: pegawai hanya melihat catatannya sendiri, pemegang izin kelola_pegawai melihat catatan pegawai restonya, dan **tidak ada** jalur menulis langsung dari klien. PIN benar tetapi pegawainya **tidak berizin** untuk aksi itu → tetap ditolak (memakai `boleh_untuk()`); PIN pegawai resto lain / akun nonaktif → “PIN tidak dikenali” tanpa membocorkan apa pun; `ganti_pin` sendiri wajib PIN lama. **Gerbang dibuktikan bisa MERAH lewat 4 uji mutasi** (batas percobaan dimatikan · PIN disimpan mentah · PIN resto lain diterima · izin penyetuju diabaikan) — semuanya GAGAL, LOLOS setelah dipulihkan. Edge Function `verifikasi_pin` sengaja **tipis** (meneruskan ke RPC) dan dijaga pemeriksa baru `alat/periksa-fungsi-pin.py` yang menolak kiriman kode bila muncul `console.*`, `service_role`, atau penjagaan POST hilang (9 pemeriksaan, 3 uji mutasi menyalakan GAGAL) — pemeriksa itu ikut berjalan di CI. **Batas yang jujur:** waktu uji ini, Deno belum tersedia di ruang kerja sehingga **uji runtime Edge Function langsung** (menembak fungsi dengan HTTP sungguhan) menunggu akun Supabase di T0-08; yang terbukti sekarang = seluruh logika PIN di database + penjagaan statis berkas Edge Function. Di Supabase nanti bcrypt **asli** (pgcrypto) yang dipakai dan uji yang sama dijalankan ulang. **Koreksi kejujuran (audit AUD-3 temuan F-11, 2026-09-17):** klaim “dari satu HP tidak bisa jalan” di atas benar untuk penyerang yang **jujur soal nama perangkatnya**. Penyerang yang memutar nama perangkat hanya tertahan **lapis akun** (5×/15 menit); lapis perangkat belum berarti baginya karena namanya dikirim klien. Sudah diukur & dikunci: `supabase/tes/percobaan_pin_perangkat.sql` (memutar nama tidak menambah jatah · lapis perangkat masih hidup saat namanya jujur · 2 uji mutasi memerah). Perbaikan sebenarnya = identitas perangkat terverifikasi di **T1-24 (0012, Fase 1B)**, dengan pagar baris temuan F-11 di `docs/uji/AUDIT_RIWAYAT.md` §1b.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pin.sql`, `supabase/tes/percobaan_pin_perangkat.sql`, `alat/periksa-fungsi-pin.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-07 — Migrasi katalog: kategori, menu, varian, tambahan, harga per cabang, stok
   - **Tujuan:** menu bisa berbeda harga per cabang dan penanda habis bekerja lintas layar.
@@ -248,6 +274,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** harga berubah mengubah riwayat → mitigasi: transaksi menyimpan `harga_saat_itu` (dibuktikan di T1-09).
   - **Verifikasi:** uji SQL: ubah harga menu → pesanan lama tetap memakai harga tercatat. · **Bukti 2026-09-16 (bagian katalog & stok):** `supabase/migrations/0007_katalog.sql` + `supabase/tes/katalog.sql` + data uji katalog/stok. Tujuh tabel baru (`kategori_menu`, `menu_item`, `menu_varian`, `menu_tambahan`, `menu_cabang`, `stok_bahan`, `stok_pergerakan`) — seluruhnya RLS aktif + berpolicy (**16 tabel** saat itu; hari ini **26 tabel** — perintah: `select count(*) from pg_tables where schemaname = 'public'`, dan uji cakupan RLS otomatis ada di `supabase/tes/rls_semua_tabel.sql`). **Harga per cabang terbukti:** satu fungsi `harga_berlaku(menu, cabang)` — Nasi Goreng 27.000 di Pusat (harga cabang) tetapi 25.000 di Cabang Dua (jatuh ke harga pusat); Kopi 13.000 di Cabang Dua; `menu_cabang.harga` kosong → harga pusat; menu resto lain **tidak bisa diintip** (hasil null). Penanda **habis** bekerja per cabang (Es Teh habis di Pusat, tersedia di Cabang Dua). **Hak berjenjang terbukti:** kasir tidak bisa menambah menu / mengubah harga (harga tetap 25.000 setelah perintahnya dijalankan); admin cabang bisa menambah menu di restonya tetapi **tidak** bisa menyisipkan menu atau harga ke resto lain; admin cabang Pusat **tidak** bisa mengubah harga cabang lain, sedangkan **owner pusat bisa** (13.000 → 14.000) — inilah sebabnya `cabang_pantau_saya()` dibuat: tanpa itu owner pusat tidak melihat harga cabang mana pun karena ia tidak bertugas di kasir. Dapur ber-izin `ubah_stok` boleh **menandai habis** di cabangnya, tetapi **tidak boleh menetapkan/mengubah harga** (dijaga pemicu, termasuk saat menyisipkan baris baru). **Stok tidak bisa menyimpang dari catatannya:** saldo hanya berubah lewat buku besar `stok_pergerakan` (pemicu yang menjumlahkan); menulis `jumlah` langsung **DITOLAK**; buku besar hanya-bertambah (ubah & hapus ditolak haknya); pergerakan untuk bahan resto lain ditolak; `penyewa_id` catatan **diisi otomatis dari bahannya**, dan nilai yang bertentangan ditolak tegas; catatan `koreksi` wajib beralasan; kasir tanpa izin `ubah_stok` tidak bisa mencatat. **Gerbang dibuktikan bisa MERAH lewat 4 uji mutasi** (penjaga saldo stok dimatikan · harga cabang diabaikan · batas cabang dibuka · harga boleh diubah siapa saja) — semuanya GAGAL, LOLOS setelah dipulihkan. **Catatan jujur:** bagian verifikasi “pesanan lama tetap memakai harga tercatat” baru bisa dibuktikan saat tabel pesanan ada (`harga_saat_itu`) pada **T1-09**; yang terbukti di T1-07 adalah harga berlaku per cabang, isolasi antar-resto, dan keutuhan stok.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/katalog.sql`, `supabase/tes/rls_semua_tabel.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-08 — Migrasi meja & status meja
   - **Tujuan:** meja bisa dipantau statusnya (kosong/terisi/siap disajikan) dan diatur per cabang.
@@ -257,6 +284,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (2 jam)
   - **Risiko & mitigasi:** dua pelayan membuka meja sama → mitigasi: dibahas di T3-09 dengan penguncian status.
   - **Verifikasi:** uji SQL menyisipkan meja di 2 cabang, memastikan tidak saling terlihat. · **Bukti 2026-09-16:** `supabase/migrations/0008_meja.sql` + `supabase/tes/meja.sql` + data uji meja di 3 cabang. Meja terpisah per cabang dan **nama meja unik per cabang** — dibuktikan langsung: nama “Meja 5” berhasil dipakai di **dua cabang berbeda**, sedangkan nama yang sama **ditolak** di cabang yang sama; uji mutasi “nama meja dijadikan unik global” menyalakan GAGAL. Status meja hanya dari daftar resmi (`kosong`/`terisi`/`siap`) — nilai lain ditolak database. Kasir Pusat melihat **2 meja** cabangnya dan **0 meja** Cabang Dua serta **0 meja** resto lain; owner pusat melihat meja seluruh cabangnya (4) tetapi tetap 0 dari resto lain; resto lain tidak bisa mengubah status meja Kedai Oasis (status tetap `siap` setelah perintah dijalankan). Hak dibuktikan berjenjang: kasir/pelayan boleh **mengubah status** (keadaan harian) tetapi **tidak boleh menambah atau menghapus meja**; admin cabang boleh menambah di cabangnya dan **tidak** di cabang lain.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/meja.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-09 — Migrasi pesanan & item (dengan harga_saat_itu) ⚠️
   - **Tujuan:** pesanan tidak bisa berubah arti walau menu/harga diubah kemudian.
@@ -266,6 +294,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4) & Kalkulasi (ART-3); mitigasi: enum status + `harga_saat_itu` wajib NOT NULL.
   - **Verifikasi:** uji SQL: ubah harga setelah pesanan dibuat → struk lama tidak berubah. · **Bukti 2026-09-16:** `supabase/migrations/0009_pesanan.sql` + `supabase/tes/pesanan.sql`. Tabel `pesanan` + `pesanan_item` dengan **salinan beku** `nama_saat_itu` & `harga_saat_itu` (WAJIB/NOT NULL). **Inti ART-3 dibuktikan langsung:** harga Nasi Goreng dinaikkan 25.000 → 31.000 (dan harga cabang 27.000 → 33.000) **setelah** pesanan dibuat; pesanan lama tetap tercatat **27.000**, sedangkan `harga_berlaku()` untuk pesanan baru mengembalikan **33.000** — “struk lama tidak berubah” terbukti, bukan diasumsikan. **Salinan beku tidak bisa ditulis ulang:** pemicu menolak perubahan `nama_saat_itu`, `harga_saat_itu`, `menu_item_id`, dan `pesanan_id` (perbaikan salah harga dilakukan dengan membatalkan item lalu menambah baris baru — jalur yang meninggalkan jejak). Item tanpa `harga_saat_itu` **ditolak database**. **Penomoran & idempotensi:** nomor pesanan **unik per cabang per tanggal** (duplikat ditolak), `kunci_idempoten` mencegah satu keranjang tersimpan dua kali walau tombol ditekan ulang. **Konsistensi antar tabel:** meja cabang lain ditolak, pesanan tidak bisa dibuat di cabang lain / untuk resto lain, item tidak bisa memakai menu resto lain, dan status di luar daftar resmi TECH_SPEC §4.3 (`draf`→`dikirim`→`dimasak`→`siap`→`lunas`/`batal`) ditolak. **Pesanan tidak pernah dihapus** — hak hapus memang tidak diberikan (ditolak langsung, bukan disaring); item boleh dibatalkan tanpa menghilangkan barisnya. Isolasi: resto lain melihat 0 pesanan & 0 item; dapur Cabang Dua melihat 0 pesanan cabang Pusat dan tidak bisa memajukan statusnya; owner pusat melihat seluruh pesanan restonya. **Gerbang dibuktikan bisa MERAH lewat 3 uji mutasi** (angka saat itu: dijalankan manual pada 2026-09-16; harness otomatis untuk pagar ini belum ada) (salinan harga ditimpa dari harga menu saat ini · penjaga salinan beku dimatikan · nama meja dijadikan unik global) — semuanya GAGAL, LOLOS setelah dipulihkan. **Catatan jujur:** penomoran otomatis per zona waktu resto & aturan perpindahan status (mesin status) menyusul di **T1-17** dan **T1-18**; T1-09 menyiapkan kolom, kunci unik, dan bukti salinan bekunya.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pesanan.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-10 — Migrasi pembayaran, metode bayar, diskon, pembatalan
   - **Tujuan:** semua uang masuk dan pembatalan tercatat lengkap dengan bukti.
@@ -275,6 +304,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3); pembayaran sebagian disalahartikan → mitigasi: aturan "satu pembayaran = satu transaksi tercatat, tidak boleh dobel".
   - **Verifikasi:** uji SQL: diskon melebihi batas → ditolak; pembatalan tanpa alasan → ditolak. · **Bukti 2026-09-16:** `supabase/migrations/0010_pembayaran.sql` + `supabase/tes/pembayaran.sql` + data uji pesanan berisi uang. Empat tabel baru: `pembayaran` (banyak baris per pesanan = pembayaran terbagi), `metode_bayar` (per resto, **4 metode bawaan dipasang otomatis** untuk resto baru), `diskon_transaksi`, `pembatalan` — total **23 tabel saat itu** (hari ini **26 tabel** — angka saat itu 2026-09-16; perintah: `node alat/uji-sql.mjs --daftar`), semuanya RLS + policy. **Angka uang tidak bisa dikarang dari perangkat:** pemicu menolak total/subtotal/pajak/service/diskon yang bukan-nol bila perintah datang dari klien; kasir **ditolak** (“tidak boleh mengubah total pesanan langsung”, total tetap 62.100), sedangkan fungsi peladen **boleh**. **Satu pembayaran = satu baris tercatat:** kunci idempoten sama → ditolak (tidak dobel saat koneksi putus), baris pembayaran **tidak bisa diubah maupun dihapus**, dan total pembayaran **tidak boleh melebihi total pesanan** (50.000 + 20.000 > 62.100 → ditolak). Tunai tanpa uang diterima ditolak, uang diterima lebih kecil dari jumlah ditolak, bukan tunai tanpa referensi ditolak, kembalian **dihitung database** (100.000 − 50.000 = 50.000), dan jenis pembayaran **diambil dari tabel metode bayar**, bukan dari perangkat. **Diskon:** melebihi batas izin kasir (25.000 / 5%) ditolak lewat gerbang `boleh('beri_diskon', nominal, persen)` yang sama (bukan batas yang disalin ulang); diskon **kedua ditolak** selama resto belum mengizinkan tumpuk diskon, dan **boleh** setelah owner menyalakannya; diskon manual tanpa alasan ditolak; total diskon melebihi subtotal ditolak; dapur tidak bisa memberi diskon. **Pembatalan:** alasan kosong ditolak (diuji dengan tahap & penyetuju yang sudah sah supaya penolakannya benar-benar dari aturan alasan), tahap harus cocok dengan keadaan pesanan, pembatalan **setelah dapur mulai wajib disetujui** pengguna berizin, dan nilai kerugian dihitung dari **salinan harga** (54.000). **6 uji mutasi** (batas diskon dimatikan · kelebihan bayar diizinkan · alasan kosong diizinkan · penjaga angka uang dimatikan · referensi non-tunai diabaikan · kembalian tidak dihitung) — semuanya GAGAL saat dirusak, LOLOS setelah dipulihkan. **Dua cacat nyata ditemukan uji sebelum dikirim:** (1) `peran_peladen()` sempat ditulis `SECURITY DEFINER` sehingga `current_user` selalu menjadi pemilik fungsi — penjaganya jadi **buta** dan kasir bisa mengubah total; (2) dua uji saya sendiri **lulus karena sebab yang salah** (kelebihan bayar & alasan kosong ditolak oleh aturan lain) — ditemukan justru oleh uji mutasi nomor 2 & 3, lalu diperbaiki dengan memilih kasus yang hanya bisa ditolak oleh satu sebab.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pembayaran.sql`, `alat/uji-sql.mjs` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [ ] T1-11 — Migrasi kas & shift + printer
   - **Tujuan:** uang kas selalu bisa diaudit (modal, masuk, keluar, hasil hitung, selisih).
@@ -303,6 +333,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Audit (ART-6); hapus jejak untuk menutupi kecurangan → mitigasi: larangan di tingkat database, bukan aplikasi.
   - **Verifikasi:** uji SQL: `UPDATE` dan `DELETE` gagal dengan pesan jelas. · **Bukti 2026-09-22:** `supabase/migrations/0029_audit_kekal_rantai.sql` memasang trigger `catatan_audit_cegah_ubah_hapus` yang menolak mutlak segala UPDATE/DELETE; dibuktikan di `supabase/tes/audit_rantai.sql` & `alat/uji-mutasi-0029.py`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/catatan_audit.sql`, `supabase/tes/audit_rantai.sql`, `alat/uji-mutasi-0029.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [ ] T1-14 — Migrasi antrean kirim & catatan kesalahan
   - **Tujuan:** pesanan saat internet putus tidak hilang dan masalah bisa diperiksa tanpa menebak.
@@ -409,6 +440,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-12); peran ganda terselundup lewat tabel lain → mitigasi: pemicu penegak + uji & pemeriksa peran tunggal.
   - **Verifikasi:** uji SQL: sisipkan peran kedua untuk satu akun → ditolak · PIN kembar → ditolak · PIN `123456` → ditolak · akun merangkap dua cabang tetap boleh.
   - **Bukti 2026-09-17:** `supabase/migrations/0011_peran_tunggal.sql` (migrasi BARU; 0002/0005 dibekukan) · uji `supabase/tes/peran_tunggal.sql` (baru), `supabase/tes/kredensial_pin.sql` §5, `supabase/tes/pin_batas_pasang.sql` (baru), `supabase/tes/izin.sql` §8 diganti. **Peran tunggal:** kolom `pengguna_cabang.peran` dihapus (peran kedua mustahil disimpan) + penjaga keanggotaan (akun & cabang wajib satu resto; pemilik platform tidak didaftarkan ke cabang) + `izin_efektif()` membaca `pengguna.peran` dan tetap MENOLAK cabang yang bukan tempatnya bertugas. **PIN:** wajib tepat 6 angka; pola lemah ditolak (semua digit sama · deret · blok berulang · pasangan berurutan · bentuk tanggal) lewat fungsi `pin_lemah()`; **unik antar pegawai satu resto** (bukan lintas resto — supaya angka PIN resto lain tidak bocor). **Pembatas anti-oracle (baru, penting):** uji keunikan bisa dipakai menebak PIN kolega, jadi setiap percobaan pemasangan dicatat di tabel `percobaan_simpan_pin` (tidak bisa dibaca klien) dan dibatasi **20 kali / 15 menit**; penolakan kembar & batas dikembalikan sebagai PESAN (bukan error) — sebab `raise exception` membatalkan baris catatannya sendiri di savepoint, sehingga pembatasnya tidak akan pernah menyala (ditemukan saat uji, ditulis di komentar migrasi + DECISIONS_LOG). **Gerbang dibuktikan bisa MERAH lewat 6 uji mutasi:** peran per cabang dihidupkan lagi · keanggotaan cabang diabaikan · pola lemah dimatikan · keunikan dimatikan · pembatas anti-oracle dimatikan · format verifikasi kembali 4–6 angka — semuanya GAGAL, LOLOS setelah dipulihkan (mutasi ke-6 awalnya **lolos** → mengungkap celah uji, lalu uji jalur verifikasi ditambahkan). Hasil: `node alat/uji-sql.mjs` **21 berkas LULUS · 0 GAGAL**; matriks 10 izin × 5 peran tetap utuh.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/peran_tunggal.sql`, `supabase/tes/kredensial_pin.sql`, `supabase/tes/pin_batas_pasang.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-24 — Migrasi 0012: perangkat terdaftar + `perangkat_sah()` + RLS staf diperketat ⚠️
   - **Tujuan:** bagian staf hanya bisa dibuka dari perangkat terdaftar; perangkat curian/hilang mati seketika; perangkat tidak bisa dipakai masuk sebagai peran lain.
@@ -418,6 +450,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (6 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); policy salah membuat semua staf terkunci atau justru terbuka → mitigasi: uji dua arah (perangkat sah boleh · tidak sah ditolak) + uji pencabutan seketika; bukti perangkat lewat header **wajib diuji di Supabase nyata** dulu (T0-08), jaring `sesi_perangkat` tetap berlaku.
   - **Verifikasi:** uji SQL: perangkat tidak terdaftar → tabel staf tertutup · cabut perangkat → permintaan berikutnya gagal · "Tablet Kasir" dipakai masuk sebagai owner → ditolak · kode kadaluwarsa/dipakai dua kali → ditolak. · **Bukti 2026-09-22:** `supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql` melengkapi seluruh DoD: `kode_pendaftaran_perangkat` (15 menit), `persetujuan_perangkat`, `buat_kode_perangkat()`, `daftarkan_perangkat_dengan_kode()`, `setujui_perangkat_pegawai()`, `cabut_perangkat()`; dibuktikan di `supabase/tes/sesi_dan_perangkat.sql` & `alat/uji-mutasi-0030.py`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/perangkat_registrasi.sql`, `supabase/tes/sesi_dan_perangkat.sql`, `alat/uji-mutasi-0030.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-25 — Migrasi 0013: sesi perangkat, umur maksimum & pencabutan seketika ⚠️
   - **Tujuan:** sesi punya umur jelas, bisa dicabut seketika, dan perangkat yang ditinggal tidak menyimpan akses.
@@ -427,6 +460,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); token terbit tetap sah sampai kedaluwarsa (batas Supabase) → mitigasi: pemeriksaan sesi di database tiap permintaan + token akses 15 menit.
   - **Verifikasi:** uji SQL: sesi lewat umur → ditolak · dicabut → ditolak pada permintaan berikutnya · sesi akun nonaktif → ditolak · `session_id` ganda → ditolak. · **Bukti 2026-09-22:** `supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql` mengimplementasikan tabel `sesi_perangkat`, RPC `ikat_sesi_perangkat()` (umur 12 jam staf, 30 hari admin, 8 jam owner), `keluar_semua_perangkat()`, dan pemutusan seketika saat perangkat dicabut; dibuktikan di `supabase/tes/sesi_dan_perangkat.sql` & `alat/uji-mutasi-0030.py`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/sesi_dan_perangkat.sql`, `alat/uji-mutasi-0030.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-26 — Migrasi 0014: percobaan masuk + kunci 5×/15 menit (akun) & 12×/15 menit (perangkat) ⚠️
   - **Tujuan:** PIN tidak bisa ditebak walau dari perangkat terdaftar.
@@ -436,6 +470,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); kunci terlalu ketat membuat kasir tidak bisa kerja di jam sibuk → mitigasi: nilai dapat diatur owner + pesan jelas + penghitung mundur di layar.
   - **Verifikasi:** uji SQL: 6 kali salah → ditolak walau PIN benar · 12 kali salah dari satu perangkat (dibagi beberapa akun) → perangkat terkunci · pemulihan setelah 15 menit. · **Bukti 2026-09-22:** `supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql` mengimplementasikan tabel `percobaan_masuk`, RPC `catat_percobaan_masuk()`, dan fungsi `periksa_kunci_masuk()`; dibuktikan di `supabase/tes/sesi_dan_perangkat.sql` & `alat/uji-mutasi-0030.py`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/sesi_dan_perangkat.sql`, `alat/uji-mutasi-0030.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-27 — Migrasi 0015: `catatan_audit` hanya-tambah + rantai hash ⚠️
   - **Tujuan:** jejak audit tidak bisa diubah/dihapus, dan perubahan langsung di database pun bisa dideteksi.
@@ -446,6 +481,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Jejak Audit (ART-13); rantai bercabang saat dua penulisan bersamaan → mitigasi: kunci baris terakhir saat pemicu berjalan + uji dua transaksi.
   - **Catatan penomoran (2026-09-19):** nomor yang direncanakan di berkas ini (**`0015_audit.sql` (nomor rencana lama)**) sudah TERPAKAI oleh migrasi penutup temuan audit (`0012`–`0014`) dan sejak 2026-09-19 berkas `0001`–`0014` **DIBEKUKAN** (lihat `docs/DECISIONS_LOG.md`). Pekerjaan ini wajib memakai nomor BARU **`0029_audit_kekal_rantai.sql`** (dan nama berkas menyesuaikan), dijaga `alat/periksa-migrasi-beku.py`.
   - **Verifikasi:** uji SQL + pemeriksa: ubah satu baris → pemeriksa menunjuk baris itu; hapus satu baris → putus terdeteksi; audit tidak bisa diubah/dihapus oleh peran mana pun. · **Bukti 2026-09-22:** `supabase/migrations/0029_audit_kekal_rantai.sql` mengimplementasikan rantai hash sha256 atomik per resto & RPC `verifikasi_rantai_audit()`; dibuktikan di `supabase/tes/audit_rantai.sql`, `alat/periksa-audit.py`, dan `alat/uji-mutasi-0029.py`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/audit_rantai.sql`, `alat/periksa-audit.py`, `alat/periksa-migrasi-beku.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-28 — Migrasi 0016: mode dukungan pemilik platform (beralasan, berbatas waktu, tercatat) ⚠️
   - **Tujuan:** pemilik platform tetap bisa menolong tanpa pernah mengintip data penyewa diam-diam.
@@ -455,6 +491,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Lintas Penyewa (ART-15); mode lupa ditutup → data terbuka lebih lama → mitigasi: kedaluwarsa otomatis + pemeriksa berkala.
   - **Verifikasi:** uji SQL: tanpa mode → 0 baris · dengan mode → tulis ditolak · setelah kedaluwarsa/keluar → 0 baris lagi · catatan audit resto penyewa tercatat.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/mode_dukungan.sql`, `alat/uji-mutasi-0031.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-29 — Uji matriks peran × aksi (otomatis, semua peran) ⚠️
   - **Tujuan:** setiap peran terbukti boleh/tidak boleh untuk setiap aksi — bukan sampel.
@@ -464,6 +501,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-12) & RLS (ART-1); matriks basi saat aksi baru ditambah → mitigasi: daftar aksi diambil dari registri + pemeriksa CI.
   - **Verifikasi:** uji SQL mutasi: longgarkan satu izin → matriks GAGAL; kembalikan → LOLOS.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/matriks_izin_6_peran.sql`, `alat/periksa-matriks-izin.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-30 — Pemeriksa keamanan SQL + rahasia + dependensi di CI ⚠️
   - **AUD-2 terbaru (2026-09-21):** dua laporan asal dipanen; K-2 belum dibantah-balik, jangan centang tugas. Pemilik integrator T1-45/T1-30; antrean + syarat bukti wajib di `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md`. Sesi ketiga error diabaikan; tanpa audit pengganti/merge/deploy.
@@ -475,6 +513,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1) & Fungsi Istimewa (ART-11); pemeriksa terlalu longgar = hijau palsu → mitigasi: uji mutasi wajib (matikan satu aturan → pemeriksa GAGAL).
   - **Verifikasi:** jalankan pemeriksa dengan sengaja menyisipkan cacat → GAGAL; setelah dipulihkan → LOLOS; dijalankan di CI.
   - **Progres Batch-5 & Batch-6 (2026-09-22, TUNTAS — CI hijau `35698028876`):** `alat/periksa-keamanan-sql.py` + `supabase/tes/keamanan_fungsi.sql` membaca katalog efektif sesudah SEMUA migrasi (53 SECURITY DEFINER di public; tidak tertipu definisi tertimpa/komentar). `supabase/migrations/0023_acl_fungsi_pemicu.sql` mencabut 20 pemicu ber-EXECUTE PUBLIC. `supabase/migrations/0027_initplan_policy_rls.sql` membungkus 43 policy yang memanggil helper identitas/peran/izin (`penyewa_saya`, `peran_saya`, `cabang_saya`, `auth.uid`, `boleh`) dengan `(SELECT ...)` untuk optimasi InitPlan. Uji `supabase/tes/keamanan_fungsi.sql` memeriksa AST katalog secara langsung; `python3 alat/periksa-keamanan-sql.py --uji-diri` membuktikan **13 mutasi** (path, ACL, trigger RPC, helper langsung, campuran helper, WITH CHECK langsung, komentar palsu, RLS/policy hilang) ditolak fail-closed dengan asersi; suite SQL lokal **67/67 hijau** (angka saat itu 2026-09-22 — perintah: `node alat/uji-sql.mjs`). Bukti lengkap di `docs/uji/BUKTI_T130_KEAMANAN_SQL.md`. Hosted CI run 35698028876 SUCCESS.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `alat/periksa-keamanan-sql.py`, `alat/periksa-rahasia.py`, `supabase/tes/keamanan_fungsi.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-36 — Kunci induk: kode pemulihan darurat + pendaftaran perangkat darurat ⚠️
   - **Tujuan:** kehilangan perangkat owner/admin (bahkan seluruhnya) tidak menghentikan kedai, tanpa membuka pintu belakang yang lebih lemah daripada masuk biasa.
@@ -485,6 +524,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); kode pemulihan dicuri/difoto orang lain → mitigasi: hanya hash, sekali pakai, wajib kata sandi + TOTP, masa tenggang 30 menit + pemberitahuan + bisa dibatalkan + tercatat; dilarang menyimpan kode di ponsel/chat.
   - **Verifikasi:** uji SQL: kode salah/kadaluwarsa/terpakai dua kali → ditolak · perangkat darurat belum bisa dipakai sebelum 30 menit · dibatalkan dari perangkat lain → batal · semua kejadian tercatat & dalam ringkasan harian. · **Bukti 2026-09-22:** `supabase/migrations/0028_pemulihan_perangkat.sql`, `supabase/tes/pemulihan.sql` (13 skenario lolos), `alat/uji-mutasi-0028.py` (4 mutasi wajib MERAH terbukti), dan panduan operasional `docs/ops/PEMULIHAN_PERANGKAT.md`.
   - **Catatan nomor:** ditambahkan setelah Fase 1C disisipkan (2026-09-17), karena itu bernomor T1-36; pengerjaannya **bersama T1-24/T1-25** (bukan di akhir).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pemulihan.sql`, `alat/uji-mutasi-0028.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [ ] T1-37 — Pekerjaan ulang artefak lama yang dibatalkan keputusan keamanan ⚠️
   - **Tujuan:** membereskan pekerjaan T1-01…T1-10 yang bertentangan dengan aturan baru (satu akun satu peran · perangkat terdaftar · percobaan masuk) — dikerjakan lewat migrasi BARU, bukan menyunting migrasi lama.
@@ -520,6 +560,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; layar ditambah tanpa kontrak → mitigasi: pemeriksa CI menolak layar tanpa berkas/kontrak.
   - **Verifikasi:** jalankan `python3 alat/peta-ui.py --periksa` → LOLOS; hapus satu kontrak layar → GAGAL. · **Bukti 2026-09-22:** `aplikasi/src/lib/layar.ts` mendefinisikan kontrak 8 layar G1 lengkap dengan 7 keadaan, rute, peran, data, aksi, dan naskah jalan; diperiksa oleh `alat/peta-ui.py` (LOLOS). · **Bukti 2026-09-23 (registri diperluas):** 8 layar G1 tetap utuh + 3 layar Fase 4 (`bar`, `stok`, `opname`) kini terdaftar resmi — total **11 layar**; kontrak `layar.test.ts` direvisi atas keputusan Lee (delapan id G1 tetap WAJIB, layar tak dikenal tetap ditolak).
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-32 — Registri Aksi + komponen `TombolAksi` (satu sumber kebenaran tombol) ⚠️
   - **Tujuan:** tidak ada tombol tanpa entri; izin, konfirmasi, PIN, pesan, dan uji tercatat di satu tempat.
@@ -529,6 +570,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; komponen lama memakai tombol mentah → mitigasi: pemeriksa statis menolak `<button` di luar `TombolAksi` pada folder layar.
   - **Verifikasi:** uji komponen: klik aksi → RPC tiruan terpanggil dengan argumen benar; aksi tanpa uji → pemeriksa GAGAL. · **Bukti 2026-09-22:** `aplikasi/src/lib/aksi.ts` memuat 32 registri aksi; komponen `TombolAksi.tsx` menegakkan izin, konfirmasi dialog, dan penolakan ID tidak terdaftar; 7 uji unit (angka saat itu, perintah: `npm test`) di `TombolAksi.test.tsx` lulus 100%.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/komponen/TombolAksi.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-33 — Pemeriksa peta aksi/layar + jejak fitur M1–M12 (CI) ⚠️
   - **Tujuan:** dokumen tidak bisa basi dan tidak ada aksi/layar/fitur yang lepas dari jejak.
@@ -538,6 +580,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; pemeriksa hijau palsu → mitigasi: enam uji mutasi (satu per sebab) dijalankan dan dilaporkan.
   - **Verifikasi:** `python3 alat/peta-ui.py --periksa` di CI + enam uji mutasi MERAH. · **Bukti 2026-09-22:** `alat/peta-ui.py` dibuat dan dipasang di CI (gerbang ke-85); `--periksa` LOLOS dan `--uji-diri` membuktikan 6 mutasi tertangkap pagar (RPC salah, izin salah, aksi tulis tanpa uji, layar tanpa peran, drift dokumen, tombol liar).
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-34 — Harness uji komponen per layar (jsdom + Testing Library) + DoD UI ⚠️
   - **Tujuan:** setiap tombol dibuktikan benar-benar memanggil fungsi yang benar, sesuai peran, dengan 7 keadaan.
@@ -547,6 +590,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; uji yang hanya memeriksa tampilan (bukan pemanggilan) → mitigasi: aturan "tiap aksi wajib ada uji pemanggilan" + pemeriksa peta aksi.
   - **Verifikasi:** `npm test` + mutasi: alihkan satu aksi ke RPC salah → uji GAGAL. · **Bukti 2026-09-22:** `harness.tsx` & `harness.test.tsx` menyediakan konteks peran/izin, data seed, dan perekam RPC tiruan; 3 uji unit lulus di Vitest; DoD UI ditegakkan di `docs/AGENT_OPERATING_GUIDE.md`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/uji/harness.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-35 — Naskah jalan pemilik bernomor (`W-<fase>-<nomor>`) + aturan bukti pratinjau ⚠️
   - **Tujuan:** setiap fitur bisa diuji pemilik sendiri di pratinjau, langkah demi langkah, sebelum dianggap selesai.
@@ -556,6 +600,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (2 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kelengkapan UI; naskah dianggap cukup tanpa dijalankan → mitigasi: aturan "naskah dijalankan sebelum `[x]`" + bukti di ROADMAP.
   - **Verifikasi:** jalankan 3 langkah pertama naskah di pratinjau → hasil sesuai; pemeriksa menolak tugas UI tanpa nomor naskah. · **Bukti 2026-09-22:** `docs/uji/NASKAH_JALAN.md` mendefinisikan 15 naskah jalan pemilik untuk seluruh 8 layar G1 (`W-0-01` s/d `W-10-01`).
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ---
 
@@ -567,6 +612,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam, dikerjakan bersama T1-31/T1-32)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` bila pola kontrak berubah; risiko daftar layar G1 tidak lengkap → mitigasi: diambil dari `docs/ROADMAP.md` Fase 3–9 (per fase ada daftar layar) + uji silang pemeriksa.
   - **Verifikasi:** `python3 alat/peta-ui.py` LOLOS · uji mutasi MERAH saat satu aksi/tombol dihapus · naskah jalan tiap layar bisa dijalankan Lee. · **Bukti 2026-09-22:** `docs/PETA_UI.md` berisi pemetaan 8 layar dan 32 aksi terverifikasi; matriks fitur PRD M1–M12 terhubung penuh. · **Bukti 2026-09-23:** `docs/PETA_UI.md` disegarkan menjadi **11 layar & 38 aksi** (6 aksi baru: `bar.mulai_buat`, `bar.selesai_buat`, `stok.catat_perubahan`, `stok.ke_opname`, `opname.catat_fisik`, `opname.kembali_stok`); `peta-ui.py` LOLOS.
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-40 — Kerangka bahasa (i18n): teks tidak boleh ditulis di layar
   - **Tujuan:** aplikasi mendukung banyak bahasa tanpa menyentuh logika — keputusan Lee 2026-09-17 (**Opsi 1**): rilis G1 memakai **Indonesia · Inggris · Mandarin**; **Arab** disiapkan kuncinya + tata letak RTL diuji di G1, teksnya menyusul G2.
@@ -576,6 +622,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (2–3 jam, sebelum layar G1 pertama ditulis)
   - **Risiko & mitigasi:** ⚠️ teks keras yang lolos sekali akan mahal dibereskan → pemeriksa di CI sejak commit pertama; risiko terjemahan salah arti di menu keuangan → istilah baku ditinjau Lee sebelum dipakai.
   - **Verifikasi:** `python3 aplikasi/alat/periksa-bahasa.py` LOLOS di CI · uji mutasi MERAH · tiga bahasa berpindah tanpa memuat ulang (layar contoh) · angka & tanggal tidak berubah antar bahasa. · **Bukti 2026-09-22:** 4 kamus bahasa (`id.ts`, `en.ts`, `zh.ts`, `ar.ts`) 100% paritas 102 kunci; context & hook `useBahasa()` + helper `t()` aktif; pemeriksa `periksa-bahasa.py` terpasang di CI; uji unit Vitest lulus.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/alat/periksa-bahasa.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-41 — Arah teks (RTL) & huruf Mandarin/Arab
   - **Tujuan:** memastikan tata letak siap Arab sejak awal (bukan tambalan belakangan) dan huruf Mandarin tidak memberatkan perangkat kedai.
@@ -585,6 +632,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (2–3 jam)
   - **Risiko & mitigasi:** ⚠️ RTL menyentuh hampir semua tata letak → dikerjakan **sebelum** layar G1 diperbanyak, dengan 2 layar contoh sebagai bukti; huruf Mandarin besar → wajib subset + ambang ukuran diperiksa mesin.
   - **Verifikasi:** 2 layar contoh RTL benar · pemeriksa arah & ukuran huruf LOLOS (uji mutasi MERAH) · dalamnya tetap hijau: kontras 166 lolos · halaman prototipe 183/183. · **Bukti 2026-09-22:** `aplikasi/src/gaya/arah.css` mendefinisikan aturan logis LTR/RTL, selektor `[dir='rtl']`, dan variabel font Mandarin/Arab; `periksa-arah.py` membuktikan total ukuran font 461 KB (< 650 KB ambang batas) dan aturan arah lengkap.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/alat/periksa-arah.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-42 — Bantuan kontekstual di SETIAP laman (tanda "?" + isi bantuan dijaga mesin)
   - **Tujuan:** pegawai baru bisa memakai setiap laman tanpa harus mengingat sosialisasi — bantuan singkat muncul di tempat kerja, bukan di buku terpisah. (Permintaan Lee 2026-09-17.)
@@ -594,6 +642,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3–4 jam)
   - **Risiko & mitigasi:** bantuan basi (dokumen tumbuh, kode berubah) → pemeriksa wajib memastikan setiap aksi di registri punya bantuan **dan** setiap teks bantuan menunjuk aksi/layar yang ada (uji mutasi MERAH); bantuan terlalu panjang → batas 5 langkah, selebihnya materi pelatihan.
   - **Verifikasi:** `alat/periksa-bantuan.py` LOLOS + uji mutasi MERAH (hapus bantuan satu aksi → GAGAL) · uji komponen: "?" membuka & menutup tanpa menghalangi pekerjaan · tangkapan layar 3 tema. · **Bukti 2026-09-22:** `aplikasi/src/kontrak/bantuan.ts` mendefinisikan panduan kontekstual untuk seluruh 8 layar G1; komponen `LembarBantuan.tsx` terintegrasi; diperiksa otomatis oleh `alat/periksa-bantuan.py` di CI. · **Bukti 2026-09-23:** bantuan kontekstual ditambah untuk `bar`, `stok`, `opname` — `periksa-bantuan.py` melaporkan **11/11 layar** punya panduan (dulu 8).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `alat/periksa-bantuan.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T1-43 — Buku Uji Pemilik (lembar uji bertahap + kolom hasil + gema di chat)
   - **Tujuan:** Lee punya SATU lembar kerja untuk mencoba & menilai sendiri hal-hal yang memang harus dinilai manusia — ditulis bertahap mengikuti jalannya proyek (bukan dibuat di akhir), dengan kolom "sudah dilakukan? hasilnya?"; setiap baris baru juga ditampilkan di chat supaya Lee tidak perlu mencari berkas.
@@ -603,6 +652,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (2–3 jam)
   - **Risiko & mitigasi:** buku jadi daftar raksasa yang tidak diisi → satu baris = satu hal, maksimal 5 langkah, peta cepat di atas + penanda "sejak kapan menunggu diisi"; buku dianggap pengganti uji mesin → ditulis tegas di kepala buku: uji mesin tetap di CI, buku ini hanya untuk yang butuh mata manusia.
   - **Verifikasi:** `alat/periksa-buku-uji.py` LOLOS + uji mutasi MERAH (hapus langkah · hapus harapan · rusak kotak hasil → GAGAL) · 3 baris pertama benar-benar dikerjakan Lee (pratinjau desain · jalankan pemeriksaan · jalankan sesi review PR) dan hasilnya tercatat. · **Bukti 2026-09-22:** `docs/uji/BUKU_UJI_PEMILIK.md` berisi 18 butir (6 lakukan, 12 coba), skrip pembantu `alat/tambah-uji.py` (+ `--uji-diri`), dan validator `alat/periksa-buku-uji.py` aktif di CI.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `alat/periksa-buku-uji.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [ ] T1-44 — Perketat mekanisme paket audit & review (lingkup dari commit target + CI wajib hijau)
   - **Tujuan:** menutup tiga temuan mekanisme sekaligus (B F-09, B F-16, B F-17): paket selalu menunjuk commit yang benar, memuat lingkup beserta hitungan yang dibuat mesin (termasuk berkas paket itu sendiri), dan tidak pernah menyuruh auditor memeriksa commit yang belum pernah lewat CI.
@@ -666,6 +716,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** sesi menggantung di perangkat bersama → mitigasi: sesi berakhir otomatis (T2-09) + keluar dari semua perangkat (T10-06).
   - **Verifikasi:** uji unit + uji manual masuk/keluar pada 2 tab.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/lib/auth.test.ts`, `aplikasi/src/hook/useSesi.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-02 — Layar masuk pegawai (email + PIN)
   - **Tujuan:** pegawai bisa masuk cepat (kasir tidak mengetik sandi panjang) tetapi tetap aman.
@@ -675,6 +726,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); PIN mudah ditebak → mitigasi: PIN minimal 6 angka, pembatasan percobaan, catatan audit.
   - **Verifikasi:** uji manual 3 kasus (PIN benar, PIN salah, akun nonaktif).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/masuk/LayarMasukPegawai.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-03 — Pembuatan & pengelolaan akun pegawai oleh admin  <!-- T-004 sudah ditutup 2026-09-16: semua pegawai dianggap punya email; admin bisa membuatkan -->
   - **Tujuan:** Owner/Admin Cabang bisa menambah pegawai tanpa bantuan teknis.
@@ -684,6 +736,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); akun telantar → mitigasi: daftar pegawai nonaktif + tinjauan berkala di panduan owner.
   - **Verifikasi:** uji manual: tambah pegawai → bisa masuk → nonaktifkan → tidak bisa masuk lagi.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/pengaturan/KelolaPegawai.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-04 — Masuk pelanggan: Google (utama) + email terverifikasi (kedua) T-022
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-022: Lee mengizinkan menunda pemilihan pengirim email ke Fase 2; usulan SMTP Gmail BELUM persetujuan layanan. Sebelum mengaktifkan email pelanggan, tetapkan kanal tanpa biaya dengan Lee. Google Sign-In tidak menunggu kanal email.
@@ -694,6 +747,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10); data berlebih → mitigasi: hanya nama, email, nomor HP opsional, persetujuan.
   - **Verifikasi:** uji manual masuk Google di perangkat Android + jalur email di desktop.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/masuk/LayarMasukPelanggan.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-05 — Pemulihan akses pelanggan (lupa PIN / ganti perangkat) T-022 T-023
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-023: PIN pelanggan DIHAPUS (putusan Lee). Pemulihan mengikuti penyedia identitas; dokumen/alur diselaraskan pada Batch-5. T-022 tetap gerbang sebelum kanal email diaktifkan.
@@ -704,6 +758,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** pengambilalihan akun → mitigasi: token sekali pakai + masa berlaku pendek + catatan percobaan.
   - **Verifikasi:** uji manual + uji SQL percobaan token kedaluwarsa.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/masuk/LupaAkses.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-06 — Kerangka aplikasi: layout, navigasi per peran, tema
   - **Tujuan:** setiap peran hanya melihat menu yang relevan dan tidak tersesat.
@@ -713,6 +768,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); menu tersembunyi ≠ aman → mitigasi: pembatasan menu hanya kosmetik; keamanan tetap di RLS/RPC.
   - **Verifikasi:** uji manual 6 peran + uji akses URL langsung.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/komponen/Rangka.test.tsx`, `aplikasi/src/komponen/Navigasi.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-07 — Pemilih cabang + konteks cabang aktif
   - **Tujuan:** Admin Cabang terkunci ke cabangnya, Owner bisa berpindah cabang.
@@ -722,6 +778,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1); kebocoran lintas cabang → mitigasi: server menolak berdasarkan `cabang_ids()`, bukan filter di klien.
   - **Verifikasi:** uji SQL: permintaan data cabang lain sebagai Admin Cabang ditolak.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/hook/useCabang.test.tsx`, `aplikasi/src/komponen/PemilihCabang.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-08 — Halaman "tidak punya akses" + pesan ramah berkode
   - **Tujuan:** pengguna tahu apa yang terjadi dan apa langkah berikutnya.
@@ -734,6 +791,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (1,5 jam)
   - **Risiko & mitigasi:** pesan membocorkan informasi → mitigasi: pesan seragam tanpa detail internal.
   - **Verifikasi:** uji manual 3 kasus akses terlarang.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/TidakPunyaAkses.test.tsx`, `aplikasi/src/lib/pesan.test.ts` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-09 — Sesi berakhir otomatis saat tidak dipakai ⚠️
   - **Tujuan:** perangkat yang ditinggal tidak menjadi pintu terbuka.
@@ -743,6 +801,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); penguncian saat sibuk mengganggu → mitigasi: peringatan 60 detik sebelumnya + masa diam per peran.
   - **Verifikasi:** uji manual menunggu tanpa interaksi → terkunci.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/hook/useKunciOtomatis.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-10 — Pembatasan percobaan masuk (server-side) ⚠️
   - **Tujuan:** tidak ada yang bisa mencoba-coba masuk berulang kali.
@@ -752,6 +811,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); memblokir pengguna sah → mitigasi: jeda bertahap, bukan blokir permanen, + jalur atasan.
   - **Verifikasi:** uji fungsi: 10 percobaan berurutan → ditolak dengan pesan jelas.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/percobaan_pin_perangkat.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-11 — PWA dasar: manifest + ikon + service worker  <!-- T-001 sudah ditutup 2026-09-16: nama kerja "Sajian" -->
   - **Tujuan:** aplikasi bisa dipasang di layar utama perangkat dan tetap terbuka saat internet putus sebentar.
@@ -761,6 +821,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** cache menyimpan data pesanan → risiko kebocoran di perangkat bersama → mitigasi: cache hanya berkas tampilan, bukan data; diuji di T10-04.
   - **Verifikasi:** uji manual pemasangan + matikan internet → aplikasi tetap terbuka dengan pesan jelas.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-12 — Uji menyeluruh masuk & hak akses (6 peran) ⚠️
   - **Tujuan:** membuktikan tiap peran hanya bisa melakukan yang diizinkan.
@@ -770,6 +831,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); kesalahan izin terbawa ke fase berikutnya → mitigasi: uji ini dijalankan ulang di T10-05.
   - **Verifikasi:** `npm test` + `supabase test` hijau; hasil dicatat di `docs/DECISIONS_LOG.md`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/masuk/SkenarioMasukPeran.test.tsx`, `supabase/tes/matriks_izin_6_peran.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ---
 
@@ -790,6 +852,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); staf tidak bisa masuk saat jam sibuk → mitigasi: papan angka besar, tanpa kata sandi, pesan berbahasa Indonesia, dan tombol "minta bantuan admin".
   - **Verifikasi:** uji komponen (aksi terdaftar `masuk.pin` memanggil RPC yang benar) + naskah jalan pemilik.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/masuk/MasukStaf.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-15 — Pendaftaran perangkat (kode/QR) + persetujuan pegawai baru ⚠️ T-015
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-015: panduan umum boleh dibuat sekarang; uji perangkat nyata WAJIB sebelum tugas ini dinyatakan selesai. Belum ada klaim perangkat kedai sudah diuji.
@@ -800,6 +863,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); kode disalin orang lain → mitigasi: sekali pakai, 15 menit, tercatat, dan tetap butuh persetujuan pemilik per pegawai.
   - **Verifikasi:** uji SQL + naskah jalan: daftar perangkat baru → tampil di daftar; pakai kode dua kali → ditolak.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/pengaturan/Perangkat.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-16 — Kunci otomatis saat menganggur + tombol "Kunci sekarang" ⚠️
   - **Tujuan:** tablet yang ditinggal tidak menyimpan sesi apa pun.
@@ -809,6 +873,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); pesanan di antrean hilang saat kunci → mitigasi: antrean disimpan di IndexedDB (ART-8) + uji khusus.
   - **Verifikasi:** uji unit: lewat batas → terkunci; buka lagi → wajib PIN; antrean utuh setelah kunci.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/hook/useKunciOtomatis.test.tsx`, `aplikasi/src/komponen/KunciSekarang.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-17 — Layar Perangkat & Sesi: daftar, cabut, tandai hilang ⚠️
   - **Tujuan:** owner bisa mematikan akses perangkat hilang dalam hitungan detik dan melihat apa yang sedang aktif.
@@ -818,6 +883,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); salah cabut perangkat yang sedang dipakai → mitigasi: konfirmasi menyebut nama perangkat + pesan bahwa kasir akan langsung keluar.
   - **Verifikasi:** uji komponen + naskah jalan: cabut → perangkat lain langsung tidak bisa melakukan permintaan berikutnya.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/pengaturan/DaftarPerangkat.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-18 — Masuk admin/owner: kata sandi + TOTP + perangkat (dengan bootstrap) ⚠️
   - **Tujuan:** peran berkuasa masuk dengan aman di perangkat yang terdaftar, tanpa terkunci saat gagal.
@@ -827,6 +893,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); owner terkunci di luar restonya sendiri → mitigasi: bootstrap diuji + langkah pemulihan di Buku Insiden + akses pemilik platform.
   - **Verifikasi:** uji komponen + uji SQL: perangkat belum disetujui → ditolak; setelah disetujui → berhasil.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/masuk/MasukPengelola.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T2-19 — Uji menyeluruh masuk & perangkat (6 peran × skenario) ⚠️
   - **Tujuan:** membuktikan aturan masuk benar untuk semua peran, termasuk kasus jahat.
@@ -836,6 +903,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-11/ART-12); uji hanya jalur bahagia → mitigasi: wajib ada uji negatif untuk setiap skenario.
   - **Verifikasi:** uji SQL + komponen hijau + ringkasan matriks tercetak di laporan batch.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/masuk/SkenarioMasukPeran.test.tsx`, `supabase/tes/sesi_dan_perangkat.sql`, `supabase/tes/matriks_izin_6_peran.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ## Fase 3 — Pesanan & kasir (M4)
 
@@ -847,6 +915,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** lambat saat katalog besar → mitigasi: muat bertahap + cache ringan di klien (tanpa data sensitif).
   - **Verifikasi:** uji manual dengan 200 item; waktu muat awal < 3 detik.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T3-02 — Keranjang + angka dari peladen (klien tidak menghitung)
   - **TEMUAN JUJUR (2026-09-23, saat T5-05):** DoD ini **belum sepenuhnya ditepati**. `Keranjang.tsx`
@@ -864,6 +933,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3); rumus tersalin ke klien → mitigasi: uji otomatis "klien dilarang menghitung" (mencari pola perhitungan nominal di `/src/layar`).
   - **Verifikasi:** uji unit + pemeriksaan otomatis larangan perhitungan di klien.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/kasir/Keranjang.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T3-03 — Pilih meja / jenis pesanan + catatan khusus
   - **Tujuan:** pesanan dicatat sesuai kenyataan (dine-in, bawa pulang, ojol) dengan permintaan khusus.
@@ -873,6 +943,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** salah meja → mitigasi: konfirmasi + tampilan nomor meja besar di keranjang.
   - **Verifikasi:** uji manual 3 jenis pesanan + catatan sampai ke layar dapur.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/kasir/PemilihMeja.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T3-04 — Tagihan terbuka (open bill): simpan & lanjutkan
   - **Tujuan:** pelanggan bisa memesan bertahap tanpa tagihan terpisah.
@@ -882,6 +953,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** tagihan terlupakan → mitigasi: daftar tagihan di layar utama + penanda umur tagihan.
   - **Verifikasi:** uji manual: buka tagihan → tambah 2× → bayar sebagian (dua transaksi) → tercatat benar.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [ ] T3-05 — RPC simpan_pesanan + kunci idempoten ⚠️
   - **Tujuan:** pesanan tersimpan sekali saja walau tombol ditekan berkali-kali atau internet putus.
@@ -900,6 +972,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** salah pindah → mitigasi: konfirmasi + catatan audit.
   - **Verifikasi:** uji manual + uji SQL riwayat pindah meja.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T3-07 — Penguncian menu habis di kasir
   - **Tujuan:** pelanggan tidak memesan yang sudah habis.
@@ -909,6 +982,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** penanda lupa dicabut → mitigasi: daftar "menu habis hari ini" di layar kasir + pengingat pagi.
   - **Verifikasi:** uji manual + uji SQL (item habis ditolak di RPC pesanan).
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T3-08 — Kirim ke dapur (status pesanan berubah)
   - **Tujuan:** dapur mulai bekerja begitu pesanan dikirim, dan kasir tahu statusnya.
@@ -918,6 +992,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4); kiriman ganda → mitigasi: kunci idempoten dari T3-05 dipakai ulang.
   - **Verifikasi:** uji manual + uji SQL transisi ganda.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [ ] T3-09 — Konflik meja (dua pelayan, satu meja)
   - **Tujuan:** tidak ada dua orang mengerjakan meja yang sama tanpa sadar.
@@ -936,6 +1011,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** pintasan bentrok → mitigasi: daftar pintasan tampil dengan tombol `?`.
   - **Verifikasi:** uji manual pakai hanya papan ketik + pemeriksa kontras.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T3-11 — Layar pesanan pelayan (HP di samping meja)
   - **Tujuan:** pelayan mencatat pesanan tanpa kembali ke kasir.
@@ -945,6 +1021,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** pesanan ganda antara pelayan & kasir → mitigasi: satu tagihan per meja + kunci idempoten + penyegaran langsung.
   - **Verifikasi:** uji manual dua perangkat (kasir + HP) pada satu meja.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T3-12 — Daftar pesanan hari ini + filter
   - **Tujuan:** kasir/pelayan bisa menemukan pesanan dengan cepat.
@@ -954,6 +1031,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** daftar lambat → mitigasi: pemuatan bertahap + indeks database pada kolom pencarian.
   - **Verifikasi:** uji manual dengan 300 pesanan contoh (seed) → respons < 1 detik.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [ ] T3-13 — Pembatalan sebelum dapur mulai (dari kasir) ⚠️
   - **Tujuan:** salah input bisa dibatalkan cepat, tetapi selalu tercatat dengan alasan.
@@ -972,6 +1050,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** uji rapuh → mitigasi: pemilih berbasis peran teks bahasa Indonesia (stabil) + tunggu kondisi, bukan waktu.
   - **Verifikasi:** uji dijalankan di CI dan lulus.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/kasir/AlurKasirE2E.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T3-15 — Keadaan kosong/memuat/gagal di seluruh layar kasir
   - **Tujuan:** kasir tidak pernah melihat layar kosong tanpa penjelasan.
@@ -981,6 +1060,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** pesan menakutkan → mitigasi: bahasa sederhana + kode (PS-1xx).
   - **Verifikasi:** uji manual: matikan jaringan → semua layar memberi pesan jelas.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T3-16 — Uji beban ringan kasir
   - **Tujuan:** kasir tetap cepat saat jam sibuk.
@@ -990,6 +1070,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (2,5 jam)
   - **Risiko & mitigasi:** perangkat kasir kelas rendah → mitigasi: hindari animasi berat saat maraton pesanan + ukur di perangkat nyata (T11-04).
   - **Verifikasi:** laporan angka waktu dari uji otomatis dicatat di ringkasan fase.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/kasir/BebanKasir.test.ts` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ---
 
@@ -1114,6 +1195,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     setelah tagihan LUNAS. Bukti: `aplikasi/src/layar/kasir/LayarKasirBayar.test.tsx` (9 uji,
     semuanya terbukti MERAH sebelum implementasi) + 2 mutasi baru. Uji manual 5 metode di resto
     nyata tetap milik Lee (butuh perangkat + Supabase terisi).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/kasir/Bayar.test.tsx`, `aplikasi/src/hook/useBayar.test.tsx`, `aplikasi/alat/uji-mutasi-app.mjs` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T5-02 — RPC bayar_pesanan (tunai + kembalian) ⚠️
   - **Tujuan:** pembayaran tercatat sekali, benar, dan tidak bisa hilang walau jaringan goyah.
@@ -1132,6 +1214,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ `DECISIONS_LOG.md` diperbarui — Area: Kalkulasi Keuangan (ART-3) & State Machine (ART-4); uang tidak cocok → mitigasi: kembalian dihitung peladen, uji 14 kelompok asersi.
   - **Verifikasi:** uji SQL `bayar_pesanan.sql` (uang pas, uang lebih → kembalian, uang kurang/lebih dari total → ditolak, metode tunai vs non-tunai, dobel tekan) + bukti mutasi `alat/uji-mutasi-0039.py` 6/6 MERAH.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/bayar_pesanan.sql`, `alat/uji-mutasi-0039.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T5-03 — Pajak & service tampil terpisah di struk
   - **Tujuan:** pelanggan melihat rincian yang benar; owner bisa menjelaskan pajak.
@@ -1150,6 +1233,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     selalu KE BAWAH) + 16 uji unit `Struk.test.tsx` + 3 mutasi perilaku baru di
     `aplikasi/alat/uji-mutasi-app.mjs` (struk menghitung pajak sendiri, selisih pembulatan
     mengabaikan diskon, baris 0% disembunyikan) — semuanya terbukti MERAH.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/komponen/Struk.test.tsx`, `supabase/tes/pajak_service.sql`, `aplikasi/alat/uji-mutasi-app.mjs` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T5-04 — Diskon: satu per transaksi (bawaan) + opsi tumpuk dengan batas ⚠️
   - **Tujuan:** diskon terkendali dan tidak bisa menumpuk tanpa izin.
@@ -1169,6 +1253,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     tetap diterima · cap nominal ditegakkan · total tidak melebihi subtotal · tumpuk dimatikan lagi)
     + `alat/uji-mutasi-0019.py` **5/5 MERAH** (satu diskon dilepas, `tumpuk_diskon` dibaca terbalik,
     cap persen per baris, cap nominal tidak diperiksa, pagar subtotal dilepas).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/diskon_tumpuk.sql`, `alat/uji-mutasi-0019.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T5-05 — Diskon manual butuh izin + PIN di atas batas ⚠️
   - **Tujuan:** kasir bisa memberi diskon kecil, tetapi tidak bisa memberi diskon besar tanpa atasan.
@@ -1189,6 +1274,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     stempel dikarang · dengan PIN sah · di atas batas ATASAN · kupon pesanan lain · kupon bekas ·
     PIN benar tapi tanpa izin) + `alat/uji-mutasi-0041.py` **6/6 MERAH** +
     `DiskonManual.test.tsx` 17 tes + 6 mutasi UI di `uji-mutasi-app.mjs` (total **20/20 MERAH**).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/kasir/DiskonManual.test.tsx`, `supabase/tes/diskon_pin_atasan.sql`, `alat/uji-mutasi-0041.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T5-06 — Void sebelum dapur mulai (alasan wajib) ⚠️
   - **Tujuan:** salah input cepat dibereskan, selalu dengan jejak.
@@ -1220,6 +1306,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4); mitigasi: aturan di database + laporan harian.
   - **Verifikasi:** uji SQL + uji manual.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/kasir/VoidItem.test.tsx`, `aplikasi/src/layar/kasir/LayarKasirVoid.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T5-07 — Void setelah dapur mulai: PIN atasan + bahan terbuang ⚠️
   - **Tujuan:** kerugian terlihat sebagai angka, bukan hilang diam-diam.
@@ -1251,6 +1338,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4) & Kalkulasi (ART-3); mitigasi: PIN + audit + laporan.
   - **Verifikasi:** uji SQL + uji manual + cek kemunculan di laporan (T7-12).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/bahan_terbuang.sql`, `alat/uji-mutasi-0042.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T5-08 — Nomor HP pelanggan opsional (untuk poin/voucher) ⚠️
   - **Tujuan:** kasir bisa menawarkan voucher tanpa memaksa pelanggan memberi data.
@@ -1274,6 +1362,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10); mitigasi: data minimal + persetujuan + bisa dilewati.
   - **Verifikasi:** uji manual alur cepat tanpa data pelanggan.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/kasir/DataPelanggan.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T5-09 — Struk digital (cadangan wajib saat printer bermasalah) ⚠️
   - **Tujuan:** pembayaran tetap bisa diserahkan ke pelanggan walau printer mati.
@@ -1300,6 +1389,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Cetak (ART-7); mitigasi: satu tampilan struk untuk semua jalur (cetak & digital).
   - **Verifikasi:** uji manual di Android & desktop.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/komponen/StrukDigital.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [ ] T5-10 — Cetak ulang struk + pencarian transaksi ❓ T-028
   - **Tujuan:** struk hilang bisa dicetak ulang tanpa membuat transaksi baru.
@@ -1346,6 +1436,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Bukti (2026-09-23):** SQL **86 LULUS · 0 GAGAL** · `DaftarTagihan.test.tsx` **17 tes LULUS** ·
     aplikasi **66 berkas / 422 tes LULUS** · `uji-mutasi-app.mjs` **34/34 MERAH** (3 mutasi baru:
     umur selalu "baru", sisa mengabaikan uang masuk, umur ditulis menit mentah).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pembayaran_sebagian.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T5-12 — Laporan pembatalan (siapa, nilai, alasan)
   - **Tujuan:** owner bisa memeriksa setiap pembatalan, bukan hanya jumlahnya.
@@ -1374,6 +1465,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Bukti (2026-09-23):** SQL **87 LULUS · 0 GAGAL** · `alat/uji-mutasi-0043.py` **4/4 MERAH** ·
     `DaftarPembatalan.test.tsx` **16 tes LULUS** · aplikasi **68 berkas / 450 tes LULUS** ·
     `uji-mutasi-app.mjs` **42/42 MERAH** · `periksa-gerbang-ci.py` + `periksa-paritas-ci.py` LOLOS.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `alat/uji-mutasi-0043.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ---
 
@@ -1401,6 +1493,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     punya uji — mutasi "potong angka" sempat tetap hijau. Ujinya ditambah; komentar bukan pengaman.
   - **Bukti (2026-09-23):** `expos.test.ts` **29 tes LULUS** · `uji-mutasi-app.mjs` **47/47 MERAH**
     (5 mutasi ESC/POS baru) · aplikasi **69 berkas / 479 tes LULUS** · tsc bersih · lint 0 error.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/lib/printer/expos.test.ts` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T6-02 — Sambungan Web Bluetooth (Android/Windows)
   - **Tujuan:** printer termal Bluetooth bisa dipakai dari perangkat kasir.
@@ -1422,8 +1515,9 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     berhenti di tengah bila dikirim sekaligus — cacat yang sangat sulit ditebak di lapangan.
   - **Pesan "tidak didukung" menyebut jalan keluar** (iPhone → pakai struk digital), bukan tombol
     mati tanpa penjelasan.
-  - **Bukti:** `profil.test.ts` **20 tes** · `kirim.test.ts` **23 tes** · `PasangPrinter.test.tsx`
+  - **Bukti (klaim lama, belum diverifikasi):** `profil.test.ts` **20 tes** · `kirim.test.ts` **23 tes** · `PasangPrinter.test.tsx`
     **14 tes** · 6 mutasi T6-02/T6-03 MERAH.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T6-03 — Sambungan WebUSB (komputer)
   - **Tujuan:** komputer kasir bisa memakai printer kabel tanpa aplikasi tambahan.
@@ -1439,6 +1533,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     tetap bekerja. Diuji dengan perangkat tiruan; uji perangkat nyata tetap T6-08.
   - **Antarmuka selalu dilepas di blok `finally`**, termasuk saat cetak gagal. Kalau tidak, cetak
     BERIKUTNYA gagal dengan pesan menyesatkan "sedang dipakai program lain" — dikunci mutasi.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T6-04 — Cetak struk (header/footer dari pengaturan)
   - **Tujuan:** struk memuat identitas resto yang benar tanpa perlu ubah kode.
@@ -1456,7 +1551,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Cacat nyata yang ditangkap uji:** nama menu panjang semula dicetak mentah sehingga baris
     melebihi 32 kolom dan printer melipatnya di tempat sembarang. Diperbaiki dengan `bungkusTeks`.
   - **Laci kas hanya terbuka bila diminta pemanggil** — bayar QRIS/kartu tidak boleh membuka laci.
-  - **Bukti:** `struk.test.ts` **22 tes LULUS** · 6 mutasi T6-04 semuanya MERAH.
+  - **Bukti (klaim lama, belum diverifikasi):** `struk.test.ts` **22 tes LULUS** · 6 mutasi T6-04 semuanya MERAH.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T6-05 — Cetak tiket dapur
   - **Tujuan:** dapur menerima tiket fisik walau layar penuh.
@@ -1474,7 +1570,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     huruf besar karena tiket dibaca sambil lalu dari jarak satu meter.
   - **Pemisahan stasiun:** `susunTiketTerpisah` menghasilkan tiket makanan & minuman terpisah;
     stasiun tanpa item **tidak** menghasilkan tiket kosong. Item tanpa stasiun dianggap makanan.
-  - **Bukti:** `tiket.test.ts` **20 tes LULUS** · 6 mutasi T6-05 semuanya MERAH.
+  - **Bukti (klaim lama, belum diverifikasi):** `tiket.test.ts` **20 tes LULUS** · 6 mutasi T6-05 semuanya MERAH.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [ ] T6-06 — Antrean cetak, cetak ulang, deteksi gagal ⚠️ ❓ T-028
   - **Tujuan:** printer bermasalah tidak boleh membuat transaksi hilang atau misterius.
@@ -1526,6 +1623,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); mitigasi: aturan satu shift terbuka + audit.
   - **Verifikasi:** uji SQL + uji manual.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T7-02 — Tutup kas (seharusnya vs fisik) + alasan selisih ⚠️
   - **Tujuan:** kasir tidak pernah dituduh selisih, owner melihat kenyataan.
@@ -1535,6 +1633,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); mitigasi: rumus di peladen + uji golden.
   - **Verifikasi:** uji SQL 5 kasus (pas, lebih, kurang, tanpa alasan, dua kasir satu shift).
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T7-03 — Kas pergerakan (masuk/keluar tunai, setoran) ⚠️
   - **Tujuan:** uang yang keluar-masuk di luar penjualan tetap tercatat.
@@ -1544,6 +1643,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); mitigasi: izin + audit.
   - **Verifikasi:** uji SQL + uji manual.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T7-04 — Transaksi hanya dalam shift terbuka ⚠️
   - **Tujuan:** tidak ada penjualan "di luar kas" yang tidak bisa diaudit.
@@ -1553,6 +1653,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (2,5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); kasir lupa buka kas saat sibuk → mitigasi: pengingat + tombol buka kas cepat.
   - **Verifikasi:** uji SQL + uji manual.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/wajib_shift.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T7-05 — Pengingat shift belum ditutup
   - **Tujuan:** shift menggantung tidak menumpuk dan tidak merusak laporan.
@@ -1562,6 +1663,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** pengingat diabaikan → mitigasi: tercatat di laporan harian owner.
   - **Verifikasi:** uji manual (ubah jam sistem uji) + uji SQL.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T7-06 — Koreksi modal awal dengan izin atasan ⚠️
   - **Tujuan:** salah isi modal bisa dibetulkan tanpa menghapus data.
@@ -1571,6 +1673,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (2,5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); mitigasi: hanya-tambah + PIN.
   - **Verifikasi:** uji SQL (riwayat koreksi tetap ada).
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T7-07 — Laporan A: kas harian per shift
   - **Tujuan:** owner membuka satu layar dan langsung tahu kondisi hari ini.
@@ -1580,6 +1683,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** angka tidak cocok → mitigasi: uji golden (T7-12) + satu sumber hitung.
   - **Verifikasi:** uji SQL golden + uji manual bandingkan dengan data transaksi.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T7-08 — Laporan penjualan dasar (kategori, metode)
   - **Tujuan:** owner tahu dari mana uang datang.
@@ -1589,6 +1693,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** laporan berat → mitigasi: agregasi di peladen + batas rentang tanggal.
   - **Verifikasi:** uji SQL + uji manual.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T7-09 — Laporan menu terlaris + diskon/voucher terpakai
   - **Tujuan:** owner tahu menu andalan & biaya promosi.
@@ -1598,6 +1703,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3,5 jam)
   - **Risiko & mitigasi:** data menu berubah → mitigasi: memakai `nama_saat_itu` agar laporan lama tidak berubah.
   - **Verifikasi:** uji SQL + uji manual.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T7-10 — Tampilan laporan siap cetak/simpan + filter cabang
   - **Tujuan:** owner bisa menyimpan laporan harian untuk pembukuan.
@@ -1607,6 +1713,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** kebocoran data lintas cabang → mitigasi: filter di peladen (T2-07).
   - **Verifikasi:** uji manual simpan PDF.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T7-11 — Transaksi lewat tengah malam ⚠️
   - **Tujuan:** laporan tidak terpecah salah tanggal.
@@ -1616,6 +1723,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Zona waktu (ART-9); mitigasi: semua perhitungan waktu memakai zona penyewa + uji jam simulasi.
   - **Verifikasi:** uji SQL dengan data jam 23.50 & 00.10.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/tengah_malam.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T7-12 — Uji golden: laporan = data mentah
   - **Tujuan:** membuktikan laporan tidak berbohong.
@@ -1626,6 +1734,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** uji tidak menangkap kasus tepi → mitigasi: data contoh memuat void, diskon, voucher, pembayaran campuran.
   - **Verifikasi:** CI hijau + selisih = 0 pada laporan contoh.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/golden_laporan.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ---
 
@@ -1640,6 +1749,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10) & RLS (ART-1); mitigasi: fungsi memakai daftar kolom tegas (bukan `select *`) + uji "tidak ada kolom sensitif".
   - **Verifikasi:** uji SQL: hasil tidak memuat kolom sensitif (diperiksa otomatis).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/katalog_publik.sql`, `alat/uji-mutasi-0062.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-02 — Halaman katalog publik per resto (merek sendiri)
   - **Tujuan:** setiap resto punya halaman publik dengan mereknya sendiri.
@@ -1649,6 +1759,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** tampilan berbeda dari prototipe → mitigasi: memakai token desain v3 yang sama + pemeriksa kontras.
   - **Verifikasi:** uji manual di HP + pemeriksa kontras. · **Bukti 2026-09-25:** implementasi `aplikasi/src/layar/pelanggan-publik/Katalog.tsx`, `aplikasi/src/layar/pelanggan-publik/LayarPelangganPublik.tsx`, `aplikasi/src/komponen/KomponenQr.tsx`, dan generator QR mandiri tanpa dependensi luar `aplikasi/src/lib/qrcode.ts`; 4 uji unit di `Katalog.test.tsx` + 5 uji unit di `LayarPelangganPublik.test.tsx` + 2 uji unit di `KomponenQr.test.tsx` + 4 uji unit di `qrcode.test.ts` (15 uji unit hijau, angka saat itu 2026-09-25 — perintah: `cd aplikasi && npm test`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `alat/peta-ui.py` hijau bebas tombol liar; rute dan fallback katalog publik tersambung di `aplikasi/src/App.tsx`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `prototipe/uji-kontras.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-03 — Daftar menu + foto + harga + penanda habis
   - **Tujuan:** pelanggan tahu apa yang tersedia, tanpa menanyakan ke pegawai.
@@ -1658,6 +1769,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3,5 jam)
   - **Risiko & mitigasi:** foto besar membebani kuota gratis → mitigasi: unggah otomatis diperkecil + format modern.
   - **Verifikasi:** uji manual pada HP + ukur ukuran halaman. · **Bukti 2026-09-25:** implementasi `aplikasi/src/layar/pelanggan-publik/Menu.tsx` terintegrasi dengan `Katalog.tsx`; dukungan foto teroptimasi (lazy-loading, decoding async, rasio aspek anti-CLS, fallback ikon placeholder), format rupiah standar, opsi varian rasa/ukuran dan topping tambahan dengan simulasi harga real-time dalam modal `Lapis`; penanda habis visual (overlay redup tertutup, lencana HABIS `Lencana nada="danger"`, keterangan stok habis di cabang ini) serta sakelar filter sembunyikan/tampilkan menu habis; 6 uji unit di `Menu.test.tsx` (6 uji unit hijau, angka saat itu 2026-09-25 — perintah: `cd aplikasi && npm test`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `aplikasi/alat/periksa-struktur.py` lolos tanpa warna mentah; `alat/peta-ui.py` lolos bebas tombol liar.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `prototipe/uji-kontras.py`, `aplikasi/alat/periksa-struktur.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-04 — Pencarian & penyaringan menu
   - **Tujuan:** pelanggan menemukan menu cepat.
@@ -1667,6 +1779,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** pencarian lambat di perangkat lama → mitigasi: pencarian di klien atas data yang sudah dimuat (tanpa data sensitif).
   - **Verifikasi:** uji manual 5 pencarian. · **Bukti 2026-09-25:** implementasi pencarian klien instan di `aplikasi/src/layar/pelanggan-publik/Menu.tsx` mencakup pencarian nama dan deskripsi menu, tombol bersihkan ✕ cepat, penyaringan kategori, tombol chip cepat menu unggulan (⭐ Unggulan), dan carousel kartu sorotan rekomendasi menu; 12 uji unit komprehensif di `Menu.test.tsx` termasuk 5 uji unit khusus skenario pencarian sesuai kriteria DoD (12 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm --prefix aplikasi test -- src/layar/pelanggan-publik/Menu.test.tsx`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `aplikasi/alat/periksa-struktur.py` lolos tanpa warna mentah; `alat/peta-ui.py` lolos bebas tombol liar.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `prototipe/uji-kontras.py`, `aplikasi/alat/periksa-struktur.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-05 — Tautan & QR katalog per resto
   - **Tujuan:** pelanggan bisa membuka menu dari meja atau dari media sosial.
@@ -1676,6 +1789,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** QR salah cetak → mitigasi: pratinjau sebelum cetak + uji pindai 2 perangkat.
   - **Verifikasi:** uji pindai QR dengan kamera HP. · **Bukti 2026-09-25:** implementasi `aplikasi/src/layar/pengaturan/TautanKatalog.tsx` terintegrasi rute di `aplikasi/src/App.tsx`; mendukung tautan publik resto dengan tombol salin & bagikan WhatsApp, generator kode QR akrilik per nomor meja dan meja kustom dengan parameter URL query `?meja=...`, pratinjau cetak stand akrilik A6, tombol cetak langsung (`window.print`) dan unduh berkas SVG siap cetak, panel mitigasi risiko salah cetak uji pindai 2 perangkat (Android dan iOS), serta tab cetak massal seluruh meja cabang; 9 uji unit di `TautanKatalog.test.tsx` (9 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm --prefix aplikasi test -- src/layar/pengaturan/TautanKatalog.test.tsx`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `aplikasi/alat/periksa-struktur.py` lolos tanpa warna mentah; `alat/peta-ui.py` lolos bebas tombol liar.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `prototipe/uji-kontras.py`, `aplikasi/alat/periksa-struktur.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-06 — Halaman kampanye + pendaftaran pelanggan
   - **Tujuan:** calon pelanggan bisa ikut kampanye undang-teman tanpa bantuan kasir.
@@ -1685,6 +1799,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** pendaftaran gagal karena verifikasi → mitigasi: jalur bantuan "didaftarkan kasir" (T8-07) + pesan jelas.
   - **Verifikasi:** uji manual dua jalur (Google & email) di HP. · **Bukti 2026-09-25:** implementasi `aplikasi/src/layar/voucher/Kampanye.tsx` dan `aplikasi/src/layar/voucher/Daftar.tsx` terintegrasi rute di `aplikasi/src/App.tsx`; mendukung pendaftaran nama (wajib), email (wajib), telepon & alamat (opsional sesuai Aturan Bisnis 3), persetujuan privasi UU PDP (`centang-privasi-voucher`), verifikasi Google Sign-In & Email Magic Link, jalur bantuan "didaftarkan kasir", serta kartu pratinjau voucher dengan kode acak dan barcode QR (`KomponenQr`); halaman kampanye menyajikan banner hero, kuota voucher, syarat & ketentuan awam, banner pengundang eksklusif (referral), intip menu katalog, bagikan WhatsApp, dan salin tautan; 10 uji unit di `Daftar.test.tsx` dan `Kampanye.test.tsx` (10 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm --prefix aplikasi test -- src/layar/voucher/`); `prototipe/uji-kontras.py` 166 lolos 0 gagal; `aplikasi/alat/periksa-struktur.py` lolos tanpa warna mentah; `alat/peta-ui.py` lolos bebas tombol liar.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `prototipe/uji-kontras.py`, `aplikasi/alat/periksa-struktur.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-07 — Verifikasi email + anti email sekali-pakai + normalisasi Gmail ⚠️ T-011
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-011: draf kebijakan boleh dibuat agent; tinjauan Lee sebelum Fase 8 dan persetujuan pelanggan lewat T8-15 tetap WAJIB sebelum pengumpulan data.
@@ -1696,6 +1811,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5) & Privasi (ART-10); mitigasi: daftar domain sekali-pakai + normalisasi + uji kasus.
   - **Verifikasi:** uji fungsi dengan 6 kasus (email asli, sekali-pakai, gmail bertitik, gmail +tag, email kosong, email salah). · **Bukti 2026-09-25:** implementasi utilitas klien `aplikasi/src/lib/emailNormalisasi.ts` dengan 9 uji unit di `emailNormalisasi.test.ts` (9 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm --prefix aplikasi test -- src/lib/emailNormalisasi.test.ts`); Edge Function `supabase/functions/verifikasi_pelanggan/index.ts` dengan runner uji batas VM `alat/uji-edge-verifikasi-pelanggan.mjs` (10 uji batas lulus tanpa jaringan); migrasi `supabase/migrations/0063_anti_email_palsu.sql` membangun tabel `pelanggan`, `kampanye_voucher`, `voucher`, `voucher_percobaan`, RPC `daftar_voucher`, dan RLS InitPlan; berkas uji `supabase/tes/anti_email_palsu.sql` (106 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); penilai mutasi `alat/uji-mutasi-0063.py` (4/4 mutasi kritis terbukti MERAH); `DECISIONS_LOG.md` diperbarui pada Area Voucher (ART-5) & Privasi Pelanggan (ART-10).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/anti_email_palsu.sql`, `alat/uji-edge-verifikasi-pelanggan.mjs`, `alat/uji-sql.mjs` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-08 — Terbitkan kode voucher acak + barcode
   - **Tujuan:** kode tidak bisa ditebak atau dibuat sendiri oleh orang luar.
@@ -1705,6 +1821,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** kode terguess → mitigasi: panjang memadai + pembatasan percobaan (T8-12).
   - **Verifikasi:** uji SQL unik + uji manual tampilan kartu voucher.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-09 — Layar kasir: Cek (baca saja) & Pakai (atomik + PIN) ⚠️
   - **Tujuan:** kasir bisa memeriksa dengan tenang, lalu memakai sekali saja dengan jejak.
@@ -1714,6 +1831,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5); mitigasi: RPC atomik T1-20 + PIN + uji "cek tidak mengubah".
   - **Verifikasi:** uji manual 6 kasus (voucher sah, sudah dipakai, kedaluwarsa, minimum belum cukup, salah cabang, kuota habis).
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-10 — Scan kamera + ketik manual
   - **Tujuan:** kasir tidak perlu mengetik panjang, tetapi tetap bisa saat kamera bermasalah.
@@ -1723,6 +1841,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** kamera perangkat bermasalah → mitigasi: jalur manual selalu tersedia & sama-sama tercatat.
   - **Verifikasi:** uji manual pindai 3 voucher + 1 masukan manual.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-11 — Pengaturan kampanye voucher oleh admin
   - **Tujuan:** admin bisa mengatur kampanye sendiri tanpa koding.
@@ -1732,6 +1851,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** aturan salah → mitigasi: validasi + pratinjau ("pelanggan belanja 50rb → potongan maksimal 15rb").
   - **Verifikasi:** uji manual membuat 3 kampanye berbeda + uji SQL validasi. · **Bukti 2026-09-25:** migrasi `supabase/migrations/0066_kampanye_aturan.sql` (trigger validasi aturan kampanye, helper format kalimat pratinjau, RPC simpan_kampanye_voucher, ambil_daftar_kampanye, dan ubah_status_kampanye); berkas uji `supabase/tes/kampanye_aturan.sql` (109 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); skrip uji mutasi `alat/uji-mutasi-0066.py` (6/6 mutasi kritis terbukti MERAH); antarmuka admin `aplikasi/src/layar/pengaturan/Kampanye.tsx` dengan modal buat/edit, validasi interaktif pencegah aturan mustahil, filter status aktif/nonaktif, statistik serapan kuota, dan kotak pratinjau kalimat aturan manusiawi real-time beserta simulasi belanja; 11 uji unit komprehensif di `Kampanye.test.tsx` (11 uji unit hijau, angka saat itu 2026-09-25 — perintah: `npm test`); mutasi aplikasi terjaga di `aplikasi/alat/uji-mutasi-app.mjs`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/kampanye_aturan.sql`, `alat/uji-sql.mjs`, `alat/uji-mutasi-0066.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-12 — Pengaman anti-kecurangan (10 lapis) + batas klaim + log percobaan ⚠️
   - **Tujuan:** kampanye tidak bisa diborong satu orang atau satu perangkat.
@@ -1741,6 +1861,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Voucher (ART-5); mitigasi: batas berlapis di database + laporan anomali.
   - **Verifikasi:** uji SQL: klaim ke-2 identitas sama → ditolak; lampaui anggaran → ditolak. · **Bukti 2026-09-25:** migrasi `supabase/migrations/0067_pengaman_voucher.sql` (10 lapis pengaman voucher, kolom kuota_harian_cabang & kuota_per_pelanggan, rate limiting brute-force 5 kegagalan per 15 menit dengan fungsi apakah_perangkat_terblokir, pengamanan cek_voucher, pakai_voucher, daftar_voucher, dan RPC audit admin ambil_log_percobaan_voucher); berkas uji SQL `supabase/tes/pengaman_voucher.sql` (110 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); penilai mutasi `alat/uji-mutasi-0067.py` (6/6 mutasi kritis terbukti MERAH); `alat/uji-mutasi-0065.py` diselaraskan (5/5 mutasi terbukti MERAH); `DECISIONS_LOG.md` diperbarui pada Area Berisiko Tinggi ART-5.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pengaman_voucher.sql`, `alat/uji-mutasi-0067.py`, `alat/uji-sql.mjs` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-13 — Laporan klaim voucher + dasar deteksi anomali
   - **Tujuan:** owner melihat apakah kampanye berjalan wajar atau ada pola aneh.
@@ -1750,6 +1871,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** salah tuduh pelanggan → mitigasi: istilah "perlu diperiksa", bukan "curang".
   - **Verifikasi:** uji SQL + uji manual. · **Bukti 2026-09-25:** migrasi `supabase/migrations/0068_laporan_voucher.sql` (view `laporan_voucher_ringkasan` dengan security_invoker = true, RPC `deteksi_anomali_voucher` mendeteksi 4 kategori anomali, RPC `laporan_voucher` agregasi metrik klaim, pemakaian, potongan rupiah, konversi, tren harian, rincian kampanye & cabang, dan identitas klaim berulang); berkas uji SQL `supabase/tes/laporan_voucher.sql` (111 berkas uji SQL lulus 100%, angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); penilai mutasi `alat/uji-mutasi-0068.py` (7/7 mutasi kritis terbukti MERAH); antarmuka `aplikasi/src/layar/laporan/LaporanVoucher.tsx` dan integrasi tab `LayarLaporan.tsx` teruji unit 100% (`npx vitest run src/layar/laporan/LaporanVoucher.test.tsx`); penilai mutasi aplikasi `aplikasi/alat/uji-mutasi-app.mjs` (81/81 mutasi terbukti MERAH).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/laporan_voucher.sql`, `alat/uji-mutasi-0068.py`, `alat/uji-sql.mjs` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T8-14 — Uji lengkap aturan voucher (6 kasus wajib)
   - **Tujuan:** aturan voucher terbukti benar sebelum dipakai di kedai.
@@ -1759,6 +1881,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** uji tidak menutup seluruh kasus → mitigasi: daftar kasus diambil langsung dari PRD M10.
   - **Verifikasi:** CI hijau + ringkasan hasil dicatat. · **Bukti 2026-09-25:** berkas uji SQL `supabase/tes/voucher_aturan.sql` membuktikan 6 kasus wajib PRD M10 & TECH_SPEC §8 (1. min belanja ditolak `SUBTOTAL_KURANG` dan lolos saat subtotal dipenuhi; 2. diskon persen dipotong tepat plafon nominal sampai rupiah terkecil 18.222; 3. kedaluwarsa ditolak `VOUCHER_KEDALUWARSA`; 4. kuota harian cabang habis ditolak `KUOTA_HARIAN_CABANG_HABIS` & anggaran kampanye habis ditolak `ANGGARAN_KAMPANYE_HABIS`; 5. beda cabang ditolak `CABANG_TIDAK_BERLAKU` dan lolos di cabang sah; 6. sekali pakai ditolak `VOUCHER_SUDAH_TERPAKAI` pada pesanan berbeda & idempoten pada pesanan sama); 112 berkas uji SQL lulus 100% (angka saat itu 2026-09-25 — perintah: `node alat/uji-sql.mjs`); verifikasi keamanan fungsi dan RLS lolos (`python3 alat/periksa-keamanan-sql.py`).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/voucher_aturan.sql`, `alat/uji-sql.mjs`, `alat/periksa-keamanan-sql.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ---
 
@@ -1771,6 +1894,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Data Pelanggan (ART-14); data terlanjur tersimpan tanpa persetujuan → mitigasi: pendaftaran tanpa centang = ditolak database; anonimisasi menyisakan jejak audit.
   - **Verifikasi:** uji SQL: pelanggan tanpa persetujuan ditolak · anonimisasi menghapus kontak · transaksi & voucher tetap ada. · **Bukti 2026-09-26:** migrasi 0069 (`0069_privasi_pelanggan.sql`) menegakkan kolom persetujuan, waktu, versi kebijakan (v1.0), status privasi ('aktif' | 'teranonimkan'), serta RPC atomik `public.anonimkan_pelanggan` dan `public.cek_privasi_pelanggan`; berkas uji SQL `supabase/tes/privasi.sql` memverifikasi 9 kasus kepatuhan UU PDP (pelanggan tanpa persetujuan ditolak database, tersimpan lengkap persetujuan + waktu + versi kebijakan, pemanggilan anonimkan_pelanggan menghapus kontak nama/email/telepon/alamat, catatan voucher dan transaksi keuangan tetap utuh, jejak audit kekal tercatat di catatan_audit, sifat idempoten terbukti, isolasi tenant terjaga); 113 berkas uji SQL lulus 100% (angka saat itu 2026-09-26 — perintah: `node alat/uji-sql.mjs`); implementasi UI `aplikasi/src/layar/pelanggan-publik/KebijakanPrivasi.tsx` menyajikan transparansi hak subjek data (hak akses, hak koreksi, hak anonimisasi dalam 3x24 jam) berbahasa Indonesia sesuai UU 27/2022; 6 uji unit di `KebijakanPrivasi.test.tsx` lulus 100% (angka saat itu 2026-09-26 — perintah: `npm --prefix aplikasi test -- src/layar/pelanggan-publik/KebijakanPrivasi.test.tsx`); 792 uji unit frontend lulus (101 berkas); verifikasi keamanan fungsi dan sapuan RLS lolos (`python3 alat/periksa-keamanan-sql.py`).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/privasi.sql`, `alat/uji-sql.mjs`, `alat/periksa-keamanan-sql.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ## Fase 9 — Pengaturan tanpa koding & multi-cabang (M1, M2, M3, M11)
 
@@ -1782,6 +1906,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** gambar besar → mitigasi: perkecil otomatis + batas ukuran + penyimpanan gratis 1 GB dipantau (T11-06).
   - **Verifikasi:** uji manual unggah 3 gambar (kecil, besar, jenis salah). · **Bukti 2026-09-26:** migrasi 0070 (`0070_identitas_resto.sql`) menambahkan kolom tagline, logo_url, banner_url, dan versi_pengaturan pada tabel pengaturan serta mengimplementasikan RPC resmi `simpan_pengaturan` (optimistic locking stempel waktu P0001, isolasi penyewa, otorisasi owner_pusat / izin atur_pengaturan, jejak audit kekal di catatan_audit) dan pembaruan RPC `katalog_publik`; berkas uji SQL `supabase/tes/pengaturan_identitas.sql` membuktikan 11 kasus uji (114 berkas uji SQL lulus 100% — angka saat itu 2026-09-26 — perintah: `node alat/uji-sql.mjs`); penilai mutasi SQL `alat/uji-mutasi-0070.py` membuktikan 7/7 mutasi fail-closed tertangkap merah 100%; implementasi antarmuka `aplikasi/src/layar/pengaturan/Identitas.tsx` menyediakan validasi format berkas (JPG/PNG/WebP), batas ukuran logo 2 MB dan banner 3 MB, auto-resize via canvas, pratinjau live katalog publik & struk belanja; komponen induk `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx` mengintegrasikan modul pengaturan; 13 uji unit di `Identitas.test.tsx` dan 6 uji unit di `LayarPengaturan.test.tsx` lulus 100% (angka saat itu 2026-09-26 — perintah: `npm --prefix aplikasi test -- src/layar/pengaturan/Identitas.test.tsx src/layar/pengaturan/LayarPengaturan.test.tsx`); 811 uji unit frontend lulus (103 berkas); seluruh pemeriksaan arsitektur lolos (`python3 aplikasi/alat/periksa-struktur.py` dan `python3 alat/periksa-keamanan-sql.py`).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pengaturan_identitas.sql`, `alat/uji-sql.mjs`, `alat/uji-mutasi-0070.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T9-02 — Tema & warna merek (10 tema siap pakai)
   - **Tujuan:** setiap resto bisa tampil dengan warna sendiri tanpa desain ulang.
@@ -1791,6 +1916,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** warna merek merusak keterbacaan → mitigasi: uji kontras otomatis menolak kombinasi gagal.
   - **Verifikasi:** uji kontras untuk 10 tema × 3 warna merek. · **Bukti 2026-09-26:** migrasi 0071 (`0071_tema_merek.sql`) menambahkan kolom tema, warna_merek, dan kerapatan pada tabel pengaturan serta mengimplementasikan RPC resmi `simpan_tema` (validasi 10 tema resmi, validasi kerapatan nyaman/padat, optimistic locking stempel waktu P0001, isolasi penyewa, otorisasi owner_pusat / izin atur_pengaturan, jejak audit kekal di catatan_audit) dan pembaruan RPC `ambil_pengaturan_identitas` serta `katalog_publik`; berkas uji SQL `supabase/tes/pengaturan_tema.sql` membuktikan 12 kasus uji (115 berkas uji SQL lulus 100% — angka saat itu 2026-09-26 — perintah: `node alat/uji-sql.mjs`); penilai mutasi SQL `alat/uji-mutasi-0071.py` membuktikan 7/7 mutasi fail-closed tertangkap merah 100%; implementasi antarmuka `aplikasi/src/layar/pengaturan/Tampilan.tsx` menyediakan pemilih 10 tema visual v3, pemilih kerapatan (nyaman/padat), validasi otomatis kontras warna aksen heksa WCAG AA (≥ 4.5:1 untuk teks), pratinjau live kartu menu, tombol, dan lencana status; integrasi tab ke komponen induk `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`; 12 uji unit di `Tampilan.test.tsx` dan 7 uji unit di `LayarPengaturan.test.tsx` lulus 100% (angka saat itu 2026-09-26 — perintah: `npm --prefix aplikasi test -- src/layar/pengaturan/Tampilan.test.tsx src/layar/pengaturan/LayarPengaturan.test.tsx`); 824 uji unit frontend lulus (104 berkas); seluruh pemeriksaan arsitektur lolos (`python3 aplikasi/alat/periksa-struktur.py` dan `python3 alat/periksa-keamanan-sql.py`).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pengaturan_tema.sql`, `alat/uji-sql.mjs`, `alat/uji-mutasi-0071.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T9-03 — Pengaturan operasional (pajak, service, pembulatan, cara pesan, struk)  <!-- T-005 sudah ditutup 2026-09-16: nilai awal PB1 10% · service 5% · 1 shift -->
   - **Tujuan:** aturan uang & layanan sesuai kenyataan kedai, bisa diubah sendiri.
@@ -1800,6 +1926,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3,5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3); perubahan pajak mengubah laporan lama → mitigasi: nilai pajak disalin ke transaksi saat dibuat.
   - **Verifikasi:** uji SQL: ubah PB1 → transaksi lama tetap memakai nilai lama. · **Bukti 2026-09-26:** migrasi 0072 (`0072_pengaturan_operasional.sql`) mengimplementasikan RPC `simpan_operasional` dan `ambil_pengaturan_operasional` dengan validasi ketat PB1 0–100%, service 0–100%, pembulatan (none/100/500/1000), alur cara pesan (kasir/mandiri/meja/campur), jam buka, pesan struk, tumpuk diskon, optimistic locking stempel waktu P0001, isolasi penyewa, otorisasi owner_pusat / izin atur_pengaturan, serta jejak audit kekal di `public.catatan_audit` (aksi = 'ubah_operasional_resto'); mitigasi risiko ART-3 terbukti secara matematis bahwa transaksi masa lalu yang sudah lunas tidak berubah nilai nominalnya saat tarif PB1 diperbarui; berkas uji SQL `supabase/tes/pengaturan_operasional.sql` membuktikan 15 kasus uji komprehensif (116 berkas uji SQL lulus 100% — angka saat itu 2026-09-26 — perintah: `node alat/uji-sql.mjs`); penilai mutasi SQL `alat/uji-mutasi-0072.py` membuktikan 8/8 mutasi fail-closed tertangkap merah 100%; implementasi antarmuka `aplikasi/src/layar/pengaturan/Operasional.tsx` menyediakan konfigurasi lengkap, tombol cepat tarif umum, kalkulator simulasi struk live sesuai ART-3, kartu pratinjau struk kasir real-time, dan integrasi tab di `aplikasi/src/layar/pengaturan/LayarPengaturan.tsx`; 12 uji unit di `Operasional.test.tsx` dan 8 uji unit di `LayarPengaturan.test.tsx` lulus 100% (angka saat itu 2026-09-26 — perintah: `npm --prefix aplikasi test -- src/layar/pengaturan/Operasional.test.tsx src/layar/pengaturan/LayarPengaturan.test.tsx`); 837 uji unit frontend lulus (105 berkas); 81 skenario uji mutasi aplikasi tertangkap merah 100% (`node aplikasi/alat/uji-mutasi-app.mjs`); pembaruan registri aksi di `aplikasi/src/lib/aksi.ts` dan Peta UI di `docs/PETA_UI.md` terverifikasi sinkron (39 aksi terdaftar).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pengaturan_operasional.sql`, `alat/uji-sql.mjs`, `alat/uji-mutasi-0072.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T9-04 — Meja & area + QR per meja
   - **Tujuan:** tata letak kedai bisa diatur sendiri dan QR meja bisa dipakai.
@@ -1809,6 +1936,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** meja nonaktif masih bisa dipesan → mitigasi: validasi di server saat membuat pesanan.
   - **Verifikasi:** uji manual + uji SQL. · **Bukti 2026-09-26:** migrasi 0073 (`0073_pengaturan_meja.sql`) mengimplementasikan mitigasi penolakan pesanan di meja nonaktif (fail-closed dengan kode P0001), RPC `simpan_meja` (tambah/edit nama/area/status aktif dengan validasi keunikan nama per cabang), RPC `ambil_daftar_meja`, RPC `hapus_meja` (pencegahan penghapusan meja yang memiliki riwayat pesanan), audit trail kekal di `public.catatan_audit` (aksi = 'simpan_meja' dan 'hapus_meja'), serta pencegahan penonaktifan meja yang memiliki pesanan aktif ('dibuat'/'dimasak'/'disajikan'); pengujian SQL `supabase/tes/pengaturan_meja.sql` mencakup 14 skenario uji (117 berkas uji SQL lulus 100% — `node alat/uji-sql.mjs`); pengujian mutasi `alat/uji-mutasi-0073.py` menangkap 7/7 mutasi fail-closed 100%; antarmuka `aplikasi/src/layar/pengaturan/Meja.tsx` dan integrasi tab di `LayarPengaturan.tsx` menyediakan antarmuka manajemen meja & area lengkap, tab filter area, kartu statistik ringkasan, sakelar aktif/nonaktif cepat, modal kartu stand akrilik kode QR SVG siap cetak & salin tautan; 12 uji unit di `Meja.test.tsx` dan 9 uji unit di `LayarPengaturan.test.tsx` lulus 100%; 850 pengujian frontend (106 berkas) lulus 100% (`npm --prefix aplikasi test`); registri aksi `aplikasi/src/lib/aksi.ts` dan Peta UI `docs/PETA_UI.md` terverifikasi sinkron (41 aksi terdaftar; `python3 alat/peta-ui.py --periksa` lulus).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pengaturan_meja.sql`, `alat/uji-sql.mjs`, `alat/uji-mutasi-0073.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T9-05 — Pengelolaan menu lengkap (kategori, varian, tambahan, foto, urutan)
   - **Tujuan:** menu bisa diperbarui owner sendiri tanpa koding.
@@ -1818,6 +1946,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** perubahan harga mengubah riwayat → mitigasi: `harga_saat_itu` (T1-09) + peringatan di layar.
   - **Verifikasi:** uji manual menambah 5 menu + uji SQL riwayat harga. · **Bukti 2026-09-26:** migrasi 0074 (`0074_pengaturan_menu.sql`) mengimplementasikan pemicu fail-closed mitigasi integritas data (`picu_menu_item_cegah_hapus` dan `picu_kategori_menu_cegah_hapus`), RPC `simpan_kategori_menu`, RPC `hapus_kategori_menu`, RPC `simpan_menu_lengkap` (mendukung varian, topping, foto, urutan, status unggulan), RPC `hapus_menu_item`, RPC `ambil_menu_pengaturan`, dan RPC `simpan_urutan_menu`; pencatatan jejak audit di `public.catatan_audit` untuk setiap perubahan; 18 skenario uji SQL di `supabase/tes/pengaturan_menu.sql` lulus 100% (118/118 berkas uji SQL lulus — `node alat/uji-sql.mjs`); pengujian mutasi fail-closed `alat/uji-mutasi-0074.py` menangkap 8/8 mutasi 100%; pengujian keamanan fungsi dan RLS `alat/periksa-keamanan-sql.py` lulus 100%; komponen UI `aplikasi/src/layar/pengaturan/Menu.tsx` menyediakan antarmuka lengkap tanpa elemen button mentah, kompresi foto otomatis kanvas, pengaturan varian harga, topping/tambahan, tombol panah urutan, sakelar penanda habis per cabang, dan dialog konfirmasi fail-closed; registri aksi `aplikasi/src/lib/aksi.ts` dan peta UI `docs/PETA_UI.md` terverifikasi sinkron (11 layar, 43 aksi; `python3 alat/peta-ui.py --periksa` lulus); 14 uji unit di `Menu.test.tsx` dan 10 uji unit di `LayarPengaturan.test.tsx` lulus 100%; total 865 uji unit frontend (107 berkas) lulus 100% (`npm --prefix aplikasi test`).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pengaturan_menu.sql`, `alat/uji-sql.mjs`, `alat/uji-mutasi-0074.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T9-06 — Harga & ketersediaan menu berbeda per cabang
   - **Tujuan:** cabang boleh punya harga/menu berbeda tanpa sistem terbelah.
@@ -1827,6 +1956,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** harga salah cabang → mitigasi: tampilkan tabel perbandingan antar cabang + uji SQL.
   - **Verifikasi:** uji manual + uji SQL (2 cabang, 1 menu, harga berbeda). · **Bukti 2026-09-26:** migrasi 0075 (`0075_menu_cabang.sql`) mengimplementasikan kolom `diubah_pada` di tabel `menu_cabang`, helper `public.harga_berlaku(menu_item_id, cabang_id)` fail-closed yang menghormati visibilitas aktif/nonaktif per cabang dan master (mengembalikan NULL saat disembunyikan/nonaktif), 5 fungsi RPC lengkap (`simpan_menu_cabang`, `simpan_banyak_menu_cabang`, `ambil_perbandingan_menu_cabang`, `salin_harga_cabang`, `reset_harga_cabang`), otorisasi ketat peran owner pusat/admin cabang, serta pencatatan audit di `public.catatan_audit`; 25 skenario uji SQL di `supabase/tes/menu_cabang.sql` lulus 100% (total 119 berkas SQL lulus — `node alat/uji-sql.mjs`); pengujian mutasi fail-closed `alat/uji-mutasi-0075.py` menangkap 7/7 mutasi 100%; pengujian keamanan fungsi dan RLS `alat/periksa-keamanan-sql.py` lulus 100%; pedoman induk `PANDUAN_PENGGUNA.md` disinkronkan ke 119 berkas uji SQL; komponen UI `aplikasi/src/layar/pengaturan/MenuCabang.tsx` dan integrasi tab di `LayarPengaturan.tsx` menyediakan antarmuka kelola cabang, kartu statistik, indikator selisih harga (+/-), sakelar tampil/sembunyi cabang, sakelar habis cabang, mode tabel perbandingan multi-cabang (mitigasi risiko salah cabang), modal salin konfigurasi antar cabang, dan modal reset ke harga pusat; registri aksi `aplikasi/src/lib/aksi.ts` dan peta UI `docs/PETA_UI.md` terverifikasi sinkron (11 layar, 45 aksi); 13 uji unit di `MenuCabang.test.tsx` dan 11 uji unit di `LayarPengaturan.test.tsx` lulus 100%; total 879 uji unit frontend (108 berkas) lulus 100% (`npm --prefix aplikasi test`).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/menu_cabang.sql`, `alat/uji-sql.mjs`, `alat/uji-mutasi-0075.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T9-07 — Metode pembayaran aktif + aturan tip
   - **Tujuan:** kasir hanya melihat metode yang benar-benar dipakai resto.
@@ -1836,6 +1966,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (2 jam)
   - **Risiko & mitigasi:** tip mempengaruhi setoran kas → mitigasi: tip dicatat terpisah di laporan.
   - **Verifikasi:** uji manual + uji SQL struk dengan tip. · **Bukti 2026-09-26:** migrasi 0076 (`0076_metode_bayar_tip.sql`) mengimplementasikan kolom konfigurasi aturan tip di `public.pengaturan` (`izinkan_tip`, `cara_hitung_tip`, `pilihan_tip_persen`, `pilihan_tip_nominal`), kolom `tip` di `public.pesanan`, kolom `diubah_pada` di `public.metode_bayar`, penambahan tip ke total akhir pesanan pada `public.hitung_total(uuid)`, pemicu fail-closed `picu_metode_bayar_cegah_hapus` (mencegah penghapusan metode dengan riwayat transaksi) & `picu_metode_bayar_minimal_satu_aktif` (mencegah penonaktifan semua metode), 6 RPC aman (`simpan_metode_bayar`, `hapus_metode_bayar`, `simpan_urutan_metode_bayar`, `simpan_aturan_tip`, `ambil_pengaturan_pembayaran`, `pasang_tip_pesanan`) dengan otorisasi ketat dan jejak audit `public.catatan_audit`; 20 skenario uji SQL di `supabase/tes/metode_bayar_tip.sql` lulus 100% (total 120 berkas SQL lulus — `node alat/uji-sql.mjs`); pengujian mutasi fail-closed `alat/uji-mutasi-0076.py` menangkap 8/8 mutasi (100%); pengujian keamanan fungsi dan RLS `alat/periksa-keamanan-sql.py` lulus 100%; pedoman induk `PANDUAN_PENGGUNA.md` disinkronkan ke 120 berkas uji SQL; komponen antarmuka `aplikasi/src/layar/pengaturan/MetodeBayar.tsx` dan integrasi tab di `LayarPengaturan.tsx` menyediakan antarmuka kelola metode bayar (tambah, edit, toggle aktif/nonaktif, geser urutan naik/turun, modal hapus dengan proteksi riwayat transaksi) dan konfigurasi aturan tip sukarela (pilihan model sukarela/persen/nominal dan opsi cepat); registri aksi `aplikasi/src/lib/aksi.ts` dan peta UI `docs/PETA_UI.md` terverifikasi sinkron (11 layar, 48 aksi); 10 uji unit di `MetodeBayar.test.tsx` dan 12 uji unit di `LayarPengaturan.test.tsx` lulus 100%; total 890 uji unit frontend (109 berkas) lulus 100% (`npm --prefix aplikasi test`); kompilasi TypeScript dan produksi build `npm run build --prefix aplikasi` lulus tanpa galat.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/metode_bayar_tip.sql`, `alat/uji-sql.mjs`, `alat/uji-mutasi-0076.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T9-08 — Kelola pegawai: peran, izin, PIN ⚠️
   - **Tujuan:** owner memberi kepercayaan bertingkat tanpa kehilangan kendali.
@@ -1845,6 +1976,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); izin salah memberi akses uang → mitigasi: daftar izin jelas + audit perubahan + uji peran (T2-12).
   - **Verifikasi:** uji manual mengubah izin → perilaku berubah di layar kasir; uji SQL audit. · **Bukti 2026-09-26:** migrasi 0077 (`0077_kelola_pegawai_izin.sql`) mengimplementasikan pemicu fail-closed `picu_pengguna_cegah_hapus` (mencegah hard-delete akun pegawai yang memiliki riwayat transaksi pesanan, pembayaran, atau shift kasir demi melindungi integritas jejak audit finansial ART-2; mewajibkan soft-disable `aktif = false`), RPC `public.set_izin` (konfigurasi centang izin per pegawai dengan batas diskon nominal Rp & batas persen %, hierarki proteksi owner pusat, dan anti-privilege escalation), RPC `public.set_status_pengguna` (pengaktifan/penonaktifan pegawai dengan proteksi minimal satu owner pusat aktif), RPC `public.simpan_pegawai` (tambah/edit profil pegawai, peran resmi kasir/pelayan/dapur/admin, cabang penugasan di `public.pengguna_cabang`, dan PIN awal 6 digit angka), RPC `public.reset_pin_pegawai` (reset PIN 6 digit pegawai oleh atasan berwenang tanpa memerlukan PIN lama staf, hash bcrypt `public.kredensial_pin`), RPC `public.ambil_daftar_pegawai` dan `public.ambil_izin_pegawai` (pembacaan 10 izin resmi sistem); setiap aksi dicatat kekal di `public.catatan_audit`; 20 skenario uji SQL di `supabase/tes/kelola_pegawai_izin.sql` lulus 100% (total 121 berkas SQL lulus — `node alat/uji-sql.mjs`); pengujian mutasi fail-closed `alat/uji-mutasi-0077.py` membuktikan 10/10 mutasi (100%) tertangkap merah; keamanan basis data `alat/periksa-keamanan-sql.py` lulus 100%; pedoman induk `PANDUAN_PENGGUNA.md` disinkronkan ke 121 berkas uji; catatan keputusan arsitektur `docs/DECISIONS_LOG.md` diperbarui untuk Area Role & Permission (ART-2); komponen frontend `aplikasi/src/layar/pengaturan/KelolaPegawai.tsx` dan integrasi tab di `LayarPengaturan.tsx` menyediakan antarmuka lengkap (daftar pegawai dengan filter peran & cari nama, form tambah/edit profil pegawai, modal pengaturan matriks 10 izin resmi dan batas diskon, modal reset PIN 6 angka, serta toggle soft-disable); registri aksi `aplikasi/src/lib/aksi.ts` dan peta UI `docs/PETA_UI.md` disinkronkan (11 layar, 50 aksi); 7 uji unit di `KelolaPegawai.test.tsx` dan 13 uji unit di `LayarPengaturan.test.tsx` lulus 100%; total 895 uji unit frontend (109 berkas) lulus 100% (`npm --prefix aplikasi test`); kompilasi TypeScript dan produksi build `npm run build --prefix aplikasi` lulus tanpa galat.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/kelola_pegawai_izin.sql`, `alat/uji-sql.mjs`, `alat/uji-mutasi-0077.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T9-09 — Kelola cabang (tambah, printer, nonaktifkan) ⚠️
   - **Tujuan:** membuka cabang baru tidak butuh bantuan teknis.
@@ -1854,6 +1986,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3,5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1); mitigasi: uji isolasi otomatis (T1-04/T10-05).
   - **Verifikasi:** uji manual tambah cabang + uji SQL isolasi. · **Bukti 2026-09-26:** migrasi 0078 (`0078_kelola_cabang.sql`) menegakkan kolom `zona_waktu`, `printer_default` (JSONB: profil_id, nama, lebar 58/80 mm), dan `diubah_pada`; pemicu fail-closed `picu_cabang_cegah_hapus` (menolak hard-delete cabang yang memiliki riwayat transaksi pesanan, meja, atau shift kasir demi melindungi integritas finansial dan jejak audit ART-1 & ART-12) dan pemicu fail-closed `picu_cabang_minimal_satu_aktif` (menolak penonaktifan seluruh cabang di resto; minimal 1 cabang wajib aktif); 6 fungsi RPC aman (`public.tambah_cabang`, `public.simpan_cabang`, `public.set_status_cabang`, `public.set_akses_cabang`, `public.ambil_daftar_cabang`, `public.ambil_akses_cabang_pegawai`) dengan `revoke execute ... from public` dan pencatatan jejak audit kekal di `public.catatan_audit`; 20 skenario uji SQL di `supabase/tes/kelola_cabang.sql` lulus 100% (total 122 berkas uji SQL lulus — `node alat/uji-sql.mjs`); pengujian mutasi fail-closed `alat/uji-mutasi-0078.py` membuktikan 10/10 mutasi (100%) tertangkap merah; keamanan basis data `python3 alat/periksa-keamanan-sql.py` lulus 100%; pedoman induk `PANDUAN_PENGGUNA.md` disinkronkan ke 122 berkas uji dan terverifikasi lolos via `python3 alat/periksa-panduan.py`; catatan keputusan arsitektur `docs/DECISIONS_LOG.md` dimutakhirkan untuk Area Multi-Cabang (ART-12) & Perangkat & Pencetakan (ART-7); komponen antarmuka `aplikasi/src/layar/pengaturan/Cabang.tsx` dan integrasi tab `cabang` di `LayarPengaturan.tsx` menyediakan antarmuka lengkap (pencarian cabang, kartu statistik, modal tambah cabang dengan validasi nama unik & zona waktu resmi & profil printer default, modal edit cabang, modal penugasan multi-cabang pegawai ART-12, dan switch soft-disable); registri aksi `aplikasi/src/lib/aksi.ts` dan peta UI `docs/PETA_UI.md` disinkronkan (11 layar, 54 aksi, 0 tombol liar); 8 uji unit di `Cabang.test.tsx` dan 14 uji unit di `LayarPengaturan.test.tsx` lulus 100%; total 904 uji unit frontend (110 berkas uji) lulus 100% (`npm --prefix aplikasi test`); kompilasi TypeScript dan produksi build `npm run build --prefix aplikasi` lulus tanpa galat.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/kelola_cabang.sql`, `alat/uji-sql.mjs`, `alat/uji-mutasi-0078.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T9-10 — Pemilik Platform: daftar penyewa baru (M1) ⚠️
   - **Tujuan:** penyewa baru bisa diaktifkan sendiri oleh Pemilik Platform, dengan data terpisah total.
@@ -1863,6 +1996,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS (ART-1); mitigasi: satu pola RLS + uji dua penyewa setiap kali tabel baru ditambah.
   - **Verifikasi:** uji SQL + uji manual dengan dua akun Owner berbeda (bukti berupa tangkapan layar). · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima. · **Bukti 2026-09-26 (Otomatis):** migrasi 0079 (`0079_daftar_penyewa_m1.sql`) menegakkan isolasi multi-tenant fail-closed (PRD M1 / ART-1); pemicu peladen `picu_penyewa_cegah_hapus` menolak hard-delete pada penyewa yang memiliki data cabang atau riwayat operasional; 3 RPC resmi (`public.buat_penyewa`, `public.set_status_penyewa`, `public.ambil_daftar_penyewa`) diamankan secara ketat dengan pembatasan hak eksekusi hanya untuk peran `pemilik_platform`; fungsi `buat_penyewa` menginisialisasi resto secara atomik (penyewa, cabang utama, akun owner pertama dengan validasi anti-PIN lemah `public.pin_lemah`, konfigurasi awal pengaturan resto, dan template metode bayar); fungsi `set_status_penyewa` mendukung pembekuan akun (soft-disable) dengan alasan wajib minimal 5 karakter sekaligus mencabut seluruh sesi perangkat aktif; berkas pengujian SQL komprehensif di `supabase/tes/daftar_penyewa.sql` membuktikan dua penyewa tidak saling melihat (isolasi RLS total), penolakan peran non-pemilik_platform, pembuktian rollback transaksi bila PIN lemah, dan penolakan hard-delete; 123 berkas uji SQL lulus 100% (0 gagal via `node alat/uji-sql.mjs`); pengujian mutasi fail-closed `alat/uji-mutasi-0079.py` membuktikan 10/10 mutasi (100%) tertangkap merah; Edge Function `supabase/functions/daftar_penyewa/index.ts` dibuat dengan validasi masukan dan penerusan token otentikasi; komponen antarmuka `aplikasi/src/layar/platform/Penyewa.tsx` menyediakan dashboard statistik, pencarian/filter, modal pendaftaran resto terpandu, dan dialog konfirmasi penonaktifan; kontrak layar `aplikasi/src/lib/layar.ts` dan registri aksi `aplikasi/src/lib/aksi.ts` dimutakhirkan (12 layar, 56 aksi, peta UI hijau 100% bebas tombol liar); 6 uji unit di `Penyewa.test.tsx` dan 6 uji kontrak di `layar.test.ts` lulus 100%; pedoman induk `PANDUAN_PENGGUNA.md` disinkronkan ke 123 berkas uji dan lolos `python3 alat/periksa-panduan.py`; catatan arsitektur dicatat di `docs/DECISIONS_LOG.md`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/daftar_penyewa.sql`, `alat/uji-sql.mjs`, `alat/uji-mutasi-0079.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T9-11 — Pratinjau perubahan & pengaman riwayat
   - **Tujuan:** owner melihat dampak perubahan sebelum menyimpan, dan data lama tidak berubah diam-diam.
@@ -1872,6 +2006,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** perubahan tak sengaja → mitigasi: tombol simpan terpisah + pratinjau + audit perubahan penting.
   - **Verifikasi:** uji SQL: ubah identitas → laporan lama identik (dibandingkan byte-per-byte angka). · **Bukti 2026-09-26 (Otomatis):** berkas uji SQL `supabase/tes/riwayat_tidak_berubah.sql` membuktikan secara deterministik bahwa transaksi lunas, struk belanja, dan angka laporan penjualan masa lalu tetap beku dan identik byte-per-byte (selisih = 0) saat identitas resto, tema visual, tarif pajak PB1 (naik ke 12%), service charge (naik ke 10%), aturan pembulatan (500), maupun harga menu katalog (naik >2x lipat) diubah di kemudian hari; pemicu peladen `picu_pesanan_tertutup_beku` dan `picu_pesanan_uang_peladen` menolak modifikasi langsung pada transaksi tertutup; seluruh 124 berkas uji SQL lulus 100% (`node alat/uji-sql.mjs`); fungsi SQL aman dan memenuhi standar search_path/RLS (`python3 alat/periksa-keamanan-sql.py`); komponen antarmuka `aplikasi/src/layar/pengaturan/Pratinjau.tsx` mengimplementasikan Diff Viewer berdampingan, Live Receipt Simulator 58mm/80mm interaktif dengan 3 skenario pesanan, komparator selisih tagihan pelanggan, banner jaminan integritas riwayat kekal (immutable past), dialog konfirmasi simpan, dan tombol reset draf; aksi `pengaturan.pratinjau_perubahan` terdaftar resmi di `aksi.ts`, `layar.ts`, dan `docs/PETA_UI.md` (12 layar, 57 aksi, peta UI hijau); 8 uji unit di `Pratinjau.test.tsx` dan 15 uji di `LayarPengaturan.test.tsx` lulus 100% (total 112 berkas uji / 920 tes lulus tanpa galat); pedoman induk `PANDUAN_PENGGUNA.md` disinkronkan ke 124 berkas uji; catatan arsitektur dicatat di `docs/DECISIONS_LOG.md`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/riwayat_tidak_berubah.sql`, `alat/uji-sql.mjs`, `alat/periksa-keamanan-sql.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T9-12 — Daftar uji terima pengaturan (bahasa manusia)
   - **Tujuan:** owner bisa menguji sendiri bahwa semua pengaturan bekerja.
@@ -1881,6 +2016,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** kecil (1,5 jam)
   - **Risiko & mitigasi:** daftar terlalu teknis → mitigasi: ditulis dari sudut pandang pemilik, diuji coba oleh orang non-teknis.
   - **Verifikasi:** pemilik menjalankan daftar ini dan menandai semua langkah berhasil. · **Bukti 2026-09-26 (Otomatis & Dokumen):** berkas panduan manusia `docs/uji/UJI_TERIMA_PENGATURAN.md` selesai disusun memuat 12 skenario pengujian ramah manusia (identitas kedai, logo/banner, tema 10 pilihan visual & kerapatan, tarif pajak PB1 & service charge, aturan pembulatan & ucapan kaki struk, tambah kategori & menu lengkap varian, sembunyikan menu cabang, harga beda per cabang, tata letak meja & unduh stand kode QR, kelola pegawai & batas diskon & reset PIN, metode bayar aktif & tip sukarela, serta pratinjau perubahan & pembuktian riwayat masa lalu kekal byte-per-byte); setiap skenario memiliki tujuan, peran, maksimal 5 langkah praktis, indikator tanda berhasil, dan sinyal peringatan masalah; dilengkapi lembar ceklis praktis untuk pemilik (Lee); didaftarkan resmi ke `docs/uji/BUKU_UJI_PEMILIK.md` baris U-21 (lulus verifikasi mesin `alat/periksa-buku-uji.py`); didaftarkan ke `docs/uji/RENCANA_UJI_MANUAL.md` baris M-56; seluruh Fase 9 (T9-01 sampai T9-12) resmi tuntas 100%.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `alat/periksa-buku-uji.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ---
 
@@ -1894,6 +2030,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Antrean Offline (ART-8); mitigasi: kunci idempoten wajib + pesan status jelas.
   - **Verifikasi:** uji manual: matikan jaringan → pesan → nyalakan → pesanan terkirim sekali. · **Bukti 2026-09-26 (Otomatis & Kode):** implementasi `aplikasi/src/lib/antrean-offline.ts` (antrean lokal IndexedDB dengan in-memory fallback, sanitasi rekursif data sensitif PIN/kredensial `bersihkanDataSensitif`, kepemilikan kunci idempoten unik ART-8, pemrosesan sekuensial FIFO), hook `aplikasi/src/hook/useAntrean.ts` (pemantau status daring/luring, pesan jujur "menunggu dikirim X", sinkronisasi otomatis saat kembali online), komponen antarmuka `aplikasi/src/komponen/StatusAntreanOffline.tsx` (banner/lencana status antrean luring), integrasi bilah kasir `LayarKasir.tsx`, serta integrasi fallback penyimpanan di `App.tsx`; 11 uji unit di `antrean-offline.test.ts`, 5 uji unit di `useAntrean.test.tsx`, dan 4 uji di `StatusAntreanOffline.test.tsx` lulus 100% (angka saat itu 2026-09-26 — perintah: `npm test`); catatan keputusan arsitektur dicatat di `docs/DECISIONS_LOG.md` (Area: Antrean Offline ART-8).
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-02 — Kunci idempoten menyeluruh di semua penulisan ⚠️
   - **Tujuan:** satu tindakan tidak pernah tercatat dua kali, dari layar mana pun.
@@ -1903,6 +2040,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Antrean Offline (ART-8); mitigasi: uji otomatis "setiap RPC penulisan punya kunci" (daftar diperiksa).
   - **Verifikasi:** uji SQL: 3 RPC dengan kunci sama → satu efek. · **Bukti 2026-09-26 (Otomatis & Kode):** migrasi `supabase/migrations/0080_kunci_idempoten_menyeluruh.sql` memperluas skema dan overload RPC penulisan (`simpan_pesanan`, `bayar_pesanan`, `pakai_voucher`, `buka_shift`, `tutup_shift`, `kas_pergerakan`, `set_stok`, `opname_stok`) dengan dukungan kunci idempoten ART-8; berkas uji SQL `supabase/tes/idempoten.sql` membuktikan 3 pemanggilan berturut-turut dengan kunci sama menghasilkan tepat 1 efek (125/125 uji SQL lulus 100%); skrip auditor cakupan `alat/periksa-idempoten.py` memverifikasi 100% (8/8) RPC penulisan mendukung kunci idempoten; pengujian mutasi `alat/uji-mutasi-0080.py` membuktikan 5/5 mutasi fail-closed tertangkap merah; catatan keputusan arsitektur dicatat di `docs/DECISIONS_LOG.md` (Area: Antrean Offline ART-8).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/idempoten.sql`, `alat/periksa-idempoten.py`, `alat/uji-mutasi-0080.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-03 — Pemulihan kegagalan kirim & pesan status
   - **Tujuan:** kasir tahu pasti pesanannya terkirim atau belum.
@@ -1912,6 +2050,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** kasir mengira gagal padahal terkirim (atau sebaliknya) → mitigasi: status dari peladen, bukan tebakan klien.
   - **Verifikasi:** uji manual 3 skenario jaringan. · **Bukti 2026-09-26 (Otomatis & Kode):** komponen antarmuka `aplikasi/src/komponen/StatusAntrean.tsx` diimplementasikan lengkap dengan indikator tiga status yang selalu terlihat (Terkirim, Tertunda, Gagal + jumlah pesanan), dialog rincian antrean berbasis token desain (`Lapis`), percobaan ulang otomatis saat kembali daring via hook `useAntrean.ts`, percobaan ulang manual (per-item maupun massal seluruh item gagal), tombol pembatalan/penghapusan antrean berkonfirmasi pengaman, serta pelaporan pesan galat jujur dari peladen tanpa kegagalan diam-diam; diverifikasi lewat 8 pengujian unit Vitest `aplikasi/src/komponen/StatusAntrean.test.tsx` yang mencakup 3 skenario jaringan (Daring, Luring, Fluktuasi/Gagal Kirim); 116 berkas uji Vitest (948 pengujian) dan 125 berkas uji SQL lulus 100%.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/komponen/StatusAntrean.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-04 — Uji putus-sambung jaringan (anti data dobel)
   - **Tujuan:** membuktikan ketahanan luring benar-benar bekerja.
@@ -1921,6 +2060,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** uji jaringan tiruan tidak realistis → mitigasi: uji di perangkat nyata juga (T11-04) + catatan hasil.
   - **Verifikasi:** CI hijau + uji manual di perangkat kasir nyata.
+  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-05 — Penyisiran ulang RLS seluruh tabel ⚠️
   - **Tujuan:** memastikan tidak ada tabel baru yang lupa dikunci setelah semua fitur masuk.
@@ -1930,6 +2070,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Data & RLS (ART-1); tabel baru tanpa policy bisa bocor lintas penyewa → mitigasi: script otomatis yang memeriksa pg_tables vs pg_policy (`alat/periksa-sisir-rls.py`).
   - **Verifikasi:** script audit RLS keluar 0 tabel terbuka + laporan di `DECISIONS_LOG.md`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/sisir_rls_akhir.sql`, `alat/periksa-sisir-rls.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-06 — Akhiri sesi dari perangkat lain (perangkat hilang) ⚠️
   - **Tujuan:** perangkat pegawai yang hilang tidak menjadi pintu masuk.
@@ -1939,6 +2080,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); mitigasi: hanya owner/admin berizin + audit.
   - **Verifikasi:** uji manual: akhiri sesi dari perangkat A → perangkat B langsung keluar.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/akhiri_sesi_perangkat_hilang.sql`, `alat/uji-sql.mjs`, `alat/uji-mutasi-0081.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-07 — Audit keamanan (menggunakan skill security-review) ⚠️
   - **Tujuan:** mencari kelemahan sebelum dipakai orang banyak, bukan sesudah.
@@ -1948,6 +2090,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: RLS/Auth, Voucher; mitigasi: temuan berat wajib dibereskan sebelum produksi.
   - **Verifikasi:** dokumen audit bertanda status tiap temuan + uji ulang setelah perbaikan.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `alat/periksa-rahasia.py`, `alat/periksa-sisir-rls.py`, `alat/periksa-keamanan-sql.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-08 — Denyut harian + pembersih data sementara
   - **Tujuan:** proyek gratis tidak "tidur" dan data sementara tidak menumpuk.
@@ -1957,6 +2100,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** pembersih menghapus data penting → mitigasi: daftar tabel yang boleh dibersihkan ditulis eksplisit + uji.
   - **Verifikasi:** jalankan manual + periksa log terjadwal 2 hari.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/denyut_pembersih.sql`, `alat/uji-mutasi-0082.py`, `alat/uji-sql.mjs` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-09 — Pemulihan setelah listrik/perangkat mati mendadak (kasir & dapur)
   - **Tujuan:** kedai bisa lanjut jualan setelah listrik padam tanpa kehilangan pesanan yang sedang berjalan.
@@ -1966,6 +2110,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** pemulihan menggandakan pesanan → mitigasi: kunci idempoten (T10-02) dipakai juga untuk pemulihan; uji "buka ulang 3x" hanya menghasilkan satu pesanan.
   - **Verifikasi:** uji e2e mematikan tab/aplikasi di tengah pesanan → data utuh, tidak dobel.
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-10 — Cadangan mingguan otomatis + uji pemulihan terjadwal
   - **Tujuan:** data kedai tidak hilang selamanya kalau terjadi kesalahan besar (paket gratis tidak punya cadangan otomatis).
@@ -1976,6 +2121,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Data pelanggan & privasi (ART-10); berkas cadangan berisi data pelanggan → mitigasi: enkripsi + akses terbatas + masa simpan dibatasi.
   - **Catatan:** T-012 sudah ditutup 2026-09-16 → cadangan disimpan sebagai **artefak terenkripsi GitHub Actions (repo privat, masa simpan 90 hari)** + pemilik mengunduh salinannya sebulan sekali.
   - **Verifikasi:** jalankan pemulihan dari satu berkas cadangan → jumlah baris tiap tabel sama dengan sumbernya.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `alat/uji-mutasi-cadangan.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-11 — Perubahan pengaturan bersamaan tidak saling menimpa
   - **Tujuan:** dua orang yang mengubah pengaturan pada saat yang sama tidak membuat perubahan satunya hilang diam-diam.
@@ -1985,6 +2131,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan & pengaturan (ART-3, menyentuh pajak/service); mitigasi: penolakan di peladen, bukan hanya peringatan di layar.
   - **Verifikasi:** uji SQL dua penyimpanan paralel → satu berhasil, satu ditolak dengan kode jelas.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pengaturan_bersamaan.sql`, `alat/uji-mutasi-0083.py`, `alat/uji-sql.mjs` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-12 — Pegawai berhenti: cabut akses cepat & serah terima
   - **Tujuan:** pegawai yang keluar tidak bisa lagi membuka data kedai, tanpa merusak riwayat transaksinya.
@@ -1995,6 +2142,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Role & Permission (ART-2); menghapus akun akan merusak laporan → mitigasi: nonaktif, bukan hapus (Aturan Bisnis 11).
   - **Catatan:** T-013 sudah ditutup 2026-09-16 → penutup shift = **Admin Cabang**; bila yang berhenti Admin Cabang → **Owner Pusat**.
   - **Verifikasi:** uji SQL: akun nonaktif ditolak masuk, tetapi laporan bulan lalu tetap menampilkan namanya.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/cabut_akses.sql`, `alat/uji-mutasi-0084.py`, `alat/uji-sql.mjs` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ---
 
@@ -2006,6 +2154,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Jejak Audit (ART-13) & Data Pelanggan (ART-14); email bocor/tersalah kirim → mitigasi: hanya angka + nama pegawai, tanpa kontak pelanggan; penerima dapat diatur owner.
   - **Verifikasi:** uji SQL `supabase/tes/ringkasan.sql` lulus 100% (131 berkas lolos); uji mutasi fail-closed `alat/uji-mutasi-0085.py` 4/4 mutan terbunuh; uji batas Edge Function di `alat/uji-edge-ringkasan-harian.mjs` (10 skenario lolos); uji Vitest `Peringatan.test.tsx` dan `LayarLaporan.test.tsx` lulus 100%; keputusan dicatat di `docs/DECISIONS_LOG.md`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/ringkasan.sql`, `alat/uji-mutasi-0085.py`, `alat/uji-edge-ringkasan-harian.mjs` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-14 — Pemeriksa rahasia, dependensi & header keamanan halaman ⚠️
   - **Tujuan:** kunci rahasia tidak bocor dan aplikasi tidak dibuka dengan pengaturan peramban yang longgar.
@@ -2015,6 +2164,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kunci & Penerapan; CSP terlalu ketat mematikan aplikasi → mitigasi: diuji di pratinjau sebelum produksi + laporan bila ada pelanggaran.
   - **Verifikasi:** pemeriksa rahasia diperkuat 10 pola kunci + uji-diri fail-closed lolos; `npm audit --audit-level=low` 0 kerentanan di `aplikasi` & `alat`; berkas `aplikasi/public/_headers` terpasang (CSP, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, Permissions-Policy, HSTS); validator `alat/periksa-header.py` lulus + uji-diri fail-closed + terdaftar di gerbang CI `alat/periksa-gerbang-ci.py`; uji Vitest `keamanan-header.test.ts` (5 tes lolos); uji kontras, struktur, dan kerapatan tetap hijau 100%; keputusan dicatat di `docs/DECISIONS_LOG.md`.
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `alat/periksa-rahasia.py`, `alat/periksa-header.py`, `alat/periksa-gerbang-ci.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-15 — Latihan pemulihan cadangan & uji Buku Insiden ⚠️
   - **Tujuan:** cadangan terbukti bisa dipulihkan, dan langkah darurat bisa diikuti orang lain tanpa bertanya.
@@ -2024,6 +2174,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Ketahanan; cadangan rusak tanpa disadari → mitigasi: latihan nyata minimal sekali sebelum pilot + pemeriksa cadangan berjadwal.
   - **Verifikasi:** skrip eksekutif `alat/pulihkan-cadangan.sh` & runner `alat/eksekusi-latihan-insiden.mjs` membuktikan pemulihan 47 tabel dan 192 baris ke database bersih (selisih 0 baris, RLS 100% aktif, durasi ~4,3 detik jauh di bawah target RTO 30 menit); 4 dril insiden nyata Buku Insiden lulus berurutan (perangkat hilang §2, akun dibobol §4, pegawai berhenti §5, rekap privasi §15); uji-diri 5 mutasi fail-closed lolos 100%; status operasional Buku Insiden diperbaiki dan laporan resmi latihan pemulihan dicatat di `docs/teknis/PEMULIHAN.md` §6; keputusan dicatat di `docs/DECISIONS_LOG.md`.
+  - **Bukti:** ⏳ BUKTI-BELUM — tidak ada rujukan uji/penjaga mesin di blok; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [x] T10-16 — Tinjauan kode pemulihan MFA & kata sandi bocor (T-016) ⚠️ T-016
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-016: sementara pemulihan melalui peran atas + sandi minimal 12 karakter. Tinjauan HIBP/kode mandiri tetap dilakukan di Fase 10; biaya atau perubahan kontrol butuh keputusan Lee.
@@ -2034,6 +2185,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Kompleksitas:** sedang (2 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Keamanan Akun (ART-12); keputusan diambil tanpa data → mitigasi: tinjauan memuat bukti (dokumentasi resmi) + uji perilaku.
   - **Verifikasi:** tinjauan tertulis komprehensif selesai di `docs/teknis/TINJAUAN_KEAMANAN_F10.md`; 19 skenario penegakan pemulihan via peran atas, kunci induk darurat, sakelar pembatalan, dan anti-lockout diuji di `supabase/tes/mfa.sql` (132 berkas uji SQL lulus 100% via `node alat/uji-sql.mjs`); status butir T-016 ditutup resmi di `docs/TERTANGGUH.md`; keputusan dicatat di `docs/DECISIONS_LOG.md` (Area: Kunci & Penerapan).
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/mfa.sql`, `alat/uji-sql.mjs` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 ## Fase 11 — Uji terima, deploy produksi, audit (penutup G1)
 

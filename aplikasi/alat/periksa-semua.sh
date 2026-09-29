@@ -136,6 +136,8 @@ python3 alat/periksa-pemeriksaan.py
 python3 alat/periksa-pemeriksaan.py --uji-diri
 python3 alat/susun-matriks-telusur.py --periksa
 python3 alat/susun-matriks-telusur.py --uji-diri
+python3 alat/susun-daftar-tunggu-lee.py --periksa
+python3 alat/susun-daftar-tunggu-lee.py --uji-diri
 python3 alat/tambah-uji.py --uji-diri
 python3 alat/peta-ui.py
 python3 alat/peta-ui.py --uji-diri

@@ -509,3 +509,15 @@ catatan "dibuka kembali oleh PMB1-F-nnn", temuan → DIPERBAIKI karena artefakny
 sesudah PMB dan sebelum pilot — sesuai asas "find & log, don't fix" (§14) dan agar Tahap 2 (kode per fase) memeriksa dulu sebelum dibangun ulang.
 Naskah §2 butir 4 (dua agent satu cabang) dan §5 (jenis "tugas ROADMAP belum dibangun") ditambahkan. Giliran berikutnya: **HAKIM F-09**
 (menutup/mengembalikan F-119 & F-132); Pembangun F-03 menunggu jawaban Lee (A/B fitur + A/B klaster cara masuk).
+
+**Putaran 10 (2026-09-29 malam → 30; cabang 01a0eddf) — HAKIM 4 F-09 + JAMINAN TUNTAS:** `arena/01a0eddf` (kartu `H-F-09.4`) diintegrasikan
+(`d6faff2`): **F-119 & F-132 DITUTUP** (reproduksi `e8d13ae`/`472c6f3`, `periksa-header.py` LOLOS, `keamanan-header.test.ts` 6/6); F-09 = 17
+TERVERIFIKASI · 2 DITUTUP. **Keputusan Lee** ("Aku setuju dengan rekomendasi kamu", REKAM §31 butir 21): (1) jalur **B+** untuk fitur yang diklaim
+`[x]` tetapi belum dibangun — jujurkan dulu + kunci mesin, bangun sesudah PMB sebelum pilot; (2) klaster cara masuk = **B** — Pembangun menyiapkan
+perbaikan di kode + uji lokal di balik saklar, tidak dipasang ke produksi sampai Lee memerintahkan. Perencana membangun kunci **K1–K5**
+(`USULAN_JAMINAN_TUNTAS.md` §8): `--gerbang akhir` (K1) · `alat/susun-daftar-tunggu-lee.py` → `PMB-1/DAFTAR_TUNGGU_LEE.md` dibuat ulang tiap
+integrasi & dijaga CI (K2) · `periksa-roadmap.py` menolak `[x]` tanpa baris `Bukti:` nyata; 146 centang lama diberi `⏳ BUKTI-BELUM` + daftar beku
+`BUKTI_BELUM_BASELINE.txt` yang hanya boleh menyusut (K3) · DIPERBAIKI/DITUTUP wajib menyebut berkas uji yang ada (K4) · sensus klaim 100 % pada
+`--gerbang 2` + bagian `## Sensus klaim` kartu K (K5). Buku Besar: 10 baris diberi `KEPUTUSAN LEE 2026-09-29 (…)` di kolom Perbaikan (klaster cara
+masuk F-001/F-036/F-052/F-063/F-117/F-127; B+ F-118/F-130/F-131/F-133). Giliran berikutnya: **PEMBANGUN dokumen F-09** (jujurkan T3-01/T3-06/
+T3-11/T6-02…05) dan **PEMBANGUN F-03** (klaster B + K-2 lainnya) — cabang terpisah, area berkas terpisah.

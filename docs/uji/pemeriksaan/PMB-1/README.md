@@ -9,6 +9,8 @@
 | `ASUMSI.md` | asumsi `PMB1-A-nnn` dengan status TERBUKA/DIBUKTIKAN/DIBANTAH | Pemeriksa |
 | `kartu/K-<ID>.md` · `kartu/H-<ID>.md` · `kartu/B-<ID>.md` | kartu pemeriksa / kartu hakim / kartu pembangun per potongan (templat `TEMPLAT_K.md`, `TEMPLAT_H.md`, `TEMPLAT_B.md`; penjaga menolak kartu yang bagian wajibnya kurang) | Pemeriksa / Hakim / Pembangun |
 | `kalibrasi/` | bahan cacat tanaman per tahap + kunci **terenkripsi** (sandi di tangan Lee) | Perencana |
+| `DAFTAR_TUNGGU_LEE.md` | **satu berkas untuk Lee**: semua yang menunggu keputusan/tindakannya (A1 menunggu Lee · A2 sudah diputuskan, menunggu dieksekusi · B K-1 terbuka · C tugas ROADMAP dibuka kembali · D centang ⏳ BUKTI-BELUM · E tertangguh · F Buku Uji belum diisi) — kunci K2 Jaminan Tuntas | mesin (`alat/susun-daftar-tunggu-lee.py`; dibuat ulang tiap integrasi; CI menolak bila basi) |
+| `BUKTI_BELUM_BASELINE.txt` | daftar **beku** 146 centang `[x]` ROADMAP yang belum berbukti saat aturan K3 berlaku (2026-09-29); hanya boleh menyusut lewat sensus klaim Tahap 2 / Pembangun dokumen | Perencana (awal) · pemeriksa Tahap 2 & Pembangun dokumen (menghapus ID) |
 | `RINGKASAN_TAHAP-<n>.md` | dibuat mesin saat `python3 alat/periksa-pemeriksaan.py --gerbang <n>` | mesin (+ baris kalibrasi oleh Perencana) |
 
 Aturan main lengkap: `../RANCANGAN_PEMERIKSAAN_BERTAHAP.md` (kontrak), `../PROMPT_GILIRAN.md` (naskah lengkap peran), `../PROMPT_SINGKAT.md`

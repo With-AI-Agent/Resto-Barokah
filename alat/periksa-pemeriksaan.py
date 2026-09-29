@@ -23,6 +23,17 @@ Mode:
     python3 alat/periksa-pemeriksaan.py              # pemeriksaan penuh (dipakai CI)
     python3 alat/periksa-pemeriksaan.py --gerbang 1  # gerbang tahap: semua potongan tahap itu DIHAKIMI, 0 K-1/K-2 terbuka,
                                                      # (tahap 1) tidak ada janji yatim di matriks; menulis RINGKASAN_TAHAP-1.md
+                                                     # (tahap 2) K5 sensus klaim: 0 centang ⏳ BUKTI-BELUM tersisa pada fase yang
+                                                     # potongannya ada di tahap 2 + setiap [x] fase itu tercatat di bagian
+                                                     # "Sensus klaim" kartu K potongan tersebut
+    python3 alat/periksa-pemeriksaan.py --gerbang akhir  # K1 gerbang akhir sebelum pilot: semua potongan DIHAKIMI, 0 temuan
+                                                     # terbuka SEMUA tingkat, DITANGGUHKAN hanya oleh Lee (+ tanggal tinjau),
+                                                     # 0 tugas ROADMAP 'Dibuka kembali' yang masih [ ], 0 ⏳ BUKTI-BELUM
+
+Kunci "Jaminan Tuntas" (keputusan Lee 2026-09-29, docs/uji/pemeriksaan/USULAN_JAMINAN_TUNTAS.md) yang dijaga di sini:
+  K1 gerbang akhir (--gerbang akhir) · K2 DAFTAR_TUNGGU_LEE.md wajib mutakhir (alat/susun-daftar-tunggu-lee.py) ·
+  K4 baris DIPERBAIKI/DITUTUP wajib menyebut berkas uji/penjaga yang ADA di repo (bukti mesin; `tanpa uji mesin: <alasan>`
+  hanya untuk perbaikan dokumen yang commit-nya tidak menyentuh kode) · K5 sensus klaim pada --gerbang 2.
     python3 alat/periksa-pemeriksaan.py --uji-diri   # salin repo, rusak, pastikan MERAH (standar proyek: pemeriksa yang
                                                      # tidak bisa merah dianggap belum terpasang)
 """
@@ -60,6 +71,58 @@ RE_ID_POTONGAN = re.compile(r"^(?:[FXMDGLZ]-\d{2}|P-\d{1,2}[A-Z]?-\d{2})$")
 RE_ID_TEMUAN = re.compile(r"^PMB1-F-(\d{3})$")
 RE_ID_ASUMSI = re.compile(r"^PMB1-A-(\d{3})$")
 RE_SHA = re.compile(r"\b[0-9a-f]{7,40}\b")
+# K4: baris yang sudah DITUTUP/DIPERBAIKI SEBELUM aturan bukti mesin berlaku (2026-09-29) — perbaikan naskah/kalibrasi Tahap 0–1
+# yang memang tidak punya berkas uji. Daftar ini BEKU: ID baru tidak boleh ditambahkan (aturan berlaku penuh sesudahnya).
+K4_SEBELUM_ATURAN = frozenset({"PMB1-F-092", "PMB1-F-192", "PMB1-F-193", "PMB1-F-194", "PMB1-F-195", "PMB1-F-197",
+                               "PMB1-F-198", "PMB1-F-199", "PMB1-F-200", "PMB1-F-201", "PMB1-F-202"})
+FRASA_TANPA_UJI = "tanpa uji mesin:"
+AWALAN_KODE = ("aplikasi/src/", "supabase/", "alat/", "aplikasi/alat/", "_sistem/", ".github/workflows/")
+_MODUL_ROADMAP = None
+
+
+def _modul_roadmap(akar: pathlib.Path):
+    """Muat alat/periksa-roadmap.py sekali (pembaca blok tugas, pola bukti mesin K3)."""
+    global _MODUL_ROADMAP
+    if _MODUL_ROADMAP is None:
+        spec = importlib.util.spec_from_file_location("periksa_roadmap", akar / "alat" / "periksa-roadmap.py")
+        if spec is None or spec.loader is None:
+            raise RuntimeError("alat/periksa-roadmap.py tidak bisa dimuat")
+        _MODUL_ROADMAP = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(_MODUL_ROADMAP)  # type: ignore[union-attr]
+    return _MODUL_ROADMAP
+
+
+def _commit_menyentuh_kode(akar: pathlib.Path, teks: str) -> bool | None:
+    """True bila salah satu sha di teks mengubah berkas kode/skema/alat; None bila sha tidak bisa dibaca (riwayat tidak ada)."""
+    hasil: bool | None = None
+    for sha in RE_SHA.findall(teks):
+        try:
+            r = subprocess.run(["git", "show", "--name-only", "--format=", sha], cwd=akar, capture_output=True, text=True)
+        except OSError:
+            return None
+        if r.returncode != 0:
+            continue
+        hasil = bool(hasil) or any(l.startswith(AWALAN_KODE) for l in r.stdout.splitlines() if l.strip())
+    return hasil
+
+
+def periksa_bukti_mesin_perbaikan(akar: pathlib.Path, fid: str, status: str, perbaikan: str, tutup: str, errs: list[str]) -> None:
+    """K4 Jaminan Tuntas: DIPERBAIKI/DITUTUP wajib menyebut berkas uji/penjaga yang ADA di repo (bukan nama karangan —
+    pelajaran PMB1-F-202 & kartu B-F-09.2). Pengecualian: `tanpa uji mesin: <alasan>` untuk perbaikan dokumen/naskah yang
+    commit-nya tidak menyentuh kode; baris yang ditutup sebelum aturan (K4_SEBELUM_ATURAN)."""
+    if status not in {"DIPERBAIKI", "DITUTUP"} or fid in K4_SEBELUM_ATURAN:
+        return
+    pr = _modul_roadmap(akar)
+    if pr.jalur_bukti_mesin(f"{perbaikan} {tutup}", akar):
+        return
+    if FRASA_TANPA_UJI in perbaikan.lower():
+        if _commit_menyentuh_kode(akar, perbaikan):
+            errs.append(f"BUKU BESAR {fid}: '{FRASA_TANPA_UJI}' tidak boleh dipakai — commit perbaikannya menyentuh kode/skema/alat; "
+                        f"sebutkan berkas uji/penjaga yang ADA di repo (K4)")
+        return
+    errs.append(f"BUKU BESAR {fid}: status {status} wajib menyebut ≥1 berkas uji/penjaga yang ADA di repo di kolom Perbaikan/Tutup "
+                f"(mis. `aplikasi/src/lib/x.test.ts`, `supabase/tes/x.sql`, `alat/periksa-x.py`) — bukti mesin K4; untuk perbaikan "
+                f"dokumen tulis `{FRASA_TANPA_UJI} <alasan>`")
 BAGIAN_K = ["## 1. Cakupan", "## 2. Klaim yang dicoba dibantah", "## 3. Serangan", "## 4. Temuan", "## 5. Asumsi",
             "## 6. Tidak bisa diverifikasi", "## 7. Regresi temuan lama", "## 8. Angka usaha"]
 BAGIAN_H = ["## 1. Temuan yang dihakimi", "## 4. Angka usaha"]
@@ -205,6 +268,7 @@ def baca_buku_besar(akar: pathlib.Path, potongan: dict[str, dict], errs: list[st
                             f"di kolom Hakim/Tutup — disebut: {sorted(rujukan_h) or 'tidak ada'}")
         if status in {"DIPERBAIKI", "DITUTUP"} and not RE_SHA.search(perbaikan):
             errs.append(f"BUKU BESAR {fid}: status {status} wajib menyebut sha commit perbaikan")
+        periksa_bukti_mesin_perbaikan(akar, fid, status, perbaikan, tutup, errs)
         if status == "DITUTUP" and tutup in {"", "—"}:
             errs.append(f"BUKU BESAR {fid}: status DITUTUP wajib mengisi 'Verifikasi tutup'")
         if status == "DUPLIKAT":
@@ -215,7 +279,7 @@ def baca_buku_besar(akar: pathlib.Path, potongan: dict[str, dict], errs: list[st
             m = re.search(r"\bT-0\d\d\b", " ".join((hakim, perbaikan, tutup, bukti)))
             if not m or m.group(0) not in tertangguh:
                 errs.append(f"BUKU BESAR {fid}: DITANGGUHKAN wajib merujuk butir T-0xx yang ada di docs/TERTANGGUH.md (hanya Lee)")
-        temuan[fid] = {"tingkat": tingkat, "potongan": pot, "status": status, "baris": n}
+        temuan[fid] = {"tingkat": tingkat, "potongan": pot, "status": status, "baris": n, "teks": f"{hakim} {perbaikan} {tutup}"}
     for pid, info in potongan.items():
         if info["status"] == "DIHAKIMI" and any(t["potongan"] == pid and t["status"] == "BARU" for t in temuan.values()):
             errs.append(f"PAPAN {pid}: DIHAKIMI tetapi masih ada temuan BARU dari potongan ini")
@@ -279,6 +343,19 @@ def periksa_matriks_mutakhir(akar: pathlib.Path, errs: list[str]) -> None:
         errs.append("blok OTOMATIS MATRIKS_TELUSUR/REGRESI_WAJIB basi → jalankan python3 alat/susun-matriks-telusur.py")
 
 
+def periksa_daftar_tunggu_mutakhir(akar: pathlib.Path, errs: list[str]) -> None:
+    """K2: DAFTAR_TUNGGU_LEE.md harus persis hasil mesin — kalau basi, Lee membaca daftar yang salah."""
+    spec = importlib.util.spec_from_file_location("susun_daftar_tunggu", akar / "alat" / "susun-daftar-tunggu-lee.py")
+    if spec is None or spec.loader is None:
+        errs.append("alat/susun-daftar-tunggu-lee.py tidak ada"); return
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)  # type: ignore[union-attr]
+    with contextlib.redirect_stdout(io.StringIO()):
+        kode = mod.susun(akar, True)
+    if kode != 0:
+        errs.append("DAFTAR_TUNGGU_LEE.md basi (K2) → jalankan python3 alat/susun-daftar-tunggu-lee.py lalu commit")
+
+
 def periksa(akar: pathlib.Path) -> int:
     errs: list[str] = []
     potongan = baca_papan(akar, errs)
@@ -287,6 +364,7 @@ def periksa(akar: pathlib.Path) -> int:
     periksa_transisi(akar, temuan, errs)
     baca_asumsi(akar, temuan, errs)
     periksa_matriks_mutakhir(akar, errs)
+    periksa_daftar_tunggu_mutakhir(akar, errs)
     ringkas = {s: sum(1 for p in potongan.values() if p["status"] == s) for s in sorted(STATUS_POTONGAN)}
     print(f"PERIKSA PEMERIKSAAN — {len(potongan)} potongan {ringkas} · {len(temuan)} temuan "
           f"(terbuka K-1/K-2: {sum(1 for t in temuan.values() if t['status'] in TERBUKA and t['tingkat'] in {'K-1', 'K-2'})})")
@@ -304,21 +382,90 @@ def _janji_di_bagian_b(teks_matriks: str) -> set[str]:
     return ada
 
 
-def gerbang(akar: pathlib.Path, tahap: int) -> int:
+def _tugas_roadmap(akar: pathlib.Path) -> list[tuple[str, bool, str]]:
+    """[(id, dicentang?, badan)] dari docs/ROADMAP.md (lewat pembaca periksa-roadmap.py)."""
+    pr = _modul_roadmap(akar)
+    rm = akar / "docs" / "ROADMAP.md"
+    if not rm.is_file():
+        return []
+    hasil = []
+    for tid, isi in pr.blok_tugas(rm.read_text(encoding="utf-8"), semua_status=True):
+        kepala, _, badan = isi.partition("\n")
+        hasil.append((tid, kepala.startswith("[x]"), badan))
+    return hasil
+
+
+def sensus_kurang(akar: pathlib.Path, potongan: dict[str, dict]) -> list[str]:
+    """K5 (gerbang tahap 2): untuk setiap fase yang punya potongan P-<fase>-xx, (a) tidak boleh ada centang ⏳ BUKTI-BELUM
+    tersisa pada tugas T<fase>-xx, (b) setiap tugas [x] fase itu wajib tercatat di bagian 'Sensus klaim' kartu K potongannya."""
+    pr = _modul_roadmap(akar)
+    fase_potongan: dict[str, list[str]] = {}
+    for pid, p in potongan.items():
+        m = re.match(r"^P-(\d+[A-Z]?)-\d{2}$", pid)
+        if m and p["tahap"] == 2:
+            fase_potongan.setdefault(m.group(1), []).append(pid)
+    errs: list[str] = []
+    for fase, pids in sorted(fase_potongan.items()):
+        tercatat: set[str] = set()
+        for pid in pids:
+            for k in (akar / PUTARAN / "kartu").glob(f"K-{pid}*.md"):
+                isi = k.read_text(encoding="utf-8")
+                bagian = re.split(r"^##+ .*Sensus klaim.*$", isi, maxsplit=1, flags=re.M | re.I)
+                if len(bagian) == 2:
+                    tercatat.update(re.findall(rf"\bT{fase}-\d+\b", re.split(r"^## ", bagian[1], maxsplit=1, flags=re.M)[0]))
+        belum_bukti, tak_tercatat = [], []
+        for tid, centang, badan in _tugas_roadmap(akar):
+            if not centang or tid.split("-")[0] != f"T{fase}":
+                continue
+            if any(pr.PENANDA_TRANSISI in l for l in badan.splitlines() if pr.RE_BARIS_BUKTI.match(l)):
+                belum_bukti.append(tid)
+            if tid not in tercatat:
+                tak_tercatat.append(tid)
+        if belum_bukti:
+            errs.append(f"sensus klaim fase {fase}: masih ada centang ⏳ BUKTI-BELUM: {', '.join(belum_bukti)}")
+        if tak_tercatat:
+            errs.append(f"sensus klaim fase {fase}: tugas [x] tidak tercatat di bagian 'Sensus klaim' kartu K {'/'.join(pids)}: {', '.join(tak_tercatat)}")
+    return errs
+
+
+def gerbang(akar: pathlib.Path, tahap: int | str) -> int:
     errs: list[str] = []
     if periksa(akar) != 0:
         print("\nGERBANG: GAGAL — pemeriksaan dasar belum LOLOS"); return 1
     potongan = baca_papan(akar, errs)
     temuan = baca_buku_besar(akar, potongan, errs)
-    milik = {pid for pid, p in potongan.items() if p["tahap"] == tahap}
+    akhir = tahap == "akhir"
+    milik = set(potongan) if akhir else {pid for pid, p in potongan.items() if p["tahap"] == tahap}
     belum = sorted(pid for pid in milik if potongan[pid]["status"] != "DIHAKIMI")
     if not milik:
         errs.append(f"tidak ada potongan bertahap {tahap} di PAPAN")
     if belum:
-        errs.append(f"potongan tahap {tahap} belum DIHAKIMI: {', '.join(belum)}")
-    terbuka = sorted(f for f, t in temuan.items() if t["potongan"] in milik and t["status"] in TERBUKA and t["tingkat"] in {"K-1", "K-2"})
+        errs.append(f"potongan {'(semua tahap)' if akhir else 'tahap ' + str(tahap)} belum DIHAKIMI: {', '.join(belum)}")
+    tingkat_dijaga = {"K-1", "K-2", "K-3", "K-4"} if akhir else {"K-1", "K-2"}
+    terbuka = sorted(f for f, t in temuan.items() if t["potongan"] in milik and t["status"] in TERBUKA and t["tingkat"] in tingkat_dijaga)
     if terbuka:
-        errs.append(f"temuan K-1/K-2 masih terbuka: {', '.join(terbuka)}")
+        errs.append(f"temuan {'SEMUA tingkat' if akhir else 'K-1/K-2'} masih terbuka ({len(terbuka)}): {', '.join(terbuka[:40])}"
+                    + (" …" if len(terbuka) > 40 else ""))
+    if akhir:
+        # K1: DITANGGUHKAN hanya oleh Lee, dengan tanggal tinjau; ROADMAP tanpa tugas 'Dibuka kembali' terbuka & tanpa ⏳ BUKTI-BELUM
+        pr = _modul_roadmap(akar)
+        for fid, t in temuan.items():
+            if t["status"] == "DITANGGUHKAN":
+                teks = t.get("teks", "")
+                if "lee" not in teks.lower() or not re.search(r"tinjau\s*:?\s*\d{4}-\d{2}-\d{2}", teks, re.I):
+                    errs.append(f"{fid} DITANGGUHKAN tanpa kata-kata Lee + 'tinjau YYYY-MM-DD' di kolom Perbaikan/Tutup — hanya Lee yang menangguhkan")
+        dibuka, belum_bukti = [], []
+        for tid, centang, badan in _tugas_roadmap(akar):
+            if not centang and pr.RE_DIBUKA_KEMBALI.search(badan):
+                dibuka.append(tid)
+            if centang and any(pr.PENANDA_TRANSISI in l for l in badan.splitlines() if pr.RE_BARIS_BUKTI.match(l)):
+                belum_bukti.append(tid)
+        if dibuka:
+            errs.append(f"tugas ROADMAP 'Dibuka kembali' masih [ ] ({len(dibuka)}): {', '.join(dibuka)}")
+        if belum_bukti:
+            errs.append(f"centang ROADMAP masih ⏳ BUKTI-BELUM ({len(belum_bukti)}) — sensus klaim belum tuntas")
+    if tahap == 2:
+        errs.extend(sensus_kurang(akar, potongan))
     if tahap == 1:
         m = (akar / PUTARAN / "MATRIKS_TELUSUR.md").read_text(encoding="utf-8")
         semua = set(re.findall(r"^\| ((?:PRD M|ART-|TECH_SPEC §|KEAMANAN §)\d{1,2}b?) \|", m, re.M))
@@ -328,7 +475,7 @@ def gerbang(akar: pathlib.Path, tahap: int) -> int:
     per_status = {s: sum(1 for t in temuan.values() if t["potongan"] in milik and t["status"] == s) for s in sorted(STATUS_TEMUAN)}
     per_k = {k: sum(1 for t in temuan.values() if t["potongan"] in milik and t["tingkat"] == k) for k in ("K-1", "K-2", "K-3", "K-4")}
     putusan = "LOLOS" if not errs else "GAGAL"
-    isi = [f"# RINGKASAN TAHAP {tahap} — PMB-1 (dibuat mesin: `python3 alat/periksa-pemeriksaan.py --gerbang {tahap}`)", "",
+    isi = [f"# RINGKASAN {'GERBANG AKHIR' if akhir else 'TAHAP ' + str(tahap)} — PMB-1 (dibuat mesin: `python3 alat/periksa-pemeriksaan.py --gerbang {tahap}`)", "",
            f"- **Putusan gerbang:** {putusan}", f"- Potongan tahap ini: {len(milik)} · belum DIHAKIMI: {len(belum)}",
            f"- Temuan per status: {per_status}", f"- Temuan per tingkat: {per_k}",
            f"- Temuan palsu ÷ total: {per_status.get('PALSU', 0)}/{sum(per_status.values()) or 1}",
@@ -338,7 +485,7 @@ def gerbang(akar: pathlib.Path, tahap: int) -> int:
     (akar / PUTARAN / f"RINGKASAN_TAHAP-{tahap}.md").write_text("\n".join(isi), encoding="utf-8")
     for e in errs:
         print(f"  [GERBANG] {e}")
-    print(f"\nGERBANG TAHAP {tahap}: {putusan} — ringkasan ditulis ke {PUTARAN}/RINGKASAN_TAHAP-{tahap}.md")
+    print(f"\nGERBANG {'AKHIR' if akhir else 'TAHAP ' + str(tahap)}: {putusan} — ringkasan ditulis ke {PUTARAN}/RINGKASAN_TAHAP-{tahap}.md")
     return 1 if errs else 0
 
 
@@ -350,13 +497,23 @@ def uji_diri() -> int:
     papan = pathlib.Path(PUTARAN) / "PAPAN.md"
     asumsi = pathlib.Path(PUTARAN) / "ASUMSI.md"
 
-    def coba(nama: str, rusak, harus_merah: bool = True) -> None:
+    def segarkan_daftar(t: pathlib.Path) -> None:
+        """Kasus yang HARUS diterima menyegarkan DAFTAR_TUNGGU_LEE.md dulu (K2 menuntut daftar mutakhir) — jadi yang diuji
+        adalah aturan lain, bukan kebasian daftar. Kasus MERAH sengaja tidak disegarkan."""
+        spec = importlib.util.spec_from_file_location("susun_daftar_tunggu_ud", t / "alat" / "susun-daftar-tunggu-lee.py")
+        mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)  # type: ignore[union-attr]
+        with contextlib.redirect_stdout(io.StringIO()):
+            mod.susun(t, False)
+
+    def coba(nama: str, rusak, harus_merah: bool = True, fungsi=None) -> None:
         with salin_pohon() as tmp:
             try:
                 rusak(tmp)
+                if not harus_merah:
+                    segarkan_daftar(tmp)
             except LookupError as e:          # mutasi tidak bisa dibuat → kasus gagal (bukan diam-diam lolos)
                 hasil.append((nama, False, f"mutasi tidak terbentuk: {e}")); return
-            kode, keluaran = jalankan_pemeriksa(periksa, tmp)
+            kode, keluaran = jalankan_pemeriksa(fungsi or periksa, tmp)
             ok = (kode != 0) if harus_merah else (kode == 0)
             hasil.append((nama, ok, f"kode={kode}" + ("" if ok else "\n" + keluaran[-600:])))
 
@@ -442,6 +599,46 @@ def uji_diri() -> int:
     coba("matriks basi ditolak", roadmap_bergeser)
     coba("DUPLIKAT tanpa temuan induk ditolak", lambda t: tambah_temuan(t, "DUPLIKAT", hakim="arena/uji-diri H-F-01"))
     coba("asumsi DIBANTAH tanpa temuan ditolak", asumsi_dibantah_tanpa_temuan)
+
+    # --- Jaminan Tuntas (keputusan Lee 2026-09-29): K2 daftar tunggu, K4 bukti mesin, K1 gerbang akhir, K5 sensus klaim
+    coba("K2: DAFTAR_TUNGGU_LEE.md basi (buku besar berubah tanpa disusun ulang) ditolak",
+         lambda t: ubah_sel_temuan(t, "PMB1-F-001", 9, "MENUNGGU KEPUTUSAN LEE: uji-diri daftar basi"))
+    coba("K4: DIPERBAIKI tanpa berkas uji/penjaga ditolak",
+         lambda t: tambah_temuan(t, "DIPERBAIKI", perbaikan="abcdef1 — diperbaiki, katanya sudah diuji"))
+    coba("K4: DIPERBAIKI menyebut berkas uji karangan ditolak",
+         lambda t: tambah_temuan(t, "DIPERBAIKI", perbaikan="abcdef1 — uji `aplikasi/src/lib/tidak-pernah-ada.test.ts` hijau"))
+    coba("K4: DIPERBAIKI menyebut berkas uji yang ADA diterima",
+         lambda t: tambah_temuan(t, "DIPERBAIKI", perbaikan="abcdef1 — uji `alat/periksa-roadmap.py` --uji-diri hijau"), harus_merah=False)
+    coba("K4: DIPERBAIKI dokumen dengan 'tanpa uji mesin: <alasan>' diterima",
+         lambda t: tambah_temuan(t, "DIPERBAIKI", perbaikan="abcdef1 — tanpa uji mesin: perbaikan kalimat naskah"), harus_merah=False)
+
+    def gerbang_akhir(t: pathlib.Path) -> None:
+        segarkan_daftar(t)
+    coba("K1: gerbang akhir menolak selama masih ada temuan terbuka tingkat apa pun", gerbang_akhir, fungsi=lambda a: gerbang(a, "akhir"))
+
+    def _sensus(t: pathlib.Path, lengkap: bool) -> list[str]:
+        rm = t / "docs" / "ROADMAP.md"; teks = rm.read_text(encoding="utf-8")
+        pr = _modul_roadmap(t)
+        ids = [tid for tid, isi in pr.blok_tugas(teks, semua_status=True) if tid.startswith("T0-") and isi.startswith("[x]")]
+        if lengkap:  # semua centang T0 diberi bukti nyata (ganti penanda transisi) → sensus tuntas
+            baris = teks.splitlines(); dalam_t0 = False
+            for i, b in enumerate(baris):
+                m = re.match(r"^- \[[ x]\] (T\d+[A-Z]?-\d+) — ", b)
+                if m:
+                    dalam_t0 = m.group(1).startswith("T0-")
+                elif dalam_t0 and pr.RE_BARIS_BUKTI.match(b) and pr.PENANDA_TRANSISI in b:
+                    baris[i] = "  - **Bukti:** `alat/periksa-roadmap.py` (uji-diri sensus)"
+            rm.write_text("\n".join(baris), encoding="utf-8")
+        (t / PUTARAN / "kartu" / "K-P-0-01.md").write_text("# kartu sensus uji-diri\n\n## Sensus klaim\n\n" +
+            "\n".join(f"| {tid} | bukti diperiksa |" for tid in (ids if lengkap else ids[:1])) + "\n\n## 4. Temuan\n", encoding="utf-8")
+        return sensus_kurang(t, {"P-0-01": {"tahap": 2, "status": "DIHAKIMI", "baris": 0}})
+
+    with salin_pohon() as tmp:
+        err = _sensus(tmp, lengkap=False)
+        hasil.append(("K5: sensus klaim tidak lengkap / masih ⏳ BUKTI-BELUM ditolak", bool(err), "; ".join(err)[:200]))
+    with salin_pohon() as tmp:
+        err = _sensus(tmp, lengkap=True)
+        hasil.append(("K5: sensus klaim lengkap dengan bukti nyata diterima", not err, "; ".join(err)[:200] or "bersih"))
     return laporkan("periksa-pemeriksaan", hasil)
 
 
@@ -450,5 +647,6 @@ if __name__ == "__main__":
         sys.exit(uji_diri())
     if "--gerbang" in sys.argv:
         i = sys.argv.index("--gerbang")
-        sys.exit(gerbang(AKAR, int(sys.argv[i + 1]) if i + 1 < len(sys.argv) else 1))
+        arg = sys.argv[i + 1] if i + 1 < len(sys.argv) else "1"
+        sys.exit(gerbang(AKAR, "akhir" if arg == "akhir" else int(arg)))
     sys.exit(periksa(AKAR))

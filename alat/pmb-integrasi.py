@@ -9,7 +9,8 @@ Menggabungkan cabang giliran PMB ke cabang Perencana **baris demi baris** (bukan
 
 Pakai:  python3 alat/pmb-integrasi.py origin/arena/<id>-resto-barokah [--tanpa-commit] [--laporan <berkas.json>] [--abaikan-luar-pmb]
                                        [--pembangun]
-Alur:   git merge --no-ff --no-commit <cabang>  →  tulis ulang berkas PMB-1 hasil gabungan baris  →  git add  →
+Alur:   git merge --no-ff --no-commit <cabang>  →  tulis ulang berkas PMB-1 hasil gabungan baris  →  susun ulang berkas turunan
+        mesin (DAFTAR_TUNGGU_LEE.md — kunci K2 Jaminan Tuntas; blok OTOMATIS matriks/regresi)  →  git add  →
         penjaga (periksa-pemeriksaan.py)  →  commit bila tanpa sengketa & penjaga LOLOS; bila ada sengketa: merge dibiarkan
         terbuka (MERGE_HEAD ada), laporan JSON ditulis, keluar kode 2 — Perencana menyelesaikan lalu commit sendiri.
 Batas:  hanya berkas di docs/uji/pemeriksaan/PMB-1/ yang boleh berubah di cabang giliran; berkas lain → berhenti (kode 3).
@@ -109,6 +110,10 @@ TERLARANG_PEMBANGUN = (
     "docs/uji/pemeriksaan/PROMPT_SINGKAT.md", "docs/uji/pemeriksaan/PMB-1/kalibrasi/",
 )
 RE_SHA = re.compile(r"\b[0-9a-f]{7,40}\b")
+# Berkas PMB-1 yang SELURUHNYA hasil mesin (deterministik dari Buku Besar/ROADMAP/dll.): tidak disalin dari cabang, melainkan
+# dibuat ulang sesudah merge (K2 Jaminan Tuntas). MATRIKS_TELUSUR/REGRESI_WAJIB punya bagian tulisan tangan → tetap lewat jalur
+# biasa, hanya blok OTOMATIS-nya yang disusun ulang.
+TURUNAN_MESIN = (f"{PMB}DAFTAR_TUNGGU_LEE.md",)
 
 
 def terlarang_pembangun(path: str) -> bool:
@@ -274,6 +279,9 @@ class Integrasi:
         for path in berubah:
             if path in (LEDGER, ASUMSI, PAPAN) or path in self.proyek or path in self.luar:
                 continue                                   # berkas proyek (mode pembangun) diurus git merge, bukan penomoran ulang
+            if path in TURUNAN_MESIN:
+                self.catatan.append(f"{path}: hasil mesin — dibuat ulang sesudah merge, versi cabang tidak disalin")
+                continue
             mentah = show_bytes(self.cabang, path)
             if mentah is None:
                 raise SystemExit(f"{path}: cabang menghapus berkas — tidak diizinkan")
@@ -303,6 +311,15 @@ class Integrasi:
             else:
                 self.sengketa.append({"berkas": path, "id": "(berkas diubah dua pihak)", "head": "", "cabang": "", "base": ""})
         return hasil
+
+    def susun_turunan_mesin(self) -> None:
+        """K2: DAFTAR_TUNGGU_LEE.md + blok OTOMATIS matriks/regresi dibuat ulang dari hasil gabungan (deterministik)."""
+        for alat in ("susun-matriks-telusur.py", "susun-daftar-tunggu-lee.py"):
+            r = subprocess.run([sys.executable, f"alat/{alat}"], cwd=AKAR, capture_output=True, text=True)
+            if r.returncode != 0:
+                self.catatan.append(f"{alat} GAGAL saat menyusun ulang: {(r.stdout + r.stderr)[-300:]}")
+            elif "ditulis ulang" in r.stdout:
+                self.catatan.append(f"{alat}: berkas turunan mesin diperbarui")
 
     # ---------- jalan ----------
     def jalankan(self, commit: bool, laporan: pathlib.Path | None) -> int:
@@ -343,6 +360,10 @@ class Integrasi:
                 (AKAR / path).unlink(missing_ok=True)
             else:
                 subprocess.run(["git", "checkout", "HEAD", "--", path], cwd=AKAR, check=True, capture_output=True)
+        for path in TURUNAN_MESIN:                        # konflik git pada berkas turunan mesin tidak berarti — akan ditimpa
+            if path in git("diff", "--name-only", "--diff-filter=U").split():
+                subprocess.run(["git", "checkout", "HEAD", "--", path], cwd=AKAR, capture_output=True)
+        self.susun_turunan_mesin()
         subprocess.run(["git", "add", "-A", "--", PMB], cwd=AKAR, check=True)
         for path in self.proyek:
             if not any(s["berkas"] == path for s in self.sengketa):

@@ -1,6 +1,6 @@
 # USULAN "JAMINAN TUNTAS" — supaya tidak ada temuan yang terlupakan dan tidak ada lagi "selesai" yang palsu
 
-**Status:** USULAN (menunggu keputusan Lee) · **Ditulis:** Perencana `arena/01a0e747-resto-barokah`, 2026-09-29 malam ·
+**Status:** **DISETUJUI Lee 2026-09-29** ("Aku setuju dengan rekomendasi kamu" — REKAM §31 butir 21; B+ dan klaster cara masuk = B) · **Dibangun:** K1–K5 pada putaran 10 (lihat §8) · **Ditulis:** Perencana `arena/01a0e747-resto-barokah`, 2026-09-29 malam ·
 **Pemicu:** pesan Lee sesudah Pembangun pertama F-09 (REKAM_PESAN_PEMILIK §31 butir 20): "bimbang jalur A atau B … khawatir di antara
 ratusan temuan ada yang terlupakan … atau di kemudian hari ada yang diklaim selesai padahal belum … tujuan aku: tidak ada hal sekecil apa pun
 yang terlupakan."
@@ -78,7 +78,7 @@ satu per satu, bukan diambil sampelnya.
 |---|---|---|---|---|
 | K1 | Buku Besar tidak bisa kehilangan baris; status hanya boleh bergerak mengikuti siklus | ✅ `periksa-pemeriksaan.py` | **Gerbang akhir** (`--gerbang akhir`): 0 TERBUKA semua tingkat; DITANGGUHKAN wajib menyebut Lee + tanggal tinjau | R1 |
 | K2 | Daftar keputusan yang ditunggu dari Lee | ❌ (tersebar di kolom Perbaikan) | `DAFTAR_TUNGGU_LEE.md` dibuat mesin setiap integrasi (temuan `MENUNGGU KEPUTUSAN LEE:` / `BUTUH LEE/OPERATOR:`, tugas Dibuka kembali, butir tertangguh) — Lee cukup membaca satu berkas | R1 |
-| K3 | Centang `[x]` hanya sah dengan bukti | ⚠️ sebagian (`periksa-roadmap` memeriksa 7 atribut, bukan bukti) | `periksa-roadmap.py` menolak `[x]` tanpa baris **Bukti:** yang menunjuk ≥1 berkas uji/penjaga **yang ada di repo** atau baris `U-nn` Buku Uji Pemilik **yang sudah ditandatangani Lee**; tugas bertanda **Dibuka kembali** tidak bisa `[x]` tanpa itu. Untuk 146 centang lama: masa transisi — yang tanpa bukti ditandai `⚠️ BUKTI-BELUM` (bukan langsung dibuka), lalu diputuskan satu per satu oleh sensus Tahap 2 | R2, R3 |
+| K3 | Centang `[x]` hanya sah dengan bukti | ⚠️ sebagian (`periksa-roadmap` memeriksa 7 atribut, bukan bukti) | `periksa-roadmap.py` menolak `[x]` tanpa baris **Bukti:** yang menunjuk ≥1 berkas uji/penjaga **yang ada di repo** atau baris `U-nn` Buku Uji Pemilik **yang sudah ditandatangani Lee**; tugas bertanda **Dibuka kembali** tidak bisa `[x]` tanpa itu. Untuk 146 centang lama: masa transisi — yang tanpa bukti ditandai `⏳ BUKTI-BELUM` (bukan langsung dibuka), lalu diputuskan satu per satu oleh sensus Tahap 2 | R2, R3 |
 | K4 | Siklus tertutup per temuan: uji MERAH→HIJAU, Hakim lain menutup, regresi diulang tiap gerbang | ✅ (naskah §5, `REGRESI_WAJIB.md`) | Mesin memastikan setiap uji yang disebut pada baris DIPERBAIKI/DITUTUP **benar-benar ada** di repo (bukan nama karangan — pelajaran PMB1-F-202) | R2 |
 | K5 | **Sensus klaim** di Tahap 2 | ❌ (Tahap 1 memeriksa dokumen, bukan setiap centang) | Setiap potongan Tahap 2 (P-n-xx) wajib memuat tabel **semua** `[x]` fase itu: bukti ada? dijalankan hari ini? DoD terpenuhi? → cakupan 100 % klaim, bukan sampel | R3 |
 | K6 | Cara kerja **permanen** sesudah PMB | ❌ | Setiap tugas ROADMAP = sesi Pembangun (DIPERBAIKI/`[~]`) + sesi Hakim (`[x]`); uji manual hanya oleh Lee di Buku Uji Pemilik; alat `pmb-integrasi.py --pembangun` & kartu B/H tetap dipakai | R2 |
@@ -86,7 +86,7 @@ satu per satu, bukan diambil sampelnya.
 ## 5. Jawaban untuk pertanyaan A/B → **B+** (langkah demi langkah)
 
 1. **Sekarang (Perencana, mekanisme):** bangun K1–K5 di alat & naskah (tanpa menyentuh kode aplikasi): `--gerbang akhir`, `DAFTAR_TUNGGU_LEE.md`,
-   aturan Bukti di `periksa-roadmap.py` (masa transisi `⚠️ BUKTI-BELUM` supaya CI tidak langsung merah untuk 146 centang lama), pemeriksaan nama
+   aturan Bukti di `periksa-roadmap.py` (masa transisi `⏳ BUKTI-BELUM` supaya CI tidak langsung merah untuk 146 centang lama), pemeriksaan nama
    uji pada baris DIPERBAIKI/DITUTUP, dan potongan Tahap 2 diberi bagian "sensus klaim".
 2. **Untuk tiap temuan jenis "fitur diklaim selesai tapi belum dibangun"** (F-09 sekarang; potongan lain menyusul): satu sesi **PEMBANGUN
    dokumen** mengembalikan `[x]` → `[ ]`, menambah baris `- **Dibuka kembali:** PMB1-F-nnn (tanggal) — bukti wajib: <nama uji / U-nn>`, menulis
@@ -115,3 +115,16 @@ yang dibuka kembali bisa dicentang lagi tanpa bukti atau terlupakan (kekhawatira
 - Sensus 100 % klaim memakan waktu (146 centang; ±2–3 sesi per fase). Ini harga dari "tidak ada yang terlewat"; lebih murah daripada pilot yang
   gagal karena fitur yang dikira ada.
 - Angka 39/65 di atas hitungan kasar (pola teks); mesin K3 yang akan membuat angka pastinya.
+
+## 8. Pelaksanaan (putaran 10, Perencana `arena/01a0e747`, 2026-09-29/30)
+
+| Kunci | Wujud | Diuji |
+|---|---|---|
+| K1 | `python3 alat/periksa-pemeriksaan.py --gerbang akhir`: semua potongan DIHAKIMI, 0 temuan terbuka SEMUA tingkat, DITANGGUHKAN wajib kata-kata Lee + `tinjau YYYY-MM-DD`, 0 tugas `Dibuka kembali` yang masih `[ ]`, 0 `⏳ BUKTI-BELUM`; menulis `RINGKASAN_TAHAP-akhir.md` | uji-diri "K1: gerbang akhir menolak…" |
+| K2 | `alat/susun-daftar-tunggu-lee.py` → `PMB-1/DAFTAR_TUNGGU_LEE.md` (deterministik; bagian A1/A2/B/C/D/E/F); dibuat ulang otomatis oleh `pmb-integrasi.py`; `periksa-pemeriksaan.py` + CI `--periksa` menolak bila basi | uji-diri 9 kasus + "K2: daftar basi ditolak" |
+| K3 | `alat/periksa-roadmap.py`: setiap `[x]` wajib baris `- **Bukti:**` → berkas uji/penjaga yang ada atau `U-nn` yang Lee isi OK; transisi `⏳ BUKTI-BELUM` hanya untuk ID di `PMB-1/BUKTI_BELUM_BASELINE.txt` (146 centang lama: 106 rujukan-mesin · 26 uji-manual · 14 tanpa-rujukan; daftar hanya boleh menyusut); tugas `Dibuka kembali` tidak boleh memakai transisi | uji-diri 13 kasus |
+| K4 | `periksa-pemeriksaan.py`: baris DIPERBAIKI/DITUTUP wajib menyebut berkas uji/penjaga yang ADA; `tanpa uji mesin: <alasan>` hanya bila commit tidak menyentuh kode; 11 baris pra-aturan dibekukan di `K4_SEBELUM_ATURAN` | uji-diri 4 kasus |
+| K5 | `--gerbang 2`: per fase yang punya potongan `P-<fase>-xx` — 0 `⏳ BUKTI-BELUM` tersisa + setiap `[x]` tercatat di bagian `## Sensus klaim` kartu K (naskah `PROMPT_GILIRAN.md` §5, `TEMPLAT_K.md`) | uji-diri 2 kasus |
+| K6 | naskah: Pembangun tidak pernah menulis `[x]`; centang oleh Hakim/Perencana sesudah bukti (`PROMPT_GILIRAN.md` §4); berlaku juga sesudah PMB (Fase 11, fitur dibuka kembali) | — (aturan kerja) |
+
+Angka awal (2026-09-29): daftar tunggu A1 2 · A2 10 · B 6 · C 0 · D 146 · E 2 · F 23; temuan terbuka 180.
