@@ -33,7 +33,7 @@
 | F-13 | 1 | DECISIONS_LOG bagian 3 | `docs/DECISIONS_LOG.md` baris 1660–2475 | L3 | ±815 baris (log) | BELUM | — | — |
 | F-14 | 1 | DECISIONS_LOG bagian 4 — sampai keputusan terbaru | `docs/DECISIONS_LOG.md` baris 2476–3276 | L3 | ±800 baris (log) | BELUM | — | — |
 | F-15 | 1 | AGENT_OPERATING_GUIDE + TERTANGGUH — aturan kerja agent, butir tertangguh (siapa boleh menutup) | `docs/AGENT_OPERATING_GUIDE.md`, `docs/TERTANGGUH.md` | L3 L4 L6 | 459 baris | BELUM | — | — |
-| F-16 | 1 | REKAM_PESAN_PEMILIK — apakah setiap kata Lee punya jejak keputusan/tugas/bukti | `docs/teknis/REKAM_PESAN_PEMILIK.md` | L3 | 567 baris | DIKLAIM | arena/01a0eb74-resto-barokah | 2026-09-29 |
+| F-16 | 1 | REKAM_PESAN_PEMILIK — apakah setiap kata Lee punya jejak keputusan/tugas/bukti | `docs/teknis/REKAM_PESAN_PEMILIK.md` | L3 | 567 baris | SELESAI | arena/01a0eb74-resto-barokah (kartu `K-F-16`: PMB1-F-171 K-2 · F-172 K-2 · F-173 K-3 · F-174 K-3 · F-175 K-3 · F-176 K-3 · F-177 K-4; asumsi PMB1-A-112…A-115) | 2026-09-29 |
 | F-17 | 1 | **Kalibrasi Tahap 1** — bahan cacat tanaman (jumlah, lokasi & kelas dirahasiakan) | `docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/` | L1 L2 L3 L4 | ±120 baris | BELUM | — | — |
 
 Catatan Tahap 1: rancangan §4a memperkirakan 10–12 potongan; papan nyata = **17** karena DECISIONS_LOG (3.276 baris) dan ROADMAP
