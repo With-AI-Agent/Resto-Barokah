@@ -1,0 +1,7 @@
+VERIFIKASI ULANG PMB1-F-136 (H-F-17 · arena/01a0eb76-resto-barokah)
+  OK  A. penjaga LAMA (3f56abb^) + baris TERVERIFIKASI kartu H palsu → harus LOLOS (cacat nyata) → kode=0 · PMB1-F-093
+  OK  B. penjaga SEKARANG (HEAD) + mutasi sama → harus GAGAL → kode=1 · [GAGAL] BUKU BESAR PMB1-F-093: status TERVERIFIKASI wajib menyebut kartu hakim yang ADA di kartu/ (H-<potongan>[.n].md) di kolom Hakim/Tutup — disebut: tidak ada
+  OK  C. KONTROL: salinan utuh + penjaga SEKARANG → harus LOLOS → kode=0
+  OK  D. KONTROL: TERVERIFIKASI menyebut kartu H yang ADA (H-F-17) → harus LOLOS → kode=0
+
+HASIL: LOLOS — perbaikan 3f56abb terbukti menutup cacat F-136 (A merah-diam dulu, B menolak sekarang, C & D tidak menolak yang sah)

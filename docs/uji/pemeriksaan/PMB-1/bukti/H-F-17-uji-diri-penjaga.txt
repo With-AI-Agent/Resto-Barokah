@@ -1,0 +1,19 @@
+UJI-DIRI periksa-pemeriksaan
+  OK  salinan utuh diterima → kode=0
+  OK  baris sintetis yang sah diterima → kode=0
+  OK  potongan SELESAI tanpa kartu ditolak → kode=1
+  OK  status temuan tidak sah ditolak → kode=1
+  OK  DITUTUP tanpa hakim/commit ditolak → kode=1
+  OK  artefak yang tidak ada ditolak → kode=1
+  OK  artefak dengan nomor baris di luar berkas ditolak → kode=1
+  OK  TERVERIFIKASI dengan kartu hakim yang tidak ada ditolak (PMB1-F-136) → kode=1
+  OK  TERVERIFIKASI oleh pemeriksa sendiri (kartu K, bukan H) ditolak → kode=1
+  OK  ID temuan melompat ditolak → kode=1
+  OK  potongan temuan yang tidak ada di papan ditolak → kode=1
+  OK  temuan pertama dihapus ditolak (urutan ID putus) → kode=1
+  OK  kartu yatim / tidak lengkap ditolak → kode=1
+  OK  matriks basi ditolak → kode=1
+  OK  DUPLIKAT tanpa temuan induk ditolak → kode=1
+  OK  asumsi DIBANTAH tanpa temuan ditolak → kode=1
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.

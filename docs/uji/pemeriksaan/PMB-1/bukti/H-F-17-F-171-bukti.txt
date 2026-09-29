@@ -1,0 +1,48 @@
+# BUKTI HAKIM (H-F-17 · arena/01a0eb76-resto-barokah) — temuan baru PMB1-F-171: layar LupaAkses (T2-05) tidak pernah dipasang
+# tanggal: 2026-09-29T04:47:37Z · commit basis: 93260e9389cb4806243e7b0ef8391425013cfabf
+
+## 1. Komponennya ada dan diuji, tetapi tidak dirujuk dari mana pun selain berkas ujinya
+$ grep -rn 'LupaAkses' aplikasi/src
+aplikasi/src/layar/masuk/LupaAkses.test.tsx:4:import { LupaAkses } from './LupaAkses'
+aplikasi/src/layar/masuk/LupaAkses.test.tsx:7:describe('LupaAkses (T2-05)', () => {
+aplikasi/src/layar/masuk/LupaAkses.test.tsx:15:        <LupaAkses onMintaTautanPemulihan={vi.fn()} />
+aplikasi/src/layar/masuk/LupaAkses.test.tsx:28:        <LupaAkses onMintaTautanPemulihan={onMintaMock} />
+aplikasi/src/layar/masuk/LupaAkses.tsx:8:export interface LupaAksesProps {
+aplikasi/src/layar/masuk/LupaAkses.tsx:13:export function LupaAkses({ onMintaTautanPemulihan, onKembaliKeMasuk }: LupaAksesProps) {
+
+## 2. Tidak ada di App.tsx (tempat semua layar dipasang)
+$ grep -n 'LupaAkses' aplikasi/src/App.tsx
+(0 hasil — layar tidak dipasang)
+$ grep -c 'layar/masuk' aplikasi/src/App.tsx
+2
+$ grep -n "from './layar/masuk" aplikasi/src/App.tsx
+9:import { LayarMasukPegawai } from './layar/masuk/LayarMasukPegawai'
+10:import { LayarMasukPelanggan } from './layar/masuk/LayarMasukPelanggan'
+
+## 3. Tidak ada di registri layar/aksi
+$ grep -rn -i 'lupa' aplikasi/src/lib/layar.ts aplikasi/src/lib/aksi.ts aplikasi/src/App.tsx
+(0 hasil)
+$ grep -rn -i 'lupa akses\|LupaAkses' docs/PETA_UI.md docs/SPESIFIKASI_UI.md
+(0 hasil — peta UI tidak mengenal layar ini)
+
+## 4. Janji ROADMAP yang dilanggar
+$ sed -n '698,706p' docs/ROADMAP.md
+- [x] T2-05 — Pemulihan akses pelanggan (lupa PIN / ganti perangkat) T-022 T-023
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-023: PIN pelanggan DIHAPUS (putusan Lee). Pemulihan mengikuti penyedia identitas; dokumen/alur diselaraskan pada Batch-5. T-022 tetap gerbang sebelum kanal email diaktifkan.
+  - **Tujuan:** pelanggan tidak terjebak kehilangan vouchernya.
+  - **Ref:** PRD M10 (kasus tepi); TECH_SPEC §7
+  - **File:** `aplikasi/src/layar/masuk/LupaAkses.tsx`, `aplikasi/src/layar/masuk/LupaAkses.test.tsx` (Edge Function `pemulihan_pelanggan` tidak dibuat sesuai keputusan Lee T-023)
+  - **DoD:** pemulihan lewat email terverifikasi bekerja; tidak bisa dipakai untuk mengambil alih akun orang lain (uji 2 kasus penyalahgunaan). · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LupaAkses.tsx`, `aplikasi/src/layar/masuk/LupaAkses.test.tsx` (2 tes lulus).
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** pengambilalihan akun → mitigasi: token sekali pakai + masa berlaku pendek + catatan percobaan.
+  - **Verifikasi:** uji manual + uji SQL percobaan token kedaluwarsa.
+
+## 5. Pembanding: layar masuk pelanggan YANG terpasang punya jalur magic link (mitigasi dampak)
+$ grep -n 'Kirim Tautan Masuk ke Email' aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx
+206:              {sedangKirimEmail ? 'Mengirim...' : 'Kirim Tautan Masuk ke Email'}
+$ grep -n 'LayarMasukPelanggan' aplikasi/src/App.tsx
+10:import { LayarMasukPelanggan } from './layar/masuk/LayarMasukPelanggan'
+605:              <LayarMasukPelanggan
+
+## 6. Preseden tingkat: PMB1-F-093 (layar Perangkat.tsx tidak dipasang, DoD [x]) = K-2
+113:| PMB1-F-093 | K-2 | P-9-00 | `aplikasi/src/layar/pengaturan/Perangkat.tsx` | `docs/KEAMANAN.md:48` ("Alur pendaftaran perangkat di peramban") · DoD T2-15 `docs/ROADMAP.md:797` ("kode sekali pakai + QR; perangkat baru mendaftar & menyimpan rahasia; pemilik menyetujui pasangan pegawai x perangkat") dengan status `[
