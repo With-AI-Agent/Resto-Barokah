@@ -26,6 +26,16 @@ describe('Header Keamanan & Content-Security-Policy (T10-14 / TECH_SPEC §6 & §
     expect(isi).toMatch(/geolocation=\(\)/)
   })
 
+  it('Permissions-Policy tidak memblokir WebUSB/Web Bluetooth yang dipakai printer (PMB1-F-119, T6-03)', () => {
+    const isi = fs.readFileSync(jalurHeaders, 'utf-8')
+    const baris =
+      isi.split('\n').find((b: string) => b.trim().startsWith('Permissions-Policy:')) || ''
+    // usb=() / bluetooth=() mematikan navigator.usb / navigator.bluetooth untuk asal sendiri → printer kabel mustahil
+    expect(baris).not.toMatch(/\busb=\(\s*\)/)
+    expect(baris).not.toMatch(/\bbluetooth=\(\s*\)/)
+    expect(baris).toMatch(/\busb=\(self\)/)
+  })
+
   it('Content-Security-Policy membatasi sumber script, style, font, connect, dan anti-clickjacking', () => {
     const isi = fs.readFileSync(jalurHeaders, 'utf-8')
     const barisCsp = isi
