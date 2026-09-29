@@ -7,15 +7,15 @@
 
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
-- **Cabang yang dilanjutkan:** `arena/01a0e747-resto-barokah`
-- **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
-- **Ditulis oleh sesi:** `arena/01a0e747-resto-barokah`
-- **Commit keadaan kerja:** `229a5b07b65426406fd0870109f25518dc7b2777`
+- **Cabang yang dilanjutkan:** `arena/01a0eb0a-resto-barokah`
+- **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
+- **Ditulis oleh sesi:** `arena/01a0eb0a-resto-barokah`
+- **Commit keadaan kerja:** `7cab097281306fac2333311e170db2693af6320f`
 - **PR:** PR #14 (base main)
 PR #13 (base main)
 PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36514462498, commit 229a5b07) — tunggu sampai selesai
-- **CATATAN CI:** run untuk commit handoff ini belum ada/masih berjalan saat baris ini ditulis (wajar) — sesi baru cek `gh run list --branch arena/01a0e747-resto-barokah --limit 3`; lanjut bila hijau atau masih berjalan dengan run selesai terakhir hijau, berhenti hanya bila merah.
+- **CI terakhir:** (belum ada run CI untuk commit 7cab0972 — wajar, ditulis sebelum push; run terakhir yang selesai di cabang: success (run 36513925393, commit 76439190)) — periksa lagi setelah push: gh run list --branch <cabang> --limit 3
+- **CATATAN CI:** run untuk commit handoff ini belum ada/masih berjalan saat baris ini ditulis (wajar) — sesi baru cek `gh run list --branch arena/01a0eb0a-resto-barokah --limit 3`; lanjut bila hijau atau masih berjalan dengan run selesai terakhir hijau, berhenti hanya bila merah.
 - **Ditulis:** 2026-09-29 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -29,7 +29,7 @@ PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (260 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (552 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -43,12 +43,12 @@ Sesi baru di platform ini mulai dari `main`, sedangkan pekerjaan ada di cabang s
 Jalankan (tanpa memindahkan cabang sesimu):
 
 ```
-git fetch origin arena/01a0e747-resto-barokah:refs/remotes/origin/kerja-terakhir
+git fetch origin arena/01a0eb0a-resto-barokah:refs/remotes/origin/kerja-terakhir
 git merge --ff-only origin/kerja-terakhir
 python3 alat/mulai-sesi.py      # cetak KARTU SESI, lalu LAPORKAN ke Lee
 ```
 
-Cabang `arena/01a0e747-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
+Cabang `arena/01a0eb0a-resto-barokah` di atas adalah **pilihan Lee** (bukan tebakan mesin). Lee juga bebas memilih sesi
 LAIN: saat membuka chat baru, ia menulis pilihannya di baris pertama `PROMPT_SESI_BARU.md` — dan baris
 itu yang **MENANG** bila berbeda dengan handoff ini. Laporkan bedanya, lalu rapikan catatan handoff
 dengan `python3 alat/lanjut-sesi.py --siapkan --lanjut-dari <cabang>`. Sesi yang belum pernah di-push
@@ -65,10 +65,16 @@ Bila Lee ingin meninjau lewat PR: buka PR BARU dari cabangmu (base `main`) dan l
 JANGAN merge apa pun tanpa keputusan Lee.
 
 **Base branch bila Lee membuka sesi baru lagi di Arena:** pilih cabang yang disebut di §1
-(`arena/01a0e747-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
+(`arena/01a0eb0a-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**CHECKPOINT GILIRAN HAKIM F-07 (2026-09-29, cabang `arena/01a0eb0a-resto-barokah`):**
+> 1. Merge normal cabang Perencana `arena/01a0e747-resto-barokah` selesai lokal pada `7cab097`; CI Perencana untuk `0008f36` sukses (`36514495575`). Klaim F-07 (`7643919`) sudah ter-push dan PAPAN tetap `DIKLAIM`.
+> 2. Lee mengizinkan penyegaran handoff setelah pemeriksaan `alat/lanjut-sesi.py` gagal karena trio handoff menunjuk keadaan lama. `--siapkan` sudah dijalankan; trio handoff sedang diselaraskan untuk membuat penjaga LOLOS.
+> 3. Setelah penjaga LOLOS, lanjutkan satu potongan ini saja: Hakim reproduksi temuan F-07 (PMB1-F-096…F-100) dan regresi yang tercatat pada K-F-07; kartu `K-F-07.2.md` tidak ada, jadi tidak ada ulangan independen. Tulis `H-F-07.md`, putuskan tiap baris dengan bukti, perbarui Buku Besar/ASUMSI, ubah PAPAN ke `DIHAKIMI` jika tak ada temuan `BARU`, jalankan `periksa-pemeriksaan.py` dan `periksa-bersih.py`, lalu commit + push branch ini dan berhenti.
+> 4. Jangan membaca kalibrasi dan jangan mengubah proyek/produksi. Setelah selesai, Lee mengintegrasikan `arena/01a0eb0a-resto-barokah` di sesi Perencana; potongan berikutnya hanya atas perintah Lee.
 
 **PEMBUKAAN SESI `arena/01a0e747` (2026-09-28, ±16:10 WIB) — ORIENTASI PRO.md, BELUM ADA PEKERJAAN BARU:**
 > 1. **PR #15 sudah di-merge Lee ke `main`** (merge commit `141d40f0`, 2026-09-28 15:59 WIB; ujung cabang `arena/01a0d09b` = `477cf360`, CI-nya **success** run `#36396868493`). Catatan "CI in_progress run 36396709886" di handoff lama merujuk commit `c3c50a8d` yang runnya **cancelled** karena tertimpa push berikutnya — bukan CI merah. CI `main` untuk `141d40f0` (run `#36400724879`) masih berjalan saat sesi dibuka.
