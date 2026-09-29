@@ -73,6 +73,9 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
 > Probe yang tidak mungkin merah (mis. `return query select true, 'terbukti …'`) **bukan bukti** dan dicatat Hakim sebagai bukti dikarang
 > (pelajaran PMB1-F-092). **Rujukan `berkas:baris`** harus menunjuk baris yang benar-benar memuat kalimat/kode yang diklaim — kutip
 > 3–8 kata dari baris itu di kolom Bukti supaya Hakim bisa mencocokkan (pelajaran PMB1-F-094; penjaga hanya menolak nomor baris di luar berkas).
+> **Perintah dalam bukti harus benar-benar dijalankan** dan keluarannya ditempel apa adanya: nama berkas di dalam perintah disalin dari
+> `ls`/`git ls-files`, bukan diketik dari ingatan — perintah yang menyebut berkas yang tidak ada (mis. `grep … 0030_sistem_pin.sql` → "cocok")
+> adalah bukti dikarang walau klaimnya kebetulan benar (pelajaran PMB1-F-202). Hakim: `ls` setiap path yang muncul di perintah bukti kartu K.
 
 1. Salin `PMB-1/kartu/TEMPLAT_K.md` → `PMB-1/kartu/K-<ID>.md` (HAKIM: `TEMPLAT_H.md` → `H-<ID>.md`). Isi **semua** bagian.
 2. Tiap temuan → **satu baris baru** di `PMB-1/BUKU_BESAR_TEMUAN.md`, ID berikutnya berurutan (`PMB1-F-00n`), status `BARU`, kolom
