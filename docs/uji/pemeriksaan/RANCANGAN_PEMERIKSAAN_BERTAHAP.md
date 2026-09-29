@@ -470,3 +470,11 @@ produksi/PIN/cara masuk Lee, F-001 dilewati sampai keputusan Lee, F-17 tidak dib
 membuka kunci, mencocokkan baris F-17 dengan daftar cacat tanaman; baris yang cocok → `DITUTUP` oleh Perencana dengan catatan "kalibrasi: cacat
 tanaman #n" (sha = commit pembukaan kunci), baris yang tidak cocok = cacat nyata pada dokumen asli → dipindahkan ke potongan pemilik artefak asli
 (atau DUPLIKAT bila sudah ada); angka tangkapan/palsu dicatat di `RINGKASAN_TAHAP-1.md`.
+
+**Putaran 7 (2026-09-29 sore; cabang 01a0ec14 · ec18 · ec1b · ec16 · ec13):** HAKIM F-13, F-14 (`H-F-14.2`, kartu pertama kosong), F-16, F-17
+(`H-F-17.2`; 9 TERVERIFIKASI · 1 PALSU pada bahan kalibrasi), PEMERIKSA F-15 (13 temuan, F-203…F-215). Hakim F-14 menemukan **PMB1-F-202** (K-4,
+G-04): perintah bukti kartu K-F-14 menyebut nama migrasi yang tidak pernah ada → kontrak §4 diperketat (perintah bukti harus benar-benar
+dijalankan; nama berkas dari `ls`); sengaja **tidak** dimesinkan karena nama yang salah juga sah dikutip hakim/Buku Besar sebagai barang bukti.
+Sesudah putaran 7: **215 temuan** (174 TERVERIFIKASI · 18 BARU · 15 DUPLIKAT · 4 DITUTUP · 4 PALSU) · 136 asumsi; **16 dari 17 potongan
+Tahap 1 DIHAKIMI; F-15 SELESAI menunggu HAKIM**. K-1/K-2 terbuka Tahap 1: 52 (5 K-1 · 47 K-2). Setelah HAKIM F-15: fase **PEMBANGUN** (satu
+potongan per sesi, berurutan), keputusan Lee tentang klaster cara masuk, lalu pembukaan kunci kalibrasi & `--gerbang 1`.

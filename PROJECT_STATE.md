@@ -1,5 +1,7 @@
-# Project State — Resto Barokah (Sesi arena/01a0e747 · 2026-09-29 14:40 WIB)
+# Project State — Resto Barokah (Sesi arena/01a0e747 · 2026-09-29 15:30 WIB)
 
+> **PUTARAN 7 PMB TERINTEGRASI (2026-09-29 ±15:30 WIB, sesi arena/01a0e747):** **16/17 potongan Tahap 1 DIHAKIMI** — tinggal HAKIM F-15 (sudah SELESAI diperiksa). Buku Besar **215 temuan** (174 TERVERIFIKASI · 18 BARU · 15 DUPLIKAT · 4 DITUTUP · 4 PALSU), 136 asumsi. Berikutnya: HAKIM F-15 → fase **PEMBANGUN** per potongan berurutan (52 K-1/K-2 terbuka; gerbang 1 menuntut 0) → keputusan A/B Lee klaster cara masuk → kunci kalibrasi + `--gerbang 1`. Rincian: SIAP-LANJUT §3, REKAM §31 butir 17.
+>
 > **PUTARAN 6 PMB TERINTEGRASI (2026-09-29 ±14:40 WIB, sesi arena/01a0e747):** F-01…F-12 **DIHAKIMI**, F-13/F-14/F-16/F-17 **SELESAI**, F-15 BELUM. Buku Besar **201 temuan** (148 TERVERIFIKASI · 33 BARU · 13 DUPLIKAT · 4 DITUTUP · 3 PALSU), 130 asumsi. Sengketa F-129 tuntas. Sisa Tahap 1: PEMERIKSA F-15, HAKIM F-13/F-14/F-16/F-17, HAKIM F-15; lalu **PEMBANGUN per potongan (51 K-1/K-2 terbuka; gerbang 1 menuntut 0)** — keputusan Lee soal klaster cara masuk (F-001/F-036/F-063/F-052) masih ditunggu. Rincian: SIAP-LANJUT §3, REKAM §31 butir 16.
 >
 > **PUTARAN 5 PMB TERINTEGRASI (2026-09-29 ±11:30 WIB, sesi arena/01a0e747):** F-01…F-09 **DIHAKIMI**, F-10…F-12 **SELESAI**, F-13…F-17 BELUM. Buku Besar **170 temuan** (116 TERVERIFIKASI · 36 BARU · 11 DUPLIKAT · 3 DITUTUP · 2 PALSU · 1 DIPERBAIKI · 1 PERLU-INFO), 111 asumsi. **Sengketa hakim PMB1-F-129** → hakim ketiga/Lee. **6 K-1 semuanya TERVERIFIKASI** — menunggu keputusan Lee soal Pembangun. Cacat mesin F-136 diperbaiki (`3f56abb`). Giliran berikutnya: HAKIM F-10/F-11/F-12, HAKIM F-09 (F-129), PEMERIKSA F-13…F-17. Rincian: SIAP-LANJUT §3, REKAM §31 butir 15.
