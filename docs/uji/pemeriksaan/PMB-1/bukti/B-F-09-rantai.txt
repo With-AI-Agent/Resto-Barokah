@@ -1,0 +1,21 @@
+# Rantai bukti B-F-09 — arena/01a0ec8d-resto-barokah, 2026-09-29 (checkout dangkal; token GitHub kedaluwarsa saat --unshallow)
+## node alat/uji-sql.mjs
+uji: 133 LULUS · 0 GAGAL
+HASIL: LOLOS
+## python3 alat/uji-mutasi-0012.py
+
+RINGKASAN: 16/16 mutasi WAJIB terbukti MERAH (+ 4 mutasi tunggal pada penjaga bertumpuk: hijau = sesuai dugaan; lapisan itu dibuktikan lewat mutasi gabungan M3k/M5k/M8k)
+## python3 alat/uji-mutasi-0014.py
+
+RINGKASAN: 17/17 mutasi WAJIB terbukti MERAH
+## bash aplikasi/alat/periksa-semua.sh (jalan penuh ke-2, sebelum angka TERTANGGUH:56 disegarkan final)
+216:[2m      Tests [22m [1m[32m1025 passed[39m[22m[90m (1025)[39m
+502:uji: 133 LULUS · 0 GAGAL
+600:uji: 2 LULUS · 0 GAGAL
+808:  [X] docs/TERTANGGUH.md:56 menulis "132 berkas uji" padahal nyatanya 133 — segarkan angkanya (atau cabut klaimnya); jangan biarkan dokumen basi
+809:SELESAI rc=1
+## sisa skrip dijalankan terpisah sesudah perbaikan angka (baris 123-184):
+- baris 123-124 periksa-panduan: HASIL: LOLOS — buku induk lengkap, rujukan hidup, prompt identik dengan sumbernya.
+- baris 125 lanjut-sesi.py (mode lokal): GAGAL 8 masalah — semuanya soal handoff/push (cabang giliran PMB dilarang menyentuh trio handoff; commit belum ter-push). Bukan dari perbaikan ini.
+- baris 126-155: dijalankan; baris 156 periksa-paket.py GAGAL 116 pelanggaran 'commit … TIDAK ADA di repo ini' = riwayat dangkal (git rev-parse --is-shallow-repository → true; --unshallow gagal karena token GH kedaluwarsa). CI punya riwayat penuh.
+- baris 157-184: SEMUA PEMERIKSAAN LOLOS.
