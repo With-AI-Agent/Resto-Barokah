@@ -1,0 +1,132 @@
+=== BUKTI REPRODUKSI HAKIM KETIGA — H-F-09.3 (sengketa PMB1-F-129, potongan F-09) ===
+Sesi: arena/01a0eb6c-resto-barokah · Tanggal: 2026-09-29
+Mandat: Memutus sengketa hakim PMB1-F-129 (TERVERIFIKASI vs PERLU-INFO) dan memverifikasi temuan DIPERBAIKI G-04 (PMB1-F-136)
+Mode: Hanya-baca terhadap kode/dokumen proyek; hanya menulis di docs/uji/pemeriksaan/PMB-1/; tidak menyentuh produksi.
+
+###############################################################################
+# BAGIAN 1: REPRODUKSI SENGKETA PMB1-F-129
+###############################################################################
+
+1. Pemeriksaan status klaim T2-04 dan T2-05 di docs/ROADMAP.md:
+
+$ sed -n '686,706p' docs/ROADMAP.md
+  - **Verifikasi:** uji manual: tambah pegawai → bisa masuk → nonaktifkan → tidak bisa masuk lagi.
+
+- [x] T2-04 — Masuk pelanggan: Google (utama) + email terverifikasi (kedua) T-022
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-022: Lee mengizinkan menunda pemilihan pengirim email ke Fase 2; usulan SMTP Gmail BELUM persetujuan layanan. Sebelum mengaktifkan email pelanggan, tetapkan kanal tanpa biaya dengan Lee. Google Sign-In tidak menunggu kanal email.
+  - **Tujuan:** pelanggan bisa mendaftar tanpa SMS dan tanpa biaya.
+  - **Ref:** PRD M10 & M12; TECH_SPEC §7 (integrasi)
+  - **File:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/layar/masuk/LayarMasukPelanggan.test.tsx` (`aplikasi/src/lib/google.ts` rencana, terbuka di L F-02)
+  - **DoD:** "Daftar dengan Google" bekerja; jalur email mengirim verifikasi; identitas pelanggan tersimpan tanpa data berlebih; uji manual dua jalur lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/layar/masuk/LayarMasukPelanggan.test.tsx` (3 tes lulus).
+  - **Kompleksitas:** sedang (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10); data berlebih → mitigasi: hanya nama, email, nomor HP opsional, persetujuan.
+  - **Verifikasi:** uji manual masuk Google di perangkat Android + jalur email di desktop.
+
+- [x] T2-05 — Pemulihan akses pelanggan (lupa PIN / ganti perangkat) T-022 T-023
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-023: PIN pelanggan DIHAPUS (putusan Lee). Pemulihan mengikuti penyedia identitas; dokumen/alur diselaraskan pada Batch-5. T-022 tetap gerbang sebelum kanal email diaktifkan.
+  - **Tujuan:** pelanggan tidak terjebak kehilangan vouchernya.
+  - **Ref:** PRD M10 (kasus tepi); TECH_SPEC §7
+  - **File:** `aplikasi/src/layar/masuk/LupaAkses.tsx`, `aplikasi/src/layar/masuk/LupaAkses.test.tsx` (Edge Function `pemulihan_pelanggan` tidak dibuat sesuai keputusan Lee T-023)
+  - **DoD:** pemulihan lewat email terverifikasi bekerja; tidak bisa dipakai untuk mengambil alih akun orang lain (uji 2 kasus penyalahgunaan). · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LupaAkses.tsx`, `aplikasi/src/layar/masuk/LupaAkses.test.tsx` (2 tes lulus).
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** pengambilalihan akun → mitigasi: token sekali pakai + masa berlaku pendek + catatan percobaan.
+  - **Verifikasi:** uji manual + uji SQL percobaan token kedaluwarsa.
+
+2. Pemeriksaan status gerbang kanal email T-022 di docs/TERTANGGUH.md:
+
+$ sed -n '57p' docs/TERTANGGUH.md
+| T-022 | 2026-09-21 | **Cara kirim email ke pelanggan tanpa domain berbayar** — keputusan T-007 ("Resend tanpa domain khusus") tidak bisa dipakai untuk email ke PELANGGAN: tanpa domain terverifikasi, Resend hanya mengirim ke alamat email pemilik akun. Pilihan biaya nol: (a) SMTP Gmail pemilik lewat sandi aplikasi (±500/hari), (b) Brevo gratis 300/hari, (c) hanya Google Sign-In (ubah PRD M10) | Disetujui 2026-09-21 (setuju semua): putusan ditunda ke Fase 2; usulan awal (a) SMTP Gmail pemilik. |
+
+3. Pemeriksaan implementasi pengiriman email di aplikasi/src/lib/auth.ts:
+
+$ sed -n '255,270p' aplikasi/src/lib/auth.ts
+export async function kirimTautanMasukEmail(
+  email: string,
+): Promise<{ sukses: boolean; pesan?: string }> {
+  const supabase = klienSupabase()
+  if (!supabase) {
+    return { sukses: false, pesan: 'Layanan Supabase belum dikonfigurasi.' }
+  }
+  try {
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim().toLowerCase(),
+      options: {
+        emailRedirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
+      },
+    })
+    if (error) {
+
+4. Pemeriksaan pemakai modul LupaAkses.tsx di kode aplikasi non-uji:
+
+$ grep -rn "LupaAkses" aplikasi/src/ --exclude='*.test.*'
+aplikasi/src/layar/masuk/LupaAkses.tsx:8:export interface LupaAksesProps {
+aplikasi/src/layar/masuk/LupaAkses.tsx:13:export function LupaAkses({ onMintaTautanPemulihan, onKembaliKeMasuk }: LupaAksesProps) {
+(Hasil: 0 komponen atau alur di aplikasi yang mengimpor/memanggil LupaAkses.tsx)
+
+5. Pemeriksaan jejak konfigurasi SMTP di seluruh repositori (di luar PMB-1):
+
+$ grep -rn -i "smtp" docs/ .github/ supabase/ aplikasi/ | grep -v "PMB-1"
+./_log-sesi/LOG_SESI_2026-09-16.md:91:  - **Email bawaan Supabase Auth hanya 2 email/jam per proyek** (bukan per pengguna) — cukup untuk uji coba, **tidak cukup untuk produksi**; naik batasnya butuh SMTP sendiri (default 30/jam, bisa dinaikkan). Jadi "OTP/magic link via email bawaan" bukan jalur yang layak produksi.
+./docs/DECISIONS_LOG.md:3150:     - Menyusun email teks & HTML yang bersih, jelas, bebas data pelanggan, mengintegrasikan pengiriman ke layanan penyedia email (Resend/SMTP), dan memperbarui status pengiriman email (`tertunda`, `terkirim`, `gagal`) via RPC `public.set_status_email_ringkasan`.
+./docs/ROADMAP.md:689:  - **Tindak lanjut keputusan Lee (2026-09-21):** T-022: Lee mengizinkan menunda pemilihan pengirim email ke Fase 2; usulan SMTP Gmail BELUM persetujuan layanan. Sebelum mengaktifkan email pelanggan, tetapkan kanal tanpa biaya dengan Lee. Google Sign-In tidak menunggu kanal email.
+./docs/TERTANGGUH.md:57:| T-022 | 2026-09-21 | **Cara kirim email ke pelanggan tanpa domain berbayar** — keputusan T-007 ("Resend tanpa domain khusus") tidak bisa dipakai untuk email ke PELANGGAN: tanpa domain terverifikasi, Resend hanya mengirim ke alamat email pemilik akun. Pilihan biaya nol: (a) SMTP Gmail pemilik lewat sandi aplikasi (±500/hari), (b) Brevo gratis 300/hari, (c) hanya Google Sign-In (ubah PRD M10) | Disetujui 2026-09-21 (setuju semua): putusan ditunda ke Fase 2; usulan awal (a) SMTP Gmail pemilik. |
+./docs/teknis/REKAM_PESAN_PEMILIK.md:576:  15. **Putaran 5 diintegrasikan (2026-09-29 siang; perintah Lee `Integrasikan arena/01a0eb0a … eb0d … eb17 … eb15 … eb0f … eb0e`):** F-07, F-08, F-09 **DIHAKIMI**; P-10-00 dihakimi tanpa mengubah PAPAN (F-051 K-2, F-052 K-1 TERVERIFIKASI); F-10, F-11, F-12 **SELESAI** (F-137…F-170). Buku Besar **170 temuan** · 111 asumsi. **Satu sengketa hakim terbuka: PMB1-F-129** (email verifikasi/pemulihan pelanggan tanpa SMTP kustom; Hakim 1 PERLU-INFO karena Lee menjawab "tidak tahu" soal konfigurasi SMTP, Hakim 2 TERVERIFIKASI K-2 berdasar dokumen Supabase "hanya alamat tim yang diizinkan") → hakim ketiga atau keputusan Lee (T-022). ...
+
+6. Riset dokumen resmi Supabase Auth SMTP (https://supabase.com/docs/guides/auth/auth-smtp):
+
+Kutipan resmi:
+"Send messages only to pre-authorized addresses. Unless you configure a custom SMTP server for your project, Supabase Auth will refuse to deliver messages to addresses that are not part of the project's team. You can manage this in the Team tab of the organization's settings. For example, if your project's organization has these member accounts person-a@example.com, person-b@example.com and person-c@example.com then Supabase Auth will only send messages to these addresses. All other addresses will fail with the error message Email address not authorized."
+
+Kesimpulan reproduksi:
+- Server bawaan Supabase Auth secara tegas menolak mengirim email verifikasi ke alamat pelanggan non-tim ("Email address not authorized").
+- Repositori tidak memiliki konfigurasi custom SMTP, dan keputusan kanal (T-022) belum selesai.
+- Alur pemulihan pelanggan (LupaAkses.tsx) tidak pernah dipasang di UI produksi.
+- Uji manual dua jalur yang disyaratkan DoD T2-04 dan T2-05 tidak pernah dilakukan dan tidak ada catatannya.
+- Karena itu, klaim penyelesaian [x] pada T2-04 dan T2-05 dengan DoD "jalur email mengirim verifikasi/pemulihan bekerja" dan "uji manual dua jalur lulus" terbukti bertentangan dengan fakta arsitektur dan kenyataan teknis repo.
+- Putusan: TERVERIFIKASI pada tingkat K-2.
+
+###############################################################################
+# BAGIAN 2: VERIFIKASI PERBAIKAN PMB1-F-136 (G-04)
+###############################################################################
+
+1. Pembacaan commit perbaikan 3f56abb:
+
+$ git show 3f56abb --stat
+commit 3f56abbfe7b4d7ade9207414efee8a888aa9f63f
+Author: Arena Agent <agent@arena.ai>
+Date:   Tue Sep 29 04:21:00 2026 +0000
+
+    pmb: perbaiki PMB1-F-136 (mesin PMB) — penjaga menolak status berputusan tanpa kartu H yang ada (+2 kasus uji-diri); pmb-integrasi: aturan penutup ganda otomatis + --abaikan-luar-pmb (dipakai putaran 5); README PMB-1 dicatat; F-136 TERVERIFIKASI (direproduksi Perencana)
+
+ alat/periksa-pemeriksaan.py                     | 14 +++++++-
+ alat/pmb-integrasi.py                           | 45 ++++++++++++++++++++++---
+ docs/uji/pemeriksaan/PMB-1/BUKU_BESAR_TEMUAN.md |  2 +-
+ docs/uji/pemeriksaan/PMB-1/README.md            |  6 ++++
+ 4 files changed, 61 insertions(+), 6 deletions(-)
+
+2. Pelaksanaan uji diri mesin penjaga:
+
+$ python3 alat/periksa-pemeriksaan.py --uji-diri
+UJI-DIRI periksa-pemeriksaan
+  OK  salinan utuh diterima → kode=0
+  OK  baris sintetis yang sah diterima → kode=0
+  OK  potongan SELESAI tanpa kartu ditolak → kode=1
+  OK  status temuan tidak sah ditolak → kode=1
+  OK  DITUTUP tanpa hakim/commit ditolak → kode=1
+  OK  artefak yang tidak ada ditolak → kode=1
+  OK  artefak dengan nomor baris di luar berkas ditolak → kode=1
+  OK  TERVERIFIKASI dengan kartu hakim yang tidak ada ditolak (PMB1-F-136) → kode=1
+  OK  TERVERIFIKASI oleh pemeriksa sendiri (kartu K, bukan H) ditolak → kode=1
+  OK  ID temuan melompat ditolak → kode=1
+  OK  potongan temuan yang tidak ada di papan ditolak → kode=1
+  OK  temuan pertama dihapus ditolak (urutan ID putus) → kode=1
+  OK  kartu yatim / tidak lengkap ditolak → kode=1
+  OK  matriks basi ditolak → kode=1
+  OK  DUPLIKAT tanpa temuan induk ditolak → kode=1
+  OK  asumsi DIBANTAH tanpa temuan ditolak → kode=1
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+
+3. Kesimpulan verifikasi PMB1-F-136:
+Perbaikan pada alat/periksa-pemeriksaan.py terbukti efektif menolak kolom Hakim/Tutup yang merujuk kartu hakim tidak ada atau kartu K pemeriksa sendiri.
+Putusan: DITUTUP.
