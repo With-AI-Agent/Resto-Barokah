@@ -34,7 +34,7 @@
 | F-14 | 1 | DECISIONS_LOG bagian 4 — sampai keputusan terbaru | `docs/DECISIONS_LOG.md` baris 2476–3276 | L3 | ±800 baris (log) | BELUM | — | — |
 | F-15 | 1 | AGENT_OPERATING_GUIDE + TERTANGGUH — aturan kerja agent, butir tertangguh (siapa boleh menutup) | `docs/AGENT_OPERATING_GUIDE.md`, `docs/TERTANGGUH.md` | L3 L4 L6 | 459 baris | BELUM | — | — |
 | F-16 | 1 | REKAM_PESAN_PEMILIK — apakah setiap kata Lee punya jejak keputusan/tugas/bukti | `docs/teknis/REKAM_PESAN_PEMILIK.md` | L3 | 567 baris | BELUM | — | — |
-| F-17 | 1 | **Kalibrasi Tahap 1** — bahan cacat tanaman (jumlah, lokasi & kelas dirahasiakan) | `docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/` | L1 L2 L3 L4 | ±120 baris | BELUM | — | — |
+| F-17 | 1 | **Kalibrasi Tahap 1** — bahan cacat tanaman (jumlah, lokasi & kelas dirahasiakan) | `docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/` | L1 L2 L3 L4 | ±120 baris | DIKLAIM | arena/01a0eb76-resto-barokah (PEMERIKSA — koreksi Lee: peran semula tertulis HAKIM; giliran hakim di cabang yang sama sudah selesai lebih dulu, kartu H-F-17) | 2026-09-29 |
 
 Catatan Tahap 1: rancangan §4a memperkirakan 10–12 potongan; papan nyata = **17** karena DECISIONS_LOG (3.276 baris) dan ROADMAP
 (2.239 baris) tidak jujur bila dipaksa satu potongan. Setiap potongan ROADMAP wajib menyisir `REGRESI_WAJIB.md` bagian B
