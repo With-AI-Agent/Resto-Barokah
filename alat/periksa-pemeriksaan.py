@@ -47,11 +47,11 @@ TRANSISI = {
     "BARU": {"TERVERIFIKASI", "PALSU", "PERLU-INFO", "DITANGGUHKAN", "DUPLIKAT"},
     "PERLU-INFO": {"TERVERIFIKASI", "PALSU", "DITANGGUHKAN", "DUPLIKAT"},
     "DUPLIKAT": set(),                     # kembar dari temuan lain (ulangan independen) — dinilai lewat temuan induknya
-    "TERVERIFIKASI": {"DIPERBAIKI", "DITANGGUHKAN"},
+    "TERVERIFIKASI": {"DIPERBAIKI", "DITANGGUHKAN", "PERLU-INFO"},   # → PERLU-INFO hanya untuk sengketa hakim / bukti baru (alasan tertulis)
     "DIPERBAIKI": {"DITUTUP", "TERVERIFIKASI"},
     "DITUTUP": {"TERVERIFIKASI"},          # kambuh → dibuka lagi oleh Hakim
     "DITANGGUHKAN": {"TERVERIFIKASI"},     # Lee mencabut penangguhan
-    "PALSU": set(),
+    "PALSU": {"PERLU-INFO"},                # dibuka kembali hanya karena sengketa hakim / bukti baru (alasan tertulis)
 }
 STATUS_ASUMSI = {"TERBUKA", "DIBUKTIKAN", "DIBANTAH"}
 RE_ID_POTONGAN = re.compile(r"^(?:[FXMDGLZ]-\d{2}|P-\d{1,2}[A-Z]?-\d{2})$")
