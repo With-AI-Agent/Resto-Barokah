@@ -21,7 +21,13 @@ import { useBahasa } from '../../bahasa'
 import { Tombol } from '../../komponen/Tombol'
 import { Lapis } from '../../komponen/Lapis'
 import { Toast, type NadaToast } from '../../komponen/Toast'
-import { Katalog, type MenuItemData, type VarianItem, type TambahanItem } from './Katalog'
+import {
+  Katalog,
+  type KategoriData,
+  type MenuItemData,
+  type VarianItem,
+  type TambahanItem,
+} from './Katalog'
 import { Keranjang, type ItemKeranjang, type RingkasanUang } from './Keranjang'
 import { PemilihMeja, type MejaData, type TipePesanan } from './PemilihMeja'
 import { TagihanTerbuka, type ItemTagihanTerbuka } from './TagihanTerbuka'
@@ -48,6 +54,10 @@ import {
 export interface LayarKasirProps {
   cabangId?: string
   namaCabang?: string
+  daftarKategori?: KategoriData[]
+  daftarMenu?: MenuItemData[]
+  katalogSedangMemuat?: boolean
+  pesanGalatKatalog?: string | null
   onSimpanPesanan?: (
     pesananData: unknown,
   ) => Promise<{ sukses: boolean; pesananId?: string; pesan?: string }>
@@ -165,6 +175,10 @@ export interface LayarKasirProps {
 export function LayarKasir({
   cabangId = 'cab-01',
   namaCabang = 'Cabang Utama',
+  daftarKategori = [],
+  daftarMenu = [],
+  katalogSedangMemuat = false,
+  pesanGalatKatalog = null,
   onSimpanPesanan = async () => ({ sukses: true, pesananId: 'ord-new' }),
   onKirimKeDapur = async () => ({ sukses: true }),
   pesananId = 'ord-current',
@@ -692,7 +706,13 @@ export function LayarKasir({
         )}
 
         {/* Katalog Menu Component */}
-        <Katalog onTambahKeKeranjang={tanganiTambahKeKeranjang} />
+        <Katalog
+          daftarKategori={daftarKategori}
+          daftarMenu={daftarMenu}
+          sedangMemuat={katalogSedangMemuat}
+          pesanGalat={pesanGalatKatalog}
+          onTambahKeKeranjang={tanganiTambahKeKeranjang}
+        />
       </div>
 
       {/* Kolom Kanan: Keranjang Pesanan & Ringkasan Pembayaran */}

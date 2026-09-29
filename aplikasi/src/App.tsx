@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { PenyediaBahasa } from './bahasa'
 import { useSesi } from './hook/useSesi'
 import { useBayar } from './hook/useBayar'
+import { useKatalogKasir } from './hook/useKatalogKasir'
 import { useStok } from './hook/useStok'
 import { useTiketDapur } from './hook/useTiketDapur'
 import { Rangka } from './komponen/Rangka'
@@ -33,6 +34,10 @@ export default function App() {
   const [layarAktif, setLayarAktif] = useState<string>('kasir')
   const [shiftAktif, setShiftAktif] = useState<ShiftAktifInfo | null>(null)
   const cabangId = sesi?.cabangAktifId || 'cab-01'
+  // Katalog kasir berasal dari menu tenant aktif, disaring dan dihargai per cabang.
+  // Tanpa sesi/cabang/database, layar kosong dan menampilkan keadaan yang jelas;
+  // data contoh hanya disediakan oleh fixture tes, bukan oleh aplikasi.
+  const katalogKasir = useKatalogKasir(sesi?.cabangAktifId ?? null, Boolean(sesi?.id))
   // Tagihan yang sedang dilayani kasir. Untuk sekarang satu tagihan berjalan
   // per terminal; pemilihan tagihan dari Open Bill menyusul bersama T5-03.
   const [pesananAktifId, setPesananAktifId] = useState<string | null>(null)
@@ -55,6 +60,10 @@ export default function App() {
         return (
           <LayarKasir
             cabangId={cabangId}
+            daftarKategori={katalogKasir.kategori}
+            daftarMenu={katalogKasir.menu}
+            katalogSedangMemuat={katalogKasir.sedangMemuat}
+            pesanGalatKatalog={katalogKasir.pesanGalat}
             pesananId={pesananAktifId ?? 'ord-current'}
             metodeBayar={bayar.metode}
             keadaanBayar={bayar.keadaan}
