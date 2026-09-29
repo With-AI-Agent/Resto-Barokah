@@ -1,0 +1,269 @@
+BUKTI PERINTAH — POTONGAN F-10 (ROADMAP bagian 3, Fase 7–11 + penutup)
+Sesi: arena/01a0eb0f-resto-barokah · Tanggal: 2026-09-29 · Commit basis: 44702a6 (basis 471805a)
+Semua perintah dijalankan di /home/user/Resto-Barokah pada klon ini (bukan produksi).
+
+==================================================================
+[1] CAKUPAN: hitungan tugas & bukti per fase
+------------------------------------------------------------------
+$ grep -n "^- \[.\] T7-" docs/ROADMAP.md | wc -l ; awk fase F7..F10 | grep -c "Bukti"
+12
+15
+12
+16
+13
+Bukti (kata) per fase:
+F7: 1
+F8: 12
+F9: 12
+F10: 12
+F11: 20
+
+Tugas Fase 7 dan ada/tidak kata Bukti di bloknya (jendela 11 baris):
+- [x] T7-01  bukti=0
+- [x] T7-02  bukti=0
+- [x] T7-03  bukti=0
+- [x] T7-04  bukti=0
+- [x] T7-05  bukti=0
+- [x] T7-06  bukti=0
+- [x] T7-07  bukti=0
+- [x] T7-08  bukti=0
+- [x] T7-09  bukti=0
+- [x] T7-10  bukti=0
+- [x] T7-11  bukti=0
+- [x] T7-12  bukti=1
+KONTROL POSITIF (jendela sama, Fase 8 — pembanding bahwa pola bisa terdeteksi):
+- [x] T8-01  bukti=1
+- [x] T8-02  bukti=1
+- [x] T8-03  bukti=1
+- [x] T8-04  bukti=1
+- [x] T8-05  bukti=1
+- [x] T8-06  bukti=1
+
+Blok T7-10 mentah (baris 1602-1611) — judul + 7 atribut, TANPA blok Bukti:
+- [x] T7-10 — Tampilan laporan siap cetak/simpan + filter cabang
+  - **Tujuan:** owner bisa menyimpan laporan harian untuk pembukuan.
+  - **Ref:** PRD M8 (kasus tepi: dicetak disimpan = fase 2 → di G1 cukup rapi & bisa disimpan PDF)
+  - **File:** `aplikasi/src/layar/laporan/FormatLaporan.tsx`
+  - **DoD:** tata letak rapi untuk dicetak/disimpan PDF; judul, tanggal, cabang, tanda tangan pemilik; filter 
+  - **Kompleksitas:** kecil (2 jam)
+  - **Risiko & mitigasi:** kebocoran data lintas cabang → mitigasi: filter di peladen (T2-07).
+  - **Verifikasi:** uji manual simpan PDF.
+
+- [x] T7-11 — Transaksi lewat tengah malam ⚠️
+
+Pembanding: T7-12 (satu-satunya Fase 7 ber-Bukti), baris 1624:
+  - **Bukti (2026-09-24):** Berkas uji SQL `supabase/tes/golden_laporan.sql` membuktikan seluruh angka laporan operasional (`laporan_penjualan`, `laporan_menu`,
+
+==================================================================
+[2] T7-10: janji manual & akibatnya
+------------------------------------------------------------------
+$ grep -rn "simpan PDF" docs/uji docs/teknis | head ; grep -n "ttd\|namaPemilik" aplikasi/src/layar/laporan/FormatLaporan.tsx
+docs/uji/RENCANA_UJI_MANUAL.md:107:| M-11 | **Struk digital bisa dibagikan** | Cadangan saat printer mati | 1) Selesaikan pembayaran 2) Tekan tombol bagikan / s
+docs/uji/pemeriksaan/PMB-1/BUKU_BESAR_TEMUAN.md:55:| PMB1-F-035 | K-4 | F-03 | `docs/PRD.md:204` | PRD §5 Fase 3 Mode offline vs ART-8/T10-01 G1; M10 baris 170
+docs/uji/pemeriksaan/PMB-1/bukti/H-F-03-statis.txt:249:  - **Ref:** PRD M8 (kasus tepi: dicetak disimpan = fase 2 → di G1 cukup rapi & bisa disimpan PDF)
+docs/uji/pemeriksaan/PMB-1/bukti/H-F-03-statis.txt:251:  - **DoD:** tata letak rapi untuk dicetak/disimpan PDF; judul, tanggal, cabang, tanda tangan pemilik; fi
+docs/uji/pemeriksaan/PMB-1/bukti/F-10-bukti-perintah.txt:45:  - **Ref:** PRD M8 (kasus tepi: dicetak disimpan = fase 2 → di G1 cukup rapi & bisa disimpan PDF)
+$ grep -n "namaPemilik\|ttd\|Tanda Tangan" aplikasi/src/layar/laporan/FormatLaporan.tsx | head
+31:  namaPemilik?: string
+48:  namaPemilik = 'Lee (Pemilik)',
+471:        <footer className="format-laporan__ttd">
+485:              Pemilik / Pengelola Resto
+488:              <strong>( {namaPemilik} )</strong>
+-> artefak ADA (kotak tanda tangan), tetapi tidak ada satu pun catatan uji manual/PDF di docs/uji atau docs/teknis.
+
+[3] FASE 8: empat tugas katalog publik — verifikasi manual di HP tanpa jejak
+------------------------------------------------------------------
+$ grep -n "uji manual di HP\|uji manual pada HP\|uji pindai QR\|uji manual dua jalur" docs/ROADMAP.md
+693:  - **DoD:** "Daftar dengan Google" bekerja; jalur email mengirim verifikasi; identita
+1651:  - **Verifikasi:** uji manual di HP + pemeriksa kontras. · **Bukti 2026-09-25:** im
+1660:  - **Verifikasi:** uji manual pada HP + ukur ukuran halaman. · **Bukti 2026-09-25:*
+1678:  - **Verifikasi:** uji pindai QR dengan kamera HP. · **Bukti 2026-09-25:** implemen
+1687:  - **Verifikasi:** uji manual dua jalur (Google & email) di HP. · **Bukti 2026-09-2
+$ grep -c "^| M-" docs/uji/RENCANA_UJI_MANUAL.md ; grep -cE "^\| M-.*\| 2026-" docs/uji/RENCANA_UJI_MANUAL.md   # kolom hasil/tanggal
+57
+0
+$ grep -n "M-33\|M-34\|M-56\|M-57" docs/uji/RENCANA_UJI_MANUAL.md | tail -2
+221:| M-56 | **Daftar Uji Terima Pengaturan Mandiri Pemilik (T9-12)** | Pemilik kedai memiliki lembar uji terima ramah m
+231:| M-57 | **Antrean Pesanan Luring saat Internet Putus (T10-01)** | Memastikan pesanan kasir tetap tersimpan aman di 
+$ find . -name "*.png" -o -name "*.jpg" | grep -vi "docs/desain" (bukti tangkapan layar uji)
+./prototipe/aset/ayam-geprek.jpg
+./prototipe/aset/banner-kedai.jpg
+./prototipe/aset/dessert.jpg
+./prototipe/aset/es-kelapa.jpg
+./prototipe/aset/es-teh.jpg
+-> 0 bukti tangkapan layar uji di luar folder desain; 57 baris rencana uji manual, 0 hasil terisi.
+KONTROL NEGATIF/POSITIF: dokumen hasil uji yang MEMANG terisi pernah ada, tetapi sudah dikoreksi Lee:
+# HASIL UJI TERIMA KEAMANAN BERSAMA PEMILIK (T11-12)
+# Resto Barokah — Gelombang 1 (G1)
+
+> ⚠️ **KOREKSI STATUS (keputusan Lee 2026-09-28 — `docs/teknis/REKAM_PESAN_PEMILIK.md` §31):** dokumen ini adalah **naskah/instrumen yang disusun agent**; uji keamanan bersama pemilik di perang
+
+
+
+[4] T8-15: gerbang tinjauan pemilik atas kebijakan privasi
+------------------------------------------------------------------
+$ sed -n "1,10p" docs/PRIVASI_PELANGGAN.md
+> **Status: DRAF** — belum mengikat apa pun, belum diimplementasikan apa pun.
+> Ditulis untuk ditinjau Lee **sebelum data pelanggan pertama masuk** (gerbang itu tercatat di
+> `docs/TERTANGGUH.md` butir T-011). Bagian yang belum Lee putuskan ditandai
+> `TODO(keputusan Lee)` — sengaja dibiarkan terbuka, bukan diarang.
+>
+> **Asal tugas:** temuan audit **F F-09** — "Kontrak privasi pelanggan belum punya jalur
+> implementasi" (`docs/uji/AUDIT_RIWAYAT.md` §1c, status TERBUKA, pemilik `T8-01` Fase 8).
+> Ditulis pekerja maraton T-03 (cabang `arena/01a0c1d7-resto-barokah`, 2026-09-21, alur AL-16
+$ grep -c "TODO(keputusan Lee)" docs/PRIVASI_PELANGGAN.md
+8
+$ sed -n "1770p" docs/ROADMAP.md   # DoD T8-15
+  - **DoD:** kolom persetujuan + waktu + versi kebijakan; fungsi anonimisasi menghapus kontak tanpa menghapus catatan keuangan; halaman kebijakan berbahasa Indonesia; uji SQL lulus; draf kebijakan ditinjau pemilik sebelum data pelanggan per
+$ grep -n "pelanggan-publik\|Kampanye" aplikasi/src/App.tsx | head -4
+476:      case 'kampanye':
+479:          <Kampanye
+485:      case 'pelanggan-publik':
+$ grep -n "T-011" docs/TERTANGGUH.md
+54:| T-011 | 2026-09-21 | **Kebijakan privasi & persetujuan data pelanggan** (PRD §10.7) | Disetujui 2026-09-21 (setuju semua): draf agent (KEAMANAN §11) + migrasi/halaman T8-15; pemilik meninjau sebelum F8. |
+
+==================================================================
+[5] T9-10 (Pemilik Platform: daftar penyewa) — gerbang bukti visual sendiri
+------------------------------------------------------------------
+$ sed -n "1865p" docs/ROADMAP.md
+  - **Verifikasi:** uji SQL + uji manual dengan dua akun Owner berbeda (bukti berupa tangkapan layar). · **Bukti visual** (tangkapan layar/foto) diambil pemilik atau penguji manusia; tugas ditandai `[x]` hanya setelah buktinya diterima. · **Bukti 2026-09-26 
+$ grep -c "PMB1-F" docs/uji/pemeriksaan/PMB-1/BUKU_BESAR_TEMUAN.md  # temuan terdaftar (pembanding kelas bukti)
+135
+$ grep -rn "Lanjut" docs/ROADMAP.md | grep -c "pemilik"   # contoh bukti visual pemilik yang PERNAH dicatat (T1-16/baris 88)
+Bukti visual (pemilik) 2026-09-16:** pemilik membuka pratinjau aplikasi lalu menyatakan **“Lanjut”** — tampilan tema (10), kerapatan (nyaman/pad
+-> T9-10: baris tugas menuntut bukti visual manusia; blok bukti hanya 'Otomatis' (2026-09-26); 0 tangkapan layar di repo.
+
+[6] T9-12 (uji terima pengaturan) — ceklis belum ditandai
+------------------------------------------------------------------
+$ sed -n "1883p" docs/ROADMAP.md   # Verifikasi
+  - **Verifikasi:** pemilik menjalankan daftar ini dan menandai semua langkah berhasil. · **Bukti 2026-09-26 (Otomatis 
+$ sed -n "280,291p" docs/uji/UJI_TERIMA_PENGATURAN.md | grep -c "\[ \] LULUS"
+12
+$ grep -c "\[x\]" docs/uji/UJI_TERIMA_PENGATURAN.md  # hanya baris petunjuk "cara pakai"
+1
+$ sed -n "280p;291p" docs/uji/UJI_TERIMA_PENGATURAN.md
+| 01 | **Identitas Resto** | Ubah nama kedai → Cek katalog publik & kop struk kasir | `[ ] LULUS` | |
+| 12 | **Pratinjau & Pengaman** | Cek simulator diff sebelum simpan & buktikan riwayat lama utuh | `[ ] LULUS` | |
+$ sed -n "221p" docs/uji/RENCANA_UJI_MANUAL.md   # M-56 status & kolom hasil
+| M-56 | **Daftar Uji Terima Pengaturan Mandiri Pemilik (T9-12)** | Pemilik kedai memiliki lembar uji terima ramah manus
+embingungkan atau gagal | 🟢 SIAP | |
+-> 12 baris ceklis masih [ ] LULUS; ROADMAP menutup Fase 9 'tuntas 100%'.
+
+[7] T10-13 (ringkasan harian email 1x/hari) — penjadwal tidak ada
+------------------------------------------------------------------
+$ grep -rn "cron.schedule" supabase/migrations/ | wc -l
+0
+$ grep -n "ringkasan" alat/denyut.py | wc -l
+0
+$ grep -n "ringkasan_harian" .github/workflows/*.yml | wc -l
+0
+$ sed -n "325,338p" supabase/migrations/0082_denyut_harian_pembersih.sql
+-- 5. Pengaturan Tugas Terjadwal pg_cron (Bila Didukung Platform)
+-- ============================================================================
+do $$
+begin
+  if exists (select 1 from pg_available_extensions where name = 'pg_cron') then
+    create extension if not exists pg_cron;
+    -- Pada Supabase hosted yang memiliki pg_cron, jadwal otomatis dapat didaftarkan.
+    -- Di lingkungan tanpa ekstensi pg_cron (mis. PGlite pengujian lokal),
+    -- blok ini dilewati secara aman.
+  end if;
+exception
+  when others then
+    null;
+end;
+$ grep -n "ringkasan_harian" docs/uji/pemeriksaan/PMB-1/BUKU_BESAR_TEMUAN.md | head -2
+60:| PMB1-F-040 | K-3 | F-03 | `docs/PRD.md:189` | PRD M12 baris 189 (janji ke pemilik: jejak audit "tidak bisa diakali", perubahan/penghapusan langsu
+69:| PMB1-F-049 | K-2 | F-03 | `docs/PRD.md:190` | PRD M12:190 "ringkasan peringatan harian ke owner (1 email/hari)"; DECISIONS_LOG 2026-09-17:344 "di
+
+==================================================================
+[8] T10-02: penjaga cakupan idempoten tidak tersambung ke gerbang
+------------------------------------------------------------------
+$ grep -rn "periksa-idempoten" .github/workflows/ alat/periksa-gerbang-ci.py | wc -l
+0
+$ grep -n "keamanan-sql\|fungsi-pin\|matriks-izin" alat/periksa-gerbang-ci.py | head -4   # contoh penjaga lain yang MEMANG terdaftar
+136:    ("keamanan SQL efektif (T1-30)", r"python3 alat/periksa-keamanan-sql.py"),
+137:    ("uji-diri keamanan SQL efektif (T1-30)", r"python3 alat/periksa-keamanan-sql.py --uji-diri"),
+145:    ("pemeriksa fungsi PIN", r"python3 alat/periksa-fungsi-pin.py"),
+$ python3 alat/periksa-idempoten.py | tail -3
+Skema tabel penyimpan kunci   : 8/8
+----------------------------------------------------------------------
+HASIL: LOLOS — 100% RPC penulisan memiliki dukungan kunci idempoten.
+$ grep -rn "periksa-idempoten" docs/ --include=*.md | wc -l   # hanya dokumen, bukan gerbang
+17
+-> 8/8 lulus bila dijalankan TANGAN, tetapi 0 sambungan ke gerbang/CI: cakupan hanya terjaga oleh kebiasaan.
+
+[9] Angka RLS: klaim 45/45 & 84 policy vs keadaan hari ini
+------------------------------------------------------------------
+$ python3 alat/periksa-sisir-rls.py | tail -6
+Tabel dengan policy terpasang: 47/47
+Tabel tanpa policy           : 0
+Eksekusi uji sisir SQL       : LULUS
+----------------------------------------------------------------------
+LAPORAN AKHIR: 0 TABEL TANPA POLICY — 0 TABEL TERBUKA
+HASIL: LOLOS — Seluruh 47 tabel terisolasi 100% secara fail-closed.
+$ grep -n "45/45\|84 kebijakan\|84 policy" docs/ROADMAP.md docs/uji/AUDIT_KEAMANAN.md | cut -c1-110
+docs/ROADMAP.md:1929:  - **DoD:** daftar tabel ↔ policy diperiksa ulang; uji akses silang untuk 6 peran; lap
+docs/ROADMAP.md:1947:  - **DoD:** daftar periksa keamanan dijalankan (kunci rahasia, RLS, hak akses, PIN, vouc
+docs/uji/AUDIT_KEAMANAN.md:13:1. **Lapisan Basis Data & RLS:** PostgreSQL 15+, 78 migrasi skema (`0001` s/d `0
+docs/uji/AUDIT_KEAMANAN.md:51:    - Tabel dengan RLS aktif: **45/45 (100%)**.
+docs/uji/AUDIT_KEAMANAN.md:53:    - Kebijakan RLS terpasang: **84 kebijakan resmi**.
+docs/uji/AUDIT_KEAMANAN.md:161:| **SEC-03** | RLS Multi-Tenant | Potensi kebocoran data operasional dan pelang
+$ grep -n "v_total_tabel >= 45" supabase/tes/sisir_rls_akhir.sql
+99:  perform uji.harap(v_total_tabel >= 45, format('Jumlah tabel publik (%s) mencakup seluruh fitur sampai Fase 10 (minimal 45 tabel)', v_total_tabel));
+-> hari ini 47/47 tabel ber-RLS & ber-policy; klaim '45/45'/'84 policy' tidak lagi sama dengan kenyataan (uji hanya mensyaratkan >= 45).
+
+[10] KONTROL POSITIF — uji yang dijalankan hari ini dan LULUS
+------------------------------------------------------------------
+$ node alat/uji-sql.mjs | tail -3
+----------------------------------------------------------------------
+uji: 132 LULUS · 0 GAGAL
+HASIL: LOLOS
+$ cd aplikasi && npx vitest run | tail -6
+[2m Test Files [22m [1m[32m124 passed[39m[22m[90m (124)[39m
+[2m      Tests [22m [1m[32m1022 passed[39m[22m[90m (1022)[39m
+$ node alat/eksekusi-latihan-insiden.mjs | tail -8   (T10-15: 47 tabel / 192 baris)
+
+[3] Ringkasan Hasil Latihan:
+    - Status Akhir : LULUS 100%
+    - Waktu Latihan: 2026-09-29T02:59:06.320Z
+    - Durasi Uji   : 3.35 detik (Target RTO < 30 menit terpenuhi)
+========================================================================
+HASIL: LOLOS — LATIHAN PEMULIHAN & DRIL INSIDEN BERHASIL SEMPURNA
+========================================================================
+
+==================================================================
+[11] REFUTASI yang dicoba: 'cadangan mingguan (T10-10) belum pernah jalan'
+------------------------------------------------------------------
+$ gh api repos/With-AI-Agent/Resto-Barokah/actions/workflows/368932278/runs --jq .total_count   # cadangan.yml
+0
+$ gh api .../workflows/359808258/runs --jq .total_count   # KONTROL: ci.yml
+830
+$ gh api .../workflows/368932282/runs --jq .total_count   # KONTROL: denyut-harian.yml
+1
+$ gh api "repos/.../commits?path=.github/workflows/cadangan.yml&sha=main&per_page=1" --jq ".[0].commit.committer.date"
+2026-09-27T09:51:39Z
+$ date -u -d 2026-09-27 +%A ; date -u -d 2026-10-03 +%A ; grep -n cron .github/workflows/cadangan.yml
+Sunday
+Saturday
+19:    - cron: '0 19 * * 6'
+$ date -u   # sekarang
+Tue Sep 29 02:59:18 UTC 2026
+-> 0 run itu SEHAT: berkas masuk main Minggu 03:16 UTC, sedangkan jadwalnya Sabtu 19:00 UTC
+   (Minggu 02:00 WIB). Slot pertama = 2026-10-03 19:00 UTC — BELUM lewat. Jangan dilaporkan
+   sebagai temuan; masuk bagian 'tidak bisa diverifikasi' sampai run pertama nyata (atau Lee menjalankan workflow_dispatch).
+
+[12] REGRESI temuan lama di lingkup F-10
+------------------------------------------------------------------
+$ grep -n "T10-13\|ringkasan peringatan harian" docs/uji/pemeriksaan/PMB-1/BUKU_BESAR_TEMUAN.md | head -1 | cut -c1-200   # PMB1-F-049 (K-2) masih BARU
+69:| PMB1-F-049 | K-2 | F-03 | `docs/PRD.md:190` | PRD M12:190 "ringkasan peringatan harian ke owner (1 email/hari)"; DECISIONS_LOG 2026-09-17:344 "dikirim via email owner DAN tampil di layar" | keses
+96:| PMB1-F-076 | K-2 | F-05 | `docs/TECH_SPEC.md:417` | TECH_SPEC §10 kolom "Peringatan otomatis 70% & 90% (pg_cron → email pemilik)" baris 417-420 dan §13 K6 baris 465 ("dengan peringatan otomat
+$ grep -n "PMB1-F-001" docs/uji/pemeriksaan/PMB-1/BUKU_BESAR_TEMUAN.md | head -1 | cut -c1-160   # F-001 (K-1, potongan F-10) sudah terdaftar
+3:> **Satu baris = satu temuan. Temuan tidak pernah dihapus, hanya berubah status.** ID stabil `PMB1-F-001`, `PMB1-F-002`, …
+$ grep -rn "rpc(.simpan_pesanan" aplikasi/src | wc -l   # F-121 masih hidup (klien bypass RPC idempoten)
+0
+$ ls .github/workflows | grep -c e2e   # e2e.yml memang tidak ada (T11-11 [ ])
+0
+$ sed -n "3,4p" .github/workflows/ci.yml   # repo PUBLIK, padahal ROADMAP:1977 menyebut "repo privat"
+# Gerbang otomatis: setiap kiriman kode diperiksa. Repositori ini PUBLIK sejak
+# 2026-09-20 (keputusan Lee) — menit GitHub Actions tak terbatas untuk repo publik.
