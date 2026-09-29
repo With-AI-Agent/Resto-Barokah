@@ -26,6 +26,11 @@ describe('Header Keamanan & Content-Security-Policy (T10-14 / TECH_SPEC §6 & §
     expect(isi).toMatch(/geolocation=\(\)/)
   })
 
+  it('Permissions-Policy tidak memblokir WebUSB yang didukung fitur printer', () => {
+    const isi = fs.readFileSync(jalurHeaders, 'utf-8')
+    expect(isi).toMatch(/Permissions-Policy:.*usb=\(self\)/)
+  })
+
   it('Content-Security-Policy membatasi sumber script, style, font, connect, dan anti-clickjacking', () => {
     const isi = fs.readFileSync(jalurHeaders, 'utf-8')
     const barisCsp = isi
