@@ -25,6 +25,7 @@ import { TautanKatalog } from './layar/pengaturan/TautanKatalog'
 import { LayarPelangganPublik } from './layar/pelanggan-publik/LayarPelangganPublik'
 import { Kampanye } from './layar/voucher/Kampanye'
 import { klienSupabase } from './lib/supabase'
+import { kirimPesananKeDapur } from './lib/pesanan'
 import { masukDenganGoogle, kirimTautanMasukEmail } from './lib/auth'
 import { tambahKeAntrean } from './lib/antrean-offline'
 
@@ -169,19 +170,10 @@ export default function App() {
             }
             onKirimKeDapur={async (id) => {
               const klien = klienSupabase()
-              if (klien) {
-                const { error } = await klien
-                  .from('pesanan')
-                  .update({
-                    status: 'dikirim',
-                    dikirim_ke_dapur_pada: new Date().toISOString(),
-                  })
-                  .eq('id', id)
-                if (error) {
-                  return { sukses: false, pesan: error.message }
-                }
+              if (!klien) {
+                return { sukses: false, pesan: 'Sambungan basis data tidak tersedia.' }
               }
-              return { sukses: true }
+              return await kirimPesananKeDapur(klien, id)
             }}
             onKasPergerakan={async (data) => {
               const klien = klienSupabase()
