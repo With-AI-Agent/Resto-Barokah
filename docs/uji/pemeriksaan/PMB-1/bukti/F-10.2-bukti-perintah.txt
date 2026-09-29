@@ -1,0 +1,129 @@
+BUKTI PERINTAH — POTONGAN F-10, ULANGAN INDEPENDEN AGENT KEDUA (cabang arena/01a0eb0f-resto-barokah, 2026-09-29)
+Kartu: kartu/K-F-10.2.md (temuan PMB1-F-144..F-151, asumsi PMB1-A-085..A-090)
+Commit basis: 065ee4d (memuat K-F-10 agent pertama; isi ROADMAP identik sejak 471805a)
+Berkas bukti agent pertama: bukti/F-10-bukti-perintah.txt (tidak ditimpa)
+Lingkup: docs/ROADMAP.md baris 1519-2239 (Fase 7-11 + penutup)
+
+=== [1] hitung [x]/[ ] per fase di lingkup F-10 ===
+Fase 0       [x]= 14 [ ]=  1
+Fase 1       [x]= 11 [ ]= 11
+Fase 1B      [x]=  9 [ ]=  2
+Fase 1C      [x]= 10 [ ]=  2
+Fase 2       [x]= 18 [ ]=  1
+Fase 3       [x]= 13 [ ]=  3
+Fase 4       [x]=  0 [ ]= 10
+Fase 5       [x]= 11 [ ]=  1
+Fase 6       [x]=  5 [ ]=  3
+Fase 7       [x]= 12 [ ]=  0
+Fase 8       [x]= 15 [ ]=  0
+Fase 9       [x]= 12 [ ]=  0
+Fase 10      [x]= 16 [ ]=  0
+Fase 11      [x]=  0 [ ]= 13
+LINGKUP F-10 (1519-2239): Fase 7 12[x] 0[] | Fase 8 15[x] 0[] | Fase 9 12[x] 0[] | Fase 10 16[x] 0[] | Fase 11 0[x] 13[]
+
+=== [2] jumlah baris tugas SELURUH ROADMAP (klaim '193 tugas' baris 2194) ===
+193
+
+=== [3] suite SQL hari ini (klaim T7-12 98 / T8-01 105 / T10-03 125 / T10-05 126 / T10-13 131 berkas) ===
+----------------------------------------------------------------------
+uji: 132 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+=== [4] uji Vitest hari ini (klaim T8-15 792/101 · T9-01 811/103 · T9-09 904/110 · T9-11 920/112 · T10-03 948/116 · T10-07 964/118) ===
+(dijalankan: cd aplikasi && npx vitest run --reporter=dot)
+Test Files  124 passed (124) / Tests  1022 passed (1022)
+
+=== [5] RLS hari ini (klaim T10-05/T10-07/AUDIT SEC-03: 45 tabel, 84 policy) ===
+Tabel dengan RLS aktif       : 47/47
+Tabel tanpa RLS (terbuka)    : 0
+Tabel dengan policy terpasang: 47/47
+Tabel tanpa policy           : 0
+Eksekusi uji sisir SQL       : LULUS
+HASIL: LOLOS — Seluruh 47 tabel terisolasi 100% secara fail-closed.
+baris [OK] tabel: 47
+total policy hari ini: 79
+
+=== [6] migrasi & berkas terlacak (klaim AUDIT SEC-02 '78 migrasi' · SEC-08 '2.821 berkas terlacak') ===
+84
+2968
+
+=== [7] pemindai rahasia (klaim T10-07) ===
+
+HASIL: LOLOS — tidak ada kunci rahasia di berkas terlacak; lembar kunci pemilik diabaikan Git.
+
+=== [8] pemeriksa lain (klaim T10-07) ===
+
+RINGKASAN: 14 lolos, 0 gagal
+
+HASIL: LOLOS — Seluruh matriks izin 6 peran diverifikasi valid.
+HASIL: LOLOS
+Lingkup: search_path + ACL efektif + trigger-only + sapuan RLS + optimasi InitPlan helper policy.
+
+HASIL: LOLOS — konfigurasi header keamanan halaman lengkap & fail-closed.
+
+RINGKASAN: 166 lolos, 0 gagal  -  10 tema, 130 pemeriksaan warna, 36 pemeriksaan aturan desain
+PETA UI: SEMUA PEMERIKSAAN HIJAU (Layar, Aksi, RPC, Izin, Uji, PRD M1–M12, Bebas Button Liar).
+  ❓ tertangguh : 2 rujukan (semua sah)
+
+HASIL: LOLOS — semua pemeriksaan roadmap terpenuhi.
+
+=== [9] npm audit (klaim T10-14) ===
+found 0 vulnerabilities
+found 0 vulnerabilities
+
+=== [10] latihan pemulihan T10-15 (klaim 47 tabel, 192 baris, 4 dril) ===
+    - Status RLS             : SEMUA AKTIF (47/47)
+    - Status Akhir : LULUS 100%
+- **Jumlah Tabel Terpulihkan:** 47 dari 47 tabel publik
+- **Jumlah Baris Terpulihkan:** 192 baris (selisih = 0 baris)
+- **Status RLS:** 100% aktif (47/47 tabel terkunci RLS)
+HASIL: LOLOS — LATIHAN PEMULIHAN & DRIL INSIDEN BERHASIL SEMPURNA
+
+=== [11] T10-13: pg_cron & penjadwal ===
+migrasi: supabase/migrations/0082_denyut_harian_pembersih.sql:325:-- 5. Pengaturan Tugas Terjadwal pg_cron (Bila Didukung Platform)
+migrasi: supabase/migrations/0082_denyut_harian_pembersih.sql:329:  if exists (select 1 from pg_available_extensions where name = 'pg_cron') then
+migrasi: supabase/migrations/0082_denyut_harian_pembersih.sql:330:    create extension if not exists pg_cron;
+migrasi: supabase/migrations/0082_denyut_harian_pembersih.sql:331:    -- Pada Supabase hosted yang memiliki pg_cron, jadwal otomatis dapat didaftarkan.
+migrasi: supabase/migrations/0082_denyut_harian_pembersih.sql:332:    -- Di lingkungan tanpa ekstensi pg_cron (mis. PGlite pengujian lokal),
+--- alur kerja terjadwal ---
+.github/workflows/cadangan.yml:19:    - cron: '0 19 * * 6'
+.github/workflows/denyut-harian.yml:16:    - cron: '0 19 * * *'
+--- siapa memanggil hasilkan_ringkasan_harian / ringkasan_harian ---
+  alat/uji-mutasi-0085.py:7:  Mutan 1: Bypass otorisasi izin lihat_laporan pada RPC ambil_ringkasan_harian
+  alat/uji-mutasi-0085.py:8:  Mutan 2: Melemahkan isolasi RLS multi-tenant pada tabel ringkasan_harian
+  alat/uji-mutasi-0085.py:17:MIGRASI_ASLI = Path("supabase/migrations/0085_ringkasan_harian.sql")
+  alat/uji-mutasi-0085.py:22:        "nama": "Mutan 1: Bypass otorisasi izin lihat_laporan pada ambil_ringkasan_harian",
+  alat/uji-mutasi-0085.py:27:        "nama": "Mutan 2: Melemahkan isolasi RLS multi-tenant ringkasan_harian_pilih",
+  alat/uji-mutasi-0085.py:45:    print("UJI MUTASI FAIL-CLOSED: 0085_ringkasan_harian.sql (T10-13)")
+(kosong = tidak ada penjadwal)
+--- cabang 'simulasi pengiriman' di Edge Function ---
+283:        catatanKirim = 'Simulasi pengiriman berhasil (tanpa RESEND_API_KEY)'
+
+=== [12] T10-13: uji mutasi & batas Edge ===
+STATUS: 100% FAIL-CLOSED TERBUKTI.
+======================================================================
+
+RINGKASAN: 10 lolos, 0 gagal
+245:    'S08 pembaruan status email memanggil set_status_email_ringkasan',
+
+=== [13] T9-12: lembar ceklis pemilik benar-benar tercentang? ===
+docs/uji/UJI_TERIMA_PENGATURAN.md  [x]=1
+docs/uji/UJI_TERIMA_PENGATURAN.md  [ ]=12
+19:5. **Beri Tanda:** Centang kotak `[x]` pada tabel ringkasan di bagian akhir dokumen ini bila hasilnya cocok.
+docs/uji/UJI_TERIMA_G1.md  [x]=1
+docs/uji/UJI_TERIMA_G1.md  [ ]=44
+
+=== [14] BUKU_UJI_PEMILIK baris 'terbukti' ===
+2
+79:| U-21 | Daftar Uji Terima Pengaturan Mandiri Pemilik (tugas `T9-12`) | 1) Buka berkas panduan `docs/uji/UJI_TERIMA_P
+83:| U-23 | Daftar Uji Terima Resmi Gelombang 1 (tugas `T11-02`) | 1) Buka berkas `docs/uji/UJI_TERIMA_G1.md` 2) Jalanka
+
+HASIL: LOLOS — setiap baris punya langkah (maksimal 5), harapan, kolom hasil, dan tugas yang benar.
+
+=== [15] penjaga mesin PMB (sebelum & sesudah catatan saya) ===
+PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 7, 'DIHAKIMI': 6, 'DIKLAIM': 1, 'RENCANA': 46, 'SELESAI': 3} · 135 temuan (terbuka K-1/K-2: 43)
+
+HASIL: LOLOS
+  catatan: berkas baru yang BELUM masuk Git (belum `git add`): 1 (contoh: docs/uji/pemeriksaan/PMB-1/bukti/F-10-bukti-perintah.txt)
+
+HASIL: LOLOS — semua pemeriksa dokumen hijau di pohon bersih (hanya berkas terlacak Git).
