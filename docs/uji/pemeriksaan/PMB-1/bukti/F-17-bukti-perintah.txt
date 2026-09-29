@@ -1,0 +1,134 @@
+# BUKTI PEMERIKSA F-17 (kalibrasi Tahap 1) — arena/01a0eb76-resto-barokah
+# tanggal: 2026-09-29T05:16:04Z · commit basis: b3f694fcf224b440f9878b58acfde2718f690484
+# Kepatuhan aturan bahan: KUNCI-* TIDAK dibuka; git log/diff folder kalibrasi TIDAK dibaca; TIDAK ada diff baris-demi-baris
+#   cuplikan vs dokumen aslinya sendiri. Semua pembanding = dokumen fondasi LAIN + kode/migrasi + riset internet.
+
+## 1. PRD-cuplikan:14 — void sesudah pembayaran pertama
+$ grep -n 'T-025' docs/TERTANGGUH.md | cut -c1-260
+59:| T-025 | 2026-09-21 | **Kelebihan bayar: bayar dulu lalu item dikurangi/void** (sisa I F-17 jalur-2; K F-02 duplikat) — uang sudah masuk lalu total turun: selisihnya diapakan? Pilihan: (a) LARANG ubah/void sesudah bayar, (b) KOREKSI TERCATAT tanpa uang k
+$ sed -n '1,2p;41p;81p' supabase/migrations/0022_beku_setelah_bayar.sql
+-- T-025(a), keputusan Lee 2026-09-21: LARANG ubah/void setelah uang pertama
+-- tercatat, termasuk pembayaran sebagian. Tidak ada jalur pengembalian baru.
+      raise exception 'BY-201: Pembayaran sudah tercatat. Isi, diskon, dan pembatalan pesanan terkunci; jangan ubah pesanan ini.';
+      raise exception 'BY-201: Pembayaran sudah tercatat. Isi dan nominal pesanan terkunci; jangan ubah pesanan ini.';
+
+## 2. PRD-cuplikan:8 — tiga diskon tanpa batas total
+$ grep -n 'tumpuk_diskon' supabase/migrations/0002_pengguna_izin_pengaturan.sql | head -2
+91:  tumpuk_diskon              boolean not null default false,
+$ sed -n '75,78p;100,102p;127p' supabase/migrations/0019_pesan_diskon_jujur.sql
+    select p.tumpuk_diskon into v_tumpuk from public.pengaturan p where p.penyewa_id = v_pesanan.penyewa_id;
+    if not coalesce(v_tumpuk, false) then
+      raise exception 'Resto ini hanya mengizinkan satu diskon per transaksi.';
+    end if;
+  -- tumpuk diskon, lalu kasir memecah diskon besar menjadi banyak baris kecil — tiap
+  -- baris lolos pemeriksaan per-baris, totalnya 100% subtotal. Cap sekarang diperiksa
+  -- pada TOTAL (kumulatif), bukan per baris.
+  'Menjaga diskon: jenis yang mesinnya belum ada (promo, voucher) DITOLAK gagal-aman, batas izin per baris, SATU diskon bila tidak tumpuk, dan TOTAL potongan tidak melebihi subtotal maupun cap resto (persen/nominal).';
+$ grep -n 'satu diskon per transaksi' docs/DECISIONS_LOG.md | head -2
+204:  5. **Batas diskon memakai gerbang izin yang sama** (`boleh('beri_diskon', nominal, persen)`), jadi batas kasir 25.000 / 5% dan admin 50.000 / 10% tidak pernah disalin ulang di tempat lain. **Tumpuk diskon mengikuti pengaturan resto** (bawaan: satu diskon per transaksi — Aturan Bisnis 2). Diskon manual wajib beralasan; total diskon tidak boleh melebihi subtotal.
+1931:  dengan cap kumulatif dari `0014`): satu diskon per transaksi bila `tumpuk_diskon = false`,
+
+## 3. PRD-cuplikan:23 vs ROADMAP-cuplikan:5-12 — wajib_shift
+$ grep -n 'wajib_shift boolean' supabase/migrations/0048_wajib_shift.sql
+28:  add column if not exists wajib_shift boolean not null default false;
+232:  v_wajib_shift boolean;
+$ sed -n '5,9p' docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/ROADMAP-cuplikan.md
+- [x] T7-04 — Transaksi hanya dalam shift terbuka ⚠️
+  - **Tujuan:** tidak ada penjualan "di luar kas" yang tidak bisa diaudit.
+  - **Ref:** PRD M7 (kriteria selesai)
+  - **File:** `supabase/migrations/0048_wajib_shift.sql`, `supabase/tes/wajib_shift.sql`
+  - **DoD:** memesan/membayar di luar shift terbuka ditolak dengan pesan jelas; uji lulus; **disaksikan pemilik di perangkat kasir nyata dan ditandatangani di berita acara**.
+
+## 4. KEAMANAN-cuplikan:8 — batas percobaan per akun & tabel percobaan_masuk
+$ grep -n 'v_gagal_akun >=\|kali percobaan salah' supabase/migrations/0087_perbaiki_search_path_kripto_dan_rpc.sql
+130:  if v_gagal_akun >= 5 or v_gagal_alat >= 12 then
+134:      'pesan', 'Akun atau perangkat terkunci sementara karena 5 kali percobaan salah. Tunggu 15 menit.'
+$ sed -n '18p' docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/KEAMANAN-cuplikan.md | cut -c1-120 (baris §7 tabel: 5×/15 menit per akun)
+| Pencabutan | per perangkat · per akun · semua perangkat | Database + RPC (seketika) |
+$ grep -rn 'create table if not exists public.percobaan_masuk' supabase/migrations/*.sql
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:97:create table if not exists public.percobaan_masuk (
+$ grep -rln 'percobaan_masuk' supabase/migrations | head -4
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql
+supabase/migrations/0059_catat_percobaan_masuk_tenant.sql
+supabase/migrations/0082_denyut_harian_pembersih.sql
+supabase/migrations/0085_ringkasan_harian.sql
+$ grep -n 'T1-26 —' docs/ROADMAP.md
+431:- [x] T1-26 — Migrasi 0014: percobaan masuk + kunci 5×/15 menit (akun) & 12×/15 menit (perangkat) ⚠️
+
+## 5. KEAMANAN-cuplikan:17 — umur maksimum sesi pemilik platform
+$ sed -n '469,478p' supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql
+  -- 3. Tentukan batas umur sesi berdasarkan peran (T1-25 / KEAMANAN §7)
+  --    Staf: 12 jam; Admin/Owner: 30 hari; Pemilik Platform: 8 jam
+  if v_pengguna.peran in ('kasir', 'pelayan', 'dapur') then
+    v_umur_interval := interval '12 hours';
+  elsif v_pengguna.peran in ('admin_cabang', 'owner_pusat') then
+    v_umur_interval := interval '30 days';
+  elsif v_pengguna.peran = 'pemilik_platform' then
+    v_umur_interval := interval '8 hours';
+  else
+    v_umur_interval := interval '12 hours';
+
+## 6. KEAMANAN-cuplikan:18 — kunci otomatis 'hanya di luar jam aktif'
+$ sed -n '69,74p' aplikasi/src/hook/useKunciOtomatis.ts
+  useEffect(() => {
+    // Kunci otomatis hanya berjalan jika di luar jam operasional atau sesuai kebijakan keamanan
+    // Jika di luar jam operasional, batas waktu default 15 menit
+    const batasEfektifMs = diLuarJamOperasional
+      ? Math.min(batasWaktuMs, 15 * 60 * 1000)
+      : batasWaktuMs
+$ grep -rn 'useKunciOtomatis' aplikasi/src | grep -v 'hook/useKunciOtomatis'
+-> hook tidak dipasang di layar mana pun = sudah tercatat sebagai PMB1-F-084 (K-2 TERVERIFIKASI) dan PMB1-F-089 (K-3)
+
+## 7. ROADMAP-cuplikan:3 — angka berkas uji SQL
+$ ls supabase/tes/*.sql | wc -l
+132
+$ grep -rn '132/132' docs/DECISIONS_LOG.md docs/ops/DEPLOY.md docs/teknis/TINJAUAN_KEAMANAN_F10.md docs/uji/PAKET_AUDIT_F10_3_AGEN.md | cut -c1-140
+docs/DECISIONS_LOG.md:3236:     - Berkas uji SQL `supabase/tes/mfa.sql` memvalidasi 19 skenario penegakan: isolasi hierarki peran atas, peno
+docs/ops/DEPLOY.md:34:- [x] **1. Seluruh Migrasi SQL Lolos:** `node alat/uji-sql.mjs` (132/132 berkas lulus 100%).
+docs/teknis/TINJAUAN_KEAMANAN_F10.md:126:   - Seluruh aturan tangga pemulihan kredensial, proteksi peran atas, rotasi kunci induk darurat, d
+docs/uji/PAKET_AUDIT_F10_3_AGEN.md:5:> **Komitmen:** 153/193 tugas roadmap tuntas. 0 toleransi kerentanan (`npm audit` 0), 132/132 berkas uj
+
+## 8. ROADMAP-cuplikan:9,12 — DoD T7-04 vs bukti yang ditulis
+$ grep -rn -i 'buka kas cepat\|tombol_buka_kas_cepat' aplikasi/src | grep -v test
+aplikasi/src/bahasa/ar.ts:79:    tombol_buka_kas_cepat: 'فتح الوردية الآن',
+aplikasi/src/bahasa/en.ts:79:    tombol_buka_kas_cepat: 'Open Shift Now',
+aplikasi/src/bahasa/id.ts:77:    tombol_buka_kas_cepat: 'Buka Kas Sekarang',
+aplikasi/src/bahasa/zh.ts:78:    tombol_buka_kas_cepat: '立即开班',
+aplikasi/src/layar/kasir/LayarKasir.tsx:677:              🔓 {t('kasir.tombol_buka_kas_cepat')}
+-> tombol buka kas cepat NYATA (LayarKasir.tsx:677) — sub-klaim itu BENAR; yang tidak ada = saksi pemilik + berita acara
+$ ls supabase/tes/wajib_shift.sql
+supabase/tes/wajib_shift.sql
+$ grep -rln -i 'berita acara' docs/uji docs/ops | head -5
+docs/uji/pemeriksaan/PMB-1/bukti/F-17-bukti-perintah.txt
+docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/ROADMAP-cuplikan.md
+(kosong = tidak ada berita acara tersimpan)
+
+## 9. ROADMAP-cuplikan:17-18 — rujukan berkas T7-05
+$ ls -d aplikasi/src/layar/kas
+ls: cannot access 'aplikasi/src/layar/kas': No such file or directory
+$ grep -rn -i 'pengingat' aplikasi/src --include=*.tsx -l | grep -v test | head -3
+aplikasi/src/komponen/PengingatShift.tsx
+aplikasi/src/layar/kasir/LayarKasir.tsx
+$ grep -n -i 'tengah malam\|melewati' supabase/migrations/0085_ringkasan_harian.sql
+(0 hasil di 0085)
+$ grep -n 'melewati_tengah_malam' supabase/migrations/0049_pengingat_shift.sql | head -3
+9:--    Kolom `melewati_tengah_malam boolean not null default false` pada `public.shift_kas`.
+13:--    Pemicu `picu_shift_kas_melewati_tengah_malam` menandai kolom `melewati_tengah_malam`
+17:--    Saat shift yang melewati tengah malam ditutup, catatan audit `shift_melewati_tengah_malam`
+$ grep -rn 'melewati_tengah_malam' aplikasi/src | grep -v test | head -3
+aplikasi/src/komponen/PengingatShift.tsx:22:  'melewati_tengah_malam' | 'lewat_jam_tutup' | 'durasi_panjang' | 'mendekati_tutup' | null
+aplikasi/src/komponen/PengingatShift.tsx:62:    tingkat = 'melewati_tengah_malam'
+aplikasi/src/komponen/PengingatShift.tsx:90:      case 'melewati_tengah_malam':
+
+## 10. Bagian cuplikan yang saya coba bantah tetapi BENAR (tidak jadi temuan)
+- PRD-cuplikan:7 pajak PB1 & service charge → NYATA: supabase/migrations/0072_pengaturan_operasional.sql:5,14,35
+- PRD-cuplikan (M7 tutup kas) rumus modal + tunai masuk − tunai keluar → COCOK: 0046 baris 5-6
+- PRD-cuplikan (pembatalan berjenjang + bahan terbuang) → 0010/0042/0043
+- KEAMANAN-cuplikan:5 PIN 6 digit unik per resto → 0011:158,233 ('PIN itu sudah dipakai…')
+- KEAMANAN-cuplikan:6 hash bcrypt pgcrypto + batas kolom → 0006:39 (check pin_hash ~ '^\$[a-z0-9]+\$'), 0006:265 crypt(gen_salt('bf',10))
+- KEAMANAN-cuplikan:7 pemeriksa statis PIN → alat/periksa-fungsi-pin.py ADA
+- KEAMANAN-cuplikan:9 kupon cek ulang izin + wajib menyebut pesanan → 0016:70-76,135
+- KEAMANAN-cuplikan:10 PIN warisan 4 angka untuk naik kelas → 0016:260-280
+- KEAMANAN-cuplikan:19 jam aktif = keputusan pemilik 2026-09-17 → REKAM_PESAN_PEMILIK baris 29 (butir 9) memang memuat 'jam aktif diatur owner'
+- KEAMANAN-cuplikan:24 fitur Pro → riset 2026-09-29: https://supabase.com/blog/supabase-auth-identity-linking-hooks ('These session control settings are available on the Pro Plan and above') + https://supabase.com/docs/guides/auth/password-security ('Leaked password protection is available on the Pro Plan and above')
+- ROADMAP-cuplikan:12 tombol buka kas cepat → LayarKasir.tsx:677 + bahasa/id.ts:77
