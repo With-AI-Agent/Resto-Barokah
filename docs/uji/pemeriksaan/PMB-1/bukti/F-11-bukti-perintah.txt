@@ -1,0 +1,313 @@
+BUKTI PERINTAH — K-F-11 (DECISIONS_LOG baris 1–833)
+Tanggal: 2026-09-29 · Commit basis: 04e1136 · cabang arena/01a0eb0e-resto-barokah · semua perintah dari akar repo, hanya-baca.
+
+=== 1. percobaan_pin 'di-drop pada 0014' (PMB1-F-136) ===
+$ sed -n '375p;377p;379p' docs/DECISIONS_LOG.md | cut -c1-260
+### [Fase 1B/2026-09-17] `percobaan_pin` dihentikan, digantikan `percobaan_masuk`
+- **Keputusan:** Tabel `percobaan_pin` (dibuat di 0006 dengan kolom `perangkat` berupa teks bebas) **digantikan** `percobaan_masuk`: kolom `perangkat_id` (FK ke `perangkat`), `jenis` (`pin`/`kata_sandi`/`mfa`), `berhasil`, `sebab`, waktu. Tabel lama **di-drop*
+- **File terkait:** `supabase/migrations/0014_percobaan_masuk.sql`, `supabase/tes/percobaan_masuk.sql`, `docs/uji/DAFTAR_PEKERJAAN_ULANG.md` butir B.6–B.8, ROADMAP T1-26
+
+$ ls supabase/migrations | grep -E '^0014|^0030'
+0014_penutup_celah_putaran13.sql
+0030_sesi_dan_persetujuan_perangkat.sql
+
+$ grep -n 'create table' supabase/migrations/0006_pin.sql | grep percobaan_pin
+58:create table if not exists public.percobaan_pin (
+
+$ grep -iln 'drop table[^;]*percobaan_pin' supabase/migrations/*.sql
+(0 hasil)
+
+$ grep -n 'create table[^(]*percobaan_masuk' supabase/migrations/*.sql
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:97:create table if not exists public.percobaan_masuk (
+
+$ grep -l 'percobaan_pin' supabase/migrations/*.sql | tail -6
+supabase/migrations/0065_kasir_cek_pakai_voucher.sql
+supabase/migrations/0067_pengaman_voucher.sql
+supabase/migrations/0082_denyut_harian_pembersih.sql
+supabase/migrations/0085_ringkasan_harian.sql
+supabase/migrations/0086_data_awal_dan_autentikasi_perangkat.sql
+supabase/migrations/0087_perbaiki_search_path_kripto_dan_rpc.sql
+
+$ grep -n 'percobaan_pin' supabase/migrations/0087_perbaiki_search_path_kripto_dan_rpc.sql | head -2
+119:    from public.percobaan_pin pp
+125:    from public.percobaan_pin pp
+
+$ grep -n 'percobaan_pin' docs/TECH_SPEC.md | cut -c1-120
+203:| `percobaan_pin` | `id`, `pengguna_id`, `perangkat`, `berhasil`, `aksi`, `waktu` | Batas percobaan **verifikasi** P
+
+KONTROL NEGATIF: pencarian drop yang sama menemukan perintah drop lain pada tabel ini → grep bekerja; tabelnya hanya kehilangan kebijakan, tidak di-drop:
+$ grep -in 'drop[^;]*percobaan_pin' supabase/migrations/*.sql
+supabase/migrations/0027_initplan_policy_rls.sql:308:drop policy if exists percobaan_pin_pilih on public.percobaan_pin;
+
+$ grep -il 'drop table' supabase/migrations/*.sql | wc -l
+0
+
+=== 2. Rumus uang :565 'terkunci' tanpa tanda revisi (PMB1-F-137) ===
+$ sed -n '565p;573p;574p' docs/DECISIONS_LOG.md
+## 2026-09-18 — Putaran13: 27 temuan review+audit ditutup migrasi `0014` (keputusan terkunci)
+     (subtotal Σ baris non-batal; pajak/service dari `pengaturan`; total = subtotal + pajak +
+     service − diskon, minimal 0). Pemicu item & diskon memanggilnya otomatis. Ini menutup
+
+$ sed -n '956p' docs/DECISIONS_LOG.md | cut -c1-200
+## [Uang/2026-09-20] Urutan hitungan uang dikunci: pajak & service dari subtotal SETELAH diskon, pembulatan ke bawah di langkah terakhir
+
+$ grep -n 'DIREVISI' docs/DECISIONS_LOG.md | head -3 | cut -c1-80
+203:  4. **Pembayaran tidak boleh melebihi total pesanan.** Bila `total` masih 0
+
+$ sed -n '565,612p' docs/DECISIONS_LOG.md | grep -c 'DIREVISI\|lihat entri\|956\|2026-09-20'
+0
+
+$ grep -n 'subtotal' docs/TECH_SPEC.md | sed -n '1,6p' | cut -c1-160
+176:| `pesanan` | `id`, `penyewa_id`, `cabang_id`, `nomor` (per cabang/hari), `tipe` (dinein/takeaway/ojol), `meja_id`, `status`, `pelayan_id`, `kasir_id`, `shi
+177:| `pesanan_item` | `id`, `pesanan_id`, `menu_item_id`, `nama_saat_itu`, `harga_saat_itu`, `qty`, `varian` (jsonb), `tambahan` (jsonb), `catatan`, `status` (
+337:- **Urutan baku (tidak boleh ditukar):** subtotal (jumlah `harga_saat_itu × qty`) → **diskon** → **pajak PB1** → **service** → pembulatan → **tot
+338:- Diskon dihitung dari **subtotal**, pajak & service dihitung dari **subtotal setelah diskon** (keputusan ini ditulis di sini supaya tidak ditafsirkan ulang
+466:| 2026-09-16 | **Urutan hitungan uang dikunci:** subtotal → diskon → PB1 → service → pembulatan (diskon dari subtotal; pajak & service dari subtotal
+
+KONTROL NEGATIF: entri :203 memang memakai tanda balik (pola ada di log ini):
+$ sed -n '203p' docs/DECISIONS_LOG.md | grep -o 'DIREVISI 2026-09-17[^:]*'
+DIREVISI 2026-09-17 setelah audit AUD-3
+
+=== 3. 'File terkait' menunjuk berkas yang tidak pernah ada (PMB1-F-138) ===
+supabase/migrations/0014_percobaan_masuk.sql → TIDAK ADA
+   disebut di log baris: 244 267 379 
+supabase/migrations/0013_sesi_perangkat.sql → TIDAK ADA
+   disebut di log baris: 233 244 267 
+supabase/migrations/0012_perangkat.sql → TIDAK ADA
+   disebut di log baris: 233 332 
+supabase/migrations/0016b_pemulihan_perangkat.sql → TIDAK ADA
+   disebut di log baris: 339 
+supabase/migrations/0059_versi_pengaturan.sql → TIDAK ADA
+   disebut di log baris: 74 
+supabase/migrations/0015_audit.sql → TIDAK ADA
+   disebut di log baris: 287 
+supabase/migrations/0016_mode_dukungan.sql → TIDAK ADA
+   disebut di log baris: 310 
+supabase/migrations/0017_privasi_pelanggan.sql → TIDAK ADA
+   disebut di log baris: 299 
+supabase/tes/percobaan_masuk.sql → TIDAK ADA
+   disebut di log baris: 244 267 379 
+supabase/tes/perangkat.sql → TIDAK ADA
+   disebut di log baris: 233 244 267 332 339 453 458 
+aplikasi/src/lib/sesi.ts → TIDAK ADA
+   disebut di log baris: 267 
+alat/kalibrasi-cacat.json → TIDAK ADA
+   disebut di log baris: 365 
+
+$ ls supabase/migrations | grep -E '^0059|^0031|^0069|^0083'
+0031_mode_dukungan_platform.sql
+0059_catat_percobaan_masuk_tenant.sql
+0069_privasi_pelanggan.sql
+0083_versi_pengaturan_bersamaan.sql
+
+$ grep -c 'pr-bahan-2026-09-17.diff' docs/uji/BERKAS_PENSIUN.md
+1
+
+$ grep -c 'alat/kalibrasi-cacat.json' docs/uji/BERKAS_PENSIUN.md
+1
+
+(catatan: :695 pr-bahan… dan :365 kalibrasi-cacat.json TERDAFTAR pensiun → sah, DIKELUARKAN dari temuan)
+$ python3 alat/periksa-rujukan.py | tail -1
+HASIL: LOLOS — semua rujukan di dokumen pengikat hidup (yang belum ada ditandai jelas).
+
+$ sed -n '50p' alat/periksa-rujukan.py
+POLA_HARAPAN = re.compile(r"\(rencana|belum ada|belum dibuat|akan dibuat|menyusul|dijadwalkan|T\d+-\d+", re.I)
+
+$ python3 -c "import re;p=re.compile(r'\(rencana|belum ada|belum dibuat|akan dibuat|menyusul|dijadwalkan|T\d+-\d+',re.I);l=open('docs/DECISIONS_LOG.md').read().split(chr(10));[print(n,bool(p.search(l[n-1])),p.search(l[n-1]).group(0) if p.search(l[n-1]) else '-') for n in (74,244,267,332,339,379)]"
+74 True T10-11
+244 True (rencana
+267 True T2-16
+332 True T2-15
+339 True T1-36
+379 True T1-26
+
+KONTROL NEGATIF: berkas yang nyata dikenali ADA:
+$ ls supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql supabase/tes/percobaan_masuk_tenant.sql
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql
+supabase/tes/percobaan_masuk_tenant.sql
+
+=== 4. Entri tergantikan tanpa tanda (PMB1-F-139) ===
+$ sed -n '135p;147p' docs/DECISIONS_LOG.md | cut -c1-200
+  3. **Dua tingkat peran:** `pengguna.peran` = peran se-resto (`owner_pusat`, `admin_cabang`, `kasir`, `pelayan`, `dapur`) atau `pemilik_platform` (yang berdiri di luar semua resto); `pengguna_cabang.
+  3. **Izin mengikuti peran DI CABANG itu**, bukan hanya peran se-resto: pegawai merangkap cabang bisa berperan Kasir di satu cabang dan Dapur di cabang lain, dan gerbangnya menilai sesuai cabang yang
+
+$ sed -n '215p' docs/DECISIONS_LOG.md | cut -c1-200
+  2. **`pengguna_cabang` disederhanakan**: hanya menyimpan **daftar cabang** tempat akun itu bertugas (kolom `peran` per cabang dihapus/diabaikan). Peran datang dari satu tempat saja (`pengguna.peran`
+
+$ sed -n '130,160p' docs/DECISIONS_LOG.md | grep -c 'DIREVISI\|DIBATALKAN\|lihat entri'
+0
+
+$ sed -n '423p;436p' docs/DECISIONS_LOG.md | cut -c1-160
+### [Produk/2026-09-17] Bahasa aplikasi: rencana multi-bahasa (Indonesia · Inggris · Mandarin · Arab) — MENUNGGU KEPUTUSAN LEE
+- **KEPUTUSAN LEE (2026-09-17, hari yang sama):** memilih **Opsi 1** — rilis G1 memakai **Indonesia · Inggris · Mandarin**; **Arab** disiapkan (berkas kunci
+
+$ sed -n '6,7p' docs/DECISIONS_LOG.md
+> Sebelum menyentuh ulang area yang tercatat di sini, WAJIB baca dulu
+> entri terkait — jangan menebak ulang dari kode.
+
+=== 5. Cadangan produksi → artefak repo PUBLIK (PMB1-F-140) ===
+$ sed -n '79p' docs/DECISIONS_LOG.md | cut -c1-330
+- **Keputusan:** (1) **T-012** — berkas cadangan mingguan berbentuk **artefak terenkripsi dari GitHub Actions** pada repo privat (masa simpan 90 hari), dan pemilik mengunduh salinannya sebulan sekali ke penyimpanan miliknya sendiri; tidak ada salinan cadangan di tempat publik dan berkas cadangan tidak pernah masuk Git. (2) **T
+
+$ gh repo view With-AI-Agent/Resto-Barokah --json isPrivate
+{"isPrivate":false}
+
+$ git show origin/main:.github/workflows/cadangan.yml | grep -n 'cron\|workflow_dispatch\|upload-artifact\|retention\|SUPABASE_DB_URL\|path:\|cadangan/'
+8:#   - Pemicu manual: workflow_dispatch (dapat dijalankan pemilik kapan pun)
+19:    - cron: '0 19 * * 6'
+20:  workflow_dispatch:
+36:      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+73:        uses: actions/upload-artifact@v4
+76:          path: |
+77:            cadangan/*.enc
+78:            cadangan/*.sha256
+79:          retention-days: 90
+
+$ git show origin/main:alat/cadangan.sh | grep -n 'pg_dump' | head -4
+85:  # Mode pencadangan: jika SUPABASE_DB_URL ada, gunakan pg_dump remote ke produksi
+87:    if ! command -v pg_dump >/dev/null 2>&1; then
+88:      echo "GALAT: SUPABASE_DB_URL terpasang tetapi pg_dump tidak ditemukan di sistem!" >&2
+92:    echo "    Menggunakan pg_dump remote (Basis data produksi Supabase)..."
+
+$ gh api repos/With-AI-Agent/Resto-Barokah/actions/workflows --jq '.workflows[] | select(.path|test("cadangan")) | .name+" · "+.state'
+Cadangan Mingguan & Uji Pemulihan Bencana (T10-10) · active
+
+$ gh api repos/With-AI-Agent/Resto-Barokah/actions/artifacts --jq .total_count
+0
+
+$ date -u -d 'next saturday' +%F
+2026-10-03
+
+KONTROL NEGATIF: alur sebar-skema tidak mengunggah artefak (hanya cadangan):
+$ grep -l 'upload-artifact' .github/workflows/*.yml
+.github/workflows/cadangan.yml
+
+=== 6. Kunci menganggur — tiga tafsir (PMB1-F-141) ===
+$ sed -n '262p;344p' docs/DECISIONS_LOG.md | cut -c1-260
+  2. **Token akses dipendekkan (15 menit)** lewat pengaturan Supabase (gratis), dan **kunci otomatis saat menganggur** (kasir/pelayan/dapur 15 menit · admin 30 menit · owner/platform 60 menit) dengan tombol "Kunci sekarang" di semua layar staf.
+- **Keputusan:** (1) Batas menganggur (15/15/15/30/60 menit) hanya berlaku **di luar jam aktif**; **jam aktif per cabang diatur owner** di Pengaturan (bawaan: jam buka–tutup + masa persiapan); di luar jam aktif kunci otomatis **15 menit**. (2) Semua pemberit
+
+$ grep -n 'menganggur' docs/TECH_SPEC.md docs/PRD.md docs/KEAMANAN.md | cut -c1-220
+docs/TECH_SPEC.md:306:6. **Sesi:** token akses 15 menit; umur maksimum sesi (staf 12 jam · admin/owner 30 hari · pemilik platform 8 jam); **kunci otomatis** saat menganggur (15/15/15/30/60 menit); semua kendali ditegak
+docs/PRD.md:187:  - **Sesi:** token pendek (15 menit), umur maksimum sesi (staf 12 jam · admin/owner 30 hari · pemilik platform 8 jam), **kunci otomatis saat menganggur** (15–60 menit sesuai peran) + tombol "Kunci se
+docs/KEAMANAN.md:123:| Kunci otomatis saat menganggur | 15 / 15 / 15 / 30 / 60 menit (kasir/pelayan/dapur/admin/owner) — **hanya berlaku di luar jam aktif**; di dalam jam aktif perangkat tetap terkunci saat ditinggal s
+
+$ sed -n '24p;70,73p' aplikasi/src/hook/useKunciOtomatis.ts
+  pemilik_platform: 30 * 60 * 1000,
+    // Kunci otomatis hanya berjalan jika di luar jam operasional atau sesuai kebijakan keamanan
+    // Jika di luar jam operasional, batas waktu default 15 menit
+    const batasEfektifMs = diLuarJamOperasional
+      ? Math.min(batasWaktuMs, 15 * 60 * 1000)
+
+=== 7. Keputusan :44 & :240 tidak tercermin di PRD/TECH_SPEC (PMB1-F-142) ===
+$ sed -n '44p' docs/DECISIONS_LOG.md | cut -c1-200
+- **Keputusan:** nama kerja produk **"Sajian"**; tema bawaan **"Terang Bersih"**; **PB1 10% & service 5% & 1 shift** sebagai nilai awal; **tanpa domain khusus** dulu (Resend + alamat `*.workers.dev`);
+
+$ grep -n 'Sajian' docs/PRD.md docs/TECH_SPEC.md docs/DISCOVERY.md docs/TERTANGGUH.md | cut -c1-160
+docs/PRD.md:302:1. **Nama produk platform** — belum diputuskan (kandidat: Langgan, Baraka, Sajian, Rame, Nota).
+docs/TECH_SPEC.md:448:| 4 | Nama produk platform | Dipakai sebagai nama aplikasi & domain | Pilihan: Langgan · Baraka · Sajian · Rame · Nota |
+docs/DISCOVERY.md:98:"Restoku". Nama produk platform **belum diputuskan** (usulan: Langgan, Baraka, Sajian, Rame, Nota).
+docs/DISCOVERY.md:291:1. **Nama & logo produk platform** — belum diputuskan (kandidat: Langgan, Baraka, Sajian, Rame, Nota). Tiap penyewa pakai merek sendiri,
+docs/TERTANGGUH.md:37:| T-001 | 2026-09-16 | Nama produk platform                                                                                               
+
+$ grep -n -i 'nama produk\|nama kerja' docs/PRD.md docs/TECH_SPEC.md | cut -c1-200
+docs/PRD.md:302:1. **Nama produk platform** — belum diputuskan (kandidat: Langgan, Baraka, Sajian, Rame, Nota).
+docs/TECH_SPEC.md:448:| 4 | Nama produk platform | Dipakai sebagai nama aplikasi & domain | Pilihan: Langgan · Baraka · Sajian · Rame · Nota |
+
+$ grep -n 'email + PIN' docs/TECH_SPEC.md | cut -c1-200
+450:| 6 | Apakah semua pegawai punya email aktif | Masuk pegawai memakai email + PIN | Tanya saat penyiapan |
+464:| 2026-09-16 | **K5 = email + PIN per pegawai; pelanggan Google (utama) + email terverifikasi** | Sesuai PRD; cepat di kasir; tanpa biaya SMS |
+
+$ sed -n '240p' docs/DECISIONS_LOG.md | cut -c1-160
+  2. **Akun staf tidak memakai email nyata**: email Supabase memakai **alias internal** resto (tidak pernah dipakai mengirim email). Konsekuensi jujur: **pemuli
+
+$ grep -n 'pilih nama' docs/PRD.md | cut -c1-160
+185:  - **Masuk cepat:** kasir/pelayan/dapur = pilih nama + **PIN 6 digit** (hanya sah di perangkat terdaftar). Admin/owner/pemilik platform = kata sandi ≥12 
+
+=== 8. Kalimat kontradiktif :330 (PMB1-F-143) ===
+$ sed -n '330p' docs/DECISIONS_LOG.md | grep -o 'Semua peran.\{0,200\}'
+Semua peran** — termasuk `owner_pusat`, `admin_cabang`, `pemilik_platform` (kecuali pemilik platform yang memang lintas penyewa) — **wajib memakai perangkat terdaftar**; perangkat pertama owner didaftarkan s
+
+=== 9. 'Nama RPC = kontrak' tidak lagi berlaku (PMB1-F-144) ===
+$ sed -n '30p;33p' docs/DECISIONS_LOG.md | cut -c1-260
+- **Keputusan:** nama fungsi resmi diambil persis dari `TECH_SPEC.md` §5 (**33 RPC** + fungsi `hitung_total`; angka 26 pada versi awal entri ini dikoreksi hasil review independen 2026-09-16); `ROADMAP.md` memuat tabel "Peta nama RPC resmi → tugas" supaya ag
+- **Implikasi:** kalau sebuah tugas butuh RPC baru yang belum ada di TECH_SPEC §5 → masuk kategori perubahan dokumen fondasi (Stop Condition) dan wajib disetujui pemilik lebih dulu.
+
+$ sed -n '225,266p' docs/TECH_SPEC.md | grep -o 'rpc/[a-z_0-9]*' | sort -u | wc -l
+45
+
+$ python3 -c "
+import re,glob
+s='\n'.join(open('docs/TECH_SPEC.md').read().split('\n')[224:266]);n=set(re.findall(r'rpc/([a-z_0-9]+)',s))
+g=set()
+for f in glob.glob('supabase/migrations/*.sql'):
+  for m in re.finditer(r'grant\s+execute\s+on\s+function\s+public\.([a-z0-9_]+)\s*\([^)]*\)\s+to\s+([a-z_,\s]+);',open(f).read(),re.I):
+    if re.search(r'\b(authenticated|anon)\b',m.group(2)): g.add(m.group(1))
+x=sorted(a for a in g-n if not a.startswith('picu_'));print('fungsi ber-grant authenticated/anon (bukan picu_) di luar TECH_SPEC 5/5.1:',len(x));print(' '.join(x[:25]),'...')"
+fungsi ber-grant authenticated/anon (bukan picu_) di luar TECH_SPEC 5/5.1: 99
+akhiri_sesi ambil_akses_cabang_pegawai ambil_daftar_cabang ambil_daftar_kampanye ambil_daftar_katalog_admin ambil_daftar_meja ambil_daftar_pegawai ambil_daftar_penyewa ambil_izin_pegawai ambil_kartu_voucher ambil_log_jadwal ambil_log_percobaan_voucher ambil_pengaturan_identitas ambil_pengaturan_operasional ambil_pengaturan_pembayaran ambil_perbandingan_menu_cabang ambil_ringkasan_harian ambil_shif
+
+$ for f in verifikasi_pin_perangkat reset_pin_pegawai pegawai_berhenti buat_kode_voucher_acak; do echo "$f TECH_SPEC=$(grep -c $f docs/TECH_SPEC.md) KEAMANAN=$(grep -c $f docs/KEAMANAN.md)"; done
+verifikasi_pin_perangkat TECH_SPEC=0 KEAMANAN=0
+reset_pin_pegawai TECH_SPEC=0 KEAMANAN=0
+pegawai_berhenti TECH_SPEC=0 KEAMANAN=0
+buat_kode_voucher_acak TECH_SPEC=0 KEAMANAN=0
+
+$ sed -n '287,301p' docs/AGENT_OPERATING_GUIDE.md | grep -c -i 'RPC'
+0
+
+KONTROL NEGATIF: RPC yang memang ada di §5 terdeteksi oleh pencarian yang sama:
+$ grep -c 'rpc/simpan_pesanan' docs/TECH_SPEC.md
+1
+
+=== 10. Bahan kalibrasi hidup di repo vs keputusan :702 (PMB1-F-145) ===
+$ sed -n '701,702p' docs/DECISIONS_LOG.md | cut -c1-200
+**Keputusan (disetujui Lee 2026-09-19):**
+1. **Berkas bahan/kunci kalibrasi tidak boleh hidup di dalam repo.** Bahan review PR disiapkan di luar repo
+
+$ ls docs/uji/pemeriksaan/PMB-1/kalibrasi/ docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/
+docs/uji/pemeriksaan/PMB-1/kalibrasi/:
+KUNCI-TAHAP-1.enc
+KUNCI-TAHAP-1.sha256
+README.md
+bahan-tahap-1
+
+docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/:
+KEAMANAN-cuplikan.md
+PRD-cuplikan.md
+README.md
+ROADMAP-cuplikan.md
+
+$ grep -c 'PMB' docs/DECISIONS_LOG.md
+0
+
+$ grep -n 'KAL_DIR\|FOLDER\|docs/uji/kalibrasi' alat/periksa-kunci-kalibrasi.py | head -4
+16:  B. **Cara pakai menyatakan aturannya** — `docs/uji/kalibrasi/CARA-PAKAI.md` wajib memuat
+18:  C. **Alat penyiap tidak menulis ke repo** — `alat/review-pr.py` wajib memakai `KAL_DIR_LUAR`
+40:CARA_PAKAI = "docs/uji/kalibrasi/CARA-PAKAI.md"
+44:FOLDER_PAKET = "docs/uji/review-pr"
+
+$ python3 alat/periksa-kunci-kalibrasi.py | tail -1
+HASIL: LOLOS — 0 berkas bocor · aturan tertulis · alat penyiap menulis di luar repo · daftar pensiun berjejak & tanpa kebangkitan · paket baru menyematkan bahan · aturan rotasi ada.
+
+$ sed -n '239p;247,248p' docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md | cut -c1-160
+**Kunci jawaban tidak boleh terbaca dari repo (audit H F-01, 2026-09-20 — K-2):**
+   belum di-commit). Sebelum ini, `git diff` di salinan **langsung memperlihatkan** baris yang ditanam.
+2. **Jalur review PR:** alat penyiap **hanya** membaca katalog dari **luar repo** (`KALIBRASI_DIR`, baku
+
+$ sed -n '398p' docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md | cut -c1-120
+5. Siapkan bahan kalibrasi Tahap 1 (kunci di luar repo) + daftar **regresi wajib**: 117 temuan lama
+
+(Isi bahan & kunci TIDAK dibuka/di-diff — patuh PROMPT_GILIRAN; hanya nama berkas dicatat.)
+=== 11. Keputusan lain yang dicoba dibantah dan GAGAL (bukan temuan) ===
+$ ls supabase/SEBAR-SKEMA aplikasi/SEBAR-HALAMAN 2>&1 | cut -c1-80
+ls: cannot access 'supabase/SEBAR-SKEMA': No such file or directory
+ls: cannot access 'aplikasi/SEBAR-HALAMAN': No such file or directory
+
+$ python3 alat/periksa-migrasi-beku.py | tail -1
+HASIL: LOLOS — repo masih cocok dengan database nyata (bukti: jalankan dengan --uji-diri).
+
+$ grep -n 'ASAL_DIIZINKAN' supabase/functions/verifikasi_pin/index.ts | head -2
+43:const ASAL_DIIZINKAN = [
+56:  if (asal !== null && ASAL_DIIZINKAN.includes(asal)) kepala['Access-Control-Allow-Origin'] = asal
+
