@@ -1,0 +1,3 @@
+LOLOS reproduksi: TutupKas nyata menampilkan ringkasan tunai; tidak ada daftar referensi non-tunai.
+Kontrol negatif: assertion wajib-daftar pada HTML nyata MERAH; keadaan gagal tampil.
+Batas: render React server + inspeksi props/sumber, bukan klik browser atau transaksi bank.

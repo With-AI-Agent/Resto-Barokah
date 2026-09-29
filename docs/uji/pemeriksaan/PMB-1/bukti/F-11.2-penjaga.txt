@@ -1,0 +1,56 @@
+PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 7, 'DIHAKIMI': 6, 'DIKLAIM': 0, 'RENCANA': 46, 'SELESAI': 4} · 148 temuan (terbuka K-1/K-2: 46)
+
+HASIL: LOLOS
+PERIKSA POHON BERSIH — 2979 berkas terlacak disalin · 5 pemeriksa dokumen
+  [OK] _sistem/validate_system.py
+  [X] alat/periksa-rujukan.py: MENOLAK (kode 1)
+          [catatan] docs/uji/pemeriksaan/PMB-1/kartu/K-F-09.md:59 rujukan ditandai rencana → aplikasi/src/lib/google.ts
+          [catatan] docs/uji/pemeriksaan/PMB-1/kartu/K-F-09.md:108 rujukan ditandai rencana → alat/periksa-modul-terpasang.py
+          [catatan] docs/uji/pemeriksaan/PMB-1/kartu/K-F-11.md:72 rujukan ke berkas yang SENGAJA dipensiun → alat/kalibrasi-cacat.json
+
+        HASIL: GAGAL — 1 rujukan mati
+          [X] docs/uji/pemeriksaan/PMB-1/ASUMSI.md:101 menunjuk berkas yang TIDAK ADA: docs/current/plpgsql-control-structures.html
+  [OK] alat/periksa-panduan.py
+  [OK] alat/periksa-buku-uji.py
+  [OK] alat/periksa-rahasia.py
+  catatan: berkas ada di komputermu tetapi TIDAK ikut Git: 0
+
+HASIL: GAGAL — 1 pemeriksa menolak di pohon bersih: alat/periksa-rujukan.py
+Perbaiki rujukan/berkas yang hanya ada di komputer sendiri (mis. berkas `*.local.md`),
+atau masukkan berkas yang seharusnya ikut Git.
+
+ULANGAN: URL PostgreSQL diperjelas sebagai tautan Markdown; tidak mengubah penjaga.
+PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 7, 'DIHAKIMI': 6, 'DIKLAIM': 0, 'RENCANA': 46, 'SELESAI': 4} · 148 temuan (terbuka K-1/K-2: 46)
+
+HASIL: LOLOS
+PERIKSA POHON BERSIH — 2979 berkas terlacak disalin · 5 pemeriksa dokumen
+  [OK] _sistem/validate_system.py
+  [X] alat/periksa-rujukan.py: MENOLAK (kode 1)
+          [catatan] docs/uji/pemeriksaan/PMB-1/kartu/K-F-09.md:59 rujukan ditandai rencana → aplikasi/src/lib/google.ts
+          [catatan] docs/uji/pemeriksaan/PMB-1/kartu/K-F-09.md:108 rujukan ditandai rencana → alat/periksa-modul-terpasang.py
+          [catatan] docs/uji/pemeriksaan/PMB-1/kartu/K-F-11.md:72 rujukan ke berkas yang SENGAJA dipensiun → alat/kalibrasi-cacat.json
+
+        HASIL: GAGAL — 1 rujukan mati
+          [X] docs/uji/pemeriksaan/PMB-1/ASUMSI.md:101 menunjuk berkas yang TIDAK ADA: docs/current/plpgsql-control-structures.html
+  [OK] alat/periksa-panduan.py
+  [OK] alat/periksa-buku-uji.py
+  [OK] alat/periksa-rahasia.py
+  catatan: berkas ada di komputermu tetapi TIDAK ikut Git: 0
+
+HASIL: GAGAL — 1 pemeriksa menolak di pohon bersih: alat/periksa-rujukan.py
+Perbaiki rujukan/berkas yang hanya ada di komputer sendiri (mis. berkas `*.local.md`),
+atau masukkan berkas yang seharusnya ikut Git.
+
+ULANGAN KETIGA: URL utuh di berkas bukti teks, salah deteksi penjaga dicatat PMB1-F-149.
+PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 7, 'DIHAKIMI': 6, 'DIKLAIM': 0, 'RENCANA': 46, 'SELESAI': 4} · 149 temuan (terbuka K-1/K-2: 46)
+
+HASIL: LOLOS
+PERIKSA POHON BERSIH — 2982 berkas terlacak disalin · 5 pemeriksa dokumen
+  [OK] _sistem/validate_system.py
+  [OK] alat/periksa-rujukan.py
+  [OK] alat/periksa-panduan.py
+  [OK] alat/periksa-buku-uji.py
+  [OK] alat/periksa-rahasia.py
+  catatan: berkas ada di komputermu tetapi TIDAK ikut Git: 0
+
+HASIL: LOLOS — semua pemeriksa dokumen hijau di pohon bersih (hanya berkas terlacak Git).

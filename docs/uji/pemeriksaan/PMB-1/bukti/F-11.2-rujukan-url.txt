@@ -1,0 +1,5 @@
+URL eksternal salah dideteksi sebagai berkas repo: docs/current/plpgsql-control-structures.html
+Kontrol negatif: assertion kontrak URL eksternal MERAH pada parser nyata
+URL eksternal salah dideteksi sebagai berkas repo: docs/current/plpgsql-control-structures.html
+Kontrol negatif: assertion kontrak URL eksternal MERAH pada parser nyata
+Kontrol jalur lokal sah/hilang dikenali; LOLOS reproduksi PMB1-F-149
