@@ -1,5 +1,7 @@
 # Status — Aplikasi Resto Barokah (Giliran HAKIM F-07 · arena/01a0eb0a · 2026-09-29)
 
+> 2026-09-29 — Hakim ulangan F-07 mencadangkan H-F-07.2; hasil agent lain dipertahankan. Penunjuk sesi diselaraskan atas izin Lee; belum ada putusan ulangan.
+
 > **CHECKPOINT GILIRAN HAKIM F-07:** Merge normal Perencana selesai lokal (`7cab097`); CI Perencana `36514495575` sukses. Klaim F-07 ter-push (`7643919`), status papan `DIKLAIM`; `K-F-07.2.md` tidak ada. Atas izin Lee, SIAP-LANJUT dan baris pertama PROMPT_SESI_BARU.md sudah diselaraskan dengan cabang giliran; commit penyegaran handoff masih perlu dibuat. Berikutnya: luluskan penjaga lalu lakukan reproduksi bukti F-07, tulis H-F-07, perbarui Buku Besar/ASUMSI, jalankan kedua penjaga, lalu commit dan push giliran.
 
 > **PUTARAN 4 PMB TERINTEGRASI (2026-09-29 ±09:25 WIB, sesi arena/01a0e747):** F-01…F-06 **DIHAKIMI**, F-07…F-09 **SELESAI**, F-10…F-17 BELUM. Buku Besar **135 temuan** (83 TERVERIFIKASI · 36 BARU · 11 DUPLIKAT · 2 PALSU · 2 DIPERBAIKI · 1 DITUTUP), 77 asumsi. **K-1 TERVERIFIKASI: F-001, F-031, F-036, F-063** (RPC login/perangkat & voucher) — **menunggu keputusan Lee: Pembangun K-1 sekarang atau setelah gerbang Tahap 1**. Cacat mesin F-092/F-094 diperbaiki (`3dadbba`); dua penyebab giliran berhenti palsu diperbaiki (`9b6481d`: CATATAN CI ≠ CI merah; PAPAN F-07 tanpa K-F-07.2). Giliran berikutnya: HAKIM F-07/F-08/F-09, HAKIM P-10-00, PEMERIKSA F-10…F-17. Rincian: SIAP-LANJUT §3, REKAM §31 butir 14.
