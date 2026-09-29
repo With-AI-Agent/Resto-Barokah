@@ -165,6 +165,7 @@ export default function App() {
                   .from('pesanan')
                   .update({
                     status: 'dikirim',
+                    // Wajib diisi (kontrak 0009), tetapi nilainya DITIMPA jam peladen oleh pemicu (0088, PMB1-F-132).
                     dikirim_ke_dapur_pada: new Date().toISOString(),
                   })
                   .eq('id', id)
