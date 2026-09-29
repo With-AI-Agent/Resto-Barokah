@@ -1,0 +1,13 @@
+PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 14, 'DIHAKIMI': 2, 'DIKLAIM': 0, 'RENCANA': 46, 'SELESAI': 1} · 51 temuan (terbuka K-1/K-2: 15)
+
+HASIL: LOLOS
+PERIKSA POHON BERSIH — 2935 berkas terlacak disalin · 5 pemeriksa dokumen
+  [OK] _sistem/validate_system.py
+  [OK] alat/periksa-rujukan.py
+  [OK] alat/periksa-panduan.py
+  [OK] alat/periksa-buku-uji.py
+  [OK] alat/periksa-rahasia.py
+  catatan: berkas ada di komputermu tetapi TIDAK ikut Git: 0
+  catatan: berkas baru yang BELUM masuk Git (belum `git add`): 1 (contoh: docs/uji/pemeriksaan/PMB-1/bukti/H-F-03-penjaga.txt)
+
+HASIL: LOLOS — semua pemeriksa dokumen hijau di pohon bersih (hanya berkas terlacak Git).
