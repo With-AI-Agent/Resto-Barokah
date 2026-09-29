@@ -43,6 +43,10 @@ Kamu bekerja di cabang sesimu sendiri (`arena/<id>`), **jangan** membuat/mendoro
    **SELESAI** yang belum punya `kartu/H-<ID>.md`. Untuk PERAN=PEMBANGUN → temuan **TERVERIFIKASI** tertua di Buku Besar (lihat §5).
 3. Ubah status potongan itu menjadi `DIKLAIM`, isi kolom Sesi (`arena/<id>` milikmu) & Tanggal, lalu **commit + push cabangmu** sebelum bekerja
    (supaya sesi lain tidak mengambil potongan yang sama). Pesan commit: `pmb: klaim <ID>`.
+4. **Bila di cabangmu sudah ada agent lain yang bekerja** (Arena kadang membuka dua agent pada satu sesi: ada commit yang bukan milikmu,
+   kartu untuk potongan yang sama, atau `git log` menunjukkan dua rangkaian pekerjaan) → **jangan** membuat implementasi kedua dan **jangan**
+   menggabungkan riwayat dengan membuang pohon pihak lain; lanjutkan pekerjaan yang sudah ada atau BERHENTI dan lapor Lee. Pelajaran putaran 9:
+   dua Pembangun paralel untuk F-09 menghasilkan dua migrasi bernomor sama dan satu cabang tidak bisa diintegrasikan.
 
 ## 3. Periksa (PEMERIKSA / MENYELURUH)
 
@@ -125,7 +129,11 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
   **tidak boleh membuat Lee tidak bisa masuk** dengan cara yang ia pakai sekarang (email + PIN akun percontohan dari peramban) — bila perbaikan
   yang benar memang mengubah cara masuk/pendaftaran perangkat (klaster F-036/F-063/F-052), **jangan dieksekusi**: tulis opsi + dampaknya di
   kartu B, kolom Perbaikan diisi `MENUNGGU KEPUTUSAN LEE: <ringkas>` dengan status tetap `TERVERIFIKASI`, lanjut ke temuan lain. Temuan yang
-  butuh Dashboard/produksi/operator (`(luar repo)`) → `BUTUH LEE/OPERATOR: <apa>` di kolom Perbaikan, status tetap. Temuan potongan `F-17`
+  butuh Dashboard/produksi/operator (`(luar repo)`) → `BUTUH LEE/OPERATOR: <apa>` di kolom Perbaikan, status tetap. **Temuan berjenis "tugas
+  ROADMAP diklaim `[x]` padahal fiturnya belum dibangun"** (contoh F-09: T3-01 katalog dari basis data, T3-06 RPC `pindah_meja`, T3-11 layar
+  pelayan, T6-02…T6-05 rantai cetak) **bukan perbaikan satu titik melainkan pembangunan fitur** — sampai Lee memutuskan (pertanyaan putaran 9:
+  bangun sekarang di dalam PMB, atau jujurkan `[x]`→`[ ]` dulu dan bangun sesudah PMB), tulis `MENUNGGU KEPUTUSAN LEE:` dan jangan membangunnya.
+  Temuan potongan `F-17`
   (bahan kalibrasi) **tidak dibangun** — sudah dinilai & DITUTUP Perencana 2026-09-29 (`PMB-1/kalibrasi/HASIL-TAHAP-1.md`). Pembangun boleh
   menyentuh kode/dokumen proyek (pengecualian §6) tetapi **tidak** menyentuh: trio handoff (`docs/ops/SIAP-LANJUT.md`, `PROJECT_STATE.md`,
   `STATUS.md`), `PRO.md`, `PROMPT_SESI_BARU.md`, naskah PMB (`RANCANGAN_…`, `PROMPT_GILIRAN.md`, `PROMPT_SINGKAT.md`), alat mekanisme

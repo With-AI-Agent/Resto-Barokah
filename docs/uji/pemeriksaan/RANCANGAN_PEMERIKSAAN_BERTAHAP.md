@@ -491,3 +491,21 @@ sha karangan = SENGKETA; konflik berkas proyek tidak diputuskan mesin; `periksa-
 (positif, sha karangan, berkas terlarang). Sesudah putaran 8: **215 temuan** (178 TERVERIFIKASI · 15 DUPLIKAT · 14 DITUTUP · 4 PALSU · 4 BARU
 di P-xx) · 136 asumsi; **gerbang Tahap 1 hanya ditahan 49 K-1/K-2 TERVERIFIKASI** (5 K-1 · 44 K-2) di F-01…F-16 → urutan Pembangun:
 F-09 (10) → F-03 (9) → F-06 (6) → F-08 (5) → F-10 (4) → F-02 (4) → F-04 (2) → F-11 (2) → F-16 (2) → F-05 · F-07 · F-13 · F-14 · F-15 (1).
+
+**Putaran 9 (2026-09-29 malam; cabang 01a0ec8d · 01a0ec99) — PEMBANGUN PERTAMA (F-09):** Lee membuka **dua** sesi Pembangun untuk potongan
+yang sama (tidak disengaja). `arena/01a0ec8d` (kartu `B-F-09`, CI hijau) diintegrasikan dengan `pmb-integrasi.py --pembangun` (`b5e62b3`;
+133 uji SQL LULUS): **F-119 DIPERBAIKI** (`e8d13ae`, Permissions-Policy `usb=(self), bluetooth=(self)` + penjaga header), **F-132 DIPERBAIKI**
+(`472c6f3`, migrasi `0088_waktu_kirim_dapur_peladen.sql`: pemicu menimpa `dikirim_ke_dapur_pada` dengan `now()` peladen), F-133 **sebagian**
+(`96b6f66`, layar pelayan tidak lagi mengaku sukses; status tetap TERVERIFIKASI), 7 baris `MENUNGGU KEPUTUSAN LEE:`/`BUTUH LEE/OPERATOR:`,
+asumsi `A-137`. `arena/01a0ec99` (kartu `B-F-09.2`, 5 klaim DIPERBAIKI termasuk F-130/F-131 = pembangunan T3-01/T3-06) **tidak diintegrasikan
+(kode)**: bentrok berkas & **dua migrasi bernomor 0088** dengan B-F-09, **CI merah** (`periksa-uji.py`: `useMejaKasir.ts` tanpa uji — bertentangan
+dengan klaim rantai bukti kartunya), dua agent pada satu cabang (pohon akhir = agent kedua), dan F-130/F-131 termasuk jenis "tugas ROADMAP yang
+belum dibangun" yang menunggu keputusan Lee; kartu & bukti disalin dengan catatan Perencana (`2bba5e0`), cabang tidak dihapus. **Pola penting
+dari Pembangun pertama:** 8 dari 10 baris K-1/K-2 F-09 bukan cacat satu titik melainkan (a) fitur ROADMAP yang diklaim `[x]` tetapi belum
+dibangun (F-117, F-118, F-130, F-131, F-133), (b) butuh perangkat nyata/Dashboard (F-128, F-129), (c) blok akun demo (F-127, keputusan Lee).
+Pola (a) diperkirakan berulang di F-08/F-10 (ROADMAP) dan F-02/F-03 (PRD) → **keputusan Lee dibutuhkan sebelum Pembangun berikutnya**: A) bangun
+fitur-fitur itu sekarang di dalam PMB (sesi Pembangun khusus, besar), atau B) **rekomendasi Perencana**: jujurkan dulu (`[x]`→`[ ]` dengan
+catatan "dibuka kembali oleh PMB1-F-nnn", temuan → DIPERBAIKI karena artefaknya adalah klaim ROADMAP/PRD), bangun sebagai tugas fase biasa
+sesudah PMB dan sebelum pilot — sesuai asas "find & log, don't fix" (§14) dan agar Tahap 2 (kode per fase) memeriksa dulu sebelum dibangun ulang.
+Naskah §2 butir 4 (dua agent satu cabang) dan §5 (jenis "tugas ROADMAP belum dibangun") ditambahkan. Giliran berikutnya: **HAKIM F-09**
+(menutup/mengembalikan F-119 & F-132); Pembangun F-03 menunggu jawaban Lee (A/B fitur + A/B klaster cara masuk).
