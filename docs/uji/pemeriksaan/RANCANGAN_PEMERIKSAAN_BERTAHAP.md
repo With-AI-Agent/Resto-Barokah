@@ -456,3 +456,17 @@ satu commit) → `9b6481d`. Sesudah putaran 5: **170 temuan** (116 TERVERIFIKASI
 (F-001, F-031, F-036, F-052, F-063, F-127) — menunggu keputusan Lee soal Pembangun. Pengamatan platform: Arena menjalankan **dua agent per
 prompt pada cabang yang sama**; mekanisme (kartu `.2`, aturan sengketa, penomoran ulang) sudah menampungnya, tetapi Lee dianjurkan melanjutkan
 satu agent saja per potongan.
+
+**Putaran 6 (2026-09-29 siang; cabang 01a0eb68 · eb6c · eb67 · eb73 · eb71 · eb74 · eb6d · eb76):** HAKIM F-11 + F-12 (satu cabang), hakim
+ketiga F-09 (**PMB1-F-129 TERVERIFIKASI K-2**, sengketa tuntas; hakim ketiga kedua di cabang eb76 berputusan sama), HAKIM F-10 (13 TERVERIFIKASI ·
+1 PALSU · 2 DUPLIKAT · F-171 baru di P-10-00), PEMERIKSA F-13, F-14, F-16, F-17 (F-17 = bahan kalibrasi, 10 "cacat" dicatat). Tiga giliran HAKIM
+dijalankan pada potongan yang belum diperiksa (F-14, F-15, F-17) → kartu `H-` kosong ("objek kosong"), PAPAN tidak diubah — naskah §5 bekerja,
+tidak ada kerusakan. Enam sesi menutup PMB1-F-136 → aturan penutup ganda otomatis (satu kasus manual karena kolom Hakim ikut disentuh).
+`_sistem/validate_system.py` menolak rentang baris bertanda `–` (K-F-14) → diselaraskan dengan `alat/artefak.py`. Sesudah putaran 6: **201 temuan**
+(148 TERVERIFIKASI · 33 BARU · 13 DUPLIKAT · 4 DITUTUP · 3 PALSU) · 130 asumsi; **F-01…F-12 DIHAKIMI, F-13/F-14/F-16/F-17 SELESAI, F-15 BELUM**.
+**Gerbang Tahap 1 (`--gerbang 1`) menuntut 0 K-1/K-2 terbuka: saat ini 51 (5 K-1 · 46 K-2) di potongan F** → fase Pembangun adalah pekerjaan
+besar berikutnya; naskah PEMBANGUN dirinci (§5 PROMPT_GILIRAN: satuan = potongan, satu commit per temuan, kartu `B-`, larangan menyentuh
+produksi/PIN/cara masuk Lee, F-001 dilewati sampai keputusan Lee, F-17 tidak dibangun). **Rencana penilaian kalibrasi di gerbang:** Perencana
+membuka kunci, mencocokkan baris F-17 dengan daftar cacat tanaman; baris yang cocok → `DITUTUP` oleh Perencana dengan catatan "kalibrasi: cacat
+tanaman #n" (sha = commit pembukaan kunci), baris yang tidak cocok = cacat nyata pada dokumen asli → dipindahkan ke potongan pemilik artefak asli
+(atau DUPLIKAT bila sudah ada); angka tangkapan/palsu dicatat di `RINGKASAN_TAHAP-1.md`.

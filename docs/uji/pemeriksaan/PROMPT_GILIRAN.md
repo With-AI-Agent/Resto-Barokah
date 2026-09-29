@@ -106,6 +106,24 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
   DIHAKIMI), kartu `H-<ID>.md` tetap ditulis dan Sesi/Tanggal dicatat di kolom Hakim tiap baris.
 - **PEMBANGUN** — hanya temuan `TERVERIFIKASI`; perbaiki di kode/dokumen, tulis uji yang membuktikan cacatnya bisa MERAH, isi kolom Perbaikan
   (sha commit), status → `DIPERBAIKI`. Jangan pernah menutup temuanmu sendiri. Perbaikan dilakukan **per tahap** (K-1 boleh segera).
+  **Satuan kerja = POTONGAN** (dirinci 2026-09-29, sebelum Pembangun pertama): objekmu semua baris `TERVERIFIKASI` **K-1/K-2** yang kolom
+  Potongan-nya = POTONGAN di prompt, K-1 dulu; K-3/K-4 hanya bila satu sentuhan di berkas yang memang sedang kamu ubah (sebut di kartu).
+  Urutan per temuan: (1) baca kartu K & H + kolom Bukti; (2) **reproduksi dulu sampai MERAH** dengan perintah yang sama; (3) perbaiki —
+  skema hanya lewat **berkas migrasi baru** `supabase/migrations/NNNN_….sql` (migrasi lama tidak diubah) + uji SQL di `supabase/tes/`;
+  kode klien + uji; dokumen + penjaga; (4) uji/penjaga yang membuktikan cacat itu bisa merah ikut di commit; (5) **satu commit per temuan**,
+  pesan `perbaiki PMB1-F-nnn: …`; (6) Buku Besar: status `DIPERBAIKI`, kolom Perbaikan = sha + satu kalimat + nama uji; (7) kartu
+  `kartu/B-<POTONGAN>.md` (per temuan: akar masalah, apa yang diubah, apa yang sengaja tidak disentuh, keputusan yang dibutuhkan Lee).
+  Rantai bukti sebelum selesai: `node alat/uji-sql.mjs` (butuh `npm ci --prefix alat`), `python3 alat/uji-mutasi-0012.py`,
+  `python3 alat/uji-mutasi-0014.py`, `bash aplikasi/alat/periksa-semua.sh`, `python3 alat/periksa-pemeriksaan.py`, `python3 alat/periksa-bersih.py`.
+  **Larangan Pembangun:** tidak menyentuh produksi (deploy/migrasi produksi & Dashboard = milik Lee; kamu hanya menyiapkan berkas + uji lokal);
+  tidak mengubah PIN/akun percontohan (keputusan Lee REKAM §31 butir 9) — `PMB1-F-001` **dilewati** sampai Lee memutuskan; perbaikan
+  **tidak boleh membuat Lee tidak bisa masuk** dengan cara yang ia pakai sekarang (email + PIN akun percontohan dari peramban) — bila perbaikan
+  yang benar memang mengubah cara masuk/pendaftaran perangkat (klaster F-036/F-063/F-052), **jangan dieksekusi**: tulis opsi + dampaknya di
+  kartu B, kolom Perbaikan diisi `MENUNGGU KEPUTUSAN LEE: <ringkas>` dengan status tetap `TERVERIFIKASI`, lanjut ke temuan lain. Temuan yang
+  butuh Dashboard/produksi/operator (`(luar repo)`) → `BUTUH LEE/OPERATOR: <apa>` di kolom Perbaikan, status tetap. Temuan potongan `F-17`
+  (bahan kalibrasi) **tidak dibangun** — dinilai Perencana saat gerbang. Pembangun boleh menyentuh kode/dokumen proyek (pengecualian §6) tetapi
+  tetap tidak menyentuh trio handoff. Jalankan Pembangun **satu potongan pada satu waktu** (bukan paralel) — nomor migrasi dan berkas yang sama
+  mudah bentrok.
 - **PEMERIKSA MENYELURUH** — sama dengan PEMERIKSA, potongan = alur M-xx (rancangan §4c).
 
 ## 6. Yang tidak boleh
