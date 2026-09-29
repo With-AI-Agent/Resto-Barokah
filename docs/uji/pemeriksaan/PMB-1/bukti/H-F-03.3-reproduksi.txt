@@ -1,0 +1,293 @@
+=== H-F-03.3 hakim ketiga sengketa — reproduksi 2026-09-29 ===
+Cabang: arena/01a0eacc-resto-barokah
+Commit: 2800522
+
+########## F-044 — PRD:269 vs PRD:192 / KEAMANAN §12 ##########
+--- PRD baris 267-271 (aturan 9) ---
+7. **Pembatalan (void) bertingkat, hanya sebelum pembayaran pertama** (termasuk pembayaran sebagian; sesudahnya terkunci sesuai T-025(a)): sebelum dapur mulai = kasir boleh (wajib alasan, tercatat); setelah dapur mulai = **PIN atasan** + alasan + dicatat sebagai **kerugian/bahan terbuang** bernilai rupiah di laporan. Refund resmi = fase 2.
+8. **Semua tindakan sensitif tercatat** (jejak audit): void, diskon manual, ubah harga, buka laci tanpa transaksi, pakai voucher, perubahan pengaturan penting.
+9. **Isolasi data**: antar-penyewa dan antar-cabang; Admin Cabang hanya cabangnya; Owner hanya restonya; Pemilik Platform melihat daftar penyewa (bukan isi transaksi mereka, kecuali diizinkan/diperlukan untuk dukungan).
+10. **Harga & laporan historis tidak berubah** bila harga/pengaturan diubah kemudian — transaksi lama tetap seperti saat terjadi.
+11. **Tidak ada penghapusan permanen** data transaksi oleh pengguna; koreksi = pencatatan baru (koreksi) yang tercatat.
+--- PRD baris 190-194 (M12 mode dukungan) ---
+  - **Ringkasan peringatan harian ke owner** (1 email/hari): omzet, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat.
+  - **Privasi pelanggan (UU PDP):** persetujuan eksplisit, data seminimal mungkin, hak akses/hapus (anonimisasi tanpa menghapus catatan keuangan), dan pemberitahuan kebocoran ≤3×24 jam.
+  - **Pemilik platform tidak melihat isi data penyewa** kecuali lewat "mode dukungan" (beralasan, berbatas waktu, hanya-baca, tercatat, owner penyewa diberitahu).
+  - **Tidak ada data keuangan yang bisa dihapus permanen**; koreksi selalu pencatatan baru.
+- **Kasus tepi:** PIN dilihat/dibagikan orang lain (PIN unik + batas percobaan + laporan "siapa menyetujui apa") · perangkat hilang (cabut + ganti PIN) · pegawai berhenti (nonaktif = sesi & perangkat dicabut seketika) · HP admin hilang (MFA direset atasan dengan langkah terdokumentasi) · internet kedai mati saat perangkat terkunci (prosedur catat manual sementara di Buku Insiden) · percobaan masuk berulang (dibatasi + dicatat) · pegawai pindah cabang (daftar cabang akun diubah, tercatat).
+--- KEAMANAN §12 baris 174-180 ---
+
+- Bawaan: **tidak ada akses** ke isi data penyewa.
+- Mode dukungan: **wajib alasan**, berbatas waktu (bawaan 60 menit), **hanya-baca**, dicatat di `catatan_audit`, dan **owner penyewa diberi tahu** (email).
+- Berakhir otomatis; dilarang memperpanjang otomatis; tidak memberi hak mengubah data.
+
+## 13. Operasional (murah, sering terlupa)
+
+--- konteks aturan 9 lebih luas ---
+
+1. **Pajak & service charge** dapat diatur per penyewa (0% diperbolehkan); selalu **ditampilkan terpisah** di struk & laporan.
+2. **Diskon**: bawaan **satu diskon per transaksi**; pengaturan dapat mengizinkan tumpuk dengan **batas maksimal total potongan**.
+3. **Nomor HP pelanggan opsional** — hanya bila pelanggan mau poin/voucher.
+4. **Kas per shift**: buka dengan modal awal; tutup dengan hitung fisik; **selisih wajib beralasan**.
+5. **Menu habis** mengunci menu di kasir **dan** katalog pelanggan; pembukaan kembali dilakukan manual (kasir/dapur).
+6. **Voucher**: sekali pakai · kode acak · minimum belanja · batas maksimal potongan · kuota & anggaran kampanye · satu voucher per identitas per kampanye · **Cek** tidak menghanguskan, **Pakai** butuh PIN.
+7. **Pembatalan (void) bertingkat, hanya sebelum pembayaran pertama** (termasuk pembayaran sebagian; sesudahnya terkunci sesuai T-025(a)): sebelum dapur mulai = kasir boleh (wajib alasan, tercatat); setelah dapur mulai = **PIN atasan** + alasan + dicatat sebagai **kerugian/bahan terbuang** bernilai rupiah di laporan. Refund resmi = fase 2.
+8. **Semua tindakan sensitif tercatat** (jejak audit): void, diskon manual, ubah harga, buka laci tanpa transaksi, pakai voucher, perubahan pengaturan penting.
+9. **Isolasi data**: antar-penyewa dan antar-cabang; Admin Cabang hanya cabangnya; Owner hanya restonya; Pemilik Platform melihat daftar penyewa (bukan isi transaksi mereka, kecuali diizinkan/diperlukan untuk dukungan).
+10. **Harga & laporan historis tidak berubah** bila harga/pengaturan diubah kemudian — transaksi lama tetap seperti saat terjadi.
+11. **Tidak ada penghapusan permanen** data transaksi oleh pengguna; koreksi = pencatatan baru (koreksi) yang tercatat.
+12. **Zona waktu & mata uang** per penyewa (bawaan: Waktu Indonesia Barat, Rupiah).
+13. **Fitur baru hanya rilis setelah diuji**; fitur yang belum teruji tidak ditampilkan ke pengguna (prinsip "tidak ada yang cacat").
+14. **Satu akun = satu peran.** Satu orang dengan dua fungsi memakai dua akun dengan PIN berbeda; izin (centang) boleh berbeda per pegawai.
+15. **Bagian staf hanya bisa dibuka dari perangkat terdaftar**; pegawai baru yang pertama memakai perangkat harus disetujui pemilik. Perangkat hilang/dicuri → akses dicabut **seketika** (berlaku pada permintaan berikutnya) dan wajib dicatat.
+
+########## F-049 — ringkasan harian otomatis ##########
+--- workflows ---
+total 36
+drwxr-xr-x 2 user user  4096 Sep 29 01:34 .
+drwxr-xr-x 3 user user    60 Sep 29 01:34 ..
+-rw-r--r-- 1 user user  2443 Sep 29 01:34 cadangan.yml
+-rw-r--r-- 1 user user 14844 Sep 29 01:34 ci.yml
+-rw-r--r-- 1 user user  1605 Sep 29 01:34 denyut-harian.yml
+-rw-r--r-- 1 user user  2644 Sep 29 01:34 sebar-halaman.yml
+-rw-r--r-- 1 user user  3680 Sep 29 01:34 sebar-skema.yml
+--- grep ringkasan di workflows / 0082 / denyut ---
+(0 hit)
+--- pg_cron block 0082 ---
+
+revoke all on function public.ambil_log_jadwal(int) from public, anon;
+grant execute on function public.ambil_log_jadwal(int) to authenticated, service_role;
+
+-- ============================================================================
+-- 5. Pengaturan Tugas Terjadwal pg_cron (Bila Didukung Platform)
+-- ============================================================================
+do $$
+begin
+  if exists (select 1 from pg_available_extensions where name = 'pg_cron') then
+    create extension if not exists pg_cron;
+    -- Pada Supabase hosted yang memiliki pg_cron, jadwal otomatis dapat didaftarkan.
+    -- Di lingkungan tanpa ekstensi pg_cron (mis. PGlite pengujian lokal),
+    -- blok ini dilewati secara aman.
+  end if;
+exception
+  when others then
+    null;
+end;
+$$;
+--- pemanggil hasilkan_ringkasan_harian ---
+./alat/eksekusi-latihan-insiden.mjs
+./alat/uji-edge-ringkasan-harian.mjs
+./supabase/tes/ringkasan.sql
+./supabase/functions/ringkasan_harian/index.ts
+./supabase/migrations/0085_ringkasan_harian.sql
+--- Peringatan.tsx onKirimEmailManual ---
+export interface PeringatanProps {
+  data?: DataRingkasanPeringatan | null
+  daftarRingkasan?: DataRingkasanPeringatan[]
+  tanggalTerpilih?: string
+  sedangMemuat?: boolean
+  pesanGagal?: string | null
+  emailOwnerResto?: string
+  notifikasiAktif?: boolean
+  onPilihTanggal?: (tgl: string) => void
+  onHasilkanRingkasan?: (tgl: string) => Promise<void> | void
+  onKirimEmailManual?: (ringkasanId: string) => Promise<void> | void
+  onSimpanPengaturanNotifikasi?: (aktif: boolean, email: string) => Promise<void> | void
+  onMuatUlang?: () => void
+}
+
+export const Peringatan: React.FC<PeringatanProps> = ({
+  data,
+  daftarRingkasan: _daftarRingkasan = [],
+  tanggalTerpilih,
+  sedangMemuat = false,
+  pesanGagal = null,
+  emailOwnerResto = '',
+  notifikasiAktif = true,
+  onPilihTanggal,
+  onHasilkanRingkasan,
+  onKirimEmailManual,
+--- edge function ringkasan_harian ---
+index.ts
+// ============================================================================
+// Edge Function: ringkasan_harian (T10-13 / PRD M12; TECH_SPEC §5.1 & §9 ART-13; docs/KEAMANAN.md §9)
+//
+// Alur:
+//   1. Menerima permintaan POST (manual trigger oleh owner atau cron jadwal harian).
+//   2. Memeriksa otorisasi (wajib token sah pengguna berizin atau peran peladen).
+//   3. Memanggil RPC peladen `hasilkan_ringkasan_harian` untuk mengagregasi indikator:
+//      omzet, transaksi, void, diskon, selisih kas, login gagal, perangkat, status rantai audit.
+//   4. Privasi ART-14: menjamin data pribadi pelanggan tidak dimuat.
+//   5. Mengirimkan notifikasi email ke owner (bila email_tujuan tersedia dan aktif).
+//   6. Memperbarui status pengiriman email via RPC `set_status_email_ringkasan`.
+// ============================================================================
+
+const ASAL_DIIZINKAN = [
+  'https://resto-barokah.fatrizmubarok.workers.dev',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+]
+
+const POLA_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const POLA_TANGGAL = /^\d{4}-\d{2}-\d{2}$/
+
+function kepalaCORS(req: Request): Record<string, string> {
+  const kepala: Record<string, string> = {
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    Vary: 'Origin',
+  }
+  const asal = req.headers.get('origin')
+  if (asal !== null && ASAL_DIIZINKAN.includes(asal)) {
+    kepala['Access-Control-Allow-Origin'] = asal
+  }
+  return kepala
+}
+
+function balasan(isi: unknown, status = 200, kepala: Record<string, string> = {}): Response {
+  return new Response(JSON.stringify(isi), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+--- 0085 ringkasan ---
+supabase/migrations/0085_ringkasan_harian.sql
+--- denyut-harian.yml ---
+name: Denyut Harian & Pembersih Data Sementara (T10-08)
+
+# APA INI: alur otomatis denyut harian dan pembersih data sementara (T10-08 — TECH_SPEC §1 & §10 / PRD M12).
+#
+# JADWAL:
+#   - Setiap hari pukul 02:00 WIB (19:00 UTC)
+#   - Pemicu manual: workflow_dispatch
+#
+# TUJUAN:
+#   1. Denyut harian: memicu aktivitas ringan database agar proyek gratis Supabase tidak tertidur (inactivity 7 hari).
+#   2. Pembersih data sementara: membersihkan log, token kadaluwarsa, dan sesi usang dengan retensi 30 hari.
+#   3. Melindungi seluruh tabel operasional inti bisnis (fail-closed whitelist).
+
+on:
+  schedule:
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: denyut-harian
+  cancel-in-progress: false
+
+jobs:
+  denyut-dan-bersihkan:
+    name: Denyut Harian & Pembersihan Terjadwal
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Ambil kode sumber
+        uses: actions/checkout@v4
+
+      - name: Pasang Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22.12.0'
+
+      - name: Pasang Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Pasang pustaka alat
+        run: npm ci --prefix alat
+
+      - name: Uji-diri fail-closed denyut & pembersih
+        run: python3 alat/denyut.py --uji-diri
+
+      - name: Eksekusi denyut harian & pembersih data sementara
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python3 alat/denyut.py --semua
+--- cadangan.yml schedule ---
+.github/workflows/cadangan.yml:18:  schedule:
+.github/workflows/cadangan.yml:19:    - cron: '0 19 * * 6'
+.github/workflows/denyut-harian.yml:15:  schedule:
+.github/workflows/denyut-harian.yml:16:    - cron: '0 19 * * *'
+
+########## F-050 — LAN di PRD vs TECH_SPEC ##########
+--- PRD:286 ---
+---
+
+## 9. Ketergantungan & Risiko
+
+| # | Ketergantungan/Risiko | Dampak bila terjadi | Mitigasi |
+|---|---|---|---|
+| 1 | **Cetak struk & tiket dapur dari aplikasi browser** (Bluetooth/USB/LAN) | Kasir & dapur tidak bisa mencetak — menghambat pilot | Uji cetak **lebih awal** di Kedai Oasis sebelum fitur lain dianggap selesai; sediakan mode "tampilkan & cetak ulang"; bila gagal, ada jalur alternatif yang disepakati |
+| 2 | Batas layanan gratis (kapasitas, batas email, batas permintaan) | Sistem melambat atau berhenti di jam sibuk | Ukur pemakaian sejak awal; sampaikan batasnya terbuka ke pemilik; hindari fitur berat sebelum ada pemasukan |
+| 3 | Email bawaan sistem hanya 2 email/jam (tidak layak produksi) | Pendaftaran pelanggan gagal | **Google Sign-In jalur utama**; email terverifikasi via penyedia gratis sebagai jalur kedua |
+| 4 | Penyalahgunaan voucher (akun palsu) | Diskon bocor / kerugian | 10 lapis pengaman + wajib belanja minimum + batas potongan + anggaran kampanye |
+| 5 | Printer/layar dapur bergantung jaringan kedai | Pesanan telat sampai ke dapur | Layar dapur sebagai cadangan tiket cetak; indikator koneksi jelas; rencana offline di fase 3 |
+--- TECH_SPEC:35-45 ---
+| **Logika sensitif** | **Supabase Edge Functions (Deno)** + **fungsi SQL (RPC)** di Postgres | Hitung uang, pakai voucher, verifikasi PIN, dan kirim email harus di sisi peladen — tidak boleh dari HP. |
+| **Email verifikasi** | **Resend** (gratis 3.000/bulan; cadangan Brevo 300/hari atau Mailjet) | Email bawaan Supabase hanya 2 email/jam (tidak layak produksi) — sudah tercatat di PRD. |
+| **Waktu & tugas berkala** | **pg_cron** di Supabase | Penutup hari otomatis, penagihan laporan harian, "denyut" harian agar proyek gratis tidak tidur, dan pembersih data sementara. |
+| **Cetak** | ESC/POS langsung dari browser: **Web Bluetooth** (Android/Windows) & **WebUSB**; jalur cadangan cetak PDF/bagikan | Sesuai keputusan K3 (printer tersambung perangkat + cadangan digital). **Ditolak:** printer jaringan sebagai jalur utama (bergantung Wi-Fi kedai). |
+| **Uji** | **Vitest** (unit) + **Uji SQL RLS** (pgtap/psql) + **Playwright** (end-to-end di lingkungan pengembangan) + `uji-kontras.py` & `prototipe/alat/periksa-halaman.py` yang sudah ada | Prinsip "tidak ada yang cacat": setiap gelombang wajib lulus uji otomatis + daftar uji terima manual. |
+| **Bahasa** | Seluruh teks aplikasi Bahasa Indonesia; kode & nama tabel Bahasa Indonesia agar mudah dibaca agent berikutnya | Menghindari salah tafsir antar sesi (pemilik tidak memakai istilah Inggris). |
+
+> Catatan kejujuran: lingkungan kerja agent saat ini **tidak bisa memasang peramban** untuk tangkapan layar, dan
+> Playwright juga gagal dipasang di sini. Playwright **wajib** dipasang di lingkungan pengembangan/CI nanti;
+> selama belum ada, uji yang bisa dijalankan adalah uji SQL, uji unit, dan pemeriksa statis yang sudah ada.
+
+--- TECH_SPEC printer.jenis ---
+| `cabang` | `id`, `penyewa_id`, `nama`, `alamat`, `telepon`, `aktif` | Isolasi tingkat 2 (cabang) |
+| `pengguna` | `id` (= id Auth), `penyewa_id` (boleh null untuk Pemilik Platform), `nama`, `email` (alias internal untuk staf), `peran`, `pin_diubah_pada`, `aktif`, `terakhir_masuk`, `mfa_wajib`, `mfa_terdaftar_pada`, `catatan` | `peran`: `pemilik_platform` · `owner_pusat` · `admin_cabang` · `kasir` · `pelayan` · `dapur`. **Satu akun = satu peran** (DECISIONS_LOG 2026-09-17); staf memakai alias email internal sehingga pemulihan lewat admin, bukan email |
+| `pengguna_cabang` | `pengguna_id`, `cabang_id`, `aktif` | **Daftar cabang** tempat akun bertugas (peran per cabang tidak lagi menjadi sumber wewenang — satu peran berlaku di semua cabangnya) |
+| `izin` | `pengguna_id`, `kode_izin`, `boleh` (bool), `batas_nominal`, `batas_persen` | Centang izin per pegawai (M3). Kode: `ubah_harga`, `beri_diskon`, `void_sebelum_dapur`, `void_sesudah_dapur`, `lihat_laporan`, `kelola_pegawai`, `atur_pengaturan`, `pakai_voucher`, `tutup_kas`, `ubah_stok` |
+| `pengaturan` | `penyewa_id`, `pajak_pb1_persen`, `service_persen`, `pembulatan` (none/100/500/1000), `tumpuk_diskon` (bool), `batas_maks_potongan_persen`, `batas_maks_potongan_nominal`, `header_struk`, `footer_struk`, `cara_pesan`, `jam_buka` | Aturan Bisnis 1, 2 |
+| `metode_bayar` | `penyewa_id`, `kode` (tunai/qris/transfer/ewallet/kartu), `aktif`, `urutan` | Pencatatan, bukan integrasi otomatis |
+| `printer` | `cabang_id`, `nama`, `jenis` (bluetooth/usb), `peran` (kasir/dapur/tiket), `alamat`, `aktif` | Dipakai perangkat kasir/dapur |
+
+### 4.2 Menu & stok
+
+| Tabel | Kolom inti | Catatan |
+--- grep LAN / jaringan printer ---
+docs/PRD.md:4:> (pemilik: *"Mari lanjut"* setelah pemeriksaan). Lanjutan: **sesi Desain & UI**, lalu **Tahap 3 (Tech Spec)**.
+docs/PRD.md:21:Aplikasi berjalan di **browser** (bisa dibuka dari HP, tablet, maupun laptop) sehingga tidak perlu
+docs/PRD.md:25:ada printer struk dan internet lancar. Alur pesanan di Kedai Oasis **campur** — sebagian pelanggan
+docs/PRD.md:30:2. **Tidak ada yang cacat** — fitur baru hanya dianggap selesai setelah diuji; tidak ada fitur "setengah jalan" yang ditampilkan ke pengguna.
+docs/PRD.md:31:3. **Semua bisa diatur tanpa koding** — pemilik resto mengatur menu, tampilan, pajak, meja, pegawai, dan promosi sendiri, tanpa menyentuh kode.
+docs/PRD.md:39:| **Pemilik Platform** (kamu) | Hak tertinggi atas semua penyewa | Mendaftarkan/mengaktifkan resto baru, memastikan semua penyewa berjalan lancar | Platform rusak di depan calon penyewa; biaya muncul tiba-tiba |
+docs/PRD.md:41:| **Admin Cabang** | Mengelola satu cabang | Laporan cabangnya, opname stok, atur printer, ajukan permintaan ke pusat | Dituduh salah; tidak punya kewenangan menyelesaikan masalah mendadak |
+docs/PRD.md:45:| **Pelanggan & Calon Pelanggan** | Melihat katalog, memakai voucher | Lihat menu dari HP tanpa pasang aplikasi, tukar voucher tanpa ribet | Antre lama; voucher tidak bisa dipakai |
+docs/PRD.md:52:Membuat Kedai Oasis **berhenti mencatat di kertas** dan menjalankan operasional harian lewat aplikasi,
+docs/PRD.md:58:| 1 | **Pemakaian harian di Kedai Oasis** | **Pakai setiap hari operasional selama 1 bulan penuh, tanpa kembali ke kertas** |
+docs/PRD.md:61:| 4 | Pembatalan setelah dapur mulai | Terpantau di laporan sebagai kerugian; **tidak ada pembatalan yang tidak terlihat** |
+docs/PRD.md:62:| 5 | Voucher undang-teman | Ada pelanggan baru yang mendaftar lewat tautan dan menukar voucher **di kedai** |
+docs/PRD.md:67:dari dapur · jumlah penyewa baru dalam 6 bulan setelah pilot.
+docs/PRD.md:77:- **Cerita:** Sebagai **Pemilik Platform**, saya ingin mendaftarkan resto baru beserta cabang pertamanya dan mengaktifkannya, supaya resto bisa langsung mulai memakai sistem dengan pengaturannya sendiri.
+docs/PRD.md:85:- **Cerita:** Sebagai **Owner/Admin Pusat**, saya ingin mengatur identitas, tampilan, menu, meja, pajak, dan metode pembayaran sendiri, supaya saya tidak perlu menghubungi siapa pun saat ada perubahan.
+docs/PRD.md:87:  - Identitas & tampilan: nama resto, logo, warna utama, banner, gambar latar halaman pelanggan, tagline.
+docs/PRD.md:89:  - Menu: kategori, item, varian (panas/es, ukuran), tambahan/topping, foto, harga, urutan tampil, item unggulan, penanda habis (manual).
+docs/PRD.md:94:- **Cerita:** Sebagai **Owner**, saya ingin menentukan izin tiap pegawai dan melihat catatan siapa melakukan apa, supaya saya bisa memberi kepercayaan tanpa kehilangan kendali.
+docs/PRD.md:104:- **Cerita:** Sebagai **Kasir/Pelayan**, saya ingin mencatat pesanan dengan cepat (meja / bawa pulang / ojol) beserta catatan khusus dan menyimpannya sementara, supaya pesanan akurat dan pelanggan tidak menunggu lama.
+docs/PRD.md:109:  - Kirim pesanan → otomatis muncul di **layar dapur** dan **tiket dapur tercetak** (bila printer aktif).
+docs/PRD.md:110:  - Pelayan bisa mencatat pesanan langsung dari HP di samping meja pelanggan.
+docs/PRD.md:112:- **Kasus tepi:** dua pelayan membuka meja yang sama (peringatan "meja sudah terisi") · pelanggan pindah meja · pesanan ditambah setelah dikirim · internet terputus saat menekan kirim (pesan gagal harus terlihat jelas, bukan diam-diam hilang) · item yang sudah habis tidak bisa dipesan (terkunci otomatis).
+docs/PRD.md:122:  - Tombol **menu habis** dari layar dapur → langsung mengunci menu di kasir **dan** di katalog pelanggan.
+docs/PRD.md:123:- **Kasus tepi:** pesanan sudah dikirim lalu dibatalkan pelanggan (aturan void berlaku) · printer tiket macet/offline (layar dapur tetap jalan sebagai cadangan — pesanan tidak boleh hilang) · dua dapur menandai selesai pada item yang sama (tidak boleh dobel).
+docs/PRD.md:125:### M6. Pembayaran, struk, & pembatalan
+docs/PRD.md:126:- **Cerita:** Sebagai **Kasir**, saya ingin menerima pembayaran dengan berbagai cara dan mencetak struk yang benar, supaya pelanggan selesai cepat dan uang tercatat akurat.
+docs/PRD.md:132:  - Nomor HP pelanggan **opsional** (ditawarkan bila pelanggan mau poin/voucher).
+docs/PRD.md:133:  - **Aturan pembatalan bertingkat SEBELUM pembayaran pertama** (dikunci pemilik):
+docs/PRD.md:134:    - Dapur **belum** mulai → kasir boleh membatalkan, **wajib pilih alasan** (pelanggan batal / salah input), tercatat di laporan.
+docs/PRD.md:136:    - **Sesudah pembayaran pertama, termasuk sebagian: isi/nominal, diskon, dan void dikunci** (T-025(a), keputusan Lee 2026-09-21). PIN atasan tidak melewati larangan ini. Refund resmi tetap fase 2, bukan pembatalan terselubung di MVP.
+docs/PRD.md:137:- **Kasus tepi:** pembayaran sebagian (split bill = fase 2; di MVP dicatat sebagai dua transaksi terpisah) · printer mati (struk bisa dicetak ulang, transaksi tidak boleh hilang) · pembulatan (aturan di pengaturan) · tagihan terbuka ditinggal pelanggan (ditandai & tetap muncul di daftar).
+docs/PRD.md:145:  - Aturan shift & transaksi: sistem mendukung penegakan transaksi hanya dalam shift kasir terbuka (melalui setelan `wajib_shift` di pengaturan cabang; bawaan `false`/fleksibel untuk kemudahan adopsi kedai pemula, dan dapat diwajibkan penuh oleh owner resto sesuai SOP kedai via pemicu database).
+docs/PRD.md:149:- **Cerita:** Sebagai **Owner**, saya ingin membuka satu layar dan langsung tahu kondisi hari ini, supaya saya bisa memutuskan tanpa menghitung manual.
+docs/PRD.md:150:- **Kriteria selesai laporan berisi:** omzet (makanan/minuman/lainnya) · jumlah transaksi · rincian metode bayar · menu terlaris · diskon & voucher terpakai · **daftar pembatalan** (siapa, nilai, alasan) · kas awal, uang masuk, seharusnya, hasil hitung, **selisih** · nama kasir & jam shift · bisa dilihat per cabang sesuai peran.
+docs/PRD.md:154:- **Cerita:** Sebagai **Kasir/Dapur**, saya ingin menandai menu yang habis dan mencatat stok sederhana, supaya pelanggan tidak memesan yang sudah habis dan owner tahu persediaan.
+docs/PRD.md:157:- **Catatan:** resep otomatis (stok berkurang sendiri tiap penjualan) = **fase 2**, sesuai kesepakatan.
+docs/PRD.md:159:### M10. Katalog pelanggan & voucher undang-teman
+docs/PRD.md:160:- **Cerita (katalog):** Sebagai **Calon Pelanggan**, saya ingin melihat menu lewat tautan di HP, supaya saya tahu apa yang dijual sebelum datang.
+docs/PRD.md:162:- **Cerita (voucher):** Sebagai **Calon Pelanggan**, saya ingin menerima undangan, mendaftar, lalu mendapat barcode diskon, supaya saya punya alasan datang ke kedai.
+docs/PRD.md:165:  - **Tanpa PIN pelanggan** (T-023, keputusan Lee 2026-09-21). Identitas pelanggan memakai Google Sign-In (utama) atau email terverifikasi (kedua); penghapusan ini **tidak** menghapus PIN pegawai/persetujuan saat kasir memakai voucher. Kanal email tetap gerbang T-022/T2-04 sebelum jalur email dibuka.
