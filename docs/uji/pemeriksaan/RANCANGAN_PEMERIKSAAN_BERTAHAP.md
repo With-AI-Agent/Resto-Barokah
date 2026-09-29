@@ -430,3 +430,16 @@ K-2/K-1 di RPC login → `P-10-00`), dan satu cabang dengan **enam agent** (F-04
 sudah mereka nomori ulang sendiri di dalam cabang). Integrasi tangan sudah tidak aman pada volume ini → lahir `alat/pmb-integrasi.py`
 (gabungan baris demi baris; 4 cabang digabung tanpa satu baris pun hilang, penjaga LOLOS di tiap langkah). Aturan baru: sengketa hakim
 (README PMB-1) + siklus `TERVERIFIKASI`/`PALSU → PERLU-INFO` khusus sengketa/bukti baru. Buku Besar: 91 temuan · 60 asumsi.
+
+**Putaran 4 (2026-09-29 pagi; cabang 01a0eaca · 01a0eacb · 01a0eacc · 01a0eacd):** HAKIM F-04 (dua hakim dalam satu cabang, aturan sengketa
+README **diterapkan sendiri oleh agent**), HAKIM F-05, HAKIM F-06 (dua hakim), **hakim ketiga F-03** (tiga sengketa tuntas: F-044 & F-049
+TERVERIFIKASI, F-050 PALSU), PEMERIKSA F-07, F-08 (×2), F-09 (×2). `alat/pmb-integrasi.py` menggabung empat cabang (satu sengketa PAPAN
+F-09: klaim tanpa kartu vs SELESAI; satu berkas bukti dengan byte bukan-UTF-8 → alat kini mempertahankan byte apa adanya). Hakim F-06
+menemukan dua cacat mesin lagi: **PMB1-F-092** probe SQL pemeriksa yang tautologis (tidak memanggil RPC, tidak mungkin merah) dan
+**PMB1-F-094** rujukan `berkas:baris` yang salah baris tidak terdeteksi penjaga → kontrak bukti diperketat (probe wajib memanggil artefak +
+kontrol negatif; kutipan 3–8 kata per rujukan baris) dan penjaga menolak nomor baris di luar panjang berkas. Dua hakim F-03 & hakim F-06
+juga mencatat temuan luar cakupan di potongan yang masih RENCANA (`P-10-00`, `P-9-00`, `P-1B-00`) → naskah Hakim kini mengatur giliran
+"hakim untuk potongan RENCANA" (hanya baris, tanpa mengubah PAPAN). Sesudah putaran 4: **135 temuan** (83 TERVERIFIKASI · 36 BARU ·
+11 DUPLIKAT · 2 PALSU · 2 DIPERBAIKI · 1 DITUTUP) · 77 asumsi; F-01…F-06 DIHAKIMI, F-07…F-09 SELESAI, F-10…F-17 BELUM.
+**Kelompok K-1 terverifikasi (F-001, F-031, F-036, F-063) semuanya menyangkut RPC login/perangkat & voucher** — layak diputuskan Lee
+apakah Pembangun mulai sekarang (K-1 boleh segera) atau menunggu gerbang Tahap 1.
