@@ -1,0 +1,77 @@
+Bukti perintah pemeriksaan PEMERIKSA F-14 (K-F-14) — 2026-09-29
+Commit basis: 1ba2edb (klaim PAPAN, push sebelum bekerja)
+Basis: docs/DECISIONS_LOG.md baris 2476-3276
+
+[0] git rev-parse --short HEAD
+ -> 1ba2edb ; git status --short bersih
+
+[1] sed -n '2476,3276p' docs/DECISIONS_LOG.md (dibaca utuh berurutan)
+ -> 8 entri keputusan (T7-11, T8-07, T8-10, T8-12, T9-03, T10-04/05/07/08/09/10,
+    T10-13, T10-14, T10-15, T10-16) + 1 entri penutup "Perbaikan Audit Independen Fase 10"
+
+[2] grep -ril "totp" supabase/migrations supabase/functions
+ -> 0 berkas
+   grep -in "kata_sandi\|password" supabase/migrations | grep -vi pin
+ -> 0 baris (sistem kata sandi tidak ada di basis data)
+   git log --all -S "TOTP" --oneline
+ -> hanya commit lampau; nol artefak masa kini (lihat PMB1-F-171)
+
+[3] grep -rn "MasukPengelola\|onMasukKataSandi\|onMasukTotp" aplikasi/src
+ -> hanya aplikasi/src/layar/masuk/MasukPengelola.tsx:8 (Props onMasukKataSandi/onMasukTotp)
+    + ujinya sendiri; tidak ada pengimpor lain
+   grep -n "LayarMasuk" aplikasi/src/App.tsx
+ -> baris 605 LayarMasukPelanggan, baris 612 LayarMasukPegawai (email+PIN)
+   grep -n "verifikasi_pin_perangkat" aplikasi/src/lib/auth.ts
+ -> baris 176 supabase.rpc('verifikasi_pin_perangkat')  => PMB1-F-171
+
+[4] grep -rn "gen_random_bytes" supabase/migrations
+ -> 0 baris
+   sed -n '25,48p;62,63p' supabase/migrations/0064_terbit_voucher_acak.sql
+ -> fungsi buat_kode_voucher_acak: v_chars:='23456789ABCDEFGHJKMNPQRSTUVWXYZ' (baris 31,
+    31 karakter, tanpa 0/1/I/L/O); random() pada baris 39 dan 44; baris 62 komentar
+    "tanpa karakter ambigu 0, O, 1, I, L"; baris 63 regex ^RB-[2-9A-HJ-NP-Z]{4}-...
+    yang menerima huruf L  => PMB1-F-172
+
+[5] grep -n "0082_denyut\|0086_data_awal\|0087_perbaiki" docs/DECISIONS_LOG.md
+ -> 0 hasil
+   ls supabase/migrations/008*
+ -> 0082_denyut_harian_pembersih.sql, 0086_data_awal_dan_autentikasi_perangkat.sql,
+    0087_perbaiki_search_path_kripto_dan_rpc.sql  => PMB1-F-173 (kontrak baris 5-7)
+
+[6] grep -n "unsafe-inline" docs/DECISIONS_LOG.md
+ -> baris 3175 (script-src 'self' 'unsafe-inline' "dikunci") vs baris 3256
+    ("Mencabut kata kunci 'unsafe-inline'")  => PMB1-F-174
+   python3 alat/periksa-header.py
+ -> LOLOS (3 berkas; HSTS, redirect HTTPS, tanpa unsafe-inline)
+
+[7] grep -h -oE "create table (if not exists )?public\.[a-z_]+" supabase/migrations/*.sql | sed 's/.*public\.//' | sort -u | wc -l
+ -> 47   (log: baris 3000/3003 "45 tabel", 3076 "46 tabel", 3197 "47 tabel",
+    semua bertanggal 2026-09-27)  => PMB1-F-175
+
+[8] sed -n '3240,3244p' docs/DECISIONS_LOG.md dan sed -n '12,14p'
+ -> entri penutup "## 2026-09-27 — ..." + "Pencatat: Claude" + "Status:" vs format
+    wajib "### [Fase/Tanggal] Judul Singkat Keputusan"  => PMB1-F-176
+
+[9] grep -n "rentang 0.00%" docs/DECISIONS_LOG.md
+ -> baris 2857 (batas PB1 0.00% s/d 100.00%); sumber hukum: PMB1-F-008 &
+    UU 1/2022 Pasal 58 (PBJT maksimal 10%)  => PMB1-F-177
+
+[10] python3 alat/periksa-rahasia.py
+ -> LOLOS (klaim T10-07 "nol rahasia" bertahan)
+   npm ci --prefix alat ; node alat/uji-sql.mjs supabase/tes/sisir_rls_akhir.sql
+ -> 1 LULUS (hitungan tabel dinamis)
+   ls supabase/tes/*.sql | wc -l
+ -> 132 berkas
+
+[11] Riset internet (semua diperiksa 2026-09-29; rincian di kartu K-F-14 bagian 9):
+ - guardlayer.io/blog/supabase-leaked-password-protection (2026-07-20) -> HIBP Pro ke atas
+ - github.com/SammieHuang/voice_journal/issues/37 (2026-09-26) -> butuh Pro; API gratis
+ - designrevision.com/blog/supabase-pricing (2026-07-02) -> Free "Backups: None"
+ - dev.to/siddhujz (2026-09-17) -> cadangan harian hanya Pro
+ - emailvariations.com (2025-09-13) + mailboxvalidator.com (2026-07-29) -> Gmail titik/+/googlemail
+ - caniuse.com/mdn-api_barcodedetector (2026-03-05) + scanbot.io (2025-09-18) -> BarcodeDetector
+   tidak didukung Safari/iOS & Firefox  => PMB1-F-178 / PMB1-A-115 DIBANTAH
+ - pasal.id/peraturan/uu/uu-no-27-tahun-2022 (2026-08-14) vs recordinglaw.com (2026-07-23)
+   -> jendela 3x24 jam hanya Pasal 40(2) & 46; hak akses tanpa jendela => PMB1-A-116 TERBUKA
+
+Hasil akhir: 8 temuan (PMB1-F-171 s.d. PMB1-F-178), 5 asumsi (PMB1-A-112 s.d. PMB1-A-116).
