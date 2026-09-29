@@ -1,18 +1,40 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
-import { Katalog } from './Katalog'
+import { Katalog, type KatalogProps } from './Katalog'
 import { PenyediaBahasa } from '../../bahasa'
+import { KATEGORI_KASIR_UJI, MENU_KASIR_UJI } from '../../test/fixtures/katalogKasir'
+
+function KatalogDenganDataUji(props: Pick<KatalogProps, 'onTambahKeKeranjang'>) {
+  return (
+    <Katalog
+      daftarKategori={KATEGORI_KASIR_UJI}
+      daftarMenu={MENU_KASIR_UJI}
+      {...props}
+    />
+  )
+}
 
 describe('Katalog Kasir (T3-01 & T3-07)', () => {
   afterEach(() => {
     cleanup()
   })
 
-  it('merender daftar kategori dan item menu yang aktif', () => {
+  it('tidak menampilkan menu contoh saat data katalog tidak tersedia', () => {
     render(
       <PenyediaBahasa>
         <Katalog onTambahKeKeranjang={vi.fn()} />
+      </PenyediaBahasa>,
+    )
+
+    expect(screen.queryByText('Nasi Goreng Spesial Barokah')).toBeNull()
+    expect(screen.queryByText('Es Teh Manis Melati')).toBeNull()
+  })
+
+  it('merender daftar kategori dan item menu yang aktif', () => {
+    render(
+      <PenyediaBahasa>
+        <KatalogDenganDataUji onTambahKeKeranjang={vi.fn()} />
       </PenyediaBahasa>,
     )
 
@@ -26,7 +48,7 @@ describe('Katalog Kasir (T3-01 & T3-07)', () => {
 
     render(
       <PenyediaBahasa>
-        <Katalog onTambahKeKeranjang={onTambahMock} />
+        <KatalogDenganDataUji onTambahKeKeranjang={onTambahMock} />
       </PenyediaBahasa>,
     )
 
@@ -48,7 +70,7 @@ describe('Katalog Kasir (T3-01 & T3-07)', () => {
 
     render(
       <PenyediaBahasa>
-        <Katalog onTambahKeKeranjang={onTambahMock} />
+        <KatalogDenganDataUji onTambahKeKeranjang={onTambahMock} />
       </PenyediaBahasa>,
     )
 
