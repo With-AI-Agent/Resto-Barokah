@@ -11,7 +11,7 @@ Yang diperiksa (folder docs/uji/pemeriksaan/PMB-1/):
  1. PAPAN.md      — ID unik & berpola; status sah; DIKLAIM/SELESAI/DIHAKIMI punya sesi+tanggal; SELESAI punya kartu K;
                     DIHAKIMI punya kartu H dan tidak menyisakan temuan BARU; kartu tidak yatim; kartu lengkap bagiannya.
                     Ulangan independen potongan yang sama disimpan sebagai kartu/K-<ID>.<n>.md (n = 2, 3, …).
- 2. BUKU_BESAR_TEMUAN.md — ID PMB1-F-nnn berurutan tanpa lompatan; DUPLIKAT (Hakim) wajib menunjuk temuan induk yang lebih dulu; tingkat K-1..K-4; potongan ada di papan; artefak ADA
+ 2. BUKU_BESAR_TEMUAN.md — ID PMB1-F-nnn berurutan tanpa lompatan; nomor baris artefak tidak melebihi panjang berkas; DUPLIKAT (Hakim) wajib menunjuk temuan induk yang lebih dulu; tingkat K-1..K-4; potongan ada di papan; artefak ADA
                     (atau `(luar repo)`); bukti & baseline terisi; status sah; syarat per status (Hakim, commit, verifikasi,
                     rujukan T-0xx untuk DITANGGUHKAN); terhadap commit sebelumnya: tidak ada temuan yang hilang dan
                     transisi status mengikuti siklus.
@@ -140,6 +140,24 @@ def _artefak_ada(sel_artefak: str, akar: pathlib.Path) -> bool:
     return bool(token) and adakah_artefak(token, akar)
 
 
+def _baris_artefak_di_luar_berkas(sel_artefak: str, akar: pathlib.Path) -> str | None:
+    """`berkas:baris` / `berkas:12-15,40` → nomor baris yang melebihi panjang berkas (PMB1-F-094: rujukan baris tak terverifikasi).
+    Isi baris tetap tugas Hakim; di sini hanya batas kasar yang murah."""
+    m = re.search(r"`([^`\s]+?):(\d+(?:\s*[–-]\s*\d+)?(?:,\s*\d+(?:\s*[–-]\s*\d+)?)*)`", sel_artefak)
+    if not m:
+        return None
+    berkas = akar / m.group(1)
+    if not berkas.is_file():
+        return None
+    try:
+        jumlah = sum(1 for _ in berkas.open("rb"))
+    except OSError:
+        return None
+    nomor = [int(x) for x in re.findall(r"\d+", m.group(2))]
+    lebih = [n for n in nomor if n > jumlah]
+    return f"baris {lebih} melebihi panjang {m.group(1)} ({jumlah} baris)" if lebih else None
+
+
 def baca_buku_besar(akar: pathlib.Path, potongan: dict[str, dict], errs: list[str]) -> dict[str, dict]:
     p = akar / PUTARAN / "BUKU_BESAR_TEMUAN.md"
     if not p.is_file():
@@ -163,6 +181,8 @@ def baca_buku_besar(akar: pathlib.Path, potongan: dict[str, dict], errs: list[st
             errs.append(f"BUKU BESAR {fid}: potongan '{pot}' tidak ada di PAPAN")
         if not _artefak_ada(artefak, akar):
             errs.append(f"BUKU BESAR {fid}: artefak '{artefak[:60]}' tidak ada di repo (atau tulis `(luar repo) <apa>`)")
+        elif (salah := _baris_artefak_di_luar_berkas(artefak, akar)):
+            errs.append(f"BUKU BESAR {fid}: artefak menunjuk {salah}")
         if baseline in {"", "—"}:
             errs.append(f"BUKU BESAR {fid}: kolom 'Baseline yang dilanggar' kosong")
         if len(bukti) < 20 or "→" not in bukti:
@@ -387,6 +407,7 @@ def uji_diri() -> int:
     coba("status temuan tidak sah ditolak", lambda t: tambah_temuan(t, "SELESAI"))
     coba("DITUTUP tanpa hakim/commit ditolak", lambda t: tambah_temuan(t, "DITUTUP"))
     coba("artefak yang tidak ada ditolak", lambda t: tambah_temuan(t, "BARU", artefak="`supabase/migrations/9999_tidak_ada.sql:1`"))
+    coba("artefak dengan nomor baris di luar berkas ditolak", lambda t: tambah_temuan(t, "BARU", artefak="`docs/PRD.md:99999`"))
     coba("ID temuan melompat ditolak", lambda t: ubah_sel_temuan(t, "PMB1-F-001", 0, "PMB1-F-000"))
     coba("potongan temuan yang tidak ada di papan ditolak", lambda t: tambah_temuan(t, "BARU", pot="F-99"))
     coba("temuan pertama dihapus ditolak (urutan ID putus)", lambda t: (t / bb).write_text(

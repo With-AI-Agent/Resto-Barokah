@@ -62,6 +62,12 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
 > Tulis ID selalu lengkap (`PMB1-F-nnn`, `PMB1-A-nnn`) — Perencana menomori ulang saat integrasi lintas cabang dan rujukan tanpa awalan
 > sulit dilacak. Sel tabel tidak boleh memuat karakter pipa. Bila Lee menjalankan **lebih dari satu agent di cabang yang sama** untuk potongan
 > yang sama: agent berikutnya menulis kartu `K-<ID>.2.md`, `K-<ID>.3.md`, melanjutkan nomor ID, dan tidak menimpa baris agent sebelumnya.
+>
+> **Bukti yang bisa dijalankan ulang (probe SQL/skrip di `PMB-1/bukti/`)** wajib **memanggil artefak yang diuji** (RPC/fungsi/kebijakan
+> yang sebenarnya, dari kursi peran yang sebenarnya) dan wajib punya **kontrol negatif** — satu kasus yang seharusnya GAGAL/DITOLAK.
+> Probe yang tidak mungkin merah (mis. `return query select true, 'terbukti …'`) **bukan bukti** dan dicatat Hakim sebagai bukti dikarang
+> (pelajaran PMB1-F-092). **Rujukan `berkas:baris`** harus menunjuk baris yang benar-benar memuat kalimat/kode yang diklaim — kutip
+> 3–8 kata dari baris itu di kolom Bukti supaya Hakim bisa mencocokkan (pelajaran PMB1-F-094; penjaga hanya menolak nomor baris di luar berkas).
 
 1. Salin `PMB-1/kartu/TEMPLAT_K.md` → `PMB-1/kartu/K-<ID>.md` (HAKIM: `TEMPLAT_H.md` → `H-<ID>.md`). Isi **semua** bagian.
 2. Tiap temuan → **satu baris baru** di `PMB-1/BUKU_BESAR_TEMUAN.md`, ID berikutnya berurutan (`PMB1-F-00n`), status `BARU`, kolom
@@ -89,6 +95,9 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
   cacat pada mesin PMB (`alat/periksa-pemeriksaan.py`, papan, templat) → potongan `G-04`; cacat pada dokumen/kode lain → potongan yang
   memuat artefak itu — **bukan** potongan yang sedang kamu hakimi, supaya potongan itu tetap bisa `DIHAKIMI` (pelajaran PMB1-F-009).
   Sebelum selesai, lihat juga temuan `DIPERBAIKI` di potongan `G-04` (mesin PMB): kalau kamu bukan pembangunnya, verifikasi ulang → tutup atau kembalikan.
+  **Bila POTONGAN yang ditunjuk Lee masih `RENCANA`/`BELUM`** (mis. `P-10-00`, `P-1B-00`, `P-9-00` yang menampung temuan luar cakupan dari
+  hakim/pemeriksa lain): objekmu hanya baris Buku Besar potongan itu; **jangan** mengubah status PAPAN-nya (tidak ada klaim, tidak ada
+  DIHAKIMI), kartu `H-<ID>.md` tetap ditulis dan Sesi/Tanggal dicatat di kolom Hakim tiap baris.
 - **PEMBANGUN** — hanya temuan `TERVERIFIKASI`; perbaiki di kode/dokumen, tulis uji yang membuktikan cacatnya bisa MERAH, isi kolom Perbaikan
   (sha commit), status → `DIPERBAIKI`. Jangan pernah menutup temuanmu sendiri. Perbaikan dilakukan **per tahap** (K-1 boleh segera).
 - **PEMERIKSA MENYELURUH** — sama dengan PEMERIKSA, potongan = alur M-xx (rancangan §4c).
