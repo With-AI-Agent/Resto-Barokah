@@ -36,7 +36,7 @@ $ sed -n '689p;693p;703p' docs/ROADMAP.md
   - **DoD:** "Daftar dengan Google" bekerja; jalur email mengirim verifikasi; identitas pelanggan tersimpan tanpa data berlebih; uji manual dua jalur lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/layar/masuk/LayarMasukPelanggan.test.tsx` (3 tes lulus).
   - **DoD:** pemulihan lewat email terverifikasi bekerja; tidak bisa dipakai untuk mengambil alih akun orang lain (uji 2 kasus penyalahgunaan). · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LupaAkses.tsx`, `aplikasi/src/layar/masuk/LupaAkses.test.tsx` (2 tes lulus).
 $ grep -n 'T-022' docs/TERTANGGUH.md (baris 57 = tabel Butir selesai)
-| T-022 | 2026-09-21 | **Cara kirim email ke pelanggan tanpa domain berbayar** — keputusan T-007 ("Resend tanpa domain khusus") tidak bisa dipakai untuk email ke PELANGGAN: tanpa domain terverifikasi, Resend hanya mengirim ke alamat email pemilik akun. Pilihan biaya nol: (a) SMTP Gmail pemilik lewat sandi aplikasi (�
+| T-022 | 2026-09-21 | **Cara kirim email ke pelanggan tanpa domain berbayar** — keputusan T-007 ("Resend tanpa domain khusus") tidak bisa dipakai untuk email ke PELANGGAN: tanpa domain terverifikasi, Resend hanya mengirim ke alamat email pemilik akun. Pilihan biaya nol: (a) SMTP Gmail pemilik lewat sandi aplikasi (�
 
 === 4. KATALOG KASIR HARDCODED (PMB1-F-130) ===
 $ sed -n '53p;128p' aplikasi/src/layar/kasir/Katalog.tsx

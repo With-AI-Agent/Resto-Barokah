@@ -322,7 +322,16 @@ def pilih_ci_dari_runs(runs: list[dict], sha: str) -> str:
     """
     punyaku = [r for r in runs if str(r.get("headSha", "")).startswith(sha[:8])]
     if not punyaku:
-        return f"(belum ada run CI untuk commit {sha[:8]} — periksa lagi setelah push)"
+        # Wajar: baris ini ditulis SEBELUM commit/push handoff, jadi run untuk commit ini belum mungkin ada.
+        # Supaya sesi baru tidak berhenti karena "tidak terbaca", sebutkan run terakhir yang sudah SELESAI di cabang.
+        selesai = [r for r in runs if r.get("status") == "completed"]
+        ekor = ""
+        if selesai:
+            r = selesai[0]
+            ekor = (f"; run terakhir yang selesai di cabang: {r.get('conclusion')} "
+                    f"(run {r.get('databaseId')}, commit {str(r.get('headSha', ''))[:8]})")
+        return (f"(belum ada run CI untuk commit {sha[:8]} — wajar, ditulis sebelum push{ekor}) "
+                f"— periksa lagi setelah push: gh run list --branch <cabang> --limit 3")
     jalan = [r for r in punyaku if r.get("status") != "completed"]
     if jalan:
         r = jalan[0]
@@ -402,10 +411,26 @@ def catatan_ci(sipl_teks: str) -> str:
     justru macet dan tidak bisa keluar dari keadaan merah. Yang penting: sesi baru TAHU.
     """
     nilai = (bidang(sipl_teks, "CI terakhir") or "").strip()
-    if nilai.lower().startswith("success"):
+    if nilai.lower().startswith("success") and " TAPI " not in nilai:
         return ""
+    if ci_belum_pasti(nilai):
+        return (f"CI untuk commit handoff BELUM TERBACA/masih berjalan saat handoff ditulis ({nilai}). "
+                "Ini wajar, bukan CI merah: jalankan `gh run list --branch <cabang ini> --limit 3` — bila run terbaru "
+                "success atau masih in_progress/queued dan run terakhir yang selesai success, LANJUT bekerja; "
+                "BERHENTI hanya bila run yang selesai terakhir failure/timed_out.")
     return (f"CI terakhir BUKAN success ({nilai or 'tidak terbaca'}) — sesi baru WAJIB memperiksa "
             "dan memperbaiki CI lebih dulu sebelum memulai pekerjaan baru.")
+
+
+def ci_belum_pasti(nilai: str) -> bool:
+    """Nilai 'CI terakhir' yang bukan hijau tetapi juga BUKAN merah: belum ada run / masih berjalan,
+    dan run terakhir yang selesai (bila disebut) bukan failure."""
+    n = nilai.lower()
+    if not (n.startswith("(belum ada run") or n.startswith("in_progress") or n.startswith("queued")
+            or n.startswith("(status ci tidak terbaca")):
+        return False
+    m = re.search(r"run terakhir yang selesai di cabang: (\w+)", n)
+    return (m is None) or (m.group(1) == "success")
 
 def periksa(akar: pathlib.Path | None = None, sipl_teks: str | None = None,
             prompt_teks: str | None = None, penuh: bool = True) -> list[str]:
@@ -771,8 +796,14 @@ def siapkan() -> int:
             ci = pilih_ci_dari_runs(_json.loads(_keluar_ci), sha)
         except Exception:
             pass  # keluaran bukan JSON (mis. gh belum autentikasi) → pakai teks jujur di atas
-    pesan_ci = "" if ci.lower().startswith("success") else (
-        f"- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.\n")
+    if ci.lower().startswith("success") and " TAPI " not in ci:
+        pesan_ci = ""
+    elif ci_belum_pasti(ci):
+        pesan_ci = (f"- **CATATAN CI:** run untuk commit handoff ini belum ada/masih berjalan saat baris ini ditulis (wajar) — "
+                    f"sesi baru cek `gh run list --branch {target} --limit 3`; lanjut bila hijau atau masih berjalan dengan "
+                    f"run selesai terakhir hijau, berhenti hanya bila merah.\n")
+    else:
+        pesan_ci = "- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.\n"
     terbuka = butir_tertangguh()
     hari_ini = _dt.date.today().isoformat()
     paket_teks = sasaran_paket(AKAR)
@@ -1092,6 +1123,24 @@ def uji_diri() -> int:
                          "- **CI terakhir:** success (run 1, commit aaaaaaaa)", sipl)
     hasil.append(("tidak ada peringatan saat CI success", not catatan_ci(sipl_sukses),
                   "CI hijau tidak boleh memunculkan peringatan palsu"))
+    _ganti_ci = lambda nilai: re.sub(r"(?m)^- \*\*CI terakhir:\*\*.*$", "- **CI terakhir:** " + nilai, sipl)
+    _belum = catatan_ci(_ganti_ci("(belum ada run CI untuk commit aaaaaaaa — wajar, ditulis sebelum push; "
+                                  "run terakhir yang selesai di cabang: success (run 2, commit bbbbbbbb)) — periksa lagi setelah push"))
+    hasil.append(("CI belum terbaca + run selesai terakhir hijau → catatan 'LANJUT', bukan WAJIB perbaiki",
+                  bool(_belum) and "WAJIB memperiksa" not in _belum and "LANJUT" in _belum,
+                  "sesi baru pernah berhenti hanya karena run commit handoff belum ada (kejadian nyata 2026-09-29)"))
+    _belum_merah = catatan_ci(_ganti_ci("(belum ada run CI untuk commit aaaaaaaa — wajar, ditulis sebelum push; "
+                                        "run terakhir yang selesai di cabang: failure (run 2, commit bbbbbbbb))"))
+    hasil.append(("CI belum terbaca + run selesai terakhir MERAH → tetap WAJIB perbaiki",
+                  "WAJIB memperiksa" in _belum_merah, "merah tidak boleh tersamar sebagai 'belum pasti'"))
+    hasil.append(("run ini masih in_progress → catatan, bukan WAJIB perbaiki",
+                  "WAJIB memperiksa" not in catatan_ci(_ganti_ci("in_progress (run 3, commit aaaaaaaa) — tunggu sampai selesai")),
+                  ""))
+    hasil.append(("pilih_ci_dari_runs tanpa run commit ini menyebut run selesai terakhir",
+                  "run terakhir yang selesai di cabang: success (run 7, commit bbbbbbbb)" in pilih_ci_dari_runs(
+                      [{"headSha": "cccccccc1", "status": "in_progress", "conclusion": None, "databaseId": 8},
+                       {"headSha": "bbbbbbbb1", "status": "completed", "conclusion": "success", "databaseId": 7}], "aaaaaaaa1"),
+                  ""))
 
     # Kasus kembar (kejadian nyata): bagian yang sama muncul dua kali → WAJIB ditolak.
     hasil.append(("mutasi: bagian 'Commit keadaan kerja' diduplikasi",

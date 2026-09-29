@@ -29,6 +29,11 @@ python3 alat/periksa-pemeriksaan.py            # papan & buku besar dalam keadaa
 ```
 
 Kalau `--susul` BERHENTI karena checkout dangkal: `git fetch --unshallow origin` lalu ulangi. Kalau tetap gagal: berhenti dan lapor ke Lee.
+**Soal CI:** baris "CI terakhir" di SIAP-LANJUT ditulis *sebelum* commit handoff di-push, jadi wajar berbunyi "belum ada run"/"in_progress".
+Itu **bukan** CI merah dan **bukan** alasan berhenti. Jalankan `gh run list --branch <CABANG PERENCANA> --limit 3`: lanjut bila run terbaru
+success atau masih berjalan dengan run selesai terakhir success; berhenti hanya bila run yang selesai terakhir failure. CI cabang Perencana =
+tanggung jawab Perencana, bukan giliranmu. **Urutan bacaan** di prompt singkat adalah urutan yang dianjurkan; kalau kamu terlanjur membuka
+berkas lebih dulu, cukup lanjutkan membaca sisanya — jangan berhenti karena itu.
 Kamu bekerja di cabang sesimu sendiri (`arena/<id>`), **jangan** membuat/mendorong cabang lain, **jangan** push ke `main`, **jangan** merge/close PR.
 
 ## 2. Ambil potongan
@@ -88,7 +93,8 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
   "SENGKETA HAKIM" (kamu hakim ketiga: baca kedua putusan di kolom Hakim dan kartu H-nya, reproduksi sendiri, putuskan dengan alasan;
   kalau sengketa hanya bisa dijawab Lee/operator, tulis persis informasi apa yang dibutuhkan dan biarkan `PERLU-INFO`). Untuk tiap temuan: **reproduksi buktinya hari ini**,
   nilai tingkat K, putuskan `TERVERIFIKASI` / `PALSU` (alasan tertulis) / `PERLU-INFO` (apa yang kurang), isi kolom Hakim (`arena/<id>` + `H-<ID>`).
-  Bila potongan punya ulangan independen (`kartu/K-<ID>.2.md`), bandingkan keduanya: temuan kembar → status `DUPLIKAT` pada yang lebih
+  Bila potongan punya ulangan independen (`kartu/K-<ID>.2.md` **yang benar-benar ada di folder `kartu/`** — catatan PAPAN tentang klaim
+  lain yang tidak berujung kartu berarti tidak ada ulangan; catat itu di kartu H dan lanjut), bandingkan keduanya: temuan kembar → status `DUPLIKAT` pada yang lebih
   muda (kolom Hakim menyebut ID induk), tingkat K disamakan dengan alasan. Kamu **bukan** sesi yang menemukan dan **bukan** pembangun. Periksa juga kartu K-nya: klaim yang tidak dicoba dibantah = catatan di H-kartu.
   Untuk temuan `DIPERBAIKI`: baca commit perbaikan, jalankan ulang uji → `DITUTUP` atau kembali `TERVERIFIKASI` dengan alasan.
   **Temuan baru yang kamu temukan sendiri saat menghakimi** tetap dicatat (BARU), tetapi kolom Potongan = pemilik artefaknya —
