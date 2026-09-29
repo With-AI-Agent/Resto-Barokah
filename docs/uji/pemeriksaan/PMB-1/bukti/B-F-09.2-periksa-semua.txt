@@ -1,0 +1,2 @@
+Bukti rantai penuh lama (sebelum koreksi dokumentasi): GAGAL pada pemeriksa panduan karena angka uji usang.
+Bukti ini bukan hasil final dan akan diganti setelah rantai §5 dijalankan ulang pascakoreksi.

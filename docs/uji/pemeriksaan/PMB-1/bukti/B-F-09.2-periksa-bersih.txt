@@ -1,0 +1,11 @@
+$ python3 alat/periksa-bersih.py
+PERIKSA POHON BERSIH — 3079 berkas terlacak disalin · 5 pemeriksa dokumen
+  [OK] _sistem/validate_system.py
+  [OK] alat/periksa-rujukan.py
+  [OK] alat/periksa-panduan.py
+  [OK] alat/periksa-buku-uji.py
+  [OK] alat/periksa-rahasia.py
+  catatan: berkas ada di komputermu tetapi TIDAK ikut Git: 0
+
+HASIL: LOLOS — semua pemeriksa dokumen hijau di pohon bersih (hanya berkas terlacak Git).
+EXIT_CODE=0
