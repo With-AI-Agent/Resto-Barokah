@@ -26,7 +26,7 @@
 | F-06 | 1 | KEAMANAN — prinsip, ancaman, identitas, perangkat, PIN, sesi, otorisasi, uang, audit, PDP, matriks uji | `docs/KEAMANAN.md` | L1 L2 L3 | 232 baris | SELESAI | arena/01a0ea92-resto-barokah (K-F-06: PMB1-F-069…F-075; ulangan independen K-F-06.2 oleh agent kedua: PMB1-F-082…F-086 K-2, F-087…F-090 K-3, F-091 K-4) | 2026-09-29 |
 | F-07 | 1 | SPESIFIKASI_UI + PETA_UI — kontrak layar (7 keadaan, aksesibilitas, bahasa) vs janji PRD | `docs/SPESIFIKASI_UI.md`, `docs/PETA_UI.md` | L3 L5 | 353 baris | BELUM | — | — |
 | F-08 | 1 | ROADMAP bagian 1 — struktur, aturan, Fase 0–1C (klaim bukti, DoD, "klaim vs kenyataan") | `docs/ROADMAP.md` baris 1–658 | L3 L4 | ±660 baris (tabel) | BELUM | — | — |
-| F-09 | 1 | ROADMAP bagian 2 — Fase 2–6 | `docs/ROADMAP.md` baris 659–1518 | L3 L4 | ±860 baris (tabel) | BELUM | — | — |
+| F-09 | 1 | ROADMAP bagian 2 — Fase 2–6 | `docs/ROADMAP.md` baris 659–1518 | L3 L4 | ±860 baris (tabel) | DIKLAIM | arena/01a0eacd-resto-barokah | 2026-09-29 |
 | F-10 | 1 | ROADMAP bagian 3 — Fase 7–11 + penutup & daftar periksa akhir | `docs/ROADMAP.md` baris 1519–2239 | L3 L4 | ±720 baris (tabel) | BELUM | — | — |
 | F-11 | 1 | DECISIONS_LOG bagian 1 — keputusan awal & Putaran 1–13 (yang bertentangan / tidak tercermin di PRD & TECH_SPEC) | `docs/DECISIONS_LOG.md` baris 1–833 | L3 | ±830 baris (log) | BELUM | — | — |
 | F-12 | 1 | DECISIONS_LOG bagian 2 | `docs/DECISIONS_LOG.md` baris 834–1659 | L3 | ±825 baris (log) | BELUM | — | — |
