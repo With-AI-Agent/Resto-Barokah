@@ -408,3 +408,15 @@ Hakim. Perbaikan mekanisme yang lahir: (1) kartu ulangan independen `kartu/K-<ID
 untuk temuan kembar; (3) klaim di papan tidak terlihat lintas cabang → **Perencana menunjuk potongan berbeda per sesi** dalam prompt
 singkat (ulangan independen tetap boleh bila disengaja, sebagai pembanding kalibrasi alami); (4) kolom "Model" tidak bisa diisi agent
 (antarmuka tidak menampilkannya) → Lee yang mencatat model di chat bila ingin. **Tahap 1 dibuka.**
+
+**Putaran 2 (2026-09-28 malam – 2026-09-29 pagi; cabang 01a0e834 · 01a0e836 · 01a0e839):** Lee menjalankan **2–3 agent per cabang**
+(hakim paralel di 834; tiga pemeriksa F-02 di 836; tiga pemeriksa F-03 di 839). Para agent menangani sendiri tabrakan di dalam cabang
+(kartu `.2`/`.3`, ID dilanjutkan, "gabung tanpa menimpa") — mekanisme bertahan tanpa instruksi tambahan. Hasil: F-01 **DIHAKIMI**
+(7 TERVERIFIKASI · 1 DUPLIKAT; F-007/F-008 dinaikkan K-4→K-3; pendapat kedua berbeda pada F-004/F-006 tercatat di H-F-01), F-02 21 temuan
+(4 K-2), F-03 20 temuan (**2 K-1**: voucher dapat diklaim peran anon tanpa verifikasi — probe SQL `PMB-1/bukti/F-03-voucher-anon.sql`;
+owner cukup email + PIN dari browser mana pun karena RPC mendaftarkan perangkat sendiri). Hakim menemukan cacat nyata pada mesin PMB
+(**PMB1-F-009**: `--uji-diri` tumpul begitu tidak ada baris BARU) → uji-diri ditulis ulang agar tiap kasus membuat cacat sintetisnya sendiri
+(13 kasus, LOLOS di tiga keadaan buku besar). Aturan yang lahir: temuan baru hakim tentang mesin → potongan `G-04` (bukan potongan yang
+dihakimi); ID selalu lengkap `PMB1-…`; sel tabel tanpa pipa; ≥2 agent per cabang = kartu `.n`. Beban Hakim F-02/F-03 besar (21 & 20 baris,
+banyak kembar lintas tiga pemeriksa) → **satu Hakim per potongan**, dan Perencana tidak lagi menyarankan tiga pemeriksa untuk satu potongan
+kecuali sebagai kalibrasi yang disengaja.

@@ -59,6 +59,10 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
 
 ## 4. Catat (semua peran)
 
+> Tulis ID selalu lengkap (`PMB1-F-nnn`, `PMB1-A-nnn`) — Perencana menomori ulang saat integrasi lintas cabang dan rujukan tanpa awalan
+> sulit dilacak. Sel tabel tidak boleh memuat karakter pipa. Bila Lee menjalankan **lebih dari satu agent di cabang yang sama** untuk potongan
+> yang sama: agent berikutnya menulis kartu `K-<ID>.2.md`, `K-<ID>.3.md`, melanjutkan nomor ID, dan tidak menimpa baris agent sebelumnya.
+
 1. Salin `PMB-1/kartu/TEMPLAT_K.md` → `PMB-1/kartu/K-<ID>.md` (HAKIM: `TEMPLAT_H.md` → `H-<ID>.md`). Isi **semua** bagian.
 2. Tiap temuan → **satu baris baru** di `PMB-1/BUKU_BESAR_TEMUAN.md`, ID berikutnya berurutan (`PMB1-F-00n`), status `BARU`, kolom
    Artefak = jalur repo yang ada (`berkas:baris`), Bukti = perintah → hasil nyata. Temuan luar cakupan ikut dicatat (potongan asal = potonganmu).
@@ -79,6 +83,10 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
   Bila potongan punya ulangan independen (`kartu/K-<ID>.2.md`), bandingkan keduanya: temuan kembar → status `DUPLIKAT` pada yang lebih
   muda (kolom Hakim menyebut ID induk), tingkat K disamakan dengan alasan. Kamu **bukan** sesi yang menemukan dan **bukan** pembangun. Periksa juga kartu K-nya: klaim yang tidak dicoba dibantah = catatan di H-kartu.
   Untuk temuan `DIPERBAIKI`: baca commit perbaikan, jalankan ulang uji → `DITUTUP` atau kembali `TERVERIFIKASI` dengan alasan.
+  **Temuan baru yang kamu temukan sendiri saat menghakimi** tetap dicatat (BARU), tetapi kolom Potongan = pemilik artefaknya —
+  cacat pada mesin PMB (`alat/periksa-pemeriksaan.py`, papan, templat) → potongan `G-04`; cacat pada dokumen/kode lain → potongan yang
+  memuat artefak itu — **bukan** potongan yang sedang kamu hakimi, supaya potongan itu tetap bisa `DIHAKIMI` (pelajaran PMB1-F-009).
+  Sebelum selesai, lihat juga temuan `DIPERBAIKI` di potongan `G-04` (mesin PMB): kalau kamu bukan pembangunnya, verifikasi ulang → tutup atau kembalikan.
 - **PEMBANGUN** — hanya temuan `TERVERIFIKASI`; perbaiki di kode/dokumen, tulis uji yang membuktikan cacatnya bisa MERAH, isi kolom Perbaikan
   (sha commit), status → `DIPERBAIKI`. Jangan pernah menutup temuanmu sendiri. Perbaikan dilakukan **per tahap** (K-1 boleh segera).
 - **PEMERIKSA MENYELURUH** — sama dengan PEMERIKSA, potongan = alur M-xx (rancangan §4c).
