@@ -116,11 +116,19 @@ export function LayarPelayan({
 
   const kirimKeDapur = async () => {
     if (keranjang.length === 0) return
+    if (!onKirimPesanan) {
+      setPesanStatus(
+        '❌ Pengiriman pesanan belum terhubung. Hubungi pengelola sebelum mencoba lagi.',
+      )
+      return
+    }
     setSedangKirim(true)
     setPesanStatus(null)
     try {
-      if (onKirimPesanan) {
-        await onKirimPesanan({ meja: nomorMeja, items: keranjang, catatanUmum })
+      const berhasil = await onKirimPesanan({ meja: nomorMeja, items: keranjang, catatanUmum })
+      if (!berhasil) {
+        setPesanStatus('❌ Gagal mengirim pesanan. Silakan coba lagi.')
+        return
       }
       setPesanStatus('✅ Pesanan berhasil dikirim ke dapur!')
       setKeranjang([])

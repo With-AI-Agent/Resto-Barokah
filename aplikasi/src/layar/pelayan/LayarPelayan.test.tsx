@@ -41,6 +41,38 @@ describe('LayarPelayan POS Mobile (T3-11)', () => {
     expect(screen.getByText(/Pesanan \(2 item\)/i)).toBeDefined()
   })
 
+  it('tidak mengaku berhasil atau mengosongkan keranjang tanpa callback pengiriman', async () => {
+    render(
+      <PenyediaBahasa>
+        <LayarPelayan />
+      </PenyediaBahasa>,
+    )
+
+    fireEvent.click(screen.getByText('Nasi Goreng Spesial Barokah'))
+    fireEvent.click(screen.getByRole('button', { name: /Kirim ke Dapur/i }))
+
+    expect(screen.getByText(/Pengiriman pesanan belum terhubung/i)).toBeDefined()
+    expect(screen.queryByText(/Pesanan berhasil dikirim ke dapur!/i)).toBeNull()
+    expect(screen.getByText(/Pesanan \(1 item\)/i)).toBeDefined()
+  })
+
+  it('mempertahankan keranjang saat handler pengiriman menolak pesanan', async () => {
+    const onKirimMock = vi.fn().mockResolvedValue(false)
+    render(
+      <PenyediaBahasa>
+        <LayarPelayan onKirimPesanan={onKirimMock} />
+      </PenyediaBahasa>,
+    )
+
+    fireEvent.click(screen.getByText('Nasi Goreng Spesial Barokah'))
+    fireEvent.click(screen.getByRole('button', { name: /Kirim ke Dapur/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Gagal mengirim pesanan/i)).toBeDefined()
+    })
+    expect(screen.getByText(/Pesanan \(1 item\)/i)).toBeDefined()
+  })
+
   it('mengirim pesanan ke dapur saat tombol kirim ditekan', async () => {
     const onKirimMock = vi.fn().mockResolvedValue(true)
 
