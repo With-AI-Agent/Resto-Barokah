@@ -311,40 +311,91 @@ def gerbang(akar: pathlib.Path, tahap: int) -> int:
 
 
 def uji_diri() -> int:
+    """Mutasi harus MERAH. Setiap kasus MEMBUAT cacatnya sendiri (baris/keadaan sintetis) — tidak bergantung pada isi
+    papan/buku besar saat ini (PMB1-F-009: versi lama tumpul begitu tidak ada baris BARU / F-02 sudah bukan BELUM)."""
     hasil: list[tuple[str, bool, str]] = []
     bb = pathlib.Path(PUTARAN) / "BUKU_BESAR_TEMUAN.md"
     papan = pathlib.Path(PUTARAN) / "PAPAN.md"
+    asumsi = pathlib.Path(PUTARAN) / "ASUMSI.md"
 
     def coba(nama: str, rusak, harus_merah: bool = True) -> None:
         with salin_pohon() as tmp:
-            rusak(tmp)
+            try:
+                rusak(tmp)
+            except LookupError as e:          # mutasi tidak bisa dibuat → kasus gagal (bukan diam-diam lolos)
+                hasil.append((nama, False, f"mutasi tidak terbentuk: {e}")); return
             kode, keluaran = jalankan_pemeriksa(periksa, tmp)
             ok = (kode != 0) if harus_merah else (kode == 0)
             hasil.append((nama, ok, f"kode={kode}" + ("" if ok else "\n" + keluaran[-600:])))
 
+    def id_berikut(teks: str, awalan: str) -> str:
+        nomor = [int(m) for m in re.findall(rf"\| {awalan}(\d{{3}}) \|", teks)]
+        return f"{awalan}{(max(nomor) if nomor else 0) + 1:03d}"
+
+    def potongan_bukan_dihakimi(t: pathlib.Path) -> str:
+        for m in re.finditer(r"^\| ((?:[FXMDGLZ]-\d{2}|P-\d+A?-\d{2})) \|(?:[^|\n]*\|){5} (\w+) \|", (t / papan).read_text(encoding="utf-8"), re.M):
+            if m.group(2) != "DIHAKIMI":
+                return m.group(1)
+        raise LookupError("semua potongan sudah DIHAKIMI — tidak ada tempat untuk baris sintetis BARU")
+
+    def tambah_temuan(t: pathlib.Path, status: str, hakim: str = "—", perbaikan: str = "—", tutup: str = "—",
+                      artefak: str = "`docs/PRD.md:1`", pot: str | None = None) -> None:
+        pot = pot or potongan_bukan_dihakimi(t)
+        teks = (t / bb).read_text(encoding="utf-8").rstrip("\n")
+        fid = id_berikut(teks, "PMB1-F-")
+        baris = (f"| {fid} | K-4 | {pot} | {artefak} | uji-diri: baseline sintetis | keterpeliharaan | "
+                 f"`echo uji-diri` → baris sintetis untuk menguji penjaga | {status} | {hakim} | {perbaikan} | {tutup} |")
+        (t / bb).write_text(teks + "\n" + baris + "\n", encoding="utf-8")
+
+    def ubah_sel_temuan(t: pathlib.Path, fid: str, indeks: int, nilai: str) -> None:
+        teks = (t / bb).read_text(encoding="utf-8")
+        for i, baris in enumerate(teks.splitlines()):
+            if baris.startswith(f"| {fid} |"):
+                sel = [s.strip() for s in baris.strip().strip("|").split("|")]
+                sel[indeks] = nilai
+                garis = teks.splitlines(); garis[i] = "| " + " | ".join(sel) + " |"
+                (t / bb).write_text("\n".join(garis) + "\n", encoding="utf-8"); return
+        raise LookupError(f"baris {fid} tidak ada")
+
+    def potongan_belum_selesai(t: pathlib.Path) -> None:
+        teks = (t / papan).read_text(encoding="utf-8")
+        m = re.search(r"^(\| (?:[FXMDGLZ]-\d{2}|P-\d+A?-\d{2}) \|(?:[^|\n]*\|){5}) (?:BELUM|RENCANA) \| — \| — \|$", teks, re.M)
+        if not m:
+            raise LookupError("tidak ada potongan BELUM/RENCANA yang bisa dijadikan SELESAI tanpa kartu")
+        (t / papan).write_text(teks.replace(m.group(0), f"{m.group(1)} SELESAI | arena/uji-diri | 2026-09-28 |", 1), encoding="utf-8")
+
+    def roadmap_bergeser(t: pathlib.Path) -> None:
+        blok = (t / PUTARAN / "MATRIKS_TELUSUR.md").read_text(encoding="utf-8")
+        tugas = re.findall(r"\bT\d+-\d{2}\b", blok.split("<!-- OTOMATIS:MULAI -->", 1)[-1])
+        rm = t / "docs/ROADMAP.md"; teks = rm.read_text(encoding="utf-8")
+        for tid in tugas:
+            m = re.search(rf"^- \[( |x)\] {re.escape(tid)} —", teks, re.M)
+            if m:
+                ganti = "- [x] " if m.group(1) == " " else "- [ ] "
+                rm.write_text(teks[:m.start()] + ganti + teks[m.start() + 6:], encoding="utf-8"); return
+        raise LookupError("tidak ada tugas ROADMAP yang muncul di matriks")
+
+    def asumsi_dibantah_tanpa_temuan(t: pathlib.Path) -> None:
+        teks = (t / asumsi).read_text(encoding="utf-8").rstrip("\n")
+        aid = id_berikut(teks, "PMB1-A-")
+        (t / asumsi).write_text(teks + f"\n| {aid} | uji-diri: asumsi sintetis | `docs/PRD.md:1` | DIBANTAH | "
+                                "`echo uji-diri` → dibantah tanpa rujukan temuan | tidak ada | F-01 |\n", encoding="utf-8")
+
     coba("salinan utuh diterima", lambda t: None, harus_merah=False)
-    coba("potongan SELESAI tanpa kartu ditolak",
-         lambda t: (t / papan).write_text((t / papan).read_text(encoding="utf-8").replace(
-             "| F-02 | 1 |", "| F-02 | 1 |", 1).replace("| BELUM | — | — |\n| F-03", "| SELESAI | arena/x | 2026-09-28 |\n| F-03", 1), encoding="utf-8"))
-    coba("status temuan tidak sah ditolak",
-         lambda t: (t / bb).write_text((t / bb).read_text(encoding="utf-8").replace("| BARU | — | — | — |", "| SELESAI | — | — | — |", 1), encoding="utf-8"))
-    coba("DITUTUP tanpa hakim/commit ditolak",
-         lambda t: (t / bb).write_text((t / bb).read_text(encoding="utf-8").replace("| BARU | — | — | — |", "| DITUTUP | — | — | — |", 1), encoding="utf-8"))
-    coba("artefak yang tidak ada ditolak",
-         lambda t: (t / bb).write_text((t / bb).read_text(encoding="utf-8").replace(
-             "`supabase/migrations/0086_data_awal_dan_autentikasi_perangkat.sql:286`", "`supabase/migrations/9999_tidak_ada.sql:1`", 1), encoding="utf-8"))
-    coba("ID temuan melompat ditolak",
-         lambda t: (t / bb).write_text((t / bb).read_text(encoding="utf-8").replace("| PMB1-F-001 |", "| PMB1-F-002 |", 1), encoding="utf-8"))
-    coba("potongan temuan yang tidak ada di papan ditolak",
-         lambda t: (t / bb).write_text((t / bb).read_text(encoding="utf-8").replace("| K-1 | F-10 |", "| K-1 | F-99 |", 1), encoding="utf-8"))
+    coba("baris sintetis yang sah diterima", lambda t: tambah_temuan(t, "BARU"), harus_merah=False)
+    coba("potongan SELESAI tanpa kartu ditolak", potongan_belum_selesai)
+    coba("status temuan tidak sah ditolak", lambda t: tambah_temuan(t, "SELESAI"))
+    coba("DITUTUP tanpa hakim/commit ditolak", lambda t: tambah_temuan(t, "DITUTUP"))
+    coba("artefak yang tidak ada ditolak", lambda t: tambah_temuan(t, "BARU", artefak="`supabase/migrations/9999_tidak_ada.sql:1`"))
+    coba("ID temuan melompat ditolak", lambda t: ubah_sel_temuan(t, "PMB1-F-001", 0, "PMB1-F-000"))
+    coba("potongan temuan yang tidak ada di papan ditolak", lambda t: tambah_temuan(t, "BARU", pot="F-99"))
+    coba("temuan pertama dihapus ditolak (urutan ID putus)", lambda t: (t / bb).write_text(
+        "\n".join(b for b in (t / bb).read_text(encoding="utf-8").splitlines() if not b.startswith("| PMB1-F-001 |")) + "\n", encoding="utf-8"))
     coba("kartu yatim / tidak lengkap ditolak",
          lambda t: (t / PUTARAN / "kartu" / "K-F-01.md").write_text("# kartu kosong\n", encoding="utf-8"))
-    coba("matriks basi ditolak",
-         lambda t: (t / "docs/ROADMAP.md").write_text((t / "docs/ROADMAP.md").read_text(encoding="utf-8").replace("- [ ] T11-02 —", "- [x] T11-02 —", 1), encoding="utf-8"))
-    coba("DUPLIKAT tanpa temuan induk ditolak",
-         lambda t: (t / bb).write_text((t / bb).read_text(encoding="utf-8").replace("| BARU | — | — | — |", "| DUPLIKAT | arena/x H-F-01 | — | — |", 1), encoding="utf-8"))
-    coba("asumsi DIBANTAH tanpa temuan ditolak",
-         lambda t: (t / PUTARAN / "ASUMSI.md").write_text((t / PUTARAN / "ASUMSI.md").read_text(encoding="utf-8").replace("PMB1-F-001, 2026-09-28", "temuan menyusul", 1), encoding="utf-8"))
+    coba("matriks basi ditolak", roadmap_bergeser)
+    coba("DUPLIKAT tanpa temuan induk ditolak", lambda t: tambah_temuan(t, "DUPLIKAT", hakim="arena/uji-diri H-F-01"))
+    coba("asumsi DIBANTAH tanpa temuan ditolak", asumsi_dibantah_tanpa_temuan)
     return laporkan("periksa-pemeriksaan", hasil)
 
 
