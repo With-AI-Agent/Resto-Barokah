@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0e747-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0e747-resto-barokah`
-- **Commit keadaan kerja:** `9b6481d7af4ff7daf24561993fac436dc16ad2a1`
+- **Commit keadaan kerja:** `229a5b07b65426406fd0870109f25518dc7b2777`
 - **PR:** PR #14 (base main)
 PR #13 (base main)
 PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 36514440312, commit 9b6481d7) — tunggu sampai selesai
+- **CI terakhir:** in_progress (run 36514462498, commit 229a5b07) — tunggu sampai selesai
 - **CATATAN CI:** run untuk commit handoff ini belum ada/masih berjalan saat baris ini ditulis (wajar) — sesi baru cek `gh run list --branch arena/01a0e747-resto-barokah --limit 3`; lanjut bila hijau atau masih berjalan dengan run selesai terakhir hijau, berhenti hanya bila merah.
 - **Ditulis:** 2026-09-29 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (259 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (551 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (260 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (552 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
