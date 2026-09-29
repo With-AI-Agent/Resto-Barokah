@@ -17,6 +17,8 @@ export type TipePesanan = 'dinein' | 'takeaway' | 'ojol'
 
 export interface PemilihMejaProps {
   daftarMeja?: MejaData[]
+  sedangMemuatMeja?: boolean
+  pesanGalatMeja?: string | null
   mejaTerpilihId?: string
   tipePesanan?: TipePesanan
   catatanPesanan?: string
@@ -30,37 +32,6 @@ export interface PemilihMejaProps {
   onTutup?: () => void
 }
 
-const CONTOH_MEJA: MejaData[] = [
-  { id: 'meja-01', nama: 'Meja 01', area: 'Indoor AC', status: 'kosong', aktif: true },
-  {
-    id: 'meja-02',
-    nama: 'Meja 02',
-    area: 'Indoor AC',
-    status: 'terisi',
-    aktif: true,
-    jumlahTamu: 3,
-  },
-  { id: 'meja-03', nama: 'Meja 03', area: 'Indoor AC', status: 'siap', aktif: true },
-  { id: 'meja-04', nama: 'Meja 04', area: 'Indoor AC', status: 'kosong', aktif: true },
-  {
-    id: 'meja-05',
-    nama: 'Meja 05 (Outdoor)',
-    area: 'Outdoor Merokok',
-    status: 'kosong',
-    aktif: true,
-  },
-  {
-    id: 'meja-06',
-    nama: 'Meja 06 (Outdoor)',
-    area: 'Outdoor Merokok',
-    status: 'terisi',
-    aktif: true,
-    jumlahTamu: 4,
-  },
-  { id: 'meja-07', nama: 'Meja VIP 1', area: 'Ruang VIP', status: 'kosong', aktif: true },
-  { id: 'meja-08', nama: 'Meja VIP 2', area: 'Ruang VIP', status: 'siap', aktif: true },
-]
-
 const CATATAN_CEPAT = [
   'Tanpa Es',
   'Kurang Pedas',
@@ -72,8 +43,10 @@ const CATATAN_CEPAT = [
 ]
 
 export function PemilihMeja({
-  daftarMeja = CONTOH_MEJA,
-  mejaTerpilihId = 'meja-01',
+  daftarMeja = [],
+  sedangMemuatMeja = false,
+  pesanGalatMeja = null,
+  mejaTerpilihId = '',
   tipePesanan = 'dinein',
   catatanPesanan = '',
   onPilihTipe,
@@ -114,6 +87,8 @@ export function PemilihMeja({
       const res = await onPindahMeja(mejaDipilih, mejaTujuanId)
       if (res.sukses) {
         setMejaDipilih(mejaTujuanId)
+        const mejaTujuan = daftarMeja.find((meja) => meja.id === mejaTujuanId)
+        if (mejaTujuan) onPilihMeja(mejaTujuan)
         setModePindahMeja(false)
         setPesanInfo('Pesanan berhasil dipindahkan ke meja baru.')
       } else {
@@ -241,6 +216,11 @@ export function PemilihMeja({
             )}
           </div>
 
+          {pesanGalatMeja && <div role="alert">{pesanGalatMeja}</div>}
+          {sedangMemuatMeja && <div role="status">Memuat daftar meja…</div>}
+          {!sedangMemuatMeja && !pesanGalatMeja && daftarMeja.length === 0 && (
+            <div role="status">Belum ada meja aktif di cabang ini.</div>
+          )}
           <div className="meja-grid" style={{ maxHeight: '240px', overflowY: 'auto' }}>
             {daftarMeja.map((meja) => {
               const aktifDipilih = mejaDipilih === meja.id

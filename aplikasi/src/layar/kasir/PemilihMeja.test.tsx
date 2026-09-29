@@ -1,12 +1,28 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
-import { PemilihMeja } from './PemilihMeja'
+import { PemilihMeja, type PemilihMejaProps } from './PemilihMeja'
 import { PenyediaBahasa } from '../../bahasa'
+import { MEJA_KASIR_UJI } from '../../test/fixtures/mejaKasir'
+
+function PemilihMejaDenganDataUji(props: PemilihMejaProps) {
+  return <PemilihMeja daftarMeja={MEJA_KASIR_UJI} mejaTerpilihId="meja-01" {...props} />
+}
 
 describe('PemilihMeja (T3-03 & T3-06)', () => {
   afterEach(() => {
     cleanup()
+  })
+
+  it('tidak menampilkan meja contoh saat daftar cabang belum tersedia', () => {
+    render(
+      <PenyediaBahasa>
+        <PemilihMeja onPilihTipe={vi.fn()} onPilihMeja={vi.fn()} />
+      </PenyediaBahasa>,
+    )
+
+    expect(screen.queryByText('Meja 01')).toBeNull()
+    expect(screen.queryByText('Meja 02')).toBeNull()
   })
 
   it('merender pilihan jenis pesanan: Dine In, Takeaway, Ojol', () => {
@@ -31,7 +47,7 @@ describe('PemilihMeja (T3-03 & T3-06)', () => {
 
     render(
       <PenyediaBahasa>
-        <PemilihMeja onPilihTipe={vi.fn()} onPilihMeja={onPilihMejaMock} />
+        <PemilihMejaDenganDataUji onPilihTipe={vi.fn()} onPilihMeja={onPilihMejaMock} />
       </PenyediaBahasa>,
     )
 
@@ -46,13 +62,14 @@ describe('PemilihMeja (T3-03 & T3-06)', () => {
 
   it('menjalankan alur pindah meja saat tombol pindah meja aktif (T3-06)', async () => {
     const onPindahMock = vi.fn().mockResolvedValue({ sukses: true })
+    const onPilihMejaMock = vi.fn()
 
     render(
       <PenyediaBahasa>
-        <PemilihMeja
+        <PemilihMejaDenganDataUji
           mejaTerpilihId="meja-01"
           onPilihTipe={vi.fn()}
-          onPilihMeja={vi.fn()}
+          onPilihMeja={onPilihMejaMock}
           onPindahMeja={onPindahMock}
         />
       </PenyediaBahasa>,
@@ -66,6 +83,7 @@ describe('PemilihMeja (T3-03 & T3-06)', () => {
 
     await waitFor(() => {
       expect(onPindahMock).toHaveBeenCalledWith('meja-01', 'meja-04')
+      expect(onPilihMejaMock).toHaveBeenCalledWith(MEJA_KASIR_UJI[3])
       expect(screen.getByText(/Pesanan berhasil dipindahkan ke meja baru/i)).toBeDefined()
     })
   })

@@ -4,12 +4,14 @@ import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/re
 import { LayarKasir, type LayarKasirProps } from './LayarKasir'
 import { PenyediaBahasa } from '../../bahasa'
 import { KATEGORI_KASIR_UJI, MENU_KASIR_UJI } from '../../test/fixtures/katalogKasir'
+import { MEJA_KASIR_UJI } from '../../test/fixtures/mejaKasir'
 
 function KasirDenganDataUji(props: LayarKasirProps) {
   return (
     <LayarKasir
       daftarKategori={KATEGORI_KASIR_UJI}
       daftarMenu={MENU_KASIR_UJI}
+      daftarMeja={MEJA_KASIR_UJI}
       {...props}
     />
   )
@@ -123,6 +125,24 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
       expect(screen.getByText('Penyimpanan pesanan belum dikonfigurasi.')).toBeDefined()
     })
     expect(screen.queryByText('Pesanan berhasil dikirim ke dapur!')).toBeNull()
+  })
+
+  it('meneruskan pindah meja ke handler peladen dan memperbarui meja aktif', async () => {
+    const onPindahMeja = vi.fn().mockResolvedValue({ sukses: true })
+    render(
+      <PenyediaBahasa>
+        <KasirDenganDataUji onPindahMeja={onPindahMeja} />
+      </PenyediaBahasa>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /Meja 01/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Pindah Meja/i }))
+    fireEvent.click(screen.getByText('Meja 04'))
+
+    await waitFor(() => {
+      expect(onPindahMeja).toHaveBeenCalledWith('meja-01', 'meja-04')
+      expect(screen.getByRole('button', { name: /Meja 04/i })).toBeDefined()
+    })
   })
 
   it('dapat membuka modal Tagihan Terbuka (Open Bill)', () => {

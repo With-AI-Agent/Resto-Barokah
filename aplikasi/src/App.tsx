@@ -3,6 +3,7 @@ import { PenyediaBahasa } from './bahasa'
 import { useSesi } from './hook/useSesi'
 import { useBayar } from './hook/useBayar'
 import { useKatalogKasir } from './hook/useKatalogKasir'
+import { useMejaKasir } from './hook/useMejaKasir'
 import { useStok } from './hook/useStok'
 import { useTiketDapur } from './hook/useTiketDapur'
 import { Rangka } from './komponen/Rangka'
@@ -28,6 +29,7 @@ import { klienSupabase } from './lib/supabase'
 import { masukDenganGoogle, kirimTautanMasukEmail } from './lib/auth'
 import { tambahKeAntrean } from './lib/antrean-offline'
 import { kirimPesananKeDapur } from './lib/pesanan'
+import { pindahPesananMeja } from './lib/meja'
 
 export default function App() {
   const { sesi, sedangMasuk, masuk, keluar } = useSesi()
@@ -39,6 +41,7 @@ export default function App() {
   // Tanpa sesi/cabang/database, layar kosong dan menampilkan keadaan yang jelas;
   // data contoh hanya disediakan oleh fixture tes, bukan oleh aplikasi.
   const katalogKasir = useKatalogKasir(sesi?.cabangAktifId ?? null, Boolean(sesi?.id))
+  const mejaKasir = useMejaKasir(sesi?.cabangAktifId ?? null, Boolean(sesi?.id))
   // Tagihan yang sedang dilayani kasir. Untuk sekarang satu tagihan berjalan
   // per terminal; pemilihan tagihan dari Open Bill menyusul bersama T5-03.
   const [pesananAktifId, setPesananAktifId] = useState<string | null>(null)
@@ -63,6 +66,19 @@ export default function App() {
             cabangId={cabangId}
             daftarKategori={katalogKasir.kategori}
             daftarMenu={katalogKasir.menu}
+            daftarMeja={mejaKasir.daftarMeja}
+            sedangMemuatMeja={mejaKasir.sedangMemuat}
+            pesanGalatMeja={mejaKasir.pesanGalat}
+            onPindahMeja={async (mejaAsalId, mejaTujuanId) => {
+              if (!pesananAktifId) {
+                return { sukses: false, pesan: 'Simpan pesanan terlebih dahulu sebelum pindah meja.' }
+              }
+              const klien = klienSupabase()
+              if (!klien) {
+                return { sukses: false, pesan: 'Sambungan basis data tidak tersedia.' }
+              }
+              return await pindahPesananMeja(klien, pesananAktifId, mejaAsalId, mejaTujuanId)
+            }}
             katalogSedangMemuat={katalogKasir.sedangMemuat}
             pesanGalatKatalog={katalogKasir.pesanGalat}
             pesananId={pesananAktifId ?? 'ord-current'}
