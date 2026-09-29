@@ -1,0 +1,447 @@
+# Bukti perintah PMB1 potongan F-15 (AGENT_OPERATING_GUIDE + TERTANGGUH)
+# Sesi arena/01a0ec13-resto-barokah · 2026-09-29 · basis 494494e (klaim d64b70d)
+# Setiap blok: $ perintah lalu keluaran apa adanya (dipotong dengan cut bila panjang).
+
+## [1] T-016 ditutup tanpa keputusan Lee (PMB1-F-202)
+
+$ sed -n 2029p docs/ROADMAP.md | cut -c1-260
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-016: sementara pemulihan melalui peran atas + sandi minimal 12 karakter. Tinjauan HIBP/kode mandiri tetap dilakukan di Fase 10; biaya atau perubahan kontrol butuh keputusan Lee.
+
+$ sed -n 2033p docs/ROADMAP.md | cut -c150-420
+gratis, serta rekomendasi + dampak biaya = nol; keputusan pemilik dicatat.
+
+$ sed -n 3215p docs/DECISIONS_LOG.md; sed -n 3223,3224p docs/DECISIONS_LOG.md | cut -c1-200
+     - Memutuskan untuk **TIDAK MENGGUNAKAN** kode pemulihan mandiri (*self-service recovery codes*) bagi staf kasir, pelayan, dapur, maupun admin cabang.
+     - Fitur bawaan sakelar HIBP di dashboard Supabase Auth hanya tersedia di paket berbayar (Supabase Pro $25/bulan). Di paket gratis Supabase Free Tier, fitur ini terkunci.
+     - Menetapkan **Opsi A (Status Quo Tangguh Biaya Nol)**: Memanfaatkan lapisan pertahanan berlapis yang sudah terpasang kokoh di Resto Barokah:
+
+$ sed -n 3211,3237p docs/DECISIONS_LOG.md | grep -c 'Lee'
+0
+
+$ grep -n 'T-016\|T10-16' docs/teknis/REKAM_PESAN_PEMILIK.md | cut -c1-120
+538:- **Pelaksanaan:** Menjadwalkan pengingat mutlak kepada Lee tepat setelah tugas terakhir Fase 10 (T10-16) selesai tu
+
+$ sed -n 56p docs/TERTANGGUH.md | cut -c1-420
+| T-016 | 2026-09-21 | **Kode pemulihan MFA mandiri & pemeriksa kata sandi bocor (HaveIBeenPwned)** | **[x] SELESAI DITINJAU 2026-09-27 (T10-16):** Tinjauan tertulis resmi di `docs/teknis/TINJAUAN_KEAMANAN_F10.md` dan 19 uji SQL di `supabase/tes/mfa.sql` (132 berkas uji lulus 100%). Ditetapkan: pemulihan MFA via tangga peran atas (Owner Pusat) + kunci induk darurat 30 menit (`kredensial_pemulihan`), tanpa kode mandir
+
+$ git show -s --format='%h %ad %s' --date=short ef9bca7
+ef9bca7 2026-09-27 feat(t10-16): tinjauan kode pemulihan MFA dan pemeriksa kata sandi bocor T-016 biaya nol
+
+$ sed -n 57p _log-sesi/LOG_SESI_2026-09-17.md | cut -c1-240
+- **Kode pemulihan MFA mandiri & pemeriksa kata sandi bocor (HIBP)** sengaja **ditunda** ke Fase 10 (T-016): HIBP adalah fitur paket Pro (menyentuh biaya) dan kode pemulihan menambah jalur rahasia baru; kompensasi sekarang = kata sandi ≥1
+
+$ sed -n 22p docs/teknis/TINJAUAN_KEAMANAN_F10.md | cut -c1-240
+> *"T-016: Sementara pemulihan melalui peran atas + kata sandi minimal 12 karakter + TOTP wajib. Tinjauan HIBP dan kode mandiri dilakukan di Fase 10 (T10-16); biaya atau perubahan kontrol butuh keputusan Lee."*
+
+$ sed -n 290p docs/AGENT_OPERATING_GUIDE.md; sed -n 322,323p docs/AGENT_OPERATING_GUIDE.md; sed -n 331p docs/AGENT_OPERATING_GUIDE.md
+2. Muncul **biaya** — sekecil apa pun (batas gratis terlampaui, alat berbayar, domain, dsb).
+5. **Dilarang menutup butir tertangguh tanpa jawaban pemilik**, kecuali bisa dibuktikan dari dokumen yang sudah dikunci
+   (tulis alasannya + tandai siapa yang memutuskan).
+11. **Yang tidak pernah ditunda:** keamanan/uang/data pelanggan yang belum jelas · biaya apa pun · perubahan keputusan
+
+$ ls supabase/tes | wc -l
+132
+# riset: https://supabase.com/docs/guides/auth/password-security (dibaca 2026-09-29) -> 'Leaked password protection is available on the Pro Plan and above.'
+
+## [2] Butir tunda dipindah ke 'Butir selesai' dengan syarat belum dipenuhi (PMB1-F-203)
+
+$ sed -n 20,22p docs/TERTANGGUH.md | cut -c1-200
+`| T-000 | 2026-09-16 | <hal yang ditunda> | <kenapa boleh ditunda / tidak menghambat> | <nilai/placeholder yang dipakai sekarang> | <wajib selesai sebelum> | <pemilik/agent> | [ ] terbuka |`
+
+Kalau sudah dijawab → pindahkan barisnya ke tabel **Butir selesai** dengan status `[x] selesai` + tanggal + jawabannya.
+
+$ for n in 54 55 57; do sed -n ${n}p docs/TERTANGGUH.md | awk -F'|' '{print $2 "::" $5}' | cut -c1-260; done
+ T-011 :: Disetujui 2026-09-21 (setuju semua): draf agent (KEAMANAN §11) + migrasi/halaman T8-15; pemilik meninjau sebelum F8. 
+ T-015 :: Disetujui 2026-09-21 (setuju semua): panduan umum ditulis agent; perangkat nyata dicoba sebelum T2-15. 
+ T-022 :: Disetujui 2026-09-21 (setuju semua): putusan ditunda ke Fase 2; usulan awal (a) SMTP Gmail pemilik. 
+
+$ git log --format='%h %ad %s' --date=short -S'pemilik meninjau sebelum F8' -- docs/TERTANGGUH.md | cut -c1-100
+1292cff 2026-09-22 fix(maraton): panen G3 dan tutup pagar uang identitas
+
+$ sed -n 688,689p docs/ROADMAP.md | cut -c1-230; sed -n 794,795p docs/ROADMAP.md | cut -c1-200
+- [x] T2-04 — Masuk pelanggan: Google (utama) + email terverifikasi (kedua) T-022
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-022: Lee mengizinkan menunda pemilihan pengirim email ke Fase 2; usulan SMTP Gmail BELUM persetujuan layanan. Sebelum mengaktifkan email pelanggan, tetapkan kanal tanpa biaya den
+- [x] T2-15 — Pendaftaran perangkat (kode/QR) + persetujuan pegawai baru ⚠️ T-015
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-015: panduan umum boleh dibuat sekarang; uji perangkat nyata WAJIB sebelum tugas ini dinyatakan selesai. Belum ada klaim perangkat kedai sudah diuji
+
+$ sed -n 93,97p alat/periksa-roadmap.py
+    terbuka = set(re.findall(r"^\|\s*(T-\d{3})\s*\|[^\n]*\[ \] terbuka", tunggu, re.M)) - {"T-000"}
+    tanda = set(re.findall(r"❓\s*(T-\d{3})", tugas))
+    return ([f"RUJUKAN MATI: ❓ {t} tidak ada di docs/TERTANGGUH.md" for t in sorted(tanda - semua)]
+            + [f"❓ {t} basi: butir sudah selesai" for t in sorted(tanda & (semua - terbuka))]
+            + [f"{t} masih terbuka tetapi tidak ditandai ❓ pada tugas" for t in sorted(terbuka - tanda)])
+
+$ bash docs/uji/pemeriksaan/PMB-1/bukti/F-15-probe-penanda.sh
+== KONTROL (tanpa ubahan)
+HASIL: LOLOS — semua pemeriksaan roadmap terpenuhi.
+exit=0
+  Terbuka: 2 butir
+== PERLAKUAN (T-022 tetap di tabel terbuka)
+GAGAL (1 temuan):
+  - T-022 masih terbuka tetapi tidak ditandai ❓ pada tugas
+exit=1
+  Terbuka: 3 butir
+== B2 KONTROL
+SYSTEM-BUILDING-APLIKASI VALIDATOR: PASS
+  STATUS.md        : field deterministik OK (1x) · 2026-09-25 — **PERSIAPAN AUDIT PUTAR
+== B2 PERLAKUAN (buang baris lama berformat ketat)
+23
+- STATUS.md: field 'Waktu pembaruan' harus ada, format 'YYYY-MM-DD — <peristiwa>'
+  STATUS.md        : field deterministik OK (1x) · (tidak terbaca)
+
+## [3] T-028 tenggat kolom vs putusan Lee (PMB1-F-204)
+
+$ sed -n 30p docs/TERTANGGUH.md | awk -F'|' '{print $7 "::" $9}' | cut -c1-330
+ sebelum pilot Kedai Oasis dipakai harian :: **DIPUTUSKAN 2026-09-23 (Lee): TUNDA ke Fase 6 — pilihan (c), DENGAN SYARAT TEGAS.** Lee: "Kalau memang itu yang terbaik, aku setuju. Tapi kamu harus pastikan bahwa itu ga bakal terlupakan dan terlewatkan. Harus tercatat dan catatannya harus terbaca oleh agent yang ngerjain selanjut
+
+$ sed -n 1479p docs/ROADMAP.md; sed -n 1484p docs/ROADMAP.md | cut -c1-120; sed -n 1489,1493p docs/ROADMAP.md | cut -c1-140; sed -n 1507p docs/ROADMAP.md
+- [ ] T6-06 — Antrean cetak, cetak ulang, deteksi gagal ⚠️ ❓ T-028
+  - **🔴 WAJIB DIKERJAKAN DI SINI — UTANG DARI T5-10 (butir `T-028`):** jejak audit **cetak ulang
+    2026-09-23, dengan syarat tegas: tidak boleh terlupakan.** Jadi sebelum T6-06 boleh dicentang:
+    (a) tambahkan RPC pencatat cetak ulang ke TECH_SPEC §5 lebih dulu (mintakan persetujuan Lee
+    bila bentuknya berubah dari rencana), (b) tulis barisnya ke `public.catatan_audit`, (c) beri
+    uji yang membuktikan cetak ulang meninggalkan jejak, lalu (d) tutup butir `T-028` di
+    `docs/TERTANGGUH.md`. **Jangan mencentang T6-06 selama `T-028` masih terbuka.**
+- [ ] T6-08 — T-002 Uji cetak nyata di Kedai Oasis
+
+$ sed -n 322,325p docs/AGENT_OPERATING_GUIDE.md | cut -c1-200
+5. **Dilarang menutup butir tertangguh tanpa jawaban pemilik**, kecuali bisa dibuktikan dari dokumen yang sudah dikunci
+   (tulis alasannya + tandai siapa yang memutuskan).
+6. **Batas penumpukan: 12 butir terbuka.** Lewat itu → **wajib berhenti** dan minta pemilik memutuskan (ringkas: 3 pilihan + rekomendasi).
+7. **Tenggat mengikat:** butir yang tenggatnya sudah lewat = **hard stop** untuk fase itu (jangan dikerjakan setengah).
+
+## [4] LOG_SESI hilang untuk 5 tanggal kerja (PMB1-F-205)
+
+$ ls _log-sesi/
+LOG_SESI_2026-09-15.md
+LOG_SESI_2026-09-16.md
+LOG_SESI_2026-09-17.md
+LOG_SESI_2026-09-18.md
+LOG_SESI_2026-09-19.md
+LOG_SESI_2026-09-21.md
+LOG_SESI_2026-09-21_2.md
+LOG_SESI_2026-09-22.md
+LOG_SESI_2026-09-23.md
+LOG_SESI_2026-09-23_2.md
+LOG_SESI_2026-09-23_3.md
+LOG_SESI_2026-09-23_4.md
+LOG_SESI_2026-09-23_5.md
+LOG_SESI_2026-09-23_6.md
+LOG_SESI_2026-09-24.md
+LOG_SESI_2026-09-28.md
+
+$ git log --format='%ad' --date=short | sort | uniq -c
+     59 2026-09-16
+     54 2026-09-17
+     29 2026-09-18
+     57 2026-09-19
+     53 2026-09-20
+     50 2026-09-21
+     36 2026-09-22
+     47 2026-09-23
+     45 2026-09-24
+     40 2026-09-25
+     38 2026-09-26
+     48 2026-09-27
+     57 2026-09-28
+    166 2026-09-29
+
+$ grep -rln 'LOG_SESI\|_log-sesi' alat/periksa-*.py | head
+alat/periksa-panduan.py
+alat/periksa-rujukan.py
+
+$ sed -n 22,23p docs/AGENT_OPERATING_GUIDE.md; sed -n 227,228p docs/AGENT_OPERATING_GUIDE.md
+4. **Chat lama tidak bisa dibaca sesi baru.** Karena itu ada tiga penanda yang saling menutupi:
+   `PROJECT_STATE.md` (posisi), `STATUS.md` (field pasti), `_log-sesi/LOG_SESI_*.md` (kronologi mendekati kata asli).
+2. **Selama sesi:** setiap keputusan/koreksi/kendala/kalimat penting pemilik → langsung ditambahkan ke
+   `LOG_SESI_*.md` (mendekati kata asli) + commit & push. Mencatat berlebihan = rugi detik; lupa mencatat = rugi jam.
+
+## [5] KARTU SESI menampilkan posisi basi (PMB1-F-206, luar cakupan)
+
+$ python3 alat/mulai-sesi.py | sed -n 4,8p | cut -c1-200
+POSISI PROYEK
+  STATUS           : CODING_DIJEDA_SADAR (T10-12 selesai tuntas: 130 berkas SQL lulus 100%, Vitest 120 berkas / 995 tes lulus, pencabutan akses pegawai berhenti & serah terima kasir atomik 4/4 mutan m
+  UPDATE TERAKHIR  : 2026-09-26 — FASE 9 (Pengaturan & Multi-Cabang): T9-01, T9-02, T9-03, dan T9-04 SELESAI. Meja & area + QR per meja tuntas via migrasi 0073, RPC simpan_meja, ambil_daftar_meja, h
+  DETAIL (potongan): **FASE 1 DIJEDA DENGAN SADAR DI T1-10 — sedang mematangkan KEAMANAN & KELENGKAPAN UI (permintaan pemilik, pesan ke-14, 2026-09-17).** Pemilik meminta jangan lanjut sebelum dua h
+  STATUS.md        : field deterministik OK (1x) · 2026-09-25 — **PERSIAPAN AUDIT PUTARAN KEDUA (AUD-4) & JAMINAN HANDOFF LENGKAP.** Sesuai arahan Lee, 4 paket audit independen AUD-4 (Menyeluruh, A
+
+$ sed -n 204p alat/mulai-sesi.py; sed -n 212p alat/mulai-sesi.py
+    m_status = re.search(r"^STATUS:\s*(.+)$", ps, re.M)
+    waktu = re.search(r"\*\*Waktu pembaruan:\*\*\s*(\d{4}-\d{2}-\d{2}\s+—\s+[^\n]+)", st)
+
+$ sed -n 212,213p PROJECT_STATE.md | cut -c1-160
+STATUS: CODING_DIJEDA_SADAR (T10-12 selesai tuntas: 130 berkas SQL lulus 100%, Vitest 120 berkas / 995 tes lulus, pencabutan akses pegawai berhenti & serah teri
+DETAIL: **FASE 1 DIJEDA DENGAN SADAR DI T1-10 — sedang mematangkan KEAMANAN & KELENGKAPAN UI (permintaan pemilik, pesan ke-14, 2026-09-17).** Pemilik meminta 
+
+$ grep -c 'Waktu pembaruan:\*\*' STATUS.md; grep -nP '\*\*Waktu pembaruan:\*\*\s*\d{4}-\d{2}-\d{2}\s+—\s+\S' STATUS.md | cut -c1-70; sed -n 83p STATUS.md | cut -c1-90
+25
+253:- **Waktu pembaruan:** 2026-09-25 — **PERSIAPAN AUDIT PUTARAN KE
+262:- **Waktu pembaruan:** 2026-09-23 — **2026-09-23 (lanjutan): Lee
+- **Waktu pembaruan:** 2026-09-29 14:40 WIB (sesi arena/01a0e747) — putaran 6 PMB terint
+
+$ sed -n 268,269p docs/AGENT_OPERATING_GUIDE.md | cut -c1-220
+|---|---|---|
+| `PROJECT_STATE.md` | `STATUS:` (posisi/tahap berikutnya) · `DETAIL:` (ringkas: apa yang dikerjakan/diputuskan, menunggu apa) · `UPDATE TERAKHIR:` | langkah **terakhir** setiap sesi/checkpoint |
+
+## [6] Skema kode galat AOG §6 tidak dipakai (PMB1-F-207)
+
+$ sed -n 191,192p docs/AGENT_OPERATING_GUIDE.md
+- **Kode error** berkelompok: `PS-1xx` pesanan · `BY-2xx` pembayaran · `VC-3xx` voucher · `KS-4xx` kas/shift ·
+  `PR-5xx` printer · `AK-6xx` akun/izin · `UM-9xx` umum. Kode ditulis di tabel rujukan saat dibuat.
+
+$ grep -rhoE "'kode'\s*,\s*'[A-Za-z_0-9-]+'" supabase/migrations | sed -E "s/.*,\s*'//; s/'//" | sort -u | wc -l
+82
+
+$ grep -rhoE "'kode'\s*,\s*'[A-Za-z_0-9-]+'" supabase/migrations | sed -E "s/.*,\s*'//; s/'//" | sort -u | grep -E '^(PS|BY|VC|KS|PR|AK|UM)-[0-9]{3}$'
+BY-200
+
+$ grep -rhoE "'kode'\s*,\s*'[A-Za-z_0-9-]+'" supabase/migrations | sed -E "s/.*,\s*'//; s/'//" | sort | uniq -c | sort -rn | head -8
+     16 SUKSES
+      9 PERANGKAT_TIDAK_SAH
+      8 FORBIDDEN
+      7 UNAUTHORIZED
+      7 IDEMPOTEN
+      6 KREDENSIAL_TIDAK_VALID
+      6 BY-200
+      5 VOUCHER_TIDAK_DITEMUKAN
+
+$ grep -nE "kode: '" aplikasi/src/lib/pesan.ts | sed -E "s/.*kode: '([^']+)'.*/\1/" | sort | uniq -c
+      1 AK-401
+      3 AK-403
+      1 AK-601
+      1 INP-400
+      1 NET-500
+      2 PIN-400
+      2 PIN-401
+      2 PIN-429
+      1 PRG-400
+      2 PRG-403
+      1 PRG-404
+      1 SESI-401
+      1 SYS-200
+
+$ grep -n "fallbackKode = 'AK-601'" aplikasi/src/lib/pesan.ts; sed -n 275p aplikasi/src/layar/masuk/LayarMasukPegawai.tsx
+147:export function formatPesanError(error: unknown, fallbackKode = 'AK-601'): PesanRamah {
+                  [{errorRamah.kode}] {errorRamah.judul}
+
+$ sed -n 12,13p _log-sesi/LOG_SESI_2026-09-28.md | cut -c1-200
+1. **Investigasi dan Perbaikan Tuntas Galat Login Produksi `[AK-601]`:**
+   - Lee mengalami kendala saat mencoba login di peramban nyata menggunakan akun `owner@resto.test` dan PIN `123456`, yang memunculkan alert merah `[AK-601] Kendala Tidak Dikenal: Terjadi kendala dala
+
+## [7] Contoh pola RLS pengikat di AOG §9 tidak ada & tidak bisa dibuat (PMB1-F-208)
+
+$ sed -n 256,262p docs/AGENT_OPERATING_GUIDE.md | cut -c1-160
+### [Fase 1/2026-10-05] Pola RLS: penyewa + cabang di setiap policy
+- **Area:** RLS & Isolasi Penyewa (ART-1)
+- **Keputusan:** setiap tabel ber-`penyewa_id` memakai policy `USING (penyewa_id = auth.penyewa_id())`;
+  tabel ber-cabang menambah `AND cabang_id IN (SELECT cabang_id FROM pengguna_cabang WHERE pengguna_id = auth.uid())`.
+- **Alasan:** satu pola seragam mengurangi peluang satu tabel lupa dikunci.
+- **File terkait:** `supabase/migrations/*`, `supabase/tes/rls_*.sql`
+- **Implikasi:** tabel baru wajib menyalin pola ini + uji RLS-nya; jangan membuat pengecualian tanpa keputusan baru.
+
+$ grep -rn 'auth.penyewa_id' supabase/migrations | wc -l; grep -rhoE 'penyewa_id = [a-z_.]+\(\)' supabase/migrations | sort | uniq -c
+0
+     52 penyewa_id = public.penyewa_saya()
+
+$ sed -n 140p docs/DECISIONS_LOG.md | cut -c1-160
+- **Implikasi:** 1) Tabel baru **wajib** punya RLS + policy yang menyebut `penyewa_saya()` bila punya kolom `penyewa_id` — kalau tidak, CI merah (uji katalog 
+# riset: https://github.com/orgs/supabase/discussions/34270 (dibaca 2026-09-29) -> sejak 2025-04-21 tidak bisa 'Create tables and database functions' di skema auth
+
+## [8] AOG §0/§8 masih memakai protokol awal sesi lama (PMB1-F-209)
+
+$ grep -n 'PRO.md\|lanjut-sesi\|SIAP-LANJUT\|PMB' docs/AGENT_OPERATING_GUIDE.md | cut -c1-120
+55:- Kalau `docs/ops/SIAP-LANJUT.md` menyebut cabang yang berbeda dari baris `SESI YANG AKU LANJUT` di
+
+$ sed -n 19p docs/AGENT_OPERATING_GUIDE.md; sed -n 21p docs/AGENT_OPERATING_GUIDE.md; sed -n 225,226p docs/AGENT_OPERATING_GUIDE.md
+   (rekomendasi: `main`). Agent **tidak boleh** pindah/ membuat branch lain.
+   → Semua pekerjaan **WAJIB sudah di-commit & push** sebelum meminta merge. Sesi berikutnya dibuka dari `main`.
+1. **Awal sesi:** `PROFIL_PENGGUNA.md` → `alat/mulai-sesi.py` (KARTU SESI) → baca skill & fondasi yang ditandai →
+   laporkan posisi + KARTU SESI ke pemilik → tunggu konfirmasi tujuan.
+
+$ sed -n 68p docs/ops/SIAP-LANJUT.md | cut -c1-160; sed -n 38,40p PRO.md
+(`arena/01a0e747-resto-barokah`), BUKAN `main` — pekerjaan belum di-merge ke sana. Kalau platform hanya bisa dari
+3. Susul sesi aktif: `python3 alat/lanjut-sesi.py --susul`
+   (hanya fast-forward — mustahil menimpa/menghilangkan pekerjaan; kalau alat berhenti, ikuti pesannya).
+4. Verifikasi: `python3 alat/lanjut-sesi.py` harus **LOLOS**. Kalau GAGAL → bereskan dulu, jangan bekerja.
+
+## [9] Log Keputusan AOG tidak mencatat perubahan (PMB1-F-210)
+
+$ git log --follow --format='%h %ad %s' --date=short -- docs/AGENT_OPERATING_GUIDE.md | cut -c1-90
+3af3f83 2026-09-22 feat(keamanan,ui): selesaikan Fase 1B (T1-23..T1-30, T1-36, T1-43) & Fa
+1292cff 2026-09-22 fix(maraton): panen G3 dan tutup pagar uang identitas
+e50bac4 2026-09-21 fix(workflow): kirim laporan terisolasi dengan verifikasi remote
+5d3b449 2026-09-21 fix(workflow): wajibkan prompt pendek siap-tempel di chat
+03d717b 2026-09-21 Tanam mekanisme insiden gelombang 2 + T8-15 dikoreksi + penanda batch
+4c245f2 2026-09-20 Maraton: privasi pemilik + 3 temuan ditutup (J F-02 · I F-08 · F F-17
+a2d6b16 2026-09-20 Batch "dokumen jujur": 8 temuan + 4 duplikat ditutup (H F-06/08/10, I F
+11c6294 2026-09-19 Pemeriksaan pra-maraton: PR-12 ditutup, angka sisa temuan dibetulkan, p
+57cd345 2026-09-19 Mode bimbingan ditanam (AL-14 + guide 14): respon pendek untuk bimbinga
+742721d 2026-09-17 Rekam pesan ke-28/29 + aturan "galat alat sesaat bukan alasan berhenti"
+d9de6eb 2026-09-17 Rujukan bagian prompt diperbaiki (C4) + penjaga rujukan bernomor 'Bagia
+5ed041a 2026-09-17 Putaran 5: rekam pesan Lee, buku induk v2, review PR independen, base b
+9370cc1 2026-09-17 Buku pedoman induk + penjaga CI + audit menyeluruh (AUD-3) + kalibrasi 
+7f3974f 2026-09-17 Mekanisme audit independen ditanam (AUD-0..AUD-3) + daftar pekerjaan ul
+961d193 2026-09-17 Keamanan & kelengkapan UI: jawaban lanjutan pemilik + jalur pemulihan p
+25f98bd 2026-09-16 Fondasi: matangkan keamanan akun/perangkat & kelengkapan UI
+a1a8d20 2026-09-16 Fase 0: T0-04 selesai (bukti visual pemilik) + T0-10 kerangka uji & ger
+e0783f0 2026-09-16 Tahap 6 SELESAI: pemeriksaan silang (4 temuan diperbaiki) + docs/DECISI
+242e3d0 2026-09-16 Mode Maraton + Buku Tunggu (permintaan pemilik): kerja terus-menerus de
+37897de 2026-09-16 Tahap 4 SELESAI: aturan kerja agent + pemasangan skill otomatis tiap se
+
+$ sed -n 383,400p docs/AGENT_OPERATING_GUIDE.md | cut -c1-14 | sort | uniq -c
+      7 | 2026-09-16 |
+      6 | 2026-09-17 |
+      1 | 2026-09-19 |
+      1 | 2026-09-21 |
+      1 | 2026-09-22 |
+      1 | Tanggal | Pe
+      1 |---|---|---|
+
+$ sed -n 390p docs/AGENT_OPERATING_GUIDE.md | cut -c1-160; sed -n 278,279p docs/AGENT_OPERATING_GUIDE.md
+| 2026-09-16 | §0 ditambah **Gerbang pindah sesi**: pekerjaan hanya terlihat sesi berikutnya bila sudah di-merge ke `main` | Temuan nyata: `main` masih di comm
+- **Perubahan kecil-teknis** (nama kolom, urutan langkah internal, penamaan berkas): boleh, tetapi **dicatat**
+  (tabel Log Keputusan di bawah + dilaporkan ke pemilik).
+
+## [10] Fakta basi di AOG (PMB1-F-211) + penomoran §5 (PMB1-F-212)
+
+$ sed -n 89p docs/AGENT_OPERATING_GUIDE.md | cut -c1-130; ls -d skills/*/ | wc -l; find skills -name SKILL.md | wc -l; du -sh skills
+Skill yang tersedia **sudah tersimpan lokal** di `skills/` (56 folder, 87 berkas SKILL.md, ±26 MB) — tidak perlu internet,
+57
+88
+26M	skills
+
+$ sed -n 216p docs/AGENT_OPERATING_GUIDE.md | cut -c1-120; ls aplikasi/src/lib/aksi.ts alat/peta-ui.py docs/PETA_UI.md
+- [ ] Semua aksi layar ada di **Registri Aksi** (`aplikasi/src/lib/aksi.ts` — (rencana Fase 1C)) dengan izin/RPC/pesan
+alat/peta-ui.py
+aplikasi/src/lib/aksi.ts
+docs/PETA_UI.md
+
+$ sed -n 235p docs/AGENT_OPERATING_GUIDE.md
+- Dokumen ini **mulai kosong dan diisi selama coding** (dibuat resmi pada Tahap 6 dari template).
+
+$ grep -nE '^(4[a-g]?|5|6|7)\. \*\*|^\*\*Gerbang penyerahan' docs/AGENT_OPERATING_GUIDE.md | awk -F: '$1>148 && $1<186' | cut -c1-50
+156:4. **Uji alur (Playwright, di CI/lingkungan pe
+161:4b. **Uji komponen per layar (WAJIB sejak 2026
+164:4c. **Uji keamanan akun & perangkat (WAJIB, `d
+166:4e. **Audit independen (WAJIB sejak 2026-09-17
+172:4f. **Buku pedoman induk = bagian dari kode (W
+173:**Gerbang penyerahan paket independen (Lee, 20
+175:4g. **Review PR independen (WAJIB sejak 2026-0
+178:4d. **Uji pemanggilan RPC langsung:** penolaka
+180:5. **Uji mesin/nyata** — cetak struk di prin
+181:6. **Daftar uji terima bahasa manusia** dituli
+183:7. **Aturan gelombang:** tidak ada naik gelomb
+
+## [11] Butir [x] selesai di tabel terbuka (PMB1-F-213)
+
+$ sed -n 24,31p docs/TERTANGGUH.md | awk -F'|' '{print $2 "::" $9}' | cut -c1-110
+::
+::
+ ID    :: Status      
+ ----- :: ----------- 
+ T-026 :: **DIPUTUSKAN 2026-09-23 (Lee): TUNDA ke Fase 11 — pilihan (b), DENGAN SYARAT.** Lee menyetujui pen
+ T-027 :: **SELESAI 2026-09-23 — pilihan (b) dipilih Lee dan SUDAH DIKERJAKAN.** Lee menambahkan alasan yang
+ T-028 :: **DIPUTUSKAN 2026-09-23 (Lee): TUNDA ke Fase 6 — pilihan (c), DENGAN SYARAT TEGAS.** Lee: "Kalau m
+ T-014 :: [x] selesai 
+
+$ python3 alat/mulai-sesi.py | grep -m1 'Terbuka:'
+  Terbuka: 2 butir
+
+## [12] any tanpa alasan tertulis (PMB1-F-214)
+
+$ sed -n 124p docs/AGENT_OPERATING_GUIDE.md
+- **Ketat & aman:** TypeScript mode `strict`; `any` dilarang kecuali ada alasan tertulis; nilai kosong wajib ditangani.
+
+$ sed -n 88,99p aplikasi/src/bahasa/index.tsx; sed -n 143,146p aplikasi/src/bahasa/index.tsx
+    const bagian = kunciPath.split('.')
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let hasil: any = kamus
+    for (const b of bagian) {
+      if (hasil && typeof hasil === 'object' && b in hasil) {
+        hasil = hasil[b]
+      } else {
+        // Fallback ke Bahasa Indonesia jika tidak ditemukan
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let fallback: any = KAMUS_SEMUA_BAHASA.id
+        for (const fb of bagian) {
+      t: (kunciPath: string) => {
+        const bagian = kunciPath.split('.')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let hasil: any = id
+
+## [13] Tombol mentah LayarContoh dikecualikan diam-diam (PMB1-F-215, luar cakupan)
+
+$ sed -n 217p docs/AGENT_OPERATING_GUIDE.md
+- [ ] Tombol dirender lewat `TombolAksi` (tombol mentah dilarang di folder `layar/`)
+
+$ grep -n '<button' aplikasi/src/layar/contoh/LayarContoh.tsx
+119:            <button
+137:            <button
+150:            <button
+
+$ sed -n 395,399p alat/peta-ui.py; git log --format='%h %ad %s' --date=short -S'LayarContoh.tsx" in berkas_tsx.name' -- alat/peta-ui.py | cut -c1-100
+    # Aturan 7: Tombol mentah di folder aplikasi/src/layar/
+    dir_layar = akar / "aplikasi/src/layar"
+    if dir_layar.exists():
+        for berkas_tsx in dir_layar.rglob("*.tsx"):
+            if "test.tsx" in berkas_tsx.name or "LayarContoh.tsx" in berkas_tsx.name:
+6d702d3 2026-09-22 feat(ui): implementasi Fase 1C kontrak layar, registri aksi, dan naskah jalan
+
+$ sed -n 494,495p aplikasi/src/App.tsx; python3 alat/peta-ui.py --periksa | tail -1
+      default:
+        return <LayarContoh />
+PETA UI: SEMUA PEMERIKSAAN HIJAU (Layar, Aksi, RPC, Izin, Uji, PRD M1–M12, Bebas Button Liar).
+
+## [14] Klaim yang BERTAHAN (dicoba dibantah)
+
+$ sed -n 43,53p .github/workflows/ci.yml
+      - name: Kerapian kode (Prettier)
+        working-directory: aplikasi
+        run: npm run format:check
+
+      - name: Aturan kode (ESLint)
+        working-directory: aplikasi
+        run: npm run lint
+
+      - name: Tipe (TypeScript ketat)
+        working-directory: aplikasi
+        run: npm run typecheck
+
+$ git log --all --format='%h %ad %s' --date=short -S'T-017' | cut -c1-90; git log --format=%h -S'T-017' -- docs/TERTANGGUH.md | wc -l
+0967771 2026-09-20 Maraton: K F-03 + F-11 §1b + D F-09 + D F-10 ditutup — migrasi 0018 
+ec875b9 2026-09-17 Temuan K-3 audit AUD-3 F-11: pagar + uji regresi yang bisa MERAH + kore
+0
+
+$ for a in periksa-rujukan periksa-roadmap periksa-temuan-audit periksa-panduan; do python3 alat/$a.py 2>&1 | tail -1; done
+HASIL: LOLOS — semua rujukan di dokumen pengikat hidup (yang belum ada ditandai jelas).
+HASIL: LOLOS — semua pemeriksaan roadmap terpenuhi.
+HASIL: LOLOS — 117 temuan terlacak semua, tiap DITUTUP punya bukti hidup, tiap TERBUKA punya tugas; 20 temuan luar cakupan review berjejak di daftar tunggal.
+HASIL: LOLOS — buku induk lengkap, rujukan hidup, prompt identik dengan sumbernya.
+
+$ python3 _sistem/validate_system.py | tail -1
+SYSTEM-BUILDING-APLIKASI VALIDATOR: PASS
+
+## [15] Regresi temuan lama
+
+$ grep -n 'AGENT_OPERATING_GUIDE\|TERTANGGUH' docs/uji/AUDIT_RIWAYAT.md docs/uji/TEMUAN_LUAR_CAKUPAN_REVIEW.md | cut -c1-120
+docs/uji/AUDIT_RIWAYAT.md:83:| I F-12 | K-2 | Aturan aktif pindah sesi saling mewajibkan dan melarang merge | **DITUTUP 
+docs/uji/AUDIT_RIWAYAT.md:104:| J F-02 | K-2 | Penjaga rujukan hanya melihat 11 berkas pengikat — kelas "rujukan mati 
+docs/uji/AUDIT_RIWAYAT.md:206:| L F-04 | K-1 | Uji E2E kasir & uji beban diklaim selesai, tidak ada wujudnya (`aplikasi/
+docs/uji/AUDIT_RIWAYAT.md:260:| 5 | **Rujukan berkas basi di berkas untuk pengguna**: `PROMPT_ENTRI_UNIVERSAL.md` & buku
+docs/uji/TEMUAN_LUAR_CAKUPAN_REVIEW.md:38:Kalau sarana itu dihapus dari `docs/ROADMAP.md` atau `docs/TERTANGGUH.md`, pem
+
+$ sed -n 38,40p docs/AGENT_OPERATING_GUIDE.md
+> **Dikoreksi 2026-09-20 (temuan audit I F-12).** Versi lama bagian ini mewajibkan **merge PR ke `main`**
+> sebelum sesi baru; `PROMPT_SESI_BARU.md` di sisi lain melarang merge hanya untuk melihat pekerjaan.
+> Dua-duanya dokumen aktif, jadi agent terjepit. Aturan tunggal yang berlaku sekarang:
+
+## [6b] Tambahan PMB1-F-207: kode berpola skema di teks raise exception
+
+$ grep -rhoE "(PS|BY|VC|KS|PR|AK|UM)-[0-9]{3}:" supabase/migrations | sort | uniq -c
+      9 BY-201:
+      3 BY-301:
+
+$ grep -rn 'BY-301' supabase/migrations | head -2 | cut -c1-160
+supabase/migrations/0039_bayar_pesanan.sql:128:    -- Kode BY-301 SENGAJA beda dari pesan pemicu 0010 yang serupa: dengan begitu uji
+supabase/migrations/0039_bayar_pesanan.sql:130:    raise exception 'BY-301: pembayaran % membuat total dibayar % melebihi total pesanan %.',
