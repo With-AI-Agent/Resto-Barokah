@@ -56,7 +56,7 @@ untuk rentang barisnya.
 | P-7-00 | 2 | Fase 7 — kas & shift, laporan harian (M7, M8) | RPC shift/kas, `aplikasi/src/layar/kas/` (perkiraan) | L2 L4 | dirinci | RENCANA | — | — |
 | P-8-00 | 2 | Fase 8 — katalog pelanggan & voucher (M10; ART-5, ART-10) | `aplikasi/src/layar/voucher/`, RPC voucher | L1 L2 | dirinci | RENCANA | — | — |
 | P-9-00 | 2 | Fase 9 — pengaturan tanpa koding & multi-cabang (M1, M2, M3, M11) | `aplikasi/src/layar/pengaturan/`, `aplikasi/src/layar/platform/`, migrasi 0079 | L1 L3 | dirinci | RENCANA | — | — |
-| P-10-00 | 2 | Fase 10 — ketahanan & keamanan lanjutan (M12, K4; ART-8) | migrasi 0080–0087, `supabase/functions/`, cadangan & denyut | L1 L6 | dirinci | RENCANA | — | — |
+| P-10-00 | 2 | Fase 10 — ketahanan & keamanan lanjutan (M12, K4; ART-8) | migrasi 0080–0087, `supabase/functions/`, cadangan & denyut | L1 L6 | dirinci | DIKLAIM | arena/01a0eb15-resto-barokah | 2026-09-29 |
 | P-11-00 | 2 | Fase 11 — **belum dikerjakan** (REKAM §31): yang diperiksa = instrumennya (skenario uji terima, panduan pegawai, serah terima, deploy) | `docs/uji/UJI_TERIMA_G1.md`, `docs/ops/PANDUAN_PEGAWAI.md`, `docs/ops/DEPLOY.md`, `docs/ops/SERAH_TERIMA_G1.md` | L3 L5 L6 | dirinci | RENCANA | — | — |
 
 ## Tahap 3 — Lintas-fase (sambungan)
