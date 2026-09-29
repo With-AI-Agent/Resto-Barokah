@@ -232,7 +232,9 @@ Giliran ke-n (chat yang sama ATAU chat baru — hasilnya harus sama):
 
 - **Lintas cabang:** setiap sesi Arena terikat cabangnya sendiri, jadi sesi giliran push ke cabangnya dan **Perencana menggabungkan**
   (perintah Lee `integrasikan <cabang>` → `git fetch` + `git merge --no-ff`, hanya berkas `PMB-1/` yang diharapkan berubah; tabrakan
-  diselesaikan dengan mempertahankan semua baris). Klaim di PAPAN baru terlihat sesi lain setelah digabung — karena itu Lee sebaiknya
+  diselesaikan dengan mempertahankan semua baris; sejak 2026-09-29 dikerjakan `alat/pmb-integrasi.py` — gabungan baris demi baris,
+  penomoran ulang otomatis, sengketa dua hakim tidak diputuskan mesin melainkan dengan aturan tertulis di `PMB-1/README.md`).
+  Klaim di PAPAN baru terlihat sesi lain setelah digabung — karena itu Lee sebaiknya
   **menunjuk potongan** di baris `POTONGAN` prompt bila membuka beberapa sesi sekaligus.
 - **Kenapa berhenti tiap potongan, bukan lanjut sendiri?** Supaya konteks chat tidak menggelembung (P2), dan
   supaya Lee bisa mengganti model/sesi kapan saja tanpa kehilangan apa pun. Kalau Lee ingin lebih cepat,
@@ -420,3 +422,11 @@ owner cukup email + PIN dari browser mana pun karena RPC mendaftarkan perangkat 
 dihakimi); ID selalu lengkap `PMB1-…`; sel tabel tanpa pipa; ≥2 agent per cabang = kartu `.n`. Beban Hakim F-02/F-03 besar (21 & 20 baris,
 banyak kembar lintas tiga pemeriksa) → **satu Hakim per potongan**, dan Perencana tidak lagi menyarankan tiga pemeriksa untuk satu potongan
 kecuali sebagai kalibrasi yang disengaja.
+
+**Putaran 3 (2026-09-29 pagi; cabang 01a0ea8f · 01a0ea90 · 01a0ea91 · 01a0ea92):** HAKIM F-02 (16 TERVERIFIKASI · 5 DUPLIKAT; F-009 DITUTUP
+oleh hakim, bukan pembangun ✓), **dua HAKIM F-03 independen di cabang berbeda** (sepakat 15/20; 3 sengketa validitas → `PERLU-INFO`,
+1 K disamakan ke yang lebih berat, 1 TERVERIFIKASI-vs-DUPLIKAT tetap TERVERIFIKASI; masing-masing hakim juga menemukan 1 temuan baru
+K-2/K-1 di RPC login → `P-10-00`), dan satu cabang dengan **enam agent** (F-04/F-05/F-06 masing-masing dua kartu; 39 temuan yang
+sudah mereka nomori ulang sendiri di dalam cabang). Integrasi tangan sudah tidak aman pada volume ini → lahir `alat/pmb-integrasi.py`
+(gabungan baris demi baris; 4 cabang digabung tanpa satu baris pun hilang, penjaga LOLOS di tiap langkah). Aturan baru: sengketa hakim
+(README PMB-1) + siklus `TERVERIFIKASI`/`PALSU → PERLU-INFO` khusus sengketa/bukti baru. Buku Besar: 91 temuan · 60 asumsi.

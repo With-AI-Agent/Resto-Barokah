@@ -12,6 +12,8 @@ Alur:   git merge --no-ff --no-commit <cabang>  →  tulis ulang berkas PMB-1 ha
         penjaga (periksa-pemeriksaan.py)  →  commit bila tanpa sengketa & penjaga LOLOS; bila ada sengketa: merge dibiarkan
         terbuka (MERGE_HEAD ada), laporan JSON ditulis, keluar kode 2 — Perencana menyelesaikan lalu commit sendiri.
 Batas:  hanya berkas di docs/uji/pemeriksaan/PMB-1/ yang boleh berubah di cabang giliran; berkas lain → berhenti (kode 3).
+Catatan: belum punya --uji-diri; divalidasi pada empat cabang nyata 2026-09-29 (ea8f, ea91, ea90 dengan 22 sengketa, ea92 dengan
+        39 temuan +2 / 17 asumsi +4) — setiap langkah diikuti `periksa-pemeriksaan.py` LOLOS. Aturan sengketa: PMB-1/README.md.
 """
 from __future__ import annotations
 

@@ -78,7 +78,9 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
 
 ## 5. Peran khusus
 
-- **HAKIM** — objekmu = baris Buku Besar berstatus `BARU` dari potongan yang kamu ambil. Untuk tiap temuan: **reproduksi buktinya hari ini**,
+- **HAKIM** — objekmu = baris Buku Besar berstatus `BARU` dari potongan yang kamu ambil, **ditambah** baris `PERLU-INFO` berawalan
+  "SENGKETA HAKIM" (kamu hakim ketiga: baca kedua putusan di kolom Hakim dan kartu H-nya, reproduksi sendiri, putuskan dengan alasan;
+  kalau sengketa hanya bisa dijawab Lee/operator, tulis persis informasi apa yang dibutuhkan dan biarkan `PERLU-INFO`). Untuk tiap temuan: **reproduksi buktinya hari ini**,
   nilai tingkat K, putuskan `TERVERIFIKASI` / `PALSU` (alasan tertulis) / `PERLU-INFO` (apa yang kurang), isi kolom Hakim (`arena/<id>` + `H-<ID>`).
   Bila potongan punya ulangan independen (`kartu/K-<ID>.2.md`), bandingkan keduanya: temuan kembar → status `DUPLIKAT` pada yang lebih
   muda (kolom Hakim menyebut ID induk), tingkat K disamakan dengan alasan. Kamu **bukan** sesi yang menemukan dan **bukan** pembangun. Periksa juga kartu K-nya: klaim yang tidak dicoba dibantah = catatan di H-kartu.
