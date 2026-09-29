@@ -1,0 +1,15 @@
+== kontrol: pohon utuh
+HASIL: LOLOS
+== M1 PALSU tanpa kartu H apa pun (harus GAGAL)
+  [GAGAL] BUKU BESAR PMB1-F-153: status PALSU wajib menyebut kartu hakim yang ADA di kartu/ (H-<potongan>[.n].md) di kolom Hakim/Tutup — disebut: ti
+HASIL: GAGAL — 1 masalah
+== M2 PALSU menyebut kartu K pemeriksa (harus GAGAL)
+  [GAGAL] BUKU BESAR PMB1-F-153: status PALSU wajib menyebut kartu hakim yang ADA di kartu/ (H-<potongan>[.n].md) di kolom Hakim/Tutup — disebut: ti
+HASIL: GAGAL — 1 masalah
+== M3 PALSU menyebut kartu H POTONGAN LAIN H-F-01 (PMB1-F-172: LOLOS = celah)
+HASIL: LOLOS
+== M1 lagi dengan penjaga LAMA (induk 3f56abb, sebelum perbaikan) — harus LOLOS (membuktikan perbaikan berarti)
+HASIL: LOLOS
+== uji-diri penjaga baru
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
