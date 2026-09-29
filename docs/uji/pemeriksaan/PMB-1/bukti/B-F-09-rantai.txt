@@ -19,3 +19,4 @@ RINGKASAN: 17/17 mutasi WAJIB terbukti MERAH
 - baris 125 lanjut-sesi.py (mode lokal): GAGAL 8 masalah — semuanya soal handoff/push (cabang giliran PMB dilarang menyentuh trio handoff; commit belum ter-push). Bukan dari perbaikan ini.
 - baris 126-155: dijalankan; baris 156 periksa-paket.py GAGAL 116 pelanggaran 'commit … TIDAK ADA di repo ini' = riwayat dangkal (git rev-parse --is-shallow-repository → true; --unshallow gagal karena token GH kedaluwarsa). CI punya riwayat penuh.
 - baris 157-184: SEMUA PEMERIKSAAN LOLOS.
+## Susulan sesudah GitHub tersambung lagi: git fetch --unshallow → riwayat penuh; python3 alat/periksa-paket.py → HASIL: LOLOS — setiap paket menunjuk induk commit-nya sendiri, artefaknya nyata, dan paket review baru tercatat di riwayat.
