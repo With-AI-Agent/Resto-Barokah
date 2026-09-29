@@ -12,7 +12,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
 
   # Batasi akses API peramban sensitif (kamera diizinkan untuk scan voucher kasir)
-  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=(self)
 
   # Matikan audit XSS bawaan peramban kuno yang justru membuka celah keamanan
   X-XSS-Protection: 0

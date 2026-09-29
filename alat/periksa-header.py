@@ -119,9 +119,11 @@ def periksa_isi_headers(path_file: pathlib.Path) -> list[str]:
         errs.append(f"{lbl}: Referrer-Policy terlalu longgar: '{rp}'")
 
     pp = headers_global.get("Permissions-Policy", "")
-    for fitur in ("camera", "microphone", "geolocation"):
+    for fitur in ("camera", "microphone", "geolocation", "usb"):
         if fitur not in pp:
             errs.append(f"{lbl}: Permissions-Policy tidak mengatur fitur '{fitur}'")
+    if not re.search(r"(?:^|,\s*)usb=\(self\)(?:,|$)", pp):
+        errs.append(f"{lbl}: Permissions-Policy harus mengizinkan WebUSB hanya untuk asal sendiri (usb=(self))")
 
     hsts = headers_global.get("Strict-Transport-Security", "")
     if "max-age" not in hsts or "includeSubDomains" not in hsts or "preload" not in hsts:
@@ -278,6 +280,12 @@ def uji_diri() -> int:
         target.write_text(m9, encoding="utf-8")
         e9 = periksa_isi_headers(target)
         hasil.append(("mutasi 9: CSP kehilangan upgrade-insecure-requests ditolak", len(e9) > 0, "tertangkap" if e9 else "lolos"))
+
+        # Mutasi 10: WebUSB diblokir untuk asal sendiri
+        m10 = teks_asli.replace("usb=(self)", "usb=()")
+        target.write_text(m10, encoding="utf-8")
+        e10 = periksa_isi_headers(target)
+        hasil.append(("mutasi 10: Permissions-Policy memblokir WebUSB ditolak", len(e10) > 0, "tertangkap" if e10 else "lolos"))
 
     print("======================================================================")
     print("UJI DIRI PERIKSA HEADER KEAMANAN (T10-14)")
