@@ -87,12 +87,13 @@ Kolom "Potongan fase" diisi saat papan Tahap 2 dirinci (setelah baseline dikunci
 | PRD M4 | F-02 | P-3-00 | M-03 | — |
 | PRD M5 | F-02 | P-4-00 | M-04 | — |
 | PRD M6 | F-02 | P-5-00 | X-01, M-03 | — |
-| PRD M7 | F-03 | P-7-00 | X-01, M-03 | F-03: A-014 terbuka (dua kasir/satu kas) · F-03.2: PMB1-F-015 K-2 (aturan wajib shift dilonggarkan diam-diam), PMB1-F-024 K-3 luar cakupan (uang seharusnya negatif dibulatkan 0) |
+| PRD M7 | F-03 | P-7-00 | X-01, M-03 | F-03: A-014 terbuka (dua kasir/satu kas) · F-03.2: PMB1-F-015 K-2 (aturan wajib shift dilonggarkan diam-diam), PMB1-F-024 K-3 luar cakupan (uang seharusnya negatif dibulatkan 0) · F-03.3: A-014 dikonfirmasi tetap terbuka (indeks 0045; tanpa entri DECISIONS_LOG) |
 | PRD M8 | F-03 | P-7-00 | X-01, M-08 | F-03: PMB1-F-013 (cetak masih disebut fase 2) · F-03.2: klaim cetak = fase 2 bertahan (T7-10 menjembatani) — berbeda pendapat dengan PMB1-F-013, untuk Hakim |
 | PRD M9 | F-03 | P-4-00 | M-04 | F-03: tidak ada temuan baru di teks M9 · F-03.2: tidak ada temuan |
-| PRD M10 | F-03 | P-8-00 | X-05, M-05 | F-03: PMB1-F-009 K-1, PMB1-F-010 K-2, PMB1-F-012, PMB1-F-013 · F-03.2: PMB1-F-016 K-2 (jalur didaftarkan kasir tanpa kunci identitas), PMB1-F-019 K-3 (alamat/HP tanpa tujuan MVP) |
+| PRD M10 | F-03 | P-8-00 | X-05, M-05 | F-03: PMB1-F-009 K-1, PMB1-F-010 K-2, PMB1-F-012, PMB1-F-013 · F-03.2: PMB1-F-016 K-2 (jalur didaftarkan kasir tanpa kunci identitas), PMB1-F-019 K-3 (alamat/HP tanpa tujuan MVP) · F-03.3: A-026 terbuka (kasus tepi voucher offline tanpa mekanisme) |
 | PRD M11 | F-03 | P-9-00 | X-02, M-02 | F-03: PMB1-F-011 (izin per cabang vs skema) · F-03.2: tidak diuji terhadap skema (lihat PMB1-F-011) |
-| PRD M12 | F-03 | P-10-00 | X-02, X-04, M-06 | F-03: sesi/PDP angka cocok A-016; gerbang T-011 di PMB1-F-012 · F-03.2: PMB1-F-014 K-1 (owner masuk PIN + perangkat daftar sendiri), PMB1-F-017 K-2 (regresi K F-03), PMB1-F-018 K-3 (rantai audit tanpa jangkar), PMB1-F-020 K-3 (token/sandi di config.toml tidak cocok — angka sesi TIDAK cocok di konfigurasi), PMB1-F-022 K-4, PMB1-F-025 K-4 |
+| PRD M12 | F-03 | P-10-00 | X-02, X-04, M-06 | F-03: sesi/PDP angka cocok A-016; gerbang T-011 di PMB1-F-012 · F-03.2: PMB1-F-014 K-1 (owner masuk PIN + perangkat daftar sendiri), PMB1-F-017 K-2 (regresi K F-03), PMB1-F-018 K-3 (rantai audit tanpa jangkar), PMB1-F-020 K-3 (token/sandi di config.toml tidak cocok — angka sesi TIDAK cocok di konfigurasi), PMB1-F-022 K-4, PMB1-F-025 K-4 · F-03.3: PMB1-F-026 K-2 (notifikasi mode dukungan tanpa mekanisme), PMB1-F-027 K-2 (ringkasan harian tanpa penjadwal) |
+| PRD §9–§10 (risiko, pertanyaan terbuka) | F-03 | P-10-00 (risiko) | — | F-03.3: PMB1-F-028 K-4 (label cetak "LAN" vs TECH_SPEC "Ditolak: printer jaringan"); temuan §10 basi = kembar PMB1-F-021 (K-F-03.2, untuk Hakim) |
 | ART-1 … ART-15 | F-05 | ditentukan per ART saat Tahap 2 dirinci | X-01 … X-07 | — |
 | TECH_SPEC §0 | F-04 (ringkasan untuk pemilik: harus cocok dengan §1–§13) | — | — | — |
 | TECH_SPEC §1 … §13 | F-04 (§1–§5), F-05 (§6–§13) | — | — | — |
