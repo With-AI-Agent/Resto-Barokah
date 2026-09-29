@@ -107,6 +107,24 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
     })
   })
 
+  it('menolak kirim dapur jika callback penyimpanan tidak dipasang', async () => {
+    render(
+      <PenyediaBahasa>
+        <KasirDenganDataUji />
+      </PenyediaBahasa>,
+    )
+
+    fireEvent.click(screen.getByText('Es Teh Manis Melati'))
+    fireEvent.click(screen.getByText('Manis Sedang'))
+    fireEvent.click(screen.getByRole('button', { name: /Tambahkan ke Pesanan/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Kirim ke Dapur/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Penyimpanan pesanan belum dikonfigurasi.')).toBeDefined()
+    })
+    expect(screen.queryByText('Pesanan berhasil dikirim ke dapur!')).toBeNull()
+  })
+
   it('dapat membuka modal Tagihan Terbuka (Open Bill)', () => {
     render(
       <PenyediaBahasa>

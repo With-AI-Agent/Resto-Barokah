@@ -173,8 +173,14 @@ export function LayarKasir({
   daftarMenu = [],
   katalogSedangMemuat = false,
   pesanGalatKatalog = null,
-  onSimpanPesanan = async () => ({ sukses: true, pesananId: 'ord-new' }),
-  onKirimKeDapur = async () => ({ sukses: true }),
+  onSimpanPesanan = async () => ({
+    sukses: false,
+    pesan: 'Penyimpanan pesanan belum dikonfigurasi.',
+  }),
+  onKirimKeDapur = async () => ({
+    sukses: false,
+    pesan: 'Pengiriman ke dapur belum dikonfigurasi.',
+  }),
   pesananId = 'ord-current',
   nomorTagihan = 1,
   metodeBayar = [],
