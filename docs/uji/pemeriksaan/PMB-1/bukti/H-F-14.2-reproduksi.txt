@@ -1,0 +1,347 @@
+# BUKTI HAKIM F-14 — kartu H-F-14.2 (sesi arena/01a0ec16-resto-barokah, 2026-09-29)
+# Semua perintah di bawah dijalankan ulang hari ini di checkout ini; keluaran apa adanya.
+# Commit basis: 92bce39
+
+=============================================================
+BAGIAN 1 — PMB1-F-176 (klaim TOTP + kata sandi >= 12 'sudah terpasang kokoh', :3225-3227)
+=============================================================
+
+$ grep -ril totp supabase/migrations supabase/functions | wc -l
+0
+
+$ grep -rn 'mfa|challenge' aplikasi/src (tanpa berkas uji)
+(kosong — tidak ada jalur MFA di klien)
+
+$ grep -rn MasukPengelola aplikasi/src (tanpa berkasnya sendiri & ujinya)  → layar TOTP yatim
+(kosong — 0 pemanggil non-uji)
+
+$ grep -rn 'signInWithPassword|signUp(' aplikasi/src
+(kosong — tidak ada jalur masuk kata sandi di aplikasi)
+
+$ grep -n 'rpc(' aplikasi/src/lib/auth.ts | head -3   → jalur masuk nyata
+176:    const { data, error } = await supabase.rpc('verifikasi_pin_perangkat', {
+
+$ sed -n '100,102p' docs/KEAMANAN.md   → baseline yang dilanggar
+| **Admin Cabang** | Kata sandi (≥12) + **TOTP wajib** + perangkat terdaftar | Boleh mengelola cabang; tidak boleh melihat cabang lain. |
+| **Owner Pusat** | Kata sandi + **TOTP wajib** + perangkat terdaftar | Perangkat pertama boleh didaftarkan sendiri (bootstrap) dengan kata sandi + TOTP. |
+| **Pemilik Platform** | Kata sandi + **TOTP wajib** (tanpa perangkat) | Sesi 8 jam; data penyewa hanya lewat mode dukungan. |
+
+$ sed -n '276p' docs/PRD.md
+16. **Kunci kedua (TOTP) wajib untuk Pemilik Platform, Owner Pusat, dan Admin Cabang**; kasir/pelayan/dapur sudah dua lapis (perangkat + PIN).
+
+$ sed -n '3225,3227p' docs/DECISIONS_LOG.md   → klaim yang diuji
+       - Panjang kata sandi wajib ≥ 12 karakter.
+       - Larangan pola lemah / kamus kata sandi umum.
+       - **Wajib TOTP (Google Authenticator / 2FA)** pada setiap akun berkuasa (Owner Pusat & Admin Cabang). Sekalipun penyerang memiliki kata sandi dari kebocoran situs lain (*credential stuffing*), penyerang tetap diblokir karena ketiadaan fisik kode TOTP 6 digit.
+
+Runtime (kolom TOTP/MFA di skema): lihat bukti/H-F-14.2-voucher-dan-tabel.sql BAGIAN 5 → 0 kolom.
+
+=============================================================
+BAGIAN 2 — PMB1-F-177 (generator kode voucher, :2825)
+=============================================================
+
+$ grep -rn gen_random_bytes supabase/migrations | wc -l
+0
+
+$ grep -rn 'function public.buat_kode_voucher_acak' supabase/migrations  → hanya 0064 (tidak ditulis ulang migrasi lain)
+supabase/migrations/0064_terbit_voucher_acak.sql:25:create or replace function public.buat_kode_voucher_acak()
+supabase/migrations/0064_terbit_voucher_acak.sql:377:revoke all on function public.buat_kode_voucher_acak() from public, anon;
+supabase/migrations/0064_terbit_voucher_acak.sql:378:grant execute on function public.buat_kode_voucher_acak() to authenticated, anon, service_role;
+
+$ sed -n '31p;39p;44p' supabase/migrations/0064_terbit_voucher_acak.sql
+  v_chars text := '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+    v_rand := 1 + floor(random() * v_len)::int;
+    v_rand := 1 + floor(random() * v_len)::int;
+
+$ sed -n '62,63p' supabase/migrations/0064_terbit_voucher_acak.sql   → komentar vs regex
+  -- Pola: RB-XXXX-XXXX (alfanumerik tanpa karakter ambigu 0, O, 1, I, L)
+  return p_kode ~* '^RB-[2-9A-HJ-NP-Z]{4}-[2-9A-HJ-NP-Z]{4}$';
+
+$ python3 -c "print(len('23456789ABCDEFGHJKMNPQRSTUVWXYZ'))"   → panjang alfabet nyata
+31
+
+$ sed -n '2825p' docs/DECISIONS_LOG.md   → klaim yang diuji
+     Pola kode voucher `RB-XXXX-XXXX` dibangkitkan menggunakan `gen_random_bytes()` dan alfabet Crockford Base32 tanpa karakter ambigu (0, O, 1, I), mustahil ditebak secara sekuensial.
+
+Runtime (definisi efektif + alfabet + validator menerima L): bukti/H-F-14.2-voucher-dan-tabel.sql BAGIAN 1-3.
+
+=============================================================
+BAGIAN 3 — PMB1-F-178 (kontrak :5 'WAJIB dicatat' vs migrasi 0082/0086/0087)
+=============================================================
+
+$ for f in 0082 0086 0087; do printf '%s: %s\n' "$f" "$(grep -c $f docs/DECISIONS_LOG.md)"; done
+0082: 0
+0086: 0
+0087: 0
+
+$ ls supabase/migrations/0082* supabase/migrations/0086* supabase/migrations/0087*
+supabase/migrations/0082_denyut_harian_pembersih.sql
+supabase/migrations/0086_data_awal_dan_autentikasi_perangkat.sql
+supabase/migrations/0087_perbaiki_search_path_kripto_dan_rpc.sql
+
+$ sed -n '5,7p' docs/DECISIONS_LOG.md   → kontrak yang dilanggar
+> (lihat TECH_SPEC.md) WAJIB dicatat di sini sebelum lanjut ke task lain.
+> Sebelum menyentuh ulang area yang tercatat di sini, WAJIB baca dulu
+> entri terkait — jangan menebak ulang dari kode.
+
+$ sed -n '6p' docs/TECH_SPEC.md   → aturan induk ART
+> (ART-1…ART-10) WAJIB lewat `DECISIONS_LOG.md` + persetujuan pemilik** — dilarang mengubah diam-diam.
+
+$ grep -n 'T10-08' docs/DECISIONS_LOG.md   → koreksi hakim: keputusan denyut harian SEBAGIAN tercatat (alur kerja saja, bukan migrasinya)
+3259:  4. **Otomasi Denyut Harian Anti-Tidur & Pembersih Data Sementara (T10-08):**
+
+$ sed -n '19,24p' supabase/migrations/0086_data_awal_dan_autentikasi_perangkat.sql   → isi ART yang tidak tercatat
+--      -> Perangkat didaftarkan otomatis secara mandiri (self-provisioning) dengan
+--         izin peran penuh untuk cabang utama restoran.
+--      -> Perangkat yang dicabut (aktif = false) TETAP DITOLAK seketika (PERANGKAT_TIDAK_SAH).
+--   2. Menyediakan seed data lengkap dan idempoten:
+--      Penyewa Kedai Oasis, Cabang Utama, Pengaturan Resto, Akun Staf (Owner, Kasir, Dapur, Pelayan)
+--      dengan PIN 123456, Kategori & Menu Kuliner Indonesia, dan Meja Cabang.
+
+=============================================================
+BAGIAN 4 — PMB1-F-179 (CSP dikunci :3175 vs dicabut :3256)
+=============================================================
+
+$ grep -n 'unsafe-inline' docs/DECISIONS_LOG.md
+3175:       - `script-src 'self' 'unsafe-inline'` (mendukung bundle Vite tanpa membuka domain eksternal; wildcard dilarang).
+3176:       - `style-src 'self' 'unsafe-inline'` (mendukung 10 tema dinamis kedai dan CSS token).
+3256:     - Mencabut kata kunci `'unsafe-inline'` dari `script-src` pada `aplikasi/public/_headers` (karena bundel React SPA tidak menggunakan skrip inline).
+3257:     - Memperketat `alat/periksa-header.py` untuk menolak `'unsafe-eval'`, `'unsafe-inline'`, dan wildcard `*` pada direktif `script-src`, `connect-src`, dan `default-src`.
+
+$ grep -n 'script-src' aplikasi/public/_headers   → keadaan nyata hari ini
+24:  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.workers.dev https://api.resend.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;
+
+$ python3 alat/periksa-header.py | tail -3
+  [OK] Sumber: aplikasi/public/_headers terverifikasi utuh
+
+HASIL: LOLOS — konfigurasi header keamanan halaman lengkap & fail-closed.
+
+Catatan hakim: 'style-src ... unsafe-inline' (:3176) MASIH benar hari ini — kontradiksi hanya soal script-src.
+
+=============================================================
+BAGIAN 5 — PMB1-F-180 (angka tabel 45/46/47)
+=============================================================
+
+$ grep -h -oE 'create table (if not exists )?public\.[a-z_]+' supabase/migrations/*.sql | sed -E 's/.*public\.//' | sort -u | wc -l
+47
+
+$ grep -n '^### \[' docs/DECISIONS_LOG.md | awk -F: '$1>2900 && $1<3220'   → tiga entri berlabel tanggal sama
+2909:### [Fase 9/2026-09-26] Pemilik Platform: Pendaftaran Penyewa Baru & Tata Kelola Multi-Tenant (T9-10)
+2931:### [Fase 9/2026-09-26] Pratinjau Perubahan & Pengaman Riwayat (T9-11 / PRD M2 Kasus Tepi)
+2950:### [Fase 10/2026-09-26] Antrean Kirim Luring Berbasis IndexedDB & Kunci Idempoten (T10-01)
+2971:### [Fase 10/2026-09-26] Kunci Idempoten Menyeluruh di Semua Penulisan (T10-02 / ART-8)
+2995:### [Fase 10/2026-09-27] Penyisiran Ulang RLS Seluruh Tabel (T10-05 / ART-1)
+3024:### [Fase 10/2026-09-27] Akhiri Sesi dari Perangkat Lain & Penanganan Perangkat Hilang (T10-06 / ART-2)
+3049:### [Fase 10/2026-09-27] Audit Keamanan Menyeluruh & Penutupan Celah Pra-Produksi (T10-07 / ART-1, ART-2, ART-5)
+3069:### [Fase 10/2026-09-27] Enkripsi Simetris AES-256-CBC PBKDF2 & Verifikasi Paritas Pemulihan Bencana (T10-10)
+3082:### [Fase 10/2026-09-27] Kunci Konkurensi Optimistik Peladen Pengaturan, Operasional, & Menu (T10-11 / ART-3)
+3105:### [Fase 10/2026-09-27] Pegawai Berhenti: Cabut Akses Cepat & Serah Terima Kasir (T10-12 / ART-2)
+3135:### [Fase 10/2026-09-27] Ringkasan Peringatan Harian ke Owner: Email & Layar Aplikasi (T10-13 / M12 / ART-13 / ART-14)
+3159:### [Fase 10/2026-09-27] Pemeriksa Rahasia, Dependensi & Header Keamanan Halaman (T10-14 / M12 / TECH_SPEC §6 & §8 / docs/KEAMANAN.md §16)
+3192:### [Fase 10/2026-09-27] Latihan Pemulihan Cadangan & Uji Buku Insiden (T10-15 / M12 / TECH_SPEC §8 & §11 / docs/teknis/BUKU_INSIDEN.md)
+3211:### [Fase 10/2026-09-27] Tinjauan Kode Pemulihan MFA & Kata Sandi Bocor T-016 (T10-16 / M12 / TECH_SPEC §8 & §15 / docs/KEAMANAN.md §7 & §15 / docs/TERTANGGUH.md T-016)
+
+$ sed -n '3000p;3003p;3076p;3197p' docs/DECISIONS_LOG.md | cut -c1-110
+     - Seluruh 45 tabel terbukti mengaktifkan `relrowsecurity = true` (RLS aktif). Tidak ada satu pun tabel pu
+     - Seluruh 45 tabel publik memiliki minimal satu kebijakan resmi terpasang (total 84 kebijakan RLS). Nol t
+  5. Mekanisme pemulihan diuji secara deterministik ke basis data baru yang 100% kosong (*clean slate*) dengan
+     - Membuktikan 47 tabel publik dan 192 baris data pulih sempurna dengan selisih 0 baris dalam waktu ~4,3 d
+
+$ grep -n 'v_total_tabel >= 45' supabase/tes/sisir_rls_akhir.sql   → uji resmi memakai AMBANG, bukan angka pasti (refutasi hakim gagal: 47 tidak membantah uji)
+99:  perform uji.harap(v_total_tabel >= 45, format('Jumlah tabel publik (%s) mencakup seluruh fitur sampai Fase 10 (minimal 45 tabel)', v_total_tabel));
+
+Runtime (jumlah tabel = 47 tepat): bukti/H-F-14.2-voucher-dan-tabel.sql BAGIAN 4.
+
+=============================================================
+BAGIAN 6 — PMB1-F-181 (format entri :3240) + koreksi cakupan oleh hakim
+=============================================================
+
+$ sed -n '12,14p' docs/DECISIONS_LOG.md   → format wajib
+### [Fase/Tanggal] Judul Singkat Keputusan
+- **Area:** (misal: RLS/Auth, Role & Permission, Kalkulasi Keuangan)
+- **Keputusan:** apa yang diputuskan/diimplementasikan, sekonkret mungkin
+
+$ sed -n '3240,3242p' docs/DECISIONS_LOG.md
+## 2026-09-27 — Perbaikan Audit Independen Fase 10 & Ergonomi Keyboard PIN
+
+- **Pencatat:** Claude
+
+$ grep -n '^## ' docs/DECISIONS_LOG.md | awk -F: '$1>=2476'   → KOREKSI HAKIM: penyimpangan tidak hanya :3240
+2476:## [Kas/2026-09-24] Kas Pergerakan: Uang Masuk, Keluar Tunai, Setoran, dan Koreksi Kekal (T7-03)
+2519:## [Kas/2026-09-24] Transaksi Hanya Dalam Shift Terbuka: Cegah Penjualan di Luar Kas dan Audit Utuh (T7-04)
+2565:## [Kas/2026-09-24] Pengingat Shift Belum Ditutup: Mitigasi Shift Menggantung, Deteksi Tengah Malam, dan Audit Harian Pemilik (T7-05)
+2602:## [Kas/2026-09-24] Koreksi Modal Awal Shift: Izin Atasan, Riwayat Hanya-Tambah, dan Jejak Audit Kekal (T7-06)
+2650:## [Zona Waktu / 2026-09-24] Transaksi Lewat Tengah Malam: Penanggalan Berbasis Zona Resto, Penomoran Operasional, dan Pemotongan Laporan (T7-11)
+2675:## [Privasi & RLS / 2026-09-25] RPC Katalog Publik Tanpa Data Sensitif (T8-01 / ART-10, ART-1)
+2696:## [Voucher & Kasir / 2026-09-25] Layar Kasir Cek (Baca Saja) & Pakai (Atomik + PIN Kasir) (T8-09 / ART-5, PRD M10, M3)
+2741:## [Voucher & Privasi / 2026-09-25] Normalisasi Email Gmail, Anti Email Sekali-Pakai, dan 1 Identitas 1 Voucher (T8-07 / ART-5, ART-10)
+2766:## [Pengaturan / 2026-09-25] Pengaturan Kampanye Voucher oleh Admin & Pratinjau Aturan Bahasa Manusia (T8-11)
+2796:## [Voucher & Keamanan / 2026-09-25] Pengaman Anti-Kecurangan 10 Lapis, Pembatasan Klaim, dan Log Percobaan Voucher (T8-12 / ART-5)
+3240:## 2026-09-27 — Perbaikan Audit Independen Fase 10 & Ergonomi Keyboard PIN
+
+$ grep -c '^### \[' docs/DECISIONS_LOG.md   → jumlah entri berformat benar di seluruh berkas
+76
+
+=============================================================
+BAGIAN 7 — PMB1-F-182 (batas PB1 0-100% vs UU 1/2022 Pasal 58)
+=============================================================
+
+$ sed -n '2857p' docs/DECISIONS_LOG.md
+  2. **Validasi Batas Nilai di Server (ART-3):** Tarif PB1 dan Service Charge wajib berada pada rentang 0.00% s/d 100.00%; pembulatan dibatasi pada opsi ('none', '100', '500', '1000'); cara pesan dibatasi pada ('kasir', 'mandiri', 'meja', 'campur').
+
+$ sed -n '116,121p' supabase/migrations/0072_pengaturan_operasional.sql   → kode induk (PMB1-F-008)
+  -- 5. Validasi ketat batas tarif pajak PB1 (0% s/d 100%)
+  if p_pajak_pb1_persen is not null then
+    if p_pajak_pb1_persen < 0 or p_pajak_pb1_persen > 100 then
+      raise exception 'Persentase pajak PB1 harus di antara 0%% dan 100%%.'
+        using errcode = '22023';
+    end if;
+
+Riset hakim 2026-09-29 (independen dari riset pemeriksa):
+  - https://klikpajak.id/blog/pajak-barang-dand-jasa-tertentu/ (2025-08-27): 'Batas maksimal ... diatur oleh Pasal 58 UU HKPD, yakni paling tinggi sebesar 10%'
+  - https://ortax.org/pbjt-makanan-minuman (2024-09-28): 'Tarif PBJT Makanan dan/atau Minuman ditetapkan paling tinggi sebesar 10%'
+  - https://pajak.io/ketentuan-pajak-restoran-setelah-uu-hkpd/ (2024-10-04): 'tarif PBJT untuk makanan dan/atau minuman paling tinggi adalah 10%'
+
+=============================================================
+BAGIAN 8 — PMB1-F-183 (klaim 'keandalan kasir 100% di berbagai variasi perangkat')
+=============================================================
+
+$ sed -n '2737p' docs/DECISIONS_LOG.md
+- **Alasan:** Memenuhi PRD M10 dan DoD T8-10 dengan keandalan operasional kasir 100% di berbagai variasi perangkat kasir resto.
+
+$ sed -n '2733,2734p' docs/DECISIONS_LOG.md | cut -c1-160   → fallback manual diakui jujur di entri yang sama
+  3. **Pesan Kejelasan Ramah Awam:**
+     Jika kamera tidak didukung peramban, sedang digunakan aplikasi lain, atau izin akses ditolak kasir/peramban, pesan ditampilkan dalam bahasa Indonesia yang 
+
+$ grep -n 'BarcodeDetector\|tidak didukung\|manual' aplikasi/src/layar/kasir/ScanVoucher.tsx | head -8
+4: * Ref: PRD M10 ("Kasir bisa scan lewat kamera atau mengetik kode manual").
+8: *  2. Masukan manual SELALU TERSEDIA langsung di layar sebagai cadangan utama bila kamera
+20:  /** Callback saat kode berhasil dipindai dari kamera atau dimasukkan manual */
+58:            'Kamera tidak didukung pada peramban atau perangkat kasir ini. Silakan gunakan masukan manual di bawah.',
+84:        // Jika peramban mendukung BarcodeDetector API asli
+89:          BarcodeDetector?: new (opsi?: { formats: string[] }) => DetektorBarcode
+93:        if (typeof jendela.BarcodeDetector === 'function') {
+94:          const detector = new jendela.BarcodeDetector({
+
+Riset hakim 2026-09-29 (independen):
+  - https://getdocs.org/Web/API/BarcodeDetector/BarcodeDetector (salinan tabel MDN): Firefox 'No support', Safari 'No support', Safari iOS 'No support'
+  - https://dev.to/ilhannegis/barcode-scanning-on-ios-the-missing-web-api-and-a-webassembly-solution-2in2 (2026-02-24): 'Safari ... simply doesn't implement it ... will silently fail on iPhones and iPads'
+  - https://whatpwacando.today/barcode/ : iOS 17 hanya lewat Feature Flags, 'does not work on iOS 18'
+  - https://scanbot.io/techblog/barcode-detection-api-tutorial/ (2025-09-18): 'doesn't support Firefox or Safari'
+
+=============================================================
+BAGIAN 9 — Klaim lain di rentang 2476-3276 yang hakim serang sendiri (tidak ada di kartu K-F-14)
+=============================================================
+
+$ ls supabase/tes/*.sql | wc -l   vs klaim :3236 '132/132 berkas uji SQL lulus 100%'
+132
+
+$ node alat/uji-sql.mjs | tail -3   → klaim :3236 BERTAHAN hari ini
+----------------------------------------------------------------------
+uji: 132 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+$ ls -la docs/teknis/TINJAUAN_KEAMANAN_F10.md   → rujukan :3232 ADA
+-rw-r--r-- 1 user user 11825 Sep 29 07:34 docs/teknis/TINJAUAN_KEAMANAN_F10.md
+
+Klaim harga ':3222/:3232 Supabase Pro $25/bulan' → BERTAHAN (riset hakim 2026-09-29:
+  flexprice.io/blog/supabase-pricing-breakdown 2026-08-24 '$25 a month on Pro';
+  jetadmin.io/blog/supabase-pricing-2026-guide 2026-09-25 'Pro ($25/month)').
+Klaim ':3078 paket gratis Supabase tidak memiliki cadangan bawaan' → BERTAHAN
+  (checkthat.ai/brands/supabase/pricing 2026-06-29: Free 'no backups'; jetadmin 2026-09-25: daily backups hanya Pro).
+Klaim ':3236 mfa.sql memvalidasi 19 skenario' → TIDAK DAPAT DIPASTIKAN dari berkas:
+$ grep -c 'uji.harap|uji.harap_gagal|uji.sama' supabase/tes/mfa.sql
+30
+  (30 asersi, tanpa penanda skenario bernomor — bukan bukti klaim salah, hanya tidak terverifikasi)
+
+=============================================================
+BAGIAN 10 — Koreksi bukti kartu K-F-14 (klaim 9 'BERTAHAN' memakai dua nama berkas yang tidak pernah ada)
+=============================================================
+
+$ sed -n '28p' docs/uji/pemeriksaan/PMB-1/kartu/K-F-14.md
+| 9 | T10-16 (baris 3229–3230): batas percobaan masuk 5×/15 menit per akun dan 12× per perangkat | BERTAHAN — `grep -n percobaan_masuk supabase/migrations/0030_sistem_pin.sql` → baris 637 cocok; `grep -n "3\*interval" supabase/migrations/0061_perbaikan_pin.sql` → baris 132 |
+
+$ ls supabase/migrations/0030* supabase/migrations/0061*   → nama nyata
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql
+supabase/migrations/0061_verifikasi_pin_perangkat.sql
+
+$ git log --all --oneline -- supabase/migrations/0030_sistem_pin.sql supabase/migrations/0061_perbaikan_pin.sql
+(kosong — kedua nama itu tidak pernah ada di riwayat)
+
+Verifikasi ulang substansi klaim 9 oleh hakim (BERKAS BENAR):
+$ sed -n '124p;130p;132p' supabase/migrations/0061_verifikasi_pin_perangkat.sql
+     and pp.waktu > now() - interval '15 minutes';
+     and pp.waktu > now() - interval '15 minutes';
+  if v_gagal_akun >= 5 or v_gagal_alat >= 12 then
+$ sed -n '86p;114p;122p' supabase/migrations/0059_catat_percobaan_masuk_tenant.sql
+  v_ambang_waktu    timestamptz := now() - interval '15 minutes';
+  if v_gagal_akun >= 5 then
+  if v_gagal_perangkat >= 12 then
+→ substansi klaim :3229-3230 BENAR (5x/15 menit per akun, 12x per perangkat); yang salah hanya rujukannya.
+
+=============================================================
+BAGIAN 11 — Probe runtime + bukti probe bisa MERAH (pelajaran PMB1-F-092)
+=============================================================
+
+$ node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/H-F-14.2-voucher-dan-tabel.sql | tail -4
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+Mutasi A — asersi 'L diterima' dibalik menjadi 'L ditolak' (harus MERAH bila celah nyata):
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - /tmp/probe/mutasi-1.sql: HARAPAN TIDAK TERPENUHI: CELOH F-177: huruf L diterima validator (seharusnya ditolak menurut komentar 0064:62) — hijau = celah ADA
+HASIL: GAGAL
+
+Mutasi B — harapan jumlah tabel diubah 47 → 45 (klaim bahan) (harus MERAH):
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - /tmp/probe/mutasi-2.sql: HARAPAN TIDAK TERPENUHI: CELOH F-180: tabel publik hari ini 47 — klaim "45 tabel" di :3000/:3003 sudah tidak berlaku tanpa penanda (dapat 47, harap 45)
+HASIL: GAGAL
+
+=============================================================
+BAGIAN 12 — Kewajiban hakim lain (PROMPT_GILIRAN §5)
+=============================================================
+
+$ awk -F'|' '/^\| PMB1-F-/{gsub(/ /,"",$9); c[$9]++} END{for(k in c) print k, c[k]}' docs/uji/pemeriksaan/PMB-1/BUKU_BESAR_TEMUAN.md
+TERVERIFIKASI 148
+PALSU 3
+DITUTUP 4
+DUPLIKAT 13
+BARU 33
+→ tidak ada baris DIPERBAIKI (jadi tidak ada verifikasi perbaikan yang tertunda) dan tidak ada PERLU-INFO berawalan SENGKETA HAKIM.
+
+$ grep -rn 'DECISIONS_LOG' docs/uji/AUDIT_RIWAYAT.md | head -4   → regresi temuan lama di lingkup F-14
+19:| — | 2026-09-17 | — | (mekanisme dipasang; belum ada sesi auditor independen) | mesin + pembangun | `5ecd10b` | 0 | 0 | 0 | 0 | belum dijalankan | — | Paket AUD-2 (T1-01…T1-10) & paket **AUD-3 menyeluruh** (`docs/uji/paket-audit/AUD-3-2026-09-17.md`, seluruh berkas proyek) sudah disiapkan dan **menunggu sesi auditor**; mekanisme diperluas ke lingkup menyeluruh + penjaga buku induk (DECISIONS_LOG 2026-09-17 «Mekanisme audit diperluas…») |
+51:| H F-01 | K-2 | Kunci jawaban kalibrasi cacat tanaman masih bisa dibaca dari dalam repo — penutupan D F-05 belum tuntas | **DITUTUP 2026-09-20** | bantah-balik: NYATA dan lebih parah dari dugaan — salinan kalibrasi jalur mesin dulu dibuat `git worktree` sehingga `git diff` di salinan **langsung memperlihatkan baris cacat tanam**, sementara katalog cacat = daftar jawaban. Perbaikan: (a) `alat/audit-independen.py` membuat salinan lewat `git archive` + satu commit bersih dan katalog dikeluarkan dari salinan, dijaga `pastikan_salinan_bersih()`; (b) `alat/review-pr.py` **gagal-tertutup** — katalog hanya dibaca dari luar repo; (c) **katalog cacat dipindah ke luar repo atas keputusan Lee 2026-09-20**, berjejak di `docs/uji/BERKAS_PENSIUN.md` baris #2 dan di `docs/DECISIONS_LOG.md`; dijaga `alat/periksa-kunci-kalibrasi.py` aturan **A2, F, G** (+4 mutasi uji-diri) dan `alat/periksa-rujukan.py` kini mengakui daftar pensiun. Bukti: `alat/periksa-kunci-kalibrasi.py --uji-diri` **13 kasus** semua menolak; `--kalibrasi-siapkan` & `--kalibrasi-pr-siapkan` keduanya berjalan |
+59:| H F-09 | K-4 | CORS `Access-Control-Allow-Origin: '*'` pada Edge Function `verifikasi_pin` | **DITUTUP 2026-09-20** | wildcard diganti daftar asal sah (alamat produksi workers.dev + localhost dev); asal asing tidak menerima header CORS sama sekali dan preflight OPTIONS hanya dipantulkan untuk asal sah. Bukti: `node alat/uji-edge-pin.mjs` E15–E17; `alat/periksa-fungsi-pin.py` menolak kembalinya wildcard dalam bentuk apa pun (fixture uji-diri). Daftar asal dikunci di DECISIONS_LOG. |
+85:| I F-14 | K-2 | DUGAAN: salah PIN lama menggulung balik catatan pembatas percobaan | **DITUTUP 2026-09-20** | bantah-balik: **NYATA** — jalur "PIN lama salah" & "hierarki peran" di `simpan_pin` memakai RAISE sesudah insert catatan → transaksi abort → catatan hilang → pembatas tebakan tidak menyala untuk dua jalur itu. Perbaikan bagian 3 `supabase/migrations/0016_penutup_celah_pin_putaran18.sql`: kedua jalur **mengembalikan pesan** (bukan exception) sehingga catatan bertahan (pola sama dengan jalur "melebihi batas" di 0012). Uji: `supabase/tes/kredensial_pin.sql` (kontrak pesan baru) + `supabase/tes/pin_hierarki.sql`; 2 mutasi wajib-MERAH di `alat/uji-mutasi-0016.py`. Kontrak raise→return dicatat di DECISIONS_LOG |
+
+=============================================================
+BAGIAN 13 — Akar sebab PMB1-F-202: kenapa dua penjaga melewatkan rujukan mati di kartu
+=============================================================
+
+$ sed -n '49,50p' alat/periksa-rujukan.py   → POLA_HARAPAN menganggap id tugas (T10-16) sebagai penanda 'berkas memang belum ada'
+POLA_JALUR = re.compile(r"(?:alat|docs|supabase|aplikasi|skills|_sistem|_log-sesi|prototipe|\.github)/[\w./-]+\.(?:tsx|markdown|mjs|json|ya?ml|sql|html|md|py|sh|ts)")
+POLA_HARAPAN = re.compile(r"\(rencana|belum ada|belum dibuat|akan dibuat|menyusul|dijadwalkan|T\d+-\d+", re.I)
+
+$ sed -n '162,164p' alat/periksa-rujukan.py   → baris berpenanda dilewati (hanya jadi catatan)
+            if POLA_HARAPAN.search(baris):
+                catatan.append(f"{rel}:{no} rujukan ditandai rencana → {jalur}")
+                continue
+
+$ python3 alat/periksa-rujukan.py | grep -E 'K-F-14|HASIL|X\]' 
+  [catatan] docs/uji/pemeriksaan/PMB-1/kartu/K-F-14.md:28 rujukan ditandai rencana → supabase/migrations/0030_sistem_pin.sql
+  [catatan] docs/uji/pemeriksaan/PMB-1/kartu/K-F-14.md:28 rujukan ditandai rencana → supabase/migrations/0061_perbaikan_pin.sql
+HASIL: LOLOS — semua rujukan di dokumen pengikat hidup (yang belum ada ditandai jelas).
+
+→ dua rujukan mati di kartu K-F-14.md:28 hanya jadi 'catatan: rujukan ditandai rencana';
+  dua rujukan mati yang sama di baris Buku Besar (sebelum diperbaiki hakim) DITOLAK — bukti penjaga ini
+  bekerja untuk berkas terlacak Git dan baru melihat kartu sesudah kartu itu di-git-add.
+
+$ python3 alat/periksa-pemeriksaan.py | tail -3   → LOLOS walaupun prosa kartu memuat rujukan mati (kolom Artefak saja yang diperiksa)
+PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 1, 'DIHAKIMI': 13, 'DIKLAIM': 0, 'RENCANA': 46, 'SELESAI': 3} · 202 temuan (terbuka K-1/K-2: 56)
+
+HASIL: LOLOS
