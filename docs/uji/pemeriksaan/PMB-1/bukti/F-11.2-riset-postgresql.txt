@@ -1,0 +1,6 @@
+Sumber eksternal diperiksa 2026-09-29:
+https://www.postgresql.org/docs/current/plpgsql-control-structures.html#PLPGSQL-ERROR-TRAPPING
+
+§41.6.8 Trapping Errors: perubahan persistent database state di dalam blok yang gagal di-rollback ketika exception ditangkap. Perubahan di luar blok tidak otomatis ikut dibatalkan. Sumber diakses lewat fetch_page chunk 3 dan 4, bukan dari tebakan judul.
+
+URL utuh disimpan di berkas bukti teks karena penjaga rujukan proyek keliru menganggap bagian docs/current/plpgsql-control-structures.html sebagai jalur repo. Dua kegagalan nyata periksa-bersih.py tersimpan dalam F-11.2-penjaga.txt. Ini tidak diperbaiki di kode dalam peran Pemeriksa; dilaporkan sebagai PMB1-F-170.
