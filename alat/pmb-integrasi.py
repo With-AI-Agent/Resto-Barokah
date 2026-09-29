@@ -56,13 +56,27 @@ def show(rev: str, path: str) -> str | None:
     return b.decode("utf-8", "surrogateescape")
 
 
+def baris_ber_id(b: str, awalan: str) -> str | None:
+    """Baris tabel yang sel pertamanya ID berawalan `awalan` (mis. "| PMB1-F-") → baris yang DINORMALKAN
+    ("| ID | …": satu spasi setelah pipa). Toleran terhadap spasi ganda/tanpa spasi setelah pipa pertama
+    (kejadian nyata putaran 8: hakim menulis "|  PMB1-F-203 |" dan 13 baris terbaca sebagai 'dihapus')."""
+    if not b.startswith("|"):
+        return None
+    kepala = awalan.lstrip("| ")
+    sel = b.strip().strip("|").split("|")
+    if not sel or not sel[0].strip().startswith(kepala):
+        return None
+    return "| " + sel[0].strip() + " |" + b.strip()[b.strip().find("|", 1) + 1:] if b.strip().count("|") >= 2 else b
+
+
 def baris_id(teks: str | None, awalan: str) -> dict[str, str]:
-    """Baris tabel ber-ID (temuan/asumsi) → {ID: baris utuh}. Urutan mengikuti berkas."""
+    """Baris tabel ber-ID (temuan/asumsi) → {ID: baris utuh, dinormalkan}. Urutan mengikuti berkas."""
     out: dict[str, str] = {}
     for b in (teks or "").splitlines():
-        if b.startswith(awalan):
-            sel = b.strip().strip("|").split("|")
-            out[sel[0].strip()] = b
+        n = baris_ber_id(b, awalan)
+        if n is not None:
+            sel = n.strip().strip("|").split("|")
+            out[sel[0].strip()] = n
     return out
 
 
@@ -135,7 +149,7 @@ class Integrasi:
         teks_head = (head or "").rstrip("\n").split("\n")
         # tubuh: semua baris HEAD, baris ber-ID diganti bila cabang mengubahnya secara sah
         for b in teks_head:
-            if b.startswith(awalan):
+            if baris_ber_id(b, awalan) is not None:
                 fid = b.strip().strip("|").split("|")[0].strip()
                 if fid in r_cab and fid in r_base and r_cab[fid] != r_base[fid]:
                     if r_head[fid] == r_base[fid]:
@@ -153,7 +167,7 @@ class Integrasi:
             if fid not in r_base:
                 hasil_baris.append(self.renum(b))
         # kepala/teks di luar tabel yang diubah cabang → catat saja (tidak diambil)
-        non_tabel = lambda t: [x for x in (t or "").splitlines() if not x.startswith(awalan)]  # noqa: E731
+        non_tabel = lambda t: [x for x in (t or "").splitlines() if baris_ber_id(x, awalan) is None]  # noqa: E731
         if non_tabel(cab) != non_tabel(base):
             self.catatan.append(f"{path}: cabang mengubah teks di luar baris tabel — TIDAK diambil (periksa manual bila perlu)")
         return "\n".join(hasil_baris) + "\n"
