@@ -8,11 +8,17 @@ Menggabungkan cabang giliran PMB ke cabang Perencana **baris demi baris** (bukan
     dilaporkan sebagai SENGKETA untuk diselesaikan Perencana dengan aturan tertulis (README PMB-1 / rancangan §5).
 
 Pakai:  python3 alat/pmb-integrasi.py origin/arena/<id>-resto-barokah [--tanpa-commit] [--laporan <berkas.json>] [--abaikan-luar-pmb]
+                                       [--pembangun]
 Alur:   git merge --no-ff --no-commit <cabang>  →  tulis ulang berkas PMB-1 hasil gabungan baris  →  git add  →
         penjaga (periksa-pemeriksaan.py)  →  commit bila tanpa sengketa & penjaga LOLOS; bila ada sengketa: merge dibiarkan
         terbuka (MERGE_HEAD ada), laporan JSON ditulis, keluar kode 2 — Perencana menyelesaikan lalu commit sendiri.
 Batas:  hanya berkas di docs/uji/pemeriksaan/PMB-1/ yang boleh berubah di cabang giliran; berkas lain → berhenti (kode 3).
         --abaikan-luar-pmb: perubahan luar PMB-1 dibuang (versi HEAD dipertahankan) dan dicatat sebagai pelanggaran kontrak.
+        --pembangun: cabang PEMBANGUN (PROMPT_GILIRAN §5) — berkas proyek di luar PMB-1 IKUT dimerge (kode, migrasi baru, uji, dokumen);
+        yang tetap terlarang (TERLARANG_PEMBANGUN: trio handoff, PRO.md, naskah/alat mekanisme PMB, kunci kalibrasi) → kode 3 seperti biasa.
+        Konflik git pada berkas proyek → SENGKETA (merge dibiarkan terbuka, tidak diputuskan mesin). Setiap baris Buku Besar yang cabang ubah
+        menjadi DIPERBAIKI wajib menyebut sha commit yang benar-benar ada di cabang itu (bukan sha karangan) — kalau tidak → SENGKETA.
+        Penjaga tambahan pada mode ini: alat/periksa-bersih.py (10 penjaga CI) selain periksa-pemeriksaan.py.
 Catatan: belum punya --uji-diri; divalidasi pada empat cabang nyata 2026-09-29 (ea8f, ea91, ea90 dengan 22 sengketa, ea92 dengan
         39 temuan +2 / 17 asumsi +4) — setiap langkah diikuti `periksa-pemeriksaan.py` LOLOS. Aturan sengketa: PMB-1/README.md.
 """
@@ -95,6 +101,20 @@ def maks_id(teks: str | None, awalan: str) -> int:
     return max(nomor) if nomor else 0
 
 
+# Berkas yang cabang PEMBANGUN pun tidak boleh ubah (mekanisme PMB & handoff = milik Perencana; kunci = rahasia).
+TERLARANG_PEMBANGUN = (
+    "PRO.md", "PROJECT_STATE.md", "STATUS.md", "docs/ops/SIAP-LANJUT.md", "docs/ops/PROMPT_SESI_BARU.md",
+    "alat/pmb-integrasi.py", "alat/periksa-pemeriksaan.py", "alat/lanjut-sesi.py",
+    "docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md", "docs/uji/pemeriksaan/PROMPT_GILIRAN.md",
+    "docs/uji/pemeriksaan/PROMPT_SINGKAT.md", "docs/uji/pemeriksaan/PMB-1/kalibrasi/",
+)
+RE_SHA = re.compile(r"\b[0-9a-f]{7,40}\b")
+
+
+def terlarang_pembangun(path: str) -> bool:
+    return any(path == x or (x.endswith("/") and path.startswith(x)) for x in TERLARANG_PEMBANGUN)
+
+
 class Integrasi:
     def __init__(self, cabang: str) -> None:
         self.cabang = cabang
@@ -102,8 +122,32 @@ class Integrasi:
         self.sengketa: list[dict] = []
         self.catatan: list[str] = []
         self.abaikan_luar: bool = False
+        self.pembangun: bool = False
         self.luar: list[str] = []
+        self.proyek: list[str] = []
         self.peta: dict[str, str] = {}
+
+    # ---------- kontrak PEMBANGUN: sha perbaikan harus nyata & ada di cabang ----------
+    def periksa_sha_perbaikan(self) -> None:
+        """Baris Buku Besar yang cabang ubah menjadi DIPERBAIKI/DITUTUP harus menyebut sha yang benar-benar leluhur cabang."""
+        r_base, r_cab = baris_id(show(self.base, LEDGER), "| PMB1-F-"), baris_id(show(self.cabang, LEDGER), "| PMB1-F-")
+        for fid, b in r_cab.items():
+            if r_base.get(fid) == b:
+                continue
+            sel = [s.strip() for s in b.strip().strip("|").split("|")]
+            if len(sel) < 10 or sel[7] not in {"DIPERBAIKI", "DITUTUP"}:
+                continue
+            if r_base.get(fid) and [s.strip() for s in r_base[fid].strip().strip("|").split("|")][7] == sel[7]:
+                continue                                   # status tidak berubah oleh cabang ini
+            sha_ada = [s for s in RE_SHA.findall(sel[9])
+                       if subprocess.run(["git", "merge-base", "--is-ancestor", s, self.cabang], cwd=AKAR, capture_output=True).returncode == 0]
+            if not sha_ada:
+                pesan = f"{fid}: status {sel[7]} tetapi kolom Perbaikan tidak menyebut sha commit yang ada di cabang ({sel[9][:80]}…)"
+                if self.pembangun:
+                    self.sengketa.append({"berkas": LEDGER, "id": fid, "head": "", "cabang": b, "base": r_base.get(fid, ""),
+                                          "alasan": "sha perbaikan tidak ditemukan di cabang"})
+                else:
+                    self.catatan.append("PERINGATAN " + pesan)
 
     # ---------- penomoran ulang ----------
     def susun_peta(self) -> None:
@@ -212,6 +256,14 @@ class Integrasi:
         hasil: dict[str, str] = {}
         berubah = git("diff", "--name-only", self.base, self.cabang).split()
         luar = [p for p in berubah if not p.startswith(PMB)]
+        if self.pembangun:
+            self.proyek = [p for p in luar if not terlarang_pembangun(p)]
+            luar = [p for p in luar if terlarang_pembangun(p)]
+            if self.proyek:
+                self.catatan.append(f"PEMBANGUN: {len(self.proyek)} berkas proyek ikut dimerge: {', '.join(self.proyek)}")
+            if luar and not self.abaikan_luar:
+                raise SystemExit(f"cabang PEMBANGUN menyentuh berkas terlarang (mekanisme PMB/handoff/kunci): {luar} — hentikan, lapor Lee; "
+                                 "bila Lee/Perencana memutuskan perubahan itu dibuang, ulangi dengan --abaikan-luar-pmb")
         if luar and not self.abaikan_luar:
             raise SystemExit(f"cabang menyentuh berkas di luar PMB-1 (pelanggaran kontrak giliran): {luar} — hentikan, lapor Lee; "
                              "bila Lee/Perencana memutuskan perubahan luar itu dibuang, ulangi dengan --abaikan-luar-pmb")
@@ -220,8 +272,8 @@ class Integrasi:
             self.catatan.append(f"cabang menyentuh {len(luar)} berkas di luar PMB-1 (pelanggaran kontrak giliran) — DIBUANG, "
                                 f"versi HEAD dipertahankan: {', '.join(luar)}")
         for path in berubah:
-            if path in (LEDGER, ASUMSI, PAPAN):
-                continue
+            if path in (LEDGER, ASUMSI, PAPAN) or path in self.proyek or path in self.luar:
+                continue                                   # berkas proyek (mode pembangun) diurus git merge, bukan penomoran ulang
             mentah = show_bytes(self.cabang, path)
             if mentah is None:
                 raise SystemExit(f"{path}: cabang menghapus berkas — tidak diizinkan")
@@ -268,16 +320,22 @@ class Integrasi:
         if t is not None:
             tulis[PAPAN] = t
         tulis.update(self.berkas_lain())
+        self.periksa_sha_perbaikan()
         # merge git (riwayat: cabang jadi induk kedua), lalu timpa dengan hasil gabungan baris
         subprocess.run(["git", "merge", "--no-ff", "--no-commit", self.cabang], cwd=AKAR, capture_output=True, text=True)
         for path, isi in tulis.items():
             p = AKAR / path
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_bytes(isi.encode("utf-8", "surrogateescape"))
-        # berkas yang hanya berkonflik di mata git tetapi tidak kita tulis (tidak ada perubahan sah) → kembalikan ke HEAD
+        # berkas yang hanya berkonflik di mata git tetapi tidak kita tulis (tidak ada perubahan sah) → kembalikan ke HEAD;
+        # berkas PROYEK yang berkonflik (mode pembangun) → SENGKETA, dibiarkan bertanda konflik untuk diputuskan Perencana
         for path in git("diff", "--name-only", "--diff-filter=U").split():
-            if path not in tulis:
-                subprocess.run(["git", "checkout", "HEAD", "--", path], cwd=AKAR, capture_output=True)
+            if path in tulis:
+                continue
+            if path in self.proyek:
+                self.sengketa.append({"berkas": path, "id": "(konflik git pada berkas proyek — selesaikan tangan)", "head": "", "cabang": "", "base": ""})
+                continue
+            subprocess.run(["git", "checkout", "HEAD", "--", path], cwd=AKAR, capture_output=True)
         # berkas luar PMB-1 yang sengaja dibuang (--abaikan-luar-pmb): kembalikan ke HEAD, atau hapus bila HEAD tidak memilikinya
         for path in self.luar:
             if show_bytes("HEAD", path) is None:
@@ -286,20 +344,28 @@ class Integrasi:
             else:
                 subprocess.run(["git", "checkout", "HEAD", "--", path], cwd=AKAR, check=True, capture_output=True)
         subprocess.run(["git", "add", "-A", "--", PMB], cwd=AKAR, check=True)
-        print(f"INTEGRASI {self.cabang} (base {self.base[:7]})")
+        for path in self.proyek:
+            if not any(s["berkas"] == path for s in self.sengketa):
+                subprocess.run(["git", "add", "-A", "--", path], cwd=AKAR, capture_output=True)
+        print(f"INTEGRASI {self.cabang} (base {self.base[:7]})" + (" — mode PEMBANGUN" if self.pembangun else ""))
         for c in self.catatan:
             print("  ·", c)
         if self.polos_dipakai:
             print("  · rujukan tanpa awalan PMB1- yang ikut digeser:", ", ".join(sorted(self.polos_dipakai)))
         penjaga = subprocess.run([sys.executable, "alat/periksa-pemeriksaan.py"], cwd=AKAR, capture_output=True, text=True)
         print("  · penjaga:", "LOLOS" if penjaga.returncode == 0 else "GAGAL\n" + penjaga.stdout[-1500:])
+        if self.pembangun and penjaga.returncode == 0 and not self.sengketa:
+            bersih = subprocess.run([sys.executable, "alat/periksa-bersih.py"], cwd=AKAR, capture_output=True, text=True)
+            print("  · periksa-bersih (10 penjaga CI):", "LOLOS" if bersih.returncode == 0 else "GAGAL\n" + (bersih.stdout + bersih.stderr)[-2500:])
+            if bersih.returncode != 0:
+                penjaga = bersih
         if laporan is not None:
             laporan.write_text(json.dumps({"cabang": self.cabang, "base": self.base, "peta": self.peta, "sengketa": self.sengketa,
                                            "catatan": self.catatan}, ensure_ascii=False, indent=1), encoding="utf-8")
         if self.sengketa:
             print(f"  · SENGKETA {len(self.sengketa)} — merge dibiarkan terbuka; selesaikan dengan aturan §5 lalu commit:")
             for s in self.sengketa:
-                print(f"      - {s['berkas'].split('/')[-1]} {s['id']}")
+                print(f"      - {s['berkas'].split('/')[-1]} {s['id']}" + (f" — {s['alasan']}" if s.get("alasan") else ""))
             return 2
         if penjaga.returncode != 0:
             print("  · penjaga GAGAL — merge dibiarkan terbuka untuk diperbaiki tangan")
@@ -320,6 +386,7 @@ def main(argv: list[str]) -> int:
         laporan = pathlib.Path(argv[argv.index("--laporan") + 1])
     integrasi = Integrasi(argv[0])
     integrasi.abaikan_luar = "--abaikan-luar-pmb" in argv
+    integrasi.pembangun = "--pembangun" in argv
     return integrasi.jalankan(commit="--tanpa-commit" not in argv, laporan=laporan)
 
 

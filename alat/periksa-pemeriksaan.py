@@ -9,7 +9,8 @@ yang tidak ada, ID dobel. Mesin ini menolak semua itu.
 
 Yang diperiksa (folder docs/uji/pemeriksaan/PMB-1/):
  1. PAPAN.md      — ID unik & berpola; status sah; DIKLAIM/SELESAI/DIHAKIMI punya sesi+tanggal; SELESAI punya kartu K;
-                    DIHAKIMI punya kartu H dan tidak menyisakan temuan BARU; kartu tidak yatim; kartu lengkap bagiannya.
+                    DIHAKIMI punya kartu H dan tidak menyisakan temuan BARU; kartu tidak yatim; kartu lengkap bagiannya
+                    (K = pemeriksa, H = hakim, B = pembangun — bagian wajib BAGIAN_K/H/B).
                     Ulangan independen potongan yang sama disimpan sebagai kartu/K-<ID>.<n>.md (n = 2, 3, …).
  2. BUKU_BESAR_TEMUAN.md — ID PMB1-F-nnn berurutan tanpa lompatan; nomor baris artefak tidak melebihi panjang berkas; status berputusan menyebut kartu H yang ada; DUPLIKAT (Hakim) wajib menunjuk temuan induk yang lebih dulu; tingkat K-1..K-4; potongan ada di papan; artefak ADA
                     (atau `(luar repo)`); bukti & baseline terisi; status sah; syarat per status (Hakim, commit, verifikasi,
@@ -62,8 +63,11 @@ RE_SHA = re.compile(r"\b[0-9a-f]{7,40}\b")
 BAGIAN_K = ["## 1. Cakupan", "## 2. Klaim yang dicoba dibantah", "## 3. Serangan", "## 4. Temuan", "## 5. Asumsi",
             "## 6. Tidak bisa diverifikasi", "## 7. Regresi temuan lama", "## 8. Angka usaha"]
 BAGIAN_H = ["## 1. Temuan yang dihakimi", "## 4. Angka usaha"]
+BAGIAN_B = ["## 1. Temuan yang dibangun", "## 2. Yang sengaja tidak disentuh", "## 3. Keputusan yang dibutuhkan Lee",
+            "## 4. Rantai bukti", "## 5. Angka usaha"]          # kartu PEMBANGUN (PROMPT_GILIRAN §5 butir 7)
 KEPALA_K = ["**Potongan:**", "**Sesi:**", "**Tanggal:**", "**Commit basis:**"]
 KEPALA_H = ["**Potongan:**", "**Sesi hakim:**", "**Independensi:**"]
+KEPALA_B = ["**Potongan:**", "**Sesi pembangun:**", "**Commit basis:**", "**Independensi:**"]
 
 
 def _sel(baris: str) -> list[str]:
@@ -115,17 +119,17 @@ def periksa_kartu(akar: pathlib.Path, potongan: dict[str, dict], errs: list[str]
         if k.name.startswith("TEMPLAT_"):
             continue
         # Ulangan independen potongan yang sama (rancangan §9: potongan boleh diulang pemeriksa lain) → K-<ID>.2.md, K-<ID>.3.md …
-        m = re.match(r"^([KH])-(.+?)(?:\.(\d+))?\.md$", k.name)
+        m = re.match(r"^([KHB])-(.+?)(?:\.(\d+))?\.md$", k.name)
         if not m:
-            errs.append(f"kartu/{k.name}: nama harus K-<ID>.md, H-<ID>.md, atau K-<ID>.<n>.md untuk ulangan"); continue
+            errs.append(f"kartu/{k.name}: nama harus K-<ID>.md, H-<ID>.md, B-<ID>.md, atau K-<ID>.<n>.md untuk ulangan"); continue
         jenis, pid, _ulangan = m.groups()
         if pid not in potongan:
             errs.append(f"kartu/{k.name}: potongan {pid} tidak ada di PAPAN (kartu yatim)"); continue
         isi = k.read_text(encoding="utf-8")
-        for bagian in (BAGIAN_K if jenis == "K" else BAGIAN_H):
+        for bagian in {"K": BAGIAN_K, "H": BAGIAN_H, "B": BAGIAN_B}[jenis]:
             if bagian not in isi:
                 errs.append(f"kartu/{k.name}: bagian '{bagian}' hilang")
-        for kepala in (KEPALA_K if jenis == "K" else KEPALA_H):
+        for kepala in {"K": KEPALA_K, "H": KEPALA_H, "B": KEPALA_B}[jenis]:
             if kepala not in isi:
                 errs.append(f"kartu/{k.name}: kepala '{kepala}' hilang")
         if "<ID>" in isi or "<YYYY-MM-DD>" in isi:
@@ -409,7 +413,16 @@ def uji_diri() -> int:
         (t / asumsi).write_text(teks + f"\n| {aid} | uji-diri: asumsi sintetis | `docs/PRD.md:1` | DIBANTAH | "
                                 "`echo uji-diri` → dibantah tanpa rujukan temuan | tidak ada | F-01 |\n", encoding="utf-8")
 
+    def kartu_b(t: pathlib.Path, lengkap: bool) -> None:
+        isi = ("# KARTU PEMBANGUN — B-F-01\n- **Potongan:** F-01 · **Sesi pembangun:** arena/uji-diri · **Commit basis:** 0000000 · "
+               "**Independensi:** bukan penemu, bukan hakim\n")
+        for bagian in BAGIAN_B if lengkap else BAGIAN_B[:2]:
+            isi += f"\n{bagian}\n- (uji-diri)\n"
+        (t / PUTARAN / "kartu" / "B-F-01.md").write_text(isi, encoding="utf-8")
+
     coba("salinan utuh diterima", lambda t: None, harus_merah=False)
+    coba("kartu PEMBANGUN B-<ID>.md yang lengkap diterima", lambda t: kartu_b(t, True), harus_merah=False)
+    coba("kartu PEMBANGUN tanpa bagian wajib ditolak", lambda t: kartu_b(t, False))
     coba("baris sintetis yang sah diterima", lambda t: tambah_temuan(t, "BARU"), harus_merah=False)
     coba("potongan SELESAI tanpa kartu ditolak", potongan_belum_selesai)
     coba("status temuan tidak sah ditolak", lambda t: tambah_temuan(t, "SELESAI"))
