@@ -1,0 +1,155 @@
+BUKTI PERINTAH — K-F-09.2 (ulangan independen F-09, agent kedua di cabang arena/01a0eacd-resto-barokah)
+Tanggal: 2026-09-29 · Commit basis: 3c05719 · Semua perintah dijalankan dari akar repo, hanya-baca.
+
+=== 1. BLOK AKUN DEMO DI LAYAR MASUK PRODUKSI (PMB1-F-127) ===
+$ grep -n 'import.meta.env' aplikasi/src/layar/masuk/LayarMasukPegawai.tsx
+(0 hasil — TIDAK ADA penjaga lingkungan)
+$ sed -n '330,340p' aplikasi/src/layar/masuk/LayarMasukPegawai.tsx
+                gap: 'var(--s-1)',
+              }}
+            >
+              <span>⚡</span>
+              <span>Pilihan Cepat Masuk Akun Demo (PIN: 123456):</span>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                gap: 'var(--s-2)',
+                justifyContent: 'center',
+$ grep -n 'resto.test' aplikasi/src/layar/masuk/LayarMasukPegawai.tsx
+149:              contoh="nama@resto.test"
+347:                  setEmail('owner@resto.test')
+358:                  setEmail('kasir@resto.test')
+369:                  setEmail('dapur@resto.test')
+
+=== 2. T2-15 KONTRADIKSI INTERNAL (PMB1-F-128) ===
+$ sed -n '794,796p' docs/ROADMAP.md
+- [x] T2-15 — Pendaftaran perangkat (kode/QR) + persetujuan pegawai baru ⚠️ T-015
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-015: panduan umum boleh dibuat sekarang; uji perangkat nyata WAJIB sebelum tugas ini dinyatakan selesai. Belum ada klaim perangkat kedai sudah diuji.
+  - **Tujuan:** hanya perangkat yang didaftarkan admin/owner yang bisa dipakai kerja, dan pegawai baru harus disetujui pemilik.
+$ grep -n 'tetap gerbang T6-08' docs/TERTANGGUH.md
+51:| T-002 | 2026-09-21 | **Merek & tipe printer** Kedai Oasis + cara menyambungnya (Bluetooth/USB) | **[x] SELESAI 2026-09-23 — Lee menjawab:** Goojprt PT-210, Kassen BT-P290, Blueprint Lite-58, Xp
+
+=== 3. JALUR EMAIL PELANGGAN T2-04/T2-05 (PMB1-F-129) ===
+$ sed -n '689p;693p;703p' docs/ROADMAP.md
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-022: Lee mengizinkan menunda pemilihan pengirim email ke Fase 2; usulan SMTP Gmail BELUM persetujuan layanan. Sebelum mengaktifkan email pelanggan, tetapkan kanal tanpa biaya dengan Lee. Google Sign-In tidak menunggu kanal email.
+  - **DoD:** "Daftar dengan Google" bekerja; jalur email mengirim verifikasi; identitas pelanggan tersimpan tanpa data berlebih; uji manual dua jalur lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/layar/masuk/LayarMasukPelanggan.test.tsx` (3 tes lulus).
+  - **DoD:** pemulihan lewat email terverifikasi bekerja; tidak bisa dipakai untuk mengambil alih akun orang lain (uji 2 kasus penyalahgunaan). · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LupaAkses.tsx`, `aplikasi/src/layar/masuk/LupaAkses.test.tsx` (2 tes lulus).
+$ grep -n 'T-022' docs/TERTANGGUH.md (baris 57 = tabel Butir selesai)
+| T-022 | 2026-09-21 | **Cara kirim email ke pelanggan tanpa domain berbayar** — keputusan T-007 ("Resend tanpa domain khusus") tidak bisa dipakai untuk email ke PELANGGAN: tanpa domain terverifikasi, Resend hanya mengirim ke alamat email pemilik akun. Pilihan biaya nol: (a) SMTP Gmail pemilik lewat sandi aplikasi (�
+
+=== 4. KATALOG KASIR HARDCODED (PMB1-F-130) ===
+$ sed -n '53p;128p' aplikasi/src/layar/kasir/Katalog.tsx
+const CONTOH_MENU: MenuItemData[] = [
+  daftarMenu = CONTOH_MENU,
+$ sed -n '695p' aplikasi/src/layar/kasir/LayarKasir.tsx
+        <Katalog onTambahKeKeranjang={tanganiTambahKeKeranjang} />
+$ grep -rn "from('menu_item')" aplikasi/src (tanpa test) → 0 hasil
+(0 hasil)
+
+=== 5. PINDAH MEJA TIDAK TERCATAT (PMB1-F-131) ===
+$ grep -rn 'pindah_meja' supabase/migrations → 0 RPC
+(0 hasil)
+$ grep -n 'riwayat' supabase/migrations/0008_meja.sql
+(0 hasil — hanya kolom status)
+$ sed -n '34,36p;75,76p' aplikasi/src/layar/kasir/PemilihMeja.tsx
+  { id: 'meja-01', nama: 'Meja 01', area: 'Indoor AC', status: 'kosong', aktif: true },
+  {
+    id: 'meja-02',
+  daftarMeja = CONTOH_MEJA,
+  mejaTerpilihId = 'meja-01',
+$ grep -rn "from('meja')" aplikasi/src → 0 hasil
+(0 hasil)
+
+=== 6. KIRIM KE DAPUR UPDATE LANGSUNG + JAM PERANGKAT (PMB1-F-132) ===
+$ sed -n '161,176p' aplikasi/src/App.tsx
+            onKirimKeDapur={async (id) => {
+              const klien = klienSupabase()
+              if (klien) {
+                const { error } = await klien
+                  .from('pesanan')
+                  .update({
+                    status: 'dikirim',
+                    dikirim_ke_dapur_pada: new Date().toISOString(),
+                  })
+                  .eq('id', id)
+                if (error) {
+                  return { sukses: false, pesan: error.message }
+                }
+              }
+              return { sukses: true }
+            }}
+$ grep -rn 'kirim_ke_dapur' supabase/migrations → 0 RPC
+(0 hasil)
+$ grep -n "order('dikirim" aplikasi/src/hook/useTiketDapur.ts
+176:        .order('dikirim_ke_dapur_pada', { ascending: true, nullsFirst: false })
+
+=== 7. LAYAR PELAYAN SUKSES-PALSU (PMB1-F-133) ===
+$ sed -n '470p' aplikasi/src/App.tsx
+        return <LayarPelayan namaPelayan={sesi?.nama ?? 'Pelayan'} />
+$ grep -rn 'onKirimPesanan' aplikasi/src (tanpa test)
+aplikasi/src/layar/pelayan/LayarPelayan.tsx:50:  onKirimPesanan?: (data: {
+aplikasi/src/layar/pelayan/LayarPelayan.tsx:60:  onKirimPesanan,
+aplikasi/src/layar/pelayan/LayarPelayan.tsx:122:      if (onKirimPesanan) {
+aplikasi/src/layar/pelayan/LayarPelayan.tsx:123:        await onKirimPesanan({ meja: nomorMeja, items: keranjang, catatanUmum })
+$ sed -n '117,130p' aplikasi/src/layar/pelayan/LayarPelayan.tsx
+  const kirimKeDapur = async () => {
+    if (keranjang.length === 0) return
+    setSedangKirim(true)
+    setPesanStatus(null)
+    try {
+      if (onKirimPesanan) {
+        await onKirimPesanan({ meja: nomorMeja, items: keranjang, catatanUmum })
+      }
+      setPesanStatus('✅ Pesanan berhasil dikirim ke dapur!')
+      setKeranjang([])
+      setCatatanUmum('')
+    } catch {
+      setPesanStatus('❌ Gagal mengirim pesanan. Silakan coba lagi.')
+    } finally {
+
+=== 8. T2-10 'PER IP' TIDAK ADA (PMB1-F-134) ===
+$ grep -in 'alamat_ip' supabase/migrations/0028_pemulihan_perangkat.sql supabase/migrations/0061_verifikasi_pin_perangkat.sql
+(0 hasil)
+$ grep -in 'ip_address' supabase/migrations/*.sql
+(0 hasil di semua migrasi)
+$ sed -n '1683p' docs/DECISIONS_LOG.md
+**Dasar:** TECH_SPEC §4.6 & §9 ART-11/ART-12, PRD M12. Akses staf dibatasi mutlak hanya dari perangkat terdaftar yang sah, sesi memiliki batas umur maksimum menurut peran, pencabutan perangkat memutus sesi seketika, dan percobaan masuk gagal dibatasi ketat (5× akun & 12× perangkat per 15 menit).
+
+=== 9. T3-05: simpan_pesanan HIDUP DI 0080 TANPA CATATAN SILANG (PMB1-F-135) ===
+$ grep -n 'function public.simpan_pesanan' supabase/migrations/0080_kunci_idempoten_menyeluruh.sql
+49:create or replace function public.simpan_pesanan(
+200:comment on function public.simpan_pesanan is
+203:revoke all on function public.simpan_pesanan from public, anon;
+204:grant execute on function public.simpan_pesanan to authenticated, service_role;
+$ grep -n 'simpan_pesanan' supabase/tes/idempoten.sql (kepala)
+9:--   1. simpan_pesanan (3x panggil dengan kunci sama → 1 pesanan, data identik)
+23:-- 1. UJI IDEMPOTENSI: simpan_pesanan
+51:  v_res1 := public.simpan_pesanan(
+$ grep -n 'raise exception' supabase/migrations/0080_kunci_idempoten_menyeluruh.sql (bagian simpan_pesanan, baris 49-205)
+36:    raise exception 'Hanya pengguna terautentikasi yang dapat menyimpan pesanan.'
+42:    raise exception 'Pengguna tidak terhubung dengan penyewa aktif.'
+51:    raise exception 'Cabang tidak ditemukan atau bukan milik penyewa.'
+$ ls supabase/migrations | grep 0028
+0028_pemulihan_perangkat.sql
+$ sed -n '888,890p' docs/ROADMAP.md
+  - **Ref:** TECH_SPEC §5 (RPC) & §9 ART-4/ART-8 · RPC resmi: `tambah_item`, `pindah_meja`, `kirim_ke_dapur`
+  - **File:** `supabase/migrations/0028_simpan_pesanan.sql`, `supabase/tes/simpan_pesanan.sql`
+  - **DoD:** RPC menolak duplikat dengan kunci idempoten; menolak pesanan tanpa item; menolak di luar shift terbuka; hak akses diperiksa; uji lulus (termasuk 5 pemanggilan kunci sama).
+
+=== 10. REPRODUKSI KEMBAR (konfirmasi temuan agent 1 & temuan lama) ===
+$ grep -rlw 'MasukStaf' aplikasi/src (tanpa test) → hanya berkasnya sendiri
+aplikasi/src/layar/masuk/MasukStaf.tsx
+$ grep -rn 'useKunciOtomatis' aplikasi/src (tanpa test)
+aplikasi/src/hook/useKunciOtomatis.ts
+$ grep -rl 'totp' supabase/migrations -i → 0 migrasi TOTP/MFA
+(0 hasil)
+$ grep -n 'signInWithOAuth' aplikasi/src/lib/auth.ts
+237:    const { error } = await supabase.auth.signInWithOAuth({
+$ git log --oneline -1 db0c3a0 (Fase 4 UI dibangun, tugas tetap [ ])
+db0c3a0 fase-4-ui: kartu pesanan dapur/bar (T4-03/08), layar KDS (T4-01/02), tombol habis (T4-05), antrean cadangan (T4-10) + wiring App/DAFTAR_LAYAR
+$ sed -n '151,154p' aplikasi/src/App.tsx (fallback simulasi sukses-palsu, keluarga L F-03)
+              // Mode simulasi / lokal tanpa koneksi peladen
+              const hasil = masukan?.pesananId ?? null
+              if (hasil) setPesananAktifId(hasil)
+              return { sukses: true, pesananId: hasil ?? 'ord-new' }

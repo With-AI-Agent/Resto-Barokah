@@ -42,9 +42,17 @@ def git(*args: str, cek: bool = True) -> str:
     return p.stdout
 
 
-def show(rev: str, path: str) -> str | None:
-    p = subprocess.run(["git", "show", f"{rev}:{path}"], cwd=AKAR, capture_output=True, text=True)
+def show_bytes(rev: str, path: str) -> bytes | None:
+    p = subprocess.run(["git", "show", f"{rev}:{path}"], cwd=AKAR, capture_output=True)
     return p.stdout if p.returncode == 0 else None
+
+
+def show(rev: str, path: str) -> str | None:
+    b = show_bytes(rev, path)
+    if b is None:
+        return None
+    # surrogateescape: byte yang bukan UTF-8 sah (mis. log terpotong) dipertahankan apa adanya saat ditulis kembali
+    return b.decode("utf-8", "surrogateescape")
 
 
 def baris_id(teks: str | None, awalan: str) -> dict[str, str]:
@@ -172,9 +180,14 @@ class Integrasi:
         for path in berubah:
             if path in (LEDGER, ASUMSI, PAPAN):
                 continue
-            isi_cab = show(self.cabang, path)
-            if isi_cab is None:
+            mentah = show_bytes(self.cabang, path)
+            if mentah is None:
                 raise SystemExit(f"{path}: cabang menghapus berkas — tidak diizinkan")
+            isi_cab = show(self.cabang, path)
+            try:
+                mentah.decode("utf-8")
+            except UnicodeDecodeError as e:
+                self.catatan.append(f"{path}: memuat byte bukan UTF-8 (posisi {e.start}) — dipertahankan apa adanya, ID tetap dinomori ulang")
             isi_base, isi_head = show(self.base, path), show("HEAD", path)
             baru = self.renum(isi_cab)
             if isi_base is None:                      # berkas baru di cabang
@@ -218,7 +231,7 @@ class Integrasi:
         for path, isi in tulis.items():
             p = AKAR / path
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text(isi, encoding="utf-8")
+            p.write_bytes(isi.encode("utf-8", "surrogateescape"))
         # berkas yang hanya berkonflik di mata git tetapi tidak kita tulis (tidak ada perubahan sah) → kembalikan ke HEAD
         for path in git("diff", "--name-only", "--diff-filter=U").split():
             if path not in tulis:
