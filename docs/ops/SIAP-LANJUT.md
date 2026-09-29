@@ -8,14 +8,13 @@
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
 - **Cabang yang dilanjutkan:** `arena/01a0eb0a-resto-barokah`
-- **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
+- **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0eb0a-resto-barokah`
-- **Commit keadaan kerja:** `a586379e2c7522e1da3b1eeae3ae62bccaee88b1`
+- **Commit keadaan kerja:** `46a265d6807d8aff0d2e5a6d2c578ea5e580e143`
 - **PR:** PR #14 (base main)
 PR #13 (base main)
 PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** queued (run 36516377689, commit a586379e) — tunggu sampai selesai
-- **CATATAN CI:** run untuk commit handoff ini belum ada/masih berjalan saat baris ini ditulis (wajar) — sesi baru cek `gh run list --branch arena/01a0eb0a-resto-barokah --limit 3`; lanjut bila hijau atau masih berjalan dengan run selesai terakhir hijau, berhenti hanya bila merah.
+- **CI terakhir:** success (1 run, commit 46a265d6)
 - **Ditulis:** 2026-09-29 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -70,11 +69,11 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
-**CHECKPOINT GILIRAN HAKIM F-07 (2026-09-29, cabang `arena/01a0eb0a-resto-barokah`):**
-> 1. Merge normal cabang Perencana `arena/01a0e747-resto-barokah` selesai lokal pada `7cab097`; CI Perencana untuk `0008f36` sukses (`36514495575`). Klaim F-07 (`7643919`) sudah ter-push dan PAPAN tetap `DIKLAIM`.
-> 2. Lee mengizinkan penyegaran handoff setelah pemeriksaan `alat/lanjut-sesi.py` gagal karena trio handoff menunjuk keadaan lama. `--siapkan` sudah dijalankan; trio handoff sedang diselaraskan untuk membuat penjaga LOLOS.
-> 3. Setelah penjaga LOLOS, lanjutkan satu potongan ini saja: Hakim reproduksi temuan F-07 (PMB1-F-096…F-100) dan regresi yang tercatat pada K-F-07; kartu `K-F-07.2.md` tidak ada, jadi tidak ada ulangan independen. Tulis `H-F-07.md`, putuskan tiap baris dengan bukti, perbarui Buku Besar/ASUMSI, ubah PAPAN ke `DIHAKIMI` jika tak ada temuan `BARU`, jalankan `periksa-pemeriksaan.py` dan `periksa-bersih.py`, lalu commit + push branch ini dan berhenti.
-> 4. Jangan membaca kalibrasi dan jangan mengubah proyek/produksi. Setelah selesai, Lee mengintegrasikan `arena/01a0eb0a-resto-barokah` di sesi Perencana; potongan berikutnya hanya atas perintah Lee.
+**CHECKPOINT HAKIM F-07 — DUA LAPORAN, PUTUSAN SELESAI (2026-09-29, cabang `arena/01a0eb0a-resto-barokah`):**
+> 1. Fast-forward yang Lee izinkan membawa cabang ke `46a265d` (sudah ada di origin). H-F-07.2 adalah satu laporan Hakim, bukan kartu pemeriksa ulangan. Sesi ini menambahkan putusan independen `H-F-07.3.md`; `K-F-07.2.md` memang tidak ada, jadi tidak ada perbandingan ulang pemeriksa.
+> 2. PMB1-F-096…F-100 semuanya TERVERIFIKASI; laporan kedua setuju atas lima status. Beda tingkat hanya F-100 (H-F-07.2 K-4, H-F-07.3 K-3); aturan README untuk dua Hakim memilih tingkat lebih berat, jadi Buku Besar final K-1 0, K-2 1, K-3 4, K-4 0. Total Buku Besar 135 (88 TERVERIFIKASI, 31 BARU, 11 DUPLIKAT, 2 PALSU, 3 DITUTUP); asumsi 79 (A-078/A-079 sudah tercatat). PAPAN F-07 = DIHAKIMI.
+> 3. Regresi F-011/F-010/F-021 masih berlaku. PMB1-F-092/F-094 diperiksa ulang dengan probe kontrol; dua penutupan mekanisme tetap DITUTUP. CI untuk `46a265d` success (run `36516890373`).
+> 4. `python3 alat/periksa-pemeriksaan.py` dan `python3 alat/periksa-bersih.py` LOLOS pada pohon addendum ini; handoff disegarkan. Commit lalu push hanya `arena/01a0eb0a-resto-barokah`, jalankan `python3 alat/lanjut-sesi.py` sampai LOLOS, kemudian berhenti. Lee mengintegrasikan cabang ini secara normal di sesi Perencana; potongan selanjutnya hanya atas perintah Lee. Jangan membaca kalibrasi atau mengubah proyek/produksi.
 
 **PEMBUKAAN SESI `arena/01a0e747` (2026-09-28, ±16:10 WIB) — ORIENTASI PRO.md, BELUM ADA PEKERJAAN BARU:**
 > 1. **PR #15 sudah di-merge Lee ke `main`** (merge commit `141d40f0`, 2026-09-28 15:59 WIB; ujung cabang `arena/01a0d09b` = `477cf360`, CI-nya **success** run `#36396868493`). Catatan "CI in_progress run 36396709886" di handoff lama merujuk commit `c3c50a8d` yang runnya **cancelled** karena tertimpa push berikutnya — bukan CI merah. CI `main` untuk `141d40f0` (run `#36400724879`) masih berjalan saat sesi dibuka.
