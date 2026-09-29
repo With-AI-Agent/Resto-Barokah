@@ -443,3 +443,16 @@ juga mencatat temuan luar cakupan di potongan yang masih RENCANA (`P-10-00`, `P-
 11 DUPLIKAT · 2 PALSU · 2 DIPERBAIKI · 1 DITUTUP) · 77 asumsi; F-01…F-06 DIHAKIMI, F-07…F-09 SELESAI, F-10…F-17 BELUM.
 **Kelompok K-1 terverifikasi (F-001, F-031, F-036, F-063) semuanya menyangkut RPC login/perangkat & voucher** — layak diputuskan Lee
 apakah Pembangun mulai sekarang (K-1 boleh segera) atau menunggu gerbang Tahap 1.
+
+**Putaran 5 (2026-09-29 siang; cabang 01a0eb0a · 01a0eb0d · 01a0eb15 · 01a0eb17 · 01a0eb0f · 01a0eb0e):** HAKIM F-07 (dua laporan
+H-F-07.2/H-F-07.3), HAKIM F-08 (dua hakim) + PEMERIKSA F-12 di cabang yang sama, HAKIM P-10-00 (dua hakim, PAPAN tetap RENCANA — aturan
+baru §5 bekerja), HAKIM F-09 (dua hakim; **satu SENGKETA HAKIM: PMB1-F-129** TERVERIFIKASI vs PERLU-INFO → hakim ketiga/Lee), PEMERIKSA F-10 (×2)
+dan F-11 (×2). Pelajaran mesin: (1) hakim F-07 menyentuh berkas handoff di luar PMB-1 → alat integrasi mendapat `--abaikan-luar-pmb`
+(perubahan luar dibuang, dicatat); (2) empat sesi berbeda menutup PMB1-F-092/F-094 → aturan "penutup ganda" dimesinkan (`‖ PENUTUP KEDUA`);
+(3) **PMB1-F-136** (hakim F-08): penjaga menerima status berputusan dengan kolom Hakim sembarang → kini wajib menyebut kartu `H-` yang ada
+(`3f56abb`); (4) dua giliran berhenti palsu (rujukan kartu ulangan yang tak pernah ada; baris "CI terakhir" handoff yang selalu tertinggal
+satu commit) → `9b6481d`. Sesudah putaran 5: **170 temuan** (116 TERVERIFIKASI · 36 BARU · 11 DUPLIKAT · 3 DITUTUP · 2 PALSU · 1 DIPERBAIKI ·
+1 PERLU-INFO) · 111 asumsi; **F-01…F-09 DIHAKIMI, F-10…F-12 SELESAI, F-13…F-17 BELUM**. **Enam K-1 semuanya TERVERIFIKASI**
+(F-001, F-031, F-036, F-052, F-063, F-127) — menunggu keputusan Lee soal Pembangun. Pengamatan platform: Arena menjalankan **dua agent per
+prompt pada cabang yang sama**; mekanisme (kartu `.2`, aturan sengketa, penomoran ulang) sudah menampungnya, tetapi Lee dianjurkan melanjutkan
+satu agent saja per potongan.
