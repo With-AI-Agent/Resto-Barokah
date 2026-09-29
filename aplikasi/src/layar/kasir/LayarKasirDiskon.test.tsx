@@ -17,6 +17,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { LayarKasir } from './LayarKasir'
+import { MEJA_KASIR_UJI } from '../../test/fixtures/mejaKasir'
+import { KATEGORI_KASIR_UJI, MENU_KASIR_UJI } from '../../test/fixtures/katalogKasir'
 import { PenyediaBahasa } from '../../bahasa'
 import isiLayarKasir from './LayarKasir.tsx?raw'
 
@@ -56,6 +58,9 @@ describe('LayarKasir ↔ DiskonManual (T5-05, sambungan)', () => {
     render(
       <PenyediaBahasa>
         <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
           batasDiskon={BATAS_KASIR}
           daftarAtasan={ATASAN}
           onTerapkanDiskon={onTerapkanDiskon}
@@ -84,6 +89,9 @@ describe('LayarKasir ↔ DiskonManual (T5-05, sambungan)', () => {
     render(
       <PenyediaBahasa>
         <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
           batasDiskon={BATAS_KASIR}
           daftarAtasan={ATASAN}
           onTerapkanDiskon={onTerapkanDiskon}
@@ -111,6 +119,9 @@ describe('LayarKasir ↔ DiskonManual (T5-05, sambungan)', () => {
     render(
       <PenyediaBahasa>
         <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
           batasDiskon={BATAS_KASIR}
           daftarAtasan={ATASAN}
           onTerapkanDiskon={onTerapkanDiskon}
@@ -139,6 +150,9 @@ describe('LayarKasir ↔ DiskonManual (T5-05, sambungan)', () => {
     render(
       <PenyediaBahasa>
         <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
           batasDiskon={BATAS_KASIR}
           daftarAtasan={ATASAN}
           onMintaPersetujuanDiskon={onMintaPersetujuanDiskon}
@@ -196,7 +210,12 @@ describe('LayarKasir ↔ VoucherKasir (T8-09, alur cek & pakai voucher)', () => 
 
     render(
       <PenyediaBahasa>
-        <LayarKasir onCekVoucher={onCekVoucher} />
+        <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+          onCekVoucher={onCekVoucher}
+        />
       </PenyediaBahasa>,
     )
 
@@ -251,7 +270,13 @@ describe('LayarKasir ↔ VoucherKasir (T8-09, alur cek & pakai voucher)', () => 
 
     render(
       <PenyediaBahasa>
-        <LayarKasir onCekVoucher={onCekVoucher} onPakaiVoucher={onPakaiVoucher} />
+        <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+          onCekVoucher={onCekVoucher}
+          onPakaiVoucher={onPakaiVoucher}
+        />
       </PenyediaBahasa>,
     )
 

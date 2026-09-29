@@ -19,6 +19,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { LayarKasir } from './LayarKasir'
+import { MEJA_KASIR_UJI } from '../../test/fixtures/mejaKasir'
+import { KATEGORI_KASIR_UJI, MENU_KASIR_UJI } from '../../test/fixtures/katalogKasir'
 import { PenyediaBahasa } from '../../bahasa'
 import isiLayarKasir from './LayarKasir.tsx?raw'
 
@@ -43,7 +45,11 @@ describe('LayarKasir — void item butuh alasan (T5-06)', () => {
   it('keranjang draf (tanpa onBatalkanItem): hapus langsung, tidak mengganggu kasir', () => {
     render(
       <PenyediaBahasa>
-        <LayarKasir />
+        <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+        />
       </PenyediaBahasa>,
     )
     tambahSatuItem()
@@ -56,7 +62,12 @@ describe('LayarKasir — void item butuh alasan (T5-06)', () => {
     const onBatalkanItem = vi.fn()
     render(
       <PenyediaBahasa>
-        <LayarKasir onBatalkanItem={onBatalkanItem} />
+        <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+          onBatalkanItem={onBatalkanItem}
+        />
       </PenyediaBahasa>,
     )
     tambahSatuItem()
@@ -70,7 +81,12 @@ describe('LayarKasir — void item butuh alasan (T5-06)', () => {
     const onBatalkanItem = vi.fn().mockResolvedValue({ berhasil: true })
     render(
       <PenyediaBahasa>
-        <LayarKasir onBatalkanItem={onBatalkanItem} />
+        <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+          onBatalkanItem={onBatalkanItem}
+        />
       </PenyediaBahasa>,
     )
     tambahSatuItem()
@@ -90,7 +106,12 @@ describe('LayarKasir — void item butuh alasan (T5-06)', () => {
     })
     render(
       <PenyediaBahasa>
-        <LayarKasir onBatalkanItem={onBatalkanItem} />
+        <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+          onBatalkanItem={onBatalkanItem}
+        />
       </PenyediaBahasa>,
     )
     tambahSatuItem()
@@ -107,7 +128,13 @@ describe('LayarKasir — void item butuh alasan (T5-06)', () => {
   it('peringatan PIN atasan muncul bila pesanan sudah masuk dapur', () => {
     render(
       <PenyediaBahasa>
-        <LayarKasir onBatalkanItem={vi.fn()} sudahKeDapur />
+        <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+          onBatalkanItem={vi.fn()}
+          sudahKeDapur
+        />
       </PenyediaBahasa>,
     )
     tambahSatuItem()

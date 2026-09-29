@@ -17,6 +17,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { LayarKasir } from './LayarKasir'
+import { MEJA_KASIR_UJI } from '../../test/fixtures/mejaKasir'
+import { KATEGORI_KASIR_UJI, MENU_KASIR_UJI } from '../../test/fixtures/katalogKasir'
 import type { MetodeBayar } from './Bayar'
 import { PenyediaBahasa } from '../../bahasa'
 
@@ -41,7 +43,12 @@ describe('LayarKasir ↔ Bayar (T5-01, sambungan)', () => {
   it('modal bayar menampilkan metode dari kontainer, bukan daftar bawaan layar', () => {
     render(
       <PenyediaBahasa>
-        <LayarKasir metodeBayar={METODE} />
+        <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+          metodeBayar={METODE}
+        />
       </PenyediaBahasa>,
     )
     bukaBayar()
@@ -56,7 +63,12 @@ describe('LayarKasir ↔ Bayar (T5-01, sambungan)', () => {
   it('tanpa metode aktif: kasir diberi tahu, bukan disuguhi tombol bayar palsu', () => {
     render(
       <PenyediaBahasa>
-        <LayarKasir metodeBayar={[]} />
+        <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+          metodeBayar={[]}
+        />
       </PenyediaBahasa>,
     )
     bukaBayar()
@@ -75,7 +87,13 @@ describe('LayarKasir ↔ Bayar (T5-01, sambungan)', () => {
     })
     render(
       <PenyediaBahasa>
-        <LayarKasir metodeBayar={METODE} onBayar={onBayar} />
+        <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+          metodeBayar={METODE}
+          onBayar={onBayar}
+        />
       </PenyediaBahasa>,
     )
     bukaBayar()
@@ -99,6 +117,9 @@ describe('LayarKasir ↔ Bayar (T5-01, sambungan)', () => {
     render(
       <PenyediaBahasa>
         <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
           metodeBayar={METODE}
           keadaanBayar="berhasil"
           terakhirBayar={{
@@ -123,6 +144,9 @@ describe('LayarKasir ↔ Bayar (T5-01, sambungan)', () => {
     render(
       <PenyediaBahasa>
         <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
           metodeBayar={METODE}
           keadaanBayar="berhasil"
           terakhirBayar={{
@@ -158,6 +182,9 @@ describe('LayarKasir ↔ Bayar (T5-01, sambungan)', () => {
     render(
       <PenyediaBahasa>
         <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
           metodeBayar={METODE}
           keadaanBayar="berhasil"
           onSelesaiBayar={onSelesaiBayar}
@@ -186,7 +213,13 @@ describe('LayarKasir ↔ Bayar (T5-01, sambungan)', () => {
   it('pesan galat peladen (mis. BY-301) tampil apa adanya di kasir', () => {
     render(
       <PenyediaBahasa>
-        <LayarKasir metodeBayar={METODE} pesanBayar="BY-301: pembayaran melebihi total pesanan." />
+        <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+          metodeBayar={METODE}
+          pesanBayar="BY-301: pembayaran melebihi total pesanan."
+        />
       </PenyediaBahasa>,
     )
     bukaBayar()
@@ -198,7 +231,13 @@ describe('LayarKasir ↔ Bayar (T5-01, sambungan)', () => {
     const onBayar = vi.fn()
     render(
       <PenyediaBahasa>
-        <LayarKasir metodeBayar={METODE} onBayar={onBayar} />
+        <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+          metodeBayar={METODE}
+          onBayar={onBayar}
+        />
       </PenyediaBahasa>,
     )
     bukaBayar()

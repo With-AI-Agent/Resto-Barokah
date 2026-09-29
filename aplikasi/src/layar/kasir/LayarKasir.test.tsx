@@ -1,8 +1,21 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
-import { LayarKasir } from './LayarKasir'
+import { LayarKasir, type LayarKasirProps } from './LayarKasir'
 import { PenyediaBahasa } from '../../bahasa'
+import { KATEGORI_KASIR_UJI, MENU_KASIR_UJI } from '../../test/fixtures/katalogKasir'
+import { MEJA_KASIR_UJI } from '../../test/fixtures/mejaKasir'
+
+function KasirDenganDataUji(props: LayarKasirProps) {
+  return (
+    <LayarKasir
+      daftarKategori={KATEGORI_KASIR_UJI}
+      daftarMenu={MENU_KASIR_UJI}
+      daftarMeja={MEJA_KASIR_UJI}
+      {...props}
+    />
+  )
+}
 import { simpanDrafKasir, muatDrafKasir } from '../../lib/antrean-lokal'
 
 describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
@@ -18,7 +31,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
   it('merender layout POS lengkap: katalog menu dan keranjang kosong di awal', () => {
     render(
       <PenyediaBahasa>
-        <LayarKasir />
+        <KasirDenganDataUji />
       </PenyediaBahasa>,
     )
 
@@ -30,7 +43,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
   it('menambahkan item dari katalog ke keranjang dan memperbarui ringkasan total', async () => {
     render(
       <PenyediaBahasa>
-        <LayarKasir />
+        <KasirDenganDataUji />
       </PenyediaBahasa>,
     )
 
@@ -61,7 +74,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
 
     render(
       <PenyediaBahasa>
-        <LayarKasir
+        <KasirDenganDataUji
           shiftAktif={{
             id: 'shift-pos-01',
             cabangId: 'cab-01',
@@ -96,10 +109,49 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
     })
   })
 
+  it('menolak pesanan dine-in bila tidak ada meja nyata yang dipilih', async () => {
+    const onSimpanPesanan = vi.fn().mockResolvedValue({ sukses: true, pesananId: 'pesanan-uji' })
+    render(
+      <PenyediaBahasa>
+        <LayarKasir
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
+          onSimpanPesanan={onSimpanPesanan}
+        />
+      </PenyediaBahasa>,
+    )
+
+    fireEvent.click(screen.getByText('Tahu Tempe Goreng Lengkuas'))
+    fireEvent.click(screen.getByRole('button', { name: /Kirim ke Dapur/i }))
+
+    expect(
+      screen.getByText('Pilih meja dari daftar cabang sebelum menyimpan pesanan.'),
+    ).toBeDefined()
+    expect(onSimpanPesanan).not.toHaveBeenCalled()
+  })
+
+  it('meneruskan pindah meja ke handler peladen dan memperbarui meja aktif', async () => {
+    const onPindahMeja = vi.fn().mockResolvedValue({ sukses: true })
+    render(
+      <PenyediaBahasa>
+        <KasirDenganDataUji onPindahMeja={onPindahMeja} />
+      </PenyediaBahasa>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /Meja 01/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Pindah Meja/i }))
+    fireEvent.click(screen.getByText('Meja 04'))
+
+    await waitFor(() => {
+      expect(onPindahMeja).toHaveBeenCalledWith('meja-01', 'meja-04')
+      expect(screen.getByRole('button', { name: /Meja 04/i })).toBeDefined()
+    })
+  })
+
   it('dapat membuka modal Tagihan Terbuka (Open Bill)', () => {
     render(
       <PenyediaBahasa>
-        <LayarKasir />
+        <KasirDenganDataUji />
       </PenyediaBahasa>,
     )
 
@@ -117,7 +169,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
     render(
       <PenyediaBahasa>
         {/* Kedai dengan pajak 11 % dan TANPA service charge. */}
-        <LayarKasir tarif={{ pajakPersen: 11, servicePersen: 0, pembulatan: 'none' }} />
+        <KasirDenganDataUji tarif={{ pajakPersen: 11, servicePersen: 0, pembulatan: 'none' }} />
       </PenyediaBahasa>,
     )
 
@@ -135,7 +187,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
   it('tanpa prop tarif, keranjang memakai tarif bawaan 10 %/5 % (T-027)', async () => {
     render(
       <PenyediaBahasa>
-        <LayarKasir />
+        <KasirDenganDataUji />
       </PenyediaBahasa>,
     )
 
@@ -153,7 +205,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
   it('menampilkan tombol Tutup Kas saat ada shift aktif dan membuka dialog rekonsiliasi (T7-02)', () => {
     render(
       <PenyediaBahasa>
-        <LayarKasir
+        <KasirDenganDataUji
           shiftAktif={{
             id: 'shift-pos-01',
             cabangId: 'cab-01',
@@ -181,7 +233,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
 
     render(
       <PenyediaBahasa>
-        <LayarKasir
+        <KasirDenganDataUji
           shiftAktif={{
             id: 'shift-pos-01',
             cabangId: 'cab-01',
@@ -206,7 +258,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
   it('menampilkan banner peringatan wajib buka kas jika shift belum dibuka (T7-04)', () => {
     render(
       <PenyediaBahasa>
-        <LayarKasir shiftAktif={null} wajibShift={true} />
+        <KasirDenganDataUji shiftAktif={null} wajibShift={true} />
       </PenyediaBahasa>,
     )
 
@@ -218,7 +270,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
   it('mengklik tombol bayar saat belum ada shift membuka modal Buka Kas (T7-04)', async () => {
     render(
       <PenyediaBahasa>
-        <LayarKasir shiftAktif={null} wajibShift={true} />
+        <KasirDenganDataUji shiftAktif={null} wajibShift={true} />
       </PenyediaBahasa>,
     )
 
@@ -247,7 +299,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
 
     render(
       <PenyediaBahasa>
-        <LayarKasir
+        <KasirDenganDataUji
           shiftAktif={shiftHariIni}
           jamTutup="22:00"
           waktuSekarangPengingat={waktuLewat}
@@ -280,7 +332,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
 
     render(
       <PenyediaBahasa>
-        <LayarKasir
+        <KasirDenganDataUji
           shiftAktif={shiftKemarin}
           jamTutup="22:00"
           waktuSekarangPengingat={waktuBesok}
@@ -305,7 +357,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
 
     render(
       <PenyediaBahasa>
-        <LayarKasir shiftAktif={shift} />
+        <KasirDenganDataUji shiftAktif={shift} />
       </PenyediaBahasa>,
     )
 
@@ -334,7 +386,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
 
     render(
       <PenyediaBahasa>
-        <LayarKasir shiftAktif={shift} daftarAtasan={atasan} onKoreksiModal={onKoreksi} />
+        <KasirDenganDataUji shiftAktif={shift} daftarAtasan={atasan} onKoreksiModal={onKoreksi} />
       </PenyediaBahasa>,
     )
 
@@ -387,7 +439,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
 
     render(
       <PenyediaBahasa>
-        <LayarKasir cabangId="cab-01" />
+        <KasirDenganDataUji cabangId="cab-01" />
       </PenyediaBahasa>,
     )
 
@@ -400,7 +452,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
     ).toBeDefined()
 
     // Item draf harus ada di keranjang
-    expect(screen.getByText('Ayam Goreng Lengkuas')).toBeDefined()
+    expect(screen.getAllByText('Ayam Goreng Lengkuas').length).toBeGreaterThan(0)
   })
 
   it('menekan tombol Buang Draf pada banner pemulihan menghapus draf dan mengosongkan keranjang (T10-09)', async () => {
@@ -424,7 +476,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
 
     render(
       <PenyediaBahasa>
-        <LayarKasir cabangId="cab-01" />
+        <KasirDenganDataUji cabangId="cab-01" />
       </PenyediaBahasa>,
     )
 
@@ -467,7 +519,7 @@ describe('LayarKasir POS (T3-01 s/d T3-16)', () => {
 
     render(
       <PenyediaBahasa>
-        <LayarKasir
+        <KasirDenganDataUji
           cabangId="cab-01"
           keadaanBayar="berhasil"
           metodeBayar={[

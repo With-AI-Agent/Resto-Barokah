@@ -56,6 +56,13 @@ export interface LayarKasirProps {
   namaCabang?: string
   daftarKategori?: KategoriData[]
   daftarMenu?: MenuItemData[]
+  daftarMeja?: MejaData[]
+  sedangMemuatMeja?: boolean
+  pesanGalatMeja?: string | null
+  onPindahMeja?: (
+    mejaAsalId: string,
+    mejaTujuanId: string,
+  ) => Promise<{ sukses: boolean; pesan?: string }>
   katalogSedangMemuat?: boolean
   pesanGalatKatalog?: string | null
   onSimpanPesanan?: (
@@ -177,6 +184,9 @@ export function LayarKasir({
   namaCabang = 'Cabang Utama',
   daftarKategori = [],
   daftarMenu = [],
+  daftarMeja = [],
+  sedangMemuatMeja = false,
+  pesanGalatMeja = null,
   katalogSedangMemuat = false,
   pesanGalatKatalog = null,
   onSimpanPesanan = async () => ({ sukses: true, pesananId: 'ord-new' }),
@@ -210,17 +220,20 @@ export function LayarKasir({
   onKasPergerakan,
   onKoreksiModal,
   daftarTagihanTerbuka,
+  onPindahMeja,
 }: LayarKasirProps) {
   const { t } = useBahasa()
   // Keranjang State
   const [daftarItemKeranjang, setDaftarItemKeranjang] = useState<ItemKeranjang[]>([])
   const [tipePesanan, setTipePesanan] = useState<TipePesanan>('dinein')
-  const [mejaAktif, setMejaAktif] = useState<MejaData>({
-    id: 'meja-01',
-    nama: 'Meja 01',
-    status: 'kosong',
-    aktif: true,
-  })
+  const [mejaAktif, setMejaAktif] = useState<MejaData>(
+    () => daftarMeja[0] ?? { id: '', nama: 'Meja belum dipilih', status: 'kosong', aktif: false },
+  )
+  useEffect(() => {
+    if (daftarMeja.length === 0) return
+    if (daftarMeja.some((meja) => meja.id === mejaAktif.id)) return
+    setMejaAktif(daftarMeja[0])
+  }, [daftarMeja, mejaAktif.id])
   const [catatanPesananUmum, setCatatanPesananUmum] = useState<string>('')
 
   // UI Modal State
@@ -448,6 +461,10 @@ export function LayarKasir({
 
   const tanganiKirimKeDapur = async () => {
     if (daftarItemKeranjang.length === 0) return
+    if (tipePesanan === 'dinein' && !mejaAktif.id) {
+      tampilkanToast('Pilih meja dari daftar cabang sebelum menyimpan pesanan.', 'gagal')
+      return
+    }
     if (wajibShift && !shiftAktif) {
       setBukaShiftModal(true)
       return
@@ -741,10 +758,14 @@ export function LayarKasir({
           judul={t('kasir.pilih_meja_judul')}
         >
           <PemilihMeja
+            daftarMeja={daftarMeja}
+            sedangMemuatMeja={sedangMemuatMeja}
+            pesanGalatMeja={pesanGalatMeja}
             mejaTerpilihId={mejaAktif.id}
             tipePesanan={tipePesanan}
             catatanPesanan={catatanPesananUmum}
             onPilihTipe={setTipePesanan}
+            onPindahMeja={onPindahMeja}
             onPilihMeja={(m) => {
               setMejaAktif(m)
               setBukaMejaModal(false)

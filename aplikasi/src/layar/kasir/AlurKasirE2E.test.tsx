@@ -2,6 +2,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
 import { LayarKasir } from './LayarKasir'
+import { MEJA_KASIR_UJI } from '../../test/fixtures/mejaKasir'
+import { KATEGORI_KASIR_UJI, MENU_KASIR_UJI } from '../../test/fixtures/katalogKasir'
 import { PenyediaBahasa } from '../../bahasa'
 
 describe('Uji Alur Kasir Ujung-ke-Ujung (T3-14)', () => {
@@ -30,6 +32,9 @@ describe('Uji Alur Kasir Ujung-ke-Ujung (T3-14)', () => {
     render(
       <PenyediaBahasa>
         <LayarKasir
+          daftarMeja={MEJA_KASIR_UJI}
+          daftarKategori={KATEGORI_KASIR_UJI}
+          daftarMenu={MENU_KASIR_UJI}
           cabangId="cab-01"
           namaCabang="Cabang Barokah Utama"
           onSimpanPesanan={onSimpanPesananMock}
