@@ -1,0 +1,92 @@
+BUKTI REPRODUKSI HAKIM — F-09
+Tanggal: 2026-09-29
+Cabang: arena/01a0eb17-resto-barokah
+Mode: baca-saja; tidak menjalankan aplikasi terhadap layanan produksi.
+
+1. Rute layar dan pemakai produksi (F-117, F-118)
+Perintah:
+  grep -RnE 'from .*(LupaAkses|TidakPunyaAkses|MasukStaf|KunciSekarang|MasukPengelola)|<LupaAkses|<TidakPunyaAkses|<MasukStaf|<KunciSekarang|<MasukPengelola' aplikasi/src --exclude='*.test.*'
+  sed -n '600,625p' aplikasi/src/App.tsx
+  for n in DaftarTagihan DaftarPesanan DataPelanggan StrukDigital susunStruk susunTiket cetakBluetooth cetakUsb; do grep -RIlw "$n" aplikasi/src --exclude='*.test.*'; done
+Hasil:
+  Tidak ada pemakai produksi yang memasang sebagian besar modul Fase 2 yang diteliti. App.tsx merender LayarMasukPegawai untuk pegawai/pengelola dan LayarMasukPelanggan untuk pelanggan. Nama komponen/fungsi printer yang diteliti hanya ditemukan di berkas definisinya, bukan konsumen produksi.
+
+2. WebUSB dan header aset (F-119)
+Perintah:
+  grep -n usb aplikasi/public/_headers
+  grep -nE '^\[assets\]|directory|main' aplikasi/wrangler.toml
+Hasil:
+  Header menetapkan usb=(). Wrangler memakai direktori aset statis. MDN menjelaskan direktif Permissions-Policy usb mengendalikan WebUSB; allowlist kosong memblokir fitur di konteks terkait. Cloudflare menyatakan _headers diterapkan ke respons aset statis. Ini memverifikasi konfigurasi build, bukan observasi domain produksi.
+Sumber resmi:
+  https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy/usb
+  https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy
+  https://developers.cloudflare.com/workers/static-assets/headers/
+
+3. Beban dan uji terima (F-120, F-124)
+Perintah:
+  sed -n '1,55p' docs/uji/HASIL_UJI_TERIMA_KEAMANAN.md
+  sed -n '1,64p' aplikasi/src/layar/kasir/BebanKasir.test.ts
+Hasil:
+  Banner koreksi HASIL_UJI_TERIMA_KEAMANAN.md menyatakan uji perangkat nyata T11-12 BELUM dilaksanakan dan status LULUS bukan bukti pelaksanaan. BebanKasir.test.ts hanya membuat array contoh, memanggil fungsi hitungRingkasanBeban lokal, dan mengukur waktu kalkulasi; hasil tersebut tidak membuktikan beban/performa pada perangkat nyata.
+
+4. Jejak audit dan status (F-121…F-126)
+Perintah:
+  grep -nE 'L F-01|L F-02|L F-03|L F-04|L F-08' docs/uji/AUDIT_RIWAYAT.md
+  grep -nE 'K1-1|K2-1|K2-3|K2-4' docs/uji/audit/LAPORAN_AKBAR_PEMERIKSA_FASE__sesi-01a0e266.md
+  sed -n '145,152p' STATUS.md
+  grep -n 'T4-01' docs/ROADMAP.md | head
+  sed -n '730,738p' docs/ROADMAP.md
+  sed -n '794,796p;822,836p' docs/ROADMAP.md
+  sed -n '1,20p' alat/susun-matriks-telusur.py
+Hasil:
+  Registry memuat L F-01/02/03/04/08, tetapi tidak punya baris khusus untuk laporan sesi 01a0e266. Sebagian isu laporan lama memang tercatat dengan ID lain; klaim yang tersisa adalah jejak laporan dan temuan yang tidak terwakili, bukan “semua temuan hilang”. STATUS menampilkan Fase 4 “TUNTAS”, sedangkan tugas ROADMAP yang ditinjau tetap terbuka. T2-08 menggandakan Kompleksitas/Risiko/Verifikasi. T2-15 memuat syarat T-015 “uji perangkat nyata WAJIB” dan keterangan belum ada klaim pengujian kedai. T2-18/T2-19 dicentang sementara T2-13 tetap terbuka. Skrip matriks memakai pengenal kata yang tidak menangkap sejumlah frasa verifikasi manual/perangkat.
+
+5. Kredensial demo (F-127)
+Perintah:
+  sed -n '310,378p' aplikasi/src/layar/masuk/LayarMasukPegawai.tsx
+  grep -n import.meta.env aplikasi/src/layar/masuk/LayarMasukPegawai.tsx
+  grep -nE 'owner@resto\.test|kasir@resto\.test|dapur@resto\.test' supabase/migrations/0086_data_awal_dan_autentikasi_perangkat.sql
+Hasil:
+  UI menampilkan PIN 123456 serta tombol isi otomatis email owner/kasir/dapur; pencarian import.meta.env pada layar itu kosong. Migrasi 0086 menanam akun contoh yang sama. PMB1-F-001 telah mencatat status migrasi produksi dan keputusan Lee tentang akun uji; F-127 menguji kontrol paparan pada layar masuk, bukan mengulang temuan seed.
+
+6. Email pelanggan (F-129)
+Bukti repo:
+  sed -n '688,706p' docs/ROADMAP.md
+  grep -nE 'signInWithOtp|resetPasswordForEmail|signInWithOAuth' aplikasi/src/lib/auth.ts
+  sed -n '50,60p' docs/TERTANGGUH.md
+Bukti riset resmi Supabase:
+  https://supabase.com/docs/guides/auth/auth-smtp
+  Dokumentasi menyebut layanan bawaan dibatasi 2 email per jam dan bersifat best-effort/nonproduksi; untuk produksi disarankan SMTP khusus. Halaman yang ditinjau tidak membuktikan klaim bahwa hanya alamat “terotorisasi” yang dapat menerima email. T-022 belum memilih kanal; Lee menjawab status konfigurasi/pengujian belum diketahui. Putusan: PERLU-INFO; tidak mengasumsikan konfigurasi Dashboard.
+
+7. Katalog, pindah meja, kirim dapur dan pelayan (F-130…F-133)
+Perintah:
+  grep -nE 'CONTOH_MENU|daftarMenu =' aplikasi/src/layar/kasir/Katalog.tsx
+  grep -RniE "from\(['\"]menu_item|from\(['\"]menu|\.rpc\(['\"]ambil_menu" aplikasi/src --exclude='*.test.*'
+  grep -Rni pindah_meja supabase/migrations
+  grep -RniE "from\(['\"]meja|CONTOH_MEJA" aplikasi/src --exclude='*.test.*'
+  sed -n '160,176p' aplikasi/src/App.tsx
+  grep -RniE 'dikirim_ke_dapur_pada|set.*dikirim' supabase/migrations | head -30
+  grep -n "order('dikirim" aplikasi/src/hook/useTiketDapur.ts
+  grep -nE 'onKirimPesanan|Pesanan berhasil dikirim' aplikasi/src/layar/pelayan/LayarPelayan.tsx aplikasi/src/App.tsx
+Hasil:
+  Katalog memakai contoh keras-kode; tidak ada pembacaan tabel menu_item. PemilihMeja memakai CONTOH_MEJA; tidak ditemukan implementasi RPC pindah_meja/riwayat yang diklaim. App.tsx memperbarui langsung tabel pesanan dan mengisi timestamp dari new Date().toISOString(); antrean dapur diurutkan dengan kolom itu. Waktu peladen pada migrasi 0038 hanya fungsi penyedia waktu, bukan trigger pengisian timestamp kirim. LayarPelayan menampilkan pesan sukses pada jalur tanpa callback onKirimPesanan.
+
+8. Pembatas masuk per IP (F-134)
+Perintah:
+  grep -RniE 'ip_address|alamat_ip|ip_pengakses|client_ip|x-forwarded-for|cf-connecting-ip|remote_addr' supabase/migrations supabase/functions aplikasi/src alat --exclude='*.test.*' | head -100
+  sed -n '115,160p' supabase/migrations/0061_verifikasi_pin_perangkat.sql
+Hasil:
+  Fungsi login menghitung kegagalan 5 kali per pengguna dan 12 kali per perangkat dalam 15 menit. Pencarian IP menemukan ip_pengakses pada migrasi voucher, bukan pada autentikasi PIN.
+
+9. Simpan pesanan (F-135)
+Perintah:
+  grep -nE 'function public\.simpan_pesanan|jsonb_array_length|shift|raise exception' supabase/migrations/0080_kunci_idempoten_menyeluruh.sql | head -80
+  grep -n 'simpan_pesanan' supabase/tes/idempoten.sql
+  sed -n '886,894p' docs/ROADMAP.md
+Hasil:
+  RPC simpan_pesanan memang ada; uji idempoten yang dirujuk mengulang tiga kali dengan kunci sama. Task T3-05 masih [ ] dan uji yang terlihat tidak menutup seluruh DoD lima panggilan/tanpa kunci, pesanan kosong, dan shift terbuka.
+
+10. Pemeriksaan umum (sebelum pembaruan putusan)
+  python3 alat/periksa-roadmap.py → LOLOS (193 tugas; 7 atribut lengkap).
+  python3 alat/periksa-temuan-audit.py → LOLOS (117 temuan terlacak).
+  Kedua hasil menunjukkan penjaga umum tidak menangkap seluruh pertentangan yang menjadi temuan.

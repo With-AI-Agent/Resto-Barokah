@@ -1,0 +1,369 @@
+BUKTI REPRODUKSI HAKIM 2 — H-F-09.2 (potongan F-09, ROADMAP baris 659–1518)
+Sesi: arena/01a0eb17-resto-barokah (agent kedua; Hakim 1 = kartu H-F-09.md, commit a0bc231) · Tanggal: 2026-09-29 · Basis checkout: c2539dd
+Mode: hanya-baca terhadap kode/dokumen; uji SQL dijalankan di Postgres lokal lewat alat/uji-sql.mjs; tidak menyentuh produksi.
+Semua putusan di kartu H-F-09.2 dibentuk SEBELUM membaca kartu H-F-09 (urutan kerja: reproduksi 19 baris → fetch cabang → baru baca H-F-09).
+
+=== F-117 modul yatim + login owner tanpa TOTP ===
+
+$ grep -rlwE 'LupaAkses|TidakPunyaAkses|MasukStaf|KunciSekarang|MasukPengelola' aplikasi/src --exclude='*.test.*' | sort
+aplikasi/src/komponen/KunciSekarang.tsx
+aplikasi/src/layar/TidakPunyaAkses.tsx
+aplikasi/src/layar/masuk/LupaAkses.tsx
+aplikasi/src/layar/masuk/MasukPengelola.tsx
+aplikasi/src/layar/masuk/MasukStaf.tsx
+
+$ grep -c 'lazy(\|import(' aplikasi/src/App.tsx
+0
+
+$ sed -n '610,616p' aplikasi/src/App.tsx
+              />
+            ) : (
+              <LayarMasukPegawai
+                onMasuk={async (email, pin) => masuk(email, pin)}
+                onMasukSukses={(sesiMasuk) => {
+                  const peranBaru = sesiMasuk?.peran || sesi?.peran
+                  setLayarAktif(peranBaru === 'dapur' ? 'dapur' : 'kasir')
+
+=== F-118 PasangPrinter tanpa props, void tanpa tahap ===
+
+$ grep -n '<PasangPrinter' aplikasi/src/App.tsx aplikasi/src/layar/pengaturan/LayarPengaturan.tsx
+aplikasi/src/App.tsx:472:        return <PasangPrinter />
+aplikasi/src/layar/pengaturan/LayarPengaturan.tsx:416:        {tabAktif === 'printer' && <PasangPrinter />}
+
+$ sed -n '164p;171p' aplikasi/src/layar/pengaturan/PasangPrinter.tsx
+          onClick={() => onUjiCetak?.(halamanUji(lebar))}
+            onSimpan?.({ profilId, lebar, namaPerangkat: awal?.namaPerangkat ?? null })
+
+$ grep -rn 'requestDevice' aplikasi/src --exclude='*.test.*' | wc -l
+0
+
+$ grep -n "tahap: 'sebelum_dapur'" aplikasi/src/App.tsx
+223:                  tahap: 'sebelum_dapur',
+
+=== F-119 usb=() memblokir navigator.usb ===
+
+$ sed -n '15p' aplikasi/public/_headers
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
+
+$ grep -n 'dukungUsb\|navigator.usb\|in navigator' aplikasi/src/lib/printer/kirim.ts | head -4
+51:  return typeof navigator !== 'undefined' && 'bluetooth' in navigator
+55:export function dukungUsb(): boolean {
+56:  return typeof navigator !== 'undefined' && 'usb' in navigator
+Riset: WebUSB spec §8.1 (wicg.github.io/webusb, diakses 2026-09-29): token 'usb' mengendalikan apakah atribut usb DIEKSPOS pada Navigator; allowlist kosong → navigator.usb tidak ada.
+MDN Permissions-Policy/usb: 'where a defined policy blocks usage, the Navigator.usb property will not be available'.
+
+=== F-120 uji beban sintetis ===
+
+$ sed -n '1,12p' aplikasi/src/layar/kasir/BebanKasir.test.ts
+import { describe, it, expect } from 'vitest'
+
+interface ItemBeban {
+  id: string
+  nama: string
+  harga: number
+  qty: number
+}
+
+function hitungRingkasanBeban(items: ItemBeban[]) {
+  const mulai = performance.now()
+  const subtotal = items.reduce((acc, item) => acc + item.harga * item.qty, 0)
+
+$ grep -c 'render\|screen' aplikasi/src/layar/kasir/BebanKasir.test.ts
+0
+
+=== F-121 laporan akbar sesi-01a0e266 tidak terdaftar ===
+
+$ grep -c '01a0e266' docs/uji/AUDIT_RIWAYAT.md
+0
+
+$ sed -n '152p' docs/uji/audit/LAPORAN_AKBAR_PEMERIKSA_FASE__sesi-01a0e266.md
+#### K2-1 · 19 berkas antarmuka (18 modul fitur) yang sudah dibangun & lulus uji tidak pernah terpasang ke aplikasi berjalan
+
+$ python3 alat/periksa-temuan-audit.py | tail -1
+HASIL: LOLOS — 117 temuan terlacak semua, tiap DITUTUP punya bukti hidup, tiap TERBUKA punya tugas; 20 temuan luar cakupan review berjejak di daftar tunggal.
+
+=== F-122 Fase 4 TUNTAS vs T4-xx [ ] (geser baris: STATUS.md:149, PROJECT_STATE.md:188 hari ini) ===
+
+$ grep -n 'TUNTAS' STATUS.md PROJECT_STATE.md | grep -i 'fase 4' | cut -c1-150
+STATUS.md:149:> **FASE 4 TUNTAS (2026-09-22 malam, sesi arena/01a0c97c):** T4-01…T4-10 selesai di kode & uji — SQL `0032`/`0033`/`0035`/`0036`/`00
+PROJECT_STATE.md:188:> **FASE 4 TUNTAS (2026-09-22 malam, sesi arena/01a0c97c):** seluruh T4-01…T4-10 selesai di kode & uji — SQL `0032`/`0033`/`0
+
+$ grep -c '^- \[ \] T4-' docs/ROADMAP.md; grep -n '^- \[ \] T4-01' docs/ROADMAP.md
+10
+998:- [ ] T4-01 — Layar dapur (makanan) dengan urutan FIFO
+
+$ git log --oneline -S'[x] T4-01' -- docs/ROADMAP.md | wc -l
+0
+
+=== F-123 T2-13 [ ] tetapi TOTP diklaim selesai (STATUS.md:151 hari ini) ===
+
+$ grep -n '^- \[.\] T2-13\|^- \[.\] T2-18\|^- \[.\] T2-19' docs/ROADMAP.md
+776:- [ ] T2-13 — Kunci kedua (TOTP) untuk peran berkuasa + jalan pemulihannya ⚠️
+822:- [x] T2-18 — Masuk admin/owner: kata sandi + TOTP + perangkat (dengan bootstrap) ⚠️
+831:- [x] T2-19 — Uji menyeluruh masuk & perangkat (6 peran × skenario) ⚠️
+
+$ sed -n '151p' STATUS.md | cut -c1-200
+> **MARATON G3 — FASE 1B, 1C, FASE 2, & FASE 3 KASIR/PESANAN POS SELESAI LENGKAP 100% (2026-09-22):** Seluruh paket keamanan akun, perangkat & sesi (T1-23 s/d T1-30, T1-36, T1-43), Fondasi Antarmuka
+
+$ git log --oneline -S'[x] T2-13' -- docs/ROADMAP.md | wc -l
+2
+
+=== F-124 [x] tanpa bukti naskah (ROADMAP 659–1518) ===
+
+$ sed -n '659,1518p' docs/ROADMAP.md | grep -c '^- \[x\]'; sed -n '659,1518p' docs/ROADMAP.md | grep -c '\*\*Bukti'; sed -n '659,1518p' docs/ROADMAP.md | grep -c '\bW-[0-9]'
+47
+33
+0
+→ 47 tugas [x] di rentang F-09; 33 baris atribut **Bukti; 0 di antaranya menyebut ID naskah W-…
+
+$ sed -n '13p' docs/uji/NASKAH_JALAN.md | cut -c1-200
+3. **Penyelesaian Tugas:** Tugas antarmuka di `docs/ROADMAP.md` hanya boleh ditandai selesai `[x]` setelah naskah terkait dibuktikan berhasil dijalankan.
+
+$ git log --format='%h %ad' --date=short -- docs/uji/NASKAH_JALAN.md | tail -1
+6d702d3 2026-09-22
+
+$ sed -n '4p' docs/uji/HASIL_UJI_TERIMA_KEAMANAN.md | cut -c1-260
+> ⚠️ **KOREKSI STATUS (keputusan Lee 2026-09-28 — `docs/teknis/REKAM_PESAN_PEMILIK.md` §31):** dokumen ini adalah **naskah/instrumen yang disusun agent**; uji keamanan bersama pemilik di perangkat nyata (T11-12) **BELUM dilaksanak
+
+=== F-125 matriks telusur (mesin PMB — usul pindah ke G-04 saat integrasi) ===
+
+$ sed -n '34,39p' alat/susun-matriks-telusur.py
+RE_BIDANG = re.compile(r"^\s+- \*\*(Ref|File|DoD|Verifikasi):\*\*\s*(.*)$")
+# Kata yang menandakan DoD/Verifikasi menuntut tangan pemilik / dunia nyata (bukan hanya kode).
+RE_NYATA = re.compile(
+    r"\b(pemilik|Lee|nyata|perangkat kedua|perangkat fisik|printer fisik|HP\b|tanda tangan|pelatihan|"
+    r"disaksikan|dari HP|di luar jaringan|produksi nyata|dashboard)\b", re.I)
+
+$ grep -n 'T2-15\|T3-11' docs/uji/pemeriksaan/PMB-1/REGRESI_WAJIB.md | cut -c1-120
+39:| T2-15 | 2 | 794 | pemilik | F-09 |
+40:| T3-11 | 3 | 940 | HP | F-09 |
+
+=== F-126 T2-08 atribut ganda; penanda L F-02 basi ===
+
+$ grep -n '^- \[.\] T2-08' docs/ROADMAP.md; grep -c 'terbuka di L F-02' docs/ROADMAP.md
+726:- [x] T2-08 — Halaman "tidak punya akses" + pesan ramah berkode
+1
+
+$ grep -n 'L F-02' docs/uji/AUDIT_RIWAYAT.md | head -2 | cut -c1-160
+204:| L F-02 | K-1 | Masuk pelanggan Google OAuth tidak tersambung (hanya logo, tidak ada `signInWithOAuth`) | **DITUTUP 2026-09-25** | obat permanen: `aplikasi
+210:| L F-08 | K-2 | 31 jalur `File:` ROADMAP untuk tugas berstatus `[x]` tidak ada di commit target | **DITUTUP 2026-09-25** | obat permanen: seluruh rujukan b
+
+=== F-127 blok isi-otomatis demo di layar masuk produksi ===
+
+$ grep -n 'Pilihan Cepat\|123456\|@resto.test' aplikasi/src/layar/masuk/LayarMasukPegawai.tsx | head -6
+149:              contoh="nama@resto.test"
+310:          {/* Pilihan Cepat Akun Demo / Uji Coba */}
+334:              <span>Pilihan Cepat Masuk Akun Demo (PIN: 123456):</span>
+347:                  setEmail('owner@resto.test')
+348:                  setPin('123456')
+358:                  setEmail('kasir@resto.test')
+
+$ grep -c 'import.meta' aplikasi/src/layar/masuk/LayarMasukPegawai.tsx
+0
+
+$ git log --format='%h %ad %s' --date=short -S'Pilihan Cepat Masuk Akun Demo' -- aplikasi/src/layar/masuk/LayarMasukPegawai.tsx | cut -c1-120
+8bba597 2026-09-28 feat(auth, ui): resolusi login perangkat mandiri, seed data produksi, dan perombakan desain UI
+
+$ git merge-base --is-ancestor 8bba597 origin/main && echo '8bba597 adalah leluhur origin/main'
+8bba597 adalah leluhur origin/main
+
+$ gh run list --workflow=sebar-halaman.yml --limit 1 --json databaseId,conclusion,createdAt,headSha
+[{"conclusion":"success","createdAt":"2026-09-28T07:50:57Z","databaseId":36393901142,"headSha":"4d56d5a83e2dde7adf5fa5918616d7a420cc17df"}]
+
+$ sed -n '8p' docs/ops/DEPLOY.md | cut -c1-160; echo ---; sed -n '47p' docs/ops/DEPLOY.md | cut -c1-160
+> **Jalur Deploy Awal (T-008):** `https://resto-barokah.fatrizmubarok.workers.dev` (atau custom domain resto).
+---
+1. Masuk ke [Supabase Dashboard](https://supabase.com).
+
+=== F-128 T2-15 [x] vs gerbang T-015 ===
+
+$ grep -n '^- \[.\] T2-15' docs/ROADMAP.md; sed -n '51p;55p' docs/TERTANGGUH.md | cut -c1-200
+794:- [x] T2-15 — Pendaftaran perangkat (kode/QR) + persetujuan pegawai baru ⚠️ T-015
+| T-002 | 2026-09-21 | **Merek & tipe printer** Kedai Oasis + cara menyambungnya (Bluetooth/USB) | **[x] SELESAI 2026-09-23 — Lee menjawab:** Goojprt PT-210, Kassen BT-P290, Blueprint Lite-58, Xprin
+| T-015 | 2026-09-21 | **Tablet/HP Android nyata yang dipakai Kedai Oasis** untuk mode terkunci satu-aplikasi (kiosk) | Disetujui 2026-09-21 (setuju semua): panduan umum ditulis agent; perangkat nyata
+
+=== F-129 kanal email pelanggan ===
+
+$ grep -n '^- \[.\] T2-04\|^- \[.\] T2-05' docs/ROADMAP.md
+688:- [x] T2-04 — Masuk pelanggan: Google (utama) + email terverifikasi (kedua) T-022
+698:- [x] T2-05 — Pemulihan akses pelanggan (lupa PIN / ganti perangkat) T-022 T-023
+
+$ sed -n '57p' docs/TERTANGGUH.md | cut -c1-220
+| T-022 | 2026-09-21 | **Cara kirim email ke pelanggan tanpa domain berbayar** — keputusan T-007 ("Resend tanpa domain khusus") tidak bisa dipakai untuk email ke PELANGGAN: tanpa domain terverifikasi, Resend hanya meng
+
+$ grep -n 'signInWithOtp' aplikasi/src/lib/auth.ts
+264:    const { error } = await supabase.auth.signInWithOtp({
+
+$ grep -rli 'smtp' docs supabase aplikasi/src .github 2>/dev/null | grep -v pemeriksaan/PMB-1 | wc -l
+3
+Riset resmi (fetch 2026-09-29) https://supabase.com/docs/guides/auth/auth-smtp — kutipan harfiah:
+  'Send messages only to pre-authorized addresses. Unless you configure a custom SMTP server for your project, Supabase Auth will refuse to deliver messages to addresses that are not part of the project's team.'
+  '... All other addresses will fail with the error message Email address not authorized.'
+  'Currently this value is set to 2 messages per hour.' · 'not meant for production use'
+→ klaim pemeriksa (A-009/A-075: 'hanya alamat terotorisasi') BENAR menurut dokumen resmi; koreksi Hakim 1 yang menyatakan halaman itu tidak memuat pembatasan penerima TIDAK tepat.
+
+=== F-130 katalog kasir CONTOH_MENU ===
+
+$ grep -n 'CONTOH_MENU' aplikasi/src/layar/kasir/Katalog.tsx | head -3
+53:const CONTOH_MENU: MenuItemData[] = [
+128:  daftarMenu = CONTOH_MENU,
+
+$ grep -rhoE "\.from\('[a-z_]+'\)" aplikasi/src --exclude='*.test.*' | sort | uniq -c | sort -rn
+      4 .from('pesanan')
+      2 .from('pesanan_item')
+      1 .from('stok_pergerakan')
+      1 .from('stok_bahan')
+      1 .from('pembatalan')
+      1 .from('metode_bayar')
+      1 .from('diskon_transaksi')
+
+$ grep -rn "rpc('katalog_publik'" aplikasi/src --exclude='*.test.*' | cut -c1-120
+aplikasi/src/layar/pelanggan-publik/LayarPelangganPublik.tsx:168:      const { data, error } = await klien.rpc('katalog_
+
+=== F-131 pindah meja tidak ada ===
+
+$ grep -rli 'pindah_meja' supabase/migrations | wc -l; grep -c 'riwayat' supabase/migrations/0008_meja.sql
+0
+0
+
+$ grep -n 'CONTOH_MEJA' aplikasi/src/layar/kasir/PemilihMeja.tsx | head -3
+33:const CONTOH_MEJA: MejaData[] = [
+75:  daftarMeja = CONTOH_MEJA,
+
+$ grep -c 'onPindahMeja' aplikasi/src/layar/kasir/LayarKasir.tsx
+0
+
+$ head -3 supabase/tes/meja_riwayat.sql
+-- PR-15 (review putaran16): hapus meja tidak boleh memutus riwayat pesanan.
+-- Cacat lama: penjaga 0014 hanya menolak hapus bila masih ada pesanan AKTIF;
+-- meja dengan riwayat pesanan LUNAS/BATAL bisa dihapus dan `on delete set null`
+
+=== F-132 kirim ke dapur: update langsung + jam perangkat; pemicu 0009 menjaga transisi ===
+
+$ sed -n '161,176p' aplikasi/src/App.tsx | grep -n 'update\|dikirim_ke_dapur_pada\|new Date'
+6:                  .update({
+8:                    dikirim_ke_dapur_pada: new Date().toISOString(),
+
+$ grep -n 'picu_pesanan_jaga_status\|dikirim_ke_dapur_pada' supabase/migrations/0009_pesanan.sql | head -8 | cut -c1-160
+31:  dikirim_ke_dapur_pada timestamptz,
+144:create or replace function public.picu_pesanan_jaga_status()
+161:      if new.dikirim_ke_dapur_pada is null then
+162:        raise exception 'Mengirim pesanan ke dapur wajib menyertakan waktu kirim (dikirim_ke_dapur_pada).';
+177:  if old.dikirim_ke_dapur_pada is not null
+178:     and new.dikirim_ke_dapur_pada is distinct from old.dikirim_ke_dapur_pada then
+188:  for each row execute function public.picu_pesanan_jaga_status();
+
+$ sed -n '176p;195p' aplikasi/src/hook/useTiketDapur.ts
+        .order('dikirim_ke_dapur_pada', { ascending: true, nullsFirst: false })
+      const jam = await klien.rpc('waktu_peladen')
+
+$ grep -n '^- \[.\] T3-05' docs/ROADMAP.md | cut -c1-90
+886:- [ ] T3-05 — RPC simpan_pesanan + kunci idempoten ⚠️
+
+=== F-133 LayarPelayan sukses palsu ===
+
+$ grep -n '<LayarPelayan' aplikasi/src/App.tsx
+470:        return <LayarPelayan namaPelayan={sesi?.nama ?? 'Pelayan'} />
+
+$ sed -n '117,133p' aplikasi/src/layar/pelayan/LayarPelayan.tsx | grep -n 'onKirimPesanan\|✅\|berhasil'
+6:      if (onKirimPesanan) {
+7:        await onKirimPesanan({ meja: nomorMeja, items: keranjang, catatanUmum })
+9:      setPesanStatus('✅ Pesanan berhasil dikirim ke dapur!')
+
+$ grep -rn "'pesanan_meja'" aplikasi/src --include='*.tsx' --exclude='*.test.*' | cut -c1-120 | head -3
+aplikasi/src/App.tsx:468:      case 'pesanan_meja':
+aplikasi/src/komponen/Navigasi.tsx:57:        { id: 'pesanan_meja', label: 'Pesanan Meja', ikon: '🍽️', path: '/meja
+
+=== F-134 pembatas per IP ===
+
+$ sed -n '751p' docs/ROADMAP.md | cut -c1-200
+  - **DoD:** batas percobaan per akun + per perangkat/IP; jeda bertahap; semua percobaan tercatat (kode AK-6xx); uji lulus. · **Bukti 2026-09-22:** `supabase/migrations/0028_pemulihan_perangkat.sql`,
+
+$ grep -rliE 'alamat_ip|ip_address|x-forwarded-for|inet' supabase/migrations supabase/functions | wc -l
+0
+
+$ sed -n '1683p' docs/DECISIONS_LOG.md | cut -c1-220
+**Dasar:** TECH_SPEC §4.6 & §9 ART-11/ART-12, PRD M12. Akses staf dibatasi mutlak hanya dari perangkat terdaftar yang sah, sesi memiliki batas umur maksimum menurut peran, pencabutan perangkat memutus sesi seketika, da
+
+$ grep -ciw 'IP' docs/KEAMANAN.md docs/TECH_SPEC.md
+docs/KEAMANAN.md:0
+docs/TECH_SPEC.md:0
+
+=== F-135 simpan_pesanan ada di 0080, T3-05 [ ], DoD tanpa item/shift tidak ditegakkan ===
+
+$ grep -n 'function public.simpan_pesanan' supabase/migrations/*.sql | cut -c1-120
+supabase/migrations/0080_kunci_idempoten_menyeluruh.sql:49:create or replace function public.simpan_pesanan(
+supabase/migrations/0080_kunci_idempoten_menyeluruh.sql:200:comment on function public.simpan_pesanan is
+supabase/migrations/0080_kunci_idempoten_menyeluruh.sql:203:revoke all on function public.simpan_pesanan from public, an
+supabase/migrations/0080_kunci_idempoten_menyeluruh.sql:204:grant execute on function public.simpan_pesanan to authentic
+
+$ ls supabase/migrations | grep '^0028'
+0028_pemulihan_perangkat.sql
+
+$ sed -n '49,52p' supabase/migrations/0080_kunci_idempoten_menyeluruh.sql | cut -c1-160
+create or replace function public.simpan_pesanan(
+  p_cabang_id       uuid,
+  p_meja_id         uuid    default null,
+  p_tipe            text    default 'dinein',
+
+$ grep -n 'raise exception' supabase/migrations/0080_kunci_idempoten_menyeluruh.sql | head -6 | cut -c1-140
+84:    raise exception 'Hanya pengguna terautentikasi yang dapat menyimpan pesanan.'
+90:    raise exception 'Pengguna tidak terhubung dengan penyewa aktif.'
+99:    raise exception 'Cabang tidak ditemukan atau bukan milik penyewa.'
+
+$ grep -c 'jsonb_array_length\|shift' supabase/migrations/0080_kunci_idempoten_menyeluruh.sql
+47
+
+$ sed -n '36p' supabase/migrations/0048_wajib_shift.sql | cut -c1-160
+create or replace function public.picu_pesanan_wajib_shift()
+
+$ node alat/uji-sql.mjs supabase/tes/idempoten.sql | tail -2
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+=== Verifikasi perbaikan G-04 (PMB1-F-092, PMB1-F-094 — DIPERBAIKI oleh Perencana 3dadbba) ===
+
+$ git show --stat --format='%h %s' 3dadbba | head -8 | cut -c1-200
+3dadbba pmb: perbaiki PMB1-F-092/F-094 (mesin PMB) — kontrak probe (wajib memanggil artefak + kontrol negatif) & kutipan rujukan baris di PROMPT_GILIRAN; penjaga menolak nomor baris di luar panjang 
+
+ alat/periksa-pemeriksaan.py                     | 23 ++++++++++++++++++++++-
+ docs/uji/pemeriksaan/PMB-1/BUKU_BESAR_TEMUAN.md |  4 ++--
+ docs/uji/pemeriksaan/PROMPT_GILIRAN.md          |  9 +++++++++
+ 3 files changed, 33 insertions(+), 3 deletions(-)
+
+$ grep -n 'memanggil artefak yang diuji\|kontrol negatif\|kutip' docs/uji/pemeriksaan/PROMPT_GILIRAN.md | cut -c1-140
+71:> **Bukti yang bisa dijalankan ulang (probe SQL/skrip di `PMB-1/bukti/`)** wajib **memanggil artefak yang diuji** (RPC/fungsi/kebijakan
+72:> yang sebenarnya, dari kursi peran yang sebenarnya) dan wajib punya **kontrol negatif** — satu kasus yang seharusnya GAGAL/DITOLAK.
+74:> (pelajaran PMB1-F-092). **Rujukan `berkas:baris`** harus menunjuk baris yang benar-benar memuat kalimat/kode yang diklaim — kutip
+
+$ grep -c 'buat_kode_perangkat(' docs/uji/pemeriksaan/PMB-1/bukti/F-06-admin-lintas-cabang.sql docs/uji/pemeriksaan/PMB-1/bukti/H-F-06-admin-lintas-cabang.sql
+docs/uji/pemeriksaan/PMB-1/bukti/F-06-admin-lintas-cabang.sql:0
+docs/uji/pemeriksaan/PMB-1/bukti/H-F-06-admin-lintas-cabang.sql:4
+
+$ node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/H-F-06-admin-lintas-cabang.sql | tail -2
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+$ mkdir -p /tmp/probe && sed 's/^  false,$/  true,/' docs/uji/pemeriksaan/PMB-1/bukti/H-F-06-admin-lintas-cabang.sql > /tmp/probe/mutasi-kontrol.sql && node alat/uji-sql.mjs /tmp/probe/mutasi-kontrol.sql | tail -1
+HASIL: GAGAL
+→ probe hakim F-06 MERAH bila harapan kontrol negatif dibalik (mutasi di /tmp, tidak disimpan) = probe nyata, bukan tautologi.
+
+$ node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/F-06-admin-lintas-cabang.sql | tail -1
+HASIL: LOLOS
+→ berkas tautologis lama masih LULUS bila dijalankan (dibiarkan sebagai barang bukti oleh Perencana; tanpa tajuk peringatan di dalam berkas).
+
+$ python3 alat/periksa-pemeriksaan.py --uji-diri | grep 'nomor baris di luar berkas\|HASIL'
+  OK  artefak dengan nomor baris di luar berkas ditolak → kode=1
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+
+$ grep -n '_baris_artefak_di_luar_berkas' alat/periksa-pemeriksaan.py | head -2
+143:def _baris_artefak_di_luar_berkas(sel_artefak: str, akar: pathlib.Path) -> str | None:
+184:        elif (salah := _baris_artefak_di_luar_berkas(artefak, akar)):
+
+=== Penjaga umum hari ini ===
+
+$ python3 alat/periksa-pemeriksaan.py | tail -1
+HASIL: LOLOS
+
+$ python3 alat/periksa-roadmap.py | tail -1
+HASIL: LOLOS — semua pemeriksaan roadmap terpenuhi.
