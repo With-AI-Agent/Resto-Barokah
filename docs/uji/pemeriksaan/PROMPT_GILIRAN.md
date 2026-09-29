@@ -114,8 +114,10 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
   Urutan per temuan: (1) baca kartu K & H + kolom Bukti; (2) **reproduksi dulu sampai MERAH** dengan perintah yang sama; (3) perbaiki —
   skema hanya lewat **berkas migrasi baru** `supabase/migrations/NNNN_….sql` (migrasi lama tidak diubah) + uji SQL di `supabase/tes/`;
   kode klien + uji; dokumen + penjaga; (4) uji/penjaga yang membuktikan cacat itu bisa merah ikut di commit; (5) **satu commit per temuan**,
-  pesan `perbaiki PMB1-F-nnn: …`; (6) Buku Besar: status `DIPERBAIKI`, kolom Perbaikan = sha + satu kalimat + nama uji; (7) kartu
-  `kartu/B-<POTONGAN>.md` (per temuan: akar masalah, apa yang diubah, apa yang sengaja tidak disentuh, keputusan yang dibutuhkan Lee).
+  pesan `perbaiki PMB1-F-nnn: …`; (6) Buku Besar: status `DIPERBAIKI`, kolom Perbaikan = sha + satu kalimat + nama uji — **sha itu harus
+  commit yang benar-benar ada di cabangmu** (alat integrasi Perencana memeriksanya; sha karangan = SENGKETA); (7) kartu
+  `kartu/B-<POTONGAN>.md` dari `kartu/TEMPLAT_B.md` (lima bagian wajib: temuan yang dibangun · yang sengaja tidak disentuh · keputusan yang
+  dibutuhkan Lee · rantai bukti · angka usaha — penjaga menolak kartu yang kurang), keluaran panjang di `bukti/B-<POTONGAN>-*.txt`.
   Rantai bukti sebelum selesai: `node alat/uji-sql.mjs` (butuh `npm ci --prefix alat`), `python3 alat/uji-mutasi-0012.py`,
   `python3 alat/uji-mutasi-0014.py`, `bash aplikasi/alat/periksa-semua.sh`, `python3 alat/periksa-pemeriksaan.py`, `python3 alat/periksa-bersih.py`.
   **Larangan Pembangun:** tidak menyentuh produksi (deploy/migrasi produksi & Dashboard = milik Lee; kamu hanya menyiapkan berkas + uji lokal);
@@ -124,9 +126,13 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
   yang benar memang mengubah cara masuk/pendaftaran perangkat (klaster F-036/F-063/F-052), **jangan dieksekusi**: tulis opsi + dampaknya di
   kartu B, kolom Perbaikan diisi `MENUNGGU KEPUTUSAN LEE: <ringkas>` dengan status tetap `TERVERIFIKASI`, lanjut ke temuan lain. Temuan yang
   butuh Dashboard/produksi/operator (`(luar repo)`) → `BUTUH LEE/OPERATOR: <apa>` di kolom Perbaikan, status tetap. Temuan potongan `F-17`
-  (bahan kalibrasi) **tidak dibangun** — dinilai Perencana saat gerbang. Pembangun boleh menyentuh kode/dokumen proyek (pengecualian §6) tetapi
-  tetap tidak menyentuh trio handoff. Jalankan Pembangun **satu potongan pada satu waktu** (bukan paralel) — nomor migrasi dan berkas yang sama
-  mudah bentrok.
+  (bahan kalibrasi) **tidak dibangun** — sudah dinilai & DITUTUP Perencana 2026-09-29 (`PMB-1/kalibrasi/HASIL-TAHAP-1.md`). Pembangun boleh
+  menyentuh kode/dokumen proyek (pengecualian §6) tetapi **tidak** menyentuh: trio handoff (`docs/ops/SIAP-LANJUT.md`, `PROJECT_STATE.md`,
+  `STATUS.md`), `PRO.md`, `PROMPT_SESI_BARU.md`, naskah PMB (`RANCANGAN_…`, `PROMPT_GILIRAN.md`, `PROMPT_SINGKAT.md`), alat mekanisme
+  (`alat/pmb-integrasi.py`, `alat/periksa-pemeriksaan.py`, `alat/lanjut-sesi.py`), dan `PMB-1/kalibrasi/` — alat integrasi menolak cabang yang
+  menyentuhnya. Perencana mengintegrasikan cabangmu dengan `pmb-integrasi.py --pembangun` (merge `--no-ff`, commit perbaikanmu tetap utuh di
+  riwayat, penjaga + `periksa-bersih.py` harus LOLOS). Jalankan Pembangun **satu potongan pada satu waktu** (bukan paralel) — nomor migrasi dan
+  berkas yang sama mudah bentrok.
 - **PEMERIKSA MENYELURUH** — sama dengan PEMERIKSA, potongan = alur M-xx (rancangan §4c).
 
 ## 6. Yang tidak boleh

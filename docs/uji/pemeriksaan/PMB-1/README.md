@@ -7,7 +7,7 @@
 | `MATRIKS_TELUSUR.md` | janji → tugas ROADMAP → berkas (otomatis) + penugasan potongan & hasil (manual) | mesin (`alat/susun-matriks-telusur.py`) + Perencana |
 | `REGRESI_WAJIB.md` | 117 temuan lama + klaim `[x]` yang menuntut pelaksanaan nyata (otomatis) | mesin + Perencana |
 | `ASUMSI.md` | asumsi `PMB1-A-nnn` dengan status TERBUKA/DIBUKTIKAN/DIBANTAH | Pemeriksa |
-| `kartu/K-<ID>.md` · `kartu/H-<ID>.md` | kartu pemeriksa / kartu hakim per potongan (templat `TEMPLAT_K.md`, `TEMPLAT_H.md`) | Pemeriksa / Hakim |
+| `kartu/K-<ID>.md` · `kartu/H-<ID>.md` · `kartu/B-<ID>.md` | kartu pemeriksa / kartu hakim / kartu pembangun per potongan (templat `TEMPLAT_K.md`, `TEMPLAT_H.md`, `TEMPLAT_B.md`; penjaga menolak kartu yang bagian wajibnya kurang) | Pemeriksa / Hakim / Pembangun |
 | `kalibrasi/` | bahan cacat tanaman per tahap + kunci **terenkripsi** (sandi di tangan Lee) | Perencana |
 | `RINGKASAN_TAHAP-<n>.md` | dibuat mesin saat `python3 alat/periksa-pemeriksaan.py --gerbang <n>` | mesin (+ baris kalibrasi oleh Perencana) |
 
@@ -26,7 +26,7 @@ Dua kekecualian mesin yang **deterministik** (putaran 5, 2026-09-29): (a) **penu
 `‖ PENUTUP KEDUA`; (b) `--abaikan-luar-pmb` — bila cabang giliran menyentuh berkas di luar `PMB-1/` (pelanggaran kontrak, mis. handoff),
 Perencana boleh membuang perubahan luar itu (versi HEAD dipertahankan) dan pelanggarannya tercatat di pesan commit integrasi.
 Catatan hakim di luar kartu (mis. `BERKAS-INTEGRASI-F-08.md`, `REKONSILIASI-F-08.md` dari hakim F-08) bersifat **informatif**; yang
-kanonik tetap PAPAN, Buku Besar, ASUMSI, dan kartu `K-`/`H-`. Naskah giliran berikutnya: catatan seperti itu ditaruh di `kartu/` atau `bukti/`.
+kanonik tetap PAPAN, Buku Besar, ASUMSI, dan kartu `K-`/`H-`/`B-`. **Cabang PEMBANGUN** (sejak 2026-09-29, putaran 8) diintegrasikan dengan `python3 alat/pmb-integrasi.py origin/<cabang> --pembangun`: berkas proyek (kode, migrasi baru, uji, dokumen) ikut dimerge `--no-ff`; yang tetap terlarang = trio handoff, `PRO.md`, naskah & alat mekanisme PMB, `kalibrasi/` (daftar `TERLARANG_PEMBANGUN` di alat); setiap baris yang menjadi `DIPERBAIKI` harus menyebut sha commit yang benar-benar ada di cabang itu (kalau tidak → SENGKETA); konflik git pada berkas proyek tidak diputuskan mesin (SENGKETA, merge dibiarkan terbuka); penjaga tambahan `alat/periksa-bersih.py` harus LOLOS sebelum commit. Naskah giliran berikutnya: catatan seperti itu ditaruh di `kartu/` atau `bukti/`.
 
 **Aturan sengketa (dua hakim independen untuk potongan yang sama, diterapkan Perencana saat integrasi — pertama kali F-03, 2026-09-29):**
 hakim yang selesai lebih dulu = Hakim 1 (`H-<ID>.md`), yang lain = Hakim 2 (`H-<ID>.2.md`); kedua putusan dicatat di kolom Hakim.

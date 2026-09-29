@@ -478,3 +478,16 @@ dijalankan; nama berkas dari `ls`); sengaja **tidak** dimesinkan karena nama yan
 Sesudah putaran 7: **215 temuan** (174 TERVERIFIKASI · 18 BARU · 15 DUPLIKAT · 4 DITUTUP · 4 PALSU) · 136 asumsi; **16 dari 17 potongan
 Tahap 1 DIHAKIMI; F-15 SELESAI menunggu HAKIM**. K-1/K-2 terbuka Tahap 1: 52 (5 K-1 · 47 K-2). Setelah HAKIM F-15: fase **PEMBANGUN** (satu
 potongan per sesi, berurutan), keputusan Lee tentang klaster cara masuk, lalu pembukaan kunci kalibrasi & `--gerbang 1`.
+
+**Putaran 8 (2026-09-29 sore; cabang 01a0ec4d):** HAKIM F-15 (`H-F-15`; 13 TERVERIFIKASI — K-2 1 · K-3 8 · K-4 4; `PMB1-F-202` DITUTUP oleh hakim).
+Alat integrasi semula menolak cabang ini ("menghapus 13 baris") — penyebabnya format `|  PMB1-F-203 |` (dua spasi) yang tidak dikenali pembaca
+baris ketat; `pmb-integrasi.py` kini membaca ID toleran spasi dan **menormalkan** baris (`63cb7ec`). Dengan ini **seluruh 17 potongan Tahap 1
+DIHAKIMI** → syarat pembukaan kunci kalibrasi terpenuhi: **kunci Tahap 1 dibuka Perencana** (`d52b775`, sidik jari cocok) — **6/6 cacat tanaman
+ditemukan** (K-2 3/3 · K-3 2/2 · K-4 1/1), 1 palsu (`F-196`), 3 bonus (`F-194`/`F-198` = kembar temuan asli `F-037`/`F-162`; `F-201` = cacat
+bahan kontrol buatan Perencana); 9 baris F-17 DITUTUP (`27d874c`, `fe13a7f`); tafsir & batas contoh kecil di `PMB-1/kalibrasi/HASIL-TAHAP-1.md`.
+Persiapan fase PEMBANGUN diuji sungguhan sebelum Pembangun pertama (`9b6639e`): penjaga menerima kartu `B-<ID>.md` dengan lima bagian wajib
+(`TEMPLAT_B.md`, uji-diri), `pmb-integrasi.py --pembangun` (berkas proyek ikut dimerge; daftar terlarang; sha perbaikan harus ada di cabang —
+sha karangan = SENGKETA; konflik berkas proyek tidak diputuskan mesin; `periksa-bersih.py` wajib LOLOS) — ketiganya diuji dengan cabang buatan
+(positif, sha karangan, berkas terlarang). Sesudah putaran 8: **215 temuan** (178 TERVERIFIKASI · 15 DUPLIKAT · 14 DITUTUP · 4 PALSU · 4 BARU
+di P-xx) · 136 asumsi; **gerbang Tahap 1 hanya ditahan 49 K-1/K-2 TERVERIFIKASI** (5 K-1 · 44 K-2) di F-01…F-16 → urutan Pembangun:
+F-09 (10) → F-03 (9) → F-06 (6) → F-08 (5) → F-10 (4) → F-02 (4) → F-04 (2) → F-11 (2) → F-16 (2) → F-05 · F-07 · F-13 · F-14 · F-15 (1).

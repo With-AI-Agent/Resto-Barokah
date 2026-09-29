@@ -103,7 +103,7 @@ def maks_id(teks: str | None, awalan: str) -> int:
 
 # Berkas yang cabang PEMBANGUN pun tidak boleh ubah (mekanisme PMB & handoff = milik Perencana; kunci = rahasia).
 TERLARANG_PEMBANGUN = (
-    "PRO.md", "PROJECT_STATE.md", "STATUS.md", "docs/ops/SIAP-LANJUT.md", "docs/ops/PROMPT_SESI_BARU.md",
+    "PRO.md", "PROJECT_STATE.md", "STATUS.md", "docs/ops/SIAP-LANJUT.md", "PROMPT_SESI_BARU.md",
     "alat/pmb-integrasi.py", "alat/periksa-pemeriksaan.py", "alat/lanjut-sesi.py",
     "docs/uji/pemeriksaan/RANCANGAN_PEMERIKSAAN_BERTAHAP.md", "docs/uji/pemeriksaan/PROMPT_GILIRAN.md",
     "docs/uji/pemeriksaan/PROMPT_SINGKAT.md", "docs/uji/pemeriksaan/PMB-1/kalibrasi/",
