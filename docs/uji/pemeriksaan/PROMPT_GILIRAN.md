@@ -137,7 +137,7 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
   dibutuhkan Lee · rantai bukti · angka usaha — penjaga menolak kartu yang kurang), keluaran panjang di `bukti/B-<POTONGAN>-*.txt`.
   Rantai bukti sebelum selesai (sejak 2026-09-30, pelajaran PMB1-F-218): **`python3 alat/rantai-bukti-giliran.py --simpan
   docs/uji/pemeriksaan/PMB-1/bukti/B-<POTONGAN>-rantai.txt`** — alat ini menjalankan rantai CI yang sama dengan GitHub (dibaca langsung dari
-  `ci.yml`) **tanpa berhenti di kegagalan pertama** dan harus berakhir `RANTAI: LOLOS`; selama bekerja boleh `--cepat` (mutasi hanya yang
+   **Bila CI GitHub tip cabangmu merah acak (pelajaran PMB1-F-219, 2026-09-30):** cek dulu apakah langkah yang gagal menyentuh berkas di diff cabangmu; bila tidak, jalankan perintah yang gagal itu ulang ≥2× pada pohon yang sama dan `python3 alat/rantai-bukti-giliran.py` (jalan penuh). Bila semuanya LOLOS, catat di kartu B: run ID, nama langkah yang gagal, hasil ulangan, dan `RANTAI: LOLOS` — Perencana boleh mengintegrasikan dengan bukti itu (dicatat sebagai temuan G-01). Empat syarat itu wajib lengkap; tanpa itu, CI tetap harus `success`. `ci.yml`) **tanpa berhenti di kegagalan pertama** dan harus berakhir `RANTAI: LOLOS`; selama bekerja boleh `--cepat` (mutasi hanya yang
   berubah), tetapi klaim selesai hanya dari jalan **penuh**. Jangan memakai `bash aplikasi/alat/periksa-semua.sh` sebagai bukti giliran: skrip
   itu `set -e` dan mati di `lanjut-sesi.py` pada cabang giliran, sehingga puluhan pemeriksaan sesudahnya (termasuk `aplikasi/alat/periksa-uji.py`
   — setiap `src/lib/*.ts` & `src/hook/*.ts` baru WAJIB punya `*.test.ts`) tidak pernah berjalan padahal kartu menulis "LOLOS". Lalu

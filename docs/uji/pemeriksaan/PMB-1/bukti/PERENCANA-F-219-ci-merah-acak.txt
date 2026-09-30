@@ -63,3 +63,40 @@ Ditulis: 2026-09-30 19:30 WIB · cabang arena/01a0e747-resto-barokah
    b. Tambah langkah unggah log/artefak saat gagal (actions/upload-artifact, if: failure()) agar bukti CI bisa diunduh.
    c. Langkah uji mutasi: tegaskan pesan bila kegagalan berasal dari proses uji (bukan pagar tumpul), mis. bedakan 'node gagal' dari 'uji lolos'.
    d. Jangan menurunkan gerbang: CI tetap wajib hijau; usulan hanya soal keterbacaan bukti.
+
+9. ANALISIS WAKTU LANGKAH (satu-satunya petunjuk yang bisa dibaca dari sandbox)
+   gh api /repos/.../actions/jobs/<job>/ (started_at/completed_at per langkah):
+   - run 36671587977 (ed3a229): langkah 60 05:21:24 → 05:21:29  = 5 DETIK (failure)
+   - run 36712154530 (7ba370e): langkah 60 12:20:12 → 12:20:17 = 5 DETIK (failure)
+   - run 36674279740 (00cb4ee): langkah 60 05:55:28 → 05:58:46 = 3 m 18 s (SUCCESS)
+   → langkah 60 mati di detik ~5, padahal perintahnya berjumlah 71 dan butuh >3 menit bila selesai;
+     artinya kegagalan terjadi pada perintah-perintah AWAL blok itu, bukan di ujung.
+
+   Profil waktu 71 perintah dijalankan lokal (2 CPU, tanpa beban):
+     1 validate_system 219ms · 2 fungsi-pin 21ms · 3 roadmap 58ms · 4 roadmap --uji-diri 27ms ·
+     5 fondasi-independen 439ms · 6 audit-independen --uji-diri 1916ms · 7 ci_target 24ms ·
+     8 paritas-ci 28ms · 9 paritas-ci --uji-diri 44ms · 10 siapkan-pemeriksaan --uji-diri 134ms ·
+     11 uji-kirim-laporan 2785ms (kumulatif sampai perintah 11 ≈ 5,5 detik → PALING COCOK dengan matinya di detik ~5)
+
+10. KANDIDAT PENYEBAB UTAMA: alat/uji-kirim-laporan.py (uji dua penulis bersamaan)
+   Berkas itu memakai threading.Barrier(2) + ThreadPoolExecutor + git SUNGGUHAN di repo sementara,
+   dan menuntut pola percobaan yang PERSIS: satu penulis upaya=1, satu upaya=2 (assertEqual(sorted(upaya), [1,2])).
+   Bila penjadwalan berbeda (runner CI lebih lambat/berebut CPU), pola itu bisa meleset → uji gagal → perintah exit≠0
+   → langkah berhenti (bash -e). Uji ini juga satu-satunya perintah awal blok yang mengandung balapan (race) waktu nyata.
+   Percobaan pembuktian yang SUDAH dilakukan (belum berhasil mereproduksi):
+   - 8× dijalankan dengan 1 CPU (taskset) + 4 proses pembebani → 8× OK (12,7 detik tiap kali, jauh lebih lambat dari 2,6 detik normal)
+   - 71 perintah blok dijalankan dengan lingkungan disanitasi (env -i HOME baru, PATH minimal) → perintah 1–14 rc=0
+   - 3× uji-mutasi-0016 dan 5× uji-mutasi-0040 → LOLOS semua
+   → belum terbukti; pembuktian terakhir butuh LOG langkah dari GitHub (Lee bisa melihatnya di tab Actions).
+
+11. USULAN ATURAN MEKANISME (Perencana, putaran 12d)
+   Supaya flake repo-wide tidak membekukan PMB: cabang boleh diintegrasikan walau CI merah HANYA bila (a) langkah yang gagal
+   menyentuh berkas yang TIDAK ada di diff cabang itu, (b) perintah yang sama dijalankan ulang ≥2× pada pohon yang identik
+   (worktree tip) dengan hasil LOLOS, (c) rantai bukti penuh lokal RANTAI: LOLOS, dan (d) run ID + bukti dicatat di kartu B
+   dan temuan G-01. Selain kondisi itu, aturan lama tetap: CI wajib success.
+
+12. RUN KEEMPAT — SUCCESS (bukti tambahan bahwa ini flake, bukan cacat isi)
+   run 36715299218 · commit f16cf20 · status: completed/success
+   langkah 60: success — berjalan 12:49:56 → 12:55:0x UTC (3 menit lebih), sedangkan dua run yang gagal mati di detik ke-5.
+   Isi pohon pada langkah 60 sama dengan run 7ba370e yang gagal (hanya tambahan berkas bukti + dokumen PMB, tidak ada kode/skema).
+   Rekap sampel sampai sekarang: 7fa6c99 GAGAL (0016) · 20cce8a GAGAL (0040) · 7ba370e GAGAL (langkah 60) · f16cf20 SUCCESS.
