@@ -538,3 +538,28 @@ atau menambah `[x]` (K6); **arahan Lee 2026-09-30 "hasil harus masuk GitHub"** (
 `Ter-push sampai` wajib di kartu B (diisi mesin dari tip origin bila lupa), naskah §4/§5 + PROMPT_SINGKAT; `alat/rantai-bukti-giliran.py` menjalankan
 rantai CI dari `ci.yml` tanpa berhenti dan menjadi satu-satunya bukti rantai yang diterima. Giliran berikutnya: sesi eff7 memperbaiki cabangnya
 (dua berkas uji + rantai penuh LOLOS + Ter-push), **HAKIM 5 F-09** (4 DIPERBAIKI B-F-09.3), lalu integrasi eff7 dan HAKIM untuk F-02/F-03/F-04/F-05/F-07.
+
+**Putaran 12 (2026-09-30 ±16:40 WIB; cabang 01a0f0e9 & 01a0eff7) — DUA CABANG MASUK, CI MERAH `ed3a229` TERBUKTI SEMENTARA, PERTANYAAN LEE SOAL PERAN PEMBANGUN:**
+Lee: *"integrasikan arena/01a0f0e9-resto-barokah dan arena/01a0eff7-resto-barokah"* + pertanyaan kritis soal arti peran PEMBANGUN (REKAM §31 butir 23).
+(1) `arena/01a0f0e9` (HAKIM 5 potongan F-09, kartu `H-F-09.5`) diintegrasikan **`fb52fd3`**: F-130/F-131/F-133 **DITUTUP** (hanya klaim/perilaku yang memang
+diperbaiki; fitur katalog DB, pindah meja, kirim pelayan–kasir tetap terbuka), **F-118 dikembalikan `DIPERBAIKI → TERVERIFIKASI`** (cakupan lebih lebar:
+T3-04/T3-12/T5-07…T5-11 masih `[x]`, integrasi cetak produksi belum terbukti — berkas wajib `LayarKasirCetak.test.tsx`/`LayarDapurCetak.test.tsx` tidak ada),
+**F-216/F-217/F-218 TERVERIFIKASI** (probe hakim atas pagar bukti kekal & pagar ROADMAP; rantai lama fail-fast terbukti; rantai baru jujur mencatat kegagalan
+paket pada checkout dangkal). Tidak dibuat kartu `H-G-04`; PAPAN G-04 tetap RENCANA sesuai tugas.
+(2) `arena/01a0eff7` (lima potongan: B-F-03/04/05/02/07; setelah perbaikan CI-nya: dua berkas uji + `RANTAI: LOLOS` 129/0 + baris Ter-push) diintegrasikan
+**`5b5325f`** dengan `pmb-integrasi.py --pembangun`: **14 baris DIPERBAIKI** (F-02: F-010/F-020/F-021 · F-03: F-031/F-032/F-036/F-038/F-039/F-046/F-049 ·
+F-04: F-060/F-063 · F-05: F-076 · F-07: F-096), **49 berkas proyek** ikut masuk (6 migrasi baru `0089`–`0094`, uji SQL + uji TS, `docs/PETA_UI.md`, `docs/PRD.md`, `docs/TECH_SPEC.md`,
+`PANDUAN_PENGGUNA.md`, `alat/eksekusi-*.mjs` + `denyut-harian.yml` 4 langkah Edge, `alat/peta-ui.py`, jangkar `uji-mutasi-*`). Penjaga + `periksa-bersih.py`
+LOLOS sebelum commit. Klaster cara masuk (F-036/F-063) masuk **di balik saklar mati** (`0090` bawaan FALSE) sesuai keputusan Lee = B; F-019/F-037/F-048 tetap
+`MENUNGGU KEPUTUSAN LEE`/`BUTUH LEE-OPERATOR` (kini A1 = 5 baris). Tidak ada deploy/migrasi produksi.
+(3) **Misteri CI `ed3a229` tertutup:** run `36674279740` untuk `00cb4ee` = **success** → kegagalan step blok Python di `ed3a229` **sementara/lingkungan**,
+bukan cacat mekanisme; tidak ada perubahan kode yang perlu dibuat untuk itu. Pelajaran: bila CI merah tanpa sebab yang bisa direproduksi, ulangi pada commit
+berikutnya sebelum memburu cacat.
+(4) **F-216/F-217/F-218 → DIPERBAIKI** (`ad3561f`): Perencana = pemilik mekanisme, jadi ia yang menulis kolom Perbaikan (pagar bukti kekal & pagar ROADMAP di
+`alat/pmb-integrasi.py`; rantai bukti giliran + kewajiban push) dan **tidak menutup temuannya sendiri** — penutup menunggu sesi lain (kartu G-04 kelak).
+(5) **Pertanyaan Lee soal peran PEMBANGUN dijawab tertulis** (`docs/uji/pemeriksaan/USULAN_PERAN_PEMBANGUN.md`): definisi Lee benar; tiga opsi
+(A pertahankan · **B percobaan terbatas 3 potongan — rekomendasi** · C kolaps penuh) + batas teknis (sesi Perencana terikat satu cabang, jadi perbaikan yang
+ia kerjakan langsung masuk cabang PMB) + tabel ukur supaya keputusan berbasis angka, bukan kesan. **Belum ada perubahan mekanisme** sampai Lee memutuskan.
+(6) Angka sesudah putaran ini: Buku Besar 218 temuan (terbuka 180: BARU 4 · TERVERIFIKASI 162 · DIPERBAIKI 14), K-1/K-2 terbuka 49; DAFTAR_TUNGGU_LEE
+A1 5 · A2 6 · B 6 · C 7 · D 139 · E 2 · F 23. **Giliran berikutnya:** HAKIM untuk potongan yang baru dibangun (F-02/F-03/F-04/F-05/F-07) — mulai dari
+F-02 (1 baris) atau F-03 (6 baris, klaster keamanan) — dan HAKIM penutup G-04 untuk F-216/F-217/F-218.
