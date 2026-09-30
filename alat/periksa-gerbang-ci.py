@@ -290,6 +290,8 @@ ALUR_LAIN: dict[str, dict[str, list[tuple[str, str]]]] = {
             ("eksekusi denyut harian & pembersih data sementara", r"python3 alat/denyut\.py --semua"),
             ("uji-diri fail-closed pengirim ringkasan harian", r"node alat/eksekusi-ringkasan-harian\.mjs --uji-diri"),
             ("kirim ringkasan peringatan harian ke owner", r"node alat/eksekusi-ringkasan-harian\.mjs$"),
+            ("uji-diri fail-closed pemantau batas kapasitas K6", r"node alat/eksekusi-peringatan-batas\.mjs --uji-diri"),
+            ("periksa batas kapasitas 70%/90% via Edge peringatan_batas", r"node alat/eksekusi-peringatan-batas\.mjs$"),
         ],
         "berkas": [
             ("jadwal cron harian", r"-\s*cron:\s*'0 19 \* \* \*'"),
