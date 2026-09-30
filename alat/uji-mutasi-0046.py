@@ -21,11 +21,14 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # JEBAKAN "fungsi ditulis ulang" (lihat DECISIONS_LOG [Mutu gerbang/2026-09-23]):
-# fungsi `public.tutup_shift` ditulis ULANG UTUH oleh `0084_cabut_akses_pegawai_berhenti.sql` (T10-12 / T-013)
+# fungsi `public.tutup_shift` ditulis ULANG UTUH oleh `0084_...sql` (T10-12/T-013),
+# lalu KEMBALI ditulis ulang oleh `0092_selisih_kas_negatif_tidak_didisembunyikan.sql`
+# (PMB1-F-046 — kekurangan kas tidak dipaksa jadi 0). Definisi BERLAKU = TERAKHIR;
+# memutasi 0084 sekarang tidak berpengaruh (pagar jadi tumpul).
 # untuk menambahkan penanda dan audit serah terima atasan saat pegawai berhenti.
 # Definisi yang benar-benar berlaku saat pemasangan adalah yang TERAKHIR (0084),
 # jadi memutasi 0046/0049 tidak berpengaruh karena ditimpa oleh 0084.
-MIGRASI = os.path.join(REPO, "supabase", "migrations", "0084_cabut_akses_pegawai_berhenti.sql")
+MIGRASI = os.path.join(REPO, "supabase", "migrations", "0092_selisih_kas_negatif_tidak_didisembunyikan.sql")
 BERKAS_UJI = ["supabase/tes/tutup_shift.sql"]
 
 
