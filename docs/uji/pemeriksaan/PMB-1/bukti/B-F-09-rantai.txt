@@ -1,60 +1,22 @@
-# Rantai bukti B-F-09.3 — arena/01a0eff4-resto-barokah, 2026-09-30
-
+# Rantai bukti B-F-09 — arena/01a0ec8d-resto-barokah, 2026-09-29 (checkout dangkal; token GitHub kedaluwarsa saat --unshallow)
 ## node alat/uji-sql.mjs
-UJI SQL LOKAL (PostgreSQL di dalam Node — tanpa server, tanpa akun)
-Menyiapkan peran, auth, dan alat bantu uji…
-  OK    persiapan (peran/auth/alat uji)
-Menerapkan 85 migrasi:
-  OK    0001_penyewa_cabang.sql .. 0088_waktu_kirim_dapur_peladen.sql
-Membuat data uji:
-  OK    alat/sql/data-uji.sql
-Menjalankan 133 berkas uji:
-  133 berkas LULUS
 uji: 133 LULUS · 0 GAGAL
 HASIL: LOLOS
-
 ## python3 alat/uji-mutasi-0012.py
-KONTROL POSITIF (tanpa mutasi harus hijau)
-  8 berkas: kode 0
-UJI MUTASI — penutup celah review putaran8 (0012)
-  M1..M11 OK
-UJI MUTASI — penutup celah review putaran11 (0013)
-  M12..M14, M5k, M8k, M3k OK
-KONTROL PENUTUP (setelah dipulihkan harus hijau)
-  semua uji hijau lagi setelah pemulihan
+
 RINGKASAN: 16/16 mutasi WAJIB terbukti MERAH (+ 4 mutasi tunggal pada penjaga bertumpuk: hijau = sesuai dugaan; lapisan itu dibuktikan lewat mutasi gabungan M3k/M5k/M8k)
-
 ## python3 alat/uji-mutasi-0014.py
-KONTROL POSITIF (tanpa mutasi harus hijau)
-  11 berkas: kode 0
-UJI MUTASI — penutup celah putaran13 & audit 2026-09-18 (0014 + penjaga lama)
-  M14-1..M14-17 OK
-UJI MUTASI GABUNGAN (lapisan penjaga yang saling menutupi)
-  M14-6b OK
-PEMULIHAN (semua mutasi dipulihkan → seluruh berkas uji harus hijau lagi)
-  11 berkas: kode 0
+
 RINGKASAN: 17/17 mutasi WAJIB terbukti MERAH
-
-## bash aplikasi/alat/periksa-semua.sh
-- kerapian Prettier: All matched files use Prettier code style!
-- ESLint: 26 problems (0 errors, 26 warnings)
-- TypeScript: tsc -b --noEmit (0 error)
-- Vitest: 124 passed (124 files, 1025 passed)
-- build: dist/ terbit bersih (assets woff2, css, js)
-- audit npm: found 0 vulnerabilities
-- suite SQL: 133 LULUS · 0 GAGAL
-- mutasi 0012 & 0013: 16/16 & 17/17 WAJIB MERAH
-- mutasi 0016, 0017, 0018, T5-04, T5-05, T5-07, T5-12, T7-01..T7-05, 0050: SEMUA WAJIB MERAH
-
-## python3 alat/periksa-pemeriksaan.py
-PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 0, 'DIHAKIMI': 17, 'DIKLAIM': 0, 'RENCANA': 46, 'SELESAI': 0} · 215 temuan (terbuka K-1/K-2: 52)
-HASIL: LOLOS
-
-## python3 alat/periksa-bersih.py
-PERIKSA POHON BERSIH — 3078 berkas terlacak disalin · 5 pemeriksa dokumen
-  [OK] _sistem/validate_system.py
-  [OK] alat/periksa-rujukan.py
-  [OK] alat/periksa-panduan.py
-  [OK] alat/periksa-buku-uji.py
-  [OK] alat/periksa-rahasia.py
-HASIL: LOLOS — semua pemeriksa dokumen hijau di pohon bersih (hanya berkas terlacak Git).
+## bash aplikasi/alat/periksa-semua.sh (jalan penuh ke-2, sebelum angka TERTANGGUH:56 disegarkan final)
+216:[2m      Tests [22m [1m[32m1025 passed[39m[22m[90m (1025)[39m
+502:uji: 133 LULUS · 0 GAGAL
+600:uji: 2 LULUS · 0 GAGAL
+808:  [X] docs/TERTANGGUH.md:56 menulis "132 berkas uji" padahal nyatanya 133 — segarkan angkanya (atau cabut klaimnya); jangan biarkan dokumen basi
+809:SELESAI rc=1
+## sisa skrip dijalankan terpisah sesudah perbaikan angka (baris 123-184):
+- baris 123-124 periksa-panduan: HASIL: LOLOS — buku induk lengkap, rujukan hidup, prompt identik dengan sumbernya.
+- baris 125 lanjut-sesi.py (mode lokal): GAGAL 8 masalah — semuanya soal handoff/push (cabang giliran PMB dilarang menyentuh trio handoff; commit belum ter-push). Bukan dari perbaikan ini.
+- baris 126-155: dijalankan; baris 156 periksa-paket.py GAGAL 116 pelanggaran 'commit … TIDAK ADA di repo ini' = riwayat dangkal (git rev-parse --is-shallow-repository → true; --unshallow gagal karena token GH kedaluwarsa). CI punya riwayat penuh.
+- baris 157-184: SEMUA PEMERIKSAAN LOLOS.
+## Susulan sesudah GitHub tersambung lagi: git fetch --unshallow → riwayat penuh; python3 alat/periksa-paket.py → HASIL: LOLOS — setiap paket menunjuk induk commit-nya sendiri, artefaknya nyata, dan paket review baru tercatat di riwayat.

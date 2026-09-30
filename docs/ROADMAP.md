@@ -1507,14 +1507,17 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Dikerjakan 2026-09-23.** `lib/printer/profil.ts`, `lib/printer/kirim.ts`,
     `layar/pengaturan/PasangPrinter.tsx`. **Merek printer dipastikan Lee:** Goojprt PT-210,
     Kassen BT-P290, Blueprint Lite-58, Xprinter XP-N160II, Epson TM-T82X (butir `T-002` terjawab).
-  - **Garis pemisah:** berkas ini **hanya** urusan kirim data ke printer via Bluetooth/USB;
-    tata letak struk/tiket tetap di `expos.ts` (T6-01). Ini menjaga supaya uji unit tidak butuh
-    Bluetooth tiruan yang rumit.
-  - **Deteksi dukungan:** periksa `navigator.bluetooth` sebelum buka dialog; kalau browser tidak
-    mendukung (Safari/Firefox/semua browser di iOS), langsung beri tahu kasir tanpa error teknis.
-  - **Bukti (2026-09-23):** `profil.test.ts` **20 tes LULUS** · `kirim.test.ts` **21 tes LULUS**
-    (termasuk uji putus koneksi di tengah cetak) · 6 mutasi T6-02 semuanya MERAH ·
-    `periksa-antarmuka.py` **10/10 LOLOS**.
+  - **JAMINAN MEREK LAIN (pertanyaan Lee 2026-09-23):** printer di luar daftar **tetap bisa
+    dipakai**. Daftar merek hanya jalan pintas, bukan syarat. Penyambungan BLE bertingkat: coba
+    alamat layanan yang dikenal, lalu **telusuri semua layanan** dan pakai karakteristik apa pun
+    yang bisa ditulisi. Dikunci uji + 3 mutasi (`tebakProfil` menolak merek asing · penelusuran
+    menyeluruh dicabut · profil umum diubah lebarnya) — semuanya wajib MERAH.
+  - **Data dikirim potong 20 byte**: BLE hanya menjamin sebanyak itu, dan printer murah benar-benar
+    berhenti di tengah bila dikirim sekaligus — cacat yang sangat sulit ditebak di lapangan.
+  - **Pesan "tidak didukung" menyebut jalan keluar** (iPhone → pakai struk digital), bukan tombol
+    mati tanpa penjelasan.
+  - **Bukti (klaim lama, belum diverifikasi):** `profil.test.ts` **20 tes** · `kirim.test.ts` **23 tes** · `PasangPrinter.test.tsx`
+    **14 tes** · 6 mutasi T6-02/T6-03 MERAH.
 
 - [ ] T6-03 — Sambungan WebUSB (komputer)
   - **Dibuka kembali:** PMB1-F-118 (2026-09-30) — bukti wajib: `aplikasi/src/lib/printer/kirim.test.ts`, Buku Uji Pemilik U-16

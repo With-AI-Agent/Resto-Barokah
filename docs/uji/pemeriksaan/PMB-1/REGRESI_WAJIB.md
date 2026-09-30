@@ -37,17 +37,17 @@ _Disusun mesin oleh `python3 alat/susun-matriks-telusur.py`: **34** tugas `[x]` 
 | T1-43 | 1C | 647 | Lee, pemilik | F-08 |
 | T2-14 | 2 | 847 | pemilik | F-09 |
 | T2-15 | 2 | 857 | pemilik | F-09 |
-| T7-10 | 7 | 1705 | pemilik, tanda tangan | F-10 |
-| T8-02 | 8 | 1751 | HP | F-10 |
-| T8-03 | 8 | 1761 | HP | F-10 |
-| T8-05 | 8 | 1781 | HP | F-10 |
-| T8-06 | 8 | 1791 | HP | F-10 |
-| T8-15 | 8 | 1885 | pemilik | F-10 |
-| T9-10 | 9 | 1988 | dashboard, pemilik | F-10 |
-| T9-12 | 9 | 2008 | Lee, pemilik | F-10 |
-| T10-04 | 10 | 2052 | nyata | F-10 |
-| T10-07 | 10 | 2082 | pemilik | F-10 |
-| T10-13 | 10 | 2146 | pemilik | F-10 |
-| T10-15 | 10 | 2166 | nyata | F-10 |
-| T10-16 | 10 | 2176 | nyata, pemilik | F-10 |
+| T7-10 | 7 | 1708 | pemilik, tanda tangan | F-10 |
+| T8-02 | 8 | 1754 | HP | F-10 |
+| T8-03 | 8 | 1764 | HP | F-10 |
+| T8-05 | 8 | 1784 | HP | F-10 |
+| T8-06 | 8 | 1794 | HP | F-10 |
+| T8-15 | 8 | 1888 | pemilik | F-10 |
+| T9-10 | 9 | 1991 | dashboard, pemilik | F-10 |
+| T9-12 | 9 | 2011 | Lee, pemilik | F-10 |
+| T10-04 | 10 | 2055 | nyata | F-10 |
+| T10-07 | 10 | 2085 | pemilik | F-10 |
+| T10-13 | 10 | 2149 | pemilik | F-10 |
+| T10-15 | 10 | 2169 | nyata | F-10 |
+| T10-16 | 10 | 2179 | nyata, pemilik | F-10 |
 <!-- OTOMATIS:SELESAI -->
