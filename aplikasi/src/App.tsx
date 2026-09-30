@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PenyediaBahasa } from './bahasa'
 import { useSesi } from './hook/useSesi'
+import { useAlamatCabang } from './hook/useAlamatCabang'
 import { useBayar } from './hook/useBayar'
 import { useStok } from './hook/useStok'
 import { useTiketDapur } from './hook/useTiketDapur'
@@ -33,6 +34,8 @@ export default function App() {
   const [layarAktif, setLayarAktif] = useState<string>('kasir')
   const [shiftAktif, setShiftAktif] = useState<ShiftAktifInfo | null>(null)
   const cabangId = sesi?.cabangAktifId || 'cab-01'
+  // PMB1-F-020: alamat cabang untuk struk (PRD M6 baris 131).
+  const alamatCabang = useAlamatCabang(cabangId)
   // Tagihan yang sedang dilayani kasir. Untuk sekarang satu tagihan berjalan
   // per terminal; pemilihan tagihan dari Open Bill menyusul bersama T5-03.
   const [pesananAktifId, setPesananAktifId] = useState<string | null>(null)
@@ -155,6 +158,7 @@ export default function App() {
             }}
             shiftAktif={shiftAktif}
             namaKasir={sesi?.nama ?? 'Kasir Bertugas'}
+            alamatCabang={alamatCabang ?? undefined}
             uangSeharusnyaPerkiraan={
               (shiftAktif?.modalAwal ?? 0) + (bayar.terakhir?.totalPesanan ?? 0)
             }

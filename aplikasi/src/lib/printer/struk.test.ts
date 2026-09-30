@@ -249,3 +249,26 @@ describe('susunStruk — perilaku printer', () => {
     expect(bacaTeks(susunStruk(lain))).toContain('5 Jan 2026')
   })
 })
+
+describe('susunStruk: alamat & nama kasir + tarif PB1 (PMB1-F-020 / PRD M6 baris 131)', () => {
+  it('mencetak alamat resto, nama kasir, dan tarif PB1', () => {
+    const byte = susunStruk({
+      ...DASAR,
+      alamatResto: 'Jl. Kenanga 99, Cimahi',
+      namaKasir: 'Rina',
+      tarifPajakPersen: 10,
+    })
+    const teks = bacaTeks(byte)
+    expect(teks).toContain('Jl. Kenanga 99, Cimahi')
+    expect(teks).toContain('Kasir: Rina')
+    expect(teks).toContain('PB1 10%')
+  })
+
+  it('tanpa alamat/kasir/tarif tidak ada yang dikarang (label tetap PB1 (pajak))', () => {
+    const byte = susunStruk(DASAR)
+    const teks = bacaTeks(byte)
+    expect(teks).not.toContain('Kenanga')
+    expect(teks).not.toContain('Kasir:')
+    expect(teks).toContain('PB1 (pajak)')
+  })
+})
