@@ -100,3 +100,21 @@ Ditulis: 2026-09-30 19:30 WIB · cabang arena/01a0e747-resto-barokah
    langkah 60: success — berjalan 12:49:56 → 12:55:0x UTC (3 menit lebih), sedangkan dua run yang gagal mati di detik ke-5.
    Isi pohon pada langkah 60 sama dengan run 7ba370e yang gagal (hanya tambahan berkas bukti + dokumen PMB, tidak ada kode/skema).
    Rekap sampel sampai sekarang: 7fa6c99 GAGAL (0016) · 20cce8a GAGAL (0040) · 7ba370e GAGAL (langkah 60) · f16cf20 SUCCESS.
+
+13. SAMPEL KELIMA — run 36718035072 (adca16a) GAGAL, langkah 60, 13:14:44 → 13:14:49 = 5 DETIK (pola sama).
+    Pohon adca16a berbeda dari f16cf20 (yang SUCCESS) hanya pada dokumen/bukti PMB — bukan penjelasan isi.
+    Rekap langkah 60: 00cb4ee SUCCESS 3m18s · ed3a229 GAGAL 5s · 7ba370e GAGAL 5s · f16cf20 SUCCESS 3m21s · adca16a GAGAL 5s → 3 dari 5 gagal.
+
+14. Percobaan menambah sampel tanpa konten baru: POST /repos/.../actions/runs/<id>/rerun → HTTP 403 (token bot Arena tanpa izin actions:write).
+    Jadi sampel tambahan hanya bisa lewat push; tiap push memicu run baru (concurrency membatalkan run yang sedang jalan).
+
+15. Stres lokal perintah 1–11 blok 60: 12 putaran × 11 perintah = 132 percobaan → 0 gagal.
+    Digabung dengan 71/71 perintah blok (env CI) dan 130/130 rantai penuh → isi pohon ini TIDAK bisa dibuat gagal secara lokal.
+
+16. MENGAPA INSTRUMENTASI CI TIDAK BISA DIPAKAI UNTUK MELIHAT PERINTAH YANG GAGAL
+    Rencana: menambah 2 baris diagnostik di blok langkah 60 (trap ERR + ::error) supaya anotasi CI memuat nama perintah yang gagal
+    (anotasi BISA dibaca dari sandbox: gh api .../check-runs/<id>/annotations).
+    TERHALANG: alat/periksa-gerbang-ci.py menetapkan PERINTAH_TANPA_GERBANG = () — SETIAP perintah di dalam run: wajib terdaftar di daftar gerbangnya;
+    menambah baris tanpa mendaftarkannya akan membuat penjaga gerbang CI MERAH karena alasan lain. Karena itu instrumentasi = perubahan dua berkas proyek
+    (ci.yml + penjaga) yang bukan wewenang Perencana sekarang (temuan F-219 masih BARU, belum ditinjau Hakim).
+    Catatan untuk Pembangun G-01 kelak: perbaikan ini menyentuh DUA berkas (ci.yml + alat/periksa-gerbang-ci.py) — daftarkan perintah diagnostiknya.
