@@ -234,9 +234,9 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 | M2 foto | `storage/upload` ke `foto-menu/{penyewa_id}/…` (gambar ≤1000 px) | berkas | alamat aman |
 | M3 izin & peran | `rpc/set_izin` · `rpc/simpan_pin` · `rpc/verifikasi_pin` | pengguna, kode izin, PIN | berhasil/gagal + sisa percobaan |
 | M3 audit | tabel `catatan_audit` (baca sesuai peran) | — | daftar kejadian |
-| M4 pesanan | `rpc/simpan_pesanan` (kunci idempoten) · `rpc/kirim_ke_dapur` · `rpc/pindah_meja` · `rpc/tambah_item` | keranjang + meja | pesanan lengkap (nomor, total) |
+| M4 pesanan | `rpc/simpan_pesanan` (kunci idempoten) — kirim ke dapur & perubahan item lewat RPC ini + `set_status_item` · `rpc/kirim_ke_dapur` · `rpc/pindah_meja` · `rpc/tambah_item` **belum ada di repo (rencana; jangan dipanggil)** | keranjang + meja | pesanan lengkap (nomor, total) |
 | M5 dapur | `rpc/set_status_item` (dimasak/siap) · `rpc/tandai_habis` | id item/menu | status baru |
-| M6 bayar & batal | `rpc/bayar_pesanan` · `rpc/batal_pesanan` · `rpc/batal_item` (PIN bila perlu) | metode, uang diterima, alasan, PIN | hasil + nilai kerugian bila void |
+| M6 bayar & batal | `rpc/bayar_pesanan` (PIN bila perlu) — void/batal bekerja lewat perubahan status + pemicu `picu_pembatalan_sah` · `rpc/batal_pesanan` · `rpc/batal_item` **belum ada di repo (rencana)** | metode, uang diterima, alasan, PIN | hasil + nilai kerugian bila void |
 | M7 kas & shift | `rpc/buka_shift` · `rpc/tutup_shift` · `rpc/kas_pergerakan` | modal awal / uang fisik / alasan | selisih & ringkasan |
 | M8 laporan | `rpc/laporan_shift` · `rpc/laporan_harian` | tanggal/cabang | angka & daftar (omzet, metode, void, voucher, kas) |
 | M9 stok | `rpc/set_stok` · `rpc/opname_stok` · `rpc/tandai_habis` | bahan/jumlah/alasan | jumlah baru + riwayat |
@@ -251,13 +251,13 @@ untuk pembacaan yang aman, **Edge Function** untuk hal yang butuh kunci rahasia.
 
 | Fitur | Panggilan | Masukan | Keluaran |
 |---|---|---|---|
-| Perangkat | `rpc/buat_kode_perangkat` · `rpc/daftarkan_perangkat` · `rpc/setujui_perangkat_pegawai` · `rpc/cabut_perangkat` · `rpc/daftar_perangkat` | nama perangkat, peran yang diizinkan, cabang, kode | id perangkat / daftar perangkat & status |
+| Perangkat | `rpc/buat_kode_perangkat` · `rpc/daftarkan_perangkat` · `rpc/setujui_perangkat_pegawai` · `rpc/cabut_perangkat` · `verifikasi_pin_perangkat` (masuk staf; definisi final migrasi 0091) — daftar perangkat dibaca dari tabel `perangkat` (SELECT + RLS), bukan lewat RPC | nama perangkat, peran yang diizinkan, cabang, kode | id perangkat / daftar perangkat & status |
 | Sesi | `rpc/ikat_sesi_perangkat` · `rpc/daftar_sesi` · `rpc/keluar_semua_perangkat` | session id + bukti perangkat / pengguna / perangkat | sesi aktif tercatat / daftar sesi / jumlah sesi yang diakhiri |
-| Akun & MFA | `rpc/atur_ulang_mfa` · `rpc/simpan_pin` · `rpc/ganti_pin` · `rpc/set_izin` | pengguna target, alasan | hasil + jejak audit |
-| Mode dukungan | `rpc/mode_dukungan` | penyewa, alasan, lama (menit) | mode aktif/berakhir + catatan audit |
+| Akun & MFA | `rpc/simpan_pin` · `rpc/ganti_pin` · `rpc/set_izin` · `atur_ulang_mfa` **(belum ada di repo — rencana)** | pengguna target, alasan | hasil + jejak audit |
+| Mode dukungan | `masuk_mode_dukungan` · `keluar_mode_dukungan` (migrasi 0031 — `mode_dukungan` bukan nama fungsi) | penyewa, alasan, lama (menit) | mode aktif/berakhir + catatan audit |
 | Pemulihan perangkat (bila perangkat hilang) | `rpc/buat_kode_pemulihan` · `rpc/pulihkan_perangkat` · `rpc/batalkan_pemulihan` | kode pemulihan (8 kata) + kata sandi + TOTP · id perangkat baru | perangkat darurat dengan **masa tenggang 30 menit** (bisa dibatalkan) + pemberitahuan |
 
-**Edge Functions (pintu tipis, logika tetap di database):** `verifikasi_pin` (ada) · `atur_ulang_mfa` (pengaturan ulang TOTP oleh peran di atasnya) · `ringkasan_harian` (email peringatan harian owner). Ketiganya: hanya POST, tanpa `console.*`, memakai token pemanggil + kunci publik (bukan `service_role`) kecuali `atur_ulang_mfa` yang memang butuh hak admin Auth — dengan pemeriksaan wewenang di database lebih dulu.
+**Edge Functions (pintu tipis, logika tetap di database):** yang sudah ada: `verifikasi_pin` · `verifikasi_pelanggan` · `akhiri_sesi` · `daftar_penyewa` · `peringatan_batas` · `ringkasan_harian` (email peringatan harian owner); yang belum ada (rencana): `atur_ulang_mfa` (pengaturan ulang TOTP oleh peran di atasnya; memang butuh hak admin Auth — wajib pemeriksaan wewenang di database lebih dulu). Semuanya: hanya POST, tanpa `console.*`, memakai token pemanggil + kunci publik (bukan `service_role`). Kontrak §5/§5.1 diselaraskan dengan isi repo pada 2026-09-30 (perbaikan dokumen PMB1-F-060/F-066; catatan di Log Pembaruan Dokumen PRD §11).
 
 **Aturan bentuk jawaban (semua RPC):** selalu `{ berhasil: bool, kode: teks, pesan: teks, data: … }` dengan
 `pesan` berbahasa Indonesia siap ditampilkan (mis. *"Voucher sudah dipakai pada 12.04 oleh kasir Rina di Cabang Pusat"*).

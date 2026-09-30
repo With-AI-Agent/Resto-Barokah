@@ -10,6 +10,12 @@ name: Denyut Harian & Pembersih Data Sementara (T10-08)
 #   1. Denyut harian: memicu aktivitas ringan database agar proyek gratis Supabase tidak tertidur (inactivity 7 hari).
 #   2. Pembersih data sementara: membersihkan log, token kadaluwarsa, dan sesi usang dengan retensi 30 hari.
 #   3. Melindungi seluruh tabel operasional inti bisnis (fail-closed whitelist).
+#   4. Ringkasan peringatan harian ke owner (T10-13 / PMB1-F-049): memanggil Edge
+#      Function `ringkasan_harian` untuk TIAP penyewa aktif — agregasi + 1 email/hari
+#      yang dijanjikan PRD M12 baris 190, tanpa tombol manual.
+#   5. Peringatan batas kapasitas 70%/90% (TECH_SPEC §10 & K6 / PMB1-F-076): memanggil
+#      Edge Function `peringatan_batas` — pemakaian kuota gratis dipantau otomatis,
+#      bukan klaim di alat saja (pelajaran alat/pantau_batas.py).
 
 on:
   schedule:
@@ -53,3 +59,21 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: python3 alat/denyut.py --semua
+
+      - name: Uji-diri fail-closed pengirim ringkasan harian
+        run: node alat/eksekusi-ringkasan-harian.mjs --uji-diri
+
+      - name: Kirim ringkasan peringatan harian ke owner (T10-13 / PMB1-F-049)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node alat/eksekusi-ringkasan-harian.mjs
+
+      - name: Uji-diri fail-closed pemantau batas kapasitas K6
+        run: node alat/eksekusi-peringatan-batas.mjs --uji-diri
+
+      - name: Periksa batas kapasitas 70%/90% via Edge peringatan_batas (PMB1-F-076)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node alat/eksekusi-peringatan-batas.mjs

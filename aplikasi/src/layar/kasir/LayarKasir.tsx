@@ -48,6 +48,8 @@ import {
 export interface LayarKasirProps {
   cabangId?: string
   namaCabang?: string
+  /** Alamat cabang/resto untuk struk (PRD M6 baris 131) — dari tabel cabang. */
+  alamatCabang?: string
   onSimpanPesanan?: (
     pesananData: unknown,
   ) => Promise<{ sukses: boolean; pesananId?: string; pesan?: string }>
@@ -165,6 +167,7 @@ export interface LayarKasirProps {
 export function LayarKasir({
   cabangId = 'cab-01',
   namaCabang = 'Cabang Utama',
+  alamatCabang,
   onSimpanPesanan = async () => ({ sukses: true, pesananId: 'ord-new' }),
   onKirimKeDapur = async () => ({ sukses: true }),
   pesananId = 'ord-current',
@@ -486,6 +489,11 @@ export function LayarKasir({
     nomor: nomorTagihan,
     tanggal: new Date().toISOString(),
     namaResto: namaCabang,
+    // PMB1-F-020 (PRD M6 baris 131): struk wajib memuat alamat & nama kasir;
+    // tarif PB1 dicantumkan di label (PBJT: bukti transaksi wajib menyebut tarif).
+    alamatResto: alamatCabang,
+    namaKasir,
+    tarifPajakPersen: tarif?.pajakPersen,
     namaMeja: tipePesanan === 'dinein' ? mejaAktif.nama : null,
     item: daftarItemKeranjang.map((baris) => ({
       nama: baris.menuItem?.nama ?? 'Item Menu',

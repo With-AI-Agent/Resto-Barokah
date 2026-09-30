@@ -1,0 +1,12 @@
+BUKTI PMB1-F-096 (2026-09-30, kartu B-F-07) — alat peta-ui.py menilai fitur dari NAMA KARANGAN.
+
+Sebelum: DAFTAR_FITUR_PRD memakai nama yang tidak ada di PRD (kolom Bukti baris), pemeriksa tetap hijau — tidak ada yang membandingkan nama dengan PRD.
+
+MERAH dengan penjaga baru (Aturan 6b) terhadap nama lama:
+PETA UI GAGAL (2 kesalahan ditemukan):
+  - [Aturan 5 - Drift Dokumen] Berkas docs/PETA_UI.md tidak sinkron dengan registri. Jalankan 'python3 alat/peta-ui.py --generate'.
+  - [Aturan 6b - Nama PRD] Nama fitur M1 ('Pemesanan Kasir Cepat') tidak cocok judul PRD ('Pendaftaran & pengelolaan penyewa (resto)').
+
+Setelah: nama diganti persis judul PRD (M1–M12), PETA_UI.md diregenerasi, pemeriksa hijau,
+uji-diri 7/7 termasuk Mutasi 7 baru (judul PRD diganti -> Aturan 6b menyala).
+Perintah: python3 alat/peta-ui.py · --generate · --uji-diri

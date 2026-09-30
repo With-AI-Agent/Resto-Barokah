@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { PenyediaBahasa } from './bahasa'
 import { useSesi } from './hook/useSesi'
+import { useAlamatCabang } from './hook/useAlamatCabang'
+import { useRiwayatTransaksi } from './hook/useRiwayatTransaksi'
 import { useBayar } from './hook/useBayar'
 import { useStok } from './hook/useStok'
 import { useTiketDapur } from './hook/useTiketDapur'
@@ -9,6 +11,8 @@ import LayarContoh from './layar/contoh/LayarContoh'
 import { LayarMasukPegawai } from './layar/masuk/LayarMasukPegawai'
 import { LayarMasukPelanggan } from './layar/masuk/LayarMasukPelanggan'
 import { LayarKasir } from './layar/kasir/LayarKasir'
+import { KeadaanKosong } from './komponen/KeadaanKosong'
+import { Tombol } from './komponen/Tombol'
 import type { ShiftAktifInfo } from './layar/kasir/BukaKas'
 import { KelolaPegawai } from './layar/pengaturan/KelolaPegawai'
 import { LayarPengaturan } from './layar/pengaturan/LayarPengaturan'
@@ -33,6 +37,10 @@ export default function App() {
   const [layarAktif, setLayarAktif] = useState<string>('kasir')
   const [shiftAktif, setShiftAktif] = useState<ShiftAktifInfo | null>(null)
   const cabangId = sesi?.cabangAktifId || 'cab-01'
+  // PMB1-F-020: alamat cabang untuk struk (PRD M6 baris 131).
+  const alamatCabang = useAlamatCabang(cabangId)
+  // PMB1-F-021: riwayat transaksi NYATA dari peladen (bukan baris sintetis).
+  const riwayat = useRiwayatTransaksi(cabangId)
   // Tagihan yang sedang dilayani kasir. Untuk sekarang satu tagihan berjalan
   // per terminal; pemilihan tagihan dari Open Bill menyusul bersama T5-03.
   const [pesananAktifId, setPesananAktifId] = useState<string | null>(null)
@@ -155,6 +163,7 @@ export default function App() {
             }}
             shiftAktif={shiftAktif}
             namaKasir={sesi?.nama ?? 'Kasir Bertugas'}
+            alamatCabang={alamatCabang ?? undefined}
             uangSeharusnyaPerkiraan={
               (shiftAktif?.modalAwal ?? 0) + (bayar.terakhir?.totalPesanan ?? 0)
             }
@@ -433,40 +442,28 @@ export default function App() {
             }
           />
         )
-      case 'riwayat':
-        return (
-          <DaftarTransaksi
-            daftar={
-              bayar.terakhir
-                ? [
-                    {
-                      id: pesananAktifId ?? 'tx-01',
-                      data: {
-                        nomor: 1,
-                        tanggal: new Date().toISOString(),
-                        namaResto: 'Resto Barokah',
-                        item: [],
-                        subtotal: bayar.terakhir.totalPesanan,
-                        totalDiskon: 0,
-                        pajak: 0,
-                        service: 0,
-                        total: bayar.terakhir.totalPesanan,
-                      },
-                      pembayaran: [
-                        {
-                          metode: 'Tunai',
-                          jumlah: bayar.terakhir.totalDibayar,
-                        },
-                      ],
-                      kembalian: bayar.terakhir.kembalian,
-                    },
-                  ]
-                : []
-            }
-            onTutup={() => setLayarAktif('kasir')}
-          />
-        )
-      case 'pesanan_meja':
+      case 'riwayat': {
+        // PMB1-F-021: riwayat dibaca dari peladen (tabel pembayaran + pesanan),
+        // bukan dibangun dari pembayaran terakhir dengan nomor/tanggal/metode palsu.
+        if (riwayat.keadaan === 'gagal') {
+          return (
+            <KeadaanKosong
+              judul="Riwayat transaksi tidak bisa dimuat"
+              keterangan={riwayat.pesan ?? 'Coba lagi beberapa saat.'}
+              aksi={<Tombol onClick={riwayat.muat}>Coba lagi</Tombol>}
+            />
+          )
+        }
+        if (riwayat.daftar.length === 0) {
+          return (
+            <KeadaanKosong
+              judul="Belum ada transaksi tercatat"
+              keterangan="Transaksi muncul di sini setelah pembayaran tercatat oleh peladen."
+            />
+          )
+        }
+        return <DaftarTransaksi daftar={riwayat.daftar} onTutup={() => setLayarAktif('kasir')} />
+      }
       case 'status_pesanan':
         return <LayarPelayan namaPelayan={sesi?.nama ?? 'Pelayan'} />
       case 'printer':

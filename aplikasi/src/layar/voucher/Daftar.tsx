@@ -1,10 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Kartu } from '../../komponen/Kartu'
 import { Tombol } from '../../komponen/Tombol'
 import { KolomIsian } from '../../komponen/KolomIsian'
 import { KartuVoucher } from './KartuVoucher'
 import { rupiah, tanggalLokal } from '../../lib/format'
 import { normalisasiEmail } from '../../lib/emailNormalisasi'
+import {
+  klaimVoucherDiPeladen,
+  ambilKlaimTunda,
+  hapusKlaimTunda,
+  simpanKlaimTunda,
+  type HasilKlaimPeladen,
+  type KlaimPeladenArg,
+} from '../../lib/voucher'
 
 export interface KampanyeInfo {
   id: string
@@ -16,6 +24,7 @@ export interface KampanyeInfo {
   maks_potongan?: number
   selesai: string
   nama_resto?: string
+  penyewaId?: string
 }
 
 export interface VoucherKlaimHasil {
@@ -35,6 +44,7 @@ export interface DaftarProps {
   onKlaimSukses?: (hasil: VoucherKlaimHasil) => void
   onMasukGoogle?: () => Promise<{ sukses?: boolean; berhasil?: boolean; pesan?: string }>
   onKirimEmail?: (email: string) => Promise<{ sukses: boolean; pesan?: string }>
+  onKlaimPeladen?: (arg: KlaimPeladenArg) => Promise<HasilKlaimPeladen>
   onBatal?: () => void
   onBukaKebijakanPrivasi?: () => void
   onLihatMenu?: () => void
@@ -45,6 +55,7 @@ export function Daftar({
   onKlaimSukses,
   onMasukGoogle,
   onKirimEmail,
+  onKlaimPeladen,
   onBatal,
   onBukaKebijakanPrivasi,
   onLihatMenu,
@@ -59,6 +70,9 @@ export function Daftar({
   const [pesanSukses, setPesanSukses] = useState<string | null>(null)
   const [voucherHasil, setVoucherHasil] = useState<VoucherKlaimHasil | null>(null)
   const [kodeTersalin, setKodeTersalin] = useState(false)
+  // Pesan jujur "menunggu verifikasi" (PMB1-F-032): voucher TIDAK terbit sebelum
+  // peladen memverifikasi identitas dan menerbitkan kode dari RPC daftar_voucher.
+  const [menungguVerifikasi, setMenungguVerifikasi] = useState<string | null>(null)
 
   const batasWaktuFormatted = (() => {
     try {
@@ -68,16 +82,70 @@ export function Daftar({
     }
   })()
 
-  const buatKodeVoucherAcak = () => {
-    const kar = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'
-    let p1 = ''
-    let p2 = ''
-    for (let i = 0; i < 4; i++) {
-      p1 += kar.charAt(Math.floor(Math.random() * kar.length))
-      p2 += kar.charAt(Math.floor(Math.random() * kar.length))
-    }
-    return `RB-${p1}-${p2}`
+  const buatKlaimTunda = (caraMasuk: 'google' | 'email', emailDipakai: string): void => {
+    simpanKlaimTunda({
+      penyewaId: kampanye.penyewaId ?? null,
+      kampanyeId: kampanye.id,
+      nama: nama.trim(),
+      email: emailDipakai,
+      telepon: telepon.trim() || undefined,
+      alamat: alamat.trim() || undefined,
+      setujuPrivasi: true,
+      caraMasuk,
+      disimpanPada: new Date().toISOString(),
+    })
   }
+
+  // PMB1-F-032: kode voucher hanya dari peladen. Setelah verifikasi selesai
+  // (pengguna kembali dengan sesi hidup), klaim tunda diselesaikan lewat RPC
+  // `daftar_voucher` dan kartu voucher menampilkan kode hasil peladen.
+  useEffect(() => {
+    const tunda = ambilKlaimTunda()
+    if (!tunda || tunda.kampanyeId !== kampanye.id) return
+    let hidup = true
+    void (async () => {
+      let hasil: HasilKlaimPeladen
+      try {
+        hasil = await (onKlaimPeladen ?? klaimVoucherDiPeladen)({
+          penyewaId: tunda.penyewaId,
+          kampanyeId: tunda.kampanyeId,
+          nama: tunda.nama,
+          email: tunda.email,
+          telepon: tunda.telepon,
+          alamat: tunda.alamat,
+          setujuPrivasi: true,
+          caraMasuk: tunda.caraMasuk,
+        })
+      } catch {
+        return // jaringan gagal: klaim tunda dipertahankan untuk kunjungan berikutnya
+      }
+      if (!hidup) return
+      const kodePeladen = hasil.data?.kode_voucher
+      const selesaiTuntas =
+        (hasil.berhasil || hasil.kode === 'VOUCHER_SUDAH_DIKLAIM') && Boolean(kodePeladen)
+      if (!selesaiTuntas) return // VERIFIKASI_WAJIB dll: tunggu, jangan tampilkan kartu
+      hapusKlaimTunda()
+      const d = hasil.data ?? {}
+      const voucherBaru: VoucherKlaimHasil = {
+        kode: kodePeladen ?? '',
+        nilai: d.nilai ?? kampanye.nilai,
+        jenis: d.jenis ?? kampanye.jenis,
+        min_belanja: d.min_belanja ?? kampanye.min_belanja,
+        maks_potongan: d.maks_potongan ?? kampanye.maks_potongan,
+        berlaku_sampai: d.berlaku_sampai ?? kampanye.selesai,
+        nama_pelanggan: d.nama_pelanggan ?? tunda.nama,
+        email_pelanggan: tunda.email,
+      }
+      setVoucherHasil(voucherBaru)
+      setMenungguVerifikasi(null)
+      onKlaimSukses?.(voucherBaru)
+    })()
+    return () => {
+      hidup = false
+    }
+    // Sengaja hanya sekali saat layar dibuka: klaim tunda dibaca dari localStorage.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const validasiDasar = () => {
     if (!nama.trim()) {
@@ -100,19 +168,14 @@ export function Daftar({
       const hasil = onMasukGoogle ? await onMasukGoogle() : { sukses: true }
       const sukses = Boolean(hasil.sukses ?? hasil.berhasil)
       if (sukses) {
-        const voucherBaru: VoucherKlaimHasil = {
-          kode: buatKodeVoucherAcak(),
-          nilai: kampanye.nilai,
-          jenis: kampanye.jenis,
-          min_belanja: kampanye.min_belanja,
-          maks_potongan: kampanye.maks_potongan,
-          berlaku_sampai: batasWaktuFormatted,
-          nama_pelanggan: nama.trim(),
-          email_pelanggan: email.trim() || 'google-user@gmail.com',
-          telepon_pelanggan: telepon.trim() || undefined,
-        }
-        setVoucherHasil(voucherBaru)
-        onKlaimSukses?.(voucherBaru)
+        // PMB1-F-032: proses masuk Google baru DIMULAI (browser akan diarahkan).
+        // Kode voucher tidak boleh dibuat di klien — klaim disimpan sebagai tunda
+        // dan diterbitkan peladen setelah verifikasi selesai.
+        buatKlaimTunda('google', email.trim())
+        setPesanSukses(null)
+        setMenungguVerifikasi(
+          'Anda sedang diarahkan ke Google untuk verifikasi. Setelah verifikasi selesai dan Anda kembali ke halaman ini, voucher diterbitkan otomatis oleh peladen — kode voucher tidak pernah dibuat di perangkat Anda.',
+        )
       } else {
         setPesanGalat(hasil.pesan || 'Gagal masuk dengan akun Google. Silakan coba lagi.')
       }
@@ -140,20 +203,14 @@ export function Daftar({
       const emailBersih = validasi.email_normalisasi || email.trim()
       const hasil = onKirimEmail ? await onKirimEmail(emailBersih) : { sukses: true }
       if (hasil.sukses) {
-        const voucherBaru: VoucherKlaimHasil = {
-          kode: buatKodeVoucherAcak(),
-          nilai: kampanye.nilai,
-          jenis: kampanye.jenis,
-          min_belanja: kampanye.min_belanja,
-          maks_potongan: kampanye.maks_potongan,
-          berlaku_sampai: batasWaktuFormatted,
-          nama_pelanggan: nama.trim(),
-          email_pelanggan: emailBersih,
-          telepon_pelanggan: telepon.trim() || undefined,
-        }
-        setVoucherHasil(voucherBaru)
-        setPesanSukses(`Tautan verifikasi dan kode voucher telah dikirimkan ke ${emailBersih}.`)
-        onKlaimSukses?.(voucherBaru)
+        // PMB1-F-032: tautan verifikasi baru DIKIRIM — voucher belum sah.
+        // Klaim disimpan sebagai tunda; peladen menerbitkan kode setelah tautan
+        // dibuka dan sesi terverifikasi hidup.
+        buatKlaimTunda('email', emailBersih)
+        setPesanSukses(null)
+        setMenungguVerifikasi(
+          `Tautan verifikasi telah dikirim ke ${emailBersih}. Buka tautan itu di perangkat ini; setelah verifikasi selesai, voucher diterbitkan otomatis oleh peladen. Kode voucher baru sah setelah verifikasi — bukan sebelumnya.`,
+        )
       } else {
         setPesanGalat(hasil.pesan || 'Gagal memproses pendaftaran email.')
       }
@@ -346,6 +403,24 @@ export function Daftar({
               }}
             >
               {pesanSukses}
+            </div>
+          )}
+
+          {/* PMB1-F-032: kartu "menunggu verifikasi" — jujur bahwa voucher BELUM terbit */}
+          {menungguVerifikasi && (
+            <div
+              role="status"
+              data-testid="menunggu-verifikasi"
+              style={{
+                padding: 'var(--s-3)',
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-md)',
+                fontSize: 'var(--t-2)',
+              }}
+            >
+              <strong>Menunggu verifikasi…</strong>
+              <div style={{ marginTop: 'var(--s-1)' }}>{menungguVerifikasi}</div>
             </div>
           )}
 

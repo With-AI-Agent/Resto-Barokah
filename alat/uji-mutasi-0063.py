@@ -19,8 +19,10 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIGRASI = os.path.join(REPO, "supabase", "migrations", "0063_anti_email_palsu.sql")
-# JEBAKAN "fungsi ditulis ulang": daftar_voucher ditulis ulang di 0067_pengaman_voucher.sql
-MIGRASI_VOUCHER = os.path.join(REPO, "supabase", "migrations", "0067_pengaman_voucher.sql")
+# JEBAKAN "fungsi ditulis ulang": daftar_voucher ditulis ulang di 0067_pengaman_voucher.sql,
+# lalu KEMBALI ditulis ulang di 0089_voucher_wajib_identitas_terverifikasi.sql (PMB1-F-031:
+# voucher hanya untuk identitas terverifikasi peladen). Berkas BERLAKU = yang terakhir.
+MIGRASI_VOUCHER = os.path.join(REPO, "supabase", "migrations", "0089_voucher_wajib_identitas_terverifikasi.sql")
 BERKAS_UJI = ["supabase/tes/anti_email_palsu.sql"]
 
 

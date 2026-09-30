@@ -66,13 +66,18 @@ export function susunStruk(data: DataStruk, opsi: OpsiStruk = {}): Uint8Array {
   if (data.namaResto) {
     p.tebal(true).baris(data.namaResto).tebal(false)
   }
+  // Alamat resto — PRD M6 baris 131: struk WAJIB memuat alamat (PBJT: bukti pungutan).
+  if (data.alamatResto) {
+    for (const baris of bungkusTeks(data.alamatResto, lebar)) p.baris(baris)
+  }
   p.rata('kiri').garis()
 
   // --- Identitas transaksi.
   p.baris(`No. ${data.nomor}`)
   p.baris(tanggalLokal(new Date(data.tanggal)))
   if (data.namaMeja) p.baris(data.namaMeja)
-  if (opsi.namaKasir) p.baris(`Kasir: ${opsi.namaKasir}`)
+  const namaKasir = opsi.namaKasir ?? data.namaKasir
+  if (namaKasir) p.baris(`Kasir: ${namaKasir}`)
   p.garis()
 
   // --- Item: nama di baris sendiri bila panjang, rincian qty × harga di bawah.
@@ -92,7 +97,10 @@ export function susunStruk(data: DataStruk, opsi: OpsiStruk = {}): Uint8Array {
   // --- Rincian uang. Urutannya mengikuti Struk.tsx persis.
   p.kiriKanan('Subtotal', rupiah(data.subtotal))
   if (data.totalDiskon > 0) p.kiriKanan('Diskon', `-${rupiah(data.totalDiskon)}`)
-  p.kiriKanan('PB1 (pajak)', rupiah(data.pajak))
+  p.kiriKanan(
+    data.tarifPajakPersen != null ? `PB1 ${data.tarifPajakPersen}%` : 'PB1 (pajak)',
+    rupiah(data.pajak),
+  )
   p.kiriKanan('Service', rupiah(data.service))
 
   const pembulatan = selisihPembulatan(data)
