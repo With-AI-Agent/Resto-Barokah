@@ -31,6 +31,14 @@ select uji.harap(
   'F-036: saklar pendaftaran bebas peran berkuasa dibawa MATI di semua penyewa'
 );
 
+-- 1b. Prasyarat eksplisit PMB1-F-063: penyewa ini SUDAH punya perangkat aktif —
+--     justru dalam keadaan begitu pendaftaran mandiri owner UUID asing ditolak.
+select uji.harap(
+  (select count(*) from public.perangkat
+    where penyewa_id = '11111111-1111-1111-1111-111111111111' and aktif = true) >= 1,
+  'F-063: penyewa sudah punya perangkat aktif — owner tetap tidak bisa mendaftarkan UUID asing (saklar mati)'
+);
+
 -- Seluruh panggilan berikutnya dari peran publik tanpa JWT (penyerang di peramban mana pun)
 select uji.klaim(null);
 set local role anon;
