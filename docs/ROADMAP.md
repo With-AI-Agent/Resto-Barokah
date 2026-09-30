@@ -964,15 +964,15 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: State Machine (ART-4) & Antrean (ART-8); pesanan dobel → mitigasi: kunci unik di database + uji paralel.
   - **Verifikasi:** uji SQL: 5 pemanggilan dengan kunci sama → 1 pesanan; tanpa kunci → ditolak.
 
-- [x] T3-06 — Pindah meja + status meja
+- [ ] T3-06 — Pindah meja + status meja
+  - **Dibuka kembali:** PMB1-F-131 (2026-09-30) — bukti wajib: `supabase/tes/pindah_meja_riwayat.sql`, `aplikasi/src/layar/kasir/PemilihMeja.test.tsx`
   - **Tujuan:** pelanggan pindah meja tanpa membingungkan dapur/kasir.
   - **Ref:** PRD M4 (kasus tepi)
   - **File:** `aplikasi/src/layar/kasir/PemilihMeja.tsx`, `supabase/migrations/0008_meja.sql` (pindah meja dilayani PemilihMeja; skema di migrasi 0008)
-  - **DoD:** pindah meja tercatat (dari → ke, oleh siapa); status meja otomatis (kosong/terisi/siap); riwayat tetap.
+  - **DoD:** pindah meja tercatat (dari → ke, oleh siapa lewat RPC `pindah_meja` berjejak audit); status meja otomatis (kosong/terisi/siap); riwayat tetap tidak bisa diubah/dihapus; pemilih meja membaca data tabel `meja` cabang aktif bukan `CONTOH_MEJA`.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** salah pindah → mitigasi: konfirmasi + catatan audit.
-  - **Verifikasi:** uji manual + uji SQL riwayat pindah meja.
-  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
+  - **Verifikasi:** uji SQL `supabase/tes/pindah_meja_riwayat.sql` (riwayat atomik + penolakan peran ilegal) + uji komponen `aplikasi/src/layar/kasir/PemilihMeja.test.tsx` (bahan awal draf di cabang `arena/01a0ec99`).
 
 - [x] T3-07 — Penguncian menu habis di kasir
   - **Tujuan:** pelanggan tidak memesan yang sudah habis.
