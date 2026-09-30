@@ -1,0 +1,103 @@
+$ git rev-parse --is-shallow-repository
+false
+$ python3 alat/periksa-paket.py
+  [catatan] docs/uji/paket-audit/AUD-2-2026-09-17-SIAP-TEMPEL.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/paket-audit/AUD-2-2026-09-17.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/paket-audit/AUD-2-2026-09-21-SIAP-TEMPEL.md: CI commit target terverifikasi ke GitHub (success (run 35574069120, `.github/workflows/ci.yml`))
+  [catatan] docs/uji/paket-audit/AUD-2-2026-09-21-SIAP-TEMPEL.md: tanpa tabel lingkup §0 — Aturan 6 dilewati (bukan paket menyeluruh)
+  [catatan] docs/uji/paket-audit/AUD-2-2026-09-21-SIAP-TEMPEL.md: bagian 1 bersih (65 jalur, semuanya ada di 09bcb89f)
+  [catatan] docs/uji/paket-audit/AUD-2-2026-09-21.md: CI commit target terverifikasi ke GitHub (success (run 35574069120, `.github/workflows/ci.yml`))
+  [catatan] docs/uji/paket-audit/AUD-2-2026-09-21.md: tanpa tabel lingkup §0 — Aturan 6 dilewati (bukan paket menyeluruh)
+  [catatan] docs/uji/paket-audit/AUD-2-2026-09-21.md: bagian 1 bersih (65 jalur, semuanya ada di 09bcb89f)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-17-SIAP-TEMPEL.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-17.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-18-SIAP-TEMPEL.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-18.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-19-4830b5a-SIAP-TEMPEL.md: bagian 1 bersih (136 jalur, semuanya ada di 4830b5a4)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-19-4830b5a.md: bagian 1 bersih (136 jalur, semuanya ada di 4830b5a4)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-19-680ffaf-SIAP-TEMPEL.md: bagian 1 bersih (136 jalur, semuanya ada di 680ffafd)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-19-680ffaf.md: bagian 1 bersih (136 jalur, semuanya ada di 680ffafd)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-19-SIAP-TEMPEL.md: bagian 1 bersih (117 jalur, semuanya ada di 93a50bac)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-19.md: bagian 1 bersih (117 jalur, semuanya ada di 93a50bac)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-20-SIAP-TEMPEL.md: CI commit target terverifikasi ke GitHub (success (run 35518950919, `.github/workflows/ci.yml`))
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-20-SIAP-TEMPEL.md: bagian 1 bersih (168 jalur, semuanya ada di cbba4010)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-20.md: CI commit target terverifikasi ke GitHub (success (run 35518950919, `.github/workflows/ci.yml`))
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-20.md: bagian 1 bersih (168 jalur, semuanya ada di cbba4010)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md: F-16 — lingkup §0 cocok dengan pohon e7818e2f (total 839, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md: bagian 1 bersih (383 jalur, semuanya ada di e7818e2f)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-24.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-24.md: F-16 — lingkup §0 cocok dengan pohon e7818e2f (total 839, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-24.md: bagian 1 bersih (383 jalur, semuanya ada di e7818e2f)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-SIAP-TEMPEL.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-SIAP-TEMPEL.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 864, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-SIAP-TEMPEL.md: bagian 1 bersih (409 jalur, semuanya ada di 804ed86f)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 185, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md: bagian 1 bersih (96 jalur, semuanya ada di 804ed86f)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 185, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md: bagian 1 bersih (96 jalur, semuanya ada di 804ed86f)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 240, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md: bagian 1 bersih (191 jalur, semuanya ada di 804ed86f)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 240, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md: bagian 1 bersih (191 jalur, semuanya ada di 804ed86f)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 205, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md: bagian 1 bersih (173 jalur, semuanya ada di 804ed86f)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 205, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md: bagian 1 bersih (173 jalur, semuanya ada di 804ed86f)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 864, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25.md: bagian 1 bersih (409 jalur, semuanya ada di 804ed86f)
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran10-SIAP-TEMPEL.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran10.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran11-SIAP-TEMPEL.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran11.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran5-SIAP-TEMPEL.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran5.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran6-SIAP-TEMPEL.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran6.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran7-SIAP-TEMPEL.md: paket review — hanya invarian commit yang diperiksa
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran7.md: paket review — hanya invarian commit yang diperiksa
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran8-SIAP-TEMPEL.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran8.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran9-SIAP-TEMPEL.md: paket review — hanya invarian commit yang diperiksa
+  [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran9.md: paket review — hanya invarian commit yang diperiksa
+  [catatan] docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran13-SIAP-TEMPEL.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran13.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
+  [catatan] docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran14-SIAP-TEMPEL.md: paket review — hanya invarian commit yang diperiksa
+  [catatan] docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran14.md: paket review — hanya invarian commit yang diperiksa
+  [catatan] docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran15-SIAP-TEMPEL.md: paket review — hanya invarian commit yang diperiksa
+  [catatan] docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran15.md: paket review — hanya invarian commit yang diperiksa
+  [catatan] docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran16-SIAP-TEMPEL.md: paket review — hanya invarian commit yang diperiksa
+  [catatan] docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran16.md: paket review — hanya invarian commit yang diperiksa
+  [catatan] 17 laporan reviewer dilewati (invariannya berbeda: menunjuk ujung rentang PR)
+----------------------------------------------------------------------
+PERIKSA PAKET — 48 paket terlacak (ref HEAD)
+HASIL: LOLOS — setiap paket menunjuk induk commit-nya sendiri, artefaknya nyata, dan paket review baru tercatat di riwayat.
+$ python3 alat/periksa-paket.py --uji-diri
+LEWAT: berkas siap-tempel belum memuat penanda/ambil-bahan (cek urutan kerja)
+UJI-DIRI periksa-paket
+  OK  paket lama d1f11d7 (267 jalur hantu) ditolak → docs/uji/paket-audit/AUD-3-2026-09-18.md: F-12 — 272 dari 354 jalur di bagian 1 TIDAK ADA 
+  OK  mutasi: SHA di paket diganti SHA palsu → docs/uji/paket-audit/AUD-2-2026-09-17-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwaya
+  OK  mutasi: jalur hantu ditambahkan ke bagian 1 → docs/uji/paket-audit/AUD-2-2026-09-17-SIAP-TEMPEL.md: F-12 — 1 dari 23 jalur di bagian 1 T
+  OK  mutasi: pola glob hantu ditambahkan ke bagian 1 → docs/uji/paket-audit/AUD-2-2026-09-17-SIAP-TEMPEL.md: F-12 — 1 dari 23 jalur di bagian 1 T
+  OK  pohon sekarang diterima → lolos
+  OK  mutasi: paket baru tanpa bukti CI commit target (alasan harus F-02) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-ci.md: F-02 — tidak menulis status CI commit tar
+  OK  mutasi: bukti CI menyebut SHA berbeda dari target (alasan harus F-02) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-ci.md: F-02 — SHA pada baris CI (ffffffffffff…) 
+  OK  mutasi: paket mengklaim CI hijau padahal tidak (ed3a229) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-ci.md: F-02 — paket mengklaim CI hijau, tetapi G
+  OK  mutasi: satu angka grup ditulis tangan (alasan harus F-16/jumlah) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-lingkup.md: F-16 — jumlah per grup (433) TIDAK S
+  OK  kontrol: tabel lingkup valid dari pohon DITERIMA Aturan 6 (tanpa alasan F-16) → diterima
+  OK  mutasi: total konsisten-tapi-beda-pohon +7 (alasan harus F-16/pohon) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-lingkup.md: F-16 — total tertulis (439) TIDAK SA
+  OK  mutasi: penanda berkas paket dihapus (alasan harus F-16/penanda) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-lingkup.md: F-16 — tanpa penanda '- **Berkas pak
+  OK  mutasi: baris 'belum berggrup' berisi 3 (alasan harus F-16/grup) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-lingkup.md: F-16 — 3 berkas 'belum berggrup': pa
+  OK  kontrol: varian bidang KEAMANAN valid DITERIMA Aturan 6 → diterima
+  OK  kontrol: bidang tak dikenal tidak memicu F-16 → dilewati
+  OK  mutasi: paket review baru tanpa baris riwayat ditolak → paket review putaran99 (docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran99.md) tidak punya 
+  OK  kontrol: paket review yang TERCATAT di riwayat diterima → diterima
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK paket cacat dan MENERIMA yang utuh.

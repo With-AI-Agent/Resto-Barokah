@@ -1,0 +1,715 @@
+# BUKTI REPRODUKSI H-F-09.5
+Tanggal UTC: 2026-09-30 06:51:17 UTC
+
+## Pohon sumber Perencana
+$ git branch --show-current
+arena/01a0f0e9-resto-barokah
+$ git rev-parse origin/arena/01a0e747-resto-barokah HEAD^
+00cb4ee0231ddd429d57c0af3664c96f06f47d52
+00cb4ee0231ddd429d57c0af3664c96f06f47d52
+$ git diff --quiet origin/arena/01a0e747-resto-barokah HEAD^ && echo POHON_IDENTIK
+POHON_IDENTIK
+
+## Riwayat commit perbaikan dokumen yang dibaca
+
+$ git show --format="%H %s" --name-status 2e0893a8
+2e0893a82e4acef4839d1201a5683495ae62f215 perbaiki PMB1-F-130: jujurkan ROADMAP T3-01 (katalog kasir dari DB) dibuka kembali
+
+M	docs/ROADMAP.md
+M	docs/uji/pemeriksaan/PMB-1/BUKTI_BELUM_BASELINE.txt
+
+$ git show --format="%H %s" --name-status ff3fca17
+ff3fca1711abe7f2b88ef8996eef55794e1a2ae8 perbaiki PMB1-F-131: jujurkan ROADMAP T3-06 (pindah meja & riwayat) dibuka kembali
+
+M	docs/ROADMAP.md
+M	docs/uji/pemeriksaan/PMB-1/BUKTI_BELUM_BASELINE.txt
+
+$ git show --format="%H %s" --name-status 7b0a3db9
+7b0a3db993fcbb553ec218e66146129be64ce0c1 perbaiki PMB1-F-133: jujurkan ROADMAP T3-11 (layar pelayan ke kasir) dibuka kembali
+
+M	docs/ROADMAP.md
+M	docs/uji/pemeriksaan/PMB-1/BUKTI_BELUM_BASELINE.txt
+
+$ git show --format="%H %s" --name-status f16927f8
+f16927f8d14394b253785ad676929f5358f58e06 perbaiki PMB1-F-118: jujurkan ROADMAP T6-02..T6-05 (rantai cetak) dibuka kembali
+
+M	docs/ROADMAP.md
+M	docs/uji/pemeriksaan/PMB-1/BUKTI_BELUM_BASELINE.txt
+
+## Status dan syarat tugas ROADMAP saat ini
+910: - [ ] T3-01 — Layar kasir: katalog nyata dari database
+911:   - **Dibuka kembali:** PMB1-F-130 (2026-09-30) — bukti wajib: `aplikasi/src/layar/kasir/Katalog.test.tsx` (uji pemuatan tabel menu_item basis data nyata, bukan data statis CONTOH_MENU), `aplikasi/src/hook/useKatalogKasir.test.ts`
+914:   - **File:** `aplikasi/src/layar/kasir/LayarKasir.tsx`, `aplikasi/src/layar/kasir/Katalog.tsx`
+915:   - **DoD:** kategori & pencarian bekerja dengan data `menu_item` dari basis data cabang aktif; varian/tambahan muncul sesuai pengaturan; item habis terkunci; bahasa Indonesia; tanpa ketergantungan pada `CONTOH_MENU` keras-kode.
+918:   - **Verifikasi:** uji otomatis `aplikasi/src/layar/kasir/Katalog.test.tsx` dan `aplikasi/src/hook/useKatalogKasir.test.ts` (bahan awal draf di cabang `arena/01a0ec99`); waktu muat awal terukur < 3 detik.
+948: - [x] T3-04 — Tagihan terbuka (open bill): simpan & lanjutkan
+951:   - **File:** `aplikasi/src/layar/kasir/DaftarTagihan.tsx`
+952:   - **DoD:** pesanan tersimpan sebagai tagihan terbuka; bisa ditambah beberapa kali sebelum dibayar; tagihan ditinggal pelanggan tetap muncul dengan penanda; uji manual lulus.
+955:   - **Verifikasi:** uji manual: buka tagihan → tambah 2× → bayar sebagian (dua transaksi) → tercatat benar.
+956:   - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
+967: - [ ] T3-06 — Pindah meja + status meja
+968:   - **Dibuka kembali:** PMB1-F-131 (2026-09-30) — bukti wajib: `supabase/tes/pindah_meja_riwayat.sql`, `aplikasi/src/layar/kasir/PemilihMeja.test.tsx`
+971:   - **File:** `aplikasi/src/layar/kasir/PemilihMeja.tsx`, `supabase/migrations/0008_meja.sql` (pindah meja dilayani PemilihMeja; skema di migrasi 0008)
+972:   - **DoD:** pindah meja tercatat (dari → ke, oleh siapa lewat RPC `pindah_meja` berjejak audit); status meja otomatis (kosong/terisi/siap); riwayat tetap tidak bisa diubah/dihapus; pemilih meja membaca data tabel `meja` cabang aktif bukan `CONTOH_MEJA`.
+975:   - **Verifikasi:** uji SQL `supabase/tes/pindah_meja_riwayat.sql` (riwayat atomik + penolakan peran ilegal) + uji komponen `aplikasi/src/layar/kasir/PemilihMeja.test.tsx` (bahan awal draf di cabang `arena/01a0ec99`).
+1016: - [ ] T3-11 — Layar pesanan pelayan (HP di samping meja)
+1017:   - **Dibuka kembali:** PMB1-F-133 (2026-09-30) — bukti wajib: `aplikasi/src/layar/pelayan/LayarPelayanAlur.test.tsx`, Buku Uji Pemilik U-11 (skenario sinkronisasi dua perangkat kasir+pelayan) / `supabase/tes/pesanan_pelayan_sinkron.sql`
+1020:   - **File:** `aplikasi/src/layar/pelayan/LayarPelayan.tsx`
+1021:   - **DoD:** tampilan ringkas untuk HP; hanya menu & meja cabangnya; pesanan masuk ke tagihan yang sama; tersinkron dengan kasir melalui alur kirim nyata (bukan sekadar pesan belum tersambung); penanganan konflik pesanan ganda.
+1024:   - **Verifikasi:** uji integrasi pelayan-kasir `aplikasi/src/layar/pelayan/LayarPelayanAlur.test.tsx` + Buku Uji Pemilik U-11 diuji nyata oleh Lee di dua perangkat.
+1026: - [x] T3-12 — Daftar pesanan hari ini + filter
+1029:   - **File:** `aplikasi/src/layar/kasir/DaftarPesanan.tsx`
+1030:   - **DoD:** filter status/jenis/meja; pencarian nomor pesanan; hanya data cabang sendiri; kinerja baik untuk 300 pesanan/hari.
+1033:   - **Verifikasi:** uji manual dengan 300 pesanan contoh (seed) → respons < 1 detik.
+1034:   - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
+1311: - [x] T5-07 — Void setelah dapur mulai: PIN atasan + bahan terbuang ⚠️
+1323:   - **File:** `supabase/migrations/0042_bahan_terbuang_jujur.sql`,
+1337:   - **DoD:** wajib PIN atasan/owner + alasan; nilai bahan terbuang dihitung dari harga saat itu; muncul di laporan harian sebagai kerugian; uji lulus.
+1340:   - **Verifikasi:** uji SQL + uji manual + cek kemunculan di laporan (T7-12).
+1341:   - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/bahan_terbuang.sql`, `alat/uji-mutasi-0042.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
+1343: - [x] T5-08 — Nomor HP pelanggan opsional (untuk poin/voucher) ⚠️
+1346:   - **File:** `aplikasi/src/layar/kasir/DataPelanggan.tsx`, `aplikasi/src/layar/kasir/DataPelanggan.test.tsx`
+1361:   - **DoD:** bersifat opsional dengan penjelasan singkat; persetujuan dicatat; bisa dilewati; tidak boleh menghambat pembayaran.
+1364:   - **Verifikasi:** uji manual alur cepat tanpa data pelanggan.
+1365:   - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/kasir/DataPelanggan.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
+1367: - [x] T5-09 — Struk digital (cadangan wajib saat printer bermasalah) ⚠️
+1370:   - **File:** `aplikasi/src/komponen/StrukDigital.tsx`, `aplikasi/src/komponen/StrukDigital.test.tsx`
+1388:   - **DoD:** struk tampil di layar dalam format struk; bisa dibagikan (bagikan berkas/gambar) & disimpan PDF; isi identik dengan struk cetak.
+1391:   - **Verifikasi:** uji manual di Android & desktop.
+1392:   - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/komponen/StrukDigital.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
+1416: - [x] T5-11 — Pembayaran sebagian & tagihan ditinggal
+1419:   - **File:** `supabase/tes/pembayaran_sebagian.sql`, `aplikasi/src/layar/kasir/DaftarTagihan.tsx`
+1420:   - **DoD:** di MVP pembayaran sebagian dicatat sebagai dua transaksi terpisah (dibuktikan uji); tagihan ditinggal tetap muncul dengan penanda umur.
+1423:   - **Verifikasi:** uji SQL + uji manual.
+1439:   - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/pembayaran_sebagian.sql` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
+1498: - [ ] T6-02 — Sambungan Web Bluetooth (Android/Windows)
+1499:   - **Dibuka kembali:** PMB1-F-118 (2026-09-30) — bukti wajib: `aplikasi/src/layar/pengaturan/PasangPrinter.test.tsx` (pengkabelan props `onUjiCetak` & `onSimpan` di App.tsx/LayarPengaturan), Buku Uji Pemilik U-15
+1502:   - **File:** `aplikasi/src/lib/printer/kirim.ts`, `aplikasi/src/lib/printer/profil.ts`, `aplikasi/src/layar/pengaturan/PasangPrinter.tsx` (menggantikan nama rencana `bluetooth.ts`)
+1503:   - **DoD:** pemasangan printer (pilih perangkat Web Bluetooth nyata via `navigator.bluetooth.requestDevice`, simpan ke profil), tombol Uji cetak dan Simpan terhubung ke state aplikasi, pesan jelas bila tidak didukung perangkat (mis. iPhone); tanpa tombol tanpa fungsi.
+1506:   - **Verifikasi:** uji unit/integrasi `aplikasi/src/layar/pengaturan/PasangPrinter.test.tsx` + uji nyata Buku Uji U-15 di perangkat Android/Windows.
+1522: - [ ] T6-03 — Sambungan WebUSB (komputer)
+1523:   - **Dibuka kembali:** PMB1-F-118 (2026-09-30) — bukti wajib: `aplikasi/src/lib/printer/kirim.test.ts`, Buku Uji Pemilik U-16
+1526:   - **File:** `aplikasi/src/lib/printer/kirim.ts` (fungsi WebUSB diintegrasikan di kirim.ts; nama rencana `usb.ts` disatukan)
+1527:   - **DoD:** pemasangan printer USB via `navigator.usb.requestDevice`, integrasi alur UI pasang printer USB di `PasangPrinter.tsx`, uji cetak via USB, penanganan izin perangkat; panduan pemasangan WinUSB/Zadig.
+1530:   - **Verifikasi:** uji unit simulasi WebUSB + uji nyata Buku Uji U-16 via kabel USB.
+1538: - [ ] T6-04 — Cetak struk (header/footer dari pengaturan)
+1539:   - **Dibuka kembali:** PMB1-F-118 (2026-09-30) — bukti wajib: `aplikasi/src/layar/kasir/LayarKasirCetak.test.tsx`, `aplikasi/src/lib/printer/struk.test.ts`
+1542:   - **File:** `aplikasi/src/lib/printer/struk.ts`
+1543:   - **DoD:** fungsi `susunStruk` terpasang dan dipanggil dari alur transaksi nyata di `LayarKasir`/`App.tsx` saat transaksi selesai/tombol cetak struk ditekan; header/footer diambil dari profil pengaturan cabang; laci kas terbuka bila didukung.
+1546:   - **Verifikasi:** uji integrasi `aplikasi/src/layar/kasir/LayarKasirCetak.test.tsx` membuktikan rantai pemanggilan `susunStruk` + `kirim.ts` dari kasir aktif.
+1557: - [ ] T6-05 — Cetak tiket dapur
+1558:   - **Dibuka kembali:** PMB1-F-118 (2026-09-30) — bukti wajib: `aplikasi/src/layar/dapur/LayarDapurCetak.test.tsx`, `aplikasi/src/lib/printer/tiket.test.ts`
+1561:   - **File:** `aplikasi/src/lib/printer/tiket.ts`
+1562:   - **DoD:** fungsi `susunTiket`/`susunTiketTerpisah` terpasang dan dipanggil dari alur pengiriman pesanan ke dapur di `LayarDapur`/`App.tsx`; tiket memuat nomor pesanan, meja/jenis, item + jumlah, catatan khusus; tanda "SALINAN" untuk cetak ulang.
+1565:   - **Verifikasi:** uji integrasi `aplikasi/src/layar/dapur/LayarDapurCetak.test.tsx` membuktikan rantai pemanggilan `susunTiket` dari dapur/kasir saat pesanan dikirim.
+
+## Transisi baseline BUKTI-BELUM
+NO MATCH: 7 tugas yang dibuka tidak tersisa di baseline
+
+## Berkas uji yang benar-benar terlacak
+aplikasi/src/layar/kasir/AlurKasirE2E.test.tsx
+aplikasi/src/layar/kasir/BebanKasir.test.ts
+aplikasi/src/layar/kasir/Katalog.test.tsx
+aplikasi/src/layar/kasir/Katalog.tsx
+aplikasi/src/layar/kasir/PemilihMeja.test.tsx
+aplikasi/src/layar/kasir/PemilihMeja.tsx
+aplikasi/src/layar/masuk/LayarMasukPelanggan.test.tsx
+aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx
+aplikasi/src/layar/pelanggan-publik/Katalog.test.tsx
+aplikasi/src/layar/pelanggan-publik/Katalog.tsx
+aplikasi/src/layar/pelayan/LayarPelayan.test.tsx
+aplikasi/src/layar/pelayan/LayarPelayan.tsx
+aplikasi/src/layar/pengaturan/PasangPrinter.test.tsx
+aplikasi/src/layar/pengaturan/PasangPrinter.tsx
+aplikasi/src/lib/auth.test.ts
+aplikasi/src/lib/printer/kirim.test.ts
+aplikasi/src/lib/printer/kirim.ts
+aplikasi/src/lib/printer/struk.test.ts
+aplikasi/src/lib/printer/struk.ts
+aplikasi/src/lib/printer/tiket.test.ts
+aplikasi/src/lib/printer/tiket.ts
+supabase/tes/meja_riwayat.sql
+
+## Reproduksi kode hari ini
+$ grep -nE "PasangPrinter|LayarPelayan" aplikasi/src/App.tsx aplikasi/src/layar/pengaturan/LayarPengaturan.tsx
+aplikasi/src/App.tsx:20:import { LayarPelayan } from './layar/pelayan/LayarPelayan'
+aplikasi/src/App.tsx:22:import { PasangPrinter } from './layar/pengaturan/PasangPrinter'
+aplikasi/src/App.tsx:471:        return <LayarPelayan namaPelayan={sesi?.nama ?? 'Pelayan'} />
+aplikasi/src/App.tsx:473:        return <PasangPrinter />
+aplikasi/src/layar/pengaturan/LayarPengaturan.tsx:9: *  5. Sambungan & Pengaturan Printer (`PasangPrinter`) — T6-08
+aplikasi/src/layar/pengaturan/LayarPengaturan.tsx:27:import { PasangPrinter } from './PasangPrinter'
+aplikasi/src/layar/pengaturan/LayarPengaturan.tsx:416:        {tabAktif === 'printer' && <PasangPrinter />}
+$ grep -nE "CONTOH_MENU|daftarMenu =" aplikasi/src/layar/kasir/Katalog.tsx
+53:const CONTOH_MENU: MenuItemData[] = [
+128:  daftarMenu = CONTOH_MENU,
+$ grep -nE "CONTOH_MEJA|daftarMeja =" aplikasi/src/layar/kasir/PemilihMeja.tsx
+33:const CONTOH_MEJA: MejaData[] = [
+75:  daftarMeja = CONTOH_MEJA,
+NO MATCH: pembacaan menu_item dari kode produksi
+NO MATCH: RPC pindah_meja di migrasi
+aplikasi/src/lib/printer/kirim.ts:186:export async function cetakBluetooth(perangkat: PerangkatBle, data: Uint8Array): Promise<void> {
+aplikasi/src/lib/printer/kirim.ts:287:export async function cetakUsb(perangkat: PerangkatUsb, data: Uint8Array): Promise<void> {
+aplikasi/src/lib/printer/struk.ts:52:export function susunStruk(data: DataStruk, opsi: OpsiStruk = {}): Uint8Array {
+aplikasi/src/lib/printer/tiket.ts:60:export function susunTiket(data: DataTiket, opsi: OpsiTiket = {}): Uint8Array {
+aplikasi/src/lib/printer/tiket.ts:115:      byte: susunTiket({ ...data, item: makanan }, { ...opsi, judulStasiun: 'MAKANAN' }),
+aplikasi/src/lib/printer/tiket.ts:121:      byte: susunTiket({ ...data, item: minuman }, { ...opsi, judulStasiun: 'MINUMAN' }),
+$ nl -ba aplikasi/src/App.tsx | sed -n "216,232p"
+   216	            onBatalkanItem={async ({ itemId, alasan }) => {
+   217	              const klien = klienSupabase()
+   218	              if (klien && pesananAktifId) {
+   219	                const { error } = await klien.from('pembatalan').insert({
+   220	                  pesanan_id: pesananAktifId,
+   221	                  pesanan_item_id:
+   222	                    itemId.startsWith('ord-item-') || itemId.length > 20 ? itemId : null,
+   223	                  alasan,
+   224	                  tahap: 'sebelum_dapur',
+   225	                })
+   226	                if (error) {
+   227	                  return { berhasil: false, pesan: error.message }
+   228	                }
+   229	                return { berhasil: true }
+   230	              }
+   231	              return { berhasil: true }
+   232	            }}
+$ nl -ba aplikasi/src/layar/pelayan/LayarPelayan.tsx | sed -n "117,136p"
+   117	  const kirimKeDapur = async () => {
+   118	    if (keranjang.length === 0) return
+   119	    setSedangKirim(true)
+   120	    setPesanStatus(null)
+   121	    try {
+   122	      // PMB1-F-133: sukses hanya bila jalur kirim benar-benar ada DAN menjawab true — keranjang tidak dikosongkan bila gagal.
+   123	      if (!onKirimPesanan) {
+   124	        setPesanStatus(
+   125	          '⚠️ Pengiriman dari layar pelayan belum tersambung ke dapur. Pesanan BELUM terkirim — sampaikan ke kasir.',
+   126	        )
+   127	        return
+   128	      }
+   129	      const terkirim = await onKirimPesanan({ meja: nomorMeja, items: keranjang, catatanUmum })
+   130	      if (terkirim !== true) {
+   131	        setPesanStatus('❌ Gagal mengirim pesanan. Silakan coba lagi.')
+   132	        return
+   133	      }
+   134	      setPesanStatus('✅ Pesanan berhasil dikirim ke dapur!')
+   135	      setKeranjang([])
+   136	      setCatatanUmum('')
+
+## Regresi lama yang relevan
+$ grep -n signInWithOAuth aplikasi/src/lib/auth.ts
+237:    const { error } = await supabase.auth.signInWithOAuth({
+$ grep -n onMasukGoogle aplikasi/src/App.tsx
+482:            onMasukGoogle={masukDenganGoogle}
+607:                onMasukGoogle={async () => {
+$ grep -nE "import|hitungRingkasanBeban|describe" aplikasi/src/layar/kasir/BebanKasir.test.ts aplikasi/src/layar/kasir/AlurKasirE2E.test.tsx
+aplikasi/src/layar/kasir/BebanKasir.test.ts:1:import { describe, it, expect } from 'vitest'
+aplikasi/src/layar/kasir/BebanKasir.test.ts:10:function hitungRingkasanBeban(items: ItemBeban[]) {
+aplikasi/src/layar/kasir/BebanKasir.test.ts:26:describe('Uji Beban Ringan Kasir (T3-16)', () => {
+aplikasi/src/layar/kasir/AlurKasirE2E.test.tsx:2:import { describe, it, expect, vi, afterEach } from 'vitest'
+aplikasi/src/layar/kasir/AlurKasirE2E.test.tsx:3:import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
+aplikasi/src/layar/kasir/AlurKasirE2E.test.tsx:4:import { LayarKasir } from './LayarKasir'
+aplikasi/src/layar/kasir/AlurKasirE2E.test.tsx:5:import { PenyediaBahasa } from '../../bahasa'
+aplikasi/src/layar/kasir/AlurKasirE2E.test.tsx:7:describe('Uji Alur Kasir Ujung-ke-Ujung (T3-14)', () => {
+
+$ npm test -- src/lib/auth.test.ts src/layar/masuk/LayarMasukPelanggan.test.tsx src/App.test.tsx src/layar/kasir/BebanKasir.test.ts src/layar/kasir/AlurKasirE2E.test.tsx
+
+> sajian@0.0.0 test
+> vitest run src/lib/auth.test.ts src/layar/masuk/LayarMasukPelanggan.test.tsx src/App.test.tsx src/layar/kasir/BebanKasir.test.ts src/layar/kasir/AlurKasirE2E.test.tsx
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90m/home/user/Resto-Barokah/aplikasi[39m
+
+ [32m✓[39m src/App.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1103[2mms[22m[39m
+   [32m✓[39m App - Penanganan Shift Kasir (L F-03) [2m(3)[22m
+     [33m[2m✓[22m[39m menolak pembukaan shift bila RPC peladen gagal dan tidak mengeset sesi terbuka[33m 400[2mms[22m[39m
+     [33m[2m✓[22m[39m menolak penutupan shift bila RPC tutup_shift peladen gagal[33m 427[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/AlurKasirE2E.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 442[2mms[22m[39m
+   [32m✓[39m Uji Alur Kasir Ujung-ke-Ujung (T3-14) [2m(1)[22m
+     [33m[2m✓[22m[39m menjalankan skenario lengkap: pilih menu -> catatan -> kirim dapur -> bayar lunas[33m 440[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/LayarMasukPelanggan.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 285[2mms[22m[39m
+ [32m✓[39m src/lib/auth.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/BebanKasir.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m18 passed[39m[22m[90m (18)[39m
+[2m   Start at [22m 06:51:18
+[2m   Duration [22m 6.82s[2m (tests 30%, environment 28%, transform 28%, import 12%)[22m
+
+[2m    Isolate [22m [33m5 workers spawned[39m[2m · ~482ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~1.93s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
+
+$ npm test -- src/layar/kasir/Katalog.test.tsx src/layar/kasir/PemilihMeja.test.tsx src/layar/pengaturan/PasangPrinter.test.tsx src/lib/printer/kirim.test.ts src/lib/printer/struk.test.ts src/lib/printer/tiket.test.ts
+
+> sajian@0.0.0 test
+> vitest run src/layar/kasir/Katalog.test.tsx src/layar/kasir/PemilihMeja.test.tsx src/layar/pengaturan/PasangPrinter.test.tsx src/lib/printer/kirim.test.ts src/lib/printer/struk.test.ts src/lib/printer/tiket.test.ts
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90m/home/user/Resto-Barokah/aplikasi[39m
+
+ [32m✓[39m src/layar/kasir/Katalog.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 259[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/PasangPrinter.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[32m 271[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/PemilihMeja.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 150[2mms[22m[39m
+ [32m✓[39m src/lib/printer/struk.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/lib/printer/kirim.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/lib/printer/tiket.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+[2m      Tests [22m [1m[32m86 passed[39m[22m[90m (86)[39m
+[2m   Start at [22m 06:51:25
+[2m   Duration [22m 3.48s[2m (environment 43%, tests 26%, import 16%, transform 14%, worker 1%)[22m
+
+[2m    Isolate [22m [33m6 workers spawned[39m[2m · ~307ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~1.53s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
+
+$ npm test -- src/layar/pelayan/LayarPelayan.test.tsx
+
+> sajian@0.0.0 test
+> vitest run src/layar/pelayan/LayarPelayan.test.tsx
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90m/home/user/Resto-Barokah/aplikasi[39m
+
+ [32m✓[39m src/layar/pelayan/LayarPelayan.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 277[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 06:51:29
+[2m   Duration [22m 1.33s[2m (environment 34%, transform 27%, tests 24%, import 15%)[22m
+
+
+## Pagar & regresi status
+$ python3 alat/periksa-roadmap.py
+PERIKSA ROADMAP — Resto Barokah
+  Tugas        : 193  (T0:15, T1:45, T10:16, T11:13, T2:19, T3:16, T4:10, T5:12, T6:8, T7:12, T8:15, T9:12)
+  Atribut 7x   : lengkap
+  Fitur M1-M12 : lengkap
+  ⚠️ DECISIONS : 102 tugas bertanda (dihitung per blok tugas, bukan kemunculan lambang)
+  Entitas §4   : 40 tabel resmi TECH_SPEC — semuanya wajib disebut di blok tugas
+  RPC §5       : 45 nama resmi TECH_SPEC — semuanya wajib disebut di blok tugas
+  ❓ tertangguh : 2 rujukan (semua sah)
+  Bukti [x]    : 0 sah · 139 ⏳ BUKTI-BELUM (transisi, baseline 139) · 0 cacat · tugas 'Dibuka kembali' masih [ ]: 7
+
+HASIL: LOLOS — semua pemeriksaan roadmap terpenuhi.
+
+$ python3 alat/periksa-roadmap.py --uji-diri
+UJI-DIRI periksa-roadmap
+  OK  kosong sah → bersih
+  OK  semua selesai sah → bersih
+  OK  terbuka bertanda sah → bersih
+  OK  terbuka tak bertanda ditolak → T-026 masih terbuka tetapi tidak ditandai ❓ pada tugas
+  OK  ID palsu ditolak → RUJUKAN MATI: ❓ T-999 tidak ada di docs/TERTANGGUH.md; T-026 masih terbuka tetapi tidak ditandai ❓ pada tugas
+  OK  penanda basi ditolak → ❓ T-025 basi: butir sudah selesai
+  OK  contoh format bukan butir nyata → bersih
+  OK  butir kedua tanpa penanda ditolak → T-027 masih terbuka tetapi tidak ditandai ❓ pada tugas
+  OK  penanda hanya di luar tugas ditolak → ['T-026 masih terbuka tetapi tidak ditandai ❓ pada tugas']
+  OK  file [x] nyata sah → 
+  OK  file [x] hilang ditolak → 
+  OK  file [x] hilang ditandai rencana sah → 
+  OK  file [ ] belum selesai dilewati → 
+  OK  [x] tanpa baris Bukti ditolak → T98-01: centang [x] tanpa bukti sah — tidak ada baris `- **Bukti:**`
+  OK  [x] Bukti berkas uji nyata sah → bersih
+  OK  [x] Bukti berkas uji karangan ditolak → T98-03: centang [x] tanpa bukti sah — baris Bukti tidak menunjuk berkas uji/penjaga yang ada di repo maupun baris U-nn yang sudah Lee isi OK
+  OK  [x] Bukti berkas bukan uji (kode aplikasi) ditolak → T98-04: centang [x] tanpa bukti sah — baris Bukti tidak menunjuk berkas uji/penjaga yang ada di repo maupun baris U-nn yang sudah Lee isi OK
+  OK  [x] transisi BUKTI-BELUM terdaftar baseline sah → bersih
+  OK  [x] transisi BUKTI-BELUM di luar baseline ditolak → T98-06: centang [x] tanpa bukti sah — T98-06 tidak terdaftar di BUKTI_BELUM_BASELINE.txt (daftar beku, hanya boleh menyusut)
+  OK  [x] Dibuka kembali + transisi ditolak → T98-05: centang [x] tanpa bukti sah — tugas 'Dibuka kembali' tidak boleh memakai penanda transisi
+  OK  [x] Bukti U-nn yang Lee isi OK sah → bersih
+  OK  [x] Bukti U-nn belum diisi Lee ditolak → T98-08: centang [x] tanpa bukti sah — baris Bukti tidak menunjuk berkas uji/penjaga yang ada di repo maupun baris U-nn yang sudah Lee isi OK
+  OK  [ ] tanpa Bukti dilewati → bersih
+  OK  ID fase berhuruf ikut diperiksa → T1B-99: centang [x] tanpa bukti sah — tidak ada baris `- **Bukti:**`
+  OK  tugas Dibuka kembali yang masih [ ] dihitung → {'sah': 0, 'transisi': 0, 'cacat': 0, 'dibuka_kembali_terbuka': 1}
+  OK  pembaca tanda tangan Lee di Buku Uji (hanya OK) → {'U-01'}
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+
+$ python3 alat/susun-matriks-telusur.py --periksa
+[OK] docs/uji/pemeriksaan/PMB-1/MATRIKS_TELUSUR.md mutakhir
+[OK] docs/uji/pemeriksaan/PMB-1/REGRESI_WAJIB.md mutakhir
+
+HASIL: LOLOS
+
+$ python3 alat/periksa-temuan-audit.py
+PERIKSA TEMUAN AUDIT — A: 10 · B: 17 · D: 10 (ditolak mesin, isinya dipakai) · F: 18 · H: 10 · I: 21 · J: 9 · K: 7 · L: 9 · M: 1 · N: 5 temuan · daftar penutup: 111 baris (108 ditutup · 5 terbuka)
+
+HASIL: LOLOS — 117 temuan terlacak semua, tiap DITUTUP punya bukti hidup, tiap TERBUKA punya tugas; 20 temuan luar cakupan review berjejak di daftar tunggal.
+
+## CI GitHub cabang Perencana
+$ gh run list --branch arena/01a0e747-resto-barokah --limit 3 --json databaseId,status,conclusion,headSha,createdAt,displayTitle,url
+[{"conclusion":"success","createdAt":"2026-09-30T05:37:41Z","databaseId":36674279740,"displayTitle":"handoff: putaran 11 PMB — eff4 (B-F-09.3) terintegrasi + dikoreksi, e…","headSha":"00cb4ee0231ddd429d57c0af3664c96f06f47d52","status":"completed","url":"https://github.com/With-AI-Agent/Resto-Barokah/actions/runs/36674279740"},{"conclusion":"failure","createdAt":"2026-09-30T05:02:36Z","databaseId":36671587977,"displayTitle":"pmb: mekanisme putaran 11 — bukti kekal & pagar ROADMAP di pmb-integr…","headSha":"ed3a22942bb25814ee5b12ec8dcfa2889ad1c364","status":"completed","url":"https://github.com/With-AI-Agent/Resto-Barokah/actions/runs/36671587977"},{"conclusion":"cancelled","createdAt":"2026-09-30T04:55:32Z","databaseId":36671048382,"displayTitle":"pmb: koreksi integrasi eff4 — pulihkan paragraf T6-02 ROADMAP & bukti…","headSha":"3e01d5c67532bfa28e2c2449ca71e60c1332c043","status":"completed","url":"https://github.com/With-AI-Agent/Resto-Barokah/actions/runs/36671048382"}]
+
+## Uji keberadaan berkas yang ditetapkan sebagai bukti wajib
+ADA       aplikasi/src/layar/kasir/Katalog.test.tsx
+BELUM ADA aplikasi/src/hook/useKatalogKasir.test.ts
+BELUM ADA supabase/tes/pindah_meja_riwayat.sql
+ADA       aplikasi/src/layar/kasir/PemilihMeja.test.tsx
+BELUM ADA aplikasi/src/layar/pelayan/LayarPelayanAlur.test.tsx
+ADA       aplikasi/src/layar/pengaturan/PasangPrinter.test.tsx
+ADA       aplikasi/src/lib/printer/kirim.test.ts
+BELUM ADA aplikasi/src/layar/kasir/LayarKasirCetak.test.tsx
+ADA       aplikasi/src/lib/printer/struk.test.ts
+BELUM ADA aplikasi/src/layar/dapur/LayarDapurCetak.test.tsx
+ADA       aplikasi/src/lib/printer/tiket.test.ts
+
+## Daftar tunggu hasil generator
+$ python3 alat/susun-daftar-tunggu-lee.py
+[OK] docs/uji/pemeriksaan/PMB-1/DAFTAR_TUNGGU_LEE.md mutakhir
+
+SELESAI (tidak ada perubahan)
+
+$ python3 alat/susun-daftar-tunggu-lee.py --periksa
+[OK] docs/uji/pemeriksaan/PMB-1/DAFTAR_TUNGGU_LEE.md mutakhir
+
+HASIL: LOLOS
+
+$ grep -nE "T3-01|T3-06|T3-11|T6-02|T6-03|T6-04|T6-05" docs/uji/pemeriksaan/PMB-1/DAFTAR_TUNGGU_LEE.md
+62:| T3-01 | Layar kasir: katalog nyata dari database | PMB1-F-130 | `aplikasi/src/layar/kasir/Katalog.test.tsx` (uji pemuatan tabel menu_item basis data nyata, bukan data statis… |
+63:| T3-06 | Pindah meja + status meja | PMB1-F-131 | `supabase/tes/pindah_meja_riwayat.sql`, `aplikasi/src/layar/kasir/PemilihMeja.test.tsx` |
+64:| T3-11 | Layar pesanan pelayan (HP di samping meja) | PMB1-F-133 | `aplikasi/src/layar/pelayan/LayarPelayanAlur.test.tsx`, Buku Uji Pemilik U-11 (skenario sinkronisasi dua pera… |
+65:| T6-02 | Sambungan Web Bluetooth (Android/Windows) | PMB1-F-118 | `aplikasi/src/layar/pengaturan/PasangPrinter.test.tsx` (pengkabelan props `onUjiCetak` & `onSimpan` di App.ts… |
+66:| T6-03 | Sambungan WebUSB (komputer) | PMB1-F-118 | `aplikasi/src/lib/printer/kirim.test.ts`, Buku Uji Pemilik U-16 |
+67:| T6-04 | Cetak struk (header/footer dari pengaturan) | PMB1-F-118 | `aplikasi/src/layar/kasir/LayarKasirCetak.test.tsx`, `aplikasi/src/lib/printer/struk.test.ts` |
+68:| T6-05 | Cetak tiket dapur | PMB1-F-118 | `aplikasi/src/layar/dapur/LayarDapurCetak.test.tsx`, `aplikasi/src/lib/printer/tiket.test.ts` |
+
+## Pencarian fungsi produksi dan berkas bukti wajib (tidak termasuk tes)
+$ git grep -nE "requestDevice|navigator\.bluetooth|navigator\.usb" -- aplikasi/src ":!*test*"
+NO MATCH
+
+$ git grep -nE "menu_item|pindah_meja|from\(['"]meja" -- aplikasi/src supabase/migrations
+aplikasi/src/App.tsx:103:                      menu_item_id: it.id,
+aplikasi/src/hook/useAntrean.ts:134:              menu_item_id: it.menuItemId || it.id,
+aplikasi/src/hook/useTiketDapur.test.tsx:76:      menu_item_id: 'mn-1',
+aplikasi/src/hook/useTiketDapur.test.tsx:85:      menu_item_id: 'mn-2',
+aplikasi/src/hook/useTiketDapur.test.tsx:257:      p_menu_item_id: 'mn-1',
+aplikasi/src/hook/useTiketDapur.ts:50:        menu_item_id: string
+aplikasi/src/hook/useTiketDapur.ts:85:    menuItemId: i.menu_item_id,
+aplikasi/src/hook/useTiketDapur.ts:137:  'pesanan_item(id, menu_item_id, nama_saat_itu, qty, catatan, status, tujuan)'
+aplikasi/src/hook/useTiketDapur.ts:299:        { p_menu_item_id: menuItemId, p_cabang_id: cabangId, p_habis: true },
+aplikasi/src/layar/laporan/FormatLaporan.test.tsx:121:      menu_item_id: 'm-01',
+aplikasi/src/layar/laporan/FormatLaporan.test.tsx:131:      menu_item_id: 'm-02',
+aplikasi/src/layar/laporan/FormatLaporan.tsx:398:                  <tr key={m.menu_item_id || `${m.nama_menu}-${idx}`}>
+aplikasi/src/layar/laporan/LaporanMenu.test.tsx:27:      menu_item_id: 'm-01',
+aplikasi/src/layar/laporan/LaporanMenu.test.tsx:37:      menu_item_id: 'm-02',
+aplikasi/src/layar/laporan/LaporanMenu.tsx:23:  menu_item_id: string | null
+aplikasi/src/layar/laporan/LaporanMenu.tsx:499:                        key={menu.menu_item_id || `${menu.nama_menu}-${idx}`}
+aplikasi/src/layar/laporan/LayarLaporan.test.tsx:30:      menu_item_id: 'm-01',
+aplikasi/src/layar/pengaturan/LayarPengaturan.tsx:97:    menu_item_id: string
+aplikasi/src/layar/pengaturan/LayarPengaturan.tsx:105:      menu_item_id: string
+aplikasi/src/layar/pengaturan/LayarPengaturan.tsx:117:    menu_item_id?: string,
+aplikasi/src/layar/pengaturan/MenuCabang.test.tsx:217:        menu_item_id: 'm-1',
+aplikasi/src/layar/pengaturan/MenuCabang.test.tsx:251:          menu_item_id: 'm-1',
+aplikasi/src/layar/pengaturan/MenuCabang.tsx:58:    menu_item_id: string
+aplikasi/src/layar/pengaturan/MenuCabang.tsx:66:      menu_item_id: string
+aplikasi/src/layar/pengaturan/MenuCabang.tsx:78:    menu_item_id?: string,
+aplikasi/src/layar/pengaturan/MenuCabang.tsx:364:          menu_item_id: menuId,
+aplikasi/src/layar/pengaturan/MenuCabang.tsx:425:          menu_item_id: menuId,
+aplikasi/src/lib/layar.ts:81:      { nama: 'Katalog Menu Aktif', sumber: 'public.menu_item & public.menu_cabang' },
+aplikasi/src/lib/layar.ts:248:    data: [{ nama: 'Katalog Publik', sumber: 'public.menu_item & public.kategori_menu' }],
+supabase/migrations/0007_katalog.sql:33:-- ----------------------------------------------------------------- menu_item
+supabase/migrations/0007_katalog.sql:34:create table if not exists public.menu_item (
+supabase/migrations/0007_katalog.sql:51:alter table public.menu_item enable row level security;
+supabase/migrations/0007_katalog.sql:55:  menu_item_id    uuid not null references public.menu_item (id) on delete cascade,
+supabase/migrations/0007_katalog.sql:59:  primary key (menu_item_id, nama)
+supabase/migrations/0007_katalog.sql:68:  menu_item_id uuid references public.menu_item (id) on delete cascade,   -- null = berlaku semua menu
+supabase/migrations/0007_katalog.sql:79:  menu_item_id uuid not null references public.menu_item (id) on delete cascade,
+supabase/migrations/0007_katalog.sql:83:  primary key (cabang_id, menu_item_id)
+supabase/migrations/0007_katalog.sql:89:  'Harga khusus cabang. NULL = pakai harga pusat (menu_item.harga). Diisi hanya bila memang beda.';
+supabase/migrations/0007_katalog.sql:128:create or replace function public.harga_berlaku(p_menu_item_id uuid, p_cabang_id uuid)
+supabase/migrations/0007_katalog.sql:136:    from public.menu_item mi
+supabase/migrations/0007_katalog.sql:138:           on mc.menu_item_id = mi.id
+supabase/migrations/0007_katalog.sql:140:   where mi.id = p_menu_item_id
+supabase/migrations/0007_katalog.sql:172:create or replace function public.menu_sepenyewa(p_menu_item_id uuid)
+supabase/migrations/0007_katalog.sql:180:    select 1 from public.menu_item mi
+supabase/migrations/0007_katalog.sql:181:     where mi.id = p_menu_item_id
+supabase/migrations/0007_katalog.sql:190:create or replace function public.menu_habis(p_menu_item_id uuid, p_cabang_id uuid)
+supabase/migrations/0007_katalog.sql:201:     where mc.menu_item_id = p_menu_item_id
+supabase/migrations/0007_katalog.sql:309:  if new.menu_item_id is not null then
+supabase/migrations/0007_katalog.sql:311:      from public.menu_item mi
+supabase/migrations/0007_katalog.sql:312:     where mi.id = new.menu_item_id;
+supabase/migrations/0007_katalog.sql:341:  select penyewa_id into v_penyewa_menu from public.menu_item where id = new.menu_item_id;
+supabase/migrations/0007_katalog.sql:409:create policy menu_item_pilih on public.menu_item
+supabase/migrations/0007_katalog.sql:414:  using (public.menu_sepenyewa(menu_item_id));
+supabase/migrations/0007_katalog.sql:435:create policy menu_item_ubah on public.menu_item
+supabase/migrations/0007_katalog.sql:442:  using (public.peran_saya() in ('owner_pusat', 'admin_cabang') and public.menu_sepenyewa(menu_item_id))
+supabase/migrations/0007_katalog.sql:443:  with check (public.peran_saya() in ('owner_pusat', 'admin_cabang') and public.menu_sepenyewa(menu_item_id));
+supabase/migrations/0007_katalog.sql:472:grant select on public.kategori_menu, public.menu_item, public.menu_varian,
+supabase/migrations/0007_katalog.sql:476:grant insert, update, delete on public.kategori_menu, public.menu_item,
+supabase/migrations/0007_katalog.sql:483:grant select, insert, update, delete on public.kategori_menu, public.menu_item,
+supabase/migrations/0009_pesanan.sql:58:  menu_item_id    uuid not null references public.menu_item (id) on delete restrict,
+supabase/migrations/0009_pesanan.sql:203:  select mi.penyewa_id into v_penyewa_menu from public.menu_item mi where mi.id = new.menu_item_id;
+supabase/migrations/0009_pesanan.sql:231:     or new.menu_item_id   is distinct from old.menu_item_id
+supabase/migrations/0012_penutup_celah_review.sql:181:          or new.menu_item_id is distinct from old.menu_item_id) then
+supabase/migrations/0012_penutup_celah_review.sql:182:    v_harga := public.harga_berlaku(new.menu_item_id, v_cabang);
+supabase/migrations/0027_initplan_policy_rls.sql:161:-- ------------------------------------------------------------------ menu_item
+supabase/migrations/0027_initplan_policy_rls.sql:162:drop policy if exists menu_item_pilih on public.menu_item;
+supabase/migrations/0027_initplan_policy_rls.sql:163:create policy menu_item_pilih on public.menu_item
+supabase/migrations/0027_initplan_policy_rls.sql:167:drop policy if exists menu_item_ubah on public.menu_item;
+supabase/migrations/0027_initplan_policy_rls.sql:168:create policy menu_item_ubah on public.menu_item
+supabase/migrations/0027_initplan_policy_rls.sql:203:    and public.menu_sepenyewa(menu_item_id)
+supabase/migrations/0027_initplan_policy_rls.sql:207:    and public.menu_sepenyewa(menu_item_id)
+supabase/migrations/0033_tujuan_item.sql:34:         (select k.tujuan from public.menu_item m
+supabase/migrations/0033_tujuan_item.sql:36:           where m.id = pi.menu_item_id), 'dapur')
+supabase/migrations/0033_tujuan_item.sql:54:      from public.menu_item m
+supabase/migrations/0033_tujuan_item.sql:56:     where m.id = new.menu_item_id;
+supabase/migrations/0035_menu_habis_sumber.sql:22:  menu_item_id uuid not null references public.menu_item (id) on delete cascade,
+supabase/migrations/0035_menu_habis_sumber.sql:70:    select mi.penyewa_id into v_penyewa from public.menu_item mi where mi.id = new.menu_item_id;
+supabase/migrations/0035_menu_habis_sumber.sql:71:    insert into public.menu_habis_riwayat (penyewa_id, menu_item_id, cabang_id, habis, pelaku_id)
+supabase/migrations/0035_menu_habis_sumber.sql:72:    values (v_penyewa, new.menu_item_id, new.cabang_id, new.habis, auth.uid());
+supabase/migrations/0035_menu_habis_sumber.sql:90:  p_menu_item_id uuid,
+supabase/migrations/0035_menu_habis_sumber.sql:111:    from public.menu_item mi
+supabase/migrations/0035_menu_habis_sumber.sql:113:   where mi.id = p_menu_item_id
+supabase/migrations/0035_menu_habis_sumber.sql:120:  insert into public.menu_cabang (cabang_id, menu_item_id, habis)
+supabase/migrations/0035_menu_habis_sumber.sql:121:  values (p_cabang_id, p_menu_item_id, p_habis)
+supabase/migrations/0035_menu_habis_sumber.sql:122:  on conflict (cabang_id, menu_item_id)
+supabase/migrations/0051_laporan_kas.sql:253:  left join public.menu_item mi on mi.id = pi.menu_item_id
+supabase/migrations/0051_laporan_kas.sql:588:  left join public.menu_item mi on mi.id = pi.menu_item_id
+supabase/migrations/0052_laporan_penjualan.sql:169:  left join public.menu_item mi on mi.id = pi.menu_item_id
+supabase/migrations/0052_laporan_penjualan.sql:196:    left join public.menu_item mi on mi.id = pi.menu_item_id
+supabase/migrations/0052_laporan_penjualan.sql:273:    left join public.menu_item mi on mi.id = pi.menu_item_id
+supabase/migrations/0053_laporan_menu.sql:33:left join public.menu_item mi on mi.id = pi.menu_item_id
+supabase/migrations/0053_laporan_menu.sql:152:      'menu_item_id', m.menu_item_id,
+supabase/migrations/0053_laporan_menu.sql:167:      pi.menu_item_id,
+supabase/migrations/0053_laporan_menu.sql:175:    left join public.menu_item mi on mi.id = pi.menu_item_id
+supabase/migrations/0053_laporan_menu.sql:181:    group by pi.menu_item_id, coalesce(pi.nama_saat_itu, mi.nama, 'Menu'), km.nama, mi.jenis
+supabase/migrations/0054_transaksi_tengah_malam.sql:342:  left join public.menu_item mi on mi.id = pi.menu_item_id
+supabase/migrations/0062_katalog_publik.sql:129:        where v.menu_item_id = m.id and v.aktif
+supabase/migrations/0062_katalog_publik.sql:140:        where (t.menu_item_id = m.id or t.menu_item_id is null)
+supabase/migrations/0062_katalog_publik.sql:147:    from public.menu_item m
+supabase/migrations/0062_katalog_publik.sql:149:      on mc.menu_item_id = m.id
+supabase/migrations/0070_identitas_resto.sql:382:        where v.menu_item_id = m.id and v.aktif
+supabase/migrations/0070_identitas_resto.sql:393:        where (t.menu_item_id = m.id or t.menu_item_id is null)
+supabase/migrations/0070_identitas_resto.sql:400:    from public.menu_item m
+supabase/migrations/0070_identitas_resto.sql:402:      on mc.menu_item_id = m.id
+supabase/migrations/0071_tema_merek.sql:341:        where v.menu_item_id = m.id and v.aktif
+supabase/migrations/0071_tema_merek.sql:352:        where (t.menu_item_id = m.id or t.menu_item_id is null)
+supabase/migrations/0071_tema_merek.sql:359:    from public.menu_item m
+supabase/migrations/0071_tema_merek.sql:361:      on mc.menu_item_id = m.id
+supabase/migrations/0074_pengaturan_menu.sql:26:create or replace function public.picu_menu_item_cegah_hapus()
+supabase/migrations/0074_pengaturan_menu.sql:33:  if exists (select 1 from public.pesanan_item where menu_item_id = old.id) then
+supabase/migrations/0074_pengaturan_menu.sql:40:drop trigger if exists menu_item_cegah_hapus on public.menu_item;
+supabase/migrations/0074_pengaturan_menu.sql:41:create trigger menu_item_cegah_hapus
+supabase/migrations/0074_pengaturan_menu.sql:42:  before delete on public.menu_item
+supabase/migrations/0074_pengaturan_menu.sql:43:  for each row execute function public.picu_menu_item_cegah_hapus();
+supabase/migrations/0074_pengaturan_menu.sql:45:revoke all on function public.picu_menu_item_cegah_hapus() from public, anon, authenticated;
+supabase/migrations/0074_pengaturan_menu.sql:46:grant execute on function public.picu_menu_item_cegah_hapus() to service_role;
+supabase/migrations/0074_pengaturan_menu.sql:58:  if exists (select 1 from public.menu_item where kategori_id = old.id) then
+supabase/migrations/0074_pengaturan_menu.sql:230:  if exists (select 1 from public.menu_item where kategori_id = p_id and penyewa_id = v_penyewa) then
+supabase/migrations/0074_pengaturan_menu.sql:336:      select 1 from public.menu_item
+supabase/migrations/0074_pengaturan_menu.sql:346:        from public.menu_item
+supabase/migrations/0074_pengaturan_menu.sql:353:    insert into public.menu_item (
+supabase/migrations/0074_pengaturan_menu.sql:361:      select 1 from public.menu_item
+supabase/migrations/0074_pengaturan_menu.sql:370:    update public.menu_item
+supabase/migrations/0074_pengaturan_menu.sql:391:  delete from public.menu_varian where menu_item_id = v_id;
+supabase/migrations/0074_pengaturan_menu.sql:396:        insert into public.menu_varian (menu_item_id, nama, tambahan_harga, aktif)
+supabase/migrations/0074_pengaturan_menu.sql:402:        ) on conflict (menu_item_id, nama) do update
+supabase/migrations/0074_pengaturan_menu.sql:410:  delete from public.menu_tambahan where menu_item_id = v_id and penyewa_id = v_penyewa;
+supabase/migrations/0074_pengaturan_menu.sql:415:        insert into public.menu_tambahan (penyewa_id, menu_item_id, nama, harga, aktif)
+supabase/migrations/0074_pengaturan_menu.sql:433:    'menu_item',
+supabase/migrations/0074_pengaturan_menu.sql:488:    from public.menu_item
+supabase/migrations/0074_pengaturan_menu.sql:496:  if exists (select 1 from public.pesanan_item where menu_item_id = p_id) then
+supabase/migrations/0074_pengaturan_menu.sql:500:  delete from public.menu_item
+supabase/migrations/0074_pengaturan_menu.sql:508:    'menu_item',
+supabase/migrations/0074_pengaturan_menu.sql:605:        update public.menu_item
+supabase/migrations/0074_pengaturan_menu.sql:653:        select count(*) from public.menu_item m
+supabase/migrations/0074_pengaturan_menu.sql:693:        where v.menu_item_id = m.id
+supabase/migrations/0074_pengaturan_menu.sql:705:        where t.menu_item_id = m.id
+supabase/migrations/0074_pengaturan_menu.sql:710:  from public.menu_item m
+supabase/migrations/0074_pengaturan_menu.sql:712:  left join public.menu_cabang mc on mc.menu_item_id = m.id and mc.cabang_id = p_cabang_id
+supabase/migrations/0074_pengaturan_menu.sql:726:  where t.penyewa_id = v_penyewa and t.menu_item_id is null;
+supabase/migrations/0074_pengaturan_menu.sql:781:    insert into public.menu_tambahan (penyewa_id, menu_item_id, nama, harga, aktif)
+supabase/migrations/0074_pengaturan_menu.sql:791:       and menu_item_id is null
+supabase/migrations/0075_menu_cabang.sql:8:--      Bila harga is null -> otomatis mengikuti harga pusat (`menu_item.harga`).
+supabase/migrations/0075_menu_cabang.sql:31:create or replace function public.harga_berlaku(p_menu_item_id uuid, p_cabang_id uuid)
+supabase/migrations/0075_menu_cabang.sql:42:    from public.menu_item mi
+supabase/migrations/0075_menu_cabang.sql:44:           on mc.menu_item_id = mi.id
+supabase/migrations/0075_menu_cabang.sql:46:   where mi.id = p_menu_item_id
+supabase/migrations/0075_menu_cabang.sql:66:  p_menu_item_id uuid,
+supabase/migrations/0075_menu_cabang.sql:121:    select 1 from public.menu_item
+supabase/migrations/0075_menu_cabang.sql:122:     where id = p_menu_item_id and penyewa_id = v_penyewa
+supabase/migrations/0075_menu_cabang.sql:141:  where mc.cabang_id = p_cabang_id and mc.menu_item_id = p_menu_item_id;
+supabase/migrations/0075_menu_cabang.sql:151:  insert into public.menu_cabang (cabang_id, menu_item_id, harga, aktif, habis, diubah_pada)
+supabase/migrations/0075_menu_cabang.sql:152:  values (p_cabang_id, p_menu_item_id, p_harga, coalesce(p_aktif, true), v_habis_akhir, now())
+supabase/migrations/0075_menu_cabang.sql:153:  on conflict (cabang_id, menu_item_id)
+supabase/migrations/0075_menu_cabang.sql:162:    'menu_item_id', p_menu_item_id,
+supabase/migrations/0075_menu_cabang.sql:182:    p_menu_item_id,
+supabase/migrations/0075_menu_cabang.sql:258:    v_menu_id := (v_item->>'menu_item_id')::uuid;
+supabase/migrations/0075_menu_cabang.sql:385:         and mc.menu_item_id = m.id
+supabase/migrations/0075_menu_cabang.sql:392:  from public.menu_item m
+supabase/migrations/0075_menu_cabang.sql:456:  insert into public.menu_cabang (cabang_id, menu_item_id, harga, aktif, habis, diubah_pada)
+supabase/migrations/0075_menu_cabang.sql:457:  select p_cabang_tujuan_id, mc.menu_item_id, mc.harga, mc.aktif, mc.habis, now()
+supabase/migrations/0075_menu_cabang.sql:460:  on conflict (cabang_id, menu_item_id)
+supabase/migrations/0075_menu_cabang.sql:509:  p_menu_item_id uuid default null
+supabase/migrations/0075_menu_cabang.sql:551:  if p_menu_item_id is not null then
+supabase/migrations/0075_menu_cabang.sql:556:       and menu_item_id = p_menu_item_id;
+supabase/migrations/0075_menu_cabang.sql:582:      'menu_item_id', p_menu_item_id,
+supabase/migrations/0080_kunci_idempoten_menyeluruh.sql:74:  v_menu_item_id  uuid;
+supabase/migrations/0080_kunci_idempoten_menyeluruh.sql:142:      v_menu_item_id := (v_item->>'id')::uuid;
+supabase/migrations/0080_kunci_idempoten_menyeluruh.sql:149:        from public.menu_item m
+supabase/migrations/0080_kunci_idempoten_menyeluruh.sql:150:       where m.id = v_menu_item_id
+supabase/migrations/0080_kunci_idempoten_menyeluruh.sql:165:          pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu,
+supabase/migrations/0080_kunci_idempoten_menyeluruh.sql:168:          v_id, v_menu_item_id, v_nama_menu, v_harga_menu,
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:102:      select 1 from public.menu_item
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:112:        from public.menu_item
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:119:    insert into public.menu_item (
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:129:      from public.menu_item
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:147:      select 1 from public.menu_item
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:156:    update public.menu_item
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:173:  delete from public.menu_varian where menu_item_id = v_id;
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:178:        insert into public.menu_varian (menu_item_id, nama, tambahan_harga, aktif)
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:184:        ) on conflict (menu_item_id, nama) do update
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:192:  delete from public.menu_tambahan where menu_item_id = v_id and penyewa_id = v_penyewa;
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:197:        insert into public.menu_tambahan (penyewa_id, menu_item_id, nama, harga, aktif)
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:215:    'menu_item',
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:655:  elsif p_entitas = 'menu_item' and p_entitas_id is not null then
+supabase/migrations/0083_versi_pengaturan_bersamaan.sql:657:      from public.menu_item
+supabase/migrations/0086_data_awal_dan_autentikasi_perangkat.sql:412:    insert into public.menu_item (
+supabase/migrations/0086_data_awal_dan_autentikasi_perangkat.sql:496:    insert into public.menu_varian (menu_item_id, nama, tambahan_harga, aktif)
+supabase/migrations/0086_data_awal_dan_autentikasi_perangkat.sql:502:    on conflict (menu_item_id, nama) do update set
+
+$ git ls-files --error-unmatch aplikasi/src/hook/useKatalogKasir.test.ts supabase/tes/pindah_meja_riwayat.sql aplikasi/src/layar/pelayan/LayarPelayanAlur.test.tsx aplikasi/src/layar/kasir/LayarKasirCetak.test.tsx aplikasi/src/layar/dapur/LayarDapurCetak.test.tsx
+error: pathspec 'aplikasi/src/hook/useKatalogKasir.test.ts' did not match any file(s) known to git
+error: pathspec 'supabase/tes/pindah_meja_riwayat.sql' did not match any file(s) known to git
+error: pathspec 'aplikasi/src/layar/pelayan/LayarPelayanAlur.test.tsx' did not match any file(s) known to git
+error: pathspec 'aplikasi/src/layar/kasir/LayarKasirCetak.test.tsx' did not match any file(s) known to git
+error: pathspec 'aplikasi/src/layar/dapur/LayarDapurCetak.test.tsx' did not match any file(s) known to git
+Did you forget to 'git add'?
+EXPECTED: all five required paths absent from git index at this source tree
+
+## Pencarian yang dibatasi ke pemanggilan tabel/RPC produksi
+$ grep -RInE "\.from\(['"]menu_item['"]\)" aplikasi/src --exclude='*.test.*' --exclude='*.spec.*'
+NO MATCH
+
+$ grep -RInE "pindah_meja|\.from\(['"]meja['"]\)" aplikasi/src supabase/migrations --exclude='*.test.*' --exclude='*.spec.*'
+NO MATCH
+
+## Perbarui DAFTAR_TUNGGU_LEE setelah putusan Buku Besar
+$ python3 alat/susun-daftar-tunggu-lee.py
+ditulis ulang: docs/uji/pemeriksaan/PMB-1/DAFTAR_TUNGGU_LEE.md
+
+SELESAI
+
+$ python3 alat/susun-daftar-tunggu-lee.py --periksa
+[OK] docs/uji/pemeriksaan/PMB-1/DAFTAR_TUNGGU_LEE.md mutakhir
+
+HASIL: LOLOS
+
+## Pemeriksaan temuan DIPERBAIKI yang sudah ada di G-04 (PROMPT_GILIRAN §5)
+$ python3 - <<'PY' ... (cetak ID, status, potongan=G-04)
+PMB1-F-009 DITUTUP
+PMB1-F-092 DITUTUP
+PMB1-F-094 DITUTUP
+PMB1-F-136 DITUTUP
+PMB1-F-202 DITUTUP
+PMB1-F-216 TERVERIFIKASI
+PMB1-F-217 TERVERIFIKASI
+PMB1-F-218 TERVERIFIKASI
+
+## Pemeriksaan akhir pascaputusan — 2026-09-30
+
+$ python3 alat/periksa-pemeriksaan.py
+PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 0, 'DIHAKIMI': 17, 'DIKLAIM': 0, 'RENCANA': 46, 'SELESAI': 0} · 218 temuan (terbuka K-1/K-2: 49)
+
+HASIL: LOLOS
+
+$ python3 alat/periksa-pemeriksaan.py --uji-diri
+UJI-DIRI periksa-pemeriksaan
+  OK  salinan utuh diterima → kode=0
+  OK  kartu PEMBANGUN B-<ID>.md yang lengkap diterima → kode=0
+  OK  kartu PEMBANGUN tanpa bagian wajib ditolak → kode=1
+  OK  kartu PEMBANGUN tanpa baris Ter-push sampai ditolak (arahan Lee 2026-09-30) → kode=1
+  OK  baris sintetis yang sah diterima → kode=0
+  OK  potongan SELESAI tanpa kartu ditolak → kode=1
+  OK  status temuan tidak sah ditolak → kode=1
+  OK  DITUTUP tanpa hakim/commit ditolak → kode=1
+  OK  artefak yang tidak ada ditolak → kode=1
+  OK  artefak dengan nomor baris di luar berkas ditolak → kode=1
+  OK  TERVERIFIKASI dengan kartu hakim yang tidak ada ditolak (PMB1-F-136) → kode=1
+  OK  TERVERIFIKASI oleh pemeriksa sendiri (kartu K, bukan H) ditolak → kode=1
+  OK  ID temuan melompat ditolak → kode=1
+  OK  potongan temuan yang tidak ada di papan ditolak → kode=1
+  OK  temuan pertama dihapus ditolak (urutan ID putus) → kode=1
+  OK  kartu yatim / tidak lengkap ditolak → kode=1
+  OK  matriks basi ditolak → kode=1
+  OK  DUPLIKAT tanpa temuan induk ditolak → kode=1
+  OK  asumsi DIBANTAH tanpa temuan ditolak → kode=1
+  OK  K2: DAFTAR_TUNGGU_LEE.md basi (buku besar berubah tanpa disusun ulang) ditolak → kode=1
+  OK  K4: DIPERBAIKI tanpa berkas uji/penjaga ditolak → kode=1
+  OK  K4: DIPERBAIKI menyebut berkas uji karangan ditolak → kode=1
+  OK  K4: DIPERBAIKI menyebut berkas uji yang ADA diterima → kode=0
+  OK  K4: DIPERBAIKI dokumen dengan 'tanpa uji mesin: <alasan>' diterima → kode=0
+  OK  K1: gerbang akhir menolak selama masih ada temuan terbuka tingkat apa pun → kode=1
+  OK  K5: sensus klaim tidak lengkap / masih ⏳ BUKTI-BELUM ditolak → sensus klaim fase 0: masih ada centang ⏳ BUKTI-BELUM: T0-00, T0-01, T0-02, T0-03, T0-04, T0-05, T0-06, T0-07, T0-08, T0-09, T0-10, T0-11, T0-13, T0-14; sensus klaim fase 0: tugas [x] tidak tercatat di
+  OK  K5: sensus klaim lengkap dengan bukti nyata diterima → bersih
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+
+$ python3 alat/periksa-bersih.py
+PERIKSA POHON BERSIH — 3084 berkas terlacak disalin · 5 pemeriksa dokumen
+  [OK] _sistem/validate_system.py
+  [OK] alat/periksa-rujukan.py
+  [OK] alat/periksa-panduan.py
+  [OK] alat/periksa-buku-uji.py
+  [OK] alat/periksa-rahasia.py
+  catatan: berkas ada di komputermu tetapi TIDAK ikut Git: 0
+  catatan: berkas baru yang BELUM masuk Git (belum `git add`): 7 (contoh: docs/uji/pemeriksaan/PMB-1/bukti/H-F-09.5-f218.txt, docs/uji/pemeriksaan/PMB-1/bukti/H-F-09.5-mekanisme-probe.py, docs/uji/pemeriksaan/PMB-1/bukti/H-F-09.5-mekanisme-probe.txt, docs/uji/pemeriksaan/PMB-1/bukti/H-F-09.5-paket-unshallow.txt, docs/uji/pemeriksaan/PMB-1/bukti/H-F-09.5-rantai.txt)
+
+HASIL: LOLOS — semua pemeriksa dokumen hijau di pohon bersih (hanya berkas terlacak Git).
+
+$ python3 alat/periksa-roadmap.py
+PERIKSA ROADMAP — Resto Barokah
+  Tugas        : 193  (T0:15, T1:45, T10:16, T11:13, T2:19, T3:16, T4:10, T5:12, T6:8, T7:12, T8:15, T9:12)
+  Atribut 7x   : lengkap
+  Fitur M1-M12 : lengkap
+  ⚠️ DECISIONS : 102 tugas bertanda (dihitung per blok tugas, bukan kemunculan lambang)
+  Entitas §4   : 40 tabel resmi TECH_SPEC — semuanya wajib disebut di blok tugas
+  RPC §5       : 45 nama resmi TECH_SPEC — semuanya wajib disebut di blok tugas
+  ❓ tertangguh : 2 rujukan (semua sah)
+  Bukti [x]    : 0 sah · 139 ⏳ BUKTI-BELUM (transisi, baseline 139) · 0 cacat · tugas 'Dibuka kembali' masih [ ]: 7
+
+HASIL: LOLOS — semua pemeriksaan roadmap terpenuhi.
+
+$ python3 alat/periksa-roadmap.py --uji-diri
+UJI-DIRI periksa-roadmap
+  OK  kosong sah → bersih
+  OK  semua selesai sah → bersih
+  OK  terbuka bertanda sah → bersih
+  OK  terbuka tak bertanda ditolak → T-026 masih terbuka tetapi tidak ditandai ❓ pada tugas
+  OK  ID palsu ditolak → RUJUKAN MATI: ❓ T-999 tidak ada di docs/TERTANGGUH.md; T-026 masih terbuka tetapi tidak ditandai ❓ pada tugas
+  OK  penanda basi ditolak → ❓ T-025 basi: butir sudah selesai
+  OK  contoh format bukan butir nyata → bersih
+  OK  butir kedua tanpa penanda ditolak → T-027 masih terbuka tetapi tidak ditandai ❓ pada tugas
+  OK  penanda hanya di luar tugas ditolak → ['T-026 masih terbuka tetapi tidak ditandai ❓ pada tugas']
+  OK  file [x] nyata sah → 
+  OK  file [x] hilang ditolak → 
+  OK  file [x] hilang ditandai rencana sah → 
+  OK  file [ ] belum selesai dilewati → 
+  OK  [x] tanpa baris Bukti ditolak → T98-01: centang [x] tanpa bukti sah — tidak ada baris `- **Bukti:**`
+  OK  [x] Bukti berkas uji nyata sah → bersih
+  OK  [x] Bukti berkas uji karangan ditolak → T98-03: centang [x] tanpa bukti sah — baris Bukti tidak menunjuk berkas uji/penjaga yang ada di repo maupun baris U-nn yang sudah Lee isi OK
+  OK  [x] Bukti berkas bukan uji (kode aplikasi) ditolak → T98-04: centang [x] tanpa bukti sah — baris Bukti tidak menunjuk berkas uji/penjaga yang ada di repo maupun baris U-nn yang sudah Lee isi OK
+  OK  [x] transisi BUKTI-BELUM terdaftar baseline sah → bersih
+  OK  [x] transisi BUKTI-BELUM di luar baseline ditolak → T98-06: centang [x] tanpa bukti sah — T98-06 tidak terdaftar di BUKTI_BELUM_BASELINE.txt (daftar beku, hanya boleh menyusut)
+  OK  [x] Dibuka kembali + transisi ditolak → T98-05: centang [x] tanpa bukti sah — tugas 'Dibuka kembali' tidak boleh memakai penanda transisi
+  OK  [x] Bukti U-nn yang Lee isi OK sah → bersih
+  OK  [x] Bukti U-nn belum diisi Lee ditolak → T98-08: centang [x] tanpa bukti sah — baris Bukti tidak menunjuk berkas uji/penjaga yang ada di repo maupun baris U-nn yang sudah Lee isi OK
+  OK  [ ] tanpa Bukti dilewati → bersih
+  OK  ID fase berhuruf ikut diperiksa → T1B-99: centang [x] tanpa bukti sah — tidak ada baris `- **Bukti:**`
+  OK  tugas Dibuka kembali yang masih [ ] dihitung → {'sah': 0, 'transisi': 0, 'cacat': 0, 'dibuka_kembali_terbuka': 1}
+  OK  pembaca tanda tangan Lee di Buku Uji (hanya OK) → {'U-01'}
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+
+$ python3 alat/susun-matriks-telusur.py --periksa
+[OK] docs/uji/pemeriksaan/PMB-1/MATRIKS_TELUSUR.md mutakhir
+[OK] docs/uji/pemeriksaan/PMB-1/REGRESI_WAJIB.md mutakhir
+
+HASIL: LOLOS
+
+$ python3 alat/periksa-temuan-audit.py
+PERIKSA TEMUAN AUDIT — A: 10 · B: 17 · D: 10 (ditolak mesin, isinya dipakai) · F: 18 · H: 10 · I: 21 · J: 9 · K: 7 · L: 9 · M: 1 · N: 5 temuan · daftar penutup: 111 baris (108 ditutup · 5 terbuka)
+
+HASIL: LOLOS — 117 temuan terlacak semua, tiap DITUTUP punya bukti hidup, tiap TERBUKA punya tugas; 20 temuan luar cakupan review berjejak di daftar tunggal.
+
+$ python3 alat/susun-daftar-tunggu-lee.py --periksa
+[OK] docs/uji/pemeriksaan/PMB-1/DAFTAR_TUNGGU_LEE.md mutakhir
+
+HASIL: LOLOS
