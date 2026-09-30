@@ -42,18 +42,18 @@
 
 | Kode PRD | Nama Fitur | Layar Terkait | Aksi Terkait |
 |---|---|---|---|
-| `M1` | Pemesanan Kasir Cepat | `kasir` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+5 lainnya) |
-| `M2` | Papan Dapur & Bar Real-Time | `dapur` | `dapur.mulai_masak`, `dapur.selesai_masak`, `dapur.tandai_habis` |
-| `M3` | Manajemen Meja & Status Layanan | `kasir`, `pengaturan` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+27 lainnya) |
-| `M4` | Pembayaran Fleksibel & Multi-Metode | `kasir` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+5 lainnya) |
-| `M5` | Laporan Penjualan & Rekonsiliasi Kas | `laporan` | `laporan.cetak_laporan`, `laporan.ekspor_data`, `laporan.filter_tanggal`, `laporan.pilih_cabang` |
-| `M6` | Manajemen Pegawai & Hak Akses Berjenjang | `masuk`, `pengaturan` | `masuk.batal`, `masuk.ganti_pengguna`, `masuk.verifikasi_pin`, `pengaturan.atur_akses_cabang` (+21 lainnya) |
-| `M7` | Katalog Menu & Kustomisasi Varian | `kasir`, `pelanggan-publik` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+7 lainnya) |
-| `M8` | Voucher Diskon & Promosi | `kasir`, `voucher` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+8 lainnya) |
-| `M9` | Manajemen Stok Bahan & Peringatan Habis | `dapur`, `pengaturan` | `dapur.mulai_masak`, `dapur.selesai_masak`, `dapur.tandai_habis`, `pengaturan.atur_akses_cabang` (+21 lainnya) |
-| `M10` | Menu Digital Pelanggan (Self-Order QR) | `pelanggan-publik` | `pelanggan.cari_menu`, `pelanggan.filter_kategori` |
-| `M11` | Dukungan Multi-Cabang Terpusat | `laporan`, `pengaturan` | `laporan.cetak_laporan`, `laporan.ekspor_data`, `laporan.filter_tanggal`, `laporan.pilih_cabang` (+22 lainnya) |
-| `M12` | Audit Log & Keamanan Data Transaksi | `masuk`, `kasir`, `pengaturan` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+30 lainnya) |
+| `M1` | Pendaftaran & pengelolaan penyewa (resto) | `platform_penyewa`, `pengaturan` | `pengaturan.atur_akses_cabang`, `pengaturan.hapus_kategori`, `pengaturan.hapus_meja`, `pengaturan.hapus_menu` (+20 lainnya) |
+| `M2` | Pengaturan tanpa koding (per penyewa) | `pengaturan` | `pengaturan.atur_akses_cabang`, `pengaturan.hapus_kategori`, `pengaturan.hapus_meja`, `pengaturan.hapus_menu` (+18 lainnya) |
+| `M3` | Peran, hak akses berjenjang, & jejak audit | `masuk`, `pengaturan` | `masuk.batal`, `masuk.ganti_pengguna`, `masuk.verifikasi_pin`, `pengaturan.atur_akses_cabang` (+21 lainnya) |
+| `M4` | Pesanan dari kasir & pelayan | `kasir` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+5 lainnya) |
+| `M5` | Layar dapur & tiket dapur (KDS) | `dapur`, `bar` | `bar.mulai_buat`, `bar.selesai_buat`, `dapur.mulai_masak`, `dapur.selesai_masak` (+1 lainnya) |
+| `M6` | Pembayaran, struk, & pembatalan | `kasir` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+5 lainnya) |
+| `M7` | Kas & shift (buka/tutup kasir) | `kasir` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+5 lainnya) |
+| `M8` | Laporan harian per shift | `laporan` | `laporan.cetak_laporan`, `laporan.ekspor_data`, `laporan.filter_tanggal`, `laporan.pilih_cabang` |
+| `M9` | Stok dasar | `stok`, `opname`, `dapur` | `dapur.mulai_masak`, `dapur.selesai_masak`, `dapur.tandai_habis`, `opname.catat_fisik` (+3 lainnya) |
+| `M10` | Katalog pelanggan & voucher undang-teman | `pelanggan-publik`, `voucher`, `kasir` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+10 lainnya) |
+| `M11` | Multi-cabang (dasar) | `pengaturan`, `laporan` | `laporan.cetak_laporan`, `laporan.ekspor_data`, `laporan.filter_tanggal`, `laporan.pilih_cabang` (+22 lainnya) |
+| `M12` | Keamanan fondasi (lintas fitur) | `masuk`, `pengaturan`, `kasir` | `kasir.batal_item`, `kasir.beri_diskon`, `kasir.buka_shift`, `kasir.kas_pergerakan` (+30 lainnya) |
 
 ---
 

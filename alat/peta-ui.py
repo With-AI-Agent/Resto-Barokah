@@ -32,19 +32,23 @@ BERKAS_PETA = AKAR / "docs/PETA_UI.md"
 DIR_MIGRASI = AKAR / "supabase/migrations"
 BERKAS_PRD = AKAR / "docs/PRD.md"
 
+# PMB1-F-096 (kartu B-F-07): nama fitur di sini WAJIB persis judul bagian PRD
+# (baris `### M<kode>. <nama>` di docs/PRD.md) — dulu berisi nama karangan
+# ("Pemesanan Kasir Cepat" dll.) yang tidak ada di PRD mana pun. Penjaga Aturan 6b
+# di bawah membandingkan daftar ini dengan PRD sehingga tidak bisa menyimpang lagi.
 DAFTAR_FITUR_PRD = [
-    ("M1", "Pemesanan Kasir Cepat", ["kasir"]),
-    ("M2", "Papan Dapur & Bar Real-Time", ["dapur"]),
-    ("M3", "Manajemen Meja & Status Layanan", ["kasir", "pengaturan"]),
-    ("M4", "Pembayaran Fleksibel & Multi-Metode", ["kasir"]),
-    ("M5", "Laporan Penjualan & Rekonsiliasi Kas", ["laporan"]),
-    ("M6", "Manajemen Pegawai & Hak Akses Berjenjang", ["masuk", "pengaturan"]),
-    ("M7", "Katalog Menu & Kustomisasi Varian", ["kasir", "pelanggan-publik"]),
-    ("M8", "Voucher Diskon & Promosi", ["kasir", "voucher"]),
-    ("M9", "Manajemen Stok Bahan & Peringatan Habis", ["dapur", "pengaturan"]),
-    ("M10", "Menu Digital Pelanggan (Self-Order QR)", ["pelanggan-publik"]),
-    ("M11", "Dukungan Multi-Cabang Terpusat", ["laporan", "pengaturan"]),
-    ("M12", "Audit Log & Keamanan Data Transaksi", ["masuk", "kasir", "pengaturan"])
+    ("M1", "Pendaftaran & pengelolaan penyewa (resto)", ["platform_penyewa", "pengaturan"]),
+    ("M2", "Pengaturan tanpa koding (per penyewa)", ["pengaturan"]),
+    ("M3", "Peran, hak akses berjenjang, & jejak audit", ["masuk", "pengaturan"]),
+    ("M4", "Pesanan dari kasir & pelayan", ["kasir"]),
+    ("M5", "Layar dapur & tiket dapur (KDS)", ["dapur", "bar"]),
+    ("M6", "Pembayaran, struk, & pembatalan", ["kasir"]),
+    ("M7", "Kas & shift (buka/tutup kasir)", ["kasir"]),
+    ("M8", "Laporan harian per shift", ["laporan"]),
+    ("M9", "Stok dasar", ["stok", "opname", "dapur"]),
+    ("M10", "Katalog pelanggan & voucher undang-teman", ["pelanggan-publik", "voucher", "kasir"]),
+    ("M11", "Multi-cabang (dasar)", ["pengaturan", "laporan"]),
+    ("M12", "Keamanan fondasi (lintas fitur)", ["masuk", "pengaturan", "kasir"]),
 ]
 
 
@@ -392,6 +396,27 @@ def periksa(akar: Path = AKAR) -> tuple[bool, list[str]]:
         if not layar_ada:
             kesalahan.append(f"[Aturan 6 - PRD] Fitur {kode} ({nama}) tidak memiliki layar terdaftar.")
 
+    # Aturan 6b (PMB1-F-096): nama fitur di DAFTAR_FITUR_PRD wajib cocok judul
+    # bagian PRD (`### M<kode>. <nama>`). Dulu daftar ini memakai nama karangan dan
+    # pemeriksa tetap hijau — matriks jejak menilai fitur yang tidak pernah ada.
+    berkas_prd = akar / "docs/PRD.md"
+    if berkas_prd.exists():
+        for kode, nama, _layar_ids in DAFTAR_FITUR_PRD:
+            cocok = None
+            for baris_prd in berkas_prd.read_text(encoding="utf-8").splitlines():
+                m = re.match(rf"###\s+{re.escape(kode)}\.\s+(.+)$", baris_prd.strip())
+                if m:
+                    cocok = m.group(1).strip()
+                    break
+            if cocok is None:
+                kesalahan.append(
+                    f"[Aturan 6b - Nama PRD] Bagian {kode} tidak ditemukan di docs/PRD.md."
+                )
+            elif not cocok.lower().startswith(nama.lower()):
+                kesalahan.append(
+                    f"[Aturan 6b - Nama PRD] Nama fitur {kode} ('{nama}') tidak cocok judul PRD ('{cocok}')."
+                )
+
     # Aturan 7: Tombol mentah di folder aplikasi/src/layar/
     dir_layar = akar / "aplikasi/src/layar"
     if dir_layar.exists():
@@ -467,7 +492,13 @@ def uji_diri() -> int:
              "aplikasi/src/layar/KasirProduksi.tsx",
              None,
              "export function LayarKasir() { return <button onClick={() => {}}>Tombol Liar</button>; }",
-             "[Aturan 7 - Tombol Mentah]")
+             "[Aturan 7 - Tombol Mentah]"),
+
+            ("Mutasi 7: judul PRD diganti tapi nama fitur di alat tidak ikut (PMB1-F-096)",
+             "docs/PRD.md",
+             r"###\s+M1\.\s+Pendaftaran & pengelolaan penyewa \(resto\)",
+             "### M1. Nama Karangan Yang Tidak Ada Di PRD",
+             "[Aturan 6b - Nama PRD]")
         ]
 
         gagal_count = 0
