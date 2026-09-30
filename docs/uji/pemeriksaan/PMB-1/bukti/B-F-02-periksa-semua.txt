@@ -1,0 +1,873 @@
+BUKTI periksa-semua.sh PENUH (2026-09-30, cabang arena/01a0eff7-resto-barokah, putaran ke-3; putaran 1-2 gagal di uji-mutasi-app karena jangkar Struk basi — diperbaiki 9abafe6/72b4e32).
+Perintah: bash aplikasi/alat/periksa-semua.sh
+Hasil: SEMUA pemeriksaan substantif LOLOS (kerapian, aturan, tipe, 1039 uji unit, mutasi aplikasi 81/81 MERAH, 139 uji SQL, mutasi wajib MERAH, konkurensi, Edge, papan, roadmap, pemeriksa Python, gerbang CI, panduan).
+Satu-satunya GAGAL: pemeriksa handoff lanjut-sesi (6 masalah) — berkas trio handoff TERLARANG bagi giliran PMB PEMBANGUN dan berkas dokumentasi memang baru di-commit setelah pemeriksaan; kegagalan diharapkan (pola sama dengan B-F-03).
+---
+== aplikasi: kerapian kode ==
+
+> sajian@0.0.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+== aplikasi: aturan kode ==
+
+> sajian@0.0.0 lint
+> eslint .
+
+
+/home/user/Resto-Barokah/aplikasi/src/komponen/Struk.tsx
+  80:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/komponen/StrukDigital.tsx
+  39:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  43:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  60:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/layar/dapur/KartuPesanan.tsx
+  62:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  72:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/layar/dapur/LayarDapur.tsx
+  24:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  29:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/layar/kasir/DaftarTagihan.tsx
+  51:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  56:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  66:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  74:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/layar/kasir/DaftarTransaksi.tsx
+  49:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/layar/kasir/DataPelanggan.tsx
+  49:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/layar/kasir/DiskonManual.tsx
+  73:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  84:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/layar/laporan/DaftarPembatalan.tsx
+  72:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  87:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  96:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/layar/pelanggan-publik/Katalog.tsx
+  39:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/layar/pengaturan/Cabang.tsx
+  154:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  163:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/layar/pengaturan/Kampanye.tsx
+  109:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/layar/pengaturan/KelolaPegawai.tsx
+  84:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/user/Resto-Barokah/aplikasi/src/layar/pengaturan/PasangPrinter.tsx
+   50:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  181:10  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+✖ 26 problems (0 errors, 26 warnings)
+
+== aplikasi: tipe ==
+
+> sajian@0.0.0 typecheck
+> tsc -b --noEmit
+
+== aplikasi: uji unit ==
+
+> sajian@0.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90m/home/user/Resto-Barokah/aplikasi[39m
+
+ [32m✓[39m src/layar/kasir/DiskonManual.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[32m 230[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/LayarKasirDiskon.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 885[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/LayarKasirVoid.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 593[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/VoidItem.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 213[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/LayarKasir.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 918[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Kampanye.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 622[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/LayarKasirBayar.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 604[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/LaporanVoucher.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 417[2mms[22m[39m
+ [32m✓[39m src/hook/useBayar.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 346[2mms[22m[39m
+ [32m✓[39m src/komponen/StrukDigital.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[32m 227[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/VoucherKasir.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 306[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/KasKeluarMasuk.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 297[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/Bayar.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[32m 171[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/DaftarTransaksi.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[32m 173[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/DataPelanggan.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 138[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/DaftarPembatalan.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[32m 153[2mms[22m[39m
+ [32m✓[39m src/komponen/komponen.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[32m 108[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/DaftarTagihan.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[32m 101[2mms[22m[39m
+ [32m✓[39m src/komponen/Struk.test.tsx [2m([22m[2m18 tests[22m[2m)[22m[32m 92[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/BukaKas.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 289[2mms[22m[39m
+ [32m✓[39m src/hook/useTema.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/TutupKas.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 349[2mms[22m[39m
+ [32m✓[39m src/lib/supabase.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m src/lib/printer/struk.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m src/lib/printer/expos.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/lib/printer/tiket.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m src/lib/printer/kirim.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/lib/printer/profil.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/lib/tema.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/lib/tarif.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/ScanVoucher.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 228[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Menu.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 1321[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Operasional.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 524[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/LayarPengaturan.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 910[2mms[22m[39m
+ [32m✓[39m src/App.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 802[2mms[22m[39m
+   [32m✓[39m App - Penanganan Shift Kasir (L F-03) [2m(3)[22m
+     [33m[2m✓[22m[39m menolak pembukaan shift bila RPC peladen gagal dan tidak mengeset sesi terbuka[33m 302[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Meja.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 669[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Tampilan.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 606[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Cabang.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 595[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/MetodeBayar.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 639[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/MasukStaf.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 507[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/MenuCabang.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 575[2mms[22m[39m
+ [32m✓[39m src/layar/pelanggan-publik/Menu.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 456[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/LayarMasukPegawai.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 473[2mms[22m[39m
+ [32m✓[39m src/layar/platform/Penyewa.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 467[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/KelolaPegawai.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 423[2mms[22m[39m
+ [32m✓[39m src/hook/useTiketDapur.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 444[2mms[22m[39m
+ [32m✓[39m src/layar/contoh/kerapatan.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 430[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Identitas.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 453[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/TautanKatalog.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 446[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Pratinjau.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 403[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/LayarLaporan.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 381[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/SesiAktif.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 352[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/LaporanMenu.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 349[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/AlurKasirE2E.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 354[2mms[22m[39m
+   [32m✓[39m Uji Alur Kasir Ujung-ke-Ujung (T3-14) [2m(1)[22m
+     [33m[2m✓[22m[39m menjalankan skenario lengkap: pilih menu -> catatan -> kirim dapur -> bayar lunas[33m 352[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/LaporanPenjualan.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 337[2mms[22m[39m
+ [32m✓[39m src/hook/useStok.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 284[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/Peringatan.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 275[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/LaporanKas.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 288[2mms[22m[39m
+ [32m✓[39m src/layar/voucher/Daftar.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 355[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/Katalog.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 188[2mms[22m[39m
+ [32m✓[39m src/layar/pelanggan-publik/Katalog.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 245[2mms[22m[39m
+ [32m✓[39m src/gaya/kerapatan-css.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 268[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/FormatLaporan.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[32m 232[2mms[22m[39m
+ [32m✓[39m src/layar/voucher/KartuVoucher.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 242[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Perangkat.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 216[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/StatusPemakaian.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 167[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/PasangPrinter.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[32m 220[2mms[22m[39m
+ [32m✓[39m src/layar/pelayan/LayarPelayan.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 255[2mms[22m[39m
+ [32m✓[39m src/layar/pelanggan-publik/KebijakanPrivasi.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 147[2mms[22m[39m
+ [32m✓[39m src/layar/voucher/Kampanye.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 152[2mms[22m[39m
+ [32m✓[39m src/komponen/PemilihRingkas.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 160[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/KoreksiModal.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 228[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/LayarMasukPelanggan.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 177[2mms[22m[39m
+ [32m✓[39m src/komponen/StatusAntrean.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 193[2mms[22m[39m
+ [32m✓[39m src/layar/pelanggan-publik/LayarPelangganPublik.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 153[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/MasukPengelola.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 170[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/CabutAkses.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 202[2mms[22m[39m
+ [32m✓[39m uji/e2e/mati-mendadak.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 138[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/DaftarPesanan.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 176[2mms[22m[39m
+ [32m✓[39m src/layar/dapur/Stok.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 133[2mms[22m[39m
+ [32m✓[39m src/layar/dapur/LayarDapur.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 136[2mms[22m[39m
+ [32m✓[39m src/komponen/TombolAksi.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 85[2mms[22m[39m
+ [32m✓[39m src/hook/useRiwayatTransaksi.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 128[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/Keranjang.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 142[2mms[22m[39m
+ [32m✓[39m src/komponen/LembarBantuan.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 131[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/DaftarPerangkat.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 104[2mms[22m[39m
+ [32m✓[39m uji/e2e/luring.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 160[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/LupaAkses.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 122[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/PemilihMeja.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+ [32m✓[39m src/layar/dapur/Opname.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 155[2mms[22m[39m
+ [32m✓[39m src/layar/TidakPunyaAkses.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 100[2mms[22m[39m
+ [32m✓[39m src/komponen/Navigasi.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 110[2mms[22m[39m
+ [32m✓[39m src/komponen/PengingatShift.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 95[2mms[22m[39m
+ [32m✓[39m src/komponen/StatusAntreanOffline.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 89[2mms[22m[39m
+ [32m✓[39m src/bahasa/bahasa.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+ [32m✓[39m src/komponen/KunciSekarang.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 84[2mms[22m[39m
+ [32m✓[39m src/komponen/KomponenQr.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 80[2mms[22m[39m
+ [32m✓[39m src/uji/harness.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32m✓[39m src/layar/dapur/KartuPesanan.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m src/komponen/PemilihCabang.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/SkenarioMasukPeran.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m src/layar/dapur/LayarBar.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/TagihanTerbuka.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m src/komponen/Rangka.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m src/layar/dapur/TombolHabis.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m src/hook/useAntrean.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m src/hook/useSesi.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m src/hook/useKunciOtomatis.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m src/hook/useJam.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m src/lib/antrean-offline.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/hook/useCabang.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/lib/aksi.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/antrean-lokal.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/layar.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/lib/auth.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/lib/qrcode.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/lib/env.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/lib/pesan.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/lib/emailNormalisasi.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/lib/format.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/lib/laci.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/lib/keamanan-header.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/layar/contoh/LayarContoh.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/BebanKasir.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/lib/barcode.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/lib/pemulihan-sesi.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m126 passed[39m[22m[90m (126)[39m
+[2m      Tests [22m [1m[32m1039 passed[39m[22m[90m (1039)[39m
+[2m   Start at [22m 04:10:04
+[2m   Duration [22m 87.39s[2m (environment 43%, tests 38%, import 15%, transform 4%, worker 1%)[22m
+
+[2m    Isolate [22m [33m126 workers spawned[39m[2m · ~341ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~42.66s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
+== bukti mutasi kode aplikasi (uji wajib MERAH pada cacat nyata) ==
+
+----------------------------------------------------------------------
+HASIL: LOLOS — salinan utuh hijau, 81 mutasi perilaku semuanya membuat uji MERAH.
+----------------------------------------------------------------------
+HASIL: LOLOS — harness terbukti bisa MENOLAK saat jaring ujinya bocor.
+== aplikasi: bangun ==
+
+> sajian@0.0.0 build
+> tsc -b --noEmit && vite build
+
+vite v6.4.3 building for production...
+transforming...
+✓ 183 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                         0.71 kB │ gzip:   0.40 kB
+dist/assets/outfit-tebal-DPki9_VQ.woff2                16.90 kB
+dist/assets/outfit-reguler-B6AmHC5V.woff2              17.05 kB
+dist/assets/nationalpark-tebal-CZQk-9yX.woff2          17.30 kB
+dist/assets/bigshoulders-tebal-QsXThqMy.woff2          20.41 kB
+dist/assets/crimson-reguler-BMyMX2WE.woff2             20.86 kB
+dist/assets/crimson-tebal-w17bGzWt.woff2               21.44 kB
+dist/assets/mono-reguler-CwlxGv-P.woff2                21.81 kB
+dist/assets/lora-tebal-7_F-IOZ0.woff2                  23.03 kB
+dist/assets/instrument-reguler-CQP63VCm.woff2          23.09 kB
+dist/assets/instrument-tebal-BpFaz-iD.woff2            23.53 kB
+dist/assets/instrument-serif-COnPpbuz.woff2            23.66 kB
+dist/assets/instrument-serif-miring-BqXRAJZf.woff2     24.39 kB
+dist/assets/gloock-CK1RQLyp.woff2                      27.22 kB
+dist/assets/bricolage-tebal-CH7v5qns.woff2             27.36 kB
+dist/assets/arsenalsc-reguler-DAwjSgGl.woff2           28.77 kB
+dist/assets/youngserif-reguler-l8N_-p1u.woff2          29.38 kB
+dist/assets/worksans-miring-DkeQslqQ.woff2             32.97 kB
+dist/assets/worksans-reguler-BjnYrMJ5.woff2            35.05 kB
+dist/assets/worksans-tebal-B37PlgEf.woff2              37.82 kB
+dist/assets/index-CrSbV2Zx.css                         80.97 kB │ gzip:  14.81 kB
+dist/assets/index-DMeZr0yL.js                       1,079.11 kB │ gzip: 284.44 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.71s
+== aplikasi: kerentanan dependency ==
+found 0 vulnerabilities
+== koneksi Supabase dengan kunci publik (CI memakai env; lokal opsional) ==
+CI-only: VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY belum tersedia; koneksi nyata dilewati secara eksplisit.
+== uji SQL (RLS & isolasi resto, tanpa server) ==
+UJI SQL LOKAL (PostgreSQL di dalam Node — tanpa server, tanpa akun)
+Menyiapkan peran, auth, dan alat bantu uji…
+  OK    persiapan (peran/auth/alat uji)
+
+Menerapkan 91 migrasi:
+  OK    0001_penyewa_cabang.sql
+  OK    0002_pengguna_izin_pengaturan.sql
+  OK    0003_helper_identitas.sql
+  OK    0004_pola_rls.sql
+  OK    0005_izin_berjenjang.sql
+  OK    0006_pin.sql
+  OK    0007_katalog.sql
+  OK    0008_meja.sql
+  OK    0009_pesanan.sql
+  OK    0010_pembayaran.sql
+  OK    0011_peran_tunggal.sql
+  OK    0012_penutup_celah_review.sql
+  OK    0013_penutup_celah_putaran11.sql
+  OK    0014_penutup_celah_putaran13.sql
+  OK    0015_penutup_celah_putaran16.sql
+  OK    0016_penutup_celah_pin_putaran18.sql
+  OK    0017_pesanan_tertutup_beku.sql
+  OK    0018_perangkat_terdaftar.sql
+  OK    0019_pesan_diskon_jujur.sql
+  OK    0020_catatan_audit.sql
+  OK    0021_kunci_diskon.sql
+  OK    0022_beku_setelah_bayar.sql
+  OK    0023_acl_fungsi_pemicu.sql
+  OK    0024_beku_satu_pernyataan.sql
+  OK    0025_isolasi_identitas_null.sql
+  OK    0026_kunci_lingkup_rincian.sql
+  OK    0027_initplan_policy_rls.sql
+  OK    0028_pemulihan_perangkat.sql
+  OK    0029_audit_kekal_rantai.sql
+  OK    0030_sesi_dan_persetujuan_perangkat.sql
+  OK    0031_mode_dukungan_platform.sql
+  OK    0032_status_item_dapur.sql
+  OK    0033_tujuan_item.sql
+  OK    0035_menu_habis_sumber.sql
+  OK    0036_stok.sql
+  OK    0037_opname.sql
+  OK    0038_waktu_peladen.sql
+  OK    0039_bayar_pesanan.sql
+  OK    0040_urutan_rantai_audit.sql
+  OK    0041_diskon_pin_atasan.sql
+  OK    0042_bahan_terbuang_jujur.sql
+  OK    0043_laporan_pembatalan.sql
+  OK    0045_buka_shift.sql
+  OK    0046_tutup_shift.sql
+  OK    0047_kas_pergerakan.sql
+  OK    0048_wajib_shift.sql
+  OK    0049_pengingat_shift.sql
+  OK    0050_koreksi_modal.sql
+  OK    0051_laporan_kas.sql
+  OK    0052_laporan_penjualan.sql
+  OK    0053_laporan_menu.sql
+  OK    0054_transaksi_tengah_malam.sql
+  OK    0056_cabang_aktif_saya.sql
+  OK    0057_truncate_audit_ditolak.sql
+  OK    0058_sesi_masih_aktif.sql
+  OK    0059_catat_percobaan_masuk_tenant.sql
+  OK    0060_pembayaran_audit.sql
+  OK    0061_verifikasi_pin_perangkat.sql
+  OK    0062_katalog_publik.sql
+  OK    0063_anti_email_palsu.sql
+  OK    0064_terbit_voucher_acak.sql
+  OK    0065_kasir_cek_pakai_voucher.sql
+  OK    0066_kampanye_aturan.sql
+  OK    0067_pengaman_voucher.sql
+  OK    0068_laporan_voucher.sql
+  OK    0069_privasi_pelanggan.sql
+  OK    0070_identitas_resto.sql
+  OK    0071_tema_merek.sql
+  OK    0072_pengaturan_operasional.sql
+  OK    0073_pengaturan_meja.sql
+  OK    0074_pengaturan_menu.sql
+  OK    0075_menu_cabang.sql
+  OK    0076_metode_bayar_tip.sql
+  OK    0077_kelola_pegawai_izin.sql
+  OK    0078_kelola_cabang.sql
+  OK    0079_daftar_penyewa_m1.sql
+  OK    0080_kunci_idempoten_menyeluruh.sql
+  OK    0081_akhiri_sesi_perangkat_hilang.sql
+  OK    0082_denyut_harian_pembersih.sql
+  OK    0083_versi_pengaturan_bersamaan.sql
+  OK    0084_cabut_akses_pegawai_berhenti.sql
+  OK    0085_ringkasan_harian.sql
+  OK    0086_data_awal_dan_autentikasi_perangkat.sql
+  OK    0087_perbaiki_search_path_kripto_dan_rpc.sql
+  OK    0088_waktu_kirim_dapur_peladen.sql
+  OK    0089_voucher_wajib_identitas_terverifikasi.sql
+  OK    0090_saklar_daftar_perangkat_beru_peran_berkuasa.sql
+  OK    0091_pin_bukan_orakel_batas_akun.sql
+  OK    0092_selisih_kas_negatif_tidak_didisembunyikan.sql
+  OK    0093_pelanggan_kasir_wajib_identitas.sql
+  OK    0094_buka_laci_tercatat_audit.sql
+
+Membuat data uji:
+  OK    alat/sql/data-uji.sql
+
+Menjalankan 139 berkas uji:
+  LULUS supabase/tes/akhiri_sesi_perangkat_hilang.sql
+  LULUS supabase/tes/anti_dobel.sql
+  LULUS supabase/tes/anti_email_palsu.sql
+  LULUS supabase/tes/audit_rantai.sql
+  LULUS supabase/tes/bahan_terbuang.sql
+  LULUS supabase/tes/bayar_pesanan.sql
+  LULUS supabase/tes/beku_satu_pernyataan.sql
+  LULUS supabase/tes/beku_setelah_bayar.sql
+  LULUS supabase/tes/buka_laci_tercatat.sql
+  LULUS supabase/tes/buka_shift.sql
+  LULUS supabase/tes/cabang_aktif_saya.sql
+  LULUS supabase/tes/cabang_sesi.sql
+  LULUS supabase/tes/cabut_akses.sql
+  LULUS supabase/tes/catatan_audit.sql
+  LULUS supabase/tes/daftar_penyewa.sql
+  LULUS supabase/tes/daftar_perangkat_beru_peran_berkuasa.sql
+  LULUS supabase/tes/denyut_pembersih.sql
+  LULUS supabase/tes/diskon_cap.sql
+  LULUS supabase/tes/diskon_cap_bawaan.sql
+  LULUS supabase/tes/diskon_persen.sql
+  LULUS supabase/tes/diskon_pin_atasan.sql
+  LULUS supabase/tes/diskon_sesudah_lunas.sql
+  LULUS supabase/tes/diskon_setuju.sql
+  LULUS supabase/tes/diskon_tumpuk.sql
+  LULUS supabase/tes/diskon_voucher.sql
+  LULUS supabase/tes/gerbang_uang.sql
+  LULUS supabase/tes/golden_laporan.sql
+  LULUS supabase/tes/hak_fungsi.sql
+  LULUS supabase/tes/harga_item.sql
+  LULUS supabase/tes/helper.sql
+  LULUS supabase/tes/idempoten.sql
+  LULUS supabase/tes/isolasi_lintas_penyewa.sql
+  LULUS supabase/tes/isolasi_null_identitas.sql
+  LULUS supabase/tes/item_penjaga.sql
+  LULUS supabase/tes/izin.sql
+  LULUS supabase/tes/izin_efektif_untuk.sql
+  LULUS supabase/tes/jejak_pelaku.sql
+  LULUS supabase/tes/jejak_pengaturan.sql
+  LULUS supabase/tes/jejak_pesanan.sql
+  LULUS supabase/tes/kampanye_aturan.sql
+  LULUS supabase/tes/kas_pergerakan.sql
+  LULUS supabase/tes/kasir_voucher.sql
+  LULUS supabase/tes/katalog.sql
+  LULUS supabase/tes/katalog_publik.sql
+  LULUS supabase/tes/keamanan_fungsi.sql
+  LULUS supabase/tes/kelola_cabang.sql
+  LULUS supabase/tes/kelola_pegawai_izin.sql
+  LULUS supabase/tes/koreksi_modal.sql
+  LULUS supabase/tes/kredensial_pin.sql
+  LULUS supabase/tes/kupon_wajib_pesanan.sql
+  LULUS supabase/tes/laporan_kas.sql
+  LULUS supabase/tes/laporan_menu.sql
+  LULUS supabase/tes/laporan_pembatalan.sql
+  LULUS supabase/tes/laporan_penjualan.sql
+  LULUS supabase/tes/laporan_voucher.sql
+  LULUS supabase/tes/lifecycle_pesanan.sql
+  LULUS supabase/tes/matriks_izin_6_peran.sql
+  LULUS supabase/tes/meja.sql
+  LULUS supabase/tes/meja_penjaga.sql
+  LULUS supabase/tes/meja_riwayat.sql
+  LULUS supabase/tes/menu_cabang.sql
+  LULUS supabase/tes/menu_habis_sumber.sql
+  LULUS supabase/tes/metode_bayar_nonaktif.sql
+  LULUS supabase/tes/metode_bayar_tip.sql
+  LULUS supabase/tes/mfa.sql
+  LULUS supabase/tes/mode_dukungan.sql
+  LULUS supabase/tes/nilai_kerugian.sql
+  LULUS supabase/tes/nomor_pesanan_isolasi.sql
+  LULUS supabase/tes/nomor_pesanan_kunci.sql
+  LULUS supabase/tes/opname_stok.sql
+  LULUS supabase/tes/pajak_service.sql
+  LULUS supabase/tes/pembatalan_penanda_palsu.sql
+  LULUS supabase/tes/pembatalan_sekali.sql
+  LULUS supabase/tes/pembayaran.sql
+  LULUS supabase/tes/pembayaran_audit.sql
+  LULUS supabase/tes/pembayaran_metode.sql
+  LULUS supabase/tes/pembayaran_sebagian.sql
+  LULUS supabase/tes/pemulihan.sql
+  LULUS supabase/tes/pengaman_voucher.sql
+  LULUS supabase/tes/pengaturan_bersamaan.sql
+  LULUS supabase/tes/pengaturan_identitas.sql
+  LULUS supabase/tes/pengaturan_meja.sql
+  LULUS supabase/tes/pengaturan_menu.sql
+  LULUS supabase/tes/pengaturan_operasional.sql
+  LULUS supabase/tes/pengaturan_tema.sql
+  LULUS supabase/tes/pengingat_shift.sql
+  LULUS supabase/tes/penjaga_stok.sql
+  LULUS supabase/tes/peran_tunggal.sql
+  LULUS supabase/tes/perangkat_registrasi.sql
+  LULUS supabase/tes/perangkat_registrasi_tepi.sql
+  LULUS supabase/tes/percobaan_masuk_tenant.sql
+  LULUS supabase/tes/percobaan_pin_perangkat.sql
+  LULUS supabase/tes/persetujuan_void.sql
+  LULUS supabase/tes/pesanan.sql
+  LULUS supabase/tes/pesanan_status_awal.sql
+  LULUS supabase/tes/pesanan_tertutup_beku.sql
+  LULUS supabase/tes/pin.sql
+  LULUS supabase/tes/pin_batas_pasang.sql
+  LULUS supabase/tes/pin_bukan_oracle.sql
+  LULUS supabase/tes/pin_bukan_orakel_batas_akun.sql
+  LULUS supabase/tes/pin_helper_pribadi.sql
+  LULUS supabase/tes/pin_hierarki.sql
+  LULUS supabase/tes/pin_kunci_silang.sql
+  LULUS supabase/tes/pin_warisan.sql
+  LULUS supabase/tes/privasi.sql
+  LULUS supabase/tes/ringkasan.sql
+  LULUS supabase/tes/riwayat_tidak_berubah.sql
+  LULUS supabase/tes/rls_pengguna.sql
+  LULUS supabase/tes/rls_penyewa.sql
+  LULUS supabase/tes/rls_semua_tabel.sql
+  LULUS supabase/tes/saldo_awal_stok.sql
+  LULUS supabase/tes/selisih_kas_kekurangan_terlihat.sql
+  LULUS supabase/tes/sesi_dan_perangkat.sql
+  LULUS supabase/tes/sesi_kedaluwarsa.sql
+  LULUS supabase/tes/set_stok.sql
+  LULUS supabase/tes/sisir_rls_akhir.sql
+  LULUS supabase/tes/status_item.sql
+  LULUS supabase/tes/status_item_transisi.sql
+  LULUS supabase/tes/status_pesanan.sql
+  LULUS supabase/tes/stok_arah.sql
+  LULUS supabase/tes/stok_insert_langsung.sql
+  LULUS supabase/tes/tengah_malam.sql
+  LULUS supabase/tes/truncate_audit_ditolak.sql
+  LULUS supabase/tes/tujuan_item.sql
+  LULUS supabase/tes/tutup_shift.sql
+  LULUS supabase/tes/uang_kunci.sql
+  LULUS supabase/tes/uang_peladen.sql
+  LULUS supabase/tes/urutan_rantai_audit.sql
+  LULUS supabase/tes/urutan_uang.sql
+  LULUS supabase/tes/varian_gagal_aman.sql
+  LULUS supabase/tes/verifikasi_pin_perangkat.sql
+  LULUS supabase/tes/void_satu_item.sql
+  LULUS supabase/tes/voucher_aturan.sql
+  LULUS supabase/tes/voucher_kasir_wajib_identitas.sql
+  LULUS supabase/tes/voucher_terbit.sql
+  LULUS supabase/tes/voucher_wajib_identitas_terverifikasi.sql
+  LULUS supabase/tes/wajib_shift.sql
+  LULUS supabase/tes/waktu_kirim_dapur_peladen.sql
+  LULUS supabase/tes/waktu_peladen.sql
+
+----------------------------------------------------------------------
+uji: 139 LULUS · 0 GAGAL
+HASIL: LOLOS
+== bukti mutasi pagar migrasi 0012 & 0013 (kontrol hijau + semua mutasi WAJIB MERAH) ==
+
+RINGKASAN: 16/16 mutasi WAJIB terbukti MERAH (+ 4 mutasi tunggal pada penjaga bertumpuk: hijau = sesuai dugaan; lapisan itu dibuktikan lewat mutasi gabungan M3k/M5k/M8k)
+
+RINGKASAN: 17/17 mutasi WAJIB terbukti MERAH
+
+HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar K-1/K-2 dan aturan uang terbukti bekerja.
+
+HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar PIN putaran18 terbukti bekerja.
+
+HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar pesanan-tertutup-beku terbukti bekerja.
+
+HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar perangkat-terdaftar terbukti bekerja.
+
+HASIL: LOLOS — semua 5 mutasi WAJIB MERAH benar-benar merah; pagar diskon T5-04 terbukti bekerja.
+
+HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar persetujuan PIN atasan (T5-05) terbukti bekerja.
+
+HASIL: LOLOS — semua 4 mutasi WAJIB MERAH benar-benar merah; pagar penanda bahan terbuang (T5-07) terbukti bekerja.
+
+HASIL: LOLOS — semua 4 mutasi WAJIB MERAH benar-benar merah; pagar baca laporan pembatalan (T5-12) terbukti bekerja.
+
+HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar integritas buka shift (T7-01) terbukti bekerja.
+
+HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar rekonsiliasi tutup shift (T7-02) terbukti bekerja.
+
+HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar pergerakan kas (T7-03) terbukti bekerja.
+
+HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar transaksi wajib shift (T7-04) terbukti bekerja.
+
+HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar pengingat shift belum ditutup (T7-05) terbukti bekerja.
+
+✅ SEMUA MUTASI TERBUKTI MERAH. Pagar 0050 terverifikasi tajam.
+
+[0051] Seluruh 6 mutasi berhasil dibuktikan MERAH!
+
+[0052] Seluruh 6 mutasi berhasil dibuktikan MERAH!
+
+[0053] Seluruh 6 mutasi berhasil dibuktikan MERAH!
+
+[0054] Seluruh 6 mutasi berhasil dibuktikan MERAH!
+
+HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; sapuan isolasi resto terbukti peka.
+
+HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; kunci serialisasi jalur uang terbukti dijaga.
+OK penutup pulih: HIJAU 
+HASIL: LOLOS — 10 mutasi terisolasi, kontrol+penutup, salinan rusak ditolak; 0 tidak sesuai.
+OK kontrol pulih: HIJAU 
+HASIL: LOLOS — 3 mutasi, kontrol+pulih, salinan rusak ditolak; 0 tidak sesuai.
+OK kontrol pulih: HIJAU 
+HASIL: LOLOS — helper bypass, kontrol+pulih, salinan rusak ditolak; 0 tidak sesuai.
+
+HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar pemulihan perangkat terbukti bekerja.
+
+HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar audit kekal & rantai hash terbukti bekerja.
+
+HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+
+HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+
+HASIL: LOLOS — seluruh 7 mutasi wajib MERAH terbukti membuat uji merah.
+
+HASIL: LOLOS — seluruh 2 mutasi wajib MERAH terbukti membuat uji merah.
+
+HASIL: LOLOS — seluruh 3 mutasi wajib MERAH terbukti membuat uji merah.
+
+HASIL: LOLOS — seluruh 3 mutasi wajib MERAH terbukti membuat uji merah.
+
+HASIL: LOLOS — seluruh 3 mutasi wajib MERAH terbukti membuat uji merah.
+
+HASIL: LOLOS — seluruh 3 mutasi wajib MERAH terbukti membuat uji merah.
+
+HASIL: LOLOS — seluruh 6 mutasi wajib MERAH terbukti membuat uji merah.
+
+HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+/usr/local/lib/python3.11/dist-packages/platformdirs/api.py:459: RuntimeDirWarning: XDG_RUNTIME_DIR is not set, falling back to /tmp/runtime-1001
+  return Path(self.user_runtime_dir)
+  [OK] kalibrasi: bukti mutasi spesifik — MUTASI-PELANGGARAN-F12: T2 tidak ditolak cap (galat: (diterima!)); baris=(2, 60000) — CAP JEBOL
+
+HASIL: LOLOS — F F-13 + F F-12 terbukti terserialisasi di 2 koneksi nyata; tiap uji terbukti peka.
+/usr/local/lib/python3.11/dist-packages/platformdirs/api.py:459: RuntimeDirWarning: XDG_RUNTIME_DIR is not set, falling back to /tmp/runtime-1001
+  return Path(self.user_runtime_dir)
+OK T-409 tepat 1 riwayat: ditolak
+HASIL UJI-DIRI: LOLOS — 9 kasus klasifikasi, 0 tidak sesuai.
+/usr/local/lib/python3.11/dist-packages/platformdirs/api.py:459: RuntimeDirWarning: XDG_RUNTIME_DIR is not set, falling back to /tmp/runtime-1001
+  return Path(self.user_runtime_dir)
+OK mutasi kunci BEFORE hilang: {'pid': 62667, 'commit': True, 'row': (62100, 'draf', 2, 'baru', 'baru', 0, 1), 'terkunci': True}
+OK mutasi pagar void hilang: {'pid': 62885, 'commit': True, 'row': (0, 'batal', 2, None, 'batal', 1, 1), 'terkunci': True}
+HASIL: LOLOS — 5 kontrol dua arah + 2 mutasi pelanggaran nyata; 0 tidak sesuai.
+/usr/local/lib/python3.11/dist-packages/platformdirs/api.py:459: RuntimeDirWarning: XDG_RUNTIME_DIR is not set, falling back to /tmp/runtime-1001
+  return Path(self.user_runtime_dir)
+OK kontrol: kontrol dua transaksi commit tanpa deadlock: {'0pid': '63104', '1pid': '63106', '0first': 'done', '0second': 'done', '0': 'commit', '1first': 'done', '1second': 'done', '1': 'commit'}
+OK kalibrasi mutasi tanpa kunci: mutasi menghasilkan tepat satu 40P01: {'0pid': '63321', '1pid': '63323', '1first': 'done', '1': 'DeadlockDetected: deadlock detected\nDETAIL:  Process 63323 waits for ShareLock on transaction 2373; blocked by process 63321.\nProcess 63321 waits for ExclusiveLock on advisory lock [5,45087309,916717540,1]; blocked by process 63323.\nHINT:  See server log for query details.\nCONTEXT:  while locking tuple (0,2) in relation "pesanan_item"', '0first': 'done', '0second': 'done', '0': 'commit'}
+HASIL: LOLOS — kontrol bersih dan mutasi deadlock terkalibrasi.
+== keamanan SQL efektif + mutasi T1-30 ==
+----------------------------------------------------------------------
+uji: 2 LULUS · 0 GAGAL
+HASIL: LOLOS
+Lingkup: search_path + ACL efektif + trigger-only + sapuan RLS + optimasi InitPlan helper policy.
+OK kontrol pulih: HIJAU 
+HASIL: LOLOS — 13 mutasi, kontrol awal/akhir, kalibrasi rusak; 0 tidak sesuai.
+== batas Edge Function verifikasi_pin, verifikasi_pelanggan & akhiri_sesi (berkas asli dijalankan tanpa jaringan) ==
+UJI BATAS EDGE — verifikasi_pin (berkas asli dijalankan di VM, tanpa jaringan)
+  LOLOS  E01 body JSON null → 400 terkendali (bukan TypeError)  [status=400 melempar=tidak body={"pesan":"Permintaan tidak terbaca."}]
+  LOLOS  E02 body array → 400 terkendali  [status=400 melempar=tidak]
+  LOLOS  E03 tanpa Authorization → 401 tanpa memanggil upstream  [status=401 fetch=0]
+  LOLOS  E04 metode selain POST → 405  [status=405]
+  LOLOS  E05 UUID 36 tanda minus → 400 SEBELUM fetch  [status=400 fetch=0]
+  LOLOS  E06 PIN salah bentuk → 400 tanpa mengulang nilainya  [status=400 bocor=false]
+  LOLOS  E07 fetch menolak (jaringan putus) → jawaban gagal terkendali  [melempar=tidak body={"berhasil":false,"sisa_percobaan":0,"pesan":"PIN tidak bisa diperiksa sekarang.]
+  LOLOS  E08 upstream bukan JSON → jawaban gagal terkendali  [melempar=tidak body={"berhasil":false,"sisa_percobaan":0,"pesan":"PIN tidak bisa diperiksa sekarang.]
+  LOLOS  E09 upstream 500 → jawaban gagal terkendali  [body={"berhasil":false,"sisa_percobaan":0,"pesan":"PIN tidak bisa diperiksa]
+  LOLOS  E10 jalur sukses: 6 kunci ke RPC (p_perangkat_id/kunci + p_pesanan_id ikut) + PIN tidak bocor  [berhasil=true kunci=true p_pesanan_id=null]
+  LOLOS  E14 tanpa perangkat terdaftar → 400 sebelum fetch (T1-24)  [status=400 pesan=Perangkat tidak dikenali. fetch=0]
+  LOLOS  E15 kunci perangkat pendek → 400 sebelum fetch (T1-24)  [status=400 fetch=0]
+  LOLOS  E12 aksi berkupon tanpa pesanan_id → 400 sebelum fetch (I F-02)  [status=400 fetch=0]
+  LOLOS  E13 pesanan_id diteruskan sebagai p_pesanan_id ke RPC (I F-02/H F-04)  [p_pesanan_id=e9000000-0000-0000-0000-000000000001]
+  LOLOS  E14 pesanan_id 36 tanda minus → 400 sebelum fetch  [status=400]
+  LOLOS  E15 asal sah → CORS memantulkan asal (H F-09)  [acao=https://resto-barokah.fatrizmubarok.workers.dev]
+  LOLOS  E16 asal asing → tanpa header CORS, bukan wildcard (H F-09)  [acao=tidak ada]
+  LOLOS  E17 preflight OPTIONS asal sah → 200 + asal dipantulkan  [status=200]
+  LOLOS  E11 tak ada jawaban mana pun yang memuat PIN  [18 jawaban bersih]
+  LOLOS  E18 mutan log body → spy mendeteksi PIN (kalibrasi B-F06)  [jumlahLog=1 loggedPIN=true]
+
+RINGKASAN: 20 lolos, 0 gagal
+UJI BATAS EDGE — verifikasi_pelanggan (berkas asli dijalankan di VM, tanpa jaringan)
+  LOLOS  V01 body JSON null → 400 terkendali  [status=400]
+  LOLOS  V02 body array → 400 terkendali  [status=400]
+  LOLOS  V03 method GET → 405  [status=405]
+  LOLOS  V04 tanpa persetujuan privasi UU PDP → 400 (T-011)  [status=400 kode=PRIVASI_WAJIB]
+  LOLOS  V05 nama kosong → 400  [status=400 kode=NAMA_WAJIB]
+  LOLOS  V06 email sekali-pakai (tempmail) → ditolak 400  [status=400 kode=EMAIL_SEKALI_PAKAI]
+  LOLOS  V07 email format salah → ditolak 400  [status=400 kode=EMAIL_TIDAK_SAH]
+  LOLOS  V08 sukses pendaftaran voucher → 200  [status=200 berhasil=true]
+  LOLOS  V09 upstream jaringan offline → jawaban gagal terkendali  [melempar=tidak kode=JARINGAN_GAGAL]
+  LOLOS  V10 origin sah → CORS memantulkan origin  [acao=http://localhost:5173]
+
+RINGKASAN: 10 lolos, 0 gagal
+UJI BATAS EDGE — akhiri_sesi (berkas asli dijalankan di VM, tanpa jaringan)
+  LOLOS  S01 body JSON null → 400 terkendali  [status=400]
+  LOLOS  S02 body array → 400 terkendali  [status=400]
+  LOLOS  S03 tanpa token Authorization → 401  [status=401]
+  LOLOS  S04 method selain POST → 405  [status=405]
+  LOLOS  S05 pengguna_id bukan UUID → 400  [status=400]
+  LOLOS  S06 perangkat_id bukan UUID → 400  [status=400]
+  LOLOS  S07 session_id diarahkan ke RPC akhiri_sesi  [status=200 url=https://uji.invalid/rest/v1/rpc/akhiri_sesi p_session_id=sess_kasir_01]
+  LOLOS  S08 semua=true diarahkan ke RPC keluar_semua_perangkat  [status=200 url=https://uji.invalid/rest/v1/rpc/keluar_semua_perangkat p_pengguna_id=90000000-0000-0000-0000-000000000004]
+  LOLOS  S09 hilang=true diarahkan ke RPC tandai_perangkat_hilang  [status=200 url=https://uji.invalid/rest/v1/rpc/tandai_perangkat_hilang p_perangkat_id=de000000-0000-0000-0000-000000000003]
+  LOLOS  S10 upstream jaringan error → jawaban terkendali 502  [melempar=tidak status=502]
+  LOLOS  S11 origin sah → CORS memantulkan origin  [acao=http://localhost:5173]
+  LOLOS  S12 preflight OPTIONS → 204  [status=204]
+
+RINGKASAN: 12 lolos, 0 gagal
+HASIL: LOLOS — papan tugas maraton sehat (lingkup eksklusif, nomor aman, status sah)
+UJI-DIRI PERIKSA MARATON — semua kasus harus sesuai harapan
+  OK  papan sehat diterima
+  OK  mutasi: lingkup dua tugas aktif bersinggungan → ditolak
+  OK  mutasi: nomor migrasi cadangan ganda → ditolak
+  OK  mutasi: nomor cadangan ≤ migrasi tertinggi → ditolak
+  OK  mutasi: tugas aktif tanpa pekerja → ditolak
+  OK  mutasi: status di luar himpunan sah → ditolak
+  OK  mutasi: DITOLAK tanpa alasan → ditolak
+  OK  mutasi: lingkup menyentuh migrasi beku → ditolak
+  OK  papan dengan placeholder pekerja-N sah → diterima
+  OK  mutasi: pekerja tanpa identitas sah → ditolak
+  OK  mutasi: lingkup menyentuh wilayah pagar → ditolak
+  OK  mutasi: cabang nyata dipakai bersama tanpa penanda → ditolak
+  OK  cabang nyata dipakai bersama + penanda insiden → diterima
+HASIL: LOLOS — penjaga papan terbukti bisa MENOLAK papan cacat dan MENERIMA papan sehat
+PERIKSA MIGRASI BEKU — 16 berkas migrasi beku utuh; berkas baru wajib bernomor ≥ 0017.
+
+HASIL: LOLOS — repo masih cocok dengan database nyata (bukti: jalankan dengan --uji-diri).
+UJI-DIRI PERIKSA MIGRASI BEKU
+  OK  salinan utuh → diterima
+  OK  mutasi: berkas beku disunting → ditolak
+  OK  mutasi: berkas beku dihapus → ditolak
+  OK  mutasi: berkas baru bernomor lama (0005) → ditolak
+  OK  mutasi: nomor migrasi kembar (0016 ×2) → ditolak
+  OK  mutasi: berkas baru bernomor benar (tertinggi+1) → diterima
+
+HASIL: LOLOS — penjaga terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+== pemeriksa Python ==
+SYSTEM-BUILDING-APLIKASI VALIDATOR: PASS
+Pemeriksa Edge Function PIN — supabase/functions/verifikasi_pin/index.ts
+  LOLOS  berkas ada & tidak kosong  [8326 huruf]
+  LOLOS  berbentuk Edge Function (Deno.serve)  [memakai Deno.serve]
+  LOLOS  meneruskan ke RPC verifikasi_pin  [memanggil /rest/v1/rpc/verifikasi_pin]
+  LOLOS  hanya menerima POST  [metode selain POST dijawab 405]
+  LOLOS  meneruskan p_pesanan_id ke RPC (I F-02/H F-04: kupon wajib terikat pesanan)  [badan RPC memuat p_pesanan_id]
+  LOLOS  aksi berkupon mewajibkan pesanan di batas Edge (void_sesudah_dapur & beri_diskon)  [daftar AKSI_WAJIB_PESANAN ada di Edge]
+  LOLOS  CORS tidak wildcard (H F-09: asal dibatasi daftar sah)  [tidak ada Access-Control-Allow-Origin: * dalam bentuk apa pun]
+  LOLOS  TIDAK memakai console dalam bentuk apa pun (PIN tidak mungkin masuk log)  [tidak ada kata `console` (juga menutup console['log'] dan alias) maupun Deno.stdout/stderr]
+  LOLOS  TIDAK memakai service_role (RLS tidak dilewati)  [memakai kunci publik + token pemanggil]
+  LOLOS  memakai token pemanggil (Authorization)  [header Authorization diteruskan apa adanya]
+  LOLOS  memakai kunci publik dari lingkungan, bukan tertulis di berkas  [kunci dibaca dari Deno.env]
+  LOLOS  PIN dibaca dari badan permintaan  [membaca `pin` dari isi permintaan (bukan dari URL/header)]
+  LOLOS  variabel PIN hanya dipakai di jalur sah (baca · periksa bentuk · teruskan ke RPC)  [tidak ada pemakaian PIN di balasan/pesan/log/penyimpanan]
+  LOLOS  PIN tidak pernah disimpan/dikembalikan  [tidak menyentuh hash maupun penyimpanan peramban]
+
+RINGKASAN: 14 lolos, 0 gagal
+UJI DIRI — penjaga Edge Function PIN (harus bisa MENOLAK contoh cacat & MENERIMA yang sah)
+  [OK] sumber sah (berkas nyata): semua aturan lolos
+  [OK] log lewat tanda kurung siku: console['log'](pin): gagal di: ['TIDAK memakai console dalam bentuk apa pun (PIN tidak mungkin masuk log)', 'variabel PIN hanya dipakai di jalur sah (baca · periksa bentuk · teruskan ke RPC)']
+  [OK] log biasa (kontrol): console.log('x', pin): gagal di: ['TIDAK memakai console dalam bentuk apa pun (PIN tidak mungkin masuk log)', 'variabel PIN hanya dipakai di jalur sah (baca · periksa bentuk · teruskan ke RPC)']
+  [OK] log lewat ALIAS: const c = console; c.log(pin): gagal di: ['TIDAK memakai console dalam bentuk apa pun (PIN tidak mungkin masuk log)', 'variabel PIN hanya dipakai di jalur sah (baca · periksa bentuk · teruskan ke RPC)']
+  [OK] log computed: globalThis['con' + 'sole']['log'](badan): gagal di: ['TIDAK memakai console dalam bentuk apa pun (PIN tidak mungkin masuk log)']
+  [OK] balasan MENGEMBALIKAN PIN (cacat asli yang dulu lolos): gagal di: ['variabel PIN hanya dipakai di jalur sah (baca · periksa bentuk · teruskan ke RPC)']
+  [OK] PIN masuk pesan galat (template): gagal di: ['variabel PIN hanya dipakai di jalur sah (baca · periksa bentuk · teruskan ke RPC)']
+  [OK] PIN disimpan di peramban: localStorage.setItem('pin', pin): gagal di: ['variabel PIN hanya dipakai di jalur sah (baca · periksa bentuk · teruskan ke RPC)', 'PIN tidak pernah disimpan/dikembalikan']
+  [OK] PIN tidak lagi dibaca dari badan permintaan: gagal di: ['PIN dibaca dari badan permintaan']
+  [OK] jalur RPC dilepas (PIN dikirim ke alamat lain): gagal di: ['meneruskan ke RPC verifikasi_pin', 'variabel PIN hanya dipakai di jalur sah (baca · periksa bentuk · teruskan ke RPC)']
+  [OK] p_pesanan_id dilepas dari badan RPC (I F-02/H F-04 mundur): gagal di: ['meneruskan p_pesanan_id ke RPC (I F-02/H F-04: kupon wajib terikat pesanan)']
+  [OK] CORS dikembalikan ke wildcard (H F-09 mundur): gagal di: ['CORS tidak wildcard (H F-09: asal dibatasi daftar sah)']
+
+HASIL: LOLOS — sumber sah diterima, 11 contoh cacat ditolak DENGAN ALASAN yang benar.
+PERIKSA ROADMAP — Resto Barokah
+  Tugas        : 193  (T0:15, T1:45, T10:16, T11:13, T2:19, T3:16, T4:10, T5:12, T6:8, T7:12, T8:15, T9:12)
+  Atribut 7x   : lengkap
+  Fitur M1-M12 : lengkap
+  ⚠️ DECISIONS : 102 tugas bertanda (dihitung per blok tugas, bukan kemunculan lambang)
+  Entitas §4   : 40 tabel resmi TECH_SPEC — semuanya wajib disebut di blok tugas
+  RPC §5       : 42 nama resmi TECH_SPEC — semuanya wajib disebut di blok tugas
+  ❓ tertangguh : 2 rujukan (semua sah)
+  Bukti [x]    : 0 sah · 146 ⏳ BUKTI-BELUM (transisi, baseline 146) · 0 cacat · tugas 'Dibuka kembali' masih [ ]: 0
+
+HASIL: LOLOS — semua pemeriksaan roadmap terpenuhi.
+UJI-DIRI periksa-roadmap
+  OK  kosong sah → bersih
+  OK  semua selesai sah → bersih
+  OK  terbuka bertanda sah → bersih
+  OK  terbuka tak bertanda ditolak → T-026 masih terbuka tetapi tidak ditandai ❓ pada tugas
+  OK  ID palsu ditolak → RUJUKAN MATI: ❓ T-999 tidak ada di docs/TERTANGGUH.md; T-026 masih terbuka tetapi tidak ditandai ❓ pada tugas
+  OK  penanda basi ditolak → ❓ T-025 basi: butir sudah selesai
+  OK  contoh format bukan butir nyata → bersih
+  OK  butir kedua tanpa penanda ditolak → T-027 masih terbuka tetapi tidak ditandai ❓ pada tugas
+  OK  penanda hanya di luar tugas ditolak → ['T-026 masih terbuka tetapi tidak ditandai ❓ pada tugas']
+  OK  file [x] nyata sah → 
+  OK  file [x] hilang ditolak → 
+  OK  file [x] hilang ditandai rencana sah → 
+  OK  file [ ] belum selesai dilewati → 
+  OK  [x] tanpa baris Bukti ditolak → T98-01: centang [x] tanpa bukti sah — tidak ada baris `- **Bukti:**`
+  OK  [x] Bukti berkas uji nyata sah → bersih
+  OK  [x] Bukti berkas uji karangan ditolak → T98-03: centang [x] tanpa bukti sah — baris Bukti tidak menunjuk berkas uji/penjaga yang ada di repo maupun baris U-nn yang sudah Lee isi OK
+  OK  [x] Bukti berkas bukan uji (kode aplikasi) ditolak → T98-04: centang [x] tanpa bukti sah — baris Bukti tidak menunjuk berkas uji/penjaga yang ada di repo maupun baris U-nn yang sudah Lee isi OK
+  OK  [x] transisi BUKTI-BELUM terdaftar baseline sah → bersih
+  OK  [x] transisi BUKTI-BELUM di luar baseline ditolak → T98-06: centang [x] tanpa bukti sah — T98-06 tidak terdaftar di BUKTI_BELUM_BASELINE.txt (daftar beku, hanya boleh menyusut)
+  OK  [x] Dibuka kembali + transisi ditolak → T98-05: centang [x] tanpa bukti sah — tugas 'Dibuka kembali' tidak boleh memakai penanda transisi
+  OK  [x] Bukti U-nn yang Lee isi OK sah → bersih
+  OK  [x] Bukti U-nn belum diisi Lee ditolak → T98-08: centang [x] tanpa bukti sah — baris Bukti tidak menunjuk berkas uji/penjaga yang ada di repo maupun baris U-nn yang sudah Lee isi OK
+  OK  [ ] tanpa Bukti dilewati → bersih
+  OK  ID fase berhuruf ikut diperiksa → T1B-99: centang [x] tanpa bukti sah — tidak ada baris `- **Bukti:**`
+  OK  tugas Dibuka kembali yang masih [ ] dihitung → {'sah': 0, 'transisi': 0, 'cacat': 0, 'dibuka_kembali_terbuka': 1}
+  OK  pembaca tanda tangan Lee di Buku Uji (hanya OK) → {'U-01'}
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+PERIKSA FONDASI INDEPENDEN — Resto Barokah
+  · tugas terbaca: 193
+  · fase: F0=15, F1=45, F2=19, F3=16, F4=10, F5=12, F6=8, F7=12, F8=15, F9=12, F10=16, F11=13
+  · atribut hilang: 0 · pengisi kosong: 0
+  · tugas ⚠️: 102 (tanpa kewajiban log: 0)
+  · rujukan § mati: 0
+  · tertangguh terbuka: 2 · selesai: 26 · dirujuk roadmap: 2
+  · entitas TECH_SPEC §4 terbaca: 40 · tanpa tugas: 0
+  · RPC TECH_SPEC §5 terbaca: 42 · tanpa tugas: 0
+
+HASIL: BERSIH — tidak ada temuan dari pemeriksa independen.
+UJI DIRI — pemeriksa laporan audit (harus bisa LOLOS & harus bisa MENOLAK)
+  [OK] laporan-bagus.md: hasil=0 harapan=0 alasan=0
+  [OK] laporan-malas.md: hasil=1 harapan=1 alasan=13
+         · kepala laporan tidak lengkap: **Commit yang diaudit:** hilang
+         · kepala laporan tidak lengkap: **Paket audit:** hilang
+         · SHA commit yang diaudit tidak ditemukan
+  [OK] laporan-palsu-bersih.md: hasil=1 harapan=1 alasan=2
+         · verdict 'BERSIH' tidak konsisten: ada 1 temuan K-1/K-2 TERVERIFIKASI
+         · bagian 7 wajib menyebut bahwa laporan INI adalah satu-satunya berkas yang dibuat auditor (tanpa itu, aturan 'repo harus bersih' bertabrakan dengan kewajiban menulis laporan)
+  [OK] laporan-tanpa-kalibrasi.md: hasil=1 harapan=1 alasan=2
+         · AUD-3 wajib memuat 'Ditemukan: X dari Y' pada bagian 5 (kalibrasi cacat tanaman)
+         · bagian 7 wajib menyebut bahwa laporan INI adalah satu-satunya berkas yang dibuat auditor (tanpa itu, aturan 'repo harus bersih' bertabrakan dengan kewajiban menulis laporan)
+NILAI KALIBRASI AUDITOR
+  ditemukan : 3/3  (100%)
+    K-1: 1/1
+    K-2: 1/1
+    K-3: 1/1
+  K-1/K-2   : 2/2 (wajib semua)
+  temuan palsu: 0
+
+HASIL: TERKALIBRASI — auditor terbukti menemukan cacat berat; verdict BERSIH-nya boleh dipercaya.
+  [OK] penilai kalibrasi · kalibrasi-penuh.md: hasil=0 harapan=0
+NILAI KALIBRASI AUDITOR
+  ditemukan : 2/3  (67%)
+    K-1: 1/1
+    K-2: 1/1
+    K-3: 0/1
+  K-1/K-2   : 2/2 (wajib semua)
+  temuan palsu: 1
+
+HASIL: BELUM TERKALIBRASI — verdict BERSIH tidak boleh dipercaya:
+  - tingkat deteksi 67% < 70%
+  - ada 1 temuan palsu (bukan cacat tanaman, dilaporkan sebagai temuan)
+  [OK] penilai kalibrasi · kalibrasi-sebagian.md: hasil=1 harapan=1
+  [OK] pemecah artefak (berkas · perintah · pola): 10 contoh (perintah, pola, jalur relatif, dan yang benar-benar hilang) dipisah dengan benar
+  [OK] pembuat paket audit (--paket/--fase): paket menyeluruh & per fase bisa dibuat, cakupannya sesuai permintaan, lingkup dari pohon + kebal meja kerja kotor
+  [OK] jalur pulang laporan (--ambil-laporan): laporan ditarik dari cabang sesi auditor; nama sama antar sesi & versi tertimpa di dalam satu cabang tidak ada yang hilang
+
+HASIL: LOLOS — pemeriksa laporan & penilai kalibrasi terbukti bisa MENOLAK yang buruk dan MENERIMA yang baik, dan jalur pulang laporan (auditor → sesi kerja) terbukti bekerja.
+OK CI gagal + sebar sukses pada SHA sama → tetap BELUM HIJAU: hijau=False rincian=BELUM HIJAU — 1 run CI pada commit itu: failure
+OK CI sukses pada SHA sama → HIJAU: hijau=True rincian=success (run 3, `.github/workflows/ci.yml`)
+OK sebar sukses tanpa run CI → BELUM HIJAU: hijau=False rincian=TIDAK ADA run CI `.github/workflows/ci.yml` untuk commit itu
+HASIL UJI-DIRI CI TARGET: LOLOS — 3 kasus, 0 tidak sesuai.
+PERIKSA PARITAS CI — 132 perintah CI dibandingkan dengan skrip lokal
+HASIL: LOLOS — skrip lokal memuat semua perintah CI (boleh menambah pemeriksaan lokal).
+UJI-DIRI PARITAS CI
+  OK skrip lokal utuh diterima: lolos
+  OK mutasi satu perintah CI ditolak: python3 alat/uji-mutasi-0025.py
+HASIL UJI-DIRI: LOLOS — 2 kasus, 0 tidak sesuai.
+PERIKSA BUKU PEDOMAN INDUK — 799 baris · 16 alur · 4 blok prompt · 30 perintah · 13 mekanisme · 89 rujukan berkas
+
+HASIL: LOLOS — buku induk lengkap, rujukan hidup, prompt identik dengan sumbernya.
+UJI-DIRI periksa-panduan
+  OK  salinan utuh → kode 0
+  OK  mutasi: satu alur dihapus dari Bagian B → ditolak
+  OK  mutasi: label pemakai prompt dihapus → ditolak
+  OK  mutasi: buku memanggil "Bapak" → ditolak
+  OK  mutasi: penunjuk buku di Prompt Pembuka dihapus → ditolak
+  OK  mutasi: kartu sesi berhenti mencetak penunjuk buku → ditolak
+  OK  mutasi: batas mode bimbingan dihapus dari AL-14 → ditolak
+  OK  mutasi: aturan 'pemeriksaan rutin boleh ditunda' dihapus → ditolak
+  OK  mutasi: pagar serah langsung DI CHAT dalam blok siap-tempel dihapus → ditolak oleh pagar AL-15
+  OK  mutasi: pagar serah tautan saja tidak cukup dihapus → ditolak oleh pagar AL-15
+  OK  mutasi: pagar serah --periksa-serah dihapus → ditolak oleh pagar AL-15
+  OK  mutasi: pagar serah URL versi tetap (SHA penuh) dihapus → ditolak oleh pagar AL-15
+  OK  mutasi: pagar serah commit + push ke cabang sesi sendiri dihapus → ditolak oleh pagar AL-15
+  OK  mutasi: pagar serah draf respons dihapus → ditolak oleh pagar AL-15
+  OK  mutasi: pagar serah repo + cabang sumber + SHA paket + path dihapus → ditolak oleh pagar AL-15
+  OK  mutasi: pagar serah Tanpa meminta Lee lagi dihapus → ditolak oleh pagar AL-15
+  OK  mutasi: pagar serah alat/kirim-laporan.py dihapus → ditolak oleh pagar AL-15
+  OK  mutasi: pagar serah verifikasi remote dihapus → ditolak oleh pagar AL-15
+  OK  mutasi: pagar serah BELUM TERVERIFIKASI dihapus → ditolak oleh pagar AL-15
+  OK  mutasi: pagar serah working tree bisa bersama dihapus → ditolak oleh pagar AL-15
+  OK  mutasi: angka berkas uji dibuat basi → ditolak
+  OK  mutasi: urutan sub-bagian ditukar → ditolak
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+  [catatan] CI untuk commit handoff BELUM TERBACA/masih berjalan saat handoff ditulis (queued (run 36598458128, commit 1dc8eba2) — tunggu sampai selesai). Ini wajar, bukan CI merah: jalankan `gh run list --branch <cabang ini> --limit 3` — bila run terbaru success atau masih in_progress/queued dan run terakhir yang selesai success, LANJUT bekerja; BERHENTI hanya bila run yang selesai terakhir failure/timed_out.
+PERIKSA SIAP-LANJUT — handoff sesi baru (cabang, commit, berkas prompt statis, rencana)
+  [X] ruang kerja KOTOR (5 berkas belum di-commit) — sesi baru akan kehilangan pekerjaan yang belum di-push
+  [X] PROMPT_SESI_BARU.md baris 'SESI YANG AKU LANJUT:' menunjuk `arena/01a0e747-resto-barokah`, padahal pekerjaan terakhir ada di `arena/01a0eff7-resto-barokah` — kalau Lee menyalin berkas itu apa adanya, sesi baru mendarat di cabang yang TIDAK memuat pekerjaan ini. Perbaiki: python3 alat/lanjut-sesi.py --siapkan --lanjut-dari arena/01a0eff7-resto-barokah
+  [X] commit terakhir TIDAK memperbarui docs/ops/SIAP-LANJUT.md — handoff basi satu batch (jalankan: python3 alat/lanjut-sesi.py --siapkan, lalu commit)
+  [X] commit terakhir TIDAK memperbarui PROJECT_STATE.md — handoff basi satu batch (jalankan: python3 alat/lanjut-sesi.py --siapkan, lalu commit)
+  [X] commit terakhir TIDAK memperbarui STATUS.md — handoff basi satu batch (jalankan: python3 alat/lanjut-sesi.py --siapkan, lalu commit)
+  [X] handoff menulis commit keadaan 1dc8eba2, padahal induk commit terakhir 9abafe6f — berkas handoff tidak segar
+----------------------------------------------------------------------
+HASIL: GAGAL — 6 masalah pada handoff lanjut-sesi
+EXIT_AKHIR=1

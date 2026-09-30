@@ -57,7 +57,7 @@ describe('bukaLaciTercatat (PMB1-F-010)', () => {
     })
     vi.mocked(klienSupabase).mockReturnValue({ rpc } as never)
 
-    const hasil = await bukaLaciTercatat('manual', null)
+    const hasil = await bukaLaciTercatat('manual')
     expect(hasil.berhasil).toBe(false)
     expect(hasil.kode).toBe('ALASAN_WAJIB')
     expect(hasil.byte).toBeUndefined()
