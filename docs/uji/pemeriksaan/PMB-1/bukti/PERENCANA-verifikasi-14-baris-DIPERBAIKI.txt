@@ -1,0 +1,55 @@
+BUKTI PERENCANA — verifikasi awal 14 baris DIPERBAIKI (bekal Hakim potongan F-02/F-03/F-04/F-05/F-07)
+Ditulis: 2026-09-30 20:57 WIB · cabang arena/01a0e747-resto-barokah · HEAD 0c50123
+Catatan peran: ini BUKAN penghakiman. Perencana hanya memastikan (a) sha perbaikan yang diklaim benar-benar ada di cabang,
+(b) berkas uji/penjaga yang disebut benar-benar ADA, (c) ujinya benar-benar BERJALAN dan hijau di pohon ini.
+Keputusan DITUTUP / kembali TERVERIFIKASI tetap milik Hakim sesi lain (aturan: pembangun tidak menutup temuannya).
+========================================================================
+
+1. SHA PERBAIKAN (git cat-file -e) — 13 sha unik, semuanya ADA:
+   348df84 (F-010) · 5c6493b (F-020) · a8ff618 (F-021) · 724f308 (F-031) · 75b0bd6 (F-032) · 87c649b (F-036/F-063)
+   436816b (F-038) · 04ab2e9 (F-039) · b44914e (F-046) · 39bfd18 (F-049) · d94c10c (F-060) · 2999d6f (F-076) · d7d5099 (F-096)
+
+2. BERKAS YANG DISEBUT BARIS PERBAIKAN — semua ada di pohon ini (tidak ada nama karangan):
+   supabase/migrations/0089…0094 (6 migrasi) · supabase/tes/{buka_laci_tercatat, voucher_wajib_identitas_terverifikasi,
+   daftar_perangkat_beru_peran_berkuasa, voucher_kasir_wajib_identitas, pin_bukan_orakel_batas_akun, selisih_kas_kekurangan_terlihat}.sql
+   aplikasi/src/{lib/laci.ts, lib/laci.test.ts, lib/printer/struk.ts, lib/printer/struk.test.ts, lib/voucher.ts, lib/voucher.test.ts,
+   hook/useRiwayatTransaksi.ts(+test), hook/useAlamatCabang.test.ts, komponen/Struk.test.tsx, layar/voucher/Daftar.tsx(+test)}
+   alat/{eksekusi-ringkasan-harian.mjs, eksekusi-peringatan-batas.mjs, pantau_batas.py, peta-ui.py, uji-peta-ui.py, periksa-gerbang-ci.py,
+   periksa-fondasi-independen.py, periksa-panduan.py} · docs/uji/pemeriksaan/PMB-1/bukti/F-03-hakim-owner-perangkat.sql (relatif PMB-1)
+
+3. UJI SQL PENDUKUNG (node alat/uji-sql.mjs <berkas>) — 6/6 LOLOS:
+     buka_laci_tercatat.sql                        rc=0 :: HASIL: LOLOS
+     voucher_wajib_identitas_terverifikasi.sql     rc=0 :: HASIL: LOLOS
+     daftar_perangkat_beru_peran_berkuasa.sql      rc=0 :: HASIL: LOLOS
+     voucher_kasir_wajib_identitas.sql             rc=0 :: HASIL: LOLOS
+     pin_bukan_orakel_batas_akun.sql               rc=0 :: HASIL: LOLOS
+     selisih_kas_kekurangan_terlihat.sql           rc=0 :: HASIL: LOLOS
+   SELESAI
+
+4. ALAT/PENJAGA YANG DISEBUT PERBAIKAN — 8/8 rc=0:
+   B. ALAT/PENJAGA YANG DISEBUT PERBAIKAN
+     python3 alat/periksa-fondasi-independen.py           rc=0 :: HASIL: BERSIH — tidak ada temuan dari pemeriksa independen.
+     python3 alat/periksa-panduan.py                      rc=0 :: HASIL: LOLOS — buku induk lengkap, rujukan hidup, prompt identik den
+     python3 alat/periksa-gerbang-ci.py                   rc=0 :: HASIL: LOLOS — gerbang CI utuh (bukti bisa MENOLAK: jalankan dengan 
+     python3 alat/peta-ui.py --uji-diri                   rc=0 :: HASIL UJI DIRI: LULUS (7 mutasi diuji, 0 gagal).
+     python3 alat/uji-peta-ui.py                          rc=0 :: HASIL UJI DIRI: LULUS (7 mutasi diuji, 0 gagal).
+     python3 alat/pantau_batas.py --uji-diri              rc=0 :: Uji-diri pantau_batas.py: 6/6 skenario LOLOS 100%.
+     node alat/eksekusi-ringkasan-harian.mjs --uji-diri   rc=0 :: UJI DIRI eksekusi-ringkasan-harian SELESAI — LOLOS
+     node alat/eksekusi-peringatan-batas.mjs --uji-diri   rc=0 :: UJI DIRI eksekusi-peringatan-batas SELESAI — LOLOS
+   
+   C. UJI TYPE SCRIPT (menunggu npm ci selesai)
+
+5. UJI TYPESCRIPT PENDUKUNG (npx vitest run <berkas>) — 7/7 berkas lulus:
+     src/lib/laci.test.ts                          rc=0 ::  Test Files  1 passed (1) 
+     src/lib/printer/struk.test.ts                 rc=0 ::  Test Files  1 passed (1) 
+     src/hook/useRiwayatTransaksi.test.ts          rc=0 ::  Test Files  1 passed (1) 
+     src/hook/useAlamatCabang.test.ts              rc=0 ::  Test Files  1 passed (1) 
+     src/lib/voucher.test.ts                       rc=0 ::  Test Files  1 passed (1) 
+     src/komponen/Struk.test.tsx                   rc=0 ::  Test Files  1 passed (1) 
+     src/layar/voucher/Daftar.test.tsx             rc=0 ::  Test Files  1 passed (1) 
+
+6. CATATAN UNTUK HAKIM
+   - Yang BELUM dibuktikan di sini: bahwa uji itu benar-benar MENANGKAP cacat aslinya (mutasi MERAH) — itu bukti yang sudah
+     ditulis Pembangun di kartu B masing-masing; Hakim tetap wajib mereproduksi sendiri.
+   - Dua temuan sengaja berhenti di DIPERBAIKI dan menunggu keputusan Lee: F-019 dan F-037 (A1), F-048 (butuh operator).
+   - Saklar klaster cara masuk (F-036/F-063) bawaan FALSE pada migrasi 0090 — kalau Hakim menyalakannya saat uji, kembalikan lagi.

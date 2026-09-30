@@ -118,3 +118,13 @@ Ditulis: 2026-09-30 19:30 WIB · cabang arena/01a0e747-resto-barokah
     menambah baris tanpa mendaftarkannya akan membuat penjaga gerbang CI MERAH karena alasan lain. Karena itu instrumentasi = perubahan dua berkas proyek
     (ci.yml + penjaga) yang bukan wewenang Perencana sekarang (temuan F-219 masih BARU, belum ditinjau Hakim).
     Catatan untuk Pembangun G-01 kelak: perbaikan ini menyentuh DUA berkas (ci.yml + alat/periksa-gerbang-ci.py) — daftarkan perintah diagnostiknya.
+
+17. SAMPEL KEENAM — run 36724239393 (0c50123) SUCCESS; langkah 60 selesai normal.
+    Rekap langkah 60 (6 run): 00cb4ee SUCCESS · ed3a229 GAGAL 5s · 7ba370e GAGAL 5s · f16cf20 SUCCESS · adca16a GAGAL 5s · 0c50123 SUCCESS
+    → 3 gagal / 3 success pada pohon yang secara isi setara = flake ~50% (bukan cacat isi cabang).
+
+18. MARGIN TIMEOUT JOB — risiko kedua yang belum tercatat
+    timeout-minutes job 'periksa' = 25 menit. Durasi job pada run yang SUCCESS:
+    00cb4ee 21m05s · f16cf20 21m04s · 0c50123 23m05s → margin hanya ~2–4 menit.
+    Bila runner sedang lambat (variasi GitHub), job bisa mati karena TIMEOUT dan itu akan terbaca seperti 'kegagalan isi'.
+    Usulan untuk Pembangun G-01 (bersama usulan §16): naikkan timeout-minutes secukupnya ATAU pecah langkah besar supaya jejak waktu per perintah terlihat.
