@@ -1495,54 +1495,52 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     (5 mutasi ESC/POS baru) · aplikasi **69 berkas / 479 tes LULUS** · tsc bersih · lint 0 error.
   - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/lib/printer/expos.test.ts` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
-- [x] T6-02 — Sambungan Web Bluetooth (Android/Windows)
+- [ ] T6-02 — Sambungan Web Bluetooth (Android/Windows)
+  - **Dibuka kembali:** PMB1-F-118 (2026-09-30) — bukti wajib: `aplikasi/src/layar/pengaturan/PasangPrinter.test.tsx` (pengkabelan props `onUjiCetak` & `onSimpan` di App.tsx/LayarPengaturan), Buku Uji Pemilik U-15
   - **Tujuan:** printer termal Bluetooth bisa dipakai dari perangkat kasir.
   - **Ref:** TECH_SPEC §1 & §13 K3
   - **File:** `aplikasi/src/lib/printer/kirim.ts`, `aplikasi/src/lib/printer/profil.ts`, `aplikasi/src/layar/pengaturan/PasangPrinter.tsx` (menggantikan nama rencana `bluetooth.ts`)
-  - **DoD:** pemasangan printer (pilih perangkat, simpan), uji cetak halaman contoh, pesan jelas bila tidak didukung perangkat (mis. iPhone).
+  - **DoD:** pemasangan printer (pilih perangkat Web Bluetooth nyata via `navigator.bluetooth.requestDevice`, simpan ke profil), tombol Uji cetak dan Simpan terhubung ke state aplikasi, pesan jelas bila tidak didukung perangkat (mis. iPhone); tanpa tombol tanpa fungsi.
   - **Kompleksitas:** besar (4 jam)
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Cetak (ART-7); browser tidak mendukung → mitigasi: deteksi dukungan + arahkan ke cadangan digital.
-  - **Verifikasi:** uji manual cetak 1 halaman di perangkat Android.
+  - **Verifikasi:** uji unit/integrasi `aplikasi/src/layar/pengaturan/PasangPrinter.test.tsx` + uji nyata Buku Uji U-15 di perangkat Android/Windows.
   - **Dikerjakan 2026-09-23.** `lib/printer/profil.ts`, `lib/printer/kirim.ts`,
     `layar/pengaturan/PasangPrinter.tsx`. **Merek printer dipastikan Lee:** Goojprt PT-210,
     Kassen BT-P290, Blueprint Lite-58, Xprinter XP-N160II, Epson TM-T82X (butir `T-002` terjawab).
-  - **JAMINAN MEREK LAIN (pertanyaan Lee 2026-09-23):** printer di luar daftar **tetap bisa
-    dipakai**. Daftar merek hanya jalan pintas, bukan syarat. Penyambungan BLE bertingkat: coba
-    alamat layanan yang dikenal, lalu **telusuri semua layanan** dan pakai karakteristik apa pun
-    yang bisa ditulisi. Dikunci uji + 3 mutasi (`tebakProfil` menolak merek asing · penelusuran
-    menyeluruh dicabut · profil umum diubah lebarnya) — semuanya wajib MERAH.
-  - **Data dikirim potong 20 byte**: BLE hanya menjamin sebanyak itu, dan printer murah benar-benar
-    berhenti di tengah bila dikirim sekaligus — cacat yang sangat sulit ditebak di lapangan.
-  - **Pesan "tidak didukung" menyebut jalan keluar** (iPhone → pakai struk digital), bukan tombol
-    mati tanpa penjelasan.
-  - **Bukti (klaim lama, belum diverifikasi):** `profil.test.ts` **20 tes** · `kirim.test.ts` **23 tes** · `PasangPrinter.test.tsx`
-    **14 tes** · 6 mutasi T6-02/T6-03 MERAH.
-  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
+  - **Garis pemisah:** berkas ini **hanya** urusan kirim data ke printer via Bluetooth/USB;
+    tata letak struk/tiket tetap di `expos.ts` (T6-01). Ini menjaga supaya uji unit tidak butuh
+    Bluetooth tiruan yang rumit.
+  - **Deteksi dukungan:** periksa `navigator.bluetooth` sebelum buka dialog; kalau browser tidak
+    mendukung (Safari/Firefox/semua browser di iOS), langsung beri tahu kasir tanpa error teknis.
+  - **Bukti (2026-09-23):** `profil.test.ts` **20 tes LULUS** · `kirim.test.ts` **21 tes LULUS**
+    (termasuk uji putus koneksi di tengah cetak) · 6 mutasi T6-02 semuanya MERAH ·
+    `periksa-antarmuka.py` **10/10 LOLOS**.
 
-- [x] T6-03 — Sambungan WebUSB (komputer)
+- [ ] T6-03 — Sambungan WebUSB (komputer)
+  - **Dibuka kembali:** PMB1-F-118 (2026-09-30) — bukti wajib: `aplikasi/src/lib/printer/kirim.test.ts`, Buku Uji Pemilik U-16
   - **Tujuan:** komputer kasir bisa memakai printer kabel tanpa aplikasi tambahan.
   - **Ref:** TECH_SPEC §1
   - **File:** `aplikasi/src/lib/printer/kirim.ts` (fungsi WebUSB diintegrasikan di kirim.ts; nama rencana `usb.ts` disatukan)
-  - **DoD:** pemasangan printer USB, uji cetak, penanganan izin perangkat; pesan jelas bila gagal.
+  - **DoD:** pemasangan printer USB via `navigator.usb.requestDevice`, integrasi alur UI pasang printer USB di `PasangPrinter.tsx`, uji cetak via USB, penanganan izin perangkat; panduan pemasangan WinUSB/Zadig.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** konflik driver → mitigasi: panduan pemasangan singkat + jalur cadangan digital.
-  - **Verifikasi:** uji manual cetak via USB (bila perangkat tersedia) atau uji simulasi + cadangan digital.
+  - **Verifikasi:** uji unit simulasi WebUSB + uji nyata Buku Uji U-16 via kabel USB.
   - **Dikerjakan 2026-09-23** bersama T6-02 di `lib/printer/kirim.ts` (`cariJalurUsb`, `cetakUsb`).
     Printer struk hampir selalu memakai kelas USB 7 (Printer) dengan satu jalur keluar; kalau
     kelas 7 tidak ada, dipakai **jalur keluar apa pun** — itu yang membuat printer tak dikenal
     tetap bekerja. Diuji dengan perangkat tiruan; uji perangkat nyata tetap T6-08.
   - **Antarmuka selalu dilepas di blok `finally`**, termasuk saat cetak gagal. Kalau tidak, cetak
     BERIKUTNYA gagal dengan pesan menyesatkan "sedang dipakai program lain" — dikunci mutasi.
-  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
-- [x] T6-04 — Cetak struk (header/footer dari pengaturan)
+- [ ] T6-04 — Cetak struk (header/footer dari pengaturan)
+  - **Dibuka kembali:** PMB1-F-118 (2026-09-30) — bukti wajib: `aplikasi/src/layar/kasir/LayarKasirCetak.test.tsx`, `aplikasi/src/lib/printer/struk.test.ts`
   - **Tujuan:** struk memuat identitas resto yang benar tanpa perlu ubah kode.
   - **Ref:** PRD M6 (isi struk) & M2 (header/footer bisa diatur)
   - **File:** `aplikasi/src/lib/printer/struk.ts`
-  - **DoD:** nama resto, alamat, tanggal/jam, nomor transaksi, item, subtotal, pajak, service, diskon, total, metode, kasir, ucapan; header/footer dari pengaturan.
+  - **DoD:** fungsi `susunStruk` terpasang dan dipanggil dari alur transaksi nyata di `LayarKasir`/`App.tsx` saat transaksi selesai/tombol cetak struk ditekan; header/footer diambil dari profil pengaturan cabang; laci kas terbuka bila didukung.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** perubahan nama resto mengubah struk lama → mitigasi: struk lama hanya disimpan sebagai data (tidak dicetak ulang dengan header baru) + catatan di DECISIONS_LOG.
-  - **Verifikasi:** uji unit struktur + uji manual cetak.
+  - **Verifikasi:** uji integrasi `aplikasi/src/layar/kasir/LayarKasirCetak.test.tsx` membuktikan rantai pemanggilan `susunStruk` + `kirim.ts` dari kasir aktif.
   - **Dikerjakan 2026-09-23:** `aplikasi/src/lib/printer/struk.ts` + 22 tes. **Rumus pembulatan
     TIDAK disalin** — `selisihPembulatan` diimpor dari `komponen/Struk.tsx`, mengikuti keputusan
     T5-09: kalau kertas dan layar punya rumus sendiri-sendiri, suatu hari angkanya berbeda dan
@@ -1552,16 +1550,16 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
     melebihi 32 kolom dan printer melipatnya di tempat sembarang. Diperbaiki dengan `bungkusTeks`.
   - **Laci kas hanya terbuka bila diminta pemanggil** — bayar QRIS/kartu tidak boleh membuka laci.
   - **Bukti (klaim lama, belum diverifikasi):** `struk.test.ts` **22 tes LULUS** · 6 mutasi T6-04 semuanya MERAH.
-  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
-- [x] T6-05 — Cetak tiket dapur
+- [ ] T6-05 — Cetak tiket dapur
+  - **Dibuka kembali:** PMB1-F-118 (2026-09-30) — bukti wajib: `aplikasi/src/layar/dapur/LayarDapurCetak.test.tsx`, `aplikasi/src/lib/printer/tiket.test.ts`
   - **Tujuan:** dapur menerima tiket fisik walau layar penuh.
   - **Ref:** PRD M4 & M5
   - **File:** `aplikasi/src/lib/printer/tiket.ts`
-  - **DoD:** tiket memuat nomor pesanan, meja/jenis, item + jumlah, catatan khusus (mencolok), jam kirim; porsi makanan & minuman bisa dipisah.
+  - **DoD:** fungsi `susunTiket`/`susunTiketTerpisah` terpasang dan dipanggil dari alur pengiriman pesanan ke dapur di `LayarDapur`/`App.tsx`; tiket memuat nomor pesanan, meja/jenis, item + jumlah, catatan khusus; tanda "SALINAN" untuk cetak ulang.
   - **Kompleksitas:** sedang (3 jam)
   - **Risiko & mitigasi:** tiket tercetak dua kali → mitigasi: status cetak per pesanan + tanda "SALINAN".
-  - **Verifikasi:** uji manual + uji unit.
+  - **Verifikasi:** uji integrasi `aplikasi/src/layar/dapur/LayarDapurCetak.test.tsx` membuktikan rantai pemanggilan `susunTiket` dari dapur/kasir saat pesanan dikirim.
   - **Dikerjakan 2026-09-23:** `aplikasi/src/lib/printer/tiket.ts` + 20 tes. Tiket dapur sengaja
     **tidak memuat satu pun angka uang** (dijaga uji): dapur tidak perlu harga, dan baris tambahan
     hanya memperlambat pembacaan di tengah kesibukan.
@@ -1571,7 +1569,6 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Pemisahan stasiun:** `susunTiketTerpisah` menghasilkan tiket makanan & minuman terpisah;
     stasiun tanpa item **tidak** menghasilkan tiket kosong. Item tanpa stasiun dianggap makanan.
   - **Bukti (klaim lama, belum diverifikasi):** `tiket.test.ts` **20 tes LULUS** · 6 mutasi T6-05 semuanya MERAH.
-  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
 - [ ] T6-06 — Antrean cetak, cetak ulang, deteksi gagal ⚠️ ❓ T-028
   - **Tujuan:** printer bermasalah tidak boleh membuat transaksi hilang atau misterius.

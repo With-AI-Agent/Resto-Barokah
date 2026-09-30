@@ -87,10 +87,6 @@ T5-09 rujukan-mesin
 T5-11 rujukan-mesin
 T5-12 rujukan-mesin
 T6-01 rujukan-mesin
-T6-02 uji-manual
-T6-03 uji-manual
-T6-04 uji-manual
-T6-05 uji-manual
 T7-01 uji-manual
 T7-02 tanpa-rujukan
 T7-03 uji-manual
