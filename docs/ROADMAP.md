@@ -1013,15 +1013,15 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Verifikasi:** uji manual pakai hanya papan ketik + pemeriksa kontras.
   - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
-- [x] T3-11 — Layar pesanan pelayan (HP di samping meja)
+- [ ] T3-11 — Layar pesanan pelayan (HP di samping meja)
+  - **Dibuka kembali:** PMB1-F-133 (2026-09-30) — bukti wajib: `aplikasi/src/layar/pelayan/LayarPelayanAlur.test.tsx`, Buku Uji Pemilik U-11 (skenario sinkronisasi dua perangkat kasir+pelayan) / `supabase/tes/pesanan_pelayan_sinkron.sql`
   - **Tujuan:** pelayan mencatat pesanan tanpa kembali ke kasir.
   - **Ref:** PRD M4 (kriteria selesai)
   - **File:** `aplikasi/src/layar/pelayan/LayarPelayan.tsx`
-  - **DoD:** tampilan ringkas untuk HP; hanya menu & meja cabangnya; pesanan masuk ke tagihan yang sama; tersinkron dengan kasir.
+  - **DoD:** tampilan ringkas untuk HP; hanya menu & meja cabangnya; pesanan masuk ke tagihan yang sama; tersinkron dengan kasir melalui alur kirim nyata (bukan sekadar pesan belum tersambung); penanganan konflik pesanan ganda.
   - **Kompleksitas:** sedang (4 jam)
   - **Risiko & mitigasi:** pesanan ganda antara pelayan & kasir → mitigasi: satu tagihan per meja + kunci idempoten + penyegaran langsung.
-  - **Verifikasi:** uji manual dua perangkat (kasir + HP) pada satu meja.
-  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
+  - **Verifikasi:** uji integrasi pelayan-kasir `aplikasi/src/layar/pelayan/LayarPelayanAlur.test.tsx` + Buku Uji Pemilik U-11 diuji nyata oleh Lee di dua perangkat.
 
 - [x] T3-12 — Daftar pesanan hari ini + filter
   - **Tujuan:** kasir/pelayan bisa menemukan pesanan dengan cepat.

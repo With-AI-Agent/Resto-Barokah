@@ -71,7 +71,6 @@ T3-04 uji-manual
 T3-07 uji-manual
 T3-08 uji-manual
 T3-10 uji-manual
-T3-11 uji-manual
 T3-12 uji-manual
 T3-14 rujukan-mesin
 T3-15 uji-manual
