@@ -521,3 +521,20 @@ integrasi & dijaga CI (K2) · `periksa-roadmap.py` menolak `[x]` tanpa baris `Bu
 `--gerbang 2` + bagian `## Sensus klaim` kartu K (K5). Buku Besar: 10 baris diberi `KEPUTUSAN LEE 2026-09-29 (…)` di kolom Perbaikan (klaster cara
 masuk F-001/F-036/F-052/F-063/F-117/F-127; B+ F-118/F-130/F-131/F-133). Giliran berikutnya: **PEMBANGUN dokumen F-09** (jujurkan T3-01/T3-06/
 T3-11/T6-02…05) dan **PEMBANGUN F-03** (klaster B + K-2 lainnya) — cabang terpisah, area berkas terpisah.
+
+**Putaran 11 (2026-09-30 siang; cabang 01a0eff4 & 01a0eff7) — INTEGRASI PEMBANGUN DOKUMEN F-09, PENOLAKAN eff7, TIGA PELAJARAN MEKANISME:**
+`arena/01a0eff4` (kartu `B-F-09.3`, CI hijau) diintegrasikan `af38951`: F-118/F-130/F-131/F-133 → **DIPERBAIKI** (ROADMAP T3-01/T3-06/T3-11/
+T6-02…T6-05 dijujurkan `[ ]` + `Dibuka kembali`, baseline BUKTI-BELUM 146 → 139). Dua efek samping cabang dikoreksi Perencana (`3e01d5c`): paragraf
+T6-02 ROADMAP (`JAMINAN MEREK LAIN`, pertanyaan Lee 2026-09-23) yang tertimpa teks versi lama dipulihkan; `bukti/B-F-09-rantai.txt` milik kartu
+`B-F-09` yang tertimpa dipulihkan (isi cabang → `B-F-09.3-rantai.txt`). `arena/01a0eff7` (lima potongan berturut-turut di satu cabang: B-F-03,
+B-F-04, B-F-05, B-F-02, B-F-07; 32 commit, 6 migrasi 0089–0094, 14 baris DIPERBAIKI) **TIDAK diintegrasikan**: CI tip `d73c7d0` MERAH pada
+`aplikasi/alat/periksa-uji.py` (`src/lib/voucher.ts` & `src/hook/useAlamatCabang.ts` tanpa `*.test.ts`), sedangkan kartu B-F-02/B-F-03 menulis
+"periksa-semua LOLOS" — skrip itu `set -e` dan mati di `lanjut-sesi.py` sebelum sampai ke pemeriksaan tersebut. Reproduksi lokal Perencana pada
+worktree tip: format/lint/typecheck/vitest/build/mutasi-app/uji-sql/mutasi 0012·0014·0046·0047·0049·0061·0063·0067 LOLOS; `periksa-uji.py` GAGAL.
+Temuan mekanisme **F-216** (bukti kekal tidak dijaga), **F-217** (naskah PEMBANGUN dokumen tanpa pagar diff), **F-218** (rantai bukti bertumpu pada
+skrip yang berhenti di kegagalan pertama) → BARU, G-04. Perbaikan mekanisme (`ed3a229` + commit putaran ini): `pmb-integrasi.py` berhenti sebelum
+merge bila cabang menimpa/menghapus `bukti/` lama, menghapus baris ROADMAP di luar pola PEMBANGUN dokumen (`--izinkan-hapus-roadmap` hanya Perencana),
+atau menambah `[x]` (K6); **arahan Lee 2026-09-30 "hasil harus masuk GitHub"** (REKAM §31 butir 22) ditanam: `alat/periksa-push.py`, baris
+`Ter-push sampai` wajib di kartu B (diisi mesin dari tip origin bila lupa), naskah §4/§5 + PROMPT_SINGKAT; `alat/rantai-bukti-giliran.py` menjalankan
+rantai CI dari `ci.yml` tanpa berhenti dan menjadi satu-satunya bukti rantai yang diterima. Giliran berikutnya: sesi eff7 memperbaiki cabangnya
+(dua berkas uji + rantai penuh LOLOS + Ter-push), **HAKIM 5 F-09** (4 DIPERBAIKI B-F-09.3), lalu integrasi eff7 dan HAKIM untuk F-02/F-03/F-04/F-05/F-07.

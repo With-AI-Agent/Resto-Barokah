@@ -19,9 +19,10 @@ direproduksi ternyata sudah tidak MERAH (kembalikan ke Hakim dengan catatan, jan
 [Daftar pertanyaan A/B yang konkret beserta dampak tiap pilihan — kalau tidak ada, tulis "tidak ada".]
 
 ## 4. Rantai bukti
-[Hasil nyata perintah berikut (bukan "sudah dijalankan"): `node alat/uji-sql.mjs` (butuh `npm ci --prefix alat`) → n LULUS / n GAGAL ·
-`python3 alat/uji-mutasi-0012.py` · `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` ·
-`python3 alat/periksa-pemeriksaan.py` · `python3 alat/periksa-bersih.py` · `python3 alat/periksa-push.py` → `TER-PUSH sampai <sha>`.
+[Hasil nyata perintah berikut (bukan "sudah dijalankan"): **`python3 alat/rantai-bukti-giliran.py --simpan bukti/B-<ID>-rantai.txt`** (jalan
+PENUH, rantai CI yang sama dengan GitHub tanpa berhenti di kegagalan pertama) → tempel baris `RINGKASAN RANTAI PENUH: n LOLOS · 0 GAGAL · n dilewati`
+dan `RANTAI: LOLOS` · `node alat/uji-sql.mjs` → n LULUS / n GAGAL · `python3 alat/periksa-pemeriksaan.py` · `python3 alat/periksa-bersih.py` ·
+`python3 alat/periksa-push.py` → `TER-PUSH sampai <sha>`. (`bash aplikasi/alat/periksa-semua.sh` BUKAN bukti giliran: `set -e`, mati di `lanjut-sesi.py`.)
 Simpan keluaran panjang di `bukti/B-<ID>-*.txt` — **hanya berkas baru berawalan ID kartumu**; berkas `bukti/` giliran lain tidak boleh
 diubah/ditimpa (bukti kekal, PMB1-F-216 — integrasi menolak).]
 

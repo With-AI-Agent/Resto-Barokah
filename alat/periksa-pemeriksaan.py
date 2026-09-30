@@ -131,7 +131,7 @@ BAGIAN_B = ["## 1. Temuan yang dibangun", "## 2. Yang sengaja tidak disentuh", "
 KEPALA_K = ["**Potongan:**", "**Sesi:**", "**Tanggal:**", "**Commit basis:**"]
 KEPALA_H = ["**Potongan:**", "**Sesi hakim:**", "**Independensi:**"]
 KEPALA_B = ["**Potongan:**", "**Sesi pembangun:**", "**Commit basis:**", "**Independensi:**"]
-RE_TERPUSH = re.compile(r"\*\*Ter-push sampai:\*\*\s*`?[0-9a-f]{7,40}\b")   # kartu B: bukti hasil giliran ada di origin (arahan Lee 2026-09-30)
+RE_TERPUSH = re.compile(r"\*\*Ter-push sampai:\*\*[\s`]*[0-9a-f]{7,40}\b")   # kartu B: bukti hasil giliran ada di origin (arahan Lee 2026-09-30)
 
 
 def _sel(baris: str) -> list[str]:

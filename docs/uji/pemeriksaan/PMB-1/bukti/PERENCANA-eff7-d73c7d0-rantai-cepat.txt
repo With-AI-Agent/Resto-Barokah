@@ -1,0 +1,31 @@
+# Bukti Perencana (arena/01a0e747, 2026-09-30 WIB) — penolakan integrasi arena/01a0eff7-resto-barokah tip d73c7d0
+# 1) CI GitHub: gh run list --branch arena/01a0eff7-resto-barokah → run 36669764403 d73c7d0 completed failure; langkah gagal: 'Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras'
+# 2) Reproduksi lokal pada worktree tip (alat/rantai-bukti-giliran.py --cepat --basis b0e3b5a; versi alat sebelum klasifikasi 'tak terbukti' jaringan):
+
+RINGKASAN RANTAI CEPAT (BUKAN setara CI penuh): 95 LOLOS · 3 GAGAL · 36 dilewati
+  × GAGAL — Cek sambungan Supabase (kunci publik saja — tugas T0-08): npm run cek:supabase
+  × GAGAL — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras: python3 aplikasi/alat/periksa-uji.py
+  × GAGAL — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras: python3 aplikasi/alat/periksa-uji.py --uji-diri
+  · dilewati — (langkah GitHub Actions: checkout/setup)
+  · dilewati — (langkah GitHub Actions: checkout/setup)
+  · dilewati — npm ci (node_modules sudah ada; --pasang untuk memaksa)
+  · dilewati — npm ci --prefix alat (node_modules sudah ada; --pasang untuk memaksa)
+RANTAI: GAGAL — jangan menyatakan selesai; perbaiki lalu ulangi (cepat)
+
+# 3) Keluaran periksa-uji.py pada tip:
+===== GAGAL rc=1 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 aplikasi/alat/periksa-uji.py
+OK: skrip uji ada (npm test → vitest run)
+OK: vitest terpasang (^5.0.1)
+OK: jsdom terpasang (^25.0.1)
+OK: @testing-library/react terpasang (^16.3.3)
+OK: konfigurasi uji mengenal berkas uji di src/
+INFO: 1012 uji terbaca di src/ (dijalankan oleh npm test)
+GAGAL: aplikasi/src/lib/voucher.ts tidak punya berkas uji (/tmp/wt-eff7/aplikasi/src/lib/voucher.test.ts wajib ada)
+GAGAL: aplikasi/src/hook/useAlamatCabang.ts tidak punya berkas uji (/tmp/wt-eff7/aplikasi/src/hook/useAlamatCabang.test.ts wajib ada)
+------------------------------------------------------------
+kerangka uji: 5 OK · 1 INFO · 2 GAGAL
+KEPUTUSAN: GAGAL
+
+
+# 4) Sebab bukti kartu keliru: aplikasi/alat/periksa-semua.sh baris 5 'set -euo pipefail', baris 125 lanjut-sesi.py (GAGAL di cabang giliran) → baris 126-186 tidak berjalan; bukti/B-F-02-periksa-semua.txt berakhir di 'HASIL: GAGAL — 6 masalah pada handoff lanjut-sesi'.
+# 5) Rantai yang LOLOS pada tip (dijalankan terpisah 04:44-04:54 UTC): format, lint, typecheck, vitest, build, uji-mutasi-app, uji-sql 139/139, uji-mutasi 0012/0014/0046/0047/0049/0061/0063/0067.

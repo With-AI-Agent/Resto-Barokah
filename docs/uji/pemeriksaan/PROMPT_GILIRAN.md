@@ -135,8 +135,13 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
   commit yang benar-benar ada di cabangmu** (alat integrasi Perencana memeriksanya; sha karangan = SENGKETA); (7) kartu
   `kartu/B-<POTONGAN>.md` dari `kartu/TEMPLAT_B.md` (lima bagian wajib: temuan yang dibangun · yang sengaja tidak disentuh · keputusan yang
   dibutuhkan Lee · rantai bukti · angka usaha — penjaga menolak kartu yang kurang), keluaran panjang di `bukti/B-<POTONGAN>-*.txt`.
-  Rantai bukti sebelum selesai: `node alat/uji-sql.mjs` (butuh `npm ci --prefix alat`), `python3 alat/uji-mutasi-0012.py`,
-  `python3 alat/uji-mutasi-0014.py`, `bash aplikasi/alat/periksa-semua.sh`, `python3 alat/periksa-pemeriksaan.py`, `python3 alat/periksa-bersih.py`.
+  Rantai bukti sebelum selesai (sejak 2026-09-30, pelajaran PMB1-F-218): **`python3 alat/rantai-bukti-giliran.py --simpan
+  docs/uji/pemeriksaan/PMB-1/bukti/B-<POTONGAN>-rantai.txt`** — alat ini menjalankan rantai CI yang sama dengan GitHub (dibaca langsung dari
+  `ci.yml`) **tanpa berhenti di kegagalan pertama** dan harus berakhir `RANTAI: LOLOS`; selama bekerja boleh `--cepat` (mutasi hanya yang
+  berubah), tetapi klaim selesai hanya dari jalan **penuh**. Jangan memakai `bash aplikasi/alat/periksa-semua.sh` sebagai bukti giliran: skrip
+  itu `set -e` dan mati di `lanjut-sesi.py` pada cabang giliran, sehingga puluhan pemeriksaan sesudahnya (termasuk `aplikasi/alat/periksa-uji.py`
+  — setiap `src/lib/*.ts` & `src/hook/*.ts` baru WAJIB punya `*.test.ts`) tidak pernah berjalan padahal kartu menulis "LOLOS". Lalu
+  `python3 alat/periksa-pemeriksaan.py`, `python3 alat/periksa-bersih.py`, dan `python3 alat/periksa-push.py`.
   **Larangan Pembangun:** tidak menyentuh produksi (deploy/migrasi produksi & Dashboard = milik Lee; kamu hanya menyiapkan berkas + uji lokal);
   tidak mengubah PIN/akun percontohan (keputusan Lee REKAM §31 butir 9) — `PMB1-F-001` **dilewati** sampai Lee memutuskan; perbaikan
   **tidak boleh membuat Lee tidak bisa masuk** dengan cara yang ia pakai sekarang (email + PIN akun percontohan dari peramban).
