@@ -137,9 +137,8 @@ const MUTASI = [
     // Jangkar mengikuti label kondisional hasil PMB1-F-020 (tarif pada label PB1).
     nama: 'Struk: pajak dihitung ulang di layar, bukan memakai angka peladen (T5-03)',
     berkas: 'src/komponen/Struk.tsx',
-    cari: 'label={data.tarifPajakPersen != null ? `PB1 ${data.tarifPajakPersen}%` : \'PB1 (pajak)\'}\n          nilai={rupiah(data.pajak)}',
-    ganti:
-      'label={\'PB1 (pajak)\'}\n          nilai={rupiah(Math.round(data.subtotal * 0.1))}',
+    cari: "label={data.tarifPajakPersen != null ? `PB1 ${data.tarifPajakPersen}%` : 'PB1 (pajak)'}\n          nilai={rupiah(data.pajak)}",
+    ganti: "label={'PB1 (pajak)'}\n          nilai={rupiah(Math.round(data.subtotal * 0.1))}",
     uji: 'src/komponen/Struk.test.tsx',
   },
   {
@@ -413,7 +412,8 @@ const MUTASI = [
     berkas: 'src/lib/printer/struk.ts',
     // Jangkar mengikuti label kondisional hasil PMB1-F-020 (tarif pada label PB1).
     cari: "  p.kiriKanan(\n    data.tarifPajakPersen != null ? `PB1 ${data.tarifPajakPersen}%` : 'PB1 (pajak)',\n    rupiah(data.pajak),\n  )\n  p.kiriKanan('Service', rupiah(data.service))",
-    ganti: "  if (data.pajak > 0) p.kiriKanan('PB1 (pajak)', rupiah(data.pajak))\n  if (data.service > 0) p.kiriKanan('Service', rupiah(data.service))",
+    ganti:
+      "  if (data.pajak > 0) p.kiriKanan('PB1 (pajak)', rupiah(data.pajak))\n  if (data.service > 0) p.kiriKanan('Service', rupiah(data.service))",
     uji: 'src/lib/printer/struk.test.ts',
   },
   {
