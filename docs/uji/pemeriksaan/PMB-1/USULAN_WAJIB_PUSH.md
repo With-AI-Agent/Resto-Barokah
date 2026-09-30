@@ -41,6 +41,15 @@
   "selesai tanpa push" menjadi MERAH, bukan kebiasaan.
 - (d) Menerapkan aturan "setiap commit perbaikan langsung di-push" (bukan menumpuk di akhir).
 
+## 3b. Penegasan ulang Lee (2026-09-30, pesan kedua di chat)
+
+Lee mengulang instruksinya secara eksplisit pada hari yang sama: *"Jangan lupa, hasilnya harus masuk
+github supaya agen di sesi lain bisa liat dan bisa integrasikan. Catat itu agar mekanisme ini
+ditingkatkan jika memang aturan ini belum tertanam di mekanisme tersebut."* Artinya aturan ini
+**berlaku mulai sekarang untuk setiap giliran PMB** (bukan sekadar usulan): akhir giliran wajib
+melaporkan **"Ter-push sampai `<sha>`"** dan bukti paritas `git rev-parse HEAD` = tip origin.
+Sesi pembangun ini menerapkannya sejak kartu B-F-03 dan tidak menunggu alat diubah.
+
 ## 4. Yang sudah dijalankan sesi ini (tanpa menunggu perubahan mekanisme)
 
 Semua commit giliran B-F-03 dan B-F-04 **langsung di-push** ke `origin/arena/01a0eff7-resto-barokah`
