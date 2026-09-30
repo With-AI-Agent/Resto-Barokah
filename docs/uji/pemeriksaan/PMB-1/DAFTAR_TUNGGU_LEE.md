@@ -9,14 +9,14 @@
 | Bagian | Isi | Jumlah |
 |---|---|---|
 | A1 | Masih menunggu keputusan/tindakan Lee | 2 |
-| A2 | Sudah diputuskan Lee, menunggu dieksekusi agent | 10 |
+| A2 | Sudah diputuskan Lee, menunggu dieksekusi agent | 6 |
 | B | Temuan K-1 terbuka | 6 |
-| C | Tugas ROADMAP dibuka kembali, masih `[ ]` | 0 |
-| D | Centang lama menunggu sensus klaim (⏳ BUKTI-BELUM) | 146 |
+| C | Tugas ROADMAP dibuka kembali, masih `[ ]` | 7 |
+| D | Centang lama menunggu sensus klaim (⏳ BUKTI-BELUM) | 139 |
 | E | Butir tertangguh terbuka | 2 |
 | F | Baris Buku Uji belum diisi Lee | 23 |
 
-Temuan terbuka semua tingkat: BARU 4 · TERVERIFIKASI 176 · PERLU-INFO 0 · DIPERBAIKI 0 · **total 180** (gerbang akhir PMB menuntut 0, kecuali DITANGGUHKAN oleh Lee dengan tanggal tinjau).
+Temuan terbuka semua tingkat: BARU 4 · TERVERIFIKASI 172 · PERLU-INFO 0 · DIPERBAIKI 4 · **total 180** (gerbang akhir PMB menuntut 0, kecuali DITANGGUHKAN oleh Lee dengan tanggal tinjau).
 
 ## A. Keputusan / tindakan yang ditunggu dari Lee (temuan terbuka berpenanda LEE)
 
@@ -38,13 +38,9 @@ Jumlah A1: **2**
 | PMB1-F-052 | K-1 | P-10-00 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** Pembangun menyiapkan perbaikan di kode + uji lokal saja (migrasi baru/kode di balik saklar), TIDAK dipasang ke produksi dan cara masuk Lee tidak berubah sampai Lee memer… |
 | PMB1-F-063 | K-1 | F-04 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** Pembangun menyiapkan perbaikan di kode + uji lokal saja (migrasi baru/kode di balik saklar), TIDAK dipasang ke produksi dan cara masuk Lee tidak berubah sampai Lee memer… |
 | PMB1-F-117 | K-2 | F-09 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** Pembangun menyiapkan perbaikan di kode + uji lokal saja (migrasi baru/kode di balik saklar), TIDAK dipasang ke produksi dan cara masuk Lee tidak berubah sampai Lee memer… |
-| PMB1-F-118 | K-2 | F-09 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (B+ Jaminan Tuntas):** jujurkan ROADMAP — sesi PEMBANGUN dokumen mengembalikan tugas yang belum dibangun ke [ ] dengan baris `Dibuka kembali: PMB1-F-nnn` + DoD terukur; fiturnya dibangun SESUD… |
 | PMB1-F-127 | K-1 | F-09 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** Pembangun menyiapkan perbaikan di kode + uji lokal saja (migrasi baru/kode di balik saklar), TIDAK dipasang ke produksi dan cara masuk Lee tidak berubah sampai Lee memer… |
-| PMB1-F-130 | K-2 | F-09 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (B+ Jaminan Tuntas):** jujurkan ROADMAP — sesi PEMBANGUN dokumen mengembalikan tugas yang belum dibangun ke [ ] dengan baris `Dibuka kembali: PMB1-F-nnn` + DoD terukur; fiturnya dibangun SESUD… |
-| PMB1-F-131 | K-2 | F-09 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (B+ Jaminan Tuntas):** jujurkan ROADMAP — sesi PEMBANGUN dokumen mengembalikan tugas yang belum dibangun ke [ ] dengan baris `Dibuka kembali: PMB1-F-nnn` + DoD terukur; fiturnya dibangun SESUD… |
-| PMB1-F-133 | K-2 | F-09 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (B+ Jaminan Tuntas):** jujurkan ROADMAP — sesi PEMBANGUN dokumen mengembalikan tugas yang belum dibangun ke [ ] dengan baris `Dibuka kembali: PMB1-F-nnn` + DoD terukur; fiturnya dibangun SESUD… |
 
-Jumlah A2: **10**
+Jumlah A2: **6**
 
 ## B. Temuan K-1 (berat) yang masih terbuka — wajib 0 sebelum data asli/pilot
 
@@ -63,9 +59,15 @@ Jumlah: **6**
 
 | Tugas | Judul | Temuan pembuka | Bukti yang wajib ada sebelum boleh dicentang lagi |
 |---|---|---|---|
-| — | — | — | (tidak ada) |
+| T3-01 | Layar kasir: katalog nyata dari database | PMB1-F-130 | `aplikasi/src/layar/kasir/Katalog.test.tsx` (uji pemuatan tabel menu_item basis data nyata, bukan data statis… |
+| T3-06 | Pindah meja + status meja | PMB1-F-131 | `supabase/tes/pindah_meja_riwayat.sql`, `aplikasi/src/layar/kasir/PemilihMeja.test.tsx` |
+| T3-11 | Layar pesanan pelayan (HP di samping meja) | PMB1-F-133 | `aplikasi/src/layar/pelayan/LayarPelayanAlur.test.tsx`, Buku Uji Pemilik U-11 (skenario sinkronisasi dua pera… |
+| T6-02 | Sambungan Web Bluetooth (Android/Windows) | PMB1-F-118 | `aplikasi/src/layar/pengaturan/PasangPrinter.test.tsx` (pengkabelan props `onUjiCetak` & `onSimpan` di App.ts… |
+| T6-03 | Sambungan WebUSB (komputer) | PMB1-F-118 | `aplikasi/src/lib/printer/kirim.test.ts`, Buku Uji Pemilik U-16 |
+| T6-04 | Cetak struk (header/footer dari pengaturan) | PMB1-F-118 | `aplikasi/src/layar/kasir/LayarKasirCetak.test.tsx`, `aplikasi/src/lib/printer/struk.test.ts` |
+| T6-05 | Cetak tiket dapur | PMB1-F-118 | `aplikasi/src/layar/dapur/LayarDapurCetak.test.tsx`, `aplikasi/src/lib/printer/tiket.test.ts` |
 
-Jumlah: **0**
+Jumlah: **7**
 
 ## D. Centang lama `⏳ BUKTI-BELUM` yang menunggu sensus klaim Tahap 2 PMB (belum berbukti menurut aturan K3)
 
@@ -74,15 +76,15 @@ Jumlah: **0**
 | T0 | 14 | T0-00, T0-01, T0-02, T0-03, T0-04, T0-05, T0-06, T0-07, T0-08, T0-09, T0-10, T0-11, T0-13, T0-14 |
 | T1 | 30 | T1-01, T1-02, T1-03, T1-04, T1-05, T1-06, T1-07, T1-08, T1-09, T1-10, T1-13, T1-23, T1-24, T1-25, T1-26, T1-27, T1-28, T1-29, T1-30, T1-36, T1-31, T1-32, T1-33, T1-34, T1-35, T1-39, T1-40, T1-41, T1-42, T1-43 |
 | T2 | 18 | T2-01, T2-02, T2-03, T2-04, T2-05, T2-06, T2-07, T2-08, T2-09, T2-10, T2-11, T2-12, T2-14, T2-15, T2-16, T2-17, T2-18, T2-19 |
-| T3 | 13 | T3-01, T3-02, T3-03, T3-04, T3-06, T3-07, T3-08, T3-10, T3-11, T3-12, T3-14, T3-15, T3-16 |
+| T3 | 10 | T3-02, T3-03, T3-04, T3-07, T3-08, T3-10, T3-12, T3-14, T3-15, T3-16 |
 | T5 | 11 | T5-01, T5-02, T5-03, T5-04, T5-05, T5-06, T5-07, T5-08, T5-09, T5-11, T5-12 |
-| T6 | 5 | T6-01, T6-02, T6-03, T6-04, T6-05 |
+| T6 | 1 | T6-01 |
 | T7 | 12 | T7-01, T7-02, T7-03, T7-04, T7-05, T7-06, T7-07, T7-08, T7-09, T7-10, T7-11, T7-12 |
 | T8 | 15 | T8-01, T8-02, T8-03, T8-04, T8-05, T8-06, T8-07, T8-08, T8-09, T8-10, T8-11, T8-12, T8-13, T8-14, T8-15 |
 | T9 | 12 | T9-01, T9-02, T9-03, T9-04, T9-05, T9-06, T9-07, T9-08, T9-09, T9-10, T9-11, T9-12 |
 | T10 | 16 | T10-01, T10-02, T10-03, T10-04, T10-05, T10-06, T10-07, T10-08, T10-09, T10-10, T10-11, T10-12, T10-13, T10-14, T10-15, T10-16 |
 
-Jumlah: **146** (daftar beku: `docs/uji/pemeriksaan/PMB-1/BUKTI_BELUM_BASELINE.txt`, hanya boleh menyusut)
+Jumlah: **139** (daftar beku: `docs/uji/pemeriksaan/PMB-1/BUKTI_BELUM_BASELINE.txt`, hanya boleh menyusut)
 
 ## E. Butir tertangguh yang masih terbuka (`docs/TERTANGGUH.md`) — hanya Lee yang boleh menutup
 

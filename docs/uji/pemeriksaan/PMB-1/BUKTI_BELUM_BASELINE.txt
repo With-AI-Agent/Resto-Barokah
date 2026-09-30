@@ -65,15 +65,12 @@ T2-16 rujukan-mesin
 T2-17 rujukan-mesin
 T2-18 rujukan-mesin
 T2-19 rujukan-mesin
-T3-01 uji-manual
 T3-02 rujukan-mesin
 T3-03 rujukan-mesin
 T3-04 uji-manual
-T3-06 uji-manual
 T3-07 uji-manual
 T3-08 uji-manual
 T3-10 uji-manual
-T3-11 uji-manual
 T3-12 uji-manual
 T3-14 rujukan-mesin
 T3-15 uji-manual
@@ -90,10 +87,6 @@ T5-09 rujukan-mesin
 T5-11 rujukan-mesin
 T5-12 rujukan-mesin
 T6-01 rujukan-mesin
-T6-02 uji-manual
-T6-03 uji-manual
-T6-04 uji-manual
-T6-05 uji-manual
 T7-01 uji-manual
 T7-02 tanpa-rujukan
 T7-03 uji-manual
