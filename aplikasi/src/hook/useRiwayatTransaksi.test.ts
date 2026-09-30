@@ -56,7 +56,6 @@ describe('useRiwayatTransaksi (PMB1-F-021)', () => {
     })
     const eq = vi.fn().mockReturnThis()
     const order = vi.fn().mockReturnThis()
-    const limit = vi.fn().mockReturnValue(Promise.resolve({ data: undefined, error: null }))
     const selectPertama = vi.fn().mockReturnValue({
       eq,
       order,
