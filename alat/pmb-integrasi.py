@@ -8,7 +8,7 @@ Menggabungkan cabang giliran PMB ke cabang Perencana **baris demi baris** (bukan
     dilaporkan sebagai SENGKETA untuk diselesaikan Perencana dengan aturan tertulis (README PMB-1 / rancangan §5).
 
 Pakai:  python3 alat/pmb-integrasi.py origin/arena/<id>-resto-barokah [--tanpa-commit] [--laporan <berkas.json>] [--abaikan-luar-pmb]
-                                       [--pembangun]
+                                       [--pembangun] [--izinkan-hapus-roadmap]
 Alur:   git merge --no-ff --no-commit <cabang>  →  tulis ulang berkas PMB-1 hasil gabungan baris  →  susun ulang berkas turunan
         mesin (DAFTAR_TUNGGU_LEE.md — kunci K2 Jaminan Tuntas; blok OTOMATIS matriks/regresi)  →  git add  →
         penjaga (periksa-pemeriksaan.py)  →  commit bila tanpa sengketa & penjaga LOLOS; bila ada sengketa: merge dibiarkan
@@ -20,6 +20,14 @@ Batas:  hanya berkas di docs/uji/pemeriksaan/PMB-1/ yang boleh berubah di cabang
         Konflik git pada berkas proyek → SENGKETA (merge dibiarkan terbuka, tidak diputuskan mesin). Setiap baris Buku Besar yang cabang ubah
         menjadi DIPERBAIKI wajib menyebut sha commit yang benar-benar ada di cabang itu (bukan sha karangan) — kalau tidak → SENGKETA.
         Penjaga tambahan pada mode ini: alat/periksa-bersih.py (10 penjaga CI) selain periksa-pemeriksaan.py.
+Bukti kekal (PMB1-F-216, 2026-09-30): berkas PMB-1/bukti/ yang sudah ada di basis hanya boleh DITAMBAH di ujung oleh cabang; ditimpa/
+        dihapus → berhenti sebelum merge (kode 3) — isi cabang harus dipindah ke bukti/B-<ID kartunya>-*.txt.
+Pagar ROADMAP (PMB1-F-217 + K6, 2026-09-30): pada --pembangun, baris docs/ROADMAP.md yang cabang HAPUS hanya boleh berpola PEMBANGUN
+        dokumen (`- [x] Tn-nn` → `- [ ] Tn-nn` teks sama, `- **Bukti:** ⏳ BUKTI-BELUM …`, `- **DoD:**`, `- **Verifikasi:**` beserta baris
+        sambungannya) dan cabang tidak boleh MENAMBAH `- [x]` (K6: Pembangun tidak pernah mencentang). Pelanggaran → kode 3 sebelum merge;
+        bila memang disengaja dan disebut di kartu, Perencana mengulang dengan --izinkan-hapus-roadmap (K6 tetap tidak bisa dilonggarkan).
+Ter-push sampai (arahan Lee 2026-09-30): kartu B-*.md dari cabang yang belum memuat `**Ter-push sampai:**` diberi baris itu oleh mesin
+        dengan sha tip cabang yang diintegrasikan (sumber kebenaran: origin, bukan klaim agen).
 Catatan: belum punya --uji-diri; divalidasi pada empat cabang nyata 2026-09-29 (ea8f, ea91, ea90 dengan 22 sengketa, ea92 dengan
         39 temuan +2 / 17 asumsi +4) — setiap langkah diikuti `periksa-pemeriksaan.py` LOLOS. Aturan sengketa: PMB-1/README.md.
 """
@@ -131,6 +139,80 @@ class Integrasi:
         self.luar: list[str] = []
         self.proyek: list[str] = []
         self.peta: dict[str, str] = {}
+        self.izinkan_hapus_roadmap: bool = False
+        self.pelanggaran: list[str] = []
+
+    # ---------- bukti kekal (PMB1-F-216) ----------
+    def periksa_bukti_kekal(self) -> None:
+        """Berkas bukti/ yang sudah ada di basis hanya boleh ditambah di ujung; ditimpa/dihapus = pelanggaran (berhenti sebelum merge)."""
+        for path in git("diff", "--name-only", self.base, self.cabang, "--", PMB + "bukti").split():
+            lama = show_bytes(self.base, path)
+            if lama is None:
+                continue                                   # berkas baru milik giliran ini
+            baru = show_bytes(self.cabang, path)
+            if baru is None:
+                self.pelanggaran.append(f"{path}: bukti giliran lain DIHAPUS cabang (bukti kekal, PMB1-F-216)")
+            elif not baru.startswith(lama):
+                self.pelanggaran.append(f"{path}: bukti giliran lain DITIMPA cabang, bukan ditambah di ujung (bukti kekal, PMB1-F-216) — "
+                                        f"isi cabang harus dipindah ke {PMB}bukti/B-<ID kartu>-*.txt; versi lama dipertahankan")
+
+    # ---------- pagar ROADMAP untuk cabang PEMBANGUN (PMB1-F-217 + K6) ----------
+    RE_HAPUS_BOLEH = re.compile(r"^\s*- \*\*(Bukti|DoD|Verifikasi):\*\*")
+    RE_CENTANG = re.compile(r"^- \[x\] (T\d+[A-Z]?-\d+\b.*)$")
+
+    def periksa_roadmap_pembangun(self) -> None:
+        """Baris ROADMAP yang dihapus cabang hanya boleh berpola PEMBANGUN dokumen; cabang tidak boleh menambah `- [x]` (K6)."""
+        diff = git("diff", "-U0", self.base, self.cabang, "--", "docs/ROADMAP.md")
+        if not diff:
+            return
+        ditambah = [b[1:] for b in diff.split("\n") if b.startswith("+") and not b.startswith("+++")]
+        dihapus = [b[1:] for b in diff.split("\n") if b.startswith("-") and not b.startswith("---")]
+        for b in ditambah:
+            if self.RE_CENTANG.match(b):
+                self.pelanggaran.append(f"docs/ROADMAP.md: cabang MENCENTANG `{b[:60]}` — K6: Pembangun tidak pernah menulis [x] (hanya Hakim/Perencana lewat Bukti)")
+        boleh_sebelumnya = False
+        hilang: list[str] = []
+        for b in dihapus:
+            if not b.strip():
+                boleh_sebelumnya = False
+                continue
+            m = self.RE_CENTANG.match(b)
+            if m:
+                boleh_sebelumnya = ("- [ ] " + m.group(1)) in ditambah   # [x] → [ ] dengan teks judul sama
+                if not boleh_sebelumnya:
+                    hilang.append(b)
+                continue
+            if self.RE_HAPUS_BOLEH.match(b):
+                boleh_sebelumnya = True
+                continue
+            if b.startswith("    ") and not b.lstrip().startswith("- ") and boleh_sebelumnya:
+                continue                                   # baris sambungan DoD/Verifikasi/Bukti yang dibungkus
+            boleh_sebelumnya = False
+            hilang.append(b)
+        if hilang and not self.izinkan_hapus_roadmap:
+            self.pelanggaran.append("docs/ROADMAP.md: cabang MENGHAPUS baris di luar pola PEMBANGUN dokumen (PMB1-F-217) — periksa isinya; bila memang "
+                                    "disengaja & disebut di kartu, ulangi dengan --izinkan-hapus-roadmap. Baris hilang:\n" +
+                                    "\n".join(f"        - {h[:140]}" for h in hilang[:40]) + (f"\n        … {len(hilang) - 40} lagi" if len(hilang) > 40 else ""))
+        elif hilang:
+            self.catatan.append(f"docs/ROADMAP.md: {len(hilang)} baris dihapus cabang di luar pola PEMBANGUN dokumen — DIIZINKAN Perencana (--izinkan-hapus-roadmap)")
+
+    # ---------- Ter-push sampai (arahan Lee 2026-09-30) ----------
+    RE_TERPUSH = re.compile(r"\*\*Ter-push sampai:\*\*")
+
+    def lengkapi_terpush(self, hasil: dict[str, str]) -> None:
+        """Kartu B-*.md dari cabang tanpa `**Ter-push sampai:**` diberi baris itu dari sha tip cabang (fakta origin, bukan klaim)."""
+        tip = git("rev-parse", self.cabang).strip()
+        for path, isi in list(hasil.items()):
+            if "/kartu/B-" not in path or self.RE_TERPUSH.search(isi):
+                continue
+            baris = isi.split("\n")
+            i = next((n for n, b in enumerate(baris) if n > 0 and b.startswith("- **Potongan:**")), None)
+            if i is None:
+                continue
+            baris.insert(i + 1, f"- **Ter-push sampai:** `{tip[:7]}` (dicatat mesin saat integrasi: tip `{self.cabang}` = `{tip}`; "
+                                "kartu tidak menuliskannya sendiri — naskah §5 mewajibkan sejak 2026-09-30)")
+            hasil[path] = "\n".join(baris)
+            self.catatan.append(f"{path}: baris Ter-push sampai `{tip[:7]}` ditambahkan mesin")
 
     # ---------- kontrak PEMBANGUN: sha perbaikan harus nyata & ada di cabang ----------
     def periksa_sha_perbaikan(self) -> None:
@@ -337,7 +419,17 @@ class Integrasi:
         if t is not None:
             tulis[PAPAN] = t
         tulis.update(self.berkas_lain())
+        self.lengkapi_terpush(tulis)
         self.periksa_sha_perbaikan()
+        self.periksa_bukti_kekal()
+        if self.pembangun:
+            self.periksa_roadmap_pembangun()
+        if self.pelanggaran:
+            print(f"INTEGRASI {self.cabang} (base {self.base[:7]}) DIHENTIKAN sebelum merge — {len(self.pelanggaran)} pelanggaran kontrak giliran:")
+            for x in self.pelanggaran:
+                print("  ×", x)
+            print("  → tidak ada yang diubah di pohon kerja; minta sesi giliran memperbaiki cabangnya, atau Perencana menyelesaikan tangan (catat di kartu).")
+            return 3
         # merge git (riwayat: cabang jadi induk kedua), lalu timpa dengan hasil gabungan baris
         subprocess.run(["git", "merge", "--no-ff", "--no-commit", self.cabang], cwd=AKAR, capture_output=True, text=True)
         for path, isi in tulis.items():
@@ -408,6 +500,7 @@ def main(argv: list[str]) -> int:
     integrasi = Integrasi(argv[0])
     integrasi.abaikan_luar = "--abaikan-luar-pmb" in argv
     integrasi.pembangun = "--pembangun" in argv
+    integrasi.izinkan_hapus_roadmap = "--izinkan-hapus-roadmap" in argv
     return integrasi.jalankan(commit="--tanpa-commit" not in argv, laporan=laporan)
 
 

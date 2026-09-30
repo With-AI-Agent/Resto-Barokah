@@ -98,7 +98,12 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
 5. PAPAN: status potongan → `SELESAI` (HAKIM: → `DIHAKIMI` bila tidak ada lagi temuan `BARU` dari potongan itu).
 6. Commit (`pmb: <ID> selesai — <n> temuan`) + push cabangmu. Jangan menyentuh berkas di luar `docs/uji/pemeriksaan/PMB-1/`
    (kecuali PEMBANGUN). Jangan mengubah trio handoff proyek (`docs/ops/SIAP-LANJUT.md`, `PROJECT_STATE.md`, `STATUS.md`) — itu urusan Perencana.
-7. BERHENTI. Balasan terakhirmu wajib memuat: ID potongan, jumlah temuan per K, nama cabangmu, lalu:
+   **HASIL HARUS MASUK GITHUB (arahan Lee 2026-09-30, REKAM §31 butir 22):** sesi lain hanya melihat `origin` — commit lokal yang belum
+   ter-push sama dengan tidak ada. Karena itu: **push setiap commit segera** setelah dibuat (bukan ditumpuk di akhir), dan sebelum
+   menyatakan selesai jalankan `python3 alat/periksa-push.py` — harus mencetak `TER-PUSH sampai <sha>` (alat bertanya langsung ke GitHub);
+   kalau `BELUM`, kerjakan perintah yang disarankannya. Kartu B wajib memuat baris `- **Ter-push sampai:** `<sha>`` (penjaga menolak tanpanya).
+7. BERHENTI. Balasan terakhirmu wajib memuat: ID potongan, jumlah temuan per K, nama cabangmu, baris **"Ter-push sampai `<sha>`"**
+   (salin dari keluaran `periksa-push.py`, bukan dari ingatan), lalu:
    **Langkah Lee:** (a) di sesi Perencana ketik `integrasikan arena/<id-cabangmu>`; (b) untuk potongan berikutnya ketik `lanjut` di sini
    (kalau chat ini masih segar) atau buka sesi baru dengan prompt ini.
 
@@ -151,6 +156,14 @@ Ukuran kejujuran: potongan "bersih" tanpa daftar klaim yang dicoba dibantah dan 
   `python3 alat/susun-matriks-telusur.py`, `python3 alat/susun-daftar-tunggu-lee.py` — tugas itu harus muncul di bagian C daftar tunggu;
   (6) Buku Besar → `DIPERBAIKI` (sha + `tanpa uji mesin: perbaikan dokumen ROADMAP`, karena commit-nya hanya menyentuh dokumen). Hakim
   menutup dengan memeriksa ROADMAP kini jujur dan tugasnya tercatat di `DAFTAR_TUNGGU_LEE.md` bagian C.
+  **Pagar diff PEMBANGUN dokumen (pelajaran PMB1-F-217, 2026-09-30):** sunting ROADMAP **hanya** dengan pola di atas — jangan menulis ulang
+  blok dari ingatan/versi lama. Sebelum commit: `git diff <commit basis> -- docs/ROADMAP.md | grep '^-'` hanya boleh memuat baris `- [x] Tn-nn`
+  (yang berubah jadi `- [ ]`), `- **Bukti:** ⏳ BUKTI-BELUM …`, `- **DoD:**`, `- **Verifikasi:**` (beserta sambungannya). Catatan lain di
+  blok tugas (keputusan Lee, pelajaran lapangan, `Bukti (klaim lama…)`) **dibiarkan utuh**. Alat integrasi menolak cabang yang menghapus
+  baris ROADMAP di luar pola itu, dan menolak cabang mana pun yang **menambah** `- [x]` (K6).
+  **Bukti kekal (pelajaran PMB1-F-216):** berkas `bukti/` giliran lain (mis. `bukti/B-F-09-rantai.txt` milik kartu `B-F-09`) **tidak boleh
+  diubah atau ditimpa** — keluaranmu selalu berkas baru berawalan ID kartumu persis (`bukti/B-F-09.3-rantai.txt` untuk kartu `B-F-09.3`).
+  Alat integrasi menolak cabang yang menimpa/menghapus bukti lama (hanya menambah di ujung yang diizinkan).
   Temuan potongan `F-17`
   (bahan kalibrasi) **tidak dibangun** — sudah dinilai & DITUTUP Perencana 2026-09-29 (`PMB-1/kalibrasi/HASIL-TAHAP-1.md`). Pembangun boleh
   menyentuh kode/dokumen proyek (pengecualian §6) tetapi **tidak** menyentuh: trio handoff (`docs/ops/SIAP-LANJUT.md`, `PROJECT_STATE.md`,

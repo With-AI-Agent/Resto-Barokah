@@ -2,6 +2,7 @@
 
 - **Potongan:** <ID> · **Kartu sumber:** `kartu/K-<ID>.md`, `kartu/H-<ID>.md` · **Sesi pembangun:** <cabang arena/…> · **Model:** <…> · **Tanggal:** <YYYY-MM-DD>
 - **Commit basis:** <sha 7 digit CABANG PERENCANA saat mulai> · **Independensi:** [tegaskan: bukan sesi penemu, bukan hakim potongan ini; kamu tidak menutup temuanmu sendiri]
+- **Ter-push sampai:** `<sha 7 digit commit TERAKHIR cabangmu yang sudah ada di origin>` — isi dari keluaran `python3 alat/periksa-push.py` di akhir giliran (arahan Lee 2026-09-30: hasil giliran harus masuk GitHub; penjaga menolak kartu B tanpa baris ini)
 
 ## 1. Temuan yang dibangun
 [Satu sub-bagian per `PMB1-F-xxx` (K-1 dulu, lalu K-2): (a) reproduksi MERAH — perintah yang sama dengan kolom Bukti → hasil hari ini;
@@ -20,7 +21,9 @@ direproduksi ternyata sudah tidak MERAH (kembalikan ke Hakim dengan catatan, jan
 ## 4. Rantai bukti
 [Hasil nyata perintah berikut (bukan "sudah dijalankan"): `node alat/uji-sql.mjs` (butuh `npm ci --prefix alat`) → n LULUS / n GAGAL ·
 `python3 alat/uji-mutasi-0012.py` · `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` ·
-`python3 alat/periksa-pemeriksaan.py` · `python3 alat/periksa-bersih.py`. Simpan keluaran panjang di `bukti/B-<ID>-*.txt`.]
+`python3 alat/periksa-pemeriksaan.py` · `python3 alat/periksa-bersih.py` · `python3 alat/periksa-push.py` → `TER-PUSH sampai <sha>`.
+Simpan keluaran panjang di `bukti/B-<ID>-*.txt` — **hanya berkas baru berawalan ID kartumu**; berkas `bukti/` giliran lain tidak boleh
+diubah/ditimpa (bukti kekal, PMB1-F-216 — integrasi menolak).]
 
 ## 5. Angka usaha
 - Temuan dibangun: <n> (K-1 <n> · K-2 <n> · K-3/K-4 ikut sentuhan <n>) · ditunda menunggu Lee/operator: <n> · commit: <n> ·

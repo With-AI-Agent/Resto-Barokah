@@ -131,6 +131,7 @@ BAGIAN_B = ["## 1. Temuan yang dibangun", "## 2. Yang sengaja tidak disentuh", "
 KEPALA_K = ["**Potongan:**", "**Sesi:**", "**Tanggal:**", "**Commit basis:**"]
 KEPALA_H = ["**Potongan:**", "**Sesi hakim:**", "**Independensi:**"]
 KEPALA_B = ["**Potongan:**", "**Sesi pembangun:**", "**Commit basis:**", "**Independensi:**"]
+RE_TERPUSH = re.compile(r"\*\*Ter-push sampai:\*\*\s*`?[0-9a-f]{7,40}\b")   # kartu B: bukti hasil giliran ada di origin (arahan Lee 2026-09-30)
 
 
 def _sel(baris: str) -> list[str]:
@@ -197,6 +198,9 @@ def periksa_kartu(akar: pathlib.Path, potongan: dict[str, dict], errs: list[str]
                 errs.append(f"kartu/{k.name}: kepala '{kepala}' hilang")
         if "<ID>" in isi or "<YYYY-MM-DD>" in isi:
             errs.append(f"kartu/{k.name}: masih berisi tempat kosong templat (<ID>/<YYYY-MM-DD>)")
+        if jenis == "B" and not RE_TERPUSH.search(isi):
+            errs.append(f"kartu/{k.name}: baris `- **Ter-push sampai:** `<sha>`` hilang — arahan Lee 2026-09-30: hasil giliran wajib masuk GitHub; "
+                        "isi dari keluaran `python3 alat/periksa-push.py` (mesin integrasi mengisinya dari tip origin bila kartu lupa)")
 
 
 def _artefak_ada(sel_artefak: str, akar: pathlib.Path) -> bool:
@@ -570,9 +574,9 @@ def uji_diri() -> int:
         (t / asumsi).write_text(teks + f"\n| {aid} | uji-diri: asumsi sintetis | `docs/PRD.md:1` | DIBANTAH | "
                                 "`echo uji-diri` → dibantah tanpa rujukan temuan | tidak ada | F-01 |\n", encoding="utf-8")
 
-    def kartu_b(t: pathlib.Path, lengkap: bool) -> None:
+    def kartu_b(t: pathlib.Path, lengkap: bool, terpush: bool = True) -> None:
         isi = ("# KARTU PEMBANGUN — B-F-01\n- **Potongan:** F-01 · **Sesi pembangun:** arena/uji-diri · **Commit basis:** 0000000 · "
-               "**Independensi:** bukan penemu, bukan hakim\n")
+               "**Independensi:** bukan penemu, bukan hakim\n" + ("- **Ter-push sampai:** `0000000`\n" if terpush else ""))
         for bagian in BAGIAN_B if lengkap else BAGIAN_B[:2]:
             isi += f"\n{bagian}\n- (uji-diri)\n"
         (t / PUTARAN / "kartu" / "B-F-01.md").write_text(isi, encoding="utf-8")
@@ -580,6 +584,7 @@ def uji_diri() -> int:
     coba("salinan utuh diterima", lambda t: None, harus_merah=False)
     coba("kartu PEMBANGUN B-<ID>.md yang lengkap diterima", lambda t: kartu_b(t, True), harus_merah=False)
     coba("kartu PEMBANGUN tanpa bagian wajib ditolak", lambda t: kartu_b(t, False))
+    coba("kartu PEMBANGUN tanpa baris Ter-push sampai ditolak (arahan Lee 2026-09-30)", lambda t: kartu_b(t, True, terpush=False))
     coba("baris sintetis yang sah diterima", lambda t: tambah_temuan(t, "BARU"), harus_merah=False)
     coba("potongan SELESAI tanpa kartu ditolak", potongan_belum_selesai)
     coba("status temuan tidak sah ditolak", lambda t: tambah_temuan(t, "SELESAI"))
