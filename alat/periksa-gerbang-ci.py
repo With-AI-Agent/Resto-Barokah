@@ -288,6 +288,8 @@ ALUR_LAIN: dict[str, dict[str, list[tuple[str, str]]]] = {
             ("pasang pustaka alat", r"npm ci --prefix alat"),
             ("uji-diri fail-closed denyut & pembersih", r"python3 alat/denyut\.py --uji-diri"),
             ("eksekusi denyut harian & pembersih data sementara", r"python3 alat/denyut\.py --semua"),
+            ("uji-diri fail-closed pengirim ringkasan harian", r"node alat/eksekusi-ringkasan-harian\.mjs --uji-diri"),
+            ("kirim ringkasan peringatan harian ke owner", r"node alat/eksekusi-ringkasan-harian\.mjs$"),
         ],
         "berkas": [
             ("jadwal cron harian", r"-\s*cron:\s*'0 19 \* \* \*'"),
