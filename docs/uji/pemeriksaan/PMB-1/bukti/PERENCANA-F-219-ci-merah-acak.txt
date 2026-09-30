@@ -1,0 +1,65 @@
+BUKTI PERENCANA — PMB1-F-219: CI GitHub merah berganti-ganti langkah pada pohon yang sama (dugaan lingkungan/runner)
+Ditulis: 2026-09-30 19:30 WIB · cabang arena/01a0e747-resto-barokah
+===========================================================
+
+1. RUN CI PADA CABANG INI (gh run list --branch arena/01a0e747-resto-barokah)
+   36712154530  7ba370e  completed/failure  2026-09-30T12:01:35Z
+   36699193726  20cce8a  completed/failure  2026-09-30T09:55:25Z
+   36697791219  7fa6c99  completed/failure  2026-09-30T09:42:13Z
+   36697441872  5b5325f  completed/cancelled  2026-09-30T09:38:56Z
+   36697351208  fb52fd3  completed/cancelled  2026-09-30T09:38:05Z
+   36674279740  00cb4ee  completed/success  2026-09-30T05:37:41Z
+
+2. LANGKAH YANG GAGAL PER RUN (gh run view <id> --json jobs)
+   run 36697791219 (7fa6c99): Bukti mutasi pagar migrasi 0016 — penutup celah PIN putaran18 F-13…F-16 (semua mutasi WAJIB MERAH)
+   run 36699193726 (20cce8a): Bukti mutasi urutan rantai audit 0040 (anti seri satu transaksi)
+   run 36712154530 (7ba370e): Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras
+
+   Durasi job: 7fa6c99 = 8m47s (berhenti di langkah 19) · 20cce8a = 16m40s (langkah 52) · 7ba370e = 18m41s (langkah 60)
+   Pembanding hijau: 00cb4ee = 21m05s success (langkah 60 lolos) · eff7 377a4d9 = 21m27s success · f0e9 4c75d38 = success
+
+3. BUKTI BAHWA ISINYA SAMA DENGAN CABANG YANG CI-NYA HIJAU
+   ~ git diff 377a4d9 HEAD -- supabase/migrations supabase/tes alat/uji-mutasi-0016.py .github/workflows/ci.yml
+   (kosong = tidak ada perbedaan pada berkas yang dipakai langkah-langkah uji mutasi)
+
+4. RANTAI BUKTI GILIRAN PENUH LOKAL PADA POHON YANG SAMA
+   ~ python3 alat/rantai-bukti-giliran.py (jalan penuh)
+   RINGKASAN RANTAI PENUH: 130 LOLOS · 0 GAGAL · 1 tak terbukti (tanpa internet) · 3 dilewati
+   log lengkap tersimpan: docs/uji/pemeriksaan/PMB-1/bukti/PERENCANA-putaran12-rantai-penuh.txt (230626 bita)
+
+5. BLOK LANGKAH 60 (pemeriksa) DIJALANKAN LOKAL DENGAN env CI
+   ~ GITHUB_ACTIONS=true CI=true GITHUB_REF_NAME=... GITHUB_SHA=7ba370e  (71 perintah, satu per satu)
+   
+   TOTAL: 71 perintah · 0 gagal
+   rincian rc per perintah: /tmp/blok-lokal.txt (disalin ke bukti/PERENCANA-putaran12-blok-60-lokal.txt)
+
+6. UJI KETERULANGAN DUA LANGKAH YANG GAGAL DI CI
+   --- uji-mutasi-0016.py ulangan 1 ---
+   HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar PIN putaran18 terbukti bekerja.
+   --- uji-mutasi-0016.py ulangan 2 ---
+   HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar PIN putaran18 terbukti bekerja.
+   --- uji-mutasi-0016.py ulangan 3 ---
+   HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar PIN putaran18 terbukti bekerja.
+   --- uji-mutasi-0040.py ulangan 1 ---
+   HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+   --- uji-mutasi-0040.py ulangan 2 ---
+   HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+   --- uji-mutasi-0040.py ulangan 3 ---
+   HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+   --- uji-mutasi-0040.py ulangan 4 ---
+   HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+   --- uji-mutasi-0040.py ulangan 5 ---
+   HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+   SELESAI
+
+7. KENAPA SEBAB PASTINYA BELUM DIKETAHUI (jujur)
+   - gh run view --log-failed → gagal: unduhan dialihkan ke productionresultssa*.blob.core.windows.net
+   - curl (3 varian, termasuk -k --http1.1) ke URL blob itu → OpenSSL SSL_ERROR_SYSCALL (jaringan sandbox memblokir)
+   - anotasi check-run hanya berisi 'Process completed with exit code 1' (tanpa keluaran perintah)
+   → perintah mana di dalam langkah 60 yang gagal TIDAK bisa dibaca dari sandbox; Lee bisa melihatnya di tab Actions.
+
+8. USULAN PERBAIKAN (untuk PEMBANGUN kelak, potongan G-01)
+   a. Pecah langkah besar (71 perintah) menjadi 1 perintah per langkah bernama — kegagalan langsung menunjuk perintahnya.
+   b. Tambah langkah unggah log/artefak saat gagal (actions/upload-artifact, if: failure()) agar bukti CI bisa diunduh.
+   c. Langkah uji mutasi: tegaskan pesan bila kegagalan berasal dari proses uji (bukan pagar tumpul), mis. bedakan 'node gagal' dari 'uji lolos'.
+   d. Jangan menurunkan gerbang: CI tetap wajib hijau; usulan hanya soal keterbacaan bukti.
