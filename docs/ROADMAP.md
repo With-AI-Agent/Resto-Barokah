@@ -907,15 +907,15 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 ## Fase 3 — Pesanan & kasir (M4)
 
-- [x] T3-01 — Layar kasir: katalog nyata dari database
+- [ ] T3-01 — Layar kasir: katalog nyata dari database
+  - **Dibuka kembali:** PMB1-F-130 (2026-09-30) — bukti wajib: `aplikasi/src/layar/kasir/Katalog.test.tsx` (uji pemuatan tabel menu_item basis data nyata, bukan data statis CONTOH_MENU), `aplikasi/src/hook/useKatalogKasir.test.ts`
   - **Tujuan:** kasir bisa memilih menu dengan cepat dari data asli (kategori, varian, tambahan).
   - **Ref:** PRD M4 & M2; TECH_SPEC §4
   - **File:** `aplikasi/src/layar/kasir/LayarKasir.tsx`, `aplikasi/src/layar/kasir/Katalog.tsx`
-  - **DoD:** kategori & pencarian bekerja; varian/tambahan muncul sesuai pengaturan; item habis terkunci; bahasa Indonesia.
+  - **DoD:** kategori & pencarian bekerja dengan data `menu_item` dari basis data cabang aktif; varian/tambahan muncul sesuai pengaturan; item habis terkunci; bahasa Indonesia; tanpa ketergantungan pada `CONTOH_MENU` keras-kode.
   - **Kompleksitas:** besar (5 jam)
   - **Risiko & mitigasi:** lambat saat katalog besar → mitigasi: muat bertahap + cache ringan di klien (tanpa data sensitif).
-  - **Verifikasi:** uji manual dengan 200 item; waktu muat awal < 3 detik.
-  - **Bukti:** ⏳ BUKTI-BELUM — DoD/Verifikasi bertumpu pada uji manual tanpa catatan siapa/kapan mengujinya; diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
+  - **Verifikasi:** uji otomatis `aplikasi/src/layar/kasir/Katalog.test.tsx` dan `aplikasi/src/hook/useKatalogKasir.test.ts` (bahan awal draf di cabang `arena/01a0ec99`); waktu muat awal terukur < 3 detik.
 
 - [x] T3-02 — Keranjang + angka dari peladen (klien tidak menghitung)
   - **TEMUAN JUJUR (2026-09-23, saat T5-05):** DoD ini **belum sepenuhnya ditepati**. `Keranjang.tsx`

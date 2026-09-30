@@ -65,7 +65,6 @@ T2-16 rujukan-mesin
 T2-17 rujukan-mesin
 T2-18 rujukan-mesin
 T2-19 rujukan-mesin
-T3-01 uji-manual
 T3-02 rujukan-mesin
 T3-03 rujukan-mesin
 T3-04 uji-manual
