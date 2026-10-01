@@ -4,7 +4,8 @@
 > Lee menempelnya sebagai pesan pertama di sesi Arena baru (base branch = CABANG PERENCANA bila bisa dipilih). Naskah panjang
 > yang dirujuk prompt ini: `docs/uji/pemeriksaan/PROMPT_GILIRAN.md`; pengecualian orientasinya tercatat di `PRO.md`.
 > **Sejak 2026-09-30 (keputusan Lee, Opsi B): sesi PERENCANA boleh mengambil peran PEMBANGUN untuk satu potongan per giliran (percobaan 3 potongan) — Hakim tetap sesi lain; aturan lengkap: PROMPT_GILIRAN §5 + USULAN_PERAN_PEMBANGUN §9.**
-> > **Satu potongan per sesi, potongan berbeda untuk sesi yang berjalan bersamaan** — klaim di PAPAN baru terlihat sesi lain
+> > **Giliran berikutnya yang disarankan Perencana (2026-10-01): `PERAN: HAKIM`, `POTONGAN: F-03`** — 7 baris DIPERBAIKI (F-031/F-032/F-036/F-038/F-039/F-046/F-049) dengan berkas kerja `BERKAS-KERJA-HAKIM-B-F-02-F-07.md`; sesudah itu HAKIM F-04, F-05, F-07, lalu HAKIM `F-09` (perbaikan Opsi B `16a2b76` + `12172ae`, kartu `kartu/B-F-09.4.md`).
+> **Satu potongan per sesi, potongan berbeda untuk sesi yang berjalan bersamaan** — klaim di PAPAN baru terlihat sesi lain
 > setelah diintegrasikan. Ulangan independen potongan yang sama boleh, tetapi harus disengaja Perencana (rancangan §9).
 
 ```

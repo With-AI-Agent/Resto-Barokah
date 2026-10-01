@@ -156,4 +156,11 @@ REKAM_PESAN_PEMILIK §31, dan menyiapkan kolom ukur di handoff — sebelum gilir
 
 | # | Potongan | Tanggal | Commit koreksi | Laporan keliru | GAGAL penjaga | Temuan BARU Hakim | Waktu sampai DITUTUP | Catatan |
 |---|---|---|---|---|---|---|---|---|
-| 1 | F-09 — baris K-1 `PMB1-F-127` | 2026-09-30 | — | 0 | 0 (rantai penuh menyusul di giliran ini) | (menunggu Hakim sesi lain) | (belum DITUTUP) | perbaikan `16a2b76`; kartu `B-F-09.4.md`; uji baru 2 (MERAH 1/7 → HIJAU 7/7); bundel produksi bersih |
+| 1 | F-09 — baris K-1 `PMB1-F-127` | 2026-09-30 → 2026-10-01 | 1 — `12172ae` (format Prettier, ditemukan CI) | 0 | 1 cacat = 2 run CI GAGAL (`36805957154`, `36806018310`, keduanya langkah 5 Prettier); perbaikan → CI `36806096048` SUCCESS | (menunggu Hakim sesi lain) | (belum DITUTUP) | perbaikan `16a2b76`; kartu `B-F-09.4.md`; uji baru 2 (MERAH 1/7 → HIJAU 7/7); rantai penuh 1: `129 LOLOS · 1 GAGAL` (format) → rantai penuh 2: `129 LOLOS · 0 GAGAL → RANTAI: LOLOS`; bundel produksi bersih |
+
+**Pelajaran percobaan #1 (bahan keputusan Lee sesudah 3 potongan — jujur, tanpa perbaikan citra):**
+1. **Langkah murah dulu.** Cacat format `16a2b76` lolos ke push karena `npm run format:check` tidak dijalankan sebelum commit; CI (langkah 5) yang menemukannya. Rantai penuh lokal juga menangkapnya, tetapi baru di akhir giliran → 1 commit koreksi + 2 run CI merah yang sebenarnya bisa dicegah ±1 menit.
+   Aturan giliran berikutnya: **jalankan `npm run format:check` + `lint` + uji terarah SEBELUM commit pertama**, rantai penuh sebelum menutup giliran.
+2. **Nilai tambah rantai lokal terbukti:** rantai itu berhenti tepat di langkah yang sama dengan CI (`format:check`, pohon sama) → alat rantai setara CI untuk kelas cacat ini (bukti disimpan; berguna untuk F-219: bila rantai lokal hijau sementara CI merah di langkah lain, itu bukti flake, bukan isi).
+3. **Kewajiban Hakim tetap utuh:** Perencana/Pembangun tidak menutup; F-127 tetap `DIPERBAIKI` menunggu Hakim sesi lain — waktu sampai `DITUTUP` masih nol data.
+4. **Pemisahan peran tidak dilanggar:** tidak ada penyuntingan berkas bukti giliran lain, tidak ada perubahan cara masuk ke produksi (saklar `import.meta.env.DEV` mati di build produksi; tidak ada deploy).
