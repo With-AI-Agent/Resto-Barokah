@@ -145,4 +145,42 @@ describe('LayarMasukPegawai (T2-02)', () => {
       expect(onSuksesMock).toHaveBeenCalled()
     })
   })
+
+  it('MENYEMBUNYIKAN blok akun demo pada build produksi — PMB1-F-127 (K-1)', () => {
+    vi.stubEnv('DEV', false)
+    try {
+      render(
+        <PenyediaBahasa>
+          <LayarMasukPegawai onMasuk={vi.fn()} />
+        </PenyediaBahasa>,
+      )
+      expect(screen.queryByText(/Pilihan Cepat Masuk Akun Demo/)).toBeNull()
+      expect(screen.queryByText(/PIN: 123456/)).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Isi otomatis akun Owner' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Isi otomatis akun Kasir' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Isi otomatis akun Dapur' })).toBeNull()
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
+
+  it('tetap menampilkan blok akun demo saat pengembangan (DEV) dan mengisi otomatis akun Owner — PMB1-F-127', async () => {
+    vi.stubEnv('DEV', true)
+    const onMasukMock = vi.fn().mockResolvedValue({ berhasil: true, pesan: 'Sukses' })
+    try {
+      render(
+        <PenyediaBahasa>
+          <LayarMasukPegawai onMasuk={onMasukMock} onMasukSukses={vi.fn()} />
+        </PenyediaBahasa>,
+      )
+      expect(screen.getByText(/Pilihan Cepat Masuk Akun Demo/)).toBeDefined()
+      fireEvent.click(screen.getByRole('button', { name: 'Isi otomatis akun Owner' }))
+      fireEvent.click(screen.getByText('Masuk Sekarang'))
+      await waitFor(() => {
+        expect(onMasukMock).toHaveBeenCalledWith('owner@resto.test', '123456')
+      })
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
 })

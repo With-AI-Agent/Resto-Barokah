@@ -307,7 +307,10 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
             </Tombol>
           </form>
 
-          {/* Pilihan Cepat Akun Demo / Uji Coba */}
+          {/* Pilihan Cepat Akun Demo / Uji Coba — PMB1-F-127 (K-1): HANYA saat pengembangan.
+              Build produksi tidak boleh memuat akun demo + PIN; keputusan Lee 2026-09-29 (klaster cara masuk = B):
+              perbaikan disiapkan di balik saklar yang MATI secara bawaan (import.meta.env.DEV = false pada build produksi). */}
+          {import.meta.env.DEV && (
           <div
             style={{
               marginTop: 'var(--s-4)',
@@ -376,6 +379,7 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
               </Tombol>
             </div>
           </div>
+          )}
 
           <div
             style={{
