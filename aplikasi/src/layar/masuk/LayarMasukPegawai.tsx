@@ -311,74 +311,74 @@ export const LayarMasukPegawai: React.FC<LayarMasukPegawaiProps> = ({ onMasukSuk
               Build produksi tidak boleh memuat akun demo + PIN; keputusan Lee 2026-09-29 (klaster cara masuk = B):
               perbaikan disiapkan di balik saklar yang MATI secara bawaan (import.meta.env.DEV = false pada build produksi). */}
           {import.meta.env.DEV && (
-          <div
-            style={{
-              marginTop: 'var(--s-4)',
-              padding: 'var(--s-3)',
-              borderRadius: 'var(--radius)',
-              background: 'var(--surface-2)',
-              border: '1px solid var(--border)',
-              textAlign: 'center',
-            }}
-          >
             <div
               style={{
-                fontSize: 'var(--t-2)',
-                fontWeight: 600,
-                color: 'var(--text-muted)',
-                marginBottom: 'var(--s-2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 'var(--s-1)',
+                marginTop: 'var(--s-4)',
+                padding: 'var(--s-3)',
+                borderRadius: 'var(--radius)',
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border)',
+                textAlign: 'center',
               }}
             >
-              <span>⚡</span>
-              <span>Pilihan Cepat Masuk Akun Demo (PIN: 123456):</span>
+              <div
+                style={{
+                  fontSize: 'var(--t-2)',
+                  fontWeight: 600,
+                  color: 'var(--text-muted)',
+                  marginBottom: 'var(--s-2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 'var(--s-1)',
+                }}
+              >
+                <span>⚡</span>
+                <span>Pilihan Cepat Masuk Akun Demo (PIN: 123456):</span>
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 'var(--s-2)',
+                  justifyContent: 'center',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <Tombol
+                  ragam="biasa"
+                  onClick={() => {
+                    setEmail('owner@resto.test')
+                    setPin('123456')
+                    setErrorRamah(null)
+                  }}
+                  nama="Isi otomatis akun Owner"
+                >
+                  👑 Owner (Lee)
+                </Tombol>
+                <Tombol
+                  ragam="biasa"
+                  onClick={() => {
+                    setEmail('kasir@resto.test')
+                    setPin('123456')
+                    setErrorRamah(null)
+                  }}
+                  nama="Isi otomatis akun Kasir"
+                >
+                  💳 Kasir
+                </Tombol>
+                <Tombol
+                  ragam="biasa"
+                  onClick={() => {
+                    setEmail('dapur@resto.test')
+                    setPin('123456')
+                    setErrorRamah(null)
+                  }}
+                  nama="Isi otomatis akun Dapur"
+                >
+                  🍳 Dapur
+                </Tombol>
+              </div>
             </div>
-            <div
-              style={{
-                display: 'flex',
-                gap: 'var(--s-2)',
-                justifyContent: 'center',
-                flexWrap: 'wrap',
-              }}
-            >
-              <Tombol
-                ragam="biasa"
-                onClick={() => {
-                  setEmail('owner@resto.test')
-                  setPin('123456')
-                  setErrorRamah(null)
-                }}
-                nama="Isi otomatis akun Owner"
-              >
-                👑 Owner (Lee)
-              </Tombol>
-              <Tombol
-                ragam="biasa"
-                onClick={() => {
-                  setEmail('kasir@resto.test')
-                  setPin('123456')
-                  setErrorRamah(null)
-                }}
-                nama="Isi otomatis akun Kasir"
-              >
-                💳 Kasir
-              </Tombol>
-              <Tombol
-                ragam="biasa"
-                onClick={() => {
-                  setEmail('dapur@resto.test')
-                  setPin('123456')
-                  setErrorRamah(null)
-                }}
-                nama="Isi otomatis akun Dapur"
-              >
-                🍳 Dapur
-              </Tombol>
-            </div>
-          </div>
           )}
 
           <div
