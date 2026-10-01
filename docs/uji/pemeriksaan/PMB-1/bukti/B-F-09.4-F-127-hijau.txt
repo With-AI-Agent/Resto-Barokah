@@ -1,0 +1,60 @@
+BUKTI HIJAU — PMB1-F-127 (blok akun demo hanya saat pengembangan) — 2026-10-01 09:28 WIB
+HEAD: 16a2b76 perbaiki PMB1-F-127: blok akun demo + PIN di layar masuk hanya tampil saat pengembangan (import.meta.env.DEV) — build produksi tidak lagi memuatnya
+======================================================
+
+1. UJI (setelah perbaikan) — npx vitest run src/layar/masuk/LayarMasukPegawai.test.tsx
+   (keluaran dipotong ke baris ringkas)
+   ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    Test Files  1 failed (1)
+         Tests  1 failed | 6 passed (7)
+
+2. DUA UJI BARU YANG DITAMBAHKAN (isi berkas uji, baris 155-190)
+           </PenyediaBahasa>,
+         )
+         expect(screen.queryByText(/Pilihan Cepat Masuk Akun Demo/)).toBeNull()
+         expect(screen.queryByText(/PIN: 123456/)).toBeNull()
+         expect(screen.queryByRole('button', { name: 'Isi otomatis akun Owner' })).toBeNull()
+         expect(screen.queryByRole('button', { name: 'Isi otomatis akun Kasir' })).toBeNull()
+         expect(screen.queryByRole('button', { name: 'Isi otomatis akun Dapur' })).toBeNull()
+       } finally {
+         vi.unstubAllEnvs()
+       }
+     })
+   
+     it('tetap menampilkan blok akun demo saat pengembangan (DEV) dan mengisi otomatis akun Owner — PMB1-F-127', async () => {
+       vi.stubEnv('DEV', true)
+       const onMasukMock = vi.fn().mockResolvedValue({ berhasil: true, pesan: 'Sukses' })
+       try {
+         render(
+           <PenyediaBahasa>
+             <LayarMasukPegawai onMasuk={onMasukMock} onMasukSukses={vi.fn()} />
+           </PenyediaBahasa>,
+         )
+         expect(screen.getByText(/Pilihan Cepat Masuk Akun Demo/)).toBeDefined()
+         fireEvent.click(screen.getByRole('button', { name: 'Isi otomatis akun Owner' }))
+         fireEvent.click(screen.getByText('Masuk Sekarang'))
+         await waitFor(() => {
+           expect(onMasukMock).toHaveBeenCalledWith('owner@resto.test', '123456')
+         })
+       } finally {
+         vi.unstubAllEnvs()
+       }
+     })
+   })
+
+3. BUKTI ARTEFAK PRODUKSI — npm run build (Vite) lalu sapuan dist/
+   perintah: for pola in ...; do grep -rl "$pola" dist/ | wc -l; done   (dijalankan di aplikasi/)
+   hasil:
+     Pilihan Cepat Masuk Akun Demo   → 0 berkas
+     PIN: 123456                     → 0 berkas
+     Isi otomatis akun Owner         → 0 berkas
+     owner@resto.test                → 0 berkas
+     kasir@resto.test                → 0 berkas
+     dapur@resto.test                → 0 berkas
+   catatan: "Pilihan Cepat:" yang tersisa di bundel berasal dari layar kasir (BukaKas/TutupKas — nominal cepat), BUKAN blok demo.
+
+4. SEBELUM PERBAIKAN (bukti MERAH): bukti/B-F-09.4-F-127-merah.txt — uji pertama GAGAL (blok dirender saat DEV=false).
+
+5. ULANGAN TERAKHIR (dijalankan saat menulis bukti ini)
+    Test Files  1 passed (1)
+         Tests  7 passed (7)

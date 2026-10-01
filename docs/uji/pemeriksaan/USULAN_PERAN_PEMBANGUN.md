@@ -156,4 +156,4 @@ REKAM_PESAN_PEMILIK §31, dan menyiapkan kolom ukur di handoff — sebelum gilir
 
 | # | Potongan | Tanggal | Commit koreksi | Laporan keliru | GAGAL penjaga | Temuan BARU Hakim | Waktu sampai DITUTUP | Catatan |
 |---|---|---|---|---|---|---|---|---|
-| 1 | F-09 (baris K-1 F-127 dst.) | 2026-09-30 | — | — | — | — | — | percobaan dimulai |
+| 1 | F-09 — baris K-1 `PMB1-F-127` | 2026-09-30 | — | 0 | 0 (rantai penuh menyusul di giliran ini) | (menunggu Hakim sesi lain) | (belum DITUTUP) | perbaikan `16a2b76`; kartu `B-F-09.4.md`; uji baru 2 (MERAH 1/7 → HIJAU 7/7); bundel produksi bersih |
