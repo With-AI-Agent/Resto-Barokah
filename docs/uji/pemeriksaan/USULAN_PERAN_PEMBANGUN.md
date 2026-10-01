@@ -1,6 +1,6 @@
 # USULAN — PERAN "PEMBANGUN": apa artinya, dan perlukah sesi Perencana sendiri yang mengerjakannya?
 
-**Status:** **MENUNGGU KEPUTUSAN LEE** (belum ada yang diubah dari mekanisme; opsi A tetap berlaku sampai Lee memutuskan) ·
+**Status:** **DIPUTUSKAN LEE 2026-09-30: OPSI B** ("Terkait peran Pembangun, aku ikut rekomendasi kamu" — REKAM §31 butir 24): percobaan terbatas **3 potongan**, Perencana = PEMBANGUN, Hakim tetap sesi lain; diukur dengan tabel §9 lalu dilaporkan ke Lee. ·
 **Ditulis:** Perencana `arena/01a0e747-resto-barokah`, 2026-09-30 · **Penjaga:** tidak ada berkas uji mesin untuk dokumen ini (usulan, bukan mekanisme).
 **Pemicu:** pertanyaan Lee 2026-09-30 (REKAM_PESAN_PEMILIK §31 butir 23), kira-kira: *"maksud peran pembangun tuh apa? … Apakah maksudnya yang mengeksekusi
 hasil temuan pemeriksa dan hakim? Kalau betul itu, kenapa tidak kamu saja? Bukankah mengerjakan lebih baik kalau dilakukan di satu sesi, karena perlu konsistensi
@@ -122,3 +122,38 @@ Pembanding (Opsi A yang sudah ada): `B-F-09` (Pembangun dokumen, cabang `arena/0
 Satu pilihan: **A** (pertahankan), **B** (percobaan 3 potongan — rekomendasi saya), atau **C** (kolaps penuh).
 Bila Lee memilih B atau C, saya akan: menulis perannya ke `docs/uji/pemeriksaan/PROMPT_GILIRAN.md` §5 & `PROMPT_SINGKAT.md`, mencatatnya di
 REKAM_PESAN_PEMILIK §31, dan menyiapkan kolom ukur di handoff — sebelum giliran perbaikan berikutnya dijalankan.
+
+---
+
+## 9. Pelaksanaan percobaan (Opsi B) — aturan + tabel ukur
+
+**Aturan yang mengikat selama percobaan (tidak bisa dilonggarkan):**
+1. **Satu potongan per giliran**; K-1 dulu, lalu K-2 pada potongan yang sama.
+2. **Hakim tetap sesi lain.** Perencana/Pembangun tidak menutup `DIPERBAIKI → DITUTUP` — itu pekerjaan Hakim (sesi lain).
+3. Semua kewajiban Pembangun berlaku penuh: baca kartu K & H, **reproduksi MERAH dulu**, satu commit per temuan (`perbaiki PMB1-F-nnn: …`),
+   berkas uji yang bisa merah ikut commit, kartu `kartu/B-<POTONGAN>.n.md` (5 bagian wajib), baris Buku Besar → `DIPERBAIKI` dengan sha nyata + nama uji.
+4. Bukti hijau sebelum giliran ditutup: `python3 alat/rantai-bukti-giliran.py` (jalan penuh) → `RANTAI: LOLOS`; `alat/periksa-pemeriksaan.py`;
+   `alat/periksa-bersih.py`; `alat/periksa-push.py` → `TER-PUSH`; CI tip cabang `success` (atau memenuhi 4 syarat aturan "merah acak" PMB1-F-219).
+5. Klaster cara masuk = keputusan Lee **B**: perbaikan disiapkan di balik saklar **mati bawaan**; tidak ada pemasangan ke produksi, tidak ada perubahan
+   cara masuk Lee, tanpa perintah Lee.
+6. Berkas terlarang tetap terlarang (trio handoff, `PRO.md`, naskah & alat mekanisme PMB, `kalibrasi/`), kecuali trio handoff di commit pembukuan seperti biasa.
+7. K-4 (temuan baru yang ditemukan saat membangun) **dicatat sebagai baris baru**, bukan diperbaiki diam-diam.
+
+**Tabel ukur (diisi Perencana tiap potongan selesai; dibandingkan dengan pembanding Opsi A):**
+
+| Ukuran | Arti | Ambang "lebih baik" |
+|---|---|---|
+| commit koreksi setelah giliran | berapa kali pekerjaan harus diperbaiki setelah dinyatakan selesai | turun |
+| laporan keliru di kartu ("LOLOS" tanpa bukti dsb.) | kejujuran bukti | 0 |
+| GAGAL penjaga/CI pada giliran itu | mutu mekanis | 0 |
+| temuan BARU dari Hakim atas pekerjaan itu | mutu substansi | tidak naik |
+| waktu/giliran sampai `DITUTUP` | efisiensi | turun |
+
+**Pembanding Opsi A (data nyata):** `B-F-09`/`B-F-09.2`/`B-F-09.3` (cabang `arena/01a0eff4`) → 2 commit koreksi + 2 temuan mekanisme (F-216/F-217);
+`B-F-02…B-F-07` (cabang `arena/01a0eff7`) → 1 cabang ditolak (CI merah) + 3 commit perbaikan + 1 temuan mekanisme (F-218).
+
+**Catatan hasil percobaan (diisi berjalan):**
+
+| # | Potongan | Tanggal | Commit koreksi | Laporan keliru | GAGAL penjaga | Temuan BARU Hakim | Waktu sampai DITUTUP | Catatan |
+|---|---|---|---|---|---|---|---|---|
+| 1 | F-09 (baris K-1 F-127 dst.) | 2026-09-30 | — | — | — | — | — | percobaan dimulai |
