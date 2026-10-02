@@ -1,0 +1,46 @@
+
+UJI-DIRI PEMERIKSA GERBANG CI
+  OK  salinan utuh → diterima
+  OK  mutasi: suite SQL diberi `--daftar` → ditolak
+  OK  mutasi: langkah bukti mutasi dihapus → ditolak
+  OK  mutasi: langkah bukti mutasi 0015 dihapus → ditolak
+  OK  mutasi: langkah bukti mutasi 0014 dihapus → ditolak
+  OK  mutasi: langkah bukti mutasi 0016 dihapus → ditolak
+  OK  mutasi: langkah bukti mutasi 0017 dihapus → ditolak
+  OK  mutasi: langkah bukti mutasi 0018 dihapus → ditolak
+  OK  mutasi: langkah papan maraton dihapus → ditolak
+  OK  mutasi: langkah uji batas Edge Function verifikasi_pin dihapus → ditolak
+  OK  mutasi: npm audit diberi `|| true` → ditolak
+  OK  mutasi: ambang audit diturunkan → ditolak
+  OK  mutasi: langkah pemeriksa pohon bersih dihapus → ditolak
+  OK  mutasi: langkah pemeriksa antarmuka dihapus → ditolak
+  OK  mutasi: langkah uji-diri kontras dihapus → ditolak
+  OK  mutasi: langkah bukti mutasi kode aplikasi dihapus (I F-19/F F-14/I F-06) → ditolak
+  OK  mutasi: langkah uji-diri pemeriksa uji aplikasi dihapus (I F-19) → ditolak
+  OK  mutasi: langkah pemeriksa versi Node dihapus (I F-21) → ditolak
+  OK  mutasi: langkah pemeriksa rahasia dihapus (PR-10 bukti G1) → ditolak
+  OK  mutasi: langkah pemeriksa header keamanan dihapus → ditolak
+  OK  mutasi: langkah uji SQL dimatikan dengan `if: false` (PR-10 bukti G2) → ditolak
+  OK  mutasi: perintah tak dikenal disisipkan ke daftar langkah → ditolak
+  OK  mutasi: gerbang ditutup `|| exit 0` → ditolak
+  OK  mutasi: ambang kerentanan dependency dinonaktifkan (`--audit-level=critical`) → ditolak
+  OK  mutasi: langkah diberi continue-on-error → ditolak
+  OK  mutasi: langkah diberi continue-on-error ekspresi → ditolak
+  OK  mutasi: langkah memakai shell cat yang tidak menjalankan perintah → ditolak
+  OK  mutasi: pemeriksa paket (invarian commit) dihapus → ditolak
+  OK  mutasi: pemeriksa angka bukti & jumlah tugas dihapus → ditolak
+  OK  mutasi: pemeriksa migrasi beku dihapus dari CI → ditolak
+  OK  mutasi: riwayat penuh (fetch-depth 0) diturunkan ke 1 → ditolak
+  OK  mutasi: uji-diri penyiap pemeriksaan dihapus dari CI → ditolak
+  OK  mutasi: alur sebar skema diberi continue-on-error → ditolak
+  OK  mutasi: pratinjau dry-run dihapus dari alur sebar skema → ditolak
+  OK  mutasi: perintah sebar migrasi ditelan (|| true) → ditolak
+  OK  mutasi: penyaring berkas penanda sebar skema dihapus → ditolak
+  OK  mutasi: alur sebar halaman diberi if: selalu → ditolak
+  OK  mutasi: pemeriksaan berkas penanda sebar skema dihapus → ditolak
+  OK  mutasi: pratinjau dipindah ke BELAKANG penyebaran (urutan ditukar) → ditolak
+  OK  mutasi: langkah catat alamat publik dihapus → ditolak
+  OK  mutasi: pemeriksaan berkas penanda sebar halaman dihapus → ditolak
+  OK  mutasi: perintah rilis diganti sekadar build → ditolak
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
