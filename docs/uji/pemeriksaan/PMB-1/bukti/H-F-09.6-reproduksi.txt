@@ -1,0 +1,56 @@
+BUKTI REPRODUKSI HAKIM H-F-09.6 — PMB1-F-127 (potongan F-09) — 2026-10-02
+Repo: /home/user/Resto-Barokah · HEAD: f9f78a94ebcbc7969a62bb0846957ce21e7d7204 · cabang: arena/01a0fbb7-resto-barokah
+Kode uji: 16a2b76 = leluhur HEAD OK
+12172ae = leluhur HEAD OK
+
+== 1. UJI TIP (hari ini) ==
+$ cd aplikasi && npx vitest run src/layar/masuk/LayarMasukPegawai.test.tsx
+
+ [32m✓[39m src/layar/masuk/LayarMasukPegawai.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 725[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m   Start at [22m 08:53:35
+[2m   Duration [22m 1.71s[2m (tests 46%, environment 24%, transform 19%, import 11%)[22m
+
+
+== 2. BUILD PRODUKSI + SAPUAN dist/ (hari ini) ==
+$ cd aplikasi && npx vite build && for pola in ...; do grep -rl "$pola" dist/ | wc -l; done
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 3.16s
+Pilihan Cepat Masuk Akun Demo -> 0 berkas
+PIN: 123456 -> 0 berkas
+Isi otomatis akun Owner -> 0 berkas
+owner@resto.test -> 0 berkas
+kasir@resto.test -> 0 berkas
+dapur@resto.test -> 0 berkas
+
+== 3. KONTROL NEGATIF — pohon PRA-perbaikan 16a2b76^ + uji tip (di /tmp, di luar repo) ==
+$ git archive 16a2b76^ aplikasi | tar -x -C /tmp/kendali-hf096 && cp aplikasi/src/layar/masuk/LayarMasukPegawai.test.tsx /tmp/kendali-hf096/aplikasi/src/layar/masuk/
+$ cd /tmp/kendali-hf096/aplikasi && npx vitest run src/layar/masuk/LayarMasukPegawai.test.tsx   # hasil harus MERAH pada uji DEV=false
+     [32m✓[39m merender judul, kolom email, dan keypad PIN 6 digit[32m 59[2mms[22m[39m
+     [32m✓[39m mengizinkan pengetikan email dan input PIN lewat keypad[32m 262[2mms[22m[39m
+     [32m✓[39m menampilkan pesan ramah berkode ketika PIN salah[32m 165[2mms[22m[39m
+     [32m✓[39m mengizinkan pengetikan PIN via keyboard fisik dan konfirmasi via Enter[32m 42[2mms[22m[39m
+     [32m✓[39m menangani Backspace, Escape, dan Spasi pada keyboard fisik[32m 67[2mms[22m[39m
+[31m     [31m×[31m MENYEMBUNYIKAN blok akun demo pada build produksi — PMB1-F-127 (K-1)[39m[32m 17[2mms[22m[39m
+     [32m✓[39m tetap menampilkan blok akun demo saat pengembangan (DEV) dan mengisi otomatis akun Owner — PMB1-F-127[32m 36[2mms[22m[39m
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m6 passed[39m[22m[90m (7)[39m
+
+== 3b. KONTROL NEGATIF BUILD — pohon pra-perbaikan memuat pola demo? ==
+$ cd /tmp/kendali-hf096/aplikasi && npx vite build && for pola in ...; do grep -rl "$pola" dist/ | wc -l; done
+Pilihan Cepat Masuk Akun Demo -> 1 berkas
+PIN: 123456 -> 1 berkas
+Isi otomatis akun Owner -> 1 berkas
+owner@resto.test -> 1 berkas
+
+== 4. CI GitHub untuk 12172ae ==
+$ gh run view 36806096048 --json status,conclusion,headSha,displayTitle
+{"conclusion":"success","displayTitle":"perbaiki format Prettier berkas B-F-09.4 (temuan CI langkah 5 pada 16…","headSha":"12172ae0f950a31f6c131b9d80a9a406dbc1fcca","status":"completed"}
+
+== 5. Rantai penuh (log lengkap: bukti/H-F-09.6-rantai.txt) ==
+$ python3 alat/rantai-bukti-giliran.py --simpan docs/uji/pemeriksaan/PMB-1/bukti/H-F-09.6-rantai.txt
+RINGKASAN RANTAI PENUH: 130 LOLOS · 0 GAGAL · 1 tak terbukti (tanpa internet) · 4 dilewati
+RANTAI: LOLOS
