@@ -1,0 +1,25 @@
+BUKTI REPRODUKSI MERAH PMB1-F-038 ronde 2 — Pembangun B-F-03.2 (arena/01a0fbb9-resto-barokah), 2026-10-02
+Pohon saat reproduksi: f29c7cb72e1f97dfa73e036d00e4d757cd3aa073 + uji diperluas (sebelum migrasi 0095 ada)
+
+## 1. Uji resmi diperluas (kasus 5-8) dijalankan TANPA migrasi 0095 -> GAGAL di kasus 5
+$ node alat/uji-sql.mjs supabase/tes/voucher_kasir_wajib_identitas.sql
+
+  GAGAL supabase/tes/voucher_kasir_wajib_identitas.sql
+        HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-038: bentuk +62 dari nomor yang sama tidak melahirkan identitas kedua). Perintah: select public.daftar_voucher(
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - supabase/tes/voucher_kasir_wajib_identitas.sql: HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-038: bentuk +62 dari nomor yang sama tidak melahirkan identitas kedua). Perintah: select public.daftar_voucher(
+HASIL: GAGAL
+
+## 2. Probe HAKIM H-F-03.4 dijalankan pada pohon tanpa 0095 -> LULUS (celah terbukti: varian +62 diterima sebagai identitas kedua)
+$ node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.4-probe-plus62.sql
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.4-probe-plus62.sql: duplicate key value violates unique constraint "pelanggan_penyewa_telepon_unik"
+HASIL: GAGAL
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS

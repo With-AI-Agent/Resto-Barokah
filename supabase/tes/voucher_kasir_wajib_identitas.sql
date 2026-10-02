@@ -74,3 +74,60 @@ select uji.harap_gagal_sebab(
   'IDENTITAS_WAJIB',
   'F-038: tabel menolak pelanggan kasir tanpa kunci identitas dari jalur mana pun'
 );
+
+-- 5..8. Penyatuan awalan negara (PMB1-F-038 ronde 2 — dikembalikan HAKIM H-F-03.4):
+-- nomor yang SAMA dalam bentuk "+62…", "62…", dan "8…" (tanpa nol) harus dianggap
+-- SATU identitas; hanya bentuk pertama yang lahir, sisanya ditolak kunci unik.
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
+
+-- 5. Bentuk "+62 812-3456-7890" dari nomor pada kasus 2 -> DITOLAK kunci unik
+select uji.harap_gagal_sebab(
+  $$select public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Orang Sama Plus Enam Dua', null, '+62 812-3456-7890', null, true, 'kasir', 'hp-kasir-rina', '10.9.1.4')$$,
+  'pelanggan_penyewa_telepon_unik',
+  'F-038: bentuk +62 dari nomor yang sama tidak melahirkan identitas kedua'
+);
+
+-- 6. Bentuk "6281234567890" (tanpa tanda plus) -> DITOLAK kunci unik
+select uji.harap_gagal_sebab(
+  $$select public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Orang Sama Enam Dua Polos', null, '6281234567890', null, true, 'kasir', 'hp-kasir-rina', '10.9.1.5')$$,
+  'pelanggan_penyewa_telepon_unik',
+  'F-038: bentuk 62… tanpa tanda plus dari nomor yang sama ditolak'
+);
+
+-- 7. Bentuk "812-3456-7890" (tanpa nol di depan) -> DITOLAK kunci unik
+select uji.harap_gagal_sebab(
+  $$select public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Orang Sama Tanpa Nol', null, '812-3456-7890', null, true, 'kasir', 'hp-kasir-rina', '10.9.1.6')$$,
+  'pelanggan_penyewa_telepon_unik',
+  'F-038: bentuk tanpa nol di depan dari nomor yang sama ditolak'
+);
+
+-- 8. Kontrol positif: nomor LAIN yang ditulis berawalan +62 tetap sah dan
+--    tersimpan tersatukan menjadi bentuk 0… (bukti normalisasi dua arah)
+select uji.harap(
+  (select (hasil->>'berhasil')::boolean
+     from public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Pelanggan Sah Plus Enam Dua', null, '+62 813-9999-8888', null, true, 'kasir', 'hp-kasir-rina', '10.9.1.7'
+     ) as hasil),
+  'F-038: nomor lain berawalan +62 tetap bisa didaftarkan'
+);
+select uji.harap(
+  (select telepon from public.pelanggan where nama = 'Pelanggan Sah Plus Enam Dua') = '081399998888',
+  'F-038: masukan +62 tersimpan tersatukan sebagai bentuk 0…'
+);
+select uji.harap(
+  (select count(*) from public.voucher
+    where kampanye_id = 'c3000000-0000-0000-0000-000000000038') = 2,
+  'F-038: total tepat dua voucher (dua identitas sah), varian +62 tidak menambah'
+);
