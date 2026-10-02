@@ -1,0 +1,70 @@
+# Reproduksi HAKIM H-F-02.2 — arena/01a0f48b-resto-barokah — 2026-09-30 (UTC)
+# pohon = HEAD cabang ini (memuat merge integrasi 5b5325f dari arena/01a0eff7); semua perintah dijalankan hari ini
+
+$ git cat-file -t 348df84 5c6493b a8ff618
+commit
+commit
+commit
+
+$ git merge-base --is-ancestor 348df84 HEAD && ... (ketiga commit ada di riwayat HEAD)
+348df84 adalah leluhur HEAD
+5c6493b adalah leluhur HEAD
+a8ff618 adalah leluhur HEAD
+
+$ node alat/uji-sql.mjs supabase/tes/buka_laci_tercatat.sql   (F-010)
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+$ cd aplikasi && npx vitest run src/lib/laci.test.ts src/komponen/Struk.test.tsx src/lib/printer/struk.test.ts src/hook/useRiwayatTransaksi.test.ts
+ ✓ src/hook/useRiwayatTransaksi.test.ts (3 tests) 139ms
+ ✓ src/lib/printer/struk.test.ts (24 tests) 20ms
+ ✓ src/komponen/Struk.test.tsx (18 tests) 126ms
+ ✓ src/lib/laci.test.ts (4 tests) 7ms
+ Test Files  4 passed (4)
+      Tests  49 passed (49)
+
+$ grep -rn "lib/laci\|bukaLaciTercatat" aplikasi/src | grep -v "laci.test.ts\|lib/laci.ts:"   (pemanggil produksi laci.ts)
+(keluar: 1 ; 1 = TIDAK ADA pemanggil)
+
+$ sed -n 142p aplikasi/src/lib/printer/struk.ts
+  if (opsi.bukaLaci) p.bukaLaci()
+
+$ grep -n -i laci docs/ROADMAP.md | cut -c1-140
+1478:  - **DoD:** fungsi susun struk/tiket (baris, tebal, rata, potong kertas, buka laci bila didukung) dengan uji unit byte-level; teks Ind
+1543:  - **DoD:** fungsi `susunStruk` terpasang dan dipanggil dari alur transaksi nyata di `LayarKasir`/`App.tsx` saat transaksi selesai/tom
+1554:  - **Laci kas hanya terbuka bila diminta pemanggil** — bayar QRIS/kartu tidak boleh membuka laci.
+
+$ grep -n "TARIF_BAWAAN\|tarif=" (non-test) — siapa yang memberi prop tarif ke LayarKasir
+aplikasi/src/layar/kasir/LayarKasir.tsx:39:import { TARIF_BAWAAN, hitungPerkiraan, type TarifResto } from '../../lib/tarif'
+aplikasi/src/layar/kasir/LayarKasir.tsx:130:   * layar memakai `TARIF_BAWAAN` (10 %/5 %, sama dengan nilai bawaan kolomnya)
+aplikasi/src/layar/kasir/LayarKasir.tsx:190:  tarif = TARIF_BAWAAN,
+aplikasi/src/lib/tarif.ts:49:export const TARIF_BAWAAN: TarifResto = {
+aplikasi/src/lib/tarif.ts:74:  tarif: TarifResto = TARIF_BAWAAN,
+
+$ grep -n tarif aplikasi/src/App.tsx
+(keluar: 1 ; 1 = App.tsx tidak pernah menyebut tarif)
+
+$ grep -n "T-027" docs/TERTANGGUH.md | cut -c1-330
+29:| T-027 | 2026-09-23 | **Pajak & service di keranjang kasir masih dihitung layar (10 % / 5 % keras-kode) sebagai PERKIRAAN** | Tidak membahayakan uang: angka yang SAH selalu dari peladen (`hitung_total`) dan itulah yang dipakai layar Bayar serta dicetak di struk (T5-03). Yang di keranjang hanya penunjuk sementara selagi pesan
+
+$ grep -rn "susunStruk" aplikasi/src | grep -v "\.test\."   (pemanggil produksi jalur kertas)
+aplikasi/src/lib/printer/struk.ts:52:export function susunStruk(data: DataStruk, opsi: OpsiStruk = {}): Uint8Array {
+
+$ git show a8ff618 -- aplikasi/src/App.tsx | grep -n "pesanan_meja"
+76:-      case 'pesanan_meja':
+
+$ grep -n "pesanan_meja" aplikasi/src/App.tsx aplikasi/src/komponen/Navigasi.tsx
+aplikasi/src/komponen/Navigasi.tsx:57:        { id: 'pesanan_meja', label: 'Pesanan Meja', ikon: '🍽️', path: '/meja' },
+
+$ grep -n "pesanan(\|!inner\|pesanan.cabang_id" aplikasi/src/hook/useRiwayatTransaksi.ts
+80:              'pesanan(nomor, subtotal, pajak, service, total_diskon, total, dibuat_pada, cabang_id, ' +
+83:          .eq('pesanan.cabang_id', cabangId)
+
+$ grep -n "onCetakUlang" aplikasi/src/App.tsx
+(keluar: 1 ; 1 = kontainer tetap tanpa handler Cetak ulang)
+
+$ sed -n 518,519p supabase/migrations/0010_pembayaran.sql
+create policy pembayaran_pilih on public.pembayaran
+  for select to authenticated using (public.pesanan_sepenyewa(pesanan_id));
