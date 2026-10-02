@@ -8,7 +8,7 @@
 
 | Bagian | Isi | Jumlah |
 |---|---|---|
-| A1 | Masih menunggu keputusan/tindakan Lee | 5 |
+| A1 | Masih menunggu keputusan/tindakan Lee | 6 |
 | A2 | Sudah diputuskan Lee, menunggu dieksekusi agent | 4 |
 | B | Temuan K-1 terbuka | 3 |
 | C | Tugas ROADMAP dibuka kembali, masih `[ ]` | 7 |
@@ -26,11 +26,12 @@ Temuan terbuka semua tingkat: BARU 14 · TERVERIFIKASI 164 · PERLU-INFO 0 · DI
 |---|---|---|---|---|
 | PMB1-F-019 | K-2 | F-02 | TERVERIFIKASI | **MENUNGGU KEPUTUSAN LEE:** (kartu B-F-02 §3, arena/01a0eff7-resto-barokah): membalik dasar pengenaan PBJT berarti MENGUBAH urutan hitungan uang yang DIKUNCI dan disetujui pemilik (TECH_SPEC §13 20… |
 | PMB1-F-037 | K-2 | F-03 | TERVERIFIKASI | **MENUNGGU KEPUTUSAN LEE:** (kartu B-F-03 §3, arena/01a0eff7-resto-barokah): pilih arah wajib_shift — (a) kembalikan ketat sesuai versi dikunci c5dbc98: migrasi baru mengubah bawaan `wajib_shift` m… |
+| PMB1-F-038 | K-2 | F-03 | TERVERIFIKASI | **MENUNGGU KEPUTUSAN LEE:** HAKIM H-F-03.5 (arena/01a0fc20, kartu `kartu/H-F-03.5.md`, 2026-10-02) mengembalikan F-038 ke TERVERIFIKASI — (A) normalisasi `0095` masih bocor untuk 9 penulisan lain (… |
 | PMB1-F-048 | K-2 | F-03 | TERVERIFIKASI | **BUTUH LEE/OPERATOR:** (kartu B-F-03 §3, arena/01a0eff7-resto-barokah): notifikasi owner saat mode dukungan dibuka butuh mekanisme email — kanal email masih ditahan gerbang T-022 (`docs/TERTAN… |
 | PMB1-F-128 | K-2 | F-09 | TERVERIFIKASI | **BUTUH LEE/OPERATOR:** uji perangkat nyata T-015 untuk T2-15 — atau keputusan Lee mengembalikan T2-15 ke [ ] (status ROADMAP = wewenang Perencana); kartu B-F-09 §3 · arena/01a0ec8d-resto-barok… |
 | PMB1-F-129 | K-2 | F-09 | TERVERIFIKASI | **BUTUH LEE/OPERATOR:** cek Dashboard Supabase → Authentication → SMTP (Enable Custom SMTP) + keputusan kanal T-022 + dua uji manual jalur email — atau keputusan Lee mengembalikan T2-04/T2-05 k… |
 
-Jumlah A1: **5**
+Jumlah A1: **6**
 
 ### A2. Sudah DIPUTUSKAN Lee — menunggu dieksekusi agent (penanda `KEPUTUSAN LEE <tanggal>:`)
 
