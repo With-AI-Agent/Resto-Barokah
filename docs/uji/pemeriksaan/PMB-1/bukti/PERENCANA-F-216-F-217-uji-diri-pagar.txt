@@ -1,0 +1,70 @@
+PERBAIKAN PERMINTAAN HAKIM H-F-02.2 — PAGAR F-216/F-217 KINI DIJAGA UJI (--uji-diri)
+Perencana `arena/01a0e747-resto-barokah`, 2026-10-01. Sumber permintaan: kartu `kartu/H-F-02.2.md` §1
+(PMB1-F-216/F-217 dikembalikan `DIPERBAIKI → TERVERIFIKASI`: "Pagar ada tetapi tak dijaga. Perbaikan yang
+diminta: satu kasus di --uji-diri (atau uji CI) yang memanggil kedua fungsi dengan kasus merah".
+
+Yang diubah: (1) `alat/pmb-integrasi.py` mendapat mode `--uji-diri` — enam skenario di repo git SEMENTARA
+(repo asli tidak tersentuh): tiga skenario pelanggaran (timpa bukti, hapus bukti, centang baru K6, hapus baris
+ROADMAP) WAJIB membuat pagar MENYALA, tiga skenario sah (tambah bukti di ujung, buka centang [x]→[ ]) WAJIB
+tetap BERSIH; (2) perintah `python3 alat/pmb-integrasi.py --uji-diri` didaftarkan sebagai langkah CI + gerbang
+wajib, supaya mematikan isi pagar = CI MERAH.
+
+====================================================================================================
+A. UJI-DIRI PADA ALAT ASLI (harus LOLOS)
+====================================================================================================
+UJI-DIRI pmb-integrasi — pagar bukti kekal (F-216) & pagar ROADMAP (F-217/K6) di repo sementara:
+  LOLOS  uji-timpa-bukti → periksa_bukti_kekal harus MENYALA
+          bukti: docs/uji/pemeriksaan/PMB-1/bukti/lama.txt: bukti giliran lain DITIMPA cabang, bukan ditambah di ujung (bukti k
+  LOLOS  uji-hapus-bukti → periksa_bukti_kekal harus MENYALA
+          bukti: docs/uji/pemeriksaan/PMB-1/bukti/lama.txt: bukti giliran lain DIHAPUS cabang (bukti kekal, PMB1-F-216)
+  LOLOS  uji-tambah-bukti → periksa_bukti_kekal harus BERSIH
+          bukti: bersih (0 pelanggaran)
+  LOLOS  uji-centang-baru → periksa_roadmap_pembangun harus MENYALA
+          bukti: docs/ROADMAP.md: cabang MENCENTANG `- [x] T9-99 tugas baru yang dicentang cabang (K6: dilarang)` — K6: Pembang
+  LOLOS  uji-hapus-roadmap → periksa_roadmap_pembangun harus MENYALA
+          bukti: docs/ROADMAP.md: cabang MENGHAPUS baris di luar pola PEMBANGUN dokumen (PMB1-F-217) — periksa isinya; bila mem
+  LOLOS  uji-buka-centang → periksa_roadmap_pembangun harus BERSIH
+          bukti: bersih (0 pelanggaran)
+HASIL: LOLOS — 6/6 skenario sesuai harapan
+
+====================================================================================================
+B. BUKTI UJI INI TAJAM — MUTASI DI SALINAN /tmp (repo asli tidak diubah)
+====================================================================================================
+M-1: baris `return` disisipkan di awal `periksa_bukti_kekal` (pagar bukti kekal dilumpuhkan) → hasil:
+
+UJI-DIRI pmb-integrasi — pagar bukti kekal (F-216) & pagar ROADMAP (F-217/K6) di repo sementara:
+  GAGAL  uji-timpa-bukti → periksa_bukti_kekal harus MENYALA
+          bukti: bersih (0 pelanggaran)
+  GAGAL  uji-hapus-bukti → periksa_bukti_kekal harus MENYALA
+          bukti: bersih (0 pelanggaran)
+  LOLOS  uji-tambah-bukti → periksa_bukti_kekal harus BERSIH
+          bukti: bersih (0 pelanggaran)
+  LOLOS  uji-centang-baru → periksa_roadmap_pembangun harus MENYALA
+          bukti: docs/ROADMAP.md: cabang MENCENTANG `- [x] T9-99 tugas baru yang dicentang cabang (K6: dilarang)` — K6: Pembang
+  LOLOS  uji-hapus-roadmap → periksa_roadmap_pembangun harus MENYALA
+          bukti: docs/ROADMAP.md: cabang MENGHAPUS baris di luar pola PEMBANGUN dokumen (PMB1-F-217) — periksa isinya; bila mem
+  LOLOS  uji-buka-centang → periksa_roadmap_pembangun harus BERSIH
+          bukti: bersih (0 pelanggaran)
+HASIL: GAGAL — 4/6 skenario sesuai harapan
+  (keluar kode 1 — 4/6 skenario sesuai harapan; dua skenario bukti kekal yang seharusnya MENYALA tidak menyala)
+
+M-2: baris `return` disisipkan di awal `periksa_roadmap_pembangun` (pagar ROADMAP/K6 dilumpuhkan) → hasil:
+
+UJI-DIRI pmb-integrasi — pagar bukti kekal (F-216) & pagar ROADMAP (F-217/K6) di repo sementara:
+  LOLOS  uji-timpa-bukti → periksa_bukti_kekal harus MENYALA
+          bukti: docs/uji/pemeriksaan/PMB-1/bukti/lama.txt: bukti giliran lain DITIMPA cabang, bukan ditambah di ujung (bukti k
+  LOLOS  uji-hapus-bukti → periksa_bukti_kekal harus MENYALA
+          bukti: docs/uji/pemeriksaan/PMB-1/bukti/lama.txt: bukti giliran lain DIHAPUS cabang (bukti kekal, PMB1-F-216)
+  LOLOS  uji-tambah-bukti → periksa_bukti_kekal harus BERSIH
+          bukti: bersih (0 pelanggaran)
+  GAGAL  uji-centang-baru → periksa_roadmap_pembangun harus MENYALA
+          bukti: bersih (0 pelanggaran)
+  GAGAL  uji-hapus-roadmap → periksa_roadmap_pembangun harus MENYALA
+          bukti: bersih (0 pelanggaran)
+  LOLOS  uji-buka-centang → periksa_roadmap_pembangun harus BERSIH
+          bukti: bersih (0 pelanggaran)
+HASIL: GAGAL — 4/6 skenario sesuai harapan
+  (keluar kode 1 — 4/6 skenario sesuai harapan; dua skenario ROADMAP yang seharusnya MENYALA tidak menyala)
+
+M-0 (kontrol): berkas asli disalin kembali → `HASIL: LOLOS — 6/6 skenario sesuai harapan`, keluar kode 0.
+

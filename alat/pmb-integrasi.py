@@ -28,8 +28,12 @@ Pagar ROADMAP (PMB1-F-217 + K6, 2026-09-30): pada --pembangun, baris docs/ROADMA
         bila memang disengaja dan disebut di kartu, Perencana mengulang dengan --izinkan-hapus-roadmap (K6 tetap tidak bisa dilonggarkan).
 Ter-push sampai (arahan Lee 2026-09-30): kartu B-*.md dari cabang yang belum memuat `**Ter-push sampai:**` diberi baris itu oleh mesin
         dengan sha tip cabang yang diintegrasikan (sumber kebenaran: origin, bukan klaim agen).
-Catatan: belum punya --uji-diri; divalidasi pada empat cabang nyata 2026-09-29 (ea8f, ea91, ea90 dengan 22 sengketa, ea92 dengan
-        39 temuan +2 / 17 asumsi +4) — setiap langkah diikuti `periksa-pemeriksaan.py` LOLOS. Aturan sengketa: PMB-1/README.md.
+Uji-diri (2026-10-01, permintaan HAKIM H-F-02.2): `python3 alat/pmb-integrasi.py --uji-diri` menjalankan enam skenario di repo git
+        SEMENTARA — tiga pelanggaran (timpa/hapus bukti kekal, centang `[x]` baru, hapus baris ROADMAP) WAJIB membuat pagar F-216/F-217
+        MENYALA dan tiga perbuatan sah (tambah bukti di ujung, `[x]`→`[ ]` teks sama) WAJIB tetap BERSIH. Terdaftar sebagai langkah CI
+        (gerbang wajib), jadi mematikan isi pagar = CI merah. Divalidasi juga pada empat cabang nyata 2026-09-29 (ea8f, ea91, ea90 dengan
+        22 sengketa, ea92 dengan 39 temuan +2 / 17 asumsi +4) — setiap langkah diikuti `periksa-pemeriksaan.py` LOLOS.
+        Aturan sengketa: PMB-1/README.md.
 """
 from __future__ import annotations
 
@@ -490,7 +494,103 @@ class Integrasi:
         return 0
 
 
+# ---------- uji-diri: pagar bukti kekal & pagar ROADMAP dibuktikan bisa MENYALA ----------
+def uji_diri() -> int:
+    """Buktikan `periksa_bukti_kekal` (PMB1-F-216) & `periksa_roadmap_pembangun` (PMB1-F-217/K6) benar-benar menyala.
+
+    Permintaan HAKIM H-F-02.2 (2026-10-01): kedua pagar itu ada, tetapi tidak ada uji yang memanggilnya —
+    mematikan isinya (mutasi no-op) tidak membuat penjaga mana pun GAGAL. Uji-diri ini menjalankan kedua
+    fungsi di repo git SEMENTARA (repo asli tidak tersentuh) dengan enam skenario: tiga harus MENYALA
+    (pelanggaran terdeteksi) dan tiga harus BERSIH — jadi alat ini GAGAL baik saat pagar tumpul
+    (skenario merah tak terdeteksi) maupun saat pagar terlalu galak (skenario hijau ikut dituduh).
+    Dipakai sebagai langkah CI: `python3 alat/pmb-integrasi.py --uji-diri`.
+    """
+    import tempfile
+
+    global AKAR
+    akar_asli = AKAR
+    hasil: list[tuple[str, bool, str]] = []
+
+    def git_uji(akar: pathlib.Path, *a: str) -> str:
+        p = subprocess.run(["git", *a], cwd=akar, capture_output=True, text=True)
+        if p.returncode != 0:
+            raise SystemExit(f"uji-diri pmb-integrasi: git {' '.join(a)} gagal: {p.stderr.strip()}")
+        return p.stdout
+
+    def skenario(akar: pathlib.Path, nama: str, ubah, pagar: str, harap_menyala: bool) -> None:
+        git_uji(akar, "checkout", "-q", "main")
+        git_uji(akar, "checkout", "-q", "-B", nama)
+        ubah(akar)
+        git_uji(akar, "add", "-A")
+        git_uji(akar, "commit", "-q", "--allow-empty", "-m", nama)
+        git_uji(akar, "checkout", "-q", "main")     # Perencana berdiri di cabangnya sendiri, bukan di cabang giliran
+        integ = Integrasi(nama)
+        integ.pembangun = True                      # pagar ROADMAP hanya aktif pada mode PEMBANGUN
+        getattr(integ, pagar)()
+        menyala = bool(integ.pelanggaran)
+        ringkas = " | ".join(b.splitlines()[0] for b in integ.pelanggaran)[:110] or "bersih (0 pelanggaran)"
+        hasil.append((f"{nama} → {pagar} harus {'MENYALA' if harap_menyala else 'BERSIH'}", menyala == harap_menyala, ringkas))
+
+    try:
+        with tempfile.TemporaryDirectory(prefix="pmb-integrasi-uji-") as tmp:
+            akar = pathlib.Path(tmp) / "repo"
+            (akar / "docs/uji/pemeriksaan/PMB-1/bukti").mkdir(parents=True)
+            bukti_lama = "bukti giliran lama\n"
+            roadmap_awal = "- [x] T1-01 tugas lama dibangun\n- **Bukti:** uji lama\n- baris roadmap lain yang tidak boleh hilang\n"
+            (akar / "docs/uji/pemeriksaan/PMB-1/bukti/lama.txt").write_text(bukti_lama, encoding="utf-8")
+            (akar / "docs/ROADMAP.md").write_text(roadmap_awal, encoding="utf-8")
+            git_uji(akar, "init", "-q", "-b", "main")
+            git_uji(akar, "config", "user.email", "uji-diri@lokal")
+            git_uji(akar, "config", "user.name", "uji-diri pmb-integrasi")
+            git_uji(akar, "add", "-A")
+            git_uji(akar, "commit", "-q", "-m", "basis")
+
+            AKAR = akar                            # git()/show() menunjuk repo sementara, repo asli tak tersentuh
+
+            def tulis_bukti(a: pathlib.Path, isi: str) -> None:
+                (a / "docs/uji/pemeriksaan/PMB-1/bukti/lama.txt").write_text(isi, encoding="utf-8")
+
+            def timpa_bukti(a: pathlib.Path) -> None:
+                tulis_bukti(a, "bukti giliran lain DITIMPA\n")
+
+            def hapus_bukti(a: pathlib.Path) -> None:
+                (a / "docs/uji/pemeriksaan/PMB-1/bukti/lama.txt").unlink()
+
+            def tambah_bukti(a: pathlib.Path) -> None:
+                tulis_bukti(a, bukti_lama + "tambahan giliran ini di ujung (sah)\n")
+
+            def centang_baru(a: pathlib.Path) -> None:
+                (a / "docs/ROADMAP.md").write_text(
+                    roadmap_awal + "- [x] T9-99 tugas baru yang dicentang cabang (K6: dilarang)\n", encoding="utf-8")
+
+            def hapus_baris_roadmap(a: pathlib.Path) -> None:
+                (a / "docs/ROADMAP.md").write_text(
+                    roadmap_awal.replace("- baris roadmap lain yang tidak boleh hilang\n", ""), encoding="utf-8")
+
+            def buka_centang_roadmap(a: pathlib.Path) -> None:
+                (a / "docs/ROADMAP.md").write_text(
+                    roadmap_awal.replace("- [x] T1-01 tugas lama dibangun", "- [ ] T1-01 tugas lama dibangun"), encoding="utf-8")
+
+            skenario(akar, "uji-timpa-bukti", timpa_bukti, "periksa_bukti_kekal", True)
+            skenario(akar, "uji-hapus-bukti", hapus_bukti, "periksa_bukti_kekal", True)
+            skenario(akar, "uji-tambah-bukti", tambah_bukti, "periksa_bukti_kekal", False)
+            skenario(akar, "uji-centang-baru", centang_baru, "periksa_roadmap_pembangun", True)
+            skenario(akar, "uji-hapus-roadmap", hapus_baris_roadmap, "periksa_roadmap_pembangun", True)
+            skenario(akar, "uji-buka-centang", buka_centang_roadmap, "periksa_roadmap_pembangun", False)
+    finally:
+        AKAR = akar_asli
+
+    print("UJI-DIRI pmb-integrasi — pagar bukti kekal (F-216) & pagar ROADMAP (F-217/K6) di repo sementara:")
+    for nama, lulus, ringkas in hasil:
+        print(f"  {'LOLOS ' if lulus else 'GAGAL '} {nama}")
+        print(f"          bukti: {ringkas}")
+    gagal = [h for h in hasil if not h[1]]
+    print(f"HASIL: {'LOLOS' if not gagal else 'GAGAL'} — {len(hasil) - len(gagal)}/{len(hasil)} skenario sesuai harapan")
+    return 0 if not gagal else 1
+
 def main(argv: list[str]) -> int:
+    if argv and argv[0] == "--uji-diri":
+        return uji_diri()
     if not argv or argv[0].startswith("-"):
         print(__doc__)
         return 64
