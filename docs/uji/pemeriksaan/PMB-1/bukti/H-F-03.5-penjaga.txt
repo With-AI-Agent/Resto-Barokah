@@ -1,0 +1,31 @@
+$ python3 alat/periksa-pemeriksaan.py
+PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 0, 'DIHAKIMI': 17, 'DIKLAIM': 0, 'RENCANA': 46, 'SELESAI': 0} · 228 temuan (terbuka K-1/K-2: 44)
+
+HASIL: LOLOS
+[exit=0]
+
+$ python3 alat/susun-daftar-tunggu-lee.py --periksa
+[OK] docs/uji/pemeriksaan/PMB-1/DAFTAR_TUNGGU_LEE.md mutakhir
+
+HASIL: LOLOS
+[exit=0]
+
+$ python3 alat/susun-matriks-telusur.py --periksa
+[OK] docs/uji/pemeriksaan/PMB-1/MATRIKS_TELUSUR.md mutakhir
+[OK] docs/uji/pemeriksaan/PMB-1/REGRESI_WAJIB.md mutakhir
+
+HASIL: LOLOS
+[exit=0]
+
+$ python3 alat/periksa-bersih.py
+PERIKSA POHON BERSIH — 3198 berkas terlacak disalin · 5 pemeriksa dokumen
+  [OK] _sistem/validate_system.py
+  [OK] alat/periksa-rujukan.py
+  [OK] alat/periksa-panduan.py
+  [OK] alat/periksa-buku-uji.py
+  [OK] alat/periksa-rahasia.py
+  catatan: berkas ada di komputermu tetapi TIDAK ikut Git: 0
+
+HASIL: LOLOS — semua pemeriksa dokumen hijau di pohon bersih (hanya berkas terlacak Git).
+[exit=0]
+

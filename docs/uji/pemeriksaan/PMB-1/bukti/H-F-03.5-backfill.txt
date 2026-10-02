@@ -1,0 +1,21 @@
+
+## 1. KONTROL: data lama tanpa kembaran (harus berhasil dan merapikan)
+  berkas   : 0095_penyatuan_awalan_nomor_hp_pelanggan.sql
+  sebelum  : [{"nama":"LAMA-A","telepon":"081234567890"},{"nama":"LAMA-B","telepon":"6281399998888"}]
+  hasil    : MIGRASI 0095 BERHASIL
+  sesudah  : [{"nama":"LAMA-A","telepon":"081234567890"},{"nama":"LAMA-B","telepon":"081399998888"}]
+  fungsi normalisasi_telepon_pelanggan ada sesudahnya: ya
+
+## 2. UJI A: data lama memuat nomor SAMA dalam dua bentuk (0812... dan 62812...), disisipkan langsung
+  berkas   : 0095_penyatuan_awalan_nomor_hp_pelanggan.sql
+  sebelum  : [{"nama":"LAMA-A","telepon":"081234567890"},{"nama":"LAMA-B","telepon":"6281234567890"}]
+  hasil    : MIGRASI 0095 GAGAL: duplicate key value violates unique constraint "pelanggan_penyewa_telepon_unik"
+  sesudah  : [{"nama":"LAMA-A","telepon":"081234567890"},{"nama":"LAMA-B","telepon":"6281234567890"}]
+  fungsi normalisasi_telepon_pelanggan ada sesudahnya: TIDAK (seluruh berkas migrasi dibatalkan)
+
+## 3. UJI B: kembaran lahir lewat RPC asli daftar_voucher oleh kasir Rina di bawah 0093
+  berkas   : 0095_penyatuan_awalan_nomor_hp_pelanggan.sql
+  sebelum  : [{"nama":"Orang Kedua","telepon":"6281234567890"},{"nama":"Orang Pertama","telepon":"081234567890"}]
+  hasil    : MIGRASI 0095 GAGAL: duplicate key value violates unique constraint "pelanggan_penyewa_telepon_unik"
+  sesudah  : [{"nama":"Orang Kedua","telepon":"6281234567890"},{"nama":"Orang Pertama","telepon":"081234567890"}]
+  fungsi normalisasi_telepon_pelanggan ada sesudahnya: TIDAK (seluruh berkas migrasi dibatalkan)
