@@ -9,14 +9,14 @@
 | Bagian | Isi | Jumlah |
 |---|---|---|
 | A1 | Masih menunggu keputusan/tindakan Lee | 5 |
-| A2 | Sudah diputuskan Lee, menunggu dieksekusi agent | 6 |
-| B | Temuan K-1 terbuka | 6 |
+| A2 | Sudah diputuskan Lee, menunggu dieksekusi agent | 5 |
+| B | Temuan K-1 terbuka | 4 |
 | C | Tugas ROADMAP dibuka kembali, masih `[ ]` | 7 |
 | D | Centang lama menunggu sensus klaim (⏳ BUKTI-BELUM) | 139 |
 | E | Butir tertangguh terbuka | 2 |
 | F | Baris Buku Uji belum diisi Lee | 23 |
 
-Temuan terbuka semua tingkat: BARU 8 · TERVERIFIKASI 163 · PERLU-INFO 0 · DIPERBAIKI 12 · **total 183** (gerbang akhir PMB menuntut 0, kecuali DITANGGUHKAN oleh Lee dengan tanggal tinjau).
+Temuan terbuka semua tingkat: BARU 9 · TERVERIFIKASI 164 · PERLU-INFO 0 · DIPERBAIKI 5 · **total 178** (gerbang akhir PMB menuntut 0, kecuali DITANGGUHKAN oleh Lee dengan tanggal tinjau).
 
 ## A. Keputusan / tindakan yang ditunggu dari Lee (temuan terbuka berpenanda LEE)
 
@@ -37,26 +37,23 @@ Jumlah A1: **5**
 | ID | Tingkat | Potongan | Status | Keputusan Lee & yang harus dikerjakan |
 |---|---|---|---|---|
 | PMB1-F-001 | K-1 | F-10 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** Pembangun menyiapkan perbaikan di kode + uji lokal saja (migrasi baru/kode di balik saklar), TIDAK dipasang ke produksi dan cara masuk Lee tidak berubah sampai Lee memer… |
-| PMB1-F-036 | K-1 | F-03 | DIPERBAIKI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** Pembangun menyiapkan perbaikan di kode + uji lokal saja (migrasi baru/kode di balik saklar), TIDAK dipasang ke produksi dan cara masuk Lee tidak berubah sampai Lee memer… |
 | PMB1-F-052 | K-1 | P-10-00 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** Pembangun menyiapkan perbaikan di kode + uji lokal saja (migrasi baru/kode di balik saklar), TIDAK dipasang ke produksi dan cara masuk Lee tidak berubah sampai Lee memer… |
 | PMB1-F-063 | K-1 | F-04 | DIPERBAIKI | **KEPUTUSAN LEE 2026-09-29 = B) — saklar `pengaturan.izin_daftar_perangkat_bebas_peran_berkuasa` bawaan FALSE (0090) dan definisi final `verifikasi_pin_perangkat` (0091) menolak pendaftaran perangkat baru peran berkuasa BILA penyewa sudah punya perangkat aktif (skenario persis F-063, kode `PERANGKAT_BELUM_DISETUJUI`); uji `supabase/tes/daftar_perangkat_beru_peran_berkuasa.sql` (kasus 2 + prasyarat "sudah ada perangkat aktif" eksplisit F-063) dan kasus 7a/7b `verifikasi_pin_perangkat.sql`; probe hakim `bukti/F-03-hakim-owner-perangkat.sql` yang dulu LULUS kini GAGAL — celah tertutup (bukti `bukti/B-F-04-F-063-tertutup.txt`). DISIAPKAN, BELUM DIPASANG (saklar mati) — produksi dan cara masuk Lee tidak berubah sampai Lee memerintahkan pemasangan (REKAM §31 butir 21).:**  |
 | PMB1-F-117 | K-2 | F-09 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** Pembangun menyiapkan perbaikan di kode + uji lokal saja (migrasi baru/kode di balik saklar), TIDAK dipasang ke produksi dan cara masuk Lee tidak berubah sampai Lee memer… |
 | PMB1-F-127 | K-1 | F-09 | DIPERBAIKI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** perbaikan DISIAPKAN, belum dipasang (saklar mati). `16a2b76` — blok "Pilihan Cepat Masuk Akun Demo (PIN: 123456)" + 3 tombol isi-otomatis di layar masuk dibungkus `impor… |
 
-Jumlah A2: **6**
+Jumlah A2: **5**
 
 ## B. Temuan K-1 (berat) yang masih terbuka — wajib 0 sebelum data asli/pilot
 
 | ID | Potongan | Status | Artefak |
 |---|---|---|---|
 | PMB1-F-001 | F-10 | TERVERIFIKASI | `supabase/migrations/0086_data_awal_dan_autentikasi_perangkat.sql:286` |
-| PMB1-F-031 | F-03 | DIPERBAIKI | `supabase/migrations/0067_pengaman_voucher.sql:845` |
-| PMB1-F-036 | F-03 | DIPERBAIKI | `supabase/migrations/0087_perbaiki_search_path_kripto_dan_rpc.sql:172` |
 | PMB1-F-052 | P-10-00 | TERVERIFIKASI | `supabase/migrations/0087_perbaiki_search_path_kripto_dan_rpc.sql:267-290` |
 | PMB1-F-063 | F-04 | DIPERBAIKI | `docs/TECH_SPEC.md:19` (bukti: `aplikasi/src/lib/auth.ts:174-181`; `supabase/migrations/0… |
 | PMB1-F-127 | F-09 | DIPERBAIKI | `aplikasi/src/layar/masuk/LayarMasukPegawai.tsx:310` |
 
-Jumlah: **6**
+Jumlah: **4**
 
 ## C. Tugas ROADMAP yang DIBUKA KEMBALI (dulu diklaim selesai, ternyata belum) dan masih `[ ]`
 

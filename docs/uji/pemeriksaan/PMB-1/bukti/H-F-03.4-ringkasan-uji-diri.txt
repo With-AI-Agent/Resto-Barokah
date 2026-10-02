@@ -1,0 +1,4 @@
+  OK    kasus 1: tanpa rahasia → ditolak fail-closed
+  OK    kasus 2: URL Edge & badan panggilan (penyewa_id, kirim_email) sesuai kontrak
+  OK    kasus 3: akhirUrl memangkas garis miring
+UJI DIRI eksekusi-ringkasan-harian SELESAI — LOLOS
