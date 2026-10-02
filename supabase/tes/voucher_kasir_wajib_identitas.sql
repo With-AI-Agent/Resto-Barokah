@@ -131,3 +131,119 @@ select uji.harap(
     where kampanye_id = 'c3000000-0000-0000-0000-000000000038') = 2,
   'F-038: total tepat dua voucher (dua identitas sah), varian +62 tidak menambah'
 );
+
+-- 9..19. Penyatuan gaya penulisan RONDE 3 (PMB1-F-038 — dikembalikan HAKIM H-F-03.5:
+-- 9 dari 13 penulisan masih bocor). Semua bentuk di bawah adalah nomor dasar yang
+-- sama dengan kasus 2 (081234567890) atau identitas landline baru (02157901234).
+
+-- 9. "+62 (0)812-3456-7890" (nol ikut tertulis sesudah kode negara)
+select uji.harap_gagal_sebab(
+  $$select public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Gaya Nol Dalam Kurung', null, '+62 (0)812-3456-7890', null, true, 'kasir', 'hp-kasir-rina', '10.9.2.1')$$,
+  'pelanggan_penyewa_telepon_unik',
+  'F-038 r3: bentuk +62 (0)812… dari nomor yang sama ditolak'
+);
+
+-- 10. "+62 0812 3456 7890" (nol tertulis sesudah kode negara, tanpa kurung)
+select uji.harap_gagal_sebab(
+  $$select public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Gaya Nol Polos', null, '+62 0812 3456 7890', null, true, 'kasir', 'hp-kasir-rina', '10.9.2.2')$$,
+  'pelanggan_penyewa_telepon_unik',
+  'F-038 r3: bentuk +62 0812… dari nomor yang sama ditolak'
+);
+
+-- 11. "620812 3456 7890" (kode negara menempel pada nol)
+select uji.harap_gagal_sebab(
+  $$select public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Gaya Enam Dua Nol', null, '620812 3456 7890', null, true, 'kasir', 'hp-kasir-rina', '10.9.2.3')$$,
+  'pelanggan_penyewa_telepon_unik',
+  'F-038 r3: bentuk 620812… dari nomor yang sama ditolak'
+);
+
+-- 12. "00812 3456 7890" (awalan akses 00 tanpa kode negara)
+select uji.harap_gagal_sebab(
+  $$select public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Gaya Nol Nol Delapan', null, '00812 3456 7890', null, true, 'kasir', 'hp-kasir-rina', '10.9.2.4')$$,
+  'pelanggan_penyewa_telepon_unik',
+  'F-038 r3: bentuk 00812… dari nomor yang sama ditolak'
+);
+
+-- 13. "0062 812 3456 7890" (awalan akses internasional 00 + kode negara)
+select uji.harap_gagal_sebab(
+  $$select public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Gaya Nol Nol Enam Dua', null, '0062 812 3456 7890', null, true, 'kasir', 'hp-kasir-rina', '10.9.2.5')$$,
+  'pelanggan_penyewa_telepon_unik',
+  'F-038 r3: bentuk 0062 812… dari nomor yang sama ditolak'
+);
+
+-- 14. "0062-0812-3456-7890" (awalan akses 00 + kode negara + nol)
+select uji.harap_gagal_sebab(
+  $$select public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Gaya Nol Nol Enam Dua Nol', null, '0062-0812-3456-7890', null, true, 'kasir', 'hp-kasir-rina', '10.9.2.6')$$,
+  'pelanggan_penyewa_telepon_unik',
+  'F-038 r3: bentuk 0062-0812… dari nomor yang sama ditolak'
+);
+
+-- 15. Kontrol positif identitas BARU: telepon rumah 021-5790-1234 sah terdaftar
+select uji.harap(
+  (select (hasil->>'berhasil')::boolean
+     from public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Pelanggan Telepon Rumah', null, '021-5790-1234', null, true, 'kasir', 'hp-kasir-rina', '10.9.2.7'
+     ) as hasil),
+  'F-038 r3: nomor telepon rumah tetap sah didaftarkan'
+);
+select uji.harap(
+  (select telepon from public.pelanggan where nama = 'Pelanggan Telepon Rumah') = '02157901234',
+  'F-038 r3: telepon rumah tersimpan sebagai digit dengan nol depan'
+);
+
+-- 16. "+62 (0)21 5790 1234" (bentuk internasional + nol pada telepon rumah)
+select uji.harap_gagal_sebab(
+  $$select public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Rumah Gaya Internasional Nol', null, '+62 (0)21 5790 1234', null, true, 'kasir', 'hp-kasir-rina', '10.9.2.8')$$,
+  'pelanggan_penyewa_telepon_unik',
+  'F-038 r3: bentuk +62 (0)21… dari telepon rumah yang sama ditolak'
+);
+
+-- 17. "0062 21 5790 1234" (awalan akses 00 + kode negara pada telepon rumah)
+select uji.harap_gagal_sebab(
+  $$select public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Rumah Gaya Nol Nol', null, '0062 21 5790 1234', null, true, 'kasir', 'hp-kasir-rina', '10.9.2.9')$$,
+  'pelanggan_penyewa_telepon_unik',
+  'F-038 r3: bentuk 0062 21… dari telepon rumah yang sama ditolak'
+);
+
+-- 18. "21 5790 1234" (telepon rumah tanpa nol di depan)
+select uji.harap_gagal_sebab(
+  $$select public.daftar_voucher(
+       '11111111-1111-1111-1111-111111111111',
+       'c3000000-0000-0000-0000-000000000038',
+       'Rumah Tanpa Nol', null, '21 5790 1234', null, true, 'kasir', 'hp-kasir-rina', '10.9.3.0')$$,
+  'pelanggan_penyewa_telepon_unik',
+  'F-038 r3: bentuk tanpa nol depan dari telepon rumah yang sama ditolak'
+);
+
+-- 19. Total akhir: tepat tiga identitas sah (dua seluler + satu rumah)
+select uji.harap(
+  (select count(*) from public.voucher
+    where kampanye_id = 'c3000000-0000-0000-0000-000000000038') = 3,
+  'F-038 r3: total tepat tiga voucher — sepuluh gaya penulisan lain tidak menambah'
+);
