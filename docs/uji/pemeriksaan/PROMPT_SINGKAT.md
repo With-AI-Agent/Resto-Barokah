@@ -3,7 +3,7 @@
 > Cara pakai (Perencana): salin blok di bawah, isi tiga baris `PERAN` / `POTONGAN` / `CABANG PERENCANA`, berikan ke Lee di chat.
 > Lee menempelnya sebagai pesan pertama di sesi Arena baru (base branch = CABANG PERENCANA bila bisa dipilih). Naskah panjang
 > yang dirujuk prompt ini: `docs/uji/pemeriksaan/PROMPT_GILIRAN.md`; pengecualian orientasinya tercatat di `PRO.md`.
-> **Sejak 2026-09-30 (keputusan Lee, Opsi B): sesi PERENCANA boleh mengambil peran PEMBANGUN untuk satu potongan per giliran (percobaan 3 potongan) — Hakim tetap sesi lain; aturan lengkap: PROMPT_GILIRAN §5 + USULAN_PERAN_PEMBANGUN §9.**
+> **Sejak 2026-10-04 (keputusan Lee, Opsi C — PERMANEN): sesi PERENCANA menjalankan peran PEMBANGUN biasa untuk satu potongan per giliran (batas percobaan 3 potongan gugur) — Hakim tetap sesi lain; aturan lengkap: PROMPT_GILIRAN §5 + USULAN_PERAN_PEMBANGUN §9–§10.**
 > > **Giliran berikutnya yang disarankan Perencana (2026-10-02, sesudah HAKIM F-02 & HAKIM F-03 masuk):**
 > (a) **HAKIM `F-09`** — baris `PMB1-F-127` masih `DIPERBAIKI` menunggu hakim (kartu `kartu/B-F-09.4.md`, bukti `bukti/B-F-09.4-*.txt`, termasuk rantai penuh; ini yang menutup percobaan Opsi B #1);
 > (b) **PEMBANGUN/PEMERIKSA potongan berikutnya:** F-02 rombak lanjutan (F-010 jalur kertas laci, F-020 sambungan alamat/kasir/tarif sampai layar kasir, F-021 embed `!inner` + regresi tab Pesanan Meja + handler Cetak ulang) · F-03 lanjutan (`F-038` normalisasi nomor +62; `F-037`/`F-048` menunggu Lee/operator) · F-06 (6 baris K-2, belum pernah dibangun);

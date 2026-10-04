@@ -115,7 +115,7 @@ Pembanding (Opsi A yang sudah ada): `B-F-09` (Pembangun dokumen, cabang `arena/0
 - **Hakim tetap sesi lain.** Tak ada opsi di sini yang mengizinkan penulis perbaikan menutup temuannya sendiri.
 - **Produksi tidak disentuh**; migrasi produksi & Dashboard tetap milik Lee; PIN akun percontohan tidak diubah (keputusan Lee).
 - **Bukti mesin tetap syarat "selesai"**: reproduksi MERAH, uji yang bisa merah, rantai bukti penuh, CI hijau, ter-push.
-- **Keputusan ada di tangan Lee** — sampai ada keputusan, Opsi A berlaku dan tidak ada perubahan mekanisme.
+- **Keputusan ada di tangan Lee** — ~~sampai ada keputusan, Opsi A berlaku~~ **SUDAH DIPUTUSKAN Lee 2026-10-04 = Opsi C (kolaps penuh, permanen); lihat §10.**
 
 ## 8. Yang saya minta dari Lee
 
@@ -173,3 +173,21 @@ REKAM_PESAN_PEMILIK §31, dan menyiapkan kolom ukur di handoff — sebelum gilir
 3. **Aturan "CI merah acak" (F-219) tidak boleh dipakai sebelum bukti determinisme disingkirkan.** Ronde 2 keliru melabel CI merah deterministik (kartu templat) sebagai flake; hakim membuktikannya lewat kontrol dua pohon (temuan F-228). Aturan: sebelum menyebut flake, jalankan penjaga yang gagal itu PADA POHON COMMIT MERAH secara lokal; bila GAGAL juga → deterministik, perbaiki, jangan integrasikan alasan flake.
 4. **Baris `Ter-push sampai` kartu B wajib terisi SEBELUM commit kartu di-push** (bukan "menyusul di commit berikutnya") — mencegah satu run CI merah yang sia-sia (pelajaran langsung F-228). Diterapkan di ronde 3: kartu `2988ea2` memuat `fc2d9ab` sejak commit pertamanya.
 5. **Hakim yang ketat = mekanisme bekerja.** Pengembalian F-038 dua kali bukan kegagalan proses; bandingkan dengan Opsi A (Pembangun sesi terpisah) yang juga mengalami pengembalian serupa pada F-02/F-03. Yang berbeda di Opsi B hanya siapa yang mengetik, bukan kedalaman pengawasannya.
+
+---
+
+## 10. KEPUTUSAN AKHIR LEE (2026-10-04) — Opsi C disetujui, PERMANEN
+
+**[verbatim Lee, 2026-10-04]** *"Untuk peran pembangun aku ikut rekomendasi kamu yaitu opsi C"* (sesudah laporan percobaan 3 potongan & penjelasan bahasa sederhana).
+
+**Hasil ukur percobaan Opsi B (3/3 potongan, dari tabel §9):**
+1. **F-09 — F-127**: DITUTUP oleh Hakim H-F-09.7; 1 commit koreksi (format Prettier — pelajaran: `format:check` sebelum commit).
+2. **F-03 — F-038 ronde 2** (migrasi 0095): dikembalikan Hakim H-F-03.5 dengan 3 klaim keliru (→ temuan F-226/F-227/F-228) — pelajaran: matriks input dulu, pisahkan gejala vs skenario kerugian, jangan klaim flake sebelum determinisme disingkirkan.
+3. **F-03 — F-038 ronde 3** (migrasi 0096): **BAGIAN A TERVERIFIKASI TUNTAS** oleh Hakim H-F-03.6 dengan **0 klaim keliru · 0 GAGAL penjaga · 0 commit koreksi** — semua pelajaran ronde 2 diterapkan.
+
+**Yang berlaku sejak 2026-10-04 (permanen):**
+- Sesi Perencana menjalankan peran **PEMBANGUN biasa** — batas percobaan 3 potongan gugur; tidak ada sesi Pembangun terpisah (Opsi A ditinggalkan).
+- Seluruh syarat Opsi B tetap berlaku tanpa perubahan: **Hakim tetap sesi lain** (penutupan `DIPERBAIKI → DITUTUP` tidak pernah oleh sesi yang membangun), seluruh kewajiban Pembangun (MERAH dulu, satu commit per temuan, kartu B 5 bagian, `RANTAI: LOLOS` penuh, penjaga LOLOS, TER-PUSH, CI hijau/aturan F-219), klaster cara masuk = B (saklar mati), temuan baru = baris baru (K-4).
+- **Kelima pelajaran percobaan §9 menjadi aturan kerja permanen** (tertulis di `PROMPT_GILIRAN.md` §5).
+- Mitigasi hilangnya "pembaca kedua" atas diff: Hakim independen tetap gerbang penutup; rantai bukti penuh wajib LOLOS sebelum klaim selesai; kartu B wajib memisahkan jujur bagian 2 (yang sengaja tidak disentuh) & bagian 3 (keputusan Lee yang dibutuhkan).
+- Bagian B F-038 (pelanggan fiktif jalur kasir) tetap menunggu pilihan Lee: 1) PIN atasan · 2) pemisahan tugas · 3) batas pendaftaran · 4) terima risiko pilot.
