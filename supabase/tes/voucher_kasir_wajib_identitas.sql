@@ -366,3 +366,14 @@ select uji.sama(
   'BATAS_PENDAFTARAN_KASIR',
   'F-038 B opsi 3: nomor karangan pendek pun tertahan oleh batas kasir'
 );
+
+-- 27. PMB1-F-230 (temuan H-F-03.7): penolakan batas TIDAK BOLEH meninggalkan
+--     baris pelanggan yatim. Kasus 20 tadi ditolak BATAS_PENDAFTARAN_KASIR
+--     sesudah migrasi 0099 — baris 'Tamu Keempat Sah' harus sudah dihapus lagi.
+select uji.sama(
+  (select count(*)::bigint from public.pelanggan
+    where penyewa_id = '11111111-1111-1111-1111-111111111111'
+      and nama = 'Tamu Keempat Sah'),
+  0::bigint,
+  'F-230: penolakan batas tidak meninggalkan pelanggan yatim (0099)'
+);
