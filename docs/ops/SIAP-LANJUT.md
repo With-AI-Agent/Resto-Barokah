@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0fbb9-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
 - **Ditulis oleh sesi:** `arena/01a0fbb9-resto-barokah`
-- **Commit keadaan kerja:** `6dff8c80f995d5c2df77ddc942c1d4b1c68d74c3`
+- **Commit keadaan kerja:** `7d958a1e8e5b19115d511b779959000053c4c6cb`
 - **PR:** PR #14 (base main)
 PR #13 (base main)
 PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit 6dff8c80 — wajar, ditulis sebelum push; run terakhir yang selesai di cabang: success (run 37179888655, commit d5469ce8)) — periksa lagi setelah push: gh run list --branch <cabang> --limit 3
+- **CI terakhir:** (belum ada run CI untuk commit 7d958a1e — wajar, ditulis sebelum push; run terakhir yang selesai di cabang: success (run 37199761168, commit bc128d44)) — periksa lagi setelah push: gh run list --branch <cabang> --limit 3
 - **CATATAN CI:** run untuk commit handoff ini belum ada/masih berjalan saat baris ini ditulis (wajar) — sesi baru cek `gh run list --branch arena/01a0fbb9-resto-barokah --limit 3`; lanjut bila hijau atau masih berjalan dengan run selesai terakhir hijau, berhenti hanya bila merah.
 - **Ditulis:** 2026-10-04 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (504 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (796 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
