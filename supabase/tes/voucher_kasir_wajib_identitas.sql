@@ -247,3 +247,122 @@ select uji.harap(
     where kampanye_id = 'c3000000-0000-0000-0000-000000000038') = 3,
   'F-038 r3: total tepat tiga voucher — sepuluh gaya penulisan lain tidak menambah'
 );
+
+-- ============================================================================
+-- BAGIAN B PMB1-F-038 — OPSI 3 (keputusan Lee 2026-10-04):
+-- BATAS PENDAFTARAN PELANGGAN OLEH SATU KASIR UNTUK SATU KAMPANYE.
+-- Pelanggan fiktif massal jadi mahal: kasir hanya boleh menerbitkan
+-- `pengaturan.batas_daftar_pelanggan_kasir_per_kampanye` voucher (bawaan 3)
+-- per kampanye; 0 = tanpa batas. Jalur google/email tidak kena batas ini.
+-- MERAH tanpa 0097: kasus 20 GAGAL (pelanggan ke-4 justru diterbitkan).
+-- ============================================================================
+
+-- 20. Kampanye lama (...0038) sudah menerbitkan 3 voucher lewat Rina
+--     (kasus 2-19) -> pelanggan SAH ke-4 kasir yang sama DITOLAK batas bawaan.
+select uji.sama(
+  (select public.daftar_voucher(
+     '11111111-1111-1111-1111-111111111111',
+     'c3000000-0000-0000-0000-000000000038',
+     'Tamu Keempat Sah', null, '081300000020', null, true, 'kasir', 'hp-uji', '10.8.0.20') ->> 'kode'),
+  'BATAS_PENDAFTARAN_KASIR',
+  'F-038 B opsi 3: pelanggan ke-4 oleh kasir yang sama pada kampanye yang sama DITOLAK (batas bawaan 3)'
+);
+
+-- Kampanye baru milik kasus 21-26 (hitungan batas per kampanye).
+-- INSERT kampanye hanya boleh peran pemilik tabel -> keluar dulu dari peran kasir.
+reset role;
+insert into public.kampanye_voucher (
+  id, penyewa_id, nama, kode_kampanye, jenis, nilai, min_belanja, mulai, selesai, kuota, aktif
+) values (
+  'c3000000-0000-0000-0000-000000000039',
+  '11111111-1111-1111-1111-111111111111',
+  'Kampanye uji batas kasir F-038B', 'BATASF38B', 'nominal', 10000, 40000,
+  now() - interval '1 hour', now() + interval '1 day', 50, true
+);
+set local role authenticated;   -- kembali menjadi kasir Rina untuk kasus 21 dst.
+
+-- 21. Kampanye baru: tiga pelanggan pertama kasir yang sama TETAP terbit
+do $$
+declare
+  v_telp text;
+  v_n int := 0;
+begin
+  foreach v_telp in array array['081300000021', '081300000022', '081300000023'] loop
+    v_n := v_n + 1;
+    perform uji.harap(
+      (public.daftar_voucher(
+         '11111111-1111-1111-1111-111111111111',
+         'c3000000-0000-0000-0000-000000000039',
+         'Tamu Batas ' || v_n, null, v_telp, null, true, 'kasir', 'hp-uji', '10.8.1.' || v_n) ->> 'berhasil')::boolean,
+      'F-038 B opsi 3: pelanggan ke-' || v_n || ' kampanye baru masih terbit (di bawah batas)'
+    );
+  end loop;
+end $$;
+
+-- 22. Pelanggan ke-4 kasir yang sama pada kampanye baru -> DITOLAK
+select uji.sama(
+  (select public.daftar_voucher(
+     '11111111-1111-1111-1111-111111111111',
+     'c3000000-0000-0000-0000-000000000039',
+     'Tamu Batas 4', null, '081300000024', null, true, 'kasir', 'hp-uji', '10.8.1.24') ->> 'kode'),
+  'BATAS_PENDAFTARAN_KASIR',
+  'F-038 B opsi 3: pelanggan ke-4 DITOLAK — batas per kasir per kampanye bekerja'
+);
+
+-- 23. Kasir LAIN (kasir.b1) tidak ikut terhitung — batasnya milik kasir masing-masing
+select uji.klaim('90000000-0000-0000-0000-000000000007');
+select uji.harap(
+  (public.daftar_voucher(
+     '11111111-1111-1111-1111-111111111111',
+     'c3000000-0000-0000-0000-000000000039',
+     'Tamu Kasir Lain', null, '081300000025', null, true, 'kasir', 'hp-uji', '10.8.1.25') ->> 'berhasil')::boolean,
+  'F-038 B opsi 3: kasir lain tetap boleh mendaftarkan (batas per kasir, bukan per resto)'
+);
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+
+-- 24. Batas 0 = tanpa batas (pelarian resmi operator): pelanggan ke-4 terbit lagi.
+-- Mengubah pengaturan hanya boleh owner_pusat (policy 0027) -> ganti peran dulu.
+select uji.klaim('90000000-0000-0000-0000-000000000002');
+set local role authenticated;
+update public.pengaturan
+   set batas_daftar_pelanggan_kasir_per_kampanye = 0
+ where penyewa_id = '11111111-1111-1111-1111-111111111111';
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
+
+select uji.harap(
+  (public.daftar_voucher(
+     '11111111-1111-1111-1111-111111111111',
+     'c3000000-0000-0000-0000-000000000039',
+     'Tamu Batas 4b', null, '081300000026', null, true, 'kasir', 'hp-uji', '10.8.1.26') ->> 'berhasil')::boolean,
+  'F-038 B opsi 3: batas 0 berarti tanpa batas (pelarian operator)'
+);
+
+select uji.klaim('90000000-0000-0000-0000-000000000002');
+set local role authenticated;
+update public.pengaturan
+   set batas_daftar_pelanggan_kasir_per_kampanye = 3
+ where penyewa_id = '11111111-1111-1111-1111-111111111111';
+select uji.klaim('90000000-0000-0000-0000-000000000004');
+set local role authenticated;
+
+-- 25. Sesudah batas dipulihkan ke 3: pelanggan berikutnya kasir pertama DITOLAK lagi
+select uji.sama(
+  (select public.daftar_voucher(
+     '11111111-1111-1111-1111-111111111111',
+     'c3000000-0000-0000-0000-000000000039',
+     'Tamu Batas 5', null, '081300000027', null, true, 'kasir', 'hp-uji', '10.8.1.27') ->> 'kode'),
+  'BATAS_PENDAFTARAN_KASIR',
+  'F-038 B opsi 3: sesudah batas dipulihkan ke 3, pendaftaran ke-4 kasir pertama ditolak lagi'
+);
+
+-- 26. Percobaan nomor karangan pendek ("1", "22") ala probe H-F-03.5 ikut
+--     membentur batas: yang ke-4 tidak bisa terbit walau nomornya "baru".
+select uji.sama(
+  (select public.daftar_voucher(
+     '11111111-1111-1111-1111-111111111111',
+     'c3000000-0000-0000-0000-000000000039',
+     'Tamu Karangan Singkat', null, '1', null, true, 'kasir', 'hp-uji', '10.8.1.28') ->> 'kode'),
+  'BATAS_PENDAFTARAN_KASIR',
+  'F-038 B opsi 3: nomor karangan pendek pun tertahan oleh batas kasir'
+);
