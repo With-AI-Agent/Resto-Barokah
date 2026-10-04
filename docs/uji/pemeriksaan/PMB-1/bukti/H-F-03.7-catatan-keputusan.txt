@@ -1,0 +1,32 @@
+$ grep -Rni -F "Untuk pengaman bagian B aku ikut saran kamu" docs _log-sesi
+docs/uji/pemeriksaan/PMB-1/kartu/B-F-03.4.md:11:**Putusan Lee 2026-10-04 (verbatim chat):** *"Untuk pengaman bagian B aku ikut saran kamu"* → saran Perencana = opsi 3 aktif sekarang + opsi 1 disiapkan di balik saklar untuk pra-pilot + sisa risiko satu pelanggan fiktif tunggal diterima tertulis selama masa percobaan (kerangka opsi 4).
+
+$ nl -ba docs/teknis/REKAM_PESAN_PEMILIK.md | sed -n "587p"
+   587	  25. **Keputusan Lee (2026-10-04, sesudah percobaan Opsi B genap 3 potongan dihakimi):** **[verbatim]** *"Untuk peran pembangun aku ikut rekomendasi kamu yaitu opsi C"* → **Opsi C DISETUJUI — KOLAPS PENUH, PERMANEN** (tidak kembali ke Opsi A; batas percobaan 3 potongan gugur). Hasil ukur percobaan: 3/3 potongan selesai & dihakimi — #1 F-127 DITUTUP oleh Hakim H-F-09.7 (1 commit koreksi format pra-push); #2 F-038 ronde 2 dikembalikan Hakim H-F-03.5 (3 klaim keliru → temuan F-226/F-227/F-228); #3 F-038 ronde 3 BAGIAN A TERVERIFIKASI TUNTAS oleh Hakim H-F-03.6 (0 klaim keliru, 0 GAGAL penjaga, 0 commit koreksi). Semua syarat Opsi B (butir 24) menjadi **mekanisme permanen tanpa perubahan**: (a) **Hakim tetap sesi lain** — penutupan `DIPERBAIKI → DITUTUP` tidak pernah oleh sesi yang membangun; (b) seluruh kewajiban Pembangun berlaku penuh (reproduksi MERAH dulu, satu commit per temuan, kartu `B-<POTONGAN>.n.md`, `RANTAI: LOLOS` penuh, `periksa-pemeriksaan.py` + `periksa-bersih.py`, `periksa-push.py` TER-PUSH, CI tip cabang hijau atau aturan merah-acak F-219); (c) klaster cara masuk tetap keputusan Lee = B (di balik saklar mati); (d) temuan baru = baris baru (K-4). Kelima pelajaran percobaan (tabel §9 USULAN) ditanam sebagai aturan kerja permanen. Ditanam ke: `PROMPT_GILIRAN.md` §5, banner `PROMPT_SINGKAT.md`, `USULAN_PERAN_PEMBANGUN.md` §10. Catatan terbuka: **Bagian B F-038** (pelanggan fiktif jalur kasir — jalur yang memang dirancang tanpa Gmail) masih menunggu pilihan Lee: PIN atasan / pemisahan tugas / batas pendaftaran / terima risiko pilot.
+
+$ nl -ba docs/uji/pemeriksaan/USULAN_PERAN_PEMBANGUN.md | sed -n "181,195p"
+   181	## 10. KEPUTUSAN AKHIR LEE (2026-10-04) — Opsi C disetujui, PERMANEN
+   182
+   183	**[verbatim Lee, 2026-10-04]** *"Untuk peran pembangun aku ikut rekomendasi kamu yaitu opsi C"* (sesudah laporan percobaan 3 potongan & penjelasan bahasa sederhana).
+   184
+   185	**Hasil ukur percobaan Opsi B (3/3 potongan, dari tabel §9):**
+   186	1. **F-09 — F-127**: DITUTUP oleh Hakim H-F-09.7; 1 commit koreksi (format Prettier — pelajaran: `format:check` sebelum commit).
+   187	2. **F-03 — F-038 ronde 2** (migrasi 0095): dikembalikan Hakim H-F-03.5 dengan 3 klaim keliru (→ temuan F-226/F-227/F-228) — pelajaran: matriks input dulu, pisahkan gejala vs skenario kerugian, jangan klaim flake sebelum determinisme disingkirkan.
+   188	3. **F-03 — F-038 ronde 3** (migrasi 0096): **BAGIAN A TERVERIFIKASI TUNTAS** oleh Hakim H-F-03.6 dengan **0 klaim keliru · 0 GAGAL penjaga · 0 commit koreksi** — semua pelajaran ronde 2 diterapkan.
+   189
+   190	**Yang berlaku sejak 2026-10-04 (permanen):**
+   191	- Sesi Perencana menjalankan peran **PEMBANGUN biasa** — batas percobaan 3 potongan gugur; tidak ada sesi Pembangun terpisah (Opsi A ditinggalkan).
+   192	- Seluruh syarat Opsi B tetap berlaku tanpa perubahan: **Hakim tetap sesi lain** (penutupan `DIPERBAIKI → DITUTUP` tidak pernah oleh sesi yang membangun), seluruh kewajiban Pembangun (MERAH dulu, satu commit per temuan, kartu B 5 bagian, `RANTAI: LOLOS` penuh, penjaga LOLOS, TER-PUSH, CI hijau/aturan F-219), klaster cara masuk = B (saklar mati), temuan baru = baris baru (K-4).
+   193	- **Kelima pelajaran percobaan §9 menjadi aturan kerja permanen** (tertulis di `PROMPT_GILIRAN.md` §5).
+   194	- Mitigasi hilangnya "pembaca kedua" atas diff: Hakim independen tetap gerbang penutup; rantai bukti penuh wajib LOLOS sebelum klaim selesai; kartu B wajib memisahkan jujur bagian 2 (yang sengaja tidak disentuh) & bagian 3 (keputusan Lee yang dibutuhkan).
+   195	- Bagian B F-038 (pelanggan fiktif jalur kasir) tetap menunggu pilihan Lee: 1) PIN atasan · 2) pemisahan tugas · 3) batas pendaftaran · 4) terima risiko pilot.
+
+$ nl -ba docs/uji/pemeriksaan/PMB-1/kartu/B-F-03.4.md | sed -n "4,11p"
+     4	- **Commit basis:** `c5a9895` (tip cabang saat giliran dimulai) · **Independensi:** kartu Opsi C pertama — Perencana menjalankan peran Pembangun (putusan Lee 2026-10-04, REKAM §31 butir 25, USULAN §10); bukan penemu F-03/F-038, bukan hakim; penutupan `DIPERBAIKI → DITUTUP` hanya oleh Hakim sesi lain.
+     5	- **Ter-push sampai:** `1a21be2` (keluaran `python3 alat/periksa-push.py` SEBELUM kartu ini di-commit — pelajaran PMB1-F-228; sumber kebenaran = tip origin)
+     6
+     7	## 1. Temuan yang dibangun
+     8
+     9	### PMB1-F-038 Bagian B (K-2) — skenario kerugian asli: kasir mengarang pelanggan lalu mencairkan voucher dengan PIN-nya sendiri
+    10
+    11	**Putusan Lee 2026-10-04 (verbatim chat):** *"Untuk pengaman bagian B aku ikut saran kamu"* → saran Perencana = opsi 3 aktif sekarang + opsi 1 disiapkan di balik saklar untuk pra-pilot + sisa risiko satu pelanggan fiktif tunggal diterima tertulis selama masa percobaan (kerangka opsi 4).
