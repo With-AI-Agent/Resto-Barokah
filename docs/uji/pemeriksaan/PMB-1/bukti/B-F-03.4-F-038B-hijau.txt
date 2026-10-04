@@ -1,0 +1,28 @@
+BUKTI HIJAU — PMB1-F-038 BAGIAN B (2026-10-04, kedua migrasi 0097+0098 terpasang)
+
+== 1/4 Uji batas pendaftaran kasir (0097) — kasus 20-26 ==
+Perintah: node alat/uji-sql.mjs supabase/tes/voucher_kasir_wajib_identitas.sql
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+== 2/4 Uji saklar PIN atasan (0098) — berkas baru, MERAH sebelum 0098 ==
+Perintah: node alat/uji-sql.mjs supabase/tes/pakai_voucher_pin_atasan.sql
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+== 3/4 Probe hakim H-F-03.5 (skenario kerugian ASLI Bagian B) — kini MERAH = celah massal tertutup ==
+Perintah: node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.5-probe-identitas-fiktif.sql
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.5-probe-identitas-fiktif.sql: HARAPAN TIDAK TERPENUHI: CELAH: nomor karangan [0811-0000-0003] diterima dan voucher terbit
+HASIL: GAGAL
+
+== 4/4 Suite penuh ==
+Perintah: node alat/uji-sql.mjs
+----------------------------------------------------------------------
+uji: 140 LULUS · 0 GAGAL
+HASIL: LOLOS
