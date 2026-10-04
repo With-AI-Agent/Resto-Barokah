@@ -61,6 +61,12 @@ values ('c5000000-0000-0000-0000-000000000098', '11111111-1111-1111-1111-1111111
         '90000000-0000-0000-0000-000000000004', true),
        ('c5000000-0000-0000-0000-000000000096', '11111111-1111-1111-1111-111111111111',
         'Tamu Uji Persetujuan Empat', '081400000096', 'kasir',
+        '90000000-0000-0000-0000-000000000004', true),
+       ('c5000000-0000-0000-0000-000000000095', '11111111-1111-1111-1111-111111111111',
+        'Tamu Uji Persetujuan Lima', '081400000095', 'kasir',
+        '90000000-0000-0000-0000-000000000004', true),
+       ('c5000000-0000-0000-0000-000000000094', '11111111-1111-1111-1111-111111111111',
+        'Tamu Uji Persetujuan Enam', '081400000094', 'kasir',
         '90000000-0000-0000-0000-000000000004', true);
 
 insert into public.voucher (id, penyewa_id, kampanye_id, pelanggan_id, kode, status, berlaku_sampai)
@@ -75,7 +81,13 @@ values ('c6000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-1111111
         'VC-BA-03', 'aktif', now() + interval '1 day'),
        ('c6000000-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111',
         'c4000000-0000-0000-0000-000000000098', 'c5000000-0000-0000-0000-000000000096',
-        'VC-BA-04', 'aktif', now() + interval '1 day');
+        'VC-BA-04', 'aktif', now() + interval '1 day'),
+       ('c6000000-0000-0000-0000-000000000005', '11111111-1111-1111-1111-111111111111',
+        'c4000000-0000-0000-0000-000000000098', 'c5000000-0000-0000-0000-000000000095',
+        'VC-BA-05', 'aktif', now() + interval '1 day'),
+       ('c6000000-0000-0000-0000-000000000006', '11111111-1111-1111-1111-111111111111',
+        'c4000000-0000-0000-0000-000000000098', 'c5000000-0000-0000-0000-000000000094',
+        'VC-BA-06', 'aktif', now() + interval '1 day');
 
 -- Pesanan uji baru (pesanan data-uji eeee...0010 dipakai berkas lain; tiap berkas
 -- di-rollback, tetapi di dalam berkas ini satu pesanan hanya untuk satu pakai).
@@ -100,7 +112,19 @@ values ('eeee0000-0000-0000-0000-000000000210', '11111111-1111-1111-1111-1111111
        ('eeee0000-0000-0000-0000-000000000214', '11111111-1111-1111-1111-111111111111',
         'a1a1a1a1-0000-0000-0000-000000000001', 214, current_date, 'dinein',
         'aaa00000-0000-0000-0000-000000000001', 'dikirim',
-        60000, 6000, 3000, 69000, 'keranjang-uji-f038b-214');
+        60000, 6000, 3000, 69000, 'keranjang-uji-f038b-214'),
+       ('eeee0000-0000-0000-0000-000000000215', '11111111-1111-1111-1111-111111111111',
+        'a1a1a1a1-0000-0000-0000-000000000001', 215, current_date, 'dinein',
+        'aaa00000-0000-0000-0000-000000000001', 'dikirim',
+        60000, 6000, 3000, 69000, 'keranjang-uji-f038b-215');
+
+-- Baris item nyata untuk pesanan 0215: pemicu `diskon_hitung_total` menghitung
+-- ulang subtotal pesanan dari `pesanan_item` setiap kali baris diskon masuk.
+-- Tanpa baris item, subtotal pesanan menjadi 0 setelah voucher pertama cair dan
+-- pencairan kedua keliru ditolak SUBTOTAL_KOSONG (kecelakaan fixture, bukan kode).
+insert into public.pesanan_item (pesanan_id, menu_item_id, nama_saat_itu, harga_saat_itu, qty, subtotal)
+values ('eeee0000-0000-0000-0000-000000000215', 'beef0000-0000-0000-0000-000000000001',
+        'Nasi Goreng', 30000, 2, 60000);
 
 select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kasir Rina memegang layar
 set local role authenticated;
@@ -212,6 +236,46 @@ select uji.sama(
   'PERSETUJUAN_ATASAN_WAJIB',
   'F-038 B opsi 1: klaim penyetuju tanpa izin (dapur) DITOLAK'
 );
+
+-- 27. PMB1-F-229 (temuan H-F-03.7): stempel benar-benar SEKALI PAKAI pada
+--     pesanan yang SAMA. Dengan tumpuk_diskon menyala, satu stempel hanya boleh
+--     mencairkan SATU voucher di pesanan itu; voucher kedua pada pesanan yang
+--     sama tanpa stempel baru wajib DITOLAK (bukan karena aturan tumpuk).
+select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner menyalakan tumpuk
+update public.pengaturan
+   set tumpuk_diskon = true
+ where penyewa_id = '11111111-1111-1111-1111-111111111111';
+select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kembali ke kasir
+
+select uji.sama(
+  (public.verifikasi_pin('90000000-0000-0000-0000-000000000002', '551937', 'pakai_voucher',
+                         'de000000-0000-0000-0000-000000000001',
+                         'kunci-uji-hp-owner-0123456789',
+                         'eeee0000-0000-0000-0000-000000000215')).berhasil,
+  true,
+  'F-229: stempel atasan dibuat untuk pesanan 0215'
+);
+
+select uji.harap(
+  (public.pakai_voucher('eeee0000-0000-0000-0000-000000000215', 'VC-BA-05', '1234',
+                        null, null, null,
+                        '90000000-0000-0000-0000-000000000002') ->> 'berhasil')::boolean,
+  'F-229: voucher pertama pesanan 0215 cair memakai stempel itu'
+);
+
+select uji.sama(
+  (public.pakai_voucher('eeee0000-0000-0000-0000-000000000215', 'VC-BA-06', '1234',
+                        null, null, null,
+                        '90000000-0000-0000-0000-000000000002') ->> 'kode'),
+  'PERSETUJUAN_ATASAN_WAJIB',
+  'F-229: voucher kedua pada pesanan yang sama DITOLAK — stempel sudah dikonsumsi sekali'
+);
+
+select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner mematikan tumpuk lagi
+update public.pengaturan
+   set tumpuk_diskon = false
+ where penyewa_id = '11111111-1111-1111-1111-111111111111';
+select uji.klaim('90000000-0000-0000-0000-000000000004');   -- kembali ke kasir
 
 -- 9. Saklar dimatikan lagi -> perilaku lama pulih.
 select uji.klaim('90000000-0000-0000-0000-000000000002');   -- owner mematikan saklar lagi
