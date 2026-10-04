@@ -1,0 +1,1 @@
+{"conclusion":"success","databaseId":37202409987,"displayTitle":"handoff: penutup tambahan 13o — trio lengkap segar (keadaan 889727d8)","headBranch":"arena/01a0fbb9-resto-barokah","headSha":"ef6655b1d8673bd79f66e088cb0a147ba42f3d24","status":"completed"}
