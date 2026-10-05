@@ -101,6 +101,12 @@ export const KAMUS_PESAN: Record<string, PesanRamah> = {
     pesan: 'Perangkat ini tidak terdaftar atau telah dinonaktifkan oleh pemilik restoran.',
     tindakan: 'Hubungi pengelola resto untuk mengaktifkan kembali perangkat ini.',
   },
+  PERANGKAT_BELUM_DISETUJUI: {
+    kode: 'PRG-405',
+    judul: 'Perangkat Belum Disetujui',
+    pesan: 'Perangkat ini belum disetujui untuk akun Anda oleh pemilik atau admin resto.',
+    tindakan: 'Minta Owner/Admin cabang menyetujui pasangan akun & perangkat ini di layar Perangkat.',
+  },
   PERAN_TIDAK_DIIZINKAN: {
     kode: 'AK-403',
     judul: 'Peran Tidak Diizinkan',
