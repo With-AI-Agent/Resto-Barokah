@@ -6,6 +6,8 @@ import { useRiwayatTransaksi } from './hook/useRiwayatTransaksi'
 import { useBayar } from './hook/useBayar'
 import { useStok } from './hook/useStok'
 import { useTiketDapur } from './hook/useTiketDapur'
+import { useKunciOtomatis } from './hook/useKunciOtomatis'
+import { KunciSekarang } from './komponen/KunciSekarang'
 import { Rangka } from './komponen/Rangka'
 import LayarContoh from './layar/contoh/LayarContoh'
 import { LayarMasukPegawai } from './layar/masuk/LayarMasukPegawai'
@@ -33,6 +35,16 @@ import { tambahKeAntrean } from './lib/antrean-offline'
 
 export default function App() {
   const { sesi, sedangMasuk, masuk, keluar } = useSesi()
+  // PMB1-F-084 (KEAMANAN §7): kunci otomatis saat tidak ada aktivitas.
+  // Hook & komponen sudah ada sejak fase awal tapi tidak pernah dipasang;
+  // kini wadah aplikasi menguncinya per peran (kasir/pelayan/dapur 15 menit,
+  // admin cabang 30, owner 60) dan mengakhiri sesi ketika batas terlampaui.
+  const { dalamPeringatan, sisaDetik, kunci, rekamAktivitas } = useKunciOtomatis({
+    peran: sesi?.peran ?? 'kasir',
+    onKunci: () => {
+      if (sesi) void keluar()
+    },
+  })
   const [modeMasuk, setModeMasuk] = useState<'pegawai' | 'pelanggan' | 'publik'>('pegawai')
   const [layarAktif, setLayarAktif] = useState<string>('kasir')
   const [shiftAktif, setShiftAktif] = useState<ShiftAktifInfo | null>(null)
@@ -618,9 +630,21 @@ export default function App() {
           </div>
         </div>
       ) : (
-        <Rangka sesi={sesi} layarAktif={layarAktif} onPilihLayar={setLayarAktif} onKeluar={keluar}>
-          {renderKonten()}
-        </Rangka>
+        <>
+          {/* PMB1-F-084: tombol kunci manual + peringatan dini, melayang agar
+              tidak menggeser tata letak Rangka (min-height 100vh). */}
+          <div style={{ position: 'fixed', top: 8, right: 8, zIndex: 60 }}>
+            <KunciSekarang
+              onKunci={kunci}
+              dalamPeringatan={dalamPeringatan}
+              sisaDetik={sisaDetik}
+              onBatalkanPeringatan={rekamAktivitas}
+            />
+          </div>
+          <Rangka sesi={sesi} layarAktif={layarAktif} onPilihLayar={setLayarAktif} onKeluar={keluar}>
+            {renderKonten()}
+          </Rangka>
+        </>
       )}
     </PenyediaBahasa>
   )
