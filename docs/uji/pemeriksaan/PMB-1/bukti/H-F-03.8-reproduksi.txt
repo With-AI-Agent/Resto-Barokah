@@ -1,0 +1,73 @@
+BUKTI REPRODUKSI H-F-03.8 — hakim ronde 2 PMB1-F-038 (kartu B-F-03.5) + verifikasi BARU F-229/F-230/F-231
+Sesi hakim: arena/01a10998-resto-barokah · Tanggal: 2026-10-05 · Independen dari pembangun (arena/01a0fbb9) dan penemu temuan (H-F-03.7, arena/01a1070f).
+Lingkungan: venv /home/user/.vpg (pgserver + psycopg → PostgreSQL sementara 16.2) untuk harness konkurensi;
+node alat/uji-sql.mjs (PGlite, npm ci --prefix alat) untuk uji SQL. Riwayat git di-unshallow dulu (git fetch --unshallow origin).
+
+== 0. Objek dan commit yang dibaca ==
+$ git log --oneline -8            → tip 32a4d52; ronde 2 = 60e5e3a (migrasi 0099) · 50c3980 (kasus 27 F-229)
+                                    · 0064289 (kasus 27 F-230) · 5c18849 (rekaman F-231); basis = 3ffd5af.
+$ git show --stat 60e5e3a 50c3980 0064289 5c18849
+  → 60e5e3a: supabase/migrations/0099_kunci_batas_pendaftaran_kasir_dan_residu.sql (371 baris) + bukti B-F-03.5;
+    50c3980: supabase/tes/pakai_voucher_pin_atasan.sql (+66); 0064289: supabase/tes/voucher_kasir_wajib_identitas.sql (+11);
+    5c18849: docs/teknis/REKAM_PESAN_PEMILIK.md + kartu/B-F-03.4.md + USULAN_PERAN_PEMBANGUN.md (rekaman saja).
+$ git diff --name-only 3ffd5af 32a4d52 -- supabase/migrations/0097* supabase/migrations/0098* aplikasi/ → kosong (0 berkas).
+$ grep "DEFAULT" 0098 baris 14-15 → wajib_pin_atasan_pakai_voucher DEFAULT FALSE (saklar tetap MATI);
+  0097 baris 32-33 → batas_daftar_pelanggan_kasir_per_kampanye default 3 check >= 0.
+
+== 1. PMB1-F-038 ronde 2 — race pagar batas 0097 (perbaikan: kunci penasihat transaksi 0099) ==
+Harness hakim: bukti/H-F-03.7-konkurensi.py (dipakai apa adanya, tanpa diubah). Bukti penuh: bukti/H-F-03.8-konkurensi.txt.
+$ git worktree add /tmp/w-basis 3ffd5af && cd /tmp/w-basis && /home/user/.vpg/bin/python docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.7-konkurensi.py
+  → "TERBUKTI: dua transaksi serentak melewati batas bawaan 3." · jumlah akhir 4 (Base 1, Base 2, Race A, Race B) · exit=0  → MERAH tereproduksi.
+$ cd <pohon berlaku 32a4d52> && /home/user/.vpg/bin/python docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.7-konkurensi.py   (3 ulangan)
+  → 3/3 "TIDAK TEREPRODUKSI: batas tidak terlampaui dalam run ini." · jumlah akhir 3 · exit=1 tiap ulangan.
+  Satu peserta mengangkat HARNESS_BARRIER_TIMEOUT karena tertahan kunci penasihat sampai transaksi lain commit — itu
+  serialisasi yang dijanjikan, bukan galat (persis seperti catatan kartu B-F-03.5 bagian d).
+$ grep -c "perform pg_advisory_xact_lock" /tmp/w-head/supabase/migrations/0099_*.sql  (worktree 32a4d52, kunci dikomentari)
+  → 0 ; harness pada pohon itu → "TERBUKTI … batas bawaan 3." hitungan 4, exit=0  → kausalitas kunci terbukti (mutasi kunci).
+$ node alat/uji-sql.mjs   (pohon berlaku, seluruh suite)
+  → uji: 140 LULUS · 0 GAGAL · HASIL: LOLOS.
+$ node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.5-probe-identitas-fiktif.sql   (probe serangan hakim lama)
+  → GAGAL: "CELAH: nomor karangan [0811-0000-0003] diterima dan voucher terbit" TIDAK terpenuhi → pendaftaran fiktif ke-4 tetap DITOLAK pada pohon berlaku.
+Mutasi ambang (skrip bukti/H-F-03.8-mutasi.py E0): 0099 ">= v_batas_daftar" → ">" → uji resmi MERAH tepat di kasus 20
+  ("F-038 B opsi 3: pelanggan ke-4 … DITOLAK (dapat SUKSES, harap BATAS_PENDAFTARAN_KASIR)") → pagar ambang tetap bergigi pada tubuh 0099.
+Putusan: perbaikan ronde 2 TERVERIFIKASI penuh → PMB1-F-038 DIPERBAIKI → DITUTUP (dasar: keputusan Lee REKAM §31 butir 26
+  terekam + race tertutup + residu dibersihkan + saklar 0098 sengaja MATI sesuai klaster B; sisa risiko opsi 4 diterima tertulis masa percobaan).
+
+== 2. PMB1-F-229 (BARU) — klaim sekali-pakai stempel tidak dijaga uji resmi ==
+Skrip: bukti/H-F-03.8-mutasi.py (keluaran: bukti/H-F-03.8-mutasi.txt; semua mutasi pada salinan /tmp).
+E1 (pohon basis 3ffd5af, temuan): mutan 0098 — filter "and pp.dipakai_pada is null" dibuang →
+  node alat/uji-sql.mjs supabase/tes/pakai_voucher_pin_atasan.sql → EXIT=0 (tetap LULUS) → celah cakupan TERBUKTI.
+E2 (pohon berlaku, perbaikan 50c3980): mutan sama → EXIT=1, gagal TEPAT di asersi baru:
+  "F-229: voucher kedua pada pesanan yang sama DITOLAK — stempel sudah dikonsumsi sekali (dapat SUKSES, harap PERSETUJUAN_ATASAN_WAJIB)".
+E2b kontrol tanpa mutasi → EXIT=0 (LULUS). Kasus 7 lama (pesanan 212) memang tidak menangkap mutan — sesuai analisis H-F-03.7.
+Putusan: TERVERIFIKASI, K-3 tepat (kejujuran uji).
+
+== 3. PMB1-F-230 (BARU) — residu pelanggan pada tolakan batas pendaftaran ==
+E3 (pohon basis 3ffd5af, temuan; mengulang probe H-F-03.7-residu-pelanggan.py): assertion "pelanggan Tamu Keempat Sah tetap
+  tersimpan (persetujuan_privasi=true) tanpa voucher" sesudah kasus 20 → EXIT=0 (LULUS) → residu TERBUKTI.
+E4 (pohon berlaku, perbaikan 60e5e3a+0064289): mutan 0099 — "delete from public.pelanggan where id = v_pelanggan_id" dibuang →
+  EXIT=1, gagal TEPAT di asersi baru: "F-230: penolakan batas tidak meninggalkan pelanggan yatim (0099) (dapat 1, harap 0)".
+E4b kontrol tanpa mutasi → EXIT=0 (berkas voucher LULUS penuh, termasuk kasus 20 dan 27).
+Putusan: TERVERIFIKASI, K-3 tepat (integritas data).
+
+== 4. PMB1-F-231 (BARU) — keterlacakan putusan pengaman Bagian B ==
+Keadaan pra-perbaikan (pohon 3ffd5af):
+$ git show 3ffd5af:docs/teknis/REKAM_PESAN_PEMILIK.md | sed -n 587p → butir 25 = putusan Opsi C PERAN Pembangun (bukan pengaman Bagian B).
+$ git show 3ffd5af:docs/uji/pemeriksaan/USULAN_PERAN_PEMBANGUN.md | sed -n 195p → "Bagian B F-038 … tetap menunggu pilihan Lee".
+$ bukti/H-F-03.7-catatan-keputusan.txt → kutipan "Untuk pengaman bagian B aku ikut saran kamu" hanya ada di kartu B-F-03.4.
+Keadaan berlaku (sesudah 5c18849):
+$ grep -Rnc -F "Untuk pengaman bagian B aku ikut saran kamu" REKAM USULAN kartu/B-F-03.4.md BUKU_BESAR_TEMUAN.md → 1 · 1 · 1 · 1.
+REKAM §31 butir 26 baru memuat verbatim + isi saran (opsi 3 aktif 0097, opsi 1 saklar mati 0098, kerangka opsi 4);
+USULAN §10 baris lama dicoret sebagai jejak + ADDENDUM; kartu B-F-03.4.md baris 4 & 11 kini menunjuk sumber yang benar.
+Putusan: TERVERIFIKASI, K-3 tepat (dokumen/keterlacakan keputusan pemilik).
+
+== 5. Kewajiban hakim lain ==
+Baris SENGKETA di Buku Besar: F-044 (TERVERIFIKASI), F-049 (DITUTUP), F-050 (PALSU) — semuanya sudah berstatus final,
+  teks "riwayat sengketa" — tidak ada yang menunggu hakim ketiga. F-129 milik F-09, di luar potongan ini.
+Baris DIPERBAIKI milik G-04: tidak ada.
+Temuan BARU milik potongan F-03 selain objek: tidak ada (PAPAN F-03: "Tidak ada BARU milik F-03").
+CI cabang Perencana (arena/01a0fbb9) saat giliran dimulai: run selesai terakhir success (37247346113) — lanjut sesuai §1 naskah.
+
+== 6. Angka usaha ==
+Temuan dihakimi: 4 — TERVERIFIKASI 3 (F-229, F-230, F-231; BARU → TERVERIFIKASI) · DITUTUP 1 (F-038) · PALSU 0 · PERLU-INFO 0 · DUPLIKAT 0.
+Temuan baru yang ditemukan hakim giliran ini: 0. Asumsi baru: 0.
