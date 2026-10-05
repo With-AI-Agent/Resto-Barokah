@@ -126,7 +126,7 @@
 | Batas percobaan masuk | 5×/15 menit per akun · 12×/15 menit per perangkat | Database |
 | Pencabutan | per perangkat · per akun · semua perangkat | Database + RPC (seketika) |
 
-**Catatan jujur paket gratis:** "time-box sesi", "inactivity timeout", "satu sesi per pengguna", dan pemeriksa kata sandi bocor (HaveIBeenPwned) adalah fitur **Pro**; karenanya kendali di atas dibuat sendiri. Kompensasi untuk kata sandi: minimum 12 karakter + pola umum dilarang + TOTP wajib.
+**Catatan jujur paket gratis:** "time-box sesi", "inactivity timeout", "satu sesi per pengguna", dan pemeriksa kata sandi bocor (HaveIBeenPwned) adalah fitur **Pro**; karenanya kendali di atas dibuat sendiri. Kompensasi untuk kata sandi: minimum 12 karakter + pola umum dilarang + TOTP wajib. Penegakan aturan itu di dalam repo: `supabase/config.toml` `[auth]` mencatat minimum 12 karakter + wajib kelas huruf kecil/besar/angka, dijaga `alat/periksa-aturan-kata-sandi.py` (PMB1-F-071). Batas jujur: berkas itu mengatur stack lokal; konfigurasi proyek produksi Supabase hidup di luar repo (lihat temuan L-01/L-04), dan "pola umum dilarang" tidak dapat dinyatakan oleh GoTrue sehingga pendekatan terdekatnya adalah komposisi tiga kelas + panjang minimum.
 
 ## 8. Otorisasi (dua lapis, satu gerbang)
 
