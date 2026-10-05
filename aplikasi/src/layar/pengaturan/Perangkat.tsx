@@ -209,8 +209,8 @@ export function LayarPerangkat({
         <Kartu judul="Daftarkan Tablet Ini">
           <form onSubmit={tanganiDaftarPerangkat} className="space-y-4">
             <p className="text-sm text-neutral-600">
-              Masukkan nama pengenal (mis. POS Kasir Meja #1) dan kode pendaftaran 8 karakter
-              dari Admin untuk mendaftarkan perangkat ini.
+              Masukkan nama pengenal (mis. POS Kasir Meja #1) dan kode pendaftaran 8 karakter dari
+              Admin untuk mendaftarkan perangkat ini.
             </p>
 
             <KolomIsian
@@ -225,7 +225,14 @@ export function LayarPerangkat({
               label="Kode Pendaftaran (8 Karakter)"
               contoh="Contoh: 849201"
               nilai={inputKode}
-              onUbah={(v) => setInputKode(v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8))}
+              onUbah={(v) =>
+                setInputKode(
+                  v
+                    .toUpperCase()
+                    .replace(/[^A-Z0-9]/g, '')
+                    .slice(0, 8),
+                )
+              }
               wajib
             />
 

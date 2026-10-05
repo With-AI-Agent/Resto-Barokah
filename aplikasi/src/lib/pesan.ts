@@ -105,7 +105,8 @@ export const KAMUS_PESAN: Record<string, PesanRamah> = {
     kode: 'PRG-405',
     judul: 'Perangkat Belum Disetujui',
     pesan: 'Perangkat ini belum disetujui untuk akun Anda oleh pemilik atau admin resto.',
-    tindakan: 'Minta Owner/Admin cabang menyetujui pasangan akun & perangkat ini di layar Perangkat.',
+    tindakan:
+      'Minta Owner/Admin cabang menyetujui pasangan akun & perangkat ini di layar Perangkat.',
   },
   PERAN_TIDAK_DIIZINKAN: {
     kode: 'AK-403',

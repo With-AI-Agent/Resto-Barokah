@@ -641,7 +641,12 @@ export default function App() {
               onBatalkanPeringatan={rekamAktivitas}
             />
           </div>
-          <Rangka sesi={sesi} layarAktif={layarAktif} onPilihLayar={setLayarAktif} onKeluar={keluar}>
+          <Rangka
+            sesi={sesi}
+            layarAktif={layarAktif}
+            onPilihLayar={setLayarAktif}
+            onKeluar={keluar}
+          >
             {renderKonten()}
           </Rangka>
         </>
