@@ -4,10 +4,10 @@
 > Lee menempelnya sebagai pesan pertama di sesi Arena baru (base branch = CABANG PERENCANA bila bisa dipilih). Naskah panjang
 > yang dirujuk prompt ini: `docs/uji/pemeriksaan/PROMPT_GILIRAN.md`; pengecualian orientasinya tercatat di `PRO.md`.
 > **Sejak 2026-10-04 (keputusan Lee, Opsi C — PERMANEN): sesi PERENCANA menjalankan peran PEMBANGUN biasa untuk satu potongan per giliran (batas percobaan 3 potongan gugur) — Hakim tetap sesi lain; aturan lengkap: PROMPT_GILIRAN §5 + USULAN_PERAN_PEMBANGUN §9–§10.**
-> > **Giliran berikutnya yang disarankan Perencana (2026-10-02, sesudah HAKIM F-02 & HAKIM F-03 masuk):**
-> (a) **HAKIM `F-09`** — baris `PMB1-F-127` masih `DIPERBAIKI` menunggu hakim (kartu `kartu/B-F-09.4.md`, bukti `bukti/B-F-09.4-*.txt`, termasuk rantai penuh; ini yang menutup percobaan Opsi B #1);
-> (b) **PEMBANGUN/PEMERIKSA potongan berikutnya:** F-02 rombak lanjutan (F-010 jalur kertas laci, F-020 sambungan alamat/kasir/tarif sampai layar kasir, F-021 embed `!inner` + regresi tab Pesanan Meja + handler Cetak ulang) · F-03 lanjutan (`F-038` normalisasi nomor +62; `F-037`/`F-048` menunggu Lee/operator) · F-06 (6 baris K-2, belum pernah dibangun);
-> (c) pelajaran mekanisme yang berlaku: langkah murah (`format:check`, `lint`, uji terarah) SEBELUM commit pertama; jangan menutup temuan yang baru dikembalikan hakim tanpa perbaikan baru.
+> > **Giliran berikutnya yang disarankan Perencana (2026-10-05, putaran 13q — ronde 2 Bagian B F-038 selesai dibangun):**
+> (a) **HAKIM `F-03`** — objek: baris `PMB1-F-038` status `DIPERBAIKI` ronde 2 + kartu `kartu/B-F-03.5.md` + bukti `bukti/B-F-03.5-*` (rantai `bukti/B-F-03.5-rantai.txt` 130/0). Wajib diulang mandiri: harness konkurensi `bukti/H-F-03.7-konkurensi.py` — pasang dependensi dulu di sandbox baru: `python3 -m venv /home/user/.vpg && /home/user/.vpg/bin/pip install pgserver 'psycopg[binary]'`, lalu jalankan 3 ulangan dari akar repo (harapan: 3× "TIDAK TEREPRODUKSI", voucher akhir 3; `HARNESS_BARRIER_TIMEOUT` pada satu peserta = bukti serialisasi, bukan galat). Disarankan juga: mutasi atas kunci penasihat 0099 (dibuang → race harus kembali TERBUKTI) dan atas ambang `>=` (→ kasus 20 harus GAGAL).
+> (b) **Sesudah hakim:** ketik `integrasikan <cabang hakim>` di sesi Perencana ini. Baris ukur Opsi C #5 (B-F-03.5) diisi waktu integrasi.
+> (c) **Catatan siklus:** F-229/F-230 (P-8-00) & F-231 (G-04) sudah DIBANGUN (sha di kolom Hakim tiap baris) tetapi statusnya tetap `BARU` — verifikasi `BARU → TERVERIFIKASI` hanya oleh hakim potongannya masing-masing; jangan dibangun/diubah lagi sebelumnya.
 > **Satu potongan per sesi, potongan berbeda untuk sesi yang berjalan bersamaan** — klaim di PAPAN baru terlihat sesi lain
 > setelah diintegrasikan. Ulangan independen potongan yang sama boleh, tetapi harus disengaja Perencana (rancangan §9).
 
