@@ -346,6 +346,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
 
 - [ ] T1-15 — Fungsi hitung_total() + 12 uji uang ⚠️
   - **Catatan silang (audit D F-06, 2026-09-20):** fungsinya **sudah hidup** di `supabase/migrations/0014_penutup_celah_putaran13.sql` (versi awal, dipakai `0015` bagian 6 untuk pajak/service setelah diskon + pembulatan ke bawah). **JANGAN menulis `hitung_total` kedua** — dua rumus yang berselisih justru pelanggaran ART-3. Sisa pekerjaan tugas ini: membaca `pengaturan.pembulatan` (T1-16) dan **suite 12 uji uang** (sebagian sudah ada di `supabase/tes/urutan_uang.sql`, belum 12).
+  - **Catatan silang (PMB1-F-069, 2026-10-05):** dua sisa di atas **sudah selesai** — `0015` membaca `pengaturan.pembulatan` dan menerapkannya sebagai langkah terakhir (ke bawah), dan `supabase/tes/urutan_uang.sql` kini memuat **16 asersi** (hijau dalam suite 143). Sisa DoD yang benar-benar terbuka tinggal **varian pengembali rincian** {subtotal, diskon, pb1, service, pembulatan, total} — fungsi kini mengembalikan total `bigint` saja; bukti lain DoD (`security definer` + `search_path` dipaku + `revoke … from public`) sudah ada di `0014:52-58,125`.
   - **Tujuan:** satu-satunya tempat menghitung uang, supaya tidak ada dua rumus yang bisa berselisih.
   - **Ref:** TECH_SPEC §5 & §9 ART-3; PRD M6
   - **File:** `supabase/migrations/0022_hitung_total.sql`, `supabase/tes/uang.sql`
@@ -354,7 +355,8 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kalkulasi Keuangan (ART-3); dua rumus berbeda → mitigasi: klien DILARANG menghitung; semua pemanggilan lewat RPC ini.
   - **Verifikasi:** `supabase test` 12 kasus hijau + bandingkan 3 contoh struk dengan kalkulator manual.
 
-- [ ] T1-16 — Urutan hitungan resmi & aturan pembulatan dari pengaturan ⚠️
+- [x] T1-16 — Urutan hitungan resmi & aturan pembulatan dari pengaturan ⚠️
+  - **Catatan silang (PMB1-F-069, 2026-10-05; bukti diperiksa hari yang sama):** DoD terpenuhi lewat jalur berbeda dari berkas yang direncanakan — urutan resmi dikunci `supabase/tes/urutan_uang.sql` (16 asersi LULUS dalam suite 143; diskon dari subtotal, pajak & service dari subtotal setelah diskon), pembulatan sesuai pengaturan (`none`/`100`/`500`/`1000`, ke bawah, langkah terakhir) dibaca & diterapkan `supabase/migrations/0015_penutup_celah_putaran16.sql` (baris ~513 membaca, ~533 menerapkan), dan hasilnya tercatat di `DECISIONS_LOG.md` entri "[Uang/2026-09-20] Urutan hitungan uang dikunci". Berkas `0023_urutan_pembulatan.sql`/`tes/urutan.sql` tidak pernah dibuat — fungsinya terserap ke `0015`; jangan menulis versi kedua (ART-3).
   - **Tujuan:** urutan (subtotal → diskon → PB1 → service → pembulatan) tidak bisa ditafsirkan berbeda antar sesi.
   - **Ref:** TECH_SPEC §9 ART-3 & §13 (log keputusan); PRD M2 & M6
   - **File:** `supabase/migrations/0023_urutan_pembulatan.sql`, `supabase/tes/urutan.sql`
