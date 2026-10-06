@@ -4,11 +4,12 @@
 > Lee menempelnya sebagai pesan pertama di sesi Arena baru (base branch = CABANG PERENCANA bila bisa dipilih). Naskah panjang
 > yang dirujuk prompt ini: `docs/uji/pemeriksaan/PROMPT_GILIRAN.md`; pengecualian orientasinya tercatat di `PRO.md`.
 > **Sejak 2026-10-04 (keputusan Lee, Opsi C — PERMANEN): sesi PERENCANA menjalankan peran PEMBANGUN biasa untuk satu potongan per giliran (batas percobaan 3 potongan gugur) — Hakim tetap sesi lain; aturan lengkap: PROMPT_GILIRAN §5 + USULAN_PERAN_PEMBANGUN §9–§10.**
-> > **Giliran berikutnya yang disarankan Perencana (2026-10-06, putaran 13x — F-06 tuntas semua ronde (16 baris ditutup dua hakim); empat siklus terbuka):**
-> (a) **Siklus F-083 + F-233/F-234 (K-2, P-1B-00)** — verifikasi hakim dulu atas 3 baris TERVERIFIKASI/BARU itu, lalu Pembangun membangun: aktivasi pemulihan darurat tanpa sesi (F-083/F-234) + jalur pendaftaran resmi menulis baris persetujuan (F-233). Objek kartu: `H-F-06.3.md` §1 F-083 & §2; F-086 punya sisa kosmetik F-235 (K-4, P-9-00) ikut siklus kecil.
-> (b) **Siklus F-232 (K-3, G-04)** — templat kartu & PROMPT_GILIRAN wajib memuat "Langkah Lee selanjutnya"; verifikasi dulu, baru dibangun.
-> (c) **Siklus F-236/F-237 (K-4)** — koreksi angka Perencana sendiri ("16 asersi" → 12 di KEAMANAN:24 + ROADMAP; parentetis "0 rujukan aplikasi/src" di KEAMANAN:124 → "0 rujukan di jalur kunci otomatis"); verifikasi dulu sesuai siklus.
-> (d) **Catatan siklus:** penutupan `DIPERBAIKI → DITUTUP` hanya oleh hakim sesi lain; Pembangun (Perencana) tidak menutup temuannya sendiri. Pekerjaan pra-pilot (pengirim header F-070, jam aktif F-089, wiring UI 0103/0104) terjadwal atas keputusan Lee 2026-10-06 — jangan dibangun sebelum Lee memerintahkan.
+> > **Giliran berikutnya yang disarankan Perencana (2026-10-06, putaran 13y — ronde 3 F-06 selesai dibangun, menunggu hakim verifikasi):**
+> (a) **HAKIM verifikasi ronde 3 (prioritas): kartu `B-F-06.3.md`** — verifikasi commit `43c0622` (migrasi 0105 `selesaikan_pemulihan_darurat` tanpa sesi + tes `pemulihan_aktivasi_darurat.sql` MERAH→HIJAU + LOGIN_SUKSES ujung-ke-ujung); putus F-083 & F-234 (isi perbaikan sama), dan vonis temuan baru **F-238** (celah simetris `batalkan_pemulihan`, K-2, F-06).
+> (b) **Siklus F-233 (K-2, P-1B-00)** — jalur pendaftaran resmi `daftarkan_perangkat_dengan_kode` tidak menulis baris persetujuan & 0 pemanggil `setujui_perangkat_pegawai`; verifikasi hakim dulu (status BARU), baru dibangun.
+> (c) **Siklus F-232 (K-3, G-04)** — templat kartu & PROMPT_GILIRAN wajib memuat "Langkah Lee selanjutnya"; verifikasi dulu, baru dibangun.
+> (d) **Siklus F-236/F-237 (K-4)** — koreksi angka Perencana sendiri ("16 asersi" → 12 di KEAMANAN:24 + ROADMAP; parentetis "0 rujukan aplikasi/src" di KEAMANAN:124 → "0 rujukan di jalur kunci otomatis"); verifikasi dulu sesuai siklus. F-235 (K-4, P-9-00, contoh kode 6 angka di Perangkat.tsx:226) ikut siklus kecil.
+> (e) **Catatan siklus:** penutupan `DIPERBAIKI → DITUTUP` hanya oleh hakim sesi lain; Pembangun (Perencana) tidak menutup temuannya sendiri. Pekerjaan pra-pilot (pengirim header F-070, jam aktif F-089, wiring UI 0103/0104) terjadwal atas keputusan Lee 2026-10-06 — jangan dibangun sebelum Lee memerintahkan.
 > **Satu potongan per sesi, potongan berbeda untuk sesi yang berjalan bersamaan** — klaim di PAPAN baru terlihat sesi lain
 > setelah diintegrasikan. Ulangan independen potongan yang sama boleh, tetapi harus disengaja Perencana (rancangan §9).
 

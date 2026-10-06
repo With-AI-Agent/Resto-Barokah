@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0fbb9-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0fbb9-resto-barokah`
-- **Commit keadaan kerja:** `a5fcb644e3ab8f16d6da48b74fac62aaf8118261`
+- **Commit keadaan kerja:** `43c06222d88ed014bee0b3b6c151a17a8fc5a0a7`
 - **PR:** PR #14 (base main)
 PR #13 (base main)
 PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** in_progress (run 37444609214, commit a5fcb644) — tunggu sampai selesai
+- **CI terakhir:** in_progress (run 37447779329, commit 43c06222) — tunggu sampai selesai
 - **CATATAN CI:** run untuk commit handoff ini belum ada/masih berjalan saat baris ini ditulis (wajar) — sesi baru cek `gh run list --branch arena/01a0fbb9-resto-barokah --limit 3`; lanjut bila hijau atau masih berjalan dengan run selesai terakhir hijau, berhenti hanya bila merah.
 - **Ditulis:** 2026-10-06 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
@@ -29,7 +29,7 @@ PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (575 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (867 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -70,6 +70,7 @@ JANGAN merge apa pun tanpa keputusan Lee.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
 
+**PUTARAN 13y (2026-10-06, sesi arena/01a0fbb9) — RONDE 3 POTONGAN F-06 DIBANGUN: F-083 diperbaiki tuntas (aktivasi pemulihan darurat tanpa sesi), menunggu hakim verifikasi.** Perintah Lee: "Lanjut". Klaim PAPAN ronde 3 `04018b0` + `ee5a5e2`. Bangunan: commit `43c0622` — migrasi 0105 `selesaikan_pemulihan_darurat(kunci)`: TANPA sesi, bukti kepemilikan = kunci perangkat bcrypt yang dipilih pemohon saat pengajuan (0102), masa tenggang 30 menit tetap ditegakkan, pesan seragam anti-orakel, audit atas nama pemohon, jalur ber-sesi lama tidak berubah. Uji baru `supabase/tes/pemulihan_aktivasi_darurat.sql` dibuktikan MERAH dulu ("function ... does not exist") lalu HIJAU, termasuk bukti ujung-ke-ujung `LOGIN_SUKSES` lewat perangkat darurat — kunci induk KEAMANAN §4b Tingkat 3 kini bisa dijalankan sampai akhir oleh owner yang kehilangan seluruh perangkat. Dokumen ops & KEAMANAN §4b dibenahi (langkah 2/5 panduan kini sah). **Temuan baru saat membangun (K-4: dicatat, tidak diperbaiki diam-diam): PMB1-F-238** — `batalkan_pemulihan` masih menuntut sesi (celah simetris F-083). Kartu `B-F-06.3.md`; Buku Besar F-083 → DIPERBAIKI; suite SQL **146 LULUS · 0 GAGAL**. **Angka:** 238 baris · DITUTUP 47 · DIPERBAIKI 5 · TERVERIFIKASI 147 · BARU 20 · DUPLIKAT 15 · PALSU 4; K-1 terbuka 3 (F-001, F-052, F-063); PR #14/#13/#3 menunggu Lee. **Langkah berikutnya (tanpa menunggu Lee):** (a) HAKIM sesi lain verifikasi kartu `B-F-06.3.md` (putus F-083 & F-234; vonis F-238); (b) siklus F-233 (K-2, P-1B-00); (c) siklus F-232 (K-3, G-04) + F-236/F-237/F-235 (K-4); pekerjaan pra-pilot terjadwal; saklar 0098 tetap mati.
 **PUTARAN 13x (2026-10-06, sesi arena/01a0fbb9) — POTONGAN F-06 TUNTAS SEMUA RONDE: H-F-06.3 menutup 5/6 baris K-2, H-F-06.4 menutup 11/11 baris K-3/K-4; lima keputusan Lee dilaksanakan.** Hakim `arena/b8b8eef8` (H-F-06.3): F-071/F-082/F-084/F-085/F-086 DITUTUP (probe lama kini MERAH, 6 mutasi terbunuh); **F-083 dibuka kembali** — jalur tanpa sesi hidup, tetapi aktivasi `selesaikan_pemulihan` masih menuntut sesi + izin + 0 pemanggil klien (janji §4b Tingkat 3 belum utuh); temuan baru F-233 (K-2: jalur pendaftaran resmi tak menulis baris persetujuan), F-234 (K-2: residu aktivasi F-083), F-235 (K-4: contoh isian 6 angka). Hakim `arena/74433bfc` (H-F-06.4): kesebelas baris ronde 2 DITUTUP (reproduksi lengkap + mutasi M1–M4 terbunuh + suite 145 + 1064 uji aplikasi); temuan baru F-236 & F-237 (keduanya K-4, koreksi angka saya sendiri: "16 asersi" seharusnya 12; parentetis "0 rujukan aplikasi/src" pada baris jam aktif salah). Lee menjawab 5 keputusan B-F-06.2 §3 = ikut semua rekomendasi (REKAM butir 31): F-070/F-089/wiring UI = pra-pilot; T1-16 resmi `[x]`; angka voucher = jumlah saja. Trio handoff disegarkan (catatan hakim H-F-06.4). Rekaman: REKAM butir 31–32; integrasi `691702f` + `a5fcb64`. **Angka:** Buku Besar 235 temuan · **DITUTUP 47** · DIPERBAIKI 4 · TERVERIFIKASI 148 · BARU 19; K-1 terbuka 3 (F-001, F-052, F-063); PR #14/#13/#3 menunggu Lee. **Langkah berikutnya (tanpa menunggu Lee):** (a) siklus verifikasi→bangun untuk F-083 (terbuka lagi) + F-233/F-234 (K-2, P-1B-00) + F-235 (K-4, P-9-00); (b) siklus F-232 (K-3, G-04) + F-236/F-237 (K-4); (c) pekerjaan pra-pilot (pengirim header, jam aktif, wiring UI) terjadwal; saklar 0098 tetap mati.
 
 
