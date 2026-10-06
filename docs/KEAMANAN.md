@@ -131,7 +131,7 @@
 ## 8. Otorisasi (dua lapis, satu gerbang)
 
 1. **Lapis 1 — RLS:** deny by default; setiap tabel punya policy; nilai penyewa/cabang diambil dari tabel `pengguna` lewat id Auth (bukan `user_metadata` yang bisa diubah klien).
-2. **Lapis 2 — gerbang izin:** setiap RPC memanggil `boleh(...)`/`boleh_untuk(...)` sebagai pemeriksaan pertama; tidak ada pemeriksaan `peran` yang ditulis ulang di tempat lain.
+2. **Lapis 2 — gerbang izin:** setiap RPC memanggil `boleh(...)`/`boleh_untuk(...)` sebagai pemeriksaan pertama. **Kejujuran arsitektur (PMB1-F-075, dihitung 2026-10-05):** "satu gerbang" berlaku untuk badan RPC, tetapi ada **18 perbandingan peran keras** `peran_saya() = '<peran>'` di **9 migrasi** (`0004`×5 · `0005`×3 · `0007`×1 · `0009`×2 · `0015`×2 · `0052`×1 · `0053`×1 · `0068`×2 · `0085`×1), termasuk di policy RLS (yang memang harus menyebut peran). Konsekuensi yang diakui: mencabut/mengganti satu peran di `pengguna.peran` **tidak otomatis tercermin** di titik-titik itu. Belum ada penjaga otomatis yang menghitung/melarangnya — itu pekerjaan terbuka (reproduksi: `grep -rhoE "peran_saya\(\) *(<>|=) *'[a-z_]+'" supabase/migrations/*.sql | wc -l` → 18). Kalimat lama "tidak ada pemeriksaan peran yang ditulis ulang di tempat lain" dicabut karena salah.
 3. **Fungsi `SECURITY DEFINER`** hanya bila perlu, wajib `set search_path` dipaku, `revoke execute from public` + `grant` eksplisit, dan tidak boleh menjadi jalan pintas menyelesaikan masalah izin (paling berbahaya: fungsi `SECURITY DEFINER` di skema `public` bisa dipanggil semua peran bila haknya tidak dicabut).
 4. **Uji matriks (T1-29):** setiap peran × setiap aksi diperiksa otomatis — yang berizin **boleh**, yang tidak berizin **ditolak walau RPC dipanggil langsung**.
 
