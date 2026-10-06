@@ -193,9 +193,9 @@
 | Perangkat tidak terdaftar → tabel staf tertutup | SQL otomatis | T1-24 |
 | Cabut perangkat → permintaan berikutnya gagal | SQL otomatis | T1-24 |
 | Sesi lewat umur maksimum → ditolak | SQL otomatis | T1-24 |
-| Kunci 5×/15 menit & 12×/15 menit | SQL otomatis | T1-25 |
+| Kunci 5×/15 menit & 12×/15 menit | SQL otomatis | T1-26 |
 | PIN lemah & PIN kembar ditolak | SQL otomatis | T1-23 |
-| Rantai audit terdeteksi bila diubah/dihapus | SQL otomatis + pemeriksa | T1-26 |
+| Rantai audit terdeteksi bila diubah/dihapus | SQL otomatis + pemeriksa | T1-27 |
 | Mode dukungan: tanpa mode = 0 baris; dengan mode = hanya-baca; kedaluwarsa = 0 baris | SQL otomatis | T1-28 |
 | Hak istimewa fungsi (`security definer`, `grant execute`) | pemeriksa statis SQL | T1-30 |
 | Rahasia tidak masuk repo · `npm audit` bersih | pemeriksa CI | T1-30 |
