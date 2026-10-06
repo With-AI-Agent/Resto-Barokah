@@ -54,7 +54,7 @@
 - **Alur pendaftaran:** admin/owner membuat kode → perangkat baru memasukkan kode → rahasia acak 32 byte dibuat di perangkat, server hanya menyimpan **hash bcrypt** (`crypt(kunci, gen_salt('bf', 10))` di `0018` & `0030` — bukan SHA-256 polos; dikoreksi PMB1-F-088) → perangkat aktif dengan peran yang diizinkan.
 - **Siapa yang boleh membuat kode (keputusan pemilik 2026-09-17):** **owner pusat** (semua cabang restonya) dan **admin cabang** (khusus cabangnya). Kode **sekali pakai**, sah **15 menit**, dan tercatat siapa yang membuat. Pemilik platform tidak membuat kode kecuali lewat mode dukungan beralasan.
 - **Perangkat pertama owner (bootstrap):** boleh didaftarkan sendiri dengan kata sandi + TOTP **hanya selama resto itu belum punya satu pun perangkat aktif**; setelah ada perangkat aktif, jalur bootstrap tertutup dan perangkat baru wajib lewat persetujuan perangkat aktif (atau jalur pemulihan §4b).
-- **Perangkat cadangan wajib (keputusan pemilik):** setiap peran berkuasa (`owner_pusat`, `admin_cabang`) minimal **2 perangkat terdaftar** (satu utama + satu cadangan, boleh HP pribadi). Aplikasi memperingatkan (dalam aplikasi + email) bila tinggal satu — supaya kehilangan satu perangkat tidak pernah menghalangi kerja.
+- **Perangkat cadangan wajib (keputusan pemilik):** setiap peran berkuasa (`owner_pusat`, `admin_cabang`) minimal **2 perangkat terdaftar** (satu utama + satu cadangan, boleh HP pribadi). Aplikasi memperingatkan (dalam aplikasi + email) bila tinggal satu — supaya kehilangan satu perangkat tidak pernah menghalangi kerja. **Status (PMB1-F-072, 2026-10-05):** penghitungnya sudah hidup — RPC `hitung_perangkat_berkuasa()` (migrasi `0103`, diuji `supabase/tes/perangkat_berkuasa.sql`) + banner peringatan di layar Peringatan (prop `statusPerangkatBerkuasa`, diuji komponen). Sisa yang masih terbuka: pemanggilan RPC itu dari kontainer aplikasi & saluran email (jalur ringkasan harian belum terhubung di frontend).
 - **Persetujuan pemilik untuk pasangan (pegawai × perangkat) baru** (keputusan pemilik): pegawai pertama yang memakai perangkat terdaftar harus disetujui owner/admin berizin; berlaku juga saat pegawai lama memakai perangkat berbeda untuk pertama kali.
 - **Peran dibatasi per perangkat:** "Tablet Kasir 1" hanya untuk `kasir`; tidak bisa dipakai masuk sebagai `owner_pusat`.
 - **Pencabutan seketika:** menekan "Cabut perangkat" (atau menandai "hilang") membuat semua permintaan dari perangkat itu ditolak **di database** pada detik berikutnya; alasan & pelaku dicatat.
@@ -206,7 +206,7 @@
 | Setiap aksi UI → RPC & izin benar (per peran) | uji komponen + pemeriksa peta aksi | T1-31…T1-35 |
 | Kode pemulihan: kadaluwarsa/terpakai dua kali/hash tidak pernah kembali | SQL otomatis | T1-36 |
 | Perangkat darurat: masa tenggang 30 menit, bisa dibatalkan, tercatat & dinotifikasi | SQL otomatis | T1-36 |
-| Peringatan perangkat berkuasa tinggal 1 | uji SQL + uji komponen | T1-36, T10-13 |
+| Peringatan perangkat berkuasa tinggal 1 | uji SQL + uji komponen | T1-36, T10-13 — uji ADA: `supabase/tes/perangkat_berkuasa.sql` + `Peringatan.test.tsx` (PMB1-F-072) |
 | 9 alur wajib di peramban | Playwright di CI | T11-11 |
 
 ## 15. Risiko sisa yang diterima (dicatat terbuka, bukan disembunyikan)
