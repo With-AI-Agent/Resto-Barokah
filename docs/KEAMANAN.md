@@ -140,7 +140,7 @@
 1. Angka uang hanya ditulis fungsi peladen; pembayaran tidak bisa diubah/dihapus; kembalian dihitung database (T1-10).
 2. **Non-tunai wajib referensi**; layar tutup kas menampilkan daftar referensi untuk dicocokkan dengan QRIS/bank.
 3. **Ringkasan peringatan harian** ke email owner **dan** daftar peringatan di dalam aplikasi (keputusan pemilik 2026-09-17: dua-duanya): omzet, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat, pemakaian jalur pemulihan.
-4. Laporan **"siapa menyetujui apa"** per bulan (semua penggunaan PIN persetujuan) — mencegah PIN atasan dipakai berulang tanpa terasa.
+4. Laporan **"siapa menyetujui apa"** per bulan (semua penggunaan PIN persetujuan) — mencegah PIN atasan dipakai berulang tanpa terasa. **Status (PMB1-F-087, 2026-10-05):** sudah hidup — RPC `laporan_persetujuan_pin(p_bulan)` (migrasi `0104`, diuji `supabase/tes/laporan_persetujuan_pin.sql`) merekap diskon berstempel, void berstempel, dan voucher berstempel PIN atasan per penyetuju per bulan takwim, terisolasi per penyewa. Sisa terbuka: tab UI di layar laporan (data & RPC sudah siap).
 5. Transaksi hanya dalam shift terbuka; selisih wajib beralasan; setelah shift ditutup, koreksi = baris baru (ART-6).
 6. **Jenis diskon yang mesinnya belum ada = DITOLAK (gagal-aman).** Sejak migrasi `0013` (temuan review putaran11 PR-01, K-2): `promo`
    ditolak selama mesinnya belum ada — sebelumnya cabang `voucher` hanya memeriksa izin `pakai_voucher` (bawaan kasir
