@@ -8,15 +8,15 @@
 ## 1. Keadaan sekarang (dibaca sesi baru lebih dulu)
 
 - **Cabang yang dilanjutkan:** `arena/01a0fbb9-resto-barokah`
-- **Dasar pilihan cabang:** pilihan Lee (`--lanjut-dari`)
+- **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0fbb9-resto-barokah`
-- **Commit keadaan kerja:** `889727d8f9cf1b813e20d0c36d0221f50c46220c`
+- **Commit keadaan kerja:** `a5fcb644e3ab8f16d6da48b74fac62aaf8118261`
 - **PR:** PR #14 (base main)
 PR #13 (base main)
 PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit 889727d8 — wajar, ditulis sebelum push; run terakhir yang selesai di cabang: failure (run 37201034977, commit 7a6c1458)) — periksa lagi setelah push: gh run list --branch <cabang> --limit 3
-- **PERHATIAN:** CI terakhir BUKAN success — perbaiki CI lebih dulu sebelum pekerjaan baru.
-- **Ditulis:** 2026-10-04 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
+- **CI terakhir:** in_progress (run 37444609214, commit a5fcb644) — tunggu sampai selesai
+- **CATATAN CI:** run untuk commit handoff ini belum ada/masih berjalan saat baris ini ditulis (wajar) — sesi baru cek `gh run list --branch arena/01a0fbb9-resto-barokah --limit 3`; lanjut bila hijau atau masih berjalan dengan run selesai terakhir hijau, berhenti hanya bila merah.
+- **Ditulis:** 2026-10-06 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
 - **Berkas yang Lee salin ke chat baru:** `PROMPT_SESI_BARU.md` (STATIS — mesin memeriksanya, bukan
@@ -29,7 +29,7 @@ PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **2** — T-026, T-028
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (506 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (798 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (jarak tidak terbaca) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (jarak tidak terbaca) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -69,6 +69,9 @@ JANGAN merge apa pun tanpa keputusan Lee.
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 13x (2026-10-06, sesi arena/01a0fbb9) — POTONGAN F-06 TUNTAS SEMUA RONDE: H-F-06.3 menutup 5/6 baris K-2, H-F-06.4 menutup 11/11 baris K-3/K-4; lima keputusan Lee dilaksanakan.** Hakim `arena/b8b8eef8` (H-F-06.3): F-071/F-082/F-084/F-085/F-086 DITUTUP (probe lama kini MERAH, 6 mutasi terbunuh); **F-083 dibuka kembali** — jalur tanpa sesi hidup, tetapi aktivasi `selesaikan_pemulihan` masih menuntut sesi + izin + 0 pemanggil klien (janji §4b Tingkat 3 belum utuh); temuan baru F-233 (K-2: jalur pendaftaran resmi tak menulis baris persetujuan), F-234 (K-2: residu aktivasi F-083), F-235 (K-4: contoh isian 6 angka). Hakim `arena/74433bfc` (H-F-06.4): kesebelas baris ronde 2 DITUTUP (reproduksi lengkap + mutasi M1–M4 terbunuh + suite 145 + 1064 uji aplikasi); temuan baru F-236 & F-237 (keduanya K-4, koreksi angka saya sendiri: "16 asersi" seharusnya 12; parentetis "0 rujukan aplikasi/src" pada baris jam aktif salah). Lee menjawab 5 keputusan B-F-06.2 §3 = ikut semua rekomendasi (REKAM butir 31): F-070/F-089/wiring UI = pra-pilot; T1-16 resmi `[x]`; angka voucher = jumlah saja. Trio handoff disegarkan (catatan hakim H-F-06.4). Rekaman: REKAM butir 31–32; integrasi `691702f` + `a5fcb64`. **Angka:** Buku Besar 235 temuan · **DITUTUP 47** · DIPERBAIKI 4 · TERVERIFIKASI 148 · BARU 19; K-1 terbuka 3 (F-001, F-052, F-063); PR #14/#13/#3 menunggu Lee. **Langkah berikutnya (tanpa menunggu Lee):** (a) siklus verifikasi→bangun untuk F-083 (terbuka lagi) + F-233/F-234 (K-2, P-1B-00) + F-235 (K-4, P-9-00); (b) siklus F-232 (K-3, G-04) + F-236/F-237 (K-4); (c) pekerjaan pra-pilot (pengirim header, jam aktif, wiring UI) terjadwal; saklar 0098 tetap mati.
+
 
 **PUTARAN 13r (2026-10-05, sesi arena/01a0fbb9) — H-F-03.8 TERINTEGRASI (`24fa26c`): F-038 DITUTUP; F-229/F-230/F-231 = DIPERBAIKI MENUNGGU HAKIM PENUTUP.** Hakim `arena/01a10998` menutup PMB1-F-038 setelah verifikasi penuh (reproduksi race pra/pasca, 4 mutasi kausalitas, suite 140 LULUS, lingkup rapi); F-229/F-230/F-231 diverifikasi lalu dicatat Pembangun DIPERBAIKI (sha `50c3980`; `60e5e3a`+`0064289`; `5c18849`) — penutupannya hanya oleh hakim sesi lain sesuai siklus. Rekaman giliran ini: REKAM §31 butir 27 + USULAN §9 baris #4/#5 + daftar tunggu mesin. **Langkah berikutnya (tanpa menunggu Lee):** (a) siapkan **HAKIM** sesi lain untuk menutup 3 baris DIPERBAIKI itu (objek sempit: kolom Perbaikan baris F-229/F-230/F-231 di Buku Besar + uji kasus 27 dua berkas + bukti B-F-03.5/H-F-03.8; potensi ditutup dalam satu kartu H); ATAU (b) lanjut potongan K-2 terbuka lain (mis. F-06 — 6 baris K-2 belum pernah dibangun). Saklar 0098 tetap mati sampai perintah Lee. Angka: Buku Besar 231 (terbuka 184); K-1 terbuka 3 (F-001, F-052, F-063); PR #14/#13/#3 jangan merge tanpa Lee.
 
