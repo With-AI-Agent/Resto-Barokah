@@ -1,6 +1,8 @@
-RANTAI BUKTI GILIRAN — 2026-10-06 00:39:26 +0000 — sumber langkah: .github/workflows/ci.yml job periksa — MODE PENUH (setara CI)
+RANTAI BUKTI GILIRAN — 2026-10-06 01:45:42 +0000 — sumber langkah: .github/workflows/ci.yml job periksa — MODE PENUH (setara CI)
+PERINGATAN: pohon kerja punya perubahan yang belum di-commit — hasil rantai ini BUKAN bukti untuk commit terakhir; kalau ini sisa skrip mutasi yang terputus, pulihkan dulu (git checkout -- <berkas>):
+D docs/uji/pemeriksaan/PMB-1/bukti/B-F-06.2-rantai.txt
 
-===== LOLOS rc=0 (11 s) — Kerapian kode (Prettier) — npm run format:check
+===== LOLOS rc=0 (8 s) — Kerapian kode (Prettier) — npm run format:check
 
 > sajian@0.0.0 format:check
 > prettier --check .
@@ -9,7 +11,7 @@ Checking formatting...
 All matched files use Prettier code style!
 
 
-===== LOLOS rc=0 (9 s) — Aturan kode (ESLint) — npm run lint
+===== LOLOS rc=0 (7 s) — Aturan kode (ESLint) — npm run lint
 
 > sajian@0.0.0 lint
 > eslint .
@@ -73,14 +75,14 @@ All matched files use Prettier code style!
 
 
 
-===== LOLOS rc=0 (17 s) — Tipe (TypeScript ketat) — npm run typecheck
+===== LOLOS rc=0 (15 s) — Tipe (TypeScript ketat) — npm run typecheck
 
 > sajian@0.0.0 typecheck
 > tsc -b --noEmit
 
 
 
-===== LOLOS rc=0 (137 s) — Uji unit (Vitest) — npm test
+===== LOLOS rc=0 (115 s) — Uji unit (Vitest) — npm test
 
 > sajian@0.0.0 test
 > vitest run
@@ -88,165 +90,154 @@ All matched files use Prettier code style!
 
 [1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90m/home/user/Resto-Barokah/aplikasi[39m
 
- [32m✓[39m uji/e2e/luring.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 163[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/Menu.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 2227[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Menu.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 2216[2mms[22m[39m
    [32m✓[39m Layar Pengaturan Menu & Kategori (T9-05 / PRD M2 & M3) [2m(16)[22m
-     [33m[2m✓[22m[39m 9. Berhasil menambah menu item baru lengkap dengan varian dan topping[33m 471[2mms[22m[39m
- [32m✓[39m src/layar/kasir/LayarKasir.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 1705[2mms[22m[39m
- [32m✓[39m src/gaya/kerapatan-css.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 359[2mms[22m[39m
- [32m✓[39m src/layar/pelanggan-publik/Menu.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 946[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/MenuCabang.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 875[2mms[22m[39m
- [32m✓[39m src/komponen/StatusAntrean.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 246[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/Kampanye.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 1083[2mms[22m[39m
- [32m✓[39m src/layar/voucher/Daftar.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 457[2mms[22m[39m
- [32m✓[39m uji/e2e/mati-mendadak.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 203[2mms[22m[39m
- [32m✓[39m src/layar/laporan/LaporanVoucher.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 786[2mms[22m[39m
- [32m✓[39m src/layar/kasir/LayarKasirDiskon.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1444[2mms[22m[39m
-   [32m✓[39m LayarKasir ↔ DiskonManual (T5-05, sambungan) [2m(4)[22m
-     [33m[2m✓[22m[39m diskon di atas batas kasir tidak bisa diterapkan tanpa persetujuan atasan[33m 376[2mms[22m[39m
- [32m✓[39m src/hook/useTiketDapur.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 469[2mms[22m[39m
- [32m✓[39m src/lib/printer/kirim.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 21[2mms[22m[39m
- [32m✓[39m src/layar/laporan/LaporanKas.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 538[2mms[22m[39m
- [32m✓[39m src/layar/kasir/DiskonManual.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 369[2mms[22m[39m
- [32m✓[39m src/layar/laporan/LaporanMenu.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 625[2mms[22m[39m
- [32m✓[39m src/lib/antrean-lokal.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 13[2mms[22m[39m
- [32m✓[39m src/layar/kasir/ScanVoucher.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 318[2mms[22m[39m
- [32m✓[39m src/layar/laporan/FormatLaporan.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 355[2mms[22m[39m
- [32m✓[39m src/lib/printer/struk.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 20[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/Meja.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 1039[2mms[22m[39m
- [32m✓[39m src/lib/antrean-offline.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 19[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/MetodeBayar.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 916[2mms[22m[39m
- [32m✓[39m src/hook/useBayar.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 381[2mms[22m[39m
- [32m✓[39m src/layar/laporan/LaporanPenjualan.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 496[2mms[22m[39m
- [32m✓[39m src/komponen/komponen.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[32m 169[2mms[22m[39m
- [32m✓[39m src/layar/platform/Penyewa.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 750[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/Cabang.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 965[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/Identitas.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 700[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/Operasional.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 1052[2mms[22m[39m
- [32m✓[39m src/layar/kasir/VoucherKasir.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 377[2mms[22m[39m
- [32m✓[39m src/layar/kasir/Bayar.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[32m 238[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/KelolaPegawai.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 841[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/TautanKatalog.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 578[2mms[22m[39m
- [32m✓[39m src/layar/laporan/LayarLaporan.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 607[2mms[22m[39m
- [32m✓[39m src/layar/kasir/LayarKasirBayar.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 1264[2mms[22m[39m
-   [32m✓[39m LayarKasir ↔ Bayar (T5-01, sambungan) [2m(9)[22m
-     [33m[2m✓[22m[39m modal bayar menampilkan metode dari kontainer, bukan daftar bawaan layar[33m 328[2mms[22m[39m
- [32m✓[39m src/komponen/Struk.test.tsx [2m([22m[2m18 tests[22m[2m)[22m[32m 120[2mms[22m[39m
- [32m✓[39m src/lib/printer/expos.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 12[2mms[22m[39m
- [32m✓[39m src/layar/laporan/Peringatan.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 644[2mms[22m[39m
- [32m✓[39m src/komponen/StrukDigital.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[32m 251[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/LayarPengaturan.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 1817[2mms[22m[39m
-   [32m✓[39m LayarPengaturan (Induk Pengaturan Restoran — PRD M2 / Fase 9) [2m(16)[22m
-     [33m[2m✓[22m[39m merender bilah tab navigasi dan menampilkan tab identitas sebagai default[33m 438[2mms[22m[39m
- [32m✓[39m src/hook/useStok.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 315[2mms[22m[39m
- [32m✓[39m src/layar/kasir/TutupKas.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 642[2mms[22m[39m
- [32m✓[39m src/layar/kasir/KasKeluarMasuk.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 449[2mms[22m[39m
- [32m✓[39m src/lib/voucher.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 10[2mms[22m[39m
- [32m✓[39m src/layar/kasir/KoreksiModal.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 359[2mms[22m[39m
- [32m✓[39m src/lib/supabase.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 56[2mms[22m[39m
- [32m✓[39m src/layar/pelanggan-publik/Katalog.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 339[2mms[22m[39m
- [32m✓[39m src/lib/printer/tiket.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 13[2mms[22m[39m
- [32m✓[39m src/layar/masuk/LayarMasukPegawai.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 902[2mms[22m[39m
-   [32m✓[39m LayarMasukPegawai (T2-02) [2m(7)[22m
-     [33m[2m✓[22m[39m mengizinkan pengetikan email dan input PIN lewat keypad[33m 326[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/SesiAktif.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 655[2mms[22m[39m
- [32m✓[39m src/App.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1354[2mms[22m[39m
+     [33m[2m✓[22m[39m 9. Berhasil menambah menu item baru lengkap dengan varian dan topping[33m 461[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/LayarKasir.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 1354[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/LayarKasirDiskon.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1220[2mms[22m[39m
+ [32m✓[39m src/App.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1013[2mms[22m[39m
    [32m✓[39m App - Penanganan Shift Kasir (L F-03) [2m(3)[22m
-     [33m[2m✓[22m[39m menolak pembukaan shift bila RPC peladen gagal dan tidak mengeset sesi terbuka[33m 525[2mms[22m[39m
-     [33m[2m✓[22m[39m membuka shift dan menyimpan ID shift bila RPC peladen sukses[33m 351[2mms[22m[39m
-     [33m[2m✓[22m[39m menolak penutupan shift bila RPC tutup_shift peladen gagal[33m 476[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/Pratinjau.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 650[2mms[22m[39m
- [32m✓[39m src/layar/masuk/MasukStaf.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 918[2mms[22m[39m
-   [32m✓[39m MasukStaf (T2-14) [2m(6)[22m
-     [33m[2m✓[22m[39m membuka keypad PIN setelah nama pegawai dipilih dan memproses PIN 6 digit[33m 330[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/Tampilan.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 1046[2mms[22m[39m
- [32m✓[39m src/layar/laporan/DaftarPembatalan.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[32m 203[2mms[22m[39m
- [32m✓[39m src/layar/dapur/LayarDapur.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 180[2mms[22m[39m
- [32m✓[39m src/komponen/PengingatShift.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 139[2mms[22m[39m
- [32m✓[39m src/layar/kasir/BukaKas.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 446[2mms[22m[39m
- [32m✓[39m src/layar/kasir/DaftarTransaksi.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[32m 202[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/PasangPrinter.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 304[2mms[22m[39m
- [32m✓[39m src/layar/dapur/KartuPesanan.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 123[2mms[22m[39m
- [32m✓[39m src/lib/printer/profil.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 10[2mms[22m[39m
- [32m✓[39m src/layar/kasir/DaftarTagihan.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[32m 152[2mms[22m[39m
- [32m✓[39m src/layar/kasir/LayarKasirVoid.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 921[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/StatusPemakaian.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 264[2mms[22m[39m
- [32m✓[39m src/lib/tema.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 10[2mms[22m[39m
- [32m✓[39m src/layar/voucher/KartuVoucher.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 434[2mms[22m[39m
- [32m✓[39m src/layar/contoh/kerapatan.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 733[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/Perangkat.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 234[2mms[22m[39m
- [32m✓[39m src/komponen/PemilihRingkas.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 248[2mms[22m[39m
- [32m✓[39m src/hook/useRiwayatTransaksi.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 136[2mms[22m[39m
- [32m✓[39m src/layar/kasir/VoidItem.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 311[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/CabutAkses.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 194[2mms[22m[39m
- [32m✓[39m src/layar/kasir/DataPelanggan.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 199[2mms[22m[39m
- [32m✓[39m src/hook/useTema.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 63[2mms[22m[39m
- [32m✓[39m src/hook/useAntrean.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 82[2mms[22m[39m
- [32m✓[39m src/lib/emailNormalisasi.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m src/hook/useAlamatCabang.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 227[2mms[22m[39m
- [32m✓[39m src/lib/keamanan-header.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m src/App.kunciOtomatis.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 194[2mms[22m[39m
- [32m✓[39m src/layar/kasir/AlurKasirE2E.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 480[2mms[22m[39m
+     [33m[2m✓[22m[39m menolak pembukaan shift bila RPC peladen gagal dan tidak mengeset sesi terbuka[33m 381[2mms[22m[39m
+     [33m[2m✓[22m[39m menolak penutupan shift bila RPC tutup_shift peladen gagal[33m 383[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/LayarPengaturan.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 1099[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Kampanye.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 833[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Meja.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 870[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/LayarKasirBayar.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 830[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Tampilan.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 690[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Cabang.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 679[2mms[22m[39m
+ [32m✓[39m src/layar/pelanggan-publik/Menu.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 764[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/MetodeBayar.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 848[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Operasional.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 780[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/LayarKasirVoid.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 729[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/MenuCabang.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 740[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/MasukStaf.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 768[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/LayarMasukPegawai.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 734[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/LaporanVoucher.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 585[2mms[22m[39m
+ [32m✓[39m src/layar/platform/Penyewa.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 651[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Identitas.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 527[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/KelolaPegawai.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 604[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Pratinjau.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 499[2mms[22m[39m
+ [32m✓[39m src/layar/contoh/kerapatan.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 502[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/TautanKatalog.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 462[2mms[22m[39m
+ [32m✓[39m src/hook/useTiketDapur.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 470[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/LaporanMenu.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 425[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/LayarLaporan.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 483[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/SesiAktif.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 466[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/LaporanPenjualan.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 397[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/Peringatan.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 514[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/TutupKas.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 473[2mms[22m[39m
+ [32m✓[39m src/layar/voucher/Daftar.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 394[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/AlurKasirE2E.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 415[2mms[22m[39m
    [32m✓[39m Uji Alur Kasir Ujung-ke-Ujung (T3-14) [2m(1)[22m
-     [33m[2m✓[22m[39m menjalankan skenario lengkap: pilih menu -> catatan -> kirim dapur -> bayar lunas[33m 469[2mms[22m[39m
- [32m✓[39m src/layar/pelayan/LayarPelayan.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 367[2mms[22m[39m
- [32m✓[39m src/bahasa/bahasa.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 110[2mms[22m[39m
- [32m✓[39m src/layar/masuk/SkenarioMasukPeran.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 80[2mms[22m[39m
- [32m✓[39m src/layar/pelanggan-publik/LayarPelangganPublik.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 249[2mms[22m[39m
- [32m✓[39m src/lib/tarif.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m src/layar/pelanggan-publik/KebijakanPrivasi.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 260[2mms[22m[39m
- [32m✓[39m src/layar/voucher/Kampanye.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 263[2mms[22m[39m
- [32m✓[39m src/lib/pesan.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m src/komponen/TombolAksi.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 109[2mms[22m[39m
- [32m✓[39m src/layar/masuk/MasukPengelola.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 219[2mms[22m[39m
- [32m✓[39m src/hook/useKunciOtomatis.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 41[2mms[22m[39m
- [32m✓[39m src/layar/dapur/Stok.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 166[2mms[22m[39m
- [32m✓[39m src/lib/layar.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 11[2mms[22m[39m
- [32m✓[39m src/uji/harness.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 139[2mms[22m[39m
- [32m✓[39m src/layar/dapur/Opname.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 146[2mms[22m[39m
- [32m✓[39m src/lib/auth.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m src/layar/masuk/LayarMasukPelanggan.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 290[2mms[22m[39m
- [32m✓[39m src/layar/kasir/PemilihMeja.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 248[2mms[22m[39m
- [32m✓[39m src/lib/laci.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m src/layar/kasir/Keranjang.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 171[2mms[22m[39m
- [32m✓[39m src/layar/kasir/Katalog.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 304[2mms[22m[39m
- [32m✓[39m src/komponen/Navigasi.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 211[2mms[22m[39m
- [32m✓[39m src/komponen/StatusAntreanOffline.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 128[2mms[22m[39m
- [32m✓[39m src/layar/pengaturan/DaftarPerangkat.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 236[2mms[22m[39m
- [32m✓[39m src/komponen/LembarBantuan.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 195[2mms[22m[39m
- [32m✓[39m src/hook/useSesi.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 88[2mms[22m[39m
- [32m✓[39m src/lib/env.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 29[2mms[22m[39m
- [32m✓[39m src/layar/dapur/LayarBar.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 87[2mms[22m[39m
+     [33m[2m✓[22m[39m menjalankan skenario lengkap: pilih menu -> catatan -> kirim dapur -> bayar lunas[33m 413[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/FormatLaporan.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[32m 300[2mms[22m[39m
+ [32m✓[39m src/hook/useBayar.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 359[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/LaporanKas.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 389[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/DiskonManual.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 360[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/BukaKas.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 355[2mms[22m[39m
+ [32m✓[39m src/hook/useStok.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 301[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/VoucherKasir.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 443[2mms[22m[39m
+ [32m✓[39m src/gaya/kerapatan-css.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 318[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/KasKeluarMasuk.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 320[2mms[22m[39m
+ [32m✓[39m src/layar/voucher/KartuVoucher.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 344[2mms[22m[39m
+ [32m✓[39m src/layar/pelanggan-publik/Katalog.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 415[2mms[22m[39m
+ [32m✓[39m src/layar/pelayan/LayarPelayan.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 374[2mms[22m[39m
+ [32m✓[39m src/komponen/StrukDigital.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[32m 226[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/KoreksiModal.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 278[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/DaftarPesanan.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 206[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/Katalog.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 266[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/Bayar.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[32m 229[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/Perangkat.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 251[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/PasangPrinter.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[32m 235[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/MasukPengelola.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 241[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/ScanVoucher.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 244[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/VoidItem.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 244[2mms[22m[39m
+ [32m✓[39m src/komponen/PemilihRingkas.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 258[2mms[22m[39m
+ [32m✓[39m uji/e2e/luring.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 181[2mms[22m[39m
+ [32m✓[39m src/App.kunciOtomatis.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 223[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/StatusPemakaian.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 210[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/DaftarTransaksi.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[32m 192[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/LayarMasukPelanggan.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 244[2mms[22m[39m
+ [32m✓[39m src/layar/pelanggan-publik/KebijakanPrivasi.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 214[2mms[22m[39m
+ [32m✓[39m src/komponen/StatusAntrean.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 271[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/CabutAkses.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 225[2mms[22m[39m
+ [32m✓[39m src/hook/useAlamatCabang.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 195[2mms[22m[39m
+ [32m✓[39m src/layar/voucher/Kampanye.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 216[2mms[22m[39m
+ [32m✓[39m src/layar/laporan/DaftarPembatalan.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[32m 165[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/PemilihMeja.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 150[2mms[22m[39m
+ [32m✓[39m src/layar/dapur/Stok.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 145[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/DataPelanggan.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 200[2mms[22m[39m
+ [32m✓[39m src/layar/pelanggan-publik/LayarPelangganPublik.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 178[2mms[22m[39m
+ [32m✓[39m uji/e2e/mati-mendadak.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 171[2mms[22m[39m
+ [32m✓[39m src/layar/pengaturan/DaftarPerangkat.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 151[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/Keranjang.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 155[2mms[22m[39m
+ [32m✓[39m src/layar/dapur/Opname.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 165[2mms[22m[39m
+ [32m✓[39m src/komponen/Navigasi.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 157[2mms[22m[39m
+ [32m✓[39m src/komponen/LembarBantuan.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 164[2mms[22m[39m
+ [32m✓[39m src/layar/dapur/LayarDapur.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 149[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/LupaAkses.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 136[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/DaftarTagihan.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[32m 125[2mms[22m[39m
+ [32m✓[39m src/komponen/TombolAksi.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 142[2mms[22m[39m
+ [32m✓[39m src/hook/useRiwayatTransaksi.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 137[2mms[22m[39m
+ [32m✓[39m src/layar/TidakPunyaAkses.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 122[2mms[22m[39m
+ [32m✓[39m src/komponen/komponen.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[32m 146[2mms[22m[39m
+ [32m✓[39m src/uji/harness.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 108[2mms[22m[39m
+ [32m✓[39m src/komponen/PengingatShift.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 118[2mms[22m[39m
+ [32m✓[39m src/komponen/Struk.test.tsx [2m([22m[2m18 tests[22m[2m)[22m[32m 118[2mms[22m[39m
+ [32m✓[39m src/komponen/StatusAntreanOffline.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+ [32m✓[39m src/komponen/KomponenQr.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 112[2mms[22m[39m
+ [32m✓[39m src/bahasa/bahasa.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+ [32m✓[39m src/komponen/KunciSekarang.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 120[2mms[22m[39m
+ [32m✓[39m src/layar/dapur/KartuPesanan.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 97[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/TagihanTerbuka.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m src/layar/masuk/SkenarioMasukPeran.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 118[2mms[22m[39m
+ [32m✓[39m src/komponen/PemilihCabang.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+ [32m✓[39m src/hook/useTema.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m src/layar/dapur/LayarBar.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m src/layar/dapur/TombolHabis.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32m✓[39m src/komponen/Rangka.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m src/hook/useAntrean.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m src/lib/supabase.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m src/hook/useJam.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m src/hook/useSesi.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m src/hook/useKunciOtomatis.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m src/hook/useCabang.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/lib/antrean-offline.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m src/lib/printer/struk.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/lib/printer/kirim.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/lib/aksi.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/lib/antrean-lokal.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/lib/printer/expos.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/lib/printer/tiket.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m src/lib/auth.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/lib/printer/profil.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/lib/voucher.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/lib/emailNormalisasi.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/lib/tema.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/lib/layar.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/qrcode.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/lib/laci.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/lib/tarif.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/lib/pesan.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/lib/env.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/lib/keamanan-header.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/layar/kasir/BebanKasir.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/lib/format.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
  [32m✓[39m src/lib/pemulihan-sesi.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
  [32m✓[39m src/layar/contoh/LayarContoh.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m src/layar/kasir/DaftarPesanan.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 280[2mms[22m[39m
- [32m✓[39m src/layar/kasir/BebanKasir.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m src/hook/useCabang.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 25[2mms[22m[39m
- [32m✓[39m src/lib/aksi.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
- [32m✓[39m src/komponen/KomponenQr.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 180[2mms[22m[39m
- [32m✓[39m src/lib/qrcode.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
- [32m✓[39m src/layar/masuk/LupaAkses.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 159[2mms[22m[39m
- [32m✓[39m src/komponen/PemilihCabang.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 95[2mms[22m[39m
- [32m✓[39m src/layar/TidakPunyaAkses.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 146[2mms[22m[39m
- [32m✓[39m src/layar/kasir/TagihanTerbuka.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 83[2mms[22m[39m
  [32m✓[39m src/lib/barcode.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m src/komponen/KunciSekarang.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 140[2mms[22m[39m
- [32m✓[39m src/lib/format.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m src/layar/dapur/TombolHabis.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 51[2mms[22m[39m
- [32m✓[39m src/komponen/Rangka.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 59[2mms[22m[39m
- [32m✓[39m src/hook/useJam.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 51[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m129 passed[39m[22m[90m (129)[39m
 [2m      Tests [22m [1m[32m1064 passed[39m[22m[90m (1064)[39m
-[2m   Start at [22m 00:40:04
-[2m   Duration [22m 136.59s[2m (environment 41%, tests 39%, import 16%, transform 4%, worker 1%)[22m
+[2m   Start at [22m 01:46:12
+[2m   Duration [22m 114.98s[2m (environment 43%, tests 38%, import 14%, transform 4%, worker 1%)[22m
 
-[2m    Isolate [22m [33m129 workers spawned[39m[2m · ~494ms startup each (spawn + environment, per file)[22m
-[2m            [22m [2mat least ~63.21s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+[2m    Isolate [22m [33m129 workers spawned[39m[2m · ~438ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~56.06s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
 
 
 
-===== LOLOS rc=0 (294 s) — Bukti mutasi kode aplikasi (uji wajib MERAH pada cacat nyata) — node aplikasi/alat/uji-mutasi-app.mjs
+===== LOLOS rc=0 (228 s) — Bukti mutasi kode aplikasi (uji wajib MERAH pada cacat nyata) — node aplikasi/alat/uji-mutasi-app.mjs
 UJI MUTASI KODE APLIKASI — membuktikan uji Vitest bisa MERAH pada cacat nyata
 (salinan sementara; berkas repo tidak disentuh)
 
@@ -348,7 +339,7 @@ UJI-DIRI uji-mutasi-app — harness wajib bisa MENOLAK saat jaring ujinya bocor
 HASIL: LOLOS — harness terbukti bisa MENOLAK saat jaring ujinya bocor.
 
 
-===== LOLOS rc=0 (30 s) — Bangun aplikasi — npm run build
+===== LOLOS rc=0 (17 s) — Bangun aplikasi — npm run build
 
 > sajian@0.0.0 build
 > tsc -b --noEmit && vite build
@@ -380,7 +371,7 @@ dist/assets/worksans-reguler-BjnYrMJ5.woff2            35.05 kB
 dist/assets/worksans-tebal-B37PlgEf.woff2              37.82 kB
 dist/assets/index-CrSbV2Zx.css                         80.97 kB │ gzip:  14.81 kB
 dist/assets/index-CAOttKer.js                       1,081.92 kB │ gzip: 285.51 kB
-✓ built in 5.93s
+✓ built in 3.45s
 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
@@ -388,7 +379,7 @@ dist/assets/index-CAOttKer.js                       1,081.92 kB │ gzip: 285.51
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
 
 
-===== LOLOS rc=0 (1 s) — Kerentanan dependency (npm audit — 0 toleransi) — npm audit --audit-level=low
+===== LOLOS rc=0 (0 s) — Kerentanan dependency (npm audit — 0 toleransi) — npm audit --audit-level=low
 found 0 vulnerabilities
 
 
@@ -403,15 +394,15 @@ Menguji https://bdvjirmbuqelmduztryj.supabase.co dengan kunci publik …
   X   Layanan data (PostgREST) menjawab
   X   Tabel katalog (menu_item) terbaca — bukti migrasi sudah disebar
 
-  rincian: /auth/v1/health → HTTP 0 (37 ms) fetch failed
-           /rest/v1/       → HTTP 0 (9 ms)
-           /rest/v1/menu_item → HTTP 0 (21 ms) fetch failed
+  rincian: /auth/v1/health → HTTP 0 (36 ms) fetch failed
+           /rest/v1/       → HTTP 0 (18 ms)
+           /rest/v1/menu_item → HTTP 0 (18 ms) fetch failed
 
 HASIL: GAGAL — server tidak menerima alamat+kunci ini. Periksa URL & kunci publik di aplikasi/.env.
 (Kalau kunci salah, Supabase menjawab 401. Kalau alamat salah, biasanya status 0 / DNS gagal.)
 
 
-===== LOLOS rc=0 (12 s) — Uji SQL penuh — RLS, isolasi resto & fungsi identitas — node alat/uji-sql.mjs
+===== LOLOS rc=0 (8 s) — Uji SQL penuh — RLS, isolasi resto & fungsi identitas — node alat/uji-sql.mjs
 UJI SQL LOKAL (PostgreSQL di dalam Node — tanpa server, tanpa akun)
 Menyiapkan peran, auth, dan alat bantu uji…
   OK    persiapan (peran/auth/alat uji)
@@ -674,7 +665,7 @@ uji: 145 LULUS · 0 GAGAL
 HASIL: LOLOS
 
 
-===== LOLOS rc=0 (84 s) — Bukti mutasi pagar migrasi 0012 + 0013 (kontrol hijau + semua mutasi wajib MERAH) — python3 alat/uji-mutasi-0012.py
+===== LOLOS rc=0 (83 s) — Bukti mutasi pagar migrasi 0012 + 0013 (kontrol hijau + semua mutasi wajib MERAH) — python3 alat/uji-mutasi-0012.py
 KONTROL POSITIF (tanpa mutasi harus hijau)
   OK  cabang_sesi.sql: kode 0
   OK  diskon_cap.sql: kode 0
@@ -715,7 +706,7 @@ KONTROL PENUTUP (setelah dipulihkan harus hijau)
 RINGKASAN: 16/16 mutasi WAJIB terbukti MERAH (+ 4 mutasi tunggal pada penjaga bertumpuk: hijau = sesuai dugaan; lapisan itu dibuktikan lewat mutasi gabungan M3k/M5k/M8k)
 
 
-===== LOLOS rc=0 (93 s) — Bukti mutasi pagar migrasi 0014 — putaran13 & audit 2026-09-18 (17 mutasi wajib MERAH) — python3 alat/uji-mutasi-0014.py
+===== LOLOS rc=0 (102 s) — Bukti mutasi pagar migrasi 0014 — putaran13 & audit 2026-09-18 (17 mutasi wajib MERAH) — python3 alat/uji-mutasi-0014.py
 KONTROL POSITIF (tanpa mutasi harus hijau)
   OK  diskon_cap_bawaan.sql: kode 0
   OK  diskon_setuju.sql: kode 0
@@ -769,7 +760,7 @@ PEMULIHAN (semua mutasi dipulihkan → seluruh berkas uji harus hijau lagi)
 RINGKASAN: 17/17 mutasi WAJIB terbukti MERAH
 
 
-===== LOLOS rc=0 (117 s) — Bukti mutasi pagar migrasi 0015 — putaran16 K-1 + K-2 (semua mutasi WAJIB MERAH) — python3 alat/uji-mutasi-0015.py
+===== LOLOS rc=0 (129 s) — Bukti mutasi pagar migrasi 0015 — putaran16 K-1 + K-2 (semua mutasi WAJIB MERAH) — python3 alat/uji-mutasi-0015.py
   OK  kontrol: salinan utuh → SEMUA uji bagian 1–10 hijau
 
 UJI MUTASI — penutup celah putaran16 (0015: K-1, K-2a…K-2d, F-01/F-02, F-03/F-05/F-06, F-04, F-10, F-11, F-13)
@@ -804,7 +795,7 @@ UJI MUTASI — penutup celah putaran16 (0015: K-1, K-2a…K-2d, F-01/F-02, F-03/
 HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar K-1/K-2 dan aturan uang terbukti bekerja.
 
 
-===== LOLOS rc=0 (73 s) — Bukti mutasi pagar migrasi 0016 — penutup celah PIN putaran18 F-13…F-16 (semua mutasi WAJIB MERAH) — python3 alat/uji-mutasi-0016.py
+===== LOLOS rc=0 (78 s) — Bukti mutasi pagar migrasi 0016 — penutup celah PIN putaran18 F-13…F-16 (semua mutasi WAJIB MERAH) — python3 alat/uji-mutasi-0016.py
   OK  kontrol: salinan utuh → SEMUA uji F-13…F-16 hijau
 
 UJI MUTASI — penutup celah PIN putaran18 (0016: I F-13…F-16)
@@ -824,7 +815,7 @@ UJI MUTASI — penutup celah PIN putaran18 (0016: I F-13…F-16)
 HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar PIN putaran18 terbukti bekerja.
 
 
-===== LOLOS rc=0 (43 s) — Bukti mutasi pagar migrasi 0017 — pesanan tertutup beku H F-07 (semua mutasi WAJIB MERAH) — python3 alat/uji-mutasi-0017.py
+===== LOLOS rc=0 (48 s) — Bukti mutasi pagar migrasi 0017 — pesanan tertutup beku H F-07 (semua mutasi WAJIB MERAH) — python3 alat/uji-mutasi-0017.py
   OK  kontrol: salinan utuh → uji utama + alur uang/pembatalan hijau
   OK  kontrol penutup: salinan dipulihkan → semua uji hijau
   [OK] penjaga beku dihapus (H F-07 kembali terbuka)
@@ -837,7 +828,7 @@ HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar PIN putaran18
 HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar pesanan-tertutup-beku terbukti bekerja.
 
 
-===== LOLOS rc=0 (37 s) — Bukti mutasi pagar migrasi 0018 — perangkat terdaftar T1-24 (semua mutasi WAJIB MERAH) — python3 alat/uji-mutasi-0018.py
+===== LOLOS rc=0 (49 s) — Bukti mutasi pagar migrasi 0018 — perangkat terdaftar T1-24 (semua mutasi WAJIB MERAH) — python3 alat/uji-mutasi-0018.py
   OK  kontrol: salinan utuh → uji utama + alur uang/pembatalan hijau
   OK  kontrol penutup: salinan dipulihkan → semua uji hijau
   [OK] verifikasi perangkat dihapus (K F-03 kembali terbuka)
@@ -850,7 +841,7 @@ HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar pesanan-tertu
 HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar perangkat-terdaftar terbukti bekerja.
 
 
-===== LOLOS rc=0 (13 s) — Bukti mutasi pagar diskon 0019 — T5-04 satu diskon + tumpuk berbatas (5 mutasi wajib MERAH) — python3 alat/uji-mutasi-0019.py
+===== LOLOS rc=0 (16 s) — Bukti mutasi pagar diskon 0019 — T5-04 satu diskon + tumpuk berbatas (5 mutasi wajib MERAH) — python3 alat/uji-mutasi-0019.py
 UJI MUTASI 0019 (pagar diskon T5-04 — satu diskon, tumpuk berbatas, cap kumulatif)
   OK  kontrol: salinan utuh → supabase/tes/diskon_tumpuk.sql hijau
   [OK] Mutasi 1: aturan satu diskon per transaksi dilepas TERBUKTI MERAH
@@ -862,7 +853,7 @@ UJI MUTASI 0019 (pagar diskon T5-04 — satu diskon, tumpuk berbatas, cap kumula
 HASIL: LOLOS — semua 5 mutasi WAJIB MERAH benar-benar merah; pagar diskon T5-04 terbukti bekerja.
 
 
-===== LOLOS rc=0 (16 s) — Bukti mutasi pagar diskon 0041 — T5-05 PIN atasan menaikkan batas (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0041.py
+===== LOLOS rc=0 (20 s) — Bukti mutasi pagar diskon 0041 — T5-05 PIN atasan menaikkan batas (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0041.py
 UJI MUTASI 0041 (T5-05 — PIN atasan menaikkan batas diskon, sampai batas atasan)
   OK  kontrol: salinan utuh → supabase/tes/diskon_pin_atasan.sql + supabase/tes/diskon_setuju.sql hijau
   [OK] Mutasi 1: bukti PIN tidak diperiksa — klaim disetujui_oleh saja menaikkan batas TERBUKTI MERAH
@@ -875,7 +866,7 @@ UJI MUTASI 0041 (T5-05 — PIN atasan menaikkan batas diskon, sampai batas atasa
 HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar persetujuan PIN atasan (T5-05) terbukti bekerja.
 
 
-===== LOLOS rc=0 (12 s) — Bukti mutasi pagar bahan terbuang 0042 — T5-07 penanda ditentukan peladen (4 mutasi wajib MERAH) — python3 alat/uji-mutasi-0042.py
+===== LOLOS rc=0 (16 s) — Bukti mutasi pagar bahan terbuang 0042 — T5-07 penanda ditentukan peladen (4 mutasi wajib MERAH) — python3 alat/uji-mutasi-0042.py
 UJI MUTASI 0042 (T5-07 — bahan terbuang ditentukan peladen, bukan klien)
   OK  kontrol: salinan utuh → supabase/tes/bahan_terbuang.sql + supabase/tes/persetujuan_void.sql + supabase/tes/nilai_kerugian.sql hijau
   [OK] Mutasi 1: penanda kiriman klien diterima apa adanya (keadaan sebelum 0042) TERBUKTI MERAH
@@ -886,7 +877,7 @@ UJI MUTASI 0042 (T5-07 — bahan terbuang ditentukan peladen, bukan klien)
 HASIL: LOLOS — semua 4 mutasi WAJIB MERAH benar-benar merah; pagar penanda bahan terbuang (T5-07) terbukti bekerja.
 
 
-===== LOLOS rc=0 (11 s) — Bukti mutasi pagar baca laporan pembatalan 0043 — T5-12 hanya pemegang lihat_laporan (4 mutasi wajib MERAH) — python3 alat/uji-mutasi-0043.py
+===== LOLOS rc=0 (14 s) — Bukti mutasi pagar baca laporan pembatalan 0043 — T5-12 hanya pemegang lihat_laporan (4 mutasi wajib MERAH) — python3 alat/uji-mutasi-0043.py
 UJI MUTASI 0043 (T5-12 — daftar pembatalan hanya untuk pemegang lihat_laporan)
   OK  kontrol: salinan utuh → supabase/tes/laporan_pembatalan.sql hijau
   [OK] Mutasi 1: syarat izin dicabut dari policy (keadaan sebelum 0043 — celahnya) TERBUKTI MERAH
@@ -897,7 +888,7 @@ UJI MUTASI 0043 (T5-12 — daftar pembatalan hanya untuk pemegang lihat_laporan)
 HASIL: LOLOS — semua 4 mutasi WAJIB MERAH benar-benar merah; pagar baca laporan pembatalan (T5-12) terbukti bekerja.
 
 
-===== LOLOS rc=0 (16 s) — Bukti mutasi pagar buka shift 0045 — T7-01 modal awal & shift unik (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0045.py
+===== LOLOS rc=0 (20 s) — Bukti mutasi pagar buka shift 0045 — T7-01 modal awal & shift unik (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0045.py
 UJI MUTASI 0045 (T7-01 — integritas buka shift kasir)
   OK  kontrol: salinan utuh → supabase/tes/buka_shift.sql hijau
   [OK] Mutasi 1: validasi modal_awal null dicabut TERBUKTI MERAH
@@ -910,7 +901,7 @@ UJI MUTASI 0045 (T7-01 — integritas buka shift kasir)
 HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar integritas buka shift (T7-01) terbukti bekerja.
 
 
-===== LOLOS rc=0 (16 s) — Bukti mutasi pagar tutup shift 0046 — T7-02 rekonsiliasi kas & alasan selisih (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0046.py
+===== LOLOS rc=0 (18 s) — Bukti mutasi pagar tutup shift 0046 — T7-02 rekonsiliasi kas & alasan selisih (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0046.py
 UJI MUTASI 0046 (T7-02 — rekonsiliasi tutup shift kasir)
   OK  kontrol: salinan utuh → supabase/tes/tutup_shift.sql hijau
   [OK] Mutasi 1: validasi alasan selisih dicabut TERBUKTI MERAH
@@ -923,7 +914,7 @@ UJI MUTASI 0046 (T7-02 — rekonsiliasi tutup shift kasir)
 HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar rekonsiliasi tutup shift (T7-02) terbukti bekerja.
 
 
-===== LOLOS rc=0 (16 s) — Bukti mutasi pagar kas pergerakan 0047 — T7-03 masuk/keluar kas & setoran (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0047.py
+===== LOLOS rc=0 (17 s) — Bukti mutasi pagar kas pergerakan 0047 — T7-03 masuk/keluar kas & setoran (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0047.py
 UJI MUTASI 0047 (T7-03 — kas pergerakan masuk/keluar & setoran)
   OK  kontrol: salinan utuh → supabase/tes/kas_pergerakan.sql hijau
   [OK] Mutasi 1: validasi jumlah <= 0 dicabut TERBUKTI MERAH
@@ -936,7 +927,7 @@ UJI MUTASI 0047 (T7-03 — kas pergerakan masuk/keluar & setoran)
 HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar pergerakan kas (T7-03) terbukti bekerja.
 
 
-===== LOLOS rc=0 (15 s) — Bukti mutasi pagar wajib shift 0048 — T7-04 transaksi hanya dalam shift terbuka (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0048.py
+===== LOLOS rc=0 (17 s) — Bukti mutasi pagar wajib shift 0048 — T7-04 transaksi hanya dalam shift terbuka (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0048.py
 UJI MUTASI 0048 (T7-04 — transaksi hanya dalam shift terbuka)
   OK  kontrol: salinan utuh → supabase/tes/wajib_shift.sql hijau
   [OK] Mutasi 1: pagar pesanan tanpa shift kasir dicabut TERBUKTI MERAH
@@ -949,7 +940,7 @@ UJI MUTASI 0048 (T7-04 — transaksi hanya dalam shift terbuka)
 HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar transaksi wajib shift (T7-04) terbukti bekerja.
 
 
-===== LOLOS rc=0 (16 s) — Bukti mutasi pagar pengingat shift 0049 — T7-05 pengingat belum ditutup (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0049.py
+===== LOLOS rc=0 (19 s) — Bukti mutasi pagar pengingat shift 0049 — T7-05 pengingat belum ditutup (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0049.py
 UJI MUTASI 0049 (T7-05 — pengingat shift belum ditutup & penanda tengah malam)
   OK  kontrol: salinan utuh → supabase/tes/pengingat_shift.sql hijau
   [OK] Mutasi 1: penanda shift melewati tengah malam dimatikan (selalu false) TERBUKTI MERAH
@@ -962,7 +953,7 @@ UJI MUTASI 0049 (T7-05 — pengingat shift belum ditutup & penanda tengah malam)
 HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar pengingat shift belum ditutup (T7-05) terbukti bekerja.
 
 
-===== LOLOS rc=0 (17 s) — Bukti mutasi pagar koreksi modal 0050 — T7-06 koreksi modal awal izin atasan (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0050.py
+===== LOLOS rc=0 (20 s) — Bukti mutasi pagar koreksi modal 0050 — T7-06 koreksi modal awal izin atasan (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0050.py
 === UJI MUTASI 0050: 6 skenario ===
 ✓ Baseline HIJAU (semua uji lulus)
 ✓ Mutasi 1 'pagar alasan wajib ditiadakan' terbukti MERAH (pagar tajam)
@@ -975,7 +966,7 @@ HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar pengingat s
 ✅ SEMUA MUTASI TERBUKTI MERAH. Pagar 0050 terverifikasi tajam.
 
 
-===== LOLOS rc=0 (17 s) — Bukti mutasi pagar laporan kas 0051 — T7-07 laporan kas harian & per shift (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0051.py
+===== LOLOS rc=0 (24 s) — Bukti mutasi pagar laporan kas 0051 — T7-07 laporan kas harian & per shift (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0051.py
 [0051 Uji-Diri] Memeriksa kondisi awal (tanpa mutasi)...
 [0051 Uji-Diri] OK: kondisi awal hijau (tes lolos).
 
@@ -990,7 +981,7 @@ HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar pengingat s
 [0051] Seluruh 6 mutasi berhasil dibuktikan MERAH!
 
 
-===== LOLOS rc=0 (16 s) — Bukti mutasi pagar laporan penjualan 0052 — T7-08 laporan penjualan dasar (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0052.py
+===== LOLOS rc=0 (20 s) — Bukti mutasi pagar laporan penjualan 0052 — T7-08 laporan penjualan dasar (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0052.py
 [0052 Uji-Diri] Memeriksa kondisi awal (tanpa mutasi)...
 [0052 Uji-Diri] OK: kondisi awal hijau (tes lolos).
 
@@ -1005,7 +996,7 @@ HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar pengingat s
 [0052] Seluruh 6 mutasi berhasil dibuktikan MERAH!
 
 
-===== LOLOS rc=0 (16 s) — Bukti mutasi pagar laporan menu 0053 — T7-09 menu terlaris & diskon/voucher (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0053.py
+===== LOLOS rc=0 (21 s) — Bukti mutasi pagar laporan menu 0053 — T7-09 menu terlaris & diskon/voucher (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0053.py
 [0053 Uji-Diri] Memeriksa kondisi awal (tanpa mutasi)...
 [0053 Uji-Diri] OK: kondisi awal hijau (tes lolos).
 
@@ -1020,7 +1011,7 @@ HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar pengingat s
 [0053] Seluruh 6 mutasi berhasil dibuktikan MERAH!
 
 
-===== LOLOS rc=0 (16 s) — Bukti mutasi pagar transaksi tengah malam 0054 — T7-11 transaksi lewat tengah malam (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0054.py
+===== LOLOS rc=0 (20 s) — Bukti mutasi pagar transaksi tengah malam 0054 — T7-11 transaksi lewat tengah malam (6 mutasi wajib MERAH) — python3 alat/uji-mutasi-0054.py
 [0054 Uji-Diri] Memeriksa kondisi awal (tanpa mutasi)...
 [0054 Uji-Diri] OK: kondisi awal hijau (tes lolos).
 
@@ -1035,7 +1026,7 @@ HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar pengingat s
 [0054] Seluruh 6 mutasi berhasil dibuktikan MERAH!
 
 
-===== LOLOS rc=0 (13 s) — Bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22, 4 mutasi wajib MERAH) — python3 alat/uji-mutasi-0009.py
+===== LOLOS rc=0 (17 s) — Bukti mutasi pagar migrasi 0009 + kepekaan sapuan RLS (B F-14 + Verifikasi T1-22, 4 mutasi wajib MERAH) — python3 alat/uji-mutasi-0009.py
   OK  kontrol: salinan utuh → sapuan RLS hijau (tanpa positif-palsu)
   OK  kontrol penutup: salinan dipulihkan → sapuan hijau lagi
   [OK] saringan cabang dibuang dari pesanan_sepenyewa (blok 6 rantai jangkar)
@@ -1050,7 +1041,7 @@ HASIL: LOLOS — semua 6 mutasi WAJIB MERAH benar-benar merah; pagar pengingat s
 HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; sapuan isolasi resto terbukti peka.
 
 
-===== LOLOS rc=0 (9 s) — Bukti mutasi kunci serialisasi uang 0021 (F F-12, 2 mutasi wajib MERAH) — python3 alat/uji-mutasi-0021.py
+===== LOLOS rc=0 (12 s) — Bukti mutasi kunci serialisasi uang 0021 (F F-12, 2 mutasi wajib MERAH) — python3 alat/uji-mutasi-0021.py
   OK  kontrol: salinan utuh → uji kunci serialisasi hijau (tanpa positif-palsu)
   OK  kontrol penutup: salinan dipulihkan → uji hijau lagi
   [OK] kunci hitung_total dilepas (sifat-1)
@@ -1061,7 +1052,7 @@ HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; sapuan isolasi rest
 HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; kunci serialisasi jalur uang terbukti dijaga.
 
 
-===== LOLOS rc=0 (30 s) — Bukti mutasi pembekuan setelah bayar 0022 (T-025a) — python3 alat/uji-mutasi-0022.py
+===== LOLOS rc=0 (36 s) — Bukti mutasi pembekuan setelah bayar 0022 (T-025a) — python3 alat/uji-mutasi-0022.py
 OK kontrol utuh: HIJAU 
 OK penjaga item dimatikan: MERAH-PAGAR supabase/tes/beku_setelah_bayar.sql — HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (T025-catatan: isi nonnominal juga beku untuk peladen). Perintah: update public.pesanan_item set catatan='ubah' 
 OK penjaga diskon dimatikan: MERAH-PAGAR supabase/tes/beku_setelah_bayar.sql — HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (T025-parent-lama: baris diskon tidak boleh dipindahkan keluar). Perintah: update public.diskon_transaksi set pe
@@ -1078,7 +1069,7 @@ OK penutup pulih: HIJAU
 HASIL: LOLOS — 10 mutasi terisolasi, kontrol+penutup, salinan rusak ditolak; 0 tidak sesuai.
 
 
-===== LOLOS rc=0 (14 s) — Bukti mutasi pembekuan satu-pernyataan 0024 (G3 A-F03) — python3 alat/uji-mutasi-0024.py
+===== LOLOS rc=0 (17 s) — Bukti mutasi pembekuan satu-pernyataan 0024 (G3 A-F03) — python3 alat/uji-mutasi-0024.py
 OK kontrol utuh: HIJAU 
 OK pagar header dilepas: MERAH-PAGAR supabase/tes/beku_satu_pernyataan.sql — HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (satu-pernyataan header: pembayaran + catatan). Perintah:
 OK pagar item dilepas: MERAH-PAGAR supabase/tes/beku_satu_pernyataan.sql — HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (satu-pernyataan item: pembayaran + catatan). Perintah:
@@ -1088,7 +1079,7 @@ OK kontrol pulih: HIJAU
 HASIL: LOLOS — 3 mutasi, kontrol+pulih, salinan rusak ditolak; 0 tidak sesuai.
 
 
-===== LOLOS rc=0 (9 s) — Bukti mutasi isolasi identitas kosong 0025 (G3 A-F02) — python3 alat/uji-mutasi-0025.py
+===== LOLOS rc=0 (11 s) — Bukti mutasi isolasi identitas kosong 0025 (G3 A-F02) — python3 alat/uji-mutasi-0025.py
 OK kontrol utuh: HIJAU 
 OK helper identitas dibuka: MERAH-PAGAR supabase/tes/isolasi_null_identitas.sql — HARAPAN TIDAK TERPENUHI: A02-kontrol-asing (dapat 1, harap 0)
 OK SQL rusak bukan bukti: RUSAK runner berhenti sebelum menulis ringkasan (kegagalan lingkungan/sintaks?)
@@ -1096,7 +1087,7 @@ OK kontrol pulih: HIJAU
 HASIL: LOLOS — helper bypass, kontrol+pulih, salinan rusak ditolak; 0 tidak sesuai.
 
 
-===== LOLOS rc=0 (24 s) — Bukti mutasi pemulihan perangkat 0028 (T1-36) — python3 alat/uji-mutasi-0028.py
+===== LOLOS rc=0 (28 s) — Bukti mutasi pemulihan perangkat 0028 (T1-36) — python3 alat/uji-mutasi-0028.py
   OK  kontrol: salinan utuh → uji pemulihan + perangkat hijau
   OK  kontrol penutup: salinan dipulihkan → semua uji hijau
   [OK] peran owner pada buat_kode_pemulihan dihapus (non-owner diizinkan)
@@ -1111,7 +1102,7 @@ HASIL: LOLOS — helper bypass, kontrol+pulih, salinan rusak ditolak; 0 tidak se
 HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar pemulihan perangkat terbukti bekerja.
 
 
-===== LOLOS rc=0 (22 s) — Bukti mutasi audit kekal & rantai hash 0029 (T1-13/T1-27) — python3 alat/uji-mutasi-0029.py
+===== LOLOS rc=0 (27 s) — Bukti mutasi audit kekal & rantai hash 0029 (T1-13/T1-27) — python3 alat/uji-mutasi-0029.py
   OK  kontrol: salinan utuh → uji audit rantai + catatan audit hijau
   OK  kontrol penutup: salinan dipulihkan → semua uji hijau
   [OK] trigger penolakan UPDATE/DELETE dilepas (T1-13)
@@ -1124,7 +1115,7 @@ HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar pemulihan per
 HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar audit kekal & rantai hash terbukti bekerja.
 
 
-===== LOLOS rc=0 (11 s) — Bukti mutasi sesi & pendaftaran perangkat 0030 (T1-24/T1-25/T1-26) — python3 alat/uji-mutasi-0030.py
+===== LOLOS rc=0 (14 s) — Bukti mutasi sesi & pendaftaran perangkat 0030 (T1-24/T1-25/T1-26) — python3 alat/uji-mutasi-0030.py
 UJI MUTASI 0030 (Sesi, Kode Pendaftaran, Persetujuan, & Kunci Masuk)
   OK  kontrol: salinan utuh → uji sesi_dan_perangkat.sql hijau
   [OK] Mutasi 1: Pelepasan izin kelola_pegawai TERBUKTI MERAH
@@ -1135,7 +1126,7 @@ UJI MUTASI 0030 (Sesi, Kode Pendaftaran, Persetujuan, & Kunci Masuk)
 HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
 
 
-===== LOLOS rc=0 (11 s) — Bukti mutasi mode dukungan platform 0031 (T1-28) — python3 alat/uji-mutasi-0031.py
+===== LOLOS rc=0 (13 s) — Bukti mutasi mode dukungan platform 0031 (T1-28) — python3 alat/uji-mutasi-0031.py
 UJI MUTASI 0031 (Mode Dukungan Pemilik Platform)
   OK  kontrol: salinan utuh → uji mode_dukungan.sql hijau
   [OK] Mutasi 1: Pelepasan peran pemilik_platform TERBUKTI MERAH
@@ -1146,7 +1137,7 @@ UJI MUTASI 0031 (Mode Dukungan Pemilik Platform)
 HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
 
 
-===== LOLOS rc=0 (19 s) — Bukti mutasi status item dapur 0032 (T4-04 — riwayat anti-dobel) — python3 alat/uji-mutasi-0032.py
+===== LOLOS rc=0 (21 s) — Bukti mutasi status item dapur 0032 (T4-04 — riwayat anti-dobel) — python3 alat/uji-mutasi-0032.py
 UJI MUTASI 0032 (Jejak Status Item Dapur — anti-dobel & riwayat kekal)
   OK  kontrol: salinan utuh → uji status_item.sql hijau
   [OK] Mutasi 1: Pencatatan riwayat dihapus TERBUKTI MERAH
@@ -1169,7 +1160,7 @@ UJI MUTASI 0033 (Tujuan Item Dapur/Bar — salinan kekal)
 HASIL: LOLOS — seluruh 2 mutasi wajib MERAH terbukti membuat uji merah.
 
 
-===== LOLOS rc=0 (9 s) — Bukti mutasi menu habis sumber 0035 (T4-05) — python3 alat/uji-mutasi-0035.py
+===== LOLOS rc=0 (10 s) — Bukti mutasi menu habis sumber 0035 (T4-05) — python3 alat/uji-mutasi-0035.py
 UJI MUTASI 0035 (Menu Habis — sumber kebenaran + jejak hanya-tambah)
   OK  kontrol: salinan utuh → uji menu_habis_sumber.sql hijau
   [OK] Mutasi 1: Jejak pelaku pada riwayat dihapus TERBUKTI MERAH
@@ -1179,7 +1170,7 @@ UJI MUTASI 0035 (Menu Habis — sumber kebenaran + jejak hanya-tambah)
 HASIL: LOLOS — seluruh 3 mutasi wajib MERAH terbukti membuat uji merah.
 
 
-===== LOLOS rc=0 (9 s) — Bukti mutasi set_stok 0036 (T4-06) — python3 alat/uji-mutasi-0036.py
+===== LOLOS rc=0 (10 s) — Bukti mutasi set_stok 0036 (T4-06) — python3 alat/uji-mutasi-0036.py
 UJI MUTASI 0036 (set_stok — delta jujur berizin)
   OK  kontrol: salinan utuh → uji set_stok.sql hijau
   [OK] Mutasi 1: Penjagaan alasan whitespace dilepas TERBUKTI MERAH
@@ -1199,7 +1190,7 @@ UJI MUTASI 0037 (opname_stok — selisih terbuka, jejak kekal)
 HASIL: LOLOS — seluruh 3 mutasi wajib MERAH terbukti membuat uji merah.
 
 
-===== LOLOS rc=0 (9 s) — Bukti mutasi waktu peladen 0038 (KDS — jam peladen, bukan jam perangkat) — python3 alat/uji-mutasi-0038.py
+===== LOLOS rc=0 (11 s) — Bukti mutasi waktu peladen 0038 (KDS — jam peladen, bukan jam perangkat) — python3 alat/uji-mutasi-0038.py
 UJI MUTASI 0038 (waktu_peladen — jam peladen untuk papan dapur)
   OK  kontrol: salinan utuh → uji waktu_peladen.sql hijau
   [OK] Mutasi 1: Fungsi dijadikan security definer TERBUKTI MERAH
@@ -1209,7 +1200,7 @@ UJI MUTASI 0038 (waktu_peladen — jam peladen untuk papan dapur)
 HASIL: LOLOS — seluruh 3 mutasi wajib MERAH terbukti membuat uji merah.
 
 
-===== LOLOS rc=0 (16 s) — Bukti mutasi bayar_pesanan 0039 (T5-02 — pintu tunggal uang masuk) — python3 alat/uji-mutasi-0039.py
+===== LOLOS rc=0 (19 s) — Bukti mutasi bayar_pesanan 0039 (T5-02 — pintu tunggal uang masuk) — python3 alat/uji-mutasi-0039.py
 UJI MUTASI 0039 (bayar_pesanan — pintu tunggal uang masuk)
   OK  kontrol: salinan utuh → uji bayar_pesanan.sql hijau
   [OK] Mutasi 1: Pintu identitas dilepas TERBUKTI MERAH
@@ -1222,7 +1213,7 @@ UJI MUTASI 0039 (bayar_pesanan — pintu tunggal uang masuk)
 HASIL: LOLOS — seluruh 6 mutasi wajib MERAH terbukti membuat uji merah.
 
 
-===== LOLOS rc=0 (11 s) — Bukti mutasi urutan rantai audit 0040 (anti seri satu transaksi) — python3 alat/uji-mutasi-0040.py
+===== LOLOS rc=0 (12 s) — Bukti mutasi urutan rantai audit 0040 (anti seri satu transaksi) — python3 alat/uji-mutasi-0040.py
 UJI MUTASI 0040 (urutan rantai audit — anti seri dalam satu transaksi)
   OK  kontrol: salinan utuh → uji urutan_rantai_audit.sql hijau
   [OK] Mutasi 1: Pemeriksa rantai dikembalikan ke urutan jam TERBUKTI MERAH
@@ -1233,20 +1224,20 @@ UJI MUTASI 0040 (urutan rantai audit — anti seri dalam satu transaksi)
 HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
 
 
-===== LOLOS rc=0 (3 s) — Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka) — python3 -m pip install --quiet --break-system-packages pgserver "psycopg[binary]"
+===== LOLOS rc=0 (1 s) — Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka) — python3 -m pip install --quiet --break-system-packages pgserver "psycopg[binary]"
 
 
-===== LOLOS rc=0 (21 s) — Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka) — python3 alat/uji-konkuren.py
+===== LOLOS rc=0 (23 s) — Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka) — python3 alat/uji-konkuren.py
 == F F-13 · skema utuh (harap LULUS) ==
   [OK] nomor berbeda & berurutan (v1=1 v2=2); T2 tertahan 1.70 dtk lalu lanjut — serialisasi terbukti
 == F F-13 · kunci dilepas (harap GAGAL = bug tereproduksi) ==
   [OK] kalibrasi: bukti mutasi spesifik — MUTASI-PELANGGARAN-F13: unique nomor bertabrakan tanpa kunci — T2: UniqueViolation('duplicate key value violates unique constraint "pesanan_cabang_id_tanggal_nomor_key"\nDETAIL:  Key (cabang_id, tanggal, nomor)=(f1300000-0000-0000-0000-000000000001, 2026-10-06, 1) already exists.')
 == T4-09 · skema utuh (harap LULUS) ==
-  [OK] dua koneksi paralel menandai item sama → tepat 1 riwayat (status dimasak); respon perangkat: {'P2': {'diubah': True, 'status': 'dimasak', 'berhasil': True}, 'P1': {'alasan': 'status sudah dimasak', 'diubah': False, 'berhasil': True}}
+  [OK] dua koneksi paralel menandai item sama → tepat 1 riwayat (status dimasak); respon perangkat: {'P1': {'diubah': True, 'status': 'dimasak', 'berhasil': True}, 'P2': {'alasan': 'status sudah dimasak', 'diubah': False, 'berhasil': True}}
 == T4-09 · penjaga anti-dobel dilepas (harap GAGAL = bug tereproduksi) ==
   [OK] kalibrasi: bukti mutasi spesifik — MUTASI-PELANGGARAN-T409: rekaman kembar ditolak kunci unik — P2: UniqueViolation('duplicate key value violates unique constraint "pesanan_item_status_riwayat_kunci_idx"\nDETAIL:  Key (kunci_idempoten)=(kunci-t409-bersama) already exists.\nCONTEXT:  SQL statement "insert into public.pesanan_item_status_riwayat\n    (pesanan_item_id, pesanan_id, dari, ke, oleh_pengguna_id, kunci_idempoten)\n  values\n    (new.id, new.pesanan_id, old.status, new.status, auth.uid(), v_kunci)"\nPL/pgSQL function picu_item_status_catat() line 8 at SQL statement\nSQL statement "update public.pesanan_item set status = p_status where id = p_item_id"\nPL/pgSQL function set_status_item(uuid,text,text) line 19 at SQL statement')
 == F F-12 · skema utuh (harap LULUS) ==
-  [OK] T1 masuk 30rb, T2 ditolak cap sesudah tertahan 1.70 dtk; 1 baris tersimpan — serialisasi cap terbukti
+  [OK] T1 masuk 30rb, T2 ditolak cap sesudah tertahan 1.71 dtk; 1 baris tersimpan — serialisasi cap terbukti
 == F F-12 · kunci dilepas (harap GAGAL = bug tereproduksi) ==
   [OK] kalibrasi: bukti mutasi spesifik — MUTASI-PELANGGARAN-F12: T2 tidak ditolak cap (galat: (diterima!)); baris=(2, 60000) — CAP JEBOL
 
@@ -1270,22 +1261,22 @@ HASIL UJI-DIRI: LOLOS — 9 kasus klasifikasi, 0 tidak sesuai.
   return Path(self.user_runtime_dir)
 
 
-===== LOLOS rc=0 (15 s) — Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka) — python3 alat/uji-konkuren-0022.py
-OK utuh bayar→catatan: {'pid': 31073, 'error': 'BY-201: Pembayaran sudah tercatat. Isi, diskon, dan pembatalan pesanan terkunci; jangan ubah pesanan ini.\nCONTEXT:  PL/pgSQL function picu_rincian_beku_setelah_bayar() line 30 at RAISE', 'sqlstate': 'P0001', 'row': (62100, 'draf', 2, None, 'baru', 0, 1), 'terkunci': True}
-OK utuh bayar→qty: {'pid': 31331, 'error': 'BY-201: Pembayaran sudah tercatat. Isi, diskon, dan pembatalan pesanan terkunci; jangan ubah pesanan ini.\nCONTEXT:  PL/pgSQL function picu_rincian_beku_setelah_bayar() line 30 at RAISE', 'sqlstate': 'P0001', 'row': (62100, 'draf', 2, None, 'baru', 0, 1), 'terkunci': True}
-OK utuh bayar→void: {'pid': 31590, 'error': 'BY-201: Pembayaran sudah tercatat. Isi, diskon, dan pembatalan pesanan terkunci; jangan ubah pesanan ini.\nCONTEXT:  PL/pgSQL function picu_rincian_beku_setelah_bayar() line 30 at RAISE', 'sqlstate': 'P0001', 'row': (62100, 'draf', 2, None, 'baru', 0, 1), 'terkunci': True}
-OK utuh qty→bayar: {'pid': 31848, 'error': 'Total pembayaran (62100) melebihi total pesanan (31050).\nCONTEXT:  PL/pgSQL function picu_pembayaran_jujur() line 80 at RAISE', 'sqlstate': 'P0001', 'row': (31050, 'draf', 1, None, 'baru', 0, 0), 'terkunci': True}
-OK utuh void→bayar: {'pid': 32106, 'error': 'Pesanan ini sudah dibatalkan — uang tidak boleh dicatat lagi.\nCONTEXT:  PL/pgSQL function picu_pembayaran_jujur() line 21 at RAISE', 'sqlstate': 'P0001', 'row': (0, 'batal', 2, None, 'batal', 1, 0), 'terkunci': True}
-OK mutasi kunci BEFORE hilang: {'pid': 32366, 'commit': True, 'row': (62100, 'draf', 2, 'baru', 'baru', 0, 1), 'terkunci': True}
-OK mutasi pagar void hilang: {'pid': 32626, 'commit': True, 'row': (0, 'batal', 2, None, 'batal', 1, 1), 'terkunci': True}
+===== LOLOS rc=0 (17 s) — Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka) — python3 alat/uji-konkuren-0022.py
+OK utuh bayar→catatan: {'pid': 96215, 'error': 'BY-201: Pembayaran sudah tercatat. Isi, diskon, dan pembatalan pesanan terkunci; jangan ubah pesanan ini.\nCONTEXT:  PL/pgSQL function picu_rincian_beku_setelah_bayar() line 30 at RAISE', 'sqlstate': 'P0001', 'row': (62100, 'draf', 2, None, 'baru', 0, 1), 'terkunci': True}
+OK utuh bayar→qty: {'pid': 96451, 'error': 'BY-201: Pembayaran sudah tercatat. Isi, diskon, dan pembatalan pesanan terkunci; jangan ubah pesanan ini.\nCONTEXT:  PL/pgSQL function picu_rincian_beku_setelah_bayar() line 30 at RAISE', 'sqlstate': 'P0001', 'row': (62100, 'draf', 2, None, 'baru', 0, 1), 'terkunci': True}
+OK utuh bayar→void: {'pid': 96687, 'error': 'BY-201: Pembayaran sudah tercatat. Isi, diskon, dan pembatalan pesanan terkunci; jangan ubah pesanan ini.\nCONTEXT:  PL/pgSQL function picu_rincian_beku_setelah_bayar() line 30 at RAISE', 'sqlstate': 'P0001', 'row': (62100, 'draf', 2, None, 'baru', 0, 1), 'terkunci': True}
+OK utuh qty→bayar: {'pid': 96923, 'error': 'Total pembayaran (62100) melebihi total pesanan (31050).\nCONTEXT:  PL/pgSQL function picu_pembayaran_jujur() line 80 at RAISE', 'sqlstate': 'P0001', 'row': (31050, 'draf', 1, None, 'baru', 0, 0), 'terkunci': True}
+OK utuh void→bayar: {'pid': 97159, 'error': 'Pesanan ini sudah dibatalkan — uang tidak boleh dicatat lagi.\nCONTEXT:  PL/pgSQL function picu_pembayaran_jujur() line 21 at RAISE', 'sqlstate': 'P0001', 'row': (0, 'batal', 2, None, 'batal', 1, 0), 'terkunci': True}
+OK mutasi kunci BEFORE hilang: {'pid': 97397, 'commit': True, 'row': (62100, 'draf', 2, 'baru', 'baru', 0, 1), 'terkunci': True}
+OK mutasi pagar void hilang: {'pid': 97635, 'commit': True, 'row': (0, 'batal', 2, None, 'batal', 1, 1), 'terkunci': True}
 HASIL: LOLOS — 5 kontrol dua arah + 2 mutasi pelanggaran nyata; 0 tidak sesuai.
 /usr/local/lib/python3.11/dist-packages/platformdirs/api.py:459: RuntimeDirWarning: XDG_RUNTIME_DIR is not set, falling back to /tmp/runtime-1001
   return Path(self.user_runtime_dir)
 
 
 ===== LOLOS rc=0 (12 s) — Uji concurrency nyata 2 koneksi (PostgreSQL pgserver; tiap uji terkalibrasi peka) — python3 alat/uji-konkuren-a04.py
-OK kontrol: kontrol dua transaksi commit tanpa deadlock: {'0pid': '32885', '1pid': '32887', '0first': 'done', '0second': 'done', '0': 'commit', '1first': 'done', '1second': 'done', '1': 'commit'}
-OK kalibrasi mutasi tanpa kunci: mutasi menghasilkan tepat satu 40P01: {'0pid': '33177', '1pid': '33179', '0first': 'done', '0': 'DeadlockDetected: deadlock detected\nDETAIL:  Process 33177 waits for ShareLock on transaction 2415; blocked by process 33179.\nProcess 33179 waits for ExclusiveLock on advisory lock [5,45087309,916717540,1]; blocked by process 33177.\nHINT:  See server log for query details.\nCONTEXT:  while locking tuple (0,3) in relation "pesanan_item"', '1first': 'done', '1second': 'done', '1': 'commit'}
+OK kontrol: kontrol dua transaksi commit tanpa deadlock: {'0pid': '97872', '1pid': '97874', '0first': 'done', '0second': 'done', '0': 'commit', '1first': 'done', '1second': 'done', '1': 'commit'}
+OK kalibrasi mutasi tanpa kunci: mutasi menghasilkan tepat satu 40P01: {'0pid': '98109', '1pid': '98111', '0first': 'done', '0': 'DeadlockDetected: deadlock detected\nDETAIL:  Process 98109 waits for ShareLock on transaction 2415; blocked by process 98111.\nProcess 98111 waits for ExclusiveLock on advisory lock [5,45087309,916717540,1]; blocked by process 98109.\nHINT:  See server log for query details.\nCONTEXT:  while locking tuple (0,3) in relation "pesanan_item"', '1first': 'done', '1second': 'done', '1': 'commit'}
 HASIL: LOLOS — kontrol bersih dan mutasi deadlock terkalibrasi.
 /usr/local/lib/python3.11/dist-packages/platformdirs/api.py:459: RuntimeDirWarning: XDG_RUNTIME_DIR is not set, falling back to /tmp/runtime-1001
   return Path(self.user_runtime_dir)
@@ -1412,7 +1403,7 @@ HASIL: LOLOS
 Lingkup: search_path + ACL efektif + trigger-only + sapuan RLS + optimasi InitPlan helper policy.
 
 
-===== LOLOS rc=0 (37 s) — Keamanan SQL efektif (search_path, ACL, RLS) dan bukti mutasi T1-30 — python3 alat/periksa-keamanan-sql.py --uji-diri
+===== LOLOS rc=0 (39 s) — Keamanan SQL efektif (search_path, ACL, RLS) dan bukti mutasi T1-30 — python3 alat/periksa-keamanan-sql.py --uji-diri
 OK campuran runtime lalu asersi: RUSAK setidaknya satu kegagalan bukan asersi pengaman — keluaran campuran/runner rusak: supabase/tes/keamanan_fungsi.sql — function public.fungsi_uji(uuid) does not exist
 OK campuran asersi lalu runtime: RUSAK setidaknya satu kegagalan bukan asersi pengaman — keluaran campuran/runner rusak: supabase/tes/keamanan_fungsi.sql — function public.fungsi_uji(uuid) does not exist
 OK kontrol utuh: HIJAU 
@@ -1540,7 +1531,7 @@ Pemeriksa Edge Function PIN — supabase/functions/verifikasi_pin/index.ts
 RINGKASAN: 14 lolos, 0 gagal
 
 
-===== GAGAL rc=1 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-roadmap.py
+===== LOLOS rc=0 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-roadmap.py
 PERIKSA ROADMAP — Resto Barokah
   Tugas        : 193  (T0:15, T1:45, T10:16, T11:13, T2:19, T3:16, T4:10, T5:12, T6:8, T7:12, T8:15, T9:12)
   Atribut 7x   : lengkap
@@ -1549,12 +1540,9 @@ PERIKSA ROADMAP — Resto Barokah
   Entitas §4   : 40 tabel resmi TECH_SPEC — semuanya wajib disebut di blok tugas
   RPC §5       : 42 nama resmi TECH_SPEC — semuanya wajib disebut di blok tugas
   ❓ tertangguh : 2 rujukan (semua sah)
-  Bukti [x]    : 0 sah · 139 ⏳ BUKTI-BELUM (transisi, baseline 139) · 1 cacat · tugas 'Dibuka kembali' masih [ ]: 7
+  Bukti [x]    : 0 sah · 139 ⏳ BUKTI-BELUM (transisi, baseline 139) · 0 cacat · tugas 'Dibuka kembali' masih [ ]: 7
 
-GAGAL (3 temuan):
-  - T1-16: berkas `supabase/migrations/0023_urutan_pembulatan.sql` pada File: tidak ada di repo (tandai rencana bila memang belum ada)
-  - T1-16: berkas `supabase/tes/urutan.sql` pada File: tidak ada di repo (tandai rencana bila memang belum ada)
-  - T1-16: centang [x] tanpa bukti sah — tidak ada baris `- **Bukti:**`
+HASIL: LOLOS — semua pemeriksaan roadmap terpenuhi.
 
 
 ===== LOLOS rc=0 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-roadmap.py --uji-diri
@@ -1709,7 +1697,7 @@ HASIL UJI-DIRI: LOLOS — 2 kasus, 0 tidak sesuai.
 HASIL UJI-DIRI: 40/40 kasus LOLOS
 
 
-===== LOLOS rc=0 (5 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/uji-kirim-laporan.py
+===== LOLOS rc=0 (4 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/uji-kirim-laporan.py
 test_dokumen_kanonik_tidak_kembali_ke_pengiriman_bersama (__main__.KontrakPrompt.test_dokumen_kanonik_tidak_kembali_ke_pengiriman_bersama) ... ok
 test_generator_review_menghasilkan_blok_pengiriman (__main__.KontrakPrompt.test_generator_review_menghasilkan_blok_pengiriman) ... ok
 test_kontrak_panjang_kedua_jenis_dan_tidak_stage_folder (__main__.KontrakPrompt.test_kontrak_panjang_kedua_jenis_dan_tidak_stage_folder) ... ok
@@ -1733,26 +1721,20 @@ test_nama_sama_isi_berbeda_tidak_bertabrakan (__main__.RegresiNama.test_nama_sam
 test_retry_snapshot_bernama_hash_idempoten (__main__.RegresiNama.test_retry_snapshot_bernama_hash_idempoten) ... ok
 
 ----------------------------------------------------------------------
-Ran 21 tests in 4.988s
+Ran 21 tests in 3.834s
 
 OK
 
 
-===== GAGAL rc=1 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-panduan.py
+===== LOLOS rc=0 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-panduan.py
 PERIKSA BUKU PEDOMAN INDUK — 799 baris · 16 alur · 4 blok prompt · 30 perintah · 13 mekanisme · 89 rujukan berkas
 
-HASIL: GAGAL — 1 temuan
-  [X] PANDUAN_PENGGUNA.md:66 menulis "143 berkas uji" padahal nyatanya 145 — segarkan angkanya (atau cabut klaimnya); jangan biarkan dokumen basi
+HASIL: LOLOS — buku induk lengkap, rujukan hidup, prompt identik dengan sumbernya.
 
 
-===== GAGAL rc=1 (7 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-panduan.py --uji-diri
-PERIKSA BUKU PEDOMAN INDUK — 799 baris · 16 alur · 4 blok prompt · 30 perintah · 13 mekanisme · 89 rujukan berkas
-
-HASIL: GAGAL — 1 temuan
-  [X] PANDUAN_PENGGUNA.md:66 menulis "143 berkas uji" padahal nyatanya 145 — segarkan angkanya (atau cabut klaimnya); jangan biarkan dokumen basi
-
+===== LOLOS rc=0 (7 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-panduan.py --uji-diri
 UJI-DIRI periksa-panduan
-  X   salinan utuh → kode 1
+  OK  salinan utuh → kode 0
   OK  mutasi: satu alur dihapus dari Bagian B → ditolak
   OK  mutasi: label pemakai prompt dihapus → ditolak
   OK  mutasi: buku memanggil "Bapak" → ditolak
@@ -1775,7 +1757,7 @@ UJI-DIRI periksa-panduan
   OK  mutasi: angka berkas uji dibuat basi → ditolak
   OK  mutasi: urutan sub-bagian ditukar → ditolak
 
-HASIL: GAGAL — 1 kasus uji-diri tidak sesuai harapan (pemeriksa mungkin tumpul)
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
 
 
 ===== LOLOS rc=0 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-rujukan.py
@@ -1924,7 +1906,7 @@ PERIKSA RUJUKAN — 202 dokumen diperiksa (semua .md di luar folder riwayat/lapo
 HASIL: LOLOS — semua rujukan di dokumen pengikat hidup (yang belum ada ditandai jelas).
 
 
-===== LOLOS rc=0 (2 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-rujukan.py --uji-diri
+===== LOLOS rc=0 (3 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-rujukan.py --uji-diri
 UJI-DIRI periksa-rujukan
   OK  salinan utuh → kode 0
   OK  mutasi: rujukan mati disisipkan di Buku Insiden → ditolak
@@ -1963,7 +1945,7 @@ PERIKSA BUKU UJI PEMILIK — 6 baris lakukan · 23 baris coba · 29 baris total
 HASIL: LOLOS — setiap baris punya langkah (maksimal 5), harapan, kolom hasil, dan tugas yang benar.
 
 
-===== LOLOS rc=0 (1 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-buku-uji.py --uji-diri
+===== LOLOS rc=0 (2 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-buku-uji.py --uji-diri
 UJI-DIRI periksa-buku-uji
   OK  salinan utuh → kode 0
   OK  mutasi: baris dengan 6 langkah → ditolak
@@ -1981,7 +1963,7 @@ PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 0, 'DIHAKIMI': 17, 'DIKLAIM': 0, '
 HASIL: LOLOS
 
 
-===== LOLOS rc=0 (11 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-pemeriksaan.py --uji-diri
+===== LOLOS rc=0 (13 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-pemeriksaan.py --uji-diri
 UJI-DIRI periksa-pemeriksaan
   OK  salinan utuh diterima → kode=0
   OK  kartu PEMBANGUN B-<ID>.md yang lengkap diterima → kode=0
@@ -2179,7 +2161,7 @@ mode_dukungan          | ✓        | ✗      | ✗      | ✗      | ✗      
 HASIL: LOLOS — Seluruh matriks izin 6 peran diverifikasi valid.
 
 
-===== LOLOS rc=0 (5 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-matriks-izin.py --uji-diri
+===== LOLOS rc=0 (6 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-matriks-izin.py --uji-diri
 UJI DIRI pemeriksa matriks izin 6 peran
   [OK] Mutasi dapur ubah_harga terbukti MENOLAK.
 
@@ -2195,7 +2177,7 @@ UJI DIRI pemeriksa matriks izin 6 peran
 HASIL: LOLOS — pemeriksa laporan review PR terbukti bisa MENOLAK yang buruk dan MENERIMA yang baik.
 
 
-===== LOLOS rc=0 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 aplikasi/alat/periksa-kerapatan.py
+===== LOLOS rc=0 (1 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 aplikasi/alat/periksa-kerapatan.py
 PERIKSA KERAPATAN — token berubah: 10 (--s-1 4→3px, --s-10 72→54px, --s-2 8→6px, --s-3 12→9px)
   kelas APLIKASI bereaksi: 18 (baris-rapat, baris-tombol, card-head, foto, keadaan, kepala-halaman, kisi-2, kisi-menu)
   kelas prototipe (boleh, halaman contoh): ket, kpi, kpi-3, menu-kartu, sum-baris
@@ -2223,7 +2205,7 @@ PERIKSA ANTARMUKA — penutupan panel & tepi gulir
 HASIL: LOLOS — cara menutup panel & pudar tepi daftar terkunci di aplikasi DAN sumber desain.
 
 
-===== LOLOS rc=0 (3 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 aplikasi/alat/periksa-antarmuka.py --uji-diri
+===== LOLOS rc=0 (4 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 aplikasi/alat/periksa-antarmuka.py --uji-diri
 UJI-DIRI periksa-antarmuka
   OK  salinan utuh → kode 0
   OK  mutasi: Esc dihapus dari komponen aplikasi → ditolak
@@ -2240,7 +2222,7 @@ HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang ut
 
 
 ===== LOLOS rc=0 (4 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-rahasia.py
-PERIKSA RAHASIA — 3254 berkas terlacak diperiksa · 10 pola kunci · aturan abaikan: ada
+PERIKSA RAHASIA — 3255 berkas terlacak diperiksa · 10 pola kunci · aturan abaikan: ada
   [catatan] dilewati (bukan teks): aplikasi/src/gaya/aset/font/arsenalsc-reguler.woff2
   [catatan] dilewati (bukan teks): aplikasi/src/gaya/aset/font/bigshoulders-tebal.woff2
   [catatan] dilewati (bukan teks): aplikasi/src/gaya/aset/font/bricolage-tebal.woff2
@@ -2407,7 +2389,7 @@ PERIKSA RAHASIA — 3254 berkas terlacak diperiksa · 10 pola kunci · aturan ab
 HASIL: LOLOS — tidak ada kunci rahasia di berkas terlacak; lembar kunci pemilik diabaikan Git.
 
 
-===== LOLOS rc=0 (48 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-rahasia.py --uji-diri
+===== LOLOS rc=0 (51 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-rahasia.py --uji-diri
 UJI-DIRI periksa-rahasia
   OK  salinan utuh → kode 0
   OK  mutasi: kunci palsu disisipkan ke berkas terlacak → ditolak
@@ -2447,22 +2429,16 @@ UJI DIRI PERIKSA HEADER KEAMANAN (T10-14)
 HASIL: SEMUA UJI DIRI LOLOS (Fail-Closed terbukti).
 
 
-===== GAGAL rc=1 (7 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-bersih.py
-PERIKSA POHON BERSIH — 3254 berkas terlacak disalin · 5 pemeriksa dokumen
+===== LOLOS rc=0 (7 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-bersih.py
+PERIKSA POHON BERSIH — 3255 berkas terlacak disalin · 5 pemeriksa dokumen
   [OK] _sistem/validate_system.py
   [OK] alat/periksa-rujukan.py
-  [X] alat/periksa-panduan.py: MENOLAK (kode 1)
-        PERIKSA BUKU PEDOMAN INDUK — 799 baris · 16 alur · 4 blok prompt · 30 perintah · 13 mekanisme · 89 rujukan berkas
-        
-        HASIL: GAGAL — 1 temuan
-          [X] PANDUAN_PENGGUNA.md:66 menulis "143 berkas uji" padahal nyatanya 145 — segarkan angkanya (atau cabut klaimnya); jangan biarkan dokumen basi
+  [OK] alat/periksa-panduan.py
   [OK] alat/periksa-buku-uji.py
   [OK] alat/periksa-rahasia.py
   catatan: berkas ada di komputermu tetapi TIDAK ikut Git: 0
 
-HASIL: GAGAL — 1 pemeriksa menolak di pohon bersih: alat/periksa-panduan.py
-Perbaiki rujukan/berkas yang hanya ada di komputer sendiri (mis. berkas `*.local.md`),
-atau masukkan berkas yang seharusnya ikut Git.
+HASIL: LOLOS — semua pemeriksa dokumen hijau di pohon bersih (hanya berkas terlacak Git).
 
 
 ===== LOLOS rc=0 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-gerbang-ci.py
@@ -2508,7 +2484,7 @@ HASIL: LOLOS — supabase/config.toml selaras dengan janji >= 12 karakter + komp
 HASIL: LOLOS — uji-diri membuktikan penjaga menolak panjang <12, komposisi kosong, dan janji dokumen yang hilang.
 
 
-===== GAGAL rc=1 (10 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-paket.py
+===== LOLOS rc=0 (13 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-paket.py
   [catatan] docs/uji/paket-audit/AUD-2-2026-09-17-SIAP-TEMPEL.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
   [catatan] docs/uji/paket-audit/AUD-2-2026-09-17.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
   [catatan] docs/uji/paket-audit/AUD-2-2026-09-21-SIAP-TEMPEL.md: CI commit target terverifikasi ke GitHub (success (run 35574069120, `.github/workflows/ci.yml`))
@@ -2532,25 +2508,35 @@ HASIL: LOLOS — uji-diri membuktikan penjaga menolak panjang <12, komposisi kos
   [catatan] docs/uji/paket-audit/AUD-3-2026-09-20.md: CI commit target terverifikasi ke GitHub (success (run 35518950919, `.github/workflows/ci.yml`))
   [catatan] docs/uji/paket-audit/AUD-3-2026-09-20.md: bagian 1 bersih (168 jalur, semuanya ada di cbba4010)
   [catatan] docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
-  [catatan] docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md: commit target tidak ada di repo ini — Aturan 6(b/c) dilewati
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md: F-16 — lingkup §0 cocok dengan pohon e7818e2f (total 839, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md: bagian 1 bersih (383 jalur, semuanya ada di e7818e2f)
   [catatan] docs/uji/paket-audit/AUD-3-2026-09-24.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
-  [catatan] docs/uji/paket-audit/AUD-3-2026-09-24.md: commit target tidak ada di repo ini — Aturan 6(b/c) dilewati
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-24.md: F-16 — lingkup §0 cocok dengan pohon e7818e2f (total 839, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-3-2026-09-24.md: bagian 1 bersih (383 jalur, semuanya ada di e7818e2f)
   [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-SIAP-TEMPEL.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
-  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-SIAP-TEMPEL.md: commit target tidak ada di repo ini — Aturan 6(b/c) dilewati
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-SIAP-TEMPEL.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 864, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-SIAP-TEMPEL.md: bagian 1 bersih (409 jalur, semuanya ada di 804ed86f)
   [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
-  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md: commit target tidak ada di repo ini — Aturan 6(b/c) dilewati
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 185, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md: bagian 1 bersih (96 jalur, semuanya ada di 804ed86f)
   [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
-  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md: commit target tidak ada di repo ini — Aturan 6(b/c) dilewati
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 185, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md: bagian 1 bersih (96 jalur, semuanya ada di 804ed86f)
   [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
-  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md: commit target tidak ada di repo ini — Aturan 6(b/c) dilewati
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 240, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md: bagian 1 bersih (191 jalur, semuanya ada di 804ed86f)
   [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
-  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md: commit target tidak ada di repo ini — Aturan 6(b/c) dilewati
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 240, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md: bagian 1 bersih (191 jalur, semuanya ada di 804ed86f)
   [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
-  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md: commit target tidak ada di repo ini — Aturan 6(b/c) dilewati
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 205, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md: bagian 1 bersih (173 jalur, semuanya ada di 804ed86f)
   [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
-  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md: commit target tidak ada di repo ini — Aturan 6(b/c) dilewati
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 205, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md: bagian 1 bersih (173 jalur, semuanya ada di 804ed86f)
   [catatan] docs/uji/paket-audit/AUD-4-2026-09-25.md: menargetkan commit non-hijau DENGAN izin pemilik (dikecualikan sadar)
-  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25.md: commit target tidak ada di repo ini — Aturan 6(b/c) dilewati
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25.md: F-16 — lingkup §0 cocok dengan pohon 804ed86f (total 864, tak-tertutup: [])
+  [catatan] docs/uji/paket-audit/AUD-4-2026-09-25.md: bagian 1 bersih (409 jalur, semuanya ada di 804ed86f)
   [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran10-SIAP-TEMPEL.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
   [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran10.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
   [catatan] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran11-SIAP-TEMPEL.md: aturan artefak dilewati (paket lama sebelum perbaikan F-12)
@@ -2574,90 +2560,22 @@ HASIL: LOLOS — uji-diri membuktikan penjaga menolak panjang <12, komposisi kos
   [catatan] docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran16-SIAP-TEMPEL.md: paket review — hanya invarian commit yang diperiksa
   [catatan] docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran16.md: paket review — hanya invarian commit yang diperiksa
   [catatan] 17 laporan reviewer dilewati (invariannya berbeda: menunjuk ujung rentang PR)
-  [X] docs/uji/paket-audit/AUD-2-2026-09-17-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 8d0f7241 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-2-2026-09-17.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 8d0f7241 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-2-2026-09-21-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 09bcb89f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-2-2026-09-21.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 09bcb89f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-17-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 4fccc9d5 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-17.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 4fccc9d5 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-18-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 52e22fc3 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-18.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 52e22fc3 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-19-4830b5a-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 4830b5a4 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-19-4830b5a.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 4830b5a4 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-19-680ffaf-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 680ffafd (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-19-680ffaf.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 680ffafd (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-19-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 93a50bac (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-19.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 93a50bac (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-20-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target cbba4010 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-20.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target cbba4010 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target e7818e2f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md: commit e7818e2f yang ditulis paket TIDAK ADA di repo ini
-  [X] docs/uji/paket-audit/AUD-3-2026-09-24-SIAP-TEMPEL.md: F-12 — 383 dari 383 jalur di bagian 1 TIDAK ADA di commit e7818e2f: .github/workflows/ci.yml, .github/workflows/sebar-halaman.yml, .github/workflows/sebar-skema.yml, alat/artefak.py, alat/audit-independen.py …
-  [X] docs/uji/paket-audit/AUD-3-2026-09-24.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target e7818e2f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-3-2026-09-24.md: commit e7818e2f yang ditulis paket TIDAK ADA di repo ini
-  [X] docs/uji/paket-audit/AUD-3-2026-09-24.md: F-12 — 383 dari 383 jalur di bagian 1 TIDAK ADA di commit e7818e2f: .github/workflows/ci.yml, .github/workflows/sebar-halaman.yml, .github/workflows/sebar-skema.yml, alat/artefak.py, alat/audit-independen.py …
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 804ed86f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-SIAP-TEMPEL.md: commit 804ed86f yang ditulis paket TIDAK ADA di repo ini
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-SIAP-TEMPEL.md: F-12 — 409 dari 409 jalur di bagian 1 TIDAK ADA di commit 804ed86f: .github/workflows/ci.yml, .github/workflows/sebar-halaman.yml, .github/workflows/sebar-skema.yml, alat/artefak.py, alat/audit-independen.py …
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 804ed86f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md: commit 804ed86f yang ditulis paket TIDAK ADA di repo ini
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka-SIAP-TEMPEL.md: F-12 — 96 dari 96 jalur di bagian 1 TIDAK ADA di commit 804ed86f: aplikasi/alat/cek-supabase.mjs, aplikasi/alat/periksa-arah.py, aplikasi/alat/periksa-bahasa.py, aplikasi/alat/periksa-komponen-env.py, aplikasi/alat/periksa-node.py …
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 804ed86f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md: commit 804ed86f yang ditulis paket TIDAK ADA di repo ini
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-antarmuka.md: F-12 — 96 dari 96 jalur di bagian 1 TIDAK ADA di commit 804ed86f: aplikasi/alat/cek-supabase.mjs, aplikasi/alat/periksa-arah.py, aplikasi/alat/periksa-bahasa.py, aplikasi/alat/periksa-komponen-env.py, aplikasi/alat/periksa-node.py …
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 804ed86f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md: commit 804ed86f yang ditulis paket TIDAK ADA di repo ini
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis-SIAP-TEMPEL.md: F-12 — 191 dari 191 jalur di bagian 1 TIDAK ADA di commit 804ed86f: aplikasi/src/layar/dapur/*.tsx, aplikasi/src/layar/dapur/KartuPesanan.tsx, aplikasi/src/layar/dapur/LayarBar.tsx, aplikasi/src/layar/dapur/LayarDapur.tsx, aplikasi/src/layar/dapur/Opname.tsx …
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 804ed86f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md: commit 804ed86f yang ditulis paket TIDAK ADA di repo ini
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-bisnis.md: F-12 — 191 dari 191 jalur di bagian 1 TIDAK ADA di commit 804ed86f: aplikasi/src/layar/dapur/*.tsx, aplikasi/src/layar/dapur/KartuPesanan.tsx, aplikasi/src/layar/dapur/LayarBar.tsx, aplikasi/src/layar/dapur/LayarDapur.tsx, aplikasi/src/layar/dapur/Opname.tsx …
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 804ed86f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md: commit 804ed86f yang ditulis paket TIDAK ADA di repo ini
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan-SIAP-TEMPEL.md: F-12 — 173 dari 173 jalur di bagian 1 TIDAK ADA di commit 804ed86f: .github/workflows/ci.yml, .github/workflows/sebar-halaman.yml, .github/workflows/sebar-skema.yml, alat/periksa-kunci-kalibrasi.py, alat/periksa-rahasia.py …
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 804ed86f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md: commit 804ed86f yang ditulis paket TIDAK ADA di repo ini
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25-keamanan.md: F-12 — 173 dari 173 jalur di bagian 1 TIDAK ADA di commit 804ed86f: .github/workflows/ci.yml, .github/workflows/sebar-halaman.yml, .github/workflows/sebar-skema.yml, alat/periksa-kunci-kalibrasi.py, alat/periksa-rahasia.py …
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 804ed86f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25.md: commit 804ed86f yang ditulis paket TIDAK ADA di repo ini
-  [X] docs/uji/paket-audit/AUD-4-2026-09-25.md: F-12 — 409 dari 409 jalur di bagian 1 TIDAK ADA di commit 804ed86f: .github/workflows/ci.yml, .github/workflows/sebar-halaman.yml, .github/workflows/sebar-skema.yml, alat/artefak.py, alat/audit-independen.py …
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran10-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 597cc77e (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran10.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 597cc77e (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran11-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 750889ab (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran11.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 750889ab (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran5-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 4fccc9d5 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran5.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 4fccc9d5 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran6-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 00e7ce6b (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran6.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 00e7ce6b (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran7-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 183a3c11 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran7.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 183a3c11 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran8-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 7e8c0b95 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran8.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 7e8c0b95 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran9-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target b8679eca (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-17-pr-01-putaran9.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target b8679eca (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran13-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target d1f11d7f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran13.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target d1f11d7f (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran14-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target cdd80b67 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran14.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target cdd80b67 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran15-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 52e22fc3 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-18-pr-01-putaran15.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 52e22fc3 (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran16-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 93a50bac (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
-  [X] docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran16.md: F-11 — tidak ada commit dalam riwayat yang menulis paket ini tepat sesudah commit target 93a50bac (penulis terakhir berinduk ?). Auditor akan memeriksa pohon yang berbeda dari yang dimaksud.
 ----------------------------------------------------------------------
 PERIKSA PAKET — 48 paket terlacak (ref HEAD)
-HASIL: GAGAL — 68 pelanggaran invarian paket (F-11/F-12 + riwayat)
+HASIL: LOLOS — setiap paket menunjuk induk commit-nya sendiri, artefaknya nyata, dan paket review baru tercatat di riwayat.
 
 
-===== GAGAL rc=1 (14 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-paket.py --uji-diri
+===== LOLOS rc=0 (19 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-paket.py --uji-diri
 LEWAT: berkas siap-tempel belum memuat penanda/ambil-bahan (cek urutan kerja)
 UJI-DIRI periksa-paket
   OK  paket lama d1f11d7 (267 jalur hantu) ditolak → docs/uji/paket-audit/AUD-3-2026-09-18.md: F-12 — 272 dari 354 jalur di bagian 1 TIDAK ADA 
   OK  mutasi: SHA di paket diganti SHA palsu → docs/uji/paket-audit/AUD-2-2026-09-17-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwaya
   OK  mutasi: jalur hantu ditambahkan ke bagian 1 → docs/uji/paket-audit/AUD-2-2026-09-17-SIAP-TEMPEL.md: F-12 — 1 dari 23 jalur di bagian 1 T
   OK  mutasi: pola glob hantu ditambahkan ke bagian 1 → docs/uji/paket-audit/AUD-2-2026-09-17-SIAP-TEMPEL.md: F-12 — 1 dari 23 jalur di bagian 1 T
-  X   pohon sekarang diterima → docs/uji/paket-audit/AUD-2-2026-09-17-SIAP-TEMPEL.md: F-11 — tidak ada commit dalam riwaya
+  OK  pohon sekarang diterima → lolos
   OK  mutasi: paket baru tanpa bukti CI commit target (alasan harus F-02) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-ci.md: F-02 — tidak menulis status CI commit tar
   OK  mutasi: bukti CI menyebut SHA berbeda dari target (alasan harus F-02) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-ci.md: F-02 — SHA pada baris CI (ffffffffffff…) 
-  OK  mutasi: paket mengklaim CI hijau padahal tidak (83bed02) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-ci.md: F-02 — paket mengklaim CI hijau, tetapi G
+  OK  mutasi: paket mengklaim CI hijau padahal tidak (2f3a309) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-ci.md: F-02 — paket mengklaim CI hijau, tetapi G
   OK  mutasi: satu angka grup ditulis tangan (alasan harus F-16/jumlah) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-lingkup.md: F-16 — jumlah per grup (433) TIDAK S
   OK  kontrol: tabel lingkup valid dari pohon DITERIMA Aturan 6 (tanpa alasan F-16) → diterima
   OK  mutasi: total konsisten-tapi-beda-pohon +7 (alasan harus F-16/pohon) → docs/uji/paket-audit/AUD-3-2099-01-01-uji-lingkup.md: F-16 — total tertulis (439) TIDAK SA
@@ -2668,7 +2586,7 @@ UJI-DIRI periksa-paket
   OK  mutasi: paket review baru tanpa baris riwayat ditolak → paket review putaran99 (docs/uji/review-pr/PKT-2026-09-19-pr-01-putaran99.md) tidak punya 
   OK  kontrol: paket review yang TERCATAT di riwayat diterima → diterima
 
-HASIL: GAGAL — 1 kasus uji-diri tidak sesuai harapan (pemeriksa mungkin tumpul)
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK paket cacat dan MENERIMA yang utuh.
 
 
 ===== LOLOS rc=0 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/lanjut-sesi.py --di-ci
@@ -2739,12 +2657,12 @@ UJI-DIRI lanjut-sesi
   OK  berkas prompt rusak TIDAK ditimpa mesin → mesin tidak boleh menebak isi berkas yang sudah disunting
   OK  berkas prompt dibuat dari kerangka bila hilang → berkas statis harus bisa dipulihkan mesin
   OK  repo uji dengan handoff SEGAR + berkas statis diterima → lolos
-  OK  repo uji dengan handoff BASI ditolak → handoff menulis commit keadaan 11111111, padahal induk commit terakhir 86b37c8b — berkas h
+  OK  repo uji dengan handoff BASI ditolak → handoff menulis commit keadaan 11111111, padahal induk commit terakhir c94733bc — berkas h
   OK  mutasi: bagian 'cabang sesi baru vs PR' dihapus → handoff harus memuat bagian itu
   OK  mutasi: baris 'Paket peninjau terbaru' dihapus → handoff harus memuat bagian itu
   OK  ref remote-tracking tertinggal tapi remote memuat HEAD → TIDAK ditolak → lolos
   OK  ref remote-tracking tertinggal DI BELAKANG commit keadaan handoff → TIDAK ditolak → lolos
-  OK  commit lokal belum ter-push ditolak → commit lokal (a741452b) belum ter-push ke origin/cabang-uji (ea45baf9) — tanpa push, sesi 
+  OK  commit lokal belum ter-push ditolak → commit lokal (b9444bfd) belum ter-push ke origin/cabang-uji (1bea3d32) — tanpa push, sesi 
   OK  sesi tujuan yang tidak ada di GitHub ditolak → cabang tujuan 'arena/cabang-hantu' TIDAK ADA di GitHub — sesi baru akan gagal menyusul. Pi
   OK  cabang di handoff dibelokkan ke cabang hantu → ditolak dengan alasan cabang → cabang tujuan 'arena/cabang-hantu' TIDAK ADA di GitHub — sesi baru akan gagal menyusul. Pi
   OK  cabang pilihan yang TERTINGGAL (tidak memuat keadaan kerja) ditolak → docs/ops/SIAP-LANJUT.md menunjuk cabang 'arena/cabang-lama' yang TIDAK memuat keadaan kerj
@@ -2818,7 +2736,7 @@ UJI-DIRI ALAT CATAT ALAMAT PUBLIK
 UJI DIRI: 6/6 LOLOS
 
 
-===== LOLOS rc=0 (2 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-gerbang-ci.py --uji-diri
+===== LOLOS rc=0 (3 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-gerbang-ci.py --uji-diri
 
 UJI-DIRI PEMERIKSA GERBANG CI
   OK  salinan utuh → diterima
@@ -2867,29 +2785,13 @@ UJI-DIRI PEMERIKSA GERBANG CI
 HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
 
 
-===== GAGAL rc=1 (26 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-bersih.py --uji-diri
-PERIKSA POHON BERSIH — 3254 berkas terlacak disalin · 5 pemeriksa dokumen
-  [OK] _sistem/validate_system.py
-  [OK] alat/periksa-rujukan.py
-  [X] alat/periksa-panduan.py: MENOLAK (kode 1)
-        PERIKSA BUKU PEDOMAN INDUK — 799 baris · 16 alur · 4 blok prompt · 30 perintah · 13 mekanisme · 89 rujukan berkas
-        
-        HASIL: GAGAL — 1 temuan
-          [X] PANDUAN_PENGGUNA.md:66 menulis "143 berkas uji" padahal nyatanya 145 — segarkan angkanya (atau cabut klaimnya); jangan biarkan dokumen basi
-  [OK] alat/periksa-buku-uji.py
-  [OK] alat/periksa-rahasia.py
-  catatan: berkas ada di komputermu tetapi TIDAK ikut Git: 0
-
-HASIL: GAGAL — 1 pemeriksa menolak di pohon bersih: alat/periksa-panduan.py
-Perbaiki rujukan/berkas yang hanya ada di komputer sendiri (mis. berkas `*.local.md`),
-atau masukkan berkas yang seharusnya ikut Git.
-
+===== LOLOS rc=0 (26 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-bersih.py --uji-diri
 UJI-DIRI periksa-bersih
-  X   salinan utuh → kode 1
+  OK  salinan utuh → kode 0
   OK  mutasi: rujukan ke berkas yang tidak ikut Git → ditolak
   OK  mutasi: pemeriksa dokumen dihapus → ditolak
 
-HASIL: GAGAL — 1 kasus uji-diri tidak sesuai harapan (pemeriksa mungkin tumpul)
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
 
 
 ===== LOLOS rc=0 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 aplikasi/alat/periksa-struktur.py
@@ -3204,17 +3106,10 @@ UJI-DIRI uji-kontras
 HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
 
 
-RINGKASAN RANTAI PENUH: 125 LOLOS · 7 GAGAL · 1 tak terbukti (tanpa internet) · 4 dilewati
-  × GAGAL — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras: python3 alat/periksa-roadmap.py
-  × GAGAL — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras: python3 alat/periksa-panduan.py
-  × GAGAL — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras: python3 alat/periksa-panduan.py --uji-diri
-  × GAGAL — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras: python3 alat/periksa-bersih.py
-  × GAGAL — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras: python3 alat/periksa-paket.py
-  × GAGAL — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras: python3 alat/periksa-paket.py --uji-diri
-  × GAGAL — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras: python3 alat/periksa-bersih.py --uji-diri
+RINGKASAN RANTAI PENUH: 132 LOLOS · 0 GAGAL · 1 tak terbukti (tanpa internet) · 4 dilewati
   ? tak terbukti (butuh internet; CI GitHub yang memutuskan) — Cek sambungan Supabase (kunci publik saja — tugas T0-08): npm run cek:supabase
   · dilewati — (langkah GitHub Actions: checkout/setup)
   · dilewati — (langkah GitHub Actions: checkout/setup)
   · dilewati — npm ci (node_modules sudah ada; --pasang untuk memaksa)
   · dilewati — npm ci --prefix alat (node_modules sudah ada; --pasang untuk memaksa)
-RANTAI: GAGAL — jangan menyatakan selesai; perbaiki lalu ulangi
+RANTAI: LOLOS — POHON KERJA KOTOR saat dijalankan (lihat peringatan di atas)
