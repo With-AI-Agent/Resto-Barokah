@@ -16,7 +16,7 @@
 | E | Butir tertangguh terbuka | 2 |
 | F | Baris Buku Uji belum diisi Lee | 23 |
 
-Temuan terbuka semua tingkat: BARU 14 · TERVERIFIKASI 147 · PERLU-INFO 0 · DIPERBAIKI 21 · **total 182** (gerbang akhir PMB menuntut 0, kecuali DITANGGUHKAN oleh Lee dengan tanggal tinjau).
+Temuan terbuka semua tingkat: BARU 17 · TERVERIFIKASI 148 · PERLU-INFO 0 · DIPERBAIKI 15 · **total 180** (gerbang akhir PMB menuntut 0, kecuali DITANGGUHKAN oleh Lee dengan tanggal tinjau).
 
 ## A. Keputusan / tindakan yang ditunggu dari Lee (temuan terbuka berpenanda LEE)
 
