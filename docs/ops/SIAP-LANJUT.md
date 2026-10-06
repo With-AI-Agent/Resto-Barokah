@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0fbb9-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0fbb9-resto-barokah`
-- **Commit keadaan kerja:** `f9f78a94ebcbc7969a62bb0846957ce21e7d7204`
+- **Commit keadaan kerja:** `53b123559189274803387853a6b50ba21cd9e73b`
 - **PR:** PR #14 (base main)
 PR #13 (base main)
 PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** (belum ada run CI untuk commit f9f78a94 — wajar, ditulis sebelum push; run terakhir yang selesai di cabang: success (run 37455458155, commit 55e11ce1)) — periksa lagi setelah push: gh run list --branch <cabang> --limit 3
+- **CI terakhir:** in_progress (run 37476613072, commit 53b12355) — tunggu sampai selesai
 - **CATATAN CI:** run untuk commit handoff ini belum ada/masih berjalan saat baris ini ditulis (wajar) — sesi baru cek `gh run list --branch arena/01a0fbb9-resto-barokah --limit 3`; lanjut bila hijau atau masih berjalan dengan run selesai terakhir hijau, berhenti hanya bila merah.
 - **Ditulis:** 2026-10-06 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
