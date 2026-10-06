@@ -143,9 +143,13 @@
 4. Laporan **"siapa menyetujui apa"** per bulan (semua penggunaan PIN persetujuan) — mencegah PIN atasan dipakai berulang tanpa terasa.
 5. Transaksi hanya dalam shift terbuka; selisih wajib beralasan; setelah shift ditutup, koreksi = baris baru (ART-6).
 6. **Jenis diskon yang mesinnya belum ada = DITOLAK (gagal-aman).** Sejak migrasi `0013` (temuan review putaran11 PR-01, K-2): `promo`
-   **dan** `voucher` ditolak selama mesinnya belum ada — sebelumnya cabang `voucher` hanya memeriksa izin `pakai_voucher` (bawaan kasir
-   `true`), sehingga kasir bisa mencatat diskon 100% subtotal tanpa voucher apa pun. Uji `supabase/tes/diskon_voucher.sql` mengunci
-   penolakan itu; membukanya kembali **wajib** lewat pemeriksaan sungguhan (T1-12/T1-19/T1-20) dan akan memerahkan mutasi M12.
+   ditolak selama mesinnya belum ada — sebelumnya cabang `voucher` hanya memeriksa izin `pakai_voucher` (bawaan kasir
+   `true`), sehingga kasir bisa mencatat diskon 100% subtotal tanpa voucher apa pun. **Perbaruan 2026-10-05 (PMB1-F-073):** mesin
+   voucher kini **hidup penuh** di Fase 8 (migrasi `0064`–`0068`; definisi `picu_diskon_batas()` terakhir di `0065_kasir_cek_pakai_voucher.sql`);
+   cabang `voucher` dibuka bila `voucher_id` menunjuk voucher sah yang terhubung ke pesanan itu. Hanya cabang `promo` yang masih ditolak.
+   Uji `supabase/tes/diskon_voucher.sql` mengunci sisi gagal-aman yang tersisa: baris `voucher` **tanpa `voucher_id` sah** tetap ditolak
+   (voucher karangan tidak mungkin), sedangkan voucher sah berjalan lewat mesinnya (`0064`–`0068`).
+   Membuka cabang `promo` **wajib** lewat pemeriksaan sungguhan (T1-12/T1-19/T1-20) dan akan memerahkan mutasi M12.
 7. **Status pesanan tidak bisa dikarang saat pesanan dibuat.** Sejak `0013` (temuan PR-02): penjaga status dulu hanya dipasang pada
    UPDATE, sehingga pesanan bisa lahir `batal` (tanpa jejak pembatalan → Aturan Bisnis 7 dilewati) atau lahir `lunas` (tanpa pembayaran).
    Sekarang pesanan dari perangkat wajib lahir `draf`, tanpa tanda kirim/bayar/batal. Uji: `supabase/tes/pesanan_status_awal.sql`.
