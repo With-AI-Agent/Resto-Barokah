@@ -121,7 +121,7 @@
 | Umur token akses | 15 menit | Supabase (pengaturan, gratis) |
 | Umur maksimum sesi | Staf 12 jam · admin/owner 30 hari · pemilik platform 8 jam | Database (`sesi_perangkat`) |
 | Kunci otomatis saat menganggur | 15 / 15 / 15 / 30 / 60 menit (kasir/pelayan/dapur/admin/owner) — **hanya berlaku di luar jam aktif**; di dalam jam aktif perangkat tetap terkunci saat ditinggal sesuai batas peran | Aplikasi + aturan dokumen |
-| Jam aktif per cabang (**keputusan pemilik 2026-09-17**) | Diatur owner di Pengaturan (mis. buka 09.00 – tutup 22.00, ditambah masa persiapan/pembersihan); di luar jam itu kunci otomatis **15 menit** | Pengaturan + aplikasi |
+| Jam aktif per cabang (**keputusan pemilik 2026-09-17**) | Diatur owner di Pengaturan (mis. buka 09.00 – tutup 22.00, ditambah masa persiapan/pembersihan); di luar jam itu kunci otomatis **15 menit** | Pengaturan + aplikasi — **STATUS JUJUR (PMB1-F-089, 2026-10-05): penegakan BELUM DIBANGUN.** Yang ada hari ini hanya `pengaturan.jam_buka` teks bebas tingkat penyewa (0072) untuk tampilan katalog/struk — tidak terstruktur, tidak per cabang, tidak dibaca `useKunciOtomatis` (0 rujukan di `aplikasi/src`). Baris "hanya berlaku di luar jam aktif" di atas juga belum ditegakkan mesin. Pekerjaan terbuka: skema jam aktif per cabang yang terstruktur + parser + sambungan ke kunci otomatis; **wajib keputusan Lee dulu** karena menyentuh rancangan pemilik (aturan §16 butir 8). |
 | Kunci = | sesi dihapus dari perangkat; buka lagi wajib PIN/kata sandi | Aplikasi |
 | Batas percobaan masuk | 5×/15 menit per akun · 12×/15 menit per perangkat | Database |
 | Pencabutan | per perangkat · per akun · semua perangkat | Database + RPC (seketika) |
