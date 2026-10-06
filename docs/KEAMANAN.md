@@ -59,7 +59,7 @@
 - **Peran dibatasi per perangkat:** "Tablet Kasir 1" hanya untuk `kasir`; tidak bisa dipakai masuk sebagai `owner_pusat`.
 - **Pencabutan seketika:** menekan "Cabut perangkat" (atau menandai "hilang") membuat semua permintaan dari perangkat itu ditolak **di database** pada detik berikutnya; alasan & pelaku dicatat.
 - **Pengecualian:** `pemilik_platform` tidak butuh pengikatan perangkat (jalan darurat lintas penyewa), diganti TOTP wajib + umur sesi 8 jam + tanpa akses data penyewa (kecuali mode dukungan).
-- **Bukti perangkat per permintaan** dikirim sebagai header dan dibaca `current_setting('request.headers')`; **wajib diverifikasi di Supabase nyata** (T0-08). Bila tidak andal, penegakan tetap berjalan lewat `sesi_perangkat` (perangkat aktif + sesi aktif + belum kedaluwarsa) — jadi tidak ada ketergantungan pada satu mekanisme.
+- **Bukti perangkat per permintaan — status jujur (PMB1-F-070, diperiksa 2026-10-05):** *pembaca* header `current_setting('request.headers')` **ada** (`0058_sesi_masih_aktif.sql` baris ~58, ditegakkan ~92–99), tetapi **tidak ada pengirim**: klien dibuat tanpa header kustom (`aplikasi/src/lib/supabase.ts`, `grep x-perangkat-id` = 0 di `aplikasi/src` dan `supabase/tes`) — cabang header ini **dorman tanpa uji**. Kalimat lama "dikirim sebagai header" mencabut klaim pengirim yang tidak pernah dibangun. Penegakan nyata hari ini berdiri di atas **perangkat terdaftar + PIN perangkat** (`periksa_pin_perangkat`/`verifikasi_pin_perangkat`, diuji cabut perangkat). Catatan hakim independen (H-F-06.2): tabel `sesi_perangkat` tidak pernah mendapat penulis klaim `session_id`/`perangkat_id`, sehingga jaring "sesi per permintaan" **belum terbukti bekerja** — jangan menyebutnya kompensasi aktif sebelum ada penulis + uji. Implementasi pengirim header adalah pekerjaan terbuka dan wajib diputuskan Lee.
 
 ## 4b. Jalan keluar saat perangkat hilang / dicuri (tangga pemulihan)
 
@@ -216,7 +216,7 @@
 | 1 | PIN 6 digit lemah bila hash database bocor | Perangkat terdaftar tetap diperlukan; bcrypt + batas percobaan | Ganti PIN massal bila ada indikasi kebocoran; prioritas upgrade bila sudah berbayar |
 | 2 | Pemeriksa kata sandi bocor (HIBP) tidak tersedia di paket gratis | Tidak berbiaya nol | Aturan kata sandi ≥12 + larangan pola + TOTP wajib |
 | 3 | PIN bisa dibagikan antar pegawai | Manusia; tidak bisa dicegah teknis | PIN unik + jejak + laporan "siapa menyetujui apa" + ingatan pemilik |
-| 4 | Bukti perangkat per permintaan belum terbukti di Supabase nyata | T0-08 belum jalan | `sesi_perangkat` + status perangkat tetap diperiksa tanpa header |
+| 4 | Bukti perangkat per permintaan belum terbukti di Supabase nyata | Alasan lama "T0-08 belum jalan" **sudah kedaluwarsa** — T0-08 `[x]` di ROADMAP; yang benar: kendali per permintaan memang belum dibangun (PMB1-F-070) | Perangkat terdaftar + PIN perangkat tetap ditegakkan; `sesi_perangkat` baru sah disebut kompensasi bila penulis + ujinya ada |
 | 5 | Pemilik platform tidak terikat perangkat | Jalan darurat lintas penyewa | TOTP wajib + sesi 8 jam + tanpa data penyewa + mode dukungan tercatat |
 | 6 | HP pegawai hilang = kerja terhenti sampai MFA direset | Harga dari TOTP wajib | Jalan pemulihan cepat (owner/pemilik platform) + langkah di Buku Insiden |
 | 7 | Internet mati = tidak bisa masuk (sesi terkunci) | Keamanan didahulukan | Kunci otomatis diperpanjang wajar + prosedur catat manual sementara (Buku Insiden) |
