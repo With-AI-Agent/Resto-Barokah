@@ -1,0 +1,383 @@
+BUKTI HAKIM 4 — REPRODUKSI BUKTI KARTU K (potongan F-06, 11 baris DIPERBAIKI ronde 2)
+Sesi: arena/74433bfc-resto-barokah · Tanggal: 2026-10-06 · HEAD saat dijalankan: 3a159ec pmb: klaim F-06 (HAKIM 4) — verifikasi ulang 11 baris K-3/K-4 DIPERBAIKI ronde 2
+Pohon bersih sebelum menjalankan (git status --porcelain):
+?? docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.4-reproduksi.txt
+(kosong = bersih)
+
+======================================================================
+== PMB1-F-069 (K-3, sha 05cbfb1) — KEAMANAN §1 butir 5 & ROADMAP T1-15/T1-16
+== $ sed -n '513p;533,534p' supabase/migrations/0015_penutup_celah_putaran16.sql
+    into v_persen_pajak, v_persen_service, v_pembulatan
+                 when coalesce(v_pembulatan, 'none') = 'none' then 0
+                 else v_pembulatan::bigint
+== $ grep -n 'pembulatan sudah dibaca' docs/KEAMANAN.md
+== $ grep -nE '^- \[[ x]\] T1-1[56]' docs/ROADMAP.md
+347:- [ ] T1-15 — Fungsi hitung_total() + 12 uji uang ⚠️
+358:- [x] T1-16 — Urutan hitungan resmi & aturan pembulatan dari pengaturan ⚠️
+== $ grep -n 'Urutan hitungan uang dikunci' docs/DECISIONS_LOG.md
+956:## [Uang/2026-09-20] Urutan hitungan uang dikunci: pajak & service dari subtotal SETELAH diskon, pembulatan ke bawah di langkah terakhir
+== $ grep -c 'uji.sama(' supabase/tes/urutan_uang.sql ; grep -c 'uji.harap_gagal_sebab(' supabase/tes/urutan_uang.sql ; grep -c 'select uji.' supabase/tes/urutan_uang.sql
+uji.sama: 11
+uji.harap_gagal_sebab: 1
+select uji. (termasuk 4 uji.klaim penyiapan): 16
+== $ python3 alat/periksa-roadmap.py | tail -2
+
+HASIL: LOLOS — semua pemeriksaan roadmap terpenuhi.
+
+======================================================================
+== PMB1-F-070 (K-3, sha bac03a6) — bukti perangkat per permintaan
+== $ grep -rn 'request.headers' supabase/migrations/*.sql
+supabase/migrations/0058_sesi_masih_aktif.sql:58:    v_header_perangkat := nullif(current_setting('request.headers', true)::jsonb ->> 'x-perangkat-id', '');
+== $ grep -rn 'x-perangkat-id' aplikasi/src | wc -l ; grep -rn 'x-perangkat-id' supabase/tes | wc -l
+aplikasi/src: 0
+supabase/tes: 0
+== $ sed -n '62p' docs/KEAMANAN.md | cut -c1-220
+- **Bukti perangkat per permintaan — status jujur (PMB1-F-070, diperiksa 2026-10-05):** *pembaca* header `current_setting('request.headers')` **ada** (`0058_sesi_masih_aktif.sql` baris ~58, ditegakkan ~92–99), tetapi
+== $ sed -n '219p' docs/KEAMANAN.md | cut -c1-220
+| 4 | Bukti perangkat per permintaan belum terbukti di Supabase nyata | Alasan lama "T0-08 belum jalan" **sudah kedaluwarsa** — T0-08 `[x]` di ROADMAP; yang benar: kendali per permintaan memang belum dibangun (PMB1-F-0
+== (ulangan F-069, pola benar) $ grep -n 'pembulatan. sudah dibaca' docs/KEAMANAN.md
+24:5. **Tidak ada angka uang dari perangkat.** Yang **sudah berlaku sekarang** (T1-10, `0010_pembayaran.sql`): pemicu peladen menolak `subtotal`/`pajak`/`service`/`total_diskon`/`total` yang diisi kli
+
+======================================================================
+== PMB1-F-072 (K-3, sha afb22ca) — perangkat berkuasa tinggal satu
+== $ ls -la supabase/migrations/0103*.sql supabase/tes/perangkat_berkuasa.sql
+-rw-r--r-- 1 user user 3439 Oct  6 08:29 supabase/migrations/0103_peringatan_perangkat_berkuasa_tinggal_satu.sql
+-rw-r--r-- 1 user user 5436 Oct  6 08:26 supabase/tes/perangkat_berkuasa.sql
+== $ grep -rn 'hitung_perangkat_berkuasa' aplikasi/src
+aplikasi/src/layar/laporan/Peringatan.tsx:58: * Dihitung peladen lewat RPC `hitung_perangkat_berkuasa()` (migrasi 0103).
+== $ grep -n 'statusPerangkatBerkuasa' aplikasi/src/layar/laporan/Peringatan.tsx
+69:  statusPerangkatBerkuasa?: StatusPerangkatBerkuasa[] | null
+90:  statusPerangkatBerkuasa = null,
+209:      {(statusPerangkatBerkuasa || []).filter((s) => !s.cadangan_cukup).length > 0 && (
+224:            {(statusPerangkatBerkuasa || [])
+== $ grep -n 'peran_diizinkan DEFAULT\|peran_diizinkan' supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql | head -3
+12:  add column if not exists peran_diizinkan text[] not null
+36:  peran_diizinkan  text[] not null default array['kasir', 'pelayan', 'dapur']::text[],
+176:  p_peran_diizinkan text[] default array['kasir', 'pelayan', 'dapur']::text[]
+
+======================================================================
+== PMB1-F-073 (K-3, sha 4b5d07b) — §9 butir 6 mesin voucher
+== $ grep -ln 'picu_diskon_batas' supabase/migrations/*.sql | tail -3
+supabase/migrations/0023_acl_fungsi_pemicu.sql
+supabase/migrations/0041_diskon_pin_atasan.sql
+supabase/migrations/0065_kasir_cek_pakai_voucher.sql
+== $ sed -n '77,82p' supabase/migrations/0065_kasir_cek_pakai_voucher.sql
+  elsif new.jenis = 'voucher' then
+    -- Jika voucher_id null (misal insert manual coba-coba tanpa mesin voucher): TOLAK
+    if new.voucher_id is null then
+      raise exception 'Diskon voucher belum aktif (mesin voucher menunggu T1-12/T1-19/T1-20). Pakai diskon manual dengan persetujuan.';
+    end if;
+
+== $ ls supabase/tes/diskon_voucher.sql
+supabase/tes/diskon_voucher.sql
+== $ sed -n '148,153p' docs/KEAMANAN.md | cut -c1-170
+   voucher kini **hidup penuh** di Fase 8 (migrasi `0064`–`0068`; definisi `picu_diskon_batas()` terakhir di `0065_kasir_cek_pakai_voucher.sql`);
+   cabang `voucher` dibuka bila `voucher_id` menunjuk voucher sah yang terhubung ke pesanan itu. Hanya cabang `promo` yang masih ditolak.
+   Uji `supabase/tes/diskon_voucher.sql` mengunci sisi gagal-aman yang tersisa: baris `voucher` **tanpa `voucher_id` sah** tetap ditolak
+   (voucher karangan tidak mungkin), sedangkan voucher sah berjalan lewat mesinnya (`0064`–`0068`).
+   Membuka cabang `promo` **wajib** lewat pemeriksaan sungguhan (T1-12/T1-19/T1-20) dan akan memerahkan mutasi M12.
+7. **Status pesanan tidak bisa dikarang saat pesanan dibuat.** Sejak `0013` (temuan PR-02): penjaga status dulu hanya dipasang pada
+
+======================================================================
+== PMB1-F-074 (K-4, sha 74901c2) — urutan §16 & rujukan AUD
+== $ sed -n '226,238p' docs/KEAMANAN.md | cut -c1-120
+## 16. Aturan untuk sesi agent berikutnya
+
+1. Jangan mengubah dokumen ini atau ART-11…ART-15 tanpa `DECISIONS_LOG.md` + persetujuan pemilik.
+2. Jangan menambah tabel/kolom yang menyimpan identitas atau perangkat tanpa uji isolasi + uji perangkat.
+3. Jangan memakai `user_metadata` untuk keputusan otorisasi; jangan mengandalkan klaim JWT yang bisa basi untuk pencabut
+4. Jangan menulis PIN/kata sandi/token/data pelanggan ke log, pesan error, atau dokumen.
+5. Setiap fungsi `SECURITY DEFINER` baru: `search_path` dipaku + hak `execute` dicabut dari `public` + pemeriksaan izin 
+6. Setiap layar baru: kontrak layar + aksi terdaftar + 7 keadaan + uji komponen (lihat `docs/SPESIFIKASI_UI.md`).
+7. Kalau menemukan cacat pada pekerjaan yang sudah diklaim selesai → laporkan, jangan sembunyikan (Stop Condition §12
+8. **Aturan pemilik (2026-09-17):** menyimpang dari deskripsi/rancangan yang pemilik tulis **wajib ditanyakan lebih dulu
+9. **Setiap perubahan yang menyentuh akun/perangkat/sesi/uang/data pelanggan wajib diverifikasi independen sebelum dinya
+
+======================================================================
+== PMB1-F-075 (K-3, sha fa77063) — 18 perbandingan peran keras
+== $ grep -rhoE "peran_saya\(\) *(<>|=) *'[a-z_]+'" supabase/migrations/*.sql | wc -l
+18
+== $ grep -rcE "peran_saya\(\) *(<>|=) *'[a-z_]+'" supabase/migrations/*.sql | grep -v ':0$'
+supabase/migrations/0004_pola_rls.sql:5
+supabase/migrations/0005_izin_berjenjang.sql:3
+supabase/migrations/0007_katalog.sql:1
+supabase/migrations/0009_pesanan.sql:2
+supabase/migrations/0015_penutup_celah_putaran16.sql:2
+supabase/migrations/0052_laporan_penjualan.sql:1
+supabase/migrations/0053_laporan_menu.sql:1
+supabase/migrations/0068_laporan_voucher.sql:2
+supabase/migrations/0085_ringkasan_harian.sql:1
+== $ sed -n '134p' docs/KEAMANAN.md | cut -c1-400
+2. **Lapis 2 — gerbang izin:** setiap RPC memanggil `boleh(...)`/`boleh_untuk(...)` sebagai pemeriksaan pertama. **Kejujuran arsitektur (PMB1-F-075, dihitung 2026-10-05):** "satu gerbang" berlaku untuk badan RPC, tetapi ada **18 perbandingan peran keras** `peran_saya() = '<peran>'` di **9 migrasi** (`0004`×5 · `0005`×3 · `0007`×1 · `0009`×2 · `0015`×2 · `0052`×1 · `0053`×1 · `0068`
+
+======================================================================
+== PMB1-F-087 (K-3, sha 52dee4b) — laporan siapa menyetujui apa
+== $ ls -la supabase/migrations/0104*.sql supabase/tes/laporan_persetujuan_pin.sql
+-rw-r--r-- 1 user user 5038 Oct  6 08:29 supabase/migrations/0104_laporan_persetujuan_pin_bulanan.sql
+-rw-r--r-- 1 user user 8475 Oct  6 08:26 supabase/tes/laporan_persetujuan_pin.sql
+== $ grep -rn 'laporan_persetujuan_pin' aplikasi/src | wc -l
+pemanggil klien: 0
+== $ sed -n '143p' docs/KEAMANAN.md | cut -c1-320
+4. Laporan **"siapa menyetujui apa"** per bulan (semua penggunaan PIN persetujuan) — mencegah PIN atasan dipakai berulang tanpa terasa. **Status (PMB1-F-087, 2026-10-05):** sudah hidup — RPC `laporan_persetujuan_pin(p_bulan)` (migrasi `0104`, diuji `supabase/tes/laporan_persetujuan_pin.sql`) merekap diskon berstemp
+
+======================================================================
+== PMB1-F-088 (K-3, sha ba5bb91) — bcrypt vs SHA-256
+== $ grep -rn "gen_salt('bf'" supabase/migrations/0018*.sql supabase/migrations/0030*.sql | head -4
+supabase/migrations/0018_perangkat_terdaftar.sql:169:  values (v_id, crypt(p_kunci, gen_salt('bf', 10)));
+supabase/migrations/0018_perangkat_terdaftar.sql:478:  v_hash := crypt(p_pin_baru, gen_salt('bf', 10));
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:276:  v_kunci_hash := crypt(p_kunci_mentah, gen_salt('bf', 10));
+== $ grep -rn 'rahasia_hash' supabase/migrations/*.sql | wc -l
+rahasia_hash di migrasi: 0
+== $ sed -n '53,54p' docs/KEAMANAN.md | cut -c1-300
+- Tabel: `perangkat` (`penyewa_id`, `cabang_id`, `nama`, `jenis`, `peran_diizinkan`, `status`, `terakhir_aktif`, `terdaftar_oleh`, `dicabut_oleh`, `catatan`) · **`kredensial_perangkat` (terpisah, tanpa grant klien)** menampung `kunci_hash` — pola persis `kredensial_pin` *(PMB1-F-088: kolom `rahas
+- **Alur pendaftaran:** admin/owner membuat kode → perangkat baru memasukkan kode → rahasia acak 32 byte dibuat di perangkat, server hanya menyimpan **hash bcrypt** (`crypt(kunci, gen_salt('bf', 10))` di `0018` & `0030` — bukan SHA-256 polos; dikoreksi PMB1-F-088) → perangkat aktif dengan pe
+
+======================================================================
+== PMB1-F-089 (K-3, sha a459229) — jam aktif per cabang
+== $ sed -n '124p' docs/KEAMANAN.md | cut -c1-700
+| Jam aktif per cabang (**keputusan pemilik 2026-09-17**) | Diatur owner di Pengaturan (mis. buka 09.00 – tutup 22.00, ditambah masa persiapan/pembersihan); di luar jam itu kunci otomatis **15 menit** | Pengaturan + aplikasi — **STATUS JUJUR (PMB1-F-089, 2026-10-05): penegakan BELUM DIBANGUN.** Yang ada hari ini hanya `pengaturan.jam_buka` teks bebas tingkat penyewa (0072) untuk tampilan katalog/struk — tidak terstruktur, tidak per cabang, tidak dibaca `useKunciOtomatis` (0 rujukan di `aplikasi/src`). Baris "hanya berlaku di luar jam aktif" di atas juga belum ditegakkan mesin**Pekerjaan terbuka: skema jam aktif per cabang yang terstruktur + parser + sambungan ke kunci otomatis — **ke
+== $ grep -rn 'jam_buka\|jamBuka\|jam buka' aplikasi/src | wc -l   (pemakaian tampilan katalog/identitas)
+34
+== $ grep -n 'jam_buka\|jam buka' aplikasi/src/hook/useKunciOtomatis.ts | wc -l   (jalur kunci otomatis)
+0
+== $ grep -n 'diLuarJamOperasional' aplikasi/src/hook/useKunciOtomatis.ts aplikasi/src/App.tsx
+aplikasi/src/hook/useKunciOtomatis.ts:6:  diLuarJamOperasional?: boolean
+aplikasi/src/hook/useKunciOtomatis.ts:34:  diLuarJamOperasional = false,
+aplikasi/src/hook/useKunciOtomatis.ts:72:    const batasEfektifMs = diLuarJamOperasional
+aplikasi/src/hook/useKunciOtomatis.ts:113:    diLuarJamOperasional,
+== $ grep -n 'jam_buka' supabase/migrations/0072_pengaturan_operasional.sql | head -4
+8:--  4. Jam Operasional Kedai (jam_buka)
+44:comment on column public.pengaturan.jam_buka is
+53:  p_jam_buka         text default null,
+159:  if p_jam_buka is not null then
+
+======================================================================
+== PMB1-F-090 (K-3, sha 8d19867) — periksa-audit.py statis vs RPC rantai
+== $ grep -nE 'connect|psycopg|pglite|requests|read_text' alat/periksa-audit.py
+34:    teks_mig = berkas_mig.read_text(encoding="utf-8")
+35:    teks_tes = berkas_tes.read_text(encoding="utf-8")
+82:            f.write_text(f.read_text().replace("cegah_ubah_hapus_audit", "dummy_fungsi"))
+89:            f.write_text(f.read_text().replace("verifikasi_rantai_audit", "dummy_verifikasi"))
+== $ python3 alat/periksa-audit.py --uji-diri
+PERIKSA AUDIT — migrasi 0029 & berkas uji audit_rantai.sql lengkap & valid.
+GAGAL: 1 temuan pada pemeriksaan audit:
+  [X] Trigger penolakan UPDATE/DELETE tidak ditemukan pada migrasi audit.
+GAGAL: 1 temuan pada pemeriksaan audit:
+  [X] Fungsi verifikasi_rantai_audit tidak ditemukan pada migrasi audit.
+UJI-DIRI periksa-audit
+  OK  salinan utuh → diterima
+  OK  mutasi: trigger tolak update/delete hilang → ditolak
+  OK  mutasi: fungsi verifikasi rantai hilang → ditolak
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+== $ sed -n '165p' docs/KEAMANAN.md | cut -c1-320
+- Sejak Fase 1B: **rantai hash** (`hash_sebelumnya`, `hash_baris`) dihitung pemicu. Ada dua pemeriksa dengan wilayah berbeda: `alat/periksa-audit.py` adalah **pemeriksa statis berkas teks** (membaca migrasi `0029` & berkas uji; dipasang di CI pada `T1-30`) — ia menjaga aturan skemanya, **bukan** baris data. Yang menu
+
+======================================================================
+== PMB1-F-091 (K-4, sha b1c5b94) — rujukan T1-26/T1-27
+== $ sed -n '199,203p' docs/KEAMANAN.md
+| Sesi lewat umur maksimum → ditolak | SQL otomatis | T1-24 |
+| Kunci 5×/15 menit & 12×/15 menit | SQL otomatis | T1-26 |
+| PIN lemah & PIN kembar ditolak | SQL otomatis | T1-23 |
+| Rantai audit terdeteksi bila diubah/dihapus | SQL otomatis + pemeriksa | T1-27 |
+| Mode dukungan: tanpa mode = 0 baris; dengan mode = hanya-baca; kedaluwarsa = 0 baris | SQL otomatis | T1-28 |
+== $ grep -nE '^- \[x\] T1-2[67]' docs/ROADMAP.md
+468:- [x] T1-26 — Migrasi 0014: percobaan masuk + kunci 5×/15 menit (akun) & 12×/15 menit (perangkat) ⚠️
+478:- [x] T1-27 — Migrasi 0015: `catatan_audit` hanya-tambah + rantai hash ⚠️
+
+======================================================================
+== KEWAJIBAN HAKIM: ls setiap path yang muncul di perintah bukti kartu K
+ADA    aplikasi/src/App.tsx
+ADA    aplikasi/src/layar/laporan/LayarLaporan.tsx
+ADA    aplikasi/src/layar/laporan/Peringatan.tsx
+ADA    aplikasi/src/layar/pengaturan/DaftarPerangkat.tsx
+ADA    aplikasi/src/layar/pengaturan/Perangkat.tsx
+ADA    aplikasi/src/lib/auth.ts
+ADA    aplikasi/src/lib/supabase.ts
+ADA    aplikasi/src/hook/useKunciOtomatis.ts
+ADA    supabase/config.toml
+ADA    supabase/migrations/0015_penutup_celah_putaran16.sql
+ADA    supabase/migrations/0018_perangkat_terdaftar.sql
+ADA    supabase/migrations/0028_pemulihan_perangkat.sql
+ADA    supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql
+ADA    supabase/migrations/0058_sesi_masih_aktif.sql
+ADA    supabase/migrations/0065_kasir_cek_pakai_voucher.sql
+ADA    supabase/migrations/0072_pengaturan_operasional.sql
+ADA    supabase/migrations/0087_perbaiki_search_path_kripto_dan_rpc.sql
+ADA    supabase/tes/urutan_uang.sql
+ADA    supabase/tes/diskon_voucher.sql
+ADA    supabase/tes/perangkat_berkuasa.sql
+ADA    supabase/tes/laporan_persetujuan_pin.sql
+ADA    alat/periksa-audit.py
+ADA    alat/periksa-keamanan-sql.py
+ADA    alat/periksa-matriks-izin.py
+ADA    alat/periksa-rahasia.py
+
+== SHA 11 baris: git merge-base --is-ancestor <sha> HEAD
+ADA    05cbfb1
+ADA    bac03a6
+ADA    afb22ca
+ADA    4b5d07b
+ADA    74901c2
+ADA    fa77063
+ADA    52dee4b
+ADA    ba5bb91
+ADA    a459229
+ADA    8d19867
+ADA    b1c5b94
+== $ git show --stat (ringkas) tiap sha: berkas yang disentuh
+--- 05cbfb1
+
+ docs/KEAMANAN.md | 2 +-
+ docs/ROADMAP.md  | 4 +++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+--- bac03a6
+
+ docs/KEAMANAN.md | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+--- afb22ca
+
+ aplikasi/src/layar/laporan/Peringatan.test.tsx     | 38 +++++++++
+ aplikasi/src/layar/laporan/Peringatan.tsx          | 49 +++++++++++
+ docs/KEAMANAN.md                                   |  4 +-
+ ..._peringatan_perangkat_berkuasa_tinggal_satu.sql | 74 +++++++++++++++++
+ supabase/tes/perangkat_berkuasa.sql                | 95 ++++++++++++++++++++++
+ 5 files changed, 258 insertions(+), 2 deletions(-)
+--- 4b5d07b
+
+ docs/KEAMANAN.md | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+--- 74901c2
+
+ docs/KEAMANAN.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--- fa77063
+
+ docs/KEAMANAN.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--- 52dee4b
+
+ docs/KEAMANAN.md                                   |   2 +-
+ .../0104_laporan_persetujuan_pin_bulanan.sql       | 114 ++++++++++++++++++
+ supabase/tes/laporan_persetujuan_pin.sql           | 134 +++++++++++++++++++++
+ 3 files changed, 249 insertions(+), 1 deletion(-)
+--- ba5bb91
+
+ docs/KEAMANAN.md | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+--- a459229
+
+ docs/KEAMANAN.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--- 8d19867
+
+ docs/KEAMANAN.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--- b1c5b94
+
+ docs/KEAMANAN.md | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+== Penjaga dokumen (klaim kartu B-F-06.2 §4)
+--- periksa-rujukan
+
+HASIL: LOLOS — semua rujukan di dokumen pengikat hidup (yang belum ada ditandai jelas).
+--- periksa-panduan
+
+HASIL: LOLOS — buku induk lengkap, rujukan hidup, prompt identik dengan sumbernya.
+--- periksa-roadmap
+
+HASIL: LOLOS — semua pemeriksaan roadmap terpenuhi.
+--- periksa-bersih
+
+HASIL: LOLOS — semua pemeriksa dokumen hijau di pohon bersih (hanya berkas terlacak Git).
+--- periksa-pemeriksaan
+
+HASIL: LOLOS
+--- periksa-paket (sesudah git fetch --unshallow origin)
+PERIKSA PAKET — 48 paket terlacak (ref HEAD)
+HASIL: LOLOS — setiap paket menunjuk induk commit-nya sendiri, artefaknya nyata, dan paket review baru tercatat di riwayat.
+--- periksa-keamanan-sql
+HASIL: LOLOS
+Lingkup: search_path + ACL efektif + trigger-only + sapuan RLS + optimasi InitPlan helper policy.
+
+======================================================================
+== PENUTUP GILIRAN HAKIM 4 — pembacaan diff terakhir, hitung ulang angka, keadaan Buku Besar
+== (bagian ini ditambahkan sesudah sebelas baris diputuskan; angka di kartu H-F-06.4 mengacu ke sini)
+======================================================================
+
+== PMB1-F-091 diff b1c5b94 (satu-satunya diff yang belum dibaca di sesi ini) ==
+
+ docs/KEAMANAN.md | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+-| Kunci 5×/15 menit & 12×/15 menit | SQL otomatis | T1-25 |
++| Kunci 5×/15 menit & 12×/15 menit | SQL otomatis | T1-26 |
+-| Rantai audit terdeteksi bila diubah/dihapus | SQL otomatis + pemeriksa | T1-26 |
++| Rantai audit terdeteksi bila diubah/dihapus | SQL otomatis + pemeriksa | T1-27 |
+-- kunci: T1-25->T1-26 ; rantai audit: T1-26->T1-27 (2 baris berubah, 2 sisip, 2 buang)
+== $ grep -n 'T1-2[5-7]' docs/ROADMAP.md
+458:- [x] T1-25 — Migrasi 0013: sesi perangkat, umur maksimum & pencabutan seketika ⚠️
+468:- [x] T1-26 — Migrasi 0014: percobaan masuk + kunci 5×/15 menit (akun) & 12×/15 menit (peran
+478:- [x] T1-27 — Migrasi 0015: `catatan_audit` hanya-tambah + rantai hash ⚠️
+529:  - **Catatan nomor:** ditambahkan setelah Fase 1C disisipkan (2026-09-17), karena itu bernomor 
+537:  - **Catatan kemajuan 2026-09-17:** **B.1–B.3 SELESAI** lewat migrasi 0011 (T1-23 `[x]`) — 
+702:  - **Progres 2026-09-21 (parsial F F-07/F F-08, Batch-2):** F F-07: tabel `catatan_audit` menda
+705:  - **Progres 2026-09-21 (A F-07 DIPETAKAN-PRESISI, Batch-3):** tiap kontrol KEAMANAN dipetakan 
+-- 468 = T1-26 (kunci), 478 = T1-27 (rantai) — cocok dengan rujukan baru di KEAMANAN baris 200/202
+
+== angka yang dikoreksi PMB1-F-236 (asersi urutan_uang.sql) ==
+-- $ grep -c 'uji.sama(' supabase/tes/urutan_uang.sql
+11
+-- $ grep -c 'uji.harap_gagal_sebab(' supabase/tes/urutan_uang.sql
+1
+-- $ grep -c 'select uji\.' supabase/tes/urutan_uang.sql
+16
+-- $ grep -c 'uji.klaim(' supabase/tes/urutan_uang.sql
+4
+-- asersi nyata = 11 + 1 = 12; angka 16 ikut menghitung 4 uji.klaim (penyiapan) -> 12 + 4 = 16
+== $ grep -rn 'suite 143' docs/KEAMANAN.md docs/ROADMAP.md
+docs/KEAMANAN.md:24:5. **Tidak ada angka uang dari perangkat.** Yang **sudah berlaku sekar
+docs/ROADMAP.md:349:  - **Catatan silang (PMB1-F-069, 2026-10-05):** dua sisa di atas **su
+-- dua tempat basi (kini suite SQL 145); di ROADMAP:359 hanya '16 asersi' tanpa frasa suite
+
+== angka yang dikoreksi PMB1-F-237 (jam_buka di aplikasi/src) ==
+-- $ grep -rn -e jam_buka -e jamBuka -e 'jam buka' aplikasi/src | wc -l
+34
+-- $ grep -rln -e jam_buka -e jamBuka -e 'jam buka' aplikasi/src
+aplikasi/src/layar/pelanggan-publik/Katalog.test.tsx
+aplikasi/src/layar/pelanggan-publik/Katalog.tsx
+aplikasi/src/layar/pelanggan-publik/LayarPelangganPublik.tsx
+aplikasi/src/layar/pengaturan/Identitas.test.tsx
+aplikasi/src/layar/pengaturan/Identitas.tsx
+aplikasi/src/layar/pengaturan/Operasional.test.tsx
+aplikasi/src/layar/pengaturan/Operasional.tsx
+aplikasi/src/layar/pengaturan/Pratinjau.tsx
+-- $ grep -rn -e jam_buka -e 'jam buka' aplikasi/src/hook/useKunciOtomatis.ts | wc -l
+0
+-- jadi parentetis '(0 rujukan di aplikasi/src)' salah bila dibaca sebagai jam_buka; yang benar 0 rujukan di jalur kunci otomatis
+
+== keadaan Buku Besar sesudah putusan (11 baris objek) ==
+-- $ grep -oE '^\| PMB1-F-0(69|70|72|73|74|75|87|88|89|90|91) \| K-[34] \| F-06 \|.*\| (DITUTUP|DIPERBAIKI|TERVERIFIKASI) \|' docs/uji/pemeriksaan/PMB-1/BUKU_BESAR_TEMUAN.md | sed -E 's/^(.{0,60}).*(DITUTUP|DIPERBAIKI|TERVERIFIKASI) \|$/\1 ... \2/'
+| PMB1-F-069 status=DITUTUP
+| PMB1-F-070 status=DITUTUP
+| PMB1-F-072 status=DITUTUP
+| PMB1-F-073 status=DITUTUP
+| PMB1-F-074 status=DITUTUP
+| PMB1-F-075 status=DITUTUP
+| PMB1-F-087 status=DITUTUP
+| PMB1-F-088 status=DITUTUP
+| PMB1-F-089 status=DITUTUP
+| PMB1-F-090 status=DITUTUP
+| PMB1-F-091 status=DITUTUP
+-- $ grep -c '^| PMB1-F-' docs/uji/pemeriksaan/PMB-1/BUKU_BESAR_TEMUAN.md
+237
+-- 237 temuan (terakhir PMB1-F-237)
+
+== penjaga dokumen sesudah putusan ==
+periksa-roadmap          rc=0 HASIL: LOLOS — semua pemeriksaan roadmap terpenuhi.
+periksa-rujukan          rc=0 HASIL: LOLOS — semua rujukan di dokumen pengikat hidup (yang belum ada ditanda
+periksa-panduan          rc=0 HASIL: LOLOS — buku induk lengkap, rujukan hidup, prompt identik dengan sumber
+periksa-keamanan-sql     rc=0 HASIL: LOLOS
+periksa-paket            rc=0 HASIL: LOLOS — setiap paket menunjuk induk commit-nya sendiri, artefaknya nyat
+periksa-bersih           rc=0 HASIL: LOLOS — semua pemeriksa dokumen hijau di pohon bersih (hanya berkas ter
+periksa-pemeriksaan      rc=0 HASIL: LOLOS
