@@ -28,26 +28,26 @@ _Disusun mesin oleh `python3 alat/susun-matriks-telusur.py`: **34** tugas `[x]` 
 | T1-05 | 1 | 249 | pemilik | F-08 |
 | T1-06 | 1 | 259 | HP | F-08 |
 | T1-10 | 1 | 299 | nyata, pemilik | F-08 |
-| T1-25 | 1B | 455 | pemilik | F-08 |
-| T1-28 | 1B | 486 | pemilik | F-08 |
-| T1-36 | 1B | 518 | pemilik | F-08 |
-| T1-31 | 1C | 555 | Lee | F-08 |
-| T1-35 | 1C | 595 | pemilik | F-08 |
-| T1-39 | 1C | 607 | Lee | F-08 |
-| T1-43 | 1C | 647 | Lee, pemilik | F-08 |
-| T2-14 | 2 | 847 | pemilik | F-09 |
-| T2-15 | 2 | 857 | pemilik | F-09 |
-| T7-10 | 7 | 1708 | pemilik, tanda tangan | F-10 |
-| T8-02 | 8 | 1754 | HP | F-10 |
-| T8-03 | 8 | 1764 | HP | F-10 |
-| T8-05 | 8 | 1784 | HP | F-10 |
-| T8-06 | 8 | 1794 | HP | F-10 |
-| T8-15 | 8 | 1888 | pemilik | F-10 |
-| T9-10 | 9 | 1991 | dashboard, pemilik | F-10 |
-| T9-12 | 9 | 2011 | Lee, pemilik | F-10 |
-| T10-04 | 10 | 2055 | nyata | F-10 |
-| T10-07 | 10 | 2085 | pemilik | F-10 |
-| T10-13 | 10 | 2149 | pemilik | F-10 |
-| T10-15 | 10 | 2169 | nyata | F-10 |
-| T10-16 | 10 | 2179 | nyata, pemilik | F-10 |
+| T1-25 | 1B | 457 | pemilik | F-08 |
+| T1-28 | 1B | 488 | pemilik | F-08 |
+| T1-36 | 1B | 520 | pemilik | F-08 |
+| T1-31 | 1C | 557 | Lee | F-08 |
+| T1-35 | 1C | 597 | pemilik | F-08 |
+| T1-39 | 1C | 609 | Lee | F-08 |
+| T1-43 | 1C | 649 | Lee, pemilik | F-08 |
+| T2-14 | 2 | 849 | pemilik | F-09 |
+| T2-15 | 2 | 859 | pemilik | F-09 |
+| T7-10 | 7 | 1710 | pemilik, tanda tangan | F-10 |
+| T8-02 | 8 | 1756 | HP | F-10 |
+| T8-03 | 8 | 1766 | HP | F-10 |
+| T8-05 | 8 | 1786 | HP | F-10 |
+| T8-06 | 8 | 1796 | HP | F-10 |
+| T8-15 | 8 | 1890 | pemilik | F-10 |
+| T9-10 | 9 | 1993 | dashboard, pemilik | F-10 |
+| T9-12 | 9 | 2013 | Lee, pemilik | F-10 |
+| T10-04 | 10 | 2057 | nyata | F-10 |
+| T10-07 | 10 | 2087 | pemilik | F-10 |
+| T10-13 | 10 | 2151 | pemilik | F-10 |
+| T10-15 | 10 | 2171 | nyata | F-10 |
+| T10-16 | 10 | 2181 | nyata, pemilik | F-10 |
 <!-- OTOMATIS:SELESAI -->
