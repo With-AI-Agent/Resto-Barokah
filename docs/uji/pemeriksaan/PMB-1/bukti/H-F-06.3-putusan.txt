@@ -1,0 +1,463 @@
+### 0. Kebersihan & titik tolak
+?? docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-putusan.txt
+HEAD: 63b7815c15aaf2bf35bf62e7a19636d06f5e4842
+63b7815 pmb: klaim F-06 (HAKIM 3) — verifikasi ulang 6 baris K-2 DIPERBAIKI
+
+### 1. Semua sha perbaikan benar-benar ada di riwayat HEAD
+729bee8 ADA-di-HEAD
+e5b94f8 ADA-di-HEAD
+ffccb09 ADA-di-HEAD
+17e4d5d ADA-di-HEAD
+1f4e938 ADA-di-HEAD
+819e06b ADA-di-HEAD
+9d79487 ADA-di-HEAD
+
+### 2. Berkas uji/penjaga yang disebut (ls)
+-rw-r--r-- 1 user user 7014 Oct  6 03:03 alat/periksa-aturan-kata-sandi.py
+-rw-r--r-- 1 user user 3458 Oct  6 03:03 aplikasi/src/App.kunciOtomatis.test.tsx
+-rw-r--r-- 1 user user 4340 Oct  6 03:03 aplikasi/src/layar/pengaturan/Perangkat.test.tsx
+-rw-r--r-- 1 user user 7466 Oct  6 03:03 aplikasi/src/lib/pesan.ts
+-rw-r--r-- 1 user user 3918 Oct  6 03:10 docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-mutasi.txt
+-rw-r--r-- 1 user user 5775 Oct  6 03:08 docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-probe-082.sql
+-rw-r--r-- 1 user user 7648 Oct  6 03:09 docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-probe-083.sql
+-rw-r--r-- 1 user user 5143 Oct  6 03:09 docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-probe-085.sql
+-rw-r--r-- 1 user user 2530 Oct  6 03:10 docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-sql.txt
+-rw-r--r-- 1 user user 2703 Oct  6 03:03 supabase/tes/kode_perangkat_lintas_cabang.sql
+-rw-r--r-- 1 user user 7332 Oct  6 03:03 supabase/tes/pemulihan.sql
+-rw-r--r-- 1 user user 4896 Oct  6 03:03 supabase/tes/pemulihan_tanpa_sesi.sql
+-rw-r--r-- 1 user user 5860 Oct  6 03:03 supabase/tes/persetujuan_perangkat_wajib_login.sql
+
+### 3. Penjaga F-071 (kata sandi) — dua-duanya hari ini
+HASIL: LOLOS — supabase/config.toml selaras dengan janji >= 12 karakter + komposisi 3 kelas di docs/KEAMANAN.md (PMB1-F-071). Catatan: produksi Supabase hidup di luar repo (L-01/L-04).
+exit=0
+HASIL: LOLOS — uji-diri membuktikan penjaga menolak panjang <12, komposisi kosong, dan janji dokumen yang hilang.
+exit=0
+
+### 4. Probe 082 (jalur pendaftaran resmi 0030 vs persetujuan 0101)
+UJI SQL LOKAL (PostgreSQL di dalam Node — tanpa server, tanpa akun)
+Menyiapkan peran, auth, dan alat bantu uji…
+  OK    persiapan (peran/auth/alat uji)
+
+Menerapkan 101 migrasi:
+  OK    0001_penyewa_cabang.sql
+  OK    0002_pengguna_izin_pengaturan.sql
+  OK    0003_helper_identitas.sql
+  OK    0004_pola_rls.sql
+  OK    0005_izin_berjenjang.sql
+  OK    0006_pin.sql
+  OK    0007_katalog.sql
+  OK    0008_meja.sql
+  OK    0009_pesanan.sql
+  OK    0010_pembayaran.sql
+  OK    0011_peran_tunggal.sql
+  OK    0012_penutup_celah_review.sql
+  OK    0013_penutup_celah_putaran11.sql
+  OK    0014_penutup_celah_putaran13.sql
+  OK    0015_penutup_celah_putaran16.sql
+  OK    0016_penutup_celah_pin_putaran18.sql
+  OK    0017_pesanan_tertutup_beku.sql
+  OK    0018_perangkat_terdaftar.sql
+  OK    0019_pesan_diskon_jujur.sql
+  OK    0020_catatan_audit.sql
+  OK    0021_kunci_diskon.sql
+  OK    0022_beku_setelah_bayar.sql
+  OK    0023_acl_fungsi_pemicu.sql
+  OK    0024_beku_satu_pernyataan.sql
+  OK    0025_isolasi_identitas_null.sql
+  OK    0026_kunci_lingkup_rincian.sql
+  OK    0027_initplan_policy_rls.sql
+  OK    0028_pemulihan_perangkat.sql
+  OK    0029_audit_kekal_rantai.sql
+  OK    0030_sesi_dan_persetujuan_perangkat.sql
+  OK    0031_mode_dukungan_platform.sql
+  OK    0032_status_item_dapur.sql
+  OK    0033_tujuan_item.sql
+  OK    0035_menu_habis_sumber.sql
+  OK    0036_stok.sql
+  OK    0037_opname.sql
+  OK    0038_waktu_peladen.sql
+  OK    0039_bayar_pesanan.sql
+  OK    0040_urutan_rantai_audit.sql
+  OK    0041_diskon_pin_atasan.sql
+  OK    0042_bahan_terbuang_jujur.sql
+  OK    0043_laporan_pembatalan.sql
+  OK    0045_buka_shift.sql
+  OK    0046_tutup_shift.sql
+  OK    0047_kas_pergerakan.sql
+  OK    0048_wajib_shift.sql
+  OK    0049_pengingat_shift.sql
+  OK    0050_koreksi_modal.sql
+  OK    0051_laporan_kas.sql
+  OK    0052_laporan_penjualan.sql
+  OK    0053_laporan_menu.sql
+  OK    0054_transaksi_tengah_malam.sql
+  OK    0056_cabang_aktif_saya.sql
+  OK    0057_truncate_audit_ditolak.sql
+  OK    0058_sesi_masih_aktif.sql
+  OK    0059_catat_percobaan_masuk_tenant.sql
+  OK    0060_pembayaran_audit.sql
+  OK    0061_verifikasi_pin_perangkat.sql
+  OK    0062_katalog_publik.sql
+  OK    0063_anti_email_palsu.sql
+  OK    0064_terbit_voucher_acak.sql
+  OK    0065_kasir_cek_pakai_voucher.sql
+  OK    0066_kampanye_aturan.sql
+  OK    0067_pengaman_voucher.sql
+  OK    0068_laporan_voucher.sql
+  OK    0069_privasi_pelanggan.sql
+  OK    0070_identitas_resto.sql
+  OK    0071_tema_merek.sql
+  OK    0072_pengaturan_operasional.sql
+  OK    0073_pengaturan_meja.sql
+  OK    0074_pengaturan_menu.sql
+  OK    0075_menu_cabang.sql
+  OK    0076_metode_bayar_tip.sql
+  OK    0077_kelola_pegawai_izin.sql
+  OK    0078_kelola_cabang.sql
+  OK    0079_daftar_penyewa_m1.sql
+  OK    0080_kunci_idempoten_menyeluruh.sql
+  OK    0081_akhiri_sesi_perangkat_hilang.sql
+  OK    0082_denyut_harian_pembersih.sql
+  OK    0083_versi_pengaturan_bersamaan.sql
+  OK    0084_cabut_akses_pegawai_berhenti.sql
+  OK    0085_ringkasan_harian.sql
+  OK    0086_data_awal_dan_autentikasi_perangkat.sql
+  OK    0087_perbaiki_search_path_kripto_dan_rpc.sql
+  OK    0088_waktu_kirim_dapur_peladen.sql
+  OK    0089_voucher_wajib_identitas_terverifikasi.sql
+  OK    0090_saklar_daftar_perangkat_beru_peran_berkuasa.sql
+  OK    0091_pin_bukan_orakel_batas_akun.sql
+  OK    0092_selisih_kas_negatif_tidak_didisembunyikan.sql
+  OK    0093_pelanggan_kasir_wajib_identitas.sql
+  OK    0094_buka_laci_tercatat_audit.sql
+  OK    0095_penyatuan_awalan_nomor_hp_pelanggan.sql
+  OK    0096_penyatuan_gaya_penulisan_nomor_hp.sql
+  OK    0097_batas_daftar_pelanggan_kasir_per_kampanye.sql
+  OK    0098_wajib_pin_atasan_pakai_voucher.sql
+  OK    0099_kunci_batas_pendaftaran_kasir_dan_residu.sql
+  OK    0100_pagar_pantauan_cabang_buat_kode_perangkat.sql
+  OK    0101_persetujuan_perangkat_wajib_login.sql
+  OK    0102_pemulihan_perangkat_tanpa_sesi.sql
+  OK    0103_peringatan_perangkat_berkuasa_tinggal_satu.sql
+  OK    0104_laporan_persetujuan_pin_bulanan.sql
+
+Membuat data uji:
+  OK    alat/sql/data-uji.sql
+
+Menjalankan 1 berkas uji:
+  LULUS docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-probe-082.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+exit=0
+
+### 5. Probe 083 (F-083: ronde pemulihan tanpa sesi + residu aktivasi)
+UJI SQL LOKAL (PostgreSQL di dalam Node — tanpa server, tanpa akun)
+Menyiapkan peran, auth, dan alat bantu uji…
+  OK    persiapan (peran/auth/alat uji)
+
+Menerapkan 101 migrasi:
+  OK    0001_penyewa_cabang.sql
+  OK    0002_pengguna_izin_pengaturan.sql
+  OK    0003_helper_identitas.sql
+  OK    0004_pola_rls.sql
+  OK    0005_izin_berjenjang.sql
+  OK    0006_pin.sql
+  OK    0007_katalog.sql
+  OK    0008_meja.sql
+  OK    0009_pesanan.sql
+  OK    0010_pembayaran.sql
+  OK    0011_peran_tunggal.sql
+  OK    0012_penutup_celah_review.sql
+  OK    0013_penutup_celah_putaran11.sql
+  OK    0014_penutup_celah_putaran13.sql
+  OK    0015_penutup_celah_putaran16.sql
+  OK    0016_penutup_celah_pin_putaran18.sql
+  OK    0017_pesanan_tertutup_beku.sql
+  OK    0018_perangkat_terdaftar.sql
+  OK    0019_pesan_diskon_jujur.sql
+  OK    0020_catatan_audit.sql
+  OK    0021_kunci_diskon.sql
+  OK    0022_beku_setelah_bayar.sql
+  OK    0023_acl_fungsi_pemicu.sql
+  OK    0024_beku_satu_pernyataan.sql
+  OK    0025_isolasi_identitas_null.sql
+  OK    0026_kunci_lingkup_rincian.sql
+  OK    0027_initplan_policy_rls.sql
+  OK    0028_pemulihan_perangkat.sql
+  OK    0029_audit_kekal_rantai.sql
+  OK    0030_sesi_dan_persetujuan_perangkat.sql
+  OK    0031_mode_dukungan_platform.sql
+  OK    0032_status_item_dapur.sql
+  OK    0033_tujuan_item.sql
+  OK    0035_menu_habis_sumber.sql
+  OK    0036_stok.sql
+  OK    0037_opname.sql
+  OK    0038_waktu_peladen.sql
+  OK    0039_bayar_pesanan.sql
+  OK    0040_urutan_rantai_audit.sql
+  OK    0041_diskon_pin_atasan.sql
+  OK    0042_bahan_terbuang_jujur.sql
+  OK    0043_laporan_pembatalan.sql
+  OK    0045_buka_shift.sql
+  OK    0046_tutup_shift.sql
+  OK    0047_kas_pergerakan.sql
+  OK    0048_wajib_shift.sql
+  OK    0049_pengingat_shift.sql
+  OK    0050_koreksi_modal.sql
+  OK    0051_laporan_kas.sql
+  OK    0052_laporan_penjualan.sql
+  OK    0053_laporan_menu.sql
+  OK    0054_transaksi_tengah_malam.sql
+  OK    0056_cabang_aktif_saya.sql
+  OK    0057_truncate_audit_ditolak.sql
+  OK    0058_sesi_masih_aktif.sql
+  OK    0059_catat_percobaan_masuk_tenant.sql
+  OK    0060_pembayaran_audit.sql
+  OK    0061_verifikasi_pin_perangkat.sql
+  OK    0062_katalog_publik.sql
+  OK    0063_anti_email_palsu.sql
+  OK    0064_terbit_voucher_acak.sql
+  OK    0065_kasir_cek_pakai_voucher.sql
+  OK    0066_kampanye_aturan.sql
+  OK    0067_pengaman_voucher.sql
+  OK    0068_laporan_voucher.sql
+  OK    0069_privasi_pelanggan.sql
+  OK    0070_identitas_resto.sql
+  OK    0071_tema_merek.sql
+  OK    0072_pengaturan_operasional.sql
+  OK    0073_pengaturan_meja.sql
+  OK    0074_pengaturan_menu.sql
+  OK    0075_menu_cabang.sql
+  OK    0076_metode_bayar_tip.sql
+  OK    0077_kelola_pegawai_izin.sql
+  OK    0078_kelola_cabang.sql
+  OK    0079_daftar_penyewa_m1.sql
+  OK    0080_kunci_idempoten_menyeluruh.sql
+  OK    0081_akhiri_sesi_perangkat_hilang.sql
+  OK    0082_denyut_harian_pembersih.sql
+  OK    0083_versi_pengaturan_bersamaan.sql
+  OK    0084_cabut_akses_pegawai_berhenti.sql
+  OK    0085_ringkasan_harian.sql
+  OK    0086_data_awal_dan_autentikasi_perangkat.sql
+  OK    0087_perbaiki_search_path_kripto_dan_rpc.sql
+  OK    0088_waktu_kirim_dapur_peladen.sql
+  OK    0089_voucher_wajib_identitas_terverifikasi.sql
+  OK    0090_saklar_daftar_perangkat_beru_peran_berkuasa.sql
+  OK    0091_pin_bukan_orakel_batas_akun.sql
+  OK    0092_selisih_kas_negatif_tidak_didisembunyikan.sql
+  OK    0093_pelanggan_kasir_wajib_identitas.sql
+  OK    0094_buka_laci_tercatat_audit.sql
+  OK    0095_penyatuan_awalan_nomor_hp_pelanggan.sql
+  OK    0096_penyatuan_gaya_penulisan_nomor_hp.sql
+  OK    0097_batas_daftar_pelanggan_kasir_per_kampanye.sql
+  OK    0098_wajib_pin_atasan_pakai_voucher.sql
+  OK    0099_kunci_batas_pendaftaran_kasir_dan_residu.sql
+  OK    0100_pagar_pantauan_cabang_buat_kode_perangkat.sql
+  OK    0101_persetujuan_perangkat_wajib_login.sql
+  OK    0102_pemulihan_perangkat_tanpa_sesi.sql
+  OK    0103_peringatan_perangkat_berkuasa_tinggal_satu.sql
+  OK    0104_laporan_persetujuan_pin_bulanan.sql
+
+Membuat data uji:
+  OK    alat/sql/data-uji.sql
+
+Menjalankan 1 berkas uji:
+  LULUS docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-probe-083.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+exit=0
+
+### 6. Probe 085 (F-085: pagar 0100)
+UJI SQL LOKAL (PostgreSQL di dalam Node — tanpa server, tanpa akun)
+Menyiapkan peran, auth, dan alat bantu uji…
+  OK    persiapan (peran/auth/alat uji)
+
+Menerapkan 101 migrasi:
+  OK    0001_penyewa_cabang.sql
+  OK    0002_pengguna_izin_pengaturan.sql
+  OK    0003_helper_identitas.sql
+  OK    0004_pola_rls.sql
+  OK    0005_izin_berjenjang.sql
+  OK    0006_pin.sql
+  OK    0007_katalog.sql
+  OK    0008_meja.sql
+  OK    0009_pesanan.sql
+  OK    0010_pembayaran.sql
+  OK    0011_peran_tunggal.sql
+  OK    0012_penutup_celah_review.sql
+  OK    0013_penutup_celah_putaran11.sql
+  OK    0014_penutup_celah_putaran13.sql
+  OK    0015_penutup_celah_putaran16.sql
+  OK    0016_penutup_celah_pin_putaran18.sql
+  OK    0017_pesanan_tertutup_beku.sql
+  OK    0018_perangkat_terdaftar.sql
+  OK    0019_pesan_diskon_jujur.sql
+  OK    0020_catatan_audit.sql
+  OK    0021_kunci_diskon.sql
+  OK    0022_beku_setelah_bayar.sql
+  OK    0023_acl_fungsi_pemicu.sql
+  OK    0024_beku_satu_pernyataan.sql
+  OK    0025_isolasi_identitas_null.sql
+  OK    0026_kunci_lingkup_rincian.sql
+  OK    0027_initplan_policy_rls.sql
+  OK    0028_pemulihan_perangkat.sql
+  OK    0029_audit_kekal_rantai.sql
+  OK    0030_sesi_dan_persetujuan_perangkat.sql
+  OK    0031_mode_dukungan_platform.sql
+  OK    0032_status_item_dapur.sql
+  OK    0033_tujuan_item.sql
+  OK    0035_menu_habis_sumber.sql
+  OK    0036_stok.sql
+  OK    0037_opname.sql
+  OK    0038_waktu_peladen.sql
+  OK    0039_bayar_pesanan.sql
+  OK    0040_urutan_rantai_audit.sql
+  OK    0041_diskon_pin_atasan.sql
+  OK    0042_bahan_terbuang_jujur.sql
+  OK    0043_laporan_pembatalan.sql
+  OK    0045_buka_shift.sql
+  OK    0046_tutup_shift.sql
+  OK    0047_kas_pergerakan.sql
+  OK    0048_wajib_shift.sql
+  OK    0049_pengingat_shift.sql
+  OK    0050_koreksi_modal.sql
+  OK    0051_laporan_kas.sql
+  OK    0052_laporan_penjualan.sql
+  OK    0053_laporan_menu.sql
+  OK    0054_transaksi_tengah_malam.sql
+  OK    0056_cabang_aktif_saya.sql
+  OK    0057_truncate_audit_ditolak.sql
+  OK    0058_sesi_masih_aktif.sql
+  OK    0059_catat_percobaan_masuk_tenant.sql
+  OK    0060_pembayaran_audit.sql
+  OK    0061_verifikasi_pin_perangkat.sql
+  OK    0062_katalog_publik.sql
+  OK    0063_anti_email_palsu.sql
+  OK    0064_terbit_voucher_acak.sql
+  OK    0065_kasir_cek_pakai_voucher.sql
+  OK    0066_kampanye_aturan.sql
+  OK    0067_pengaman_voucher.sql
+  OK    0068_laporan_voucher.sql
+  OK    0069_privasi_pelanggan.sql
+  OK    0070_identitas_resto.sql
+  OK    0071_tema_merek.sql
+  OK    0072_pengaturan_operasional.sql
+  OK    0073_pengaturan_meja.sql
+  OK    0074_pengaturan_menu.sql
+  OK    0075_menu_cabang.sql
+  OK    0076_metode_bayar_tip.sql
+  OK    0077_kelola_pegawai_izin.sql
+  OK    0078_kelola_cabang.sql
+  OK    0079_daftar_penyewa_m1.sql
+  OK    0080_kunci_idempoten_menyeluruh.sql
+  OK    0081_akhiri_sesi_perangkat_hilang.sql
+  OK    0082_denyut_harian_pembersih.sql
+  OK    0083_versi_pengaturan_bersamaan.sql
+  OK    0084_cabut_akses_pegawai_berhenti.sql
+  OK    0085_ringkasan_harian.sql
+  OK    0086_data_awal_dan_autentikasi_perangkat.sql
+  OK    0087_perbaiki_search_path_kripto_dan_rpc.sql
+  OK    0088_waktu_kirim_dapur_peladen.sql
+  OK    0089_voucher_wajib_identitas_terverifikasi.sql
+  OK    0090_saklar_daftar_perangkat_beru_peran_berkuasa.sql
+  OK    0091_pin_bukan_orakel_batas_akun.sql
+  OK    0092_selisih_kas_negatif_tidak_didisembunyikan.sql
+  OK    0093_pelanggan_kasir_wajib_identitas.sql
+  OK    0094_buka_laci_tercatat_audit.sql
+  OK    0095_penyatuan_awalan_nomor_hp_pelanggan.sql
+  OK    0096_penyatuan_gaya_penulisan_nomor_hp.sql
+  OK    0097_batas_daftar_pelanggan_kasir_per_kampanye.sql
+  OK    0098_wajib_pin_atasan_pakai_voucher.sql
+  OK    0099_kunci_batas_pendaftaran_kasir_dan_residu.sql
+  OK    0100_pagar_pantauan_cabang_buat_kode_perangkat.sql
+  OK    0101_persetujuan_perangkat_wajib_login.sql
+  OK    0102_pemulihan_perangkat_tanpa_sesi.sql
+  OK    0103_peringatan_perangkat_berkuasa_tinggal_satu.sql
+  OK    0104_laporan_persetujuan_pin_bulanan.sql
+
+Membuat data uji:
+  OK    alat/sql/data-uji.sql
+
+Menjalankan 1 berkas uji:
+  LULUS docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-probe-085.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+exit=0
+
+### 7. Uji aplikasi terarah (F-084 & F-086)
+
+ [32m✓[39m src/layar/pengaturan/Perangkat.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 207[2mms[22m[39m
+ [32m✓[39m src/App.kunciOtomatis.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 185[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+[2m   Start at [22m 03:36:17
+[2m   Duration [22m 3.44s[2m (transform 47%, environment 28%, import 13%, tests 12%)[22m
+
+[2m    Isolate [22m [33m2 workers spawned[39m[2m · ~548ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~548ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
+exit=0
+
+### 8. Residu: tidak ada pemanggil klien
+-- hitung pemanggil di aplikasi/src:
+0
+0
+0
+-- kode pendaftaran resmi 0030 tidak menyentuh persetujuan_perangkat:
+11
+-- pero 0030: garis fungsi daftarkan_perangkat_dengan_kode:
+238:create or replace function public.daftarkan_perangkat_dengan_kode(
+
+### 9. selesaikan_pemulihan menuntut sesi + izin (0028)
+as $$
+declare
+  v_saya          uuid := auth.uid();
+  v_penyewa       uuid := public.penyewa_saya();
+  v_perangkat_id  uuid;
+  v_aktif_setelah timestamptz;
+  v_status        text;
+begin
+  if v_saya is null then
+    raise exception 'Anda harus masuk terlebih dahulu.';
+  end if;
+  if v_penyewa is null or not public.boleh('kelola_pegawai') then
+    raise exception 'Hanya pemegang izin kelola_pegawai yang boleh menyelesaikan aktivasi pemulihan perangkat.';
+
+### 10. Prosedur ops yang tidak bisa dijalankan oleh owner tanpa sesi
+   - Peringatan tercatat di `catatan_audit`.
+5. **Aktivasi Setelah 30 Menit**:
+   Setelah waktu 30 menit berlalu, jalankan:
+   ```sql
+   select public.selesaikan_pemulihan('<pemulihan-id>');
+   ```
+   Perangkat darurat resmi aktif dan dapat langsung digunakan untuk operasional kasir/PIN staf.
+
+### 11. Sisa contoh isian 6 angka di Perangkat.tsx
+            <KolomIsian
+              label="Kode Pendaftaran (8 Karakter)"
+              contoh="Contoh: 849201"
+              nilai={inputKode}
+              onUbah={(v) =>
+                setInputKode(
+                  v
+                    .toUpperCase()
+                    .replace(/[^A-Z0-9]/g, '')
+                    .slice(0, 8),
+                )
+              }
+              wajib
+
+### 12. Ejaan gate perangkat DIUJI-BANTAH: dua-duanya dipetakan pesan.ts
+aplikasi/src/lib/pesan.ts:98:  PERANGKAT_TIDAK_SAH: {
+aplikasi/src/lib/pesan.ts:104:  PERANGKAT_BELUM_DISETUJUI: {
+aplikasi/src/lib/pesan.test.ts:21:  it('menerjemahkan PERANGKAT_BELUM_DISETUJUI (PMB1-F-082) dengan ajakan minta persetujuan', () => {
+aplikasi/src/lib/pesan.test.ts:22:    const hasil = formatPesanError('PERANGKAT_BELUM_DISETUJUI')
+
+### SELESAI
