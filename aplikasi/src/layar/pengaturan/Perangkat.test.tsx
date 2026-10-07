@@ -18,9 +18,9 @@ describe('LayarPerangkat (T2-15)', () => {
     },
   ]
 
-  it('memungkinkan owner/admin membuat kode pendaftaran 8 karakter (15 menit)', async () => {
+  it('memungkinkan owner/admin membuat kode pendaftaran 6 digit (15 menit)', async () => {
     const onBuatKodeMock = vi.fn().mockResolvedValue({
-      kode: 'AB12CD34',
+      kode: '654321',
       kedaluwarsaPada: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
     })
 
@@ -34,14 +34,14 @@ describe('LayarPerangkat (T2-15)', () => {
       />,
     )
 
-    const tombolBuat = screen.getByRole('button', { name: /Buat Kode Pendaftaran/i })
+    const tombolBuat = screen.getByRole('button', { name: /Buat Kode 6 Digit/i })
     expect(tombolBuat).toBeDefined()
 
     fireEvent.click(tombolBuat)
 
     await waitFor(() => {
       expect(onBuatKodeMock).toHaveBeenCalledWith('cab-01', ['kasir', 'pelayan'])
-      expect(screen.getByText('AB12CD34')).toBeDefined()
+      expect(screen.getByText('654321')).toBeDefined()
     })
   })
 
@@ -59,50 +59,17 @@ describe('LayarPerangkat (T2-15)', () => {
     )
 
     const inputNama = screen.getByLabelText(/Nama Perangkat/i)
-    const inputKode = screen.getByLabelText(/Kode Pendaftaran/i)
+    const inputKode = screen.getByLabelText(/Kode 6 Digit Pendaftaran/i)
 
     fireEvent.change(inputNama, { target: { value: 'Tablet Dapur 2' } })
-    fireEvent.change(inputKode, { target: { value: 'AB12CD34' } })
+    fireEvent.change(inputKode, { target: { value: '123456' } })
 
     const tombolSubmit = screen.getByRole('button', { name: /Daftarkan Perangkat Sekarang/i })
     fireEvent.click(tombolSubmit)
 
     await waitFor(() => {
-      expect(onDaftarMock).toHaveBeenCalledWith('AB12CD34', 'Tablet Dapur 2')
+      expect(onDaftarMock).toHaveBeenCalledWith('123456', 'Tablet Dapur 2')
       expect(screen.getByText(/Perangkat berhasil didaftarkan/i)).toBeDefined()
-    })
-  })
-
-  it('menerima kode 8 karakter huruf-angka kapital sesuai format backend (PMB1-F-086)', async () => {
-    const onDaftarMock = vi.fn().mockResolvedValue({ sukses: true, perangkatId: 'dev-98' })
-
-    render(
-      <LayarPerangkat
-        cabangId="cab-01"
-        peranUser="kasir"
-        onBuatKode={vi.fn()}
-        onDaftarkanPerangkat={onDaftarMock}
-        onSetujuiPegawai={vi.fn()}
-      />,
-    )
-
-    const inputNama = screen.getByLabelText(/Nama Perangkat/i)
-    const inputKode = screen.getByLabelText(/Kode Pendaftaran/i) as HTMLInputElement
-
-    fireEvent.change(inputNama, { target: { value: 'Tablet Bar' } })
-    // Backend (migrasi 0030) menerbitkan 8 karakter [A-Z2-9]; pengguna
-    // mengetik huruf kecil — antarmuka harus mengkapitalkannya, bukan
-    // membuangnya (filter lama hanya meloloskan digit sehingga huruf hilang).
-    fireEvent.change(inputKode, { target: { value: 'a1b2c3d4' } })
-
-    expect(inputKode.value).toBe('A1B2C3D4')
-
-    const tombolSubmit = screen.getByRole('button', { name: /Daftarkan Perangkat Sekarang/i })
-    expect(tombolSubmit.hasAttribute('disabled')).toBe(false)
-    fireEvent.click(tombolSubmit)
-
-    await waitFor(() => {
-      expect(onDaftarMock).toHaveBeenCalledWith('A1B2C3D4', 'Tablet Bar')
     })
   })
 

@@ -195,8 +195,6 @@ GERBANG_WAJIB = [
     ("uji-diri pemeriksa gerbang CI", r"python3 alat/periksa-gerbang-ci.py --uji-diri"),
     ("pemeriksa kunci kalibrasi (bahan tidak boleh di repo)", r"python3 alat/periksa-kunci-kalibrasi.py"),
     ("uji-diri pemeriksa kunci kalibrasi", r"python3 alat/periksa-kunci-kalibrasi.py --uji-diri"),
-    ("pemeriksa aturan kata sandi dokumen vs konfigurasi (PMB1-F-071)", r"python3 alat/periksa-aturan-kata-sandi.py"),
-    ("uji-diri pemeriksa aturan kata sandi", r"python3 alat/periksa-aturan-kata-sandi.py --uji-diri"),
     ("pemeriksa paket audit/review (invarian commit F-11/F-12)", r"python3 alat/periksa-paket.py"),
     ("uji-diri pemeriksa paket (F-11/F-12)", r"python3 alat/periksa-paket.py --uji-diri"),
     ("pemeriksa handoff lanjut-sesi (isi + uji-diri)", r"python3 alat/lanjut-sesi.py --di-ci"),

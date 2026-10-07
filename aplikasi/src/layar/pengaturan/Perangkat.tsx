@@ -178,7 +178,7 @@ export function LayarPerangkat({
                 onClick={tanganiBuatKode}
                 nonaktif={sedangMembuatKode || peranTerpilih.length === 0}
               >
-                {sedangMembuatKode ? 'Membuat Kode...' : 'Buat Kode Pendaftaran (15 Menit)'}
+                {sedangMembuatKode ? 'Membuat Kode...' : 'Buat Kode 6 Digit (15 Menit)'}
               </Tombol>
 
               {kodeDibuat && (
@@ -209,8 +209,8 @@ export function LayarPerangkat({
         <Kartu judul="Daftarkan Tablet Ini">
           <form onSubmit={tanganiDaftarPerangkat} className="space-y-4">
             <p className="text-sm text-neutral-600">
-              Masukkan nama pengenal (mis. POS Kasir Meja #1) dan kode pendaftaran 8 karakter dari
-              Admin untuk mendaftarkan perangkat ini.
+              Masukkan nama pengenal (mis. POS Kasir Meja #1) dan kode 6 digit dari Admin untuk
+              mendaftarkan perangkat ini.
             </p>
 
             <KolomIsian
@@ -222,24 +222,17 @@ export function LayarPerangkat({
             />
 
             <KolomIsian
-              label="Kode Pendaftaran (8 Karakter)"
+              label="Kode 6 Digit Pendaftaran"
               contoh="Contoh: 849201"
               nilai={inputKode}
-              onUbah={(v) =>
-                setInputKode(
-                  v
-                    .toUpperCase()
-                    .replace(/[^A-Z0-9]/g, '')
-                    .slice(0, 8),
-                )
-              }
+              onUbah={(v) => setInputKode(v.replace(/\D/g, '').slice(0, 6))}
               wajib
             />
 
             <Tombol
               ragam="utama"
               jenis="submit"
-              nonaktif={sedangDaftar || inputKode.length !== 8 || !inputNamaPerangkat.trim()}
+              nonaktif={sedangDaftar || inputKode.length !== 6 || !inputNamaPerangkat.trim()}
             >
               {sedangDaftar ? 'Mendaftarkan...' : 'Daftarkan Perangkat Sekarang'}
             </Tombol>

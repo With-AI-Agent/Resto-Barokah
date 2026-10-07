@@ -52,21 +52,8 @@ export interface DataRingkasanPeringatan {
   rincian_peringatan: PeringatanItem[]
 }
 
-/**
- * Status perangkat berkuasa per peran (PMB1-F-072 · KEAMANAN §4 keputusan pemilik:
- * setiap peran berkuasa minimal 2 perangkat terdaftar; tinggal satu = wajib diperingatkan).
- * Dihitung peladen lewat RPC `hitung_perangkat_berkuasa()` (migrasi 0103).
- */
-export interface StatusPerangkatBerkuasa {
-  peran: 'owner_pusat' | 'admin_cabang' | string
-  jumlah_aktif: number
-  cadangan_cukup: boolean
-}
-
 export interface PeringatanProps {
   data?: DataRingkasanPeringatan | null
-  /** PMB1-F-072: bila ada peran berkuasa dengan cadangan_cukup=false, layar menampilkan peringatan keras di atas semua panel. */
-  statusPerangkatBerkuasa?: StatusPerangkatBerkuasa[] | null
   daftarRingkasan?: DataRingkasanPeringatan[]
   tanggalTerpilih?: string
   sedangMemuat?: boolean
@@ -80,14 +67,8 @@ export interface PeringatanProps {
   onMuatUlang?: () => void
 }
 
-const LABEL_PERAN_BERKUASA: Record<string, string> = {
-  owner_pusat: 'owner pusat',
-  admin_cabang: 'admin cabang',
-}
-
 export const Peringatan: React.FC<PeringatanProps> = ({
   data,
-  statusPerangkatBerkuasa = null,
   daftarRingkasan: _daftarRingkasan = [],
   tanggalTerpilih,
   sedangMemuat = false,
@@ -204,36 +185,6 @@ export const Peringatan: React.FC<PeringatanProps> = ({
           )}
         </div>
       </div>
-
-      {/* PMB1-F-072: peringatan perangkat berkuasa tinggal satu (KEAMANAN §4). */}
-      {(statusPerangkatBerkuasa || []).filter((s) => !s.cadangan_cukup).length > 0 && (
-        <div
-          role="alert"
-          className="peringatan-perangkat-berkuasa"
-          style={{
-            padding: '12px 16px',
-            backgroundColor: 'var(--latar-bahaya-muda)',
-            color: 'var(--teks-bahaya)',
-            borderRadius: '6px',
-            border: '1px solid var(--border-bahaya)',
-            fontSize: '14px',
-          }}
-        >
-          <strong>📵 Perangkat berkuasa hampir habis.</strong>
-          <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
-            {(statusPerangkatBerkuasa || [])
-              .filter((s) => !s.cadangan_cukup)
-              .map((s) => (
-                <li key={s.peran}>
-                  Peran <strong>{LABEL_PERAN_BERKUASA[s.peran] ?? s.peran}</strong> tinggal{' '}
-                  <strong>{s.jumlah_aktif}</strong> perangkat aktif — keputusan pemilik: minimal 2
-                  (satu utama + satu cadangan). Daftarkan perangkat cadangan sebelum perangkat
-                  terakhir hilang.
-                </li>
-              ))}
-          </ul>
-        </div>
-      )}
 
       {pesanGagal && (
         <div

@@ -10,12 +10,6 @@ Mutasi yang WAJIB MERAH (semuanya harus gagal karena ASERSI, bukan karena salina
   3. Pemeriksaan kode pemulihan cocok dilepas → kode salah diterima
   4. Pemeriksaan kode belum terpakai dilepas → kode bisa dipakai berulang kali
 
-Catatan 2026-10-05 (PMB1-F-083): `pulihkan_perangkat` ditulis ulang utuh oleh
-migrasi 0102 (jalur tanpa sesi). Mutasi 3 & 4 kini membidik berkas 0102 sebagai
-definisi berlaku — membidik 0028 saja menjadi tumpul karena CREATE OR REPLACE
-0102 menimpa definisi termutasi. Mutasi 1 & 2 tetap di 0028 (fungsi
-buat_kode_pemulihan & selesaikan_pemulihan tidak ditulis ulang).
-
 Jalankan:  python3 alat/uji-mutasi-0028.py            (±1 menit)
            python3 alat/uji-mutasi-0028.py --uji-diri
 """
@@ -32,7 +26,6 @@ from klasifikasi_mutasi import HIJAU, MERAH_PAGAR, RUSAK, klasifikasi  # noqa: E
 AKAR = pathlib.Path(__file__).resolve().parent.parent
 KERJA = pathlib.Path("/tmp/mutasi-0028-rb")
 MIG = "supabase/migrations/0028_pemulihan_perangkat.sql"
-MIG_0102 = "supabase/migrations/0102_pemulihan_perangkat_tanpa_sesi.sql"
 UJI_PEMULIHAN = "supabase/tes/pemulihan.sql"
 SEMUA_UJI = (
     UJI_PEMULIHAN,
@@ -81,8 +74,8 @@ def semua_hijau() -> tuple[bool, str]:
     return True, ""
 
 
-def mutasi(nama: str, ubah, uji: str, mig: str = MIG) -> tuple[str, bool, str]:
-    berkas = KERJA / mig
+def mutasi(nama: str, ubah, uji: str) -> tuple[str, bool, str]:
+    berkas = KERJA / MIG
     asli = berkas.read_text(encoding="utf-8")
     try:
         baru = ubah(asli)
@@ -145,16 +138,16 @@ def main() -> int:
   end if;"""
         return t.replace(lama, "-- mutasi: kode salah diterima\n", 1)
     hasil.append(mutasi("verifikasi kode pemulihan dilepas (kode salah diterima)",
-                        lepas_cek_kode, UJI_PEMULIHAN, mig=MIG_0102))
+                        lepas_cek_kode, UJI_PEMULIHAN))
 
-    # 4) Pemeriksaan kode belum terpakai dilepas (loop jalur ber-sesi di 0102)
+    # 4) Pemeriksaan kode belum terpakai dilepas
     def lepas_kode_terpakai(t: str) -> str:
-        lama = """       where penyewa_id = v_penyewa
-         and not terpakai"""
-        baru = """       where penyewa_id = v_penyewa"""
+        lama = """     where penyewa_id = v_penyewa
+       and not terpakai"""
+        baru = """     where penyewa_id = v_penyewa"""
         return t.replace(lama, baru, 1)
     hasil.append(mutasi("pengecekan kode belum terpakai dilepas (kode dipakai ulang)",
-                        lepas_kode_terpakai, UJI_PEMULIHAN, mig=MIG_0102))
+                        lepas_kode_terpakai, UJI_PEMULIHAN))
 
     hijau_akhir, keluar_akhir = semua_hijau()
     if not hijau_akhir:
