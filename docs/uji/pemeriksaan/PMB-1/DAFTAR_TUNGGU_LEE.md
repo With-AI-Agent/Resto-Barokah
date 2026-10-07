@@ -8,8 +8,8 @@
 
 | Bagian | Isi | Jumlah |
 |---|---|---|
-| A1 | Masih menunggu keputusan/tindakan Lee | 8 |
-| A2 | Sudah diputuskan Lee, menunggu dieksekusi agent | 4 |
+| A1 | Masih menunggu keputusan/tindakan Lee | 7 |
+| A2 | Sudah diputuskan Lee, menunggu dieksekusi agent | 5 |
 | B | Temuan K-1 terbuka | 3 |
 | C | Tugas ROADMAP dibuka kembali, masih `[ ]` | 7 |
 | D | Centang lama menunggu sensus klaim (⏳ BUKTI-BELUM) | 139 |
@@ -31,9 +31,8 @@ Temuan terbuka semua tingkat: BARU 17 · TERVERIFIKASI 153 · PERLU-INFO 0 · DI
 | PMB1-F-128 | K-2 | F-09 | TERVERIFIKASI | **BUTUH LEE/OPERATOR:** uji perangkat nyata T-015 untuk T2-15 — atau keputusan Lee mengembalikan T2-15 ke [ ] (status ROADMAP = wewenang Perencana); kartu B-F-09 §3 · arena/01a0ec8d-resto-barok… |
 | PMB1-F-129 | K-2 | F-09 | TERVERIFIKASI | **BUTUH LEE/OPERATOR:** cek Dashboard Supabase → Authentication → SMTP (Enable Custom SMTP) + keputusan kanal T-022 + dua uji manual jalur email — atau keputusan Lee mengembalikan T2-04/T2-05 k… |
 | PMB1-F-238 | K-2 | P-1B-00 | TERVERIFIKASI | **MENUNGGU KEPUTUSAN LEE:** (kartu H-F-06.5 §5) putuskan rancangan: `batalkan_pemulihan` ikut dibuka tanpa sesi (simetris dengan 0105), atau cukup eskalasi Tingkat 4? |
-| PMB1-F-239 | K-3 | P-1B-00 | TERVERIFIKASI | **MENUNGGU KEPUTUSAN LEE:** (kartu H-F-06.5 §5) tambah penanda penyewa/permohonan pada `selesaikan_pemulihan_darurat`, atau terima risikonya dan tutup dengan catatan? |
 
-Jumlah A1: **8**
+Jumlah A1: **7**
 
 ### A2. Sudah DIPUTUSKAN Lee — menunggu dieksekusi agent (penanda `KEPUTUSAN LEE <tanggal>:`)
 
@@ -43,8 +42,9 @@ Jumlah A1: **8**
 | PMB1-F-052 | K-1 | P-10-00 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** Pembangun menyiapkan perbaikan di kode + uji lokal saja (migrasi baru/kode di balik saklar), TIDAK dipasang ke produksi dan cara masuk Lee tidak berubah sampai Lee memer… |
 | PMB1-F-063 | K-1 | F-04 | DIPERBAIKI | **KEPUTUSAN LEE 2026-09-29 = B) — saklar `pengaturan.izin_daftar_perangkat_bebas_peran_berkuasa` bawaan FALSE (0090) dan definisi final `verifikasi_pin_perangkat` (0091) menolak pendaftaran perangkat baru peran berkuasa BILA penyewa sudah punya perangkat aktif (skenario persis F-063, kode `PERANGKAT_BELUM_DISETUJUI`); uji `supabase/tes/daftar_perangkat_beru_peran_berkuasa.sql` (kasus 2 + prasyarat "sudah ada perangkat aktif" eksplisit F-063) dan kasus 7a/7b `verifikasi_pin_perangkat.sql`; probe hakim `bukti/F-03-hakim-owner-perangkat.sql` yang dulu LULUS kini GAGAL — celah tertutup (bukti `bukti/B-F-04-F-063-tertutup.txt`). DISIAPKAN, BELUM DIPASANG (saklar mati) — produksi dan cara masuk Lee tidak berubah sampai Lee memerintahkan pemasangan (REKAM §31 butir 21).:**  |
 | PMB1-F-117 | K-2 | F-09 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** Pembangun menyiapkan perbaikan di kode + uji lokal saja (migrasi baru/kode di balik saklar), TIDAK dipasang ke produksi dan cara masuk Lee tidak berubah sampai Lee memer… |
+| PMB1-F-239 | K-3 | P-1B-00 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-10-07:** **penanda penyewa/permohonan DIPILIH** — dibangun Pembangun (ronde 4); verifikasi sudah dilakukan H-P-1B-00 (arena/36a4b31f, 2026-10-07) sehingga baris ini siap dibangun. |
 
-Jumlah A2: **4**
+Jumlah A2: **5**
 
 ## B. Temuan K-1 (berat) yang masih terbuka — wajib 0 sebelum data asli/pilot
 

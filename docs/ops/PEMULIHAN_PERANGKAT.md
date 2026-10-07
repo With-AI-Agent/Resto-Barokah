@@ -31,13 +31,23 @@ select public.buat_kode_pemulihan('frasa-rahasia-darurat-minimal-20-karakter-aca
 
 ## 3. Langkah Pemulihan Saat Kehilangan Perangkat
 
+> **Siapa yang menjalankan (KEPUTUSAN LEE 2026-10-07, PMB1-F-083):** sampai
+> layar darurat mandiri dibangun (dijadwalkan pra-pilot bersama klaster login),
+> prosedur ini adalah prosedur **Tingkat 4 — pemilik platform mendampingi
+> owner pusat**: owner menghubungi pemilik platform, membacakan kode pemulihan
+> dari amplopnya, dan pemilik platform menjalankan langkah-langkah SQL di bawah
+> (teruji: migrasi 0102 + 0105, suite `supabase/tes/pemulihan_aktivasi_darurat.sql`).
+> Sebelumnya baris ini menjanjikan owner menjalankan sendiri (Tingkat 3);
+> janji itu kini tercatat jujur di `docs/KEAMANAN.md` §4b.
+
 Jika seluruh perangkat operasional tidak dapat diakses:
 
-1. **Buka Amplop Tersegel**: Ambil kode pemulihan fisik.
+1. **Buka Amplop Tersegel**: Owner mengambil kode pemulihan fisik.
 2. **TANPA perlu masuk aplikasi** — seluruh jalur ini dirancang untuk owner
    yang kehilangan SELURUH perangkat (tidak ada sesi `owner_pusat` yang bisa
    dipakai). Sejak migrasi 0102 (pengajuan) dan 0105 (aktivasi), kedua langkah
-   di bawah bisa dijalankan tanpa sesi.
+   di bawah bisa dijalankan tanpa sesi — dijalankan pemilik platform dari
+   konsol SQL, didampingi owner.
 3. **Ajukan Pemulihan Perangkat Darurat** (dari perangkat baru, tanpa sesi):
    ```sql
    select public.pulihkan_perangkat(
@@ -74,8 +84,11 @@ Jika ada notifikasi/catatan pengajuan pemulihan yang tidak dikenali:
    ```
 2. Perangkat yang diajukan akan tetap terkunci nonaktif secara permanen.
 
-> **Batas jujur (residu PMB1-F-083 ronde 3):** `batalkan_pemulihan` masih
-> menuntut sesi aktif + izin `kelola_pegawai`. Jika SELURUH perangkat hilang
-> dan ada pengajuan pemulihan mencurigakan, pembatalan mandiri tidak mungkin —
-> eskalasi ke pemilik platform (Tingkat 4) di `docs/KEAMANAN.md`. Celah ini
-> tercatat sebagai temuan terbuka, bukan diperbaiki diam-diam.
+> **KEPUTUSAN LEE 2026-10-07 (PMB1-F-238):** jika SELURUH perangkat hilang dan
+> ada pengajuan pemulihan mencurigakan, jalan resminya = **eskalasi Tingkat 4**:
+> owner menghubungi pemilik platform, dan pemilik platform membatalkan dari
+> konsol (sesi `service_role`/`owner_pusat` yang sah, tercatat audit).
+> `batalkan_pemulihan` sengaja TIDAK dibuka tanpa sesi — tanpa bukti
+> kepemilikan yang bisa diverifikasi, jalur tanpa sesi justru membuka celah
+> pembatalan oleh pihak asing. Jendela 30 menit dirancang supaya eskalasi ini
+> hingga sempat berjalan sebelum perangkat diaktifkan.
