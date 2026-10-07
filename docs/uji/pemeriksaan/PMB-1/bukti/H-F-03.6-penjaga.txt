@@ -1,0 +1,59 @@
+=== python3 alat/periksa-pemeriksaan.py ===
+PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 0, 'DIHAKIMI': 17, 'DIKLAIM': 0, 'RENCANA': 46, 'SELESAI': 0} · 228 temuan (terbuka K-1/K-2: 44)
+
+HASIL: LOLOS
+
+=== python3 alat/periksa-pemeriksaan.py --uji-diri ===
+UJI-DIRI periksa-pemeriksaan
+  OK  salinan utuh diterima → kode=0
+  OK  kartu PEMBANGUN B-<ID>.md yang lengkap diterima → kode=0
+  OK  kartu PEMBANGUN tanpa bagian wajib ditolak → kode=1
+  OK  kartu PEMBANGUN tanpa baris Ter-push sampai ditolak (arahan Lee 2026-09-30) → kode=1
+  OK  baris sintetis yang sah diterima → kode=0
+  OK  potongan SELESAI tanpa kartu ditolak → kode=1
+  OK  status temuan tidak sah ditolak → kode=1
+  OK  DITUTUP tanpa hakim/commit ditolak → kode=1
+  OK  artefak yang tidak ada ditolak → kode=1
+  OK  artefak dengan nomor baris di luar berkas ditolak → kode=1
+  OK  TERVERIFIKASI dengan kartu hakim yang tidak ada ditolak (PMB1-F-136) → kode=1
+  OK  TERVERIFIKASI oleh pemeriksa sendiri (kartu K, bukan H) ditolak → kode=1
+  OK  ID temuan melompat ditolak → kode=1
+  OK  potongan temuan yang tidak ada di papan ditolak → kode=1
+  OK  temuan pertama dihapus ditolak (urutan ID putus) → kode=1
+  OK  kartu yatim / tidak lengkap ditolak → kode=1
+  OK  matriks basi ditolak → kode=1
+  OK  DUPLIKAT tanpa temuan induk ditolak → kode=1
+  OK  asumsi DIBANTAH tanpa temuan ditolak → kode=1
+  OK  K2: DAFTAR_TUNGGU_LEE.md basi (buku besar berubah tanpa disusun ulang) ditolak → kode=1
+  OK  K4: DIPERBAIKI tanpa berkas uji/penjaga ditolak → kode=1
+  OK  K4: DIPERBAIKI menyebut berkas uji karangan ditolak → kode=1
+  OK  K4: DIPERBAIKI menyebut berkas uji yang ADA diterima → kode=0
+  OK  K4: DIPERBAIKI dokumen dengan 'tanpa uji mesin: <alasan>' diterima → kode=0
+  OK  K1: gerbang akhir menolak selama masih ada temuan terbuka tingkat apa pun → kode=1
+  OK  K5: sensus klaim tidak lengkap / masih ⏳ BUKTI-BELUM ditolak → sensus klaim fase 0: masih ada centang ⏳ BUKTI-BELUM: T0-00, T0-01, T0-02, T0-03, T0-04, T0-05, T0-06, T0-07, T0-08, T0-09, T0-10, T0-11, T0-13, T0-14; sensus klaim fase 0: tugas [x] tidak tercatat di
+  OK  K5: sensus klaim lengkap dengan bukti nyata diterima → bersih
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+
+=== python3 alat/susun-matriks-telusur.py --periksa ===
+[OK] docs/uji/pemeriksaan/PMB-1/MATRIKS_TELUSUR.md mutakhir
+[OK] docs/uji/pemeriksaan/PMB-1/REGRESI_WAJIB.md mutakhir
+
+HASIL: LOLOS
+
+=== python3 alat/susun-daftar-tunggu-lee.py --periksa ===
+[OK] docs/uji/pemeriksaan/PMB-1/DAFTAR_TUNGGU_LEE.md mutakhir
+
+HASIL: LOLOS
+
+=== python3 alat/periksa-bersih.py ===
+PERIKSA POHON BERSIH — 3209 berkas terlacak disalin · 5 pemeriksa dokumen
+  [OK] _sistem/validate_system.py
+  [OK] alat/periksa-rujukan.py
+  [OK] alat/periksa-panduan.py
+  [OK] alat/periksa-buku-uji.py
+  [OK] alat/periksa-rahasia.py
+  catatan: berkas ada di komputermu tetapi TIDAK ikut Git: 0
+  catatan: berkas baru yang BELUM masuk Git (belum `git add`): 1 (contoh: docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.6-penjaga.txt)
+
+HASIL: LOLOS — semua pemeriksa dokumen hijau di pohon bersih (hanya berkas terlacak Git).

@@ -34,8 +34,11 @@ select public.buat_kode_pemulihan('frasa-rahasia-darurat-minimal-20-karakter-aca
 Jika seluruh perangkat operasional tidak dapat diakses:
 
 1. **Buka Amplop Tersegel**: Ambil kode pemulihan fisik.
-2. **Masuk ke Aplikasi sebagai `owner_pusat`** di perangkat baru.
-3. **Ajukan Pemulihan Perangkat Darurat**:
+2. **TANPA perlu masuk aplikasi** — seluruh jalur ini dirancang untuk owner
+   yang kehilangan SELURUH perangkat (tidak ada sesi `owner_pusat` yang bisa
+   dipakai). Sejak migrasi 0102 (pengajuan) dan 0105 (aktivasi), kedua langkah
+   di bawah bisa dijalankan tanpa sesi.
+3. **Ajukan Pemulihan Perangkat Darurat** (dari perangkat baru, tanpa sesi):
    ```sql
    select public.pulihkan_perangkat(
      'frasa-rahasia-darurat-minimal-20-karakter-acak',
@@ -44,16 +47,20 @@ Jika seluruh perangkat operasional tidak dapat diakses:
      '<cabang-id>'
    );
    ```
+   Catat baik-baik `kunci-perangkat` yang dipilih — kunci itu menjadi bukti
+   kepemilikan pada langkah 5 (kode pemulihan hangus sekali pakai di sini).
 4. **Masa Tenggang 30 Menit**:
    - Status pemulihan tercatat sebagai `menunggu`.
    - Perangkat darurat berstatus nonaktif selama masa tenggang.
    - Peringatan tercatat di `catatan_audit`.
-5. **Aktivasi Setelah 30 Menit**:
+5. **Aktivasi Setelah 30 Menit** (tanpa sesi, bukti = kunci perangkat):
    Setelah waktu 30 menit berlalu, jalankan:
    ```sql
-   select public.selesaikan_pemulihan('<pemulihan-id>');
+   select public.selesaikan_pemulihan_darurat('kunci-perangkat-minimal-16-karakter');
    ```
-   Perangkat darurat resmi aktif dan dapat langsung digunakan untuk operasional kasir/PIN staf.
+   Perangkat darurat resmi aktif dan dapat langsung digunakan untuk
+   operasional kasir/PIN staf. (Jalur lama `selesaikan_pemulihan` tetap ada
+   bagi yang masih punya sesi, tetapi tidak lagi dibutuhkan.)
 6. **Buat Kode Pemulihan Baru**: Segera buat kode pemulihan baru dan simpan kembali dalam 2 amplop tersegel.
 
 ---
@@ -66,3 +73,9 @@ Jika ada notifikasi/catatan pengajuan pemulihan yang tidak dikenali:
    select public.batalkan_pemulihan('<pemulihan-id>', 'Aktivitas mencurigakan');
    ```
 2. Perangkat yang diajukan akan tetap terkunci nonaktif secara permanen.
+
+> **Batas jujur (residu PMB1-F-083 ronde 3):** `batalkan_pemulihan` masih
+> menuntut sesi aktif + izin `kelola_pegawai`. Jika SELURUH perangkat hilang
+> dan ada pengajuan pemulihan mencurigakan, pembatalan mandiri tidak mungkin —
+> eskalasi ke pemilik platform (Tingkat 4) di `docs/KEAMANAN.md`. Celah ini
+> tercatat sebagai temuan terbuka, bukan diperbaiki diam-diam.

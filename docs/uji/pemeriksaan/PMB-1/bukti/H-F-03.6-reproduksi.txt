@@ -1,0 +1,84 @@
+=== 1. Commit perbaikan fc2d9ab ===
+commit fc2d9ab64f863d5a08f2d4678bb4b4136c53aae5
+Author: fatrizmubarok-cloud <278521735+fatrizmubarok-cloud@users.noreply.github.com>
+Date:   Fri Oct 2 12:04:49 2026 +0000
+
+    perbaiki PMB1-F-038 (ronde 3): penyatuan 13 gaya penulisan nomor HP di migrasi 0096 + uji kasus 9-19
+    
+    Co-authored-by: arena-agent <297053741+arena-agent@users.noreply.github.com>
+
+ .../PMB-1/bukti/B-F-03.3-F-038-hijau.txt           |  29 ++++++
+ .../PMB-1/bukti/B-F-03.3-F-038-merah.txt           |  18 ++++
+ .../0096_penyatuan_gaya_penulisan_nomor_hp.sql     | 107 +++++++++++++++++++
+ supabase/tes/voucher_kasir_wajib_identitas.sql     | 116 +++++++++++++++++++++
+ 4 files changed, 270 insertions(+)
+
+=== 2. DENGAN migrasi 0096 (HEAD): uji resmi kasus 1-19 ===
+  OK    alat/sql/data-uji.sql
+
+Menjalankan 1 berkas uji:
+  LULUS supabase/tes/voucher_kasir_wajib_identitas.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+=== 3. DENGAN migrasi 0096 (HEAD): probe H-F-03.4 (+62) dan H-F-03.5 (10 varian nomor) ===
+--- docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.4-probe-plus62.sql ---
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.4-probe-plus62.sql: duplicate key value violates unique constraint "pelanggan_penyewa_telepon_unik"
+HASIL: GAGAL
+--- docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.5-probe-varian-nomor.sql ---
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.5-probe-varian-nomor.sql: duplicate key value violates unique constraint "pelanggan_penyewa_telepon_unik"
+HASIL: GAGAL
+--- docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.5-matriks-varian-nomor.sql ---
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.5-matriks-varian-nomor.sql: HASIL bocor(voucher kedua terbit)=  ;; ditolak= [+62 812-3456-7890 -> duplicate key value violates unique constrain] [62 812 3456 7890 -> duplicate key value violates unique constrain] [812 3456 7890 -> duplicate key value violates unique constrain] [+62 (0)812-3456-7890 -> duplicate key value violates unique constrain] [+62 0812 3456 7890 -> duplicate key value violates unique constrain] [620812 3456 7890 -> duplicate key value violates unique constrain] [0062 812 3456 7890 -> duplicate key value violates unique constrain] [0062-0812-3456-7890 -> duplicate key value violates unique constrain] [00812 3456 7890 -> duplicate key value violates unique constrain] [+62 21 5790 1234 -> duplicate key value violates unique constrain] [+62 (0)21 5790 1234 -> duplicate key value violates unique constrain] [0062 21 5790 1234 -> duplicate key value violates unique constrain] [21 5790 1234 -> duplicate key value violates unique constrain] 
+HASIL: GAGAL
+--- docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.5-tabel-normalisasi.sql ---
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.5-tabel-normalisasi.sql: HARAPAN TIDAK TERPENUHI: NORMALISASI [0812-3456-7890 => 081234567890] [+62 812-3456-7890 => 081234567890] [62 812 3456 7890 => 081234567890] [812 3456 7890 => 081234567890] [+62 (0)812-3456-7890 => 081234567890] [+62 0812 3456 7890 => 081234567890] [620812 3456 7890 => 081234567890] [0062 812 3456 7890 => 081234567890] [0062-0812-3456-7890 => 081234567890] [00812 3456 7890 => 081234567890] [021-5790-1234 => 02157901234] [+62 21 5790 1234 => 02157901234] [+62 (0)21 5790 1234 => 02157901234] [0062 21 5790 1234 => 02157901234] [21 5790 1234 => 02157901234] [1 => 1] [22 => 022] [0622-123456 => 0622123456] [+62 622 123456 => 0622123456]
+HASIL: GAGAL
+
+=== 4. KONTROL NEGATIF (TANPA migrasi 0096 di salinan sementara) ===
+--- TANPA 0096: supabase/tes/voucher_kasir_wajib_identitas.sql (wajib GAGAL di kasus 9) ---
+        HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-038 r3: bentuk +62 (0)812… dari nomor yang sama ditolak). Perintah: select public.daftar_voucher(
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - supabase/tes/voucher_kasir_wajib_identitas.sql: HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-038 r3: bentuk +62 (0)812… dari nomor yang sama ditolak). Perintah: select public.daftar_voucher(
+HASIL: GAGAL
+--- TANPA 0096: bukti/H-F-03.5-probe-varian-nomor.sql (wajib LULUS = celah hidup) ---
+  LULUS docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.5-probe-varian-nomor.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+=== 5. Bagian B PMB1-F-038 (identitas fiktif bernomor berbeda): probe H-F-03.5-probe-identitas-fiktif.sql ===
+  LULUS docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.5-probe-identitas-fiktif.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+=== 6. Suite SQL penuh (139 berkas uji) ===
+  LULUS supabase/tes/waktu_peladen.sql
+
+----------------------------------------------------------------------
+uji: 139 LULUS · 0 GAGAL
+HASIL: LOLOS

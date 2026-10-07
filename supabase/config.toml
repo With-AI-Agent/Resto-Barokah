@@ -51,8 +51,14 @@ additional_redirect_urls = ["https://127.0.0.1:3000"]
 jwt_expiry = 3600
 enable_signup = true
 enable_anonymous_sign_ins = false
-minimum_password_length = 8
-password_requirements = ""
+# PMB1-F-071: disamakan dengan janji docs/KEAMANAN.md §4b/§15 (kompensasi risiko
+# HIBP): kata sandi minimal 12 karakter + wajib memuat huruf kecil, huruf besar,
+# dan angka. Catatan jujur: berkas ini mengatur STACK LOKAL (Supabase CLI);
+# konfigurasi proyek produksi hidup di luar repo (L-01/L-04) dan penjaga
+# alat/periksa-aturan-kata-sandi.py memastikan dokumen & konfigurasi repo tidak
+# lagi saling bertentangan.
+minimum_password_length = 12
+password_requirements = "abcdefghijklmnopqrstuvwxyz,ABCDEFGHIJKLMNOPQRSTUVWXYZ,0123456789"
 
 [storage]
 enabled = true

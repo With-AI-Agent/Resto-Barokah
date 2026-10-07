@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 UJI MUTASI — membuktikan ketajaman pagar migrasi 0030 (T1-24, T1-25, T1-26):
-  1. Pelepasan izin kelola_pegawai pada buat_kode_perangkat (T1-24)
+  1. Pelepasan izin kelola_pegawai pada buat_kode_perangkat (T1-24) — sejak
+     PMB1-F-085 definisi berlaku ada di migrasi 0100, jadi mutasi ini membidik
+     0030 DAN 0100 sekaligus (membidik 0030 saja tumpul karena ditimpa 0100).
   2. Pelepasan verifikasi perangkat_sah pada ikat_sesi_perangkat (T1-25)
   3. Pelepasan pencabutan sesi saat cabut_perangkat (T1-25)
   4. Pelepasan pembatasan 5x percobaan akun pada periksa_kunci_masuk (T1-26)
@@ -17,6 +19,7 @@ import shutil
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIGRASI_0030 = os.path.join(REPO, "supabase", "migrations", "0030_sesi_dan_persetujuan_perangkat.sql")
+MIGRASI_0100 = os.path.join(REPO, "supabase", "migrations", "0100_pagar_pantauan_cabang_buat_kode_perangkat.sql")
 MIGRASI_0059 = os.path.join(REPO, "supabase", "migrations", "0059_catat_percobaan_masuk_tenant.sql")
 BERKAS_TES = os.path.join(REPO, "supabase", "tes", "sesi_dan_perangkat.sql")
 
@@ -35,6 +38,8 @@ def uji_mutasi():
     print("UJI MUTASI 0030 (Sesi, Kode Pendaftaran, Persetujuan, & Kunci Masuk)")
     with open(MIGRASI_0030, "r", encoding="utf-8") as f:
         asli_migrasi = f.read()
+    with open(MIGRASI_0100, "r", encoding="utf-8") as f:
+        asli_0100 = f.read()
     asli_0059 = None
     if os.path.exists(MIGRASI_0059):
         with open(MIGRASI_0059, "r", encoding="utf-8") as f:
@@ -49,13 +54,21 @@ def uji_mutasi():
             return 1
         print("  OK  kontrol: salinan utuh → uji sesi_dan_perangkat.sql hijau")
 
-        # Mutasi 1: Pelepasan izin kelola_pegawai pada buat_kode_perangkat (T1-24)
+        # Mutasi 1: Pelepasan izin kelola_pegawai pada buat_kode_perangkat (T1-24).
+        # Dibidik di 0030 (setujui_perangkat_pegawai) DAN 0100 (definisi berlaku
+        # buat_kode_perangkat sejak PMB1-F-085; 0030 saja tumpul karena ditimpa).
         m1 = asli_migrasi.replace(
+            "if not public.boleh('kelola_pegawai') then",
+            "if false and not public.boleh('kelola_pegawai') then"
+        )
+        m1_0100 = asli_0100.replace(
             "if not public.boleh('kelola_pegawai') then",
             "if false and not public.boleh('kelola_pegawai') then"
         )
         with open(MIGRASI_0030, "w", encoding="utf-8") as f:
             f.write(m1)
+        with open(MIGRASI_0100, "w", encoding="utf-8") as f:
+            f.write(m1_0100)
         lulus, out = jalankan_uji()
         if lulus:
             print("  [X] Mutasi 1: Pelepasan izin kelola_pegawai LOLOS (Pagar tumpul!)")
@@ -122,6 +135,8 @@ def uji_mutasi():
     finally:
         with open(MIGRASI_0030, "w", encoding="utf-8") as f:
             f.write(asli_migrasi)
+        with open(MIGRASI_0100, "w", encoding="utf-8") as f:
+            f.write(asli_0100)
         if asli_0059:
             with open(MIGRASI_0059, "w", encoding="utf-8") as f:
                 f.write(asli_0059)

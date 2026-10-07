@@ -1,0 +1,45 @@
+############ [1] SUITE SQL PENUH ############
+
+----------------------------------------------------------------------
+uji: 145 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+############ [2] PROBE LAMA (harus GAGAL sesudah perbaikan) + PROBE HAKIM (harus LULUS) ############
+--- F-06-persetujuan-perangkat-bypass.sql
+        HARAPAN TIDAK TERPENUHI: Terbukti: Staf berhasil masuk tanpa persetujuan_perangkat (bypass) (dapat f, harap t)
+uji: 0 LULUS · 1 GAGAL
+  - docs/uji/pemeriksaan/PMB-1/bukti/F-06-persetujuan-perangkat-bypass.sql: HARAPAN TIDAK TERPENUHI: Terbukti: Staf berhasil masuk tanpa persetujuan_perangkat (bypass) (dapat f, harap t)
+HASIL: GAGAL
+--- F-06-admin-lintas-cabang.sql
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+--- H-F-06-admin-lintas-cabang.sql
+        HARAPAN TIDAK TERPENUHI: Admin Cabang A1 BERHASIL membuat kode pendaftaran untuk Cabang A2 (bypass batas cabang) (dapat f, harap t)
+uji: 0 LULUS · 1 GAGAL
+  - docs/uji/pemeriksaan/PMB-1/bukti/H-F-06-admin-lintas-cabang.sql: HARAPAN TIDAK TERPENUHI: Admin Cabang A1 BERHASIL membuat kode pendaftaran untuk Cabang A2 (bypass batas cabang) (dapat f, harap t)
+HASIL: GAGAL
+--- H-F-06-admin-lintas-cabang-ulang.sql
+        HARAPAN TIDAK TERPENUHI: CACAT NYATA: admin cabang A1 berhasil membuat kode pendaftaran untuk cabang A2 (dapat f, harap t)
+uji: 0 LULUS · 1 GAGAL
+  - docs/uji/pemeriksaan/PMB-1/bukti/H-F-06-admin-lintas-cabang-ulang.sql: HARAPAN TIDAK TERPENUHI: CACAT NYATA: admin cabang A1 berhasil membuat kode pendaftaran untuk cabang A2 (dapat f, harap t)
+HASIL: GAGAL
+--- H-F-06-persetujuan-ulang.sql
+        HARAPAN TIDAK TERPENUHI: CACAT NYATA: kasir masuk di perangkat terdaftar TANPA baris persetujuan_perangkat (dapat f, harap t)
+uji: 0 LULUS · 1 GAGAL
+  - docs/uji/pemeriksaan/PMB-1/bukti/H-F-06-persetujuan-ulang.sql: HARAPAN TIDAK TERPENUHI: CACAT NYATA: kasir masuk di perangkat terdaftar TANPA baris persetujuan_perangkat (dapat f, harap t)
+HASIL: GAGAL
+
+############ [3] PROBE HAKIM H-F-06.3 (baru) ############
+--- H-F-06.3-probe-082.sql
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+--- H-F-06.3-probe-083.sql
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+--- H-F-06.3-probe-085.sql
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+############ [4] PENJAGA F-071 ############
+HASIL: LOLOS — supabase/config.toml selaras dengan janji >= 12 karakter + komposisi 3 kelas di docs/KEAMANAN.md (PMB1-F-071). Catatan: produksi Supabase hidup di luar repo (L-01/L-04).
+HASIL: LOLOS — uji-diri membuktikan penjaga menolak panjang <12, komposisi kosong, dan janji dokumen yang hilang.

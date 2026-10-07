@@ -21,7 +21,7 @@
 2. **Layar bukan penjaga.** Menyembunyikan tombol hanya kenyamanan; keputusan sebenarnya ada di **database** (RLS + `boleh()`).
 3. **Dua faktor untuk semua orang yang menyentuh uang.** Staf: **perangkat terdaftar** (yang dimiliki) + **PIN** (yang diketahui). Admin/owner/pemilik platform: **kata sandi** + **TOTP**.
 4. **Pencabutan tidak menunggu token kedaluwarsa.** Karena token Supabase yang sudah terbit tidak bisa ditarik kembali, semua pemeriksaan perangkat/sesi dilakukan **di database pada setiap permintaan**.
-5. **Tidak ada angka uang dari perangkat.** Yang **sudah berlaku sekarang** (T1-10, `0010_pembayaran.sql`): pemicu peladen menolak `subtotal`/`pajak`/`service`/`total_diskon`/`total` yang diisi klien, dan pembayaran melebihi total ditolak. Fungsi tunggal `hitung_total()` (T1-15) **sudah mendarat versi awalnya di `0014_penutup_celah_putaran13.sql`** (2026-09-18) — tetapi **belum lengkap**: pengaturan `pembulatan` belum dibaca (menyusul T1-16) dan suite "12 uji uang" belum ada. Baca sebagai "versi awal hidup, DoD penuh belum". Kalimat lama berbunyi "sudah berlaku sejak T1-10" lalu dikoreksi jadi "belum mendarat"; dua-duanya tidak akurat dan dikoreksi lagi di sini (temuan review RV-2 putaran8 PR-05 · audit H F-06 2026-09-20).
+5. **Tidak ada angka uang dari perangkat.** Yang **sudah berlaku sekarang** (T1-10, `0010_pembayaran.sql`): pemicu peladen menolak `subtotal`/`pajak`/`service`/`total_diskon`/`total` yang diisi klien, dan pembayaran melebihi total ditolak. Fungsi tunggal `hitung_total()` (T1-15) **mendarat di `0014_penutup_celah_putaran13.sql`** (2026-09-18), disempurnakan `0015`: **pengaturan `pembulatan` sudah dibaca dan diterapkan** (langkah terakhir, ke bawah) dan urutan resmi subtotal → diskon → PB1 → service → pembulatan dikunci suite `supabase/tes/urutan_uang.sql` (16 asersi, hijau dalam suite 143) — dikoreksi PMB1-F-069 (2026-10-05): kalimat "belum dibaca & suite belum ada" sudah basi. Sisa DoD T1-15 yang terbuka tinggal varian pengembali rincian {subtotal, diskon, pb1, service, pembulatan, total} — fungsi saat ini mengembalikan total `bigint` saja; lihat catatan silang ROADMAP T1-15/T1-16. *(Jejak koreksi: RV-2 putaran8 PR-05 · audit H F-06 2026-09-20 · PMB1-F-069.)*
 6. **Rahasia tidak pernah ditulis.** PIN, kata sandi, token, dan data pribadi pelanggan tidak boleh masuk log, pesan error, commit, atau dokumen.
 7. **Setiap tindakan sensitif meninggalkan jejak** yang tidak bisa diubah (dan sejak Fase 1B: berantai hash).
 8. **Kalau ragu → berhenti dan tanya pemilik** (Stop Condition §12 `AGENT_OPERATING_GUIDE.md`).
@@ -50,16 +50,16 @@
 
 ## 4. Perangkat terdaftar
 
-- Tabel: `perangkat` (`penyewa_id`, `cabang_id`, `nama`, `jenis`, `peran_diizinkan`, `rahasia_hash`, `status`, `terakhir_aktif`, `terdaftar_oleh`, `dicabut_oleh`, `catatan`) · `kode_pendaftaran_perangkat` (kode sekali pakai, 15 menit) · `sesi_perangkat` (`session_id`, `perangkat_id`, `pengguna_id`, `mulai`, `berakhir_pada`, `status`).
-- **Alur pendaftaran:** admin/owner membuat kode → perangkat baru memasukkan kode → rahasia acak 32 byte dibuat di perangkat, server hanya menyimpan **SHA-256** → perangkat aktif dengan peran yang diizinkan.
+- Tabel: `perangkat` (`penyewa_id`, `cabang_id`, `nama`, `jenis`, `peran_diizinkan`, `status`, `terakhir_aktif`, `terdaftar_oleh`, `dicabut_oleh`, `catatan`) · **`kredensial_perangkat` (terpisah, tanpa grant klien)** menampung `kunci_hash` — pola persis `kredensial_pin` *(PMB1-F-088: kolom `rahasia_hash` tidak pernah ada di tabel `perangkat`; hash dipisah sejak migrasi `0018`)* · `kode_pendaftaran_perangkat` (kode sekali pakai, 15 menit) · `sesi_perangkat` (`session_id`, `perangkat_id`, `pengguna_id`, `mulai`, `berakhir_pada`, `status`).
+- **Alur pendaftaran:** admin/owner membuat kode → perangkat baru memasukkan kode → rahasia acak 32 byte dibuat di perangkat, server hanya menyimpan **hash bcrypt** (`crypt(kunci, gen_salt('bf', 10))` di `0018` & `0030` — bukan SHA-256 polos; dikoreksi PMB1-F-088) → perangkat aktif dengan peran yang diizinkan.
 - **Siapa yang boleh membuat kode (keputusan pemilik 2026-09-17):** **owner pusat** (semua cabang restonya) dan **admin cabang** (khusus cabangnya). Kode **sekali pakai**, sah **15 menit**, dan tercatat siapa yang membuat. Pemilik platform tidak membuat kode kecuali lewat mode dukungan beralasan.
 - **Perangkat pertama owner (bootstrap):** boleh didaftarkan sendiri dengan kata sandi + TOTP **hanya selama resto itu belum punya satu pun perangkat aktif**; setelah ada perangkat aktif, jalur bootstrap tertutup dan perangkat baru wajib lewat persetujuan perangkat aktif (atau jalur pemulihan §4b).
-- **Perangkat cadangan wajib (keputusan pemilik):** setiap peran berkuasa (`owner_pusat`, `admin_cabang`) minimal **2 perangkat terdaftar** (satu utama + satu cadangan, boleh HP pribadi). Aplikasi memperingatkan (dalam aplikasi + email) bila tinggal satu — supaya kehilangan satu perangkat tidak pernah menghalangi kerja.
+- **Perangkat cadangan wajib (keputusan pemilik):** setiap peran berkuasa (`owner_pusat`, `admin_cabang`) minimal **2 perangkat terdaftar** (satu utama + satu cadangan, boleh HP pribadi). Aplikasi memperingatkan (dalam aplikasi + email) bila tinggal satu — supaya kehilangan satu perangkat tidak pernah menghalangi kerja. **Status (PMB1-F-072, 2026-10-05):** penghitungnya sudah hidup — RPC `hitung_perangkat_berkuasa()` (migrasi `0103`, diuji `supabase/tes/perangkat_berkuasa.sql`) + banner peringatan di layar Peringatan (prop `statusPerangkatBerkuasa`, diuji komponen). Sisa yang masih terbuka: pemanggilan RPC itu dari kontainer aplikasi & saluran email (jalur ringkasan harian belum terhubung di frontend) — **keputusan Lee 2026-10-06: dikerjakan pra-pilot (opsi B)**.
 - **Persetujuan pemilik untuk pasangan (pegawai × perangkat) baru** (keputusan pemilik): pegawai pertama yang memakai perangkat terdaftar harus disetujui owner/admin berizin; berlaku juga saat pegawai lama memakai perangkat berbeda untuk pertama kali.
 - **Peran dibatasi per perangkat:** "Tablet Kasir 1" hanya untuk `kasir`; tidak bisa dipakai masuk sebagai `owner_pusat`.
 - **Pencabutan seketika:** menekan "Cabut perangkat" (atau menandai "hilang") membuat semua permintaan dari perangkat itu ditolak **di database** pada detik berikutnya; alasan & pelaku dicatat.
 - **Pengecualian:** `pemilik_platform` tidak butuh pengikatan perangkat (jalan darurat lintas penyewa), diganti TOTP wajib + umur sesi 8 jam + tanpa akses data penyewa (kecuali mode dukungan).
-- **Bukti perangkat per permintaan** dikirim sebagai header dan dibaca `current_setting('request.headers')`; **wajib diverifikasi di Supabase nyata** (T0-08). Bila tidak andal, penegakan tetap berjalan lewat `sesi_perangkat` (perangkat aktif + sesi aktif + belum kedaluwarsa) — jadi tidak ada ketergantungan pada satu mekanisme.
+- **Bukti perangkat per permintaan — status jujur (PMB1-F-070, diperiksa 2026-10-05):** *pembaca* header `current_setting('request.headers')` **ada** (`0058_sesi_masih_aktif.sql` baris ~58, ditegakkan ~92–99), tetapi **tidak ada pengirim**: klien dibuat tanpa header kustom (`aplikasi/src/lib/supabase.ts`, `grep x-perangkat-id` = 0 di `aplikasi/src` dan `supabase/tes`) — cabang header ini **dorman tanpa uji**. Kalimat lama "dikirim sebagai header" mencabut klaim pengirim yang tidak pernah dibangun. Penegakan nyata hari ini berdiri di atas **perangkat terdaftar + PIN perangkat** (`periksa_pin_perangkat`/`verifikasi_pin_perangkat`, diuji cabut perangkat). Catatan hakim independen (H-F-06.2): tabel `sesi_perangkat` tidak pernah mendapat penulis klaim `session_id`/`perangkat_id`, sehingga jaring "sesi per permintaan" **belum terbukti bekerja** — jangan menyebutnya kompensasi aktif sebelum ada penulis + uji. Implementasi pengirim header adalah pekerjaan terbuka — **keputusan Lee 2026-10-06: tunda (opsi B); dibangun pra-pilot**; jaring yang hidup sekarang (perangkat terdaftar + PIN + pembatas percobaan) dinyatakan cukup untuk masa percobaan tanpa data asli.
 
 ## 4b. Jalan keluar saat perangkat hilang / dicuri (tangga pemulihan)
 
@@ -80,7 +80,7 @@
 **Aturan kunci induk (kode pemulihan darurat) — dibuat saat penyiapan, sekali pakai:**
 1. Dibuat **satu kali** saat penyiapan resto: 8 kata acak (mudah dibaca manusia, sulit ditebak mesin); database **hanya menyimpan hash**-nya.
 2. Disimpan **tercetak/tertulis di luar kedai** (mis. di rumah pemilik) — bukan di folder ponsel, bukan di chat, bukan di aplikasi.
-3. **Hanya `owner_pusat` yang boleh memakainya** (keputusan pemilik). Admin cabang yang terkunci dipulihkan owner pusat lewat reset TOTP + kode pendaftaran biasa. Memakai kode ini **wajib** disertai kata sandi akun + TOTP, dan **hanya** membuka **pendaftaran perangkat darurat** — bukan akses data langsung.
+3. **Hanya `owner_pusat` yang boleh memakainya** (keputusan pemilik). Admin cabang yang terkunci dipulihkan owner pusat lewat reset TOTP + kode pendaftaran biasa. Memakai kode ini **wajib** disertai kata sandi akun + TOTP, dan **hanya** membuka **pendaftaran perangkat darurat** — bukan akses data langsung. *Catatan jujur implementasi (PMB1-F-083, 2026-10-05): repo belum punya autentikasi kata sandi/TOTP owner — itu wilayah klaster cara masuk (keputusan Lee B). Penegakan yang terpasang hari ini: kode pemulihan darurat dapat dipakai TANPA sesi lewat RPC `pulihkan_perangkat` (migrasi 0102), memecah deadlock "owner kehilangan semua perangkat → tidak bisa login → tidak bisa memulihkan"; kata sandi + TOTP menyusul bersama klaster cara masuk. *Sejak migrasi 0105 (PMB1-F-083 ronde 3, 2026-10-06), AKTIVASI sesudah masa tenggang juga bisa TANPA sesi lewat `selesaikan_pemulihan_darurat` dengan bukti kunci perangkat yang dipilih pemohon saat pengajuan — alurnya kini tuntas ujung-ke-ujung (dibuktikan tes `supabase/tes/pemulihan_aktivasi_darurat.sql`). Residu jujur: `batalkan_pemulihan` masih menuntut sesi (celah simetris, tercatat sebagai temuan terbuka di kartu B-F-06.3); antarmuka layar darurat & pembatas laju lapisan tepi juga masih residu.*
 3b. **Cara menyimpan (ditetapkan agent 2026-09-17):** dicetak/ditulis di kertas → dimasukkan **amplop yang disegel** (lakban/lem + tanda tangan & tanggal di lipatan) → **dua salinan**: satu di rumah pemilik, satu di lemari arsip kantor kedai (**di luar ruang kasir**). Segel rusak = kode dianggap bocor → langsung dibuat kode baru dari perangkat aktif. **Kode diganti** setiap habis dipakai, sekali setahun, dan saat pegawai yang mengetahui tempat penyimpanannya berhenti.
 4. **Masa tenggang 30 menit:** perangkat darurat belum bisa dipakai; pemberitahuan dikirim ke email owner + tampil di layar Peringatan; bisa **dibatalkan** dari perangkat lain selama masa itu. Ini yang membuat pencuri kode tidak dapat akses instan.
 5. Setelah dipakai, kode itu **hangus**; owner membuat kode baru dari perangkat yang sudah aktif (menu Perangkat & Sesi).
@@ -121,17 +121,17 @@
 | Umur token akses | 15 menit | Supabase (pengaturan, gratis) |
 | Umur maksimum sesi | Staf 12 jam · admin/owner 30 hari · pemilik platform 8 jam | Database (`sesi_perangkat`) |
 | Kunci otomatis saat menganggur | 15 / 15 / 15 / 30 / 60 menit (kasir/pelayan/dapur/admin/owner) — **hanya berlaku di luar jam aktif**; di dalam jam aktif perangkat tetap terkunci saat ditinggal sesuai batas peran | Aplikasi + aturan dokumen |
-| Jam aktif per cabang (**keputusan pemilik 2026-09-17**) | Diatur owner di Pengaturan (mis. buka 09.00 – tutup 22.00, ditambah masa persiapan/pembersihan); di luar jam itu kunci otomatis **15 menit** | Pengaturan + aplikasi |
+| Jam aktif per cabang (**keputusan pemilik 2026-09-17**) | Diatur owner di Pengaturan (mis. buka 09.00 – tutup 22.00, ditambah masa persiapan/pembersihan); di luar jam itu kunci otomatis **15 menit** | Pengaturan + aplikasi — **STATUS JUJUR (PMB1-F-089, 2026-10-05): penegakan BELUM DIBANGUN.** Yang ada hari ini hanya `pengaturan.jam_buka` teks bebas tingkat penyewa (0072) untuk tampilan katalog/struk — tidak terstruktur, tidak per cabang, tidak dibaca `useKunciOtomatis` (0 rujukan di `aplikasi/src`). Baris "hanya berlaku di luar jam aktif" di atas juga belum ditegakkan mesin**Pekerjaan terbuka: skema jam aktif per cabang yang terstruktur + parser + sambungan ke kunci otomatis — **keputusan Lee 2026-10-06: dibangun pra-pilot (opsi B)**; rancangan format diajukan Perencana saat itu. |
 | Kunci = | sesi dihapus dari perangkat; buka lagi wajib PIN/kata sandi | Aplikasi |
 | Batas percobaan masuk | 5×/15 menit per akun · 12×/15 menit per perangkat | Database |
 | Pencabutan | per perangkat · per akun · semua perangkat | Database + RPC (seketika) |
 
-**Catatan jujur paket gratis:** "time-box sesi", "inactivity timeout", "satu sesi per pengguna", dan pemeriksa kata sandi bocor (HaveIBeenPwned) adalah fitur **Pro**; karenanya kendali di atas dibuat sendiri. Kompensasi untuk kata sandi: minimum 12 karakter + pola umum dilarang + TOTP wajib.
+**Catatan jujur paket gratis:** "time-box sesi", "inactivity timeout", "satu sesi per pengguna", dan pemeriksa kata sandi bocor (HaveIBeenPwned) adalah fitur **Pro**; karenanya kendali di atas dibuat sendiri. Kompensasi untuk kata sandi: minimum 12 karakter + pola umum dilarang + TOTP wajib. Penegakan aturan itu di dalam repo: `supabase/config.toml` `[auth]` mencatat minimum 12 karakter + wajib kelas huruf kecil/besar/angka, dijaga `alat/periksa-aturan-kata-sandi.py` (PMB1-F-071). Batas jujur: berkas itu mengatur stack lokal; konfigurasi proyek produksi Supabase hidup di luar repo (lihat temuan L-01/L-04), dan "pola umum dilarang" tidak dapat dinyatakan oleh GoTrue sehingga pendekatan terdekatnya adalah komposisi tiga kelas + panjang minimum.
 
 ## 8. Otorisasi (dua lapis, satu gerbang)
 
 1. **Lapis 1 — RLS:** deny by default; setiap tabel punya policy; nilai penyewa/cabang diambil dari tabel `pengguna` lewat id Auth (bukan `user_metadata` yang bisa diubah klien).
-2. **Lapis 2 — gerbang izin:** setiap RPC memanggil `boleh(...)`/`boleh_untuk(...)` sebagai pemeriksaan pertama; tidak ada pemeriksaan `peran` yang ditulis ulang di tempat lain.
+2. **Lapis 2 — gerbang izin:** setiap RPC memanggil `boleh(...)`/`boleh_untuk(...)` sebagai pemeriksaan pertama. **Kejujuran arsitektur (PMB1-F-075, dihitung 2026-10-05):** "satu gerbang" berlaku untuk badan RPC, tetapi ada **18 perbandingan peran keras** `peran_saya() = '<peran>'` di **9 migrasi** (`0004`×5 · `0005`×3 · `0007`×1 · `0009`×2 · `0015`×2 · `0052`×1 · `0053`×1 · `0068`×2 · `0085`×1), termasuk di policy RLS (yang memang harus menyebut peran). Konsekuensi yang diakui: mencabut/mengganti satu peran di `pengguna.peran` **tidak otomatis tercermin** di titik-titik itu. Belum ada penjaga otomatis yang menghitung/melarangnya — itu pekerjaan terbuka (reproduksi: `grep -rhoE "peran_saya\(\) *(<>|=) *'[a-z_]+'" supabase/migrations/*.sql | wc -l` → 18). Kalimat lama "tidak ada pemeriksaan peran yang ditulis ulang di tempat lain" dicabut karena salah.
 3. **Fungsi `SECURITY DEFINER`** hanya bila perlu, wajib `set search_path` dipaku, `revoke execute from public` + `grant` eksplisit, dan tidak boleh menjadi jalan pintas menyelesaikan masalah izin (paling berbahaya: fungsi `SECURITY DEFINER` di skema `public` bisa dipanggil semua peran bila haknya tidak dicabut).
 4. **Uji matriks (T1-29):** setiap peran × setiap aksi diperiksa otomatis — yang berizin **boleh**, yang tidak berizin **ditolak walau RPC dipanggil langsung**.
 
@@ -140,12 +140,16 @@
 1. Angka uang hanya ditulis fungsi peladen; pembayaran tidak bisa diubah/dihapus; kembalian dihitung database (T1-10).
 2. **Non-tunai wajib referensi**; layar tutup kas menampilkan daftar referensi untuk dicocokkan dengan QRIS/bank.
 3. **Ringkasan peringatan harian** ke email owner **dan** daftar peringatan di dalam aplikasi (keputusan pemilik 2026-09-17: dua-duanya): omzet, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat, pemakaian jalur pemulihan.
-4. Laporan **"siapa menyetujui apa"** per bulan (semua penggunaan PIN persetujuan) — mencegah PIN atasan dipakai berulang tanpa terasa.
+4. Laporan **"siapa menyetujui apa"** per bulan (semua penggunaan PIN persetujuan) — mencegah PIN atasan dipakai berulang tanpa terasa. **Status (PMB1-F-087, 2026-10-05):** sudah hidup — RPC `laporan_persetujuan_pin(p_bulan)` (migrasi `0104`, diuji `supabase/tes/laporan_persetujuan_pin.sql`) merekap diskon berstempel, void berstempel, dan voucher berstempel PIN atasan per penyetuju per bulan takwim, terisolasi per penyewa. Sisa terbuka: tab UI di layar laporan (data & RPC sudah siap) — **keputusan Lee 2026-10-06: dikerjakan pra-pilot (opsi B)**; angka voucher = jumlah persetujuan saja tanpa nominal kampanye (opsi A).
 5. Transaksi hanya dalam shift terbuka; selisih wajib beralasan; setelah shift ditutup, koreksi = baris baru (ART-6).
 6. **Jenis diskon yang mesinnya belum ada = DITOLAK (gagal-aman).** Sejak migrasi `0013` (temuan review putaran11 PR-01, K-2): `promo`
-   **dan** `voucher` ditolak selama mesinnya belum ada — sebelumnya cabang `voucher` hanya memeriksa izin `pakai_voucher` (bawaan kasir
-   `true`), sehingga kasir bisa mencatat diskon 100% subtotal tanpa voucher apa pun. Uji `supabase/tes/diskon_voucher.sql` mengunci
-   penolakan itu; membukanya kembali **wajib** lewat pemeriksaan sungguhan (T1-12/T1-19/T1-20) dan akan memerahkan mutasi M12.
+   ditolak selama mesinnya belum ada — sebelumnya cabang `voucher` hanya memeriksa izin `pakai_voucher` (bawaan kasir
+   `true`), sehingga kasir bisa mencatat diskon 100% subtotal tanpa voucher apa pun. **Perbaruan 2026-10-05 (PMB1-F-073):** mesin
+   voucher kini **hidup penuh** di Fase 8 (migrasi `0064`–`0068`; definisi `picu_diskon_batas()` terakhir di `0065_kasir_cek_pakai_voucher.sql`);
+   cabang `voucher` dibuka bila `voucher_id` menunjuk voucher sah yang terhubung ke pesanan itu. Hanya cabang `promo` yang masih ditolak.
+   Uji `supabase/tes/diskon_voucher.sql` mengunci sisi gagal-aman yang tersisa: baris `voucher` **tanpa `voucher_id` sah** tetap ditolak
+   (voucher karangan tidak mungkin), sedangkan voucher sah berjalan lewat mesinnya (`0064`–`0068`).
+   Membuka cabang `promo` **wajib** lewat pemeriksaan sungguhan (T1-12/T1-19/T1-20) dan akan memerahkan mutasi M12.
 7. **Status pesanan tidak bisa dikarang saat pesanan dibuat.** Sejak `0013` (temuan PR-02): penjaga status dulu hanya dipasang pada
    UPDATE, sehingga pesanan bisa lahir `batal` (tanpa jejak pembatalan → Aturan Bisnis 7 dilewati) atau lahir `lunas` (tanpa pembayaran).
    Sekarang pesanan dari perangkat wajib lahir `draf`, tanpa tanda kirim/bayar/batal. Uji: `supabase/tes/pesanan_status_awal.sql`.
@@ -158,7 +162,7 @@
 ## 10. Jejak audit
 
 - `catatan_audit` **hanya-tambah** (tidak ada hak ubah/hapus untuk siapa pun, termasuk owner). **Status 2026-09-21: tabelnya SUDAH ADA** (`0020`, tulis klien ditolak, baca butuh `kelola_pegawai`) — yang masih terbuka: trigger penulis (`T1-13`) + rantai hash + pemeriksa (`T1-27`/`T1-30`). (Disegarkan seizin pemilik 2026-09-21; status 2026-09-20: tabel BELUM ADA; J F-03.)
-- Sejak Fase 1B: **rantai hash** (`hash_sebelumnya`, `hash_baris`) dihitung pemicu; pemeriksa `alat/periksa-audit.py` (dibuat bersama rantai hashnya di `T1-27`, lalu dipasang di CI pada `T1-30`) menunjuk baris pertama yang putus bila ada perubahan/penghapusan langsung di database.
+- Sejak Fase 1B: **rantai hash** (`hash_sebelumnya`, `hash_baris`) dihitung pemicu. Ada dua pemeriksa dengan wilayah berbeda: `alat/periksa-audit.py` adalah **pemeriksa statis berkas teks** (membaca migrasi `0029` & berkas uji; dipasang di CI pada `T1-30`) — ia menjaga aturan skemanya, **bukan** baris data. Yang menunjuk baris pertama yang putus bila ada perubahan/penghapusan langsung di database adalah **RPC `verifikasi_rantai_audit`** (migrasi `0029`, pembaruan urutan di `0040`) yang berjalan di dalam database itu sendiri. *(Dikoreksi PMB1-F-090: kalimat lama menisbahkan pemeriksaan baris database ke `periksa-audit.py`.)*
 - Yang dicatat minimal: void, diskon manual, perubahan harga, buka laci tanpa transaksi, pakai voucher, perubahan pengaturan, perubahan izin, perubahan pegawai/PIN, pendaftaran/pencabutan perangkat, persetujuan PIN, mode dukungan, percobaan masuk.
 
 ## 11. Data pelanggan & UU PDP (UU 27/2022)
@@ -193,16 +197,16 @@
 | Perangkat tidak terdaftar → tabel staf tertutup | SQL otomatis | T1-24 |
 | Cabut perangkat → permintaan berikutnya gagal | SQL otomatis | T1-24 |
 | Sesi lewat umur maksimum → ditolak | SQL otomatis | T1-24 |
-| Kunci 5×/15 menit & 12×/15 menit | SQL otomatis | T1-25 |
+| Kunci 5×/15 menit & 12×/15 menit | SQL otomatis | T1-26 |
 | PIN lemah & PIN kembar ditolak | SQL otomatis | T1-23 |
-| Rantai audit terdeteksi bila diubah/dihapus | SQL otomatis + pemeriksa | T1-26 |
+| Rantai audit terdeteksi bila diubah/dihapus | SQL otomatis + pemeriksa | T1-27 |
 | Mode dukungan: tanpa mode = 0 baris; dengan mode = hanya-baca; kedaluwarsa = 0 baris | SQL otomatis | T1-28 |
 | Hak istimewa fungsi (`security definer`, `grant execute`) | pemeriksa statis SQL | T1-30 |
 | Rahasia tidak masuk repo · `npm audit` bersih | pemeriksa CI | T1-30 |
 | Setiap aksi UI → RPC & izin benar (per peran) | uji komponen + pemeriksa peta aksi | T1-31…T1-35 |
 | Kode pemulihan: kadaluwarsa/terpakai dua kali/hash tidak pernah kembali | SQL otomatis | T1-36 |
 | Perangkat darurat: masa tenggang 30 menit, bisa dibatalkan, tercatat & dinotifikasi | SQL otomatis | T1-36 |
-| Peringatan perangkat berkuasa tinggal 1 | uji SQL + uji komponen | T1-36, T10-13 |
+| Peringatan perangkat berkuasa tinggal 1 | uji SQL + uji komponen | T1-36, T10-13 — uji ADA: `supabase/tes/perangkat_berkuasa.sql` + `Peringatan.test.tsx` (PMB1-F-072) |
 | 9 alur wajib di peramban | Playwright di CI | T11-11 |
 
 ## 15. Risiko sisa yang diterima (dicatat terbuka, bukan disembunyikan)
@@ -212,7 +216,7 @@
 | 1 | PIN 6 digit lemah bila hash database bocor | Perangkat terdaftar tetap diperlukan; bcrypt + batas percobaan | Ganti PIN massal bila ada indikasi kebocoran; prioritas upgrade bila sudah berbayar |
 | 2 | Pemeriksa kata sandi bocor (HIBP) tidak tersedia di paket gratis | Tidak berbiaya nol | Aturan kata sandi ≥12 + larangan pola + TOTP wajib |
 | 3 | PIN bisa dibagikan antar pegawai | Manusia; tidak bisa dicegah teknis | PIN unik + jejak + laporan "siapa menyetujui apa" + ingatan pemilik |
-| 4 | Bukti perangkat per permintaan belum terbukti di Supabase nyata | T0-08 belum jalan | `sesi_perangkat` + status perangkat tetap diperiksa tanpa header |
+| 4 | Bukti perangkat per permintaan belum terbukti di Supabase nyata | Alasan lama "T0-08 belum jalan" **sudah kedaluwarsa** — T0-08 `[x]` di ROADMAP; yang benar: kendali per permintaan memang belum dibangun (PMB1-F-070) | Perangkat terdaftar + PIN perangkat tetap ditegakkan; `sesi_perangkat` baru sah disebut kompensasi bila penulis + ujinya ada |
 | 5 | Pemilik platform tidak terikat perangkat | Jalan darurat lintas penyewa | TOTP wajib + sesi 8 jam + tanpa data penyewa + mode dukungan tercatat |
 | 6 | HP pegawai hilang = kerja terhenti sampai MFA direset | Harga dari TOTP wajib | Jalan pemulihan cepat (owner/pemilik platform) + langkah di Buku Insiden |
 | 7 | Internet mati = tidak bisa masuk (sesi terkunci) | Keamanan didahulukan | Kunci otomatis diperpanjang wajar + prosedur catat manual sementara (Buku Insiden) |
@@ -228,5 +232,5 @@
 5. Setiap fungsi `SECURITY DEFINER` baru: `search_path` dipaku + hak `execute` dicabut dari `public` + pemeriksaan izin di dalam badan fungsi.
 6. Setiap layar baru: kontrak layar + aksi terdaftar + 7 keadaan + uji komponen (lihat `docs/SPESIFIKASI_UI.md`).
 7. Kalau menemukan cacat pada pekerjaan yang sudah diklaim selesai → laporkan, jangan sembunyikan (Stop Condition §12).
-9. **Setiap perubahan yang menyentuh akun/perangkat/sesi/uang/data pelanggan wajib melalui AUD-2** (audit independen, sesi & model berbeda) sebelum ditandai selesai — aturan lengkap di `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`. Temuan K-1/K-2 menahan fase.
 8. **Aturan pemilik (2026-09-17):** menyimpang dari deskripsi/rancangan yang pemilik tulis **wajib ditanyakan lebih dulu**, dijelaskan dengan bahasa yang mudah dipahami, dan **dicatat** (di `DECISIONS_LOG.md` + laporan). Tidak ada penyimpangan diam-diam, walau niatnya memperbaiki.
+9. **Setiap perubahan yang menyentuh akun/perangkat/sesi/uang/data pelanggan wajib diverifikasi independen sebelum dinyatakan selesai.** Mekanisme AUD-2 pada butir ini sudah digantikan AUD-3/AUD-4 dan kini **PMB (Pemeriksaan Mendalam Bertahap, REKAM §31)**: perbaikan dinilai Hakim pada sesi terpisah (perbaikan → `DIPERBAIKI`, penutupan hanya oleh Hakim). Aturan audit independennya sendiri tetap hidup di `docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md`. Temuan K-1/K-2 menahan fase. *(Penomoran dibenahi PMB1-F-074: urutan lama 1…7, 9, 8.)*

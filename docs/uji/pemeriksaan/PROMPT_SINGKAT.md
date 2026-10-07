@@ -3,11 +3,19 @@
 > Cara pakai (Perencana): salin blok di bawah, isi tiga baris `PERAN` / `POTONGAN` / `CABANG PERENCANA`, berikan ke Lee di chat.
 > Lee menempelnya sebagai pesan pertama di sesi Arena baru (base branch = CABANG PERENCANA bila bisa dipilih). Naskah panjang
 > yang dirujuk prompt ini: `docs/uji/pemeriksaan/PROMPT_GILIRAN.md`; pengecualian orientasinya tercatat di `PRO.md`.
-> **Sejak 2026-09-30 (keputusan Lee, Opsi B): sesi PERENCANA boleh mengambil peran PEMBANGUN untuk satu potongan per giliran (percobaan 3 potongan) — Hakim tetap sesi lain; aturan lengkap: PROMPT_GILIRAN §5 + USULAN_PERAN_PEMBANGUN §9.**
-> > **Giliran berikutnya yang disarankan Perencana (2026-10-02, sesudah HAKIM F-02 & HAKIM F-03 masuk):**
-> (a) **HAKIM `F-09`** — baris `PMB1-F-127` masih `DIPERBAIKI` menunggu hakim (kartu `kartu/B-F-09.4.md`, bukti `bukti/B-F-09.4-*.txt`, termasuk rantai penuh; ini yang menutup percobaan Opsi B #1);
-> (b) **PEMBANGUN/PEMERIKSA potongan berikutnya:** F-02 rombak lanjutan (F-010 jalur kertas laci, F-020 sambungan alamat/kasir/tarif sampai layar kasir, F-021 embed `!inner` + regresi tab Pesanan Meja + handler Cetak ulang) · F-03 lanjutan (`F-038` normalisasi nomor +62; `F-037`/`F-048` menunggu Lee/operator) · F-06 (6 baris K-2, belum pernah dibangun);
-> (c) pelajaran mekanisme yang berlaku: langkah murah (`format:check`, `lint`, uji terarah) SEBELUM commit pertama; jangan menutup temuan yang baru dikembalikan hakim tanpa perbaikan baru.
+> **Sejak 2026-10-04 (keputusan Lee, Opsi C — PERMANEN): sesi PERENCANA menjalankan peran PEMBANGUN biasa untuk satu potongan per giliran (batas percobaan 3 potongan gugur) — Hakim tetap sesi lain; aturan lengkap: PROMPT_GILIRAN §5 + USULAN_PERAN_PEMBANGUN §9–§10.**
+> > **Giliran berikutnya yang disarankan Perencana (2026-10-06, putaran 13z — HAKIM 5 menolak F-083 sebagai pemenuhan Tingkat 3; tiga keputusan Lee menunggu):**
+> (a) **Keputusan Lee dulu (kartu H-F-06.5 §5):** F-083 = bangun jalan darurat non-SQL bagi owner (layar/endpoint memanggil `pulihkan_perangkat` + `selesaikan_pemulihan_darurat`) ATAU pindahkan resmi jalur ke Tingkat 4 di KEAMANAN §4b & panduan ops; F-238 = `batalkan_pemulihan` dibuka tanpa sesi ATAU cukup eskalasi Tingkat 4; F-239 = tambah penanda penyewa/permohonan ATAU terima risiko.
+> (b) **Sesi berikutnya tanpa menunggu Lee = HAKIM potongan P-1B-00**: verifikasi temuan BARU F-233 (K-2, jalur pendaftaran resmi tak menulis persetujuan), F-237 (K-4, parentetis jam aktif), F-239 (K-3, tanpa penanda penyewa) — ketiganya milik P-1B-00; prompt terlampir di bawah.
+> (c) **Sesudah itu: PEMBANGUN ronde 4** membangun yang sudah TERVERIFIKASI: F-238 (K-2, pembatalan tanpa sesi — menunggu keputusan Lee poin a.2), F-233/F-239 bila sudah divonis hakim, plus F-083 sesuai pilihan Lee.
+> (d) **Siklus kecil lain (BARU, perlu hakim dulu):** F-232 (K-3, G-04), F-235 (K-4, P-9-00), F-236 (K-4, P-1-00).
+> (e) **Catatan siklus:** penutupan `DIPERBAIKI → DITUTUP` hanya oleh hakim sesi lain; Pembangun (Perencana) tidak menutup temuannya sendiri. Pekerjaan pra-pilot (pengirim header F-070, jam aktif F-089, wiring UI 0103/0104) terjadwal atas keputusan Lee 2026-10-06 — jangan dibangun sebelum Lee memerintahkan.
+> > **Giliran berikutnya yang disarankan Perencana (2026-10-06, putaran 13y — ronde 3 F-06 selesai dibangun, menunggu hakim verifikasi):**
+> (a) **HAKIM verifikasi ronde 3 (prioritas): kartu `B-F-06.3.md`** — verifikasi commit `43c0622` (migrasi 0105 `selesaikan_pemulihan_darurat` tanpa sesi + tes `pemulihan_aktivasi_darurat.sql` MERAH→HIJAU + LOGIN_SUKSES ujung-ke-ujung); putus F-083 & F-234 (isi perbaikan sama), dan vonis temuan baru **F-238** (celah simetris `batalkan_pemulihan`, K-2, F-06).
+> (b) **Siklus F-233 (K-2, P-1B-00)** — jalur pendaftaran resmi `daftarkan_perangkat_dengan_kode` tidak menulis baris persetujuan & 0 pemanggil `setujui_perangkat_pegawai`; verifikasi hakim dulu (status BARU), baru dibangun.
+> (c) **Siklus F-232 (K-3, G-04)** — templat kartu & PROMPT_GILIRAN wajib memuat "Langkah Lee selanjutnya"; verifikasi dulu, baru dibangun.
+> (d) **Siklus F-236/F-237 (K-4)** — koreksi angka Perencana sendiri ("16 asersi" → 12 di KEAMANAN:24 + ROADMAP; parentetis "0 rujukan aplikasi/src" di KEAMANAN:124 → "0 rujukan di jalur kunci otomatis"); verifikasi dulu sesuai siklus. F-235 (K-4, P-9-00, contoh kode 6 angka di Perangkat.tsx:226) ikut siklus kecil.
+> (e) **Catatan siklus:** penutupan `DIPERBAIKI → DITUTUP` hanya oleh hakim sesi lain; Pembangun (Perencana) tidak menutup temuannya sendiri. Pekerjaan pra-pilot (pengirim header F-070, jam aktif F-089, wiring UI 0103/0104) terjadwal atas keputusan Lee 2026-10-06 — jangan dibangun sebelum Lee memerintahkan.
 > **Satu potongan per sesi, potongan berbeda untuk sesi yang berjalan bersamaan** — klaim di PAPAN baru terlihat sesi lain
 > setelah diintegrasikan. Ulangan independen potongan yang sama boleh, tetapi harus disengaja Perencana (rancangan §9).
 
