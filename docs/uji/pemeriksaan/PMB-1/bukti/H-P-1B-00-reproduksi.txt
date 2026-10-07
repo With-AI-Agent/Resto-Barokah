@@ -178,3 +178,23 @@ H-P-1B-00-reproduksi.txt
 PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 0, 'DIHAKIMI': 17, 'DIKLAIM': 0, 'RENCANA': 46, 'SELESAI': 0} · 239 temuan (terbuka K-1/K-2: 40)
 
 HASIL: LOLOS
+
+===== 19. Regresi temuan lama (lingkup P-1B-00) — berkas uji ADA & LULUS hari ini =====
+-- ls berkas uji yang dikutip:
+supabase/tes/kredensial_pin.sql
+supabase/tes/percobaan_pin_perangkat.sql
+supabase/tes/rls_semua_tabel.sql
+supabase/tes/sesi_kedaluwarsa.sql
+-- L F-01 (TOTP) hari ini: find aplikasi/src -iname 'Totp.tsx':
+0
+-- grep butuhTotp aplikasi/src:
+aplikasi/src/layar/masuk/MasukPengelola.test.tsx:52:      .mockResolvedValueOnce({ sukses: false, butuhTotp: true })
+aplikasi/src/layar/masuk/MasukPengelola.tsx:15:    butuhTotp?: boolean
+aplikasi/src/layar/masuk/MasukPengelola.tsx:68:      } else if (hasil.butuhTotp) {
+-- alat/uji-mutasi-0058.py ada:
+alat/uji-mutasi-0058.py
+
+===== 20. T1-25 di ROADMAP (klaim vs kenyataan) =====
+- [x] T1-25 — Migrasi 0013: sesi perangkat, umur maksimum & pencabutan seketika ⚠️
+-- REFER SILANG: T1-25 tercatat di REGRESI_WAJIB bagian B?
+31:| T1-25 | 1B | 458 | pemilik | F-08 |
