@@ -1,0 +1,200 @@
+/home/user/Resto-Barokah
+
+===== 0. Keadaan pohon =====
+tanggal UTC: 2026-10-07 06:46:38
+4666aa6
+(baris di atas kosong = pohon bersih sebelum hakim menulis apa pun)
+
+===== 1. PMB1-F-095 — probe ASLI hakim H-F-06.2, dijalankan hari ini =====
+  GAGAL docs/uji/pemeriksaan/PMB-1/bukti/H-F-06-sesi-perangkat-mati.sql
+        HARAPAN TIDAK TERPENUHI: A: login staf berhasil dari kursi anon (klien hanya memegang kunci anon) (dapat f, harap t)
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - docs/uji/pemeriksaan/PMB-1/bukti/H-F-06-sesi-perangkat-mati.sql: HARAPAN TIDAK TERPENUHI: A: login staf berhasil dari kursi anon (klien hanya memegang kunci anon) (dapat f, harap t)
+HASIL: GAGAL
+
+===== 2. PMB1-F-095 — probe BARU hakim P-1B-00 (penyiapan disesuaikan 0101) =====
+  OK    alat/sql/data-uji.sql
+
+Menjalankan 1 berkas uji:
+  LULUS docs/uji/pemeriksaan/PMB-1/bukti/H-P-1B-00-probe-sesi.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+===== 3. PMB1-F-233 — probe hakim H-F-06.3 (direproduksi hari ini) =====
+  OK    alat/sql/data-uji.sql
+
+Menjalankan 1 berkas uji:
+  LULUS docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-probe-082.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+===== 4. PMB1-F-239 — probe hakim H-F-06.5 (direproduksi hari ini) =====
+  OK    alat/sql/data-uji.sql
+
+Menjalankan 1 berkas uji:
+  LULUS docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.5-probe-105.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+===== 5. PMB1-F-233 — satu-satunya definisi daftarkan_perangkat_dengan_kode =====
+supabase/migrations/0103_peringatan_perangkat_berkuasa_tinggal_satu.sql
+supabase/migrations/0104_laporan_persetujuan_pin_bulanan.sql
+supabase/migrations/0105_aktivasi_pemulihan_perangkat_tanpa_sesi.sql
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql
+-- RPC 2: daftarkan_perangkat_dengan_kode
+create or replace function public.daftarkan_perangkat_dengan_kode(
+  p_kode        text,
+
+===== 6. PMB1-F-233 — semua tempat yang MENULIS persetujuan_perangkat (migrasi) =====
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:346:  insert into public.persetujuan_perangkat (penyewa_id, perangkat_id, pengguna_id, disetujui_oleh)
+supabase/migrations/0101_persetujuan_perangkat_wajib_login.sql:316:      insert into public.persetujuan_perangkat (penyewa_id, perangkat_id, pengguna_id, disetujui_oleh)
+supabase/migrations/0102_pemulihan_perangkat_tanpa_sesi.sql:174:  insert into public.persetujuan_perangkat (penyewa_id, perangkat_id, pengguna_id, disetujui_oleh)
+
+===== 7. PMB1-F-233 — pemanggil klien untuk tiga RPC kunci =====
+-- setujui_perangkat_pegawai di aplikasi/src:
+0
+-- buat_kode_perangkat di aplikasi/src:
+0
+-- daftarkan_perangkat_dengan_kode di aplikasi/src:
+0
+-- layar Perangkat terpasang di App.tsx:
+0
+
+===== 8. PMB1-F-095 — pemanggil/penulis yang TIDAK ADA (upaya bantahan) =====
+-- ikat_sesi_perangkat di luar definisi 0030 & berkas uji:
+-- sesi_masih_aktif di luar definisi 0058 & berkas uji:
+alat/uji-mutasi-0058.py
+-- sesi_perangkat di aplikasi/src:
+0
+-- signInWithPassword/setSession di aplikasi/src:
+0
+-- header x-perangkat-id di aplikasi/src & supabase/functions:
+0
+-- custom_access_token / auth.hook di supabase/:
+0
+
+===== 9. PMB1-F-237 — baris 124 docs/KEAMANAN.md (dipotong)  =====
+| Jam aktif per cabang (**keputusan pemilik 2026-09-17**) | Diatur owner di Pengaturan (mis. buka 09.00 – tutup 22.00, ditambah masa persiapan/pembersihan); di luar jam itu kunci otomatis **15 menit** | Pengaturan + aplikasi — **STATUS JUJUR (PMB1-F-089, 2026-10-05): penegakan BELUM DIBANGUN.** Yang ada hari ini hanya `pengaturan.jam_buka` teks bebas tingkat penyewa (0072) untuk tampilan katalog/struk — tidak terstruktur, tidak per cabang, tidak dibaca `useKunciOtomatis` (0 rujukan di `aplikasi/src`). Baris "
+
+===== 10. PMB1-F-237 — hitungan rujukan jam aktif di aplikasi/src =====
+-- jam_buka saja:
+16
+-- jam_buka + jamBuka + 'jam buka':
+34
+-- berkas yang memuatnya:
+aplikasi/src/layar/pelanggan-publik/Katalog.test.tsx
+aplikasi/src/layar/pelanggan-publik/Katalog.tsx
+aplikasi/src/layar/pelanggan-publik/LayarPelangganPublik.tsx
+aplikasi/src/layar/pengaturan/Identitas.test.tsx
+aplikasi/src/layar/pengaturan/Identitas.tsx
+aplikasi/src/layar/pengaturan/Operasional.test.tsx
+aplikasi/src/layar/pengaturan/Operasional.tsx
+aplikasi/src/layar/pengaturan/Pratinjau.tsx
+-- rujukan di jalur kunci otomatis (useKunciOtomatis.ts):
+0
+-- diLuarJamOperasional di App.tsx:
+0
+-- baris 67 kartu B-F-06.2:
+0 rujukan `jam_buka`/jam aktif di `aplikasi/src`. Teks §7 kini jujur:
+
+===== 11. PMB1-F-239 — isi 0105 yang diklaim (baris 47 & 60-72) =====
+create or replace function public.selesaikan_pemulihan_darurat(p_kunci_perangkat text)
+  -- Cari permohonan menunggu yang masa tenggangnya sudah lewat dan kuncinya
+  -- cocok dengan kredensial perangkat daruratnya (bukti kepemilikan).
+  select q.id, q.penyewa_id, q.perangkat_id, q.pemohon_id
+    into v_antrean
+    from public.pemulihan_perangkat q
+    join public.kredensial_perangkat kp on kp.perangkat_id = q.perangkat_id
+   where q.status = 'menunggu'
+     and now() >= q.aktif_setelah
+     and crypt(p_kunci_perangkat, kp.kunci_hash) = kp.kunci_hash
+   order by q.diminta_pada desc
+   limit 1;
+
+  if v_antrean.id is null then
+
+===== 12. PMB1-F-239 — adakah kedaluwarsa permohonan 'menunggu'? =====
+supabase/migrations/0105_aktivasi_pemulihan_perangkat_tanpa_sesi.sql:66:   where q.status = 'menunggu'
+-- force RLS pada pemulihan_perangkat:
+0
+
+===== 13. Suite SQL penuh (keadaan dasar hari ini) =====
+
+----------------------------------------------------------------------
+uji: 146 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+===== 14. Daftar berkas bukti baru giliran ini =====
+H-P-1B-00-probe-sesi.sql
+H-P-1B-00-reproduksi.sh
+H-P-1B-00-reproduksi.txt
+
+===== 15. Apakah ada penjaga/CI yang MENJALANKAN ULANG probe di PMB-1/bukti/ ? =====
+-- kemunculan 'bukti/' di .github/workflows/ci.yml:
+0
+-- kemunculan 'uji-sql' di .github/workflows/ci.yml:
+102:        run: node alat/uji-sql.mjs
+-- kemunculan 'bukti/' (selain baris pemakaian) di alat/rantai-bukti-giliran.py:
+11:Pakai:  python3 alat/rantai-bukti-giliran.py [--simpan docs/uji/pemeriksaan/PMB-1/bukti/B-<ID>-rantai.txt] [--cepat [--basis <rev>]] [--pasang]
+-- perintah yang dijalankan rantai: jumlah baris perintah + contoh 'uji-sql':
+0
+
+===== 16. Rujukan baris di kolom 'Baseline yang dilanggar' baris F-095 & F-233 =====
+-- klaim F-095: 'baris matriks 195' → isi baris 195 hari ini:
+| Isolasi penyewa & cabang (semua tabel) | SQL otomatis | T1-04, T1-22 |
+-- kalimat yang dimaksud ada di baris:
+199:| Sesi lewat umur maksimum → ditolak | SQL otomatis | T1-24 |
+-- klaim F-233: docs/KEAMANAN.md:48 → isi baris 48 hari ini:
+- Akun staf memakai **alias email internal** (tidak pernah dipakai mengirim email); akun admin/owner memakai **email nyata** + TOTP.
+-- frasa 'Alur pendaftaran perangkat di peramban' ada di KEAMANAN.md?
+0
+-- klaim F-233: docs/ROADMAP.md:797 → isi baris 797 hari ini:
+  - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/TidakPunyaAkses.test.tsx`, `aplikasi/src/lib/pesan.test.ts` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
+-- T2-15 yang dimaksud ada di baris:
+860:- [x] T2-15 — Pendaftaran perangkat (kode/QR) + persetujuan pegawai baru ⚠️ T-015
+
+===== 17. Penjaga: apa yang diperiksa pada kolom Artefak vs Baseline =====
+        if not _artefak_ada(artefak, akar):
+            errs.append(f"BUKU BESAR {fid}: artefak '{artefak[:60]}' tidak ada di repo (atau tulis `(luar repo) <apa>`)")
+        elif (salah := _baris_artefak_di_luar_berkas(artefak, akar)):
+            errs.append(f"BUKU BESAR {fid}: artefak menunjuk {salah}")
+        if baseline in {"", "—"}:
+            errs.append(f"BUKU BESAR {fid}: kolom 'Baseline yang dilanggar' kosong")
+        if len(bukti) < 20 or "→" not in bukti:
+            errs.append(f"BUKU BESAR {fid}: bukti harus 'perintah → hasil' (panjang ≥ 20, memuat '→')")
+-- cakupan alat/periksa-rujukan.py (apa BUKU_BESAR ikut?):
+0
+
+===== 18. Keadaan penjaga sebelum saya menulis (bukti bersih) =====
+PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 0, 'DIHAKIMI': 17, 'DIKLAIM': 0, 'RENCANA': 46, 'SELESAI': 0} · 239 temuan (terbuka K-1/K-2: 40)
+
+HASIL: LOLOS
+
+===== 19. Regresi temuan lama (lingkup P-1B-00) — berkas uji ADA & LULUS hari ini =====
+-- ls berkas uji yang dikutip:
+supabase/tes/kredensial_pin.sql
+supabase/tes/percobaan_pin_perangkat.sql
+supabase/tes/rls_semua_tabel.sql
+supabase/tes/sesi_kedaluwarsa.sql
+-- L F-01 (TOTP) hari ini: find aplikasi/src -iname 'Totp.tsx':
+0
+-- grep butuhTotp aplikasi/src:
+aplikasi/src/layar/masuk/MasukPengelola.test.tsx:52:      .mockResolvedValueOnce({ sukses: false, butuhTotp: true })
+aplikasi/src/layar/masuk/MasukPengelola.tsx:15:    butuhTotp?: boolean
+aplikasi/src/layar/masuk/MasukPengelola.tsx:68:      } else if (hasil.butuhTotp) {
+-- alat/uji-mutasi-0058.py ada:
+alat/uji-mutasi-0058.py
+
+===== 20. T1-25 di ROADMAP (klaim vs kenyataan) =====
+- [x] T1-25 — Migrasi 0013: sesi perangkat, umur maksimum & pencabutan seketika ⚠️
+-- REFER SILANG: T1-25 tercatat di REGRESI_WAJIB bagian B?
+31:| T1-25 | 1B | 458 | pemilik | F-08 |

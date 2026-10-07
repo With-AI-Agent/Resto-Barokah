@@ -16,7 +16,7 @@
 | E | Butir tertangguh terbuka | 2 |
 | F | Baris Buku Uji belum diisi Lee | 23 |
 
-Temuan terbuka semua tingkat: BARU 19 · TERVERIFIKASI 149 · PERLU-INFO 0 · DIPERBAIKI 4 · **total 172** (gerbang akhir PMB menuntut 0, kecuali DITANGGUHKAN oleh Lee dengan tanggal tinjau).
+Temuan terbuka semua tingkat: BARU 17 · TERVERIFIKASI 153 · PERLU-INFO 0 · DIPERBAIKI 4 · **total 174** (gerbang akhir PMB menuntut 0, kecuali DITANGGUHKAN oleh Lee dengan tanggal tinjau).
 
 ## A. Keputusan / tindakan yang ditunggu dari Lee (temuan terbuka berpenanda LEE)
 
@@ -31,7 +31,7 @@ Temuan terbuka semua tingkat: BARU 19 · TERVERIFIKASI 149 · PERLU-INFO 0 · DI
 | PMB1-F-128 | K-2 | F-09 | TERVERIFIKASI | **BUTUH LEE/OPERATOR:** uji perangkat nyata T-015 untuk T2-15 — atau keputusan Lee mengembalikan T2-15 ke [ ] (status ROADMAP = wewenang Perencana); kartu B-F-09 §3 · arena/01a0ec8d-resto-barok… |
 | PMB1-F-129 | K-2 | F-09 | TERVERIFIKASI | **BUTUH LEE/OPERATOR:** cek Dashboard Supabase → Authentication → SMTP (Enable Custom SMTP) + keputusan kanal T-022 + dua uji manual jalur email — atau keputusan Lee mengembalikan T2-04/T2-05 k… |
 | PMB1-F-238 | K-2 | P-1B-00 | TERVERIFIKASI | **MENUNGGU KEPUTUSAN LEE:** (kartu H-F-06.5 §5) putuskan rancangan: `batalkan_pemulihan` ikut dibuka tanpa sesi (simetris dengan 0105), atau cukup eskalasi Tingkat 4? |
-| PMB1-F-239 | K-3 | P-1B-00 | BARU | **MENUNGGU KEPUTUSAN LEE:** (kartu H-F-06.5 §5) tambah penanda penyewa/permohonan pada `selesaikan_pemulihan_darurat`, atau terima risikonya dan tutup dengan catatan? |
+| PMB1-F-239 | K-3 | P-1B-00 | TERVERIFIKASI | **MENUNGGU KEPUTUSAN LEE:** (kartu H-F-06.5 §5) tambah penanda penyewa/permohonan pada `selesaikan_pemulihan_darurat`, atau terima risikonya dan tutup dengan catatan? |
 
 Jumlah A1: **8**
 
