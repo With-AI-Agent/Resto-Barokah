@@ -4,6 +4,11 @@
 > Lee menempelnya sebagai pesan pertama di sesi Arena baru (base branch = CABANG PERENCANA bila bisa dipilih). Naskah panjang
 > yang dirujuk prompt ini: `docs/uji/pemeriksaan/PROMPT_GILIRAN.md`; pengecualian orientasinya tercatat di `PRO.md`.
 > **Sejak 2026-10-04 (keputusan Lee, Opsi C — PERMANEN): sesi PERENCANA menjalankan peran PEMBANGUN biasa untuk satu potongan per giliran (batas percobaan 3 potongan gugur) — Hakim tetap sesi lain; aturan lengkap: PROMPT_GILIRAN §5 + USULAN_PERAN_PEMBANGUN §9–§10.**
+> > **Giliran berikutnya yang disarankan Perencana (2026-10-07, putaran 13bb — ronde 4 ter-push; menunggu hakim verifikasi):**
+> (a) **HAKIM verifikasi kartu `B-P-1B-00.md` (prioritas):** putus F-239 (migrasi 0106 penanda permohonan), F-238 & F-237 (pembukuan keputusan + koreksi dokumen), dan vonis ulang F-083 atas eksekusi keputusan Tingkat 4 (dokumen `2decccd`+`3cc4486`).
+> (b) **Dua keputusan Lee masih menunggu (Kunci K2 A1):** F-095 = penegakan sesi T1-25 dibangun sekarang ATAU ditangguhkan resmi pra-pilot; F-233 = layar/ujung belakang persetujuan ATAU Pembangun menulis baris persetujuan di `daftarkan_perangkat_dengan_kode` (rekomendasi Perencana: tangguhkan resmi & tambal RPC).
+> (c) **Siklus verifikasi BARU:** F-240/F-241 (G-04), F-232 (G-04), F-235 (P-9-00), F-236 (P-1-00).
+> (d) **Catatan siklus:** penutupan `DIPERBAIKI → DITUTUP` hanya oleh hakim sesi lain; Pembangun (Perencana) tidak menutup temuannya sendiri. Pekerjaan pra-pilot terjadwal: layar darurat F-083 (bersama klaster login), pengirim header F-070, jam aktif F-089, wiring UI 0103/0104 — jangan dibangun sebelum Lee memerintahkan.
 > > **Giliran berikutnya yang disarankan Perencana (2026-10-07, putaran 13aa — tiga keputusan pemulihan dieksekusi; ronde 4 siap):**
 > (a) **PEMBANGUN ronde 4 (prioritas, bahan sudah TERVERIFIKASI):** F-239 (penanda penyewa/permohonan pada `selesaikan_pemulihan_darurat`, keputusan Lee 2026-10-07) + F-238 bila vonis hakim sudah mengakui eksekusi Tingkat 4; keduanya potongan P-1B-00.
 > (b) **Dua keputusan Lee berikutnya (dari H-P-1B-00 §5):** F-233 = bangun layar/ujung belakang persetujuan perangkat ATAU Pembangun menulis baris persetujuan di `daftarkan_perangkat_dengan_kode`; F-095 = penegakan sesi-perangkat (T1-25) dibangun sekarang ATAU ditangguhkan resmi (janji "pencabutan seketika" tak berlaku bagi peramban selama belum dibangun).
