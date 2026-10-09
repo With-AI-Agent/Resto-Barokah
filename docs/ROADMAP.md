@@ -455,7 +455,7 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Verifikasi:** uji SQL: perangkat tidak terdaftar → tabel staf tertutup · cabut perangkat → permintaan berikutnya gagal · "Tablet Kasir" dipakai masuk sebagai owner → ditolak · kode kadaluwarsa/dipakai dua kali → ditolak. · **Bukti 2026-09-22:** `supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql` melengkapi seluruh DoD: `kode_pendaftaran_perangkat` (15 menit), `persetujuan_perangkat`, `buat_kode_perangkat()`, `daftarkan_perangkat_dengan_kode()`, `setujui_perangkat_pegawai()`, `cabut_perangkat()`; dibuktikan di `supabase/tes/sesi_dan_perangkat.sql` & `alat/uji-mutasi-0030.py`.
   - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `supabase/tes/perangkat_registrasi.sql`, `supabase/tes/sesi_dan_perangkat.sql`, `alat/uji-mutasi-0030.py` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
-- [x] T1-25 — Migrasi 0013: sesi perangkat, umur maksimum & pencabutan seketika ⚠️
+- [x] T1-25 — Migrasi 0013: sesi perangkat, umur maksimum & pencabutan seketika ⚠️ ❓ T-029
   - **Tujuan:** sesi punya umur jelas, bisa dicabut seketika, dan perangkat yang ditinggal tidak menyimpan akses.
   - **Ref:** TECH_SPEC §4.6 & §9 ART-11; PRD M12
   - **File:** `supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql`, `supabase/tes/sesi_dan_perangkat.sql`, `alat/uji-mutasi-0030.py`
