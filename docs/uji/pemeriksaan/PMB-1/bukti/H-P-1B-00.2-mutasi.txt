@@ -1,0 +1,55 @@
+MUTASI HAKIM P-1B-00.2 (arena/a86e0cc5-resto-barokah) — apakah pagar migrasi 0106 benar-benar bergigi?
+Tanggal: 2026-10-09 · Pohon: d740494 (tip lokal; riwayat sudah di-unshallow hari ini)
+Objek: pagar F-239 di supabase/migrations/0106_penanda_permohonan_aktivasi_darurat.sql (commit 22170bf)
+Cara: tiap mutasi diterapkan pada berkas migrasi 0106, uji supabase/tes/pemulihan_aktivasi_darurat.sql dijalankan,
+lalu berkas dipulihkan kata demi kata (git checkout). Mutasi dilakukan bergantian, satu per giliran.
+Syarat: mutan harus MERAH — kalau tidak, uji itu tidak bergigi. Sesudah semua mutasi: git diff 0106 KOSONG dan uji LULUS lagi.
+
+Kontrol sebelum mutasi: uji pada 0106 asli → LOLOS.
+
+Kontrol: uji pada 0106 asli harus LULUS
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+### M1 lepas ikatan id permohonan (kembali ke pemilihan bebas lintas penyewa ala 0105)
+### M1 hasil (harus GAGAL: kasus 2e/3d penanda)
+  GAGAL supabase/tes/pemulihan_aktivasi_darurat.sql
+        HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-239: id permohonan tak dikenal ditolak dengan pesan seragam). Perintah: select public.selesaikan_pemulihan_darurat(
+uji: 0 LULUS · 1 GAGAL
+  - supabase/tes/pemulihan_aktivasi_darurat.sql: HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-239: id permohonan tak dikenal ditolak dengan pesan seragam). Perintah: select public.selesaikan_pemulihan_darurat(
+HASIL: GAGAL
+--- pulih identik
+### M2 lepas pagar masa tenggang
+### M2 hasil (harus GAGAL: aktivasi sebelum tenggang lolos)
+  GAGAL supabase/tes/pemulihan_aktivasi_darurat.sql
+        HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-234: aktivasi sebelum masa tenggang lewat ditolak (tanpa sesi)). Perintah: select public.selesaikan_pemulihan_darurat(
+uji: 0 LULUS · 1 GAGAL
+  - supabase/tes/pemulihan_aktivasi_darurat.sql: HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-234: aktivasi sebelum masa tenggang lewat ditolak (tanpa sesi)). Perintah: select public.selesaikan_pemulihan_darurat(
+HASIL: GAGAL
+--- pulih identik
+### M3 lepas bukti kepemilikan (kunci bcrypt)
+### M3 hasil (harus GAGAL: kunci salah lolos)
+  GAGAL supabase/tes/pemulihan_aktivasi_darurat.sql
+        HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-234: kunci perangkat salah ditolak dengan pesan seragam). Perintah: select public.selesaikan_pemulihan_darurat(
+uji: 0 LULUS · 1 GAGAL
+  - supabase/tes/pemulihan_aktivasi_darurat.sql: HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-234: kunci perangkat salah ditolak dengan pesan seragam). Perintah: select public.selesaikan_pemulihan_darurat(
+HASIL: GAGAL
+--- pulih identik
+### M4 lepas syarat status menunggu (anti putar ulang)
+### M4 hasil (harus GAGAL: permohonan selesai bisa diaktifkan ulang)
+  GAGAL supabase/tes/pemulihan_aktivasi_darurat.sql
+        HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-234: permohonan selesai tidak bisa diaktifkan ulang). Perintah: select public.selesaikan_pemulihan_darurat(
+uji: 0 LULUS · 1 GAGAL
+  - supabase/tes/pemulihan_aktivasi_darurat.sql: HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-234: permohonan selesai tidak bisa diaktifkan ulang). Perintah: select public.selesaikan_pemulihan_darurat(
+HASIL: GAGAL
+--- pulih identik
+### M5 cabut execute untuk anon (pintu darurat tanpa sesi)
+### M5 hasil (harus GAGAL: anon permission denied)
+  GAGAL supabase/tes/pemulihan_aktivasi_darurat.sql
+        SEBAB PENOLAKAN BUKAN YANG DIHARAPKAN: dapat "permission denied for function selesaikan_pemulihan_darurat" (tidak cocok pola Permohonan pemulihan tidak ditemukan). Perintah: select public.selesaikan_pemulihan_darurat(
+uji: 0 LULUS · 1 GAGAL
+  - supabase/tes/pemulihan_aktivasi_darurat.sql: SEBAB PENOLAKAN BUKAN YANG DIHARAPKAN: dapat "permission denied for function selesaikan_pemulihan_darurat" (tidak cocok pola Permohonan pemulihan tidak ditemukan). Perintah: select public.selesaikan_pemulihan_darurat(
+HASIL: GAGAL
+--- pulih identik
+### Verifikasi akhir: diff 0106 harus kosong dan uji LULUS lagi
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
