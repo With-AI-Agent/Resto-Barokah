@@ -46,7 +46,7 @@ untuk rentang barisnya.
 |---|---|---|---|---|---|---|---|---|
 | P-0-00 | 2 | Fase 0 — rangka kerja, CI, alat sesi (dipotong per kelompok alat) | `alat/`, `.github/workflows/`, `PRO.md` | L4 L6 | dirinci | RENCANA | — | — |
 | P-1-00 | 2 | Fase 1 — database, keamanan & uang (dipotong per kelompok tabel/RPC: identitas & peran · menu · pesanan · pembayaran · jejak audit · uang & pembulatan) | `supabase/migrations/0001–0017`, `supabase/tes/` | L1 L2 L4 | dirinci | RENCANA | — | — |
-| P-1B-00 | 2 | Fase 1B — akun, perangkat, PIN, sesi, jejak | `supabase/migrations/0018–0030` (perkiraan) | L1 L4 | dirinci | RENCANA | — | — |
+| P-1B-00 | 2 | Fase 1B — akun, perangkat, PIN, sesi, jejak | `supabase/migrations/0018–0030` (perkiraan) | L1 L4 | dirinci | RENCANA | PEMBANGUN RONDE 5 DIKLAIM 2026-10-09: arena/01a0fbb9-resto-barokah — objek: PMB1-F-233 (KEPUTUSAN LEE 2026-10-09: tambal jalur pendaftaran resmi — persetujuan otomatis dinisbatkan ke penerbit kode saat login pertama) dibangun ronde ini; F-095 sudah DITANGGUHKAN RESMI (T-029, commit e1727f2); kartu B-P-1B-00 (status potongan tetap RENCANA sesuai preseden ronde pembangun pada potongan yang belum diperiksa penuh; riwayat klaim ronde 4 di commit d35113d) | 2026-10-09 |
 | P-1C-00 | 2 | Fase 1C — kontrak UI & peta aksi | `aplikasi/src/kontrak/`, `docs/PETA_UI.md` | L3 L5 | dirinci | RENCANA | — | — |
 | P-2-00 | 2 | Fase 2 — masuk & kerangka aplikasi | `aplikasi/src/layar/masuk/`, `aplikasi/src/lib/` | L1 L5 | dirinci | RENCANA | — | — |
 | P-3-00 | 2 | Fase 3 — pesanan & kasir (M4) | `aplikasi/src/layar/kasir/` (perkiraan) | L2 L5 | dirinci | RENCANA | — | — |
