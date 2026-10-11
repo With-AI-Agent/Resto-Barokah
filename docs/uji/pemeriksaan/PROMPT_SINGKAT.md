@@ -4,6 +4,11 @@
 > Lee menempelnya sebagai pesan pertama di sesi Arena baru (base branch = CABANG PERENCANA bila bisa dipilih). Naskah panjang
 > yang dirujuk prompt ini: `docs/uji/pemeriksaan/PROMPT_GILIRAN.md`; pengecualian orientasinya tercatat di `PRO.md`.
 > **Sejak 2026-10-04 (keputusan Lee, Opsi C — PERMANEN): sesi PERENCANA menjalankan peran PEMBANGUN biasa untuk satu potongan per giliran (batas percobaan 3 potongan gugur) — Hakim tetap sesi lain; aturan lengkap: PROMPT_GILIRAN §5 + USULAN_PERAN_PEMBANGUN §9–§10.**
+> > **Giliran berikutnya yang disarankan Perencana (2026-10-11, putaran 13ff — CI merah penahan Hakim P-1B-00 terbukti tidak beralas (run 612c121 SUCCESS; 74/74 perintah langkah direproduksi hijau); handoff disegarkan):**
+> (a) **Prioritas = hasil Hakim P-1B-00 yang sedang Lee jalankan** (verifikasi baris F-233 DIPERBAIKI, kartu B-P-1B-00 bagian RONDE 5, migrasi 0107). Bila selesai: `integrasikan <cabang hakim itu>` di sesi Perencana. Hakim sempat berhenti dua kali: GILIRAN §1 (CI merah — kini hijau lagi) dan gerbang `lanjut-sesi.py` (handoff basi — kini sudah disegarkan Perencana); hakim belum mengklaim/mengubah apa pun.
+> (b) **Tanpa menunggu Lee:** HAKIM verifikasi 4 baris DIPERBAIKI lama yang belum diverifikasi ulang (F-060, F-063, F-076, F-096).
+> (c) **Siklus BARU tersisa (hakim dulu, baru dibangun):** F-235 (P-9-00), F-236 (P-1-00) + sisa BARU lain (14 baru terbuka).
+> (d) **Catatan siklus:** penutupan `DIPERBAIKI → DITUTUP` hanya oleh hakim sesi lain; Pembangun (Perencana) tidak menutup temuannya sendiri. Pekerjaan pra-pilot terjadwal (JANGAN dibangun sebelum Lee memerintahkan): klaster cara masuk (termasuk F-095/T-029), layar darurat F-083, pengirim header F-070, jam aktif F-089, wiring UI 0103/0104.
 > > **Giliran berikutnya yang disarankan Perencana (2026-10-10, putaran 13ee — integrasi H-G-04: F-232/F-240/F-241 TERVERIFIKASI; Hakim P-1B-00 sedang Lee jalankan):**
 > (a) **Prioritas = hasil Hakim P-1B-00 yang sedang Lee jalankan** (verifikasi baris F-233 DIPERBAIKI, kartu B-P-1B-00 bagian RONDE 5, migrasi 0107). Bila selesai: `integrasikan <cabang hakim itu>` di sesi Perencana.
 > (b) **Tanpa menunggu Lee:** HAKIM verifikasi 4 baris DIPERBAIKI lama yang belum diverifikasi ulang (F-060, F-063, F-076, F-096).
