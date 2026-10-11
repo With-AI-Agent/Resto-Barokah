@@ -540,6 +540,9 @@ def uji_diri() -> int:
             (akar / "docs/uji/pemeriksaan/PMB-1/bukti/lama.txt").write_text(bukti_lama, encoding="utf-8")
             (akar / "docs/ROADMAP.md").write_text(roadmap_awal, encoding="utf-8")
             git_uji(akar, "init", "-q", "-b", "main")
+            # PMB1-F-242: cegah `commit` memicu pemeliharaan latar-belakang git yang
+            # balapan dengan pembersihan TemporaryDirectory (OSError "Directory not empty").
+            git_uji(akar, "config", "maintenance.auto", "false")
             git_uji(akar, "config", "user.email", "uji-diri@lokal")
             git_uji(akar, "config", "user.name", "uji-diri pmb-integrasi")
             git_uji(akar, "add", "-A")

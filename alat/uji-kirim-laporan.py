@@ -34,6 +34,9 @@ class Pengiriman(unittest.TestCase):
         self.branch = 'arena/01a0c2c1-resto-barokah'
         git(self.root, 'init', '--bare', '--initial-branch', self.branch, str(self.remote))
         git(self.work, 'init', '--initial-branch', self.branch)
+        # PMB1-F-242: cegah `commit` fixture memicu pemeliharaan latar-belakang git
+        # yang balapan dengan pembersihan TemporaryDirectory (OSError "Directory not empty").
+        git(self.work, 'config', 'maintenance.auto', 'false')
         git(self.work, 'config', 'user.name', 'Uji')
         git(self.work, 'config', 'user.email', 'uji@example.test')
         (self.work / 'kode.txt').write_text('kode awal')

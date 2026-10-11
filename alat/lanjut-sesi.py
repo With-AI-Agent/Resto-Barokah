@@ -1009,6 +1009,10 @@ def _repo_uji(tmp: pathlib.Path, sha_ditulis: str | None, segar: bool,
         bare = tmp / "remote.git"
         sp.run(["git", "init", "-q", "--bare", str(bare)], cwd=tmp, env=env, capture_output=True, check=False)
     sp.run(["git", "init", "-q"], cwd=repo, env=env, capture_output=True, check=False)
+    # PMB1-F-242: `commit` fixture di bawah tidak boleh memicu pemeliharaan latar-belakang
+    # git (≥ 2.32) — ia terus menulis `.git/objects` sesudah perintah kembali dan bisa
+    # balapan dengan pembersihan direktori sementara (OSError "Directory not empty").
+    sp.run(["git", "config", "maintenance.auto", "false"], cwd=repo, env=env, capture_output=True, check=False)
     # Nama cabang dibuat tetap supaya berkas handoff & uji ls-remote bisa diprediksi.
     sp.run(["git", "symbolic-ref", "HEAD", f"refs/heads/{cabang}"], cwd=repo, env=env,
            capture_output=True, check=False)
