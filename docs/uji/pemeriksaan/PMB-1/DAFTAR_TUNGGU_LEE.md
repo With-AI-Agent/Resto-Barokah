@@ -16,7 +16,7 @@
 | E | Butir tertangguh terbuka | 3 |
 | F | Baris Buku Uji belum diisi Lee | 23 |
 
-Temuan terbuka semua tingkat: BARU 15 · TERVERIFIKASI 150 · PERLU-INFO 0 · DIPERBAIKI 5 · **total 170** (gerbang akhir PMB menuntut 0, kecuali DITANGGUHKAN oleh Lee dengan tanggal tinjau).
+Temuan terbuka semua tingkat: BARU 16 · TERVERIFIKASI 151 · PERLU-INFO 0 · DIPERBAIKI 4 · **total 171** (gerbang akhir PMB menuntut 0, kecuali DITANGGUHKAN oleh Lee dengan tanggal tinjau).
 
 ## A. Keputusan / tindakan yang ditunggu dari Lee (temuan terbuka berpenanda LEE)
 
@@ -40,7 +40,7 @@ Jumlah A1: **5**
 | PMB1-F-052 | K-1 | P-10-00 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** Pembangun menyiapkan perbaikan di kode + uji lokal saja (migrasi baru/kode di balik saklar), TIDAK dipasang ke produksi dan cara masuk Lee tidak berubah sampai Lee memer… |
 | PMB1-F-063 | K-1 | F-04 | DIPERBAIKI | **KEPUTUSAN LEE 2026-09-29 = B) — saklar `pengaturan.izin_daftar_perangkat_bebas_peran_berkuasa` bawaan FALSE (0090) dan definisi final `verifikasi_pin_perangkat` (0091) menolak pendaftaran perangkat baru peran berkuasa BILA penyewa sudah punya perangkat aktif (skenario persis F-063, kode `PERANGKAT_BELUM_DISETUJUI`); uji `supabase/tes/daftar_perangkat_beru_peran_berkuasa.sql` (kasus 2 + prasyarat "sudah ada perangkat aktif" eksplisit F-063) dan kasus 7a/7b `verifikasi_pin_perangkat.sql`; probe hakim `bukti/F-03-hakim-owner-perangkat.sql` yang dulu LULUS kini GAGAL — celah tertutup (bukti `bukti/B-F-04-F-063-tertutup.txt`). DISIAPKAN, BELUM DIPASANG (saklar mati) — produksi dan cara masuk Lee tidak berubah sampai Lee memerintahkan pemasangan (REKAM §31 butir 21).:**  |
 | PMB1-F-117 | K-2 | F-09 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-09-29 (klaster cara masuk = B):** Pembangun menyiapkan perbaikan di kode + uji lokal saja (migrasi baru/kode di balik saklar), TIDAK dipasang ke produksi dan cara masuk Lee tidak berubah sampai Lee memer… |
-| PMB1-F-233 | K-2 | P-1B-00 | DIPERBAIKI | **KEPUTUSAN LEE 2026-10-09** ("Aku ikut rekomendasi terbaik dari kamu" atas rekomendasi Perencana):** tambal jalur pendaftaran resmi (bukan membangun layar persetujuan sekarang). Perbaikan commit `dc875ae` (migrasi `supabase/migrations/0107_persetujuan_otomatis_jalur_kod… |
+| PMB1-F-233 | K-2 | P-1B-00 | TERVERIFIKASI | **KEPUTUSAN LEE 2026-10-09** ("Aku ikut rekomendasi terbaik dari kamu" atas rekomendasi Perencana):** tambal jalur pendaftaran resmi (bukan membangun layar persetujuan sekarang). Perbaikan commit `dc875ae` (migrasi `supabase/migrations/0107_persetujuan_otomatis_jalur_kod… |
 
 Jumlah A2: **5**
 
