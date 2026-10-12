@@ -1,0 +1,110 @@
+=== 2. UJI PEMBANGUN DIREPRODUKSI HARI INI (bukan mengandalkan klaim kartu) ===
+  OK    alat/sql/data-uji.sql
+
+Menjalankan 1 berkas uji:
+  LULUS supabase/tes/pemulihan_aktivasi_darurat.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+=== 3. PROBE HAKIM SENDIRI (docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.5-probe-105.sql) ===
+Menjalankan 1 berkas uji:
+  LULUS docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.5-probe-105.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+=== 4. SUITE SQL PENUH (regresi) ===
+
+----------------------------------------------------------------------
+uji: 146 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+=== 5. ls SETIAP JALUR YANG DIRUJUK DI BUKTI ===
+supabase/migrations/0028_pemulihan_perangkat.sql                         ADA
+supabase/migrations/0102_pemulihan_perangkat_tanpa_sesi.sql              ADA
+supabase/migrations/0105_aktivasi_pemulihan_perangkat_tanpa_sesi.sql     ADA
+supabase/tes/pemulihan_aktivasi_darurat.sql                              ADA
+supabase/tes/pemulihan.sql                                               ADA
+docs/ops/PEMULIHAN_PERANGKAT.md                                          ADA
+docs/KEAMANAN.md                                                         ADA
+docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.5-probe-105.sql                  ADA
+
+=== 6. PEMANGGIL KLIEN UNTUK RPC PEMULIHAN PERANGKAT (aplikasi/src) ===
+buat_kode_pemulihan                0 baris
+pulihkan_perangkat                 0 baris
+selesaikan_pemulihan               0 baris
+selesaikan_pemulihan_darurat       0 baris
+batalkan_pemulihan                 0 baris
+-- 'pemulihan' di aplikasi/src (konteks: draf antrean & layar Peringatan, BUKAN RPC di atas):
+aplikasi/src/komponen/StatusAntrean.test.tsx
+aplikasi/src/komponen/StatusAntrean.tsx
+aplikasi/src/layar/kasir/LayarKasir.test.tsx
+aplikasi/src/layar/kasir/LayarKasir.tsx
+aplikasi/src/layar/laporan/LayarLaporan.test.tsx
+aplikasi/src/layar/laporan/Peringatan.test.tsx
+aplikasi/src/layar/laporan/Peringatan.tsx
+aplikasi/src/layar/masuk/LupaAkses.test.tsx
+
+=== 7. SUMBER: syarat sesi pada jalur lama & pembatalan (0028) ===
+-- 0028 baris 344-352 (selesaikan_pemulihan):
+as $$
+declare
+  v_saya          uuid := auth.uid();
+  v_penyewa       uuid := public.penyewa_saya();
+  v_perangkat_id  uuid;
+  v_aktif_setelah timestamptz;
+  v_status        text;
+begin
+  if v_saya is null then
+-- 0028 baris 275-282 (batalkan_pemulihan):
+  v_saya       uuid := auth.uid();
+  v_penyewa    uuid := public.penyewa_saya();
+  v_perangkat  uuid;
+  v_status     text;
+begin
+  if v_saya is null then
+    raise exception 'Anda harus masuk terlebih dahulu.';
+  end if;
+-- 0028 baris 334-337 (grant batalkan_pemulihan):
+grant execute on function public.batalkan_pemulihan(uuid, text) to authenticated, service_role;
+
+-- ---------------------------------------------------------------------------
+-- BAGIAN 5 — RPC selesaikan_pemulihan (setelah masa tenggang 30 menit)
+
+=== 8. KEAMANAN §4b Tingkat 3 & 4 (baris 77-78) ===
+| 3 | Perangkat owner pusat hilang / seluruh perangkat peran itu hilang | **Kunci induk**: kode pemulihan darurat + kata sandi + TOTP → **pendaftaran perangkat darurat** dengan **masa tenggang 30 menit** | ~40 menit | Owner pusat (kode pemulihan) |
+| 4 | Kode pemulihan ikut hilang / semua cara di atas gagal | **Pemulihan oleh pemilik platform lewat panel Supabase** (di luar aplikasi, dipandu langkah demi langkah di `docs/ops/`), lalu perangkat pertama didaftarkan ulang lewat jalur bootstrap | < 1 jam | Pemilik platform (akun Supabase) |
+
+=== 9. Dokumen ops: langkah 3 & 5 (siapa yang menjalankan SQL) ===
+   yang kehilangan SELURUH perangkat (tidak ada sesi `owner_pusat` yang bisa
+   dipakai). Sejak migrasi 0102 (pengajuan) dan 0105 (aktivasi), kedua langkah
+   di bawah bisa dijalankan tanpa sesi.
+3. **Ajukan Pemulihan Perangkat Darurat** (dari perangkat baru, tanpa sesi):
+   ```sql
+   select public.pulihkan_perangkat(
+     'frasa-rahasia-darurat-minimal-20-karakter-acak',
+     'Tablet-Kasir-Darurat-01',
+     'kunci-perangkat-minimal-16-karakter',
+     '<cabang-id>'
+   );
+   ```
+   Catat baik-baik `kunci-perangkat` yang dipilih — kunci itu menjadi bukti
+   kepemilikan pada langkah 5 (kode pemulihan hangus sekali pakai di sini).
+4. **Masa Tenggang 30 Menit**:
+   - Status pemulihan tercatat sebagai `menunggu`.
+   - Perangkat darurat berstatus nonaktif selama masa tenggang.
+   - Peringatan tercatat di `catatan_audit`.
+5. **Aktivasi Setelah 30 Menit** (tanpa sesi, bukti = kunci perangkat):
+   Setelah waktu 30 menit berlalu, jalankan:
+   ```sql
+   select public.selesaikan_pemulihan_darurat('kunci-perangkat-minimal-16-karakter');
+   ```
+   Perangkat darurat resmi aktif dan dapat langsung digunakan untuk
+   operasional kasir/PIN staf. (Jalur lama `selesaikan_pemulihan` tetap ada
+   bagi yang masih punya sesi, tetapi tidak lagi dibutuhkan.)
+6. **Buat Kode Pemulihan Baru**: Segera buat kode pemulihan baru dan simpan kembali dalam 2 amplop tersegel.
+
+---

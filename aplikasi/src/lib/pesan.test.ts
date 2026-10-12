@@ -18,6 +18,13 @@ describe('formatPesanError & KAMUS_PESAN (T2-08)', () => {
     expect(terkunci.pesan).toContain('Terlalu banyak')
   })
 
+  it('menerjemahkan PERANGKAT_BELUM_DISETUJUI (PMB1-F-082) dengan ajakan minta persetujuan', () => {
+    const hasil = formatPesanError('PERANGKAT_BELUM_DISETUJUI')
+    expect(hasil.kode).toBe('PRG-405')
+    expect(hasil.judul).toBe('Perangkat Belum Disetujui')
+    expect(hasil.tindakan).toContain('menyetujui')
+  })
+
   it('menerjemahkan error dari instance Error yang memuat kata kunci', () => {
     const err = new Error('Operasi ditolak: PERANGKAT_BELUM_TERDAFTAR di cabang 1')
     const hasil = formatPesanError(err)

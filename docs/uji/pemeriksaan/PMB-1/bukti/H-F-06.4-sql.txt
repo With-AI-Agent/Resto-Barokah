@@ -1,0 +1,31 @@
+BUKTI HAKIM 4 — UJI SQL (dua bangunan + suite penuh), 2026-10-06
+HEAD: 3a159ec pmb: klaim F-06 (HAKIM 4) — verifikasi ulang 11 baris K-3/K-4 DIPERBAIKI ronde 2
+
+### 1. node alat/uji-sql.mjs supabase/tes/perangkat_berkuasa.sql
+  OK    alat/sql/data-uji.sql
+
+Menjalankan 1 berkas uji:
+  LULUS supabase/tes/perangkat_berkuasa.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+### 2. node alat/uji-sql.mjs supabase/tes/laporan_persetujuan_pin.sql
+  OK    alat/sql/data-uji.sql
+
+Menjalankan 1 berkas uji:
+  LULUS supabase/tes/laporan_persetujuan_pin.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+### 3. node alat/uji-sql.mjs   (suite penuh)
+
+----------------------------------------------------------------------
+uji: 145 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+### 4. jumlah berkas uji SQL di repo
+145

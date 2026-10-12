@@ -119,8 +119,17 @@ export function LayarPelayan({
     setSedangKirim(true)
     setPesanStatus(null)
     try {
-      if (onKirimPesanan) {
-        await onKirimPesanan({ meja: nomorMeja, items: keranjang, catatanUmum })
+      // PMB1-F-133: sukses hanya bila jalur kirim benar-benar ada DAN menjawab true — keranjang tidak dikosongkan bila gagal.
+      if (!onKirimPesanan) {
+        setPesanStatus(
+          '⚠️ Pengiriman dari layar pelayan belum tersambung ke dapur. Pesanan BELUM terkirim — sampaikan ke kasir.',
+        )
+        return
+      }
+      const terkirim = await onKirimPesanan({ meja: nomorMeja, items: keranjang, catatanUmum })
+      if (terkirim !== true) {
+        setPesanStatus('❌ Gagal mengirim pesanan. Silakan coba lagi.')
+        return
       }
       setPesanStatus('✅ Pesanan berhasil dikirim ke dapur!')
       setKeranjang([])

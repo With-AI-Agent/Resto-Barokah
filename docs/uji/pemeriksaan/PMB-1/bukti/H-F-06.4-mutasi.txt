@@ -1,0 +1,51 @@
+BUKTI HAKIM 4 — MUTASI RINGAN DUA BANGUNAN (0103 & 0104)
+Sesi: arena/74433bfc-resto-barokah · 2026-10-06 · HEAD: 3a159ec
+Cara: berkas migrasi diubah di pohon kerja, uji dijalankan (harus GAGAL), lalu 'git checkout --' memulihkan.
+
+### M1 — 0103: cadangan_cukup 'count(p.id) >= 2' diubah jadi '>= 1'
+$ node alat/uji-sql.mjs supabase/tes/perangkat_berkuasa.sql
+  GAGAL supabase/tes/perangkat_berkuasa.sql
+        HARAPAN TIDAK TERPENUHI: F-072: satu perangkat admin → cadangan_cukup false (layar harus memperingatkan)
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - supabase/tes/perangkat_berkuasa.sql: HARAPAN TIDAK TERPENUHI: F-072: satu perangkat admin → cadangan_cukup false (layar harus memperingatkan)
+HASIL: GAGAL
+PULIH IDENTIK
+
+### M2 — 0104: filter bulan takwim dibuang dari ketiga cabang
+$ node alat/uji-sql.mjs supabase/tes/laporan_persetujuan_pin.sql
+  GAGAL supabase/tes/laporan_persetujuan_pin.sql
+        HARAPAN TIDAK TERPENUHI: F-087: dua diskon distempel owner terhitung; yang September & tanpa stempel tidak ikut (dapat 3, harap 2)
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - supabase/tes/laporan_persetujuan_pin.sql: HARAPAN TIDAK TERPENUHI: F-087: dua diskon distempel owner terhitung; yang September & tanpa stempel tidak ikut (dapat 3, harap 2)
+HASIL: GAGAL
+PULIH IDENTIK
+
+### M3 — 0104: isolasi penyewa dibuang dari cabang diskon
+$ node alat/uji-sql.mjs supabase/tes/laporan_persetujuan_pin.sql
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - supabase/tes/laporan_persetujuan_pin.sql: more than one row returned by a subquery used as an expression
+HASIL: GAGAL
+git status --porcelain setelah M3 dipulihkan:
+(kosong)
+
+### M4 — 0103: syarat 'p.aktif = true' dibuang
+$ node alat/uji-sql.mjs supabase/tes/perangkat_berkuasa.sql
+  GAGAL supabase/tes/perangkat_berkuasa.sql
+        HARAPAN TIDAK TERPENUHI: F-072: owner_pusat dihitung 2 perangkat aktif (perangkat dicabut & milik resto B tidak ikut) (dapat 3, harap 2)
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - supabase/tes/perangkat_berkuasa.sql: HARAPAN TIDAK TERPENUHI: F-072: owner_pusat dihitung 2 perangkat aktif (perangkat dicabut & milik resto B tidak ikut) (dapat 3, harap 2)
+HASIL: GAGAL
+$ git status --porcelain (tanpa berkas bukti ini):
+(kosong)

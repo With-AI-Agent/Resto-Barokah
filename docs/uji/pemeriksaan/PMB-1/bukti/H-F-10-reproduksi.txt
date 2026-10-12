@@ -1,0 +1,76 @@
+# BUKTI HAKIM H-F-10 — reproduksi 2026-09-29 (arena/01a0eb67-resto-barokah), basis bbc9cb4
+
+$ awk tugas Fase 7 yang Verifikasinya memuat "uji manual"
+T7-01 T7-03 T7-04 T7-05 T7-07 T7-08 T7-09 T7-10 
+
+$ grep -c "TODO(keputusan Lee)" docs/PRIVASI_PELANGGAN.md; sed -n 3p docs/PRIVASI_PELANGGAN.md
+8
+> **Status: DRAF** — belum mengikat apa pun, belum diimplementasikan apa pun.
+
+$ centang lembar T9-12: grep -c "[ ] LULUS" / "[x]" UJI_TERIMA_PENGATURAN.md
+12
+1
+
+$ grep -rn cron.schedule supabase/migrations | wc -l ; grep -n ringkasan alat/denyut.py | wc -l ; grep -n ringkasan_harian .github/workflows/*.yml | wc -l
+0
+0
+0
+
+$ python3 alat/periksa-idempoten.py ; --uji-diri
+----------------------------------------------------------------------
+HASIL: LOLOS — 100% RPC penulisan memiliki dukungan kunci idempoten.
+HASIL UJI DIRI: LOLOS
+
+$ python3 alat/periksa-sisir-rls.py (ringkas)
+Total tabel publik diperiksa : 47
+Tabel dengan RLS aktif       : 47/47
+Tabel dengan policy terpasang: 47/47
+HASIL: LOLOS — Seluruh 47 tabel terisolasi 100% secara fail-closed.
+total policy: 79
+
+$ create table di migrasi 0080-0087
+supabase/migrations/0082_denyut_harian_pembersih.sql:14:create table if not exists public.log_jadwal (
+supabase/migrations/0085_ringkasan_harian.sql:33:create table if not exists public.ringkasan_harian (
+
+$ ls supabase/migrations/*.sql | wc -l ; gh repo view --json isPrivate
+84
+{"isPrivate":false}
+
+$ node alat/uji-sql.mjs (ekor)
+uji: 132 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+$ vitest (dari /tmp/h/vitest.txt)
+ Test Files  124 passed (124)
+      Tests  1022 passed (1022)
+
+$ python3 alat/periksa-angka-bukti.py
+HASIL: LOLOS — semua angka di klaim Bukti bisa direproduksi atau ditandai jujur.
+
+$ awk hitung [x] dan [ ] per Fase
+F3 x=13 o=3; F10 x=16 o=0; F8 x=15 o=0; F6 x=5 o=3; F1C x=10 o=2; F5 x=11 o=1; F2 x=18 o=1; F1 x=11 o=11; F0 x=14 o=1; F9 x=12 o=0; F7 x=12 o=0; F1B x=9 o=2; 
+
+$ Edge Function vs RPC (F-171)
+            body: JSON.stringify({
+              p_ringkasan_id: ringkas.id,
+              p_status: emailTerkirim ? 'terkirim' : 'gagal',
+create or replace function public.set_status_email_ringkasan(
+  p_id uuid,
+  p_status text
+)
+        catatanKirim = 'Simulasi pengiriman berhasil (tanpa RESEND_API_KEY)'
+
+$ node alat/eksekusi-latihan-insiden.mjs --laporan (ekor)
+    - Status RLS             : SEMUA AKTIF (47/47)
+- **Jumlah Tabel Terpulihkan:** 47 dari 47 tabel publik
+- **Jumlah Baris Terpulihkan:** 192 baris (selisih = 0 baris)
+- **Status RLS:** 100% aktif (47/47 tabel terkunci RLS)
+HASIL: LOLOS — LATIHAN PEMULIHAN & DRIL INSIDEN BERHASIL SEMPURNA
+
+$ node alat/uji-edge-ringkasan-harian.mjs (ekor)
+RINGKASAN: 10 lolos, 0 gagal
+
+$ probe F-171 (node alat/uji-sql.mjs bukti/H-F-10-set-status-email-nama-argumen.sql)
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS

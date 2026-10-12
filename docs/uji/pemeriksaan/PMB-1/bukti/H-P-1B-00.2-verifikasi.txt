@@ -1,0 +1,90 @@
+VERIFIKASI HAKIM P-1B-00.2 (arena/a86e0cc5-resto-barokah) — 2026-10-09
+Objek: baris Buku Besar potongan P-1B-00 (F-095, F-233, F-234, F-237, F-238, F-239) + vonis ulang F-083.
+Kartu: kartu/H-P-1B-00.2.md · Pohon: d740494 (tip lokal; git fetch --unshallow origin dijalankan hari ini,
+riwayat tadinya dangkal — semua sha perbaikan terbukti ADA: 22170bf, b3186d9, a390a5d, 2decccd, 43c0622,
+17e4d5d, 3cc4486, d740494).
+
+Semua perintah dijalankan apa adanya dari akar repo; keluaran ditempel apa adanya.
+
+== 1. Lingkungan ==
+python3 alat/lanjut-sesi.py --susul                 → OK: sudah termuat (dijalankan awal sesi)
+python3 alat/lanjut-sesi.py                         → LOLOS
+python3 alat/periksa-pemeriksaan.py                 → LOLOS (awal sesi: 63 potongan, 241 temuan)
+git fetch --unshallow origin                        → SELESAI (riwayat tadinya dangkal)
+npm ci --prefix alat                                → SELESAI (PGlite tersedia)
+
+== 2. Suite & uji inti ==
+node alat/uji-sql.mjs                               → uji: 146 LULUS · 0 GAGAL · HASIL: LOLOS
+node alat/uji-sql.mjs supabase/tes/pemulihan_aktivasi_darurat.sql
+                                                    → uji: 1 LULUS · 0 GAGAL · HASIL: LOLOS
+                                                      (kasus 2d kembar satu penyewa, 2e id permohonan pertama,
+                                                       3d penanda lintas penyewa — F-239 terbukti tertutup)
+
+== 3. Verifikasi F-239 (DIPERBAIKI 22170bf → DITUTUP) ==
+node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.5-probe-105.sql
+  → GAGAL: "function public.selesaikan_pemulihan_darurat(unknown) does not exist"
+    = tanda tangan satu-argumen 0105 sudah dijatuhkan migrasi 0106, lubang F-239 tertutup.
+Statis 0106: tanda tangan baru (p_permohonan_id uuid, p_kunci_perangkat text); pencarian diikat
+  where q.id = p_permohonan_id and q.status = 'menunggu' and now() >= q.aktif_setelah
+  and crypt(p_kunci_perangkat, kp.kunci_hash) = kp.kunci_hash;
+  drop function if exists ...(text) (baris 123); grant ke anon tetap (sesuai keputusan Tingkat 4).
+Mutasi pagar (5 mutasi, semua MERAH, berkas dipulihkan identik sesudah tiap mutasi):
+  lihat bukti/H-P-1B-00.2-mutasi.txt (M1 lepas ikatan id → F-239; M2 tenggang; M3 bcrypt;
+  M4 status menunggu; M5 cabut execute anon → permission denied).
+Dokumen selaras: docs/ops/PEMULIHAN_PERANGKAT.md §3 langkah 3 (kembalikan id permohonan sebagai
+  penanda) & langkah 5 (panggil selesaikan_pemulihan_darurat(id, kunci)).
+
+== 4. Verifikasi F-238 (DIPERBAIKI keputusan b3186d9/2decccd → DITUTUP) ==
+Statis 0028:263-290: batalkan_pemulihan masih menuntut auth.uid() + boleh('kelola_pegawai');
+  0028:334 grant hanya authenticated, service_role (tanpa anon) — konsisten dengan keputusan
+  Lee 2026-10-07 (eskalasi Tingkat 4, sengaja tidak dibuka tanpa sesi).
+Dokumen: docs/KEAMANAN.md §4b butir 3 mencatat keputusan F-238; docs/ops/PEMULIHAN_PERANGKAT.md §4
+  = eskalasi Tingkat 4.
+Probe hari ini (tanpa uji mesin untuk perbaikan — keputusan + dokumen; probe ini verifikasi pagar):
+node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/H-P-1B-00.2-probe-F-238.sql
+  → uji: 1 LULUS · 0 GAGAL · HASIL: LOLOS
+    A1 anon → permission denied for function batalkan_pemulihan
+    A2 kasir ber-sesi → ditolak gerbang kelola_pegawai
+    A3 kontrol positif: owner_pusat → melewati ACL+izin, lanjut ke aturan domain
+       ("Permohonan pemulihan tidak ditemukan") → pagar memang yang menolak.
+
+== 5. Verifikasi F-237 (DIPERBAIKI a390a5d → DITUTUP) ==
+docs/KEAMANAN.md:124 kini: "(koreksi PMB1-F-237: rujukan jam_buka/jam buka di aplikasi/src ADA di
+  jalur tampilan …; yang 0 adalah rujukan di jalur PENEGAKAN kunci otomatis)".
+grep -rn -e jam_buka -e jamBuka -e 'jam buka' aplikasi/src   → 34 baris (16 di antaranya jam_buka)
+  → angka koreksi konsisten; klaim induk (0 rujukan di jalur penegakan) tetap benar.
+Tanpa uji mesin: perbaikan dokumen murni.
+
+== 6. Vonis ulang F-083 (TERVERIFIKASI → DITUTUP) ==
+Keputusan Lee 2026-10-07 butir 37: (b) DIPILIH — jalur RESMI dilayani Tingkat 4.
+Dieksekusi & diverifikasi hari ini:
+  docs/KEAMANAN.md §4b tabel Tingkat 3: "belum tersedia — KEPUTUSAN LEE 2026-10-07 (PMB1-F-083):
+    RESMI dilayani Tingkat 4 sampai layar darurat + klaster login dibangun pra-pilot";
+    kolom siapa = "Pemilik platform mendampingi owner pusat — prosedur SQL teruji (0102+0106)".
+  docs/ops/PEMULIHAN_PERANGKAT.md §3 = KEPUTUSAN LEE 2026-10-07 Tingkat 4.
+  Jalur teruji ujung-ke-ujung: 0102 (pemulihan: buat kode → pulihkan → antrean) + 0106 (aktivasi
+    tanpa sesi dengan penanda) → uji LULUS sampai LOGIN_SUKSES (§2); suite 146 LULUS (§2);
+    probe lama GAGAL (§3); 5 mutasi MERAH (§3).
+  F-234 tetap DUPLIKAT induk; F-238 & F-239 DITUTUP hari ini (§4, §3).
+Residu tercatat: layar darurat mandiri + klaster login (kode + kata sandi + TOTP) dijadwalkan
+  pra-pilot (keputusan Lee klaster cara masuk = B). ROADMAP T1-36 [x] dengan DoD "wajib kode +
+  kata sandi + TOTP" bertentangan dengan jalur resmi Tingkat 4 tanpa kata sandi/TOTP — sudah
+  tercatat di H-F-06.3/H-P-1B-00 §5; diserahkan ke sensus klaim Tahap 2 (di luar objek giliran).
+
+== 7. Tetap TERVERIFIKASI (diputus ulang hari ini, tidak berubah) ==
+node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/H-P-1B-00-probe-sesi.sql
+  → uji: 1 LULUS · 0 GAGAL · HASIL: LOLOS   (F-095: cacat sesi masih hidup; menunggu keputusan Lee A1)
+node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-probe-082.sql
+  → uji: 1 LULUS · 0 GAGAL · HASIL: LOLOS   (F-233: dead end persetujuan masih ada; menunggu keputusan Lee A1)
+F-234 tetap DUPLIKAT (induk F-083 kini DITUTUP).
+
+== 8. Penjaga (dijalankan sebelum commit) ==
+python3 alat/susun-daftar-tunggu-lee.py   → (dicatat sebelum commit; keluaran di §9 kartu)
+python3 alat/periksa-pemeriksaan.py       → (hasil akhir ada di kartu §4)
+python3 alat/periksa-bersih.py            → (hasil akhir ada di kartu §4)
+python3 alat/periksa-push.py              → TER-PUSH sampai <sha> (dicetak saat giliran ditutup,
+                                             sengaja tidak diketik di berkas ini — lihat PMB1-F-240/241
+                                             tentang angka bukti yang basi)
+
+Catatan batas: seluruh pengukuran di lingkungan uji PGlite + pembacaan statis repo; apakah jalur
+staf benar-benar berjalan di produksi tetap asumsi PMB1-A-062 (diteruskan ke L-01/L-02 Tahap 7).

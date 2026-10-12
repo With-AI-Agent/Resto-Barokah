@@ -1,0 +1,17 @@
+BUKTI MUTASI M2 & M3 — HAKIM H-P-1B-00.3 (sesi arena/b697be69-resto-barokah, 2026-10-11)
+Tip: 10c9541
+$ python3 docs/uji/pemeriksaan/PMB-1/bukti/H-P-1B-00.3-mutasi-m2-m3.py
+=== kontrol-HEAD: rc=0 ===
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+=== M2-penyetuju-pegawai-sendiri: rc=1 ===
+        HARAPAN TIDAK TERPENUHI: F-233: baris persetujuan otomatis ada, disetujui_oleh = penerbit kode (bukan diri pegawai)
+uji: 0 LULUS · 1 GAGAL
+  - supabase/tes/persetujuan_otomatis_kode_resmi.sql: HARAPAN TIDAK TERPENUHI: F-233: baris persetujuan otomatis ada, disetujui_oleh = penerbit kode (bukan diri pegawai)
+HASIL: GAGAL
+=== M3-tanpa-audit: rc=1 ===
+        HARAPAN TIDAK TERPENUHI: F-233: catatan_audit memuat persetujuan_otomatis_kode dengan pelaku = penerbit kode
+uji: 0 LULUS · 1 GAGAL
+  - supabase/tes/persetujuan_otomatis_kode_resmi.sql: HARAPAN TIDAK TERPENUHI: F-233: catatan_audit memuat persetujuan_otomatis_kode dengan pelaku = penerbit kode
+HASIL: GAGAL
+HASIL MUTASI: LOLOS (kontrol hijau, M2 & M3 terbunuh)

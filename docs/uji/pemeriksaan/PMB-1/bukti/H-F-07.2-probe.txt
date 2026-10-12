@@ -1,0 +1,15 @@
+Basis sumber: /home/user/Resto-Barokah
+Kontrol proyek asli: (True, [])
+PMB1-F-096 PRD dihapus dari salinan: (True, [])
+PMB1-F-097 voucher.klaim_diskon: {'id': 'voucher.klaim_diskon', 'label': 'Terapkan Voucher', 'layar': 'voucher', 'peran': ['owner_pusat', 'admin_cabang', 'kasir'], 'izin': 'pakai_voucher', 'rpc': 'hitung_total', 'jenis': 'tulis', 'konfirmasi': 'Gunakan voucher pada tagihan transaksi ini?', 'pin': False, 'audit': True, 'uji': ['uji_voucher_klaim_diskon']}
+PMB1-F-098: dapur.mulai_masak tulis None
+PMB1-F-098: dapur.selesai_masak tulis None
+PMB1-F-098: dapur.tandai_habis tulis None
+PMB1-F-099: pengaturan.simpan_tema ['owner_pusat', 'admin_cabang'] simpan_tema
+PMB1-F-099: pengaturan.simpan_menu ['owner_pusat', 'admin_cabang'] simpan_menu
+PMB1-F-099: pengaturan.simpan_kategori ['owner_pusat', 'admin_cabang'] simpan_kategori_menu
+Kontrol negatif RPC tidak ada (harus ditolak): (False, ["[Aturan 1 - RPC] Aksi 'kasir.tambah_item' menunjuk RPC 'rpc_tidak_ada_hakim_ulang' yang tidak terdefinisi di /tmp/h-f-07-ulang-8hpyv8yy/supabase/migrations."])
+PMB1-F-098 RPC tulis dibuat null: (True, [])
+PMB1-F-094 penjaga batas baris: `docs/KEAMANAN.md:53-54` None
+PMB1-F-094 penjaga batas baris: `docs/KEAMANAN.md:99999` baris [99999] melebihi panjang docs/KEAMANAN.md (232 baris)
+SELESAI: semua hasil sesuai asersi; sumber proyek tidak diubah.

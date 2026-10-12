@@ -1,0 +1,67 @@
+# Bukti F-09 — modul [x] yang hanya diimpor uji (commit 73c97ee, 2026-09-29)
+# perintah per nama: grep -rlw <Nama> aplikasi/src | grep -v '\.test\.' | grep -v <berkasnya-sendiri>
+layar/masuk/LupaAkses.tsx :: LupaAkses :: pemakai non-uji = []
+layar/TidakPunyaAkses.tsx :: TidakPunyaAkses :: pemakai non-uji = []
+hook/useKunciOtomatis.ts :: useKunciOtomatis :: pemakai non-uji = []
+komponen/KunciSekarang.tsx :: KunciSekarang :: pemakai non-uji = []
+layar/masuk/MasukStaf.tsx :: MasukStaf :: pemakai non-uji = []
+layar/pengaturan/Perangkat.tsx :: (nama umum; lihat perintah impor di bawah)
+layar/masuk/MasukPengelola.tsx :: MasukPengelola :: pemakai non-uji = []
+layar/kasir/DaftarTagihan.tsx :: DaftarTagihan :: pemakai non-uji = []
+layar/kasir/DaftarPesanan.tsx :: DaftarPesanan :: pemakai non-uji = []
+layar/kasir/DataPelanggan.tsx :: DataPelanggan :: pemakai non-uji = []
+komponen/StrukDigital.tsx :: StrukDigital :: pemakai non-uji = []
+lib/printer/struk.ts :: susunStruk :: pemakai non-uji = []
+lib/printer/tiket.ts :: susunTiket :: pemakai non-uji = []
+lib/printer/kirim.ts :: cetakBluetooth :: pemakai non-uji = []
+lib/printer/kirim.ts :: cetakUsb :: pemakai non-uji = []
+
+# grep -rn 'mfa\.' aplikasi/src | grep -v test | wc -l
+0
+# grep -rn 'requestDevice' aplikasi/src | grep -v test | wc -l
+0
+# ls aplikasi/src/lib/google.ts
+ls: cannot access 'aplikasi/src/lib/google.ts': No such file or directory
+# grep -n '<PasangPrinter' aplikasi/src/App.tsx
+472:        return <PasangPrinter />
+# grep -n 'onUjiCetak?\.\|onSimpan?\.' aplikasi/src/layar/pengaturan/PasangPrinter.tsx
+164:          onClick={() => onUjiCetak?.(halamanUji(lebar))}
+171:            onSimpan?.({ profilId, lebar, namaPerangkat: awal?.namaPerangkat ?? null })
+# grep -n 'DaftarPerangkat' aplikasi/src/layar/pengaturan/LayarPengaturan.tsx
+8: *  4. Pengelolaan Perangkat POS (`DaftarPerangkat`) — T6-04
+26:import { DaftarPerangkat } from './DaftarPerangkat'
+406:        {tabAktif === 'perangkat' && <DaftarPerangkat />}
+# grep -rn "from './Perangkat'" atau 'pengaturan/Perangkat' di aplikasi/src (tanpa .test.) → baris:
+0
+
+# Header produksi (WebUSB)
+# grep -n usb aplikasi/public/_headers
+15:  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
+# npx vite build lalu grep -n usb aplikasi/dist/_headers (build lokal 2026-09-29, dist tidak di-commit)
+15:  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
+# grep -rn -i usb PANDUAN_PENGGUNA.md docs/PANDUAN_PEMILIK.md | wc -l
+0
+
+# Uji beban
+# grep -n 'import\|function' aplikasi/src/layar/kasir/BebanKasir.test.ts
+1:import { describe, it, expect } from 'vitest'
+10:function hitungRingkasanBeban(items: ItemBeban[]) {
+# grep -rn hitungRingkasanBeban aplikasi/src | grep -v test | wc -l
+0
+
+# RPC simpan_pesanan
+49:create or replace function public.simpan_pesanan(
+200:comment on function public.simpan_pesanan is
+203:revoke all on function public.simpan_pesanan from public, anon;
+204:grant execute on function public.simpan_pesanan to authenticated, service_role;
+# grep -rn "simpan_pesanan" aplikasi/src | grep -v test | wc -l
+5
+# ls supabase/migrations | grep -E '^00(28|32|34)_'
+0028_pemulihan_perangkat.sql
+0032_status_item_dapur.sql
+#   (5 baris itu hanya label antrean 'jenis: simpan_pesanan'; panggilan RPC:)
+# grep -rn "rpc('simpan_pesanan'" aplikasi/src | wc -l
+0
+# grep -n "from('pesanan').insert" aplikasi/src/App.tsx aplikasi/src/hook/useAntrean.ts
+aplikasi/src/App.tsx:86:                  const { error: errPesanan } = await klien.from('pesanan').insert({
+aplikasi/src/hook/useAntrean.ts:113:          const { error: errPesanan } = await klien.from('pesanan').insert({

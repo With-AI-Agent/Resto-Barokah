@@ -1,0 +1,37 @@
+## H-F-14 bukti verifikasi PMB1-F-136 — 2026-09-29, sesi arena/01a0eb71-resto-barokah
+
+### Bagian 1 — python3 alat/periksa-pemeriksaan.py --uji-diri
+UJI-DIRI periksa-pemeriksaan
+  OK  salinan utuh diterima → kode=0
+  OK  baris sintetis yang sah diterima → kode=0
+  OK  potongan SELESAI tanpa kartu ditolak → kode=1
+  OK  status temuan tidak sah ditolak → kode=1
+  OK  DITUTUP tanpa hakim/commit ditolak → kode=1
+  OK  artefak yang tidak ada ditolak → kode=1
+  OK  artefak dengan nomor baris di luar berkas ditolak → kode=1
+  OK  TERVERIFIKASI dengan kartu hakim yang tidak ada ditolak (PMB1-F-136) → kode=1
+  OK  TERVERIFIKASI oleh pemeriksa sendiri (kartu K, bukan H) ditolak → kode=1
+  OK  ID temuan melompat ditolak → kode=1
+  OK  potongan temuan yang tidak ada di papan ditolak → kode=1
+  OK  temuan pertama dihapus ditolak (urutan ID putus) → kode=1
+  OK  kartu yatim / tidak lengkap ditolak → kode=1
+  OK  matriks basi ditolak → kode=1
+  OK  DUPLIKAT tanpa temuan induk ditolak → kode=1
+  OK  asumsi DIBANTAH tanpa temuan ditolak → kode=1
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+
+### Bagian 2 — probe independen hakim (bukti/H-F-14-verifikasi-f136.py)
+UJI PROBE H-F-14 — verifikasi perbaikan PMB1-F-136 (3f56abb)
+  OK  K0 kontrol positif: salinan utuh → kode=0 (harap 0) · pesan ADA: 'HASIL: LOLOS'
+  OK  K1 cacat F-136: Hakim 'H-TIDAK-ADA' tanpa kartu → kode=1 (harap 1) · pesan ADA: 'wajib menyebut kartu hakim yang ADA'
+  OK  K2 kontrol negatif: Hakim hanya kartu K pemeriksa → kode=1 (harap 1) · pesan ADA: 'wajib menyebut kartu hakim yang ADA'
+  OK  K3 kolom Tutup menyebut kartu H yang ada → kode=0 (harap 0) · pesan ADA: 'HASIL: LOLOS'
+
+HASIL: LOLOS — penjaga menolak yang rusak, menerima yang sah; perbaikan F-136 terbukti.
+
+### Bagian 3 — keadaan Buku Besar untuk potongan F-14
+jumlah baris Buku Besar: 170
+baris berpotongan F-14: 0
+kartu K-F-14: 0
+PAPAN: 34:| F-14 | 1 | DECISIONS_LOG bagian 4 — sampai keputusan terbaru | `docs/DECISIONS_LOG.md` baris 2476–3276 | L3 | ±800 baris (log) | BELUM | — | — |

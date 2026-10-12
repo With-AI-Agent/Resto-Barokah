@@ -1,0 +1,9 @@
+     ✓ merender antarmuka pelayan HP dengan nama pelayan dan input meja 39ms
+     ✓ dapat menambahkan item menu ke keranjang dan mengubah kuantitas 94ms
+     ✓ mengirim pesanan ke dapur saat tombol kirim ditekan 42ms
+     × tidak menampilkan sukses bila jalur kirim tidak terpasang (PMB1-F-133) 1065ms
+     × tidak menampilkan sukses bila jalur kirim menjawab false (PMB1-F-133) 1029ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  2 failed | 3 passed (5)
+ ✓ src/layar/pelayan/LayarPelayan.test.tsx (5 tests) 247ms
+      Tests  5 passed (5)

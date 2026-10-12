@@ -1,0 +1,157 @@
+=== H-F-12 reproduksi (arena/01a0eb68-resto-barokah) 2026-09-29T04:28Z ===
+
+--- F-137.1: sed -n '1489p' docs/DECISIONS_LOG.md
+**Keputusan (Lee, laporan Batch-1 2026-09-21 — opsi A):** sisa diterima sebagai risiko, TANPA perubahan kode. Batas yang diterima: oracle hanya bisa dipakai orang-dalam (akun sah + PIN lama sendiri + perangkat terdaftar), ≤20 tebakan/15 menit per akun, hanya kandidat kuat 6-angka yang dijawab, jawaban tak menyebut milik siapa, dan SETIAP tebakan tercatat permanen beralasan di `percobaan_simpan_pin` (tak bisa dibaca klien). Opsi yang DITOLAK: B (simpan-async "diproses" — ubah UX + kerja Fase-2) dan C (cabut-keunikan-PIN — hilangkan deteksi PIN-berbagi + balik keputusan T1-23); biayanya melebihi nilai penutupan sisa K-3 selapis ini.
+
+--- F-137.2: grep -n -i oracle docs/KEAMANAN.md (harapan pemeriksa: 0)
+exit=1
+
+--- F-137.3: sed -n '208,221p' docs/KEAMANAN.md (§15 register risiko)
+## 15. Risiko sisa yang diterima (dicatat terbuka, bukan disembunyikan)
+
+| # | Risiko sisa | Kenapa diterima | Kompensasi |
+|---|---|---|---|
+| 1 | PIN 6 digit lemah bila hash database bocor | Perangkat terdaftar tetap diperlukan; bcrypt + batas percobaan | Ganti PIN massal bila ada indikasi kebocoran; prioritas upgrade bila sudah berbayar |
+| 2 | Pemeriksa kata sandi bocor (HIBP) tidak tersedia di paket gratis | Tidak berbiaya nol | Aturan kata sandi ≥12 + larangan pola + TOTP wajib |
+| 3 | PIN bisa dibagikan antar pegawai | Manusia; tidak bisa dicegah teknis | PIN unik + jejak + laporan "siapa menyetujui apa" + ingatan pemilik |
+| 4 | Bukti perangkat per permintaan belum terbukti di Supabase nyata | T0-08 belum jalan | `sesi_perangkat` + status perangkat tetap diperiksa tanpa header |
+| 5 | Pemilik platform tidak terikat perangkat | Jalan darurat lintas penyewa | TOTP wajib + sesi 8 jam + tanpa data penyewa + mode dukungan tercatat |
+| 6 | HP pegawai hilang = kerja terhenti sampai MFA direset | Harga dari TOTP wajib | Jalan pemulihan cepat (owner/pemilik platform) + langkah di Buku Insiden |
+| 7 | Internet mati = tidak bisa masuk (sesi terkunci) | Keamanan didahulukan | Kunci otomatis diperpanjang wajar + prosedur catat manual sementara (Buku Insiden) |
+| 8 | **Kode pemulihan darurat** menjadi sasaran pencurian (satu kertas bisa membuka pendaftaran perangkat) | Alternatifnya justru lebih lemah (pemulihan lewat email/WhatsApp) atau lebih lambat (menunggu pemilik platform) | Hanya hash yang disimpan · **wajib kata sandi + TOTP** (kertas saja tidak cukup) · hanya owner pusat · sekali pakai · masa tenggang 30 menit + pemberitahuan & pembatalan · **amplop tersegel + rotasi** · tercatat · kata sandi ≥12 |
+| 9 | **Semua perangkat berkuasa hilang serentak** (mis. dirampok) = kerja pengelolaan terhenti sampai jalur pemulihan dipakai | Sangat jarang; ada 4 tingkat pemulihan | Perangkat cadangan wajib · latihan pemulihan saat penyiapan · jalur pemilik platform sebagai jaring terakhir |
+
+
+--- F-137.4: grep -n "opsi A" docs/teknis/REKAM_PESAN_PEMILIK.md (harapan: 0)
+exit=1
+
+--- F-137.5: sed -n '116p' _log-sesi/LOG_SESI_2026-09-21.md
+## Penutup: F F-18 DITUTUP opsi A — Batch-1 TUNTAS PENUH
+
+--- F-137.6: grep -n -i 'F F-18\|F-18' docs/teknis/REKAM_PESAN_PEMILIK.md (cakupan 'setuju saran terbaik' §19)
+482:1. *"Lanjut"* (×4) — **Dijalankan (2026-09-21):** Batch-1 (B F-16, B F-14, F F-18) · Batch-2 (T1-22, B F-11, D F-08, parsial F F-07/F F-08, F F-12-dipagari) · Batch-3 (F F-13-verifikasi, A F-07-peta, F F-09-tutup, I F-17+T-025) · Batch-4 (PG nyata via pgserver; F F-13 + F F-12 DITUTUP uji 2-koneksi).
+exit=0
+
+--- F-140.1: sed -n '1487p' docs/DECISIONS_LOG.md
+**Konteks:** temuan K-3 audit AUD-3 (sesi `arena/01a0bbd2`): `simpan_pin`/`ganti_pin` membocorkan 1 bit ("kandidat = PIN aktif seorang kolega?") lewat `'PIN tersimpan.'` vs penolakan netral. Definisi hidup: `0018_perangkat_terdaftar.sql:336` (kutipan auditor `0015` sudah tertimpa).
+
+--- F-140.2: sed -n '336p' supabase/migrations/0018_perangkat_terdaftar.sql
+  if p_aksi is not null and not public.boleh_untuk(p_pengguna_id, p_aksi) then
+
+--- F-140.3: grep -n 'create or replace function public.simpan_pin' supabase/migrations/0018_perangkat_terdaftar.sql
+356:create or replace function public.simpan_pin(
+
+--- F-140.4: grep -n 'PIN tersimpan' supabase/migrations/0018_perangkat_terdaftar.sql
+487:  return 'PIN tersimpan.';
+--- F-137.7: sed -n '114,122p' _log-sesi/LOG_SESI_2026-09-21.md (konteks kutipan 'Lee memilih A')
+- Batch-1 SELESAI (B F-16 + B F-14 tutup; F F-18 brief). Berikutnya: tunggu jawaban Lee (`lanjut`).
+
+## Penutup: F F-18 DITUTUP opsi A — Batch-1 TUNTAS PENUH
+- Lee memilih A (terima-sebagai-risiko) di laporan batch — tanpa ubah kode; B/C ditolak (biaya > nilai). Keputusan + batas dikunci di DECISIONS_LOG; pagar batas hijau; baris temuan + T1-45 dicatat DITUTUP.
+- Sisa kecil batch depan: putusan T1-22 ("laporan tercetak" + nama berkas) — diputuskan agent, bukan Lee.
+
+## Batch-2 mulai: T1-22 DITUTUP + reset sandbox ke-2 (2026-09-21)
+- RESET SANDBOX KE-2 saat buka Batch-2: HEAD lokal mundur ke `253d129`, 520 berkas hilang dari worktree, `node_modules` lenyap. Pulih manual: kerja aman di GitHub (`deb4ae3`, CI success) + worktree = subset persis (0 modifikasi) → `fetch` + `reset --hard FETCH_HEAD` + `npm ci` ganda. Pulih penuh (HEAD `deb4ae3`, bersih, suite 62/62). Catatan: `alat/pulihkan-git.sh` MENOLAK kasus ini (berkas hilang) — benar-konservatif, tapi kasus "subset-persis + semua di GitHub" sebenarnya pulih-aman; peningkatan skrip = kerja mekanisme lain waktu, bukan batch ini.
+- T1-22 `[x]`: putusan "tercetak" (on-demand + vonis di CI; tolak kembalikan-cetak & langkah-terpisah) + nama berkas dikoreksi; dikunci di DECISIONS_LOG.
+
+--- F-137.8: sed -n '480,484p' docs/teknis/REKAM_PESAN_PEMILIK.md (§19)
+## §19. Maraton solo Batch-1–4 + putusan setuju-semua (2026-09-21)
+
+1. *"Lanjut"* (×4) — **Dijalankan (2026-09-21):** Batch-1 (B F-16, B F-14, F F-18) · Batch-2 (T1-22, B F-11, D F-08, parsial F F-07/F F-08, F F-12-dipagari) · Batch-3 (F F-13-verifikasi, A F-07-peta, F F-09-tutup, I F-17+T-025) · Batch-4 (PG nyata via pgserver; F F-13 + F F-12 DITUTUP uji 2-koneksi).
+2. *"Ya, aku setuju saran terbaik dari kamu."* — **Dijalankan (2026-09-21):** 9 butir → Selesai (T-025=(a) LARANG; T-023=hapus PIN pelanggan; sisanya terima placeholder/usulan); KEAMANAN §10 disegarkan. Tindak lanjut Batch-5: penegak 0022 + goresan PIN + sapu ❓.
+3. *"Aku mau lanjut di sesi baru. Siapkan perpindahan sesi."* — **Dijalankan (2026-09-21):** putusan dicatat, handoff disegarkan (`--siapkan`), semua di-commit+push, `lanjut-sesi` LOLOS; blok prompt sesi baru dikirim di chat.
+
+--- F-138.1: sed -n '838p;1162p;1325p' docs/DECISIONS_LOG.md
+menulis **"Boleh naik"** di chat pada 2026-09-19. Setelah itu agent memicu berkas penanda `aplikasi/SEBAR-HALAMAN`
+--
+**Keputusan (izin Lee 2026-09-20 — *"Aku ikut yang terbaik menurut kamu. Klo sebaiknya dikeluarkan, silahkan
+--
+**Konteks:** atas izin Lee ("Silahkan Sebar"), alur sengaja `sebar-skema.yml` dijalankan untuk pertama
+
+--- F-138.2: grep -i frasa izin di REKAM (harapan pemeriksa: 0)
+exit=1
+exit=1
+exit=1
+exit=1
+
+--- F-138.3: jejak tersebar
+47:| T-021 | 2026-09-19 | **Deploy publik halaman kosong ke Cloudflare** (tugas ROADMAP `T0-09`)                                                                                                                                                                                                                                                                                                               | **SELESAI 2026-09-19 — atas izin pemilik.** Lee menulis **"Boleh naik"** di chat (izin wajib karena deploy publik tak bisa ditarik diam-diam), lalu agent memicu berkas penanda `aplikasi/SEBAR-HALAMAN`: run `35440300274` hijau (unggahan pertama) dan `35440432817` hijau (unggahan ulang + pencatatan alamat). Halaman publik di <https://resto-barokah.fatrizmubarok.workers.dev> — **HTTP 200** dibuktikan pemeriksaan otomatis di dalam alur; tanpa data pelanggan & tanpa kunci rahasia; cara memperbarui/mematikan dicatat di `docs/ops/ALAMAT_PUBLIK.md`.                                                                                                                                                                                                                                                                                                                                      |
+docs/uji/BERKAS_PENSIUN.md:16:| 2 | `alat/kalibrasi-cacat.json` | 2026-09-20 | **Lee** (2026-09-20: "Aku ikut yang terbaik menurut kamu. Klo sebaiknya dikeluarkan, silahkan keluarkan"), diusulkan audit H F-01 | berkas itu memuat pasangan `cari`/`ganti` = **kunci jawaban kalibrasi**. Selama ia hidup di dalam repo, auditor/peninjau yang membaca repo (memang pekerjaannya) bisa mencocokkan cacat yang ditanam lalu menulis skor `Ditemukan: X dari Y` yang sempurna tanpa mengulas — gerbang anti-teater kehilangan makna | **Status aktif: sudah dipindahkan ke luar repo** (`KALIBRASI_DIR`, baku `/home/user/.kalibrasi/kalibrasi-cacat.json`); salinan lamanya tetap ada di riwayat Git sebagai provenance dan **tidak dipakai** untuk menilai ketajaman. Alat membaca katalog dari luar repo dan menolak jalan bila tidak ada (gagal-tertutup); `alat/periksa-kunci-kalibrasi.py` aturan A2/F/G menolak bila katalog muncul lagi di dalam repo. Baris ini adalah riwayat keputusan, bukan risiko aktif. |
+docs/ops/SIAP-LANJUT.md:1275:Izin Lee: _"Aku ikut yang terbaik menurut kamu. Klo sebaiknya dikeluarkan, silahkan keluarkan."_
+STATUS.md:215:- **SKEMA PUTARAN16-18 HIDUP DI PROYEK NYATA & DIBEKUKAN (2026-09-20, izin Lee "Silahkan Sebar"):** alur `.github/workflows/sebar-skema.yml` hijau (run `35516000988`: cek penanda & rahasia → pratinjau `--dry-run` → `db push` → `migration list`) — migrasi `0015` + `0016` kini terpasang di database nyata. Penanda `supabase/SEBAR-SKEMA` dihapus lagi setelah hijau; `alat/periksa-migrasi-beku.py` diperbarui: sidik `0015`+`0016` masuk daftar beku dan `NOMOR_TERTINGGI_BEKU` = 16 (uji-diri disegarkan: berkas baru sah mulai `0017`). Catatan jujur perjalanan: run pertama gagal di gerbang rahasia karena token Supabase Lee kedaluwarsa/hilang; Lee membuat token scoped baru + memperbarui `SUPABASE_ACCESS_TOKEN`, lalu picuan ulang hijau. Token baru berlaku 90 hari — perbarui lagi ± 19 Desember 2026 bila alur sebar mau dipakai lagi.
+docs/ops/LANGKAH_PEMILIK_SEKARANG.md:79:  **Status 2026-09-20: SELESAI.** Atas izin Lee ("Silahkan Sebar") penanda dipasang, alur hijau
+
+--- F-139.1: sed -n '56p' alat/periksa-migrasi-beku.py
+NOMOR_TERTINGGI_BEKU = 16
+
+--- F-139.2: python3 alat/periksa-migrasi-beku.py
+PERIKSA MIGRASI BEKU — 16 berkas migrasi beku utuh; berkas baru wajib bernomor ≥ 0017.
+
+HASIL: LOLOS — repo masih cocok dengan database nyata (bukti: jalankan dengan --uji-diri).
+
+--- F-139.3: grep -i 'daftar beku' docs/DECISIONS_LOG.md (baris mana saja)
+1333:1. `0015` dan `0016` masuk daftar beku `alat/periksa-migrasi-beku.py` (sidik SHA-256) dan
+
+--- F-139.4: hitung migrasi setelah beku (0017..0087)
+84
+68
+
+--- F-139.5: bukti produksi di SIAP-LANJUT (0087 run #36393774425)
+81:> 1. **Perbaikan Tuntas Kendala Login [AK-601]:** Migrasi `0087_perbaiki_search_path_kripto_dan_rpc.sql` berhasil diterapkan di Supabase Cloud (run `#36393774425`). Kolom `dibuat_pada` telah diperbaiki, penanganan benturan nama perangkat aktif terpasang, dan fungsi kriptografi `crypt`/`gen_salt` stabil di skema `public`.
+
+--- F-139.6: run sebar-skema terakhir (gh)
+36393901106 4d56d5a8 success 2026-09-28T07:50:57Z
+36393774425 b3e00686 success 2026-09-28T07:49:36Z
+
+=== VERIFIKASI PMB1-F-136 (G-04, DIPERBAIKI 3f56abb) oleh H-F-12 ===
+--- 136.1: git show 3f56abb --stat
+fatal: ambiguous argument '3f56abb': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+
+--- 136.2: inti perbaikan (fungsi penolak kartu H palsu)
+fatal: bad revision '3f56abb'
+
+--- 136.3: python3 alat/periksa-pemeriksaan.py --uji-diri
+  OK  DUPLIKAT tanpa temuan induk ditolak → kode=1
+  OK  asumsi DIBANTAH tanpa temuan ditolak → kode=1
+
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+--- 136.2: inti perbaikan 3f56abb di alat/periksa-pemeriksaan.py
++ 2. BUKU_BESAR_TEMUAN.md — ID PMB1-F-nnn berurutan tanpa lompatan; nomor baris artefak tidak melebihi panjang berkas; status berputusan menyebut kartu H yang ada; DUPL
++RE_KARTU_H = re.compile(r"\bH-[A-Z]-[0-9A-Z]{1,3}(?:-\d{2})?(?:\.\d+)?\b")  # H-F-07, H-F-07.2, H-P-10-00, H-P-1B-00
++    kartu_h = {q.name[:-3] for q in (akar / PUTARAN / "kartu").glob("H-*.md")}
++        if status in {"TERVERIFIKASI", "PALSU", "PERLU-INFO", "DITUTUP", "DUPLIKAT"} and hakim not in {"", "—"}:
++            # PMB1-F-136: kolom Hakim yang terisi saja tidak cukup — kartu hakim yang disebut harus benar-benar ada di kartu/
++            rujukan_h = set(RE_KARTU_H.findall(f"{hakim} {tutup}"))
++            if not (rujukan_h & kartu_h):
++                errs.append(f"BUKU BESAR {fid}: status {status} wajib menyebut kartu hakim yang ADA di kartu/ (H-<potongan>[.n].md) "
++                            f"di kolom Hakim/Tutup — disebut: {sorted(rujukan_h) or 'tidak ada'}")
++    coba("TERVERIFIKASI dengan kartu hakim yang tidak ada ditolak (PMB1-F-136)",
++         lambda t: tambah_temuan(t, "TERVERIFIKASI", hakim="arena/bukan-hakim H-TIDAK-ADA — bukan hakim sebenarnya"))
++    coba("TERVERIFIKASI oleh pemeriksa sendiri (kartu K, bukan H) ditolak",
++         lambda t: tambah_temuan(t, "TERVERIFIKASI", hakim="arena/uji K-F-01 §4 — direproduksi sendiri"))
+
+--- 136.3: python3 alat/periksa-pemeriksaan.py --uji-diri (kasus kartu H)
+  OK  potongan SELESAI tanpa kartu ditolak → kode=1
+  OK  TERVERIFIKASI dengan kartu hakim yang tidak ada ditolak (PMB1-F-136) → kode=1
+  OK  TERVERIFIKASI oleh pemeriksa sendiri (kartu K, bukan H) ditolak → kode=1
+  OK  kartu yatim / tidak lengkap ditolak → kode=1
+HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK yang rusak dan MENERIMA yang utuh.
+HEAD is now at 7cacb46 gabung: klaim F-11 agent lain + klaim F-12 saya (dua baris dipertahankan)
+--- 136.4 (mutasi A): BARU->TERVERIFIKASI dengan H-TIDAK-ADA
+  [GAGAL] BUKU BESAR: temuan PMB1-F-137 HILANG dibanding HEAD — temuan tidak boleh dihapus, hanya berubah status
+HASIL: GAGAL — 204 masalah
+exit=1
+--- 136.5 (mutasi B): sama dengan kartu H-F-04 yang ADA
+HASIL: GAGAL — 204 masalah
+exit=0
+HEAD is now at 7cacb46 gabung: klaim F-11 agent lain + klaim F-12 saya (dua baris dipertahankan)
+mutasi A dipasang; jumlah sel = 11
+--- 136.4 (mutasi A, ulang): TERVERIFIKASI dengan H-TIDAK-ADA
+  [GAGAL] BUKU BESAR PMB1-F-137: status TERVERIFIKASI wajib menyebut kartu hakim yang ADA di kartu/ (H-<potongan>[.n].md) di kolom Hakim/Tutup — disebut: tidak ada
+HASIL: GAGAL — 1 masalah
+exit=1
+--- 136.5 (mutasi B): sama tapi kartu H-F-04 ADA
+HASIL: LOLOS
+exit=0

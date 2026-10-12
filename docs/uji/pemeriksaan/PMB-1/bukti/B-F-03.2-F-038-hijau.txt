@@ -1,0 +1,24 @@
+BUKTI HIJAU PMB1-F-038 ronde 2 — Pembangun B-F-03.2 (arena/01a0fbb9-resto-barokah), 2026-10-02
+Perbaikan: migrasi 0095_penyatuan_awalan_nomor_hp_pelanggan.sql (fungsi normalisasi_telepon_pelanggan + pemicu diperbarui + backfill)
+
+## 1. Uji resmi diperluas (kasus 5-8) DENGAN migrasi 0095 -> LOLOS
+$ node alat/uji-sql.mjs supabase/tes/voucher_kasir_wajib_identitas.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+## 2. Probe HAKIM H-F-03.4 kini MERAH (varian +62 ditolak kunci unik = celah tertutup)
+$ node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.4-probe-plus62.sql
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.4-probe-plus62.sql: duplicate key value violates unique constraint "pelanggan_penyewa_telepon_unik"
+HASIL: GAGAL
+
+## 3. Suite SQL penuh (regresi) -> 139 LULUS 0 GAGAL
+$ node alat/uji-sql.mjs
+
+----------------------------------------------------------------------
+uji: 139 LULUS · 0 GAGAL
+HASIL: LOLOS

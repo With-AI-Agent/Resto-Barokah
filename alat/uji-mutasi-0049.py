@@ -21,7 +21,10 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIGRASI = os.path.join(REPO, "supabase", "migrations", "0049_pengingat_shift.sql")
-MIGRASI_TUTUP = os.path.join(REPO, "supabase", "migrations", "0084_cabut_akses_pegawai_berhenti.sql")
+# JEBAKAN "fungsi ditulis ulang": penanda tengah malam di dalam `public.tutup_shift`
+# (awalnya 0049, ditulis ulang 0084) kini berlaku lewat 0092_selisih_kas_negatif_tidak_
+# didisembunyikan.sql (PMB1-F-046) — mutasi wajib menyasar definisi terakhir.
+MIGRASI_TUTUP = os.path.join(REPO, "supabase", "migrations", "0092_selisih_kas_negatif_tidak_didisembunyikan.sql")
 BERKAS_UJI = ["supabase/tes/pengingat_shift.sql"]
 
 

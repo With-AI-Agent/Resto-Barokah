@@ -1296,6 +1296,10 @@ def mode_kalibrasi_siapkan(jumlah: int | None) -> int:
     if rc != 0:
         print(f"GAGAL menyiapkan repo salinan: {keluaran}")
         return 1
+    # PMB1-F-242: matikan pemeliharaan latar-belakang git di salinan sementara (lihat
+    # catatan di `_uji_pembuat_paket`) — rmtree di bawah sudah ignore_errors, tetapi
+    # penulis latar-belakang juga bisa mengganggu `git add`/`commit` berikutnya.
+    jalankan(["git", "-C", str(salinan), "config", "maintenance.auto", "false"])
     jalankan(["git", "-C", str(salinan), "add", "-A"])
     rc, keluaran = jalankan([
         "git", "-C", str(salinan),
@@ -1510,7 +1514,15 @@ def _uji_pembuat_paket() -> tuple[bool, str]:
                            capture_output=True, text=True, cwd=str(akar_tmp))
         return r.returncode, r.stdout + r.stderr
 
-    with tempfile.TemporaryDirectory(prefix="paket-audit-uji-") as tmp:
+    # Pembersihan bisa balapan dengan pemeliharaan latar-belakang git: sejak Git ≥ 2.32,
+    # `git commit` memicu `git maintenance run --auto` TERDETACH yang masih menulis
+    # `.git/objects` sesudah perintah commit kembali — `shutil.rmtree` pembersih
+    # TemporaryDirectory lalu gagal `OSError: [Errno 39] Directory not empty: 'objects'`
+    # (PMB1-F-242; run CI e1727f2, 85d3a67 & 88a1fea merah di traceback yang sama).
+    # Perbaikan dua lapis: (1) `maintenance.auto=false` di fixture (akar masalah);
+    # (2) sisa pembersihan diabaikan — semua asersi sudah berjalan sebelum titik ini,
+    # jadi sisa direktori di /tmp pelari tidak mengubah hasil uji.
+    with tempfile.TemporaryDirectory(prefix="paket-audit-uji-", ignore_cleanup_errors=True) as tmp:
         tujuan = pathlib.Path(tmp) / "repo"
         shutil.copytree(AKAR, tujuan, ignore=shutil.ignore_patterns(
             ".git", "node_modules", "dist", "build", "coverage", "__pycache__", ".pytest_cache"))
@@ -1525,6 +1537,10 @@ def _uji_pembuat_paket() -> tuple[bool, str]:
             return r.returncode, (r.stdout + r.stderr).strip()
         if git_tmp("init", "-q", "-b", "uji")[0] != 0:
             return False, "fixture uji: `git init` gagal di salinan sementara"
+        # Akar masalah PMB1-F-242: matikan pemeliharaan latar-belakang otomatis git
+        # (sejak Git ≥ 2.32 `commit` memicu `maintenance run --auto` terdetach yang masih
+        # menulis `.git/objects` sesudahnya → balapan dengan pembersihan TemporaryDirectory).
+        git_tmp("config", "maintenance.auto", "false")
         git_tmp("config", "user.email", "uji@lokal")
         git_tmp("config", "user.name", "uji")
         git_tmp("add", "-A")

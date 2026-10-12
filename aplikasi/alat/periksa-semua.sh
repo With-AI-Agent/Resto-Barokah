@@ -132,6 +132,13 @@ python3 alat/periksa-temuan-audit.py
 python3 alat/periksa-temuan-audit.py --uji-diri
 python3 alat/periksa-buku-uji.py
 python3 alat/periksa-buku-uji.py --uji-diri
+python3 alat/periksa-pemeriksaan.py
+python3 alat/periksa-pemeriksaan.py --uji-diri
+python3 alat/susun-matriks-telusur.py --periksa
+python3 alat/susun-matriks-telusur.py --uji-diri
+python3 alat/susun-daftar-tunggu-lee.py --periksa
+python3 alat/susun-daftar-tunggu-lee.py --uji-diri
+python3 alat/pmb-integrasi.py --uji-diri
 python3 alat/tambah-uji.py --uji-diri
 python3 alat/peta-ui.py
 python3 alat/peta-ui.py --uji-diri
@@ -149,6 +156,8 @@ python3 alat/periksa-gerbang-ci.py
 python3 alat/periksa-gerbang-ci.py --uji-diri
 python3 alat/periksa-kunci-kalibrasi.py
 python3 alat/periksa-kunci-kalibrasi.py --uji-diri
+python3 alat/periksa-aturan-kata-sandi.py
+python3 alat/periksa-aturan-kata-sandi.py --uji-diri
 python3 alat/periksa-paket.py
 python3 alat/periksa-paket.py --uji-diri
 python3 alat/periksa-angka-bukti.py

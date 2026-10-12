@@ -1,0 +1,5 @@
+$ python3 alat/periksa-pemeriksaan.py
+PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 0, 'DIHAKIMI': 16, 'DIKLAIM': 1, 'RENCANA': 46, 'SELESAI': 0} · 215 temuan (terbuka K-1/K-2: 54)
+
+HASIL: LOLOS
+EXIT_CODE=0

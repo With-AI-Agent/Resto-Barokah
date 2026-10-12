@@ -1,0 +1,62 @@
+BASELINE 2d74eb5b73ab3e4dbe2bea75f079ef660edf133d
+
+1. Dua kontrak jawaban yang sama-sama mengikat
+docs/DECISIONS_LOG.md:23: - **Keputusan:** semua RPC mengembalikan `{ berhasil: bool, kode: teks, pesan: teks, data: … }`; klien hanya menampilkan `pesan`, tidak menyusun pesan sendiri.
+docs/DECISIONS_LOG.md:26: - **Implikasi:** dilarang membuat bentuk jawaban lain; kode error wajib memakai kelompok kode (PS-1xx, BY-2xx, VC-3xx, KS-4xx, PR-5xx, AK-6xx, UM-9xx) dan bahasa Indonesia siap tampil.
+docs/DECISIONS_LOG.md:470:   7. **CARA MENOLAK yang wajib tercatat = PESAN, bukan exception.** Ditemukan saat menguji pembatas ini: `raise exception` (atau exception yang ditangkap pemanggil) memakai savepoint dan **membatalkan baris catatan di transaksi yang sama** — pembatas jadi tidak pernah menyala. Kontrak `simpan_pin` karena itu: `'PIN tersimpan.'` = berhasil; pesan lain ('PIN itu sudah dipakai…' / 'Terlalu banyak…') = ditolak **dan tercatat**; exception hanya untuk kesalahan pemakaian/izin (format PIN, tanpa izin, PIN lama salah).
+docs/DECISIONS_LOG.md:474: - **Implikasi:** 1) 6 uji mutasi memeredam gerbang ini (peran per cabang hidup lagi · keanggotaan diabaikan · pola lemah mati · keunikan mati · pembatas mati · format verifikasi kembali 4–6) — satu mutasi awalnya lolos dan memaksa uji baru di jalur verifikasi. 2) Layar PIN (Fase 1C/2) harus menampilkan **teks yang dikembalikan** `simpan_pin` sebagai pesan gagal, bukan hanya menunggu error. 3) T1-24 tetap wajib menolak perangkat tak terdaftar; keunikan PIN kini menutup "PIN dibagikan antar pegawai". 4) Setiap penolakan baru yang wajib tercatat harus memakai pola **pesan**, bukan exception.
+docs/TECH_SPEC.md:262: **Aturan bentuk jawaban (semua RPC):** selalu `{ berhasil: bool, kode: teks, pesan: teks, data: … }` dengan
+docs/TECH_SPEC.md:263: `pesan` berbahasa Indonesia siap ditampilkan (mis. *"Voucher sudah dipakai pada 12.04 oleh kasir Rina di Cabang Pusat"*).
+supabase/migrations/0018_perangkat_terdaftar.sql:356: create or replace function public.simpan_pin(
+supabase/migrations/0018_perangkat_terdaftar.sql:363: returns text
+
+2. Janji daftar non-tunai vs pintu komponen
+docs/DECISIONS_LOG.md:273:   1. **Setiap pembayaran non-tunai wajib menyimpan `referensi`** (nomor transaksi QRIS/transfer/kartu) — sudah ada di T1-10; sekarang **ditampilkan sebagai daftar di layar tutup kas** agar owner bisa mencocokkan dengan aplikasi QRIS/bank.
+aplikasi/src/layar/kasir/TutupKas.tsx:38: export interface TutupKasProps {
+aplikasi/src/layar/kasir/TutupKas.tsx:48:   onTutupShift?: (masukan: {
+aplikasi/src/layar/kasir/TutupKas.tsx:287:           Tutup Shift Kasir
+aplikasi/src/layar/kasir/TutupKas.tsx:290:           Hitung uang fisik di laci kas dan bandingkan dengan catatan sistem.
+aplikasi/src/layar/kasir/TutupKas.tsx:315:             <span style={{ fontWeight: 700 }}>Uang Seharusnya (Sistem):</span>
+aplikasi/src/layar/kasir/LayarKasir.tsx:869:           <TutupKas
+aplikasi/src/layar/kasir/LayarKasir.tsx:870:             shiftId={shiftAktif.id}
+aplikasi/src/layar/kasir/LayarKasir.tsx:871:             cabangId={cabangId}
+aplikasi/src/layar/kasir/LayarKasir.tsx:872:             namaCabang={namaCabang}
+aplikasi/src/layar/kasir/LayarKasir.tsx:873:             namaKasir={namaKasir}
+aplikasi/src/layar/kasir/LayarKasir.tsx:874:             modalAwal={shiftAktif.modalAwal}
+aplikasi/src/layar/kasir/LayarKasir.tsx:875:             uangSeharusnyaPerkiraan={uangSeharusnyaPerkiraan}
+aplikasi/src/layar/kasir/LayarKasir.tsx:876:             dibukaPada={shiftAktif.dibukaPada}
+aplikasi/src/layar/kasir/LayarKasir.tsx:877:             onTutupShift={onTutupShift}
+aplikasi/src/layar/kasir/LayarKasir.tsx:878:             onSelesai={() => setBukaTutupKasModal(false)}
+aplikasi/src/layar/kasir/LayarKasir.tsx:879:             onBatal={() => setBukaTutupKasModal(false)}
+aplikasi/src/layar/kasir/LayarKasir.tsx:880:           />
+aplikasi/src/layar/kasir/TutupKas.tsx jumlah kecocokan 0
+supabase/migrations/0039_bayar_pesanan.sql jumlah kecocokan 5
+  32:   p_referensi       text    default null,
+  119:     if p_referensi is null or length(btrim(p_referensi)) = 0 then
+  120:       raise exception 'Pembayaran bukan tunai wajib menyebut nomor referensi.';
+  159:     pesanan_id, metode_id, jumlah, diterima, kembalian, referensi, kasir_id, shift_id, kunci_idempoten
+  166:     case when v_metode.jenis = 'tunai' then null else btrim(p_referensi) end,
+
+3. Provenance angka riset
+docs/DECISIONS_LOG.md:364: - **Alasan (riset, bukan selera):** (a) studi 2026 menunjukkan model AI **cenderung meloloskan karyanya sendiri** walau diperintah kritis, sedangkan pemeriksa dari sesi/model berbeda menemukan cacat yang tak terlihat pembuatnya (*maker–checker separation*, IV&V); (b) *Perspective-Based Reading* — reviewer dengan skenario per lensa menemukan cacat **~41–58% lebih banyak** daripada reader ad-hoc/daftar periksa; (c) **defect injection** — kemampuan pemeriksa harus **diukur** dengan cacat berjawaban diketahui, kalau tidak "BERSIH" hanya keyakinan; (d) *consensus is not correctness* — tiap temuan wajib lolos upaya **refutasi** sebelum dilaporkan. Permintaan pemilik 2026-09-17: audit yang "sangat teliti", memakai skill, memakai riset internet, dan bisa ia picu sendiri.
+docs/DECISIONS_LOG.md:366: - **Implikasi:** 1) `--uji-diri` ikut dijalankan di CI (mekanisme yang tak teruji = tak bisa dipercaya). 2) Setiap perubahan uang/keamanan/data pelanggan belum boleh `[x]` sebelum AUD-2. 3) Kalibrasi menyuntikkan cacat pada salinan HEAD dengan **kunci jawaban di luar repo**; hasilnya dicatat di `docs/uji/AUDIT_RIWAYAT.md`. 4) Batas jujur: 100% tidak bisa dijamin (studi inspeksi: ~58% deteksi pada tim terlatih) — karena itu lapisnya mesin + auditor + pemilik.
+docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md:8: > karyanya sendiri walau diminta keras (riset 2026: bias "self-preference" bertahan walau diperintah kritis),
+docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md:348: 1. **Tidak ada jaminan 100%.** Studi inspeksi: tim PBR menemukan rata-rata ~58% cacat. Mekanisme ini **menaikkan & mengukur** deteksi, bukan menjanjikan kesempurnaan; karena itu ada lapis mesin (CI) + lapis auditor + lapis pemilik (uji terima).
+docs/DECISIONS_LOG.md rentang 361..366: URL/DOI= []
+docs/uji/PROTOKOL_AUDIT_INDEPENDEN.md rentang 1..10000: URL/DOI= []
+
+4. Angka kini vs angka historis
+Migrasi kini: 84
+Berkas uji SQL kini: 132
+Klaim 41 uji dan 14 migrasi adalah catatan bertanggal, bukan angka kini.
+
+5. Keputusan berkas penanda tidak tertinggal
+supabase/SEBAR-SKEMA TIDAK ADA
+aplikasi/SEBAR-HALAMAN TIDAK ADA
+
+6. CORS bukan wildcard (bukan bukti otorisasi)
+supabase/functions/verifikasi_pin/index.ts:43: const ASAL_DIIZINKAN = [
+supabase/functions/verifikasi_pin/index.ts:44:   'https://resto-barokah.fatrizmubarok.workers.dev',
+supabase/functions/verifikasi_pin/index.ts:45:   'http://localhost:5173',
+supabase/functions/verifikasi_pin/index.ts:46:   'http://127.0.0.1:5173',
+supabase/functions/verifikasi_pin/index.ts:47: ]

@@ -181,3 +181,28 @@ describe('Struk (T5-03)', () => {
     expect(screen.getByText('Terima kasih')).toBeTruthy()
   })
 })
+
+describe('Struk: alamat & nama kasir wajib + tarif PB1 (PMB1-F-020 / PRD M6 baris 131)', () => {
+  it('menampilkan alamat resto, nama kasir, dan tarif PB1 pada label pajak', () => {
+    render(
+      <Struk
+        data={{
+          ...DASAR,
+          alamatResto: 'Jl. Merdeka No. 10, Bandung',
+          namaKasir: 'Rina',
+          tarifPajakPersen: 10,
+        }}
+      />,
+    )
+    expect(screen.getByTestId('struk-alamat').textContent).toContain('Jl. Merdeka No. 10')
+    expect(screen.getByTestId('struk').textContent).toContain('Kasir Rina')
+    expect(screen.getByTestId('struk-pajak').textContent).toContain('PB1 10%')
+  })
+
+  it('tanpa alamat/kasir/tarif tidak ada yang dikarang (label tetap PB1 (pajak))', () => {
+    render(<Struk data={DASAR} />)
+    expect(screen.queryByTestId('struk-alamat')).toBeNull()
+    expect(screen.getByTestId('struk').textContent).not.toContain('Kasir')
+    expect(screen.getByTestId('struk-pajak').textContent).toContain('PB1 (pajak)')
+  })
+})

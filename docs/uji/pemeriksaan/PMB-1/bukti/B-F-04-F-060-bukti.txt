@@ -1,0 +1,40 @@
+BUKTI PMB1-F-060 (2026-09-30) — TECH_SPEC §5/§5.1 menjanjikan pintu yang tidak ada di repo (MERAH dokumen).
+
+$ for n in kirim_ke_dapur pindah_meja tambah_item batal_pesanan batal_item; do grep -rl "function public.$n" supabase/migrations/ | wc -l; done
+  kirim_ke_dapur   -> 0
+  pindah_meja      -> 0
+  tambah_item      -> 0
+  batal_pesanan    -> 0
+  batal_item       -> 0
+
+$ grep -rl 'function public.set_izin' supabase/migrations/   # koreksi hakim: set_izin ADA
+supabase/migrations/0077_kelola_pegawai_izin.sql
+
+$ ls supabase/functions/
+akhiri_sesi
+daftar_penyewa
+peringatan_batas
+ringkasan_harian
+verifikasi_pelanggan
+verifikasi_pin
+
+$ atur_ulang_mfa di migrations+functions:
+0
+
+$ Nama fungsi mode dukungan yang benar:
+114:create or replace function public.masuk_mode_dukungan(
+194:comment on function public.masuk_mode_dukungan(uuid, text, int) is
+197:revoke all on function public.masuk_mode_dukungan(uuid, text, int) from public;
+198:grant execute on function public.masuk_mode_dukungan(uuid, text, int) to authenticated, service_role;
+200:create or replace function public.keluar_mode_dukungan(
+249:comment on function public.keluar_mode_dukungan(uuid) is
+252:revoke all on function public.keluar_mode_dukungan(uuid) from public;
+253:grant execute on function public.keluar_mode_dukungan(uuid) to authenticated, service_role;
+
+$ RPC yang dipakai klien tapi tidak tercantum kontrak:
+supabase/migrations/0091_pin_bukan_orakel_batas_akun.sql:401:grant execute on function public.verifikasi_pin_perangkat(text, text, uuid, text, text) to anon, authenticated, service_role;
+176:    const { data, error } = await supabase.rpc('verifikasi_pin_perangkat', {
+184:      console.error('RPC verifikasi_pin_perangkat error:', error)
+
+Kesimpulan: janji §5 (5 nama) + §5.1/Edge (atur_ulang_mfa, daftar_perangkat, mode_dukungan) tidak cocok repo;
+verifikasi_pin_perangkat dipakai klien tetapi tidak tercantum. Diperbaiki lewat penyelarasan dokumen (PMB1-F-060/F-066).

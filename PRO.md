@@ -10,6 +10,13 @@
 > bersama, jangan bertanya memilih sesi/tugas lagi. Pemeriksaan di salinan unik,
 > pengiriman terisolasi otomatis sesuai paket; aturan keamanan tetap berlaku.
 
+> **Pengecualian orientasi untuk GILIRAN PMB (Pemeriksaan Mendalam Bertahap):** bila prompt Lee memuat tiga
+> baris `PERAN:` · `POTONGAN:` · `CABANG PERENCANA:` (naskah `docs/uji/pemeriksaan/PROMPT_GILIRAN.md`, prompt
+> singkatnya `docs/uji/pemeriksaan/PROMPT_SINGKAT.md`), maka sesi aktif = cabang di `CABANG PERENCANA` — jangan
+> memilih/menanyakan sesi lagi. Jalankan §1 butir 3–5, baca rancangan PMB + `PMB-1/README.md` + `PAPAN.md`, lalu
+> ikuti PROMPT_GILIRAN.md: **satu potongan**, hanya menulis di `docs/uji/pemeriksaan/PMB-1/`, tidak menyentuh
+> handoff/ROADMAP/kode (kecuali PERAN PEMBANGUN), tidak menanyakan §2 "Mau apa". Larangan §3 berlaku penuh.
+
 ## 1. Orientasi (WAJIB, sebelum mengerjakan apa pun)
 
 1. Jalankan: `python3 alat/lanjut-sesi.py --daftar-sesi`

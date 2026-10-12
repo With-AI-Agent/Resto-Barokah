@@ -1,0 +1,16 @@
+=== M1: buang seluruh blok 7a (jalan buntu kembali) ===
+Membuat data uji:
+Menjalankan 1 berkas uji:
+        HARAPAN TIDAK TERPENUHI: F-233: pegawai sah yang memakai perangkat hasil kode resmi tidak lagi jalan buntu — login pertama berhasil (dapat PERANGKAT_BELUM_DISETUJUI, harap LOGIN_SUKSES)
+=== M2: disetujui_oleh = pegawai sendiri ===
+Membuat data uji:
+Menjalankan 1 berkas uji:
+        HARAPAN TIDAK TERPENUHI: F-233: baris persetujuan otomatis ada, disetujui_oleh = penerbit kode (bukan diri pegawai)
+=== M3: buang insert audit ===
+Membuat data uji:
+Menjalankan 1 berkas uji:
+        HARAPAN TIDAK TERPENUHI: F-233: catatan_audit memuat persetujuan_otomatis_kode dengan pelaku = penerbit kode
+=== pulih: uji asli ===
+Membuat data uji:
+Menjalankan 1 berkas uji:
+uji: 1 LULUS · 0 GAGAL

@@ -1,0 +1,83 @@
+================================================================================
+BUKTI REPRODUKSI MERAH — PEMBANGUN DOKUMEN F-09 (2026-09-30)
+Temuan: PMB1-F-118, PMB1-F-130, PMB1-F-131, PMB1-F-133
+Sesi: arena/01a0eff4-resto-barokah
+================================================================================
+
+1. PMB1-F-118 (K-2) — Seluruh rantai cetak Fase 6 (T6-02..T6-05) belum terhubung ke aplikasi
+$ grep -n "<PasangPrinter" aplikasi/src/App.tsx aplikasi/src/layar/pengaturan/LayarPengaturan.tsx
+aplikasi/src/App.tsx:473:        return <PasangPrinter />
+aplikasi/src/layar/pengaturan/LayarPengaturan.tsx:416:        {tabAktif === 'printer' && <PasangPrinter />}
+
+$ grep -n "onUjiCetak?\." aplikasi/src/layar/pengaturan/PasangPrinter.tsx
+164:          onClick={() => onUjiCetak?.(halamanUji(lebar))}
+
+$ grep -n "onSimpan?\." aplikasi/src/layar/pengaturan/PasangPrinter.tsx
+171:            onSimpan?.({ profilId, lebar, namaPerangkat: awal?.namaPerangkat ?? null })
+
+$ git grep -n requestDevice aplikasi/src ':!*test*'
+(exit code: 1, 0 hasil — tidak ada pemanggilan navigator.bluetooth/usb.requestDevice di kode aplikasi)
+
+$ git grep -l -w cetakBluetooth aplikasi/src ':!*test*'
+aplikasi/src/lib/printer/kirim.ts
+(hanya ada di modul definisinya sendiri, 0 konsumen produksi)
+
+$ git grep -l -w cetakUsb aplikasi/src ':!*test*'
+aplikasi/src/lib/printer/kirim.ts
+(hanya ada di modul definisinya sendiri, 0 konsumen produksi)
+
+$ git grep -n 'susunStruk' aplikasi/src ':!*test*'
+aplikasi/src/lib/printer/struk.ts:52:export function susunStruk(data: DataStruk, opsi: OpsiStruk = {}): Uint8Array {
+(hanya ada di modul definisinya sendiri, 0 konsumen produksi)
+
+$ git grep -n 'susunTiket' aplikasi/src ':!*test*'
+aplikasi/src/lib/printer/tiket.ts:20: *     dua stasiun berbeda. `susunTiketTerpisah` menghasilkan dua tiket, dan
+aplikasi/src/lib/printer/tiket.ts:36:  /** Stasiun pengerjaan; dipakai `susunTiketTerpisah`. */
+aplikasi/src/lib/printer/tiket.ts:60:export function susunTiket(data: DataTiket, opsi: OpsiTiket = {}): Uint8Array {
+aplikasi/src/lib/printer/tiket.ts:104:export function susunTiketTerpisah(
+aplikasi/src/lib/printer/tiket.ts:115:      byte: susunTiket({ ...data, item: makanan }, { ...opsi, judulStasiun: 'MAKANAN' }),
+aplikasi/src/lib/printer/tiket.ts:121:      byte: susunTiket({ ...data, item: minuman }, { ...opsi, judulStasiun: 'MINUMAN' }),
+(hanya ada di modul definisinya sendiri, 0 konsumen produksi)
+
+
+2. PMB1-F-130 (K-2) — Katalog kasir memakai CONTOH_MENU keras-kode, tidak membaca tabel menu_item
+$ sed -n '53p;128p' aplikasi/src/layar/kasir/Katalog.tsx
+const CONTOH_MENU: MenuItemData[] = [
+  daftarMenu = CONTOH_MENU,
+
+$ sed -n '695p' aplikasi/src/layar/kasir/LayarKasir.tsx
+        <Katalog onTambahKeKeranjang={tanganiTambahKeKeranjang} />
+
+$ git grep -n "from('menu_item')" aplikasi/src ':!*test*'
+(exit code: 1, 0 hasil — aplikasi kasir tidak pernah membaca tabel menu_item dari basis data)
+
+
+3. PMB1-F-131 (K-2) — RPC pindah_meja + riwayat audit tidak ada di migrasi, meja memakai data demo
+$ grep -rn pindah_meja supabase/migrations
+(exit code: 1, 0 hasil — RPC pindah_meja tidak pernah dibuat di skema database)
+
+$ grep -n riwayat supabase/migrations/0008_meja.sql
+(exit code: 1, 0 hasil — tabel meja tidak memiliki riwayat perpindahan)
+
+$ sed -n '34,36p;75,76p' aplikasi/src/layar/kasir/PemilihMeja.tsx
+  { id: 'meja-01', nama: 'Meja 01', area: 'Indoor AC', status: 'kosong', aktif: true },
+  {
+    id: 'meja-02',
+  daftarMeja = CONTOH_MEJA,
+  mejaTerpilihId = 'meja-01',
+
+$ git grep -n "from('meja')" aplikasi/src ':!*test*'
+(exit code: 1, 0 hasil — aplikasi tidak membaca tabel meja cabang aktif)
+
+
+4. PMB1-F-133 (K-2) — LayarPelayan dipasang tanpa jalur kirim dan belum terhubung ke tagihan kasir
+$ sed -n '471p' aplikasi/src/App.tsx
+        return <LayarPelayan namaPelayan={sesi?.nama ?? 'Pelayan'} />
+
+$ git grep -n onKirimPesanan aplikasi/src ':!*test*'
+aplikasi/src/layar/pelayan/LayarPelayan.tsx:50:  onKirimPesanan?: (data: {
+aplikasi/src/layar/pelayan/LayarPelayan.tsx:60:  onKirimPesanan,
+aplikasi/src/layar/pelayan/LayarPelayan.tsx:123:      if (!onKirimPesanan) {
+aplikasi/src/layar/pelayan/LayarPelayan.tsx:129:      const terkirim = await onKirimPesanan({ meja: nomorMeja, items: keranjang, catatanUmum })
+(0 konsumen di App.tsx yang memasang prop onKirimPesanan untuk menyinkronkan dengan tagihan kasir)
+================================================================================

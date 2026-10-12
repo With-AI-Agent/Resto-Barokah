@@ -330,6 +330,9 @@ def uji_diri() -> int:
         try:
             AKAR = pathlib.Path(tmp)
             git("init", "--initial-branch", "arena/01a0c2c1-resto-barokah")
+            # PMB1-F-242: cegah `commit` fixture memicu pemeliharaan latar-belakang git
+            # yang balapan dengan pembersihan TemporaryDirectory (OSError "Directory not empty").
+            git("config", "maintenance.auto", "false")
             git("config", "user.name", "Uji")
             git("config", "user.email", "uji@example.test")
             rel = "docs/uji/paket-audit/UJI-SIAP-TEMPEL.md"

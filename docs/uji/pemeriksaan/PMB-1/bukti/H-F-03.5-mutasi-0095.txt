@@ -1,0 +1,16 @@
+MUTASI 0095 — salinan sementara dari HEAD 406e26b
+uji yang diukur: supabase/tes/voucher_kasir_wajib_identitas.sql
+
+M0 tanpa mutasi (kontrol: berkas asli)         -> LULUS   (kontrol)  
+M1 buang aturan awalan 62                      -> GAGAL   (TERTANGKAP) <- HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-038: bentuk +62 dari nomor yang sama tidak melahirkan ident
+M2 buang aturan awalan 8                       -> GAGAL   (TERTANGKAP) <- HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-038: bentuk tanpa nol di depan dari nomor yang sama ditolak
+M3 ambang aturan 62 dari >=9 jadi >=14         -> GAGAL   (TERTANGKAP) <- HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-038: bentuk +62 dari nomor yang sama tidak melahirkan ident
+M4 ambang aturan 8 dari >=8 jadi >=13          -> GAGAL   (TERTANGKAP) <- HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-038: bentuk tanpa nol di depan dari nomor yang sama ditolak
+M5 pemicu tidak memanggil normalisasi          -> GAGAL   (TERTANGKAP) <- HARAPAN TIDAK TERPENUHI: F-038: nomor HP tersimpan dinormalisasi (digit saja)
+M6 buang BACKFILL (update baris lama)          -> LULUS   (SELAMAT)  
+M7 salah potong awalan 62 (substr 4)           -> GAGAL   (TERTANGKAP) <- HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-038: bentuk +62 dari nomor yang sama tidak melahirkan ident
+M8 awalan 8 diberi dua nol                     -> GAGAL   (TERTANGKAP) <- HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-038: bentuk tanpa nol di depan dari nomor yang sama ditolak
+
+SUITE PENUH dengan M6 (backfill dibuang): uji: 139 LULUS · 0 GAGAL | HASIL: LOLOS
+
+RINGKAS: mutan yang SELAMAT = ['M6 buang BACKFILL (update baris lama)']

@@ -1,0 +1,14 @@
+BUKTI PMB1-F-063 TERTUTUP (2026-09-30, kartu B-F-04) — probe hakim yang dulu LULUS (celah hidup) kini GAGAL.
+Probe: node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/F-03-hakim-owner-perangkat.sql
+Hasil sekarang:
+Membuat data uji:
+Menjalankan 1 berkas uji:
+        HARAPAN TIDAK TERPENUHI: F-036: anon dari perangkat tak dikenal masuk sebagai OWNER (perangkat didaftarkan sendiri)
+uji: 0 LULUS · 1 GAGAL
+  - docs/uji/pemeriksaan/PMB-1/bukti/F-03-hakim-owner-perangkat.sql: HARAPAN TIDAK TERPENUHI: F-036: anon dari perangkat tak dikenal masuk sebagai OWNER (perangkat didaftarkan sendiri)
+
+Sebab tertutup: saklar pengaturan.izin_daftar_perangkat_bebas_peran_berkuasa bawaan FALSE (0090, PMB1-F-036)
++ definisi final verifikasi_pin_perangkat (0091): pendaftaran perangkat baru peran berkuasa ditolak (PERANGKAT_BELUM_DISETUJUI)
+BILA penyewa sudah punya perangkat aktif — skenario persis F-063 (TECH_SPEC:19 vs 0087:165-233).
+
+DISIAPKAN, BELUM DIPASANG (saklar mati — keputusan Lee klaster cara masuk B, REKAM §31 butir 21).

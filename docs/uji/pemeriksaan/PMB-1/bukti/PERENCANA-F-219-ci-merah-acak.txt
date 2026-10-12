@@ -1,0 +1,130 @@
+BUKTI PERENCANA — PMB1-F-219: CI GitHub merah berganti-ganti langkah pada pohon yang sama (dugaan lingkungan/runner)
+Ditulis: 2026-09-30 19:30 WIB · cabang arena/01a0e747-resto-barokah
+===========================================================
+
+1. RUN CI PADA CABANG INI (gh run list --branch arena/01a0e747-resto-barokah)
+   36712154530  7ba370e  completed/failure  2026-09-30T12:01:35Z
+   36699193726  20cce8a  completed/failure  2026-09-30T09:55:25Z
+   36697791219  7fa6c99  completed/failure  2026-09-30T09:42:13Z
+   36697441872  5b5325f  completed/cancelled  2026-09-30T09:38:56Z
+   36697351208  fb52fd3  completed/cancelled  2026-09-30T09:38:05Z
+   36674279740  00cb4ee  completed/success  2026-09-30T05:37:41Z
+
+2. LANGKAH YANG GAGAL PER RUN (gh run view <id> --json jobs)
+   run 36697791219 (7fa6c99): Bukti mutasi pagar migrasi 0016 — penutup celah PIN putaran18 F-13…F-16 (semua mutasi WAJIB MERAH)
+   run 36699193726 (20cce8a): Bukti mutasi urutan rantai audit 0040 (anti seri satu transaksi)
+   run 36712154530 (7ba370e): Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras
+
+   Durasi job: 7fa6c99 = 8m47s (berhenti di langkah 19) · 20cce8a = 16m40s (langkah 52) · 7ba370e = 18m41s (langkah 60)
+   Pembanding hijau: 00cb4ee = 21m05s success (langkah 60 lolos) · eff7 377a4d9 = 21m27s success · f0e9 4c75d38 = success
+
+3. BUKTI BAHWA ISINYA SAMA DENGAN CABANG YANG CI-NYA HIJAU
+   ~ git diff 377a4d9 HEAD -- supabase/migrations supabase/tes alat/uji-mutasi-0016.py .github/workflows/ci.yml
+   (kosong = tidak ada perbedaan pada berkas yang dipakai langkah-langkah uji mutasi)
+
+4. RANTAI BUKTI GILIRAN PENUH LOKAL PADA POHON YANG SAMA
+   ~ python3 alat/rantai-bukti-giliran.py (jalan penuh)
+   RINGKASAN RANTAI PENUH: 130 LOLOS · 0 GAGAL · 1 tak terbukti (tanpa internet) · 3 dilewati
+   log lengkap tersimpan: docs/uji/pemeriksaan/PMB-1/bukti/PERENCANA-putaran12-rantai-penuh.txt (230626 bita)
+
+5. BLOK LANGKAH 60 (pemeriksa) DIJALANKAN LOKAL DENGAN env CI
+   ~ GITHUB_ACTIONS=true CI=true GITHUB_REF_NAME=... GITHUB_SHA=7ba370e  (71 perintah, satu per satu)
+   
+   TOTAL: 71 perintah · 0 gagal
+   rincian rc per perintah: /tmp/blok-lokal.txt (disalin ke bukti/PERENCANA-putaran12-blok-60-lokal.txt)
+
+6. UJI KETERULANGAN DUA LANGKAH YANG GAGAL DI CI
+   --- uji-mutasi-0016.py ulangan 1 ---
+   HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar PIN putaran18 terbukti bekerja.
+   --- uji-mutasi-0016.py ulangan 2 ---
+   HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar PIN putaran18 terbukti bekerja.
+   --- uji-mutasi-0016.py ulangan 3 ---
+   HASIL: LOLOS — semua mutasi WAJIB MERAH benar-benar merah; pagar PIN putaran18 terbukti bekerja.
+   --- uji-mutasi-0040.py ulangan 1 ---
+   HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+   --- uji-mutasi-0040.py ulangan 2 ---
+   HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+   --- uji-mutasi-0040.py ulangan 3 ---
+   HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+   --- uji-mutasi-0040.py ulangan 4 ---
+   HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+   --- uji-mutasi-0040.py ulangan 5 ---
+   HASIL: LOLOS — seluruh 4 mutasi wajib MERAH terbukti membuat uji merah.
+   SELESAI
+
+7. KENAPA SEBAB PASTINYA BELUM DIKETAHUI (jujur)
+   - gh run view --log-failed → gagal: unduhan dialihkan ke productionresultssa*.blob.core.windows.net
+   - curl (3 varian, termasuk -k --http1.1) ke URL blob itu → OpenSSL SSL_ERROR_SYSCALL (jaringan sandbox memblokir)
+   - anotasi check-run hanya berisi 'Process completed with exit code 1' (tanpa keluaran perintah)
+   → perintah mana di dalam langkah 60 yang gagal TIDAK bisa dibaca dari sandbox; Lee bisa melihatnya di tab Actions.
+
+8. USULAN PERBAIKAN (untuk PEMBANGUN kelak, potongan G-01)
+   a. Pecah langkah besar (71 perintah) menjadi 1 perintah per langkah bernama — kegagalan langsung menunjuk perintahnya.
+   b. Tambah langkah unggah log/artefak saat gagal (actions/upload-artifact, if: failure()) agar bukti CI bisa diunduh.
+   c. Langkah uji mutasi: tegaskan pesan bila kegagalan berasal dari proses uji (bukan pagar tumpul), mis. bedakan 'node gagal' dari 'uji lolos'.
+   d. Jangan menurunkan gerbang: CI tetap wajib hijau; usulan hanya soal keterbacaan bukti.
+
+9. ANALISIS WAKTU LANGKAH (satu-satunya petunjuk yang bisa dibaca dari sandbox)
+   gh api /repos/.../actions/jobs/<job>/ (started_at/completed_at per langkah):
+   - run 36671587977 (ed3a229): langkah 60 05:21:24 → 05:21:29  = 5 DETIK (failure)
+   - run 36712154530 (7ba370e): langkah 60 12:20:12 → 12:20:17 = 5 DETIK (failure)
+   - run 36674279740 (00cb4ee): langkah 60 05:55:28 → 05:58:46 = 3 m 18 s (SUCCESS)
+   → langkah 60 mati di detik ~5, padahal perintahnya berjumlah 71 dan butuh >3 menit bila selesai;
+     artinya kegagalan terjadi pada perintah-perintah AWAL blok itu, bukan di ujung.
+
+   Profil waktu 71 perintah dijalankan lokal (2 CPU, tanpa beban):
+     1 validate_system 219ms · 2 fungsi-pin 21ms · 3 roadmap 58ms · 4 roadmap --uji-diri 27ms ·
+     5 fondasi-independen 439ms · 6 audit-independen --uji-diri 1916ms · 7 ci_target 24ms ·
+     8 paritas-ci 28ms · 9 paritas-ci --uji-diri 44ms · 10 siapkan-pemeriksaan --uji-diri 134ms ·
+     11 uji-kirim-laporan 2785ms (kumulatif sampai perintah 11 ≈ 5,5 detik → PALING COCOK dengan matinya di detik ~5)
+
+10. KANDIDAT PENYEBAB UTAMA: alat/uji-kirim-laporan.py (uji dua penulis bersamaan)
+   Berkas itu memakai threading.Barrier(2) + ThreadPoolExecutor + git SUNGGUHAN di repo sementara,
+   dan menuntut pola percobaan yang PERSIS: satu penulis upaya=1, satu upaya=2 (assertEqual(sorted(upaya), [1,2])).
+   Bila penjadwalan berbeda (runner CI lebih lambat/berebut CPU), pola itu bisa meleset → uji gagal → perintah exit≠0
+   → langkah berhenti (bash -e). Uji ini juga satu-satunya perintah awal blok yang mengandung balapan (race) waktu nyata.
+   Percobaan pembuktian yang SUDAH dilakukan (belum berhasil mereproduksi):
+   - 8× dijalankan dengan 1 CPU (taskset) + 4 proses pembebani → 8× OK (12,7 detik tiap kali, jauh lebih lambat dari 2,6 detik normal)
+   - 71 perintah blok dijalankan dengan lingkungan disanitasi (env -i HOME baru, PATH minimal) → perintah 1–14 rc=0
+   - 3× uji-mutasi-0016 dan 5× uji-mutasi-0040 → LOLOS semua
+   → belum terbukti; pembuktian terakhir butuh LOG langkah dari GitHub (Lee bisa melihatnya di tab Actions).
+
+11. USULAN ATURAN MEKANISME (Perencana, putaran 12d)
+   Supaya flake repo-wide tidak membekukan PMB: cabang boleh diintegrasikan walau CI merah HANYA bila (a) langkah yang gagal
+   menyentuh berkas yang TIDAK ada di diff cabang itu, (b) perintah yang sama dijalankan ulang ≥2× pada pohon yang identik
+   (worktree tip) dengan hasil LOLOS, (c) rantai bukti penuh lokal RANTAI: LOLOS, dan (d) run ID + bukti dicatat di kartu B
+   dan temuan G-01. Selain kondisi itu, aturan lama tetap: CI wajib success.
+
+12. RUN KEEMPAT — SUCCESS (bukti tambahan bahwa ini flake, bukan cacat isi)
+   run 36715299218 · commit f16cf20 · status: completed/success
+   langkah 60: success — berjalan 12:49:56 → 12:55:0x UTC (3 menit lebih), sedangkan dua run yang gagal mati di detik ke-5.
+   Isi pohon pada langkah 60 sama dengan run 7ba370e yang gagal (hanya tambahan berkas bukti + dokumen PMB, tidak ada kode/skema).
+   Rekap sampel sampai sekarang: 7fa6c99 GAGAL (0016) · 20cce8a GAGAL (0040) · 7ba370e GAGAL (langkah 60) · f16cf20 SUCCESS.
+
+13. SAMPEL KELIMA — run 36718035072 (adca16a) GAGAL, langkah 60, 13:14:44 → 13:14:49 = 5 DETIK (pola sama).
+    Pohon adca16a berbeda dari f16cf20 (yang SUCCESS) hanya pada dokumen/bukti PMB — bukan penjelasan isi.
+    Rekap langkah 60: 00cb4ee SUCCESS 3m18s · ed3a229 GAGAL 5s · 7ba370e GAGAL 5s · f16cf20 SUCCESS 3m21s · adca16a GAGAL 5s → 3 dari 5 gagal.
+
+14. Percobaan menambah sampel tanpa konten baru: POST /repos/.../actions/runs/<id>/rerun → HTTP 403 (token bot Arena tanpa izin actions:write).
+    Jadi sampel tambahan hanya bisa lewat push; tiap push memicu run baru (concurrency membatalkan run yang sedang jalan).
+
+15. Stres lokal perintah 1–11 blok 60: 12 putaran × 11 perintah = 132 percobaan → 0 gagal.
+    Digabung dengan 71/71 perintah blok (env CI) dan 130/130 rantai penuh → isi pohon ini TIDAK bisa dibuat gagal secara lokal.
+
+16. MENGAPA INSTRUMENTASI CI TIDAK BISA DIPAKAI UNTUK MELIHAT PERINTAH YANG GAGAL
+    Rencana: menambah 2 baris diagnostik di blok langkah 60 (trap ERR + ::error) supaya anotasi CI memuat nama perintah yang gagal
+    (anotasi BISA dibaca dari sandbox: gh api .../check-runs/<id>/annotations).
+    TERHALANG: alat/periksa-gerbang-ci.py menetapkan PERINTAH_TANPA_GERBANG = () — SETIAP perintah di dalam run: wajib terdaftar di daftar gerbangnya;
+    menambah baris tanpa mendaftarkannya akan membuat penjaga gerbang CI MERAH karena alasan lain. Karena itu instrumentasi = perubahan dua berkas proyek
+    (ci.yml + penjaga) yang bukan wewenang Perencana sekarang (temuan F-219 masih BARU, belum ditinjau Hakim).
+    Catatan untuk Pembangun G-01 kelak: perbaikan ini menyentuh DUA berkas (ci.yml + alat/periksa-gerbang-ci.py) — daftarkan perintah diagnostiknya.
+
+17. SAMPEL KEENAM — run 36724239393 (0c50123) SUCCESS; langkah 60 selesai normal.
+    Rekap langkah 60 (6 run): 00cb4ee SUCCESS · ed3a229 GAGAL 5s · 7ba370e GAGAL 5s · f16cf20 SUCCESS · adca16a GAGAL 5s · 0c50123 SUCCESS
+    → 3 gagal / 3 success pada pohon yang secara isi setara = flake ~50% (bukan cacat isi cabang).
+
+18. MARGIN TIMEOUT JOB — risiko kedua yang belum tercatat
+    timeout-minutes job 'periksa' = 25 menit. Durasi job pada run yang SUCCESS:
+    00cb4ee 21m05s · f16cf20 21m04s · 0c50123 23m05s → margin hanya ~2–4 menit.
+    Bila runner sedang lambat (variasi GitHub), job bisa mati karena TIMEOUT dan itu akan terbaca seperti 'kegagalan isi'.
+    Usulan untuk Pembangun G-01 (bersama usulan §16): naikkan timeout-minutes secukupnya ATAU pecah langkah besar supaya jejak waktu per perintah terlihat.

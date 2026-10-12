@@ -1,0 +1,39 @@
+$ python3 alat/uji-mutasi-0012.py
+KONTROL POSITIF (tanpa mutasi harus hijau)
+  OK  cabang_sesi.sql: kode 0
+  OK  diskon_cap.sql: kode 0
+  OK  harga_item.sql: kode 0
+  OK  izin_efektif_untuk.sql: kode 0
+  OK  jejak_pengaturan.sql: kode 0
+  OK  persetujuan_void.sql: kode 0
+  OK  pin_kunci_silang.sql: kode 0
+  OK  stok_arah.sql: kode 0
+
+UJI MUTASI — penutup celah review putaran8 (0012)
+  OK  M1 diskon 'promo' dibuka lagi (tanpa cabang izin): MERAH (diskon_cap.sql)
+  OK  M2 cap total resto tidak dibaca: MERAH (diskon_cap.sql)
+  INFO M3a diskon boleh ditanam saat subtotal 0: HIJAU (sesuai dugaan: penjaga kembarnya masih menahan) (diskon_cap.sql)
+  INFO M3b diskon boleh melebihi subtotal (penjaga kedua ikut dimatikan): HIJAU (sesuai dugaan: penjaga kembarnya masih menahan) (diskon_cap.sql)
+  OK  M4 harga item bebas diisi klien: MERAH (harga_item.sql)
+  INFO M5 subtotal dari klien dipercaya: HIJAU (sesuai dugaan: penjaga kembarnya masih menahan) (harga_item.sql)
+  OK  M6 bukti PIN boleh dipakai berulang: MERAH (persetujuan_void.sql)
+  OK  M7 pelaku pengaturan boleh dikarang: MERAH (jejak_pengaturan.sql)
+  INFO M8 keluar menambah stok lagi (pemicu baris 0014): HIJAU (sesuai dugaan: penjaga kembarnya masih menahan) (stok_arah.sql)
+  OK  M9 pemeriksaan keanggotaan cabang dimatikan (izin orang lain): MERAH (izin_efektif_untuk.sql)
+  OK  M9b keanggotaan cabang NONAKTIF tetap dianggap berizin: MERAH (izin_efektif_untuk.sql)
+  OK  M10 pembatas PIN kembali menghitung atas nama korban: MERAH (pin_kunci_silang.sql)
+  OK  M11 akun nonaktif tetap dapat cabang: MERAH (cabang_sesi.sql)
+
+UJI MUTASI — penutup celah review putaran11 (0013)
+  OK  M12 diskon 'voucher' dibuka lagi (mesin voucher belum ada): MERAH (diskon_voucher.sql)
+  OK  M13 pesanan boleh LAHIR berstatus lain (penjaga status awal dimatikan): MERAH (pesanan_status_awal.sql)
+  OK  M13b penjaga status awal kembali `security definer` (current_user = pemilik → selalu dianggap peladen): MERAH (pesanan_status_awal.sql)
+  OK  M14 nilai kerugian boleh dikarang klien lagi: MERAH (nilai_kerugian.sql)
+  OK  M5k subtotal dari klien dipercaya (pemicu item DAN pemicu harga 0012 dimatikan): MERAH (harga_item.sql)
+  OK  M8k keluar menambah stok lagi (RPC 0012 DAN pemicu 0014 dimatikan): MERAH (stok_arah.sql)
+  OK  M3k diskon boleh ditanam pada subtotal 0 (tiga penjaga dimatikan sekaligus): MERAH (diskon_cap.sql)
+
+KONTROL PENUTUP (setelah dipulihkan harus hijau)
+  OK  semua uji hijau lagi setelah pemulihan
+
+RINGKASAN: 16/16 mutasi WAJIB terbukti MERAH (+ 4 mutasi tunggal pada penjaga bertumpuk: hijau = sesuai dugaan; lapisan itu dibuktikan lewat mutasi gabungan M3k/M5k/M8k)

@@ -49,6 +49,16 @@ export interface DataStruk {
   /** ISO dari peladen — bukan `new Date()` di perangkat. */
   tanggal: string
   namaResto?: string
+  /** Alamat resto/cabang (PRD M6 baris 131: struk WAJIB memuat alamat). */
+  alamatResto?: string
+  /** Nama kasir yang melayani (PRD M6 baris 131: struk WAJIB memuat nama kasir). */
+  namaKasir?: string
+  /**
+   * Tarif PB1 dalam persen (PBJT: bukti transaksi wajib mencantumkan TARIF).
+   * Bila tidak diketahui, label memakai teks lama "PB1 (pajak)" — jujur, tanpa
+   * mengarang angka tarif.
+   */
+  tarifPajakPersen?: number
   header?: string
   footer?: string
   namaMeja?: string | null
@@ -129,9 +139,15 @@ export function Struk({
         ) : null}
         {data.header ? <p className="struk-header">{data.header}</p> : null}
         {data.namaResto ? <h2 className="struk-nama-resto">{data.namaResto}</h2> : null}
+        {data.alamatResto ? (
+          <p className="small muted" data-testid="struk-alamat">
+            {data.alamatResto}
+          </p>
+        ) : null}
         <p className="small muted">
           No. {data.nomor} · {tanggalLokal(new Date(data.tanggal))}
           {data.namaMeja ? ` · ${data.namaMeja}` : ''}
+          {data.namaKasir ? ` · Kasir ${data.namaKasir}` : ''}
         </p>
       </header>
 
@@ -159,7 +175,11 @@ export function Struk({
           <Baris label="Diskon" nilai={`−${rupiah(data.totalDiskon)}`} penanda="diskon" />
         ) : null}
         {/* Pajak & service SELALU dicetak, termasuk saat 0 % (DoD T5-03). */}
-        <Baris label="PB1 (pajak)" nilai={rupiah(data.pajak)} penanda="pajak" />
+        <Baris
+          label={data.tarifPajakPersen != null ? `PB1 ${data.tarifPajakPersen}%` : 'PB1 (pajak)'}
+          nilai={rupiah(data.pajak)}
+          penanda="pajak"
+        />
         <Baris label="Service" nilai={rupiah(data.service)} penanda="service" />
         {pembulatan !== 0 ? (
           <Baris

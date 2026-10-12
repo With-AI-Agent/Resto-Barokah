@@ -1,0 +1,52 @@
+# Mutasi HAKIM H-F-02.2 — arena/01a0f48b-resto-barokah — 2026-09-30 (UTC)
+# Cara: sunting sementara berkas yang diuji, jalankan ujinya, pulihkan (git status bersih sesudahnya). Keluaran di bawah ditempel apa adanya (ringkas).
+
+## F-010 — node alat/uji-sql.mjs supabase/tes/buka_laci_tercatat.sql  (migrasi 0094 dimutasi satu per satu)
+M1 hapus INSERT catatan_audit ............ GAGAL (0 LULUS · 1 GAGAL)  → uji menangkap
+M2 alasan manual tidak wajib ............. GAGAL                        → uji menangkap
+M3 pelaku_id diganti null ................ GAGAL                        → uji menangkap
+M4 cek peran (owner/admin/kasir) dimatikan LULUS (1 LULUS · 0 GAGAL)    → TIDAK tertangkap (uji sendiri mengakui di komentarnya: peran non-staf "tidak tersedia di data uji")
+M5 cek "sudah masuk" dimatikan ........... GAGAL                        → uji menangkap
+Probe baru bukti/H-F-02.2-laci-konteks-bebas.sql (kontrol negatif 'manual' tanpa alasan → ALASAN_WAJIB LULUS; lalu):
+  UJI1 konteks 'cetak_struk_tunai' tanpa transaksi & tanpa alasan → dapat TERCATAT, harap ALASAN_WAJIB  = GAGAL
+  UJI2 konteks karangan 'apa_saja_boleh' tanpa alasan           → TERCATAT (harap bukan)              = GAGAL
+  → penolakan "alasan wajib" bisa dilewati hanya dengan mengirim nama konteks lain (klien yang mengarang).
+
+## F-010 — jalur kertas yang sudah ada tidak melewati pintu tercatat
+Probe bukti/H-F-02.2-probe-laci-kertas.test.ts (klien Supabase dibuat meledak bila disentuh):
+  KONTROL tanpa opsi.bukaLaci → tidak ada byte ESC p ............ LULUS
+  UJI     opsi.bukaLaci=true  → byte ESC p (buka laci) terbit tanpa menyentuh peladen ... LULUS (= terbukti tidak tercatat)
+  grep pemanggil produksi aplikasi/src/lib/laci.ts → 0 (lihat H-F-02.2-reproduksi.txt)
+
+## F-020 — npx vitest run src/komponen/Struk.test.tsx src/lib/printer/struk.test.ts  (komponen & penyusun kertas)
+S1 alamat layar dimatikan ...... 1 gagal | 41 lulus → tertangkap
+S2 nama kasir layar dimatikan .. 1 gagal | 41 lulus → tertangkap
+S3 label tarif tanpa persen .... 1 gagal | 41 lulus → tertangkap
+S4 alamat kertas dimatikan ..... 1 gagal | 41 lulus → tertangkap
+S5 kasir kertas dimatikan ...... 2 gagal | 40 lulus → tertangkap
+S6 tarif kertas tanpa persen ... 1 gagal | 41 lulus → tertangkap
+## F-020 — SAMBUNGAN kontainer ke struk (npx vitest run src/layar/kasir src/App.test.tsx src/komponen = 38 berkas · 287 uji)
+W1 LayarKasir tak meneruskan alamatResto ............ 287 LULUS (tidak tertangkap)
+W2 LayarKasir tak meneruskan namaKasir .............. 287 LULUS (tidak tertangkap)
+W3 App.tsx tak memasang alamatCabang ................ 287 LULUS (tidak tertangkap)
+W4 LayarKasir tak meneruskan tarifPajakPersen ....... 287 LULUS (tidak tertangkap)
+  → uji hanya membuktikan komponen Struk bila diberi data; tak ada uji yang membuktikan layar kasir sungguhan mengisi alamat/kasir/tarif.
+
+## F-021 — npx vitest run src/hook/useRiwayatTransaksi.test.ts  (hook dimutasi)
+M1 metode selalu 'Tunai' (cacat asli F-021) ... 3 lulus → TIDAK tertangkap (fixture uji sendiri 'Tunai')
+M2 hapus .eq('pesanan.cabang_id') ............ 1 gagal  → tertangkap (tetapi uji hanya memeriksa PANGGILAN mock .eq, bukan perilaku saring PostgREST — lihat H-F-02.2 §1 F-021)
+M3 nomor dikarang 1 .......................... 1 gagal  → tertangkap
+M4 tanggal dari jam perangkat ................ 1 gagal  → tertangkap
+M5 pajak selalu 0 ............................ 1 gagal  → tertangkap
+## F-021 — regresi navigasi (probe bukti/H-F-02.2-probe-pesanan-meja.test.tsx; App sungguhan, sesi peran pelayan)
+pohon HEAD  : KONTROL 'Status Pesanan' LULUS · UJI 'Pesanan Meja' GAGAL (expected 0 to be greater than 0) → layar pelayan hilang
+pohon a8ff618^ (sebelum perbaikan F-021, worktree terpisah): kedua kasus LULUS  → kontrol negatif: regresi lahir di a8ff618 (baris `-      case 'pesanan_meja':` di diff App.tsx)
+
+## F-216/F-217 — python3 docs/uji/pemeriksaan/PMB-1/bukti/H-F-09.5-mekanisme-probe.py (probe hakim lain, dijalankan ulang) 
+asli ................................... LOLOS (seluruh kontrol F-216/F-217 sesuai dugaan)
+mutasi A alat/pmb-integrasi.py periksa_bukti_kekal no-op ........ probe GAGAL (AssertionError: [])  → pagar nyata
+mutasi B alat/pmb-integrasi.py periksa_roadmap_pembangun no-op .. probe GAGAL (AssertionError: [])  → pagar nyata
+  (catatan: percobaan pertama mutasi B tercampur cache .pyc basi; diulang dengan python3 -B dan .pyc dihapus — hasil di atas dari ulangan)
+mutasi A+B sekaligus, lalu: python3 alat/periksa-pemeriksaan.py --uji-diri → LOLOS · python3 alat/periksa-pemeriksaan.py → LOLOS
+  → klaim kolom Perbaikan "perilaku dijaga alat/periksa-pemeriksaan.py --uji-diri" TIDAK benar: uji-diri & penjaga CI tidak menyentuh pagar pmb-integrasi.py
+  (grep -n -i "kekal|F-216|F-217|roadmap_pembangun|pmb-integrasi" alat/periksa-pemeriksaan.py → 0 baris; grep -rln pmb-integrasi alat .github → hanya periksa-push.py, pmb-integrasi.py, susun-daftar-tunggu-lee.py)

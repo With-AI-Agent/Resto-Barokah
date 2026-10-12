@@ -31,11 +31,24 @@ select public.buat_kode_pemulihan('frasa-rahasia-darurat-minimal-20-karakter-aca
 
 ## 3. Langkah Pemulihan Saat Kehilangan Perangkat
 
+> **Siapa yang menjalankan (KEPUTUSAN LEE 2026-10-07, PMB1-F-083):** sampai
+> layar darurat mandiri dibangun (dijadwalkan pra-pilot bersama klaster login),
+> prosedur ini adalah prosedur **Tingkat 4 — pemilik platform mendampingi
+> owner pusat**: owner menghubungi pemilik platform, membacakan kode pemulihan
+> dari amplopnya, dan pemilik platform menjalankan langkah-langkah SQL di bawah
+> (teruji: migrasi 0102 + 0106, suite `supabase/tes/pemulihan_aktivasi_darurat.sql`).
+> Sebelumnya baris ini menjanjikan owner menjalankan sendiri (Tingkat 3);
+> janji itu kini tercatat jujur di `docs/KEAMANAN.md` §4b.
+
 Jika seluruh perangkat operasional tidak dapat diakses:
 
-1. **Buka Amplop Tersegel**: Ambil kode pemulihan fisik.
-2. **Masuk ke Aplikasi sebagai `owner_pusat`** di perangkat baru.
-3. **Ajukan Pemulihan Perangkat Darurat**:
+1. **Buka Amplop Tersegel**: Owner mengambil kode pemulihan fisik.
+2. **TANPA perlu masuk aplikasi** — seluruh jalur ini dirancang untuk owner
+   yang kehilangan SELURUH perangkat (tidak ada sesi `owner_pusat` yang bisa
+   dipakai). Sejak migrasi 0102 (pengajuan) dan 0105→0106 (aktivasi), kedua
+   langkah di bawah bisa dijalankan tanpa sesi — dijalankan pemilik platform
+   dari konsol SQL, didampingi owner.
+3. **Ajukan Pemulihan Perangkat Darurat** (dari perangkat baru, tanpa sesi):
    ```sql
    select public.pulihkan_perangkat(
      'frasa-rahasia-darurat-minimal-20-karakter-acak',
@@ -44,16 +57,38 @@ Jika seluruh perangkat operasional tidak dapat diakses:
      '<cabang-id>'
    );
    ```
+   Catat baik-baik `kunci-perangkat` yang dipilih — kunci itu menjadi bukti
+   kepemilikan pada langkah 5 (kode pemulihan hangus sekali pakai di sini).
+   Fungsi ini **mengembalikan id permohonan** (uuid) — catat juga, karena id
+   itu adalah PENANDA yang mengunci aktivasi pada langkah 5 tepat ke
+   permohonan ini (PMB1-F-239). Jika id terlewat, pemilik platform dapat
+   mencarinya kembali sebelum tenggang lewat:
+   ```sql
+   select id, perangkat_id, diminta_pada
+     from public.pemulihan_perangkat
+    where status = 'menunggu'
+      and penyewa_id = '<penyewa-id-owner>'
+    order by diminta_pada desc;
+   ```
 4. **Masa Tenggang 30 Menit**:
    - Status pemulihan tercatat sebagai `menunggu`.
    - Perangkat darurat berstatus nonaktif selama masa tenggang.
    - Peringatan tercatat di `catatan_audit`.
-5. **Aktivasi Setelah 30 Menit**:
+5. **Aktivasi Setelah 30 Menit** (tanpa sesi, bukti = id permohonan + kunci perangkat):
    Setelah waktu 30 menit berlalu, jalankan:
    ```sql
-   select public.selesaikan_pemulihan('<pemulihan-id>');
+   select public.selesaikan_pemulihan_darurat(
+     '<id-permohonan-dari-langkah-3>',
+     'kunci-perangkat-minimal-16-karakter'
+   );
    ```
-   Perangkat darurat resmi aktif dan dapat langsung digunakan untuk operasional kasir/PIN staf.
+   Sejak migrasi 0106 (PMB1-F-239, KEPUTUSAN LEE 2026-10-07) aktivasi
+   TERIKAT pada permohonan yang ditunjuk id-nya — tidak lagi memilih
+   permohonan terbaru lintas penyewa, jadi kunci kembar antar resto tidak bisa
+   salah mengaktifkan permohonan pihak lain.
+   Perangkat darurat resmi aktif dan dapat langsung digunakan untuk
+   operasional kasir/PIN staf. (Jalur lama `selesaikan_pemulihan` tetap ada
+   bagi yang masih punya sesi, tetapi tidak lagi dibutuhkan.)
 6. **Buat Kode Pemulihan Baru**: Segera buat kode pemulihan baru dan simpan kembali dalam 2 amplop tersegel.
 
 ---
@@ -66,3 +101,12 @@ Jika ada notifikasi/catatan pengajuan pemulihan yang tidak dikenali:
    select public.batalkan_pemulihan('<pemulihan-id>', 'Aktivitas mencurigakan');
    ```
 2. Perangkat yang diajukan akan tetap terkunci nonaktif secara permanen.
+
+> **KEPUTUSAN LEE 2026-10-07 (PMB1-F-238):** jika SELURUH perangkat hilang dan
+> ada pengajuan pemulihan mencurigakan, jalan resminya = **eskalasi Tingkat 4**:
+> owner menghubungi pemilik platform, dan pemilik platform membatalkan dari
+> konsol (sesi `service_role`/`owner_pusat` yang sah, tercatat audit).
+> `batalkan_pemulihan` sengaja TIDAK dibuka tanpa sesi — tanpa bukti
+> kepemilikan yang bisa diverifikasi, jalur tanpa sesi justru membuka celah
+> pembatalan oleh pihak asing. Jendela 30 menit dirancang supaya eskalasi ini
+> hingga sempat berjalan sebelum perangkat diaktifkan.

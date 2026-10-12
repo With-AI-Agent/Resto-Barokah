@@ -1,0 +1,25 @@
+BUKTI MERAH 1/2 — uji batas pendaftaran kasir TANPA migrasi 0097 (2026-10-04)
+Perintah: node alat/uji-sql.mjs supabase/tes/voucher_kasir_wajib_identitas.sql
+
+
+Menjalankan 1 berkas uji:
+  GAGAL supabase/tes/voucher_kasir_wajib_identitas.sql
+        HARAPAN TIDAK TERPENUHI: F-038 B opsi 3: pelanggan ke-4 oleh kasir yang sama pada kampanye yang sama DITOLAK (batas bawaan 3) (dapat SUKSES, harap BATAS_PENDAFTARAN_KASIR)
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - supabase/tes/voucher_kasir_wajib_identitas.sql: HARAPAN TIDAK TERPENUHI: F-038 B opsi 3: pelanggan ke-4 oleh kasir yang sama pada kampanye yang sama DITOLAK (batas bawaan 3) (dapat SUKSES, harap BATAS_PENDAFTARAN_KASIR)
+HASIL: GAGAL
+
+BUKTI MERAH 2/2 — uji persetujuan PIN atasan TANPA migrasi 0098 (2026-10-04)
+Perintah: node alat/uji-sql.mjs supabase/tes/pakai_voucher_pin_atasan.sql
+
+  GAGAL supabase/tes/pakai_voucher_pin_atasan.sql
+        column "pakai_disetujui_oleh" does not exist
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - supabase/tes/pakai_voucher_pin_atasan.sql: column "pakai_disetujui_oleh" does not exist
+HASIL: GAGAL

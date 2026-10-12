@@ -1,0 +1,19 @@
+Pemeriksaan akhir hakim ulangan F-07 — 2026-09-29
+
+$ python3 alat/periksa-pemeriksaan.py
+PERIKSA PEMERIKSAAN — 63 potongan {'BELUM': 8, 'DIHAKIMI': 7, 'DIKLAIM': 0, 'RENCANA': 46, 'SELESAI': 2} · 135 temuan (terbuka K-1/K-2: 43)
+
+HASIL: LOLOS
+EXIT: 0
+
+$ python3 alat/periksa-bersih.py
+PERIKSA POHON BERSIH — 2978 berkas terlacak disalin · 5 pemeriksa dokumen
+  [OK] _sistem/validate_system.py
+  [OK] alat/periksa-rujukan.py
+  [OK] alat/periksa-panduan.py
+  [OK] alat/periksa-buku-uji.py
+  [OK] alat/periksa-rahasia.py
+  catatan: berkas ada di komputermu tetapi TIDAK ikut Git: 0
+
+HASIL: LOLOS — semua pemeriksa dokumen hijau di pohon bersih (hanya berkas terlacak Git).
+EXIT: 0

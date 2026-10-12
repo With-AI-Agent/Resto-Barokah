@@ -18,7 +18,10 @@ import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MIGRASI = os.path.join(REPO, "supabase", "migrations", "0061_verifikasi_pin_perangkat.sql")
+# JEBAKAN "fungsi ditulis ulang": RPC `verifikasi_pin_perangkat` ditulis ulang pada
+# 0068 → 0086 → 0087 → 0090 (saklar peran berkuasa) → 0091 (anti-orakel PIN).
+# Jangkar mutasi HARUS pada berkas BERLAKU, kalau tidak pagarnya tumpul.
+MIGRASI = os.path.join(REPO, "supabase", "migrations", "0091_pin_bukan_orakel_batas_akun.sql")
 BERKAS_UJI = ["supabase/tes/verifikasi_pin_perangkat.sql"]
 
 
@@ -43,9 +46,9 @@ DAFTAR_MUTASI = [
         "if false and p_pin !~ '^\\d{6}$' then",
     ),
     (
-        "pengecekan status aktif perangkat dihilangkan",
-        "if v_perangkat.id is null or not coalesce(v_perangkat.aktif, false) then",
-        "if false and (v_perangkat.id is null or not coalesce(v_perangkat.aktif, false)) then",
+        "pengecekan status aktif perangkat dihilangkan (satu-satunya pagarnya, langkah 3b)",
+        "    if not coalesce(v_perangkat.aktif, false) then",
+        "    if false and not coalesce(v_perangkat.aktif, false) then",
     ),
     (
         "pengecekan hash PIN di-bypass",

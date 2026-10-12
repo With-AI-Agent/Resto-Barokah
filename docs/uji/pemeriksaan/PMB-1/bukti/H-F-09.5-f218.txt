@@ -1,0 +1,51 @@
+# BUKTI MEKANISME F-218 — 2026-09-30
+
+## Perintah lama dan titik fail-fast (dibaca, tidak dijalankan)
+$ nl -ba aplikasi/alat/periksa-semua.sh | sed -n "1,6p;123,127p;177,181p"
+     1	#!/usr/bin/env bash
+     2	# Jalankan SEMUA pemeriksaan yang sama dengan CI, di komputer sendiri.
+     3	# Dipakai sebelum setiap kirim kode supaya CI tidak pernah kaget.
+     4	#   bash aplikasi/alat/periksa-semua.sh
+     5	set -euo pipefail
+     6	
+   123	python3 alat/periksa-panduan.py
+   124	python3 alat/periksa-panduan.py --uji-diri
+   125	python3 alat/lanjut-sesi.py
+   126	python3 alat/lanjut-sesi.py --di-ci
+   127	python3 alat/lanjut-sesi.py --uji-diri
+   177	(cd "$REPO" && python3 aplikasi/alat/periksa-komponen-env.py --uji-diri)
+   178	(cd "$REPO" && node aplikasi/alat/catat-alamat.mjs --uji-diri)
+   179	(cd "$REPO" && python3 aplikasi/alat/periksa-uji.py)
+   180	(cd "$REPO" && python3 aplikasi/alat/periksa-uji.py --uji-diri)
+   181	(cd "$REPO" && python3 alat/siapkan-pemeriksaan.py --uji-diri)
+
+## CI sejarah cacat yang sudah tercatat
+$ gh run view 36669764403 --json databaseId,status,conclusion,headSha,headBranch,displayTitle,url
+{"conclusion":"failure","databaseId":36669764403,"displayTitle":"rapi: typo kartu B-F-07","headBranch":"arena/01a0eff7-resto-barokah","headSha":"d73c7d053de0ecbba725ec68774aa483f59d5593","status":"completed","url":"https://github.com/With-AI-Agent/Resto-Barokah/actions/runs/36669764403"}
+
+## Rantai baru dijalankan hari ini (full) — keluaran ringkas dan kelanjutan setelah gagal
+$ grep -nE "^===== GAGAL|^===== LOLOS.*(lanjut-sesi|periksa-bersih|periksa-uji)|RINGKASAN RANTAI|RANTAI:" docs/uji/pemeriksaan/PMB-1/bukti/H-F-09.5-rantai.txt
+2375:===== LOLOS rc=0 (6 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-bersih.py
+2422:===== GAGAL rc=1 (11 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-paket.py
+2561:===== GAGAL rc=1 (16 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-paket.py --uji-diri
+2585:===== LOLOS rc=0 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/lanjut-sesi.py --di-ci
+2592:===== LOLOS rc=0 (3 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/lanjut-sesi.py --uji-diri
+2781:===== LOLOS rc=0 (25 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 alat/periksa-bersih.py --uji-diri
+2870:===== LOLOS rc=0 (0 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 aplikasi/alat/periksa-uji.py
+2884:===== LOLOS rc=0 (2 s) — Pemeriksa fondasi, roadmap, struktur, komponen, uji & kontras — python3 aplikasi/alat/periksa-uji.py --uji-diri
+3102:RINGKASAN RANTAI PENUH: 128 LOLOS · 2 GAGAL · 1 tak terbukti (tanpa internet) · 3 dilewati
+3109:RANTAI: GAGAL — jangan menyatakan selesai; perbaiki lalu ulangi
+
+## Penyebab lokal diketahui, lalu diuji ulang setelah checkout di-unshallow
+$ git rev-parse --is-shallow-repository
+false
+$ grep -nE "^\$ python3 alat/periksa-paket.py|HASIL: LOLOS|^\$ python3 alat/periksa-paket.py --uji-diri|pohon sekarang diterima|HASIL: LOLOS" docs/uji/pemeriksaan/PMB-1/bukti/H-F-09.5-paket-unshallow.txt
+3:$ python3 alat/periksa-paket.py
+81:HASIL: LOLOS — setiap paket menunjuk induk commit-nya sendiri, artefaknya nyata, dan paket review baru tercatat di riwayat.
+82:$ python3 alat/periksa-paket.py --uji-diri
+89:  OK  pohon sekarang diterima → lolos
+103:HASIL: LOLOS — pemeriksa terbukti bisa MENOLAK paket cacat dan MENERIMA yang utuh.
+
+## Sumber resmi riset (dibaca 2026-09-30)
+GNU Bash Reference Manual §4.3.1 The Set Builtin: https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
+Kesimpulan yang dipakai: -e keluar setelah simple command gagal, kecuali konteks pengecualian yang didokumentasikan; periksa-semua.sh menjalankan lanjut-sesi.py sebagai simple command tanpa kondisi.

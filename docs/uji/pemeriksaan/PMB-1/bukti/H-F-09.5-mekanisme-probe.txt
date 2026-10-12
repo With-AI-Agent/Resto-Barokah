@@ -1,0 +1,10 @@
+F-216 historical control: PASS — periksa_bukti_kekal menolak penimpaan B-F-09-rantai.txt pada af38951
+F-216 positive control: PASS — append di ujung diterima
+F-216 positive control: PASS — berkas bukti baru diterima
+F-216 negative control: PASS — overwrite ditolak
+F-216 negative control: PASS — delete ditolak
+F-217 historical control: PASS — periksa_roadmap_pembangun menolak paragraf JAMINAN MEREK LAIN yang hilang pada af38951
+F-217 positive control: PASS — pola [x]→[ ] dengan baris B+/DoD/Verifikasi diterima
+F-217 negative control: PASS — Pembangun menambah [x] ditolak oleh K6
+Perencana current correction: PASS — commit 3e01d5c memulihkan paragraf JAMINAN dan catatan 20 byte
+HASIL: LOLOS — seluruh kontrol F-216/F-217 sesuai dugaan

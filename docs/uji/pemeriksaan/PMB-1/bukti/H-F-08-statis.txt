@@ -1,0 +1,463 @@
+# BUKTI HAKIM H-F-08 — reproduksi statis (dijalankan 2026-09-29T02:51:07Z di commit 8edbd63)
+
+== F-101: rpc hitung_total di registri ==
+86:    rpc: 'hitung_total',
+102:    rpc: 'hitung_total',
+118:    rpc: 'hitung_total',
+135:    rpc: 'hitung_total',
+739:    rpc: 'hitung_total',
+
+-- Aturan 1 peta-ui.py --
+    
+    # Aturan 1: RPC pada aksi wajib terdaftar di migrasi
+    for a_id, a_data in registri_aksi.items():
+        rpc = a_data['rpc']
+        if rpc and rpc not in rpc_terdaftar:
+            kesalahan.append(f"[Aturan 1 - RPC] Aksi '{a_id}' menunjuk RPC '{rpc}' yang tidak terdefinisi di {dir_migrasi}.")
+
+
+-- RPC resmi yang seharusnya --
+supabase/migrations/0065_kasir_cek_pakai_voucher.sql: create or replace function public.pakai_voucher(
+supabase/migrations/0067_pengaman_voucher.sql: create or replace function public.pakai_voucher(
+supabase/migrations/0080_kunci_idempoten_menyeluruh.sql: create or replace function public.simpan_pesanan(
+
+-- peta-ui --periksa --
+PETA UI: SEMUA PEMERIKSAAN HIJAU (Layar, Aksi, RPC, Izin, Uji, PRD M1–M12, Bebas Button Liar).
+
+== F-102: klaim repo privat ==
+{"isPrivate":false,"nameWithOwner":"With-AI-Agent/Resto-Barokah"}
+  - **Verifikasi:** status CI hijau pada push pertama; sengaja membuat lint gagal di uji coba → CI merah. · **Bukti 2026-09-16:** CI menyala di setiap push & pull request; gerbangnya benar-benar bekerja — (a) run 35121292973 **MERAH di langkah ESLint** saat sengaja dipasang variabel tidak terpakai (kode ujinya lalu dihapus), (b) run 35120922393 merah karena folder layar kosong tidak ikut Git, (c) run 35121062046 merah karena satu berkas Markdown belum dirapikan, dan (d) run **35121525551 hijau penuh** (npm ci → Prettier → ESLint → TypeScript → Vitest → build → 5 pemeriksa Python). Artinya: dua cacat nyata tertangkap CI, bukan cuma “hijau karena kebetulan”. Semua ini memakai jatah gratis GitHub Actions (repo privat 2.000 menit/bulan).
+  - **Catatan:** T-012 sudah ditutup 2026-09-16 → cadangan disimpan sebagai **artefak terenkripsi GitHub Actions (repo privat, masa simpan 90 hari)** + pemilik mengunduh salinannya sebulan sekali.
+
+== F-103: T1-30 ==
+- [x] T1-30 — Pemeriksa keamanan SQL + rahasia + dependensi di CI ⚠️
+  - **AUD-2 terbaru (2026-09-21):** dua laporan asal dipanen; K-2 belum dibantah-balik, jangan centang tugas. Pemilik integrator T1-45/T1-30; antrean + syarat bukti wajib di `docs/uji/TINDAK_LANJUT_AUD2_2026-09-21.md`. Sesi ketiga error diabaikan; tanpa audit pengganti/merge/deploy.
+-- tindak lanjut --
+klaim teknis di bawah. T1-30/T1-45 tetap `[ ]`, tidak ada izin merge/deploy atau
+-- siat-lanjut --
+**RIWAYAT SEBELUM G3 — dua laporan diterima, tindak lanjut TERBUKA:** dua laporan asal `5529eae` dan `b8290b3` disimpan terpisah, byte-identik; format lolos di klon bersih. Sesi ketiga error **diabaikan**, tidak meminta audit/prompt pengganti. Target tetap `
+
+== F-104: kotak T1-22/T1-19/T1-20 ==
+- [ ] T1-19 — RPC cek_voucher (BACA SAJA) ⚠️
+- [ ] T1-20 — RPC pakai_voucher (atomik, sekali pakai, + PIN) ⚠️
+- [ ] T1-22 — Penyisiran RLS menyeluruh + uji SQL otomatis di CI ⚠️
+-- teks bukti T1-22 --
+  - **Bukti 2026-09-21:** sapuan = `supabase/tes/rls_semua_tabel.sql` (blok 1 RLS-wajib · blok 2 policy-wajib · blok 3 SETIAP-policy · blok 4 registri beralasan · blok 6 rantai transitif wajib); CI menjalankan suite penuh tiap push (lan
+
+-- RPC ada di 0067 --
+84:create or replace function public.cek_voucher(
+321:create or replace function public.pakai_voucher(
+
+== F-105: kepala ROADMAP ==
+> **Status: DITULIS 2026-09-16 — menunggu pemeriksaan silang Tahap 6.** Urutan fase disetujui pemilik via delegasi
+> Rujukan: `docs/PRD.md` (M1–M12) · `docs/TECH_SPEC.md` (dikunci, ART-1…ART-10) · `docs/AGENT_OPERATING_GUIDE.md`
+# Laporan Pemeriksaan Silang (Tahap 6) — Resto Barokah
+
+> Peran: **reviewer independen**. Tanggal: 2026-09-16. Bahan yang diperiksa: `docs/DISCOVERY.md`,
+6:- **Di mana kita sekarang:** Fondasi **6 dokumen SELESAI**: DISCOVERY · PRD (dikunci) · TECH_SPEC (dikunci, ART-1..ART-10) · AGENT_OPERATING_GUIDE (berlaku
+jumlah ART di TECH_SPEC: 15
+
+== F-106: penegak naskah ==
+alat/peta-ui.py
+            masuk_str = ", ".join(re.findall(r"'([^']+)'", masuk.group(1))) if masuk else ""
+            berkas = re.search(r"berkasUji:\s*'([^']+)'", sub_teks)
+            naskah = re.search(r"naskahJalan:\s*'([^']+)'", sub_teks)
+            
+            peran_match = re.search(r"peran:\s*\[([\s\S]*?)\]", sub_teks)
+                "aksi": aksi_list,
+                "berkasUji": berkas.group(1) if berkas else "",
+                "naskahJalan": naskah.group(1) if naskah else ""
+            }
+
+== F-107: kolom Hasil U-01..U-04 ==
+ U-01  Hasil=[  ] Catatan=[  ]
+ U-02  Hasil=[  ] Catatan=[  ]
+ U-03  Hasil=[  ] Catatan=[  ]
+ U-04  Hasil=[  ] Catatan=[  ]
+
+== F-108: kepala Fase 1B ==
+## Fase 1B — Keamanan akun, perangkat & jejak (⚠️ disisipkan 2026-09-17, dikerjakan SEBELUM T1-11)
+
+> **Kenapa disisipkan:** pemilik (pesan ke-14) meminta keamanan dimatangkan sebelum lanjut. Pola RLS & cara masuk
+> dipakai oleh seluruh migrasi/layar berikutnya — kalau T1-11 dilanjutkan dulu, pembongkaran dilakukan dua kali.
+> **Nomor migrasi:** penyisipan ini memakai **0011–0016**; rencana lama (kas & shift dst.) digeser **+7** menjadi
+-- nomor migrasi nyata --
+0001_penyewa_cabang.sql
+0002_pengguna_izin_pengaturan.sql
+0003_helper_identitas.sql
+0004_pola_rls.sql
+0005_izin_berjenjang.sql
+0006_pin.sql
+0007_katalog.sql
+0008_meja.sql
+0025_isolasi_identitas_null.sql
+0026_kunci_lingkup_rincian.sql
+0027_initplan_policy_rls.sql
+0028_pemulihan_perangkat.sql
+0029_audit_kekal_rantai.sql
+0030_sesi_dan_persetujuan_perangkat.sql
+0031_mode_dukungan_platform.sql
+0032_status_item_dapur.sql
+0033_tujuan_item.sql
+0035_menu_habis_sumber.sql
+
+================================================================================
+KOREKSI BUKTI HAKIM (F-101): apakah `kirim_ke_dapur` benar-benar ADA sebagai RPC?
+================================================================================
+$ grep -rn "function public.kirim_ke_dapur" supabase/migrations/   -> (kosong)
+$ grep -rn "kirim_ke_dapur" --include=*.sql --include=*.ts . | head -3
+(kolom `dikirim_ke_dapur_pada` = kolom tabel, bukan RPC; lihat aplikasi/src/App.tsx:168)
+$ sed -n '128,160p' aplikasi/src/lib/aksi.ts   -> entri kasir.kirim_dapur memakai rpc: 'hitung_total'
+
+================================================================================
+F-109 — mode dukungan TIDAK hanya-baca, rpc resmi tidak ada, helper yatim, kedaluwarsa tak diuji
+================================================================================
+$ grep -rn "mode_dukungan" aplikasi/src --include=*.ts --include=*.tsx | head -10
+aplikasi/src/bahasa/ar.ts:52:    mode_dukungan: 'وضع الدعم',
+aplikasi/src/bahasa/en.ts:52:    mode_dukungan: 'Support Mode',
+aplikasi/src/bahasa/id.ts:50:    mode_dukungan: 'Mode Dukungan',
+aplikasi/src/bahasa/zh.ts:52:    mode_dukungan: '技术支持模式',
+
+$ grep -rn 'mode_dukungan_aktif' supabase/ | grep -v '0031_'
+
+$ grep -n 'kedaluwarsa\|berakhir_pada' supabase/tes/mode_dukungan.sql
+
+$ sed -n '450,459p' docs/ROADMAP.md
+- [x] T1-28 — Migrasi 0016: mode dukungan pemilik platform (beralasan, berbatas waktu, tercatat) ⚠️
+  - **Tujuan:** pemilik platform tetap bisa menolong tanpa pernah mengintip data penyewa diam-diam.
+  - **Ref:** TECH_SPEC §9 ART-15; PRD §9 & M12
+  - **File:** `supabase/migrations/0031_mode_dukungan_platform.sql` (menggantikan nomor rencana `0016_mode_dukungan.sql`), `supabase/tes/mode_dukungan.sql`, `alat/uji-mutasi-0031.py`
+  - **DoD:** RPC `mode_dukungan` (alasan wajib min 10 karakter, bawaan 60 menit maks 120 menit, hanya-baca); policy membedakan pemilik platform biasa vs mode aktif; berakhir otomatis & saat keluar; catatan audit masuk/keluar pada resto penyewa; uji SQL & uji mutasi 4/4 lulus. · **Bukti 2026-09-22:** `supabase/migrations/0031_mode_dukungan_platform.sql`, `supabase/tes/mode_dukungan.sql`, `alat/uji-mutasi-0031.py`.
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Lintas Penyewa (ART-15); mode lupa ditutup → data terbuka lebih lama → mitigasi: kedaluwarsa otomatis + pemeriksa berkala.
+  - **Verifikasi:** uji SQL: tanpa mode → 0 baris · dengan mode → tulis ditolak · setelah kedaluwarsa/keluar → 0 baris lagi · catatan audit resto penyewa tercatat.
+
+- [x] T1-29 — Uji matriks peran × aksi (otomatis, semua peran) ⚠️
+
+$ python3 -c ekstrak pemilik_platform+simpan_urutan_metode_bayar dari K-F-08.2
+### PMB1-F-109 · K-2 · Mode dukungan `pemilik_platform` (`T1-28`) TIDAK hanya-baca di database, RPC resmi `rpc/mode_dukungan` tidak ada, helper `mode_dukungan_aktif` yatim, dan skenario kedaluwarsa tidak diuji
+
+- **Di mana:** `docs/ROADMAP.md:27,450-459` (`T1-28`) · `supabase/migrations/0031_mode_dukungan_platform.sql:48-69,75-85` · `supabase/migrations/0076_metode_bayar_tip.sql:420-465` · `supabase/tes/mode_dukungan.sql:1-214`.
+- **Yang salah:**
+  1. DoD `T1-28` (`baris 454`) menuntut akses dukungan `pemilik_platform` bersifat **hanya-baca**, dan Verifikasi (`baris 457`) mengklaim `dengan mode → tulis ditolak`. Kenyataannya, `0031_mode_dukungan_platform.sql:48-69` mengubah fungsi identitas global `public.penyewa_saya()` agar mengembalikan `penyewa_id` resto sasaran ketika `pemilik_platform` sedang memiliki baris aktif di `sesi_dukungan`. Akibatnya, RPC `SECURITY DEFINER` yang mengandalkan `penyewa_saya()` tanpa memeriksa `peran_saya()` — seperti `public.simpan_urutan_metode_bayar(jsonb)` (`0076_metode_bayar_tip.sql:420-465`) — **mengizinkan `pemilik_platform` mengubah data milik resto sasaran saat mode dukungan aktif**.
+  2. Peta RPC (`docs/ROADMAP.md:27`) dan File/DoD `T1-28` (`baris 453–454`) menuntut RPC resmi `rpc/mode_dukungan`, tetapi fungsi tersebut tidak pernah dibuat (yang dibuat `masuk_mode_dukungan` dan `keluar_mode_dukungan`), sedangkan helper `public.mode_dukungan_aktif(uuid)` (`0031:75-85`) yatim (tidak dipanggil di satu pun policy RLS maupun RPC).
+  3. Verifikasi `T1-28` (`baris 457`) mengklaim `supabase/tes/mode_dukungan.sql` menguji skenario `kedaluwarsa → ditolak lagi`, padahal berkas uji tersebut tidak memuat satu pun pengujian kedaluwarsa waktu (`berlaku_sampai < now()`).
+- **Cara mereproduksi:**
+  - Jalankan di PGlite (`node alat/uji-sql.mjs`): klaim sebagai `pemilik_platform` (`90000000-0000-0000-0000-000000000001`), panggil `public.masuk_mode_dukungan('11111111-1111-1111-1111-111111111111', 'Uji tulis', 30)`, lalu panggil `public.simpan_urutan_metode_bayar(jsonb_build_array(jsonb_build_object('id', v_id, 'urutan', 99)))` → berhasil (`{"jumlah": 1, "berhasil": true}`) dan mengubah `metode_bayar.urutan` milik resto Kedai Oasis menjadi `99`.
+  - `grep -rn "function public.mode_dukungan(" supabase/migrations/` → 0 baris; `grep -rn "berlaku_sampai" supabase/tes/mode_dukungan.sql` → 0 skenario kedaluwarsa.
+
+
+==================================================================
+F-110 — ikat_sesi_perangkat & percobaan_masuk
+==================================================================
+$ sed -n "483,494p" supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql
+  -- 4. Simpan atau perbarui sesi
+  insert into public.sesi_perangkat (
+    session_id, penyewa_id, perangkat_id, pengguna_id, cabang_id, mulai, berakhir_pada, status, diperbarui_pada
+  ) values (
+    p_session_id, v_perangkat.penyewa_id, p_perangkat_id, p_pengguna_id, v_perangkat.cabang_id, now(), v_berakhir, 'aktif', now()
+  )
+  on conflict (session_id) do update
+     set berakhir_pada = v_berakhir,
+         status = 'aktif',
+         diperbarui_pada = now();
+
+  -- Perbarui terakhir_aktif perangkat
+
+$ grep -c "sesi_masih_aktif" supabase/tes/sesi_dan_perangkat.sql  -> 0
+$ grep -n "^-- [0-9]" supabase/tes/sesi_dan_perangkat.sql
+7:-- 1. Uji Pembuatan Kode Pendaftaran Perangkat (T1-24)
+43:-- 2. Uji Pendaftaran Perangkat Menggunakan Kode (T1-24)
+79:-- 3. Uji Persetujuan Perangkat oleh Owner (T1-24)
+94:-- 4. Uji Pengikatan Sesi Perangkat & Batas Umur (T1-25)
+123:-- 5. Uji Pencabutan Seluruh Sesi (keluar_semua_perangkat) (T1-25)
+139:-- 6. Uji Pencabutan Perangkat Seketika (cabut_perangkat) (T1-24 & T1-25)
+170:-- 7. Uji Pembatasan Percobaan Masuk (T1-26)
+
+$ grep -rn "insert into public.percobaan_masuk" supabase/migrations/*.sql
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:580:  insert into public.percobaan_masuk (
+supabase/migrations/0059_catat_percobaan_masuk_tenant.sql:62:  insert into public.percobaan_masuk (
+$ grep -n "catat_percobaan_masuk" supabase/migrations/*.sql | head
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:566:-- RPC 7: catat_percobaan_masuk
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:567:create or replace function public.catat_percobaan_masuk(
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:588:comment on function public.catat_percobaan_masuk(uuid, uuid, uuid, boolean, text) is
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:591:revoke all on function public.catat_percobaan_masuk(uuid, uuid, uuid, boolean, text) from public;
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:592:grant execute on function public.catat_percobaan_masuk(uuid, uuid, uuid, boolean, text) to anon, authenticated, service_role;
+supabase/migrations/0059_catat_percobaan_masuk_tenant.sql:10:-- 1. Cabut hak eksekusi anon dari catat_percobaan_masuk & periksa_kunci_masuk
+$ grep -n "percobaan_masuk" supabase/migrations/0006_pin.sql supabase/migrations/0061*.sql supabase/migrations/0087*.sql -> (di atas) / verifikasi_pin:
+
+$ grep -n "12 hours\|30 days\|8 hours\|v_berakhir" supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql | head
+472:    v_umur_interval := interval '12 hours';
+474:    v_umur_interval := interval '30 days';
+476:    v_umur_interval := interval '8 hours';
+478:    v_umur_interval := interval '12 hours';
+481:  v_berakhir := now() + v_umur_interval;
+
+$ sed -n "428,432p" docs/ROADMAP.md
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Akses Perangkat (ART-11); token terbit tetap sah sampai kedaluwarsa (batas Supabase) → mitigasi: pemeriksaan sesi di database tiap permintaan + token akses 15 menit.
+  - **Verifikasi:** uji SQL: sesi lewat umur → ditolak · dicabut → ditolak pada permintaan berikutnya · sesi akun nonaktif → ditolak · `session_id` ganda → ditolak. · **Bukti 2026-09-22:** `supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql` mengimplementasikan tabel `sesi_perangkat`, RPC `ikat_sesi_perangkat()` (umur 12 jam staf, 30 hari admin, 8 jam owner), `keluar_semua_perangkat()`, dan pemutusan seketika saat perangkat dicabut; dibuktikan di `supabase/tes/sesi_dan_perangkat.sql` & `alat/uji-mutasi-0030.py`.
+
+- [x] T1-26 — Migrasi 0014: percobaan masuk + kunci 5×/15 menit (akun) & 12×/15 menit (perangkat) ⚠️
+  - **Tujuan:** PIN tidak bisa ditebak walau dari perangkat terdaftar.
+
+-- lanjutan F-110: umur sesi & verifikasi_pin vs percobaan_masuk --
+$ sed -n "465,481p" supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql
+  if not (v_pengguna.peran::text = any(v_perangkat.peran_diizinkan)) then
+    return jsonb_build_object('berhasil', false, 'kode', 'PERAN_TIDAK_DIIZINKAN', 'pesan', 'Peran pengguna tidak diizinkan pada perangkat ini.');
+  end if;
+
+  -- 3. Tentukan batas umur sesi berdasarkan peran (T1-25 / KEAMANAN §7)
+  --    Staf: 12 jam; Admin/Owner: 30 hari; Pemilik Platform: 8 jam
+  if v_pengguna.peran in ('kasir', 'pelayan', 'dapur') then
+    v_umur_interval := interval '12 hours';
+  elsif v_pengguna.peran in ('admin_cabang', 'owner_pusat') then
+    v_umur_interval := interval '30 days';
+  elsif v_pengguna.peran = 'pemilik_platform' then
+    v_umur_interval := interval '8 hours';
+  else
+    v_umur_interval := interval '12 hours';
+  end if;
+
+  v_berakhir := now() + v_umur_interval;
+
+$ grep -rn "periksa_kunci_masuk" supabase/migrations/*.sql | head -8
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:599:create or replace function public.periksa_kunci_masuk(
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:653:comment on function public.periksa_kunci_masuk(uuid, uuid) is
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:656:revoke all on function public.periksa_kunci_masuk(uuid, uuid) from public;
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:657:grant execute on function public.periksa_kunci_masuk(uuid, uuid) to anon, authenticated, service_role;
+supabase/migrations/0059_catat_percobaan_masuk_tenant.sql:6:--     lintas penyewa tanpa batas dan periksa_kunci_masuk terbaca anon.
+supabase/migrations/0059_catat_percobaan_masuk_tenant.sql:10:-- 1. Cabut hak eksekusi anon dari catat_percobaan_masuk & periksa_kunci_masuk
+supabase/migrations/0059_catat_percobaan_masuk_tenant.sql:12:revoke execute on function public.periksa_kunci_masuk(uuid, uuid) from anon;
+supabase/migrations/0059_catat_percobaan_masuk_tenant.sql:73:-- 3. Perketat periksa_kunci_masuk: hanya pemanggil se-resto atau service_role
+
+$ grep -rn "function public.verifikasi_pin\b" supabase/migrations/*.sql
+supabase/migrations/0006_pin.sql:292:create or replace function public.verifikasi_pin(
+supabase/migrations/0006_pin.sql:383:comment on function public.verifikasi_pin(uuid, text, text, text) is
+supabase/migrations/0006_pin.sql:388:revoke all on function public.verifikasi_pin(uuid, text, text, text) from public;
+supabase/migrations/0006_pin.sql:391:grant execute on function public.verifikasi_pin(uuid, text, text, text) to authenticated, service_role;
+supabase/migrations/0011_peran_tunggal.sql:346:create or replace function public.verifikasi_pin(
+supabase/migrations/0011_peran_tunggal.sql:435:comment on function public.verifikasi_pin(uuid, text, text, text) is
+supabase/migrations/0011_peran_tunggal.sql:440:revoke all on function public.verifikasi_pin(uuid, text, text, text) from public;
+supabase/migrations/0011_peran_tunggal.sql:443:grant execute on function public.verifikasi_pin(uuid, text, text, text) to authenticated, service_role;
+supabase/migrations/0012_penutup_celah_review.sql:244:create or replace function public.verifikasi_pin(
+supabase/migrations/0012_penutup_celah_review.sql:341:comment on function public.verifikasi_pin(uuid, text, text, text, uuid) is
+supabase/migrations/0012_penutup_celah_review.sql:344:revoke all on function public.verifikasi_pin(uuid, text, text, text, uuid) from public;
+supabase/migrations/0012_penutup_celah_review.sql:345:grant execute on function public.verifikasi_pin(uuid, text, text, text, uuid) to authenticated, service_role;
+supabase/migrations/0016_penutup_celah_pin_putaran18.sql:27:create or replace function public.verifikasi_pin(
+supabase/migrations/0018_perangkat_terdaftar.sql:223:create or replace function public.verifikasi_pin(
+supabase/migrations/0018_perangkat_terdaftar.sql:347:comment on function public.verifikasi_pin(uuid, text, text, uuid, text, uuid) is
+supabase/migrations/0018_perangkat_terdaftar.sql:350:revoke all on function public.verifikasi_pin(uuid, text, text, uuid, text, uuid) from public;
+supabase/migrations/0018_perangkat_terdaftar.sql:351:grant execute on function public.verifikasi_pin(uuid, text, text, uuid, text, uuid) to authenticated, service_role;
+
+$ grep -rn "percobaan_masuk\|kunci_masuk\|gagal_berturut" supabase/migrations/0006_pin.sql | head -10
+
+$ sed -n "170,183p" supabase/tes/sesi_dan_perangkat.sql
+-- 7. Uji Pembatasan Percobaan Masuk (T1-26)
+-- ---------------------------------------------------------------------------
+-- Catat 5 kegagalan pada akun kasir via RPC
+select public.catat_percobaan_masuk('11111111-1111-1111-1111-111111111111', '90000000-0000-0000-0000-000000000004', null, false, 'PIN salah');
+select public.catat_percobaan_masuk('11111111-1111-1111-1111-111111111111', '90000000-0000-0000-0000-000000000004', null, false, 'PIN salah');
+select public.catat_percobaan_masuk('11111111-1111-1111-1111-111111111111', '90000000-0000-0000-0000-000000000004', null, false, 'PIN salah');
+select public.catat_percobaan_masuk('11111111-1111-1111-1111-111111111111', '90000000-0000-0000-0000-000000000004', null, false, 'PIN salah');
+select public.catat_percobaan_masuk('11111111-1111-1111-1111-111111111111', '90000000-0000-0000-0000-000000000004', null, false, 'PIN salah');
+
+select uji.sama(
+  (select (public.periksa_kunci_masuk('90000000-0000-0000-0000-000000000004', null)->>'terkunci')::boolean),
+  true,
+  'Akun kasir terkunci sementara setelah 5 kali percobaan gagal'
+);
+
+-- F-110 lanjutan: apakah verifikasi_pin menyentuh percobaan_masuk/periksa_kunci_masuk? --
+$ grep -rln "function public.verifikasi_pin(" supabase/migrations/ | sort
+supabase/migrations/0006_pin.sql
+supabase/migrations/0011_peran_tunggal.sql
+supabase/migrations/0012_penutup_celah_review.sql
+supabase/migrations/0016_penutup_celah_pin_putaran18.sql
+supabase/migrations/0018_perangkat_terdaftar.sql
+$ for f in $(grep -rln "function public.verifikasi_pin(" supabase/migrations/); do echo "== $f"; grep -c "percobaan_masuk\|periksa_kunci_masuk\|catat_percobaan" $f; done
+supabase/migrations/0006_pin.sql -> hit: 0
+supabase/migrations/0011_peran_tunggal.sql -> hit: 0
+supabase/migrations/0012_penutup_celah_review.sql -> hit: 0
+supabase/migrations/0016_penutup_celah_pin_putaran18.sql -> hit: 0
+supabase/migrations/0018_perangkat_terdaftar.sql -> hit: 0
+$ grep -rn "percobaan_masuk" supabase/migrations/0087_perbaiki_search_path_kripto_dan_rpc.sql | head -5
+$ grep -rn "periksa_kunci_masuk\|catat_percobaan_masuk" --include=*.ts --include=*.tsx aplikasi/src | head -5
+
+==================================================================
+F-112 — kontrak layar & registri aksi
+==================================================================
+jumlah entri aksi dengan blok uji: 56; jumlah nama uji: 64
+nama uji yang ADA di berkas *.test.*: 0 dari 64
+contoh 5 nama uji yang tidak ada: ['uji_masuk_pin_sah', 'uji_masuk_pin_salah', 'uji_navigasi_ganti_pegawai', 'uji_batal_masuk', 'uji_kasir_tambah_item']
+layar terdaftar di layar.ts: 0
+layar dengan naskahKosong/tidak ada di NASKAH_JALAN.md: []
+grep pelayan di layar.ts: 4 kemunculan 'pelayan'
+keadaan di layar.ts: ['kosong', 'memuat', 'gagal', 'konflik', 'kosong', 'memuat', 'gagal', 'gagal', 'kosong', 'kosong', 'memuat', 'gagal']
+[F-112a] entri aksi di aksi.ts: 57; nama uji terkumpul: 65; ada di *.test.*: 0
+        contoh 6 nama uji tak ditemukan: ['uji_masuk_pin_sah', 'uji_masuk_pin_salah', 'uji_navigasi_ganti_pegawai', 'uji_batal_masuk', 'uji_kasir_tambah_item', 'uji_kasir_kurang_item']
+[F-112b] layar di layar.ts: 12
+         masuk->W-2-01 (TIDAK-ADA: -)
+         kasir->W-3-01 (ADA: Kasir: Buka Shift Kasir & Saldo Awal Kas)
+         dapur->W-4-01 (ADA: Layar Dapur: Penerimaan Tiket & Mulai Memasak)
+         laporan->W-7-01 (TIDAK-ADA: -)
+         pengaturan->W-9-01 (TIDAK-ADA: -)
+         voucher->W-8-01 (ADA: Voucher: Pengecekan Kode & Klaim Diskon Transaksi)
+         pelanggan-publik->W-8-02 (TIDAK-ADA: -)
+         contoh->W-0-01 (ADA: Layar Bukti Contoh: Tema, Kerapatan, dan Komponen)
+         bar->W-4-02 (ADA: Layar Dapur: Siap Saji & Penanda Menu Habis)
+         stok->W-5-01 (ADA: Layar Laporan: Filter Penjualan & Ekspor Ringkasan)
+         opname->W-5-02 (TIDAK-ADA: -)
+         platform_penyewa->W-1-01 (ADA: Layar Masuk: Verifikasi PIN & Masuk Bertugas)
+        naskah TIDAK ADA: 5 dari 12; sisanya perlu dinilai 'salah layar' manual
+[F-112c] jumlah entri yang mengisi `konflik:` = 0 (interface punya konflik opsional)
+[F-112d] penyebutan 'pelayan' sebagai layar: tidak ada entri layar pelayan
+[F-112e] berkas layar .tsx di aplikasi/src/layar: 139 contoh: ['AlurKasirE2E.test.tsx', 'Bayar.test.tsx', 'Bayar.tsx', 'BukaKas.test.tsx', 'BukaKas.tsx', 'Cabang.test.tsx']
+
+==================================================================
+F-113 — i18n, font multi-aksara, bantuan kontekstual
+==================================================================
+$ sed -n "1,40p" aplikasi/alat/periksa-bahasa.py
+#!/usr/bin/env python3
+"""
+Skrip Pemeriksa Paritas Kamus Multi-Bahasa (T1-40)
+Memastikan semua berkas bahasa (en.ts, zh.ts, ar.ts) memiliki struktur kunci
+dan domain yang 100% identik dengan kamus acuan utama (id.ts).
+
+Termasuk pengujian mandiri fail-closed (--uji-diri).
+"""
+
+import os
+import re
+import sys
+from pathlib import Path
+
+DIR_BAHASA = Path(__file__).resolve().parent.parent / "src" / "bahasa"
+
+
+def ekstrak_kunci(konten: str) -> set[str]:
+    """Mengekstrak path kunci dari berkas kamus TypeScript sederhana."""
+    kunci = set()
+    stack = []
+    
+    for line in konten.splitlines():
+        line = line.strip()
+        if not line or line.startswith("//") or line.startswith("/*") or line.startswith("*") or line.startswith("import") or line.startswith("export"):
+            continue
+            
+        # Cocokkan pembuka objek seperti `umum: {` atau `navigasi: {`
+        m_obj = re.match(r"^([a-zA-Z0-9_]+)\s*:\s*\{", line)
+        if m_obj:
+            stack.append(m_obj.group(1))
+            continue
+            
+        # Cocokkan penutup objek `},` atau `}`
+        if line.startswith("}"):
+            if stack:
+                stack.pop()
+            continue
+            
+        # Cocokkan properti `kunci: 'nilai',` atau `kunci:` bila baris nilai terpisah
+
+[F-113a] berkas .tsx layar (non-tes): 68; TANPA useBahasa: 50
+          contoh: ['aplikasi/src/layar/dapur/KartuPesanan.tsx', 'aplikasi/src/layar/dapur/LayarBar.tsx', 'aplikasi/src/layar/dapur/LayarDapur.tsx', 'aplikasi/src/layar/dapur/Opname.tsx', 'aplikasi/src/layar/dapur/Stok.tsx']
+[F-113b] berkas font lokal: 31; contoh: ['LISENSI-ArsenalSC.txt', 'LISENSI-BigShoulders.txt', 'LISENSI-BricolageGrotesque.txt', 'LISENSI-CrimsonPro.txt']
+          ada nama CJK/Arab (Noto Sans SC/Arabic)? ['LISENSI-ArsenalSC.txt']
+[F-113c] aksi di registri: 57; aksi TANPA entri di bantuan.ts: 17; contoh: ['kasir.kas_pergerakan', 'pengaturan.simpan_kategori', 'pengaturan.hapus_kategori', 'pengaturan.simpan_menu', 'pengaturan.hapus_menu', 'pengaturan.simpan_menu_cabang']
+[F-113d] tampilkanOtomatisPertamaKali di bantuan.ts: []
+[F-113e] pemanggil tampilkanOtomatisPertamaKali: []
+
+-- F-113 lanjutan --
+$ ls aplikasi/src/gaya/aset/font/ | sort
+LISENSI-ArsenalSC.txt LISENSI-BigShoulders.txt LISENSI-BricolageGrotesque.txt LISENSI-CrimsonPro.txt LISENSI-Gloock.txt LISENSI-InstrumentSans.txt LISENSI-JetBrainsMono.txt LISENSI-Lora.txt LISENSI-NationalPark.txt LISENSI-Outfit.txt LISENSI-WorkSans.txt LISENSI-YoungSerif.txt arsenalsc-reguler.woff2 bigshoulders-tebal.woff2 bricolage-tebal.woff2 crimson-reguler.woff2 crimson-tebal.woff2 gloock.woff2 instrument-reguler.woff2 instrument-serif-miring.woff2 instrument-serif.woff2 instrument-tebal.woff2 lora-tebal.woff2 mono-reguler.woff2 nationalpark-tebal.woff2 outfit-reguler.woff2 outfit-tebal.woff2 worksans-miring.woff2 worksans-reguler.woff2 worksans-tebal.woff2 youngserif-reguler.woff2 
+jumlah .woff2: 19
+$ grep -rn "Noto\|Arabic\|CJK\|SC" aplikasi/src/gaya/arah.css | head -5
+11:    'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', 'Hiragino Sans GB', system-ui, sans-serif;
+13:    'Geeza Pro', 'Arabic Typesetting', 'Amiri', 'Tahoma', 'Noto Sans Arabic', system-ui, sans-serif;
+$ grep -rn "tampilkanOtomatisPertamaKali" aplikasi/src | head -10
+aplikasi/src/komponen/LembarBantuan.tsx:9:  tampilkanOtomatisPertamaKali?: boolean
+aplikasi/src/komponen/LembarBantuan.tsx:16:  tampilkanOtomatisPertamaKali = false,
+aplikasi/src/komponen/LembarBantuan.tsx:24:    if (tampilkanOtomatisPertamaKali) {
+aplikasi/src/komponen/LembarBantuan.tsx:34:  }, [idLayar, tampilkanOtomatisPertamaKali])
+$ grep -n "Bahasa\|t(" aplikasi/src/komponen/LembarBantuan.tsx | head -10
+5:import { useBahasa } from '../bahasa'
+18:  const { t } = useBahasa()
+
+==================================================================
+F-114 — periksa-roadmap.py hijau palsu & peta RPC
+==================================================================
+$ python3 alat/periksa-roadmap.py | tail -3
+  ❓ tertangguh : 2 rujukan (semua sah)
+
+HASIL: LOLOS — semua pemeriksaan roadmap terpenuhi.
+$ grep -n "DAFTAR_ART\|ART-1\b\|ART-10\|ART-11" alat/periksa-roadmap.py | head
+14:  5. Semua Area Berisiko Tinggi ART-1…ART-10 muncul bersama lambang ⚠️.
+55:ART = [f"ART-{i}" for i in range(1, 11)]
+$ grep -rn "printer\b" supabase/migrations/*.sql | wc -l ; antrean_kirim ; catatan_kesalahan
+printer: 1
+antrean_kirim: 0
+catatan_kesalahan: 0
+$ grep -rn "printer\|antrean_kirim\|catatan_kesalahan" docs/TECH_SPEC.md | head -6
+21:6. **Cetak struk:** printer termal tersambung ke perangkat kasir (Bluetooth/USB). Kalau printer bermasalah, selalu ada jalur cadangan: tiket dapur tetap di layar dan struk bisa ditampilkan/dibagikan.
+38:| **Cetak** | ESC/POS langsung dari browser: **Web Bluetooth** (Android/Windows) & **WebUSB**; jalur cadangan cetak PDF/bagikan | Sesuai keputusan K3 (printer tersambung perangkat + cadangan digital). **Ditolak:** printer jaringan sebagai jalur utama (bergantung Wi-Fi kedai). |
+84:        │  printer termal (Bluetooth/USB, dari perangkat kasir)        │
+93:4. Realtime mendorong pesanan ke **layar dapur**; bila printer aktif, perangkat kasir mengirim ESC/POS.
+117:      /printer/expos.ts         ← penyusun perintah ESC/POS (murni, diuji byte-level)
+118:      /printer/bluetooth.ts     ← Web Bluetooth (T6-02, belum ada)
+$ sed -n "20,36p" docs/ROADMAP.md
+| RPC (TECH_SPEC §5) | Dikerjakan di tugas |
+|---|---|
+| `buat_penyewa`, `set_status_penyewa`, `tambah_cabang` | T9-10, T9-09 |
+| `simpan_pengaturan`, `simpan_menu`, `simpan_meja`, `simpan_metode_bayar` | T9-01…T9-07, T9-11 |
+| `set_izin`, `simpan_pin`, `verifikasi_pin`, `ganti_pin` | T9-08, T1-06, T2-02 |
+| `simpan_pesanan`, `tambah_item`, `pindah_meja`, `kirim_ke_dapur` | T3-05, T3-06, T3-08 |
+| `set_status_item`, `tandai_habis` | T4-04, T4-05, T3-07 |
+| `bayar_pesanan`, `batal_pesanan`, `batal_item` | T5-02, T5-06, T5-07, T3-13 |
+| `buka_shift`, `tutup_shift`, `kas_pergerakan` | T7-01, T7-02, T7-03 |
+| `laporan_shift`, `laporan_harian` | T7-07…T7-12 |
+| `set_stok`, `opname_stok` | T4-06, T4-07 |
+| `katalog_publik` | T8-01 |
+| `cek_voucher`, `pakai_voucher`, `daftar_voucher` | T1-19, T1-20, T8-09 |
+| `set_akses_cabang` | T9-09 |
+| `keluar_semua_perangkat` | T10-06 |
+| `hitung_total` (fungsi, bukan RPC terpisah) | T1-15, T1-16 |
+
+
+==================================================================
+F-115 — README aplikasi & narasi tugas Fase 0
+==================================================================
+$ grep -n "T0-00\|T0-08\|T0-09" aplikasi/README.md | head
+49:| `npm run deploy`       | memasang ke Cloudflare Workers (butuh login Cloudflare; menunggu persetujuan Lee — T0-09) |
+76:### Menguji sambungan ke Supabase (T0-08)
+87:### Menyebarkan ke Cloudflare (T0-09, menunggu persetujuan Lee)
+$ sed -n "1,20p" aplikasi/README.md
+# Aplikasi Sajian (`aplikasi/`)
+
+Aplikasi kasir, dapur, laporan, dan pelanggan untuk kedai/resto. Satu aplikasi
+untuk semua perangkat (HP, tablet, komputer), warnanya bisa diganti pemilik
+tanpa koding (10 tema siap pakai).
+
+Berkas ini ditujukan untuk orang yang menjalankan/mengembangkan aplikasi
+(termasuk sesi AI berikutnya). Bahasa dokumen proyek ada di `../docs/`.
+
+## Prasyarat
+
+| Alat    | Versi yang dipakai & diuji | Catatan                                                 |
+| ------- | -------------------------- | ------------------------------------------------------- |
+| Node.js | 22.12+ (LTS 22)            | `node -v` — versi lebih rendah ditolak pustaka terkunci |
+| npm     | 10                         | ikut Node                                               |
+| Python  | 3.10+                      | hanya untuk pemeriksa otomatis                          |
+
+## Menjalankan di komputer sendiri
+
+```bash
+$ sed -n "126p;138p;185p" docs/ROADMAP.md
+  - **Progres 2026-09-19:** klien aman + alat uji sambung selesai — `aplikasi/src/lib/supabase.ts` (hanya dua nilai publik, tidak meledak bila pengaturan kosong) + `aplikasi/src/lib/supabase.test.ts` (10 kasus) + `aplikasi/alat/cek-supabase.mjs` (+`--uji-diri` 5 kasus). **Gerbang CI ke-50** menjal
+  - **Progres 2026-09-19 (SELESAI):** **halaman sudah naik & publik atas izin Lee ("Boleh naik")** — alamat <https://resto-barokah.fatrizmubarok.workers.dev>, bukti: run `35440300274` & `35440432817` hijau, pemeriksaan otomatis HTTP 200 (anotasi pada commit `705ed0f`), dicatat di `docs/ops/ALAMAT_
+  - **Verifikasi:** `python3 alat/periksa-panduan.py` LOLOS (12 alur · 4 blok prompt berlabel · 18 perintah berpenjelasan) · penjaga baru ini **terbukti menolak** saat bidang alur atau label prompt dihapus (uji coba dijalankan sebelum commit).
+$ grep -c "^  [a-z0-9_-]*:$" .github/workflows/ci.yml ; ls .github/workflows/
+3
+cadangan.yml
+ci.yml
+denyut-harian.yml
+sebar-halaman.yml
+sebar-skema.yml

@@ -15,6 +15,13 @@ Yang diperiksa:
   6. Semua tanda ❓ memakai ID yang benar-benar ada di docs/TERTANGGUH.md.
   7. Hal kecil (README, .env.example, favicon, error, memuat/kosong, a11y, responsif) & integrasi
      (Supabase, Google, Resend, Cloudflare, pg_cron) punya tugasnya.
+  8. JAMINAN TUNTAS K3 (keputusan Lee 2026-09-29, docs/uji/pemeriksaan/USULAN_JAMINAN_TUNTAS.md):
+     setiap tugas bercentang `[x]` WAJIB punya baris `- **Bukti:**` yang menunjuk ≥1 berkas uji/penjaga
+     yang ADA di repo (mis. `x.test.ts`, `supabase/tes/x.sql`, `alat/periksa-x.py`) ATAU baris Buku Uji
+     Pemilik `U-nn` yang kolom Hasil-nya sudah diisi Lee `OK`. Centang lama (sebelum aturan) boleh memakai
+     penanda transisi `⏳ BUKTI-BELUM` HANYA bila ID-nya terdaftar di BUKTI_BELUM_BASELINE.txt (daftar beku
+     yang hanya boleh MENYUSUT — diputuskan satu per satu oleh sensus klaim Tahap 2 PMB). Tugas yang memuat
+     `Dibuka kembali:` tidak boleh memakai penanda transisi: kalau dicentang lagi, buktinya harus nyata.
 """
 from __future__ import annotations
 
@@ -28,6 +35,109 @@ TERTANGGUH = ROOT / "docs" / "TERTANGGUH.md"
 
 ATRIBUT = ["**Tujuan:**", "**Ref:**", "**File:**", "**DoD", "**Kompleksitas:**",
            "**Risiko & mitigasi:**", "**Verifikasi:**"]
+
+# --- K3 Jaminan Tuntas: bukti pada centang [x] ---------------------------------------------------------
+BUKU_UJI = ROOT / "docs" / "uji" / "BUKU_UJI_PEMILIK.md"
+BASELINE_BUKTI_BELUM = ROOT / "docs" / "uji" / "pemeriksaan" / "PMB-1" / "BUKTI_BELUM_BASELINE.txt"
+PENANDA_TRANSISI = "⏳ BUKTI-BELUM"
+RE_BARIS_BUKTI = re.compile(r"^\s*- \*\*Bukti:\*\*(.*)$")
+RE_DIBUKA_KEMBALI = re.compile(r"\*\*Dibuka kembali:\*\*\s*(PMB1-F-\d{3})")
+# berkas yang dihitung sebagai BUKTI MESIN: uji komponen, uji SQL, penjaga/uji di alat/, validator sistem
+RE_BUKTI_MESIN = re.compile(
+    r"(?:\.test\.tsx?$)|(?:^supabase/tes/[^\s]+\.sql$)|(?:^alat/(?:uji|periksa|susun)[\w.-]*\.(?:py|mjs|sh)$)|"
+    r"(?:^aplikasi/alat/(?:uji|periksa)[\w.-]*\.(?:py|sh|mjs)$)|(?:^_sistem/validate_system\.py$)|(?:^prototipe/uji-[\w.-]+\.py$)"
+)
+RE_JALUR = re.compile(r"`([^`]+)`")
+RE_U = re.compile(r"\bU-(\d{2,3})\b")
+
+
+def baris_uji_lee_ok(teks_buku: str) -> set[str]:
+    """ID baris Buku Uji Pemilik (`U-nn`) yang kolom Hasil-nya diisi Lee `OK` (tanda tangan manusia)."""
+    ok: set[str] = set()
+    for baris in teks_buku.splitlines():
+        if not baris.startswith("| U-"):
+            continue
+        sel = [s.strip() for s in baris.strip().strip("|").split("|")]
+        if len(sel) >= 5 and re.match(r"^U-\d{2,3}$", sel[0]) and re.match(r"^OK\b", sel[4], re.I):
+            ok.add(sel[0])
+    return ok
+
+
+def jalur_bukti_mesin(teks: str, akar: Path) -> list[str]:
+    """Jalur ber-backtick dalam teks yang (a) berpola berkas uji/penjaga dan (b) benar-benar ada di repo."""
+    hasil: list[str] = []
+    for tok in RE_JALUR.findall(teks):
+        for kata in tok.split():
+            kata = kata.strip("'\",;()")
+            if "/" in kata and RE_BUKTI_MESIN.search(kata) and (akar / kata).is_file() and kata not in hasil:
+                hasil.append(kata)
+    return hasil
+
+
+def klasifikasi_bukti(tid: str, isi: str, akar: Path, u_ok: set[str], baseline: set[str]) -> tuple[str, str]:
+    """Nilai baris Bukti sebuah tugas [x] → (kelas, keterangan).
+
+    kelas: 'sah' | 'transisi' | 'tanpa-baris' | 'transisi-tak-sah' | 'kosong'
+    """
+    baris = [m.group(1).strip() for l in isi.splitlines() if (m := RE_BARIS_BUKTI.match(l))]
+    if not baris:
+        return "tanpa-baris", "tidak ada baris `- **Bukti:**`"
+    b = " ".join(baris)
+    if PENANDA_TRANSISI in b:
+        if RE_DIBUKA_KEMBALI.search(isi):
+            return "transisi-tak-sah", "tugas 'Dibuka kembali' tidak boleh memakai penanda transisi"
+        if tid not in baseline:
+            return "transisi-tak-sah", f"{tid} tidak terdaftar di {BASELINE_BUKTI_BELUM.name} (daftar beku, hanya boleh menyusut)"
+        return "transisi", ""
+    mesin = jalur_bukti_mesin(b, akar)
+    lee = sorted(u for u in {f"U-{n}" for n in RE_U.findall(b)} if u in u_ok)
+    if mesin or lee:
+        return "sah", ", ".join(mesin + lee)
+    return "kosong", "baris Bukti tidak menunjuk berkas uji/penjaga yang ada di repo maupun baris U-nn yang sudah Lee isi OK"
+
+
+def baca_baseline(akar: Path) -> set[str]:
+    p = akar / BASELINE_BUKTI_BELUM.relative_to(ROOT)
+    if not p.is_file():
+        return set()
+    return {l.split()[0] for l in p.read_text(encoding="utf-8").splitlines() if l.strip() and not l.startswith("#")}
+
+
+def baseline_membesar(akar: Path) -> list[str]:
+    """Daftar beku hanya boleh MENYUSUT: ID yang tidak ada di versi tercommit sebelumnya → ditolak."""
+    import subprocess
+    rel = str(BASELINE_BUKTI_BELUM.relative_to(ROOT))
+    try:
+        sama = subprocess.run(["git", "diff", "--quiet", "HEAD", "--", rel], cwd=akar, capture_output=True).returncode == 0
+        lama = subprocess.run(["git", "show", f"{'HEAD~1' if sama else 'HEAD'}:{rel}"], cwd=akar, capture_output=True, text=True)
+    except (OSError, ValueError):
+        return []
+    if lama.returncode != 0:
+        return []
+    ids_lama = {l.split()[0] for l in lama.stdout.splitlines() if l.strip() and not l.startswith("#")}
+    return sorted(baca_baseline(akar) - ids_lama)
+
+
+def periksa_bukti(teks: str, akar: Path, u_ok: set[str], baseline: set[str]) -> tuple[list[str], dict[str, int]]:
+    """K3: setiap tugas [x] wajib punya Bukti sah, atau penanda transisi yang terdaftar di baseline."""
+    gagal: list[str] = []
+    hitung = {"sah": 0, "transisi": 0, "cacat": 0, "dibuka_kembali_terbuka": 0}
+    for tid, isi in blok_tugas(teks, semua_status=True):
+        centang = isi.startswith("[x]")
+        badan = isi.split("\n", 1)[1] if "\n" in isi else ""
+        if not centang:
+            if RE_DIBUKA_KEMBALI.search(badan):
+                hitung["dibuka_kembali_terbuka"] += 1
+            continue
+        kelas, ket = klasifikasi_bukti(tid, badan, akar, u_ok, baseline)
+        if kelas == "sah":
+            hitung["sah"] += 1
+        elif kelas == "transisi":
+            hitung["transisi"] += 1
+        else:
+            hitung["cacat"] += 1
+            gagal.append(f"{tid}: centang [x] tanpa bukti sah — {ket}")
+    return gagal, hitung
 
 FITUR = [f"M{i}" for i in range(1, 13)]
 
@@ -62,16 +172,22 @@ INTEGRASI = {"Supabase": "Supabase", "Google": "Google", "Resend": "Resend",
              "Cloudflare": "Cloudflare", "pg_cron": "pg_cron"}
 
 
-def blok_tugas(teks: str) -> list[tuple[str, str]]:
-    """Pisahkan ROADMAP menjadi blok per tugas → [(id, isi_blok)]."""
+def blok_tugas(teks: str, semua_status: bool = False) -> list[tuple[str, str]]:
+    """Pisahkan ROADMAP menjadi blok per tugas → [(id, isi_blok)].
+
+    semua_status=True: baris pertama isi_blok diawali kotak centang (`[x] judul` / `[ ] judul`) dan ID fase
+    berhuruf (T1B-01) ikut dikenali — dipakai pemeriksa Bukti (K3) & penyusun DAFTAR_TUNGGU_LEE.
+    """
     hasil: list[tuple[str, str]] = []
     sekarang_id, sekarang_isi = None, []
+    pola = r"^- (\[[ x]\]) (T\d+[A-Z]?-\d+) — (.+)$" if semua_status else r"^- (\[[ x]\]) (T\d+-\d+) — (.+)$"
     for baris in teks.splitlines():
-        m = re.match(r"^- \[[ x]\] (T\d+-\d+) — (.+)$", baris)
+        m = re.match(pola, baris)
         if m:
             if sekarang_id:
                 hasil.append((sekarang_id, "\n".join(sekarang_isi)))
-            sekarang_id, sekarang_isi = m.group(1), [m.group(2)]
+            sekarang_id = m.group(2)
+            sekarang_isi = [f"{m.group(1)} {m.group(3)}"] if semua_status else [m.group(3)]
         elif sekarang_id is not None:
             if baris.startswith("## ") or baris.strip() == "---":
                 hasil.append((sekarang_id, "\n".join(sekarang_isi)))
@@ -186,6 +302,32 @@ def uji_diri() -> int:
     hasil.append(("file [x] hilang ditandai rencana sah", len(periksa_jalur_file(teks_uji_file_rencana, ROOT)) == 0, ""))
     hasil.append(("file [ ] belum selesai dilewati", len(periksa_jalur_file(teks_uji_file_belum, ROOT)) == 0, ""))
 
+    # Uji K3 Jaminan Tuntas: centang [x] wajib berbukti (keputusan Lee 2026-09-29)
+    u_ok = {"U-02"}
+    base = {"T98-05"}
+    def _k3(blok: str) -> tuple[list[str], dict[str, int]]:
+        return periksa_bukti(blok, ROOT, u_ok, base)
+    k3 = [
+        ("[x] tanpa baris Bukti ditolak", "- [x] T98-01 — a\n  - **Verifikasi:** uji manual\n", True),
+        ("[x] Bukti berkas uji nyata sah", "- [x] T98-02 — a\n  - **Bukti:** `alat/periksa-roadmap.py` --uji-diri hijau\n", False),
+        ("[x] Bukti berkas uji karangan ditolak", "- [x] T98-03 — a\n  - **Bukti:** `alat/uji-tidak-ada-999.py`\n", True),
+        ("[x] Bukti berkas bukan uji (kode aplikasi) ditolak", "- [x] T98-04 — a\n  - **Bukti:** `alat/periksa-roadmap.py.bak` `docs/ROADMAP.md`\n", True),
+        ("[x] transisi BUKTI-BELUM terdaftar baseline sah", "- [x] T98-05 — a\n  - **Bukti:** ⏳ BUKTI-BELUM — uji manual tanpa catatan\n", False),
+        ("[x] transisi BUKTI-BELUM di luar baseline ditolak", "- [x] T98-06 — a\n  - **Bukti:** ⏳ BUKTI-BELUM — coba-coba\n", True),
+        ("[x] Dibuka kembali + transisi ditolak", "- [x] T98-05 — a\n  - **Dibuka kembali:** PMB1-F-130 (2026-09-30)\n  - **Bukti:** ⏳ BUKTI-BELUM\n", True),
+        ("[x] Bukti U-nn yang Lee isi OK sah", "- [x] T98-07 — a\n  - **Bukti:** Buku Uji Pemilik U-02 (Lee: OK 2026-09-30)\n", False),
+        ("[x] Bukti U-nn belum diisi Lee ditolak", "- [x] T98-08 — a\n  - **Bukti:** Buku Uji Pemilik U-03\n", True),
+        ("[ ] tanpa Bukti dilewati", "- [ ] T98-09 — a\n  - **Verifikasi:** nanti\n", False),
+        ("ID fase berhuruf ikut diperiksa", "- [x] T1B-99 — a\n  - **Verifikasi:** uji manual\n", True),
+    ]
+    for nama, blok, ditolak in k3:
+        err, _ = _k3(blok)
+        hasil.append((nama, bool(err) == ditolak, "; ".join(err) or "bersih"))
+    _, hit = _k3("- [ ] T98-10 — a\n  - **Dibuka kembali:** PMB1-F-131 (2026-09-30) — bukti wajib: `supabase/tes/pindah_meja.sql`\n")
+    hasil.append(("tugas Dibuka kembali yang masih [ ] dihitung", hit["dibuka_kembali_terbuka"] == 1, str(hit)))
+    baris_ok = baris_uji_lee_ok("| ID | a | b | c | Hasil | Cat |\n| U-01 | x | y | z | OK 2026-09-30 | - |\n| U-02 | x | y | z |  | - |\n| U-03 | x | y | z | GAGAL | - |")
+    hasil.append(("pembaca tanda tangan Lee di Buku Uji (hanya OK)", baris_ok == {"U-01"}, str(baris_ok)))
+
     return laporkan("periksa-roadmap", hasil)
 
 
@@ -238,6 +380,14 @@ def main() -> int:
     if kesalahan_file:
         gagal.extend(kesalahan_file)
 
+    # K3 Jaminan Tuntas: centang [x] wajib berbukti
+    u_ok = baris_uji_lee_ok(BUKU_UJI.read_text(encoding="utf-8")) if BUKU_UJI.is_file() else set()
+    baseline = baca_baseline(ROOT)
+    gagal_bukti, hitung_bukti = periksa_bukti(teks, ROOT, u_ok, baseline)
+    gagal.extend(gagal_bukti)
+    for tid in baseline_membesar(ROOT):
+        gagal.append(f"BUKTI_BELUM_BASELINE.txt bertambah {tid} — daftar beku hanya boleh menyusut (sensus Tahap 2), bukan bertambah")
+
     for label, pola in HAL_KECIL.items():
         if pola not in teks:
             gagal.append(f"hal kecil terlewat: {label}")
@@ -258,6 +408,8 @@ def main() -> int:
     print(f"  Entitas §4   : {len(nama_entitas())} tabel resmi TECH_SPEC — semuanya wajib disebut di blok tugas")
     print(f"  RPC §5       : {len(nama_rpc())} nama resmi TECH_SPEC — semuanya wajib disebut di blok tugas")
     print(f"  ❓ tertangguh : {len(tanda_tanya)} rujukan" + (" (semua sah)" if tanda_tanya <= ids_tertangguh else " (ADA YANG MATI)"))
+    print(f"  Bukti [x]    : {hitung_bukti['sah']} sah · {hitung_bukti['transisi']} ⏳ BUKTI-BELUM (transisi, baseline {len(baseline)}) · "
+          f"{hitung_bukti['cacat']} cacat · tugas 'Dibuka kembali' masih [ ]: {hitung_bukti['dibuka_kembali_terbuka']}")
     if catatan:
         print("  Catatan      : " + "; ".join(catatan))
     if gagal:

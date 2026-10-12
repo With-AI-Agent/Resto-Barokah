@@ -1,0 +1,15 @@
+BUKTI KONKURENSI SESUDAH MIGRASI 0099 (B-F-03.5, 2026-10-04) — harness hakim H-F-03.7, 3 run
+Sebelum 0099 (reproduksi MERAH di sandbox ini): 'TERBUKTI: dua transaksi serentak melewati batas bawaan 3.' jumlah akhir 4.
+
+== run 1 ==
+respons konkuren: {'Race A': ('SUKSES', True)}
+jumlah akhir voucher kasir/kampanye: 3
+TIDAK TEREPRODUKSI: batas tidak terlampaui dalam run ini.
+== run 2 ==
+respons konkuren: {'Race A': ('SUKSES', True)}
+jumlah akhir voucher kasir/kampanye: 3
+TIDAK TEREPRODUKSI: batas tidak terlampaui dalam run ini.
+== run 3 ==
+respons konkuren: {'Race A': ('SUKSES', True)}
+jumlah akhir voucher kasir/kampanye: 3
+TIDAK TEREPRODUKSI: batas tidak terlampaui dalam run ini.

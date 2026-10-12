@@ -214,7 +214,7 @@ Diperiksa pada: {hasil['waktu_periksa']}
 ## 2. Kesimpulan K6 (Prinsip Nol Biaya Tanpa Jebakan)
 - **Status Operasional:** Keseluruhan metrik berada jauh di bawah ambang waspada 70%.
 - **Biaya Saat Ini:** **Rp 0 / bulan** (100% di dalam kuota paket gratis Cloudflare, Supabase, dan Brevo/Resend).
-- **Kesiapan Peringatan Otomatis:** Sistem peringatan 70% & 90% terpasang via Edge Function `peringatan_batas` dan alur kerja CI harian.
+- **Kesiapan Peringatan Otomatis:** peringatan 70% & 90% dipanggil OTOMATIS oleh alur kerja harian `.github/workflows/denyut-harian.yml` (langkah `eksekusi-peringatan-batas.mjs`, terpasang PMB1-F-076) yang memanggil Edge Function `peringatan_batas` — efektif setelah workflow dijalankan di GitHub oleh pemilik. Catatan jujur: angka pemakaian di Edge masih ESTIMASI; metrik nyata (Management API) pekerjaan lanjutan.
 """
 
 

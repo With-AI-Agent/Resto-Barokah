@@ -11,8 +11,8 @@
   # Lindungi privasi perujuk: kirim origin penuh hanya ke asal yang sama, origin saja ke HTTPS lain
   Referrer-Policy: strict-origin-when-cross-origin
 
-  # Batasi akses API peramban sensitif (kamera diizinkan untuk scan voucher kasir)
-  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
+  # Batasi akses API peramban sensitif (kamera: scan voucher kasir; usb & bluetooth: printer struk T6-03 — PMB1-F-119)
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=(self), bluetooth=(self)
 
   # Matikan audit XSS bawaan peramban kuno yang justru membuka celah keamanan
   X-XSS-Protection: 0

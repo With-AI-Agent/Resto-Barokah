@@ -1,0 +1,18 @@
+BUKTI REPRODUKSI MERAH PMB1-F-038 RONDE 3 (bagian A) — Pembangun B-F-03.3, 2026-10-02
+Pohon: 9ca8db754f99ef76286f0624665154d323152f24 + uji kasus 9-19, TANPA migrasi 0096
+
+$ node alat/uji-sql.mjs supabase/tes/voucher_kasir_wajib_identitas.sql
+        HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-038 r3: bentuk +62 (0)812… dari nomor yang sama ditolak). Perintah: select public.daftar_voucher(
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - supabase/tes/voucher_kasir_wajib_identitas.sql: HARAPAN TIDAK TERPENUHI: perintah tidak ditolak (F-038 r3: bentuk +62 (0)812… dari nomor yang sama ditolak). Perintah: select public.daftar_voucher(
+HASIL: GAGAL
+
+Probe HAKIM H-F-03.5 (konvensi: LULUS = celah hidup) TANPA 0096:
+$ node alat/uji-sql.mjs bukti/H-F-03.5-probe-varian-nomor.sql
+
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS

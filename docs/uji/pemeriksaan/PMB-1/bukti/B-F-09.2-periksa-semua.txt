@@ -1,0 +1,29 @@
+RANTAI §5 — HASIL AKHIR
+Tanggal: 2026-09-29
+
+Perintah wajib yang dijalankan sebelum aplikasi:
+- python3 alat/periksa-pemeriksaan.py → LOLOS (63 potongan, 215 temuan)
+- python3 alat/periksa-bersih.py → LOLOS (3079 berkas terlacak; 5 pemeriksa dokumen)
+- node alat/uji-sql.mjs → LOLOS (134 LULUS, 0 GAGAL)
+- python3 alat/uji-mutasi-0012.py → LOLOS (16/16 mutasi wajib terbukti MERAH; kontrol pulih hijau)
+- python3 alat/uji-mutasi-0014.py → LOLOS (17/17 mutasi wajib terbukti MERAH)
+
+`bash aplikasi/alat/periksa-semua.sh` → EXIT_CODE=1 (rantai penuh GAGAL pada penjaga terakhir; bukan status LOLOS).
+
+Bagian yang lulus sebelum penjaga terakhir:
+- Prettier format check; ESLint 0 galat (26 peringatan).
+- TypeScript typecheck.
+- Vitest: 127 berkas, 1034 uji lulus.
+- Uji mutasi perilaku aplikasi: 81/81 mutasi wajib membuat uji MERAH; kontrol utuh hijau.
+- Build produksi lokal berhasil; npm audit: 0 kerentanan.
+- Uji SQL: 134 lulus, 0 gagal; seluruh suite mutasi SQL/migrasi yang dijalankan melaporkan LOLOS.
+- Pemeriksa Python, periksa-roadmap, uji-diri paritas CI, dan periksa-panduan lulus.
+
+Kegagalan akhir: `PERIKSA SIAP-LANJUT` melaporkan 5 masalah handoff:
+1. `PROMPT_SESI_BARU.md` masih menunjuk `arena/01a0e747-resto-barokah`, bukan cabang sesi `arena/01a0ec99-resto-barokah`.
+2. `docs/ops/SIAP-LANJUT.md` tidak diperbarui pada komit terakhir.
+3. `PROJECT_STATE.md` tidak diperbarui pada komit terakhir.
+4. `STATUS.md` tidak diperbarui pada komit terakhir.
+5. SHA keadaan yang dicatat handoff (`9b6639e1`) tidak cocok dengan induk komit terakhir (`d1a77a2c`).
+
+Kelima hal itu berada di area handoff yang dilarang diubah PEMBANGUN. Karena itu tidak diperbaiki; rantai penuh tetap GAGAL. Uji mandiri SQL/mutasi, aplikasi, dan dua penjaga dokumen lulus, tetapi tidak menggantikan hasil akhir rantai penuh. Tidak ada kesimpulan tentang produksi.

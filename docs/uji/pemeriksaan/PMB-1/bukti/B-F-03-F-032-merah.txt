@@ -1,0 +1,1869 @@
+BUKTI MERAH PMB1-F-032 (2026-09-30) — uji kontrak jujur dijalankan pada kode LAMA: 6 gagal / 3 lulus.
+Layar lama menampilkan kartu voucher buatan klien tanpa RPC daftar_voucher (uji menuntut kode hanya dari peladen).
+Perintah: cd aplikasi && npx vitest run src/layar/voucher/Daftar.test.tsx
+---
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90m/home/user/Resto-Barokah/aplikasi[39m
+
+ [31m❯[39m src/layar/voucher/Daftar.test.tsx [2m([22m[2m9 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[33m 4403[2mms[22m[39m
+   [31m❯[39m Komponen Formulir Pendaftaran Voucher (Daftar.tsx — T8-06, kontrak peladen PMB1-F-032) [2m(9)[22m
+     [32m✓[39m merender kolom isian pendaftaran dan penawaran voucher promo[32m 70[2mms[22m[39m
+     [32m✓[39m menolak klaim jika nama belum diisi atau privasi belum disetujui[32m 111[2mms[22m[39m
+[31m     [31m×[31m Jalur 1 (Google): sukses masuk TIDAK menerbitkan kartu voucher — kode hanya dari peladen (PMB1-F-032)[39m[32m 54[2mms[22m[39m
+[31m     [31m×[31m Jalur 2 (Email): sukses kirim tautan TIDAK menerbitkan voucher — menunggu verifikasi dulu (PMB1-F-032)[39m[32m 88[2mms[22m[39m
+[31m     [31m×[31m klaim tunda diselesaikan lewat peladen: kartu voucher memakai kode PELADEN, klaim tunda dibersihkan (PMB1-F-032)[39m[33m 1014[2mms[22m[39m
+[31m     [31m×[31m voucher yang sudah diklaim sebelumnya: kode dari peladen tetap ditampilkan, klaim tunda dibersihkan[39m[33m 1014[2mms[22m[39m
+[31m     [31m×[31m belum terverifikasi (VERIFIKASI_WAJIB): tidak ada kartu voucher dan klaim tunda dipertahankan[39m[33m 1010[2mms[22m[39m
+[31m     [31m×[31m dapat menyalin kode voucher hasil peladen ke clipboard[39m[33m 1013[2mms[22m[39m
+     [32m✓[39m menolak klaim jika menggunakan email sekali-pakai (T8-07)[32m 27[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 6 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/layar/voucher/Daftar.test.tsx[2m > [22mKomponen Formulir Pendaftaran Voucher (Daftar.tsx — T8-06, kontrak peladen PMB1-F-032)[2m > [22mJalur 1 (Google): sukses masuk TIDAK menerbitkan kartu voucher — kode hanya dari peladen (PMB1-F-032)
+[31m[1mAssertionError[22m: expected <div …(3)>…(1)</div> to be null[39m
+
+[32m- Expected:[39m
+null
+
+[31m+ Received:[39m
+<div
+  class="layar-klaim-sukses"
+  data-testid="klaim-voucher-sukses"
+  style="max-width: 460px; margin: 0px auto; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-4);"
+>
+  <section
+    class="card"
+  >
+    <div
+      class="card-head"
+    >
+      <h3>
+        🎉 Selamat! Voucher Berhasil Diklaim
+      </h3>
+    </div>
+    <div
+      style="padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3); align-items: center; text-align: center;"
+    >
+      <p
+        style="font-size: var(--t-2); color: var(--text); margin: 0px;"
+      >
+        Terima kasih, 
+        <strong>
+          Budi Santoso
+        </strong>
+        ! Simpan atau salin kode voucher di bawah ini untuk digunakan saat memesan di resto.
+      </p>
+      <div
+        data-testid="kartu-voucher-terbit"
+        style="width: 100%;"
+      >
+        <div
+          class="kartu-voucher-wadah "
+          data-testid="kartu-voucher-lengkap"
+          style="max-width: 440px; margin: 0px auto; padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3);"
+        >
+          <div
+            class="kartu"
+            data-testid="tiket-voucher"
+            style="background: var(--surface); border: 2px solid var(--accent); border-radius: var(--radius-lg); box-shadow: var(--sh-2); overflow: hidden; display: flex; flex-direction: column;"
+          >
+            <div
+              style="background: var(--surface-2); padding: var(--s-3); border-bottom: 1px dashed var(--border); display: flex; justify-content: space-between; align-items: center;"
+            >
+              <div>
+                <div … />
+                <h3 … />
+              </div>
+              <div>
+                <span … />
+              </div>
+            </div>
+            <div
+              style="padding: var(--s-4); text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--s-2); background: var(--surface);"
+            >
+              <div
+                style="font-size: var(--t-2); color: var(--text-muted);"
+              >
+                Diberikan untuk: 
+                <strong … />
+              </div>
+              <div
+                data-testid="nilai-diskon-voucher"
+                style="font-size: var(--t-6); font-weight: 900; color: var(--accent); line-height: 1.1; margin-top: var(--s-1);"
+              >
+                Potongan Rp20.000
+              </div>
+              <div
+                style="font-size: var(--t-2); color: var(--text-muted); display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2);"
+              >
+                <span … />
+              </div>
+              <div
+                style="margin-top: var(--s-3); width: 100%; background: var(--surface-2); border: 2px dashed var(--accent); border-radius: var(--radius-md); padding: var(--s-3); display: flex; flex-direction: column; align-items: center; gap: var(--s-1);"
+              >
+                <span … />
+                <div … />
+              </div>
+              <div
+                data-testid="wadah-barcode-1d"
+                style="margin-top: var(--s-2); width: 100%; padding: var(--s-2); background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center;"
+              >
+                <div … />
+                <span … />
+              </div>
+              <div
+                style="margin-top: var(--s-2); width: 100%; display: flex; justify-content: center;"
+              >
+                <div … />
+              </div>
+              <div
+                data-testid="masa-berlaku-voucher"
+                style="margin-top: var(--s-2); font-size: var(--t-2); color: var(--text-muted); font-weight: 600;"
+              >
+                🗓️ Masa Berlaku: s.d. 
+                15 Okt 2026
+              </div>
+            </div>
+            <div
+              style="background: var(--surface-2); padding: var(--s-2) var(--s-3); border-top: 1px dashed var(--border); font-size: var(--t-1); color: var(--text-muted); text-align: center;"
+            >
+              ⚠️ Berlaku 1 kali per pelanggan. Tunjukkan tiket ini kepada kasir saat pembayaran.
+            </div>
+          </div>
+          <div
+            style="display: flex; flex-direction: column; gap: var(--s-2);"
+          >
+            <button
+              aria-label="Salin kode voucher"
+              class="btn btn-primary btn-lg"
+              type="button"
+            >
+              📋 Salin Kode Voucher
+            </button>
+            <div
+              style="display: flex; gap: var(--s-2);"
+            >
+              <button
+                aria-label="Cetak atau simpan tiket voucher"
+                class="btn btn-lg"
+                type="button"
+              >
+                🖨️ Cetak / Simpan Tiket
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        style="display: flex; flex-direction: column; gap: var(--s-2); width: 100%;"
+      >
+        <button
+          aria-label="Salin kode voucher pelanggan"
+          class="btn btn-primary btn-lg"
+          type="button"
+        >
+          📋 Salin Kode Voucher
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+[36m [2m❯[22m src/layar/voucher/Daftar.test.tsx:[2m112:58[22m[39m
+    [90m110|[39m     // Kode voucher TIDAK boleh dibuat di klien: kartu sukses TIDAK mu…
+    [90m111|[39m     // klaim disimpan sebagai tunda, dan pesan jujur meminta menunggu …
+    [90m112|[39m     expect(screen.queryByTestId('klaim-voucher-sukses')).toBeNull()
+    [90m   |[39m                                                          [31m^[39m
+    [90m113|[39m     expect(screen.queryByTestId('kartu-voucher-terbit')).toBeNull()
+    [90m114|[39m     expect(screen.getByTestId('menunggu-verifikasi').textContent).toCo…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/layar/voucher/Daftar.test.tsx[2m > [22mKomponen Formulir Pendaftaran Voucher (Daftar.tsx — T8-06, kontrak peladen PMB1-F-032)[2m > [22mJalur 2 (Email): sukses kirim tautan TIDAK menerbitkan voucher — menunggu verifikasi dulu (PMB1-F-032)
+[31m[1mAssertionError[22m: expected <div …(3)>…(1)</div> to be null[39m
+
+[32m- Expected:[39m
+null
+
+[31m+ Received:[39m
+<div
+  class="layar-klaim-sukses"
+  data-testid="klaim-voucher-sukses"
+  style="max-width: 460px; margin: 0px auto; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-4);"
+>
+  <section
+    class="card"
+  >
+    <div
+      class="card-head"
+    >
+      <h3>
+        🎉 Selamat! Voucher Berhasil Diklaim
+      </h3>
+    </div>
+    <div
+      style="padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3); align-items: center; text-align: center;"
+    >
+      <p
+        style="font-size: var(--t-2); color: var(--text); margin: 0px;"
+      >
+        Terima kasih, 
+        <strong>
+          Siti Rahma
+        </strong>
+        ! Simpan atau salin kode voucher di bawah ini untuk digunakan saat memesan di resto.
+      </p>
+      <div
+        data-testid="kartu-voucher-terbit"
+        style="width: 100%;"
+      >
+        <div
+          class="kartu-voucher-wadah "
+          data-testid="kartu-voucher-lengkap"
+          style="max-width: 440px; margin: 0px auto; padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3);"
+        >
+          <div
+            class="kartu"
+            data-testid="tiket-voucher"
+            style="background: var(--surface); border: 2px solid var(--accent); border-radius: var(--radius-lg); box-shadow: var(--sh-2); overflow: hidden; display: flex; flex-direction: column;"
+          >
+            <div
+              style="background: var(--surface-2); padding: var(--s-3); border-bottom: 1px dashed var(--border); display: flex; justify-content: space-between; align-items: center;"
+            >
+              <div>
+                <div … />
+                <h3 … />
+              </div>
+              <div>
+                <span … />
+              </div>
+            </div>
+            <div
+              style="padding: var(--s-4); text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--s-2); background: var(--surface);"
+            >
+              <div
+                style="font-size: var(--t-2); color: var(--text-muted);"
+              >
+                Diberikan untuk: 
+                <strong … />
+              </div>
+              <div
+                data-testid="nilai-diskon-voucher"
+                style="font-size: var(--t-6); font-weight: 900; color: var(--accent); line-height: 1.1; margin-top: var(--s-1);"
+              >
+                Potongan Rp20.000
+              </div>
+              <div
+                style="font-size: var(--t-2); color: var(--text-muted); display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2);"
+              >
+                <span … />
+              </div>
+              <div
+                style="margin-top: var(--s-3); width: 100%; background: var(--surface-2); border: 2px dashed var(--accent); border-radius: var(--radius-md); padding: var(--s-3); display: flex; flex-direction: column; align-items: center; gap: var(--s-1);"
+              >
+                <span … />
+                <div … />
+              </div>
+              <div
+                data-testid="wadah-barcode-1d"
+                style="margin-top: var(--s-2); width: 100%; padding: var(--s-2); background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center;"
+              >
+                <div … />
+                <span … />
+              </div>
+              <div
+                style="margin-top: var(--s-2); width: 100%; display: flex; justify-content: center;"
+              >
+                <div … />
+              </div>
+              <div
+                data-testid="masa-berlaku-voucher"
+                style="margin-top: var(--s-2); font-size: var(--t-2); color: var(--text-muted); font-weight: 600;"
+              >
+                🗓️ Masa Berlaku: s.d. 
+                15 Okt 2026
+              </div>
+            </div>
+            <div
+              style="background: var(--surface-2); padding: var(--s-2) var(--s-3); border-top: 1px dashed var(--border); font-size: var(--t-1); color: var(--text-muted); text-align: center;"
+            >
+              ⚠️ Berlaku 1 kali per pelanggan. Tunjukkan tiket ini kepada kasir saat pembayaran.
+            </div>
+          </div>
+          <div
+            style="display: flex; flex-direction: column; gap: var(--s-2);"
+          >
+            <button
+              aria-label="Salin kode voucher"
+              class="btn btn-primary btn-lg"
+              type="button"
+            >
+              📋 Salin Kode Voucher
+            </button>
+            <div
+              style="display: flex; gap: var(--s-2);"
+            >
+              <button
+                aria-label="Cetak atau simpan tiket voucher"
+                class="btn btn-lg"
+                type="button"
+              >
+                🖨️ Cetak / Simpan Tiket
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        style="display: flex; flex-direction: column; gap: var(--s-2); width: 100%;"
+      >
+        <button
+          aria-label="Salin kode voucher pelanggan"
+          class="btn btn-primary btn-lg"
+          type="button"
+        >
+          📋 Salin Kode Voucher
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+[36m [2m❯[22m src/layar/voucher/Daftar.test.tsx:[2m150:58[22m[39m
+    [90m148|[39m
+    [90m149|[39m     // Kartu voucher tidak boleh muncul sebelum peladen menerbitkan ko…
+    [90m150|[39m     expect(screen.queryByTestId('klaim-voucher-sukses')).toBeNull()
+    [90m   |[39m                                                          [31m^[39m
+    [90m151|[39m     expect(mockSukses).not.toHaveBeenCalled()
+    [90m152|[39m     const tunggu = screen.getByTestId('menunggu-verifikasi')
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/layar/voucher/Daftar.test.tsx[2m > [22mKomponen Formulir Pendaftaran Voucher (Daftar.tsx — T8-06, kontrak peladen PMB1-F-032)[2m > [22mklaim tunda diselesaikan lewat peladen: kartu voucher memakai kode PELADEN, klaim tunda dibersihkan (PMB1-F-032)
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element by: [data-testid="klaim-voucher-sukses"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"layar-daftar-voucher"[39m
+      [33mdata-testid[39m=[32m"form-daftar-voucher"[39m
+      [33mstyle[39m=[32m"max-width: 480px; margin: 0px auto; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-4);"[39m
+    [36m>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"card"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"card-head"[39m
+        [36m>[39m
+          [36m<h3>[39m
+            [0mKlaim Voucher: Promo Sambut Sahabat Baru[0m
+          [36m</h3>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mstyle[39m=[32m"padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3);"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"background: var(--surface-2); padding: var(--s-3); border-radius: var(--radius-md); border: 1px solid var(--border);"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"font-size: var(--t-3); font-weight: 800; color: var(--accent);"[39m
+            [36m>[39m
+              [0mPotongan Langsung Rp20.000[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); margin-top: var(--s-1);"[39m
+            [36m>[39m
+              [0mMin. belanja [0m
+              [0mRp50.000[0m
+              [0m • Berlaku s.d. [0m
+              [0m15 Okt 2026[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-3);"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"kolom-isian"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"label"[39m
+                [33mfor[39m=[32m"_r_i_"[39m
+              [36m>[39m
+                [0mNama Lengkap Anda[0m
+                [0m *[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33mclass[39m=[32m"input"[39m
+                [33mid[39m=[32m"_r_i_"[39m
+                [33mplaceholder[39m=[32m"Contoh: Rian Anggoro"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"text"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"kolom-isian"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"label"[39m
+                [33mfor[39m=[32m"_r_j_"[39m
+              [36m>[39m
+                [0mAlamat Email[0m
+                [0m *[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33maria-describedby[39m=[32m"_r_j_-keterangan"[39m
+                [33mclass[39m=[32m"input"[39m
+                [33mid[39m=[32m"_r_j_"[39m
+                [33mplaceholder[39m=[32m"nama@email.com"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"email"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"small muted"[39m
+                [33mid[39m=[32m"_r_j_-keterangan"[39m
+              [36m>[39m
+                [0mKode voucher akan dikirimkan ke email ini.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"kolom-isian"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"label"[39m
+                [33mfor[39m=[32m"_r_k_"[39m
+              [36m>[39m
+                [0mNomor WhatsApp / HP (Opsional)[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33maria-describedby[39m=[32m"_r_k_-keterangan"[39m
+                [33mclass[39m=[32m"input"[39m
+                [33mid[39m=[32m"_r_k_"[39m
+                [33mplaceholder[39m=[32m"081234567890"[39m
+                [33mtype[39m=[32m"tel"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"small muted"[39m
+                [33mid[39m=[32m"_r_k_-keterangan"[39m
+              [36m>[39m
+                [0mOpsional, untuk info promo spesial kedai.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"kolom-isian"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"label"[39m
+                [33mfor[39m=[32m"_r_l_"[39m
+              [36m>[39m
+                [0mAlamat / Kota Domisili (Opsional)[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33mclass[39m=[32m"input"[39m
+                [33mid[39m=[32m"_r_l_"[39m
+                [33mplaceholder[39m=[32m"Contoh: Bandung"[39m
+                [33mtype[39m=[32m"text"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; align-items: flex-start; gap: var(--s-2); padding-top: var(--s-1);"[39m
+            [36m>[39m
+              [36m<input[39m
+                [33mdata-testid[39m=[32m"centang-privasi-voucher"[39m
+                [33mid[39m=[32m"persetujuan-privasi-voucher"[39m
+                [33mstyle[39m=[32m"margin-top: var(--s-1); cursor: pointer; width: 18px; height: 18px;"[39m
+                [33mtype[39m=[32m"checkbox"[39m
+              [36m/>[39m
+              [36m<label[39m
+                [33mfor[39m=[32m"persetujuan-privasi-voucher"[39m
+                [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); cursor: pointer; line-height: 1.4;"[39m
+              [36m>[39m
+                [0mSaya menyetujui data nama dan kontak saya digunakan oleh[0m
+                [0m [0m
+                [36m<strong>[39m
+                  [0mResto Barokah[0m
+                [36m</strong>[39m
+                [0m untuk penerbitan voucher sesuai[0m
+                [0m [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-polos"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<u>[39m
+                    [0mKebijakan Privasi Resto[0m
+                  [36m</u>[39m
+                [36m</button>[39m
+                [0m. Data Anda aman dan tidak disebarluaskan.[0m
+              [36m</label>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-2); margin-top: var(--s-2);"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Klaim voucher cepat dengan Google"[39m
+              [33mclass[39m=[32m"btn btn-primary btn-lg"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m🚀 Klaim Cepat dengan Google[0m
+            [36m</button>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; align-items: center; margin: var(--s-1) 0; gap: var(--s-2);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+              [36m/>[39m
+              [36m<span[39m
+                [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted);"[39m
+              [36m>[39m
+                [0matau gunakan verifikasi email[0m
+              [36m</span>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Klaim voucher lewat email"[39m
+              [33mclass[39m=[32m"btn btn-lg"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m✉️ Kirim Kode ke Email[0m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"bantuan-kasir-info"[39m
+            [33mstyle[39m=[32m"margin-top: var(--s-2); padding: var(--s-2); background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: var(--t-1); color: var(--text-muted); text-align: center;"[39m
+          [36m>[39m
+            [0m💡 [0m
+            [36m<strong>[39m
+              [0mTidak memiliki email atau kesulitan verifikasi?[0m
+            [36m</strong>[39m
+            [0m Jangan khawatir, Anda dapat langsung meminta kasir kami untuk mendaftarkan voucher Anda saat berkunjung ke kedai.[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"layar-daftar-voucher"[39m
+        [33mdata-testid[39m=[32m"form-daftar-voucher"[39m
+        [33mstyle[39m=[32m"max-width: 480px; margin: 0px auto; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-4);"[39m
+      [36m>[39m
+        [36m<section[39m
+          [33mclass[39m=[32m"card"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"card-head"[39m
+          [36m>[39m
+            [36m<h3>[39m
+              [0mKlaim Voucher: Promo Sambut Sahabat Baru[0m
+            [36m</h3>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3);"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"background: var(--surface-2); padding: var(--s-3); border-radius: var(--radius-md); border: 1px solid var(--border);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"font-size: var(--t-3); font-weight: 800; color: var(--accent);"[39m
+              [36m>[39m
+                [0mPotongan Langsung Rp20.000[0m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); margin-top: var(--s-1);"[39m
+              [36m>[39m
+                [0mMin. belanja [0m
+                [0mRp50.000[0m
+                [0m • Berlaku s.d. [0m
+                [0m15 Okt 2026[0m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-3);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_i_"[39m
+                [36m>[39m
+                  [0mNama Lengkap Anda[0m
+                  [0m *[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_i_"[39m
+                  [33mplaceholder[39m=[32m"Contoh: Rian Anggoro"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"text"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_j_"[39m
+                [36m>[39m
+                  [0mAlamat Email[0m
+                  [0m *[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33maria-describedby[39m=[32m"_r_j_-keterangan"[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_j_"[39m
+                  [33mplaceholder[39m=[32m"nama@email.com"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"email"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"small muted"[39m
+                  [33mid[39m=[32m"_r_j_-keterangan"[39m
+                [36m>[39m
+                  [0mKode voucher akan dikirimkan ke email ini.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_k_"[39m
+                [36m>[39m
+                  [0mNomor WhatsApp / HP (Opsional)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33maria-describedby[39m=[32m"_r_k_-keterangan"[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_k_"[39m
+                  [33mplaceholder[39m=[32m"081234567890"[39m
+                  [33mtype[39m=[32m"tel"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"small muted"[39m
+                  [33mid[39m=[32m"_r_k_-keterangan"[39m
+                [36m>[39m
+                  [0mOpsional, untuk info promo spesial kedai.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_l_"[39m
+                [36m>[39m
+                  [0mAlamat / Kota Domisili (Opsional)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_l_"[39m
+                  [33mplaceholder[39m=[32m"Contoh: Bandung"[39m
+                  [33mtype[39m=[32m"text"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"display: flex; align-items: flex-start; gap: var(--s-2); padding-top: var(--s-1);"[39m
+              [36m>[39m
+                [36m<input[39m
+                  [33mdata-testid[39m=[32m"centang-privasi-voucher"[39m
+                  [33mid[39m=[32m"persetujuan-privasi-voucher"[39m
+                  [33mstyle[39m=[32m"margin-top: var(--s-1); cursor: pointer; width: 18px; height: 18px;"[39m
+                  [33mtype[39m=[32m"checkbox"[39m
+                [36m/>[39m
+                [36m<label[39m
+                  [33mfor[39m=[32m"persetujuan-privasi-voucher"[39m
+                  [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); cursor: pointer; line-height: 1.4;"[39m
+                [36m>[39m
+                  [0mSaya menyetujui data nama dan kontak saya digunakan oleh[0m
+                  [0m [0m
+                  [36m<strong>[39m
+                    [0mResto Barokah[0m
+                  [36m</strong>[39m
+                  [0m untuk penerbitan voucher sesuai[0m
+                  [0m [0m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"btn btn-polos"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [36m<u>[39m
+                      [0mKebijakan Privasi Resto[0m
+                    [36m</u>[39m
+                  [36m</button>[39m
+                  [0m. Data Anda aman dan tidak disebarluaskan.[0m
+                [36m</label>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-2); margin-top: var(--s-2);"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Klaim voucher cepat dengan Google"[39m
+                [33mclass[39m=[32m"btn btn-primary btn-lg"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m🚀 Klaim Cepat dengan Google[0m
+              [36m</button>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"display: flex; align-items: center; margin: var(--s-1) 0; gap: var(--s-2);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+                [36m/>[39m
+                [36m<span[39m
+                  [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted);"[39m
+                [36m>[39m
+                  [0matau gunakan verifikasi email[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Klaim voucher lewat email"[39m
+                [33mclass[39m=[32m"btn btn-lg"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m✉️ Kirim Kode ke Email[0m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mdata-testid[39m=[32m"bantuan-kasir-info"[39m
+              [33mstyle[39m=[32m"margin-top: var(--s-2); padding: var(--s-2); background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: var(--t-1); color: var(--text-muted); text-align: center;"[39m
+            [36m>[39m
+              [0m💡 [0m
+              [36m<strong>[39m
+                [0mTidak memiliki email atau kesulitan verifikasi?[0m
+              [36m</strong>[39m
+              [0m Jangan khawatir, Anda dapat langsung meminta kasir kami untuk mendaftarkan voucher Anda saat berkunjung ke kedai.[0m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+[90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2m❯[22m src/layar/voucher/Daftar.test.tsx:[2m182:11[22m[39m
+    [90m180|[39m     )
+    [90m181|[39m
+    [90m182|[39m     await waitFor(() => {
+    [90m   |[39m           [31m^[39m
+    [90m183|[39m       expect(screen.getByTestId('klaim-voucher-sukses')).toBeDefined()
+    [90m184|[39m       expect(screen.getByTestId('kartu-voucher-terbit')).toBeDefined()
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/layar/voucher/Daftar.test.tsx[2m > [22mKomponen Formulir Pendaftaran Voucher (Daftar.tsx — T8-06, kontrak peladen PMB1-F-032)[2m > [22mvoucher yang sudah diklaim sebelumnya: kode dari peladen tetap ditampilkan, klaim tunda dibersihkan
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element by: [data-testid="teks-kode-voucher"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"layar-daftar-voucher"[39m
+      [33mdata-testid[39m=[32m"form-daftar-voucher"[39m
+      [33mstyle[39m=[32m"max-width: 480px; margin: 0px auto; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-4);"[39m
+    [36m>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"card"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"card-head"[39m
+        [36m>[39m
+          [36m<h3>[39m
+            [0mKlaim Voucher: Promo Sambut Sahabat Baru[0m
+          [36m</h3>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mstyle[39m=[32m"padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3);"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"background: var(--surface-2); padding: var(--s-3); border-radius: var(--radius-md); border: 1px solid var(--border);"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"font-size: var(--t-3); font-weight: 800; color: var(--accent);"[39m
+            [36m>[39m
+              [0mPotongan Langsung Rp20.000[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); margin-top: var(--s-1);"[39m
+            [36m>[39m
+              [0mMin. belanja [0m
+              [0mRp50.000[0m
+              [0m • Berlaku s.d. [0m
+              [0m15 Okt 2026[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-3);"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"kolom-isian"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"label"[39m
+                [33mfor[39m=[32m"_r_m_"[39m
+              [36m>[39m
+                [0mNama Lengkap Anda[0m
+                [0m *[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33mclass[39m=[32m"input"[39m
+                [33mid[39m=[32m"_r_m_"[39m
+                [33mplaceholder[39m=[32m"Contoh: Rian Anggoro"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"text"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"kolom-isian"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"label"[39m
+                [33mfor[39m=[32m"_r_n_"[39m
+              [36m>[39m
+                [0mAlamat Email[0m
+                [0m *[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33maria-describedby[39m=[32m"_r_n_-keterangan"[39m
+                [33mclass[39m=[32m"input"[39m
+                [33mid[39m=[32m"_r_n_"[39m
+                [33mplaceholder[39m=[32m"nama@email.com"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"email"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"small muted"[39m
+                [33mid[39m=[32m"_r_n_-keterangan"[39m
+              [36m>[39m
+                [0mKode voucher akan dikirimkan ke email ini.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"kolom-isian"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"label"[39m
+                [33mfor[39m=[32m"_r_o_"[39m
+              [36m>[39m
+                [0mNomor WhatsApp / HP (Opsional)[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33maria-describedby[39m=[32m"_r_o_-keterangan"[39m
+                [33mclass[39m=[32m"input"[39m
+                [33mid[39m=[32m"_r_o_"[39m
+                [33mplaceholder[39m=[32m"081234567890"[39m
+                [33mtype[39m=[32m"tel"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"small muted"[39m
+                [33mid[39m=[32m"_r_o_-keterangan"[39m
+              [36m>[39m
+                [0mOpsional, untuk info promo spesial kedai.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"kolom-isian"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"label"[39m
+                [33mfor[39m=[32m"_r_p_"[39m
+              [36m>[39m
+                [0mAlamat / Kota Domisili (Opsional)[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33mclass[39m=[32m"input"[39m
+                [33mid[39m=[32m"_r_p_"[39m
+                [33mplaceholder[39m=[32m"Contoh: Bandung"[39m
+                [33mtype[39m=[32m"text"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; align-items: flex-start; gap: var(--s-2); padding-top: var(--s-1);"[39m
+            [36m>[39m
+              [36m<input[39m
+                [33mdata-testid[39m=[32m"centang-privasi-voucher"[39m
+                [33mid[39m=[32m"persetujuan-privasi-voucher"[39m
+                [33mstyle[39m=[32m"margin-top: var(--s-1); cursor: pointer; width: 18px; height: 18px;"[39m
+                [33mtype[39m=[32m"checkbox"[39m
+              [36m/>[39m
+              [36m<label[39m
+                [33mfor[39m=[32m"persetujuan-privasi-voucher"[39m
+                [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); cursor: pointer; line-height: 1.4;"[39m
+              [36m>[39m
+                [0mSaya menyetujui data nama dan kontak saya digunakan oleh[0m
+                [0m [0m
+                [36m<strong>[39m
+                  [0mResto Barokah[0m
+                [36m</strong>[39m
+                [0m untuk penerbitan voucher sesuai[0m
+                [0m [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-polos"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<u>[39m
+                    [0mKebijakan Privasi Resto[0m
+                  [36m</u>[39m
+                [36m</button>[39m
+                [0m. Data Anda aman dan tidak disebarluaskan.[0m
+              [36m</label>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-2); margin-top: var(--s-2);"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Klaim voucher cepat dengan Google"[39m
+              [33mclass[39m=[32m"btn btn-primary btn-lg"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m🚀 Klaim Cepat dengan Google[0m
+            [36m</button>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; align-items: center; margin: var(--s-1) 0; gap: var(--s-2);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+              [36m/>[39m
+              [36m<span[39m
+                [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted);"[39m
+              [36m>[39m
+                [0matau gunakan verifikasi email[0m
+              [36m</span>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Klaim voucher lewat email"[39m
+              [33mclass[39m=[32m"btn btn-lg"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m✉️ Kirim Kode ke Email[0m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"bantuan-kasir-info"[39m
+            [33mstyle[39m=[32m"margin-top: var(--s-2); padding: var(--s-2); background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: var(--t-1); color: var(--text-muted); text-align: center;"[39m
+          [36m>[39m
+            [0m💡 [0m
+            [36m<strong>[39m
+              [0mTidak memiliki email atau kesulitan verifikasi?[0m
+            [36m</strong>[39m
+            [0m Jangan khawatir, Anda dapat langsung meminta kasir kami untuk mendaftarkan voucher Anda saat berkunjung ke kedai.[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"layar-daftar-voucher"[39m
+        [33mdata-testid[39m=[32m"form-daftar-voucher"[39m
+        [33mstyle[39m=[32m"max-width: 480px; margin: 0px auto; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-4);"[39m
+      [36m>[39m
+        [36m<section[39m
+          [33mclass[39m=[32m"card"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"card-head"[39m
+          [36m>[39m
+            [36m<h3>[39m
+              [0mKlaim Voucher: Promo Sambut Sahabat Baru[0m
+            [36m</h3>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3);"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"background: var(--surface-2); padding: var(--s-3); border-radius: var(--radius-md); border: 1px solid var(--border);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"font-size: var(--t-3); font-weight: 800; color: var(--accent);"[39m
+              [36m>[39m
+                [0mPotongan Langsung Rp20.000[0m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); margin-top: var(--s-1);"[39m
+              [36m>[39m
+                [0mMin. belanja [0m
+                [0mRp50.000[0m
+                [0m • Berlaku s.d. [0m
+                [0m15 Okt 2026[0m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-3);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_m_"[39m
+                [36m>[39m
+                  [0mNama Lengkap Anda[0m
+                  [0m *[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_m_"[39m
+                  [33mplaceholder[39m=[32m"Contoh: Rian Anggoro"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"text"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_n_"[39m
+                [36m>[39m
+                  [0mAlamat Email[0m
+                  [0m *[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33maria-describedby[39m=[32m"_r_n_-keterangan"[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_n_"[39m
+                  [33mplaceholder[39m=[32m"nama@email.com"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"email"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"small muted"[39m
+                  [33mid[39m=[32m"_r_n_-keterangan"[39m
+                [36m>[39m
+                  [0mKode voucher akan dikirimkan ke email ini.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_o_"[39m
+                [36m>[39m
+                  [0mNomor WhatsApp / HP (Opsional)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33maria-describedby[39m=[32m"_r_o_-keterangan"[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_o_"[39m
+                  [33mplaceholder[39m=[32m"081234567890"[39m
+                  [33mtype[39m=[32m"tel"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"small muted"[39m
+                  [33mid[39m=[32m"_r_o_-keterangan"[39m
+                [36m>[39m
+                  [0mOpsional, untuk info promo spesial kedai.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_p_"[39m
+                [36m>[39m
+                  [0mAlamat / Kota Domisili (Opsional)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_p_"[39m
+                  [33mplaceholder[39m=[32m"Contoh: Bandung"[39m
+                  [33mtype[39m=[32m"text"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"display: flex; align-items: flex-start; gap: var(--s-2); padding-top: var(--s-1);"[39m
+              [36m>[39m
+                [36m<input[39m
+                  [33mdata-testid[39m=[32m"centang-privasi-voucher"[39m
+                  [33mid[39m=[32m"persetujuan-privasi-voucher"[39m
+                  [33mstyle[39m=[32m"margin-top: var(--s-1); cursor: pointer; width: 18px; height: 18px;"[39m
+                  [33mtype[39m=[32m"checkbox"[39m
+                [36m/>[39m
+                [36m<label[39m
+                  [33mfor[39m=[32m"persetujuan-privasi-voucher"[39m
+                  [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); cursor: pointer; line-height: 1.4;"[39m
+                [36m>[39m
+                  [0mSaya menyetujui data nama dan kontak saya digunakan oleh[0m
+                  [0m [0m
+                  [36m<strong>[39m
+                    [0mResto Barokah[0m
+                  [36m</strong>[39m
+                  [0m untuk penerbitan voucher sesuai[0m
+                  [0m [0m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"btn btn-polos"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [36m<u>[39m
+                      [0mKebijakan Privasi Resto[0m
+                    [36m</u>[39m
+                  [36m</button>[39m
+                  [0m. Data Anda aman dan tidak disebarluaskan.[0m
+                [36m</label>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-2); margin-top: var(--s-2);"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Klaim voucher cepat dengan Google"[39m
+                [33mclass[39m=[32m"btn btn-primary btn-lg"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m🚀 Klaim Cepat dengan Google[0m
+              [36m</button>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"display: flex; align-items: center; margin: var(--s-1) 0; gap: var(--s-2);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+                [36m/>[39m
+                [36m<span[39m
+                  [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted);"[39m
+                [36m>[39m
+                  [0matau gunakan verifikasi email[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Klaim voucher lewat email"[39m
+                [33mclass[39m=[32m"btn btn-lg"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m✉️ Kirim Kode ke Email[0m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mdata-testid[39m=[32m"bantuan-kasir-info"[39m
+              [33mstyle[39m=[32m"margin-top: var(--s-2); padding: var(--s-2); background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: var(--t-1); color: var(--text-muted); text-align: center;"[39m
+            [36m>[39m
+              [0m💡 [0m
+              [36m<strong>[39m
+                [0mTidak memiliki email atau kesulitan verifikasi?[0m
+              [36m</strong>[39m
+              [0m Jangan khawatir, Anda dapat langsung meminta kasir kami untuk mendaftarkan voucher Anda saat berkunjung ke kedai.[0m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+[90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2m❯[22m src/layar/voucher/Daftar.test.tsx:[2m220:11[22m[39m
+    [90m218|[39m     render(<Daftar kampanye={CONTOH_KAMPANYE} onKlaimPeladen={mockKlai…
+    [90m219|[39m
+    [90m220|[39m     await waitFor(() => {
+    [90m   |[39m           [31m^[39m
+    [90m221|[39m       expect(screen.getByTestId('teks-kode-voucher').textContent).toBe…
+    [90m222|[39m     })
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/layar/voucher/Daftar.test.tsx[2m > [22mKomponen Formulir Pendaftaran Voucher (Daftar.tsx — T8-06, kontrak peladen PMB1-F-032)[2m > [22mbelum terverifikasi (VERIFIKASI_WAJIB): tidak ada kartu voucher dan klaim tunda dipertahankan
+[31m[1mAssertionError[22m[39m: expected "vi.fn()" to be called 1 times, but got 0 times
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"layar-daftar-voucher"[39m
+        [33mdata-testid[39m=[32m"form-daftar-voucher"[39m
+        [33mstyle[39m=[32m"max-width: 480px; margin: 0px auto; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-4);"[39m
+      [36m>[39m
+        [36m<section[39m
+          [33mclass[39m=[32m"card"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"card-head"[39m
+          [36m>[39m
+            [36m<h3>[39m
+              [0mKlaim Voucher: Promo Sambut Sahabat Baru[0m
+            [36m</h3>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3);"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"background: var(--surface-2); padding: var(--s-3); border-radius: var(--radius-md); border: 1px solid var(--border);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"font-size: var(--t-3); font-weight: 800; color: var(--accent);"[39m
+              [36m>[39m
+                [0mPotongan Langsung Rp20.000[0m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); margin-top: var(--s-1);"[39m
+              [36m>[39m
+                [0mMin. belanja [0m
+                [0mRp50.000[0m
+                [0m • Berlaku s.d. [0m
+                [0m15 Okt 2026[0m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-3);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_q_"[39m
+                [36m>[39m
+                  [0mNama Lengkap Anda[0m
+                  [0m *[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_q_"[39m
+                  [33mplaceholder[39m=[32m"Contoh: Rian Anggoro"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"text"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_r_"[39m
+                [36m>[39m
+                  [0mAlamat Email[0m
+                  [0m *[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33maria-describedby[39m=[32m"_r_r_-keterangan"[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_r_"[39m
+                  [33mplaceholder[39m=[32m"nama@email.com"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"email"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"small muted"[39m
+                  [33mid[39m=[32m"_r_r_-keterangan"[39m
+                [36m>[39m
+                  [0mKode voucher akan dikirimkan ke email ini.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_s_"[39m
+                [36m>[39m
+                  [0mNomor WhatsApp / HP (Opsional)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33maria-describedby[39m=[32m"_r_s_-keterangan"[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_s_"[39m
+                  [33mplaceholder[39m=[32m"081234567890"[39m
+                  [33mtype[39m=[32m"tel"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"small muted"[39m
+                  [33mid[39m=[32m"_r_s_-keterangan"[39m
+                [36m>[39m
+                  [0mOpsional, untuk info promo spesial kedai.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_t_"[39m
+                [36m>[39m
+                  [0mAlamat / Kota Domisili (Opsional)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_t_"[39m
+                  [33mplaceholder[39m=[32m"Contoh: Bandung"[39m
+                  [33mtype[39m=[32m"text"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"display: flex; align-items: flex-start; gap: var(--s-2); padding-top: var(--s-1);"[39m
+              [36m>[39m
+                [36m<input[39m
+                  [33mdata-testid[39m=[32m"centang-privasi-voucher"[39m
+                  [33mid[39m=[32m"persetujuan-privasi-voucher"[39m
+                  [33mstyle[39m=[32m"margin-top: var(--s-1); cursor: pointer; width: 18px; height: 18px;"[39m
+                  [33mtype[39m=[32m"checkbox"[39m
+                [36m/>[39m
+                [36m<label[39m
+                  [33mfor[39m=[32m"persetujuan-privasi-voucher"[39m
+                  [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); cursor: pointer; line-height: 1.4;"[39m
+                [36m>[39m
+                  [0mSaya menyetujui data nama dan kontak saya digunakan oleh[0m
+                  [0m [0m
+                  [36m<strong>[39m
+                    [0mResto Barokah[0m
+                  [36m</strong>[39m
+                  [0m untuk penerbitan voucher sesuai[0m
+                  [0m [0m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"btn btn-polos"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [36m<u>[39m
+                      [0mKebijakan Privasi Resto[0m
+                    [36m</u>[39m
+                  [36m</button>[39m
+                  [0m. Data Anda aman dan tidak disebarluaskan.[0m
+                [36m</label>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-2); margin-top: var(--s-2);"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Klaim voucher cepat dengan Google"[39m
+                [33mclass[39m=[32m"btn btn-primary btn-lg"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m🚀 Klaim Cepat dengan Google[0m
+              [36m</button>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"display: flex; align-items: center; margin: var(--s-1) 0; gap: var(--s-2);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+                [36m/>[39m
+                [36m<span[39m
+                  [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted);"[39m
+                [36m>[39m
+                  [0matau gunakan verifikasi email[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Klaim voucher lewat email"[39m
+                [33mclass[39m=[32m"btn btn-lg"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m✉️ Kirim Kode ke Email[0m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mdata-testid[39m=[32m"bantuan-kasir-info"[39m
+              [33mstyle[39m=[32m"margin-top: var(--s-2); padding: var(--s-2); background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: var(--t-1); color: var(--text-muted); text-align: center;"[39m
+            [36m>[39m
+              [0m💡 [0m
+              [36m<strong>[39m
+                [0mTidak memiliki email atau kesulitan verifikasi?[0m
+              [36m</strong>[39m
+              [0m Jangan khawatir, Anda dapat langsung meminta kasir kami untuk mendaftarkan voucher Anda saat berkunjung ke kedai.[0m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+[36m [2m❯[22m src/layar/voucher/Daftar.test.tsx:[2m245:32[22m[39m
+    [90m243|[39m
+    [90m244|[39m     await waitFor(() => {
+    [90m245|[39m       expect(mockKlaimPeladen).toHaveBeenCalledTimes(1)
+    [90m   |[39m                                [31m^[39m
+    [90m246|[39m     })
+    [90m247|[39m     expect(screen.queryByTestId('klaim-voucher-sukses')).toBeNull()
+[90m [2m❯[22m runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:[2m47:12[22m[39m
+[90m [2m❯[22m checkCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m124:77[22m[39m
+[90m [2m❯[22m Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m118:16[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/layar/voucher/Daftar.test.tsx[2m > [22mKomponen Formulir Pendaftaran Voucher (Daftar.tsx — T8-06, kontrak peladen PMB1-F-032)[2m > [22mdapat menyalin kode voucher hasil peladen ke clipboard
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element by: [data-testid="klaim-voucher-sukses"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"layar-daftar-voucher"[39m
+      [33mdata-testid[39m=[32m"form-daftar-voucher"[39m
+      [33mstyle[39m=[32m"max-width: 480px; margin: 0px auto; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-4);"[39m
+    [36m>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"card"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"card-head"[39m
+        [36m>[39m
+          [36m<h3>[39m
+            [0mKlaim Voucher: Promo Sambut Sahabat Baru[0m
+          [36m</h3>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mstyle[39m=[32m"padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3);"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"background: var(--surface-2); padding: var(--s-3); border-radius: var(--radius-md); border: 1px solid var(--border);"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"font-size: var(--t-3); font-weight: 800; color: var(--accent);"[39m
+            [36m>[39m
+              [0mPotongan Langsung Rp20.000[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); margin-top: var(--s-1);"[39m
+            [36m>[39m
+              [0mMin. belanja [0m
+              [0mRp50.000[0m
+              [0m • Berlaku s.d. [0m
+              [0m15 Okt 2026[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-3);"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"kolom-isian"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"label"[39m
+                [33mfor[39m=[32m"_r_u_"[39m
+              [36m>[39m
+                [0mNama Lengkap Anda[0m
+                [0m *[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33mclass[39m=[32m"input"[39m
+                [33mid[39m=[32m"_r_u_"[39m
+                [33mplaceholder[39m=[32m"Contoh: Rian Anggoro"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"text"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"kolom-isian"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"label"[39m
+                [33mfor[39m=[32m"_r_v_"[39m
+              [36m>[39m
+                [0mAlamat Email[0m
+                [0m *[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33maria-describedby[39m=[32m"_r_v_-keterangan"[39m
+                [33mclass[39m=[32m"input"[39m
+                [33mid[39m=[32m"_r_v_"[39m
+                [33mplaceholder[39m=[32m"nama@email.com"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"email"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"small muted"[39m
+                [33mid[39m=[32m"_r_v_-keterangan"[39m
+              [36m>[39m
+                [0mKode voucher akan dikirimkan ke email ini.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"kolom-isian"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"label"[39m
+                [33mfor[39m=[32m"_r_10_"[39m
+              [36m>[39m
+                [0mNomor WhatsApp / HP (Opsional)[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33maria-describedby[39m=[32m"_r_10_-keterangan"[39m
+                [33mclass[39m=[32m"input"[39m
+                [33mid[39m=[32m"_r_10_"[39m
+                [33mplaceholder[39m=[32m"081234567890"[39m
+                [33mtype[39m=[32m"tel"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"small muted"[39m
+                [33mid[39m=[32m"_r_10_-keterangan"[39m
+              [36m>[39m
+                [0mOpsional, untuk info promo spesial kedai.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"kolom-isian"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"label"[39m
+                [33mfor[39m=[32m"_r_11_"[39m
+              [36m>[39m
+                [0mAlamat / Kota Domisili (Opsional)[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33mclass[39m=[32m"input"[39m
+                [33mid[39m=[32m"_r_11_"[39m
+                [33mplaceholder[39m=[32m"Contoh: Bandung"[39m
+                [33mtype[39m=[32m"text"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; align-items: flex-start; gap: var(--s-2); padding-top: var(--s-1);"[39m
+            [36m>[39m
+              [36m<input[39m
+                [33mdata-testid[39m=[32m"centang-privasi-voucher"[39m
+                [33mid[39m=[32m"persetujuan-privasi-voucher"[39m
+                [33mstyle[39m=[32m"margin-top: var(--s-1); cursor: pointer; width: 18px; height: 18px;"[39m
+                [33mtype[39m=[32m"checkbox"[39m
+              [36m/>[39m
+              [36m<label[39m
+                [33mfor[39m=[32m"persetujuan-privasi-voucher"[39m
+                [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); cursor: pointer; line-height: 1.4;"[39m
+              [36m>[39m
+                [0mSaya menyetujui data nama dan kontak saya digunakan oleh[0m
+                [0m [0m
+                [36m<strong>[39m
+                  [0mResto Barokah[0m
+                [36m</strong>[39m
+                [0m untuk penerbitan voucher sesuai[0m
+                [0m [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-polos"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<u>[39m
+                    [0mKebijakan Privasi Resto[0m
+                  [36m</u>[39m
+                [36m</button>[39m
+                [0m. Data Anda aman dan tidak disebarluaskan.[0m
+              [36m</label>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-2); margin-top: var(--s-2);"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Klaim voucher cepat dengan Google"[39m
+              [33mclass[39m=[32m"btn btn-primary btn-lg"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m🚀 Klaim Cepat dengan Google[0m
+            [36m</button>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; align-items: center; margin: var(--s-1) 0; gap: var(--s-2);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+              [36m/>[39m
+              [36m<span[39m
+                [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted);"[39m
+              [36m>[39m
+                [0matau gunakan verifikasi email[0m
+              [36m</span>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Klaim voucher lewat email"[39m
+              [33mclass[39m=[32m"btn btn-lg"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m✉️ Kirim Kode ke Email[0m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"bantuan-kasir-info"[39m
+            [33mstyle[39m=[32m"margin-top: var(--s-2); padding: var(--s-2); background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: var(--t-1); color: var(--text-muted); text-align: center;"[39m
+          [36m>[39m
+            [0m💡 [0m
+            [36m<strong>[39m
+              [0mTidak memiliki email atau kesulitan verifikasi?[0m
+            [36m</strong>[39m
+            [0m Jangan khawatir, Anda dapat langsung meminta kasir kami untuk mendaftarkan voucher Anda saat berkunjung ke kedai.[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"layar-daftar-voucher"[39m
+        [33mdata-testid[39m=[32m"form-daftar-voucher"[39m
+        [33mstyle[39m=[32m"max-width: 480px; margin: 0px auto; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-4);"[39m
+      [36m>[39m
+        [36m<section[39m
+          [33mclass[39m=[32m"card"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"card-head"[39m
+          [36m>[39m
+            [36m<h3>[39m
+              [0mKlaim Voucher: Promo Sambut Sahabat Baru[0m
+            [36m</h3>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3);"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"background: var(--surface-2); padding: var(--s-3); border-radius: var(--radius-md); border: 1px solid var(--border);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"font-size: var(--t-3); font-weight: 800; color: var(--accent);"[39m
+              [36m>[39m
+                [0mPotongan Langsung Rp20.000[0m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); margin-top: var(--s-1);"[39m
+              [36m>[39m
+                [0mMin. belanja [0m
+                [0mRp50.000[0m
+                [0m • Berlaku s.d. [0m
+                [0m15 Okt 2026[0m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-3);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_u_"[39m
+                [36m>[39m
+                  [0mNama Lengkap Anda[0m
+                  [0m *[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_u_"[39m
+                  [33mplaceholder[39m=[32m"Contoh: Rian Anggoro"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"text"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_v_"[39m
+                [36m>[39m
+                  [0mAlamat Email[0m
+                  [0m *[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33maria-describedby[39m=[32m"_r_v_-keterangan"[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_v_"[39m
+                  [33mplaceholder[39m=[32m"nama@email.com"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"email"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"small muted"[39m
+                  [33mid[39m=[32m"_r_v_-keterangan"[39m
+                [36m>[39m
+                  [0mKode voucher akan dikirimkan ke email ini.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_10_"[39m
+                [36m>[39m
+                  [0mNomor WhatsApp / HP (Opsional)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33maria-describedby[39m=[32m"_r_10_-keterangan"[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_10_"[39m
+                  [33mplaceholder[39m=[32m"081234567890"[39m
+                  [33mtype[39m=[32m"tel"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"small muted"[39m
+                  [33mid[39m=[32m"_r_10_-keterangan"[39m
+                [36m>[39m
+                  [0mOpsional, untuk info promo spesial kedai.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"kolom-isian"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"label"[39m
+                  [33mfor[39m=[32m"_r_11_"[39m
+                [36m>[39m
+                  [0mAlamat / Kota Domisili (Opsional)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"input"[39m
+                  [33mid[39m=[32m"_r_11_"[39m
+                  [33mplaceholder[39m=[32m"Contoh: Bandung"[39m
+                  [33mtype[39m=[32m"text"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"display: flex; align-items: flex-start; gap: var(--s-2); padding-top: var(--s-1);"[39m
+              [36m>[39m
+                [36m<input[39m
+                  [33mdata-testid[39m=[32m"centang-privasi-voucher"[39m
+                  [33mid[39m=[32m"persetujuan-privasi-voucher"[39m
+                  [33mstyle[39m=[32m"margin-top: var(--s-1); cursor: pointer; width: 18px; height: 18px;"[39m
+                  [33mtype[39m=[32m"checkbox"[39m
+                [36m/>[39m
+                [36m<label[39m
+                  [33mfor[39m=[32m"persetujuan-privasi-voucher"[39m
+                  [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted); cursor: pointer; line-height: 1.4;"[39m
+                [36m>[39m
+                  [0mSaya menyetujui data nama dan kontak saya digunakan oleh[0m
+                  [0m [0m
+                  [36m<strong>[39m
+                    [0mResto Barokah[0m
+                  [36m</strong>[39m
+                  [0m untuk penerbitan voucher sesuai[0m
+                  [0m [0m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"btn btn-polos"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [36m<u>[39m
+                      [0mKebijakan Privasi Resto[0m
+                    [36m</u>[39m
+                  [36m</button>[39m
+                  [0m. Data Anda aman dan tidak disebarluaskan.[0m
+                [36m</label>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; flex-direction: column; gap: var(--s-2); margin-top: var(--s-2);"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Klaim voucher cepat dengan Google"[39m
+                [33mclass[39m=[32m"btn btn-primary btn-lg"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m🚀 Klaim Cepat dengan Google[0m
+              [36m</button>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"display: flex; align-items: center; margin: var(--s-1) 0; gap: var(--s-2);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+                [36m/>[39m
+                [36m<span[39m
+                  [33mstyle[39m=[32m"font-size: var(--t-1); color: var(--text-muted);"[39m
+                [36m>[39m
+                  [0matau gunakan verifikasi email[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mstyle[39m=[32m"flex: 1 1 0%; border-top: 1px solid var(--border);"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Klaim voucher lewat email"[39m
+                [33mclass[39m=[32m"btn btn-lg"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m✉️ Kirim Kode ke Email[0m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mdata-testid[39m=[32m"bantuan-kasir-info"[39m
+              [33mstyle[39m=[32m"margin-top: var(--s-2); padding: var(--s-2); background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: var(--t-1); color: var(--text-muted); text-align: center;"[39m
+            [36m>[39m
+              [0m💡 [0m
+              [36m<strong>[39m
+                [0mTidak memiliki email atau kesulitan verifikasi?[0m
+              [36m</strong>[39m
+              [0m Jangan khawatir, Anda dapat langsung meminta kasir kami untuk mendaftarkan voucher Anda saat berkunjung ke kedai.[0m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+[90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2m❯[22m src/layar/voucher/Daftar.test.tsx:[2m268:11[22m[39m
+    [90m266|[39m     render(<Daftar kampanye={CONTOH_KAMPANYE} onKlaimPeladen={mockKlai…
+    [90m267|[39m
+    [90m268|[39m     await waitFor(() => {
+    [90m   |[39m           [31m^[39m
+    [90m269|[39m       expect(screen.getByTestId('klaim-voucher-sukses')).toBeDefined()
+    [90m270|[39m     })
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m6 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (9)[39m
+[2m   Start at [22m 02:47:23
+[2m   Duration [22m 5.25s[2m (tests 86%, environment 7%, transform 4%, import 3%)[22m
+

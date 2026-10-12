@@ -1,0 +1,270 @@
+… npm run format:check   [di aplikasi]
+   LOLOS (7 s)
+… npm run lint   [di aplikasi]
+   LOLOS (6 s)
+… npm run typecheck   [di aplikasi]
+   LOLOS (14 s)
+… npm test   [di aplikasi]
+   LOLOS (100 s)
+… node aplikasi/alat/uji-mutasi-app.mjs
+   LOLOS (200 s)
+… node aplikasi/alat/uji-mutasi-app.mjs --uji-diri
+   LOLOS (1 s)
+… npm run build   [di aplikasi]
+   LOLOS (16 s)
+… npm audit --audit-level=low   [di aplikasi]
+   LOLOS (0 s)
+… npm run cek:supabase   [di aplikasi]
+   JARINGAN (0 s)
+… node alat/uji-sql.mjs
+   LOLOS (7 s)
+… python3 alat/uji-mutasi-0012.py
+   LOLOS (78 s)
+… python3 alat/uji-mutasi-0014.py
+   LOLOS (89 s)
+… python3 alat/uji-mutasi-0015.py
+   LOLOS (111 s)
+… python3 alat/uji-mutasi-0016.py
+   LOLOS (71 s)
+… python3 alat/uji-mutasi-0017.py
+   LOLOS (40 s)
+… python3 alat/uji-mutasi-0018.py
+   LOLOS (33 s)
+… python3 alat/uji-mutasi-0019.py
+   LOLOS (12 s)
+… python3 alat/uji-mutasi-0041.py
+   LOLOS (14 s)
+… python3 alat/uji-mutasi-0042.py
+   LOLOS (10 s)
+… python3 alat/uji-mutasi-0043.py
+   LOLOS (10 s)
+… python3 alat/uji-mutasi-0045.py
+   LOLOS (14 s)
+… python3 alat/uji-mutasi-0046.py
+   LOLOS (14 s)
+… python3 alat/uji-mutasi-0047.py
+   LOLOS (14 s)
+… python3 alat/uji-mutasi-0048.py
+   LOLOS (14 s)
+… python3 alat/uji-mutasi-0049.py
+   LOLOS (13 s)
+… python3 alat/uji-mutasi-0050.py
+   LOLOS (15 s)
+… python3 alat/uji-mutasi-0051.py
+   LOLOS (15 s)
+… python3 alat/uji-mutasi-0052.py
+   LOLOS (13 s)
+… python3 alat/uji-mutasi-0053.py
+   LOLOS (14 s)
+… python3 alat/uji-mutasi-0054.py
+   LOLOS (14 s)
+… python3 alat/uji-mutasi-0009.py
+   LOLOS (12 s)
+… python3 alat/uji-mutasi-0021.py
+   LOLOS (8 s)
+… python3 alat/uji-mutasi-0022.py
+   LOLOS (25 s)
+… python3 alat/uji-mutasi-0024.py
+   LOLOS (11 s)
+… python3 alat/uji-mutasi-0025.py
+   LOLOS (7 s)
+… python3 alat/uji-mutasi-0028.py
+   LOLOS (19 s)
+… python3 alat/uji-mutasi-0029.py
+   LOLOS (18 s)
+… python3 alat/uji-mutasi-0030.py
+   LOLOS (9 s)
+… python3 alat/uji-mutasi-0031.py
+   LOLOS (9 s)
+… python3 alat/uji-mutasi-0032.py
+   LOLOS (15 s)
+… python3 alat/uji-mutasi-0033.py
+   LOLOS (6 s)
+… python3 alat/uji-mutasi-0035.py
+   LOLOS (7 s)
+… python3 alat/uji-mutasi-0036.py
+   LOLOS (7 s)
+… python3 alat/uji-mutasi-0037.py
+   LOLOS (7 s)
+… python3 alat/uji-mutasi-0038.py
+   LOLOS (7 s)
+… python3 alat/uji-mutasi-0039.py
+   LOLOS (13 s)
+… python3 alat/uji-mutasi-0040.py
+   LOLOS (9 s)
+… python3 -m pip install --quiet --break-system-packages pgserver "psycopg[binary]"
+   LOLOS (2 s)
+… python3 alat/uji-konkuren.py
+   LOLOS (20 s)
+… python3 alat/uji-konkuren.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/uji-konkuren-0022.py
+   LOLOS (14 s)
+… python3 alat/uji-konkuren-a04.py
+   LOLOS (11 s)
+… python3 alat/periksa-keamanan-sql.py
+   LOLOS (2 s)
+… python3 alat/periksa-keamanan-sql.py --uji-diri
+   LOLOS (32 s)
+… python3 alat/periksa-maraton.py
+   LOLOS (0 s)
+… python3 alat/periksa-maraton.py --uji-diri
+   LOLOS (0 s)
+… node alat/uji-edge-pin.mjs
+   LOLOS (0 s)
+… node alat/uji-edge-verifikasi-pelanggan.mjs
+   LOLOS (0 s)
+… node alat/uji-edge-akhiri-sesi.mjs
+   LOLOS (0 s)
+… python3 _sistem/validate_system.py
+   LOLOS (0 s)
+… python3 alat/periksa-fungsi-pin.py
+   LOLOS (0 s)
+… python3 alat/periksa-roadmap.py
+   LOLOS (0 s)
+… python3 alat/periksa-roadmap.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/periksa-fondasi-independen.py
+   LOLOS (0 s)
+… python3 alat/audit-independen.py --uji-diri
+   LOLOS (2 s)
+… python3 alat/ci_target.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/periksa-paritas-ci.py
+   LOLOS (0 s)
+… python3 alat/periksa-paritas-ci.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/siapkan-pemeriksaan.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/uji-kirim-laporan.py
+   LOLOS (3 s)
+… python3 alat/periksa-panduan.py
+   LOLOS (0 s)
+… python3 alat/periksa-panduan.py --uji-diri
+   LOLOS (5 s)
+… python3 alat/periksa-rujukan.py
+   LOLOS (0 s)
+… python3 alat/periksa-rujukan.py --uji-diri
+   LOLOS (2 s)
+… python3 alat/periksa-temuan-audit.py
+   LOLOS (0 s)
+… python3 alat/periksa-temuan-audit.py --uji-diri
+   LOLOS (2 s)
+… python3 alat/periksa-buku-uji.py
+   LOLOS (0 s)
+… python3 alat/periksa-buku-uji.py --uji-diri
+   LOLOS (1 s)
+… python3 alat/periksa-pemeriksaan.py
+   LOLOS (0 s)
+… python3 alat/periksa-pemeriksaan.py --uji-diri
+   LOLOS (8 s)
+… python3 alat/susun-matriks-telusur.py --periksa
+   LOLOS (0 s)
+… python3 alat/susun-matriks-telusur.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/susun-daftar-tunggu-lee.py --periksa
+   LOLOS (0 s)
+… python3 alat/susun-daftar-tunggu-lee.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/tambah-uji.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/peta-ui.py
+   LOLOS (0 s)
+… python3 alat/peta-ui.py --uji-diri
+   LOLOS (0 s)
+… python3 aplikasi/alat/periksa-bahasa.py
+   LOLOS (0 s)
+… python3 aplikasi/alat/periksa-bahasa.py --uji-diri
+   LOLOS (0 s)
+… python3 aplikasi/alat/periksa-arah.py
+   LOLOS (0 s)
+… python3 aplikasi/alat/periksa-arah.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/periksa-bantuan.py
+   LOLOS (0 s)
+… python3 alat/periksa-bantuan.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/periksa-audit.py
+   LOLOS (0 s)
+… python3 alat/periksa-audit.py --uji-diri
+   LOLOS (1 s)
+… python3 alat/periksa-matriks-izin.py
+   LOLOS (2 s)
+… python3 alat/periksa-matriks-izin.py --uji-diri
+   LOLOS (4 s)
+… python3 alat/review-pr.py --uji-diri
+   LOLOS (0 s)
+… python3 aplikasi/alat/periksa-kerapatan.py
+   LOLOS (0 s)
+… python3 aplikasi/alat/periksa-kerapatan.py --uji-diri
+   LOLOS (3 s)
+… python3 aplikasi/alat/periksa-antarmuka.py
+   LOLOS (0 s)
+… python3 aplikasi/alat/periksa-antarmuka.py --uji-diri
+   LOLOS (2 s)
+… python3 alat/periksa-rahasia.py
+   LOLOS (3 s)
+… python3 alat/periksa-rahasia.py --uji-diri
+   LOLOS (38 s)
+… python3 alat/periksa-header.py
+   LOLOS (0 s)
+… python3 alat/periksa-header.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/periksa-bersih.py
+   LOLOS (5 s)
+… python3 alat/periksa-gerbang-ci.py
+   LOLOS (0 s)
+… python3 alat/periksa-kunci-kalibrasi.py
+   LOLOS (0 s)
+… python3 alat/periksa-kunci-kalibrasi.py --uji-diri
+   LOLOS (4 s)
+… python3 alat/periksa-paket.py
+   LOLOS (11 s)
+… python3 alat/periksa-paket.py --uji-diri
+   LOLOS (14 s)
+… python3 alat/lanjut-sesi.py --di-ci
+   LOLOS (0 s)
+… python3 alat/lanjut-sesi.py --uji-diri
+   LOLOS (2 s)
+… python3 alat/mulai-sesi.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/periksa-angka-bukti.py
+   LOLOS (0 s)
+… python3 alat/periksa-angka-bukti.py --uji-diri
+   LOLOS (0 s)
+… python3 alat/periksa-migrasi-beku.py
+   LOLOS (0 s)
+… python3 alat/periksa-migrasi-beku.py --uji-diri
+   LOLOS (0 s)
+… node aplikasi/alat/catat-alamat.mjs --uji-diri
+   LOLOS (0 s)
+… python3 alat/periksa-gerbang-ci.py --uji-diri
+   LOLOS (2 s)
+… python3 alat/periksa-bersih.py --uji-diri
+   LOLOS (19 s)
+… python3 aplikasi/alat/periksa-struktur.py
+   LOLOS (0 s)
+… python3 aplikasi/alat/periksa-node.py
+   LOLOS (0 s)
+… python3 aplikasi/alat/periksa-node.py --uji-diri
+   LOLOS (2 s)
+… python3 aplikasi/alat/periksa-komponen-env.py --uji-diri
+   LOLOS (2 s)
+… python3 aplikasi/alat/periksa-uji.py
+   LOLOS (0 s)
+… python3 aplikasi/alat/periksa-uji.py --uji-diri
+   LOLOS (1 s)
+… python3 aplikasi/alat/uji-kontras.py
+   LOLOS (0 s)
+… python3 aplikasi/alat/uji-kontras.py --uji-diri
+   LOLOS (1 s)
+
+RINGKASAN RANTAI PENUH: 129 LOLOS · 0 GAGAL · 1 tak terbukti (tanpa internet) · 4 dilewati
+  ? tak terbukti (butuh internet; CI GitHub yang memutuskan) — Cek sambungan Supabase (kunci publik saja — tugas T0-08): npm run cek:supabase
+  · dilewati — (langkah GitHub Actions: checkout/setup)
+  · dilewati — (langkah GitHub Actions: checkout/setup)
+  · dilewati — npm ci (node_modules sudah ada; --pasang untuk memaksa)
+  · dilewati — npm ci --prefix alat (node_modules sudah ada; --pasang untuk memaksa)
+RANTAI: LOLOS
+log lengkap: /tmp/H-F-02.2-rantai.txt
+SELESAI

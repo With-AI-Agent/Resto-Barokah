@@ -1,0 +1,755 @@
+
+$ sed -n '139,204p;241p;255p;263,278p;286p;308,310p;317,323p' docs/PRD.md
+### M7. Kas & shift (buka/tutup kasir)
+- **Cerita:** Sebagai **Kasir**, saya ingin membuka dan menutup kas dengan jelas, supaya saya tidak pernah dituduh selisih.
+- **Kriteria selesai:**
+  - Buka kas: masukkan **modal awal**.
+  - Tutup kas: sistem menghitung uang **seharusnya** (modal + penerimaan tunai − pengeluaran tunai) lalu kasir memasukkan **hasil hitung fisik**.
+  - Bila ada selisih → **wajib mengisi alasan**; nilainya tercatat di laporan untuk owner.
+  - Aturan shift & transaksi: sistem mendukung penegakan transaksi hanya dalam shift kasir terbuka (melalui setelan `wajib_shift` di pengaturan cabang; bawaan `false`/fleksibel untuk kemudahan adopsi kedai pemula, dan dapat diwajibkan penuh oleh owner resto sesuai SOP kedai via pemicu database).
+- **Kasus tepi:** dua kasir dalam satu shift (satu kas, dicatat siapa yang membuka/menutup) · shift tidak ditutup sampai besok (sistem mengingatkan) · kasir lupa modal awal (bisa dikoreksi dengan izin atasan, tercatat).
+
+### M8. Laporan harian per shift
+- **Cerita:** Sebagai **Owner**, saya ingin membuka satu layar dan langsung tahu kondisi hari ini, supaya saya bisa memutuskan tanpa menghitung manual.
+- **Kriteria selesai laporan berisi:** omzet (makanan/minuman/lainnya) · jumlah transaksi · rincian metode bayar · menu terlaris · diskon & voucher terpakai · **daftar pembatalan** (siapa, nilai, alasan) · kas awal, uang masuk, seharusnya, hasil hitung, **selisih** · nama kasir & jam shift · bisa dilihat per cabang sesuai peran.
+- **Kasus tepi:** transaksi lewat tengah malam (masuk tanggal transaksi, bukan tanggal tutup kas) · koreksi setelah shift ditutup (dicatat sebagai koreksi, tidak menghapus data lama) · laporan dicetak/disimpan (cetak = fase 2; di MVP tampil di layar).
+
+### M9. Stok dasar
+- **Cerita:** Sebagai **Kasir/Dapur**, saya ingin menandai menu yang habis dan mencatat stok sederhana, supaya pelanggan tidak memesan yang sudah habis dan owner tahu persediaan.
+- **Kriteria selesai:** tombol menu habis (kasir & dapur) mengunci menu di kasir + katalog · pencatatan stok sederhana per bahan · opname berkala (isi jumlah nyata, sistem menunjukkan selisih) · riwayat perubahan stok.
+- **Kasus tepi:** menu habis lalu tersedia lagi (dibuka manual) · stok dikoreksi (tercatat siapa & kapan) · bahan tanpa catatan stok tetap boleh (opsional per bahan).
+- **Catatan:** resep otomatis (stok berkurang sendiri tiap penjualan) = **fase 2**, sesuai kesepakatan.
+
+### M10. Katalog pelanggan & voucher undang-teman
+- **Cerita (katalog):** Sebagai **Calon Pelanggan**, saya ingin melihat menu lewat tautan di HP, supaya saya tahu apa yang dijual sebelum datang.
+- **Kriteria selesai (katalog):** halaman publik per resto (nama, logo, warna, banner) · daftar menu berkategori + foto + harga · jam buka & lokasi/kontak · menu habis **otomatis tidak tampil/tertutup** · tampil rapi di HP.
+- **Cerita (voucher):** Sebagai **Calon Pelanggan**, saya ingin menerima undangan, mendaftar, lalu mendapat barcode diskon, supaya saya punya alasan datang ke kedai.
+- **Kriteria selesai (voucher):**
+  - **Alur:** tautan kampanye → halaman pendaftaran → isi nama, alamat (opsional), nomor HP/email → verifikasi (**utamanya "Daftar dengan Google"**; jalur kedua email terverifikasi) → **barcode/kode voucher** muncul → pergi ke kedai → kasir **Cek** lalu **Pakai**.
+  - **Tanpa PIN pelanggan** (T-023, keputusan Lee 2026-09-21). Identitas pelanggan memakai Google Sign-In (utama) atau email terverifikasi (kedua); penghapusan ini **tidak** menghapus PIN pegawai/persetujuan saat kasir memakai voucher. Kanal email tetap gerbang T-022/T2-04 sebelum jalur email dibuka.
+  - **Aturan voucher diatur admin:** persen/nominal, minimum belanja, **batas maksimal potongan**, masa berlaku, kuota per kampanye, **anggaran kampanye**, per cabang/berlaku di mana.
+  - **Cek Voucher (baca saja)** tidak mengubah status; **Pakai Voucher** sekali pakai + **wajib PIN** kasir/atasan dan tercatat.
+  - Kasir bisa **scan lewat kamera** atau **mengetik kode manual**.
+  - Balasan jelas ke kasir: berhasil (dengan rincian potongan) / gagal (dengan sebab: sudah dipakai, kedaluwarsa, minimum belanja belum terpenuhi, tidak berlaku di cabang ini).
+- **Pengaman anti-kecurangan (10):** satu voucher per identitas per kampanye · batas voucher per outlet per hari · wajib belanja minimum + batas maksimal potongan + anggaran kampanye · sekali pakai · kode acak tidak berurutan · log semua percobaan cek/scan · batas percobaan per perangkat · tolak email sekali-pakai · normalisasi alamat Gmail (titik & tanda +) · laporan anomali klaim (fase 2).
+- **Kasus tepi:** voucher sudah kedaluwarsa (pesan jelas ke kasir, bukan error) · pelanggan tidak punya email & tidak mau Google (bisa didaftarkan kasir atas izin pelanggan — dicatat siapa yang mendaftarkan) · internet di kedai mati saat memakai voucher (dicatat manual lalu dimasukkan setelah online — **tidak menggandakan** pemakaian).
+
+### M11. Multi-cabang (dasar)
+- **Cerita:** Sebagai **Owner**, saya ingin menyiapkan cabang kedua kapan saja tanpa mengubah sistem, supaya pertumbuhan tidak terhambat.
+- **Kriteria selesai:** tambah cabang · tiap cabang punya nama/alamat & printer sendiri · laporan per cabang + gabungan untuk owner · admin cabang hanya melihat cabangnya · **harga & menu boleh berbeda per cabang** (diatur, tidak wajib).
+- **Kasus tepi:** pegawai merangkap dua cabang (izin per cabang) · cabang ditutup sementara (dinonaktifkan, data lama tetap ada).
+
+### M12. Keamanan fondasi (lintas fitur) — **diperdalam 2026-09-17**
+> **Rujukan resmi: `docs/KEAMANAN.md`.** Bagian ini adalah janji ke pemilik; aturan teknisnya ada di sana.
+- **Cerita:** Sebagai **Pemilik semua pihak**, saya ingin yakin data & uang aman dari kesalahan maupun kecurangan — termasuk bila perangkat hilang atau pegawai berhenti — supaya platform layak dipercaya.
+- **Kriteria selesai:**
+  - Data terisolasi antar-penyewa dan antar-cabang; diuji **otomatis untuk setiap peran × tabel × tindakan**, bukan sekadar dua akun contoh.
+  - **Satu akun = satu peran.** Satu orang dengan dua fungsi punya **dua akun** (PIN berbeda); izin (centang) tetap boleh berbeda per pegawai.
+  - **Bagian staf hanya bisa dibuka dari perangkat terdaftar**: perangkat didaftarkan admin/owner lewat kode sekali pakai, dan pegawai baru yang pertama memakai perangkat itu **harus disetujui pemilik**. Perangkat menyimpan identitas rahasianya; "Tablet Kasir" tidak bisa dipakai masuk sebagai owner.
+  - **Masuk cepat:** kasir/pelayan/dapur = pilih nama + **PIN 6 digit** (hanya sah di perangkat terdaftar). Admin/owner/pemilik platform = kata sandi ≥12 karakter + **kunci kedua (TOTP/authenticator)** yang **wajib**.
+  - **Perangkat hilang/dicuri:** owner menekan "Cabut perangkat" → akses mati **seketika** (bukan menunggu kedaluwarsa); bisa menandai "hilang", mengakhiri sesi, dan melihat perangkat terakhir aktif.
+  - **Sesi:** token pendek (15 menit), umur maksimum sesi (staf 12 jam · admin/owner 30 hari · pemilik platform 8 jam), **kunci otomatis saat menganggur** (15–60 menit sesuai peran) + tombol "Kunci sekarang"; percobaan masuk dibatasi (5×/15 menit per akun, 12×/15 menit per perangkat) dan semuanya tercatat.
+  - **PIN:** unik antar pegawai, dilarang pola lemah, disimpan ter-hash, tidak pernah ditulis di log, dipakai juga untuk menyetujui tindakan sensitif (void setelah dapur, diskon di atas batas, pakai voucher).
+  - **Jejak audit tidak bisa diakali:** hanya-tambah **dan** berantai hash — perubahan/penghapusan langsung di database bisa dideteksi dan ditunjuk barisnya.
+  - **Ringkasan peringatan harian ke owner** (1 email/hari): omzet, void, diskon, selisih kas, percobaan masuk gagal, perubahan perangkat.
+  - **Privasi pelanggan (UU PDP):** persetujuan eksplisit, data seminimal mungkin, hak akses/hapus (anonimisasi tanpa menghapus catatan keuangan), dan pemberitahuan kebocoran ≤3×24 jam.
+  - **Pemilik platform tidak melihat isi data penyewa** kecuali lewat "mode dukungan" (beralasan, berbatas waktu, hanya-baca, tercatat, owner penyewa diberitahu).
+  - **Tidak ada data keuangan yang bisa dihapus permanen**; koreksi selalu pencatatan baru.
+- **Kasus tepi:** PIN dilihat/dibagikan orang lain (PIN unik + batas percobaan + laporan "siapa menyetujui apa") · perangkat hilang (cabut + ganti PIN) · pegawai berhenti (nonaktif = sesi & perangkat dicabut seketika) · HP admin hilang (MFA direset atasan dengan langkah terdokumentasi) · internet kedai mati saat perangkat terkunci (prosedur catat manual sementara di Buku Insiden) · percobaan masuk berulang (dibatasi + dicatat) · pegawai pindah cabang (daftar cabang akun diubah, tercatat).
+
+---
+
+## 5. Fitur Fase 2 & Fase 3
+
+### Fase 2 (Should Have) — setelah pilot terbukti dan metrik sukses tercapai
+QR pesan sendiri (pelanggan pesan dari HP) · split bill & gabung meja · poin loyalitas & keanggotaan digital · notifikasi meja kotor → bersih (staf kebersihan) · pelanggan melacak status pesanan · struk digital via email · ekspor laporan ke Excel/CSV · promosi terjadwal + segmentasi pelanggan · reservasi meja & daftar tunggu (notifikasi di aplikasi) · **resep sederhana** (stok berkurang otomatis) · tombol "pasang ke layar HP" · **alur permintaan izin jarak jauh** (pegawai minta → owner setuju dari jauh) · refund resmi · laporan anomali voucher · cetak laporan.
+
+### Fase 3 (Could Have) — setelah ada pemasukan
+Mode offline · integrasi pembayaran otomatis (QRIS dinamis/e-wallet) · integrasi resmi ojol · tingkatan loyalitas (tier) · analitik lanjutan + ukur hasil kampanye · stok lanjutan (konversi satuan, susut, kedaluwarsa, transfer antar cabang, penerimaan barang/PO) · laba-rugi sederhana + pencatatan pengeluaran · penagihan langganan penyewa · HR ringan (absensi sederhana, jadwal shift, rekap gaji) · menu engineering/HPP · pengantaran internal (catat kurir + setoran) · pesan-antar sendiri + bayar di meja.
+12. Kasir memproses pembayaran → pajak/service/diskon dihitung otomatis → struk dicetak → nomor HP pelanggan diminta **bila pelanggan mau**.
+22. Pemilik Platform melihat daftar penyewa aktif (dashboard penyewa = fase 2; di MVP cukup daftar & status).
+3. **Nomor HP pelanggan opsional** — hanya bila pelanggan mau poin/voucher.
+4. **Kas per shift**: buka dengan modal awal; tutup dengan hitung fisik; **selisih wajib beralasan**.
+5. **Menu habis** mengunci menu di kasir **dan** katalog pelanggan; pembukaan kembali dilakukan manual (kasir/dapur).
+6. **Voucher**: sekali pakai · kode acak · minimum belanja · batas maksimal potongan · kuota & anggaran kampanye · satu voucher per identitas per kampanye · **Cek** tidak menghanguskan, **Pakai** butuh PIN.
+7. **Pembatalan (void) bertingkat, hanya sebelum pembayaran pertama** (termasuk pembayaran sebagian; sesudahnya terkunci sesuai T-025(a)): sebelum dapur mulai = kasir boleh (wajib alasan, tercatat); setelah dapur mulai = **PIN atasan** + alasan + dicatat sebagai **kerugian/bahan terbuang** bernilai rupiah di laporan. Refund resmi = fase 2.
+8. **Semua tindakan sensitif tercatat** (jejak audit): void, diskon manual, ubah harga, buka laci tanpa transaksi, pakai voucher, perubahan pengaturan penting.
+9. **Isolasi data**: antar-penyewa dan antar-cabang; Admin Cabang hanya cabangnya; Owner hanya restonya; Pemilik Platform melihat daftar penyewa (bukan isi transaksi mereka, kecuali diizinkan/diperlukan untuk dukungan).
+10. **Harga & laporan historis tidak berubah** bila harga/pengaturan diubah kemudian — transaksi lama tetap seperti saat terjadi.
+11. **Tidak ada penghapusan permanen** data transaksi oleh pengguna; koreksi = pencatatan baru (koreksi) yang tercatat.
+12. **Zona waktu & mata uang** per penyewa (bawaan: Waktu Indonesia Barat, Rupiah).
+13. **Fitur baru hanya rilis setelah diuji**; fitur yang belum teruji tidak ditampilkan ke pengguna (prinsip "tidak ada yang cacat").
+14. **Satu akun = satu peran.** Satu orang dengan dua fungsi memakai dua akun dengan PIN berbeda; izin (centang) boleh berbeda per pegawai.
+15. **Bagian staf hanya bisa dibuka dari perangkat terdaftar**; pegawai baru yang pertama memakai perangkat harus disetujui pemilik. Perangkat hilang/dicuri → akses dicabut **seketika** (berlaku pada permintaan berikutnya) dan wajib dicatat.
+16. **Kunci kedua (TOTP) wajib untuk Pemilik Platform, Owner Pusat, dan Admin Cabang**; kasir/pelayan/dapur sudah dua lapis (perangkat + PIN).
+17. **Setiap tombol/aksi di aplikasi wajib terdaftar dan diuji** (Registri Aksi + pemeriksa otomatis); tidak ada tombol tanpa fungsi, tidak ada layar tanpa penanganan keadaan kosong/memuat/gagal/tanpa-akses.
+18. **Data pelanggan diproses dengan persetujuan & minimalisasi** (UU PDP): data boleh dianonimkan atas permintaan, tetapi catatan keuangan tidak dihapus.
+| 1 | **Cetak struk & tiket dapur dari aplikasi browser** (Bluetooth/USB/LAN) | Kasir & dapur tidak bisa mencetak — menghambat pilot | Uji cetak **lebih awal** di Kedai Oasis sebelum fitur lain dianggap selesai; sediakan mode "tampilkan & cetak ulang"; bila gagal, ada jalur alternatif yang disepakati |
+7. **Kebijakan privasi & persetujuan data pelanggan** — sejak 2026-09-17 menjadi bagian **Fase 1B** (`docs/KEAMANAN.md` §11): agent menulis draf berbahasa Indonesia + kalimat persetujuan di halaman voucher; pemilik meninjau **sebelum data pelanggan pertama masuk** (butir tertangguh T-011).
+8. **Keputusan mode offline untuk penyewa selain Kedai Oasis** — fase 3, dikaji saat ada calon penyewa dengan internet lemah.
+9. **Region proyek Supabase** (usul: Singapore) — diputuskan pemilik saat T0-08; menentukan lokasi data pelanggan & dasar transfer (T-014).
+| Tanggal | Pembaruan | Oleh |
+|---|---|---|
+| 2026-09-16 | Dokumen dibuat (DRAF) dari Tahap 1 Discovery yang disetujui + pemilahan MoSCoW (2 giliran PRD: batas MVP, peran 6, voucher & katalog masuk MVP, alur campur, pajak configurable, hak akses berjenjang + approval, void bertingkat, diskon configurable, metrik sukses) | Agent |
+| 2026-09-16 | **Dokumen DISETUJUI & dikunci oleh pemilik** ("Mari lanjut") → lanjut ke sesi Desain & UI lalu Tahap 3 Tech Spec | Pemilik + Agent |
+| 2026-09-17 | **M12 diperdalam** atas permintaan pemilik (pesan ke-14): satu akun satu peran · perangkat terdaftar (kode pendaftaran + persetujuan pemilik) · masuk staf = perangkat + PIN 6 digit · TOTP wajib untuk Pemilik Platform/Owner/Admin Cabang + jalan pemulihan · kunci otomatis & batas umur sesi · pencabutan seketika · ringkasan peringatan harian · audit berantai · privasi UU PDP · mode dukungan · **Aturan Bisnis 14–18 baru** · risiko #9–#11 baru | Pemilik (permintaan) + Agent (rancangan & riset; rincian di `docs/KEAMANAN.md`) |
+
+| 2026-09-21 | **T-023 dilaksanakan:** hapus pembuatan/pemulihan PIN pelanggan di M10 dan alur 17; Google/email tetap, PIN pegawai/persetujuan tidak berubah. **T-025(a) diselaraskan:** M6 dan aturan 7 melarang ubah/void sesudah pembayaran pertama; hapus janji void terselubung sesudah bayar | Lee (setuju-semua); penegak 0022, bukti di `docs/uji/BUKTI_T025_BEKU_SETELAH_BAYAR.md` |
+exit=0
+
+$ sed -n '71,124p' aplikasi/src/layar/voucher/Daftar.tsx; sed -n '231,254p' aplikasi/src/lib/auth.ts; sed -n '477,485p' aplikasi/src/App.tsx
+  const buatKodeVoucherAcak = () => {
+    const kar = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'
+    let p1 = ''
+    let p2 = ''
+    for (let i = 0; i < 4; i++) {
+      p1 += kar.charAt(Math.floor(Math.random() * kar.length))
+      p2 += kar.charAt(Math.floor(Math.random() * kar.length))
+    }
+    return `RB-${p1}-${p2}`
+  }
+
+  const validasiDasar = () => {
+    if (!nama.trim()) {
+      setPesanGalat('Nama lengkap wajib diisi.')
+      return false
+    }
+    if (!setujuPrivasi) {
+      setPesanGalat('Mohon centang persetujuan kebijakan privasi data pelanggan.')
+      return false
+    }
+    return true
+  }
+
+  const tanganiKlaimGoogle = async () => {
+    setPesanGalat(null)
+    if (!validasiDasar()) return
+
+    setSedangProses(true)
+    try {
+      const hasil = onMasukGoogle ? await onMasukGoogle() : { sukses: true }
+      const sukses = Boolean(hasil.sukses ?? hasil.berhasil)
+      if (sukses) {
+        const voucherBaru: VoucherKlaimHasil = {
+          kode: buatKodeVoucherAcak(),
+          nilai: kampanye.nilai,
+          jenis: kampanye.jenis,
+          min_belanja: kampanye.min_belanja,
+          maks_potongan: kampanye.maks_potongan,
+          berlaku_sampai: batasWaktuFormatted,
+          nama_pelanggan: nama.trim(),
+          email_pelanggan: email.trim() || 'google-user@gmail.com',
+          telepon_pelanggan: telepon.trim() || undefined,
+        }
+        setVoucherHasil(voucherBaru)
+        onKlaimSukses?.(voucherBaru)
+      } else {
+        setPesanGalat(hasil.pesan || 'Gagal masuk dengan akun Google. Silakan coba lagi.')
+      }
+    } catch {
+      setPesanGalat('Terjadi kendala jaringan saat menghubungkan ke akun Google.')
+    } finally {
+      setSedangProses(false)
+    }
+  }
+export async function masukDenganGoogle(): Promise<{ berhasil: boolean; pesan?: string }> {
+  const supabase = klienSupabase()
+  if (!supabase) {
+    return { berhasil: false, pesan: 'Layanan Supabase belum dikonfigurasi.' }
+  }
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
+      },
+    })
+    if (error) {
+      return { berhasil: false, pesan: error.message }
+    }
+    return { berhasil: true }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return { berhasil: false, pesan: `Gagal menghubungkan ke Google: ${msg}` }
+  }
+}
+
+/**
+ * Kirim tautan masuk via email (magic link) untuk pelanggan (T2-04).
+      case 'klaim_voucher':
+        return (
+          <Kampanye
+            onBukaKatalog={() => setLayarAktif('katalog')}
+            onMasukGoogle={masukDenganGoogle}
+            onKirimEmail={kirimTautanMasukEmail}
+          />
+        )
+      case 'pelanggan-publik':
+exit=0
+
+$ sed -n '67,80p' supabase/migrations/0002_pengguna_izin_pengaturan.sql; sed -n '331,334p' docs/TECH_SPEC.md
+create table if not exists public.izin (
+  pengguna_id   uuid not null references public.pengguna (id) on delete cascade,
+  kode_izin     text not null check (kode_izin in (
+                  'ubah_harga', 'beri_diskon', 'void_sebelum_dapur', 'void_sesudah_dapur',
+                  'lihat_laporan', 'kelola_pegawai', 'atur_pengaturan', 'pakai_voucher',
+                  'tutup_kas', 'ubah_stok'
+                )),
+  boleh         boolean not null default false,
+  batas_nominal integer check (batas_nominal is null or batas_nominal >= 0),          -- rupiah bulat; null = tanpa batas khusus
+  batas_persen  numeric(5, 2) check (batas_persen is null or (batas_persen >= 0 and batas_persen <= 100)),
+  diubah_oleh   uuid references public.pengguna (id) on delete set null,
+  diubah_pada   timestamptz not null default now(),
+  primary key (pengguna_id, kode_izin)
+);
+- Sumber kebenaran izin: tabel `izin` (+ `pengguna_cabang`). Jangan menebak dari peran saja.
+- Aturan khusus: **void sesudah dapur mulai** & **diskon di atas batas** **wajib** disetujui pengguna lain berizin (PIN), dan pelakunya tetap dicatat.
+- Pegawai merangkap cabang → izin **per cabang**, bukan per akun saja.
+- Perubahan izin **selalu** menulis `catatan_audit`.
+exit=0
+
+$ head -30 docs/PRIVASI_PELANGGAN.md; grep -n 'T-011\|T-014' docs/TERTANGGUH.md
+# KONTRAK PRIVASI PELANGGAN — Resto Barokah
+
+> **Status: DRAF** — belum mengikat apa pun, belum diimplementasikan apa pun.
+> Ditulis untuk ditinjau Lee **sebelum data pelanggan pertama masuk** (gerbang itu tercatat di
+> `docs/TERTANGGUH.md` butir T-011). Bagian yang belum Lee putuskan ditandai
+> `TODO(keputusan Lee)` — sengaja dibiarkan terbuka, bukan diarang.
+>
+> **Asal tugas:** temuan audit **F F-09** — "Kontrak privasi pelanggan belum punya jalur
+> implementasi" (`docs/uji/AUDIT_RIWAYAT.md` §1c, status TERBUKA, pemilik `T8-01` Fase 8).
+> Ditulis pekerja maraton T-03 (cabang `arena/01a0c1d7-resto-barokah`, 2026-09-21, alur AL-16
+> di `docs/ops/PAPAN_TUGAS.md`).
+>
+> **Cara baca:** setiap bagian ditutup baris **Sumber** — rujukan ke berkas repo yang jadi
+> dasarnya. Tidak ada mekanisme yang dikarang: yang di sini hanyalah yang sudah tertulis di
+> berkas-berkas itu, ditambah penanda TODO untuk yang memang belum diputuskan.
+
+---
+
+## 0. Keadaan jujur hari ini (sebelum kontraknya)
+
+- **Fitur pelanggan belum dibangun.** Migrasi yang hidup saat ini (`supabase/migrations/`,
+  nomor 0001–0019) **belum punya tabel pelanggan apa pun** — tidak ada `pelanggan`,
+  `kampanye_voucher`, `voucher`, atau `voucher_percobaan`. Tabel-tabel itu baru **rencana** di
+  `docs/TECH_SPEC.md` §4.4, dan tugasnya (Fase 8, `T8-01`…`T8-15` di `docs/ROADMAP.md`)
+  masih terbuka semua.
+- **Konsekuensinya: sampai hari ini belum ada data pelanggan siapa pun yang tersimpan**
+  (`docs/TERTANGGUH.md` T-011: "sekarang belum ada data siapa pun").
+- Jadi kontrak ini adalah **aturan main yang disepakati lebih dulu**: apa yang BAKAL
+  dikumpulkan, untuk apa, selama apa, dan apa hak pelanggan — supaya saat Fase 8 dibangun,
+  kodenya mengikuti kontrak, bukan sebaliknya.
+31:| T-014 | 2026-09-17 | **Region proyek Supabase**                                                                     | Menentukan lokasi data pelanggan & dasar transfer UU PDP                                                           | **Diputuskan pemilik 2026-09-17: Singapore (Asia Tenggara)**; tercatat di `docs/KEAMANAN.md` §11 & `docs/TECH_SPEC.md` §12 | ~~saat T0-08~~ **selesai 2026-09-17**                         | pemilik                                     | [x] selesai |
+54:| T-011 | 2026-09-21 | **Kebijakan privasi & persetujuan data pelanggan** (PRD §10.7) | Disetujui 2026-09-21 (setuju semua): draf agent (KEAMANAN §11) + migrasi/halaman T8-15; pemilik meninjau sebelum F8. |
+exit=0
+
+$ sed -n '1602,1607p;1745,1751p;1858,1863p' docs/ROADMAP.md; sed -n '461,464p' docs/TECH_SPEC.md; sed -n '371,376p;442,470p' aplikasi/src/layar/platform/Penyewa.tsx
+- [x] T7-10 — Tampilan laporan siap cetak/simpan + filter cabang
+  - **Tujuan:** owner bisa menyimpan laporan harian untuk pembukuan.
+  - **Ref:** PRD M8 (kasus tepi: dicetak disimpan = fase 2 → di G1 cukup rapi & bisa disimpan PDF)
+  - **File:** `aplikasi/src/layar/laporan/FormatLaporan.tsx`
+  - **DoD:** tata letak rapi untuk dicetak/disimpan PDF; judul, tanggal, cabang, tanda tangan pemilik; filter cabang sesuai peran.
+  - **Kompleksitas:** kecil (2 jam)
+- [x] T8-13 — Laporan klaim voucher + dasar deteksi anomali
+  - **Tujuan:** owner melihat apakah kampanye berjalan wajar atau ada pola aneh.
+  - **Ref:** PRD M10 (laporan anomali fase 2 → dasar di G1)
+  - **File:** `supabase/migrations/0068_laporan_voucher.sql`, `aplikasi/src/layar/laporan/LaporanVoucher.tsx`, `supabase/tes/laporan_voucher.sql`, `alat/uji-mutasi-0068.py`
+  - **DoD:** jumlah klaim & pemakaian per kampanye/cabang/hari, nilai potongan, daftar identitas klaim berulang, peringatan sederhana (mis. >3 klaim dari satu identitas).
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** salah tuduh pelanggan → mitigasi: istilah "perlu diperiksa", bukan "curang".
+- [x] T9-10 — Pemilik Platform: daftar penyewa baru (M1) ⚠️
+  - **Tujuan:** penyewa baru bisa diaktifkan sendiri oleh Pemilik Platform, dengan data terpisah total.
+  - **Ref:** PRD M1; TECH_SPEC §9 ART-1 · RPC resmi: `buat_penyewa`, `set_status_penyewa`, `tambah_cabang`
+  - **File:** `aplikasi/src/layar/platform/Penyewa.tsx`, `supabase/functions/daftar_penyewa/index.ts`, `supabase/tes/daftar_penyewa.sql`
+  - **DoD:** membuat penyewa + cabang pertama + akun Owner; menonaktifkan penyewa (data tidak dihapus); **uji pembuktian dua penyewa tidak saling melihat** (wajib ditunjukkan buktinya).
+  - **Kompleksitas:** besar (5 jam)
+| 2026-09-16 | **K2 = Cloudflare (halaman aplikasi) + Supabase (data/akun)** | Satu-satunya kombinasi gratis yang **boleh dipakai untuk usaha**; Vercel Hobby dilarang untuk komersial |
+| 2026-09-16 | **K3 = printer tersambung perangkat kasir** (Bluetooth/USB) + **cadangan digital wajib** | Paling murah & umum; risiko printer ditutup oleh jalur cadangan + uji nyata di Kedai Oasis |
+| 2026-09-16 | **K4 = daring dulu + tahan gangguan kecil** (antrean lokal + kunci idempoten) | Sesuai kondisi pilot (internet lancar) tanpa mengorbankan keamanan data; offline penuh masuk fase 3 |
+| 2026-09-16 | **K5 = email + PIN per pegawai; pelanggan Google (utama) + email terverifikasi** | Sesuai PRD; cepat di kasir; tanpa biaya SMS |
+  })
+
+  const totalResto = daftarPenyewa.length
+  const totalAktif = daftarPenyewa.filter((p) => p.status === 'aktif').length
+  const totalNonaktif = daftarPenyewa.filter((p) => p.status === 'nonaktif').length
+  const totalCabang = daftarPenyewa.reduce((acc, cur) => acc + (cur.jumlah_cabang || 0), 0)
+          <div style={{ fontSize: 'var(--t-5)', fontWeight: 800, marginTop: 'var(--s-1)' }}>
+            {totalResto}
+          </div>
+        </Kartu>
+        <Kartu>
+          <div style={{ fontSize: 'var(--t-1)', color: 'var(--teks-redup)' }}>Restoran Aktif</div>
+          <div
+            style={{
+              fontSize: 'var(--t-5)',
+              fontWeight: 800,
+              color: 'var(--success)',
+              marginTop: 'var(--s-1)',
+            }}
+          >
+            {totalAktif}
+          </div>
+        </Kartu>
+        <Kartu>
+          <div style={{ fontSize: 'var(--t-1)', color: 'var(--teks-redup)' }}>
+            Nonaktif (Dibekukan)
+          </div>
+          <div
+            style={{
+              fontSize: 'var(--t-5)',
+              fontWeight: 800,
+              color: 'var(--warn)',
+              marginTop: 'var(--s-1)',
+            }}
+          >
+exit=0
+
+$ git show c5dbc98:docs/PRD.md | sed -n '145p'; git show c3a96cb -- docs/PRD.md; sed -n '24,30p' supabase/migrations/0048_wajib_shift.sql; sed -n '1548,1554p' docs/ROADMAP.md; sed -n '2519,2534p' docs/DECISIONS_LOG.md
+  - Transaksi hanya bisa dilakukan dalam shift yang sudah dibuka.
+commit c3a96cbe6bd6d9b81eafda108259a919ccdbdb28
+Author: alibaalawiali741-creator <324258405+alibaalawiali741-creator@users.noreply.github.com>
+Date:   Sun Sep 27 13:53:17 2026 +0000
+
+    fix(audit): tuntaskan perbaikan temuan pemeriksaan akbar Fase 0-10
+
+    - perbaiki payload status kirim dapur di App.tsx menjadi 'dikirim' dan waktu pengiriman ISO
+    - tambahkan pemulihan antrean macet status 'mengirim' di antrean-offline.ts
+    - perbaiki penanganan galat jaringan (offline) saat router WiFi aktif tanpa internet
+    - ganti window.alert() di LayarKasir.tsx dengan notifikasi Toast ramah pengguna
+    - perbaiki penolakan fail-closed untuk jenis aksi antrean tak dikenal di useAntrean.ts
+    - tambahkan pengujian keyboard fisik PIN (Backspace, Escape, Spasi) di MasukStaf & LayarMasukPegawai
+    - perbaiki registry layar.ts, aksi.ts, dan perbarui docs/PETA_UI.md
+    - perluas pola pendeteksian kunci OpenAI modern (sk-proj-) di alat/periksa-rahasia.py
+    - dukung RPC Supabase remote di alat/eksekusi-denyut.mjs & alur kerja denyut-harian.yml
+    - selaraskan standar WCAG AA (>= 4.5:1), aturan wajib_shift fleksibel, dan jumlah migrasi 82 berkas
+
+    Co-authored-by: arena-agent <297053741+arena-agent@users.noreply.github.com>
+
+diff --git a/docs/PRD.md b/docs/PRD.md
+index ce7a194..b0341b4 100644
+--- a/docs/PRD.md
++++ b/docs/PRD.md
+@@ -142,7 +142,7 @@ harus terbukti) + **kasus tepi** (hal-hal yang biasanya bikin aplikasi gagal di
+   - Buka kas: masukkan **modal awal**.
+   - Tutup kas: sistem menghitung uang **seharusnya** (modal + penerimaan tunai − pengeluaran tunai) lalu kasir memasukkan **hasil hitung fisik**.
+   - Bila ada selisih → **wajib mengisi alasan**; nilainya tercatat di laporan untuk owner.
+-  - Transaksi hanya bisa dilakukan dalam shift yang sudah dibuka.
++  - Aturan shift & transaksi: sistem mendukung penegakan transaksi hanya dalam shift kasir terbuka (melalui setelan `wajib_shift` di pengaturan cabang; bawaan `false`/fleksibel untuk kemudahan adopsi kedai pemula, dan dapat diwajibkan penuh oleh owner resto sesuai SOP kedai via pemicu database).
+ - **Kasus tepi:** dua kasir dalam satu shift (satu kas, dicatat siapa yang membuka/menutup) · shift tidak ditutup sampai besok (sistem mengingatkan) · kasir lupa modal awal (bisa dikoreksi dengan izin atasan, tercatat).
+
+ ### M8. Laporan harian per shift
+-- ---------------------------------------------------------------------------
+-- 1. Tambah kolom wajib_shift pada tabel pengaturan
+-- ---------------------------------------------------------------------------
+alter table public.pengaturan
+  add column if not exists wajib_shift boolean not null default false;
+
+comment on column public.pengaturan.wajib_shift is
+- [x] T7-04 — Transaksi hanya dalam shift terbuka ⚠️
+  - **Tujuan:** tidak ada penjualan "di luar kas" yang tidak bisa diaudit.
+  - **Ref:** PRD M7 (kriteria selesai)
+  - **File:** `supabase/migrations/0048_wajib_shift.sql`, `supabase/tes/wajib_shift.sql`
+  - **DoD:** memesan/membayar di luar shift terbuka ditolak dengan pesan jelas; uji lulus.
+  - **Kompleksitas:** sedang (2,5 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Kas & Shift (ART-6); kasir lupa buka kas saat sibuk → mitigasi: pengingat + tombol buka kas cepat.
+## [Kas/2026-09-24] Transaksi Hanya Dalam Shift Terbuka: Cegah Penjualan di Luar Kas dan Audit Utuh (T7-04)
+
+- **Area:** Kas & Shift (ART-6) · PRD M7 & TECH_SPEC §4.3, §9 ART-6
+- **Konteks & Risiko (ART-6):** Transaksi pesanan atau pembayaran yang dilakukan di luar shift kasir
+  terbuka membuka peluang terjadinya penjualan "di luar kas" (shadow sales) yang tidak tercatat dalam
+  pertanggungjawaban modal/kas fisik kasir. Jika kasir dapat mencatat pesanan baru atau menerima
+  pembayaran tanpa sesi shift yang aktif, rekonsiliasi uang fisik saat tutup kas menjadi cacat dan
+  audit penerimaan kas resto kehilangan titik mula yang dapat dipertanggungjawabkan.
+- **Keputusan:**
+  1. **Konfigurasi `wajib_shift` pada `public.pengaturan`:**
+     - Menambahkan kolom `wajib_shift boolean not null default false` pada `public.pengaturan`.
+     - Memberikan fleksibilitas bagi pemilik cabang/resto untuk mengaktifkan kebijakan wajib shift
+       sesuai SOP kedai.
+     - Setiap perubahan konfigurasi `wajib_shift` dicatat secara kekal di `public.catatan_audit`
+       (`entitas = 'pengaturan'`, `kunci_pengaturan = 'wajib_shift'`) dengan rantai hash kriptografis SHA-256.
+  2. **Pagar Integritas Transaksi Tingkat Database (Database Gatekeeper):**
+exit=0
+
+$ sed -n '157,169p' supabase/migrations/0063_anti_email_palsu.sql; sed -n '80,163p;232,270p' supabase/migrations/0087_perbaiki_search_path_kripto_dan_rpc.sql
+  constraint pelanggan_cara_masuk_valid check (
+    (cara_masuk in ('google', 'email') and email is not null and email_normalisasi is not null and length(trim(email)) > 0)
+    or
+    (cara_masuk = 'kasir' and didaftarkan_oleh is not null)
+  )
+);
+
+create unique index if not exists pelanggan_penyewa_email_normalisasi_unik
+  on public.pelanggan (penyewa_id, email_normalisasi)
+  where email_normalisasi is not null;
+
+create index if not exists idx_pelanggan_penyewa_dibuat
+  on public.pelanggan (penyewa_id, dibuat_pada desc);
+  if p_perangkat_id is null then
+    return jsonb_build_object(
+      'berhasil', false,
+      'kode', 'PERANGKAT_WAJIB',
+      'pesan', 'Perangkat kasir/staf wajib terdaftar untuk mengakses sistem.'
+    );
+  end if;
+
+  -- Periksa keberadaan perangkat
+  select id, nama, aktif, penyewa_id, peran_diizinkan
+    into v_perangkat
+    from public.perangkat
+   where id = p_perangkat_id;
+
+  -- Jika perangkat sudah pernah didaftarkan namun dinonaktifkan/dicabut -> tolak
+  if v_perangkat.id is not null and not coalesce(v_perangkat.aktif, false) then
+    return jsonb_build_object(
+      'berhasil', false,
+      'kode', 'PERANGKAT_TIDAK_SAH',
+      'pesan', 'Perangkat tidak terdaftar atau telah dicabut.'
+    );
+  end if;
+
+  -- 3. Cari data pengguna berdasarkan email
+  select p.id, p.penyewa_id, p.nama, p.peran, p.aktif
+    into v_pengguna
+    from public.pengguna p
+   where lower(trim(p.email)) = lower(trim(p_email));
+
+  if v_pengguna.id is null or not coalesce(v_pengguna.aktif, false) then
+    return jsonb_build_object(
+      'berhasil', false,
+      'kode', 'KREDENSIAL_TIDAK_VALID',
+      'pesan', 'Email, PIN, atau perangkat tidak cocok.'
+    );
+  end if;
+
+  -- 4. Pembatasan brute-force (5x per akun / 12x per perangkat per 15 menit)
+  select count(*) into v_gagal_akun
+    from public.percobaan_pin pp
+   where pp.pengguna_id = v_pengguna.id
+     and not pp.berhasil
+     and pp.waktu > now() - interval '15 minutes';
+
+  select count(*) into v_gagal_alat
+    from public.percobaan_pin pp
+   where pp.perangkat_id = p_perangkat_id
+     and not pp.berhasil
+     and pp.waktu > now() - interval '15 minutes';
+
+  if v_gagal_akun >= 5 or v_gagal_alat >= 12 then
+    return jsonb_build_object(
+      'berhasil', false,
+      'kode', 'AKUN_TERKUNCI',
+      'pesan', 'Akun atau perangkat terkunci sementara karena 5 kali percobaan salah. Tunggu 15 menit.'
+    );
+  end if;
+
+  -- 5. Periksa kecocokan hash PIN
+  select pin_hash into v_hash
+    from public.kredensial_pin
+   where pengguna_id = v_pengguna.id;
+
+  v_berhasil := v_hash is not null and crypt(p_pin, v_hash) = v_hash;
+
+  if not v_berhasil then
+    insert into public.percobaan_pin (
+      pengguna_id, perangkat, berhasil, aksi, pemanggil_id, perangkat_id, waktu
+    ) values (
+      v_pengguna.id,
+      coalesce(v_perangkat.nama, coalesce(nullif(trim(p_perangkat_nama), ''), 'Perangkat Baru')),
+      false,
+      'masuk_pin',
+      v_pengguna.id,
+      p_perangkat_id,
+      now()
+    );
+
+    return jsonb_build_object(
+      'berhasil', false,
+      'kode', 'KREDENSIAL_TIDAK_VALID',
+      'pesan', 'Email, PIN, atau perangkat tidak cocok.'
+    );
+  end if;
+        status = 'aktif',
+        terakhir_aktif = now();
+
+      select id, nama, aktif, penyewa_id, peran_diizinkan
+        into v_perangkat
+        from public.perangkat
+       where id = p_perangkat_id;
+    else
+      -- Restoran telah beroperasi dan staf biasa mencoba masuk dari perangkat tak dikenal
+      return jsonb_build_object(
+        'berhasil', false,
+        'kode', 'PERANGKAT_TIDAK_SAH',
+        'pesan', 'Perangkat tidak terdaftar atau telah dicabut.'
+      );
+    end if;
+  end if;
+
+  -- 7. Validasi relasi tenant & peran terhadap perangkat
+  if v_perangkat.penyewa_id <> v_pengguna.penyewa_id then
+    return jsonb_build_object(
+      'berhasil', false,
+      'kode', 'RESTO_TIDAK_COCOK',
+      'pesan', 'Perangkat tidak terdaftar pada restoran ini.'
+    );
+  end if;
+
+  if not (v_pengguna.peran::text = any(v_perangkat.peran_diizinkan)) then
+    return jsonb_build_object(
+      'berhasil', false,
+      'kode', 'PERAN_TIDAK_DIIZINKAN',
+      'pesan', 'Peran pengguna tidak diizinkan pada perangkat ini.'
+    );
+  end if;
+
+  -- 8. Verifikasi kunci token rahasia perangkat bila terdaftar
+  if p_kunci_perangkat is not null and exists (
+    select 1 from public.kredensial_perangkat kp where kp.perangkat_id = p_perangkat_id
+  ) then
+    select kp.kunci_hash into v_kunci_hash
+exit=0
+
+$ sed -n '90,106p' supabase/migrations/0040_urutan_rantai_audit.sql; sed -n '81,88p' supabase/functions/ringkasan_harian/index.ts
+  NEW.hash_sebelumnya := coalesce(v_prev_hash, GENESIS_HASH);
+
+  -- Susun payload data kanonikal (TIDAK berubah dari 0029: hash lama tetap sah)
+  v_payload := NEW.id::text || ':' ||
+               NEW.penyewa_id::text || ':' ||
+               coalesce(NEW.pelaku_id::text, 'sistem') || ':' ||
+               NEW.aksi || ':' ||
+               NEW.entitas || ':' ||
+               coalesce(NEW.entitas_id::text, '') || ':' ||
+               coalesce(NEW.nilai_lama::text, '') || ':' ||
+               coalesce(NEW.nilai_baru::text, '') || ':' ||
+               to_char(NEW.waktu at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') || ':' ||
+               NEW.hash_sebelumnya;
+
+  NEW.hash_baris := encode(sha256(v_payload::bytea), 'hex');
+
+  return NEW;
+export function bangunIsiEmail(ringkas: HasilRingkasanPayload): { subjek: string; teks: string; html: string } {
+  const subjek = `[Resto Barokah] Ringkasan Peringatan Harian — ${ringkas.tanggal}`
+
+  const garisAudit = ringkas.rantai_audit_valid
+    ? 'AMAN: Rantai audit kriptografis hash valid dan utuh.'
+    : `BAHAYA: Rantai audit terputus/anomali! (${ringkas.rantai_audit_pesan})`
+
+  const teks = `
+exit=0
+
+$ sed -n '164,177p' docs/KEAMANAN.md; sed -n '45,58p' docs/PRIVASI_PELANGGAN.md; sed -n '61,68p;77,104p' aplikasi/src/layar/kasir/DataPelanggan.tsx; sed -n '10,17p' supabase/migrations/0063_anti_email_palsu.sql
+## 11. Data pelanggan & UU PDP (UU 27/2022)
+
+- **Persetujuan eksplisit** sebelum menyimpan data; kalimat singkat + tautan kebijakan pada halaman pendaftaran voucher.
+- **Minimalisasi**: nama, kontak (opsional), catatan voucher. Tidak ada NIK, lokasi, biometrik, atau pelacakan.
+- **Hak pelanggan**: akses & hapus → data pribadi **dianonimkan**; catatan keuangan tetap utuh (Aturan Bisnis 11). Tanggap 3×24 jam.
+- **Kebocoran**: pemberitahuan tertulis ≤ **3×24 jam** ke subjek data + lembaga pengawas (Pasal 46), memuat data apa, kapan/bagaimana, dan langkah pemulihan → template di `BUKU_INSIDEN.md`.
+- **Lokasi data**: region proyek Supabase = **Singapore (Asia Tenggara)** — diputuskan pemilik 2026-09-17 (T-014 selesai); dasar transfer = persetujuan + pengamanan penyedia.
+- Email/laporan tidak boleh memuat kontak pelanggan.
+
+## 12. Mode dukungan (pemilik platform)
+
+- Bawaan: **tidak ada akses** ke isi data penyewa.
+- Mode dukungan: **wajib alasan**, berbatas waktu (bawaan 60 menit), **hanya-baca**, dicatat di `catatan_audit`, dan **owner penyewa diberi tahu** (email).
+- Berakhir otomatis; dilarang memperpanjang otomatis; tidak memberi hak mengubah data.
+| Data | Keterangan | Sifat |
+|---|---|---|
+| Nama | diisi saat pendaftaran voucher | wajib |
+| Email | dipakai verifikasi & pemulihan | wajib, kecuali jalur didaftarkan kasir |
+| Nomor HP | **opsional** — hanya bila pelanggan mau poin/voucher | opsional |
+| Alamat | diisi saat pendaftaran | opsional |
+| Cara masuk | Google (utama) atau email terverifikasi (jalur kedua) | teknis |
+| Waktu verifikasi + siapa mendaftarkan | bila kasir yang mendaftarkan (pelanggan tanpa email & tidak mau Google), tercatat siapa yang mendaftarkan | teknis |
+| Voucher + riwayat pemakaian | kode voucher (acak, unik), status, kapan/di mana dipakai | wajib untuk fitur |
+| Log percobaan cek/scan voucher | kode yang dicoba, hasilnya, kasir & perangkat yang mencoba | log keamanan |
+
+**Jalur pengumpulannya** (`docs/PRD.md` M10): tautan kampanye → halaman pendaftaran → isi nama,
+alamat (opsional), nomor HP/email → verifikasi → kode voucher muncul. Verifikasi memakai
+**"Daftar dengan Google" sebagai jalur utama** + email terverifikasi (lewat penyedia gratis
+  const [setuju, setSetuju] = useState(false)
+
+  const bolehSimpan = setuju && nomorMasukAkal(noHp) && !sedangKirim
+
+  const tanganiSimpan = () => {
+    if (!bolehSimpan) return
+    onSimpan?.({ noHp: noHp.trim(), nama: nama.trim() || undefined, setuju: true })
+  }
+
+      <KolomIsian
+        label="Nomor HP pelanggan"
+        nilai={noHp}
+        onUbah={setNoHp}
+        contoh="Mis. 0812 3456 7890"
+        keterangan="Opsional — kosongkan saja bila pelanggan tidak berminat."
+      />
+
+      <KolomIsian
+        label="Nama panggilan"
+        nilai={nama}
+        onUbah={setNama}
+        contoh="Mis. Bu Ani"
+        keterangan="Opsional, hanya untuk menyapa di struk voucher."
+      />
+
+      <label className="data-pelanggan__setuju">
+        <input
+          type="checkbox"
+          checked={setuju}
+          onChange={(e) => setSetuju(e.target.checked)}
+          data-testid="pelanggan-setuju"
+        />
+        <span>Pelanggan setuju nomornya disimpan untuk poin &amp; voucher kedai ini.</span>
+      </label>
+
+      {pesan && (
+--    - Menyeragamkan huruf kecil (lowercase) dan membersihkan spasi.
+-- 2. Fungsi deteksi domain email sekali-pakai `public.apakah_email_sekali_pakai`:
+--    - Menolak domain email sementara/burner (10minutemail, tempmail, mailinator, dll).
+-- 3. Tabel `public.pelanggan`:
+--    - Menyimpan identitas pelanggan (nama, email, telepon, alamat).
+--    - Wajib persetujuan privasi UU PDP (`persetujuan_privasi = true`, T-011).
+--    - Pemicu validasi email & anti-disposable otomatis sebelum INSERT/UPDATE.
+--    - Indeks unik per resto: (penyewa_id, email_normalisasi).
+exit=0
+
+$ grep -n -e jwt_expiry -e minimum_password_length -e password_requirements supabase/config.toml; grep -rn 'config push' .github/workflows
+51:jwt_expiry = 3600
+54:minimum_password_length = 8
+55:password_requirements = ""
+exit=1
+
+$ sed -n '480,491p' supabase/migrations/0084_cabut_akses_pegawai_berhenti.sql; sed -n '13,17p;129,132p' docs/teknis/BUKU_INSIDEN.md; ls aplikasi/src/layar/pengaturan/DaftarPerangkat.tsx
+  -- Hitung uang seharusnya: modal_awal + tunai_masuk - tunai_keluar
+  v_uang_seharusnya := v_shift.modal_awal + v_tunai_masuk - v_tunai_keluar;
+  if v_uang_seharusnya < 0 then
+    v_uang_seharusnya := 0;
+  end if;
+
+  -- Hitung selisih: fisik - seharusnya
+  v_selisih := p_uang_fisik - v_uang_seharusnya;
+
+  -- Validasi alasan selisih (DoD T7-02: bila selisih -> alasan wajib)
+  v_alasan := btrim(coalesce(p_alasan_selisih, ''));
+  if v_selisih <> 0 and v_alasan = '' then
+> **STATUS KETERSEDIAAN (2026-09-20 — temuan audit I F-08/K F-01, jangan dihapus sampai fiturnya nyata):**
+> aplikasi masih **kerangka Fase 0/1** — jalur menu **Pengaturan → Perangkat & Sesi / Pegawai / Jejak Audit BELUM ADA**,
+> TOTP/MFA belum dipasang (`T1-25`), jejak audit `catatan_audit` belum ada (`T1-27`), antrean offline belum ada
+> (Fase 1C), dan cadangan otomatis mingguan belum dijadwalkan (`T10-10`). Bagian 2, 3, 4, 7, dan 10 di bawah
+> ditulis untuk keadaan FINAL. **Jalur sementara sampai fitur itu mendarat:** jangan cari menunya — minta **agen
+## 7. Skenario 1 — Internet kedai mati (atau putus-sambung)
+
+**Status implementasi (T10-02 s/d T10-04, T10-09):** antrean offline lokal (`antrean-offline.ts`), penyimpanan tiket cadangan (`antrean-lokal.ts`), dan kunci idempoten menyeluruh (migrasi `0080`) aktif di seluruh transaksi kasir dan dapur.
+
+aplikasi/src/layar/pengaturan/DaftarPerangkat.tsx
+exit=0
+
+$ sed -n '114,198p' supabase/migrations/0031_mode_dukungan_platform.sql; grep -rn 'mode_dukungan' supabase/functions aplikasi/src
+create or replace function public.masuk_mode_dukungan(
+  p_penyewa_id    uuid,
+  p_alasan        text,
+  p_durasi_menit  int default 60
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_saya        uuid := auth.uid();
+  v_peran       text := public.peran_saya();
+  v_penyewa_ada boolean;
+  v_durasi      int;
+  v_berakhir    timestamptz;
+  v_id          uuid;
+begin
+  if v_saya is null or v_peran <> 'pemilik_platform' then
+    return jsonb_build_object('berhasil', false, 'kode', 'FORBIDDEN', 'pesan', 'Hanya pemilik platform yang berhak masuk mode dukungan.');
+  end if;
+
+  if p_alasan is null or length(trim(p_alasan)) < 10 then
+    return jsonb_build_object('berhasil', false, 'kode', 'ALASAN_KURANG', 'pesan', 'Alasan mode dukungan wajib diisi minimal 10 karakter.');
+  end if;
+
+  select exists(select 1 from public.penyewa where id = p_penyewa_id) into v_penyewa_ada;
+  if not v_penyewa_ada then
+    return jsonb_build_object('berhasil', false, 'kode', 'PENYEWA_TIDAK_DITEMUKAN', 'pesan', 'Restoran penyewa tidak ditemukan.');
+  end if;
+
+  -- Batasi durasi: minimum 15 menit, maksimum 120 menit (bawaan 60 menit)
+  v_durasi := coalesce(p_durasi_menit, 60);
+  if v_durasi < 15 or v_durasi > 120 then
+    return jsonb_build_object('berhasil', false, 'kode', 'DURASI_TIDAK_VALID', 'pesan', 'Durasi mode dukungan harus antara 15 hingga 120 menit.');
+  end if;
+
+  v_berakhir := now() + (v_durasi || ' minutes')::interval;
+
+  -- Tutup sesi dukungan aktif sebelumnya dari pelaku yang sama untuk penyewa ini
+  update public.mode_dukungan
+     set aktif = false,
+         diakhiri_pada = now()
+   where pelaku_id = v_saya
+     and penyewa_id = p_penyewa_id
+     and aktif;
+
+  -- Buat sesi mode dukungan baru
+  insert into public.mode_dukungan (
+    penyewa_id, pelaku_id, alasan, mulai, berakhir_pada, aktif
+  ) values (
+    p_penyewa_id, v_saya, trim(p_alasan), now(), v_berakhir, true
+  ) returning id into v_id;
+
+  -- Catat ke catatan audit restoran yang dituju (ART-15)
+  insert into public.catatan_audit (
+    penyewa_id, pelaku_id, aksi, entitas, entitas_id, nilai_baru
+  ) values (
+    p_penyewa_id, v_saya, 'masuk_mode_dukungan', 'mode_dukungan', v_id,
+    jsonb_build_object(
+      'alasan', trim(p_alasan),
+      'durasi_menit', v_durasi,
+      'berakhir_pada', v_berakhir
+    )
+  );
+
+  return jsonb_build_object(
+    'berhasil', true,
+    'kode', 'MODE_DUKUNGAN_AKTIF',
+    'pesan', format('Mode dukungan aktif selama %s menit. Akses data hanya-baca (read-only).', v_durasi),
+    'data', jsonb_build_object(
+      'id', v_id,
+      'penyewa_id', p_penyewa_id,
+      'berakhir_pada', v_berakhir,
+      'durasi_menit', v_durasi
+    )
+  );
+end;
+$$;
+
+comment on function public.masuk_mode_dukungan(uuid, text, int) is
+  'Mengaktifkan mode dukungan darurat berbatas waktu & beralasan untuk pemilik platform (T1-28, ART-15).';
+
+revoke all on function public.masuk_mode_dukungan(uuid, text, int) from public;
+grant execute on function public.masuk_mode_dukungan(uuid, text, int) to authenticated, service_role;
+aplikasi/src/bahasa/ar.ts:52:    mode_dukungan: 'وضع الدعم',
+aplikasi/src/bahasa/en.ts:52:    mode_dukungan: 'Support Mode',
+aplikasi/src/bahasa/id.ts:50:    mode_dukungan: 'Mode Dukungan',
+aplikasi/src/bahasa/zh.ts:52:    mode_dukungan: '技术支持模式',
+exit=0
+
+$ ls .github/workflows; grep -rn -e ringkasan_harian -e hasilkan_ringkasan .github/workflows alat/denyut.py supabase/migrations/0082_denyut_harian_pembersih.sql; grep -n -e cron -e schedule supabase/migrations/0085_ringkasan_harian.sql; grep -n 'onKirimEmailManual' aplikasi/src/layar/laporan/Peringatan.tsx
+cadangan.yml
+ci.yml
+denyut-harian.yml
+sebar-halaman.yml
+sebar-skema.yml
+65:  onKirimEmailManual?: (ringkasanId: string) => Promise<void> | void
+80:  onKirimEmailManual,
+110:    if (!data?.id || !onKirimEmailManual) return
+113:      await onKirimEmailManual(data.id)
+505:              {onKirimEmailManual && data.id && (
+exit=0
+
+$ sed -n '37,38p;156p' docs/TECH_SPEC.md
+| **Waktu & tugas berkala** | **pg_cron** di Supabase | Penutup hari otomatis, penagihan laporan harian, "denyut" harian agar proyek gratis tidak tidur, dan pembersih data sementara. |
+| **Cetak** | ESC/POS langsung dari browser: **Web Bluetooth** (Android/Windows) & **WebUSB**; jalur cadangan cetak PDF/bagikan | Sesuai keputusan K3 (printer tersambung perangkat + cadangan digital). **Ditolak:** printer jaringan sebagai jalur utama (bergantung Wi-Fi kedai). |
+| `printer` | `cabang_id`, `nama`, `jenis` (bluetooth/usb), `peran` (kasir/dapur/tiket), `alamat`, `aktif` | Dipakai perangkat kasir/dapur |
+exit=0

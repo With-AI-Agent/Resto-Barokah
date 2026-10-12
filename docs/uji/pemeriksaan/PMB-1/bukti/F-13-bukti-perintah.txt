@@ -1,0 +1,191 @@
+BUKTI PERINTAH — PEMERIKSAAN F-13 (PMB1-F-172 s/d PMB1-F-175)
+Sesi arena/01a0eb6d-resto-barokah · 2026-09-29 · basis bbc9cb4
+Semua perintah dijalankan di /home/user/Resto-Barokah. Dipadatkan: hanya
+perintah + hasil inti. Probe yang bisa diulang disimpan terpisah.
+
+=========================================================================
+A. PMB1-F-172 — klaim T7-02 (DECISIONS_LOG.md:2447-2455) vs implementasi
+=========================================================================
+
+A1. Nama pemicu pembayaran→shift (klaim :2447 "picu_isi_shift_kas_pembayaran")
+
+$ grep -rn "picu_isi_shift_kas_pembayaran" . --include="*.sql" --include="*.ts" --include="*.tsx" --include="*.md"
+(hasil: 0 — tidak ada di mana pun; yang muncul di log hanya klaimnya sendiri)
+
+$ grep -n "picu_pembayaran_kait_shift\|trg_pembayaran_kait_shift" supabase/migrations/0046_tutup_shift.sql
+36:create or replace function public.picu_pembayaran_kait_shift()
+68:comment on function public.picu_pembayaran_kait_shift() is
+71:revoke all on function public.picu_pembayaran_kait_shift() from public, anon, authenticated;
+73:drop trigger if exists trg_pembayaran_kait_shift on public.pembayaran;
+
+Kutip :2447 "dengan shift aktif kasir yang bersangkutan" juga lebih sempit
+daripada kenyataan: fallback pemicu memilih shift terbuka apa pun di cabang
+(bukti baris 53-63 berkas yang sama: "cari shift terbuka apa pun di cabang
+itu" bila shift milik sendiri tidak ada).
+
+A2. Gerbang izin (klaim :2451 "via public.punya_hak_di_cabang", "kelola_kas")
+
+$ grep -rn "punya_hak_di_cabang" supabase/ aplikasi/ docs/ | grep -v DECISIONS_LOG
+(hasil: 0 — fungsi itu tidak pernah dibuat)
+
+$ grep -rn "kelola_kas" . --include="*.sql" --include="*.ts" --include="*.tsx"
+(hasil: 0 — izin itu tidak pernah dibuat/diberikan; muncul hanya di klaim log)
+
+$ grep -n "boleh('tutup_kas'" supabase/migrations/0046_tutup_shift.sql supabase/migrations/0084_cabut_akses_pegawai_berhenti.sql
+0046:164:  if not public.boleh('tutup_kas', v_shift.cabang_id) then
+0084:438:  if not public.boleh('tutup_kas', v_shift.cabang_id) then
+
+A3. Kode galat (klaim :2454 "SH-409" untuk "sudah ditutup"; :2455 "SH-400"
+    untuk uang fisik negatif)
+
+$ grep -n "SH-400" supabase/migrations/0048_wajib_shift.sql
+63: raise exception 'SH-400: Tidak dapat membuat pesanan: belum ada shift kas…'
+75: raise exception 'SH-400: Shift kas % sudah ditutup atau tidak valid.'
+102: raise exception 'SH-400: Shift kas % sudah ditutup atau tidak valid.'
+
+$ grep -n "SH-409" supabase/migrations/0045_buka_shift.sql
+195: raise exception 'SH-409: Anda masih memiliki shift kasir yang aktif…'
+
+$ grep -n "sudah ditutup sebelumnya\|Jumlah uang fisik wajib diisi" supabase/migrations/0046_tutup_shift.sql supabase/migrations/0084_cabut_akses_pegawai_berhenti.sql
+0046:114:  raise exception 'Jumlah uang fisik wajib diisi dan tidak boleh negatif.'
+0046:131:  raise exception 'Shift kas ini sudah ditutup sebelumnya.'
+0084:388:  raise exception 'Jumlah uang fisik wajib diisi dan tidak boleh negatif.'
+0084:405:  raise exception 'Shift kas ini sudah ditutup sebelumnya.'
+
+=> kedua pesan TANPA kode; SH-400 sudah dipakai 0048, SH-409 sudah dipakai
+   buka_shift (log sendiri mengklaim SH-409 untuk buka_shift di :2411 dan
+   :2423 — kontradiksi internal satu potongan). Tes resmi
+   supabase/tes/tutup_shift.sql bahkan mematok pesan polos itu (baris 79-82,
+   98-103: 'Shift kas ini sudah ditutup sebelumnya', 'Jumlah uang fisik wajib
+   diisi dan tidak boleh negatif').
+
+A4. BUKTI LAIN YANG DIPERIKSA DAN COCOK (tidak jadi temuan)
+- rumus uang_seharusnya = modal_awal + tunai_masuk − tunai_keluar (0046:168-178)
+- constraint shift_kas_selisih_alasan (0046:24-27) "alasan_selisih wajib diisi"
+- Jejak audit catatan_audit aksi 'tutup_shift' + rantai hash (0046:243-254)
+- UI TutupKas.tsx tombol Uang Pas/pembulatan cepat/warna Pas-Lebih-Kurang,
+  langkah konfirmasi; TutupKas.test.tsx = 9 it() (cocok "9/9 tes")
+- alat/uji-mutasi-0046.py DAFTAR_MUTASI = 6 butir (cocok "6/6 mutasi kritis");
+  butir ke-3 memutasi "if not public.boleh('tutup_kas', …)" (menguatkan A2)
+
+=========================================================================
+B. PMB1-F-173 — klaim T-027 "migrasi 0004" (DECISIONS_LOG.md:2347)
+=========================================================================
+
+$ sed -n '86,92p' supabase/migrations/0002_pengguna_izin_pengaturan.sql
+create table if not exists public.pengaturan (
+  penyewa_id                 uuid primary key …,
+  pajak_pb1_persen           numeric(5, 2) not null default 10 …,
+  service_persen             numeric(5, 2) not null default 5 …,
+  pembulatan                 text not null default 'none' …,
+
+$ grep -n "pajak_pb1_persen\|service_persen\|pembulatan" supabase/migrations/0004_pola_rls.sql
+(hasil: 0 — 0004 hanya memuat create policy/RLS, mis. baris 29 "create policy
+penyewa_pilih on public.penyewa")
+
+=> kolom dimaksud dibuat di 0002:88-90, bukan "sejak migrasi 0004".
+   (Kesalahan nomor yang sama juga ada di docs/TERTANGGUH.md:29 dan komentar
+   aplikasi/src/lib/tarif.ts — di luar cakupan, disebut di kartu sebagai dampak.)
+
+=========================================================================
+C. PMB1-F-174 — kutipan/keputusan Lee 2026-09-23 vs REKAM_PESAN_PEMILIK
+=========================================================================
+
+Situs di log (kutip/perintah/keputusan Lee bertanggal 2026-09-23):
+- :1776 "Ini kutipan Lee (2026-09-23) soal 0035" + "Keputusan (dari kutipan di atas)"
+- :2341 "Keputusan Lee (2026-09-23): pilihan (b) — keranjang membaca tarif…"
+- :2364-2368 penundaan T-026/T-028 sebagai "Keputusan Lee 2026-09-23" dsb.
+
+$ grep -n "2026-09-23" docs/teknis/REKAM_PESAN_PEMILIK.md
+(hasil: 0 — tidak ada satu pun entri bertanggal 2026-09-23)
+
+$ grep -n "pilihan (b)\|catatannya harus terbaca\|dibaca oleh agent\|sistematis" docs/teknis/REKAM_PESAN_PEMILIK.md
+115:> Pastikan lebih sistematis, lebih mudah dipahami, semua fungsi dan tujuan
+   (entri 2026-09-17 yang berbeda — bukan kutipan 2026-09-23 yang dikutip log)
+
+=> keputusan/kutipan Lee yang dipakai dasar log tidak tercatat di REKAM
+   (padahal REKAM §1 mewajibkan "semua pesan yang pernah disampaikan" dan
+   §5 mewajibkan bukti). Kembar kandidat PMB1-F-138 (situs :838/:1162/:1325).
+
+=========================================================================
+D. PMB1-F-175 — aturan kepemilikan shift (DECISIONS_LOG.md:2452)
+=========================================================================
+
+D1. Bukti statis
+
+$ grep -rn "kelola_kas" .            → 0 hasil (lihat A2)
+$ grep -n "dibuka_oleh\|auth.uid" supabase/migrations/0046_tutup_shift.sql
+139:       and dibuka_oleh = auth.uid()      (hanya pemilih shift di jalur TANPA p_shift_id)
+218:         ditutup_oleh = auth.uid(),      (pencatat, bukan penghalang)
+
+Jalur p_shift_id (0084 versi hidup, baris 392-406) hanya memeriksa:
+penyewa_id + status='terbuka' + boleh('tutup_kas', cabang) — TANPA cek
+"dibuka_oleh = auth.uid()". Fallback tanpa p_shift_id (0084:424-433)
+bahkan memilih "shift terbuka di cabang yang dipantau" milik orang lain.
+
+$ grep -n "Dua Kasir\|000003\|harap(" supabase/tes/tutup_shift.sql | head
+245:-- 7. Kasus 5: Dua Kasir Satu Shift
+285:  'Kasus Dua Kasir: shift berhasil ditutup oleh kasir/admin kedua'
+=> tes resmi TIDAK memuat asersi "kasir hanya boleh menutup shift sendiri";
+   skenario lintas-orang justru meng-harap SUKSES untuk admin.
+
+D2. Probe perilaku (kursi peran asli) — BERHASIL DIJALANKAN
+
+$ node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/F-13-tutup-shift-kepemilikan.sql
+→ "uji: 1 LULUS · 0 GAGAL / HASIL: LOLOS"
+  (seluruh asersi di dalam berkas lulus; satu berkas = satu transaksi yang
+  selalu di-rollback — lihat kepala alat/uji-sql.mjs)
+
+Isi probe (4 skenario):
+1. KONTROL POSITIF: Rina (kasir A1) menutup shift sendiri → diterima.
+2. CELOH p_shift_id: Rina menutup shift Andi (admin A1) secara eksplisit →
+   DITERIMA (asersi mematok ditutup_oleh=Rina, dibuka_oleh=Andi).
+3. CELOH fallback: Rina tanpa p_shift_id menutup shift Andi → DITERIMA.
+4. KONTROL NEGATIF: Dedi (pelayan A1) mencoba hal yang sama → DITOLAK
+   'tidak berwenang' (harness terbukti melihat penolakan nyata).
+
+Catatan jujur: percobaan pertama kontrol negatif memakai Ujang (kasir B1)
+ditolak dengan sebab lain ("Shift kas tidak ditemukan." — gerbang penyewa
+lebih dulu); log kegagalan harness itu disimpan apa adanya di riwayat
+perintah sesi dan alasan penggantian kursi ditulis di komentar probe.
+
+Jalankan ulang:
+  cd alat && npm ci
+  cd .. && node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/F-13-tutup-shift-kepemilikan.sql
+Hasil run tersimpan di bukti/F-13-hasil-probe-kepemilikan.txt.
+
+=========================================================================
+E. Reproduksi penanda ❓ periksa-roadmap.py (menguji klaim [Proses] :2112-2115)
+=========================================================================
+
+$ git worktree add /tmp/f13-wt HEAD
+$ cd /tmp/f13-wt && perl -0pi -e 's/❓\s*T-028//g' docs/ROADMAP.md
+$ python3 alat/periksa-roadmap.py
+GAGAL (1 temuan):
+  - T-028 masih terbuka tetapi tidak ditandai ❓ pada tugas
+
+$ git checkout -- docs/ROADMAP.md && perl -0pi -e 's/❓\s*T-026//g' docs/ROADMAP.md
+$ python3 alat/periksa-roadmap.py
+GAGAL (1 temuan):
+  - T-026 masih terbuka tetapi tidak ditandai ❓ pada tugas
+
+=> klaim :2113-2114 TERVERIFIKASI (kedua mutasi memang membuat penjaga GAGAL;
+   penjaga apa adanya di repo = LOLOS).
+
+=========================================================================
+F. Angka bukti lain yang bisa dihitung sekarang
+=========================================================================
+
+- TutupKas.test.tsx: 9 it() → cocok klaim "9/9 tes LULUS" (:2469)
+- alat/uji-mutasi-0046.py: DAFTAR_MUTASI 6 butir → cocok "6/6 mutasi" (:2468)
+- supabase/tes/tutup_shift.sql: 10 seksi bernomor → cocok "10 skenario" (:2466);
+  panggilan uji.* di berkas = 35 (21 harap-family + 14 klaim)
+- "89/89 suite SQL LULUS" (:2466): satuan "suite" tidak dipakai alat
+  (alat/uji-sql.mjs mencatat per BERKAS: "uji: N LULUS"; 12 berkas tes SQL).
+  Tidak bisa dipastikan benar/salahnya → kartu §6, bukan temuan.
+- Angka titik-waktu lain (45/67/76 berkas, 213/434/596 tes, 376 asersi,
+  9/38/69/73 mutasi) tidak dapat diverifikasi ulang (clone dangkal, tidak ada
+  checkout 2026-09-23) → kartu §6.
+- Lokasi alat/uji-mutasi-app.mjs: klaim log selalu menulis
+  "aplikasi/alat/uji-mutasi-app.mjs" (benar: :1884, :1920, :2020, :2095,
+  :2266, :2302, :2333, :2428, :2473) — diperiksa, COCOK, bukan temuan.

@@ -1,0 +1,8 @@
+  GAGAL docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-probe-082.sql
+        HARAPAN TIDAK TERPENUHI: F-082 residu: pegawai yang mendaftar lewat kode resmi tetap DITOLAK sampai ada persetujuan manual (dapat LOGIN_SUKSES, harap PERANGKAT_BELUM_DISETUJUI)
+
+----------------------------------------------------------------------
+uji: 0 LULUS · 1 GAGAL
+Rincian kegagalan:
+  - docs/uji/pemeriksaan/PMB-1/bukti/H-F-06.3-probe-082.sql: HARAPAN TIDAK TERPENUHI: F-082 residu: pegawai yang mendaftar lewat kode resmi tetap DITOLAK sampai ada persetujuan manual (dapat LOGIN_SUKSES, harap PERANGKAT_BELUM_DISETUJUI)
+HASIL: GAGAL

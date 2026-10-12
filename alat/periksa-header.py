@@ -122,6 +122,10 @@ def periksa_isi_headers(path_file: pathlib.Path) -> list[str]:
     for fitur in ("camera", "microphone", "geolocation"):
         if fitur not in pp:
             errs.append(f"{lbl}: Permissions-Policy tidak mengatur fitur '{fitur}'")
+    # PMB1-F-119: fitur yang DIPAKAI aplikasi (printer T6-03 via WebUSB/Web Bluetooth) tidak boleh diblokir untuk asal sendiri
+    for fitur in ("usb", "bluetooth"):
+        if re.search(rf"\b{fitur}=\(\s*\)", pp):
+            errs.append(f"{lbl}: Permissions-Policy memblokir '{fitur}=()' padahal printer (T6-03) memakainya — wajib '{fitur}=(self)'")
 
     hsts = headers_global.get("Strict-Transport-Security", "")
     if "max-age" not in hsts or "includeSubDomains" not in hsts or "preload" not in hsts:

@@ -1,0 +1,227 @@
+# REPRODUKSI HAKIM H-F-17.2 — 2026-09-29T08:13Z · commit 29b3e78 · node v22.22.3
+
+## 0. Rujukan berkas:baris pemeriksa — apakah baris itu benar-benar memuat kalimat yang diklaim (pelajaran PMB1-F-094)
+OK    docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/PRD-cuplikan.md:14 memuat «void masih diperbolehkan dengan PIN owner»
+OK    docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/PRD-cuplikan.md:8 memuat «bawaan sampai tiga diskon per transaksi»
+OK    docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/PRD-cuplikan.md:23 memuat «bawaan `false`/fleksibel»
+OK    docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/KEAMANAN-cuplikan.md:8 memuat «10×/15 menit per akun»
+OK    docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/KEAMANAN-cuplikan.md:8 memuat «RENCANA Fase 1B»
+OK    docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/KEAMANAN-cuplikan.md:17 memuat «pemilik platform 30 hari»
+OK    docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/KEAMANAN-cuplikan.md:18 memuat «hanya berlaku di luar jam aktif»
+OK    docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/KEAMANAN-cuplikan.md:21 memuat «5×/15 menit per akun»
+SALAH docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/KEAMANAN-cuplikan.md:22 TIDAK memuat «5×/15 menit per akun» → baris itu: | Pencabutan | per perangkat · per akun · semua perangkat | Database + RPC (se
+OK    docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/ROADMAP-cuplikan.md:3 memuat «128/128»
+OK    docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/ROADMAP-cuplikan.md:9 memuat «disaksikan pemilik di perangkat kasir nyata»
+OK    docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/ROADMAP-cuplikan.md:17 memuat «aplikasi/src/layar/kas/»
+SALAH docs/DECISIONS_LOG.md:323 TIDAK memuat «T-025» → baris itu:   8. **Uji peramban (Playwright) ditaruh di GitHub Actions**, bukan di ruang ker
+OK    docs/PRD.md:323 memuat «hapus janji void terselubung sesudah bayar»
+OK    docs/DECISIONS_LOG.md:1505 memuat «LARANG ubah/void sesudah bayar»
+OK    docs/DECISIONS_LOG.md:1527 memuat «sesudah bayar dicatat sebagai pembatalan berizin»
+SALAH docs/ROADMAP.md:2036 TIDAK memuat «132/132» → baris itu:   - **Verifikasi:** tinjauan tertulis komprehensif selesai di `docs/teknis/TINJA
+OK    docs/ROADMAP.md:2036 memuat «132 berkas uji SQL lulus»
+(SALAH di atas = koreksi rujukan untuk kolom Hakim; substansi temuan dinilai di bagian 1–9)
+
+## 1. PMB1-F-192 — void sesudah pembayaran pertama (PRD-cuplikan:14)
+$ sed -n 14p docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/PRD-cuplikan.md | cut -c1-240
+    - **Sesudah pembayaran pertama, termasuk sebagian: isi/nominal dan diskon dikunci; void masih diperbolehkan dengan PIN owner + alasan** supaya kesalahan kasir tetap bisa dikoreksi hari itu juga. Refund resmi tetap fase 2.
+$ sed -n 59p docs/TERTANGGUH.md | grep -o 'DIPUTUSKAN[^|]*' | cut -c1-230
+DIPUTUSKAN 2026-09-21: opsi (a) LARANG ubah/void sesudah bayar. DILAKSANAKAN Batch-5: penegak 0022 + SQL/mutasi/concurrency; sisa AUD-2 independen + izin verifikasi/sebar melekat pada T1-45 (bukan putusan uang yang belum dijawab).
+$ sed -n '1,2p;41p;81p' supabase/migrations/0022_beku_setelah_bayar.sql
+-- T-025(a), keputusan Lee 2026-09-21: LARANG ubah/void setelah uang pertama
+-- tercatat, termasuk pembayaran sebagian. Tidak ada jalur pengembalian baru.
+      raise exception 'BY-201: Pembayaran sudah tercatat. Isi, diskon, dan pembatalan pesanan terkunci; jangan ubah pesanan ini.';
+      raise exception 'BY-201: Pembayaran sudah tercatat. Isi dan nominal pesanan terkunci; jangan ubah pesanan ini.';
+$ sed -n 1527p docs/DECISIONS_LOG.md | cut -c1-260
+**Sinkronisasi T-025(a):** janji lama PRD M6 "sesudah bayar dicatat sebagai pembatalan berizin" diganti sesuai keputusan Lee: pembayaran pertama (termasuk sebagian) melarang ubah/void. TECH_SPEC contoh alur ikut selaras; refund fase 2 tidak diimpleme
+→ runtime: probe C (kursi OWNER; kontrol positif void SEBELUM bayar) + uji bawaan beku_setelah_bayar.sql — lihat bagian 10–11
+
+## 2. PMB1-F-193 — bawaan diskon (PRD-cuplikan:8)
+$ sed -n 8p docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/PRD-cuplikan.md | cut -c1-230
+  - Diskon: **bawaan sampai tiga diskon per transaksi** tanpa batas total; pengaturan bisa membatasi menjadi satu diskon bila owner menghendaki.
+$ grep -n tumpuk_diskon supabase/migrations/0002_pengguna_izin_pengaturan.sql | head -2
+91:  tumpuk_diskon              boolean not null default false,
+$ sed -n '75,78p;127p' supabase/migrations/0019_pesan_diskon_jujur.sql | cut -c1-220
+    select p.tumpuk_diskon into v_tumpuk from public.pengaturan p where p.penyewa_id = v_pesanan.penyewa_id;
+    if not coalesce(v_tumpuk, false) then
+      raise exception 'Resto ini hanya mengizinkan satu diskon per transaksi.';
+    end if;
+  'Menjaga diskon: jenis yang mesinnya belum ada (promo, voucher) DITOLAK gagal-aman, batas izin per baris, SATU diskon bila tidak tumpuk, dan TOTAL potongan tidak melebihi subtotal maupun cap resto (persen/nominal).';
+$ sed -n 204p docs/DECISIONS_LOG.md | grep -o 'Tumpuk diskon mengikuti pengaturan resto[^.]*\.'
+Tumpuk diskon mengikuti pengaturan resto** (bawaan: satu diskon per transaksi — Aturan Bisnis 2).
+→ runtime: probe D (katalog default) + uji bawaan diskon_tumpuk.sql & diskon_cap_bawaan.sql — bagian 10–11
+
+## 3. PMB1-F-194 — wajib_shift bawaan fleksibel vs T7-04 DoD (PRD-cuplikan:23 vs ROADMAP-cuplikan:5-9)
+$ sed -n 23p docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/PRD-cuplikan.md | cut -c1-330
+  - Aturan shift & transaksi: sistem mendukung penegakan transaksi hanya dalam shift kasir terbuka (melalui setelan `wajib_shift` di pengaturan cabang; bawaan `false`/fleksibel untuk kemudahan adopsi kedai pemula, dan dapat diwajibkan penuh oleh owne
+$ sed -n '5p;9p' docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/ROADMAP-cuplikan.md | cut -c1-260
+- [x] T7-04 — Transaksi hanya dalam shift terbuka ⚠️
+  - **DoD:** memesan/membayar di luar shift terbuka ditolak dengan pesan jelas; uji lulus; **disaksikan pemilik di perangkat kasir nyata dan ditandatangani di berita acara**.
+$ sed -n 28p supabase/migrations/0048_wajib_shift.sql
+  add column if not exists wajib_shift boolean not null default false;
+$ sed -n '4,9p' supabase/tes/wajib_shift.sql
+-- Yang dibuktikan:
+--   1. Mode fleksibel (wajib_shift = false):
+--      - Pesanan dan pembayaran tetap dapat dibuat tanpa shift kasir.
+--   2. Mode wajib shift (wajib_shift = true):
+--      - Memesan tanpa shift kasir aktif di cabang -> DITOLAK (SH-400).
+--      - Membayar via RPC bayar_pesanan tanpa shift aktif -> DITOLAK (SH-400).
+→ dua mode terdokumentasi di uji bawaan: fleksibel (bawaan) dan wajib; DoD T7-04 tidak menyebut bahwa penolakan hanya berlaku di mode wajib
+
+## 4. PMB1-F-195 — batas percobaan per akun (KEAMANAN-cuplikan:8 vs :21)
+$ sed -n '8p;21p' docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/KEAMANAN-cuplikan.md | cut -c1-140
+4. **Batas percobaan dua lapis:** 10×/15 menit per akun · 12×/15 menit per perangkat; percobaan yang ditolak karena terkunci tetap dihitu
+| Batas percobaan masuk | 5×/15 menit per akun · 12×/15 menit per perangkat | Database |
+$ sed -n '130p;134p' supabase/migrations/0087_perbaiki_search_path_kripto_dan_rpc.sql | cut -c1-170
+  if v_gagal_akun >= 5 or v_gagal_alat >= 12 then
+      'pesan', 'Akun atau perangkat terkunci sementara karena 5 kali percobaan salah. Tunggu 15 menit.'
+$ sed -n 180p supabase/tes/pin.sql
+-- 11. PEMBATASAN PER AKUN: 5 kali salah → terkunci walau PIN-nya benar.
+→ runtime: probe B (RPC login asli; 4 salah belum terkunci, 5 salah mengunci walau PIN benar)
+
+## 5. PMB1-F-196 — 'penyatuan ke percobaan_masuk = RENCANA' (KEAMANAN-cuplikan:8) — diuji sampai PERILAKU
+$ sed -n 8p docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/KEAMANAN-cuplikan.md | cut -c130-420
+etap dihitung; semua percobaan tercatat di tabel yang NYATA hari ini — `percobaan_pin` (verifikasi) dan `percobaan_simpan_pin` (pemasangan PIN). Penyatuan ke tabel `percobaan_masuk` adalah RENCANA Fase 1B (ROADMAP T1-26), bukan keadaan sekarang.
+$ grep -n 'create table if not exists public.percobaan_' supabase/migrations/*.sql
+supabase/migrations/0006_pin.sql:58:create table if not exists public.percobaan_pin (
+supabase/migrations/0011_peran_tunggal.sql:134:create table if not exists public.percobaan_simpan_pin (
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:97:create table if not exists public.percobaan_masuk (
+$ grep -in 'drop table[^;]*percobaan' supabase/migrations/*.sql | wc -l
+0
+$ sed -n '118,125p;146p' supabase/migrations/0087_perbaiki_search_path_kripto_dan_rpc.sql | cut -c1-110
+  select count(*) into v_gagal_akun
+    from public.percobaan_pin pp
+   where pp.pengguna_id = v_pengguna.id
+     and not pp.berhasil
+     and pp.waktu > now() - interval '15 minutes';
+
+  select count(*) into v_gagal_alat
+    from public.percobaan_pin pp
+    insert into public.percobaan_pin (
+$ grep -rn 'catat_percobaan_masuk\|periksa_kunci_masuk' aplikasi/src supabase/functions | grep -v '\.test\.' | wc -l
+0
+$ grep -n 'catat_percobaan_masuk(\|periksa_kunci_masuk(\|catat_percobaan_masuk_tenant(' supabase/migrations/*.sql | grep -v 'create or replace\|comment on\|revoke\|grant' | wc -l
+0
+$ sed -n 431p docs/ROADMAP.md | cut -c1-200
+- [x] T1-26 — Migrasi 0014: percobaan masuk + kunci 5×/15 menit (akun) & 12×/15 menit (perangkat) ⚠️
+→ runtime: probe B4/E (percobaan_masuk KOSONG sesudah alur login asli; percobaan_pin terisi)
+
+## 6. PMB1-F-197 — umur maksimum sesi (KEAMANAN-cuplikan:17)
+$ sed -n 17p docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/KEAMANAN-cuplikan.md | cut -c1-200
+| Umur maksimum sesi | Staf 12 jam · admin/owner 30 hari · pemilik platform 30 hari | Database (`sesi_perangkat`) |
+$ sed -n '469,478p' supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql
+  -- 3. Tentukan batas umur sesi berdasarkan peran (T1-25 / KEAMANAN §7)
+  --    Staf: 12 jam; Admin/Owner: 30 hari; Pemilik Platform: 8 jam
+  if v_pengguna.peran in ('kasir', 'pelayan', 'dapur') then
+    v_umur_interval := interval '12 hours';
+  elsif v_pengguna.peran in ('admin_cabang', 'owner_pusat') then
+    v_umur_interval := interval '30 days';
+  elsif v_pengguna.peran = 'pemilik_platform' then
+    v_umur_interval := interval '8 hours';
+  else
+    v_umur_interval := interval '12 hours';
+$ grep -c 'create or replace function public.ikat_sesi_perangkat' supabase/migrations/*.sql | grep -v ':0$'
+supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql:1
+$ grep -n -i 'umur\|12 hours\|8 hours\|30 days' $(grep -l ikat_sesi_perangkat supabase/tes/*.sql) | cut -c1-160
+supabase/tes/sesi_dan_perangkat.sql:94:-- 4. Uji Pengikatan Sesi Perangkat & Batas Umur (T1-25)
+supabase/tes/sesi_dan_perangkat.sql:110:-- Pengikatan dengan peran yang diizinkan (kasir) -> BERHASIL (umur 12 jam)
+supabase/tes/sesi_kedaluwarsa.sql:2:-- UJI: Penegakan Keaktifan Sesi, Batas Umur, dan Pencabutan Perangkat (N F-03)
+supabase/tes/sesi_kedaluwarsa.sql:6:--     diperiksa pada permintaan berikutnya (umur maksimum sesi tidak ditegakkan).
+supabase/tes/sesi_kedaluwarsa.sql:64:-- 2. Umur Maksimum: Sesi kedaluwarsa (berakhir_pada terlewati) ditolak
+supabase/tes/sesi_kedaluwarsa.sql:78:  'Sesi yang melewati umur maksimum (berakhir_pada <= now) ditolak'
+$ grep -rn 'ikat_sesi_perangkat' aplikasi/src supabase/functions | grep -v '\.test\.' | wc -l
+0
+→ runtime: probe A (RPC ikat_sesi_perangkat: kasir 12 jam · owner 30 hari · pemilik_platform 8 jam)
+
+## 7. PMB1-F-198 — kunci otomatis 'hanya di luar jam aktif' (KEAMANAN-cuplikan:18)
+$ sed -n 18p docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/KEAMANAN-cuplikan.md | cut -c1-330
+| Kunci otomatis saat menganggur | 15 / 15 / 15 / 30 / 60 menit (kasir/pelayan/dapur/admin/owner) — **hanya berlaku di luar jam aktif**; di dalam jam aktif perangkat tetap terkunci saat ditinggal sesuai batas peran | Aplikasi + aturan dokumen |
+$ sed -n '69,74p' aplikasi/src/hook/useKunciOtomatis.ts
+  useEffect(() => {
+    // Kunci otomatis hanya berjalan jika di luar jam operasional atau sesuai kebijakan keamanan
+    // Jika di luar jam operasional, batas waktu default 15 menit
+    const batasEfektifMs = diLuarJamOperasional
+      ? Math.min(batasWaktuMs, 15 * 60 * 1000)
+      : batasWaktuMs
+$ sed -n '19,24p' aplikasi/src/hook/useKunciOtomatis.ts
+  kasir: 15 * 60 * 1000,
+  pelayan: 15 * 60 * 1000,
+  dapur: 15 * 60 * 1000,
+  admin_cabang: 30 * 60 * 1000,
+  owner_pusat: 60 * 60 * 1000,
+  pemilik_platform: 30 * 60 * 1000,
+$ grep -rn 'useKunciOtomatis' aplikasi/src | grep -v 'hook/useKunciOtomatis' | grep -v '\.test\.' | wc -l
+0
+
+## 8. PMB1-F-199 — angka berkas uji SQL (ROADMAP-cuplikan:3)
+$ sed -n 3p docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/ROADMAP-cuplikan.md
+> Angka bukti terakhir: `node alat/uji-sql.mjs` → 128/128 berkas uji SQL lulus (2026-09-27).
+$ ls supabase/tes/*.sql | wc -l
+132
+$ grep -rn -o '132/132[^,.;]\{0,30\}' docs/ops/DEPLOY.md docs/teknis/TINJAUAN_KEAMANAN_F10.md docs/uji/PAKET_AUDIT_F10_3_AGEN.md | head -4
+docs/ops/DEPLOY.md:34:132/132 berkas lulus 100%)
+docs/teknis/TINJAUAN_KEAMANAN_F10.md:126:132/132 berkas uji SQL lulus 100%)
+docs/uji/PAKET_AUDIT_F10_3_AGEN.md:5:132/132 berkas uji SQL lulus
+$ sed -n 2036p docs/ROADMAP.md | grep -o '132 berkas uji SQL lulus[^)]*'
+132 berkas uji SQL lulus 100% via `node alat/uji-sql.mjs`
+$ sed -n '1929p;2008p' docs/ROADMAP.md | grep -o 'Bukti 2026-09-27\|126 berkas uji SQL lulus\|131 berkas lolos'
+Bukti 2026-09-27
+126 berkas uji SQL lulus
+131 berkas lolos
+
+## 9. PMB1-F-200 / F-201 — klaim vs kenyataan (T7-04) dan rujukan berkas (T7-05)
+$ sed -n '9p;12p' docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/ROADMAP-cuplikan.md | cut -c1-260
+  - **DoD:** memesan/membayar di luar shift terbuka ditolak dengan pesan jelas; uji lulus; **disaksikan pemilik di perangkat kasir nyata dan ditandatangani di berita acara**.
+  - **Verifikasi:** uji SQL + uji manual. · **Bukti 2026-09-27:** pemicu `wajib_shift` ada di migrasi 0048 dan uji `supabase/tes/wajib_shift.sql` hijau; tombol buka kas cepat ada di layar kasir.
+$ grep -rli 'berita acara' docs | grep -v 'pemeriksaan/PMB-1' | wc -l
+0
+$ ls supabase/tes/wajib_shift.sql && grep -n 'create trigger' supabase/migrations/0048_wajib_shift.sql && grep -n 'tombol_buka_kas_cepat' aplikasi/src/layar/kasir/LayarKasir.tsx
+supabase/tes/wajib_shift.sql
+117:create trigger trg_pesanan_wajib_shift
+201:create trigger trg_pembayaran_wajib_shift
+677:              🔓 {t('kasir.tombol_buka_kas_cepat')}
+$ sed -n 566p docs/teknis/REKAM_PESAN_PEMILIK.md | cut -c1-230
+  4. Pelajaran untuk PMB: **klaim "selesai" yang DoD-nya menuntut tangan pemilik/perangkat nyata wajib diperiksa ulang** sebagai regresi wajib di Tahap 1 (klaim ROADMAP) — kelas cacat "klaim vs kenyataan".
+$ sed -n '17p;18p' docs/uji/pemeriksaan/PMB-1/kalibrasi/bahan-tahap-1/ROADMAP-cuplikan.md | cut -c1-200
+  - **File:** `aplikasi/src/layar/kas/` (komponen pengingat), `supabase/migrations/0085_ringkasan_harian.sql`
+  - **DoD:** pengingat tampil bila shift melewati jam tutup cabang; laporan harian menandai shift yang ditutup lewat tengah malam.
+$ ls -d aplikasi/src/layar/kas; ls aplikasi/src/komponen/PengingatShift.tsx
+ls: cannot access 'aplikasi/src/layar/kas': No such file or directory
+aplikasi/src/komponen/PengingatShift.tsx
+$ grep -n -i 'tengah\|malam\|midnight\|melewati_tengah' supabase/migrations/0085_ringkasan_harian.sql | wc -l
+0
+$ sed -n 17p supabase/migrations/0049_pengingat_shift.sql | cut -c1-140; sed -n 618p aplikasi/src/layar/laporan/LaporanKas.tsx
+--    Saat shift yang melewati tengah malam ditutup, catatan audit `shift_melewati_tengah_malam`
+                          {s.melewati_tengah_malam && (
+
+## 10. PROBE RUNTIME — dipanggil dari kursi peran sungguhan (harus LULUS)
+$ node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/H-F-17.2-probe-runtime.sql 2>&1 | sed -n '/Menjalankan/,$p' | grep -v '^$' | head -5
+Menjalankan 1 berkas uji:
+  LULUS docs/uji/pemeriksaan/PMB-1/bukti/H-F-17.2-probe-runtime.sql
+----------------------------------------------------------------------
+uji: 1 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+## 10b. KONTROL NEGATIF PROBE — mutan yang menuliskan klaim bahan/pemeriksa harus MERAH (bila LULUS = probe tumpul)
+mutan A: dibuat mutan B: dibuat mutan C: dibuat mutan D: dibuat mutan E: dibuat 
+MERAH sesuai harapan · mutan A → F-197 umur sesi pemilik_platform (MUTASI-A: klaim bahan 30 days) (dapat 08:00:00, harap 30 days)
+MERAH sesuai harapan · mutan B → F-195 PIN BENAR setelah 5 salah (MUTASI-B: klaim bahan 10x = LOGIN_SUKSES) (dapat AKUN_TERKUNCI, harap LOGIN_SUKSES)
+MERAH sesuai harapan · mutan C → BY-201: Pembayaran sudah tercatat. Isi, diskon, dan pembatalan pesanan terkunci; jangan ubah pesanan ini.
+MERAH sesuai harapan · mutan D → F-193 bawaan kolom pengaturan.tumpuk_diskon (MUTASI-D: klaim bahan = bawaan tumpuk true) (dapat false, harap true)
+MERAH sesuai harapan · mutan E → F-196 tabel percobaan_masuk KOSONG setelah seluruh alur login asli (MUTASI-E: klaim pemeriksa = jalur asli menulis percobaan_masuk) (dapat 0, harap 1)
+
+## 11. UJI SQL BAWAAN REPO yang mengunci perilaku yang sama (harus LULUS)
+beku_setelah_bayar.sql         LULUS supabase/tes/beku_setelah_bayar.sql
+diskon_tumpuk.sql              LULUS supabase/tes/diskon_tumpuk.sql
+diskon_cap_bawaan.sql          LULUS supabase/tes/diskon_cap_bawaan.sql
+wajib_shift.sql                LULUS supabase/tes/wajib_shift.sql
+pin.sql                        LULUS supabase/tes/pin.sql
+sesi_kedaluwarsa.sql           LULUS supabase/tes/sesi_kedaluwarsa.sql
+percobaan_masuk_tenant.sql     LULUS supabase/tes/percobaan_masuk_tenant.sql
+
+## 12. SUITE SQL PENUH (F-199: jumlah berkas uji hari ini)
+$ node alat/uji-sql.mjs 2>&1 | tail -3
+----------------------------------------------------------------------
+uji: 132 LULUS · 0 GAGAL
+HASIL: LOLOS
+
+# SELESAI — rujukan pemeriksa yang SALAH (sengaja dilaporkan untuk koreksi di kolom Hakim; harapan hakim: 3): 3 · masalah skrip/probe (mutan tumpul atau gagal dibuat; harapan 0): 0

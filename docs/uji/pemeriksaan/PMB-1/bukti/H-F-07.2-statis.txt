@@ -1,0 +1,364 @@
+Tanggal pemeriksaan: 2026-09-29 (Asia/Jakarta)
+HEAD: 43d0659e31958415630d06a236fcbf2728105232
+
+$ kutip alat/peta-ui.py [(36, 49), (354, 360), (393, 399)]
+36:     ("M1", "Pemesanan Kasir Cepat", ["kasir"]),
+37:     ("M2", "Papan Dapur & Bar Real-Time", ["dapur"]),
+38:     ("M3", "Manajemen Meja & Status Layanan", ["kasir", "pengaturan"]),
+39:     ("M4", "Pembayaran Fleksibel & Multi-Metode", ["kasir"]),
+40:     ("M5", "Laporan Penjualan & Rekonsiliasi Kas", ["laporan"]),
+41:     ("M6", "Manajemen Pegawai & Hak Akses Berjenjang", ["masuk", "pengaturan"]),
+42:     ("M7", "Katalog Menu & Kustomisasi Varian", ["kasir", "pelanggan-publik"]),
+43:     ("M8", "Voucher Diskon & Promosi", ["kasir", "voucher"]),
+44:     ("M9", "Manajemen Stok Bahan & Peringatan Habis", ["dapur", "pengaturan"]),
+45:     ("M10", "Menu Digital Pelanggan (Self-Order QR)", ["pelanggan-publik"]),
+46:     ("M11", "Dukungan Multi-Cabang Terpusat", ["laporan", "pengaturan"]),
+47:     ("M12", "Audit Log & Keamanan Data Transaksi", ["masuk", "kasir", "pengaturan"])
+48: ]
+49:
+354:     # Aturan 1: RPC pada aksi wajib terdaftar di migrasi
+355:     for a_id, a_data in registri_aksi.items():
+356:         rpc = a_data['rpc']
+357:         if rpc and rpc not in rpc_terdaftar:
+358:             kesalahan.append(f"[Aturan 1 - RPC] Aksi '{a_id}' menunjuk RPC '{rpc}' yang tidak terdefinisi di {dir_migrasi}.")
+359:
+360:     # Aturan 2: Izin pada aksi wajib terdaftar di izin_kode
+393:             kesalahan.append(f"[Aturan 6 - PRD] Fitur {kode} ({nama}) tidak memiliki layar terdaftar.")
+394:
+395:     # Aturan 7: Tombol mentah di folder aplikasi/src/layar/
+396:     dir_layar = akar / "aplikasi/src/layar"
+397:     if dir_layar.exists():
+398:         for berkas_tsx in dir_layar.rglob("*.tsx"):
+399:             if "test.tsx" in berkas_tsx.name or "LayarContoh.tsx" in berkas_tsx.name:
+
+$ judul M1–M12 dari docs/PRD.md
+76 ### M1. Pendaftaran & pengelolaan penyewa (resto)
+84 ### M2. Pengaturan tanpa koding (per penyewa)
+93 ### M3. Peran, hak akses berjenjang, & jejak audit
+103 ### M4. Pesanan dari kasir & pelayan
+114 ### M5. Layar dapur & tiket dapur (KDS)
+125 ### M6. Pembayaran, struk, & pembatalan
+139 ### M7. Kas & shift (buka/tutup kasir)
+148 ### M8. Laporan harian per shift
+153 ### M9. Stok dasar
+159 ### M10. Katalog pelanggan & voucher undang-teman
+173 ### M11. Multi-cabang (dasar)
+178 ### M12. Keamanan fondasi (lintas fitur) — **diperdalam 2026-09-17**
+
+$ kutip docs/PRD.md [(164, 171), (201, 201)]
+164:   - **Alur:** tautan kampanye → halaman pendaftaran → isi nama, alamat (opsional), nomor HP/email → verifikasi (**utamanya "Daftar dengan Google"**; jalur kedua email terverifikasi) → **barcode/kode voucher** muncul → pergi ke kedai → kasir **Cek** lalu **Pakai**.
+165:   - **Tanpa PIN pelanggan** (T-023, keputusan Lee 2026-09-21). Identitas pelanggan memakai Google Sign-In (utama) atau email terverifikasi (kedua); penghapusan ini **tidak** menghapus PIN pegawai/persetujuan saat kasir memakai voucher. Kanal email tetap gerbang T-022/T2-04 sebelum jalur email dibuka.
+166:   - **Aturan voucher diatur admin:** persen/nominal, minimum belanja, **batas maksimal potongan**, masa berlaku, kuota per kampanye, **anggaran kampanye**, per cabang/berlaku di mana.
+167:   - **Cek Voucher (baca saja)** tidak mengubah status; **Pakai Voucher** sekali pakai + **wajib PIN** kasir/atasan dan tercatat.
+168:   - Kasir bisa **scan lewat kamera** atau **mengetik kode manual**.
+169:   - Balasan jelas ke kasir: berhasil (dengan rincian potongan) / gagal (dengan sebab: sudah dipakai, kedaluwarsa, minimum belanja belum terpenuhi, tidak berlaku di cabang ini).
+170: - **Pengaman anti-kecurangan (10):** satu voucher per identitas per kampanye · batas voucher per outlet per hari · wajib belanja minimum + batas maksimal potongan + anggaran kampanye · sekali pakai · kode acak tidak berurutan · log semua percobaan cek/scan · batas percobaan per perangkat · tolak email sekali-pakai · normalisasi alamat Gmail (titik & tanda +) · laporan anomali klaim (fase 2).
+171: - **Kasus tepi:** voucher sudah kedaluwarsa (pesan jelas ke kasir, bukan error) · pelanggan tidak punya email & tidak mau Google (bisa didaftarkan kasir atas izin pelanggan — dicatat siapa yang mendaftarkan) · internet di kedai mati saat memakai voucher (dicatat manual lalu dimasukkan setelah online — **tidak menggandakan** pemakaian).
+201: QR pesan sendiri (pelanggan pesan dari HP) · split bill & gabung meja · poin loyalitas & keanggotaan digital · notifikasi meja kotor → bersih (staf kebersihan) · pelanggan melacak status pesanan · struk digital via email · ekspor laporan ke Excel/CSV · promosi terjadwal + segmentasi pelanggan · reservasi meja & daftar tunggu (notifikasi di aplikasi) · **resep sederhana** (stok berkurang otomatis) · tombol "pasang ke layar HP" · **alur permintaan izin jarak jauh** (pegawai minta → owner setuju dari jauh) · refund resmi · laporan anomali voucher · cetak laporan.
+
+$ kutip aplikasi/src/lib/aksi.ts [(243, 290), (733, 747)]
+243:   'dapur.mulai_masak': {
+244:     id: 'dapur.mulai_masak',
+245:     label: 'Mulai Masak',
+246:     layar: 'dapur',
+247:     peran: ['owner_pusat', 'admin_cabang', 'kasir', 'dapur'],
+248:     izin: null,
+249:     rpc: null,
+250:     jenis: 'tulis',
+251:     konfirmasi: null,
+252:     pin: false,
+253:     audit: false,
+254:     sukses: 'Status pesanan diubah menjadi sedang dimasak.',
+255:     gagal: 'Gagal mengubah status pengerjaan pesanan.',
+256:     uji: ['uji_dapur_mulai_masak'],
+257:     sembunyikanBilaTanpaIzin: true,
+258:   },
+259:   'dapur.selesai_masak': {
+260:     id: 'dapur.selesai_masak',
+261:     label: 'Siap Saji',
+262:     layar: 'dapur',
+263:     peran: ['owner_pusat', 'admin_cabang', 'kasir', 'dapur'],
+264:     izin: null,
+265:     rpc: null,
+266:     jenis: 'tulis',
+267:     konfirmasi: null,
+268:     pin: false,
+269:     audit: false,
+270:     sukses: 'Pesanan siap diantar ke meja.',
+271:     gagal: 'Gagal memperbarui status saji pesanan.',
+272:     uji: ['uji_dapur_selesai_masak'],
+273:     sembunyikanBilaTanpaIzin: true,
+274:   },
+275:   'dapur.tandai_habis': {
+276:     id: 'dapur.tandai_habis',
+277:     label: 'Tandai Habis',
+278:     layar: 'dapur',
+279:     peran: ['owner_pusat', 'admin_cabang', 'dapur'],
+280:     izin: 'ubah_stok',
+281:     rpc: null,
+282:     jenis: 'tulis',
+283:     konfirmasi: 'Tandai menu ini habis di kasir dan katalog?',
+284:     pin: false,
+285:     audit: true,
+286:     sukses: 'Menu ditandai habis.',
+287:     gagal: 'Gagal memperbarui ketersediaan menu.',
+288:     uji: ['uji_dapur_tandai_menu_habis'],
+289:     sembunyikanBilaTanpaIzin: false,
+290:     alasanNonaktifBilaTanpaIzin: 'Memerlukan izin ubah stok/ketersediaan.',
+733:   'voucher.klaim_diskon': {
+734:     id: 'voucher.klaim_diskon',
+735:     label: 'Terapkan Voucher',
+736:     layar: 'voucher',
+737:     peran: ['owner_pusat', 'admin_cabang', 'kasir'],
+738:     izin: 'pakai_voucher',
+739:     rpc: 'hitung_total',
+740:     jenis: 'tulis',
+741:     konfirmasi: 'Gunakan voucher pada tagihan transaksi ini?',
+742:     pin: false,
+743:     audit: true,
+744:     sukses: 'Voucher berhasil digunakan.',
+745:     gagal: 'Klaim voucher gagal.',
+746:     uji: ['uji_voucher_klaim_diskon'],
+747:     sembunyikanBilaTanpaIzin: false,
+
+$ kutip aplikasi/src/komponen/TombolAksi.tsx [(36, 70)]
+36:   const peranBoleh = !peranPengguna || aksi.peran.includes(peranPengguna)
+37:
+38:   // Cek hak akses izin spesifik
+39:   const izinBoleh = !aksi.izin || daftarIzinPengguna.includes(aksi.izin)
+40:
+41:   const punyaAkses = peranBoleh && izinBoleh
+42:
+43:   // Jika tidak punya akses dan diatur sembunyikan
+44:   if (!punyaAkses && aksi.sembunyikanBilaTanpaIzin) {
+45:     return null
+46:   }
+47:
+48:   const tombolNonaktif = disabled || !punyaAkses || sedangMemuat || sedangProses
+49:
+50:   const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
+51:     if (tombolNonaktif) return
+52:
+53:     if (aksi.konfirmasi) {
+54:       const setuju = window.confirm(aksi.konfirmasi)
+55:       if (!setuju) return
+56:     }
+57:
+58:     if (onClick) {
+59:       onClick(e)
+60:     }
+61:
+62:     if (onEksekusi) {
+63:       try {
+64:         setSedangProses(true)
+65:         await onEksekusi(aksi)
+66:       } finally {
+67:         setSedangProses(false)
+68:       }
+69:     }
+70:   }
+
+$ kutip aplikasi/src/hook/useTiketDapur.ts [(272, 302)]
+272:
+273:   const mulaiMasak = useCallback(
+274:     async (itemId: string) => {
+275:       await panggil(
+276:         'set_status_item',
+277:         { p_item_id: itemId, p_status: 'dimasak' },
+278:         'Status item gagal diperbarui.',
+279:       )
+280:     },
+281:     [panggil],
+282:   )
+283:
+284:   const selesaiMasak = useCallback(
+285:     async (itemId: string) => {
+286:       await panggil(
+287:         'set_status_item',
+288:         { p_item_id: itemId, p_status: 'siap' },
+289:         'Status item gagal diperbarui.',
+290:       )
+291:     },
+292:     [panggil],
+293:   )
+294:
+295:   const tandaiHabis = useCallback(
+296:     async (menuItemId: string) => {
+297:       await panggil(
+298:         'tandai_habis',
+299:         { p_menu_item_id: menuItemId, p_cabang_id: cabangId, p_habis: true },
+300:         'Menu gagal ditandai habis.',
+301:       )
+302:     },
+
+$ kutip docs/SPESIFIKASI_UI.md [(22, 22), (35, 39), (62, 62), (71, 71), (79, 95), (158, 160)]
+22: | 6 | Dokumen & kode bisa saling tinggal (drift) | **Pemeriksa `alat/peta-ui.py`** di CI (§5) — *alat ini **belum dibuat**; dibuat di Fase 1C (**T1-33**)* |
+35: | `rpc` | Fungsi peladen yang dipanggil (`null` untuk aksi murni tampilan, mis. "Tutup panel") |
+36: | `jenis` | `baca` / `tulis` / `navigasi` |
+37: | `konfirmasi` | Teks pertanyaan sebelum dijalankan (wajib untuk aksi uang & penghapusan) |
+38: | `pin` | Wajib PIN persetujuan? (ya/tidak) |
+39: | `audit` | Wajib menulis `catatan_audit`? (wajib `true` untuk aksi uang & pengaturan) |
+62: | Aturan tampilan | Target sentuh ≥44 px · kontras lolos · teks Indonesia · **angka uang dari peladen** | papan angka besar untuk jumlah |
+71: | Admin Cabang | Laporan cabangnya · Pengaturan cabangnya · Pegawai cabangnya · Perangkat cabangnya | Cabang lain · Pengaturan tingkat resto |
+79: `alat/peta-ui.py` (**belum ada — dibuat di T1-33**) akan men-generate `docs/PETA_UI.md` dari `aksi.ts` + `layar.ts`, lalu **menggagalkan CI** bila:
+80: 1. aksi menunjuk RPC yang tidak ada di `supabase/migrations/*.sql`;
+81: 2. aksi menunjuk kode izin yang tidak ada di tabel `izin_kode`;
+82: 3. aksi `tulis` tanpa uji (id uji tidak ditemukan di berkas uji);
+83: 4. layar tanpa berkas komponen atau tanpa satu pun peran yang bisa membukanya;
+84: 5. `docs/PETA_UI.md` berbeda dari hasil generate (dokumen basi);
+85: 6. ada fitur PRD M1–M12 yang belum punya layar/aksi.
+86: 7. ada `<button>` mentah di folder `layar/` (aturan §2 butir 1).
+87:
+88: Pemeriksa ini **wajib dibuktikan bisa MERAH** untuk tiap sebab (uji mutasi) — hijau tanpa pernah merah tidak membuktikan apa pun.
+89:
+90: ## 6. Definisi Selesai untuk tugas UI (menggantikan DoD lama untuk tugas layar)
+91:
+92: Sebuah tugas layar/fitur hanya boleh `[x]` bila **semua** benar:
+93: 1. Kontrak layar ditulis & lengkap (§3).
+94: 2. Semua aksinya ada di Registri Aksi, lengkap dengan izin/RPC/pesan/uji.
+95: 3. Ketujuh keadaan ditangani (dan dapat dilihat di pratinjau) — **target Fase 1C (`T1-31`…`T1-35`); baru 3 komponen keadaan yang ada (`KeadaanKosong/Memuat/Gagal`), sisanya belum dibuat (temuan audit J F-08)**.
+158: **Aturan pengaman (tidak bisa ditawar):** semua gerakan **mati** bila pengguna memilih *"kurangi gerak"*
+159: (`prefers-reduced-motion`) · tidak ada gerakan yang menahan kerja (durasi maksimum 260 ms) · tidak ada kedipan
+160: berulang (aksesibilitas) · angka di atas **diuji** lewat pemeriksa kontras & aturan desain yang sudah ada.
+
+$ kutip docs/PETA_UI.md [(34, 35), (68, 71), (103, 104), (108, 108), (120, 120)]
+34: | `pengaturan` | Pengaturan Resto | `/pengaturan` | `owner_pusat`, `admin_cabang` | Bilah navigasi Pengaturan, Menu Utama | `src/layar/pengaturan/LayarPengaturan.test.tsx` | `W-9-01` |
+35: | `platform_penyewa` | Kelola Resto Penyewa | `/platform/penyewa` | `pemilik_platform` | Menu Platform, Admin Root | `src/layar/platform/Penyewa.test.tsx` | `W-1-01` |
+68: | `contoh.picu_toast` | Picu Toast Pemberitahuan | `contoh` | owner_pusat, admin_cabang, kasir, pelayan, dapur, pemilik_platform, pelanggan | - | - | `navigasi` | - | - | `uji_contoh_picu_toast` |
+69: | `dapur.mulai_masak` | Mulai Masak | `dapur` | owner_pusat, admin_cabang, kasir, dapur | - | - | `tulis` | - | - | `uji_dapur_mulai_masak` |
+70: | `dapur.selesai_masak` | Siap Saji | `dapur` | owner_pusat, admin_cabang, kasir, dapur | - | - | `tulis` | - | - | `uji_dapur_selesai_masak` |
+71: | `dapur.tandai_habis` | Tandai Habis | `dapur` | owner_pusat, admin_cabang, dapur | `ubah_stok` | - | `tulis` | Ya | Ya | `uji_dapur_tandai_menu_habis` |
+103: | `pengaturan.simpan_menu` | Simpan Menu | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `simpan_menu` | `tulis` | - | Ya | `uji_pengaturan_simpan_menu` |
+104: | `pengaturan.simpan_menu_cabang` | Simpan Menu Cabang | `pengaturan` | owner_pusat, admin_cabang | `atur_pengaturan` | `simpan_menu_cabang` | `tulis` | - | Ya | `uji_pengaturan_simpan_menu_cabang` |
+108: | `pengaturan.tambah_cabang` | Tambah Cabang | `pengaturan` | owner_pusat | `atur_pengaturan` | `tambah_cabang` | `tulis` | - | Ya | `uji_pengaturan_tambah_cabang` |
+120: | `voucher.klaim_diskon` | Terapkan Voucher | `voucher` | owner_pusat, admin_cabang, kasir | `pakai_voucher` | `hitung_total` | `tulis` | Ya | Ya | `uji_voucher_klaim_diskon` |
+
+$ kutip supabase/migrations/0067_pengaman_voucher.sql [(321, 333), (365, 390)]
+321: create or replace function public.pakai_voucher(
+322:   p_pesanan_id uuid,
+323:   p_kode text,
+324:   p_pin_kasir text,
+325:   p_kunci_idempoten text default null,
+326:   p_perangkat text default null,
+327:   p_ip text default null
+328: )
+329: returns jsonb
+330: language plpgsql
+331: security definer
+332: set search_path = public, pg_temp
+333: as $$
+365:
+366:   -- 2. Verifikasi PIN Kasir
+367:   select p.*, k.pin_hash
+368:     into v_kasir
+369:     from public.pengguna p
+370:     left join public.kredensial_pin k on k.pengguna_id = p.id
+371:    where p.id = v_saya;
+372:
+373:   if v_kasir.id is null or not coalesce(v_kasir.aktif, false) or v_kasir.pin_hash is null then
+374:     return jsonb_build_object(
+375:       'berhasil', false,
+376:       'kode', 'KASIR_TIDAK_VALID',
+377:       'pesan', 'Akun kasir tidak aktif atau belum memiliki PIN.'
+378:     );
+379:   end if;
+380:
+381:   if p_pin_kasir is null or p_pin_kasir = '' or crypt(p_pin_kasir, v_kasir.pin_hash) is distinct from v_kasir.pin_hash then
+382:     insert into public.percobaan_pin (pengguna_id, perangkat, berhasil, aksi, pesanan_id)
+383:     values (v_saya, coalesce(p_perangkat, 'kasir'), false, 'pakai_voucher', p_pesanan_id);
+384:
+385:     return jsonb_build_object(
+386:       'berhasil', false,
+387:       'kode', 'PIN_SALAH',
+388:       'pesan', 'PIN kasir tidak sah. Mohon periksa kembali PIN Anda.'
+389:     );
+390:   end if;
+
+$ kutip supabase/migrations/0071_tema_merek.sql [(67, 78), (124, 136)]
+67:   v_peran := (select public.peran_saya());
+68:
+69:   -- 2. Otorisasi
+70:   if v_peran <> 'owner_pusat' and not public.boleh('atur_pengaturan') then
+71:     raise exception 'Anda tidak memiliki wewenang untuk mengubah tema tampilan resto.'
+72:       using errcode = '42501';
+73:   end if;
+74:
+75:   -- 3. Kunci baris pengaturan
+76:   select * into v_pengaturan
+77:     from public.pengaturan
+78:    where penyewa_id = v_penyewa_id
+124:   insert into public.catatan_audit (
+125:     penyewa_id,
+126:     pelaku_id,
+127:     aksi,
+128:     entitas,
+129:     entitas_id,
+130:     nilai_lama,
+131:     nilai_baru
+132:   ) values (
+133:     v_penyewa_id,
+134:     v_uid,
+135:     'ubah_tema_resto',
+136:     'pengaturan',
+
+$ kutip supabase/migrations/0083_versi_pengaturan_bersamaan.sql [(281, 290), (318, 326)]
+281:      and not public.boleh('atur_pengaturan') then
+282:     raise exception 'Anda tidak memiliki wewenang untuk mengelola kategori menu.';
+283:   end if;
+284:
+285:   v_penyewa := public.penyewa_saya();
+286:   if v_penyewa is null then
+287:     raise exception 'Penyewa tidak ditemukan.';
+288:   end if;
+289:
+290:   if p_nama is null or btrim(p_nama) = '' then
+318:     else
+319:       v_urutan := p_urutan;
+320:     end if;
+321:
+322:     insert into public.kategori_menu (
+323:       penyewa_id, nama, urutan, tujuan, aktif, diubah_pada
+324:     ) values (
+325:       v_penyewa, btrim(p_nama), v_urutan, p_tujuan, coalesce(p_aktif, true), v_versi_baru
+326:     ) returning id into v_id;
+
+$ komponen bersama bernama Keadaan
+aplikasi/src/komponen/KeadaanGagal.tsx
+aplikasi/src/komponen/KeadaanKosong.tsx
+aplikasi/src/komponen/KeadaanMemuat.tsx
+
+$ status T1-31..T1-35
+515 - [x] T1-31 — Peta Layar + kontrak layar (template & pengisian awal) ⚠️
+524 - [x] T1-32 — Registri Aksi + komponen `TombolAksi` (satu sumber kebenaran tombol) ⚠️
+533 - [x] T1-33 — Pemeriksa peta aksi/layar + jejak fitur M1–M12 (CI) ⚠️
+542 - [x] T1-34 — Harness uji komponen per layar (jsdom + Testing Library) + DoD UI ⚠️
+551 - [x] T1-35 — Naskah jalan pemilik bernomor (`W-<fase>-<nomor>`) + aturan bukti pratinjau ⚠️
+
+$ regresi lama dengan artefak lingkup
+docs/uji/AUDIT_RIWAYAT.md 110 | J F-08 | K-3 | 7 folder layar kosong tetapi `SPESIFIKASI_UI.md` menuntut "7 keadaan" seolah berlaku; 4 komponen keadaan belum ada | **DITUTUP 2026-09-20** | bantah-balik: NYATA. Janji "ketujuh keadaan" di `docs/SPESIFIKASI_UI.md` kini bertanda **target Fase 1C** (baru 3 komponen: `aplikasi/src/komponen/KeadaanGagal.tsx` dll.); pembuatan 4 komponen sisanya tetap terjadwal di `T1-31`…`T1-35` |
+docs/uji/AUDIT_RIWAYAT.md 190 | B F-15 | K-3 | `docs/SPESIFIKASI_UI.md` menyebut pemeriksa `alat/peta-ui.py` di CI padahal berkas & langkah CI belum ada | **DITUTUP (klaim dikoreksi) 2026-09-17** | `docs/SPESIFIKASI_UI.md` §5 kini menandai alat itu sebagai rencana Fase 1C (`T1-33`); pembuatan alatnya sendiri tetap tugas `T1-33` |
+docs/uji/AUDIT_RIWAYAT.md 208 | L F-06 | K-2 | Angka klaim tidak cocok: 32 aksi → 39, 11 layar → 11 cocok, 102 kunci kamus → 269 | **DITUTUP 2026-09-24** | paket audit (§2 T1-32/T1-39/T1-38) menyebut "32 aksi · 38 aksi · 102 kunci" — di `289db4f` angka nyatanya 39/39/269. `docs/PETA_UI.md` sudah benar (11 layar, 39 aksi); angka kamus bahasa 269 diverifikasi `python3 aplikasi/alat/periksa-bahasa.py`. Bukti hidup: `aplikasi/src/lib/aksi.ts` (39 registri) + `aplikasi/src/gaya/token/tema.css` (10 tema token) + `docs/PETA_UI.md` (39 aksi). |
+
+$ kutip docs/KEAMANAN.md [(46, 46), (49, 49), (53, 54), (124, 125), (161, 162), (186, 188), (196, 198)]
+46: - **`pengguna_cabang` hanya menyimpan daftar cabang** (kolom peran per cabang tidak lagi menjadi sumber wewenang).
+49: - Akun nonaktif (`pengguna.aktif = false`) **langsung kehilangan seluruh akses**, termasuk sesi & perangkat yang sedang jalan.
+53: - Tabel: `perangkat` (`penyewa_id`, `cabang_id`, `nama`, `jenis`, `peran_diizinkan`, `rahasia_hash`, `status`, `terakhir_aktif`, `terdaftar_oleh`, `dicabut_oleh`, `catatan`) · `kode_pendaftaran_perangkat` (kode sekali pakai, 15 menit) · `sesi_perangkat` (`session_id`, `perangkat_id`, `pengguna_id`, `mulai`, `berakhir_pada`, `status`).
+54: - **Alur pendaftaran:** admin/owner membuat kode → perangkat baru memasukkan kode → rahasia acak 32 byte dibuat di perangkat, server hanya menyimpan **SHA-256** → perangkat aktif dengan peran yang diizinkan.
+124: | Jam aktif per cabang (**keputusan pemilik 2026-09-17**) | Diatur owner di Pengaturan (mis. buka 09.00 – tutup 22.00, ditambah masa persiapan/pembersihan); di luar jam itu kunci otomatis **15 menit** | Pengaturan + aplikasi |
+125: | Kunci = | sesi dihapus dari perangkat; buka lagi wajib PIN/kata sandi | Aplikasi |
+161: - Sejak Fase 1B: **rantai hash** (`hash_sebelumnya`, `hash_baris`) dihitung pemicu; pemeriksa `alat/periksa-audit.py` (dibuat bersama rantai hashnya di `T1-27`, lalu dipasang di CI pada `T1-30`) menunjuk baris pertama yang putus bila ada perubahan/penghapusan langsung di database.
+162: - Yang dicatat minimal: void, diskon manual, perubahan harga, buka laci tanpa transaksi, pakai voucher, perubahan pengaturan, perubahan izin, perubahan pegawai/PIN, pendaftaran/pencabutan perangkat, persetujuan PIN, mode dukungan, percobaan masuk.
+186:
+187: ## 14. Matriks uji keamanan (wajib hijau sebelum pilot)
+188:
+196: | Kunci 5×/15 menit & 12×/15 menit | SQL otomatis | T1-25 |
+197: | PIN lemah & PIN kembar ditolak | SQL otomatis | T1-23 |
+198: | Rantai audit terdeteksi bila diubah/dihapus | SQL otomatis + pemeriksa | T1-26 |
+
+$ python3 alat/peta-ui.py --periksa
+PETA UI: SEMUA PEMERIKSAAN HIJAU (Layar, Aksi, RPC, Izin, Uji, PRD M1–M12, Bebas Button Liar).
+
+$ python3 alat/periksa-temuan-audit.py
+PERIKSA TEMUAN AUDIT — A: 10 · B: 17 · D: 10 (ditolak mesin, isinya dipakai) · F: 18 · H: 10 · I: 21 · J: 9 · K: 7 · L: 9 · M: 1 · N: 5 temuan · daftar penutup: 111 baris (108 ditutup · 5 terbuka)
+
+HASIL: LOLOS — 117 temuan terlacak semua, tiap DITUTUP punya bukti hidup, tiap TERBUKA punya tugas; 20 temuan luar cakupan review berjejak di daftar tunggal.

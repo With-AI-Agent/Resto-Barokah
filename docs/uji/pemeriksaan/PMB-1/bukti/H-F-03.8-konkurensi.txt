@@ -1,0 +1,71 @@
+BUKTI KONKURENSI H-F-03.8 — hakim ronde 2 PMB1-F-038 (2026-10-05)
+Harness: bukti/H-F-03.7-konkurensi.py — venv /home/user/.vpg (pgserver + psycopg), PostgreSQL sementara 16.2.
+Kriteria: MERAH = exit 0 + 'TERBUKTI' + jumlah akhir 4 · HIJAU = exit 1 + 'TIDAK TEREPRODUKSI' + jumlah akhir 3.
+
+== A. Pohon PRA-perbaikan (worktree basis 3ffd5af, tanpa 0099) — harap MERAH ==
+$ cd /tmp/w-basis && /home/user/.vpg/bin/python docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.7-konkurensi.py
+PostgreSQL sementara: /postgres?host=/tmp/konkuren-h-f-03-7-voucher
+Memuat semua migrasi dan alat/sql/data-uji.sql.
+Versi PostgreSQL: 16.2
+pendaftaran awal 1: SUKSES True
+pendaftaran awal 2: SUKSES True
+respons konkuren: {'Race B': ('SUKSES', True), 'Race A': ('SUKSES', True)}
+galat peserta: []
+jumlah akhir voucher kasir/kampanye: 4
+rincian: [('Base 1', 'aktif'), ('Base 2', 'aktif'), ('Race A', 'aktif'), ('Race B', 'aktif')]
+TERBUKTI: dua transaksi serentak melewati batas bawaan 3.
+exit=0
+
+== B. Pohon berlaku (32a4d52, dengan 0099) — harap HIJAU 3/3 ==
+$ /home/user/.vpg/bin/python docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.7-konkurensi.py
+--- ulangan 1 ---
+PostgreSQL sementara: /postgres?host=/tmp/konkuren-h-f-03-7-voucher
+Memuat semua migrasi dan alat/sql/data-uji.sql.
+Versi PostgreSQL: 16.2
+pendaftaran awal 1: SUKSES True
+pendaftaran awal 2: SUKSES True
+respons konkuren: {'Race B': ('SUKSES', True)}
+galat peserta: [('Race A', 'RaiseException(\'HARNESS_BARRIER_TIMEOUT: peserta kedua tidak mencapai INSERT voucher\\nCONTEXT:  PL/pgSQL function hf037_voucher_barrier() line 13 at RAISE\\nSQL statement "insert into public.voucher (\\n    penyewa_id,\\n    kampanye_id,\\n    pelanggan_id,\\n    kode,\\n    status,\\n    berlaku_sampai\\n  ) values (\\n    p_penyewa_id,\\n    p_kampanye_id,\\n    v_pelanggan_id,\\n    v_kode_voucher,\\n    \\\'aktif\\\',\\n    v_kmp.selesai\\n  ) returning id"\\nPL/pgSQL function daftar_voucher(uuid,uuid,text,text,text,text,boolean,text,text,text) line 281 at SQL statement\')')]
+jumlah akhir voucher kasir/kampanye: 3
+rincian: [('Base 1', 'aktif'), ('Base 2', 'aktif'), ('Race B', 'aktif')]
+TIDAK TEREPRODUKSI: batas tidak terlampaui dalam run ini.
+exit=1
+--- ulangan 2 ---
+PostgreSQL sementara: /postgres?host=/tmp/konkuren-h-f-03-7-voucher
+Memuat semua migrasi dan alat/sql/data-uji.sql.
+Versi PostgreSQL: 16.2
+pendaftaran awal 1: SUKSES True
+pendaftaran awal 2: SUKSES True
+respons konkuren: {'Race B': ('SUKSES', True)}
+galat peserta: [('Race A', 'RaiseException(\'HARNESS_BARRIER_TIMEOUT: peserta kedua tidak mencapai INSERT voucher\\nCONTEXT:  PL/pgSQL function hf037_voucher_barrier() line 13 at RAISE\\nSQL statement "insert into public.voucher (\\n    penyewa_id,\\n    kampanye_id,\\n    pelanggan_id,\\n    kode,\\n    status,\\n    berlaku_sampai\\n  ) values (\\n    p_penyewa_id,\\n    p_kampanye_id,\\n    v_pelanggan_id,\\n    v_kode_voucher,\\n    \\\'aktif\\\',\\n    v_kmp.selesai\\n  ) returning id"\\nPL/pgSQL function daftar_voucher(uuid,uuid,text,text,text,text,boolean,text,text,text) line 281 at SQL statement\')')]
+jumlah akhir voucher kasir/kampanye: 3
+rincian: [('Base 1', 'aktif'), ('Base 2', 'aktif'), ('Race B', 'aktif')]
+TIDAK TEREPRODUKSI: batas tidak terlampaui dalam run ini.
+exit=1
+--- ulangan 3 ---
+PostgreSQL sementara: /postgres?host=/tmp/konkuren-h-f-03-7-voucher
+Memuat semua migrasi dan alat/sql/data-uji.sql.
+Versi PostgreSQL: 16.2
+pendaftaran awal 1: SUKSES True
+pendaftaran awal 2: SUKSES True
+respons konkuren: {'Race B': ('SUKSES', True)}
+galat peserta: [('Race A', 'RaiseException(\'HARNESS_BARRIER_TIMEOUT: peserta kedua tidak mencapai INSERT voucher\\nCONTEXT:  PL/pgSQL function hf037_voucher_barrier() line 13 at RAISE\\nSQL statement "insert into public.voucher (\\n    penyewa_id,\\n    kampanye_id,\\n    pelanggan_id,\\n    kode,\\n    status,\\n    berlaku_sampai\\n  ) values (\\n    p_penyewa_id,\\n    p_kampanye_id,\\n    v_pelanggan_id,\\n    v_kode_voucher,\\n    \\\'aktif\\\',\\n    v_kmp.selesai\\n  ) returning id"\\nPL/pgSQL function daftar_voucher(uuid,uuid,text,text,text,text,boolean,text,text,text) line 281 at SQL statement\')')]
+jumlah akhir voucher kasir/kampanye: 3
+rincian: [('Base 1', 'aktif'), ('Base 2', 'aktif'), ('Race B', 'aktif')]
+TIDAK TEREPRODUKSI: batas tidak terlampaui dalam run ini.
+exit=1
+
+== C. Mutan pohon berlaku: kunci penasihat 0099 dibuang (worktree /tmp/w-head @32a4d52) — harap MERAH lagi ==
+$ grep -c "perform pg_advisory_xact_lock" /tmp/w-head/supabase/migrations/0099_*.sql  # → 0
+$ /home/user/.vpg/bin/python docs/uji/pemeriksaan/PMB-1/bukti/H-F-03.7-konkurensi.py
+PostgreSQL sementara: /postgres?host=/tmp/konkuren-h-f-03-7-voucher
+Memuat semua migrasi dan alat/sql/data-uji.sql.
+Versi PostgreSQL: 16.2
+pendaftaran awal 1: SUKSES True
+pendaftaran awal 2: SUKSES True
+respons konkuren: {'Race B': ('SUKSES', True), 'Race A': ('SUKSES', True)}
+galat peserta: []
+jumlah akhir voucher kasir/kampanye: 4
+rincian: [('Base 1', 'aktif'), ('Base 2', 'aktif'), ('Race A', 'aktif'), ('Race B', 'aktif')]
+TERBUKTI: dua transaksi serentak melewati batas bawaan 3.
+exit=0

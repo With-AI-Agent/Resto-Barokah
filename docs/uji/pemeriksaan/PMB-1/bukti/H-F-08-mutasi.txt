@@ -1,0 +1,172 @@
+# BUKTI HAKIM H-F-08 — uji mutasi & uji-diri (worktree bersih /tmp/hf08 @ 8edbd63, 2026-09-29T02:52:17Z)
+
+==============================================================
+F-111 — (a) laporan matriks vs kenyataan: baris dapur/ubah_stok
+==============================================================
+$ python3 alat/periksa-matriks-izin.py | grep -n "dapur\|ubah_stok\|HASIL"
+================================================================================
+MATRIKS HAK AKSES RESMI: 6 PERAN × 10 IZIN + MODE DUKUNGAN (T1-29)
+================================================================================
+Izin / Aksi            | Platform | Owner  | Admin  | Kasir  | Pelayan  | Dapur 
+--------------------------------------------------------------------------------
+atur_pengaturan        | ✗        | ✓      | ✗      | ✗      | ✗        | ✗     
+kelola_pegawai         | ✗        | ✓      | ✓      | ✗      | ✗        | ✗     
+lihat_laporan          | ✗        | ✓      | ✓      | ✗      | ✗        | ✗     
+ubah_harga             | ✗        | ✓      | ✓      | ✗      | ✗        | ✗     
+ubah_stok              | ✗        | ✓      | ✓      | ✗      | ✗        | ✗     
+void_sebelum_dapur     | ✗        | ✓      | ✓      | ✓      | ✗        | ✗     
+void_sesudah_dapur     | ✗        | ✓      | ✓      | ✗      | ✗        | ✗     
+beri_diskon            | ✗        | ✓      | ✓      | ✓      | ✗        | ✗     
+pakai_voucher          | ✗        | ✓      | ✓      | ✓      | ✓        | ✗     
+tutup_kas              | ✗        | ✓      | ✓      | ✓      | ✗        | ✗     
+mode_dukungan          | ✓        | ✗      | ✗      | ✗      | ✗        | ✗     
+================================================================================
+
+HASIL: LOLOS — Seluruh matriks izin 6 peran diverifikasi valid.
+--- baris ubah_stok pada laporan di atas & baris uji SQL yang bertentangan ---
+$ grep -n "ubah_stok" alat/periksa-matriks-izin.py
+17:            "ubah_harga": False, "ubah_stok": False, "void_sebelum_dapur": False,
+23:            "ubah_harga": True, "ubah_stok": True, "void_sebelum_dapur": True,
+29:            "ubah_harga": True, "ubah_stok": True, "void_sebelum_dapur": True,
+35:            "ubah_harga": False, "ubah_stok": False, "void_sebelum_dapur": True,
+41:            "ubah_harga": False, "ubah_stok": False, "void_sebelum_dapur": False,
+47:            "ubah_harga": False, "ubah_stok": False, "void_sebelum_dapur": False,
+62:        "ubah_stok", "void_sebelum_dapur", "void_sesudah_dapur", "beri_diskon",
+$ grep -n "dapur boleh ubah_stok" supabase/tes/matriks_izin_6_peran.sql
+140:select uji.sama(public.boleh('ubah_stok'), true, 'dapur boleh ubah_stok');
+
+==============================================================
+F-111 — (b) apakah --uji-diri mengotori pohon kerja?
+==============================================================
+$ python3 alat/periksa-matriks-izin.py --uji-diri
+UJI DIRI pemeriksa matriks izin 6 peran
+  [OK] Mutasi dapur ubah_harga terbukti MENOLAK.
+exit=0
+$ git status --porcelain   (setelah uji-diri)
+(kosong = pohon bersih)
+
+==============================================================
+F-116 — penjaga buku uji vs baris 2-kolom
+==============================================================
+$ awk -F"|" "NR>=44 && NR<=56 {print NR\": \"NF-1\" kolom\"}" docs/uji/BUKU_UJI_PEMILIK.md
+44: 7 kolom
+45: 7 kolom
+46: 7 kolom
+47: 7 kolom
+48: 7 kolom
+49: 7 kolom
+50: 7 kolom
+51: -1 kolom
+52: 7 kolom
+53: -1 kolom
+54: 7 kolom
+55: 3 kolom
+56: 3 kolom
+$ sed -n "45,49p" alat/periksa-buku-uji.py
+
+
+FOLDER_PAKET = "docs/uji/review-pr"
+
+
+$ python3 alat/periksa-buku-uji.py | tail -3
+PERIKSA BUKU UJI PEMILIK — 6 baris lakukan · 23 baris coba · 29 baris total
+
+HASIL: LOLOS — setiap baris punya langkah (maksimal 5), harapan, kolom hasil, dan tugas yang benar.
+
+==============================================================
+F-116 — uji mutasi: apakah baris 2-kolom lolos, apakah hapus langkah tertangkap
+==============================================================
+-- kontrol A: mutasi hapus langkah pada baris U-01 (harus GAGAL)
+mutasi terpasang: langkah U-01 kehilangan penomoran '1)'
+HASIL: GAGAL — 1 temuan
+  [X] baris 46 (U-01): langkah tidak bernomor (pakai bentuk '1) … 2) …')
+exit=0
+-- kontrol B: sisipkan baris 2-kolom baru di tengah tabel Bagian 2 (apa yang terjadi?)
+mutasi terpasang: 1 baris 2-kolom disisipkan sebelum U-08
+
+HASIL: LOLOS — setiap baris punya langkah (maksimal 5), harapan, kolom hasil, dan tugas yang benar.
+exit=0
+
+==============================================================
+F-094 (penutup G-04) — apakah penjaga menolak nomor baris di luar berkas?
+==============================================================
+-- kontrol A: normal (harus LOLOS)
+
+HASIL: LOLOS
+-- mutasi: ubah artefak F-101 ke docs/KEAMANAN.md:99999 (harus GAGAL)
+mutasi terpasang: nomor baris 99999 (di luar berkas)
+  [GAGAL] BUKU BESAR PMB1-F-101: artefak menunjuk baris [99999] melebihi panjang docs/KEAMANAN.md (232 baris)
+
+HASIL: GAGAL — 1 masalah
+exit=0
+-- kontrol B: nomor baris DALAM berkas tetapi kalimatnya salah (apakah masih LOLOS?)
+
+HASIL: LOLOS
+exit=0
+(kosong = semua mutasi dipulihkan)
+
+###############################################################################
+# TAMBAHAN HAKIM (2026-09-29, HEAD 8edbd63) — KOREKSI KARTU & UJI MUTASI PENJAGA
+###############################################################################
+
+== K1. F-110 — koreksi kutipan `ON CONFLICT` (kartu menulis `dicabut_pada = null`) ==
+$ sed -n '483,494p' supabase/migrations/0030_sesi_dan_persetujuan_perangkat.sql
+  on conflict (session_id) do update
+     set berakhir_pada = v_berakhir,
+         status = 'aktif',
+         diperbarui_pada = now();
+→ TIDAK ADA `dicabut_pada = null` / `alasan_cabut = null` seperti kutipan kartu K-F-08.2.
+  Pencabutan perangkat menyetel `status = 'dicabut'` (dibuktikan tes bagian 6, baris 160-166), sehingga
+  pengikatan ulang `session_id` yang sama memang MENGHIDUPKAN sesi cabut — tetapi lewat `status='aktif'`,
+  bukan lewat `dicabut_pada = null`.
+$ grep -c "sesi_masih_aktif" supabase/tes/sesi_dan_perangkat.sql   → 0
+$ grep -rln "sesi_masih_aktif" supabase/                              → 0058 (definisi) + 4 berkas TES lain
+   (akhiri_sesi_perangkat_hilang, cabut_akses, mfa, sesi_kedaluwarsa); 0 policy RLS & 0 RPC bisnis.
+$ for f in 0006 0011 0012 0016 0018 0061 0087; do grep -c percobaan_masuk; done → semuanya 0
+$ grep -rn "catat_percobaan_masuk\|periksa_kunci_masuk" supabase/functions/ aplikasi/src/ → 0 pemanggil
+   (yang memanggil hanya bagian 7 tes, langsung ke RPC).
+$ sed -n '426,431p' docs/ROADMAP.md → "umur 12 jam staf, 30 hari admin, 8 jam owner";
+   0030:470-481 → staf 12 jam · admin/owner 30 hari · pemilik_platform 8 jam → label "owner" pada 8 jam keliru.
+
+== K2. F-111 — koreksi ==
+$ wc -l alat/periksa-matriks-izin.py → 129 baris (kartu menunjuk :13-53 & :167-212).
+$ grep -n "delete" supabase/tes/matriks_izin_6_peran.sql → 0 baris (klaim "DELETE FROM public.izin" tak terbukti).
+$ python3 alat/periksa-matriks-izin.py --uji-diri   (di worktree bersih /tmp/hf08)
+  → "UJI DIRI … [OK] Mutasi dapur ubah_harga terbukti MENOLAK." ; `git status --porcelain` → KOSONG
+  → berkas uji DIPULIHKAN; klaim "mengotori pohon kerja" tidak terbukti pada versi hari ini.
+$ grep -n "dapur boleh ubah_stok" supabase/tes/matriks_izin_6_peran.sql → 140 (asersi `true`);
+  `sed -n '65p' alat/sql/data-uji.sql` memang memberi izin K_HUSUS `ubah_stok=true` ke pengguna dapur —
+  jadi "pertentangan" itu perlu nuansa (matriks peran vs izin khusus uji), bukan bukti telak.
+$ sed -n '16,19p' alat/periksa-matriks-izin.py → kamus `dapur` memuat `"ubah_stok": False`.
+
+== K3. F-116 — koreksi nomor baris & tanggal ==
+$ grep -n "len(kolom) < 5" alat/periksa-buku-uji.py → 39 (kartu menulis :47).
+$ awk -F'|' 'NR>=54 && NR<=57 {print NR": "NF-1" kolom"}' docs/uji/BUKU_UJI_PEMILIK.md
+  54: 7 kolom   (U-07)
+  55: 3 kolom   (baris log 2-kolom — 2026-09-17)
+  56: 3 kolom   (baris log 2-kolom — 2026-09-17)
+  57: 7 kolom   (U-08)
+→ barisnya b.55–56 bertanggal 2026-09-17 dan terselip antara U-07/U-08 (bukan "2026-09-25, antara U-12/U-13").
+$ mutasi hapus penomoran langkah U-01 → penjaga GAGAL "[X] baris 46 (U-01): langkah tidak bernomor".
+$ mutasi sisipkan baris 2-kolom baru sebelum U-08 → penjaga LOLOS (celah `len(kolom) < 5` tetap ada).
+
+== K4. MESIN PMB — kolom Hakim cukup "tidak kosong" (kandidat temuan baru, potongan G-04) ==
+$ (worktree /tmp/hf08) python3 - <<'PY'  → ubah baris PMB1-F-109: status BARU→TERVERIFIKASI,
+  kolom Hakim diisi teks palsu "arena/bukan-hakim H-TIDAK-ADA — bukan hakim sebenarnya"
+$ python3 alat/periksa-pemeriksaan.py → "HASIL: LOLOS"
+→ penjaga hanya menolak kolom Hakim kosong/"—" (baris 192-193), tidak menuntut rujukan kartu H —
+  padahal pesan galatnya sendiri menulis "(sesi + kartu H)". Kenyataan di repo: 8 baris F-101…F-108
+  berstatus TERVERIFIKASI dengan kolom Hakim "arena/01a0eacc-resto-barokah K-F-08 §4 — direproduksi
+  2026-09-29" sementara `kartu/H-F-08.md` tidak ada dan PAPAN F-08 saat itu SELESAI (bukan DIHAKIMI).
+
+== K5. G-04 DIPERBAIKI — verifikasi penutup (H-F-08) ==
+$ python3 alat/periksa-pemeriksaan.py (keadaan kini) → LOLOS
+$ mutasi artefak PMB1-F-101 → `docs/KEAMANAN.md:99999` → GAGAL:
+  "[GAGAL] BUKU BESAR PMB1-F-101: artefak menunjuk baris [99999] melebihi panjang docs/KEAMANAN.md (232 baris)"
+$ mutasi nomor DALAM berkas (`docs/PETA_UI.md:1`, kalimat salah) → masih LOLOS
+  → sesuai deskripsi perbaikan F-094: penjaga hanya menolak nomor di luar berkas; verifikasi isi = tugas Hakim.
+$ node alat/uji-sql.mjs docs/uji/pemeriksaan/PMB-1/bukti/H-F-06-admin-lintas-cabang.sql → "uji: 1 LULUS · 0 GAGAL"
+  → probe nyata pengganti berkas tautologis F-092 hidup dan lulus hari ini.
+$ grep -n "wajib .*memanggil artefak yang diuji" docs/uji/pemeriksaan/PROMPT_GILIRAN.md → §4 memuat kontrak bukti
+  (probe wajib memanggil artefak + kontrol negatif; pelajaran PMB1-F-092).
+$ git status --porcelain (setelah semua mutasi) → kosong; semua mutasi dipulihkan.

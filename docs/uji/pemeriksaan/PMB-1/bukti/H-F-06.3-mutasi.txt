@@ -1,0 +1,62 @@
+############ [0] KEBERSIHAN SALINAN SEBELUM MUTASI ############
+(kosong = bersih)
+
+############ [1] BASELINE UJI APLIKASI (sebelum mutasi) ############
+ [32m✓[39m src/layar/pengaturan/Perangkat.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 230[2mms[22m[39m
+ [32m✓[39m src/App.kunciOtomatis.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 186[2mms[22m[39m
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+
+############ [M1] F-084: pemanggilan useKunciOtomatis dihapus dari App.tsx ############
+MUTAN M1 dipasang
+[31m     [31m×[31m mengunci sesi kasir sesudah 15 menit menganggur (kembali ke layar masuk)[39m[32m 120[2mms[22m[39m
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+[41m[1m FAIL [22m[49m src/App.kunciOtomatis.test.tsx[2m > [22mPMB1-F-084 — kunci otomatis terpasang di wadah aplikasi (KEAMANAN §7)[2m > [22mmengunci sesi kasir sesudah 15 menit menganggur (kembali ke layar masuk)
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+(M1 dikembalikan)
+
+############ [M2] F-086: filter Perangkat.tsx kembali ke non-digit / 6 karakter ############
+MUTAN M2 dipasang
+[31m     [31m×[31m menerima kode 8 karakter huruf-angka kapital sesuai format backend (PMB1-F-086)[39m[32m 12[2mms[22m[39m
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+[41m[1m FAIL [22m[49m src/layar/pengaturan/Perangkat.test.tsx[2m > [22mLayarPerangkat (T2-15)[2m > [22mmemproses pendaftaran perangkat baru dengan kode dan nama perangkat
+[41m[1m FAIL [22m[49m src/layar/pengaturan/Perangkat.test.tsx[2m > [22mLayarPerangkat (T2-15)[2m > [22mmenerima kode 8 karakter huruf-angka kapital sesuai format backend (PMB1-F-086)
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (4)[39m
+(M2 dikembalikan)
+
+############ [M3] F-082: langkah 7b (persetujuan wajib) dihapus dari migrasi 0101 ############
+MUTAN M3 dipasang
+        HARAPAN TIDAK TERPENUHI: F-082: login tanpa baris persetujuan ditolak PERANGKAT_BELUM_DISETUJUI
+uji: 0 LULUS · 1 GAGAL
+  - supabase/tes/persetujuan_perangkat_wajib_login.sql: HARAPAN TIDAK TERPENUHI: F-082: login tanpa baris persetujuan ditolak PERANGKAT_BELUM_DISETUJUI
+HASIL: GAGAL
+(M3 dikembalikan)
+
+############ [M4] F-083: jalur tanpa sesi dimatikan di migrasi 0102 ############
+MUTAN M4 dipasang
+        Hanya owner_pusat yang berhak mengajukan pemulihan perangkat darurat.
+uji: 0 LULUS · 1 GAGAL
+  - supabase/tes/pemulihan_tanpa_sesi.sql: Hanya owner_pusat yang berhak mengajukan pemulihan perangkat darurat.
+HASIL: GAGAL
+(M4 dikembalikan)
+
+############ [M5] F-085: pagar cabang_pantau_saya dihapus dari migrasi 0100 ############
+MUTAN M5 dipasang
+        HARAPAN TIDAK TERPENUHI: F-085: admin cabang DITOLAK menerbitkan kode perangkat untuk cabang di luar pantauannya
+uji: 0 LULUS · 1 GAGAL
+  - supabase/tes/kode_perangkat_lintas_cabang.sql: HARAPAN TIDAK TERPENUHI: F-085: admin cabang DITOLAK menerbitkan kode perangkat untuk cabang di luar pantauannya
+HASIL: GAGAL
+(M5 dikembalikan)
+
+############ [M6] F-071: config.toml kembali 8 karakter + komposisi kosong ############
+MUTAN M6 dipasang
+  Aturan A: supabase/config.toml [auth] minimum_password_length = 8, padahal KEAMANAN.md menjanjikan >= 12 (PMB1-F-071).
+  Aturan B: supabase/config.toml [auth] password_requirements kosong — tidak ada aturan komposisi sama sekali.
+HASIL: GAGAL — aturan kata sandi dokumen vs konfigurasi tidak selaras (PMB1-F-071).
+(M6 keluar dengan kode 1)
+(M6 dikembalikan)
+
+############ [7] SALINAN BERSIH SESUDAH SEMUA MUTASI ############
+(kosong = bersih)

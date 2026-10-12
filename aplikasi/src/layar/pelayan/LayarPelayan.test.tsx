@@ -62,4 +62,36 @@ describe('LayarPelayan POS Mobile (T3-11)', () => {
       expect(screen.getByText(/Pesanan berhasil dikirim ke dapur!/i)).toBeDefined()
     })
   })
+
+  // PMB1-F-133: tanpa jalur kirim, atau jalur kirim menjawab false, JANGAN mengaku berhasil
+  it('tidak menampilkan sukses bila jalur kirim tidak terpasang (PMB1-F-133)', async () => {
+    render(
+      <PenyediaBahasa>
+        <LayarPelayan />
+      </PenyediaBahasa>,
+    )
+    fireEvent.click(screen.getByText('Nasi Goreng Spesial Barokah'))
+    fireEvent.click(screen.getByRole('button', { name: /Kirim ke Dapur/i }))
+    await waitFor(() => {
+      expect(screen.getByText(/belum tersambung/i)).toBeDefined()
+    })
+    expect(screen.queryByText(/berhasil dikirim/i)).toBeNull()
+    expect(screen.getByText(/Pesanan \(1 item\)/i)).toBeDefined()
+  })
+
+  it('tidak menampilkan sukses bila jalur kirim menjawab false (PMB1-F-133)', async () => {
+    const onKirimMock = vi.fn().mockResolvedValue(false)
+    render(
+      <PenyediaBahasa>
+        <LayarPelayan onKirimPesanan={onKirimMock} />
+      </PenyediaBahasa>,
+    )
+    fireEvent.click(screen.getByText('Nasi Goreng Spesial Barokah'))
+    fireEvent.click(screen.getByRole('button', { name: /Kirim ke Dapur/i }))
+    await waitFor(() => {
+      expect(onKirimMock).toHaveBeenCalled()
+      expect(screen.getByText(/Gagal mengirim pesanan/i)).toBeDefined()
+    })
+    expect(screen.queryByText(/berhasil dikirim/i)).toBeNull()
+  })
 })

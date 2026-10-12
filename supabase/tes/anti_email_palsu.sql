@@ -178,6 +178,7 @@ select uji.harap_gagal_sebab(
 
 -- E. Uji RPC daftar_voucher
 -- 1. Klaim pertama pelanggan baru -> SUKSES
+select uji.klaim('f0312200-0000-0000-0000-000000000001', '{"email":"siti.nurhaliza@kedai.co.id"}'::jsonb);
 select uji.harap(
   (
     select (hasil->>'berhasil')::boolean
@@ -196,6 +197,7 @@ select uji.harap(
 );
 
 -- 2. Klaim kedua dari orang yang sama (memakai variasi dot/tag) -> DITOLAK
+select uji.klaim('f0312200-0000-0000-0000-000000000002', '{"email":"b.u.d.i.santoso+klaimlagi@gmail.com"}'::jsonb);
 select uji.harap(
   (
     select hasil->>'kode'
@@ -214,6 +216,7 @@ select uji.harap(
 );
 
 -- 3. Klaim dengan email sekali-pakai -> DITOLAK
+select uji.klaim('f0312200-0000-0000-0000-000000000003', '{"email":"bot@tempmail.com"}'::jsonb);
 select uji.harap(
   (
     select hasil->>'kode'
@@ -232,6 +235,7 @@ select uji.harap(
 );
 
 -- 4. Klaim tanpa persetujuan privasi -> DITOLAK
+select uji.klaim('f0312200-0000-0000-0000-000000000004', '{"email":"ahmad@gmail.com"}'::jsonb);
 select uji.harap(
   (
     select hasil->>'kode'

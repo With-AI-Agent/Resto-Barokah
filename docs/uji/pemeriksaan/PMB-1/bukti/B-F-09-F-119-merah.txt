@@ -1,0 +1,10 @@
+     ✓ berkas _headers ada di folder public aplikasi 1ms
+     ✓ memuat aturan global /* dengan seluruh header keamanan esensial 1ms
+     ✓ Permissions-Policy mengizinkan kamera untuk scan voucher dan memblokir fitur tak berizin 1ms
+     × Permissions-Policy tidak memblokir WebUSB/Web Bluetooth yang dipakai printer (PMB1-F-119, T6-03) 4ms
+     ✓ Content-Security-Policy membatasi sumber script, style, font, connect, dan anti-clickjacking 1ms
+     ✓ memuat optimasi Cache-Control immutable untuk berkas kompilasi /assets/* 0ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/lib/keamanan-header.test.ts > Header Keamanan & Content-Security-Policy (T10-14 / TECH_SPEC §6 & §8 / docs/KEAMANAN.md §16) > Permissions-Policy tidak memblokir WebUSB/Web Bluetooth yang dipakai printer (PMB1-F-119, T6-03)
+      Tests  1 failed | 5 passed (6)
+      Tests  6 passed (6)

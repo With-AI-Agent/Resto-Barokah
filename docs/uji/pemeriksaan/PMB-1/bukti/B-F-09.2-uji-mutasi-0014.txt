@@ -1,0 +1,52 @@
+$ python3 alat/uji-mutasi-0014.py
+KONTROL POSITIF (tanpa mutasi harus hijau)
+  OK  diskon_cap_bawaan.sql: kode 0
+  OK  diskon_setuju.sql: kode 0
+  OK  item_penjaga.sql: kode 0
+  OK  jejak_pesanan.sql: kode 0
+  OK  meja_penjaga.sql: kode 0
+  OK  pembayaran.sql: kode 0
+  OK  pembayaran_metode.sql: kode 0
+  OK  pin_hierarki.sql: kode 0
+  OK  stok_insert_langsung.sql: kode 0
+  OK  uang_peladen.sql: kode 0
+  OK  varian_gagal_aman.sql: kode 0
+
+UJI MUTASI — penutup celah putaran13 & audit 2026-09-18 (0014 + penjaga lama)
+  OK  M14-1 hitung_total tidak lagi dipanggil saat item berubah (alur uang buntu lagi): MERAH (uang_peladen.sql)
+  (catatan) pola muncul 2× di 0015_penutup_celah_putaran16.sql — yang dimutasi kemunculan TERAKHIR
+  OK  M14-2 subtotal dari klien dipercaya lagi (dapur bisa memalsukan kerugian): MERAH (item_penjaga.sql)
+  (catatan) pola muncul 2× di 0015_penutup_celah_putaran16.sql — yang dimutasi kemunculan TERAKHIR
+  OK  M14-3 dapur boleh mengubah jumlah pesanan lagi: MERAH (item_penjaga.sql)
+  OK  M14-4 pembatalan tidak lagi menyetel status pesanan jadi batal: MERAH (item_penjaga.sql)
+  OK  M14-5 hierarki PIN dimatikan (bawahan bisa merebut PIN atasan lagi): MERAH (pin_hierarki.sql)
+  INFO M14-6 kasir_id tidak lagi dipaksa dari pengguna yang masuk: HIJAU (sesuai dugaan: lapisan kedua masih menahan; buktinya di M14-6b) (jejak_pesanan.sql)
+  OK  M14-7 tanggal pesanan mundur boleh lagi: MERAH (jejak_pesanan.sql)
+  OK  M14-8 metode bayar tidak lagi wajib (label boleh dikarang): MERAH (pembayaran_metode.sql)
+  OK  M14-9 arah stok pada INSERT langsung tidak dinormalkan lagi: MERAH (stok_insert_langsung.sql)
+  OK  M14-10 kasir/pelayan boleh mengubah nama & aktif meja lagi: MERAH (meja_penjaga.sql)
+  OK  M14-11 meja yang sedang dipakai boleh dihapus lagi: MERAH (meja_penjaga.sql)
+  OK  M14-12 stempel 'disetujui' pada diskon boleh dikarang lagi: MERAH (diskon_setuju.sql)
+  OK  M14-13 cap bawaan diskon kembali 100% (bukan batas): MERAH (diskon_cap_bawaan.sql)
+  OK  M14-14 varian tanpa harga boleh direkam lagi: MERAH (varian_gagal_aman.sql)
+  OK  M14-15 kunci idempoten pembayaran dihapus (dobel pembayaran tidak terdeteksi): MERAH (pembayaran.sql)
+  OK  M14-16 CHECK alasan pembatalan dihapus (void tanpa alasan lolos): MERAH (pembayaran.sql)
+  OK  M14-17 CHECK jumlah pembayaran > 0 dihapus (pembayaran nol/negatif lolos): MERAH (pembayaran.sql)
+
+UJI MUTASI GABUNGAN (lapisan penjaga yang saling menutupi)
+  OK  M14-6b kasir_id tidak dipaksa DAN larangan menyebut orang lain dimatikan: MERAH (jejak_pesanan.sql)
+
+PEMULIHAN (semua mutasi dipulihkan → seluruh berkas uji harus hijau lagi)
+  OK  diskon_cap_bawaan.sql: kode 0
+  OK  diskon_setuju.sql: kode 0
+  OK  item_penjaga.sql: kode 0
+  OK  jejak_pesanan.sql: kode 0
+  OK  meja_penjaga.sql: kode 0
+  OK  pembayaran.sql: kode 0
+  OK  pembayaran_metode.sql: kode 0
+  OK  pin_hierarki.sql: kode 0
+  OK  stok_insert_langsung.sql: kode 0
+  OK  uang_peladen.sql: kode 0
+  OK  varian_gagal_aman.sql: kode 0
+
+RINGKASAN: 17/17 mutasi WAJIB terbukti MERAH

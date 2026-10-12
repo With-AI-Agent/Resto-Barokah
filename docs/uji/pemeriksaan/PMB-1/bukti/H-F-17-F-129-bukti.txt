@@ -1,0 +1,109 @@
+# BUKTI HAKIM KETIGA — PMB1-F-129 (sengketa H-F-09 vs H-F-09.2)
+# Sesi: arena/01a0eb76-resto-barokah · kartu H-F-17 · tanggal: 2026-09-29T04:46:19Z
+# Commit basis: 93260e9389cb4806243e7b0ef8391425013cfabf
+
+## 1. Dokumen resmi Supabase (sumber sengketa) — dikutip dari fetch hari ini
+$ (fetch_page) https://supabase.com/docs/guides/auth/auth-smtp   [diakses 2026-09-29]
+> "To get you started and let you explore and set up email message templates for your application, Supabase provides
+>  an SMTP server for all projects. This server imposes a few important restrictions and is not meant for production use."
+> "**Send messages only to pre-authorized addresses.**"
+> "Unless you configure a custom SMTP server for your project, Supabase Auth will refuse to deliver messages to addresses
+>  that are not part of the project's team. You can manage this in the Team tab of the organization's settings."
+> "For example, if your project's organization has these member accounts person-a@example.com, person-b@example.com and
+>  person-c@example.com then Supabase Auth will only send messages to these addresses. All other addresses will fail with
+>  the error message Email address not authorized."
+> "Significant rate-limits that can change over time. ... Currently this value is set to 2 messages per hour."
+> "No SLA guarantee on message delivery or uptime for the default SMTP service."
+> "Once you save these settings, your project's Auth server will send messages to all addresses." (setelah SMTP kustom dipasang)
+=> Klaim Hakim 2 (H-F-09.2) TERBUKTI hari ini: halaman resmi yang sama memang memuat pembatasan penerima
+   'hanya alamat tim proyek' + galat 'Email address not authorized'. Klaim Hakim 1 (H-F-09) bahwa dokumen
+   'hanya memastikan 2 email/jam dan best-effort' TIDAK LENGKAP (bukan salah kutip, tetapi tidak memuat bagian ini).
+
+## 2. Repo: tidak ada konfigurasi SMTP kustom untuk Supabase Auth
+$ grep -rn -i smtp aplikasi supabase alat .github --include=* | grep -v node_modules
+-> hasil di atas: 0 baris (semua komentar/dokumen, tidak ada pengaturan SMTP)
+
+$ grep -n -i 'smtp\|mailer' supabase/config.toml
+(0 baris — blok [auth] config.toml tidak punya pengaturan SMTP; dan config.toml hanya untuk supabase lokal, bukan proyek nyata)
+
+$ sed -n '47,56p' supabase/config.toml
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["https://127.0.0.1:3000"]
+jwt_expiry = 3600
+enable_signup = true
+enable_anonymous_sign_ins = false
+minimum_password_length = 8
+password_requirements = ""
+
+
+## 3. Jalur email pelanggan memakai Supabase Auth bawaan (signInWithOtp), bukan Resend/SMTP kustom
+$ grep -rn 'signInWithOtp' aplikasi/src
+aplikasi/src/lib/auth.ts:264:    const { error } = await supabase.auth.signInWithOtp({
+$ sed -n '253,268p' aplikasi/src/lib/auth.ts
+/**
+ * Kirim tautan masuk via email (magic link) untuk pelanggan (T2-04).
+ */
+export async function kirimTautanMasukEmail(
+  email: string,
+): Promise<{ sukses: boolean; pesan?: string }> {
+  const supabase = klienSupabase()
+  if (!supabase) {
+    return { sukses: false, pesan: 'Layanan Supabase belum dikonfigurasi.' }
+  }
+  try {
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim().toLowerCase(),
+      options: {
+        emailRedirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
+      },
+$ grep -rn 'kirimTautanMasukEmail' aplikasi/src/App.tsx
+27:import { masukDenganGoogle, kirimTautanMasukEmail } from './lib/auth'
+482:            onKirimEmail={kirimTautanMasukEmail}
+609:                onKirimTautanEmail={kirimTautanMasukEmail}
+-> LayarMasukPelanggan (App.tsx:605-610) dan Kampanye (App.tsx:478-484) MEMANG memasang tombol email ke pelanggan.
+
+## 4. Resend hanya dipakai untuk ringkasan harian owner (bukan verifikasi/pemulihan pelanggan)
+$ grep -rn 'api.resend.com' supabase aplikasi/src
+supabase/functions/ringkasan_harian/index.ts:257:          const resEmail = await fetch('https://api.resend.com/emails', {
+aplikasi/src/lib/keamanan-header.test.ts:63:    expect(csp).toContain('https://api.resend.com')
+
+## 5. Klaim ROADMAP yang diperiksa
+$ sed -n '688,697p' docs/ROADMAP.md   (T2-04)
+- [x] T2-04 — Masuk pelanggan: Google (utama) + email terverifikasi (kedua) T-022
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-022: Lee mengizinkan menunda pemilihan pengirim email ke Fase 2; usulan SMTP Gmail BELUM persetujuan layanan. Sebelum mengaktifkan email pelanggan, tetapkan kanal tanpa biaya dengan Lee. Google Sign-In tidak menunggu kanal email.
+  - **Tujuan:** pelanggan bisa mendaftar tanpa SMS dan tanpa biaya.
+  - **Ref:** PRD M10 & M12; TECH_SPEC §7 (integrasi)
+  - **File:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/layar/masuk/LayarMasukPelanggan.test.tsx` (`aplikasi/src/lib/google.ts` rencana, terbuka di L F-02)
+  - **DoD:** "Daftar dengan Google" bekerja; jalur email mengirim verifikasi; identitas pelanggan tersimpan tanpa data berlebih; uji manual dua jalur lulus. · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LayarMasukPelanggan.tsx`, `aplikasi/src/layar/masuk/LayarMasukPelanggan.test.tsx` (3 tes lulus).
+  - **Kompleksitas:** sedang (4 jam)
+  - **Risiko & mitigasi:** ⚠️ wajib update `DECISIONS_LOG.md` — Area: Privasi (ART-10); data berlebih → mitigasi: hanya nama, email, nomor HP opsional, persetujuan.
+  - **Verifikasi:** uji manual masuk Google di perangkat Android + jalur email di desktop.
+
+$ sed -n '698,706p' docs/ROADMAP.md   (T2-05)
+- [x] T2-05 — Pemulihan akses pelanggan (lupa PIN / ganti perangkat) T-022 T-023
+  - **Tindak lanjut keputusan Lee (2026-09-21):** T-023: PIN pelanggan DIHAPUS (putusan Lee). Pemulihan mengikuti penyedia identitas; dokumen/alur diselaraskan pada Batch-5. T-022 tetap gerbang sebelum kanal email diaktifkan.
+  - **Tujuan:** pelanggan tidak terjebak kehilangan vouchernya.
+  - **Ref:** PRD M10 (kasus tepi); TECH_SPEC §7
+  - **File:** `aplikasi/src/layar/masuk/LupaAkses.tsx`, `aplikasi/src/layar/masuk/LupaAkses.test.tsx` (Edge Function `pemulihan_pelanggan` tidak dibuat sesuai keputusan Lee T-023)
+  - **DoD:** pemulihan lewat email terverifikasi bekerja; tidak bisa dipakai untuk mengambil alih akun orang lain (uji 2 kasus penyalahgunaan). · **Bukti 2026-09-22:** `aplikasi/src/layar/masuk/LupaAkses.tsx`, `aplikasi/src/layar/masuk/LupaAkses.test.tsx` (2 tes lulus).
+  - **Kompleksitas:** sedang (3 jam)
+  - **Risiko & mitigasi:** pengambilalihan akun → mitigasi: token sekali pakai + masa berlaku pendek + catatan percobaan.
+  - **Verifikasi:** uji manual + uji SQL percobaan token kedaluwarsa.
+
+## 6. Baseline: kanal email masih gerbang T-022 (belum diputuskan)
+$ grep -n 'T-022' docs/TERTANGGUH.md | cut -c1-400
+57:| T-022 | 2026-09-21 | **Cara kirim email ke pelanggan tanpa domain berbayar** — keputusan T-007 ("Resend tanpa domain khusus") tidak bisa dipakai untuk email ke PELANGGAN: tanpa domain terverifikasi, Resend hanya mengirim ke alamat email pemilik akun. Pilihan biaya nol: (a) SMTP Gmail pemilik lewat sandi aplikasi (±500/hari), (b) Brevo gratis 300/hari, (c) hanya Google Sign-In (ubah PRD M10
+$ sed -n '165p' docs/PRD.md
+  - **Tanpa PIN pelanggan** (T-023, keputusan Lee 2026-09-21). Identitas pelanggan memakai Google Sign-In (utama) atau email terverifikasi (kedua); penghapusan ini **tidak** menghapus PIN pegawai/persetujuan saat kasir memakai voucher. Kanal email tetap gerbang T-022/T2-04 sebelum jalur email dibuka.
+$ grep -n -i 'T-022\|kanal email' docs/DECISIONS_LOG.md | head -3
+1525:**Dasar:** Lee setuju-semua, T-023. PRD M10/§7 langkah 17 tidak lagi meminta PIN pelanggan atau menjanjikan pemulihannya; TECH_SPEC §4.4/§5 menegaskan tanpa kolom/RPC PIN pelanggan. **PIN pegawai/persetujuan (termasuk pakai voucher) tetap utuh.** Google utama + email terverifikasi kedua tetap; kanal email belum diputuskan (gerbang T-022/T2-04). Tidak mengarang persetujuan biaya/domain.
+
+## 7. Bukti uji yang ada untuk T2-04/T2-05 = uji unit saja, bukan uji manual dua jalur
+$ grep -rn 'uji manual' docs/uji/*.md | grep -i 'email\|verifikasi\|pemulihan' | head -5
+$ ls docs/uji | grep -i 'hasil\|laporan' | head -10
+HASIL_UJI_TERIMA_KEAMANAN.md
+LAPORAN_CROSS_CHECK_TAHAP6.md
+LAPORAN_REVIEW_INDEPENDEN.md
+PENGIRIMAN_LAPORAN_AMAN.md

@@ -79,6 +79,7 @@ insert into public.kampanye_voucher (
 -- ----------------------------------------------------------------------------
 
 -- Lapis 9: Tolak email sekali-pakai
+select uji.klaim('f0316700-0000-0000-0000-000000000001', '{"email":"spammer@tempmail.com"}'::jsonb);
 select uji.harap(
   (
     select (hasil->>'berhasil')::boolean = false and (hasil->>'kode') = 'EMAIL_SEKALI_PAKAI'
@@ -99,6 +100,7 @@ select uji.harap(
 );
 
 -- Lapis 10: Klaim pertama pelanggan Gmail
+select uji.klaim('f0316700-0000-0000-0000-000000000002', '{"email":"ali.ridho+promo@gmail.com"}'::jsonb);
 select uji.harap(
   (
     select (hasil->>'berhasil')::boolean = true
@@ -123,6 +125,7 @@ select uji.harap(
 -- ----------------------------------------------------------------------------
 
 -- Klaim kedua dengan variasi titik Gmail untuk kampanye yang sama -> DITOLAK
+select uji.klaim('f0316700-0000-0000-0000-000000000003', '{"email":"a.l.i.r.i.d.h.o@gmail.com"}'::jsonb);
 select uji.harap(
   (
     select (hasil->>'berhasil')::boolean = false and (hasil->>'kode') = 'VOUCHER_SUDAH_DIKLAIM'
@@ -143,6 +146,7 @@ select uji.harap(
 );
 
 -- Terbitkan voucher kedua untuk Pelanggan Berbeda (Siti)
+select uji.klaim('f0316700-0000-0000-0000-000000000004', '{"email":"siti.khadijah@barokah.id"}'::jsonb);
 select public.daftar_voucher(
   '11111111-1111-1111-1111-111111111111',
   'c8100000-0000-0000-0000-000000000001',
@@ -157,6 +161,7 @@ select public.daftar_voucher(
 );
 
 -- Terbitkan voucher ketiga untuk Pelanggan Ketiga (Fatimah)
+select uji.klaim('f0316700-0000-0000-0000-000000000005', '{"email":"fatimah.zahra@barokah.id"}'::jsonb);
 select public.daftar_voucher(
   '11111111-1111-1111-1111-111111111111',
   'c8100000-0000-0000-0000-000000000001',
@@ -214,6 +219,10 @@ end;
 $$;
 
 -- ----------------------------------------------------------------------------
+-- Sesi dibersihkan lagi: `cek_voucher` di bawah menulis jejak dengan `kasir_id`, jadi
+-- pemanggilnya harus benar-benar staf (F-031 menutup jalur pelanggan tanpa sesi).
+select uji.klaim(null);
+
 -- LAPIS 3: Wajib Belanja Minimum (min_belanja = 50.000)
 -- ----------------------------------------------------------------------------
 select uji.harap(

@@ -122,7 +122,10 @@ select uji.sama(
   'Data penyewa_id sesuai Resto Oasis'
 );
 
--- 7. Login dari perangkat baru (belum terdaftar) oleh Owner -> Auto-provisioning berhasil (T11-01, ART-13)
+-- 7. Login dari perangkat baru (belum terdaftar) oleh Owner.
+--    PMB1-F-036 (keputusan Lee B): peran berkuasa TIDAK lagi boleh mendaftarkan
+--    perangkat asing sendiri secara bawaan; saklar
+--    `izin_daftar_perangkat_bebas_peran_berkuasa` (bawaan mati) mengendalikannya.
 reset role;
 select uji.klaim('90000000-0000-0000-0000-000000000002');
 select public.simpan_pin(
@@ -145,11 +148,20 @@ select public.verifikasi_pin_perangkat(
   'Browser Baru Owner'
 ) as res;
 
+-- 7a. Saklar BAWAAN MATI -> perangkat baru peran berkuasa ditolak, tidak ada baris baru.
 select uji.sama(
-  ((select res from temp_hasil_login_baru)->>'berhasil')::boolean,
-  true,
-  'Login Owner dari perangkat baru berhasil dengan auto-provisioning'
+  ((select res from temp_hasil_login_baru)->>'kode'),
+  'PERANGKAT_BELUM_DISETUJUI',
+  'Saklar bawaan mati: Owner dari perangkat baru DITOLAK (PMB1-F-036)'
 );
+
+-- 7b. Saklar DINYALAKAN -> auto-provisioning Owner berlaku lagi persis seperti sebelumnya.
+reset role;
+update public.pengaturan
+   set izin_daftar_perangkat_bebas_peran_berkuasa = true
+ where penyewa_id = '11111111-1111-1111-1111-111111111111';
+select uji.klaim(null);
+set local role anon;
 
 -- 8. Login dari perangkat baru kedua oleh Owner -> Tidak tabrakan nama unik
 drop table if exists temp_hasil_login_baru2;
