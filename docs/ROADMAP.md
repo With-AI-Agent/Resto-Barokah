@@ -857,8 +857,9 @@ Bentuk jawaban semua RPC mengikuti `TECH_SPEC.md` §5: `{ berhasil: bool, kode: 
   - **Verifikasi:** uji komponen (aksi terdaftar `masuk.pin` memanggil RPC yang benar) + naskah jalan pemilik.
   - **Bukti:** ⏳ BUKTI-BELUM — rujukan mesin di blok: `aplikasi/src/layar/masuk/MasukStaf.test.tsx` (belum diperiksa apakah uji ini benar-benar menutup DoD); diputuskan satu per satu oleh sensus klaim Tahap 2 PMB-1 (aturan K3, keputusan Lee 2026-09-29)
 
-- [x] T2-15 — Pendaftaran perangkat (kode/QR) + persetujuan pegawai baru ⚠️ T-015
+- [x] T2-15 — Pendaftaran perangkat (kode/QR) + persetujuan pegawai baru ⚠️ T-015 ❓ T-030
   - **Tindak lanjut keputusan Lee (2026-09-21):** T-015: panduan umum boleh dibuat sekarang; uji perangkat nyata WAJIB sebelum tugas ini dinyatakan selesai. Belum ada klaim perangkat kedai sudah diuji.
+  - **Ditandai ❓ T-030 (2026-10-12, PMB1-F-243, KEPUTUSAN LEE "Aku ikut rekomendasi kamu"):** MODEL PERMANEN persetujuan jalur kode resmi dibangun DI SINI bersama klaster cara masuk pra-pilot — kolom pengguna baru pada `kode_pendaftaran_perangkat` + alur klien sehingga kode terikat ke pegawai penerima (langkah 7a `verifikasi_pin_perangkat` hanya menyetujui penerima kode, bukan pegawai mana pun yang perannya cocok). Selama belum dibangun: model pra-pilot migrasi `0107` diterima apa adanya (revisi jujur `docs/KEAMANAN.md` §4 commit `e7e001f`; butir `T-030` di `docs/TERTANGGUH.md`; REKAM §31 butir 46). JANGAN menghapus tanda ❓ ini sebelum T-030 benar-benar dibangun dan butirnya ditutup Lee.
   - **Tujuan:** hanya perangkat yang didaftarkan admin/owner yang bisa dipakai kerja, dan pegawai baru harus disetujui pemilik.
   - **Ref:** TECH_SPEC §4.6 & §9 ART-11; PRD M12
   - **File:** `aplikasi/src/layar/pengaturan/Perangkat.tsx`, `aplikasi/src/layar/pengaturan/Perangkat.test.tsx`, `docs/SPESIFIKASI_UI.md` (Edge Function `kode_perangkat` tidak dibuat terpisah)
