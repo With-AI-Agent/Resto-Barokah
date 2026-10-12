@@ -13,7 +13,7 @@
 | B | Temuan K-1 terbuka | 3 |
 | C | Tugas ROADMAP dibuka kembali, masih `[ ]` | 7 |
 | D | Centang lama menunggu sensus klaim (⏳ BUKTI-BELUM) | 139 |
-| E | Butir tertangguh terbuka | 3 |
+| E | Butir tertangguh terbuka | 4 |
 | F | Baris Buku Uji belum diisi Lee | 23 |
 
 Temuan terbuka semua tingkat: BARU 17 · TERVERIFIKASI 151 · PERLU-INFO 0 · DIPERBAIKI 4 · **total 172** (gerbang akhir PMB menuntut 0, kecuali DITANGGUHKAN oleh Lee dengan tanggal tinjau).
@@ -92,8 +92,9 @@ Jumlah: **139** (daftar beku: `docs/uji/pemeriksaan/PMB-1/BUKTI_BELUM_BASELINE.t
 | T-026 | 2026-09-23 | **Infra uji peramban (Playwright) + langkah CI-nya** |
 | T-028 | 2026-09-23 | **Jejak audit untuk CETAK ULANG struk (T5-10) belum ada di peladen** |
 | T-029 | 2026-10-09 | **Penegakan sesi-terikat-perangkat (T1-25) — PMB1-F-095** |
+| T-030 | 2026-10-12 | **Kode pendaftaran resmi terikat ke pegawai penerima (model persetujuan permanen) — PMB1-F-243** |
 
-Jumlah: **3**
+Jumlah: **4**
 
 ## F. Baris Buku Uji Pemilik yang belum Lee isi hasilnya (`docs/uji/BUKU_UJI_PEMILIK.md`)
 
