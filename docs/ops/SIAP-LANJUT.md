@@ -10,11 +10,11 @@
 - **Cabang yang dilanjutkan:** `arena/01a0fbb9-resto-barokah`
 - **Dasar pilihan cabang:** pilihan Lee yang tersimpan di handoff sebelumnya
 - **Ditulis oleh sesi:** `arena/01a0fbb9-resto-barokah`
-- **Commit keadaan kerja:** `f790e21506683a55e9e813524e207cc03efac6e7`
+- **Commit keadaan kerja:** `52c15c362f6af8ac9b098effc01de228937656ea`
 - **PR:** PR #14 (base main)
-PR #13 (base main)
 PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
-- **CI terakhir:** success (1 run, commit f790e215)
+- **CI terakhir:** (belum ada run CI untuk commit 52c15c36 — wajar, ditulis sebelum push; run terakhir yang selesai di cabang: success (run 38269248675, commit cddd28e7)) — periksa lagi setelah push: gh run list --branch <cabang> --limit 3
+- **CATATAN CI:** run untuk commit handoff ini belum ada/masih berjalan saat baris ini ditulis (wajar) — sesi baru cek `gh run list --branch arena/01a0fbb9-resto-barokah --limit 3`; lanjut bila hijau atau masih berjalan dengan run selesai terakhir hijau, berhenti hanya bila merah.
 - **Ditulis:** 2026-10-12 (sebelum commit yang memuat berkas ini; jadi commit keadaan di atas
   adalah induk commit ini)
 - **Ruang kerja:** bersih & ter-push (dijaga pemeriksa; kalau tidak, berkas ini tidak akan lolos)
@@ -28,7 +28,7 @@ PR #3 (base main) — **JANGAN MERGE tanpa keputusan Lee**
   `python3 alat/uji-mutasi-0014.py` · `bash aplikasi/alat/periksa-semua.sh` · CI (lihat baris CI di atas).
 - Butir tertangguh terbuka: **4** — T-026, T-028, T-029, T-030
   (rincian: `docs/TERTANGGUH.md`; hanya Lee yang boleh menutupnya)
-- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (168 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (168 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
+- **Paket peninjau terbaru:** audit `AUD-4-2026-09-25.md` → `804ed86f` (643 commit di bawah HEAD saat ini) · review `PKT-2026-09-19-pr-01-putaran16.md` → `93a50bac` (935 commit di bawah HEAD saat ini) — segarkan paket SEBELUM meminta peninjau bekerja bila
   jaraknya jauh: `python3 alat/audit-independen.py --paket AUD-3 --semua` ·
   `python3 alat/review-pr.py --siapkan --pr 1 --nama pr-01-putaranNN`
 - **Ruang kerja baru:** `aplikasi/node_modules` & `alat/node_modules` TIDAK ikut tersimpan di snapshot.
@@ -68,6 +68,8 @@ JANGAN merge apa pun tanpa keputusan Lee.
 `main`, tidak apa-apa: jalankan `python3 alat/lanjut-sesi.py --susul` SEBELUM bekerja.
 
 ## 3. Rencana berikutnya (ditulis agent; DIPERTAHANKAN apa adanya saat disegarkan)
+
+**PUTARAN 13ll (2026-10-13, sesi arena/01a0fbb9) — SEMUA ISI REPO DILEBUR KE `main` ATAS KEPUTUSAN LEE; sesi baru boleh berbasis main tanpa kehilangan apa pun.** Lee: *"Aku mau pastikan dulu semuanya udh masuk branch main, karena nanti di sesi baru aku mau pake base branch main."* Eksekusi: (1) PR #13 (01a0e1ee) dilebur → 5 laporan audit F10 masuk main (`740722dd`); (2) isi PR #3 & #14 dibuktikan SUDAH lengkap di main (0 berkas kurang) → tidak dilebur; keduanya tetap terbuka menunggu keputusan Lee (usulan: tutup karena redundant); (3) main digabung balik ke cabang sesi (`5d43808`); (4) PR arena/01a0fbb9 → main dilebur (lihat REKAM butir 48 untuk sha). **Sesudah ini:** `main` == seluruh pekerjaan; cabang sesi ujungnya setara main; orientasi "baca pro.md" tetap memilih cabang ini (SEDANG DITUJU). **Rencana pekerjaan tidak berubah dari blok 13kk:** (a) Lee buka sesi HAKIM potongan G-04 (verifikasi F-242 + F-244) dengan prompt siap-tempel yang sudah diberikan di chat / rute PROMPT_SINGKAT; bila hakim berhenti di gerbang `lanjut-sesi.py` → obatnya fetch refspec + `--susul` (gejala F-244); (b) hasil hakim → `integrasikan <cabangnya>`; lalu vonis F-233 di P-1B-00; (c) antrean: F-235, F-236 + 4 DIPERBAIKI lama; (d) JANGAN bangun jadual pra-pilot (klaster cara masuk + T-030, F-083, F-070, F-089, wiring 0103/0104) sebelum Lee memerintahkan; saklar 0098 tetap mati; (e) resep reset sandbox: fetch refspec + `git reset --hard` ke tip origin.
 
 **PUTARAN 13kk (2026-10-12, sesi arena/01a0fbb9) — PENUTUP SESI: handoff final; sesi baru cukup "baca pro.md" lalu "lanjut sesi".** Semuanya sudah terkunci di berkas-berkas ini — ringkasan untuk orientasi cepat: cabang ini satu-satunya kandidat aktif (`--daftar-sesi`: SEDANG DITUJU; cabang hakim `arena/b697be69` sudah "terserap" karena kerjanya terintegrasi di `c00755d`); siklus H-P-1B-00.3 tuntas (M1–M3 semua terbunuh, bukti `bukti/H-P-1B-00.3-*`); F-233 = TERVERIFIKASI kembali menunggu vonis hakim; **F-243 sudah diputus Lee 2026-10-12 dan dieksekusi**: (a) model pra-pilot diterima + revisi jujur KEAMANAN §4 (`e7e001f`), (b) model permanen terjadwal **T-030** + penanda `❓ T-030` di tugas T2-15 (`cee4534`), (c) ditolak — baris F-243 kini DITANGGUHKAN resmi, kartu `kartu/B-P-1B-00.3.md`; **F-244 (K-3, G-04)** tercatat menunggu verifikasi (obat sementara: fetch refspec + `--susul`); CI terakhir **success** run `38236811164` @ `f790e21`; angka: 244 baris · terbuka K-1/K-2 = 37 · K-1 terbuka 3 (F-001, F-052, F-063) · butir T terbuka 4 (T-026/028/029/030); tidak ada keputusan Lee yang tertunda; stash sampah reset di sandbox hakim lama = di luar repo (Lee boleh "buang saja" di sesi itu). **Rencana berikutnya (sama dengan blok 13jj, belum berubah):** (a) Lee buka sesi HAKIM potongan **G-04** memakai prompt siap-tempel yang sudah diberikan di chat (fokus: verifikasi F-242 + F-244); bila hakim berhenti di gerbang `lanjut-sesi.py`, itu gejala F-244 — obatnya fetch refspec + `--susul`; (b) sesudah hasil hakim diteruskan Lee → `integrasikan <cabangnya>`; lalu vonis F-233 di P-1B-00; (c) antrean verifikasi lain: F-235 (P-9-00), F-236 (P-1-00) + 4 DIPERBAIKI lama (F-060, F-063, F-076, F-096); (d) JANGAN bangun jadual pra-pilot (klaster cara masuk + T-030, F-083, F-070, F-089, wiring 0103/0104) sebelum Lee memerintahkan; saklar 0098 tetap mati; (e) bila sandbox me-reset pohon (sudah 11× terjadi): `git fetch origin arena/01a0fbb9-resto-barokah:refs/remotes/origin/arena/01a0fbb9-resto-barokah` + `git reset --hard` ke tip origin — semua pekerjaan selalu ter-push.
 
